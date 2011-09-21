@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:util="http://www.springframework.org/schema/util"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd"
+>
+
+  <bean id="schedulerFromWs" class="org.springframework.remoting.jaxws.JaxWsPortProxyFactoryBean" depends-on="httpServer">
+    <property name="serviceInterface" value="org.pentaho.platform.scheduler2.ws.ISchedulerService" />
+    <property name="namespaceUri" value="http://www.pentaho.org/ws/1.0" />
+    <property name="serviceName" value="Scheduler" />
+    <property name="portName" value="SchedulerPort" />
+    <property name="wsdlDocumentUrl" value="http://localhost:8080/pentaho/webservices/Scheduler?wsdl" />
+  </bean>
+
+  <!--  stand up an embedded HTTP Server that will stand up our Annotated webservices -->
+  <bean id="httpServer" class="org.springframework.remoting.jaxws.SimpleJaxWsServiceExporter">
+    <property name="baseAddress" value="http://localhost:8080/pentaho/webservices/" />
+  </bean>
+  <bean class="org.pentaho.platform.scheduler2.ws.DefaultSchedulerService">
+    <property name="defaultActionId" value="testAction" />
+  </bean>
+
+  <!-- To test with Spring HTTP Invoker, uncomment this block
+  <bean name="schedulerServiceEndpoint" class="org.pentaho.platform.scheduler2.ws.DefaultSchedulerService" />
+  
+  <bean id="schedulerFromHttpInvoker" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
+    <property name="serviceUrl" value="http://localhost:8080/remoting/SchedulerService" />
+    <property name="serviceInterface" value="org.pentaho.platform.scheduler2.ws.ISchedulerService" />
+    <property name="httpInvokerRequestExecutor">
+      <bean class="org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor" />
+    </property>
+  </bean>
+
+  This is the way to standup the service in a production environment
+  <bean name="schedulerService" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+    <property name="service" ref="schedulerServiceEndpoint" />
+    <property name="serviceInterface" value="org.pentaho.platform.scheduler2.ws.ISchedulerService" />
+  </bean>
+  
+  This is the way to standup the service in a test environment
+  <bean name="schedulerService" class="org.springframework.remoting.httpinvoker.SimpleHttpInvokerServiceExporter">
+    <property name="service" ref="schedulerServiceEndpoint" />
+    <property name="serviceInterface" value="org.pentaho.platform.scheduler2.ws.ISchedulerService" />
+  </bean>
+  
+    <bean id="httpServer" class="org.springframework.remoting.support.SimpleHttpServerFactoryBean">
+    <property name="contexts">
+      <util:map>
+        <entry key="/remoting/SchedulerService" value-ref="schedulerService" />
+      </util:map>
+    </property>
+    <property name="port" value="8080" />
+  </bean>
+  -->
+
+
+  
+
+<!--  <bean id="myHttpClient" class="com.dsainc.pcf.remoting.http.HttpClientFactoryBean">-->
+<!--    <property name="username" value="user" />-->
+<!--    <property name="password" value="password" />-->
+<!--    <property name="authenticationHost" value="server.com" />-->
+<!--  </bean>-->
+
+
+  <!--
+
+    <bean id="schedulerHttpInvokerProxy" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean"> <property name="serviceUrl" value="http://localhost:8080/pentaho/remoting/Scheduler" /> <property name="serviceInterface" value="org.pentaho.platform.api.scheduler2.IScheduler" />
+    </bean>
+  -->
+</beans>

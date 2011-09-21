@@ -1,0 +1,21 @@
+<!--===========================================================================
+  This is the build file for the Pentaho BI Platform Scheduler project.
+  
+  This build file will use the subfloor.xml file as the default build
+  process and should only override the tasks that need to differ from
+  the common build file.
+  
+  See common_build.xml for more details
+============================================================================-->
+<project name="Scheduler2" basedir="." default="default" 
+	xmlns:ivy="antlib:org.apache.ivy.ant" >
+	
+	<import file="build-res/subfloor.xml"/>
+
+    <!--
+      AS STATED ABOVE, THE ONLY TASKS THAT SHOULD EXIST IN THIS BUILD FILE ARE
+      THE TASKS THAT NEED TO DIFFER FROM THE DEFAULT IMPLEMENTATION OF THE TASKS
+      FOUND IN common_build.xml.
+    --> 
+
+</project>
