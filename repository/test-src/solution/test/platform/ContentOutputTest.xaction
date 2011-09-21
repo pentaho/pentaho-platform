@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>ContentOutputTest.xaction</name>
+  <title>Content Output Component Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Marc Batchelor</author>  
+    <description>Simple test of the content output component</description>  
+    <help>Test.</help> 
+  </documentation>
+
+  <inputs> 
+    <CONTENTOUTPUT type="string"> 
+      <default-value><![CDATA[This is sample output from the content-output component.]]> </default-value> 
+    </CONTENTOUTPUT> 
+  </inputs>
+
+  <outputs> 
+    <content type="string">
+      <destinations>
+        <response>content</response>
+      </destinations>
+    </content> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>ContentOutputComponent</component-name>
+      <action-inputs> 
+        <CONTENTOUTPUT type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <content type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <mime-type>text/html</mime-type> 
+      </component-definition>
+      <action-name>Content Output Test</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

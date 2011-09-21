@@ -1,0 +1,12 @@
+/*
+Pentaho "internal" folder. Like an nt:folder except that nodes of this node type won't show up in tools like WebDAV.
+*/
+
+<jcr='http://www.jcp.org/jcr/1.0'>
+<nt='http://www.jcp.org/jcr/nt/1.0'>
+<mix='http://www.jcp.org/jcr/mix/1.0'>
+<pho='http://www.pentaho.org/jcr/1.0'>
+<pho_nt='http://www.pentaho.org/jcr/nt/1.0'>
+<pho_mix='http://www.pentaho.org/jcr/mix/1.0'>
+
+[pho_nt:pentahoInternalFolder] > nt:unstructured, mix:referenceable

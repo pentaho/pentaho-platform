@@ -1,0 +1,35 @@
+<action-sequence>
+  <name>ContentOutputTest_error1.xaction</name>
+  <title>Content Output Component Test - Error 1</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+
+  <documentation>
+    <author>Marc Batchelor</author>
+    <description>Error handling test</description>
+    <help>Test.</help>
+  </documentation>
+
+  <inputs/>
+
+  <outputs>
+    <testoutput type="string" />
+  </outputs>
+
+  <resources/>
+
+  <actions>
+      <action-definition>
+        <action-name>Content Output Test</action-name>
+        <action-inputs/>
+        <action-outputs>
+          <testoutput type="string" />
+        </action-outputs>
+        <logging-level>DEBUG</logging-level>
+        <component-name>org.pentaho.plugin.core.ContentOutputComponent</component-name>
+        <component-definition>
+          <mime-type>text/html</mime-type>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

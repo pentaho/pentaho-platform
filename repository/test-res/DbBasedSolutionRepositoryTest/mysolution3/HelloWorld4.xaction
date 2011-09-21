@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Hello World 4</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Joe Pentaho</author>  
+    <description>Description of Hello World 4</description>  
+    <help></help>  
+    <result-type>rule</result-type>  
+    <icon></icon> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs/>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>HelloWorldComponent</component-name>
+      <action-type>Hello World 4</action-type>
+      <component-definition> 
+        <quote>Hello World</quote> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,83 @@
+<action-sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+  <name>MultiComponentTest.xaction</name>
+  <title>Component Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation>
+    <author>James Dixon</author>
+    <description>Test of the Multiple Test Component Sequence</description>
+    <help>still just testing...</help>
+  </documentation>
+  <inputs>
+    <fruit type="string">
+      <default-value>apples</default-value>
+    </fruit>
+    <more-fruit type="string">
+      <default-value>oranges</default-value>
+    </more-fruit>
+  </inputs>
+  <outputs>
+    <message type="string"/>
+  </outputs>
+  <resources>
+    <message-template>
+      <solution-file>
+        <location>message.txt</location>
+        <mime-type>text/text</mime-type>
+      </solution-file>
+    </message-template>
+  </resources>
+  <actions>
+      <action-definition>
+        <action-name>Test 1</action-name>
+        <component-name>TestComponent</component-name>
+        <action-type>Test?</action-type>
+        <logging-level>INFORMATION</logging-level>
+        <documentation>
+          <author>James Dixon</author>
+          <description>First test of the action chain</description>
+          <help>just testing...</help>
+        </documentation>
+        <action-inputs>
+          <fruit type="string">
+            <default-value>tomato</default-value>
+          </fruit>
+          <more-fruit type="string">
+            <default-value>cherry</default-value>
+          </more-fruit>
+        </action-inputs>
+        <action-outputs>
+          <new-fruit type="string"/>
+        </action-outputs>
+        <component-definition>
+          <test>concat</test>
+          <p1>fruit</p1>
+          <p2>more-fruit</p2>
+          <newname>new-fruit</newname>
+        </component-definition>
+      </action-definition>
+
+      <action-definition>
+        <action-name>Test 2</action-name>
+        <component-name>TestComponent</component-name>
+        <action-type>Test?</action-type>
+        <logging-level>INFORMATION</logging-level>
+        <documentation>
+          <author>James Dixon</author>
+          <description>Second test of the action chain</description>
+          <help>just testing...</help>
+        </documentation>
+        <action-inputs>
+          <new-fruit type="string"/>
+        </action-inputs>
+        <action-outputs>
+          <newer-fruit type="string"/>
+        </action-outputs>
+        <component-definition>
+          <test>toupper</test>
+          <p1>new-fruit</p1>
+          <newname>newer-fruit</newname>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

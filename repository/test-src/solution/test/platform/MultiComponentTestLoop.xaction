@@ -1,0 +1,90 @@
+<action-sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+  <name>MultiComponentTestLoop.xaction</name>
+  <title>Component Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation>
+    <author>Doug Moran</author>
+    <description>Test of the Multiple Test Component Sequence and a loop</description>
+    <help>still just testing...</help>
+  </documentation>
+  <inputs>
+    <fruit-map type="property-map-list">
+      <default-value type="property-map-list">
+        <property-map>
+          <entry key="key1">Value1-A</entry>
+          <entry key="key2">Value2-A</entry>
+          <entry key="key3">Value3-A</entry>
+          <entry key="key4">Value4-A</entry>
+        </property-map>
+        <property-map>
+          <entry key="key1">Value1-B</entry>
+          <entry key="key2">Value2-B</entry>
+          <entry key="key3">Value3-B</entry>
+          <entry key="key4">Value4-B</entry>
+        </property-map>
+      </default-value>
+    </fruit-map>
+    
+    <more-fruit type="string">
+      <default-value>oranges</default-value>
+    </more-fruit>
+
+    <message type="property-map-list"/>
+
+  </inputs>
+  
+  <outputs>
+    <message type="property-map-list"/>
+  </outputs>
+  
+  <resources>
+    <message-template>
+      <solution-file>
+        <location>message.txt</location>
+        <mime-type>text/text</mime-type>
+      </solution-file>
+    </message-template>
+  </resources>
+
+  <actions loop-on="fruit-map">
+      <action-definition>
+        <action-name>Test 1</action-name>
+        <component-name>TestComponent</component-name>
+        <logging-level>DEBUG</logging-level>
+        <action-inputs>
+          <fruit-map type="property-map"/>
+          <more-fruit type="string"/>
+        </action-inputs>
+
+        <action-outputs>
+          <new-fruit-map type="string"/>
+        </action-outputs>
+
+        <component-definition>
+          <test>concat</test>
+          <p1>fruit-map</p1>
+          <p2>more-fruit</p2>
+          <newname>new-fruit-map</newname>
+        </component-definition>
+      </action-definition>
+
+      <action-definition>
+        <action-name>Test 2</action-name>
+        <component-name>TestComponent</component-name>
+        <action-type>Test?</action-type>
+        <logging-level>DEBUG</logging-level>
+        <action-inputs>
+          <new-fruit-map type="string"/>
+        </action-inputs>
+        <action-outputs>
+          <newer-fruit-map type="string"/>
+        </action-outputs>
+        <component-definition>
+          <test>toupper</test>
+          <p1>new-fruit-map</p1>
+          <newname>newer-fruit-map</newname>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

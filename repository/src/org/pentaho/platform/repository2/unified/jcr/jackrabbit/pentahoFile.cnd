@@ -1,0 +1,17 @@
+/*
+Pentaho file node type.
+*/
+
+<jcr='http://www.jcp.org/jcr/1.0'>
+<nt='http://www.jcp.org/jcr/nt/1.0'>
+<mix='http://www.jcp.org/jcr/mix/1.0'>
+<pho='http://www.pentaho.org/jcr/1.0'>
+<pho_nt='http://www.pentaho.org/jcr/nt/1.0'>
+<pho_mix='http://www.pentaho.org/jcr/mix/1.0'>
+  
+[pho_nt:pentahoFile] > nt:file, pho_nt:pentahoHierarchyNode
+  // strangely, nt:file's don't have lastModified; instead this attribute is on nt:resource; however not all pentaho
+  // files have an nt:resource; so we put the lastModified date on the nt:file node itself
+  - pho:lastModified (date) mandatory ignore
+  - pho:contentType (string) mandatory copy
+  - pho:fileSize (long) copy

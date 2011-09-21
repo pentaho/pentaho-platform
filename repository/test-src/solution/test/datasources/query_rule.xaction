@@ -1,0 +1,46 @@
+
+<action-sequence>
+
+	<name>query_rule1.xaction</name>
+	<version>1</version>
+	<title>Current Position Titles</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description>Javascript query rule test</description>
+		<help>just testing...</help>
+		<result-type>rule</result-type>
+	</documentation>
+
+	<inputs>
+		<dept type="string">
+		  <default-value>Product Development</default-value>
+		</dept>
+  </inputs>
+  
+	<outputs>
+		<rule-result type="list"/>
+	</outputs>
+  <resources/>
+  
+  <actions>
+      <action-definition>
+
+        <action-inputs>
+          <dept type="string"/>
+        </action-inputs>
+        
+        <action-outputs>
+			<rule-result type="list"/>
+        </action-outputs>
+        
+        <component-name>SQLLookupRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+          <jndi>SampleData</jndi>
+          <query><![CDATA[select distinct PositionTitle from quadrant_actuals where department='{dept}' order by PositionTitle]]></query>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>
+

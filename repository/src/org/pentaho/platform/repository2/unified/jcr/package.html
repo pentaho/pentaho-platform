@@ -1,0 +1,162 @@
+<html>
+<head>
+<title>package.html</title>
+</head>
+<body>
+<h1>Notes</h1>
+
+<h2>Division of labor</h2>
+
+<p>
+Reading and writing of files is separated from reading and writing of ACLs because the former can be accomplished using
+the pure JCR API. The latter sometimes (and does in this implementation) requires access to repository-specific (e.g.
+Jackrabbit) APIs. Moving to eXo or Alfresco would only entail changing the ACL read/write code.
+</p>
+
+<h2>Custom privileges</h2>
+
+<p>
+It is not trivial to implement custom privileges (e.g. EXECUTE) in Jackrabbit. See 
+<a href="http://issues.apache.org/jira/browse/JCR-2446">JCR-2446</a>. EXECUTE is a somewhat poor example in that
+Jackrabbit would never enforce EXECUTE on a file. Jackrabbit cannot know what a user will do with a node. However,
+Jackrabbit could enforce EXECUTE on a folder. In Unix, EXECUTE on a folder governs folder traversal. But going back to
+EXECUTE on a file, even though Jackrabbit won't enforce EXECUTE on a file, it should be able to read and write the 
+EXECUTE privilege to access control entries. As of today, custom privilege registration is not trivial.
+</p>
+
+<h2>Node ownership</h2>
+
+<p>
+Node ownership is an access control issue. In other words, getting the owner should be governed by the 
+READ_ACCESS_CONTROL privilege. Similarly, setting the owner should be governed by the MODIFY_ACCESS_CONTROL privilege.
+To enforce this privilege, you must go through the access control API. A custom property on a node that represents the 
+owner could be read with merely the READ privilege. Similary, that property could be written with merely the 
+MODIFY_PROPERTIES privilege. Therefore, using a custom property is insufficient.
+</p>
+
+<p>
+To put it another way, certain operations (e.g. access control reading and writing) do not use the standard JCR 
+Item/Node/Property API, even though Jackrabbit implements ACLs as properties. This is because Jackrabbit implements them 
+as "protected properties." The specification requires the reading and writing of protected properties to go through a 
+"feature-specific API" (e.g. AccessControlManager.setPolicy). See section 16.3.12 in JSR-283 
+"Interaction with Protected Properties."
+</p>
+
+<h2>Explicit ACE inheritance</h2>
+
+<p>
+In addition to node ownership, Jackrabbit's ACL type was extended to provide an explicit "inherit" flag. If set to true,
+entries are inherited from the first ancestor whose "inherit" flag is false. This explicit flag is considered more 
+desirable than a convention such as, "any ACL with no ACEs should inherit." 
+</p>
+
+<h2>Pathing</h2>
+
+<p>
+The implementation is intentionally unaware of any folder paths. For example, it doesn't know what a tenant root folder
+is. For one, this keeps pathing (which should be customizable) out of the core.
+</p>
+
+<h2>Locking</h2>
+
+<p>
+In this implementation, all locks are open-scoped.  That's because sessions are short-lived. Therefore it is necessary
+to persist lock tokens for retrieval from subsequent sessions. See section 8.4.7 of the JSR-170.
+</p>
+
+<p>
+JCR locking was extended to add "message" (aka "comment") and "date" properties in addition to the standard "lock 
+owner."
+</p>
+
+<h2>Versioning</h2>
+
+<p>
+JCR versioning was extended to add "message" (aka "comment") and "author" properties.
+</p>
+
+<h2>Localization</h2>
+
+<p>
+All Pentaho file and folder nodes can have localizable properties. Examples are title and description.
+</p>
+
+<h2>Pre-Authentication</h2>
+
+<p>
+In web applications, many times a user is already authenticated by the time he accesses the Jackrabbit repository. In 
+this case, we don't care about checking the password. In fact, sometimes the user's password is not available to the web
+application. (This can happen if the web application participates in a SSO system.) In a pre-authentication scenario, we 
+simply check that a token in the JCR Credentials exists and matches a set of known tokens. If there is a match, that 
+implies a trust relationship between the web application and the Jackrabbit repository. There is one token per 
+application.
+</p>
+
+<h2>Current user and tenant</h2>
+
+<p>
+The current user and tenant is controlled by the IPentahoSession instance in the PentahoSessionHolder. Usually this is
+updated when a new user logs in. This implementation sometimes changes the current IPentahoSession instance temporarily
+to do superuser activities like creating the root folder.
+</p>
+
+<h2>Delete/Undelete</h2>
+
+<p>
+In this implementation, recycle bin behavior is configurable.
+</p>
+
+<h2>Administrative methods vs. regular methods (not yet implemented)</h2>
+
+<p>
+Some methods exist to allow privileged users to run reports on all tenants or a particular tenant or to perform 
+maintenance on all tenants or a particular tenant. These methods should (1) require authorization and (2) not require
+a tenant ID. (The user executing the privileged method might be in a different tenant than the tenant on which he/she
+wants to operate.)  Proposal: prefix all admin methods with "admin."
+</p>
+
+<h2>Storage of non-files</h2>
+
+<p>
+Remember that the repository is accessed with the user's credentials and is subject to his/her privileges. Here are some 
+options that were considered for handling storage structures such as lock tokens:</p>
+
+<ul>
+<li>
+Place storage where all tenant users can read/write it.
+
+<p>
+PROBLEMS WITH THIS APPROACH:
+The ability to read a lock token leads to the ability to write a file without owning the lock.
+</p>
+</li>
+
+<li>
+Place storage where only admin can read/write it and connect as the admin to read/write that storage.
+
+<p>
+PROBLEMS WITH THIS APPROACH:
+In the case of lock tokens, the lock token is given to the user during the lock operation. The user would need to store
+the lock token temporarily so that the admin user could come after and move the token to the protected structure.
+</p>
+</li>
+
+<li>
+Place storage in a structure where there is only one privileged user (i.e. database).
+
+<p>
+PROBLEMS WITH THIS APPROACH:
+No ability to export data. Transactions across multiple resources.
+</p>
+</li>
+
+<li>
+Place storage where only the user and the admin can read/write it.
+</li>
+
+The best solution was the last one. Therefore, the current design of the repository is that most storage occurs under 
+the user's home folder. 
+</ul>
+
+</body>
+</html>

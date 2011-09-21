@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>ContentOutputTest.xaction</name>
+  <title>Subaction Test Target XACTION</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Angelo Rodriguez</author>  
+    <description>XACTION being called by SubActionTest.xaction</description>  
+    <help>Test.</help> 
+  </documentation>
+
+  <inputs> 
+    <inputString type="string">
+      <sources>
+        <request>inputString</request>
+      </sources>
+    </inputString>
+  </inputs>
+
+  <outputs> 
+    <outputString type="string"/>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition>
+      <component-name>UtilityComponent</component-name>
+      <action-type>Copy Parameter</action-type>
+      <action-inputs>
+        <copy-from type="string" mapping="inputString"/>
+      </action-inputs>
+      <action-outputs>
+        <copy-to type="string" mapping="outputString"/>
+      </action-outputs>
+      <component-definition>
+        <copy>
+          <from>copy-from</from>
+          <return>copy-to</return>
+        </copy>
+      </component-definition>
+    </action-definition>
+
+  </actions> 
+</action-sequence>

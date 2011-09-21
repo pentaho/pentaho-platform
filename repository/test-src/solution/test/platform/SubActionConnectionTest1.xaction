@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>SubActionConnectionTest.xaction</name>
+  <title>Subaction Connection Test XACTION</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Will Gorman</author>  
+    <description>Test SubAction component connection management. This test creates a connection within a sub-action and reuses it in the action.</description>  
+    <help>Test.</help> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <prepared_component type="prepared_component"/>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SubActionComponent</component-name>
+      <action-type>Call External Action</action-type>
+      <action-inputs/> 
+      <action-outputs> 
+        <prepared_component type="prepared_component"/>
+      </action-outputs>
+      <component-definition> 
+        <solution>test</solution>
+        <path>ipreparedcomponents</path>
+        <action>ipreparedcomponent_sql_available.xaction</action>
+      </component-definition>
+    </action-definition>
+
+      <action-definition>
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Qry Selected Territory and Selected Productline</action-type>
+        <action-inputs>
+          <prepared_component/>
+        </action-inputs>
+        <action-outputs>
+          <query-results/>
+        </action-outputs>
+        <component-definition>
+          <query><![CDATA[SELECT BUDGET FROM QUADRANT_ACTUALS WHERE REGION='Western' AND DEPARTMENT='Sales']]></query>
+        </component-definition>
+      </action-definition>
+ 
+  </actions> 
+</action-sequence>

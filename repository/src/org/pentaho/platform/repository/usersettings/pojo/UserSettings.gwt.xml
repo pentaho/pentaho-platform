@@ -1,0 +1,12 @@
+<module>
+
+	<!-- Inherit the core Web Toolkit stuff.                  -->
+	<inherits name='com.google.gwt.user.User'/>
+	<inherits name='org.pentaho.platform.api.usersettings.pojo.IUserSettings'/>
+
+    <source path=""/>
+
+	<!-- Specify the app entry point class.                   -->
+	<entry-point class='org.pentaho.platform.repository.usersettings.pojo.UserSetting'/>
+	
+</module>

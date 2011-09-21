@@ -1,0 +1,662 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <!--
+    Depends on Hibernate configuration with hibernate.hbm2ddl.auto=update.
+  -->
+	<class name="org.pentaho.platform.repository.runtime.RuntimeElement"
+		table="RTELEMENT">
+		<cache usage="read-write" />
+		<id column="INSTANCEID" name="instanceId" type="string"
+			unsaved-value="null" length="100">
+			<generator class="assigned" />
+		</id>
+		<version column="REVISION" name="revision" />
+		<property name="parentId" type="string" not-null="false">
+			<column name="PARID" length="254" not-null="false" />
+		</property>
+		<property name="parentType" type="string" not-null="false">
+			<column name="PARTYPE" length="50" not-null="false" />
+		</property>
+		<property name="solutionId" type="string" not-null="false">
+			<column name="SOLNID" length="254" not-null="false" />
+		</property>
+		<map name="paramMapSS" table="SSPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element
+				type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType"
+				column="PARAMVALUE" length="254" />
+		</map>
+		<map name="typesMap" table="PARAMTYPESMAP" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element
+				type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType"
+				column="PARAMVALUE" length="25" />
+		</map>
+		<map name="paramMapLS" table="LSPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element
+				type="org.pentaho.platform.repository.hibernate.usertypes.LongStringUserType"
+				column="PARAMVALUE" />
+		</map>
+		<map name="paramMapDT" table="DTPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element type="timestamp" column="PARAMVALUE" />
+		</map>
+		<map name="paramMapBD" table="BDPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element type="string" length="50" column="PARAMVALUE" />
+		</map>
+		<map name="paramMapLong" table="LNGPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element type="long" column="PARAMVALUE" />
+		</map>
+		<map name="paramMapCPLX" table="CPLXPARAMS" lazy="true"
+			cascade="all,delete-orphan">
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="50" />
+			<element
+				type="org.pentaho.platform.repository.hibernate.usertypes.BlobUserType"
+				column="PARAMVALUE" />
+		</map>
+		<property name="readOnly" type="boolean" not-null="false">
+			<column name="READONLY" not-null="false" />
+		</property>
+		<property name="createDate" type="timestamp" not-null="true">
+			<column name="CREATED" not-null="true" />
+		</property>
+	</class>
+
+	<class
+		name="org.pentaho.platform.repository.content.ContentLocation"
+		table="CONTENTLOCATION">
+
+		<cache usage="read-write" />
+
+		<id column="CONTENTID" name="id" type="string" length="100">
+			<generator class="assigned" />
+		</id>
+		<version column="REVISION" name="revision"
+			unsaved-value="negative" />
+		<property name="name" type="string" not-null="true">
+                         <!--
+                         Oracle fix - NAME is a reserved word. Use NAMECOL instead
+                         -->
+			<column name="NAMECOL" length="200" not-null="true" />
+		</property>
+		<property name="solutionId" type="string" not-null="true">
+			<column name="SOLNID" length="100" not-null="true" />
+		</property>
+		<property name="description" type="string" not-null="true">
+			<column name="DESCRIPTION" length="200" not-null="true" />
+		</property>
+		<property name="dirPath" type="string" not-null="true">
+			<column name="DIRPATH" length="1024" not-null="true"
+				unique-key="ICONTLOCPATH" />
+		</property>
+		<query name="findContentLocationByPath">
+			<![CDATA[
+       from org.pentaho.platform.repository.content.ContentLocation cLoc where cLoc.dirPath = :inPath
+       ]]>
+		</query>
+		<query name="findAllContentLocations">
+			<![CDATA[
+       from org.pentaho.platform.repository.content.ContentLocation cLoc
+       ]]>
+		</query>
+		<query name="locationSearcher">
+			<![CDATA[
+       from org.pentaho.platform.repository.content.ContentLocation loc where 
+       name like :searchTerm or description like :searchTerm or dirPath like :searchTerm
+       ]]>
+		</query>
+
+	</class>
+
+	<class name="org.pentaho.platform.repository.content.ContentItem"
+		table="CONTENTITEM">
+
+		<cache usage="read-write" />
+
+		<id column="CONTITEMID" name="id" type="string" length="100">
+			<generator class="assigned" />
+		</id>
+		<version column="REVISION" name="revision"
+			unsaved-value="negative" />
+		<property name="name" type="string" not-null="true">
+                         <!--
+                         Oracle fix - NAME is a reserved word. Use NAMECOL instead
+                         -->
+			<column name="NAMECOL" length="200" not-null="true" />
+		</property>
+		<many-to-one name="parent"
+			class="org.pentaho.platform.repository.content.ContentLocation"
+			column="parent_id" />
+		<property name="path" type="string" not-null="true">
+                         <!--
+                         Oracle fix - PATH is a reserved word. Use NAMECOL instead
+                         -->
+			<column name="PATHCOL" length="1024" not-null="true"
+				unique-key="ICONTITMPATH" />
+		</property>
+		<property name="title" type="string" not-null="true">
+			<column name="TITLE" length="200" not-null="true" />
+		</property>
+		<property name="mimeType" type="string" not-null="false">
+			<column name="MIMETYPE" length="100" not-null="false" />
+		</property>
+		<property name="url" type="string" not-null="false">
+			<column name="URL" length="254" not-null="false" />
+		</property>
+		<property name="latestVersionNum" type="int" not-null="false">
+			<column name="LATESTVERNUM" not-null="false" />
+		</property>
+		<property name="extension" type="string" not-null="true">
+			<column name="EXTENSION" length="10" not-null="true" />
+		</property>
+		<property name="writeMode" type="int" not-null="true">
+			<column name="WRITEMODE" not-null="true" />
+		</property>
+		<query name="findItemByPath">
+			<![CDATA[
+       from org.pentaho.platform.repository.content.ContentItem cItem where cItem.path = :inPath
+       ]]>
+		</query>
+		<query name="findItemByName">
+			<![CDATA[
+       from org.pentaho.platform.repository.content.ContentItem cItem where cItem.parent = :parent and cItem.name = :name
+       ]]>
+		</query>
+		<query name="itemSearcher">
+			<![CDATA[
+       from org.pentaho.platform.repository.content.ContentItem itm where 
+       name like :searchTerm or title like :searchTerm or path like :searchTerm
+       ]]>
+		</query>
+	</class>
+
+	<class
+		name="org.pentaho.platform.repository.content.ContentItemFile"
+		table="CONTITEMFILE">
+
+		<cache usage="read-write" />
+		<id column="CONTIFILEID" name="id" type="string" length="100">
+			<generator class="assigned" />
+		</id>
+		<version column="REVISION" name="revision"
+			unsaved-value="negative" />
+		<property name="osFileName" type="string" not-null="true">
+			<column name="OSFILENAME" length="200" not-null="true" />
+		</property>
+		<property name="osPath" type="string" not-null="true">
+			<column name="OSPATH" length="1024" not-null="true" />
+		</property>
+		<property name="actionName" type="string" not-null="true">
+			<column name="ACTNAME" length="100" not-null="true" />
+		</property>
+		<many-to-one name="parent"
+			class="org.pentaho.platform.repository.content.ContentItem"
+			column="parent_id" />
+		<property name="fileSize" type="long">
+			<column name="FILESIZE" />
+		</property>
+		<property name="fileDateTime" type="timestamp"
+			not-null="true">
+			<column name="FILEDATETIME" not-null="true" />
+		</property>
+		<property name="initialized" type="int">
+			<column name="ISINITIALIZED" />
+		</property>
+		<query name="agingContentSearcher">
+			<![CDATA[
+       from org.pentaho.platform.repository.content.ContentItemFile itmFile where 
+       fileDateTime < :archiveDate
+       ]]>
+		</query>
+	</class>
+
+	<class
+		name="org.pentaho.platform.repository.content.BackgroundExecutedContentId"
+		table="BGCONTENTID">
+		<cache usage="read-write" />
+
+		<id column="BGCONTID" name="id" type="string" length="100">
+			<generator class="assigned" />
+		</id>
+		<version column="REVISION" name="revision"
+			unsaved-value="negative" />
+		<property name="userName" type="string" not-null="true">
+			<column name="BGUSER" length="100" not-null="true" />
+		</property>
+		<query name="findIdsByUser">
+			from
+			org.pentaho.platform.repository.content.BackgroundExecutedContentId
+			bgItem where bgItem.userName = :user
+		</query>
+		<query name="findAllIds">
+			select cItem from
+			org.pentaho.platform.repository.content.ContentItem cItem,
+			org.pentaho.platform.repository.content.BackgroundExecutedContentId
+			bgId where cItem.id = bgId.id
+		</query>
+		<query name="findBackgroundContentItemsForUsers">
+			select cItem from
+			org.pentaho.platform.repository.content.ContentItem cItem,
+			org.pentaho.platform.repository.content.BackgroundExecutedContentId
+			bgId where cItem.id = bgId.id and bgId.userName = :user
+		</query>
+	</class>
+
+	<class name="org.pentaho.platform.repository.subscription.Schedule"
+		table="PRO_SCHEDULE">
+
+		<cache usage="read-write" />
+
+		<id column="SCHEDULEID" name="id" type="string" length="100">
+			<generator class="assigned" />
+		</id>
+		<version column="REVISION" name="revision"
+			unsaved-value="negative" />
+
+                <!--
+                  Oracle fixes - The Oracle JDBC Driver converts "" (empty string)
+                  into null before inserting into the database. The problem is that
+                  it's the only JDBC driver that does this, and it's inconsistent
+                  to provide an empty string to insert, and on retrieval get a null.
+                  Empty string means something different than null. So, Pentaho created
+                  the EmptyStringUserType which fixes this problem. When it sees an
+                  empty string coming in, it replaces the value with a known-to-not
+                  occur in the wild string. It's a kludge, but it works.
+                -->
+		<property name="title"
+			type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType"
+			not-null="true">
+			<column name="SCHEDTITLE" length="200" not-null="true" />
+		</property>
+		<property name="scheduleReference"
+			type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType"
+			not-null="true" unique="true">
+			<column name="SCHEDREF" length="1024" not-null="true" />
+		</property>
+		<property name="description"
+			type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType"
+			not-null="true">
+			<column name="SCHEDDESC" length="50" not-null="true" />
+		</property>
+		<property name="cronString"
+			type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType"
+			not-null="false">
+			<column name="CRONSTRING" length="256" not-null="false" />
+		</property>
+	    <property name="repeatCount" type="int" not-null="false">
+	      <column name="REPEATCOUNT" not-null="false" />
+	    </property>
+	    <property name="repeatInterval" type="int" not-null="false">
+	      <column name="REPEATINTERVAL" not-null="false" />
+	    </property>
+	    <property name="startDate" type="timestamp" not-null="false">
+	      <column name="STARTDATE" not-null="false" />
+	    </property>
+	    <property name="endDate" type="timestamp" not-null="false">
+	      <column name="ENDDATE" not-null="false" />
+	    </property>
+		<property name="group" type="string" not-null="false">
+			<column name="GROUPNAME" length="50" not-null="false" />
+		</property>
+
+		<property name="lastTrigger" type="timestamp"
+			column="LAST_TRIGGER" />
+
+		<query name="findScheduleByTitle">
+			<![CDATA[
+    from org.pentaho.platform.repository.subscription.Schedule sched where sched.title like :searchTerm
+   ]]>
+		</query>
+		<query name="findSubscriptionsBySchedule">
+			<![CDATA[
+    from org.pentaho.platform.repository.subscription.Subscription subscript where :schedule in (from subscript.schedules)
+   ]]>
+		</query>
+		<query name="findSchedulesByReference">
+			<![CDATA[
+    from org.pentaho.platform.repository.subscription.Schedule sched where sched.scheduleReference like :searchTerm
+   ]]>
+		</query>
+		<query name="getAllSchedules">
+			<![CDATA[
+    from org.pentaho.platform.repository.subscription.Schedule
+   ]]>
+		</query>
+	</class>
+
+	<class
+		name="org.pentaho.platform.repository.subscription.Subscription"
+		table="PRO_SUBSCRIBE">
+
+		<cache usage="read-write" />
+
+		<id column="SUBSCRID" name="id" type="string" length="100">
+			<generator class="assigned" />
+		</id>
+		<version column="REVISION" name="revision"
+			unsaved-value="negative" />
+		<property name="type" type="int" not-null="true">
+			<column name="SUBSCRTYPE" not-null="true" />
+		</property>
+		<property name="user" type="string" not-null="true">
+			<column name="SUBSCRUSER" length="100" not-null="true" />
+		</property>
+                <!--
+                  Oracle fixes - The Oracle JDBC Driver converts "" (empty string)
+                  into null before inserting into the database. The problem is that
+                  it's the only JDBC driver that does this, and it's inconsistent
+                  to provide an empty string to insert, and on retrieval get a null.
+                  Empty string means something different than null. So, Pentaho created
+                  the EmptyStringUserType which fixes this problem. When it sees an
+                  empty string coming in, it replaces the value with a known-to-not
+                  occur in the wild string. It's a kludge, but it works.
+                -->
+		<property name="title"
+			type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType"
+			not-null="true">
+			<column name="SUBSCRTITLE" length="200" not-null="true" />
+		</property>
+		<many-to-one name="content"
+			class="org.pentaho.platform.repository.subscription.SubscribeContent"
+			column="SUBSCR_CONTID" />
+		<property name="destination" type="string">
+			<column name="SUBSCRDEST" length="200" />
+		</property>
+		<list name="schedules" lazy="true" cascade="none"
+			table="PRO_SUBS_SCHEDLIST">
+			<cache usage="read-write" />
+			<key>
+				<column name="SCHEDULEID" />
+			</key>
+			<index column="SCHEDID" />
+			<many-to-many
+				class="org.pentaho.platform.repository.subscription.Schedule" />
+		</list>
+		<map name="parameters" table="PRO_SUBSCRPARMS" lazy="false"
+			cascade="all,delete-orphan">
+			<cache usage="read-write" />
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="100" />
+			<element
+				type="org.pentaho.platform.repository.hibernate.usertypes.BlobUserType"
+				column="PARAMVALUE" />
+		</map>
+		<query name="findUserSubscriptions">
+			<![CDATA[
+     from org.pentaho.platform.repository.subscription.Subscription subscr where 
+     subscr.user = :searchUser and subscr.content = :searchContent
+     ]]>
+		</query>
+		<query name="findAllUserSubscriptions">
+			<![CDATA[
+     from org.pentaho.platform.repository.subscription.Subscription subscr where 
+     subscr.user = :searchUser
+     ]]>
+		</query>
+		<query name="getAllSubscriptions">
+			<![CDATA[
+       from org.pentaho.platform.repository.subscription.Subscription
+       ]]>
+		</query>
+		<query name="findUserSubscriptionsForDeletion">
+			<![CDATA[
+     from org.pentaho.platform.repository.subscription.Subscription subscr where 
+     subscr.user = :searchUser
+     ]]>
+		</query>
+		<query name="findSubscriptionsByTitle">
+			<![CDATA[
+     from org.pentaho.platform.repository.subscription.Subscription subscr where 
+     subscr.title like :searchTerm
+     ]]>
+		</query>
+	</class>
+
+	<class
+		name="org.pentaho.platform.repository.subscription.SubscribeContent"
+		table="PRO_SUBCONTENT">
+
+		<cache usage="read-write" />
+
+		<id column="SUBCONTID" name="id" type="string" length="100">
+			<generator class="assigned" />
+		</id>
+		<version column="REVISION" name="revision"
+			unsaved-value="negative" />
+                <!--
+                  Oracle fixes - The Oracle JDBC Driver converts "" (empty string)
+                  into null before inserting into the database. The problem is that
+                  it's the only JDBC driver that does this, and it's inconsistent
+                  to provide an empty string to insert, and on retrieval get a null.
+                  Empty string means something different than null. So, Pentaho created
+                  the EmptyStringUserType which fixes this problem. When it sees an
+                  empty string coming in, it replaces the value with a known-to-not
+                  occur in the wild string. It's a kludge, but it works.
+                -->
+		<property name="type" 
+			type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType" not-null="true" 
+                        length="15">
+			<column name="SUBCONTTYPE" not-null="true" />
+		</property>
+		<property name="actionReference"
+			type="org.pentaho.platform.repository.hibernate.usertypes.EmptyStringUserType"
+			not-null="true">
+			<column name="SUBCONTACTREF" length="1024" not-null="true"
+				unique-key="ISUBCONTACTREF" />
+		</property>
+		<list name="schedules" lazy="false" cascade="none"
+			table="PRO_SUBCONT_SCHEDLIST" fetch="join">
+			<cache usage="read-write" />
+			<key>
+				<column name="SCHEDULEID" />
+			</key>
+			<index column="SCHEDID" />
+			<many-to-many
+				class="org.pentaho.platform.repository.subscription.Schedule" />
+		</list>
+		<map name="parameters" table="PRO_SUBCONTPARMS" lazy="false"
+			cascade="all,delete-orphan">
+			<cache usage="read-write" />
+			<key column="ITEMID" />
+			<map-key column="PARAMKEY" type="string" length="100" />
+			<element
+				type="org.pentaho.platform.repository.hibernate.usertypes.VarBinaryUserType"
+				column="PARAMVALUE" />
+		</map>
+		<query name="findSubscriptionContentByActionRef">
+			<![CDATA[
+                 from org.pentaho.platform.repository.subscription.SubscribeContent subcont where 
+                 subcont.actionReference = :searchTerm
+                 ]]>
+		</query>
+		<query name="findContentBySchedule">
+			<![CDATA[from org.pentaho.platform.repository.subscription.SubscribeContent subcont where 
+                 :schedule in ( from  subcont.schedules )
+                 ]]>
+		</query>
+		<query name="getAllContent">
+			<![CDATA[
+                 from org.pentaho.platform.repository.subscription.SubscribeContent subcont
+                 ]]>
+		</query>
+	</class>
+
+	<!-- 
+		Due to a bug in the Oracle JDBC driver, we must disable outer join fetching in 
+		Hibernate in order for deletions to execute successfully. (lazy="true")
+		See the following threads for details:
+		http://forum.hibernate.org/viewtopic.php?t=82
+		http://forum.hibernate.org/viewtopic.php?t=930650
+		http://jira.pentaho.org/browse/BISERVER-232
+	-->
+	<class
+		name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile"
+		table="PRO_FILES" lazy="true">
+
+		<cache usage="read-write" />
+		<id column="FILE_ID" name="fileId" type="string" length="100">
+			<generator class="assigned" />
+		</id>
+
+		<version name="revision" />
+
+		<many-to-one name="parent" lazy="proxy" />
+
+		<property name="fileName" not-null="true" />
+
+		<property name="fullPath" not-null="true" length="1024"
+			unique="true" />
+        <!--
+         Oracle fix - BISERVER-486
+        -->
+		<property name="data" not-null="false"
+			type="org.pentaho.platform.repository.hibernate.usertypes.BlobtoByteArrayUserType" />
+
+		<property name="directory" type="boolean" not-null="true" />
+
+		<property name="lastModified" type="long" not-null="true" />
+
+		<set name="childrenFiles" lazy="true"
+			cascade="all-delete-orphan"
+			order-by="DIRECTORY DESC, lower(FILENAME)">
+			<cache usage="read-write" />
+			<key column="CHILD_ID" />
+			<one-to-many class="org.pentaho.platform.repository.solution.dbbased.RepositoryFile" />
+		</set>
+
+		<list name="accessControls" lazy="false"
+			cascade="all-delete-orphan" table="PRO_ACLS_LIST" fetch="join">
+			<cache usage="read-write" />
+			<key column="ACL_ID" />
+			<index column="ACL_POSITION" />
+			<composite-element
+				class="org.pentaho.platform.engine.security.acls.PentahoAclEntry">
+				<property name="mask" column="ACL_MASK" not-null="true" />
+				<property name="recipientType" column="RECIP_TYPE"
+					not-null="true" />
+				<property name="recipientString" column="RECIPIENT"
+					not-null="true" />
+			</composite-element>
+		</list>
+		<query name="findAllRootSolutionFolders">
+			<![CDATA[
+                 from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where file.parent is null
+                 ]]>
+		</query>
+
+		<query name="findNamedRootSolutionFolders">
+			<![CDATA[
+                 from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where file.parent is null and file.fileName = :fileName
+                 ]]>
+		</query>
+
+		<query name="findChildrenFilesByParentId">
+			<![CDATA[
+                 from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where file.parent = :parentId
+                 ]]>
+		</query>
+
+		<query name="findFileByPath">
+			<![CDATA[
+                 from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where file.fullPath = :fullPath
+                 ]]>
+		</query>
+
+		<query name="findAllActionSequences">
+			<![CDATA[
+                 from org.pentaho.platform.repository.solution.dbbased.RepositoryFile file where lower(file.fileName) like '%.xaction'
+                 ]]>
+		</query>
+		<query name="filesWithModDates">
+			<![CDATA[
+                 select fullPath, lastModified, directory from org.pentaho.platform.repository.solution.dbbased.RepositoryFile
+                 ]]>
+		</query>
+
+	</class>
+	<class name="org.pentaho.platform.repository.datasource.Datasource" table="DATASOURCE">
+      <cache usage="read-write"/>
+	  <id column="NAME" name="name" type="string" length="50">
+	  	<generator class="assigned" />
+	  </id>
+      <property name="maxActConn" type="int" not-null="true">
+        <column name="MAXACTCONN"  not-null="true" />
+      </property>
+      <property name="driverClass" type="string" not-null="true">
+        <column name="DRIVERCLASS" length="50" not-null="true" />
+      </property>
+      <property name="idleConn" type="int" not-null="true">
+        <column name="IDLECONN"  not-null="true" />
+      </property>
+      <property name="userName" type="string" not-null="false">
+        <column name="USERNAME" length="50" not-null="false" />
+      </property>
+      <property name="password" type="string" not-null="false">
+        <column name="PASSWORD" length="150" not-null="false" />
+      </property>
+      <property name="url" type="string" not-null="true">
+        <column name="URL" length="512" not-null="true" />
+      </property>
+      <property name="query" type="string" not-null="false">
+        <column name="QUERY" length="100" not-null="false" />
+      </property>
+      <property name="wait" type="long" not-null="true">
+        <column name="WAIT"  not-null="true" />
+      </property>    
+ 	  <query name="findAllDatasources">
+	  	<![CDATA[
+	       from org.pentaho.platform.repository.datasource.Datasource
+	    ]]>
+	  </query>  
+    </class>
+    
+   	<class
+		name="org.pentaho.platform.repository.usersettings.pojo.UserSetting"
+		table="USER_SETTINGS">
+
+		<cache usage="read-write" />
+
+        <id name="id" type="long" column="USER_SETTINGS_ID" >
+           <generator class="increment"/>
+        </id>
+		<property name="username" type="string" not-null="true">
+			<column name="USERNAME" length="50" not-null="true" />
+		</property>
+		<property name="settingName" type="string" not-null="true">
+			<column name="SETTING_NAME" length="100" not-null="true" />
+		</property>
+		<property name="settingValue" type="string" not-null="true">
+			<column name="SETTING_VALUE" length="2048" not-null="true" />
+		</property>
+		<query name="getUserSettings">
+			<![CDATA[
+     from org.pentaho.platform.repository.usersettings.pojo.UserSetting settings where 
+     settings.username = :username
+     ]]>
+		</query>
+		<query name="getUserSetting">
+			<![CDATA[
+     from org.pentaho.platform.repository.usersettings.pojo.UserSetting settings where 
+     settings.username = :username and settings.settingName = :settingName
+     ]]>
+		</query>
+	</class>    
+    
+</hibernate-mapping>

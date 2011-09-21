@@ -1,0 +1,28 @@
+<html>
+<head>
+<title>package.html</title>
+</head>
+<body>
+<p>
+This package contains a variation of the IUnifiedRepository interface that has been modified to work within the 
+restrictions imposed by various Java RPC technologies like JAX-WS and GWT. The restrictions are:
+</p>
+
+<ul>
+<li>Must supply no-arg constructors.</li>
+<li>No interfaces--only concrete types.</li>
+<li>No uses of the type Object or Serializable (possibly other types as well).</li>
+<li>No method overloading.</li>
+<li>No static inner classes.</li>
+<li>No InputStreams or other types that are not emulated by GWT.</li>
+<li>No arrays. (Technically they are allowed but use typed Lists instead.) 
+https://jax-ws.dev.java.net/issues/show_bug.cgi?id=813</li>
+</ul> 
+
+<p>
+Java clients should never use the "safe" version of the IUnifiedRepository interface. Instead, clients should code to 
+the IUnifiedRepository interface and use the adapter layer to convert the calls into calls on the web service client. In
+this way, the client code is location unaware--it can be calling code in the same JVM or a remote JVM.
+</p>
+</body>
+</html>

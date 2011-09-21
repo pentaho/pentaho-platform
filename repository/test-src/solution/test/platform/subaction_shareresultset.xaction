@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Subaction call to share a result set</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author/>  
+    <description>Test MDX IPreparedComponent interface, share connection functionality</description>  
+    <help/>  
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <conn/>
+    <query-results/>
+  </outputs>
+
+  <resources/> 
+  
+    <actions> 
+
+      <action-definition>
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Get MDX Connection</action-type>
+        <action-inputs/>
+        <action-resources>
+          <catalog type="resource"/>
+        </action-resources>
+        <action-outputs>
+          <prepared_component type="sql-connection" mapping="conn"/>
+        </action-outputs>
+        <component-definition>
+          <jndi>SampleData</jndi>
+        </component-definition>
+      </action-definition>
+
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Qry Selected Territory and Selected Productline</action-type>
+        <action-inputs>
+          <prepared_component mapping="conn"/>        
+        </action-inputs>
+        <action-outputs> 
+          <query-results/>
+        </action-outputs>
+        <component-definition>
+          <live>true</live>
+          <query><![CDATA[SELECT BUDGET FROM QUADRANT_ACTUALS WHERE REGION='Western' AND DEPARTMENT='Sales']]></query>
+        </component-definition> 
+      </action-definition>
+    </actions>
+
+</action-sequence>

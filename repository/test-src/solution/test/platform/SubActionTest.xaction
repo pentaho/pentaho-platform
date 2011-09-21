@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>ContentOutputTest.xaction</name>
+  <title>Subaction Test XACTION</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Angelo Rodriguez</author>  
+    <description>Simple test of SubAction component.</description>  
+    <help>Test.</help> 
+  </documentation>
+
+  <inputs> 
+    <solution type="string"> 
+      <sources> 
+        <request>solution</request> 
+      </sources> 
+    </solution>  
+    <path type="string"> 
+      <sources> 
+        <request>path</request> 
+      </sources> 
+    </path>  
+    <subaction type="string"> 
+      <sources> 
+        <request>subaction</request> 
+      </sources> 
+    </subaction>  
+    <inputString type="string">
+      <sources>
+        <request>inputString</request>
+      </sources>
+    </inputString>
+  </inputs>
+
+  <outputs> 
+    <outputString type="string"/>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SubActionComponent</component-name>
+      <action-type>Call External Action</action-type>
+      <action-inputs> 
+        <solution type="string"/>  
+        <path type="string"/>  
+        <action type="string" mapping="subaction"/>  
+        <inputString type="string"/>
+      </action-inputs>
+      <action-outputs> 
+        <outputString type="string"/> 
+      </action-outputs>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

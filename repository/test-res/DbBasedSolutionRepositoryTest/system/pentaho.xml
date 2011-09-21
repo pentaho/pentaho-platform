@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pentaho-system>
+  <acl-publisher>
+    <default-acls>
+      <acl-entry role="Admin" acl="FULL_CONTROL" />
+      <acl-entry role="Authenticated" acl="EXECUTE" />
+    </default-acls>
+    <overrides>
+      <file path="/DbBasedSolutionRepositoryTest">
+        <acl-entry role="Admin" acl="FULL_CONTROL" />
+        <acl-entry role="Authenticated" acl="EXECUTE" />
+        <acl-entry user="tiffany" acl="EXECUTE" />
+      </file>
+      <file path="/DbBasedSolutionRepositoryTest/mysolution2">
+        <acl-entry role="Authenticated" acl="FULL_CONTROL" />
+      </file>
+      <file path="/DbBasedSolutionRepositoryTest/mysolution3">
+        <acl-entry user="suzy" acl="FULL_CONTROL" />
+      </file>
+    </overrides>
+  </acl-publisher>
+  
+	<acl-voter>
+    <admin-role>Admin</admin-role>
+  </acl-voter>
+
+  <acl-files>xaction,url</acl-files>
+</pentaho-system>

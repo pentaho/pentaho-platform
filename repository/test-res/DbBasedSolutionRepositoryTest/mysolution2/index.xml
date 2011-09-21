@@ -1,0 +1,7 @@
+<index>
+	<name>%name</name>
+	<description>%description</description>
+	<icon></icon>
+	<visible>true</visible>
+	<display-type>icons</display-type>
+</index>

@@ -1,0 +1,29 @@
+<html>
+<head>
+<title>package.html</title>
+</head>
+<body>
+<h1>Notes</h1>
+
+<p>This package contains customizations to Jackrabbit's security system.</p>
+
+<h2>Deployment</h2>
+
+<p>Edit repository.xml and make the following changes. For each of the class changes below, see the javadoc within that
+class for detailed configuration instructions.</p>
+
+<ol>
+<li>In the Security element, change SecurityManager class to org.apache.jackrabbit.core.PentahoSecurityManager.</li>
+<li>In the Security element, change AccessManager class to org.apache.jackrabbit.core.security.DefaultAccessManager.</li>
+<li>In the Security element, change LoginModule class to com.pentaho.commons.security.jackrabbit.SpringSecurityLoginModule.</li>
+<li>Add WorkspaceSecurity element as child of Workspace element.*</li>
+<li>Add AccessControlProvider element as child of WorkspaceSecurity element.*</li>
+<li>Set AccessControlProvider class to org.pentaho.platform.repository2.pur.jcr.jackrabbit.security.PentahoAccessControlProvider.*</li>
+</ol>
+
+<p>
+* Existing workspaces may need to have this change applied manually.
+</p>
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+<module>
+
+  <inherits name='com.google.gwt.user.User'/>
+  <source path="">
+        <exclude name="**/*Adapter.java"/>
+        <exclude name="**/DefaultUnifiedRepositoryWebService.java"/>
+        <exclude name="**/jaxws/*"/>
+  </source>
+  <servlet path="/IUnifiedRepositoryWebService" class="org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService"/>
+
+</module>
