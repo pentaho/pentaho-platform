@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
 
-	<info organisation="${ivy.artifact.group}" module="pentaho-bi-platform-repository" revision="${project.revision}" />
+	<info organisation="${ivy.artifact.group}" module="pentaho-platform-repository" revision="${project.revision}" />
 
 	<configurations>
 		<conf name="default" extends="default-ext" />
@@ -95,11 +95,8 @@
 		<dependency org="pentaho"     name="pentaho-connections" rev="${dependency.pentaho-connections.revision}" changing="true" />
 		<dependency org="pentaho"     name="pentaho-metadata"    rev="${dependency.pentaho-metadata.revision}"    changing="true" />
 
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-api"             rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-util"            rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-core"     rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-security" rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-services" rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-platform-api"  rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-platform_core" rev="${project.revision}" changing="true"/>
 
 		<!--  testing dependencies -->
 		<dependency org="pentaho"              name="pentaho-bi-platform-test-foundation" rev="${project.revision}" changing="true" conf="test->default" transitive="false" />

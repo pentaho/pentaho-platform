@@ -14,6 +14,12 @@
 	  This build file is used to create the Repository library for the BI Platform.
 	</description>
 
+  <!-- The continuous target is used by CI ... this is the list of -->
+  <!-- tasks that the CI machine will run.                         -->
+  <!-- DO NOT change the CI machine's ant task .. change this list -->
+  <target name="continuous"
+          depends="clean-all,resolve,cobertura,publish" />
+
 	<!-- Import the common_build.xml file which contains all the default tasks -->
 	<import file="build-res/subfloor.xml"/>
 
