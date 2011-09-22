@@ -9,7 +9,13 @@
 ============================================================================-->
 <project name="Scheduler2" basedir="." default="default" 
 	xmlns:ivy="antlib:org.apache.ivy.ant" >
-	
+
+  <!-- The continuous target is used by CI ... this is the list of -->
+  <!-- tasks that the CI machine will run.                         -->
+  <!-- DO NOT change the CI machine's ant task .. change this list -->
+  <target name="continuous"
+          depends="clean-all,resolve,cobertura,publish" />
+
 	<import file="build-res/subfloor.xml"/>
 
     <!--

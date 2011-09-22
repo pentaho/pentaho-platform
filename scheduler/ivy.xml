@@ -23,10 +23,8 @@
     <dependency org="org.jmock" name="jmock-junit4" rev="2.5.1" conf="test->default" />
 
     <!--  internal dependencies -->
-    <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-api" rev="${project.revision}" changing="true" conf="default->default" />
-    <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-core" rev="${project.revision}" changing="true" conf="default->default" />
-    <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-services" rev="${project.revision}" changing="true" conf="default->default" />
-    <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-security" rev="${project.revision}" changing="true" conf="default->default" />
+    <dependency org="${ivy.artifact.group}" name="pentaho-platform-api"  rev="${project.revision}" changing="true" conf="default->default" />
+    <dependency org="${ivy.artifact.group}" name="pentaho-platform-core" rev="${project.revision}" changing="true" conf="default->default" />
     <dependency org="pentaho" name="pentaho-versionchecker" rev="${dependency.pentaho-versionchecker.revision}" changing="true" />
     <dependency org="pentaho" name="pentaho-bi-platform-plugin-services" rev="${project.revision}" transitive="false" changing="true" conf="default->default"/>
         
