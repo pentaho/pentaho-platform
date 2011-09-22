@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-Activator: org.eclipse.birt.report.data.oda.plugin.OdaJdbcPlugi
+ n
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Export-Package: org.eclipse.birt.report.data.oda.i18n;x-friends:="org.
+ eclipse.birt.report.data.oda.jdbc.tests",org.eclipse.birt.report.data
+ .oda.jdbc,org.eclipse.birt.report.data.oda.plugin
+Bundle-Version: 2.2.1.r22x_v20070919
+Eclipse-LazyStart: true
+Bundle-Name: BIRT ODA-JDBC Bridge Driver
+Bundle-ClassPath: oda-jdbc.jar,derby.jar
+Bundle-ManifestVersion: 2
+Bundle-Vendor: Eclipse.org
+Bundle-SymbolicName: org.eclipse.birt.report.data.oda.jdbc;singleton:=
+ true
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.datatools.connectivity.oda;bundle-version=
+ "[3.1.0,4.0.0)",com.ibm.icu;bundle-version="[3.4.4,4.0.0)",org.eclips
+ e.core.runtime;bundle-version="[3.2.0,4.0.0)",org.junit;bundle-versio
+ n="[3.8.1,4.0.0)";resolution:=optional,org.apache.derby.core;bundle-v
+ ersion="[10.1.2,11.0.0)";resolution:=optional,org.eclipse.datatools.c
+ onnectivity.oda.profile;bundle-version="[3.0.4,4.0.0)";resolution:=op
+ tional
+

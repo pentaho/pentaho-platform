@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<subscription-schedules>
+  <schedules>
+    <schedule group="Weekly" name="Every Mon at 09:00" description="Every Mon at 9:00 am" ref="every1-mon-0900">0 0 9 ? * Mon</schedule> 
+    <schedule group="Weekly" name="Every Tue at 09:00" description="Every Tue at 9:00 am" ref="every2-tue-0900">0 0 9 ? * Tue</schedule> 
+    <schedule group="Weekly" name="Every Wed at 09:00" description="Every Wed at 9:00 am" ref="every3-wed-0900">0 0 9 ? * Wed</schedule> 
+    <schedule group="Weekly" name="Every Thu at 09:00" description="Every Thu at 9:00 am" ref="every4-thu-0900">0 0 9 ? * Thu</schedule> 
+    <schedule group="Weekly" name="Every Fri at 09:00" description="Every Fri at 9:00 am" ref="every5-fri-0900">0 0 9 ? * Fri</schedule> 
+    <schedule group="Weekly" name="Every Mon at 12:00" description="Every Mon at 12:00 pm" ref="every1-mon-1200">0 0 12 ? * Mon</schedule> 
+    <schedule group="Weekly" name="Every Tue at 12:00" description="Every Tue at 12:00 pm" ref="every2-tue-1200">0 0 12 ? * Tue</schedule> 
+    <schedule group="Weekly" name="Every Wed at 12:00" description="Every Wed at 12:00 pm" ref="every3-wed-1200">0 0 12 ? * Wed</schedule> 
+    <schedule group="Weekly" name="Every Thu at 12:00" description="Every Thu at 12:00 pm" ref="every4-thu-1200">0 0 12 ? * Thu</schedule> 
+    <schedule group="Weekly" name="Every Fri at 12:00" description="Every Fri at 12:00 pm" ref="every5-fri-1200">0 0 12 ? * Fri</schedule> 
+    <schedule group="Weekly" name="Every Mon at 17:00" description="Every Mon at 5:00 pm" ref="every1-mon-1700">0 0 17 ? * Mon</schedule> 
+    <schedule group="Weekly" name="Every Tue at 17:00" description="Every Tue at 5:00 pm" ref="every2-tue-1700">0 0 17 ? * Tue</schedule> 
+    <schedule group="Weekly" name="Every Wed at 17:00" description="Every Wed at 5:00 pm" ref="every3-wed-1700">0 0 17 ? * Wed</schedule> 
+    <schedule group="Weekly" name="Every Thu at 17:00" description="Every Thu at 5:00 pm" ref="every4-thu-1700">0 0 17 ? * Thu</schedule> 
+    <schedule group="Weekly" name="Every Fri at 17:00" description="Every Fri at 5:00 pm" ref="every5-fri-1700">0 0 17 ? * Fri</schedule> 
+  </schedules>
+
+  <subscription-content>
+    <!--  <content action="samples/steel-wheel/HelloEmail.xaction" type="email" allowAllSchedules="true" /> -->
+  </subscription-content>
+  
+</subscription-schedules>
+
+<!-- Cron-Expressions are strings that have seven sub-expressions, they describe individual details of the schedule. 
+  These sub-expressions are separated with white-space, and represent:
+  
+  1. Seconds
+  2. Minutes
+  3. Hours
+  4. Day-of-Month
+  5. Month
+  6. Day-of-Week
+  7. Year (optional field)
+  
+  Values Allowed
+  Seconds - (mandatory) 0-59 , - * /
+  Minutes - (mandatory) 0-59 , - * /
+  Hours   - (mandatory) 0-23 , - * /
+  Day of month - (mandatory)  1-31 , - * ? / L W C
+  Month   - (mandatory) 1-12 or JAN-DEC , - * /
+  Day of week - (mandatory)  1-7 or SUN-SAT , - * ? / L C #
+  Year    - (not mandatory) empty, 1970-2099 , - * /
+  
+  For example, a complete cron-expression, "0 0 12 ? * WED" means "every Wednesday at 12:00 pm".
+  
+  See the Pentaho Subscriptions User Guide for more information on defining Cron-Expressions..
+-->

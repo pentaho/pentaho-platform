@@ -1,0 +1,116 @@
+<chart xmlns="http://reporting.pentaho.org/namespaces/charting/1.0">
+
+  <stylesheet>
+
+.seriesA {
+  color: #01740d;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesB {
+  color: #082a80;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesC {
+  color: #990066;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesD {
+  color: #d90514;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesE {
+  color: #fdb200;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesF {
+  color: #bca431;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesG {
+  color: #014c08;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesH {
+  color: #051e5e;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesI {
+  color: #71014c;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesJ {
+color: #a0030e;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesK {
+    color: #c88d01;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesL {
+  color: #857422;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesM {
+  color: #00b012;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesN {
+  color: #0e41c1;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesO {
+  color: #cc0088;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesP {
+  color: #fd3c40;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesQ {
+  color: #fec849;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesR {
+  color: #cebd6c;
+  -x-pentaho-chart-line-width: 2px;
+}
+  </stylesheet>
+
+  <series class="seriesA"/>
+  <series class="seriesB"/>
+  <series class="seriesC"/>
+  <series class="seriesD"/>
+  <series class="seriesE"/>
+  <series class="seriesF"/>
+  <series class="seriesG"/>
+  <series class="seriesH"/>
+  <series class="seriesI"/>
+  <series class="seriesJ"/>
+  <series class="seriesK"/>
+  <series class="seriesL"/>
+  <series class="seriesM"/>
+  <series class="seriesN"/>
+  <series class="seriesO"/>
+  <series class="seriesP"/>
+  <series class="seriesQ"/>
+  <series class="seriesR"/>
+  
+  <plot style="-x-pentaho-chart-orientation: vertical; -x-pentaho-chart-drill-url-template: url(http://localhost:8080/Pentaho/JPivot); -x-pentaho-chart-scale: 1"/>
+</chart>

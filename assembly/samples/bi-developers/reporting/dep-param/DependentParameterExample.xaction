@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <help>just testing...</help>  
+    <result-type>report</result-type>  
+    <icon>JFree-quadrant-budget-hsql.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <outputType type="string">
+      <sources>
+        <request>outputType</request>
+        <request>type</request>
+      </sources>
+      <default-value><![CDATA[pdf]]></default-value>
+    </outputType>
+    <outputTypeList type="property-map-list">
+      <sources>
+        <runtime>outputTypeList</runtime>
+      </sources>
+      <default-value type="property-map-list">
+        <property-map>
+          <entry key="report-output-desc">PDF</entry>
+          <entry key="report-output-type-id">pdf</entry>
+        </property-map>
+        <property-map>
+          <entry key="report-output-desc">Web Page</entry>
+          <entry key="report-output-type-id">html</entry>
+        </property-map>
+      </default-value>
+    </outputTypeList>
+    <REGION type="string"> 
+      <default-value>Central</default-value>  
+      <sources> 
+        <request>REGION</request> 
+      </sources> 
+    </REGION>  
+    <DEPARTMENT type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>DEPARTMENT</request> 
+      </sources> 
+    </DEPARTMENT>  
+    <POSITIONTITLE type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>POSITIONTITLE</request> 
+      </sources> 
+    </POSITIONTITLE>  
+    <REGION_FILTER type="string-list"> 
+      <sources/>  
+      <default-value type="string-list"> 
+        <list-item>Central</list-item>  
+        <list-item>Eastern</list-item>  
+        <list-item>Western</list-item>  
+        <list-item>Southern</list-item> 
+      </default-value> 
+    </REGION_FILTER>  
+    <DEPARTMENT_VALUES type="string-list">
+      <default-value type="string-list">
+        <list-item>Executive Management</list-item>
+        <list-item>Finance</list-item>
+        <list-item>Human Resource</list-item>
+        <list-item>Marketing &amp; Communication</list-item>
+        <list-item>Product Development</list-item>
+        <list-item>Professional Services</list-item>
+        <list-item>Sales</list-item>
+      </default-value>
+    </DEPARTMENT_VALUES>
+    <POSITIONTITLE_FILTER type="string-list"> 
+      <default-value type="string-list"> 
+        <list-item>CTO</list-item> 
+        <list-item>QA Manager</list-item> 
+      </default-value> 
+    </POSITIONTITLE_FILTER>  
+  </inputs>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources> 
+    <parameter-template> 
+      <solution-file> 
+        <location>DependentParameterTemplate.html</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </parameter-template>  
+
+    <report-definition> 
+      <solution-file> 
+        <location>JFreeQuadForRegion.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Perform SQL Query</action-type>
+      <action-inputs/>
+      <action-outputs> 
+        <POSITIONTITLE_FILTER type="result-set"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select distinct PositionTitle from QUADRANT_ACTUALS order by PositionTitle]]></query> 
+      </component-definition> 
+    </action-definition>  
+  
+  
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt For Region, Dept, and Output Type</action-type>
+      <action-inputs> 
+        <outputTypeList type="property-map-list"/>
+        <outputType type="string"/>
+        <REGION type="string"/>  
+        <DEPARTMENT type="string"/>  
+        <POSITIONTITLE type="string"/>  
+        <REGION_FILTER type="string-list"/>  
+        <DEPARTMENT_VALUES type="string-list"/>
+        <POSITIONTITLE_FILTER type="string-list"/>  
+      </action-inputs>
+      <action-outputs/>
+      <component-definition> 
+        <selections> 
+          <REGION style="select"> 
+            <title>Select a REGION</title>  
+            <filter>REGION_FILTER</filter> 
+          </REGION> 
+          <DEPARTMENT style="select"> 
+            <title>Select a DEPARTMENT</title>  
+            <filter>DEPARTMENT_VALUES</filter>
+          </DEPARTMENT>  
+          <POSITIONTITLE style="select"> 
+            <title>Select a POSITIONTITLE</title>  
+            <filter>POSITIONTITLE_FILTER</filter>
+          </POSITIONTITLE> 
+          <outputType style="select">
+            <title>Choose Report Format</title>
+            <filter value-col-name="report-output-type-id" display-col-name="report-output-desc">outputTypeList</filter>
+          </outputType>
+        </selections>  
+        <xsl>parameter-template</xsl>  
+        <target>Report_Window</target> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Report Data</action-type>
+      <action-inputs> 
+        <REGION type="string"/> 
+        <DEPARTMENT type="string"/>  
+        <POSITIONTITLE type="string"/>  
+      </action-inputs>
+      <action-outputs> 
+        <query-results type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select   QUADRANT_ACTUALS.REGION,   QUADRANT_ACTUALS.DEPARTMENT,   QUADRANT_ACTUALS.POSITIONTITLE,   QUADRANT_ACTUALS.ACTUAL,   QUADRANT_ACTUALS.BUDGET,   QUADRANT_ACTUALS.VARIANCE  from QUADRANT_ACTUALS where QUADRANT_ACTUALS.REGION = {PREPARE:REGION} and QUADRANT_ACTUALS.DEPARTMENT = {PREPARE:DEPARTMENT} and QUADRANT_ACTUALS.POSITIONTITLE = {PREPARE:POSITIONTITLE} order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]></query>  
+        <live>true</live> 
+      </component-definition> 
+    </action-definition>
+  
+
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Create Report Using Query Results</action-type>
+      <action-inputs> 
+        <data type="result-set" mapping="rule-result"/> 
+        <output-type type="string" mapping="outputType"/>
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <component-definition> 
+        <output-type>html</output-type> 
+      </component-definition> 
+    </action-definition>
+
+  </actions> 
+</action-sequence>

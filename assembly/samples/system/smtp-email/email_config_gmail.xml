@@ -1,0 +1,44 @@
+<email-smtp>
+
+	<properties>
+		<!-- This is the address of your SMTP email server for sending email. e.g. smtp.pentaho.org -->
+		<mail.smtp.host>smtp.gmail.com</mail.smtp.host>
+
+		<!--  This is the port of your SMTP email server. Usually this is 25. For GMail this is 587 -->
+		<mail.smtp.port>587</mail.smtp.port>
+		
+		<!--  The transport for accessing the email server. Usually this is smtp. For GMail this is smtps -->
+		<mail.transport.protocol>smtps</mail.transport.protocol>
+		
+		<!--  Usually this is 'false'. For GMail it is 'true' -->
+		<mail.smtp.starttls.enable>true</mail.smtp.starttls.enable>
+		
+		<!-- Set to true if the email server requires the sender to authenticate -->
+		<mail.smtp.auth>true</mail.smtp.auth>
+		
+		<!--  This is true if the email server requires an SSL connection. Usally 'false'. For GMail this is 'true' -->
+		<mail.smtp.ssl>true</mail.smtp.ssl>
+
+    <!-- For GMail this is 'false' -->
+    <mail.smtp.quitwait>false</mail.smtp.quitwait>
+
+	</properties>
+
+	<!-- The is the address or your POP3 email server for receiving email. e.g. pop.pentaho.org -->
+	<!-- It is currently not used -->
+	<mail.pop3></mail.pop3>
+
+	<!-- This is the default 'from' address that emails from the Pentaho BI Platform will appear to come from e.g. joe.pentaho@pentaho.org -->
+	<mail.from.default></mail.from.default>
+
+	<!-- This is the user id used to connect to the email server for sending email
+       It is only required if email-authenticate is set to true
+       This is never sent or shown to anyone -->
+	<mail.userid></mail.userid>
+	
+	<!-- This is the password used to connect to the email server for sending email 
+       It is only required if email-authenticate is set to true
+       This is never sent or shown to anyone -->
+	<mail.password></mail.password>
+
+</email-smtp>

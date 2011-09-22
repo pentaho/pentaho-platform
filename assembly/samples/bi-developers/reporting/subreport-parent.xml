@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-088.dtd">
+<report name="Subreport Example">
+
+	<items>
+		<string-field fieldname="POSITIONTITLE" height="12" width="100%"/>
+	</items>
+        <include src="subreport-include.xml"/>
+	<reportheader>
+        <!--        <label fontsize="16" height="15" width="100%" x="0" y="2">Subreport Example, listing Departments and Positions</label> -->
+		<sub-report href="subreport-example.xml" query="subreport_query"/>
+	</reportheader>
+
+</report>

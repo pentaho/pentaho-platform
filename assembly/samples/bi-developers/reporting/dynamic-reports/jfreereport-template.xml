@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-085.dtd">
+                        
+<report bottommargin="36" leftmargin="36" name="template1" orientation="portrait" pageformat="LETTER" rightmargin="36" topmargin="36">
+	<parser-config>
+		<property name="reportheader"><!-- label --></property>
+		<property name="reportfooter"><!-- label --></property>
+		<property name="pageheader"><!-- label --></property>
+		<property name="pagefooter"><!-- label --></property>
+	</parser-config>
+	<reportheader color="black" fontname="Arial" fontsize="16">
+		<message-field alignment="left" height="18" vertical-alignment="middle" width="100%" x="0%" y="0">${reportheader}</message-field>
+	</reportheader>
+	<reportfooter color="black" fontname="Arial" fontsize="16">
+		<message-field alignment="left" height="18" vertical-alignment="top" width="100%" x="0%" y="0">${reportfooter}</message-field>
+	</reportfooter>
+	<items></items>
+	<pageheader color="black" fontname="Arial" fontsize="8">
+		<message-field alignment="left" height="18" vertical-alignment="middle" width="50%" x="0%" y="0">${pageheader}</message-field>
+		<message-field alignment="right" height="18" width="50%" x="50%" y="0">$(report.date, date, MMMM dd, yyyy @ hh:mm )</message-field>
+		<line color="black" height="3" weight="1" width="100%" x1="0%" x2="100%" y1="18" y2="18"/>
+	</pageheader>
+	<pagefooter color="black" fontname="Arial" fontsize="8">
+		<line color="black" height="3" weight="1" width="100%" x1="0%" x2="100%" y1="0" y2="0"/>
+		<message-field alignment="left" height="18" width="50%" x="0" y="0">${pagefooter}</message-field>
+		<message-field alignment="right" height="18" width="50%" x="50%" y="0">Page $(PageofPages)</message-field>
+	</pagefooter>
+	<functions>
+		<property-ref name="report.date"/>
+		<function class="org.jfree.report.function.PageOfPagesFunction" name="PageofPages"/>
+	</functions>
+</report>

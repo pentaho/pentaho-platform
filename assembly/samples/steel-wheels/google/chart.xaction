@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>JFree_ChartComponent.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <icon>JFree_ChartComponent.png</icon>  
+    <help>Help</help>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <inputs> 
+    <chart-type type="string"> 
+      <default-value>.png</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </chart-type>  
+	<customer type="string">       
+	  <sources> 
+        <request>customer</request> 
+      </sources> 
+	</customer>
+  </inputs>
+
+  <outputs>
+	<chart_url type="string"/>
+  </outputs>
+
+  <resources> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Chart Data</action-type>
+      <action-inputs> 
+        <customer type="string"/>  
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="chartData"/> 
+      </action-outputs>
+      <component-definition> 
+        <source>sql</source>  
+        <live>true</live>  
+        <jndi>SampleData</jndi>  
+        <query> <![CDATA[
+		select   DISTINCT PRODUCTLINE, SUM(QUANTITYORDERED * PRICEEACH) as "TOTAL SALES" 
+		from PRODUCTS, ORDERDETAILS, CUSTOMERS, ORDERS
+		where
+			CUSTOMERS.CUSTOMERNUMBER = {PREPARE:customer} 
+			and CUSTOMERS.CUSTOMERNUMBER = ORDERS.CUSTOMERNUMBER 
+			and ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER
+			and PRODUCTS.PRODUCTCODE  = ORDERDETAILS.PRODUCTCODE 
+		GROUP BY PRODUCTLINE
+		]]> </query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>ChartComponent</component-name>
+      <action-type>Create The Chart</action-type>
+      <action-inputs> 
+        <output-type type="string" mapping="chart-type"/>  
+        <chart-data type="result-set" mapping="chartData"/> 
+      </action-inputs>
+      <action-outputs> 
+        <chart-filename type="string"/>  
+        <context-path type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <by-row>false</by-row>  
+        <height>250</height>  
+        <width>300</width>  
+        <title>Customer Product Mix</title>  
+        <chart-attributes> 
+          <chart-type>PieChart</chart-type>  
+          <title-position>TOP</title-position>  
+          <height></height>  
+          <width></width>  
+          <title></title>  
+          <title-font> 
+            <font-family>Tahoma</font-family>  
+            <size>14</size>  
+            <is-bold>false</is-bold>  
+            <is-italic>false</is-italic> 
+          </title-font>  
+          <range-title></range-title>  
+          <chart-background type="color">#e5e5e5</chart-background>  
+          <plot-background type="color">#e5e5e5</plot-background>  
+          <orientation>Horizontal</orientation>  
+          <is-3D>false</is-3D>  
+          <is-stacked>false</is-stacked>  
+          <category-label-rotation>90</category-label-rotation>  
+          <border-visible>false</border-visible>  
+          <border-paint>#3399FF</border-paint>  
+		  <display-labels>true</display-labels>
+          <include-legend>true</include-legend> 
+		  
+		  	<color-palette>
+		<color>#ee7733</color>
+		<color>#9EAA36</color>
+		<color>#BF0000</color>
+		<color>#FCCF12</color>
+		<color>#467AA9</color>
+		<color>#772200</color>
+		<color>#ddcc88</color>
+		<color>#123D82</color>
+		<color>#4A0866</color>
+		<color>#445500</color>
+		<color>#FFAA00</color>
+		<color>#1E8AD3</color>
+		<color>#AA6611</color>
+		<color>#772200</color>
+	</color-palette>
+
+        </chart-attributes> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>Get The Chart URL</action-type>
+      <action-inputs> 
+        <CHARTOUTPUT type="string" mapping="chart-filename"/>  
+        <CONTEXTPATH type="string" mapping="context-path"/>         
+      </action-inputs>
+      <action-outputs> 
+        <chart_url type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script> <![CDATA[ 
+			      function getImageURL( fileName ) {
+			        return '<img src="' + CONTEXTPATH + "getImage?image=" + fileName + '" />';
+			      }
+			    getImageURL( CHARTOUTPUT ); 
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+  
+  </actions> 
+</action-sequence>

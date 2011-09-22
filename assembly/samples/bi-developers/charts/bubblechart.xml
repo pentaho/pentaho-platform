@@ -1,0 +1,87 @@
+<chart>
+	<chart-type>BubbleChart</chart-type>
+	<dataset-type>XYZSeriesCollection</dataset-type> 
+	<title>Bubble Sample Chart</title>
+	<subtitles>
+	  <subtitle>Product Line Sales compared to On Hand vs Units Sold</subtitle>
+	  <subtitle>For Years 2003 - 2005</subtitle>	
+	</subtitles>
+	<border-visible>true</border-visible>
+	<include-legend>true</include-legend>
+	<is-3D>false</is-3D>
+	<markers-visible>false</markers-visible>
+	<orientation>vertical</orientation>
+	<url-template>
+		<![CDATA[http://www.google.com/search?q={series}]]>
+	</url-template>
+	<series-name>series</series-name>
+	<use-base-url>false</use-base-url>
+	<url-target>_self</url-target>
+	<range-title-font>
+		<font-family>Arial</font-family>
+		<size>12</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</range-title-font>
+	<range-title>Units Sold</range-title>
+	<domain-title>On Hand</domain-title>
+	<domain-title-font>
+		<font-family>Arial</font-family>
+		<size>12</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</domain-title-font>
+	<domain-minimum>0</domain-minimum>
+	<domain-tick-font>
+		<font-family>Arial</font-family>
+		<size>12</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</domain-tick-font>
+	<domain-tick-format>#,000</domain-tick-format>
+	<range-tick-format>#,000</range-tick-format>
+	<range-minimum>0</range-minimum>
+	<range-tick-font>
+		<font-family>Arial</font-family>
+		<size>12</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</range-tick-font>
+	<max-bubble-size>100</max-bubble-size>
+	<bubble-lable-content>
+		<![CDATA[{0} ONHAND: {1}, UNITS SOLD: {2}, SALES: {3}]]>
+	</bubble-lable-content>
+	<bubble-lable-z-format>#,### $</bubble-lable-z-format>
+
+	<!-- Specify where the data for the chart comes from -->
+	<color-palette>
+		<color>#387179</color>
+		<color>#626638</color>
+		<color>#A8979A</color>
+		<color>#B09A6B</color>
+		<color>#772200</color>
+		<color>#C52F0D</color>
+		<color>#123D82</color>
+		<color>#4A0866</color>
+		<color>#445500</color>
+		<color>#FFAA00</color>
+		<color>#1E8AD3</color>
+		<color>#AA6611</color>
+		<color>#772200</color>
+	</color-palette>
+	<data>
+		<!-- Specify the path to the action sequence that provides the data -->
+		<data-solution></data-solution>
+		<data-path>/public/pentaho-solutions/bi-developers/charts/xyzchart_data.xaction</data-path>
+		<data-action></data-action>
+
+		<!-- Specify the output of the action sequence that contains the data -->
+		<data-output>results</data-output>
+		
+		<!-- Specify whether to get the chart series from the rows or columns -->
+		<data-orientation>columns</data-orientation>
+	</data>	
+
+
+
+</chart>

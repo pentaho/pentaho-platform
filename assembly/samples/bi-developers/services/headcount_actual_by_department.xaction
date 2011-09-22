@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>headcount_actual_by_department.xaction</name>
+  <title>Regions and departments</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description>query rule test</description>  
+    <help>just testing...</help>  
+    <result-type>none</result-type>
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <visible>false</visible>  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Perform Query</action-type>
+      <action-inputs/>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select REGION, sum(ACTUAL) from QUADRANT_ACTUALS group by REGION order by ACTUAL]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!--
+charset below is utf-8 to assist tools reading this file. The value will be replaced with the system encoding
+before returning to client. Do not modify the line below.
+-->
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+	<title>{system}</title>
+    <link href="/pentaho-style/styles-new.css" rel="stylesheet" type="text/css" />
+		<link href="adhoc/styles/common.css" rel="stylesheet" type="text/css" />
+	
+	
+	<!-- link rel="stylesheet" type="text/css" href="/pentaho-style/active/default.css" / -->
+	<link rel="shortcut icon" href="/pentaho-style/favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/pentaho-style/menus/transmenu.css"/>
+	<script language="javascript" src="/pentaho-style/menus/transmenu.js"></script>
+	<script language="javascript">
+		var backgroundAlert = "{background-alert}";
+		var gRepositoryName = "{repository-name}";
+	</script>
+ 
+	<script src="js/ajaxslt0.7/xmltoken.js" type="text/javascript"></script>
+	<script src="js/ajaxslt0.7/util.js" type="text/javascript"></script>	
+	<script src="js/ajaxslt0.7/dom.js" type="text/javascript"></script>
+	<script src="js/ajaxslt0.7/xpath.js" type="text/javascript"></script>
+
+	<script src="js/pentaho-ajax.js" type="text/javascript"></script>
+	<script src="js/utils.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		djConfig = { isDebug: false};
+	</script>
+
+	<script src="js/dojo.js" type="text/javascript"></script>
+	
+	<script type="text/javascript">
+		dojo.registerModulePath("adhoc", "adhoc/js");
+	</script>
+	
+	<script language="javascript" src="/pentaho-style/pentaho.js"></script>
+	
+  <script src="adhoc/js/common/ui/messages/Messages.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/util/StringUtils.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/util/Status.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/util/Debug.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/util/XmlUtil.js" type="text/javascript"></script>
+  
+  
+  <script src="adhoc/js/common/ui/UIUtil.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		UIUtil.setImageFolderPath( "adhoc/images/" );
+	</script>
+  <script src="adhoc/js/common/ui/HTMLCtrl.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/ui/Logger.js" type="text/javascript"></script>
+	<script src="adhoc/js/common/ui/TabCtrl.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/ui/ListCtrl.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/ui/Dialog.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/ui/SimpleDialog.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/ui/AclEditorDialog.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/ui/AclEditorCtrl.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/ui/ButtonCtrl.js" type="text/javascript"></script>
+  
+  <script src="adhoc/js/common/controller/AclEditorController.js" type="text/javascript"></script>
+  <script src="adhoc/js/common/ui/MessageCtrl.js" type="text/javascript"></script>
+  
+  <script src="adhoc/js/common/server/WebServiceProxy.js" type="text/javascript"></script>
+	
+	<script language="javascript" src="js/options.js"></script>
+	{header-content}
+</head>
+
+<body class="body" dir="{text-direction}" {body-tag} >
+
+	<script language="javascript">
+
+		function docLoaded() {
+			try {
+				if( backgroundAlert == 'true' ) {
+					document.getElementById( 'backgroundalert' ).style.display='block';
+				}
+			} catch (e) {alert(e)}
+		}
+
+ 		document.onload=docLoaded();
+
+		isAdmin = "{isAdmin}";
+		isLoggedIn = "{isLoggedIn}";
+
+	</script>
+
+<div class="banner"></div>
+
+{menu}
+
+		<div id="backgroundalert" style="display:none;position:absolute;top:3px;left:103px;height:30px;width:200px;z-index:100">
+			<span style="font-size:1em">
+				<a href="UserContent" style="font-size:1em;color:white">
+					{new-content}
+				</a>
+			</span>
+		</div>
+
+{content}
+{footer}
+<noscript>
+
+<td valign="top" style="fpadding: 0px 0px 0px 15px; font-size: .85em;text-align:left"><table align="center" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+         <td><img border="0" src="/pentaho-style/images/fly-top-left1.png"/></td>
+         <td style="background-image: url(/pentaho-style/images/fly-top1.png);background-repeat: repeat-x;"></td>
+         <td><img border="0" src="/pentaho-style/images/fly-top-right1.png"/></td>
+      </tr>
+
+      <tr style="background-color: #e5e5e5;">
+         <td style="background-image: url(/pentaho-style/images/fly-left1.png);background-repeat: repeat-y;"></td>
+         <td style="padding:0px" valign="top">
+
+            <table id="WarningTable" style="padding: 0px 5px 5px 5px;">
+               <tr>
+                  <td colspan="2" style="font-size:1.6em" class="content_header_line">
+				  Warning !!!
+				  </td>
+
+               </tr>
+				<tr>
+                 <td colspan="2"style="font-size:1em" class="content_header">Your browser doesn't support JavaScript or you have disabled JavaScript. 
+	  Javascript should be enabled <br/> with this site. For example, the
+	  dropdown menu will not properly function without Javascript.</td>
+
+               </tr>
+             </table>
+         </td>
+         <td style="background-image: url(/pentaho-style/images/fly-right1.png);background-repeat: repeat-y;"></td>
+      </tr>
+      <tr>
+         <td><img border="0" src="/pentaho-style/images/fly-bot-left1.png"/></td>
+         <td><img src="/pentaho-style/images/fly-bot1.png" height="25" width="100%"/></td>
+         <td><img border="0" src="/pentaho-style/images/fly-bot-right1.png"/></td>
+      </tr>
+   </table>
+</td>
+		</noscript>
+		
+		<!-- ACL - share dialog -->
+		<div id="modalMaskId" class="modalMask" style='display:none'>
+			<div id="aclDialog.dialogId" class="aclDialog" style='display:none;top:100px;left:200px;'>
+				<table border="0" cellspacing="0" cellpadding="0" class="aclDialogTable">
+					<tr>
+						<td class="aclDialogHeader">
+							<div id="dialog.titleBarId" class="aclDialogTitleBar" onmouseover="this.onmousedown=Dialog.dragIsDown;"
+								ondragstart="return false;" onselectstart="return false;">
+							</div>
+						</td>
+					</tr>
+					<tr class='aclDialogClientRow'>
+						<td><div id='dialog.clientDiv' class='aclDialogClientDiv'/></td>
+					</tr>
+					<tr class='aclDialogBntRow'>
+						<td><div id='dialog.btnDiv' class='aclDialogBtnDiv'/></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		
+</body>
+</html>

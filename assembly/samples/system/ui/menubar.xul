@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+  <menubar id="menu" orient="vertical"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+   xmlns:HTML="http://www.w3.org/Profiles/XHTML-transitional">
+   
+    <menu id="file-menu" label="{file}">
+      <menupopup id="file-submenu-classic">
+		<menu id="file-new-menu" label="New">
+		  <menupopup id="file-new-submenu-classic">
+	        <menuitem id="new-report-menuitem" label="New Report" command="javascript:popPage('adhoc/waqr.html')"/>
+	        <menuitem id="new-pivot-menuitem" label="New Analysis View" command="javascript:popPage('NewAnalysisView')"/>
+          </menupopup>
+        </menu>
+	    <menuitem id="home-menu-menuitem" label="User Console" command="Home"/>
+	    <menuitem id="home-menu-menuitem" label="{home}" command="PreviousHome"/>
+	    <menuitem id="home-menu-menuitem" label="{logout}" command="Logout"/>
+      </menupopup>
+   	</menu>
+   	
+    <menu id="navigate-menu" label="{view}">
+      <menupopup id="view-submenu-classic">
+	    <menuitem id="navigate-menuitem" label="Browser" command="Navigate"/>
+	    <menuitem id="usercontent-menuitem" label="Workspace" command="UserContent"/>
+	    <menuitem id="usercontent-test" label="Refresh" command="javascript:popPage('Publish?publish=now&amp;style=popup&amp;class=org.pentaho.platform.engine.services.solution.SolutionPublisher')"/>
+      </menupopup>
+    </menu>
+
+    <menu id="tools-menu" label="Tools">
+      <menupopup id="tools-submenu-classic">
+	    <menuitem id="admin-menuitem"  label="{admin}" command="Admin"/>
+		<menu id="tools-refresh" label="Refresh">
+		  <menupopup id="tools-refresh-submenu-classic">
+	        <menuitem id="usercontent-test" label="Repository Cache" command="javascript:popPage('Publish?publish=now&amp;style=popup&amp;class=org.pentaho.platform.engine.services.solution.SolutionPublisher')"/>
+	        <menuitem id="usercontent-test" label="System Settings" command="javascript:popPage('Publish?publish=now&amp;style=popup&amp;class=org.pentaho.platform.engine.core.system.SettingsPublisher')"/>
+	        <menuitem id="usercontent-test" label="Reporting Metadata" command="javascript:popPage('Publish?publish=now&amp;style=popup&amp;class=org.pentaho.platform.engine.services.metadata.MetadataPublisher')"/>
+	        <menuitem id="usercontent-test" label="Global Variables" command="javascript:popPage('Publish?publish=now&amp;style=popup&amp;class=org.pentaho.platform.engine.core.system.GlobalListsPublisher')"/>
+	        <menuitem id="usercontent-test" label="Mondrian Schema Cache" command="javascript:popPage('ViewAction?solution=admin&amp;path=&amp;action=clear_mondrian_schema_cache.xaction')"/>
+          </menupopup>
+        </menu>
+      </menupopup>
+   	</menu>
+
+    <menu id="about-menu" label="{about}">
+      <menupopup id="about-submenu-classic">
+		<menuitem id="pentaho-doc" label="Documentation" command="javascript:popPage('http://wiki.pentaho.com/dashboard.action')"/>
+	  
+		<menuitem id="pentaho-menuitem" label="{pentaho.org}" command="javascript:popPage('http://www.pentaho.org')"/>
+		<menuitem id="demos-menuitem" label="{demos}" command="javascript:popPage('http://www.pentaho.com/products/demos/')"/>
+		<menuitem id="downloads-menuitem" label="{downloads}" command="javascript:popPage('http://www.pentaho.org/download')"/>
+		<menuitem id="forums-menuitem" label="{forums}" command="javascript:popPage('http://www.pentaho.org/forums')"/>
+		<menuitem id="about-menuitem" label="{about}" command="javascript:modalWin('About')"/>
+      </menupopup>
+    </menu>
+
+  </menubar>
+

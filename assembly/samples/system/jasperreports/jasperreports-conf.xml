@@ -1,0 +1,16 @@
+<jasperreports>
+	<!-- add any system-wide settings that you need here, paths to config files etc -->
+
+    <imageHandling>
+        <!-- The image URL is releative to the Pentaho base URL -->
+        <imageUrl>getImage?image=</imageUrl>
+        <!-- The image directory is in the Pentaho solution path -->
+        <imageDir>system/tmp</imageDir>
+    </imageHandling>
+
+    <htmlExportOptions>
+        <removeEmptySpaceBetweenRows>true</removeEmptySpaceBetweenRows>
+    </htmlExportOptions>
+
+    <!-- TODO: Add default JDBC connect info -->
+</jasperreports>

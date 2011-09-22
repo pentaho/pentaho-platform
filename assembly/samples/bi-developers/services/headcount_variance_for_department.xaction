@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>headcount_variance_for_department.xaction</name>
+  <title>Regions and departments</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description>query rule test</description>  
+    <help>just testing...</help>  
+    <result-type>none</result-type>
+  </documentation>
+
+  <inputs> 
+    <REGION type="string"> 
+      <sources> 
+        <request>REGION</request> 
+      </sources> 
+    </REGION> 
+  </inputs>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <visible>false</visible>  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Perform Query</action-type>
+      <action-inputs> 
+        <REGION type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select department, sum(variance) from QUADRANT_ACTUALS where region={PREPARE:REGION} group by department]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

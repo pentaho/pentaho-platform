@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformation>
+  <info>
+    <name>GetPDIEnvironment</name>
+    <description/>
+    <extended_description/>
+    <trans_version/>
+    <directory>&#47;</directory>
+    <log>
+      <read/>
+      <write/>
+      <input/>
+      <output/>
+      <update/>
+      <rejected/>
+      <connection/>
+      <table/>
+      <use_batchid>Y</use_batchid>
+      <use_logfield>N</use_logfield>
+    </log>
+    <maxdate>
+      <connection/>
+      <table/>
+      <field/>
+      <offset>0.0</offset>
+      <maxdiff>0.0</maxdiff>
+    </maxdate>
+    <size_rowset>1000</size_rowset>
+    <sleep_time_empty>1</sleep_time_empty>
+    <sleep_time_full>1</sleep_time_full>
+    <unique_connections>N</unique_connections>
+    <feedback_shown>Y</feedback_shown>
+    <feedback_size>5000</feedback_size>
+    <using_thread_priorities>N</using_thread_priorities>
+    <shared_objects_file/>
+    <dependencies>
+    </dependencies>
+    <partitionschemas>
+    </partitionschemas>
+    <slaveservers>
+    </slaveservers>
+    <clusterschemas>
+    </clusterschemas>
+  <modified_user>-</modified_user>
+  <modified_date>2007&#47;10&#47;23 21:23:11.150</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <note>This transformation collects a lot of information about the 
+environment of Pentaho Data Integration and the installed version 
+e.g. in the Pentaho BI Suite</note>
+      <xloc>50</xloc>
+      <yloc>34</yloc>
+      <width>322</width>
+      <heigth>49</heigth>
+    </notepad>
+    <notepad>
+      <note>The Row Normaliser gives us a better view to the data</note>
+      <xloc>262</xloc>
+      <yloc>213</yloc>
+      <width>266</width>
+      <heigth>23</heigth>
+    </notepad>
+    <notepad>
+      <note>If you add a new field, add
+it also in the Row Normaliser step</note>
+      <xloc>52</xloc>
+      <yloc>212</yloc>
+      <width>166</width>
+      <heigth>36</heigth>
+    </notepad>
+  </notepads>
+  <order>
+  <hop> <from>Get a lot of information</from><to>Row Normaliser</to><enabled>Y</enabled> </hop>  <hop> <from>Row Normaliser</from><to>result</to><enabled>Y</enabled> </hop>  </order>
+  <step>
+    <name>result</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <field_name/>
+           <schema_name/>
+           </partitioning>
+     <cluster_schema/>
+    <GUI>
+      <xloc>530</xloc>
+      <yloc>154</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Get a lot of information</name>
+    <type>GetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <field_name/>
+           <schema_name/>
+           </partitioning>
+    <fields>
+      <field>
+        <name>Internal.Kettle.Version</name>
+        <variable>${Internal.Kettle.Version}</variable>
+        </field>
+      <field>
+        <name>Internal.Kettle.Build.Version</name>
+        <variable>${Internal.Kettle.Build.Version}</variable>
+        </field>
+      <field>
+        <name>Internal.Kettle.Build.Date</name>
+        <variable>${Internal.Kettle.Build.Date}</variable>
+        </field>
+      <field>
+        <name>java.runtime.version</name>
+        <variable>${java.runtime.version}</variable>
+        </field>
+      <field>
+        <name>os.name</name>
+        <variable>${os.name}</variable>
+        </field>
+      <field>
+        <name>os.version</name>
+        <variable>${os.version}</variable>
+        </field>
+      <field>
+        <name>os.arch</name>
+        <variable>${os.arch}</variable>
+        </field>
+      <field>
+        <name>user.country</name>
+        <variable>${user.country}</variable>
+        </field>
+      <field>
+        <name>user.language</name>
+        <variable>${user.language}</variable>
+        </field>
+      <field>
+        <name>user.home</name>
+        <variable>${user.home}</variable>
+        </field>
+      <field>
+        <name>KETTLE_HOME</name>
+        <variable>${KETTLE_HOME}</variable>
+        </field>
+      <field>
+        <name>pentaho.solutionpath</name>
+        <variable>${pentaho.solutionpath}</variable>
+        </field>
+      <field>
+        <name>Internal.Transformation.Filename.Directory</name>
+        <variable>${Internal.Transformation.Filename.Directory}</variable>
+        </field>
+      <field>
+        <name>Internal.Transformation.Filename.Name</name>
+        <variable>${Internal.Transformation.Filename.Name}</variable>
+        </field>
+      </fields>
+     <cluster_schema/>
+    <GUI>
+      <xloc>108</xloc>
+      <yloc>154</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Row Normaliser</name>
+    <type>Normaliser</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <field_name/>
+           <schema_name/>
+           </partitioning>
+   <typefield>Variable</typefield>
+    <fields>      <field>        <name>Internal.Kettle.Version</name>
+        <value>Internal.Kettle.Version</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>Internal.Kettle.Build.Version</name>
+        <value>Internal.Kettle.Build.Version</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>Internal.Kettle.Build.Date</name>
+        <value>Internal.Kettle.Build.Date</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>java.runtime.version</name>
+        <value>java.runtime.version</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>os.name</name>
+        <value>os.name</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>os.version</name>
+        <value>os.version</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>os.arch</name>
+        <value>os.arch</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>user.country</name>
+        <value>user.country</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>user.language</name>
+        <value>user.language</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>user.home</name>
+        <value>user.home</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>KETTLE_HOME</name>
+        <value>KETTLE_HOME</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>pentaho.solutionpath</name>
+        <value>pentaho.solutionpath</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>Internal.Transformation.Filename.Directory</name>
+        <value>Internal.Transformation.Filename.Directory</value>
+        <norm>Value</norm>
+        </field>      <field>        <name>Internal.Transformation.Filename.Name</name>
+        <value>Internal.Transformation.Filename.Name</value>
+        <norm>Value</norm>
+        </field>      </fields>     <cluster_schema/>
+    <GUI>
+      <xloc>337</xloc>
+      <yloc>154</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step_error_handling>
+  </step_error_handling>
+</transformation>

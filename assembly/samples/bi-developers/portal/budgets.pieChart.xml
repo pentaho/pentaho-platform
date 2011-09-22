@@ -1,0 +1,17 @@
+
+<chart>
+	<chart-type>PieChart</chart-type>
+	<include-legend>false</include-legend>
+	<width>400</width>
+	<height>200</height>
+	<style>height:150px;overflow:auto</style>
+	<data>
+		<data-solution>bi-developers</data-solution>
+		<data-path>portal</data-path>
+		<data-action>headcount_actual_by_region.xaction</data-action>
+		<data-output>rule-result</data-output>
+		<data-name>POSITIONTITLE</data-name>
+		<data-value>VARIANCE</data-value>
+		<data-orientation>columns</data-orientation>
+	</data>
+</chart>

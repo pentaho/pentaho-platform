@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ws="http://jax-ws.dev.java.net/spring/core" xmlns:wss="http://jax-ws.dev.java.net/spring/servlet"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+                           http://jax-ws.dev.java.net/spring/core http://jax-ws.dev.java.net/spring/core.xsd
+                           http://jax-ws.dev.java.net/spring/servlet http://jax-ws.dev.java.net/spring/servlet.xsd">
+
+  <context:annotation-config />
+
+  <!-- JAX-WS bindings -->
+  <wss:binding url="/webservices/unifiedRepository">
+    <wss:service>
+      <ws:service impl="org.pentaho.platform.repository2.unified.webservices.jaxws.DefaultUnifiedRepositoryJaxwsWebService" />
+    </wss:service>  
+  </wss:binding>
+
+  <wss:binding url="/webservices/userRoleService">
+    <wss:service>
+      <ws:service impl="org.pentaho.platform.engine.security.userroledao.ws.AuthorizationPolicyBasedUserRoleWebService" />
+    </wss:service>  
+  </wss:binding>
+  
+  <wss:binding url="/webservices/userRoleListService">
+    <wss:service>
+      <ws:service impl="org.pentaho.platform.engine.security.userrole.ws.DefaultUserRoleListWebService" />
+    </wss:service>  
+  </wss:binding>
+  
+  <wss:binding url="/webservices/authorizationPolicy">
+    <wss:service>
+      <ws:service impl="org.pentaho.platform.security.policy.rolebased.ws.DefaultAuthorizationPolicyWebService" />
+    </wss:service>  
+  </wss:binding>
+  
+  <wss:binding url="/webservices/roleBindingDao">
+    <wss:service>
+      <ws:service impl="org.pentaho.platform.security.policy.rolebased.ws.DefaultRoleAuthorizationPolicyRoleBindingDaoWebService" />
+    </wss:service>  
+  </wss:binding>
+    
+  <wss:binding url="/webservices/Scheduler">
+    <wss:service>
+      <ws:service impl="org.pentaho.platform.scheduler2.ws.DefaultSchedulerService" />
+    </wss:service>  
+  </wss:binding>
+  
+  <!--  GWT services are defined as Spring beans.  The id maps to the request URL like so: 
+        requests to "/ws/gwt/myService" will be dispatched to a bean with id "ws-gwt-myService"
+    -->
+  <bean id="ws-gwt-unifiedRepository" class="org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService"/>
+  
+  <!-- JAX-RS beans -->
+  <bean class="org.pentaho.platform.web.http.api.resources.RootResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.DirectoryResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.SessionResource" scope="request"/>  
+  <bean class="org.pentaho.platform.web.http.api.resources.SchedulerResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.RepositoryResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.RepositoryImportResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.PluginResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.SystemPermissionsResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.SystemUsersResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.SystemRolesResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.SystemAllResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.GeneratorStreamingOutputProvider" scope="singleton"/>
+</beans>

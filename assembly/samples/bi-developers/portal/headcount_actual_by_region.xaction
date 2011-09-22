@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>headcount_actual_by_region.xaction</name>
+  <title>Regions and departments</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description>query rule test</description>  
+    <help>just testing...</help> 
+  </documentation>
+
+  <inputs> 
+    <REGION type="string"> 
+      <default-value/>  
+      <sources> 
+        <session>REGION</session> 
+      </sources> 
+    </REGION>  
+    <DEPARTMENT type="string"> 
+      <default-value/>  
+      <sources> 
+        <session>DEPARTMENT</session> 
+      </sources> 
+    </DEPARTMENT> 
+  </inputs>
+
+  <outputs> 
+    <rule-result> 
+      <type>list</type> 
+    </rule-result> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>rule</action-type>
+      <action-inputs> 
+        <REGION type="string"/>  
+        <DEPARTMENT type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <rule-result type="list"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select POSITIONTITLE, ACTUAL from QUADRANT_ACTUALS where REGION in ({PREPARE:REGION}) and DEPARTMENT in ( {PREPARE:DEPARTMENT} ) order by POSITIONTITLE]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

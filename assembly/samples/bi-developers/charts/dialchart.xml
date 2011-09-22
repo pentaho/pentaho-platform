@@ -1,0 +1,118 @@
+<chart>
+	<chart-type>DialChart</chart-type>
+	<units></units>
+    <!-- Specify the title of the chart -->
+	<title>Dial</title>
+
+	<!-- Specify the location of the title -->
+	<title-position>bottom</title-position>
+	
+	<!-- Specify the font of the title -->
+	<title-font>
+		<font-family>Arial</font-family>
+		<size>14</size>
+		<is-bold>true</is-bold>
+		<is-italic>false</is-italic>
+	</title-font>
+	<subtitles>
+	  <subtitle>Margin Gauge</subtitle>
+	  <subtitle>Year to Date</subtitle>	
+	</subtitles>
+
+	
+	<!--  this is the color of the needle -->
+	<needle-color>#000080</needle-color>
+	
+	<!--  this is the background for the whole image -->
+	<!-- chart-background type="color">#ffffff</chart-background> -->
+	<chart-background type="color">#FFFFFF</chart-background>
+	<!-- <chart-background type="gradient">
+		<x1>0.0</x1>
+		<y1>0.0</y1>
+		<color1>#dddddd</color1>
+		<x2>100.0</x2>
+		<y2>100.0</y2>
+		<color2>#FFFFFF</color2>
+		<cyclic>true</cyclic>
+	</chart-background> -->
+	
+	<!--  this ia the background for the dial -->
+	<plot-background type="gradient">
+		<color1>#000000</color1>
+		<color2>#FFFFFF</color2>
+		<cyclic>true</cyclic>
+	</plot-background>
+	
+	
+	<!--  intervals define ranges on the dial that are colored differently from the dial background -->
+	<intervals>
+		<interval>
+			<label>low</label>
+			<!-- this is the value that the range starts at -->
+			<minimum>0</minimum>
+			<!-- this is the value that the range stops at -->
+			<maximum>30</maximum>
+			<!--  this is the color of the range -->
+			<!-- color>#ff8080</color -->
+			<interval-background type="gradient">
+				<x1>50</x1>
+				<y1>50</y1>
+				<x2>150</x2>
+				<y2>150</y2>
+				<color1>#ffffff</color1>
+				<color2>#ff0000</color2>
+				<cyclic>true</cyclic>
+			</interval-background>
+			
+			<!--  this is the color of the text for the range value and tick marks -->
+			<text-color>#0000bb</text-color>
+		</interval>
+		<interval>
+			<label>medium</label>
+			<minimum>30</minimum>
+			<maximum>70</maximum>
+			<!-- color>#ffff80</color -->
+			<text-color>#0000bb</text-color>
+			<interval-background type="gradient">
+				<x1>50</x1>
+				<y1>50</y1>
+				<x2>150</x2>
+				<y2>150</y2>
+				<color1>#ffffff</color1>
+				<color2>#ffff00</color2>
+				<cyclic>true</cyclic>
+			</interval-background>
+		</interval>
+		<interval>
+			<label>high</label>
+			<minimum>70</minimum>
+			<maximum>100</maximum>
+			<text-color>#0000bb</text-color>
+			<interval-background type="gradient">
+				<x1>50</x1>
+				<y1>50</y1>
+				<x2>150</x2>
+				<y2>150</y2>
+				<color1>#ffffff</color1>
+				<color2>#40FF40</color2>
+				<cyclic>true</cyclic>
+			</interval-background>
+		</interval>
+	</intervals>
+	<!-- Specify where the data for the chart comes from -->
+	<data>
+		<!-- Specify the path to the action sequence that provides the data -->
+		<data-solution></data-solution>
+		<data-path>/public/pentaho-solutions/bi-developers/charts/dialchart_data.xaction</data-path>
+		<data-action></data-action>
+		
+		
+		<!-- Specify the output of the action sequence that contains the data -->
+		<data-output>results</data-output>
+		
+		
+		<!-- Specify whether to get the chart series from the rows or columns -->
+		<data-orientation>rows</data-orientation>
+	</data>
+	
+</chart>

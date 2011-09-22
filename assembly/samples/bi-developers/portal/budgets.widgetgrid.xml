@@ -1,0 +1,15 @@
+
+<widgetgrid>
+	<width>105</width>
+	<height>105</height>
+	<columns>6</columns>
+	<style>height:150px;overflow:auto</style>
+	<data>
+		<data-solution>bi-developers</data-solution>
+		<data-path>portal</data-path>
+		<data-action>headcount_variance_by_region.xaction</data-action>
+		<data-output>rule-result</data-output>
+		<data-name>POSITIONTITLE</data-name>
+		<data-value>VARIANCE</data-value>
+	</data>
+</widgetgrid>

@@ -1,0 +1,125 @@
+<action-sequence>
+	<name>test1.xaction</name>
+	<version>1</version>
+	<title>Parameterized PRPT via XAction</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>Michael D'Amour</author>
+		<description><![CDATA[New Plugin Test]]></description>
+		<icon>/style/icons/jfree1.png</icon>
+		<help>just testing...</help>
+		<result-type>report</result-type>
+	</documentation>
+
+	<inputs>
+		<outputType type="string">
+			<default-value>text/html</default-value>
+			<sources>
+				<request>outputType</request>
+			</sources>
+		</outputType>
+        <outputTypeList type="property-map-list"> 
+          <sources> 
+            <runtime>outputTypeList</runtime> 
+          </sources>  
+          <default-value type="property-map-list"> 
+            <property-map> 
+              <entry key="report-output-desc">PDF</entry>  
+              <entry key="report-output-type-id">application/pdf</entry> 
+            </property-map>  
+            <property-map> 
+              <entry key="report-output-desc">Excel</entry>  
+              <entry key="report-output-type-id">application/vnd.ms-excel</entry> 
+            </property-map>  
+            <property-map> 
+              <entry key="report-output-desc">Web Page</entry>  
+              <entry key="report-output-type-id">text/html</entry> 
+            </property-map> 
+          </default-value> 
+        </outputTypeList> 
+
+    <PARAMETER_REGION type="string"> 
+      <sources> 
+        <request>PARAMETER_REGION</request> 
+      </sources>  
+      <default-value/> 
+    </PARAMETER_REGION> 
+
+	</inputs>
+
+	<outputs>
+   	  <outputstream type="content">
+   		  <destinations>
+   			 <response>content</response>
+   		  </destinations>
+   	  </outputstream>
+	</outputs>
+
+	<resources>
+		<reportDefinition>
+			<solution-file>
+				<location>radio-parameter.prpt</location>
+				<mime-type>application/zip</mime-type>
+			</solution-file>
+		</reportDefinition>
+	</resources>
+
+	<actions>
+	
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get List of Product Lines</action-type>
+      <action-outputs> 
+        <PARAMETER_REGION type="string"/>  
+        <query-result type="result-set" mapping="regionList"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[SELECT DISTINCT (REGION) FROM QUADRANT_ACTUALS ORDER BY REGION ASC]]></query> 
+      </component-definition> 
+    </action-definition>
+
+
+    <action-definition>
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Product Line and Report Format</action-type>
+      <action-inputs> 
+        <outputTypeList type="property-map-list"/>  
+        <outputType type="string"/>  
+        <PARAMETER_REGION type="string"/>  
+        <regionList type="property-map-list"/>  
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+
+          <PARAMETER_REGION style="list-multi"> 
+            <title>Region</title>  
+            <filter value-col-name="REGION" display-col-name="REGION">regionList</filter> 
+          </PARAMETER_REGION>  
+
+          <outputType style="radio"> 
+            <title>Select Report Format</title>  
+            <filter value-col-name="report-output-type-id" display-col-name="report-output-desc">outputTypeList</filter> 
+          </outputType> 
+
+        </selections> 
+      </component-definition> 
+    </action-definition>
+    	
+		<action-definition> 
+			<component-name>org.pentaho.platform.engine.services.solution.PojoComponent</component-name>
+			<action-inputs>
+				<outputType type="string" />
+				<PARAMETER_REGION type="string" />
+			</action-inputs>
+            <action-outputs>
+        	  <outputstream type="content"/>
+            </action-outputs>
+			<component-definition>
+				<class>org.pentaho.reporting.platform.plugin.SimpleReportingComponent</class>
+			</component-definition>
+			<action-name>Test the new report component</action-name>
+			<logging-level>DEBUG</logging-level>
+		</action-definition>
+	</actions>
+</action-sequence>

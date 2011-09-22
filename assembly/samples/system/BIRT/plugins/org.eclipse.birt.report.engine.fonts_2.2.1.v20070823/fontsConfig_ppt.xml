@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<font>
+	<font-aliases>
+		<mapping name="serif" font-family="Times New Roman"/>
+		<mapping name="sans-serif" font-family="Arial"/>
+		<mapping name="monospace" font-family="Courier New"/>
+	</font-aliases>
+</font>

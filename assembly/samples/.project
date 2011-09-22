@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>bi-platform-sample-solution</name>
+	<comment></comment>
+	<projects>
+		<project>actionsequence-dom-jd</project>
+		<project>bi-platform-api</project>
+		<project>bi-platform-staging</project>
+		<project>bi-platform-engine</project>
+		<project>bi-platform-plugin</project>
+		<project>bi-platform-repository</project>
+		<project>bi-platform-test-solution</project>
+		<project>bi-platform-ui</project>
+		<project>bi-platform-util</project>
+		<project>bi-platform-webapp</project>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+</projectDescription>

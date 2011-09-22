@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <help>just testing...</help>  
+    <result-type>report</result-type>  
+    <icon>JFree-quadrant-budget-hsql.png</icon> 
+  </documentation>
+
+  <inputs>
+    <groupColumns type="string"> 
+      <default-value>REGION</default-value>  
+      <sources> 
+        <request>groupColumns</request> 
+      </sources> 
+    </groupColumns> 
+    <output-type type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type> 
+  </inputs>
+
+  <outputs/>
+
+  <resources> 
+    <report-template> 
+      <solution-file> 
+        <location>jfreereport-template.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-template> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>SQL Query For Report Data</action-type>
+      <action-outputs> 
+        <query-result type="result-set"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <live>true</live>  
+        <query><![CDATA[select * from QUADRANT_ACTUALS order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]></query> 
+      </component-definition> 
+    </action-definition>
+
+
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>JavaScript to Build JFreeReport Definition</action-type>
+      <action-inputs>
+        <groupColumns type="string"/> 
+        <columnWidths type="array"/> 
+        <resultSet type="result-set" mapping="query-result"/> 
+      </action-inputs>
+      <action-outputs> 
+        <report-definition type="string"/> 
+      </action-outputs>
+	<action-resources>
+        <report-template type="resource"/> 
+	</action-resources>
+      <component-definition> 
+        <script><![CDATA[ 
+		function getType(theTypeClass) {
+			if (theTypeClass != null) {
+				if (theTypeClass == "java.lang.String") {
+					return Packages.java.sql.Types.VARCHAR;
+				} else if (theTypeClass == "java.math.BigDecimal" || theTypeClass== "java.lang.Integer") {
+					return Packages.java.sql.Types.NUMERIC;
+				} else if (theTypeClass == "java.util.Date") {
+					return Packages.java.sql.Types.DATE;
+				}
+			}
+			return Packages.java.sql.Types.VARCHAR;        
+		}
+                        
+		function isGroupColumn(column) {
+			if (groupColumns != null && (column == groupColumns || groupColumns.indexOf(column + ",") != -1 || groupColumns.indexOf(", " + column) != -1)) {
+				return true;
+			}
+			return false;
+		}
+
+		function getReportDefinition() { 
+			var reportSpec = new Packages.org.pentaho.jfreereport.castormodel.reportspec.ReportSpec();
+			//reportSpec.setUseRowBanding(false);
+
+			reportSpec.setGrandTotalsHorizontalAlignment("right");
+			var colHeaders = resultSet.getMetaData().getColumnHeaders()[0];
+			for (var i = 0; i < colHeaders.length; i++) {
+				var typeClass = null;
+				for (var j = 0; j < resultSet.getRowCount() && typeClass == null; j++) {
+					var value = resultSet.getValueAt(j, i);
+					if (value != null && !value.toString().equals("")) {
+						typeClass = value.getClass().getName();
+					}
+				}
+				var field = new Packages.org.pentaho.jfreereport.castormodel.reportspec.Field();
+				field.setName(colHeaders[i].toString());
+				field.setDisplayName(colHeaders[i].toString());
+				field.setHorizontalAlignment("left");
+				field.setType(getType(typeClass));
+				if (isGroupColumn(colHeaders[i].toString())) {
+					field.setIsDetail(false);
+					field.setDisplayName(colHeaders[i].toString() + ": $(" + colHeaders[i].toString() + ")");
+					field.setGroupTotalsHorizontalAlignment("right");
+					field.setGroupTotalsLabel("$(" + colHeaders[i].toString() + ") Total");
+					//field.setPageBreakBeforeHeader(true);
+				}
+				field.setUseItemHide(getType(typeClass) == Packages.java.sql.Types.NUMERIC ? false : true);
+				if (field.getType() == Packages.java.sql.Types.NUMERIC) {
+					field.setHorizontalAlignment("right");
+					field.setExpression("sum"); 
+				}
+				reportSpec.addField(field);
+			}		
+
+			// generate the normal report
+			var report = Packages.org.pentaho.jfreereport.wizard.utility.report.ReportGenerationUtility.createJFreeReportXML(reportSpec, "UTF-8" );
+			var reportStream = Packages.org.apache.commons.io.IOUtils.toInputStream(report);
+
+			// get an InputStream to the report-template resource
+			var templateResource = rule.getRuntimeContext().getResourceDefintion("report-template");
+			var templateStream = rule.getRuntimeContext().getResourceInputStream(templateResource);
+
+			// create a template file
+			var templateFile = Packages.java.io.File.createTempFile("template", ".xml");
+			templateFile.deleteOnExit();
+			// create a file for the normal report
+			var reportFile = Packages.java.io.File.createTempFile("report", ".xml");
+			reportFile.deleteOnExit();
+
+			// copy the streams to files (the API requires this as files or as dom4j Documents)
+			// java.io.File is easier for our use here, I'm hoping that IOUtils will close the
+			// streams when it is done
+    			Packages.org.apache.commons.io.IOUtils.copy(templateStream, new Packages.java.io.FileOutputStream(templateFile));
+    			Packages.org.apache.commons.io.IOUtils.copy(reportStream, new Packages.java.io.FileOutputStream(reportFile));
+	      
+			var outputStream = new Packages.java.io.ByteArrayOutputStream();
+
+			Packages.org.pentaho.jfreereport.wizard.utility.report.ReportGenerationUtility.mergeTemplate(templateFile, reportFile, outputStream);
+			out.println(outputStream.toString());
+			return outputStream.toString();
+		}
+		getReportDefinition(); 
+	  ]]> </script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Create Report Using Query Results</action-type>
+      <action-inputs> 
+        <data type="result-set" mapping="query-result"/> 
+        <report-definition type="string"/>
+        <output-type type="string"/>  
+      </action-inputs>
+      <action-resources/> 
+      <component-definition> 
+        <output-type>html</output-type> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

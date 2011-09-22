@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springsource.org/dtd/spring-beans.dtd">
+
+<!--+
+  | Application context containing authorization beans.
+  +-->
+
+<beans>
+
+  <!-- An access decision voter that reads any configuration setting. See filterInvocationInterceptor.objectDefinitionSource -->
+  <bean id="roleVoter" class="org.pentaho.platform.engine.security.PentahoSubstringRoleVoter">
+    <constructor-arg value="" />
+  </bean>
+
+</beans>

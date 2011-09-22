@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report-spec tool='waqr' tool-version='1.0' template-name='Spring'>
+<report-name><![CDATA[Sample Inventory]]></report-name>
+<report-desc><![CDATA[Created by the Web-based Adhoc Query and Reporting Client]]></report-desc>
+<query>
+<mql>
+<domain_type>relational</domain_type>
+<domain_id><![CDATA[steel-wheels/metadata.xmi]]></domain_id><model_id><![CDATA[BV_INVENTORY]]></model_id>
+<options>
+<disable_distinct>false</disable_distinct>
+</options>
+<selections>
+<selection><view>CAT_PRODUCTS</view><column>BC_PRODUCTS_PRODUCTSCALE</column></selection>
+<selection><view>CAT_PRODUCTS</view><column>BC_PRODUCTS_PRODUCTLINE</column></selection>
+<selection><view>CAT_PRODUCTS</view><column>BC_PRODUCTS_PRODUCTCODE</column></selection>
+<selection><view>CAT_PRODUCTS</view><column>BC_PRODUCTS_PRODUCTNAME</column></selection>
+<selection><view>CAT_PRODUCTS</view><column>BC_PRODUCTS_PRODUCTDESCRIPTION</column></selection>
+<selection><view>CAT_INVENTORY</view><column>BC_PRODUCTS_QUANTITYINSTOCK</column></selection>
+<selection><view>CAT_INVENTORY</view><column>BC_PRODUCTS_MSRP</column></selection>
+</selections>
+<constraints>
+</constraints>
+<orders>
+<order><direction>asc</direction><view_id>CAT_PRODUCTS</view_id><column_id>BC_PRODUCTS_PRODUCTSCALE</column_id></order>
+<order><direction>asc</direction><view_id>CAT_PRODUCTS</view_id><column_id>BC_PRODUCTS_PRODUCTLINE</column_id></order>
+</orders>
+</mql>
+</query>
+<field-mapping key="reportheader" value=""/><field-mapping key="reportfooter" value=""/><field-mapping key="pageheader" value=""/><field-mapping key="pagefooter" value=""/><page-format><![CDATA[LETTER]]></page-format>
+<orientation><![CDATA[landscape]]></orientation>
+<use-row-banding><![CDATA[true]]></use-row-banding>
+<row-banding-color><![CDATA[#D8FDF9]]></row-banding-color>
+<use-column-header-background-color><![CDATA[true]]></use-column-header-background-color>
+<column-header-background-color><![CDATA[#74A956]]></column-header-background-color>
+<grand-totals-label><![CDATA[Grand Total]]></grand-totals-label>
+<grand-totals-horizontal-alignment><![CDATA[left]]></grand-totals-horizontal-alignment>
+<use-dummy-group-footer-background-color><![CDATA[true]]></use-dummy-group-footer-background-color>
+<dummy-group-footer-background-color><![CDATA[#E2869C]]></dummy-group-footer-background-color>
+<use-horizontal-gridlines><![CDATA[true]]></use-horizontal-gridlines>
+<use-vertical-gridlines><![CDATA[true]]></use-vertical-gridlines>
+<horizontal-gridlines-color><![CDATA[#78AE81]]></horizontal-gridlines-color>
+<vertical-gridlines-color><![CDATA[#78AE81]]></vertical-gridlines-color>
+<group-header-font-name><![CDATA[Arial]]></group-header-font-name>
+<group-header-font-style><![CDATA[1]]></group-header-font-style>
+<group-header-font-size><![CDATA[12]]></group-header-font-size>
+<group-header-font-color><![CDATA[#2E671B]]></group-header-font-color>
+<group-footer-font-name><![CDATA[Arial]]></group-footer-font-name>
+<group-footer-font-style><![CDATA[1]]></group-footer-font-style>
+<group-footer-font-size><![CDATA[12]]></group-footer-font-size>
+<group-footer-font-color><![CDATA[#2E671B]]></group-footer-font-color>
+<column-header-font-name><![CDATA[Arial]]></column-header-font-name>
+<column-header-font-style><![CDATA[0]]></column-header-font-style>
+<column-header-font-size><![CDATA[10]]></column-header-font-size>
+<column-header-font-color><![CDATA[#BB1A5B]]></column-header-font-color>
+<column-header-gap><![CDATA[6]]></column-header-gap>
+<items-font-name><![CDATA[Arial]]></items-font-name>
+<items-font-style><![CDATA[0]]></items-font-style>
+<items-font-size><![CDATA[10]]></items-font-size>
+<items-font-color><![CDATA[#4F383C]]></items-font-color>
+<field is-detail="false" name="BC_PRODUCTS_PRODUCTSCALE" horizontal-alignment="not-set" type="12" repeat-group-header="false" level-name="" group-totals-label="Total $(BC_PRODUCTS_PRODUCTSCALE)" page-break-before-header="false" page-break-after-header="false" page-break-before-footer="false" page-break-after-footer="false" calculate-group-totals="true" create-group-header="true" vertical-alignment="top"/>
+<field is-detail="false" name="BC_PRODUCTS_PRODUCTLINE" horizontal-alignment="not-set" type="12" repeat-group-header="false" level-name="" group-totals-label="Total $(BC_PRODUCTS_PRODUCTLINE)" page-break-before-header="false" page-break-after-header="false" page-break-before-footer="false" page-break-after-footer="false" calculate-group-totals="true" create-group-header="true" vertical-alignment="top"/>
+<field is-detail="true" name="BC_PRODUCTS_PRODUCTCODE" horizontal-alignment="not-set" expression="none" type="12"/>
+<field is-detail="true" name="BC_PRODUCTS_PRODUCTNAME" horizontal-alignment="not-set" expression="none" type="12"/>
+<field is-detail="true" name="BC_PRODUCTS_PRODUCTDESCRIPTION" horizontal-alignment="not-set" expression="none" type="12"/>
+<field is-detail="true" name="BC_PRODUCTS_QUANTITYINSTOCK" horizontal-alignment="not-set" expression="none" type="2"/>
+<field is-detail="true" name="BC_PRODUCTS_MSRP" horizontal-alignment="not-set" expression="none" type="2"/>
+</report-spec>

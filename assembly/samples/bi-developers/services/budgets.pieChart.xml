@@ -1,0 +1,28 @@
+
+<chart>
+	<title>Headcount Spending by Region</title>
+	<title-position>TOP</title-position>
+	<title-font>
+		<font-family>Ariel</font-family>
+		<size>20</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</title-font>
+	<chart-type>5</chart-type>
+	<include-legend>false</include-legend>
+	<width>450</width>
+	<is-3D>false</is-3D>
+	<height>300</height>
+	<style>height:150px;overflow:auto</style>
+	<border-visible>true</border-visible>
+	<border-paint>#bbbbbb</border-paint>
+	<data>
+		<data-solution></data-solution>
+		<data-path>/public/pentaho-solutions/bi-developers/headcount_actual_by_department.xaction</data-path>
+		<data-action></data-action>
+		<data-output>rule-result</data-output>
+		<data-name>POSITIONTITLE</data-name>
+		<data-value>ACTUAL</data-value>
+		<data-orientation>columns</data-orientation>
+	</data>
+</chart>

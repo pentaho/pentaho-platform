@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springsource.org/dtd/spring-beans.dtd">
+
+<!--+
+	| Application context containing LDAP AuthenticationProvider
+	| implementation.
+	+-->
+
+<beans>
+
+	<bean id="authenticationProvider"
+		class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
+		<constructor-arg>
+      <ref bean="authenticator" />
+		</constructor-arg>
+		<constructor-arg>
+			<ref local="populator" />
+		</constructor-arg>
+	</bean>
+
+  <bean id="authenticator" class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
+    <constructor-arg>
+      <ref local="contextSource" />
+    </constructor-arg>
+    <property name="userSearch">
+      <ref local="userSearch" />
+    </property>
+  </bean>
+
+  <bean id="contextSource" class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
+    <constructor-arg value="${contextSource.providerUrl}"/>
+    <property name="userDn" value="${contextSource.userDn}"/>
+    <property name="password" value="${contextSource.password}"/>
+  </bean>
+
+  <!-- be sure to escape ampersands -->
+	<bean id="userSearch"
+		class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+		<constructor-arg index="0" value="${userSearch.searchBase}" />
+		<constructor-arg index="1" value="${userSearch.searchFilter}" />
+		<constructor-arg index="2">
+			<ref local="contextSource" />
+		</constructor-arg>
+	</bean>
+
+  <!-- be sure to escape ampersands -->
+	<bean id="populator"
+		class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
+		<constructor-arg index="0">
+			<ref local="contextSource" />
+		</constructor-arg>
+		<constructor-arg index="1" value="${populator.groupSearchBase}" />
+		<property name="groupRoleAttribute" value="${populator.groupRoleAttribute}" />
+    <!-- {0} will be replaced with user DN; {1} will be replaced with username -->
+		<property name="groupSearchFilter" value="${populator.groupSearchFilter}" />
+    <property name="rolePrefix" value="${populator.rolePrefix}" />
+    <property name="convertToUpperCase" value="${populator.convertToUpperCase}" />
+    <property name="searchSubtree" value="${populator.searchSubtree}" />
+    <property name="defaultRole" ref="defaultRole" />
+	</bean>
+
+	<bean id="userDetailsService0"
+		class="org.springframework.security.userdetails.ldap.LdapUserDetailsService">
+		<constructor-arg>
+			<ref local="userSearch" />
+		</constructor-arg>
+		<constructor-arg>
+			<ref local="populator" />
+		</constructor-arg>
+	</bean>
+
+  <!--
+    LDAP is different from JDBC and others in that its authenticationProvider does not delegate to a 
+    userDetailsService. While the others use org.springframework.security.providers.dao.DaoAuthenticationProvider which
+    does the password check, LDAP binds as the user to check the password.  Because userDetailsService isn't used by 
+    authenticationProvider, defaultRole property of populator bean must be supplied to automatically inject a default
+    role. This bean is actually not used in this file but instead in applicationContext-pentaho-security-ldap.xml.
+    In that file, userRoleListService uses this bean for fetching roles for a user (e.g. during scheduled jobs). 
+  -->
+  <bean id="userDetailsService" class="org.pentaho.platform.engine.security.DefaultRoleUserDetailsServiceDecorator">
+    <property name="userDetailsService" ref="userDetailsService0" />
+    <property name="defaultRole" ref="defaultRole" />
+  </bean>
+
+</beans>

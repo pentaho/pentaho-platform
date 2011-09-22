@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>CurrentPositionTitles.xaction</name>
+  <title>data for map</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description/>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon/> 
+  </documentation>
+
+  <inputs> 
+    <customer type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>customer</request> 
+      </sources> 
+    </customer> 
+  </inputs>
+
+  <outputs> 
+    <report type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </report> 
+  </outputs>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>customer_details_report.xml</location>  
+        <mime-type>text/plain</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Perform SQL Query</action-type>
+      <action-inputs> 
+        <customer type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="data"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select ORDERDATE as "ORDER DATE", SUM(QUANTITYORDERED * PRICEEACH) as VALUE from CUSTOMERS, ORDERS, ORDERDETAILS where CUSTOMERS.CUSTOMERNUMBER = {PREPARE:customer} and CUSTOMERS.CUSTOMERNUMBER = ORDERS.CUSTOMERNUMBER and ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER GROUP BY ORDERDATE ORDER BY ORDERDATE DESC]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Pentaho Report</action-type>
+      <action-inputs> 
+        <data type="result-set" mapping="data"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <report-output type="content" mapping="report"/> 
+      </action-outputs>
+      <component-definition> 
+        <output-type>html</output-type> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

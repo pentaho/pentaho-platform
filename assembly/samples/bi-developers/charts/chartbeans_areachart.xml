@@ -1,0 +1,19 @@
+<chartModel chartEngine="OpenFlashChart" style="border-top-width: 5; border-top-color: #987654; background-color: #fffacd;">
+  <title style="font-family: courier; color: #ffaa00; font-size: 20px; font-weight: bold; text-align: center;">Chart Title</title>
+  <legend style="font-family: verdana; font-size: 18px; font-weight: bold; border-top-width: 10; border-top-color: #880a0f; font-style: italic;"/>
+  <areaPlot orientation="VERTICAL" style="opacity: 0.75; background-color: #fffff0;">
+    <palette>
+      <paint style="color: #001111;"/>
+      <paint style="color: #222222;"/>
+      <paint style="color: #333333;"/>
+    </palette>
+    <verticalAxis class="org.pentaho.chart.model.NumericAxis">
+      <legend style="font-family: san-serif; color: #772200; font-size: 12px; font-weight: bold; font-style: oblique;">yAxis</legend>
+    </verticalAxis>
+    <horizontalAxis labelOrientation="DIAGONAL">
+      <legend style="font-family: san-serif; color: #772200; font-size: 10px;">xAxis</legend>
+    </horizontalAxis>
+  </areaPlot>
+</chartModel>
+
+

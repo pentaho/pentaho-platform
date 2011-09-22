@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>query1.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <help>just testing...</help>  
+    <result-type>report</result-type>  
+    <description>%description</description>  
+    <icon>slicedice.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <region type="string-list"> 
+      <default-value/>  
+      <sources> 
+        <request>region</request> 
+      </sources> 
+    </region>  
+    <department type="string-list"> 
+      <default-value/>  
+      <sources> 
+        <request>department</request> 
+      </sources> 
+    </department>  
+    <position type="string-list"> 
+      <default-value/>  
+      <sources> 
+        <request>position</request> 
+      </sources> 
+    </position>  
+    <mdx type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>MDX</request> 
+      </sources> 
+    </mdx>  
+    <mode type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>mode</request> 
+      </sources> 
+    </mode> 
+  </inputs>
+
+  <outputs> 
+    <model type="string"/>  
+    <connection type="string"/>  
+    <mdx type="string"/>  
+    <options type="list"/>  
+    <title type="string"/>  
+    <url type="string"> 
+      <destinations> 
+        <response>redirect</response> 
+      </destinations> 
+    </url>  
+    <chartaxistickfontsize type="string"/>
+    <chartslicerfontsize type="string"/>
+    <chartlegendfontfamily type="string"/>
+    <showgrid type="string"/>
+    <actionreference type="string"/>
+    <chartaxislabelfontsize type="string"/>
+    <chartslicerlocation type="string"/>
+    <chartaxistickfontfamily type="string"/>
+    <chartheight type="string"/>
+    <chartslicerfontfamily type="string"/>
+    <chartvertaxislabel type="string"/>
+    <chartaxislabelfontstyle type="string"/>
+    <chartdrillthroughenabled type="string"/>
+    <chartbackgroundb type="string"/>
+    <chartwidth type="string"/>
+    <role type="string"/>
+    <chartaxistickfontstyle type="string"/>
+    <charttitlefontsize type="string"/>
+    <chartbackgroundg type="string"/>
+    <chartlegendfontstyle type="string"/>
+    <chartshowslicer type="string"/>
+    <charttitlefontstyle type="string"/>
+    <chartlegendlocation type="string"/>
+    <chartlocation type="string"/>
+    <chartbackgroundr type="string"/>
+    <charttype type="string"/>
+    <chartaxislabelfontfamily type="string"/>
+    <chartlegendfontsize type="string"/>
+    <chartshowlegend type="string"/>
+    <chartaxisticklabelrotation type="string"/>
+    <charthorizaxislabel type="string"/>
+    <charttitle type="string"/>
+    <chartsliceralignment type="string"/>
+    <chartslicerfontstyle type="string"/>
+    <charttitlefontfamily type="string"/>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>JavaScript</action-type>
+      <action-inputs> 
+        <region type="string"/>  
+        <department type="string"/>  
+        <position type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <regionSelects type="string"/>  
+        <departmentSelects type="string"/>  
+        <positionSelects type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[function getSelects( baseStr, values ) {
+    rtnStr = baseStr;
+    if ( values == null ) {
+        // Do nothing and the baseStr will be returned
+    }
+    else if ( typeof( values ) == "string" ) {
+        rtnStr += values;
+    }
+    else {
+        rtnStr = baseStr;
+        if ( (values != null) && (values.length >= 1) ) {
+            rtnStr += values[0];
+            for ( i = 1; i < values.length; ++i ) {
+                rtnStr += ", " + baseStr + values[i];
+            }
+        }
+    }
+java.lang.System.out.println( rtnStr );
+    return( rtnStr );
+}
+
+regionSelects = getSelects( "[Region].[All Regions]", region );
+departmentSelects = getSelects( "[Department].[All Departments]", department );
+positionSelects = getSelects( "[Positions].[All Positions]", position );]]></script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>PivotViewComponent</component-name>
+      <action-inputs> 
+        <mode type="string"/>  
+        <regionSelects type="string"/>  
+        <departmentSelects type="string"/>  
+        <positionSelects type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <model type="string"/>  
+        <connection type="string"/>  
+        <mdx type="string"/>  
+        <options type="list"/>  
+        <title type="string"/>  
+        <url type="string"/>  
+        <chartaxistickfontsize type="string"/>
+        <chartslicerfontsize type="string"/>
+        <chartlegendfontfamily type="string"/>
+        <showgrid type="string"/>
+        <actionreference type="string"/>
+        <chartaxislabelfontsize type="string"/>
+        <chartslicerlocation type="string"/>
+        <chartaxistickfontfamily type="string"/>
+        <chartheight type="string"/>
+        <chartslicerfontfamily type="string"/>
+        <chartvertaxislabel type="string"/>
+        <chartaxislabelfontstyle type="string"/>
+        <chartdrillthroughenabled type="string"/>
+        <chartbackgroundb type="string"/>
+        <chartwidth type="string"/>
+        <role type="string"/>
+        <chartaxistickfontstyle type="string"/>
+        <charttitlefontsize type="string"/>
+        <chartbackgroundg type="string"/>
+        <chartlegendfontstyle type="string"/>
+        <chartshowslicer type="string"/>
+        <charttitlefontstyle type="string"/>
+        <chartlegendlocation type="string"/>
+        <chartlocation type="string"/>
+        <chartbackgroundr type="string"/>
+        <charttype type="string"/>
+        <chartaxislabelfontfamily type="string"/>
+        <chartlegendfontsize type="string"/>
+        <chartshowlegend type="string"/>
+        <chartaxisticklabelrotation type="string"/>
+        <charthorizaxislabel type="string"/>
+        <charttitle type="string"/>
+        <chartsliceralignment type="string"/>
+        <chartslicerfontstyle type="string"/>
+        <charttitlefontfamily type="string"/>
+      </action-outputs>
+      <component-definition> 
+        <title>Slice and Dice</title>  
+        <viewer>Pivot</viewer>  
+        <model><![CDATA[solution:bi-developers/analysis/SampleData.mondrian.xml]]></model>  
+        <!--  connection>jdbc/SampleData</connection -->  
+        <jndi>SampleData</jndi>  
+        <!--  query>default</query -->  
+        <options> 
+          <personal/>  
+          <cube-nav/>  
+          <mdx-edit/>  
+          <sort-conf/>  
+          <spacer/>  
+          <level-style/>  
+          <hide-spans/>  
+          <properties/>  
+          <non-empty/>  
+          <swap-axes/>  
+          <spacer/>  
+          <drill-member/>  
+          <drill-position/>  
+          <drill-replace/>  
+          <drill-thru/>  
+          <spacer/>  
+          <chart/>  
+          <chart-conf/>  
+          <spacer/>  
+          <print-conf/>  
+          <print-pdf/>  
+          <spacer/>  
+          <excel/> 
+        </options>  
+        <query>with member [Measures].[Variance Percent] as '([Measures].[Variance] / [Measures].[Budget])', format_string = IIf(((([Measures].[Variance] / [Measures].[Budget]) * 100.0) &gt; 2.0), "|#.00%|style='green'", IIf(((([Measures].[Variance] / [Measures].[Budget]) * 100.0) &lt; 0.0), "|#.00%|style='red'", "#.00%")) select NON EMPTY {[Measures].[Actual], [Measures].[Budget], [Measures].[Variance], [Measures].[Variance Percent]} ON COLUMNS, NON EMPTY Hierarchize(Union(Crossjoin({[Region].[All Regions]}, Union(Crossjoin({[Department].[All Departments]}, {[Positions].[All Positions]}), Crossjoin({[Department].[All Departments]}, [Positions].[All Positions].Children))), Crossjoin({[Region].[All Regions]}, Union(Crossjoin([Department].[All Departments].Children, {[Positions].[All Positions]}), Crossjoin([Department].[All Departments].Children, [Positions].[All Positions].Children))))) ON ROWS from [Quadrant Analysis]</query>  
+        <chartaxistickfontsize>12</chartaxistickfontsize>
+        <chartslicerfontsize>12</chartslicerfontsize>
+        <chartlegendfontfamily>SansSerif</chartlegendfontfamily>
+        <showgrid>true</showgrid>
+        <actionreference>samples/analysis/query1.xaction</actionreference>
+        <chartaxislabelfontsize>12</chartaxislabelfontsize>
+        <chartslicerlocation>1</chartslicerlocation>
+        <chartaxistickfontfamily>SansSerif</chartaxistickfontfamily>
+        <chartheight>300</chartheight>
+        <chartslicerfontfamily>SansSerif</chartslicerfontfamily>
+        <chartvertaxislabel/>
+        <chartaxislabelfontstyle>0</chartaxislabelfontstyle>
+        <chartdrillthroughenabled>false</chartdrillthroughenabled>
+        <chartbackgroundb>255</chartbackgroundb>
+        <chartwidth>500</chartwidth>
+        <role/>
+        <chartaxistickfontstyle>0</chartaxistickfontstyle>
+        <charttitlefontsize>18</charttitlefontsize>
+        <chartbackgroundg>255</chartbackgroundg>
+        <mdx>with member [Measures].[Variance Percent] as '([Measures].[Variance] / [Measures].[Budget])', format_string = IIf(((([Measures].[Variance] / [Measures].[Budget]) * 100.0) &gt; 2.0), "|#.00%|style='green'", IIf(((([Measures].[Variance] / [Measures].[Budget]) * 100.0) &lt; 0.0), "|#.00%|style='red'", "#.00%")) select NON EMPTY {[Measures].[Actual], [Measures].[Budget], [Measures].[Variance], [Measures].[Variance Percent]} ON COLUMNS, NON EMPTY Hierarchize(Union(Crossjoin({[Region].[All Regions]}, Union(Crossjoin({[Department].[All Departments]}, {[Positions].[All Positions]}), Crossjoin({[Department].[All Departments]}, [Positions].[All Positions].Children))), Crossjoin({[Region].[All Regions]}, Union(Crossjoin([Department].[All Departments].Children, {[Positions].[All Positions]}), Crossjoin([Department].[All Departments].Children, [Positions].[All Positions].Children))))) ON ROWS from [Quadrant Analysis]</mdx>
+        <chartlegendfontstyle>0</chartlegendfontstyle>
+        <chartshowslicer>true</chartshowslicer>
+        <charttitlefontstyle>1</charttitlefontstyle>
+        <connection/>
+        <chartlegendlocation>3</chartlegendlocation>
+        <chartlocation>none</chartlocation>
+        <chartbackgroundr>255</chartbackgroundr>
+        <charttype>1</charttype>
+        <chartaxislabelfontfamily>SansSerif</chartaxislabelfontfamily>
+        <chartlegendfontsize>10</chartlegendfontsize>
+        <chartshowlegend>true</chartshowlegend>
+        <chartaxisticklabelrotation>30</chartaxisticklabelrotation>
+        <charthorizaxislabel/>
+        <charttitle/>
+        <chartsliceralignment>3</chartsliceralignment>
+        <chartslicerfontstyle>0</chartslicerfontstyle>
+        <charttitlefontfamily>SansSerif</charttitlefontfamily>
+      </component-definition>  
+      <action-name>Pivot View</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

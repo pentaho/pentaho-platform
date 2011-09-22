@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>invoice.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <description>%description</description>  
+    <icon>invoice.png</icon>  
+    <help/>  
+    <result-type>report</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>pdf</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type>
+    <customer type="string"> 
+      <default-value>353</default-value>  
+      <sources> 
+        <request>customer</request> 
+      </sources> 
+    </customer>  
+    <output-type-list type="property-map-list"> 
+      <sources> 
+        <runtime>output-type-list</runtime> 
+      </sources>  
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="report-output-desc">PDF</entry>  
+          <entry key="report-output-type-id">pdf</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="report-output-desc">Excel</entry>  
+          <entry key="report-output-type-id">xls</entry> 
+        </property-map> 
+        <property-map> 
+          <entry key="report-output-desc">Web Page</entry>  
+          <entry key="report-output-type-id">html</entry> 
+        </property-map> 
+      </default-value> 
+    </output-type-list>  
+    <customer_list type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="customernumber">242</entry>  
+          <entry key="customername">Alpha Cognac</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">249</entry>  
+          <entry key="customername">Amica Models &amp; Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">276</entry>  
+          <entry key="customername">Anna's Decorations, Ltd</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">103</entry>  
+          <entry key="customername">Atelier graphique</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">471</entry>  
+          <entry key="customername">Australian Collectables, Ltd</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">114</entry>  
+          <entry key="customername">Australian Collectors, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">333</entry>  
+          <entry key="customername">Australian Gift Network, Co</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">406</entry>  
+          <entry key="customername">Auto Canal+ Petit</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">198</entry>  
+          <entry key="customername">Auto-Moto Classics Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">187</entry>  
+          <entry key="customername">AV Stores, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">121</entry>  
+          <entry key="customername">Baane Mini Imports</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">415</entry>  
+          <entry key="customername">Bavarian Collectables Imports, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">128</entry>  
+          <entry key="customername">Blauer See Auto, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">219</entry>  
+          <entry key="customername">Boards &amp; Toys Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">344</entry>  
+          <entry key="customername">CAF Imports</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">173</entry>  
+          <entry key="customername">Cambridge Collectables Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">202</entry>  
+          <entry key="customername">Canadian Gift Exchange Network</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">339</entry>  
+          <entry key="customername">Classic Gift Ideas, Inc</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">424</entry>  
+          <entry key="customername">Classic Legends Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">189</entry>  
+          <entry key="customername">Clover Collections, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">239</entry>  
+          <entry key="customername">Collectable Mini Designs Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">379</entry>  
+          <entry key="customername">Collectables For Less Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">321</entry>  
+          <entry key="customername">Corporate Gift Ideas Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">458</entry>  
+          <entry key="customername">Corrida Auto Replicas, Ltd</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">385</entry>  
+          <entry key="customername">Cruz &amp; Sons Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">171</entry>  
+          <entry key="customername">Daedalus Designs Imports</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">145</entry>  
+          <entry key="customername">Danish Wholesale Imports</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">157</entry>  
+          <entry key="customername">Diecast Classics Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">495</entry>  
+          <entry key="customername">Diecast Collectables</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">489</entry>  
+          <entry key="customername">Double Decker Gift Stores, Ltd</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">323</entry>  
+          <entry key="customername">Down Under Souveniers, Inc</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">148</entry>  
+          <entry key="customername">Dragon Souveniers, Ltd.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">216</entry>  
+          <entry key="customername">Enaco Distributors</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">141</entry>  
+          <entry key="customername">Euro+ Shopping Channel</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">412</entry>  
+          <entry key="customername">Extreme Desk Decorations, Ltd</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">473</entry>  
+          <entry key="customername">Frau da Collezione</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">462</entry>  
+          <entry key="customername">FunGiftIdeas.com</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">175</entry>  
+          <entry key="customername">Gift Depot Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">447</entry>  
+          <entry key="customername">Gift Ideas Corp.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">362</entry>  
+          <entry key="customername">Gifts4AllAges.com</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">357</entry>  
+          <entry key="customername">GiftsForHim.com</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">240</entry>  
+          <entry key="customername">giftsbymail.co.uk</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">166</entry>  
+          <entry key="customername">Handji Gifts&amp; Co</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">227</entry>  
+          <entry key="customername">Heintze Collectables</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">167</entry>  
+          <entry key="customername">Herkku Gifts</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">484</entry>  
+          <entry key="customername">Iberia Gift Imports, Corp.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">496</entry>  
+          <entry key="customername">Kelly's Gift Shop</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">211</entry>  
+          <entry key="customername">King Kong Collectables, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">386</entry>  
+          <entry key="customername">L'ordine Souveniers</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">172</entry>  
+          <entry key="customername">La Corne D'abondance, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">119</entry>  
+          <entry key="customername">La Rochelle Gifts</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">131</entry>  
+          <entry key="customername">Land of Toys Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">250</entry>  
+          <entry key="customername">Lyon Souveniers</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">350</entry>  
+          <entry key="customername">Marseille Mini Autos</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">286</entry>  
+          <entry key="customername">Marta's Replicas Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">347</entry>  
+          <entry key="customername">Men 'R' US Retailers, Ltd.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">456</entry>  
+          <entry key="customername">Microscale Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">452</entry>  
+          <entry key="customername">Mini Auto Werke</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">209</entry>  
+          <entry key="customername">Mini Caravy</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">319</entry>  
+          <entry key="customername">Mini Classics</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">320</entry>  
+          <entry key="customername">Mini Creations Ltd.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">124</entry>  
+          <entry key="customername">Mini Gifts Distributors Ltd.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">129</entry>  
+          <entry key="customername">Mini Wheels Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">486</entry>  
+          <entry key="customername">Motor Mint Distributors Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">151</entry>  
+          <entry key="customername">Muscle Machine Inc</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">299</entry>  
+          <entry key="customername">Norway Gifts By Mail, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">363</entry>  
+          <entry key="customername">Online Diecast Creations Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">204</entry>  
+          <entry key="customername">Online Mini Collectables</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">177</entry>  
+          <entry key="customername">Osaka Souveniers Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">311</entry>  
+          <entry key="customername">Oulu Toy Supplies, Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">314</entry>  
+          <entry key="customername">Petit Auto</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">353</entry>  
+          <entry key="customername">Reims Collectables</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">278</entry>  
+          <entry key="customername">Rovelli Gifts</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">260</entry>  
+          <entry key="customername">Royal Canadian Collectables, Ltd.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">381</entry>  
+          <entry key="customername">Royale Belge</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">382</entry>  
+          <entry key="customername">Salzburg Collectables</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">146</entry>  
+          <entry key="customername">Saveley &amp; Henriot, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">448</entry>  
+          <entry key="customername">Scandinavian Gift Ideas</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">487</entry>  
+          <entry key="customername">Signal Collectibles Ltd.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">112</entry>  
+          <entry key="customername">Signal Gift Stores</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">282</entry>  
+          <entry key="customername">Souveniers And Things Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">324</entry>  
+          <entry key="customername">Stylish Desk Decors, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">334</entry>  
+          <entry key="customername">Suominen Souveniers</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">455</entry>  
+          <entry key="customername">Super Scale Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">161</entry>  
+          <entry key="customername">Technics Stores Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">328</entry>  
+          <entry key="customername">Tekni Collectables Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">450</entry>  
+          <entry key="customername">The Sharp Gifts Warehouse</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">398</entry>  
+          <entry key="customername">Tokyo Collectables, Ltd</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">186</entry>  
+          <entry key="customername">Toys of Finland, Co.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">205</entry>  
+          <entry key="customername">Toys4Gproperty-mapnUps.com</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">201</entry>  
+          <entry key="customername">UK Collectables, Ltd.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">298</entry>  
+          <entry key="customername">Vida Sport, Ltd</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">181</entry>  
+          <entry key="customername">Vitachrome Inc.</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">144</entry>  
+          <entry key="customername">Volvo Model Replicas, Co</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="customernumber">475</entry>  
+          <entry key="customername">West Coast Collectables Co.</entry> 
+        </property-map> 
+      </default-value>  
+      <sources> 
+        <runtime>customer_list</runtime> 
+      </sources> 
+    </customer_list> 
+  </inputs>
+
+  <outputs> 
+    <NoData type="string"> 
+      <destinations> 
+        <response>NoData</response> 
+      </destinations> 
+    </NoData> 
+  </outputs>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>invoice.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Prompt for Customer and Report Format</action-type>
+      <action-inputs> 
+        <customer type="string"/>  
+        <customer_list type="property-map-list"/>  
+        <output-type type="string"/>  
+        <output-type-list type="property-map-list"/> 
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <customer style="list-multi"> 
+            <filter value-col-name="customernumber" display-col-name="customername">customer_list</filter>  
+            <title>Customer (Select less than six)</title> 
+          </customer>  
+          <output-type style="radio"> 
+            <title>Report Output</title>  
+            <filter value-col-name="report-output-type-id" display-col-name="report-output-desc">output-type-list</filter> 
+          </output-type> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+    
+    <actions name="runReport">
+      <condition><![CDATA[(typeof(customer) == 'string' ) || ( (typeof(customer) == 'object') && (customer instanceof Array) && customer.length <= 5)]]></condition>
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Get Data</action-type>
+        <action-inputs> 
+          <customer type="string"/> 
+        </action-inputs>
+        <action-outputs> 
+          <query-result type="result-set" mapping="queryResult"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi>SampleData</jndi>  
+          <live>true</live>  
+          <query><![CDATA[SELECT CUSTOMERS.CUSTOMERNAME, CUSTOMERS.ADDRESSLINE1, CUSTOMERS.ADDRESSLINE2, CUSTOMERS.CITY, CUSTOMERS.STATE, CUSTOMERS.POSTALCODE, CUSTOMERS.COUNTRY, CUSTOMERS.SALESREPEMPLOYEENUMBER, CUSTOMERS.CONTACTFIRSTNAME, CUSTOMERS.CONTACTLASTNAME, ORDERS.STATUS, ORDERS.CUSTOMERNUMBER, ORDERS.ORDERNUMBER, ORDERS.ORDERDATE, ORDERDETAILS.ORDERLINENUMBER, PRODUCTS.PRODUCTNAME, ORDERDETAILS.QUANTITYORDERED, ORDERDETAILS.PRODUCTCODE, ORDERDETAILS.PRICEEACH, PRODUCTS.QUANTITYINSTOCK, (ORDERDETAILS.QUANTITYORDERED*ORDERDETAILS.PRICEEACH) SOLD_PRICE FROM ORDERS, ORDERDETAILS, PRODUCTS, CUSTOMERS  WHERE CUSTOMERS.CUSTOMERNUMBER IN ({PREPARE:customer}) AND ( ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER AND PRODUCTS.PRODUCTCODE = ORDERDETAILS.PRODUCTCODE AND ORDERS.CUSTOMERNUMBER = CUSTOMERS.CUSTOMERNUMBER ) ORDER BY CUSTOMERS.CUSTOMERNAME ASC, ORDERS.ORDERNUMBER ASC, ORDERDETAILS.ORDERLINENUMBER ASC]]></query> 
+        </component-definition> 
+      </action-definition>
+    
+      <actions> 
+        <condition><![CDATA[queryResult.getRowCount() > 0]]></condition>  
+        <action-definition> 
+          <component-name>JFreeReportComponent</component-name>
+          <action-type>Run Report</action-type>
+          <action-inputs> 
+            <output-type type="string"/>  
+            <customer type="string"/>  
+            <data type="result-set" mapping="queryResult"/> 
+          </action-inputs>
+          <action-resources> 
+            <report-definition type="resource"/> 
+          </action-resources>
+          <component-definition/> 
+        </action-definition>
+   
+      </actions>
+    
+      <actions> 
+        <condition><![CDATA[queryResult.getRowCount()==0]]></condition>  
+        <action-definition> 
+          <component-name>TemplateComponent</component-name>
+          <action-type>Prompt No Data Message</action-type>
+          <action-outputs> 
+            <output-message type="string" mapping="NoData"/> 
+          </action-outputs>
+          <component-definition> 
+            <template><![CDATA[There is no data on this customer.]]></template> 
+          </component-definition> 
+        </action-definition>
+   
+      </actions>
+    </actions>
+    <actions name="tooManySelections">
+      <condition><![CDATA[( (typeof(customer) == 'object') && (customer instanceof Array) && (customer.length > 5) ) ||  ( (typeof(customer) != 'string') && (typeof(customer) != 'object') )]]></condition>
+        <action-definition> 
+          <component-name>TemplateComponent</component-name>
+          <action-type>Prompt Too Many Customers</action-type>
+          <action-outputs> 
+            <output-message type="string" mapping="NoData"/> 
+          </action-outputs>
+          <component-definition> 
+            <template><![CDATA[<font color='red'><br>Please select less than six customers.</font>]]></template> 
+          </component-definition> 
+        </action-definition>
+    </actions>
+  </actions> 
+</action-sequence>

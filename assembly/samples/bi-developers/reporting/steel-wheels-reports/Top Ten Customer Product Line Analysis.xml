@@ -1,0 +1,1566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report-definition xmlns="http://jfreereport.sourceforge.net/namespaces/reports/legacy/ext" name="Top Ten Main" engine-version="0.8.9.5">
+  <parser-config>
+    <object-factory class="org.jfree.report.modules.parser.ext.factory.base.URLClassFactory"/>
+    <object-factory class="org.jfree.report.modules.parser.ext.factory.objects.DefaultClassFactory"/>
+    <object-factory class="org.jfree.report.modules.parser.ext.factory.objects.BandLayoutClassFactory"/>
+    <object-factory class="org.jfree.report.modules.parser.ext.factory.base.ArrayClassFactory"/>
+    <element-factory class="org.jfree.report.modules.parser.ext.factory.elements.DefaultElementFactory"/>
+    <stylekey-factory class="org.jfree.report.modules.parser.ext.factory.stylekey.DefaultStyleKeyFactory"/>
+    <stylekey-factory class="org.jfree.report.modules.parser.ext.factory.stylekey.PageableLayoutStyleKeyFactory"/>
+    <template-factory class="org.jfree.report.modules.parser.ext.factory.templates.DefaultTemplateCollection"/>
+    <datasource-factory class="org.jfree.report.modules.parser.ext.factory.datasource.DefaultDataSourceFactory"/>
+  </parser-config>
+  <report-config>
+    <simple-page-definition width="1" height="1">
+      <page orientation="portrait" topmargin="20" leftmargin="20" bottommargin="20" rightmargin="20" pageformat="A4"/>
+    </simple-page-definition>
+    <configuration>
+      <property name="org.jfree.report.NoPrinterAvailable">true</property>
+    </configuration>
+  </report-config>
+  <report-description>
+    <report-header>
+      <style>
+        <basic-key name="pagebreak-before">false</basic-key>
+        <basic-key name="pagebreak-after">false</basic-key>
+        <basic-key name="border-top-width">1.0</basic-key>
+        <basic-key name="border-top-style">none</basic-key>
+        <basic-key name="border-top-color">black</basic-key>
+        <basic-key name="border-left-width">1.0</basic-key>
+        <basic-key name="border-left-style">none</basic-key>
+        <basic-key name="border-left-color">black</basic-key>
+        <basic-key name="border-bottom-width">1.0</basic-key>
+        <basic-key name="border-bottom-style">none</basic-key>
+        <basic-key name="border-bottom-color">black</basic-key>
+        <basic-key name="border-right-width">1.0</basic-key>
+        <basic-key name="border-right-style">none</basic-key>
+        <basic-key name="border-right-color">black</basic-key>
+        <basic-key name="border-break-width">0.0</basic-key>
+        <basic-key name="border-break-style">none</basic-key>
+        <basic-key name="border-break-color">black</basic-key>
+        <basic-key name="border-top-right-radius-width">0.0</basic-key>
+        <basic-key name="border-top-left-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+        <basic-key name="border-top-right-radius-height">0.0</basic-key>
+        <basic-key name="border-top-left-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+        <basic-key name="padding-left">0.0</basic-key>
+        <basic-key name="padding-top">0.0</basic-key>
+        <basic-key name="padding-bottom">0.0</basic-key>
+        <basic-key name="padding-right">0.0</basic-key>
+      </style>
+      <element name="Element@11557752" type="shape/generic">
+        <style>
+          <basic-key name="border-top-width">1.0</basic-key>
+          <basic-key name="border-top-style">none</basic-key>
+          <basic-key name="border-top-color">black</basic-key>
+          <basic-key name="border-left-width">1.0</basic-key>
+          <basic-key name="border-left-style">none</basic-key>
+          <basic-key name="border-left-color">black</basic-key>
+          <basic-key name="border-bottom-width">1.0</basic-key>
+          <basic-key name="border-bottom-style">none</basic-key>
+          <basic-key name="border-bottom-color">black</basic-key>
+          <basic-key name="border-right-width">1.0</basic-key>
+          <basic-key name="border-right-style">none</basic-key>
+          <basic-key name="border-right-color">black</basic-key>
+          <basic-key name="border-break-width">0.0</basic-key>
+          <basic-key name="border-break-style">none</basic-key>
+          <basic-key name="border-break-color">black</basic-key>
+          <basic-key name="border-top-right-radius-width">0.0</basic-key>
+          <basic-key name="border-top-left-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+          <basic-key name="border-top-right-radius-height">0.0</basic-key>
+          <basic-key name="border-top-left-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+          <basic-key name="padding-left">0.0</basic-key>
+          <basic-key name="padding-top">0.0</basic-key>
+          <basic-key name="padding-bottom">0.0</basic-key>
+          <basic-key name="padding-right">0.0</basic-key>
+          <basic-key name="x">4.0</basic-key>
+          <basic-key name="y">1.0</basic-key>
+          <basic-key name="min-width">551.0</basic-key>
+          <basic-key name="min-height">0.0</basic-key>
+          <basic-key name="paint">black</basic-key>
+          <compound-key name="stroke" class="java.awt.BasicStroke">
+            <basic-object name="value">1.0</basic-object>
+          </compound-key>
+          <basic-key name="scale">true</basic-key>
+          <basic-key name="keepAspectRatio">false</basic-key>
+          <basic-key name="dynamic_height">false</basic-key>
+          <basic-key name="fill-shape">false</basic-key>
+          <basic-key name="draw-shape">true</basic-key>
+        </style>
+        <datasource type="StaticDataSource">
+          <compound-object name="value" class="java.awt.geom.Line2D$Double">
+            <basic-object name="x1">0.0</basic-object>
+            <basic-object name="x2">551.0</basic-object>
+            <basic-object name="y1">0.0</basic-object>
+            <basic-object name="y2">0.0</basic-object>
+          </compound-object>
+        </datasource>
+      </element>
+      <element name="Element@12583742" type="image/generic">
+        <style>
+          <basic-key name="border-top-width">1.0</basic-key>
+          <basic-key name="border-top-style">none</basic-key>
+          <basic-key name="border-top-color">black</basic-key>
+          <basic-key name="border-left-width">1.0</basic-key>
+          <basic-key name="border-left-style">none</basic-key>
+          <basic-key name="border-left-color">black</basic-key>
+          <basic-key name="border-bottom-width">1.0</basic-key>
+          <basic-key name="border-bottom-style">none</basic-key>
+          <basic-key name="border-bottom-color">black</basic-key>
+          <basic-key name="border-right-width">1.0</basic-key>
+          <basic-key name="border-right-style">none</basic-key>
+          <basic-key name="border-right-color">black</basic-key>
+          <basic-key name="border-break-width">0.0</basic-key>
+          <basic-key name="border-break-style">none</basic-key>
+          <basic-key name="border-break-color">black</basic-key>
+          <basic-key name="border-top-right-radius-width">0.0</basic-key>
+          <basic-key name="border-top-left-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+          <basic-key name="border-top-right-radius-height">0.0</basic-key>
+          <basic-key name="border-top-left-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+          <basic-key name="padding-left">0.0</basic-key>
+          <basic-key name="padding-top">0.0</basic-key>
+          <basic-key name="padding-bottom">0.0</basic-key>
+          <basic-key name="padding-right">0.0</basic-key>
+          <basic-key name="x">0.0</basic-key>
+          <basic-key name="y">7.0</basic-key>
+          <basic-key name="min-width">296.0</basic-key>
+          <basic-key name="min-height">44.0</basic-key>
+          <basic-key name="scale">true</basic-key>
+          <basic-key name="keepAspectRatio">true</basic-key>
+        </style>
+        <template references="image-url-element">
+          <basic-object name="content">${serverBaseURL}/sw-style/active/sw_logo.jpg</basic-object>
+        </template>
+      </element>
+      <element name="Chart1" type="drawable/generic">
+        <style>
+          <basic-key name="x">0.0</basic-key>
+          <basic-key name="y">101.0</basic-key>
+          <basic-key name="min-width">555.0</basic-key>
+          <basic-key name="min-height">232.0</basic-key>
+        </style>
+        <template references="drawable-field">
+          <basic-object name="field">ChartFunction1</basic-object>
+        </template>
+      </element>
+      <band name="Element@11295889">
+        <style>
+          <basic-key name="border-top-width">1.0</basic-key>
+          <basic-key name="border-top-style">none</basic-key>
+          <basic-key name="border-top-color">black</basic-key>
+          <basic-key name="border-left-width">1.0</basic-key>
+          <basic-key name="border-left-style">none</basic-key>
+          <basic-key name="border-left-color">black</basic-key>
+          <basic-key name="border-bottom-width">1.0</basic-key>
+          <basic-key name="border-bottom-style">none</basic-key>
+          <basic-key name="border-bottom-color">black</basic-key>
+          <basic-key name="border-right-width">1.0</basic-key>
+          <basic-key name="border-right-style">none</basic-key>
+          <basic-key name="border-right-color">black</basic-key>
+          <basic-key name="border-break-width">0.0</basic-key>
+          <basic-key name="border-break-style">none</basic-key>
+          <basic-key name="border-break-color">black</basic-key>
+          <basic-key name="border-top-right-radius-width">0.0</basic-key>
+          <basic-key name="border-top-left-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+          <basic-key name="border-top-right-radius-height">0.0</basic-key>
+          <basic-key name="border-top-left-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+          <basic-key name="padding-left">0.0</basic-key>
+          <basic-key name="padding-top">0.0</basic-key>
+          <basic-key name="padding-bottom">0.0</basic-key>
+          <basic-key name="padding-right">0.0</basic-key>
+          <basic-key name="x">0.0</basic-key>
+          <basic-key name="y">334.0</basic-key>
+          <basic-key name="min-width">555.0</basic-key>
+          <basic-key name="min-height">32.0</basic-key>
+          <basic-key name="max-width">555.0</basic-key>
+          <basic-key name="max-height">2.14748365E9</basic-key>
+        </style>
+        <element name="Element@11295889.fill" type="shape/generic">
+          <style>
+            <basic-key name="border-top-width">1.0</basic-key>
+            <basic-key name="border-top-style">none</basic-key>
+            <basic-key name="border-top-color">black</basic-key>
+            <basic-key name="border-left-width">1.0</basic-key>
+            <basic-key name="border-left-style">none</basic-key>
+            <basic-key name="border-left-color">black</basic-key>
+            <basic-key name="border-bottom-width">1.0</basic-key>
+            <basic-key name="border-bottom-style">none</basic-key>
+            <basic-key name="border-bottom-color">black</basic-key>
+            <basic-key name="border-right-width">1.0</basic-key>
+            <basic-key name="border-right-style">none</basic-key>
+            <basic-key name="border-right-color">black</basic-key>
+            <basic-key name="border-break-width">0.0</basic-key>
+            <basic-key name="border-break-style">none</basic-key>
+            <basic-key name="border-break-color">black</basic-key>
+            <basic-key name="border-top-right-radius-width">0.0</basic-key>
+            <basic-key name="border-top-left-radius-width">0.0</basic-key>
+            <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+            <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+            <basic-key name="border-top-right-radius-height">0.0</basic-key>
+            <basic-key name="border-top-left-radius-height">0.0</basic-key>
+            <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+            <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+            <basic-key name="padding-left">0.0</basic-key>
+            <basic-key name="padding-top">0.0</basic-key>
+            <basic-key name="padding-bottom">0.0</basic-key>
+            <basic-key name="padding-right">0.0</basic-key>
+            <basic-key name="x">0.0</basic-key>
+            <basic-key name="y">0.0</basic-key>
+            <basic-key name="min-width">-100.0</basic-key>
+            <basic-key name="min-height">-100.0</basic-key>
+            <basic-key name="paint">white</basic-key>
+            <compound-key name="stroke" class="java.awt.BasicStroke">
+              <basic-object name="value">1.0</basic-object>
+            </compound-key>
+            <basic-key name="scale">true</basic-key>
+            <basic-key name="keepAspectRatio">false</basic-key>
+            <basic-key name="fill-shape">true</basic-key>
+            <basic-key name="draw-shape">false</basic-key>
+          </style>
+          <datasource type="StaticDataSource">
+            <compound-object name="value" class="java.awt.geom.Rectangle2D$Float">
+              <basic-object name="height">100.0</basic-object>
+              <basic-object name="width">100.0</basic-object>
+              <basic-object name="x">0.0</basic-object>
+              <basic-object name="y">0.0</basic-object>
+            </compound-object>
+          </datasource>
+        </element>
+      </band>
+      <element name="Element@5649805" type="text/plain">
+        <style>
+          <basic-key name="border-top-width">1.0</basic-key>
+          <basic-key name="border-top-style">none</basic-key>
+          <basic-key name="border-top-color">black</basic-key>
+          <basic-key name="border-left-width">1.0</basic-key>
+          <basic-key name="border-left-style">none</basic-key>
+          <basic-key name="border-left-color">black</basic-key>
+          <basic-key name="border-bottom-width">1.0</basic-key>
+          <basic-key name="border-bottom-style">none</basic-key>
+          <basic-key name="border-bottom-color">black</basic-key>
+          <basic-key name="border-right-width">1.0</basic-key>
+          <basic-key name="border-right-style">none</basic-key>
+          <basic-key name="border-right-color">black</basic-key>
+          <basic-key name="border-break-width">0.0</basic-key>
+          <basic-key name="border-break-style">none</basic-key>
+          <basic-key name="border-break-color">black</basic-key>
+          <basic-key name="border-top-right-radius-width">0.0</basic-key>
+          <basic-key name="border-top-left-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+          <basic-key name="border-top-right-radius-height">0.0</basic-key>
+          <basic-key name="border-top-left-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+          <basic-key name="padding-left">0.0</basic-key>
+          <basic-key name="padding-top">0.0</basic-key>
+          <basic-key name="padding-bottom">0.0</basic-key>
+          <basic-key name="padding-right">0.0</basic-key>
+          <basic-key name="x">329.0</basic-key>
+          <basic-key name="y">8.0</basic-key>
+          <basic-key name="min-width">225.0</basic-key>
+          <basic-key name="min-height">22.0</basic-key>
+          <basic-key name="paint">black</basic-key>
+          <basic-key name="alignment">right</basic-key>
+          <basic-key name="valignment">top</basic-key>
+          <basic-key name="dynamic_height">false</basic-key>
+          <basic-key name="Excel.WrapText">false</basic-key>
+          <basic-key name="font">Dialog</basic-key>
+          <basic-key name="font-size">14</basic-key>
+          <basic-key name="line-height">0.0</basic-key>
+          <basic-key name="font-bold">true</basic-key>
+          <basic-key name="font-italic">false</basic-key>
+          <basic-key name="font-underline">false</basic-key>
+          <basic-key name="font-strikethrough">false</basic-key>
+          <basic-key name="font-embedded">false</basic-key>
+          <basic-key name="reserved-literal">..</basic-key>
+          <basic-key name="trim-text-content">true</basic-key>
+        </style>
+        <template references="label">
+          <basic-object name="content">Top Ten Customer Report</basic-object>
+        </template>
+      </element>
+      <element name="Element@14121275" type="text/plain">
+        <style>
+          <basic-key name="border-top-width">1.0</basic-key>
+          <basic-key name="border-top-style">none</basic-key>
+          <basic-key name="border-top-color">black</basic-key>
+          <basic-key name="border-left-width">1.0</basic-key>
+          <basic-key name="border-left-style">none</basic-key>
+          <basic-key name="border-left-color">black</basic-key>
+          <basic-key name="border-bottom-width">1.0</basic-key>
+          <basic-key name="border-bottom-style">none</basic-key>
+          <basic-key name="border-bottom-color">black</basic-key>
+          <basic-key name="border-right-width">1.0</basic-key>
+          <basic-key name="border-right-style">none</basic-key>
+          <basic-key name="border-right-color">black</basic-key>
+          <basic-key name="border-break-width">0.0</basic-key>
+          <basic-key name="border-break-style">none</basic-key>
+          <basic-key name="border-break-color">black</basic-key>
+          <basic-key name="border-top-right-radius-width">0.0</basic-key>
+          <basic-key name="border-top-left-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+          <basic-key name="border-top-right-radius-height">0.0</basic-key>
+          <basic-key name="border-top-left-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+          <basic-key name="padding-left">0.0</basic-key>
+          <basic-key name="padding-top">0.0</basic-key>
+          <basic-key name="padding-bottom">0.0</basic-key>
+          <basic-key name="padding-right">0.0</basic-key>
+          <basic-key name="x">314.0</basic-key>
+          <basic-key name="y">32.0</basic-key>
+          <basic-key name="min-width">241.0</basic-key>
+          <basic-key name="min-height">16.0</basic-key>
+          <basic-key name="paint">black</basic-key>
+          <basic-key name="alignment">right</basic-key>
+          <basic-key name="valignment">middle</basic-key>
+          <basic-key name="dynamic_height">false</basic-key>
+          <basic-key name="Excel.WrapText">false</basic-key>
+          <basic-key name="font">Dialog</basic-key>
+          <basic-key name="font-size">10</basic-key>
+          <basic-key name="line-height">0.0</basic-key>
+          <basic-key name="font-bold">false</basic-key>
+          <basic-key name="font-italic">false</basic-key>
+          <basic-key name="font-underline">false</basic-key>
+          <basic-key name="font-strikethrough">false</basic-key>
+          <basic-key name="font-embedded">false</basic-key>
+          <basic-key name="reserved-literal">..</basic-key>
+          <basic-key name="trim-text-content">true</basic-key>
+        </style>
+        <template references="message-field">
+          <basic-object name="format">Run Time: $(report.date, date, MMM dd, yyyy h:m a)</basic-object>
+          <basic-object name="nullValue"></basic-object>
+        </template>
+      </element>
+      <element name="Element@8618629" type="text/plain">
+        <style>
+          <basic-key name="border-top-width">1.0</basic-key>
+          <basic-key name="border-top-style">none</basic-key>
+          <basic-key name="border-top-color">black</basic-key>
+          <basic-key name="border-left-width">1.0</basic-key>
+          <basic-key name="border-left-style">none</basic-key>
+          <basic-key name="border-left-color">black</basic-key>
+          <basic-key name="border-bottom-width">1.0</basic-key>
+          <basic-key name="border-bottom-style">none</basic-key>
+          <basic-key name="border-bottom-color">black</basic-key>
+          <basic-key name="border-right-width">1.0</basic-key>
+          <basic-key name="border-right-style">none</basic-key>
+          <basic-key name="border-right-color">black</basic-key>
+          <basic-key name="border-break-width">0.0</basic-key>
+          <basic-key name="border-break-style">none</basic-key>
+          <basic-key name="border-break-color">black</basic-key>
+          <basic-key name="border-top-right-radius-width">0.0</basic-key>
+          <basic-key name="border-top-left-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+          <basic-key name="border-top-right-radius-height">0.0</basic-key>
+          <basic-key name="border-top-left-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+          <basic-key name="padding-left">0.0</basic-key>
+          <basic-key name="padding-top">0.0</basic-key>
+          <basic-key name="padding-bottom">0.0</basic-key>
+          <basic-key name="padding-right">0.0</basic-key>
+          <basic-key name="x">0.0</basic-key>
+          <basic-key name="y">78.0</basic-key>
+          <basic-key name="min-width">555.0</basic-key>
+          <basic-key name="min-height">20.0</basic-key>
+          <basic-key name="paint">white</basic-key>
+          <basic-key name="background-color">#123d82</basic-key>
+          <basic-key name="alignment">center</basic-key>
+          <basic-key name="valignment">middle</basic-key>
+          <basic-key name="dynamic_height">false</basic-key>
+          <basic-key name="Excel.WrapText">false</basic-key>
+          <basic-key name="font">Dialog</basic-key>
+          <basic-key name="font-size">14</basic-key>
+          <basic-key name="line-height">0.0</basic-key>
+          <basic-key name="font-bold">true</basic-key>
+          <basic-key name="font-italic">false</basic-key>
+          <basic-key name="font-underline">false</basic-key>
+          <basic-key name="font-strikethrough">false</basic-key>
+          <basic-key name="font-embedded">false</basic-key>
+          <basic-key name="reserved-literal">..</basic-key>
+          <basic-key name="trim-text-content">true</basic-key>
+        </style>
+        <template references="label">
+          <basic-object name="content">Top Ten Customer</basic-object>
+        </template>
+      </element>
+      <element name="Element@8618629" type="text/plain">
+        <style>
+          <basic-key name="border-top-width">1.0</basic-key>
+          <basic-key name="border-top-style">none</basic-key>
+          <basic-key name="border-top-color">black</basic-key>
+          <basic-key name="border-left-width">1.0</basic-key>
+          <basic-key name="border-left-style">none</basic-key>
+          <basic-key name="border-left-color">black</basic-key>
+          <basic-key name="border-bottom-width">1.0</basic-key>
+          <basic-key name="border-bottom-style">none</basic-key>
+          <basic-key name="border-bottom-color">black</basic-key>
+          <basic-key name="border-right-width">1.0</basic-key>
+          <basic-key name="border-right-style">none</basic-key>
+          <basic-key name="border-right-color">black</basic-key>
+          <basic-key name="border-break-width">0.0</basic-key>
+          <basic-key name="border-break-style">none</basic-key>
+          <basic-key name="border-break-color">black</basic-key>
+          <basic-key name="border-top-right-radius-width">0.0</basic-key>
+          <basic-key name="border-top-left-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+          <basic-key name="border-top-right-radius-height">0.0</basic-key>
+          <basic-key name="border-top-left-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+          <basic-key name="padding-left">0.0</basic-key>
+          <basic-key name="padding-top">0.0</basic-key>
+          <basic-key name="padding-bottom">0.0</basic-key>
+          <basic-key name="padding-right">0.0</basic-key>
+          <basic-key name="x">0.0</basic-key>
+          <basic-key name="y">366.0</basic-key>
+          <basic-key name="min-width">555.0</basic-key>
+          <basic-key name="min-height">20.0</basic-key>
+          <basic-key name="paint">white</basic-key>
+          <basic-key name="background-color">#123d82</basic-key>
+          <basic-key name="alignment">center</basic-key>
+          <basic-key name="valignment">middle</basic-key>
+          <basic-key name="dynamic_height">false</basic-key>
+          <basic-key name="Excel.WrapText">false</basic-key>
+          <basic-key name="font">Dialog</basic-key>
+          <basic-key name="font-size">14</basic-key>
+          <basic-key name="line-height">0.0</basic-key>
+          <basic-key name="font-bold">true</basic-key>
+          <basic-key name="font-italic">false</basic-key>
+          <basic-key name="font-underline">false</basic-key>
+          <basic-key name="font-strikethrough">false</basic-key>
+          <basic-key name="font-embedded">false</basic-key>
+          <basic-key name="reserved-literal">..</basic-key>
+          <basic-key name="trim-text-content">true</basic-key>
+        </style>
+        <template references="label">
+          <basic-object name="content">Product Line Mix</basic-object>
+        </template>
+      </element>
+      <band name="Element@11016194">
+        <style>
+          <basic-key name="border-top-width">1.0</basic-key>
+          <basic-key name="border-top-style">none</basic-key>
+          <basic-key name="border-top-color">black</basic-key>
+          <basic-key name="border-left-width">1.0</basic-key>
+          <basic-key name="border-left-style">none</basic-key>
+          <basic-key name="border-left-color">black</basic-key>
+          <basic-key name="border-bottom-width">1.0</basic-key>
+          <basic-key name="border-bottom-style">none</basic-key>
+          <basic-key name="border-bottom-color">black</basic-key>
+          <basic-key name="border-right-width">1.0</basic-key>
+          <basic-key name="border-right-style">none</basic-key>
+          <basic-key name="border-right-color">black</basic-key>
+          <basic-key name="border-break-width">0.0</basic-key>
+          <basic-key name="border-break-style">none</basic-key>
+          <basic-key name="border-break-color">black</basic-key>
+          <basic-key name="border-top-right-radius-width">0.0</basic-key>
+          <basic-key name="border-top-left-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+          <basic-key name="border-top-right-radius-height">0.0</basic-key>
+          <basic-key name="border-top-left-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+          <basic-key name="padding-left">0.0</basic-key>
+          <basic-key name="padding-top">0.0</basic-key>
+          <basic-key name="padding-bottom">0.0</basic-key>
+          <basic-key name="padding-right">0.0</basic-key>
+          <basic-key name="x">0.0</basic-key>
+          <basic-key name="y">56.0</basic-key>
+          <basic-key name="min-width">555.0</basic-key>
+          <basic-key name="min-height">1.0</basic-key>
+          <basic-key name="max-width">555.0</basic-key>
+          <basic-key name="max-height">2.14748365E9</basic-key>
+        </style>
+        <element name="Element@11016194.fill" type="shape/generic">
+          <style>
+            <basic-key name="border-top-width">1.0</basic-key>
+            <basic-key name="border-top-style">none</basic-key>
+            <basic-key name="border-top-color">black</basic-key>
+            <basic-key name="border-left-width">1.0</basic-key>
+            <basic-key name="border-left-style">none</basic-key>
+            <basic-key name="border-left-color">black</basic-key>
+            <basic-key name="border-bottom-width">1.0</basic-key>
+            <basic-key name="border-bottom-style">none</basic-key>
+            <basic-key name="border-bottom-color">black</basic-key>
+            <basic-key name="border-right-width">1.0</basic-key>
+            <basic-key name="border-right-style">none</basic-key>
+            <basic-key name="border-right-color">black</basic-key>
+            <basic-key name="border-break-width">0.0</basic-key>
+            <basic-key name="border-break-style">none</basic-key>
+            <basic-key name="border-break-color">black</basic-key>
+            <basic-key name="border-top-right-radius-width">0.0</basic-key>
+            <basic-key name="border-top-left-radius-width">0.0</basic-key>
+            <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+            <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+            <basic-key name="border-top-right-radius-height">0.0</basic-key>
+            <basic-key name="border-top-left-radius-height">0.0</basic-key>
+            <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+            <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+            <basic-key name="padding-left">0.0</basic-key>
+            <basic-key name="padding-top">0.0</basic-key>
+            <basic-key name="padding-bottom">0.0</basic-key>
+            <basic-key name="padding-right">0.0</basic-key>
+            <basic-key name="x">0.0</basic-key>
+            <basic-key name="y">0.0</basic-key>
+            <basic-key name="min-width">-100.0</basic-key>
+            <basic-key name="min-height">-100.0</basic-key>
+            <basic-key name="paint">black</basic-key>
+            <compound-key name="stroke" class="java.awt.BasicStroke">
+              <basic-object name="value">1.0</basic-object>
+            </compound-key>
+            <basic-key name="scale">true</basic-key>
+            <basic-key name="keepAspectRatio">false</basic-key>
+            <basic-key name="fill-shape">true</basic-key>
+            <basic-key name="draw-shape">false</basic-key>
+          </style>
+          <datasource type="StaticDataSource">
+            <compound-object name="value" class="java.awt.geom.Rectangle2D$Float">
+              <basic-object name="height">100.0</basic-object>
+              <basic-object name="width">100.0</basic-object>
+              <basic-object name="x">0.0</basic-object>
+              <basic-object name="y">0.0</basic-object>
+            </compound-object>
+          </datasource>
+        </element>
+      </band>
+    </report-header>
+    <report-footer>
+      <style>
+        <basic-key name="pagebreak-before">false</basic-key>
+        <basic-key name="pagebreak-after">false</basic-key>
+        <basic-key name="border-top-width">1.0</basic-key>
+        <basic-key name="border-top-style">none</basic-key>
+        <basic-key name="border-top-color">black</basic-key>
+        <basic-key name="border-left-width">1.0</basic-key>
+        <basic-key name="border-left-style">none</basic-key>
+        <basic-key name="border-left-color">black</basic-key>
+        <basic-key name="border-bottom-width">1.0</basic-key>
+        <basic-key name="border-bottom-style">none</basic-key>
+        <basic-key name="border-bottom-color">black</basic-key>
+        <basic-key name="border-right-width">1.0</basic-key>
+        <basic-key name="border-right-style">none</basic-key>
+        <basic-key name="border-right-color">black</basic-key>
+        <basic-key name="border-break-width">0.0</basic-key>
+        <basic-key name="border-break-style">none</basic-key>
+        <basic-key name="border-break-color">black</basic-key>
+        <basic-key name="border-top-right-radius-width">0.0</basic-key>
+        <basic-key name="border-top-left-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+        <basic-key name="border-top-right-radius-height">0.0</basic-key>
+        <basic-key name="border-top-left-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+        <basic-key name="padding-left">0.0</basic-key>
+        <basic-key name="padding-top">0.0</basic-key>
+        <basic-key name="padding-bottom">0.0</basic-key>
+        <basic-key name="padding-right">0.0</basic-key>
+      </style>
+    </report-footer>
+    <page-header>
+      <style>
+        <basic-key name="display-on-firstpage">true</basic-key>
+        <basic-key name="display-on-lastpage">true</basic-key>
+        <basic-key name="sticky">false</basic-key>
+        <basic-key name="border-top-width">1.0</basic-key>
+        <basic-key name="border-top-style">none</basic-key>
+        <basic-key name="border-top-color">black</basic-key>
+        <basic-key name="border-left-width">1.0</basic-key>
+        <basic-key name="border-left-style">none</basic-key>
+        <basic-key name="border-left-color">black</basic-key>
+        <basic-key name="border-bottom-width">1.0</basic-key>
+        <basic-key name="border-bottom-style">none</basic-key>
+        <basic-key name="border-bottom-color">black</basic-key>
+        <basic-key name="border-right-width">1.0</basic-key>
+        <basic-key name="border-right-style">none</basic-key>
+        <basic-key name="border-right-color">black</basic-key>
+        <basic-key name="border-break-width">0.0</basic-key>
+        <basic-key name="border-break-style">none</basic-key>
+        <basic-key name="border-break-color">black</basic-key>
+        <basic-key name="border-top-right-radius-width">0.0</basic-key>
+        <basic-key name="border-top-left-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+        <basic-key name="border-top-right-radius-height">0.0</basic-key>
+        <basic-key name="border-top-left-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+        <basic-key name="padding-left">0.0</basic-key>
+        <basic-key name="padding-top">0.0</basic-key>
+        <basic-key name="padding-bottom">0.0</basic-key>
+        <basic-key name="padding-right">0.0</basic-key>
+      </style>
+    </page-header>
+    <page-footer>
+      <style>
+        <basic-key name="display-on-firstpage">true</basic-key>
+        <basic-key name="display-on-lastpage">true</basic-key>
+        <basic-key name="border-top-width">1.0</basic-key>
+        <basic-key name="border-top-style">none</basic-key>
+        <basic-key name="border-top-color">black</basic-key>
+        <basic-key name="border-left-width">1.0</basic-key>
+        <basic-key name="border-left-style">none</basic-key>
+        <basic-key name="border-left-color">black</basic-key>
+        <basic-key name="border-bottom-width">1.0</basic-key>
+        <basic-key name="border-bottom-style">none</basic-key>
+        <basic-key name="border-bottom-color">black</basic-key>
+        <basic-key name="border-right-width">1.0</basic-key>
+        <basic-key name="border-right-style">none</basic-key>
+        <basic-key name="border-right-color">black</basic-key>
+        <basic-key name="border-break-width">0.0</basic-key>
+        <basic-key name="border-break-style">none</basic-key>
+        <basic-key name="border-break-color">black</basic-key>
+        <basic-key name="border-top-right-radius-width">0.0</basic-key>
+        <basic-key name="border-top-left-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+        <basic-key name="border-top-right-radius-height">0.0</basic-key>
+        <basic-key name="border-top-left-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+        <basic-key name="padding-left">0.0</basic-key>
+        <basic-key name="padding-top">0.0</basic-key>
+        <basic-key name="padding-bottom">0.0</basic-key>
+        <basic-key name="padding-right">0.0</basic-key>
+      </style>
+    </page-footer>
+    <watermark>
+      <style>
+        <basic-key name="pagebreak-before">false</basic-key>
+        <basic-key name="pagebreak-after">false</basic-key>
+        <basic-key name="border-top-width">1.0</basic-key>
+        <basic-key name="border-top-style">none</basic-key>
+        <basic-key name="border-top-color">black</basic-key>
+        <basic-key name="border-left-width">1.0</basic-key>
+        <basic-key name="border-left-style">none</basic-key>
+        <basic-key name="border-left-color">black</basic-key>
+        <basic-key name="border-bottom-width">1.0</basic-key>
+        <basic-key name="border-bottom-style">none</basic-key>
+        <basic-key name="border-bottom-color">black</basic-key>
+        <basic-key name="border-right-width">1.0</basic-key>
+        <basic-key name="border-right-style">none</basic-key>
+        <basic-key name="border-right-color">black</basic-key>
+        <basic-key name="border-break-width">0.0</basic-key>
+        <basic-key name="border-break-style">none</basic-key>
+        <basic-key name="border-break-color">black</basic-key>
+        <basic-key name="border-top-right-radius-width">0.0</basic-key>
+        <basic-key name="border-top-left-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+        <basic-key name="border-top-right-radius-height">0.0</basic-key>
+        <basic-key name="border-top-left-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+        <basic-key name="padding-left">0.0</basic-key>
+        <basic-key name="padding-top">0.0</basic-key>
+        <basic-key name="padding-bottom">0.0</basic-key>
+        <basic-key name="padding-right">0.0</basic-key>
+      </style>
+    </watermark>
+    <groups>
+      <group name="default">
+        <fields/>
+        <group-header>
+        </group-header>
+        <group-footer>
+        </group-footer>
+      </group>
+    </groups>
+    <itemband>
+      <style>
+        <basic-key name="pagebreak-before">false</basic-key>
+        <basic-key name="pagebreak-after">false</basic-key>
+        <basic-key name="border-top-width">1.0</basic-key>
+        <basic-key name="border-top-style">none</basic-key>
+        <basic-key name="border-top-color">black</basic-key>
+        <basic-key name="border-left-width">1.0</basic-key>
+        <basic-key name="border-left-style">none</basic-key>
+        <basic-key name="border-left-color">black</basic-key>
+        <basic-key name="border-bottom-width">1.0</basic-key>
+        <basic-key name="border-bottom-style">none</basic-key>
+        <basic-key name="border-bottom-color">black</basic-key>
+        <basic-key name="border-right-width">1.0</basic-key>
+        <basic-key name="border-right-style">none</basic-key>
+        <basic-key name="border-right-color">black</basic-key>
+        <basic-key name="border-break-width">0.0</basic-key>
+        <basic-key name="border-break-style">none</basic-key>
+        <basic-key name="border-break-color">black</basic-key>
+        <basic-key name="border-top-right-radius-width">0.0</basic-key>
+        <basic-key name="border-top-left-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+        <basic-key name="border-top-right-radius-height">0.0</basic-key>
+        <basic-key name="border-top-left-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+        <basic-key name="padding-left">0.0</basic-key>
+        <basic-key name="padding-top">0.0</basic-key>
+        <basic-key name="padding-bottom">0.0</basic-key>
+        <basic-key name="padding-right">0.0</basic-key>
+      </style>
+      <element name="TextField@1566229" type="text/plain">
+        <style>
+          <basic-key name="border-top-width">1.0</basic-key>
+          <basic-key name="border-top-style">none</basic-key>
+          <basic-key name="border-top-color">black</basic-key>
+          <basic-key name="border-left-width">1.0</basic-key>
+          <basic-key name="border-left-style">none</basic-key>
+          <basic-key name="border-left-color">black</basic-key>
+          <basic-key name="border-bottom-width">1.0</basic-key>
+          <basic-key name="border-bottom-style">none</basic-key>
+          <basic-key name="border-bottom-color">black</basic-key>
+          <basic-key name="border-right-width">1.0</basic-key>
+          <basic-key name="border-right-style">none</basic-key>
+          <basic-key name="border-right-color">black</basic-key>
+          <basic-key name="border-break-width">0.0</basic-key>
+          <basic-key name="border-break-style">none</basic-key>
+          <basic-key name="border-break-color">black</basic-key>
+          <basic-key name="border-top-right-radius-width">0.0</basic-key>
+          <basic-key name="border-top-left-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+          <basic-key name="border-top-right-radius-height">0.0</basic-key>
+          <basic-key name="border-top-left-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+          <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+          <basic-key name="padding-left">0.0</basic-key>
+          <basic-key name="padding-top">0.0</basic-key>
+          <basic-key name="padding-bottom">0.0</basic-key>
+          <basic-key name="padding-right">0.0</basic-key>
+          <basic-key name="x">0.0</basic-key>
+          <basic-key name="y">1.0</basic-key>
+          <basic-key name="min-width">454.0</basic-key>
+          <basic-key name="min-height">40.0</basic-key>
+          <basic-key name="paint">#123d82</basic-key>
+          <basic-key name="alignment">left</basic-key>
+          <basic-key name="valignment">middle</basic-key>
+          <basic-key name="dynamic_height">false</basic-key>
+          <basic-key name="Excel.WrapText">false</basic-key>
+          <basic-key name="font">Dialog</basic-key>
+          <basic-key name="font-size">12</basic-key>
+          <basic-key name="line-height">0.0</basic-key>
+          <basic-key name="font-bold">true</basic-key>
+          <basic-key name="font-italic">false</basic-key>
+          <basic-key name="font-underline">false</basic-key>
+          <basic-key name="font-strikethrough">false</basic-key>
+          <basic-key name="font-embedded">false</basic-key>
+          <basic-key name="reserved-literal">..</basic-key>
+          <basic-key name="trim-text-content">true</basic-key>
+        </style>
+        <template references="message-field">
+          <basic-object name="format">$(Customers) net Sales  $(Sales/Measures, number, $ #,##0)</basic-object>
+          <basic-object name="nullValue"></basic-object>
+        </template>
+      </element>
+      <sub-report query="subProductLine">
+        <import-parameter name="*"/>
+        <report-config>
+        </report-config>
+        <report-description>
+          <report-header>
+            <style>
+              <basic-key name="pagebreak-before">false</basic-key>
+              <basic-key name="pagebreak-after">false</basic-key>
+              <basic-key name="border-top-width">1.0</basic-key>
+              <basic-key name="border-top-style">none</basic-key>
+              <basic-key name="border-top-color">black</basic-key>
+              <basic-key name="border-left-width">1.0</basic-key>
+              <basic-key name="border-left-style">none</basic-key>
+              <basic-key name="border-left-color">black</basic-key>
+              <basic-key name="border-bottom-width">1.0</basic-key>
+              <basic-key name="border-bottom-style">none</basic-key>
+              <basic-key name="border-bottom-color">black</basic-key>
+              <basic-key name="border-right-width">1.0</basic-key>
+              <basic-key name="border-right-style">none</basic-key>
+              <basic-key name="border-right-color">black</basic-key>
+              <basic-key name="border-break-width">0.0</basic-key>
+              <basic-key name="border-break-style">none</basic-key>
+              <basic-key name="border-break-color">black</basic-key>
+              <basic-key name="border-top-right-radius-width">0.0</basic-key>
+              <basic-key name="border-top-left-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+              <basic-key name="border-top-right-radius-height">0.0</basic-key>
+              <basic-key name="border-top-left-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+              <basic-key name="padding-left">0.0</basic-key>
+              <basic-key name="padding-top">0.0</basic-key>
+              <basic-key name="padding-bottom">0.0</basic-key>
+              <basic-key name="padding-right">0.0</basic-key>
+            </style>
+            <element name="Element@14375822" type="text/plain">
+              <style>
+                <basic-key name="border-top-width">1.0</basic-key>
+                <basic-key name="border-top-style">none</basic-key>
+                <basic-key name="border-top-color">black</basic-key>
+                <basic-key name="border-left-width">1.0</basic-key>
+                <basic-key name="border-left-style">none</basic-key>
+                <basic-key name="border-left-color">black</basic-key>
+                <basic-key name="border-bottom-width">1.0</basic-key>
+                <basic-key name="border-bottom-style">none</basic-key>
+                <basic-key name="border-bottom-color">black</basic-key>
+                <basic-key name="border-right-width">1.0</basic-key>
+                <basic-key name="border-right-style">none</basic-key>
+                <basic-key name="border-right-color">black</basic-key>
+                <basic-key name="border-break-width">0.0</basic-key>
+                <basic-key name="border-break-style">none</basic-key>
+                <basic-key name="border-break-color">black</basic-key>
+                <basic-key name="border-top-right-radius-width">0.0</basic-key>
+                <basic-key name="border-top-left-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+                <basic-key name="border-top-right-radius-height">0.0</basic-key>
+                <basic-key name="border-top-left-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+                <basic-key name="padding-left">0.0</basic-key>
+                <basic-key name="padding-top">0.0</basic-key>
+                <basic-key name="padding-bottom">0.0</basic-key>
+                <basic-key name="padding-right">0.0</basic-key>
+                <basic-key name="x">96.0</basic-key>
+                <basic-key name="y">0.0</basic-key>
+                <basic-key name="min-width">142.0</basic-key>
+                <basic-key name="min-height">16.0</basic-key>
+                <basic-key name="paint">black</basic-key>
+                <basic-key name="alignment">left</basic-key>
+                <basic-key name="valignment">top</basic-key>
+                <basic-key name="dynamic_height">false</basic-key>
+                <basic-key name="Excel.WrapText">false</basic-key>
+                <basic-key name="font">Dialog</basic-key>
+                <basic-key name="font-size">12</basic-key>
+                <basic-key name="line-height">0.0</basic-key>
+                <basic-key name="font-bold">true</basic-key>
+                <basic-key name="font-italic">false</basic-key>
+                <basic-key name="font-underline">false</basic-key>
+                <basic-key name="font-strikethrough">false</basic-key>
+                <basic-key name="font-embedded">false</basic-key>
+                <basic-key name="reserved-literal">..</basic-key>
+                <basic-key name="trim-text-content">true</basic-key>
+              </style>
+              <template references="label">
+                <basic-object name="content">Product Line</basic-object>
+              </template>
+            </element>
+            <element name="Element@14625797" type="text/plain">
+              <style>
+                <basic-key name="border-top-width">1.0</basic-key>
+                <basic-key name="border-top-style">none</basic-key>
+                <basic-key name="border-top-color">black</basic-key>
+                <basic-key name="border-left-width">1.0</basic-key>
+                <basic-key name="border-left-style">none</basic-key>
+                <basic-key name="border-left-color">black</basic-key>
+                <basic-key name="border-bottom-width">1.0</basic-key>
+                <basic-key name="border-bottom-style">none</basic-key>
+                <basic-key name="border-bottom-color">black</basic-key>
+                <basic-key name="border-right-width">1.0</basic-key>
+                <basic-key name="border-right-style">none</basic-key>
+                <basic-key name="border-right-color">black</basic-key>
+                <basic-key name="border-break-width">0.0</basic-key>
+                <basic-key name="border-break-style">none</basic-key>
+                <basic-key name="border-break-color">black</basic-key>
+                <basic-key name="border-top-right-radius-width">0.0</basic-key>
+                <basic-key name="border-top-left-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+                <basic-key name="border-top-right-radius-height">0.0</basic-key>
+                <basic-key name="border-top-left-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+                <basic-key name="padding-left">0.0</basic-key>
+                <basic-key name="padding-top">0.0</basic-key>
+                <basic-key name="padding-bottom">0.0</basic-key>
+                <basic-key name="padding-right">0.0</basic-key>
+                <basic-key name="x">238.0</basic-key>
+                <basic-key name="y">0.0</basic-key>
+                <basic-key name="min-width">113.0</basic-key>
+                <basic-key name="min-height">16.0</basic-key>
+                <basic-key name="paint">black</basic-key>
+                <basic-key name="alignment">right</basic-key>
+                <basic-key name="valignment">top</basic-key>
+                <basic-key name="dynamic_height">false</basic-key>
+                <basic-key name="Excel.WrapText">false</basic-key>
+                <basic-key name="font">Dialog</basic-key>
+                <basic-key name="font-size">12</basic-key>
+                <basic-key name="line-height">0.0</basic-key>
+                <basic-key name="font-bold">true</basic-key>
+                <basic-key name="font-italic">false</basic-key>
+                <basic-key name="font-underline">false</basic-key>
+                <basic-key name="font-strikethrough">false</basic-key>
+                <basic-key name="font-embedded">false</basic-key>
+                <basic-key name="reserved-literal">..</basic-key>
+                <basic-key name="trim-text-content">true</basic-key>
+              </style>
+              <template references="label">
+                <basic-object name="content">Sales ($)</basic-object>
+              </template>
+            </element>
+            <element name="Element@14625797" type="text/plain">
+              <style>
+                <basic-key name="border-top-width">1.0</basic-key>
+                <basic-key name="border-top-style">none</basic-key>
+                <basic-key name="border-top-color">black</basic-key>
+                <basic-key name="border-left-width">1.0</basic-key>
+                <basic-key name="border-left-style">none</basic-key>
+                <basic-key name="border-left-color">black</basic-key>
+                <basic-key name="border-bottom-width">1.0</basic-key>
+                <basic-key name="border-bottom-style">none</basic-key>
+                <basic-key name="border-bottom-color">black</basic-key>
+                <basic-key name="border-right-width">1.0</basic-key>
+                <basic-key name="border-right-style">none</basic-key>
+                <basic-key name="border-right-color">black</basic-key>
+                <basic-key name="border-break-width">0.0</basic-key>
+                <basic-key name="border-break-style">none</basic-key>
+                <basic-key name="border-break-color">black</basic-key>
+                <basic-key name="border-top-right-radius-width">0.0</basic-key>
+                <basic-key name="border-top-left-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+                <basic-key name="border-top-right-radius-height">0.0</basic-key>
+                <basic-key name="border-top-left-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+                <basic-key name="padding-left">0.0</basic-key>
+                <basic-key name="padding-top">0.0</basic-key>
+                <basic-key name="padding-bottom">0.0</basic-key>
+                <basic-key name="padding-right">0.0</basic-key>
+                <basic-key name="x">351.0</basic-key>
+                <basic-key name="y">1.0</basic-key>
+                <basic-key name="min-width">102.0</basic-key>
+                <basic-key name="min-height">16.0</basic-key>
+                <basic-key name="paint">black</basic-key>
+                <basic-key name="alignment">right</basic-key>
+                <basic-key name="valignment">top</basic-key>
+                <basic-key name="dynamic_height">false</basic-key>
+                <basic-key name="Excel.WrapText">false</basic-key>
+                <basic-key name="font">Dialog</basic-key>
+                <basic-key name="font-size">12</basic-key>
+                <basic-key name="line-height">0.0</basic-key>
+                <basic-key name="font-bold">true</basic-key>
+                <basic-key name="font-italic">false</basic-key>
+                <basic-key name="font-underline">false</basic-key>
+                <basic-key name="font-strikethrough">false</basic-key>
+                <basic-key name="font-embedded">false</basic-key>
+                <basic-key name="reserved-literal">..</basic-key>
+                <basic-key name="trim-text-content">true</basic-key>
+              </style>
+              <template references="label">
+                <basic-object name="content">%</basic-object>
+              </template>
+            </element>
+          </report-header>
+          <report-footer>
+            <style>
+              <basic-key name="pagebreak-before">false</basic-key>
+              <basic-key name="pagebreak-after">false</basic-key>
+              <basic-key name="border-top-width">1.0</basic-key>
+              <basic-key name="border-top-style">none</basic-key>
+              <basic-key name="border-top-color">black</basic-key>
+              <basic-key name="border-left-width">1.0</basic-key>
+              <basic-key name="border-left-style">none</basic-key>
+              <basic-key name="border-left-color">black</basic-key>
+              <basic-key name="border-bottom-width">1.0</basic-key>
+              <basic-key name="border-bottom-style">none</basic-key>
+              <basic-key name="border-bottom-color">black</basic-key>
+              <basic-key name="border-right-width">1.0</basic-key>
+              <basic-key name="border-right-style">none</basic-key>
+              <basic-key name="border-right-color">black</basic-key>
+              <basic-key name="border-break-width">0.0</basic-key>
+              <basic-key name="border-break-style">none</basic-key>
+              <basic-key name="border-break-color">black</basic-key>
+              <basic-key name="border-top-right-radius-width">0.0</basic-key>
+              <basic-key name="border-top-left-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+              <basic-key name="border-top-right-radius-height">0.0</basic-key>
+              <basic-key name="border-top-left-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+              <basic-key name="padding-left">0.0</basic-key>
+              <basic-key name="padding-top">0.0</basic-key>
+              <basic-key name="padding-bottom">0.0</basic-key>
+              <basic-key name="padding-right">0.0</basic-key>
+            </style>
+            <element name="Chart6" type="drawable/generic">
+              <style>
+                <basic-key name="x">0.0</basic-key>
+                <basic-key name="y">22.0</basic-key>
+                <basic-key name="min-width">555.0</basic-key>
+                <basic-key name="min-height">227.0</basic-key>
+              </style>
+              <template references="drawable-field">
+                <basic-object name="field">ChartFunction6</basic-object>
+              </template>
+            </element>
+          </report-footer>
+          <page-header>
+            <style>
+              <basic-key name="display-on-firstpage">true</basic-key>
+              <basic-key name="display-on-lastpage">true</basic-key>
+              <basic-key name="sticky">false</basic-key>
+              <basic-key name="border-top-width">1.0</basic-key>
+              <basic-key name="border-top-style">none</basic-key>
+              <basic-key name="border-top-color">black</basic-key>
+              <basic-key name="border-left-width">1.0</basic-key>
+              <basic-key name="border-left-style">none</basic-key>
+              <basic-key name="border-left-color">black</basic-key>
+              <basic-key name="border-bottom-width">1.0</basic-key>
+              <basic-key name="border-bottom-style">none</basic-key>
+              <basic-key name="border-bottom-color">black</basic-key>
+              <basic-key name="border-right-width">1.0</basic-key>
+              <basic-key name="border-right-style">none</basic-key>
+              <basic-key name="border-right-color">black</basic-key>
+              <basic-key name="border-break-width">0.0</basic-key>
+              <basic-key name="border-break-style">none</basic-key>
+              <basic-key name="border-break-color">black</basic-key>
+              <basic-key name="border-top-right-radius-width">0.0</basic-key>
+              <basic-key name="border-top-left-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+              <basic-key name="border-top-right-radius-height">0.0</basic-key>
+              <basic-key name="border-top-left-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+              <basic-key name="padding-left">0.0</basic-key>
+              <basic-key name="padding-top">0.0</basic-key>
+              <basic-key name="padding-bottom">0.0</basic-key>
+              <basic-key name="padding-right">0.0</basic-key>
+            </style>
+          </page-header>
+          <page-footer>
+            <style>
+              <basic-key name="display-on-firstpage">true</basic-key>
+              <basic-key name="display-on-lastpage">true</basic-key>
+              <basic-key name="border-top-width">1.0</basic-key>
+              <basic-key name="border-top-style">none</basic-key>
+              <basic-key name="border-top-color">black</basic-key>
+              <basic-key name="border-left-width">1.0</basic-key>
+              <basic-key name="border-left-style">none</basic-key>
+              <basic-key name="border-left-color">black</basic-key>
+              <basic-key name="border-bottom-width">1.0</basic-key>
+              <basic-key name="border-bottom-style">none</basic-key>
+              <basic-key name="border-bottom-color">black</basic-key>
+              <basic-key name="border-right-width">1.0</basic-key>
+              <basic-key name="border-right-style">none</basic-key>
+              <basic-key name="border-right-color">black</basic-key>
+              <basic-key name="border-break-width">0.0</basic-key>
+              <basic-key name="border-break-style">none</basic-key>
+              <basic-key name="border-break-color">black</basic-key>
+              <basic-key name="border-top-right-radius-width">0.0</basic-key>
+              <basic-key name="border-top-left-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+              <basic-key name="border-top-right-radius-height">0.0</basic-key>
+              <basic-key name="border-top-left-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+              <basic-key name="padding-left">0.0</basic-key>
+              <basic-key name="padding-top">0.0</basic-key>
+              <basic-key name="padding-bottom">0.0</basic-key>
+              <basic-key name="padding-right">0.0</basic-key>
+            </style>
+          </page-footer>
+          <watermark>
+            <style>
+              <basic-key name="pagebreak-before">false</basic-key>
+              <basic-key name="pagebreak-after">false</basic-key>
+              <basic-key name="border-top-width">1.0</basic-key>
+              <basic-key name="border-top-style">none</basic-key>
+              <basic-key name="border-top-color">black</basic-key>
+              <basic-key name="border-left-width">1.0</basic-key>
+              <basic-key name="border-left-style">none</basic-key>
+              <basic-key name="border-left-color">black</basic-key>
+              <basic-key name="border-bottom-width">1.0</basic-key>
+              <basic-key name="border-bottom-style">none</basic-key>
+              <basic-key name="border-bottom-color">black</basic-key>
+              <basic-key name="border-right-width">1.0</basic-key>
+              <basic-key name="border-right-style">none</basic-key>
+              <basic-key name="border-right-color">black</basic-key>
+              <basic-key name="border-break-width">0.0</basic-key>
+              <basic-key name="border-break-style">none</basic-key>
+              <basic-key name="border-break-color">black</basic-key>
+              <basic-key name="border-top-right-radius-width">0.0</basic-key>
+              <basic-key name="border-top-left-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+              <basic-key name="border-top-right-radius-height">0.0</basic-key>
+              <basic-key name="border-top-left-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+              <basic-key name="padding-left">0.0</basic-key>
+              <basic-key name="padding-top">0.0</basic-key>
+              <basic-key name="padding-bottom">0.0</basic-key>
+              <basic-key name="padding-right">0.0</basic-key>
+            </style>
+          </watermark>
+          <groups>
+            <group name="default">
+              <fields/>
+              <group-header>
+              </group-header>
+              <group-footer>
+              </group-footer>
+            </group>
+          </groups>
+          <itemband>
+            <style>
+              <basic-key name="pagebreak-before">false</basic-key>
+              <basic-key name="pagebreak-after">false</basic-key>
+              <basic-key name="border-top-width">1.0</basic-key>
+              <basic-key name="border-top-style">none</basic-key>
+              <basic-key name="border-top-color">black</basic-key>
+              <basic-key name="border-left-width">1.0</basic-key>
+              <basic-key name="border-left-style">none</basic-key>
+              <basic-key name="border-left-color">black</basic-key>
+              <basic-key name="border-bottom-width">1.0</basic-key>
+              <basic-key name="border-bottom-style">none</basic-key>
+              <basic-key name="border-bottom-color">black</basic-key>
+              <basic-key name="border-right-width">1.0</basic-key>
+              <basic-key name="border-right-style">none</basic-key>
+              <basic-key name="border-right-color">black</basic-key>
+              <basic-key name="border-break-width">0.0</basic-key>
+              <basic-key name="border-break-style">none</basic-key>
+              <basic-key name="border-break-color">black</basic-key>
+              <basic-key name="border-top-right-radius-width">0.0</basic-key>
+              <basic-key name="border-top-left-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+              <basic-key name="border-top-right-radius-height">0.0</basic-key>
+              <basic-key name="border-top-left-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+              <basic-key name="padding-left">0.0</basic-key>
+              <basic-key name="padding-top">0.0</basic-key>
+              <basic-key name="padding-bottom">0.0</basic-key>
+              <basic-key name="padding-right">0.0</basic-key>
+            </style>
+            <element name="TextField@12294412" type="text/plain">
+              <style>
+                <basic-key name="border-top-width">1.0</basic-key>
+                <basic-key name="border-top-style">none</basic-key>
+                <basic-key name="border-top-color">black</basic-key>
+                <basic-key name="border-left-width">1.0</basic-key>
+                <basic-key name="border-left-style">none</basic-key>
+                <basic-key name="border-left-color">black</basic-key>
+                <basic-key name="border-bottom-width">1.0</basic-key>
+                <basic-key name="border-bottom-style">none</basic-key>
+                <basic-key name="border-bottom-color">black</basic-key>
+                <basic-key name="border-right-width">1.0</basic-key>
+                <basic-key name="border-right-style">none</basic-key>
+                <basic-key name="border-right-color">black</basic-key>
+                <basic-key name="border-break-width">0.0</basic-key>
+                <basic-key name="border-break-style">none</basic-key>
+                <basic-key name="border-break-color">black</basic-key>
+                <basic-key name="border-top-right-radius-width">0.0</basic-key>
+                <basic-key name="border-top-left-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+                <basic-key name="border-top-right-radius-height">0.0</basic-key>
+                <basic-key name="border-top-left-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+                <basic-key name="padding-left">0.0</basic-key>
+                <basic-key name="padding-top">0.0</basic-key>
+                <basic-key name="padding-bottom">0.0</basic-key>
+                <basic-key name="padding-right">0.0</basic-key>
+                <basic-key name="x">96.0</basic-key>
+                <basic-key name="y">0.0</basic-key>
+                <basic-key name="min-width">142.0</basic-key>
+                <basic-key name="min-height">15.0</basic-key>
+                <basic-key name="paint">black</basic-key>
+                <basic-key name="alignment">left</basic-key>
+                <basic-key name="valignment">top</basic-key>
+                <basic-key name="dynamic_height">false</basic-key>
+                <basic-key name="Excel.WrapText">false</basic-key>
+                <basic-key name="font">Dialog</basic-key>
+                <basic-key name="font-size">10</basic-key>
+                <basic-key name="line-height">0.0</basic-key>
+                <basic-key name="font-bold">false</basic-key>
+                <basic-key name="font-italic">false</basic-key>
+                <basic-key name="font-underline">false</basic-key>
+                <basic-key name="font-strikethrough">false</basic-key>
+                <basic-key name="font-embedded">false</basic-key>
+                <basic-key name="reserved-literal">..</basic-key>
+                <basic-key name="trim-text-content">true</basic-key>
+              </style>
+              <template references="string-field">
+                <basic-object name="field">PRODUCTLINE</basic-object>
+                <basic-object name="nullValue"></basic-object>
+              </template>
+            </element>
+            <element name="TextField@8737888" type="text/plain">
+              <style>
+                <basic-key name="border-top-width">1.0</basic-key>
+                <basic-key name="border-top-style">none</basic-key>
+                <basic-key name="border-top-color">black</basic-key>
+                <basic-key name="border-left-width">1.0</basic-key>
+                <basic-key name="border-left-style">none</basic-key>
+                <basic-key name="border-left-color">black</basic-key>
+                <basic-key name="border-bottom-width">1.0</basic-key>
+                <basic-key name="border-bottom-style">none</basic-key>
+                <basic-key name="border-bottom-color">black</basic-key>
+                <basic-key name="border-right-width">1.0</basic-key>
+                <basic-key name="border-right-style">none</basic-key>
+                <basic-key name="border-right-color">black</basic-key>
+                <basic-key name="border-break-width">0.0</basic-key>
+                <basic-key name="border-break-style">none</basic-key>
+                <basic-key name="border-break-color">black</basic-key>
+                <basic-key name="border-top-right-radius-width">0.0</basic-key>
+                <basic-key name="border-top-left-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+                <basic-key name="border-top-right-radius-height">0.0</basic-key>
+                <basic-key name="border-top-left-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+                <basic-key name="padding-left">0.0</basic-key>
+                <basic-key name="padding-top">0.0</basic-key>
+                <basic-key name="padding-bottom">0.0</basic-key>
+                <basic-key name="padding-right">0.0</basic-key>
+                <basic-key name="x">238.0</basic-key>
+                <basic-key name="y">0.0</basic-key>
+                <basic-key name="min-width">113.0</basic-key>
+                <basic-key name="min-height">15.0</basic-key>
+                <basic-key name="paint">black</basic-key>
+                <basic-key name="alignment">right</basic-key>
+                <basic-key name="valignment">top</basic-key>
+                <basic-key name="dynamic_height">false</basic-key>
+                <basic-key name="Excel.WrapText">false</basic-key>
+                <basic-key name="font">Dialog</basic-key>
+                <basic-key name="font-size">10</basic-key>
+                <basic-key name="line-height">0.0</basic-key>
+                <basic-key name="font-bold">false</basic-key>
+                <basic-key name="font-italic">false</basic-key>
+                <basic-key name="font-underline">false</basic-key>
+                <basic-key name="font-strikethrough">false</basic-key>
+                <basic-key name="font-embedded">false</basic-key>
+                <basic-key name="reserved-literal">..</basic-key>
+                <basic-key name="trim-text-content">true</basic-key>
+              </style>
+              <template references="number-field">
+                <compound-object name="decimalFormat">
+                  <compound-object name="decimalFormatSymbols">
+                    <basic-object name="currencySymbol">$</basic-object>
+                    <basic-object name="decimalSeparator">.</basic-object>
+                    <basic-object name="digit">#</basic-object>
+                    <basic-object name="groupingSeparator">,</basic-object>
+                    <basic-object name="infinity">∞</basic-object>
+                    <basic-object name="internationalCurrencySymbol">USD</basic-object>
+                    <basic-object name="minusSign">-</basic-object>
+                    <basic-object name="monetaryDecimalSeparator">.</basic-object>
+                    <basic-object name="naN">�</basic-object>
+                    <basic-object name="patternSeparator">;</basic-object>
+                    <basic-object name="perMill">‰</basic-object>
+                    <basic-object name="percent">%</basic-object>
+                    <basic-object name="zeroDigit">0</basic-object>
+                  </compound-object>
+                  <basic-object name="decimalSeparatorAlwaysShown">false</basic-object>
+                  <basic-object name="groupingSize">3</basic-object>
+                  <basic-object name="groupingUsed">true</basic-object>
+                  <basic-object name="maximumFractionDigits">0</basic-object>
+                  <basic-object name="maximumIntegerDigits">2147483647</basic-object>
+                  <basic-object name="minimumFractionDigits">0</basic-object>
+                  <basic-object name="minimumIntegerDigits">1</basic-object>
+                  <basic-object name="multiplier">1</basic-object>
+                  <basic-object name="negativePrefix">-</basic-object>
+                  <basic-object name="negativeSuffix"></basic-object>
+                  <basic-object name="parseIntegerOnly">false</basic-object>
+                  <basic-object name="pattern">#,##0</basic-object>
+                  <basic-object name="positivePrefix"></basic-object>
+                  <basic-object name="positiveSuffix"></basic-object>
+                </compound-object>
+                <basic-object name="field">TOTALPRICE</basic-object>
+                <basic-object name="format">#,##0</basic-object>
+                <basic-object name="nullValue"></basic-object>
+              </template>
+            </element>
+            <element name="TextField@8737888" type="text/plain">
+              <style>
+                <basic-key name="border-top-width">1.0</basic-key>
+                <basic-key name="border-top-style">none</basic-key>
+                <basic-key name="border-top-color">black</basic-key>
+                <basic-key name="border-left-width">1.0</basic-key>
+                <basic-key name="border-left-style">none</basic-key>
+                <basic-key name="border-left-color">black</basic-key>
+                <basic-key name="border-bottom-width">1.0</basic-key>
+                <basic-key name="border-bottom-style">none</basic-key>
+                <basic-key name="border-bottom-color">black</basic-key>
+                <basic-key name="border-right-width">1.0</basic-key>
+                <basic-key name="border-right-style">none</basic-key>
+                <basic-key name="border-right-color">black</basic-key>
+                <basic-key name="border-break-width">0.0</basic-key>
+                <basic-key name="border-break-style">none</basic-key>
+                <basic-key name="border-break-color">black</basic-key>
+                <basic-key name="border-top-right-radius-width">0.0</basic-key>
+                <basic-key name="border-top-left-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+                <basic-key name="border-top-right-radius-height">0.0</basic-key>
+                <basic-key name="border-top-left-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+                <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+                <basic-key name="padding-left">0.0</basic-key>
+                <basic-key name="padding-top">0.0</basic-key>
+                <basic-key name="padding-bottom">0.0</basic-key>
+                <basic-key name="padding-right">0.0</basic-key>
+                <basic-key name="x">351.0</basic-key>
+                <basic-key name="y">0.0</basic-key>
+                <basic-key name="min-width">102.0</basic-key>
+                <basic-key name="min-height">15.0</basic-key>
+                <basic-key name="paint">black</basic-key>
+                <basic-key name="alignment">right</basic-key>
+                <basic-key name="valignment">top</basic-key>
+                <basic-key name="dynamic_height">false</basic-key>
+                <basic-key name="Excel.WrapText">false</basic-key>
+                <basic-key name="font">Dialog</basic-key>
+                <basic-key name="font-size">10</basic-key>
+                <basic-key name="line-height">0.0</basic-key>
+                <basic-key name="font-bold">false</basic-key>
+                <basic-key name="font-italic">false</basic-key>
+                <basic-key name="font-underline">false</basic-key>
+                <basic-key name="font-strikethrough">false</basic-key>
+                <basic-key name="font-embedded">false</basic-key>
+                <basic-key name="reserved-literal">..</basic-key>
+                <basic-key name="trim-text-content">true</basic-key>
+              </style>
+              <template references="message-field">
+                <basic-object name="format">$(PEROFTOTAL, number, #,##0.###)</basic-object>
+                <basic-object name="nullValue"></basic-object>
+              </template>
+            </element>
+          </itemband>
+          <no-data-band>
+            <style>
+              <basic-key name="pagebreak-before">false</basic-key>
+              <basic-key name="pagebreak-after">false</basic-key>
+              <basic-key name="border-top-width">1.0</basic-key>
+              <basic-key name="border-top-style">none</basic-key>
+              <basic-key name="border-top-color">black</basic-key>
+              <basic-key name="border-left-width">1.0</basic-key>
+              <basic-key name="border-left-style">none</basic-key>
+              <basic-key name="border-left-color">black</basic-key>
+              <basic-key name="border-bottom-width">1.0</basic-key>
+              <basic-key name="border-bottom-style">none</basic-key>
+              <basic-key name="border-bottom-color">black</basic-key>
+              <basic-key name="border-right-width">1.0</basic-key>
+              <basic-key name="border-right-style">none</basic-key>
+              <basic-key name="border-right-color">black</basic-key>
+              <basic-key name="border-break-width">0.0</basic-key>
+              <basic-key name="border-break-style">none</basic-key>
+              <basic-key name="border-break-color">black</basic-key>
+              <basic-key name="border-top-right-radius-width">0.0</basic-key>
+              <basic-key name="border-top-left-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+              <basic-key name="border-top-right-radius-height">0.0</basic-key>
+              <basic-key name="border-top-left-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+              <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+              <basic-key name="padding-left">0.0</basic-key>
+              <basic-key name="padding-top">0.0</basic-key>
+              <basic-key name="padding-bottom">0.0</basic-key>
+              <basic-key name="padding-right">0.0</basic-key>
+            </style>
+          </no-data-band>
+        </report-description>
+        <functions>
+          <expression name="PEROFTOTAL" class="org.jfree.report.function.ItemPercentageFunction">
+            <properties>
+              <property name="field">TOTALPRICE</property>
+              <property name="roundingMode" class="java.lang.Integer">4</property>
+              <property name="scale" class="java.lang.Integer">14</property>
+              <property name="scaleToHundred" class="java.lang.Boolean">true</property>
+            </properties>
+          </expression>
+          <expression name="TSales" class="org.jfree.report.function.ItemSumFunction">
+            <properties>
+              <property name="field">TOTALPRICE</property>
+            </properties>
+          </expression>
+          <expression name="ChartFunction6" class="org.pentaho.plugin.jfreereport.reportcharts.PieChartExpression">
+            <properties>
+              <property name="antiAlias" class="java.lang.Boolean">true</property>
+              <property name="backgroundColor">#FFFFFF</property>
+              <property name="chartHeight" class="java.lang.Integer">0</property>
+              <property name="chartSectionOutline" class="java.lang.Boolean">false</property>
+              <property name="chartWidth" class="java.lang.Integer">0</property>
+              <property name="dataSource">DataCollector6</property>
+              <property name="drawLegendBorder" class="java.lang.Boolean">false</property>
+              <property name="explodeSegment"></property>
+              <property name="ignoreNulls" class="java.lang.Boolean">true</property>
+              <property name="ignoreZeros" class="java.lang.Boolean">true</property>
+              <property name="labelFont">SansSerif--8</property>
+              <property name="legendFont">SansSerif--8</property>
+              <property name="legendLocation">bottom</property>
+              <property name="noDataMessage">!CHART.USER_NO_DATA_AVAILABLE!</property>
+              <property name="pieLabelFormat">{0}</property>
+              <property name="pieLegendLabelFormat">{0}</property>
+              <property name="returnFileNameOnly" class="java.lang.Boolean">false</property>
+              <property name="returnImageReference" class="java.lang.Boolean">false</property>
+              <property name="rotationClockwise" class="java.lang.Boolean">true</property>
+              <property name="showBorder" class="java.lang.Boolean">false</property>
+              <property name="showLegend" class="java.lang.Boolean">false</property>
+              <property name="threeD" class="java.lang.Boolean">false</property>
+              <property name="titleFont">SansSerif-BOLD-14</property>
+              <property name="useDrawable" class="java.lang.Boolean">true</property>
+            </properties>
+          </expression>
+          <expression name="DataCollector6" class="org.pentaho.plugin.jfreereport.reportcharts.PieSetCollectorFunction">
+            <properties>
+              <property name="seriesColumn">PRODUCTLINE</property>
+              <property name="summaryOnly" class="java.lang.Boolean">false</property>
+              <property name="valueColumn">TOTALPRICE</property>
+            </properties>
+          </expression>
+        </functions>
+      </sub-report>
+    </itemband>
+    <no-data-band>
+      <style>
+        <basic-key name="pagebreak-before">false</basic-key>
+        <basic-key name="pagebreak-after">false</basic-key>
+        <basic-key name="border-top-width">1.0</basic-key>
+        <basic-key name="border-top-style">none</basic-key>
+        <basic-key name="border-top-color">black</basic-key>
+        <basic-key name="border-left-width">1.0</basic-key>
+        <basic-key name="border-left-style">none</basic-key>
+        <basic-key name="border-left-color">black</basic-key>
+        <basic-key name="border-bottom-width">1.0</basic-key>
+        <basic-key name="border-bottom-style">none</basic-key>
+        <basic-key name="border-bottom-color">black</basic-key>
+        <basic-key name="border-right-width">1.0</basic-key>
+        <basic-key name="border-right-style">none</basic-key>
+        <basic-key name="border-right-color">black</basic-key>
+        <basic-key name="border-break-width">0.0</basic-key>
+        <basic-key name="border-break-style">none</basic-key>
+        <basic-key name="border-break-color">black</basic-key>
+        <basic-key name="border-top-right-radius-width">0.0</basic-key>
+        <basic-key name="border-top-left-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-width">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-width">0.0</basic-key>
+        <basic-key name="border-top-right-radius-height">0.0</basic-key>
+        <basic-key name="border-top-left-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-right-radius-height">0.0</basic-key>
+        <basic-key name="border-bottom-left-radius-height">0.0</basic-key>
+        <basic-key name="padding-left">0.0</basic-key>
+        <basic-key name="padding-top">0.0</basic-key>
+        <basic-key name="padding-bottom">0.0</basic-key>
+        <basic-key name="padding-right">0.0</basic-key>
+      </style>
+    </no-data-band>
+  </report-description>
+  <functions>
+    <property-ref name="report.name" class="java.lang.String">Top Ten Main</property-ref>
+    <expression name="ChartData" class="org.pentaho.plugin.jfreereport.reportcharts.CategorySetCollectorFunction">
+      <properties>
+        <property name="categoryColumn">Customers</property>
+        <property name="categoryStartColumn" class="java.lang.Integer">0</property>
+        <property name="generatedReport" class="java.lang.Boolean">true</property>
+        <property name="seriesColumn" class="java.lang.Boolean">true</property>
+        <property name="seriesName[0]" class="java.lang.String"> </property>
+        <property name="summaryOnly" class="java.lang.Boolean">false</property>
+        <property name="valueColumn[0]" class="java.lang.String">Sales/Measures</property>
+      </properties>
+    </expression>
+    <expression name="BarChart" class="org.pentaho.plugin.jfreereport.reportcharts.BarChartExpression">
+      <properties>
+        <property name="antiAlias" class="java.lang.Boolean">true</property>
+        <property name="backgroundColor">white</property>
+        <property name="borderColor">black</property>
+        <property name="categoricalLabelDateFormat"></property>
+        <property name="categoricalLabelDecimalFormat"></property>
+        <property name="categoricalLabelFormat"></property>
+        <property name="categoryAxisLabel"></property>
+        <property name="chartDirectory"></property>
+        <property name="chartHeight" class="java.lang.Integer">0</property>
+        <property name="chartSectionOutline" class="java.lang.Boolean">false</property>
+        <property name="chartUrlMask">http://www.google.com</property>
+        <property name="chartWidth" class="java.lang.Integer">0</property>
+        <property name="dataSource">ChartData</property>
+        <property name="drawBarOutline" class="java.lang.Boolean">false</property>
+        <property name="drawLegendBorder" class="java.lang.Boolean">true</property>
+        <property name="horizontal" class="java.lang.Boolean">true</property>
+        <property name="labelFont">SansSerif--12</property>
+        <property name="legendFont">SansSerif--8</property>
+        <property name="legendLocation"></property>
+        <property name="maxBarWidth">50.0</property>
+        <property name="maxCategoryLabelWidthRatio">50.0</property>
+        <property name="noDataMessage">!CHART.USER_NO_DATA_AVAILABLE!</property>
+        <property name="returnFileNameOnly" class="java.lang.Boolean">false</property>
+        <property name="returnImageReference" class="java.lang.Boolean">false</property>
+        <property name="showBorder" class="java.lang.Boolean">false</property>
+        <property name="showGridlines" class="java.lang.Boolean">true</property>
+        <property name="showLegend" class="java.lang.Boolean">false</property>
+        <property name="stacked" class="java.lang.Boolean">false</property>
+        <property name="stackedBarRenderPercentages" class="java.lang.Boolean">false</property>
+        <property name="threeD" class="java.lang.Boolean">false</property>
+        <property name="title"></property>
+        <property name="titleFont">SansSerif-BOLD-14</property>
+        <property name="useDrawable" class="java.lang.Boolean">true</property>
+      </properties>
+    </expression>
+    <expression name="ChartFunction1" class="org.pentaho.plugin.jfreereport.reportcharts.BarChartExpression">
+      <properties>
+        <property name="antiAlias" class="java.lang.Boolean">true</property>
+        <property name="backgroundColor">#FFFFFF</property>
+        <property name="borderColor">#FFFFFF</property>
+        <property name="chartHeight" class="java.lang.Integer">0</property>
+        <property name="chartSectionOutline" class="java.lang.Boolean">false</property>
+        <property name="chartWidth" class="java.lang.Integer">0</property>
+        <property name="dataSource">DataCollector1</property>
+        <property name="drawBarOutline" class="java.lang.Boolean">false</property>
+        <property name="drawLegendBorder" class="java.lang.Boolean">false</property>
+        <property name="horizontal" class="java.lang.Boolean">true</property>
+        <property name="labelFont">SansSerif--10</property>
+        <property name="legendFont">SansSerif--8</property>
+        <property name="legendLocation">bottom</property>
+        <property name="noDataMessage">!CHART.USER_NO_DATA_AVAILABLE!</property>
+        <property name="returnFileNameOnly" class="java.lang.Boolean">false</property>
+        <property name="returnImageReference" class="java.lang.Boolean">false</property>
+        <property name="seriesColor[0]" class="java.lang.String">#FF9900</property>
+        <property name="showBorder" class="java.lang.Boolean">false</property>
+        <property name="showGridlines" class="java.lang.Boolean">true</property>
+        <property name="showLegend" class="java.lang.Boolean">false</property>
+        <property name="stacked" class="java.lang.Boolean">false</property>
+        <property name="stackedBarRenderPercentages" class="java.lang.Boolean">false</property>
+        <property name="threeD" class="java.lang.Boolean">false</property>
+        <property name="titleFont">SansSerif-BOLD-14</property>
+        <property name="useDrawable" class="java.lang.Boolean">true</property>
+      </properties>
+    </expression>
+    <expression name="DataCollector1" class="org.pentaho.plugin.jfreereport.reportcharts.CategorySetCollectorFunction">
+      <properties>
+        <property name="categoryColumn">Customers</property>
+        <property name="categoryStartColumn" class="java.lang.Integer">0</property>
+        <property name="generatedReport" class="java.lang.Boolean">false</property>
+        <property name="seriesColumn" class="java.lang.Boolean">false</property>
+        <property name="seriesName[0]" class="java.lang.String">Customers</property>
+        <property name="summaryOnly" class="java.lang.Boolean">false</property>
+        <property name="valueColumn[0]" class="java.lang.String">Sales/Measures</property>
+      </properties>
+    </expression>
+  </functions>
+</report-definition>

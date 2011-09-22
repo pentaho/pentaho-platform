@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-085.dtd">
+<report bottommargin="36" leftmargin="36" name="Orders Report" pageformat="LETTER" rightmargin="36" topmargin="36">
+  <watermark>
+    <imageref height="100%" keepAspectRatio="true" name="watermark" scale="true" src="${serverBaseURL}/sw-style/active/background_car.jpg" visible="true" width="100%" x="0" y="2%" />
+  </watermark>
+<reportheader color="#000000" fontname="SansSerif" fontsize="12" fontstyle="plain">
+    <line color="#5C7485" weight="2" width="100%" x1="0%" x2="100%" y1="0" y2="0"/>
+    <line color="#5C7485" weight=".5" width="100%" x1="0%" x2="100%" y1="3" y2="3"/>
+    <band x="0" y="9">
+    <message-field vertical-alignment="middle" alignment="right" height="14" width="50%" x="50%" y="0">Steel Wheels, Inc.</message-field>
+	<message-field vertical-alignment="middle" alignment="right" height="14" width="50%" x="50%" y="14">Order Details</message-field>
+	<message-field vertical-alignment="middle" alignment="right" height="14" width="50%" x="50%" y="28">$(CUSTOMERNAME)</message-field>
+    </band>
+    <!-- message-field vertical-alignment="middle" alignment="left" height="10" width="33%" x="0%" y="16">$(username)</message-field -->
+    <imageref src="${serverBaseURL}/sw-style/active/sw_logo.jpg" width="50%" height="40" keepAspectRatio="true" scale="true" alignment="left" x="0%" y="14"/>
+    <line color="#5C7485" weight=".5" x1="0%" x2="100%" y1="57" y2="57"/>
+    <line color="#5C7485" weight="2" width="100%" x1="0%" x2="100%" y1="60" y2="60"/>
+    <rectangle color="white" fill="false" height="18" width="100%" x="0" y="61" draw="false"/>
+</reportheader>
+  <reportfooter>
+    <message-field fontname="Ariel" fontsize="14" fontstyle="bold" height="15" width="100%" x="0" y="0" visible="false">Total Number of Customers=> $(Group Customer Count, number, ###,###.00) </message-field>
+  </reportfooter>
+  <pageheader fontname="Ariel" fontsize="10" fontstyle="plain">
+    <message-field alignment="left" fontname="Ariel" fontsize="7" fontstyle="italic" fsitalic="true" height="15" width="100%" x="0%" y="0">As of $(report.date) </message-field>
+  </pageheader>
+  <pagefooter>
+    <message-field alignment="center" fontname="Ariel" fontsize="10" height="15" width="100%" x="0">$(PageofPages)</message-field>
+  </pagefooter>
+  <groups>
+    <group name="CUSTOMER GROUP">
+      <fields>
+        <field>CUSTOMERNAME</field>
+      </fields>
+      <groupheader color="#162E85">
+        <string-field fieldname="CUSTOMERNAME" fontname="Ariel" fontsize="14" fontstyle="bold" height="20" name="URL-Field" width="70%" x="0" y="0"/>
+        <message-field alignment="left" fontname="Ariel" fontsize="14" fontstyle="bold" height="20" width="50%" x="0" y="20">Account Number: $(CUSTOMERNUMBER, number, ######)</message-field>
+        <message-field fontname="Ariel" fontsize="9" fontstyle="plain" height="12" nullstring="" width="50%" x="50%" y="0">$(ADDRESSLINE1)</message-field>
+        <message-field name="null" fontname="Ariel" fontsize="9" fontstyle="plain" height="12" nullstring=" " width="50%" x="50%" y="12">$(ADDRESSLINE2)</message-field>
+        <message-field fontname="Ariel" fontsize="9" fontstyle="plain" height="12" nullstring="" width="50%" x="50%" y="24">$(CITY), $(STATE)</message-field>
+        <message-field fontname="Ariel" fontsize="9" fontstyle="plain" height="12" nullstring="" width="50%" x="50%" y="36">$(PHONE)</message-field>
+      </groupheader>
+      <groupfooter pagebreak-after-print="true">
+        <message-field alignment="left" fontname="Ariel" fontsize="12" fontstyle="bold" height="45" width="100%" x="0" y="15" visible="true">Total Number of Orders for $(CUSTOMERNAME) is $(Orders Count, number, ###,###).</message-field>
+      </groupfooter>
+    </group>
+    <group name="ORDER NUMBER GROUP">
+      <fields>
+        <field>CUSTOMERNAME</field>
+        <field>ORDERNUMBER</field>
+      </fields>
+      <groupheader fontname="Ariel" fontsize="9" repeat="true" vertical-alignment="middle">
+        <rectangle color="#FFFD7F" draw="false" fill="true" height="15" width="100%" x="0" y="15"/>
+        <message-field fontname="Ariel" fontsize="10" fontstyle="plain" fsunderline="false" height="15" width="15%" x="0" y="15">Order#: $(ORDERNUMBER, number, #######)</message-field>
+        <message-field alignment="left" fontname="Ariel" fontsize="10" fontstyle="plain" fsunderline="false" height="15" width="20%" x="15%" y="15" vertical-alignment="middle">Status: $(STATUS)</message-field>
+        <message-field alignment="left" fontname="Ariel" fontsize="10" fontstyle="plain" fsunderline="false" height="15" width="25%" x="35%" y="15">Order Date: $(ORDERDATE, date, yyyy-MMM-dd)</message-field>
+        <label fsunderline="true" height="15" width="7%" x="3%" y="30">Line #</label>
+        <label alignment="left" fsunderline="true" height="15" width="10%" x="10%" y="30">SKU</label>
+        <label fsunderline="true" height="15" width="40%" x="20%" y="30">Product Description</label>
+        <label alignment="right" fsunderline="true" height="15" width="10%" x="60%" y="30">Price/Unit</label>
+        <label alignment="right" fsunderline="true" height="15" width="10%" x="73%" y="30">Qty Ordered</label>
+        <label alignment="right" fsunderline="true" height="15" width="10%" x="85%" y="30">Total Price</label>
+      </groupheader>
+      <groupfooter>
+        <line color="black" weight=".25" width="10%" x1="85%" x2="95%" y1="3" y2="3"/>
+        <number-field alignment="right" fieldname="invoicetotal" fontname="Ariel" fontsize="9" fontstyle="plain" format="$###,###.##" height="12" width="10%" x="85%" y="4"/>
+        <message-field alignment="left" fontname="Ariel" fontsize="9" fontstyle="italic" fsitalic="true" height="15" width="60%" x="10%" y="4" vertical-alignment="middle">* Order $(ORDERNUMBER, number, #######) contains $(Order Item Count, number, ###,###) line items and shipped on $(SHIPPEDDATE, date, MMM dd, yyyy).</message-field>
+        <line color="black" weight=".25" width="10%" x1="85%" x2="95%" y1="12" y2="12"/>
+        <line color="black" weight=".25" width="10%" x1="85%" x2="95%" y1="13" y2="13"/>
+      </groupfooter>
+    </group>
+  </groups>
+  <items fontname="Ariel" fontsize="9" fontstyle="plain" height="12" layout-cachable="false" vertical-alignment="middle">
+    <!-- rectangle name="background" x="0" y="0" width="100%" height="12" color="#5C7485" weight="0" fill="false" draw="true"/>  -->
+    <number-field fieldname="ORDERLINENUMBER" height="12" width="7%" x="3%" alignment="center"/>
+    <string-field fieldname="PRODUCTCODE" height="12" width="10%" x="10%"/>
+    <string-field fieldname="PRODUCTNAME" height="12" width="40%" x="20%"/>
+    <number-field alignment="right" fieldname="PRICEEACH" format="'$'###,###.00" height="12" width="10%" x="60%"/>
+    <number-field alignment="center" fieldname="QUANTITYORDERED" height="12" width="10%" x="73%"/>
+    <number-field alignment="right" fieldname="totalPrice" format="'$'###,###.00" height="12" visible="true" width="10%" x="85%"/>
+    <line color="#5C7485" weight=".25" x1="0%" x2="100%" y1="12" y2="12"/>
+  </items>
+  <functions>
+    <property-ref name="report.date"/>
+    <function class="org.jfree.report.function.GroupCountFunction" name="Group Customer Count">
+      <properties>
+        <property name="group">CUSTOMER GROUP</property>
+      </properties>
+    </function>
+    <function class="org.jfree.report.function.GroupCountFunction" deplevel="" name="Orders Count">
+      <properties>
+        <property name="group">ORDER NUMBER GROUP</property>
+        <property name="parentGroup">CUSTOMER GROUP</property>
+      </properties>
+    </function>
+    <function class="org.jfree.report.function.ItemCountFunction" name="Order Item Count">
+      <properties>
+        <property name="group">ORDER NUMBER GROUP</property>
+      </properties>
+    </function>
+    <function class="org.jfree.report.function.ItemSumFunction" name="invoicetotal">
+      <properties>
+        <property name="field">totalPrice</property>
+        <property name="group">ORDER NUMBER GROUP</property>
+      </properties>
+    </function>
+    <function class="org.jfree.report.function.PageOfPagesFunction" name="PageofPages"/>
+    <expression class="org.jfree.report.modules.misc.beanshell.BSHExpression" name="totalPrice">
+      <properties>
+        <property name="expression">Object getValue()     {      if (dataRow == null)                 {    return null;     }      Number OrderCount = (Number) dataRow.get(&quot;QUANTITYORDERED&quot;);            Number SalePrice = (Number) dataRow.get (&quot;PRICEEACH&quot;);            if (OrderCount == null || SalePrice == null)                  {     return null;   }    float totalPrice = OrderCount.floatValue() * SalePrice.floatValue();      return new Float (totalPrice);                }</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.TextFormatExpression" name="URLCreateExpression">
+      <properties>
+        <property name="pattern">http://www.google.com/search?hl=en&amp;q={0}&amp;btnG=Search</property>
+        <property name="field[0]">CUSTOMERNAME</property>
+        <property name="urlEncodeValues">true</property>
+      </properties>
+    </expression>
+    <function class="org.jfree.report.function.CreateHyperLinksFunction" name="AddHRefs">
+      <properties>
+        <property name="field">URLCreateExpression</property>
+        <property name="element">URL-Field</property>
+      </properties>
+    </function>
+      <function name="backgroundTrigger" class="org.jfree.report.function.ElementVisibilitySwitchFunction">
+       <properties>
+         <property name="element">background</property>
+         <property name="numberOfElements">1</property>
+       </properties>
+     </function>
+       <function class="org.jfree.report.function.HideElementByNameFunction" name="V_Address2">
+    <properties>
+      <property name="element">null</property>
+      <property name="field">ADDRESSLINE2</property>
+    </properties>
+  </function>     
+     </functions>
+</report>
