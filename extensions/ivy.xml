@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
+    <info organisation="${ivy.artifact.group}" module="${ivy.artifact.id}" revision="${project.revision}" />
+    
+	<configurations>
+		<conf name="default"/>
+		<conf name="test" visibility="private"/>
+		<conf name="source" />
+	</configurations>
+    
+	<publications>
+		<artifact name="${ivy.artifact.id}" type="jar" conf="default"/>
+		<artifact name="${ivy.artifact.id}" m:classifier="sources" type="source" ext="jar" conf="source"/>
+	</publications>
+    
+	<dependencies defaultconf="default->default">
+		<!--  external dependencies -->
+		<dependency org="commons-logging"     name="commons-logging"  rev="1.1.1" transitive="false"/>
+		<dependency org="commons-lang"        name="commons-lang"     rev="2.4"   transitive="false"/>
+
+		<!--  internal dependencies -->
+		<dependency org="pentaho" name="pentaho-platform-core" rev="${project.revision}" changing="true"/>
+	</dependencies>
+</ivy-module>
