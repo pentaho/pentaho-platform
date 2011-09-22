@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0">
+  <info organisation="${ivy.artifact.group}" module="${ivy.artifact.id}" revision="${project.revision}" />
+  <configurations>
+    <conf name="default" />
+    <conf name="test" visibility="private"/>
+  </configurations>
+  
+  <publications>
+    <artifact name="${ivy.artifact.id}" type="zip" />
+  </publications>
+  
+  <dependencies defaultconf="default->default">
+    <dependency org="hsqldb" name="hsqldb" rev="1.8.0" />
+  </dependencies>
+</ivy-module>
