@@ -1,0 +1,25 @@
+td.xtable-data, 
+th.xtable-title,
+th.xtable-heading,
+th.xtable-error {
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  color : Black;
+  /*text-align: left;*/
+  vertical-align: top;
+}
+
+th.xtable-heading {
+  background-color : #DEE3EF;
+  font-weight: bold;
+}
+
+th.xtable-title,
+th.xtable-error {
+  background-color : #DEE3EF;
+  font-weight: bold;
+}
+
+th.xtable-error {
+  color: red;
+}

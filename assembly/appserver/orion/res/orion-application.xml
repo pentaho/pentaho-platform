@@ -1,0 +1,3 @@
+<orion-application>
+	<data-sources path="./data-sources.xml" />
+</orion-application>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xform style="twocolumn">
+  <title value="Sortering">
+    <imgButton src="wcf/form/cancel.png" action="revert" label="Close" hide="true" handler="com.tonbeller.wcf.form.ButtonHandler"/>
+  </title>
+
+  <listBox1 type="int" bookmark="false" modelReference="extensions(sortRank).sortMode" label="Sortering">
+  <listItem value="1" label="Stigende, behold hierarki"/>
+  <listItem value="2" label="Synkende, behold hierarki"/>
+  <listItem value="3" label="Stigende, bryt hierarki"/>
+  <listItem value="4" label="Synkende, bryt hierarki"/>
+  <listItem value="5" label="Topprangering"/>
+  <listItem value="6" label="Bunnrangering"/>
+  </listBox1>
+
+  <textField type="posint" bookmark="false" modelReference="extensions(sortRank).topBottomCount" label="Antall rekker i rangeringen" title="vennligst bruk et heltall"/>
+  <checkBox modelReference="rowAxisBuilder.axisConfig.propertyConfig.showProperties" label="Vis egenskaper for medlemmer"/>
+
+  <buttons>
+    <button action="validate" label="OK" handler="com.tonbeller.wcf.form.ButtonHandler" hide="true"/>
+    <button action="revert" label="Avbryt" handler="com.tonbeller.wcf.form.ButtonHandler" hide="true"/>
+  </buttons>
+</xform>

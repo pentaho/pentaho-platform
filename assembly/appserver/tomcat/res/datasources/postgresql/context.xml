@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/pentaho" docbase="webapps/pentaho/">
+	<Resource name="jdbc/Hibernate" auth="Container" type="javax.sql.DataSource"
+		factory="org.apache.commons.dbcp.BasicDataSourceFactory" maxActive="20" maxIdle="5"
+		maxWait="10000" username="hibuser" password="password"
+		driverClassName="org.postgresql.Driver" url="jdbc:postgresql://localhost:5432/hibernate"
+		validationQuery="select 1" />
+		
+	<Resource name="jdbc/Quartz" auth="Container" type="javax.sql.DataSource"
+		factory="org.apache.commons.dbcp.BasicDataSourceFactory" maxActive="20" maxIdle="5"
+		maxWait="10000" username="pentaho_user" password="password"
+		driverClassName="org.postgresql.Driver" url="jdbc:postgresql://localhost:5432/quartz"
+		validationQuery="select 1"/>
+</Context>

@@ -1,0 +1,238 @@
+/* slicer */
+.slicer-normal {
+  font-family: Tahoma, Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  font-size: 0.9em;
+}
+
+.slicer-selected {
+  background-color : #ABE5B5;
+  font-family: Tahoma, Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  color: #000000;
+  font-size: 0.8em;
+}
+
+th, td {
+  border-color: #FFFFFF;
+  border-width: 1px;
+}
+
+#table01 {
+	border: 1px solid gray;
+}
+
+#toolbar01 {
+	vertical-align: middle;
+	padding-top: 3px;
+	padding-left: 10px;
+}
+
+#folder-up {
+	vertical-align: middle;
+	padding-top: 3px;
+}
+
+#folder-down {
+	vertical-align: middle;
+	padding-left: 10px;
+	padding-top: 3px;
+}
+
+#folder-options {
+    background-image: url(toolbar_bg.png);
+    height: 32px;
+    vertical-align: top;
+    border-bottom: 1px solid #848484;
+}
+
+/* headings */
+th.corner-heading,
+th.heading-heading,
+th.column-heading-selected,
+th.column-heading-even,
+th.column-heading-odd, 
+th.column-heading-span, 
+
+th.column-heading-red, 
+th.column-heading-green, 
+th.column-heading-yellow, 
+th.row-heading-red,
+th.row-heading-green,
+th.row-heading-yellow,
+
+th.column-heading-rot, 
+th.column-heading-gruen, 
+th.column-heading-gelb, 
+th.row-heading-rot,
+th.row-heading-gruen,
+th.row-heading-gelb,
+
+th.row-heading-selected,
+th.row-heading-even,
+th.row-heading-odd,
+th.row-heading-span,
+
+th.column-heading-even-right, 
+th.row-heading-even-right,
+th.column-heading-odd-right, 
+th.row-heading-odd-right,
+th.row-heading-span-right,
+th.column-heading-span-right,
+
+th.property-heading,
+td.property-name {
+  font-family: Tahoma, Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  color: #000000;
+  font-size: 0.8em;
+  text-align: left;
+  vertical-align: top;
+}
+
+th.column-heading-even-right, 
+th.row-heading-even-right,
+th.column-heading-odd-right, 
+th.row-heading-odd-right,
+th.column-heading-span-right, 
+th.row-heading-span-right {
+  text-align: right;
+}
+
+
+th.row-heading-selected,
+th.column-heading-selected
+{
+  background-color : #ABE5B5;
+}
+
+th.column-heading-even,
+th.column-heading-odd, 
+th.column-heading-span, 
+th.corner-heading,
+th.row-heading-even,
+th.row-heading-span,
+th.column-heading-even-right, 
+th.row-heading-even-right,
+th.column-heading-span-right, 
+th.row-heading-span-right,
+th.property-heading
+{
+  background-color : #D0D0D0;
+}
+
+
+th.heading-heading,
+td.property-name,
+th.column-heading-odd-right, 
+th.row-heading-odd-right,
+th.row-heading-odd
+{
+  background-color : #DDDDDD;
+}
+
+th.row-heading-red,
+th.column-heading-red,
+th.row-heading-rot,
+th.column-heading-rot
+{ 
+  background-color: #FF6666; 
+}
+
+th.row-heading-yellow,
+th.column-heading-yellow,
+th.row-heading-gelb,
+th.column-heading-gelb
+{ 
+  background-color: yellow;
+}
+
+th.row-heading-green,
+th.column-heading-green,
+th.row-heading-gruen,
+th.column-heading-gruen
+{ 
+  background-color: #66FF66;
+}
+
+
+/* data cells */
+td.cell-even,
+td.cell-odd,
+td.cell-red,
+td.cell-yellow,
+td.cell-green,
+td.cell-rot,
+td.cell-gelb,
+td.cell-gruen,
+td.property-value,
+td.property-span {
+  font-family: Tahoma, Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  color: #000000;
+  font-size: 0.8em;
+  text-align: right;
+}
+
+span.cell-even,
+span.cell-odd {
+  /* wird durch uebergeordnetes Element definiert */
+}
+
+
+td.cell-even
+{
+  background-color : #F5F5F5;
+}
+
+td.cell-odd,
+td.property-value,
+td.property-span
+{
+  background-color : #DDDDDD;
+}
+
+td.cell-rot,
+td.cell-red,
+span.cell-rot,
+span.cell-red
+{
+  background-color: #FF6666; 
+}
+
+td.cell-gelb,
+td.cell-yellow,
+span.cell-gelb,
+span.cell-yellow
+{
+  background-color : yellow;
+}
+
+td.cell-gruen,
+td.cell-green,
+span.cell-gruen,
+span.cell-green
+{
+  background-color: #66FF66; 
+}
+
+
+div.table-message {
+  font-family: Tahoma, Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  color: #000000;
+  font-size :12pt;
+}
+
+.body_dialog01 {
+	padding: 0px;
+	margin: 0px;
+}
+
+.content_body {
+	padding: 0px;
+}
+
+.mdxtable{
+  border: 1px solid grey;
+}

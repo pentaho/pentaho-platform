@@ -1,0 +1,37 @@
+th.navi-axis {
+  background-color : #DEE3EF;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 0.8em;;
+  color : Black;
+  text-align: left;
+  vertical-align: middle;
+}
+
+td.navi-hier {
+  background-color : #ffffff;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 0.8em;;
+  color : Black;
+  text-align: left;
+}
+
+td.navi-buttons {
+  text-align: right;
+}
+
+
+td.member-node-odd {
+  background-color : #ffffff;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 0.8em;;
+  color : Black;
+  text-align: left;
+}
+
+td.member-node-even {
+  background-color : #DEE3EF;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 0.8em;;
+  color : Black;
+  text-align: left;
+}

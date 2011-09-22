@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/pentaho" docbase="webapps/pentaho/">
+	<Resource name="jdbc/Hibernate" auth="Container" type="javax.sql.DataSource"
+		factory="org.apache.commons.dbcp.BasicDataSourceFactory" maxActive="20" maxIdle="5"
+		maxWait="10000" username="hibuser" password="password"
+		driverClassName="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:hsql://localhost/hibernate"
+		validationQuery="select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES" />
+		
+	<Resource name="jdbc/Quartz" auth="Container" type="javax.sql.DataSource"
+		factory="org.apache.commons.dbcp.BasicDataSourceFactory" maxActive="20" maxIdle="5"
+		maxWait="10000" username="pentaho_user" password="password"
+		driverClassName="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:hsql://localhost/quartz"
+		validationQuery="select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES"/>
+</Context>

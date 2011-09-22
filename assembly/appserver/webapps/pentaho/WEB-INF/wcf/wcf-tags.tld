@@ -1,0 +1,1582 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN" "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+<tlib-version>1.0</tlib-version>
+<jsp-version>1.2</jsp-version>
+<short-name>Web Component Framework Tags</short-name>
+<uri>http://www.tonbeller.com/wcf</uri>
+<display-name>Web Component Framework Tags</display-name>
+<description>
+    Web Component Framework (WCF) tag library. A collection of reuseable JSP tags like
+    tree, table, HTML form and XSL rendering.
+    
+    WCF uses the BeanUtils package
+    as its expression language EL.
+  </description>
+<tag>
+<name>calendar</name>
+<tag-class>com.tonbeller.wcf.form.CalendarControlTag</tag-class>
+<body-content>tagdependent</body-content>
+<description>Creates required javascript-modifications for the calendar-control in a wcf-form</description>
+</tag>
+<tag>
+<name>catedit</name>
+<tag-class>com.tonbeller.wcf.catedit.CategoryEditorTag</tag-class>
+<body-content>EMPTY</body-content>
+<description>Creates a categoy editor component. This component does not produce visible output directly, it must be rendered via the WCF render tag.</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>validate</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if set to true, then user input will be automatically
+  verified, even if the button of another component was pressed.
+  Both components must be part of the same HTML form element to make this work.</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>model</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression that resolves to a com.tonbeller.wcf.catedit.CategoryModel</description>
+</attribute>
+</tag>
+<tag>
+<name>charset</name>
+<tag-class>com.tonbeller.wcf.charset.CharsetTag</tag-class>
+<body-content>empty</body-content>
+<description>
+      prints the character encoding configured in the charset filter.
+    </description>
+</tag>
+<tag>
+<name>confirm</name>
+<tag-class>com.tonbeller.wcf.form.ConfirmComponentTag</tag-class>
+<body-content>tagdependent</body-content>
+<description>A confirmation dialog. Used by other Components, not stand-alone</description>
+<attribute>
+<name>id</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the session attribute created by this tag. Defaults to "confirmForm"</description>
+</attribute>
+<attribute>
+<name>xmlUri</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>URI of the form XML. Defaults to "/WEB-INF/wcf/confirm.xml"</description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>validate</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if set to true, then user input will be automatically
+  verified, even if the button of another component was pressed.
+  Both components must be part of the same HTML form element to make this work.</description>
+</attribute>
+</tag>
+<tag>
+<name>connect</name>
+<tag-class>com.tonbeller.wcf.form.ConnectFormTag</tag-class>
+<body-content>EMPTY</body-content>
+<description>Deprecated. Use "validate" attribute of WCF components instead, which is
+    more natural and will be sufficient most of the time. Connects different WCF Components. This makes the buttons
+    of one form act on another form too. If a tree and a form are connected for example,
+    pressing the OK button in the form will make the tree read its selection.</description>
+<attribute>
+<name>form1</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Form 1</description>
+</attribute>
+<attribute>
+<name>form2</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Form 2</description>
+</attribute>
+</tag>
+<tag>
+<name>contentType</name>
+<tag-class>com.tonbeller.wcf.charset.ContentTypeTag</tag-class>
+<body-content>empty</body-content>
+<description>
+      sets the content-type of the response and appends ";charset=xxx" where
+      xxx is the charset that is configured in the CharsetFilter.
+    </description>
+<attribute>
+<name>type</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>mime type, e.g. "text/html"</description>
+</attribute>
+</tag>
+<tag>
+<name>evenOdd</name>
+<tag-class>com.tonbeller.wcf.sqltable.EvenOddTag</tag-class>
+<body-content>empty</body-content>
+<description>
+      appends "-even" or "-odd" to its class attribute depending on the current
+      loop status.
+    </description>
+<attribute>
+<name>clazz</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the CSS class prefix</description>
+</attribute>
+<attribute>
+<name>even</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if clazz == null: string printed on even rows</description>
+</attribute>
+<attribute>
+<name>odd</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if clazz == null: string printed on odd rows</description>
+</attribute>
+</tag>
+<tag>
+<name>form</name>
+<tag-class>com.tonbeller.wcf.form.FormComponentTag</tag-class>
+<body-content>tagdependent</body-content>
+<description>
+      Creates an HTML form that is defined by an XML file.
+      This component does not produce visible output directly, it must be rendered via the WCF render tag.
+      Structure of the XML File
+&lt;xform style="twocolumn"&gt;
+  &lt;title value="Form Demo"&gt;
+    &lt;imgButton label="Cancel" .../&gt;
+  &lt;/title&gt;
+  &lt;textField type="int" modelReference="intValue" label="Count" .../&gt;
+  &lt;checkBox modelReference="nestedBean.boolValue" label="Check Me" .../&gt;
+&lt;/xform&gt;
+
+      creates a Form with a title, a close button in the upper right corner, a text input field
+      and a check box.
+      Data binding
+      The form component is associated with a JavaBean. The input elements of the HTML
+      form are bound to the bean properties via the modelReference attribute.
+      The bean in the above example has an int property with the name intValue
+      that can be modified by the &lt;textField ...&gt;.
+      As shown in the check box example, the modelReference may contain
+      an EL (JSTL Expression Language) expression.
+      
+      Valid type attribute values:
+      booleanstringdateintposint - integer &gt;= 0doubleemailElement IDs
+      The names of the HTTP parameters are generated by random. If this is not desired,
+      you can use the id attribute.
+
+
+&lt;xform style="twocolumn"&gt;
+  &lt;textField id="field1" .../&gt;
+  &lt;checkBox id="$id.field2" .../&gt;
+&lt;/xform&gt;
+
+
+      creates two HTML input fields, the first with
+      name="field1", the second with name="myform.field2", where myform
+      is the id attribute of this form tag.
+
+      Form Elements
+      The elements are rendered via /WEB-INF/wcf/controls.xsl. Please
+      look there for details.
+      labeltextFieldtextAreapasswordcheckBoxradioButtonlistBox1listBoxNimgButtonbutton
+      Use disabled="true" to make elements read-only.
+      
+      Use required="true" if user input is required.
+
+      Form Buttons
+       Buttons must have either a "handler" or an "actionReference"
+       attribute. "handler" specifies a class that implements the
+       NodeHandler interface which may handle requests, change button
+       label etc. Use of "actionReference" is much easier and recommended,
+       "actionReference" is the name of a method in the bean, that
+       takes a single argument of type RequestContext. This method
+       is invoked when the user presses the button.
+       action="revert" -
+            calls revert() on the Form, i.e. reads
+            the bean properties and formats
+            the data for presentation.
+         action="validate" -
+             calls validate() on the Form, i.e. parses
+             user input and writes the values to the bean properties
+         forward="/some/page.jsp" -
+             if validation succeeds forwards to another page. Paramers make sense here.
+         hide="true" -
+             if validation succeeds hides the component
+         successAttr="name-of-request-attribute" -
+             if validation succeeds a request attribute with value true
+             is created.
+         handler="fully.qualified.ClassName" -
+             name of a class that implements NodeHandler and is
+             responsible for this nodeactionReference="methodName" the name of a method
+             that takes an RequestContext as its argument.
+         Bookmark support
+      see com.tonbeller.wcf.bookmark. The content of the editable bean properties can be
+      collected and restored via the Bookmarkable interface. To enable this, the tag
+      attribute "bookmarkable" must be set to true.
+
+      Examples
+      See working examples in /WEB-INF
+
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>xmlUri</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Path of an XML config file that describes the HTML form, relative to the application context.
+    There may be different form descriptions for different Locales, the
+    stylesheet will be choosen upon similar rules to ResourceBundle.
+    
+    Example: xmlUri='/WEB-INF/myform.xml'. For a german
+    Browser WCF will try to load /WEB-INF/myform_de.xml.
+    If this fails, it will load /WEB-INF/myform.xml.
+  </description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>validate</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if set to true, then user input will be automatically
+  verified, even if the button of another component was pressed.
+  Both components must be part of the same HTML form element to make this work.</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>bundle</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>ResourceBundle for i18n replacements. If a text- or attributenode in xml starts with 'fmt:' the remaining text will be interpreted as key into the resource bundle.</description>
+</attribute>
+<attribute>
+<name>model</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression that resolves to the bean that shall be edited</description>
+</attribute>
+<attribute>
+<name>bookmarkable</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>true|false indicating whether this form shall save its beans state. Default is false</description>
+</attribute>
+<attribute>
+<name>finishButton</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>true|false indicating whether this form supports finish if it is not the last page of a wizard. Default is true</description>
+</attribute>
+</tag>
+<tag>
+<name>formbutton</name>
+<tag-class>com.tonbeller.wcf.toolbar.FormButtonTag</tag-class>
+<body-content>empty</body-content>
+<description>Submit button for a WCF form</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>ID of the button. The button may be accessed in EL as TOOLBAR_ID.buttons.BUTTON_ID</description>
+</attribute>
+<attribute>
+<name>img</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the image to use. The generated URLs are APPCONTEXT/wcf/toolbar/IMG-up.png and APPCONTEXT/wcf/toolbar/IMG-down.png</description>
+</attribute>
+<attribute>
+<name>radioGroup</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of a radio group. At most one button of a group may be pressed.</description>
+</attribute>
+<attribute>
+<name>tooltip</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>name of the tooltip in the toolbars ResourceBundle</description>
+</attribute>
+<attribute>
+<name>visibleRef</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Either true, false or an EL expression that evaluates to a boolean property. The button will be visible only, if that property is true</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>action</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>either "revert" or "validate"</description>
+</attribute>
+<attribute>
+<name>forward</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>URI of the JSP to display if validation succeeds</description>
+</attribute>
+<attribute>
+<name>form</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression that evaluates to the form to validate</description>
+</attribute>
+</tag>
+<tag>
+<name>ifRole</name>
+<tag-class>com.tonbeller.wcf.component.RoleExprTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+     A conditional tag that tests if the user holds some role.
+    </description>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+</tag>
+<tag>
+<name>imgbutton</name>
+<tag-class>com.tonbeller.wcf.toolbar.ImgButtonTag</tag-class>
+<body-content>empty</body-content>
+<description>A toolbar button with a static hyperlink</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>ID of the button. The button may be accessed in EL as TOOLBAR_ID.buttons.BUTTON_ID</description>
+</attribute>
+<attribute>
+<name>img</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the image to use. The generated URLs are APPCONTEXT/wcf/toolbar/IMG-up.png and APPCONTEXT/wcf/toolbar/IMG-down.png</description>
+</attribute>
+<attribute>
+<name>tooltip</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>name of the tooltip in the toolbars ResourceBundle</description>
+</attribute>
+<attribute>
+<name>visibleRef</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Either true, false or an EL expression that evaluates to a boolean property. The button will be visible only, if that property is true</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>href</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>the href attribute of the hyperlink. "{0}" is replaced with the context, "{1}" with a random string.</description>
+</attribute>
+<attribute>
+<name>target</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>the target attribute of the hyperlink</description>
+</attribute>
+</tag>
+<tag>
+<name>include</name>
+<tag-class>com.tonbeller.wcf.utils.IncludeTag</tag-class>
+<body-content>EMPTY</body-content>
+<description>
+      Includes a JSP page if a certain HTTP parameter is present.
+      The name of the file is prefix + paremeter + suffix. 
+      For example,
+      if prefix="/WEB-INF/mypages/", httpParam="page" and
+      suffix=".jsp", then the URL ?page=page20 will include
+      the file /WEB-INF/mypages/page20.jsp. If the parameter page
+      is not present in the HTTP request, no page will be included.
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>httpParam</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>name of the HTTP parameter</description>
+</attribute>
+<attribute>
+<name>prefix</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Prefix</description>
+</attribute>
+<attribute>
+<name>suffix</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Suffix</description>
+</attribute>
+</tag>
+<tag>
+<name>linkAction</name>
+<tag-class>com.tonbeller.wcf.param.ParamLinkActionTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      when the user clicks on the link, a method in the target bean is invoked.
+    </description>
+<attribute>
+<name>target</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL that evaluates to the target bean</description>
+</attribute>
+<attribute>
+<name>method</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>name of the method. The method must have the signature
+        void methodName(RequestContext context) throws Exception;</description>
+</attribute>
+</tag>
+<tag>
+<name>linkParam</name>
+<tag-class>com.tonbeller.wcf.param.ParamLinkParamTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      adds another SessionParam to a paramLink tag. Must be nested inside
+      a paramLink tag.
+    </description>
+<attribute>
+<name>paramName</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the SessionParam</description>
+</attribute>
+<attribute>
+<name>displayName</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>visible name of the SessionParam</description>
+</attribute>
+<attribute>
+<name>displayValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>visible value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>sqlValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>SQL value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>mdxValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>MDX value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>textValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Text constant as value of the SessionParam</description>
+</attribute>
+</tag>
+<tag>
+<name>logform</name>
+<tag-class>com.tonbeller.wcf.log.LogTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+     An HTML form that allows to set logging options for Apache log4j
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>validate</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if set to true, then user input will be automatically
+  verified, even if the button of another component was pressed.
+  Both components must be part of the same HTML form element to make this work.</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>xmlUri</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Path of an XML config file that describes the HTML form, relative to the application context.
+    There may be different form descriptions for different Locales, the
+    stylesheet will be choosen upon similar rules to ResourceBundle.
+    
+    Example: xmlUri='/WEB-INF/myform.xml'. For a german
+    Browser WCF will try to load /WEB-INF/myform_de.xml.
+    If this fails, it will load /WEB-INF/myform.xml.
+  </description>
+</attribute>
+<attribute>
+<name>logDir</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+        Name of a directory relative to user.home or - in case of missing write permissions -
+        relative to java.io.tmpdir. This directory contains the configuration files
+        for log4j, default configuration files are created.
+      </description>
+</attribute>
+</tag>
+<tag>
+<name>pageStack</name>
+<tag-class>com.tonbeller.wcf.pagestack.PageStackTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      shows the current position to the user, e.g.
+      you are here: Page 1 : Page 2</description>
+<attribute>
+<name>var</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the loop variable which is of type com.tonbeller.wcf.pagestack.Page</description>
+</attribute>
+<attribute>
+<name>page</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>url of the current page</description>
+</attribute>
+<attribute>
+<name>pageId</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>identifies this entry.
+        If not set, the page attribute is taken.
+        This way one JSP can be replaced with another.</description>
+</attribute>
+<attribute>
+<name>title</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>title of the current page</description>
+</attribute>
+<attribute>
+<name>key</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>fetches the title for this page from the current JSTL resource bundle (same as JSTL's &lt;fmt:message../&gt; for example)</description>
+</attribute>
+<attribute>
+<name>clear</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>clears the stack before adding this page</description>
+</attribute>
+<attribute>
+<name>varStatus</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the JSTL LoopTagStatus Object. See details in JSTL documentation</description>
+</attribute>
+<attribute>
+<name>bundle</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>ResourceBundle for i18n replacements</description>
+</attribute>
+</tag>
+<tag>
+<name>paramLink</name>
+<tag-class>com.tonbeller.wcf.param.ParamLinkTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Outputs an &lt;a href="..."&gt; hyperlink.
+      Stores a List of SessionParam's and Actions.
+      If the user clicks on the hyperlink, the SessionParam instances
+      will be activated, i.e. they will be set into the SessionParamPool.
+      Then the actions are executed. Finally it forwards to the target page.
+      
+      A single parameter may be specified through attributes of this tag,
+      if multiple parameters are required, nested linkParam tags may
+      be used.
+      
+      The generated URL
+      is "secure" because it contains a random number only. Users can
+      not change it in the browsers location field for example.
+    </description>
+<attribute>
+<name>page</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>target page</description>
+</attribute>
+<attribute>
+<name>target</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>HTML target base</description>
+</attribute>
+<attribute>
+<name>token</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Set to "true" to enerate a token into the URL to prevent the user from using the browser's back button. Defaults to "false".</description>
+</attribute>
+<attribute>
+<name>paramName</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the SessionParam</description>
+</attribute>
+<attribute>
+<name>displayName</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>visible name of the SessionParam</description>
+</attribute>
+<attribute>
+<name>displayValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>visible value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>sqlValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>SQL value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>mdxValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>MDX value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>textValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Text constant as value of the SessionParam</description>
+</attribute>
+</tag>
+<tag>
+<name>paramLinkGroup</name>
+<tag-class>com.tonbeller.wcf.param.ParamLinkGroupTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      groups a set of paramLink tags. When the start tag is executed, the
+      links generated on previous pages are invalidated.
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>hideIf</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression. If the EL returns true, no links will be rendererd.</description>
+</attribute>
+</tag>
+<tag>
+<name>paramPool</name>
+<tag-class>com.tonbeller.wcf.param.SessionParamPoolTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      ensures the SessionParamPool exists in the session with id="paramPool". Similar
+      to jsp:useBean
+    </description>
+</tag>
+<tag>
+<name>paramSql</name>
+<tag-class>com.tonbeller.wcf.param.ParamSqlTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      outputs SQL syntax for the named session parameter. May contain nested paramSqlMapping tags
+    </description>
+<attribute>
+<name>param</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the SessionParam</description>
+</attribute>
+<attribute>
+<name>qname</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>qualified name of the default column. This is used if parameter expression does not contain its own column id's</description>
+</attribute>
+</tag>
+<tag>
+<name>paramSqlMapping</name>
+<tag-class>com.tonbeller.wcf.param.ParamSqlMappingTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Maps column IDs from SQL Expressions to column alias names. For example, if a
+      SQL Parameter contains the expression CUSTOMERID = 123 AND PRODUCTID = 'ABC',
+      then in a concrete SQL you may want to generate
+      T1.CUSTOMER_PK = 123 AND T2.PRODUCT_FK = 'ABC'".
+      You can do this by mapping CUSTOMERID to T1.CUSTOMER_PK
+      and PRODUCTID to T2.PRODUCT_FK.
+      
+      Complex conditions that need mappings usually are created by application code.
+    </description>
+<attribute>
+<name>column</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>name of the column in the SQL expression</description>
+</attribute>
+<attribute>
+<name>qname</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>qualified name in the generated SQL</description>
+</attribute>
+</tag>
+<tag>
+<name>pushbutton</name>
+<tag-class>com.tonbeller.wcf.toolbar.PushButtonTag</tag-class>
+<body-content>empty</body-content>
+<description>A toolbar button with builtin boolean property pressed that reflects its state.</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>ID of the button. The button may be accessed in EL as TOOLBAR_ID.buttons.BUTTON_ID</description>
+</attribute>
+<attribute>
+<name>img</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the image to use. The generated URLs are APPCONTEXT/wcf/toolbar/IMG-up.png and APPCONTEXT/wcf/toolbar/IMG-down.png</description>
+</attribute>
+<attribute>
+<name>radioGroup</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of a radio group. At most one button of a group may be pressed.</description>
+</attribute>
+<attribute>
+<name>tooltip</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>name of the tooltip in the toolbars ResourceBundle</description>
+</attribute>
+<attribute>
+<name>visibleRef</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Either true, false or an EL expression that evaluates to a boolean property. The button will be visible only, if that property is true</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>pressed</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>inital state</description>
+</attribute>
+</tag>
+<tag>
+<name>pushParam</name>
+<tag-class>com.tonbeller.wcf.param.PushParamTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      replaces the attributes of a session parameter when the start tag is processed and
+      restores it when the end tag is processed.
+    </description>
+<attribute>
+<name>paramName</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the SessionParam</description>
+</attribute>
+<attribute>
+<name>displayName</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>visible name of the SessionParam</description>
+</attribute>
+<attribute>
+<name>displayValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>visible value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>sqlValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>SQL value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>mdxValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>MDX value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>textValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Text constant as value of the SessionParam</description>
+</attribute>
+</tag>
+<tag>
+<name>render</name>
+<tag-class>com.tonbeller.wcf.component.RendererTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      WCF components produce XML Documents (DOM) internally which is transformed via XSLT into the
+      outputformat by this tag. The output format will be HTML most of the time,
+      but may be any other text format like CSV for example.
+      
+      The render tag will not produce any output for components that
+      are not visible.
+
+      
+
+      The body may contain renderParam tags that supply
+      parameters for rendering. The following
+      stylesheet parameters are provided automatically (w/o nested parameter tag):
+      renderId - contains the id of this tag. If not set the modelReference is takencontext - the context path of the application for building URLs
+      Parameters may occur in xsl (via standard &lt;xsl:param .. &gt;) and in the DOM.
+      The render tag searches for &lt;param name=".."/&gt; elements in the
+      DOM and creates a corresponding attribute in its parent.
+      For example, the following DOM
+      &lt;myelem&gt;
+        &lt;param name="abc" attr="bcd"/&gt;
+      &lt;/myelem&gt;
+      
+      it will become
+      
+      &lt;myelem bcd="efg"&gt;
+        &lt;param name="abc" attr="bcd"/&gt;
+      &lt;/myelem&gt;
+      
+      where efg is the value of the abc parameter that was
+      supplied by the JSP author. If the parameter named abc does not exsist,
+      the attribute bcd is removed.
+      
+      This may be used to configure the page flow from a jsp, e.g.
+      
+        &lt;button label="OK" action="validate" handler="..."&gt;
+          &lt;param name="successPage" attr="forward"/&gt;
+        &lt;/button&gt;
+      
+      will create a forward attribute to the button element whose value is supplied by the jsp author
+      via the renderParam tag, e.g.
+      
+        &lt;wcf:renderParam name="successPage" value="/somepage.jsp"/&gt;
+      </description>
+<attribute>
+<name>id</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>der renderId Stylesheet Parameter</description>
+</attribute>
+<attribute>
+<name>ref</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+        Name of the Session Attribute that contains the Component to be rendered.
+      </description>
+</attribute>
+<attribute>
+<name>xslUri</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+        Path of the XSLT stylesheet to use, relative to the application context.
+        There may be different stylesheets for different Locales, the
+        stylesheet will be choosen upon similar rules to ResourceBundle.
+        
+        Example: xslUri="/WEB-INF/mystyle.xsl". For a german
+        Browser WCF will try to load /WEB-INF/mystyle_de.xsl.
+        If this fails, it will load /WEB-INF/mystyle.xsl.
+      </description>
+</attribute>
+<attribute>
+<name>xslCache</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>true, if the stylesheet shall be compiled once and then reused. This gives better
+       performance but makes it difficult to develop the stylesheets. Use true for production
+       and false for development</description>
+</attribute>
+</tag>
+<tag>
+<name>renderParam</name>
+<tag-class>com.tonbeller.wcf.component.RendererParameterTag</tag-class>
+<body-content>tagdependent</body-content>
+<description>
+       Adds an XSL parameter for the the render tag. If used inside a
+       render tag, the parameter is local to that transformation. Otherwise
+       the scope attribute specifies the scope of the parameter.
+       
+       The value may be provided as literal, or as expression (starting with "#{").
+       
+       Exactly one of the attributes name or test must be set.
+    </description>
+<attribute>
+<name>name</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the parameter</description>
+</attribute>
+<attribute>
+<name>value</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Value of the parameter. If value starts with '#{' its interpreted as EL expression, otherwise its taken literally</description>
+</attribute>
+<attribute>
+<name>scope</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>The scope of the parameter, one of 'request' (default), 'session', 'application'.</description>
+</attribute>
+<attribute>
+<name>test</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if present, the tag evaluates its body only if the parameter is set</description>
+</attribute>
+</tag>
+<tag>
+<name>scriptbutton</name>
+<tag-class>com.tonbeller.wcf.toolbar.ScriptButtonTag</tag-class>
+<body-content>empty</body-content>
+<description>A toolbar button that is bound to a boolean bean property</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>ID of the button. The button may be accessed in EL as TOOLBAR_ID.buttons.BUTTON_ID</description>
+</attribute>
+<attribute>
+<name>img</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the image to use. The generated URLs are APPCONTEXT/wcf/toolbar/IMG-up.png and APPCONTEXT/wcf/toolbar/IMG-down.png</description>
+</attribute>
+<attribute>
+<name>radioGroup</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of a radio group. At most one button of a group may be pressed.</description>
+</attribute>
+<attribute>
+<name>tooltip</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>name of the tooltip in the toolbars ResourceBundle</description>
+</attribute>
+<attribute>
+<name>visibleRef</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Either true, false or an EL expression that evaluates to a boolean property. The button will be visible only, if that property is true</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>model</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression that evaluates to a boolean property</description>
+</attribute>
+</tag>
+<tag>
+<name>scroller</name>
+<tag-class>com.tonbeller.wcf.scroller.ScrollerTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Adds java script code to the page that ensures that the browser keeps the
+      scroll position when a user is navigating
+    </description>
+</tag>
+<tag>
+<name>separator</name>
+<tag-class>com.tonbeller.wcf.toolbar.ToolSeparatorTag</tag-class>
+<body-content>empty</body-content>
+<description>Adds space between toolbar buttons</description>
+<attribute>
+<name>size</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>width in pixel</description>
+</attribute>
+<attribute>
+<name>visibleRef</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Either true, false or an EL expression that evaluates to a boolean property. The button will be visible only, if that property is true</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+</tag>
+<tag>
+<name>setParam</name>
+<tag-class>com.tonbeller.wcf.param.SetParamTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      replaces the attributes of a session parameter.
+    </description>
+<attribute>
+<name>paramName</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the SessionParam</description>
+</attribute>
+<attribute>
+<name>displayName</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>visible name of the SessionParam</description>
+</attribute>
+<attribute>
+<name>displayValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>visible value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>sqlValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>SQL value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>mdxValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>MDX value of the SessionParam</description>
+</attribute>
+<attribute>
+<name>textValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Text constant as value of the SessionParam</description>
+</attribute>
+</tag>
+<tag>
+<name>sqlTable</name>
+<tag-class>com.tonbeller.wcf.sqltable.SqlTableTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      A table that allows sorting and paging of a JSTL sql:query result. Sorting
+      and paging are done by the database, so very large result sets are possible.
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>maxRows</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>number or rows per page</description>
+</attribute>
+<attribute>
+<name>orderBy</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the column to order by</description>
+</attribute>
+<attribute>
+<name>nestedOrderBy</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of an additional column to order by</description>
+</attribute>
+<attribute>
+<name>descending</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Initial order by direction</description>
+</attribute>
+</tag>
+<tag>
+<name>sqlTableOrderBy</name>
+<tag-class>com.tonbeller.wcf.sqltable.SqlTableOrderByTag</tag-class>
+<body-content>empty</body-content>
+<description>
+      emits the "ORDER BY [column-name]" for the SQL query. Used inside &lt;sql:query&gt; tag.
+    </description>
+</tag>
+<tag>
+<name>sqlTablePageNavigations</name>
+<tag-class>com.tonbeller.wcf.sqltable.SqlTablePageNavigationsTag</tag-class>
+<body-content>empty</body-content>
+<description>
+      creates a dialog that allows the user to see different pages
+    </description>
+<attribute>
+<name>result</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>the sql result to scroll</description>
+</attribute>
+</tag>
+<tag>
+<name>sqlTableSortButton</name>
+<tag-class>com.tonbeller.wcf.sqltable.SqlTableSortButtonTag</tag-class>
+<body-content>empty</body-content>
+<description>
+      creates a sort button
+    </description>
+<attribute>
+<name>column</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the column to sort by</description>
+</attribute>
+</tag>
+<tag>
+<name>statusline</name>
+<tag-class>com.tonbeller.wcf.statusline.StatusLineTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Displays messages and errors. The body content is the default content that is
+      displayed if there are no errors or messages to display. In case of errors
+      a stack trace will be printed into the generated html - it will be commented
+      out and thus not visible, but you will see it if you choose "view source"
+      in your browser.
+    </description>
+<attribute>
+<name>format</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>output format: either "html" or "text" (default = "html")</description>
+</attribute>
+<attribute>
+<name>clear</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>clears the status line after output (default = true!)</description>
+</attribute>
+</tag>
+<tag>
+<name>table</name>
+<tag-class>com.tonbeller.wcf.table.TableComponentTag</tag-class>
+<body-content>JSP</body-content>
+<description>Creates a table component. This component does not produce visible output directly, it must be rendered via the WCF render tag.</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>validate</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if set to true, then user input will be automatically
+  verified, even if the button of another component was pressed.
+  Both components must be part of the same HTML form element to make this work.</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>model</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression that resolves to a com.tonbeller.wcf.table.TableModel</description>
+</attribute>
+<attribute>
+<name>selmode</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Row selection mode: href, single, multi or none</description>
+</attribute>
+<attribute>
+<name>closable</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Either true, false or an EL expression that evaluates to a boolean property. The close button will be visible only, if that property is true</description>
+</attribute>
+<attribute>
+<name>editable</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>"true" if the user shall hide columns etc</description>
+</attribute>
+<attribute>
+<name>sortable</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Either true, false or an EL expression that evaluates to a boolean property. The sorting function will be activated, if that property is true</description>
+</attribute>
+<attribute>
+<name>pagable</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Either true, false or an EL expression that evaluates to a boolean property. The paging function will be activated, if that property is true</description>
+</attribute>
+<attribute>
+<name>colHeaders</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Either true, false or an EL expression that evaluates to a boolean property. Column headers will be shown, if that property is true</description>
+</attribute>
+<attribute>
+<name>pagesize</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Maximum row count which will be displayed for a single page. The paging function must be active (pagable=true)</description>
+</attribute>
+<attribute>
+<name>editForm</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>DEPRECATED - use editable. set to context relative URI the XML file describing the table properties form to allow users to hide columns</description>
+</attribute>
+</tag>
+<tag>
+<name>tablePropertiesForm</name>
+<tag-class>com.tonbeller.wcf.table.TablePropertiesFormTag</tag-class>
+<body-content>JSP</body-content>
+<description>Creates a table component. This component does not produce visible output directly, it must be rendered via the WCF render tag.</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>validate</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if set to true, then user input will be automatically
+  verified, even if the button of another component was pressed.
+  Both components must be part of the same HTML form element to make this work.</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>xmlUri</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Path of an XML config file that describes the HTML form, relative to the application context.
+    There may be different form descriptions for different Locales, the
+    stylesheet will be choosen upon similar rules to ResourceBundle.
+    
+    Example: xmlUri='/WEB-INF/myform.xml'. For a german
+    Browser WCF will try to load /WEB-INF/myform_de.xml.
+    If this fails, it will load /WEB-INF/myform.xml.
+  </description>
+</attribute>
+<attribute>
+<name>closable</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>set to true make the component closeable</description>
+</attribute>
+<attribute>
+<name>table</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression that resolves to a &lt;wcf:table ...&gt;</description>
+</attribute>
+</tag>
+<tag>
+<name>token</name>
+<tag-class>com.tonbeller.wcf.token.TokenTag</tag-class>
+<body-content>EMPTY</body-content>
+<description>
+      Creates a hidden field to synchronize the page flow. Should be used
+      together with the TokenFilter
+    </description>
+<attribute>
+<name>clear</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Instead of producing the HTML hidden field, the token is cleared and browser back button is allowed (once!)</description>
+</attribute>
+</tag>
+<tag>
+<name>toolbar</name>
+<tag-class>com.tonbeller.wcf.toolbar.ToolBarTag</tag-class>
+<body-content>JSP</body-content>
+<description>Creates a toolbar component. Buttons are defined via nested Elements:
+    formbuttonpushbuttonscriptbuttonimgbuttonseparator
+    This component does not produce visible output directly, it must be rendered via the WCF render tag.</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>validate</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if set to true, then user input will be automatically
+  verified, even if the button of another component was pressed.
+  Both components must be part of the same HTML form element to make this work.</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>bundle</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>ResourceBundle for tooltips</description>
+</attribute>
+<attribute>
+<name>globalButtonIds</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>@DEPRECATED - do not use. Workaround for a bug in earlier versions that prevented multiple toolbars to have buttons with the same id</description>
+</attribute>
+</tag>
+<tag>
+<name>tree</name>
+<tag-class>com.tonbeller.wcf.tree.TreeComponentTag</tag-class>
+<body-content>EMPTY</body-content>
+<description>Creates a tree component. This component does not produce visible output directly, it must be rendered via the WCF render tag.</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>validate</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if set to true, then user input will be automatically
+  verified, even if the button of another component was pressed.
+  Both components must be part of the same HTML form element to make this work.</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>model</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression that resolves to a com.tonbeller.wcf.tree.TreeModel</description>
+</attribute>
+<attribute>
+<name>selectionModel</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression that resolves to a com.tonbeller.wcf.selection.SelectionModel</description>
+</attribute>
+</tag>
+<tag>
+<name>wizard</name>
+<tag-class>com.tonbeller.wcf.wizard.WizardComponentTag</tag-class>
+<body-content>JSP</body-content>
+<description>Creates a wizard component. This component does not produce visible output directly, it must be rendered via the WCF render tag.</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>validate</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if set to true, then user input will be automatically
+  verified, even if the button of another component was pressed.
+  Both components must be part of the same HTML form element to make this work.</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+</tag>
+</taglib>

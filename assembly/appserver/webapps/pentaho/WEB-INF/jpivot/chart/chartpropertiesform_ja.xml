@@ -1,0 +1,292 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xform style="manual">
+<table border="1" cellspacing="0" cellpadding="2">
+
+ <tr>
+  <th colspan="2" class="xform-title">
+   <table border="0" cellspacing="0" cellpadding="0" width="100%">
+    <tr>
+     <th align="left" class="xform-title">
+      グラフのプロパティ
+     </th>
+     <td align="right" class="xform-close-button">
+      <imgButton src="wcf/form/cancel.png" action="revert" label="Close" hide="true" handler="com.tonbeller.wcf.form.ButtonHandler"/>
+     </td>
+    </tr>
+   </table>
+  </th>
+ </tr>
+
+ <tr>
+  <td>グラフのタイプ</td>
+  <td>
+   <listBox1 type="int" modelReference="chartType">
+	<listItem value="1" label="縦棒"/>
+	<listItem value="2" label="縦棒 3D"/>
+	<listItem value="3" label="横棒"/>
+	<listItem value="4" label="横棒 3D"/>
+	<listItem value="5" label="積み上げ縦棒"/>
+	<listItem value="6" label="積み上げ縦棒 3D"/>
+	<listItem value="7" label="積み上げ横棒"/>
+	<listItem value="8" label="積み上げ横棒 3D"/>
+	<listItem value="9" label="折れ線（縦）"/>
+	<listItem value="10" label="折れ線（横）"/>
+	<listItem value="11" label="面（縦）"/>
+	<listItem value="12" label="面（横）"/>
+	<listItem value="13" label="積み上げ面（縦）"/>
+	<listItem value="14" label="積み上げ面（横）"/>
+	<listItem value="15" label="円（縦の段）"/>
+	<listItem value="16" label="円（列）"/>
+   </listBox1>
+  </td>
+ </tr>
+
+ <tr>
+  <td>ドリルを可能</td>
+  <td>
+   <checkBox modelReference="drillThroughEnabled"/>
+  </td>
+ </tr>
+
+ <tr>
+  <td>グラフのタイトル</td>
+  <td>
+   <textField type="string" modelReference="chartTitle" size="30" title="このグラフのタイトルを入力"/>
+  </td>
+ </tr>
+ <tr>
+  <td>グラフタイトルのフォント</td>
+  <td>
+   <listBox1 type="string" modelReference="fontName" label="Title font">
+  	<listItem value="SansSerif" label="SansSerif"/>
+	<listItem value="Serif" label="Serif"/>
+	<listItem value="Monospaced" label="Monospaced"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="fontStyle" label="Title font style">
+  	<listItem value="0" label="標準"/>
+	<listItem value="1" label="太字"/>
+	<listItem value="2" label="斜体"/>
+	<listItem value="3" label="太字斜体"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="fontSize" label="Title font size">
+  	<listItem value="8" label="8"/>
+	<listItem value="10" label="10"/>
+	<listItem value="12" label="12"/>
+	<listItem value="14" label="14"/>
+	<listItem value="16" label="16"/>
+	<listItem value="18" label="18"/>
+	<listItem value="20" label="20"/>
+	<listItem value="22" label="22"/>
+	<listItem value="24" label="24"/>
+	<listItem value="26" label="26"/>
+	<listItem value="28" label="28"/>
+	<listItem value="30" label="30"/>
+	<listItem value="32" label="32"/>
+   </listBox1>
+  </td>
+ </tr>
+ 
+ <tr>
+  <td>横軸ラベル</td>
+  <td>
+   <textField type="string" modelReference="horizAxisLabel" size="30" title="この軸のラベルを入力"/>
+  </td>
+ </tr>
+ <tr>
+  <td>縦軸ラベル</td>
+  <td>
+   <textField type="string" modelReference="vertAxisLabel" size="30" title="この軸のラベルを入力"/>
+  </td>
+ </tr>
+ <tr>
+  <td>軸ラベルのフォント</td>
+  <td>
+   <listBox1 type="string" modelReference="axisFontName">
+  	<listItem value="SansSerif" label="SansSerif"/>
+	<listItem value="Serif" label="Serif"/>
+	<listItem value="Monospaced" label="Monospaced"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="axisFontStyle">
+  	<listItem value="0" label="標準"/>
+	<listItem value="1" label="太字"/>
+	<listItem value="2" label="斜体"/>
+	<listItem value="3" label="太字斜体"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="axisFontSize">
+  	<listItem value="8" label="8"/>
+	<listItem value="10" label="10"/>
+	<listItem value="12" label="12"/>
+	<listItem value="14" label="14"/>
+	<listItem value="16" label="16"/>
+	<listItem value="18" label="18"/>
+	<listItem value="20" label="20"/>
+	<listItem value="22" label="22"/>
+	<listItem value="24" label="24"/>
+	<listItem value="26" label="26"/>
+	<listItem value="28" label="28"/>
+	<listItem value="30" label="30"/>
+	<listItem value="32" label="32"/>
+   </listBox1>
+  </td>
+ </tr>
+ 
+ <tr>
+  <td>軸の刻みのフォント</td>
+  <td>
+   <listBox1 type="string" modelReference="axisTickFontName">
+  	<listItem value="SansSerif" label="SansSerif"/>
+	<listItem value="Serif" label="Serif"/>
+	<listItem value="Monospaced" label="Monospaced"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="axisTickFontStyle">
+  	<listItem value="0" label="標準"/>
+	<listItem value="1" label="太字"/>
+	<listItem value="2" label="斜体"/>
+	<listItem value="3" label="太字斜体"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="axisTickFontSize">
+  	<listItem value="8" label="8"/>
+	<listItem value="10" label="10"/>
+	<listItem value="12" label="12"/>
+	<listItem value="14" label="14"/>
+	<listItem value="16" label="16"/>
+	<listItem value="18" label="18"/>
+	<listItem value="20" label="20"/>
+	<listItem value="22" label="22"/>
+	<listItem value="24" label="24"/>
+	<listItem value="26" label="26"/>
+	<listItem value="28" label="28"/>
+	<listItem value="30" label="30"/>
+	<listItem value="32" label="32"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="tickLabelRotate">
+        <listItem value="0" label="0ｰ"/>
+        <listItem value="30" label="30ｰ"/>
+        <listItem value="45" label="45ｰ"/>
+        <listItem value="90" label="90ｰ"/>
+   </listBox1>
+  </td>
+ </tr>
+
+ <tr>
+  <td>凡例表示</td>
+  <td>
+   <checkBox modelReference="showLegend"/>
+   <listBox1 type="int" modelReference="legendPosition">
+  	<listItem value="1" label="上"/>
+	<listItem value="3" label="下"/>
+	<listItem value="0" label="左"/>
+	<listItem value="2" label="右"/>
+   </listBox1>
+  </td>
+ </tr>
+ <tr>
+  <td>凡例フォント</td>
+  <td>
+   <listBox1 type="string" modelReference="legendFontName">
+  	<listItem value="SansSerif" label="SansSerif"/>
+	<listItem value="Serif" label="Serif"/>
+	<listItem value="Monospaced" label="Monospaced"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="legendFontStyle">
+  	<listItem value="0" label="標準"/>
+	<listItem value="1" label="太字"/>
+	<listItem value="2" label="斜体"/>
+	<listItem value="3" label="太字斜体"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="legendFontSize">
+  	<listItem value="8" label="8"/>
+	<listItem value="10" label="10"/>
+	<listItem value="12" label="12"/>
+	<listItem value="14" label="14"/>
+	<listItem value="16" label="16"/>
+	<listItem value="18" label="18"/>
+	<listItem value="20" label="20"/>
+	<listItem value="22" label="22"/>
+	<listItem value="24" label="24"/>
+	<listItem value="26" label="26"/>
+	<listItem value="28" label="28"/>
+	<listItem value="30" label="30"/>
+	<listItem value="32" label="32"/>
+   </listBox1>
+  </td>
+ </tr>
+
+ <tr>
+  <td>スライサ表示</td>
+  <td>
+   <checkBox modelReference="showSlicer"/>
+   <listBox1 type="int" modelReference="slicerPosition" label="Slicer Position">
+  	<listItem value="0" label="上"/>
+	<listItem value="1" label="下"/>
+	<listItem value="3" label="左"/>
+	<listItem value="2" label="右"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="slicerAlignment" label="Slicer Alignment">
+	<listItem value="3" label="左"/>
+	<listItem value="2" label="右"/>
+	<listItem value="4" label="中央"/>
+   </listBox1>
+  </td>
+ </tr>
+ <tr>
+  <td>スライサフォント</td>
+  <td>
+   <listBox1 type="string" modelReference="slicerFontName">
+  	<listItem value="SansSerif" label="SansSerif"/>
+	<listItem value="Serif" label="Serif"/>
+	<listItem value="Monospaced" label="Monospaced"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="slicerFontStyle">
+  	<listItem value="0" label="標準"/>
+	<listItem value="1" label="太字"/>
+	<listItem value="2" label="斜体"/>
+	<listItem value="3" label="太字斜体"/>
+   </listBox1>
+   <listBox1 type="int" modelReference="slicerFontSize">
+  	<listItem value="8" label="8"/>
+	<listItem value="10" label="10"/>
+	<listItem value="12" label="12"/>
+	<listItem value="14" label="14"/>
+	<listItem value="16" label="16"/>
+	<listItem value="18" label="18"/>
+	<listItem value="20" label="20"/>
+	<listItem value="22" label="22"/>
+	<listItem value="24" label="24"/>
+	<listItem value="26" label="26"/>
+	<listItem value="28" label="28"/>
+	<listItem value="30" label="30"/>
+	<listItem value="32" label="32"/>
+   </listBox1>
+  </td>
+ </tr>
+
+ <tr>
+  <td>グラフの高さ</td>
+  <td>
+   <textField type="posint" modelReference="chartHeight" size="5" title="ピクセルで高さを入力 - 初期値 300"/>
+   &#160;&#160;&#160;グラフ幅
+   <textField type="posint" modelReference="chartWidth" size="5" title="ピクセルで幅を入力 - 初期値 500"/>
+  </td>
+ </tr>
+ 
+ <tr>
+  <td>バックグランド (R, G, B)</td>
+  <td>
+   <textField type="posint" modelReference="bgColorR" size="4" title="赤の値 0-255"/>
+   <textField type="posint" modelReference="bgColorG" size="4" title="緑の値 0-255"/>
+   <textField type="posint" modelReference="bgColorB" size="4" title="青の値 value 0-255"/>
+  </td>
+ </tr>
+
+ <tr>
+  <td align="right" colspan="4">
+    <button action="validate" label="OK" handler="com.tonbeller.wcf.form.ButtonHandler" hide="true"/>
+    <button action="revert" label="Cancel" handler="com.tonbeller.wcf.form.ButtonHandler" hide="true"/>
+  </td>
+ </tr>
+
+</table>
+
+</xform>

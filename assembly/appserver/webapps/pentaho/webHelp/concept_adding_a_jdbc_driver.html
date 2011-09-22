@@ -1,0 +1,412 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="copyright" content="(C) Copyright 2011">
+<meta name="DC.rights.owner" content="(C) Copyright 2011">
+<meta name="DC.Type" content="concept">
+<meta name="DC.Title" content="Adding a JDBC Driver">
+<meta name="DC.Creator" content="Marina Baker">
+<meta name="DC.Creator" content="Jem Matzan">
+<meta name="DC.Format" content="XHTML">
+<meta name="DC.Identifier" content="conceptId">
+<style type="text/css">
+<!--
+.unresolved { background-color: skyblue; }
+.noTemplate { background-color: yellow; }
+
+.base { background-color: #ffffff; }
+
+/* Add space for top level topics */
+.nested0 { margin-top : 1em;}
+
+/* div with class=p is used for paragraphs that contain blocks, to keep the XHTML valid */
+.p {margin-top: 1em}
+
+/* Default of italics to set apart figure captions */
+.figcap { font-style: italic }
+.figdesc { font-style: normal }
+
+/* Use @frame to create frames on figures */
+.figborder { border-style: solid; padding-left : 3px; border-width : 2px; padding-right : 3px; margin-top: 1em; border-color : Silver;}
+.figsides { border-left : 2px solid; padding-left : 3px; border-right : 2px solid; padding-right : 3px; margin-top: 1em; border-color : Silver;}
+.figtop { border-top : 2px solid; margin-top: 1em; border-color : Silver;}
+.figbottom { border-bottom : 2px solid; border-color : Silver;}
+.figtopbot { border-top : 2px solid; border-bottom : 2px solid; margin-top: 1em; border-color : Silver;}
+
+/* Most link groups are created with <div>. Ensure they have space before and after. */
+.ullinks { list-style-type: none }
+.ulchildlink { margin-top: 1em; margin-bottom: 1em }
+.olchildlink { margin-top: 1em; margin-bottom: 1em }
+.linklist { margin-bottom: 1em }
+.linklistwithchild { margin-left: 1.5em; margin-bottom: 1em  }
+.sublinklist { margin-left: 1.5em; margin-bottom: 1em  }
+.relconcepts { margin-top: 1em; margin-bottom: 1em }
+.reltasks { margin-top: 1em; margin-bottom: 1em }
+.relref { margin-top: 1em; margin-bottom: 1em }
+.relinfo { margin-top: 1em; margin-bottom: 1em }
+.breadcrumb { font-size : smaller; margin-bottom: 1em }
+.prereq { margin-left : 20px;}
+
+/* Set heading sizes, getting smaller for deeper nesting */
+
+/*
+phart heading styles begin
+*/
+h1.topictitle1, h1.sectiontitle {
+    background-color: #ffffff;
+    padding: 2px 0px 2px 0px;
+    margin: 2px 0px 2px 0px;
+	border-bottom:1px solid #CCC;
+	font-size: 16pt;
+	font-weight:normal;
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	color: #ED752A;
+	line-height:1em; 
+}
+h2.topictitle2, h2.sectiontitle {
+    font-size: 14pt;
+	font-weight: normal;
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	color: #95a22c;
+    background-color: #ffffff;
+    padding: 2px 0px 2px 0px;
+    margin: 2px 0px 2px 0px;
+}
+h3.topictitle3,h3.sectiontitle {
+	font-size: 12pt;
+	line-height: normal;
+	font-weight: normal;
+	color: #777777;
+	background-color: #ffffff;
+    padding: 2px 0px 2px 0px;
+    margin: 2px 0px 2px 0px;
+}
+
+
+.section { margin-top: 1em; margin-bottom: 1em }
+.example { margin-top: 1em; margin-bottom: 1em }
+
+/* All note formats have the same default presentation */
+.note {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #F0C000;
+	background-color: #FFFFCE;
+	text-align:left;
+	margin: 5px 5px 5px 15px;
+	padding: 5px 5px 5px 5px;
+}
+.notetitle { font-weight: bold }
+.notelisttitle { font-weight: bold }
+.tip { margin-top: 1em; margin-bottom : 1em;}
+.tiptitle { font-weight: bold }
+.fastpath { margin-top: 1em; margin-bottom : 1em;}
+.fastpathtitle { font-weight: bold }
+.remember { margin-top: 1em; margin-bottom : 1em;}
+.remembertitle { font-weight: bold }
+.restriction { margin-top: 1em; margin-bottom : 1em;}
+.restrictiontitle { font-weight: bold }
+.attention { margin-top: 1em; margin-bottom : 1em;}
+.attentiontitle { font-weight: bold }
+/* phart alert box edits */
+.cautiontitle {
+	font-weight: bolder;
+	border-left:1px solid #F0C000;
+	border-top:1px solid #F0C000;
+	border-right:1px solid #F0C000;
+	background-color:#FFFFCE;
+	margin:0px 0px 0px 0px;
+	padding:4px 4px 4px 26px;
+	background-image: url(http://www.pentaho.com/images/doc/warning.gif);
+	background-repeat:no-repeat;
+	background-position:6px 6px;
+}
+.caution {
+	border-left:1px solid #F0C000;
+	border-bottom:1px solid #F0C000;
+	border-right:1px solid #F0C000;
+	background-color:#FFFFCE;
+	margin:0px 0px 0px 0px;
+	padding:4px 4px 4px 26px;
+	font-weight:normal;
+}
+.dangertitle {
+	font-weight: bolder;
+	border-left:1px solid #c00000;
+	border-top:1px solid #c00000;
+	border-right:1px solid #c00000;
+	background-color:#fccccc;
+	margin:0px 0px 0px 0px;
+	padding:4px 4px 4px 26px;
+	background-image: url(http://www.pentaho.com/images/doc/forbidden.gif);
+	background-repeat:no-repeat;
+	background-position:6px 6px;
+}
+.danger {
+	border-left:1px solid #c00000;
+	border-bottom:1px solid #c00000;
+	border-right:1px solid #c00000;
+	background-color:#fccccc;
+	margin:0px 0px 0px 0px;
+	padding:4px 4px 4px 26px;
+	font-weight:normal;
+}
+.important {
+
+}
+.importanttitle {
+	font-weight: bold;
+}
+/* phart alert box edits */
+
+
+/* Simple lists do not get a bullet */
+ul.simple { list-style-type: none }
+
+/* Used on the first column of a table, when rowheader="firstcol" is used */
+.firstcol { font-weight : bold;}
+
+/* Various basic phrase styles */
+.bold { font-weight: bold; }
+.boldItalic { font-weight: bold; font-style: italic; }
+.italic { font-style: italic; }
+.underlined { text-decoration: underline; }
+.uicontrol { font-weight: bold; }
+.parmname { font-weight: bold; }
+.kwd { font-weight: bold; }
+.defkwd { font-weight: bold; text-decoration: underline; }
+.var { font-style : italic;}
+.shortcut { text-decoration: underline; }
+
+/* Default of bold for definition list terms */
+.dlterm { font-weight: bold; }
+
+/* Use CSS to expand lists with @compact="no" */
+.dltermexpand { font-weight: bold; margin-top: 1em; }
+*[compact="yes"]>li { margin-top: 0em;}
+*[compact="no"]>li { margin-top: .53em;}	
+.liexpand { margin-top: 2px; margin-bottom: 2px }
+.sliexpand { margin-top: 2px; margin-bottom: 2px }
+.dlexpand { margin-top: 2px; margin-bottom: 2px }
+.ddexpand { margin-top: 2px; margin-bottom: 2px }
+.stepexpand { margin-top: 2px; margin-bottom: 2px }
+.substepexpand { margin-top: 2px; margin-bottom: 2px }
+
+/* Align images based on @align on topic/image */
+div.imageleft { text-align: left }
+div.imagecenter { text-align: center }
+div.imageright { text-align: right }
+div.imagejustify { text-align: justify }
+
+/* The cell border can be turned on with
+   {border-right:solid}
+   This value creates a very thick border in Firefox (does not match other tables)
+
+   Firefox works with 
+   {border-right:solid 1pt}
+   but this causes a barely visible line in IE 
+   phart - this should be corrected by using px instead of pt
+*/
+.cellrowborder { border-left:none; border-top:none; border-right:solid 1px; border-bottom:solid 1px }
+.row-nocellborder { border-left:none; border-right:none; border-top:none; border-right: hidden; border-bottom:solid 1px}
+.cell-norowborder { border-top:none; border-bottom:none; border-left:none; border-bottom: hidden; border-right:solid 1px}
+.nocellnorowborder { border:none; border-right: hidden;border-bottom: hidden }
+
+pre.screen { padding: 5px 5px 5px 5px; border: outset; background-color: #CCCCCC; margin-top: 2px; margin-bottom : 2px; white-space: pre}
+
+/*
+added by phart - classes not found above but referenced in code
+*/
+
+/* span around references to filepaths */
+.filepath {
+	font-style:italic;
+}
+
+body {
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	line-height: 16px;
+	color: #000000;
+	font-weight: normal;
+}
+/* links at footer of page */
+.familylinks {
+    padding: 2px 0px 2px 0px;
+    margin: 2px 0px 2px 0px;
+	border-top:1px solid #CCC;
+}
+.parentlink a:link, .parentlink a:visited {
+	color: #949e3e;
+	text-decoration:none;
+}
+.parentlink a:active, .parentlink a:hover {
+	color: #ef8033;
+	text-decoration:none;
+}
+
+/* pre codeblock */
+pre.codeblock {
+ 	border: 1px solid #cdcdcd;
+	background-color: #f0f0f0;
+    font-size: 11px;
+	font-family: Courier;
+    line-height: 13px;
+	/*width: 85%;*/
+    text-align: left;
+    padding: 8px;
+	margin: 10px 10px 10px 0px;
+	overflow: auto;
+}
+
+/* lists */
+ol {
+    margin: 2px 0px 2px 20px;
+    padding: 0px 0px 0px 20px;
+	list-style-position: outside;
+}
+ul {
+    margin: 2px 0px 2px 15px;
+    padding: 0px 0px 0px 15px;
+	list-style-image: url(http://www.pentaho.com/images/bullet.png);
+	list-style-position: outside; 
+}
+.ullinks a:link, .ullinks a:visited {
+	color: #949e3e;
+	text-decoration:none;
+}
+.ullinks a:active, .ullinks a:hover {
+	color: #ef8033;
+	text-decoration:none;
+}
+
+
+a:link, a:visited {
+	color: #949e3e;
+	text-decoration:none;
+}
+a:active, a:hover {
+	color: #ef8033;
+	text-decoration:none;
+} -->
+</style>
+
+<title>Adding a JDBC Driver</title>
+</head>
+<body id="conceptId"><a name="conceptId"><!-- --></a>
+
+
+    <h1 class="topictitle1">Adding a JDBC Driver</h1>
+
+    
+    <div>
+        <div class="section">
+            <p>Before you can connect to a data source in any Pentaho server or client tool, you
+                must first install the appropriate database driver. Your database administrator,
+                CIO, or IT manager should be able to provide you with the proper driver JAR. If not,
+                you can download a JDBC driver JAR file from your database vendor or driver
+                developer's Web site. Once you have the JAR, follow the instructions below to copy
+                it to the driver directories for all of the BI Suite components that need to connect
+                to this data source.</p>
+
+            <div class="note"><span class="notetitle">Note:</span> Microsoft SQL Server users frequently use an alternative, non-vendor-supported
+                driver called JTDS. If you are adding an MSSQL data source, ensure that you are
+                installing the correct driver.</div>
+
+        </div>
+
+        <div class="section"><h2 class="sectiontitle">Backing up old drivers</h2>
+            
+            <p>You must also ensure that there are no other versions of the same vendor's JDBC
+                driver installed in these directories. If there are, you may have to back them up
+                and remove them to avoid confusion and potential class loading problems. This is of
+                particular concern when you are installing a driver JAR for a data source that is
+                the same database type as your Pentaho solution repository. If you have any doubts
+                as to how to proceed, contact your Pentaho support representative for guidance.</p>
+
+        </div>
+
+        <div class="section"><h2 class="sectiontitle">Installing JDBC drivers</h2>
+            
+            <p>Copy the driver JAR file to the following directories, depending on which servers and
+                client tools you are using (Dashboard Designer, ad hoc reporting, and Analyzer are
+                all part of the BI Server):</p>
+
+            <div class="note"><span class="notetitle">Note:</span> <strong>For the DI Server:</strong> before copying a new JDBC driver, ensure that there is
+                not a different version of the same JAR in the destination directory. If there is,
+                you must remove the old JAR to avoid version conflicts.</div>
+
+            <br><ul>
+                <li><strong>BI Server:</strong>
+                    <span class="filepath">/pentaho/server/biserver-ee/tomcat/lib/</span></li>
+
+                <li><strong>Enterprise Console:</strong>
+                    <span class="filepath">/pentaho/server/enterprise-console/jdbc/</span></li>
+
+                <li><strong>Data Integration Server:</strong>
+                    <span class="filepath">/pentaho/server/data-integration-server/tomcat/webapps/pentaho-di/WEB-INF/lib/</span></li>
+
+                <li><strong>Data Integration client:</strong>
+                    <span class="filepath">/pentaho/design-tools/data-integration/libext/JDBC/</span></li>
+
+                <li><strong>Report Designer:</strong>
+                    <span class="filepath">/pentaho/design-tools/report-designer/lib/jdbc/</span></li>
+
+                <li><strong>Schema Workbench:</strong>
+                    <span class="filepath">/pentaho/design-tools/schema-workbench/drivers/</span></li>
+
+                <li><strong>Aggregation Designer:</strong>
+                    <span class="filepath">/pentaho/design-tools/agg-designer/drivers/</span></li>
+
+                <li><strong>Metadata Editor:</strong>
+                    <span class="filepath">/pentaho/design-tools/metadata-editor/libext/JDBC/</span></li>
+
+            </ul>
+
+            <div class="note"><span class="notetitle">Note:</span> To establish a data source in the Pentaho Enterprise Console, you must install the
+                driver in both the Enterprise Console and the BI Server or Data Integration Server.
+                If you are just adding a data source through the Pentaho User Console, you do not
+                need to install the driver to Enterprise Console.</div>
+
+        </div>
+
+        <div class="section"><h2 class="sectiontitle">Restarting</h2>
+            
+            <p>Once the driver JAR is in place, you must restart the server or client tool that you
+                added it to.</p>
+
+        </div>
+
+        <div class="section"><h2 class="sectiontitle">Connecting to a Microsoft SQL Server using Integrated or Windows
+                Authentication</h2>
+            
+            <p>The JDBC driver supports Type 2 integrated authentication on Windows operating
+                systems through the <strong>integratedSecurity</strong> connection string property. To use
+                integrated authentication, copy the <strong>sqljdbc_auth.dll </strong>file to all the
+                directories to which you copied the JDBC files.</p>
+
+            <p>The <strong>sqljdbc_auth.dll</strong> files are installed in the following location: </p>
+
+            <div class="p">
+                <pre class="codeblock">&lt;installation directory&gt;\sqljdbc_&lt;version&gt;\&lt;language&gt;\auth\</pre>
+
+            </div>
+
+            <div class="note"><span class="notetitle">Note:</span> Use the <strong>sqljdbc_auth.dll</strong> file, in the x86 folder, if you are running a
+                32-bit Java Virtual Machine (JVM) even if the operating system is version x64. Use
+                the <strong>sqljdbc_auth.dll</strong> file in the x64 folder, if you are running a 64-bit JVM
+                on a x64 processor. Use the <strong>sqljdbc_auth.dll</strong> file in the IA64 folder, you are
+                running a 64-bit JVM on an Itanium processor.</div>
+
+        </div>
+
+    </div>
+
+
+</body>
+</html>

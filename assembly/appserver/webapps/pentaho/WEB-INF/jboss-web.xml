@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<jboss-web>
+
+  <!-- class-loading>
+    <loader-repository>
+      dot.com:loader=pentaho
+    </loader-repository>
+  </class-loading -->
+
+  <!-- class-loading java2ClassLoadingCompliance="false">
+    <loader-repository>
+      com.pentaho:loader=pentaho.war
+      <loader-repository-config>java2ParentDelegation=false</loader-repository-config>
+    </loader-repository>
+  </class-loading -->
+
+  <resource-ref> 
+    <res-ref-name>jdbc/Quartz</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <jndi-name>java:/Quartz</jndi-name>
+  </resource-ref> 
+
+  <resource-ref> 
+    <res-ref-name>jdbc/Hibernate</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <jndi-name>java:/Hibernate</jndi-name>
+  </resource-ref>
+  
+  <!-- insert additional jboss resource-refs -->
+  
+</jboss-web>

@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE data-sources PUBLIC "Orion data-sources" "http://www.orionserver.com/dtds/data-sources.dtd">
+
+<data-sources>
+	<data-source
+		class="com.evermind.sql.DriverManagerDataSource"
+		name="Hibernate"
+		location="jdbc/HibernateDS"
+		xa-location="jdbc/xa/HibernateDS"
+		ejb-location="jdbc/Hibernate"
+		connection-driver="org.hsqldb.jdbcDriver"
+		username="hibuser"
+		password="password"
+		url="jdbc:hsqldb:hsql://localhost/hibernate"
+		inactivity-timeout="30"
+	/>
+	<data-source
+		class="com.evermind.sql.DriverManagerDataSource"
+		name="SampleData"
+		location="jdbc/SampleDataDS"
+		xa-location="jdbc/xa/SampleDataDS"
+		ejb-location="jdbc/SampleData"
+		connection-driver="org.hsqldb.jdbcDriver"
+		username="pentaho_user"
+		password="password"
+		url="jdbc:hsqldb:hsql://localhost/sampledata"
+		inactivity-timeout="30"
+	/>
+	<data-source
+		class="com.evermind.sql.DriverManagerDataSource"
+		name="Quartz"
+		location="jdbc/QuartzDS"
+		xa-location="jdbc/xa/QuartzDS"
+		ejb-location="jdbc/Quartz"
+		connection-driver="org.hsqldb.jdbcDriver"
+		username="pentaho_user"
+		password="password"
+		url="jdbc:hsqldb:hsql://localhost/quartz"
+		inactivity-timeout="30"
+	/>
+	<data-source
+		class="com.evermind.sql.DriverManagerDataSource"
+		name="Shark"
+		location="jdbc/SharkDS"
+		xa-location="jdbc/xa/SharkDS"
+		ejb-location="jdbc/Shark"
+		connection-driver="org.hsqldb.jdbcDriver"
+		username="sa"
+		password=""
+		url="jdbc:hsqldb:hsql://localhost/shark"
+		inactivity-timeout="30"
+	/>
+</data-sources>

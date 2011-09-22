@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xform style="twocolumn">
+  <title value="Sort Optionen">
+    <imgButton src="wcf/form/cancel.png" action="revert" label="Schließen" hide="true" handler="com.tonbeller.wcf.form.ButtonHandler"/>
+  </title>
+
+  <listBox1 type="int" bookmark="false" modelReference="extensions(sortRank).sortMode" label="Sortiermodus">
+  <listItem value="1" label="Hierarchisch Aufsteigend"/>
+  <listItem value="2" label="Hierarchisch Absteigend"/>
+  <listItem value="3" label="Flach Aufsteigend"/>
+  <listItem value="4" label="Flach Absteigend"/>
+  <listItem value="5" label="Top Count"/>
+  <listItem value="6" label="Bottom Count"/>
+  </listBox1>
+
+  <textField type="posint" bookmark="false" modelReference="extensions(sortRank).topBottomCount" label="Zeilenzahl für Rank" title="Bitte geben Sie eine Zahl ein"/>
+  <checkBox modelReference="rowAxisBuilder.axisConfig.propertyConfig.showProperties" label="Elementeigenschaften zeigen"/>
+
+  <buttons>
+    <button action="validate" label="OK" handler="com.tonbeller.wcf.form.ButtonHandler" hide="true"/>
+    <button action="revert" label="Cancel" handler="com.tonbeller.wcf.form.ButtonHandler" hide="true"/>
+  </buttons>
+</xform>

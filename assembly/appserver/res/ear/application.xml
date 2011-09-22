@@ -1,0 +1,21 @@
+  <!DOCTYPE application PUBLIC
+	"-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN"
+	"http://java.sun.com/dtd/application_1_3.dtd">
+<application>
+     <display-name>Pentaho BI Platform</display-name>
+      <module>
+         <web>
+            <web-uri>pentaho.war</web-uri>
+            <context-root>/pentaho</context-root>
+         </web>
+      </module>
+      <module>
+         <web>
+            <web-uri>pentaho-style.war</web-uri>
+            <context-root>/pentaho-style</context-root>
+         </web>
+      </module>
+      
+<!-- additional web apps -->
+				
+</application>

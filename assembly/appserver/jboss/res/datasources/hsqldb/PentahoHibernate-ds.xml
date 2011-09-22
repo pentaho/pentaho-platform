@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>Hibernate</jndi-name>
+    <connection-url>jdbc:hsqldb:hsql://localhost:9001/hibernate</connection-url>
+    <driver-class>org.hsqldb.jdbcDriver</driver-class>
+    <user-name>hibuser</user-name>
+    <password>password</password>
+	<check-valid-connection-sql>select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES</check-valid-connection-sql>
+  </local-tx-datasource>
+</datasources>

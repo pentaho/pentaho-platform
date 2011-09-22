@@ -1,0 +1,14 @@
+td.tree-node-even, 
+td.tree-node-odd,
+td.tree-node-selected {
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+  color : Black;
+  text-align: left;
+}
+
+td.tree-node-selected {
+  background-color : #CED3DF;
+  /* font-weight: bold; */
+}
+

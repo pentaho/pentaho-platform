@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<xform style="twocolumn" bundle="com.tonbeller.wcf.resources">
+  <title>
+    <imgButton id="$id.cancel" src="wcf/form/cancel.png" action="revert" label="fmt:tableproperties.cancel" actionReference="onCancel"/>
+  </title>
+
+  <label label="fmt:tableproperties.columns">
+    <skip id="$id.tree" handler="com.tonbeller.wcf.tree.TreeHandler" selmode="multi" border="0" modelReference="columnTreeModel"/>
+  </label>
+
+  <checkBox id="$id.pagable" modelReference="table.pageable" label="fmt:tableproperties.paging"/>
+  <textField id="$id.pagesize" type="int" modelReference="table.pageSize"  label="fmt:tableproperties.pagesize" value="" title="fmt:tableproperties.rowperpage"/>
+
+  <buttons>
+    <button id="$id.cancel" label="fmt:tableproperties.cancel" action="revert" actionReference="onCancel"/>
+    <button id="$id.ok"     label="fmt:tableproperties.ok"     action="validate" actionReference="onApply"/>
+  </buttons>
+
+</xform>

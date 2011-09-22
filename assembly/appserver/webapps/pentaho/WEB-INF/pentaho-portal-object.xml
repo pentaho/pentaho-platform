@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- adheres to portal-object_2_6.dtd -->
+<deployments>
+	<deployment>
+		<parent-ref />
+		<if-exists>keep</if-exists>
+		<portal>
+			<portal-name>pentaho</portal-name>
+      <supported-modes>
+        <mode>view</mode>
+        <mode>edit</mode>
+        <mode>help</mode>
+      </supported-modes>
+      <supported-window-states>
+        <window-state>normal</window-state>
+        <window-state>minimized</window-state>
+        <window-state>maximized</window-state>
+      </supported-window-states>
+			<properties>
+				<!-- Set the layout for the default portal -->
+				<!-- see also portal-layouts.xml -->
+				<property>
+					<name>layout.id</name>
+					<value>Pentaho</value>
+				</property>
+				<!-- Set the theme for the default portal -->
+				<!-- see also portal-themes.xml -->
+				<property>
+					<name>theme.id</name>
+					<value>pentaho</value>
+				</property>
+				<!-- set the default render set name (used by the render tag in layouts) -->
+				<!-- see also portal-renderSet.xml -->
+				<property>
+					<name>theme.renderSetId</name>
+					<value>divRenderer</value>
+				</property>
+				<!-- set the default strategy name (used by the strategy interceptor) -->
+				<!-- see also portal-strategies.xml -->
+				<property>
+					<name>layout.strategyId</name>
+					<value>maximizedRegion</value>
+				</property>
+			</properties>
+			<security-constraint>
+				<policy-permission>
+          <action-name>viewrecursive</action-name>
+					<role-name>Authenticated</role-name>
+				</policy-permission>
+			</security-constraint>
+		</portal>
+	</deployment>
+	<deployment>
+		<parent-ref>pentaho</parent-ref>
+		<if-exists>keep</if-exists>
+		<page>
+			<page-name>default</page-name>
+			<properties>
+				<property>
+					<name>order</name>
+					<value>1</value>
+				</property>
+				<property>
+					<name>resourceKey</name>
+					<value>Home</value>
+				</property>
+			</properties>
+			<window>
+				<window-name>PentahoPortalNavigationWindow</window-name>
+				<instance-ref>
+					PentahoPortalNavigationInstance
+				</instance-ref>
+				<region>pnavigation</region>
+				<height>0</height>
+				<!-- keep portal and page properties for this window -->
+				<properties>
+					<!-- use the window renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.windowRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the decoration renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.decorationRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the portlet renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.portletRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+				</properties>
+			</window>
+			<window>
+				<window-name>PentahoNewsWindow</window-name>
+				<instance-ref>PentahoNewsInstance</instance-ref>
+				<region>center</region>
+				<height>0</height>
+			</window>
+			<window>
+				<window-name>PentahoIntroWindow</window-name>
+				<instance-ref>PentahoIntroInstance</instance-ref>
+				<region>left</region>
+				<height>0</height>
+			</window>
+			<!--window>
+				<window-name>UserPortletWindow</window-name>
+				<instance-ref>UserPortletInstance</instance-ref>
+				<region>left</region>
+				<height>1</height>
+			</window-->
+		</page>
+	</deployment>
+	<deployment>
+		<parent-ref>pentaho</parent-ref>
+		<if-exists>keep</if-exists>
+		<page>
+			<page-name>Getting Started</page-name>
+			<properties>
+				<property>
+					<name>order</name>
+					<value>2</value>
+				</property>
+				<property>
+					<name>resourceKey</name>
+					<value>GettingStarted</value>
+				</property>
+			</properties>
+			<window>
+				<window-name>PentahoPortalNavigationWindow</window-name>
+				<instance-ref>
+					PentahoPortalNavigationInstance
+				</instance-ref>
+				<region>pnavigation</region>
+				<height>0</height>
+				<!-- keep portal and page properties for this window -->
+				<properties>
+					<!-- use the window renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.windowRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the decoration renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.decorationRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the portlet renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.portletRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+				</properties>
+			</window>
+			<window>
+				<window-name>GettingStartedExamplesWindow</window-name>
+				<instance-ref>
+					GettingStartedExamplesInstance
+				</instance-ref>
+				<region>left</region>
+				<height>1</height>
+			</window>
+		</page>
+	</deployment>
+	<deployment>
+		<parent-ref>pentaho</parent-ref>
+		<if-exists>keep</if-exists>
+		<page>
+			<page-name>Reporting</page-name>
+			<properties>
+				<property>
+					<name>order</name>
+					<value>3</value>
+				</property>
+				<property>
+					<name>resourceKey</name>
+					<value>Reporting</value>
+				</property>
+			</properties>
+			<window>
+				<window-name>PentahoPortalNavigationWindow</window-name>
+				<instance-ref>
+					PentahoPortalNavigationInstance
+				</instance-ref>
+				<region>pnavigation</region>
+				<height>0</height>
+				<!-- keep portal and page properties for this window -->
+				<properties>
+					<!-- use the window renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.windowRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the decoration renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.decorationRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the portlet renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.portletRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+				</properties>
+			</window>
+			<window>
+				<window-name>ReportingExamplesWindow</window-name>
+				<instance-ref>ReportingExamplesInstance</instance-ref>
+				<region>left</region>
+				<height>1</height>
+			</window>
+		</page>
+	</deployment>
+	<deployment>
+		<parent-ref>pentaho</parent-ref>
+		<if-exists>keep</if-exists>
+		<page>
+			<page-name>Business Rules</page-name>
+			<properties>
+				<property>
+					<name>order</name>
+					<value>4</value>
+				</property>
+				<property>
+					<name>resourceKey</name>
+					<value>BusinessRules</value>
+				</property>
+			</properties>
+			<window>
+				<window-name>PentahoPortalNavigationWindow</window-name>
+				<instance-ref>
+					PentahoPortalNavigationInstance
+				</instance-ref>
+				<region>pnavigation</region>
+				<height>0</height>
+				<!-- keep portal and page properties for this window -->
+				<properties>
+					<!-- use the window renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.windowRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the decoration renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.decorationRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the portlet renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.portletRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+				</properties>
+			</window>
+			<window>
+				<window-name>BusinessRulesExamplesWindow</window-name>
+				<instance-ref>
+					BusinessRulesExamplesInstance
+				</instance-ref>
+				<region>left</region>
+				<height>1</height>
+			</window>
+		</page>
+	</deployment>
+	<deployment>
+		<parent-ref>pentaho</parent-ref>
+		<if-exists>keep</if-exists>
+		<page>
+			<page-name>Printing</page-name>
+			<properties>
+				<property>
+					<name>order</name>
+					<value>5</value>
+				</property>
+				<property>
+					<name>resourceKey</name>
+					<value>Printing</value>
+				</property>
+			</properties>
+      <window>
+				<window-name>PentahoPortalNavigationWindow</window-name>
+				<instance-ref>
+					PentahoPortalNavigationInstance
+				</instance-ref>
+				<region>pnavigation</region>
+				<height>0</height>
+				<!-- keep portal and page properties for this window -->
+				<properties>
+					<!-- use the window renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.windowRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the decoration renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.decorationRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the portlet renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.portletRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+				</properties>
+			</window>
+			<window>
+				<window-name>PrintingExamplesWindow</window-name>
+				<instance-ref>PrintingExamplesInstance</instance-ref>
+				<region>left</region>
+				<height>1</height>
+			</window>
+		</page>
+	</deployment>
+	<deployment>
+		<parent-ref>pentaho</parent-ref>
+		<if-exists>keep</if-exists>
+		<page>
+			<page-name>Bursting</page-name>
+			<properties>
+				<property>
+					<name>order</name>
+					<value>6</value>
+				</property>
+				<property>
+					<name>resourceKey</name>
+					<value>Bursting</value>
+				</property>
+			</properties>
+			<window>
+				<window-name>PentahoPortalNavigationWindow</window-name>
+				<instance-ref>
+					PentahoPortalNavigationInstance
+				</instance-ref>
+				<region>pnavigation</region>
+				<height>0</height>
+				<!-- keep portal and page properties for this window -->
+				<properties>
+					<!-- use the window renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.windowRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the decoration renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.decorationRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the portlet renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.portletRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+				</properties>
+			</window>
+			<window>
+				<window-name>BurstingExamplesWindow</window-name>
+				<instance-ref>BurstingExamplesInstance</instance-ref>
+				<region>left</region>
+				<height>1</height>
+			</window>
+		</page>
+	</deployment>
+	<deployment>
+		<parent-ref>pentaho</parent-ref>
+		<if-exists>keep</if-exists>
+		<page>
+			<page-name>Dashboard</page-name>
+			<properties>
+				<property>
+					<name>order</name>
+					<value>7</value>
+				</property>
+				<property>
+					<name>resourceKey</name>
+					<value>Widgets</value>
+				</property>
+			</properties>
+			<window>
+				<window-name>PentahoPortalNavigationWindow</window-name>
+				<instance-ref>
+					PentahoPortalNavigationInstance
+				</instance-ref>
+				<region>pnavigation</region>
+				<height>0</height>
+				<!-- keep portal and page properties for this window -->
+				<properties>
+					<!-- use the window renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.windowRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the decoration renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.decorationRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the portlet renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.portletRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+				</properties>
+			</window>
+			<window>
+				<window-name>RegionFilterWindow</window-name>
+				<instance-ref>RegionFilterInstance</instance-ref>
+				<region>left</region>
+				<height>0</height>
+			</window>
+			<window>
+				<window-name>PieChartExampleWindow</window-name>
+				<instance-ref>PieChartExampleInstance</instance-ref>
+				<region>left</region>
+				<height>1</height>
+			</window>
+			<window>
+				<window-name>WidgetGridWindow</window-name>
+				<instance-ref>WidgetGridPortletInstance</instance-ref>
+				<region>center</region>
+				<height>0</height>
+			</window>
+			<window>
+				<window-name>EmbeddedReportWindow</window-name>
+				<instance-ref>EmbeddedReportInstance</instance-ref>
+				<region>center</region>
+				<height>1</height>
+			</window>
+		</page>
+	</deployment>
+	<deployment>
+		<parent-ref>pentaho</parent-ref>
+		<if-exists>keep</if-exists>
+		<page>
+			<page-name>Datasource</page-name>
+			<properties>
+				<property>
+					<name>order</name>
+					<value>8</value>
+				</property>
+				<property>
+					<name>resourceKey</name>
+					<value>Datasource</value>
+				</property>
+			</properties>
+			<window>
+				<window-name>PentahoPortalNavigationWindow</window-name>
+				<instance-ref>
+					PentahoPortalNavigationInstance
+				</instance-ref>
+				<region>pnavigation</region>
+				<height>0</height>
+				<!-- keep portal and page properties for this window -->
+				<properties>
+					<!-- use the window renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.windowRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the decoration renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.decorationRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the portlet renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.portletRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+				</properties>
+			</window>
+			<window>
+				<window-name>DatasourceExamplesWindow</window-name>
+				<instance-ref>DatasourceExamplesInstance</instance-ref>
+				<region>left</region>
+				<height>1</height>
+			</window>
+		</page>
+	</deployment>
+	<deployment>
+		<parent-ref>pentaho</parent-ref>
+		<if-exists>keep</if-exists>
+		<page>
+			<page-name>Secure</page-name>
+			<properties>
+				<property>
+					<name>order</name>
+					<value>9</value>
+				</property>
+				<property>
+					<name>resourceKey</name>
+					<value>Secure</value>
+				</property>
+			</properties>
+			<window>
+				<window-name>PentahoPortalNavigationWindow</window-name>
+				<instance-ref>
+					PentahoPortalNavigationInstance
+				</instance-ref>
+				<region>pnavigation</region>
+				<height>0</height>
+				<!-- keep portal and page properties for this window -->
+				<properties>
+					<!-- use the window renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.windowRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the decoration renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.decorationRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+					<!-- use the portlet renderer from the emptyRenderer renderSet -->
+					<property>
+						<name>theme.portletRendererId</name>
+						<value>emptyRenderer</value>
+					</property>
+				</properties>
+			</window>
+			<window>
+				<window-name>SecureExamplesWindow</window-name>
+				<instance-ref>SecureExamplesInstance</instance-ref>
+				<region>left</region>
+				<height>1</height>
+			</window>
+			<window>
+				<window-name>
+					SecureReportParameterExampleWindow
+				</window-name>
+				<instance-ref>
+					SecureReportParameterExampleInstance
+				</instance-ref>
+				<region>left</region>
+				<height>2</height>
+			</window>
+		</page>
+	</deployment>
+</deployments>
+
+
+
+

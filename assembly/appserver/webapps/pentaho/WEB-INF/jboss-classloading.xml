@@ -1,0 +1,8 @@
+<classloading xmlns="urn:jboss:classloading:1.0"
+  name="pentaho.war"
+  domain="pentaho.war"
+  parent-domain="pentaho.ear"
+  export-all="NON_EMPTY"
+  import-all="true"
+  parent-first="false">
+</classloading>

@@ -1,0 +1,434 @@
+body {
+	margin:0px;
+	background-color: #ffffff;
+	font: normal 10pt Arial, Helvetica, sans-serif;
+	color: #000000;
+}
+
+
+DIV#pnavigation {
+	position:relative;
+	top: 0px;
+	padding-top:0px;
+	height:29px;
+	background-image: url( /pentaho-style/active/top_border.png );
+	background-repeat: repeat-x;
+	background-position: top;
+}
+
+DIV#topmenu {
+	height: 29px;
+}
+
+DIV#topmenu A:hover {
+	color: #000000;
+	font: normal 14px Arial, Helvetica, sans-serif;
+}
+
+DIV#topmenu A {
+	text-decoration: none;
+	padding-top:0px;
+	padding-left: 5px;
+	padding-right: 5px;
+	position: relative;
+	top: 4px;
+	margin-top: 4px;
+	padding-bottom: 4px;
+	border-right: 1px Solid #ffffff;
+	color: #ffffff;
+	font: normal 14px Arial, Helvetica, sans-serif;
+}
+
+.active A {
+	color: #ffffff;
+	background: #EF8033;
+	text-decoration: none;
+	padding-left: 0px;
+	padding-right: 3px;
+	top:-3px;
+	font: normal 14px Arial, Helvetica, sans-serif;
+}
+
+.portals_menu A {
+	color: #ffffff;
+	background: #999999;
+	text-decoration: none;
+	padding-left: 0px;
+	padding-right: 3px;
+	border-top:6px solid #999999;
+	font: normal 14px Arial, Helvetica, sans-serif;
+}
+
+/*
+State and WindowMode icons below. This css assumes that all icons are 16x16 and in the following order:
+Normalicon - MinIcon - Maxicon
+So, if a window is minimized, you will see:
+Normalicon - (blank 16x16 space) - Maxicon
+*/
+span.alt {
+display: none;
+}
+
+a.normalMode {
+background-image: url(/pentaho-portal-layout/images/portlet_left_top/normal.gif);
+display: block;
+overflow:hidden;
+width: 16px; /* width of actual icon */
+height: 0px;
+padding-top: 16px; /* height of the replacement icon */
+background-repeat: no-repeat;
+margin-bottom: -16px;
+margin-top: 0px;
+margin-left: 0px; /* width of the minimize image to this icon's left */
+margin-right: 0px;
+}
+
+a.minimizedMode {
+background-image: url(/pentaho-portal-layout/images/portlet_left_top/minimize.gif);
+display:block;
+overflow:hidden;
+width: 16px; /* width of actual icon */
+height: 0px;
+padding-top: 16px; /* height of the replacement icon */
+background-repeat: no-repeat;
+margin-bottom: 0px;
+margin-top: 0px;
+margin-left: 16px; /* width of the normal image to this icon's left */
+margin-right: 32px;
+}
+
+a.maximizedMode {
+background-image: url(/pentaho-portal-layout/images/portlet_left_top/maximize.gif);
+display: block;
+overflow:hidden;
+width: 16px; /* width of actual icon */
+height: 0px;
+padding-top: 16px; /* height of the replacement icon */
+background-repeat: no-repeat;
+margin-bottom: 0px;
+margin-top: -16px; /* height of the replacement image */
+margin-left: 32px; /* width of the minimize image to this icon's left */
+margin-right: 16px;
+}
+
+/* fonts */
+.portlet-titlebar-title
+{
+	text-align: left;
+	font: bold 14px Verdana, Arial, Helvetica, sans-serif;
+	color: #EF8033; 
+	background-color: #FFFFFF; 
+	/*background-image: url(pentaho-style/active/swirl-sm2.png);*/
+	background-repeat: no-repeat;
+	/*padding-left: 20px;*/
+	margin-top: 2px;
+}
+
+/* links */
+a:link { 
+	font: normal 10pt Arial, Helvetica, sans-serif;
+	color: #9EAA36; 
+	text-decoration:none; 
+}
+a:visited { 
+	font: normal 10pt Arial, Helvetica, sans-serif;
+	color: #9EAA36; 
+	text-decoration:none; 
+}
+a:active { 
+	font: normal 10pt Arial, Helvetica, sans-serif;
+	color: #9EAA36; 
+	text-decoration:none; 
+}
+a:hover { 
+	font: normal 10pt Arial, Helvetica, sans-serif;
+	color: #EF8033; 
+	text-decoration:none; 
+}
+
+/* divs */
+
+.portlet-container {
+	border: 1px solid #BBBBBB; 
+	background-color: #FFFFFF; 
+	margin-bottom: 10px;
+	padding: 10px;
+}
+
+/* table, td, tr */
+
+table.headerTable
+{
+	background-color:#ffffff;
+	height: 80px;
+	width:100%;
+}
+table.footerTable
+{
+	background-color:#003366;
+	height: 40px;
+	width:100%;
+	color:#FFFFFF;
+}
+td
+{
+	font-size:12px;
+	vertical-align:top;
+	height:100%;
+}
+td.leftColumn
+{
+	background-color:#FFFFFF;
+}
+
+.portlet-titlebar-center {
+  height: 17px;
+  vertical-align: top;
+}
+
+.portlet-font {
+	color:#404040;
+}
+
+.portlet-font p {
+	width:98%;
+}
+
+.portlet-section-header{
+	font: bold 14px Verdana, Arial, Helvetica, sans-serif;
+	color: #8C944A; 
+	background-color: #FFFFFF; 
+	border-bottom: 1px solid #EF8033;
+	padding-left:0;
+}
+
+.portlet-section-subheader{
+  Color : #000000 ;
+  Font-Family : Arial, Helvetica ;
+  Font-Size : 9pt ;
+  Font-Weight : Bold ;
+  }
+
+.sampleHeader {
+	padding-left: 5px;
+	padding-right: 5px;
+	color : #ef6507;
+	text-align: right;
+	margin-top: 10px;
+	padding-top: 5px;
+	margin-bottom: 3px;
+	padding-bottom: 7px;
+	font: bold 18px Verdana, Arial, Helvetica, sans-serif;
+	vertical-align: top;
+	height:60px;
+	white-space:nowrap;
+}
+
+.portlet-titlebar-decoration {
+   float: left;
+   position: relative;
+   top: 4px;
+}
+
+/* wrapper for floating portlet window modes */
+.portlet-mode-container {
+   float: right;
+   position: relative;
+   padding-left: 4px;
+   top: 0px;
+}
+
+.portlet-titlebar-left {
+	width: 1px;
+	margin: 0px;
+	padding: 0px;
+}
+
+.portlet-titlebar-right {
+	width: 1px;
+	margin: 0px;
+	padding: 0px;
+}
+
+.portlet-body {
+	margin-left: 5px;
+	margin-top: 5px;
+}
+
+.sampleFooter {
+	text-align: right;
+    background-image: url( /pentaho-style/active/bot_border.png );
+    background-repeat: repeat-x;
+    height:30px;
+  font-size: 10px;
+  }
+
+.pageMenuContainer {
+    background-repeat: repeat-x;
+    height:30px;
+	padding-top: 5px;
+	padding-left: 0px;
+	white-space:nowrap;
+}
+
+a.pageMenu:active, a.pageMenu:visited, a.pageMenu:link {
+	color: white;
+	font-size: 11px;
+	font-weight: bold;
+	padding-left: 8px;
+	padding-right: 8px;
+	margin-top: 5px;
+	margin-left:0px;
+	margin-right: 0px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	border-right:1px solid white;
+}
+
+a.pageMenu:hover {
+	color: white;
+	font-size: 11px;
+	font-weight: bold;
+	padding-left: 8px;
+	padding-right: 8px;
+	margin-top: 5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	background-color: #7B8622;
+	border-right:1px solid white;
+}
+
+
+.portlet-mode-maximized {
+   background-image: url( /pentaho-portal-layout/images/maximize.gif );
+   width: 15px;
+   height: 20px;
+   background-repeat: no-repeat;
+   float: left;
+   display: inline;
+   cursor: pointer;
+}
+
+.portlet-mode-minimized {
+   background-image: url( /pentaho-portal-layout/images/minimize.gif );
+   width: 15px;
+   height: 20px;
+   background-repeat: no-repeat;
+   float: left;
+   display: inline;
+   cursor: pointer;
+}
+
+.portlet-mode-normal {
+   background-image: url( /pentaho-portal-layout/images/normal.gif );
+   width: 15px;
+   height: 20px;
+   background-repeat: no-repeat;
+   float: left;
+   display: inline;
+   cursor: pointer;
+}
+
+/* this is the clipping region for the menu. it's width and height get set by script, depending on the size of the items table */
+.transMenu {
+	position:absolute;
+	overflow:hidden;
+	left:-1000px;
+	top:-1000px;
+}
+
+/* this is the main container for the menu itself. it's width and height get set by script, depending on the size of the items table */
+.transMenu .content {
+	position:absolute;
+}
+
+/* this table comprises all menu items. each TR is one item. It is relatively positioned so that the shadow and background transparent divs can be positioned underneath it */
+.transMenu .items {
+	position:relative;
+	left:0px; top:0px;
+	z-index:2;
+      cursor: pointer;
+}
+
+.transMenu.top .items {
+	border-top:none;
+	background-color: #9eaa36;
+}
+
+/* each TR.item is one menu item */
+.transMenu .item {
+	color: #fff;
+	font: normal 16px sans-serif;
+	text-decoration:none;
+	/* this is a hack for mac/ie5, whom incorrectly cascades the border properties of the parent table to each row */
+	border:none;
+}
+
+/* this DIV is the semi-transparent white background of each menu. the -moz-opacity is a proprietary way to get transparency in mozilla, the filter is for IE/windows 5.0+. */
+/* we set the background color in script because ie mac does not use it; that browser only uses a semi-transparent white PNG that the spacer gif inside this DIV is replaced by */
+.transMenu .background {
+	position:absolute;
+	left:0px; top:0px;
+	z-index:1;
+	-moz-opacity:.8;
+	filter:alpha(opacity=80);
+}
+
+/* same concept as .background, but this is the sliver of shadow on the right of the menu. It's left, height, and background are set by script. In IE5/mac, it uses a PNG */
+.transMenu .shadowRight {
+	position:absolute;
+	z-index:3;
+	top:3px; width:2px;
+	-moz-opacity:.4;
+	filter:alpha(opacity=40);
+}
+
+/* same concept as .background, but this is the sliver of shadow on the bottom of the menu. It's top, width, and background are set by script. In IE5/mac, it uses a PNG */
+.transMenu .shadowBottom {
+	position:absolute;
+	z-index:1;
+	left:3px; height:2px;
+	-moz-opacity:.4;
+	filter:alpha(opacity=40);
+}
+
+/* this is the class that is used when the mouse is over an item. script sets the row to this class when required. */
+.transMenu .item.hover {
+	background-color: #7B8622;
+	color: #ffffff;
+}
+
+/* this is either the dingbat that indicates there is a submenu, or a spacer gif in it's place. We give it extra margin to create some space between the text and the dingbat */
+.transMenu .item img {
+	margin-left:10px;
+}
+
+.portlet-mode-container {
+	float:right;
+	margin-right:15px;
+}
+
+.portlet-titlebar-title {
+	float:left;
+}
+
+
+#dashboardnav {
+	position: relative;
+	left: -5px;
+	float: right;
+	font: normal 12px Verdana, Arial, Helvetica, sans-serif;
+}
+
+
+.portlet-table-cell {
+	border-bottom: 1px solid #CCCCCC;
+}
+
+.portalLogo {
+   background-image: url( /pentaho-style/active/logo.png );
+   background-repeat: no-repeat;
+   cursor: hand;
+   cursor: pointer;
+   margin-left: 10px;   
+}
