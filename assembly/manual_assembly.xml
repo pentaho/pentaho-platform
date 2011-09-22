@@ -1,0 +1,364 @@
+<project name="j2ee_manual_deployments_ce">
+
+  <property file="override.properties"
+            description="Properties customized for your particular assembly environment belong in this file." />
+  <property file="manual_assembly.properties" description="Default properties belong in this file." />
+
+  <!-- subfloor / assembly property overrides -->
+  <property name="package-res-manual.dir" value="package-res-manual" />
+  <property name="stage.dir" value="bin/manual-stage" />
+
+  <property name="plugins.dir" value="plugins" />
+  <property name="solution-archives.dir" value="solution-archives" />
+
+  <property name="bi.platform.assembly.dir" value="." />
+  <!-- set license dir here before we import assembly_shared.xml since subfloor will set it also -->
+  <property name="license.dir" value="${bi.platform.assembly.dir}/licenses" />
+
+  <!-- Import the ant script that includes targets share between manual and archive-based assemblies -->
+  <import file="build-res/assembly_shared.xml" />
+
+  <property name="bi.platform.util.dir" value="../bi-platform-util" />
+  <property name="bi.platform.engine.core.dir" value="../bi-platform-engine-core" />
+  <property name="bi.platform.engine.services.dir" value="../bi-platform-engine-services" />
+  <property name="bi.platform.engine.security.dir" value="../bi-platform-engine-security" />
+  <property name="bi.platform.repository.dir" value="../bi-platform-repository" />
+  <property name="bi.platform.ui.foundation.dir" value="../bi-platform-ui-foundation" />
+  <property name="bi.platform.scheduler.dir" value="../bi-platform-scheduler" />
+  <property name="bi.platform.plugin.actions.dir" value="../bi-platform-plugin-actions" />
+  <property name="bi.platform.plugin.services.dir" value="../bi-platform-plugin-services" />
+  <property name="bi.platform.sample.data.dir" value="../bi-platform-sample-data" />
+  <property name="bi.platform.sample.solution.dir" value="../bi-platform-sample-solution" />
+  <property name="bi.platform.appserver.dir" value="../bi-platform-appserver" />
+  <property name="bi.platform.web.dir" value="../bi-platform-web" />
+  <property name="bi.platform.web.servlet.dir" value="../bi-platform-web-servlet" />
+  <property name="bi.platform.security.userroledao.dir" value="../bi-platform-security-userroledao" />
+
+  <target name="package" depends="package-zip" description="Creates a j2ee manual deployments package" />
+
+  <target name="assemble-no-plugins"
+          depends="assemble.init,check-blacklist,assemble-message-bundles,assemble-licenses,assemble-jars,assemble-resource-files,assemble-webapps,assemble-solutions,prepare-custom-solutions,do-assemble"
+          description="Assembles a j2ee manual deployments package without plugins" />
+
+  <target name="assemble"
+          depends="assemble.init,check-blacklist,assemble-message-bundles,assemble-licenses,assemble-jars,assemble-resource-files,assemble-webapps,assemble-solutions,assemble-plugins,prepare-custom-solutions,do-assemble"
+          description="Assembles a j2ee manual deployments package" />
+
+  <target name="do-assemble">
+    <!-- copy package-res-manual stuff into stage dir -->
+    <copy todir="${approot.stage.dir}">
+      <fileset dir="${package-res-manual.dir}" />
+    </copy>
+
+    <!-- create version.properties -->
+    <propertyfile file="${approot.stage.dir}/version.properties" comment="Pentaho Manual Deployments build information">
+      <entry key="impl.vender" value="Pentaho" />
+      <entry key="impl.vender" value="Pentaho Manual Deployments" />
+      <entry key="impl.version" value="${project.revision}" />
+      <entry key="impl.builddate" type="date" value="now" />
+    </propertyfile>
+
+    <antcall target="create-production-webxml" />
+  </target>
+
+  <!-- ================================= 
+          target: clean-all (override)         
+         ================================= -->
+  <target name="clean-all" depends="subfloor.clean-all">
+    <delete dir="${plugins.dir}" />
+    <delete dir="${solution-archives.dir}" />
+  </target>
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: assemble-message-bundles                      
+         - - - - - - - - - - - - - - - - - -->
+  <target name="assemble-message-bundles">
+    <copy todir="${approot.stage.dir}/pentaho-classes">
+      <fileset dir="${bi.platform.util.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.engine.core.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.engine.services.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.engine.security.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.repository.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.scheduler.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.ui.foundation.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.plugin.services.dir}/messages/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.plugin.actions.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.web.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.web.servlet.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+      <fileset dir="${bi.platform.security.userroledao.dir}/src">
+        <include name="**/messages*properties" />
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: assemble-licenses                      
+         - - - - - - - - - - - - - - - - - -->
+  <target name="assemble-licenses">
+    <mkdir dir="${approot.stage.dir}/pentaho-doc" />
+    <copy todir="${approot.stage.dir}/pentaho-doc/licenses">
+      <fileset dir="${license.dir}" />
+    </copy>
+  </target>
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: assemble-jars                      
+         - - - - - - - - - - - - - - - - - -->
+  <target name="assemble-jars">
+    <!--  copy over bi-platform jars -->
+    <copy todir="${approot.stage.dir}/pentaho-jars">
+      <fileset dir="${lib.dir}">
+        <include name="pentaho-bi-platform-*.jar" />
+      </fileset>
+    </copy>
+
+    <!--  copy over non bi-platform jars -->
+    <copy todir="${approot.stage.dir}/pentaho-third-party">
+      <fileset dir="${lib.dir}">
+        <include name="*.jar" />
+        <exclude name="pentaho-bi-platform-*.jar" />
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: assemble-resource-files                      
+         - - - - - - - - - - - - - - - - - -->
+  <target name="assemble-resource-files">
+    <!--  ear related files -->
+    <copy todir="${approot.stage.dir}/pentaho-res">
+      <fileset dir="${bi.platform.appserver.dir}/res" />
+    </copy>
+
+    <!--  ehcache related config -->
+    <copy todir="${approot.stage.dir}/pentaho-res">
+      <fileset dir="${bi.platform.engine.services.dir}/res" />
+    </copy>
+
+    <!-- jboss datasources -->
+    <copy todir="${approot.stage.dir}/pentaho-res/jboss">
+      <fileset dir="${bi.platform.appserver.dir}/jboss/res" />
+    </copy>
+
+    <!-- portal-layout.war -->
+    <copy todir="${approot.stage.dir}/pentaho-res/jboss/pentaho-portal-layout.war">
+      <fileset dir="${bi.platform.appserver.dir}/jboss/webapps/pentaho-portal-layout" />
+    </copy>
+
+    <!-- jfreereport files -->
+    <copy todir="${approot.stage.dir}/pentaho-res/jfreereport">
+      <fileset dir="${bi.platform.plugin.actions.dir}/src/org/pentaho/platform/plugin/action/jfreereport/res" />
+    </copy>
+
+    <!-- mondrian files -->
+    <copy todir="${approot.stage.dir}/pentaho-res/mondrian">
+      <fileset dir="${bi.platform.plugin.actions.dir}/src/org/pentaho/platform/plugin/action/mondrian/res" />
+    </copy>
+
+    <!-- log4j files -->
+    <copy todir="${approot.stage.dir}/pentaho-res/log4j">
+      <fileset dir="${bi.platform.plugin.actions.dir}/res/log4j" />
+    </copy>
+
+    <!--  orion files -->
+    <copy todir="${approot.stage.dir}/pentaho-res/orion">
+      <fileset dir="${bi.platform.appserver.dir}/orion/res" />
+    </copy>
+
+    <!--  security example files -->
+    <copy todir="${approot.stage.dir}/pentaho-res/security-samples">
+      <fileset dir="${bi.platform.engine.security.dir}/res/samples" />
+    </copy>
+
+  </target>
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: create-production-webxml    
+            Here we are removing the sample servlet sections from the web.xml.  It is very
+    		important that those sections be kept pure of any servlets other than samples, such as 
+    		servlets that are required for system operation.  The sample servlets sections in the web.xml must
+    		be bounded by '[BEGIN SAMPLE SERVLETS]' to '[END SAMPLE SERVLETS]' and 
+    		'[BEGIN SAMPLE SERVLET MAPPINGS]' to '[END SAMPLE SERVLET MAPPINGS]'            
+         - - - - - - - - - - - - - - - - - -->
+  <target name="create-production-webxml">
+    <loadfile srcfile="${approot.stage.dir}/pentaho-webapp/WEB-INF/web.xml"
+              property="web-xml-file"
+              failonerror="true" />
+    
+    <antcall target="scrub-hsqldb"/>
+    <antcall target="scrub-sample-servlets"/>
+    
+    </target>
+  
+  <target name="scrub-sample-servlets">
+    <!-- remove the sample servlet section -->
+    <propertyregex property="sample.servlets" input="${web-xml-file}" regexp="\[BEGIN SAMPLE SERVLETS\]" select="\0" />
+
+    <fail message="SAMPLE SERVLET section not found in web.xml!">
+      <condition>
+        <not>
+          <isset property="sample.servlets" />
+        </not>
+      </condition>
+    </fail>
+
+    <replaceregexp file="${approot.stage.dir}/pentaho-webapp/WEB-INF/web.xml"
+                   flags="s"
+                   match="\[BEGIN SAMPLE SERVLETS\].*\[END SAMPLE SERVLETS\]"
+                   replace="[SAMPLE SERVLETS GO HERE]" />
+
+    <!-- remove the sample servlet mapping section -->
+    <propertyregex property="sample.servlet.mappings"
+                   input="${web-xml-file}"
+                   regexp="\[BEGIN SAMPLE SERVLET MAPPINGS\]"
+                   select="\0" />
+
+    <fail message="SAMPLE SERVLET MAPPINGS section not found in web.xml!">
+      <condition>
+        <not>
+          <isset property="sample.servlet.mappings" />
+        </not>
+      </condition>
+    </fail>
+
+    <replaceregexp file="${approot.stage.dir}/pentaho-webapp/WEB-INF/web.xml"
+                   flags="s"
+                   match="\[BEGIN SAMPLE SERVLET MAPPINGS\].*\[END SAMPLE SERVLET MAPPINGS\]"
+                   replace="[SAMPLE SERVLET MAPPINGS GO HERE]" />
+
+  </target>
+
+  <target name="scrub-hsqldb">
+    <propertyregex property="hsqldb.starter"
+                   input="${web-xml-file}"
+                   regexp="\[BEGIN HSQLDB STARTER\]"
+                   select="\0" />
+                     
+    <fail message="HSQLDB STARTER section not found in web.xml!">
+      <condition>
+        <not>
+          <isset property="hsqldb.starter" />
+        </not>
+      </condition>
+    </fail>
+
+    <replaceregexp file="${approot.stage.dir}/pentaho-webapp/WEB-INF/web.xml"
+                   flags="s"
+                   match="\[BEGIN HSQLDB STARTER\].*\[END HSQLDB STARTER\]"
+                   replace="[HSQLDB STARTER GOES HERE]" />
+    
+    
+    
+    <propertyregex property="hsqldb.databases"
+                   input="${web-xml-file}"
+                   regexp="\[BEGIN HSQLDB DATABASES\]"
+                   select="\0" />
+                     
+    <fail message="HSQLDB DATABASES section not found in web.xml!">
+      <condition>
+        <not>
+          <isset property="hsqldb.databases" />
+        </not>
+      </condition>
+    </fail>
+
+    <replaceregexp file="${approot.stage.dir}/pentaho-webapp/WEB-INF/web.xml"
+                   flags="s"
+                   match="\[BEGIN HSQLDB DATABASES\].*\[END HSQLDB DATABASES\]"
+                   replace="[HSQLDB DATABASES GOES HERE]" />
+  </target>
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: assemble-webapps                      
+         - - - - - - - - - - - - - - - - - -->
+  <target name="assemble-webapps" depends="install-antcontrib">
+    <copy todir="${approot.stage.dir}/pentaho-webapp">
+      <fileset dir="${bi.platform.appserver.dir}/webapps/pentaho">
+        <exclude name="**/classes/loader.properties" />
+      </fileset>
+    </copy>
+
+    <unzip dest="${approot.stage.dir}/pentaho-webapp">
+      <fileset dir="${lib.dir}" includes="mantle-package-*.zip" />
+    </unzip>
+
+    <copy todir="${approot.stage.dir}/pentaho-res/styles/pentaho-style.war">
+      <fileset dir="${bi.platform.appserver.dir}/webapps/pentaho-style" />
+    </copy>
+
+    <mkdir dir="${approot.stage.dir}/custom-pentaho-webapp/META-INF" />
+    <mkdir dir="${approot.stage.dir}/custom-pentaho-webapp/WEB-INF" />
+    <mkdir dir="${approot.stage.dir}/custom-ear" />
+  </target>
+
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: assemble-plugins                     
+         - - - - - - - - - - - - - - - - - -->
+  <target name="assemble-plugins" depends="resolve-plugins">
+    <unzip dest="${approot.stage.dir}/pentaho-solutions/system" overwrite="true">
+      <fileset file="${plugins.dir}/*.zip" />
+    </unzip>
+  </target>
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: prepare-custom-solutions                      
+         - - - - - - - - - - - - - - - - - -->
+  <target name="prepare-custom-solutions" />
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: assemble-solutions: install only those solution archives that are required for system operation                      
+         - - - - - - - - - - - - - - - - - -->
+  <target name="assemble-solutions" depends="resolve-solutions">
+    <unzip dest="${approot.stage.dir}/pentaho-data">
+      <fileset dir="${lib.dir}" includes="pentaho-bi-platform-sample-data-*.zip" />
+    </unzip>
+
+    <!-- create pentaho-solutions folder -->
+    <mkdir dir="${approot.stage.dir}/pentaho-solutions/tmp" />
+
+    <!-- copy over default system solution, but no samples -->
+    <copy todir="${approot.stage.dir}/pentaho-solutions" overwrite="true">
+      <fileset dir="${bi.platform.sample.solution.dir}">
+        <exclude name="**/bi-developers**"/>
+        <exclude name="**/steel-wheels**"/>
+      </fileset>
+    </copy>
+
+    <!-- install solution archives -->
+    <unzip dest="${approot.stage.dir}/pentaho-solutions" overwrite="true">
+      <fileset file="${solution-archives.dir}/pentaho-cdf-solution*.zip" />
+    </unzip>
+
+    <!-- copy repository.spring.xml into system; this is for Jackrabbit -->
+    <copy todir="${approot.stage.dir}/pentaho-solutions/system" overwrite="true">
+      <fileset dir="${bi.platform.repository.dir}/src">
+        <include name="repository.spring.xml" />
+      </fileset>
+    </copy>
+  </target>
+
+
+</project>

@@ -1,0 +1,894 @@
+<!-- ===============================================================================
+     project    Pentaho Application Server Deployments
+     description main build file for platform deployments
+
+     For instructions on how to use this file, read the comments in each target and see
+     http://wiki.pentaho.org/display/PentahoDoc/Manual+Deployment+of+Pentaho
+     ================================================================================ -->
+<project name="pentaho-deployments">
+	<description>
+            Pentaho BI Platform deployment build process...
+    </description>
+
+	<property file="override.properties" />
+	<property file="version.properties" />
+	<property file="build.properties" />
+  
+  <!-- the impl properties are used to create the manifest file -->
+  <property name="impl.title" value="Pentaho BI Platform Community Edition" />
+  <property name="impl.vendor" value="Pentaho Corporation" />
+
+	<!-- library.path contains the libraries that compose the classpath, which is used in the MANIFEST.MF file -->
+	<path id="library.path">
+		<fileset dir="${build.third-party.dir}">
+			<excludesfile name="excludejars.jboss" />
+			<exclude name="**/licenses/*" />
+		</fileset>
+		<fileset dir="${build.jars.dir}" />
+	</path>
+
+	<!-- library.path contains the libraries that compose the classpath, which is used in the MANIFEST.MF file -->
+	<path id="library.path.no.portal">
+		<fileset dir="${build.third-party.dir}">
+			<excludesfile name="excludejars-noportal.jboss" />
+			<exclude name="**/licenses/*" />
+		</fileset>
+		<fileset dir="${build.jars.dir}" />
+	</path>
+
+	<!-- convert the libraries to be included in the classpath attribute of the MANIFEST.MF file -->
+	<pathconvert property="lib.project.manifest.classpath" pathsep=" ">
+		<path refid="library.path" />
+		<mapper>
+			<chainedmapper>
+				<flattenmapper />
+				<globmapper from="*" to="/lib/*" />
+			</chainedmapper>
+		</mapper>
+	</pathconvert>
+
+	<!-- convert the libraries to be included in the classpath attribute of the MANIFEST.MF file -->
+	<pathconvert property="lib.project.manifest.classpath.no.portal" pathsep=" ">
+		<path refid="library.path.no.portal" />
+		<mapper>
+			<chainedmapper>
+				<flattenmapper />
+				<globmapper from="*" to="/lib/*" />
+			</chainedmapper>
+		</mapper>
+	</pathconvert>
+
+	<!-- ============================================================================================================ -->
+
+
+	<path id="hsqldb.library.path">
+		<fileset dir="${build.third-party.dir}">
+			<excludesfile name="excludejars.jboss" />
+			<exclude name="**/licenses/*" />
+			<exclude name="**/quartz-oracle-1.5.2.jar" />
+		</fileset>
+		<fileset dir="${build.jars.dir}" />
+	</path>
+
+
+	<path id="hsqldb.library.path.no.portal">
+		<fileset dir="${build.third-party.dir}">
+			<excludesfile name="excludejars-noportal.jboss" />
+			<exclude name="**/licenses/*" />
+			<exclude name="**/quartz-oracle-1.5.2.jar" />
+		</fileset>
+		<fileset dir="${build.jars.dir}" />
+	</path>
+
+
+	<path id="oracle10g.library.path">
+		<fileset dir="${build.third-party.dir}">
+			<excludesfile name="excludejars.jboss" />
+			<exclude name="**/licenses/*" />
+			<exclude name="**/quartz-1.5.2.jar" />
+		</fileset>
+		<fileset dir="${build.jars.dir}" />
+	</path>
+
+
+	<path id="oracle10g.library.path.no.portal">
+		<fileset dir="${build.third-party.dir}">
+			<excludesfile name="excludejars-noportal.jboss" />
+			<exclude name="**/licenses/*" />
+			<exclude name="**/quartz-1.5.2.jar" />
+		</fileset>
+		<fileset dir="${build.jars.dir}" />
+	</path>
+
+
+	<pathconvert property="hsqldb.lib.project.manifest.classpath" pathsep=" ">
+		<path refid="hsqldb.library.path" />
+		<mapper>
+			<chainedmapper>
+				<flattenmapper />
+				<globmapper from="*" to="/lib/*" />
+			</chainedmapper>
+		</mapper>
+	</pathconvert>
+
+
+	<pathconvert property="hsqldb.lib.project.manifest.classpath.no.portal" pathsep=" ">
+		<path refid="hsqldb.library.path.no.portal" />
+		<mapper>
+			<chainedmapper>
+				<flattenmapper />
+				<globmapper from="*" to="/lib/*" />
+			</chainedmapper>
+		</mapper>
+	</pathconvert>
+
+	<pathconvert property="oracle10g.lib.project.manifest.classpath" pathsep=" ">
+		<path refid="oracle10g.library.path" />
+		<mapper>
+			<chainedmapper>
+				<flattenmapper />
+				<globmapper from="*" to="/lib/*" />
+			</chainedmapper>
+		</mapper>
+	</pathconvert>
+
+
+	<pathconvert property="oracle10g.lib.project.manifest.classpath.no.portal" pathsep=" ">
+		<path refid="oracle10g.library.path.no.portal" />
+		<mapper>
+			<chainedmapper>
+				<flattenmapper />
+				<globmapper from="*" to="/lib/*" />
+			</chainedmapper>
+		</mapper>
+	</pathconvert>
+
+
+
+	<!-- ===================================================================
+        target: init
+       =================================================================== -->
+	<target name="init">
+		<!-- make dist directory structure -->
+		<mkdir dir="${build.wars.dir}" />
+	</target>
+
+	<!-- ===================================================================
+		  target: init-pentaho-wars
+
+		  This target makes replacements for database host, port, username, and password keys
+		  in the hibernate.cfg.xml files and the datasoure files used by
+		  jboss. This is what makes your pentaho war database specific.
+		  Check the build.properties file for the default replacements values.
+		  You can override these if you'd like. Note that this file looks for
+		  the defaults. If you are using this target as part of the manual
+		  deployments, the files in the pentaho-res folder should not be modified
+		  by the build. The entire folder is copied to the /build folder, and the
+		  replacements are made there. This way, the manual deployments package 
+		  stays clean, and you can run the build multiple times with different 
+		  values for the host, port, usernames, and passwords.
+		 =================================================================== -->
+	<target name="init-pentaho-wars">
+		<mkdir dir="${build.wars.dir}" />
+	</target>
+
+	<!-- ===================================================================
+         target: init-pentaho-ears
+         =================================================================== -->
+	<target name="init-pentaho-ears">
+		<mkdir dir="${build.ears.dir}" />
+
+		<mkdir dir="${build.res.dir}" />
+
+		<copy todir="${build.res.dir}" overwrite="true">
+			<fileset dir="${server.resource.dir}">
+				<include name="**/ear/**"/>
+				<include name="**/jboss/datasources/**"/>
+			</fileset>
+		</copy>
+		
+		<!--
+		<pathconvert property="hsqldb.ear.java.modules" pathsep=" ">
+			<path refid="hsqldb.library.path" />
+			<mapper>
+				<chainedmapper>
+					<flattenmapper />
+					<globmapper from="*" to="&lt;module&gt;&lt;java&gt;lib/*&lt;/java&gt;&lt;/module&gt;" />
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+
+		<pathconvert property="myslq5.ear.java.modules" pathsep=" ">
+			<path refid="hsqldb.library.path" />
+			<mapper>
+				<chainedmapper>
+					<flattenmapper />
+					<globmapper from="*" to="&lt;module&gt;&lt;java&gt;lib/*&lt;/java&gt;&lt;/module&gt;" />
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+
+		<pathconvert property="postgresql.ear.java.modules" pathsep=" ">
+			<path refid="hsqldb.library.path" />
+			<mapper>
+				<chainedmapper>
+					<flattenmapper />
+					<globmapper from="*" to="&lt;module&gt;&lt;java&gt;lib/*&lt;/java&gt;&lt;/module&gt;" />
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+
+		<pathconvert property="oracle10g.ear.java.modules" pathsep=" ">
+			<path refid="oracle10g.library.path" />
+			<mapper>
+				<chainedmapper>
+					<flattenmapper />
+					<globmapper from="*" to="&lt;module&gt;&lt;java&gt;lib/*&lt;/java&gt;&lt;/module&gt;" />
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+
+		<pathconvert property="hsqldb.ear.java.modules.no.portal" pathsep=" ">
+			<path refid="hsqldb.library.path.no.portal" />
+			<mapper>
+				<chainedmapper>
+					<flattenmapper />
+					<globmapper from="*" to="&lt;module&gt;&lt;java&gt;lib/*&lt;/java&gt;&lt;/module&gt;" />
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+
+		<pathconvert property="mysql5.ear.java.modules.no.portal" pathsep=" ">
+			<path refid="hsqldb.library.path.no.portal" />
+			<mapper>
+				<chainedmapper>
+					<flattenmapper />
+					<globmapper from="*" to="&lt;module&gt;&lt;java&gt;lib/*&lt;/java&gt;&lt;/module&gt;" />
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+
+		<pathconvert property="oracle10g.ear.java.modules.no.portal" pathsep=" ">
+			<path refid="oracle10g.library.path.no.portal" />
+			<mapper>
+				<chainedmapper>
+					<flattenmapper />
+					<globmapper from="*" to="&lt;module&gt;&lt;java&gt;lib/*&lt;/java&gt;&lt;/module&gt;" />
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+
+		<pathconvert property="postgresql.ear.java.modules.no.portal" pathsep=" ">
+			<path refid="hsqldb.library.path.no.portal" />
+			<mapper>
+				<chainedmapper>
+					<flattenmapper />
+					<globmapper from="*" to="&lt;module&gt;&lt;java&gt;lib/*&lt;/java&gt;&lt;/module&gt;" />
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+    -->
+		
+		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/portal/hsqldb/application.xml" overwrite="true" />
+		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/portal/mysql5/application.xml" overwrite="true" />
+		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/portal/oracle10g/application.xml" overwrite="true" />
+		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/portal/postgresql/application.xml" overwrite="true" />
+
+		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/no-portal/hsqldb/application.xml" overwrite="true" />
+		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/no-portal/mysql5/application.xml" overwrite="true" />
+		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/no-portal/oracle10g/application.xml" overwrite="true" />
+		<copy file="${build.res.dir}/ear/application.xml" tofile="${build.ears.dir}/jboss/no-portal/postgresql/application.xml" overwrite="true" />
+
+		<!-- using java module XML as a classpath is not appropriate (BISERVER-2515)
+		 
+		<replace file="${build.ears.dir}/jboss/portal/hsqldb/application.xml" token="&lt;!- additional web apps -&gt;" value="${hsqldb.ear.java.modules} &lt;!- additional web apps -&gt;" />
+		<replace file="${build.ears.dir}/jboss/portal/mysql5/application.xml" token="&lt;!- additional web apps -&gt;" value="${mysql5.ear.java.modules} &lt;!- additional web apps -&gt;" />
+		<replace file="${build.ears.dir}/jboss/portal/oracle10g/application.xml" token="&lt;!- additional web apps -&gt;" value="${oracle10g.ear.java.modules} &lt;!- additional web apps -&gt;" />
+		<replace file="${build.ears.dir}/jboss/portal/postgresql/application.xml" token="&lt;!- additional web apps -&gt;" value="${postgresql.ear.java.modules} &lt;!- additional web apps -&gt;" />
+
+		<replace file="${build.ears.dir}/jboss/no-portal/hsqldb/application.xml" token="&lt;!- additional web apps -&gt;" value="${hsqldb.ear.java.modules.no.portal} &lt;!- additional web apps -&gt;" />
+		<replace file="${build.ears.dir}/jboss/no-portal/mysql5/application.xml" token="&lt;!- additional web apps -&gt;" value="${mysql5.ear.java.modules.no.portal} &lt;!- additional web apps -&gt;" />
+		<replace file="${build.ears.dir}/jboss/no-portal/oracle10g/application.xml" token="&lt;!- additional web apps -&gt;" value="${oracle10g.ear.java.modules.no.portal} &lt;!- additional web apps -&gt;" />
+		<replace file="${build.ears.dir}/jboss/no-portal/postgresql/application.xml" token="&lt;!- additional web apps -&gt;" value="${postgresql.ear.java.modules.no.portal} &lt;!- additional web apps -&gt;" />
+    
+    --> 
+		
+		<manifest file="${build.ears.dir}/jboss/portal/hsqldb/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+			<attribute name="Class-Path" value="${hsqldb.lib.project.manifest.classpath}" />
+		</manifest>
+
+		<manifest file="${build.ears.dir}/jboss/portal/mysql5/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+			<attribute name="Class-Path" value="${hsqldb.lib.project.manifest.classpath}" />
+		</manifest>
+
+		<manifest file="${build.ears.dir}/jboss/portal/oracle10g/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+			<attribute name="Class-Path" value="${oracle10g.lib.project.manifest.classpath}" />
+		</manifest>
+
+		<manifest file="${build.ears.dir}/jboss/portal/postgresql/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+			<attribute name="Class-Path" value="${hsqldb.lib.project.manifest.classpath}" />
+		</manifest>
+
+		<manifest file="${build.ears.dir}/jboss/no-portal/hsqldb/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+			<attribute name="Class-Path" value="${hsqldb.lib.project.manifest.classpath.no.portal}" />
+		</manifest>
+
+		<manifest file="${build.ears.dir}/jboss/no-portal/mysql5/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+			<attribute name="Class-Path" value="${hsqldb.lib.project.manifest.classpath.no.portal}" />
+		</manifest>
+
+		<manifest file="${build.ears.dir}/jboss/no-portal/oracle10g/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+			<attribute name="Class-Path" value="${oracle10g.lib.project.manifest.classpath.no.portal}" />
+		</manifest>
+
+		<manifest file="${build.ears.dir}/jboss/no-portal/postgresql/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+			<attribute name="Class-Path" value="${hsqldb.lib.project.manifest.classpath.no.portal}" />
+		</manifest>
+	</target>
+
+	<!-- ===================================================================
+        target: war-pentaho-jboss
+       =================================================================== -->
+	<target name="war-pentaho-jboss" depends="init, init-pentaho-wars, zip-pentaho-style-war, zip-pentaho-portal-layout-war">
+		<mkdir dir="${build.wars.dir}/jboss/portal"/>
+
+		<manifest file="${build.wars.dir}/jboss/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+		</manifest>
+
+		<!-- make war -->
+		<zip destfile="${build.wars.dir}/jboss/portal/pentaho.war" duplicate="preserve">
+			
+			<!-- copy over any custom changes to webapp -->
+			<zipfileset dir="custom-pentaho-webapp" />
+			
+			<zipfileset dir="${build.wars.dir}/jboss" prefix="META-INF">
+				<include name="MANIFEST.MF" />
+			</zipfileset>
+			<zipfileset dir="${webapp.dir}" />
+			<zipfileset dir="${build.doc.dir}" />
+			<zipfileset dir="${build.third-party.dir}" prefix="WEB-INF/lib">
+				<excludesfile name="excludejars.jboss" />
+				<exclude name="dom4j.jar" />
+				<exclude name="gnu-regexp.jar" />
+			</zipfileset>
+			<zipfileset dir="${build.jars.dir}" prefix="WEB-INF/lib">
+				<!-- exclude name="pentaho-i18n*.jar" / -->
+			</zipfileset>
+			<zipfileset dir="${build.classes.dir}" prefix="WEB-INF/classes">
+				<include name="**/messages/**" />
+			</zipfileset>
+			<zipfileset dir="${server.resource.dir}/jfreereport" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/mondrian" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/log4j" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/ehcache" prefix="WEB-INF/classes" />
+	
+		</zip>
+	</target>
+
+	<!-- ===================================================================
+        target: war-pentaho-jboss-no-portal
+       =================================================================== -->
+	<target name="war-pentaho-jboss-no-portal" depends="init, init-pentaho-wars, zip-pentaho-style-war">
+		<mkdir dir="${build.wars.dir}/jboss/no-portal" />
+
+		<manifest file="${build.wars.dir}/jboss/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+		</manifest>
+
+		<!-- make war -->
+		<zip destfile="${build.wars.dir}/jboss/no-portal/pentaho.war" duplicate="preserve">
+			
+			<!-- copy over any custom changes to webapp -->
+			<zipfileset dir="custom-pentaho-webapp" />
+			
+			<zipfileset dir="${build.wars.dir}/jboss" prefix="META-INF">
+				<include name="MANIFEST.MF" />
+			</zipfileset>
+			<zipfileset dir="${webapp.dir}">
+				  <exclude name="**/WEB-INF/default-object.xml" />
+				  <exclude name="**/WEB-INF/jboss-app.xml" />
+				  <exclude name="**/WEB-INF/*portlet*.xml" />
+				  <exclude name="**/WEB-INF/*portal*.xml" />
+				  <exclude name="**/WEB-INF/jboss-classloading.xml" /> <!-- by default JBoss5 WARs deploy with a parent-first="false" isolated classloader -->
+			</zipfileset>
+			<zipfileset dir="${build.doc.dir}" />
+			<zipfileset dir="${build.third-party.dir}" prefix="WEB-INF/lib">
+				<!-- pentaho now has a dependency on portal-core-lib.jar. If you don't have jboss-portal installed, you need this -->
+				<!-- pentaho now has a dependency on hibernate3.jar. If you don't have jboss-portal installed, you need this -->
+				<!-- pentaho now has a dependency on ehcache.jar. If you don't have jboss-portal installed, you need this -->
+				<excludesfile name="excludejars-noportal.jboss" />
+			</zipfileset>
+			<zipfileset dir="${build.jars.dir}" prefix="WEB-INF/lib">
+				<excludesfile name="excludejars-noportal.jboss" />
+			</zipfileset>
+			<zipfileset dir="${build.classes.dir}" prefix="WEB-INF/classes">
+				<include name="**/messages/**" />
+			</zipfileset>
+			<zipfileset dir="${server.resource.dir}/jfreereport" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/mondrian" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/log4j" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/ehcache" prefix="WEB-INF/classes" />
+			
+		</zip>
+
+	</target>
+
+	<!-- ===================================================================
+	        target: war-pentaho-jboss-for-ear
+
+	        This is a reusable target.
+
+	        Current targets that use this target:
+	        - war-pentaho-jboss-hsqldb-for-ear
+	        - war-pentaho-jboss-mysql5-for-ear
+	       =================================================================== -->
+	<target name="war-pentaho-jboss-for-ear" depends="init, init-pentaho-wars, zip-pentaho-style-war, zip-pentaho-portal-layout-war">
+
+		<mkdir dir="${build.ears.dir}/jboss/portal" />
+
+		<!-- Remove the libraries from WEB-INF/lib. When creating the ear, they will be placed in the ear's /lib dir -->
+		<zip destfile="${build.ears.dir}/jboss/portal/pentaho.war" duplicate="preserve">
+			
+			<!-- copy over any custom changes to webapp -->
+			<zipfileset dir="custom-pentaho-webapp" />
+			
+			<zipfileset dir="${build.ears.dir}/jboss/portal/${rdbms}" prefix="META-INF">
+				<include name="MANIFEST.MF" />
+			</zipfileset>
+			<zipfileset dir="${webapp.dir}">
+				<exclude name="WEB-INF/jboss-app.xml" />
+			</zipfileset>
+			<zipfileset dir="${build.doc.dir}" />
+			<zipfileset dir="${build.classes.dir}" prefix="WEB-INF/classes">
+				<include name="**/messages/**" />
+			</zipfileset>
+			<zipfileset dir="${server.resource.dir}/jfreereport" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/mondrian" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/log4j" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/ehcache" prefix="WEB-INF/classes" />
+	
+		</zip>
+
+	</target>
+
+	<!-- ===================================================================
+		  target: war-pentaho-jboss-for-ear-no-portal
+
+		  This is a reusable target.
+
+		  Current target that use this target:
+		  - war-pentaho-jboss-hsqldb-for-ear-no-portal
+		  - war-pentaho-jboss-mysql5-for-ear-no-portal
+		 =================================================================== -->
+	<target name="war-pentaho-jboss-for-ear-no-portal" depends="init, init-pentaho-wars, zip-pentaho-style-war">
+		<mkdir dir="${build.wars.dir}/jboss/no-portal" />
+
+		<manifest file="${build.wars.dir}/jboss/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+		</manifest>
+
+		<!-- make war -->
+		<zip destfile="${build.ears.dir}/jboss/no-portal/pentaho.war" duplicate="preserve">
+			
+			<!-- copy over any custom changes to webapp -->
+			<zipfileset dir="custom-pentaho-webapp" />
+			
+			<zipfileset dir="${build.ears.dir}/jboss/no-portal/${rdbms}" prefix="META-INF">
+				<include name="MANIFEST.MF" />
+			</zipfileset>
+			<zipfileset dir="${webapp.dir}">
+			  <exclude name="**/WEB-INF/default-object.xml" />
+			  <exclude name="**/WEB-INF/jboss-app.xml" />
+			  <exclude name="**/WEB-INF/*portlet*.xml" />
+			  <exclude name="**/WEB-INF/*portal*.xml" />
+			</zipfileset>
+			<zipfileset dir="${build.doc.dir}" />
+			<zipfileset dir="${build.third-party.dir}" prefix="WEB-INF/lib">
+				<excludesfile name="excludejars-noportal.jboss" />
+			</zipfileset>
+			<zipfileset dir="${build.jars.dir}" prefix="WEB-INF/lib">
+				<excludesfile name="excludejars-noportal.jboss" />
+			</zipfileset>
+			<zipfileset dir="${build.classes.dir}" prefix="WEB-INF/classes">
+				<include name="**/messages/**" />
+			</zipfileset>
+			<zipfileset dir="${server.resource.dir}/jfreereport" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/mondrian" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/log4j" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/ehcache" prefix="WEB-INF/classes" />
+			
+		</zip>
+
+
+	</target>
+
+
+	<!-- ===================================================================
+	        target: war-pentaho-tomcat
+	       =================================================================== -->
+	<target name="war-pentaho-tomcat" depends="init, init-pentaho-wars, zip-pentaho-style-war">
+		<mkdir dir="${build.wars.dir}/tomcat/" />
+
+		<manifest file="${build.wars.dir}/tomcat/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+		</manifest>
+
+		<!-- war pentaho -->
+		<zip destfile="${build.wars.dir}/tomcat/pentaho.war" duplicate="preserve">
+			
+			<!-- copy over any custom changes to webapp -->
+			<zipfileset dir="custom-pentaho-webapp" />
+			
+			<zipfileset dir="${build.wars.dir}/tomcat" prefix="META-INF">
+				<include name="MANIFEST.MF" />
+			</zipfileset>
+			<zipfileset dir="${webapp.dir}">
+				<exclude name="**/WEB-INF/default-object.xml" />
+				<exclude name="**/WEB-INF/jboss-app.xml" />
+				<exclude name="**/WEB-INF/jboss-portlet.xml" />
+				<exclude name="**/WEB-INF/jboss-web.xml" />
+				<exclude name="**/WEB-INF/portlet-instances.xml" />
+			</zipfileset>
+			<zipfileset dir="${build.doc.dir}" />
+			<zipfileset dir="${build.third-party.dir}" prefix="WEB-INF/lib">
+				<excludesfile name="excludejars.generic" />
+				<exclude name="gnu-regexp.jar" />
+			</zipfileset>
+			<zipfileset dir="${build.jars.dir}" prefix="WEB-INF/lib">
+				<!-- exclude name="pentaho-i18n*.jar" / -->
+			</zipfileset>
+			<zipfileset dir="${build.classes.dir}" prefix="WEB-INF/classes">
+				<include name="**/messages/**" />
+			</zipfileset>
+			<zipfileset dir="${server.resource.dir}/jfreereport" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/mondrian" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/log4j" prefix="WEB-INF/classes" />
+			<zipfileset dir="${server.resource.dir}/ehcache" prefix="WEB-INF/classes" />
+
+		</zip>
+
+	</target>
+
+	<!-- ===================================================================
+	       target: zip-pentaho-style-war
+
+	       Create the pentaho-style.war.
+	      =================================================================== -->
+	<target name="zip-pentaho-style-war" depends="init">
+		<zip destfile="${build.wars.dir}/pentaho-style.war">
+			<zipfileset dir="${server.resource.dir}/styles/pentaho-style.war" />
+		</zip>
+	</target>
+
+	<!-- ===================================================================
+		  target: zip-pentaho-portal-layout-war
+
+		  Create the pentaho-portal-layout.war.
+		 =================================================================== -->
+	<target name="zip-pentaho-portal-layout-war" depends="init">
+		<zip destfile="${build.wars.dir}/pentaho-portal-layout.war">
+			<zipfileset dir="${server.resource.dir}/jboss/pentaho-portal-layout.war" />
+		</zip>
+	</target>
+
+	<!-- ======================================================
+          target: ear-all-pentaho-jboss
+
+          Macro target for building all pentaho jboss ears. This target
+          will build pentaho wars for use in ear files.
+
+          This target will build the following:
+          - ear file configured for use in jboss with jboss portal and hsqldb
+          - ear file configured for use in jboss with jboss portal and mysql
+          - ear file configured for use in jboss with jboss portal and oracle10g
+          - ear file configured for use in jboss with jboss portal and postgresql
+          - ear file configured for use in jboss without jboss portal and hsqldb
+          - ear file configured for use in jboss without jboss portal and mysql
+          - ear file configured for use in jboss without jboss portal and oracle10g
+          - ear file configured for use in jboss without jboss portal and postgresql
+
+         ===================================================== -->
+	<target name="ear-all-pentaho-jboss" depends="ear-pentaho-jboss-hsqldb, ear-pentaho-jboss-mysql5, ear-pentaho-jboss-oracle10g, ear-pentaho-jboss-postgresql, ear-pentaho-jboss-hsqldb-no-portal, ear-pentaho-jboss-mysql5-no-portal, ear-pentaho-jboss-oracle10g-no-portal, ear-pentaho-jboss-postgresql-no-portal" />
+
+	<!-- ===================================================================================
+          target: ear-pentaho-jboss-hsqldb
+
+          Create a pentaho ear configured for jboss, jboss portal, and hsqldb.
+
+          If your jboss configuration does not have jboss portal installed, use
+          ear-pentaho-jboss-hsqldb-no-portal instead.
+         ============================================================================ -->
+	<target name="ear-pentaho-jboss-hsqldb" depends="init, init-pentaho-ears, zip-pentaho-style-war, zip-pentaho-portal-layout-war">
+		
+		<antcall target="war-pentaho-jboss-for-ear">
+			<param name="rdbms" value="hsqldb" />
+		</antcall>
+    <antcall target="ear-pentaho-jboss">
+      <param name="rdbms" value="hsqldb" />
+    </antcall>
+	</target>
+
+	<!-- ===============================================================================
+          target: ear-pentaho-jboss-hsqldb-no-portal
+
+          Create a pentaho ear configured for jboss, no jboss portal, and hsqldb.
+
+          If your jboss configuration has jboss portal installed, use
+          ear-pentaho-jboss-hsqldb instead.
+         ============================================================================= -->
+	<target name="ear-pentaho-jboss-hsqldb-no-portal" depends="init, init-pentaho-ears, zip-pentaho-style-war">
+		<antcall target="war-pentaho-jboss-for-ear-no-portal">
+			<param name="rdbms" value="hsqldb" />
+		</antcall>
+    <antcall target="ear-pentaho-jboss-no-portal">
+      <param name="rdbms" value="hsqldb" />
+    </antcall>
+	</target>
+
+	<!-- =========================================================================
+          target: ear-pentaho-jboss-mysql5
+
+          Create a pentaho ear configured for jboss, jboss portal, and mysql.
+
+          If your jboss configuration does not have jboss portal installed, use
+          ear-pentaho-jboss-mysql5-no-portal instead.
+         ========================================================================== -->
+	<target name="ear-pentaho-jboss-mysql5" depends="init, init-pentaho-ears, zip-pentaho-style-war, zip-pentaho-portal-layout-war">
+		<antcall target="war-pentaho-jboss-for-ear">
+			<param name="rdbms" value="mysql5" />
+		</antcall>
+    <antcall target="ear-pentaho-jboss">
+      <param name="rdbms" value="mysql5" />
+    </antcall>
+	</target>
+
+	<!-- ===============================================================
+          target: ear-pentaho-jboss-mysql5-no-portal
+
+          Create a pentaho ear configured for jboss, no jboss portal, and mysql.
+
+          If your jboss configuration has jboss portal installed, use
+          ear-pentaho-jboss-mysql5 instead.
+         ================================================================= -->
+	<target name="ear-pentaho-jboss-mysql5-no-portal" depends="init, init-pentaho-ears, zip-pentaho-style-war">
+		
+		<antcall target="war-pentaho-jboss-for-ear-no-portal">
+			<param name="rdbms" value="mysql5" />
+		</antcall>
+    <antcall target="ear-pentaho-jboss-no-portal">
+      <param name="rdbms" value="mysql5" />
+    </antcall>
+	</target>
+
+	<!-- =========================================================================
+          target: ear-pentaho-jboss-oracle10g
+
+          Create a pentaho ear configured for jboss, jboss portal, and oracle10g.
+
+          If your jboss configuration does not have jboss portal installed, use
+          ear-pentaho-jboss-oracle10g-no-portal instead.
+         ========================================================================== -->
+	<target name="ear-pentaho-jboss-oracle10g" depends="init, init-pentaho-ears, zip-pentaho-style-war, zip-pentaho-portal-layout-war">
+		
+		<antcall target="war-pentaho-jboss-for-ear">
+			<param name="rdbms" value="oracle10g" />
+		</antcall>
+    <antcall target="ear-pentaho-jboss">
+      <param name="rdbms" value="oracle10g" />
+    </antcall>
+	</target>
+
+	<!-- ===============================================================
+          target: ear-pentaho-jboss-oracle10g-no-portal
+
+          Create a pentaho ear configured for jboss, no jboss portal, and oracle10g.
+
+          If your jboss configuration has jboss portal installed, use
+          ear-pentaho-jboss-oracle10g instead.
+         ================================================================= -->
+	<target name="ear-pentaho-jboss-oracle10g-no-portal" depends="init, init-pentaho-ears, zip-pentaho-style-war">
+		<antcall target="war-pentaho-jboss-for-ear-no-portal">
+			<param name="rdbms" value="oracle10g" />
+		</antcall>
+    <antcall target="ear-pentaho-jboss-no-portal">
+      <param name="rdbms" value="oracle10g" />
+    </antcall>
+	</target>
+
+	<!-- =========================================================================
+          target: ear-pentaho-jboss-postgresql
+
+          Create a pentaho ear configured for jboss, jboss portal, and postgresql.
+
+          If your jboss configuration does not have jboss portal installed, use
+          ear-pentaho-jboss-postgresql-no-portal instead.
+         ========================================================================== -->
+	<target name="ear-pentaho-jboss-postgresql" depends="init, init-pentaho-ears, zip-pentaho-style-war, zip-pentaho-portal-layout-war">
+		<antcall target="war-pentaho-jboss-for-ear">
+			<param name="rdbms" value="postgresql" />
+		</antcall>
+    <antcall target="ear-pentaho-jboss">
+      <param name="rdbms" value="postgresql" />
+    </antcall>
+	</target>
+
+	<!-- ===============================================================
+          target: ear-pentaho-jboss-postgresql-no-portal
+
+          Create a pentaho ear configured for jboss, no jboss portal, and postgresql.
+
+          If your jboss configuration has jboss portal installed, use
+          ear-pentaho-jboss-postgresql instead.
+         ================================================================= -->
+	<target name="ear-pentaho-jboss-postgresql-no-portal" depends="init, init-pentaho-ears, zip-pentaho-style-war">
+		<antcall target="war-pentaho-jboss-for-ear-no-portal">
+			<param name="rdbms" value="postgresql" />
+		</antcall>
+    <antcall target="ear-pentaho-jboss-no-portal">
+      <param name="rdbms" value="postgresql" />
+    </antcall>
+	</target>
+
+	<!-- ======================================================================
+          target: ear-pentaho-jboss
+
+          Create a pentaho ear file confiured for jboss and a specified rdbms.
+
+          This is a reusable target.
+
+          Parameters:
+          - rdbms - current values include hsqldb and mysql5
+
+          Current targets that use this target:
+          - ear-pentaho-jboss-hsqldb
+          - ear-pentaho-jboss-mysql5
+
+         ======================================================================== -->
+	<target name="ear-pentaho-jboss">
+
+		<replace file="${build.ears.dir}/jboss/portal/${rdbms}/application.xml" token="&lt;!-- additional web apps --&gt;">
+			<replacevalue>
+				<![CDATA[
+				<module>
+				<web>
+					<web-uri>pentaho-portal-layout.war</web-uri>
+					<context-root>/pentaho-portal-layout</context-root>
+				</web>
+			</module>
+			<!-- additional web apps -->]]>
+			</replacevalue>
+	</replace>
+
+	<!-- make ear -->
+	<ear destfile="${build.ears.dir}/jboss/portal/${rdbms}/pentaho.ear" appxml="${build.ears.dir}/jboss/portal/${rdbms}/application.xml" duplicate="preserve">
+		
+		<!-- copy over any custom changes to ear -->
+		<zipfileset dir="custom-ear" />
+		
+		<fileset dir="${build.wars.dir}">
+			<include name="pentaho-portal-layout.war" />
+			<include name="pentaho-style.war" />
+		</fileset>
+		<zipfileset dir="${webapp.dir}/WEB-INF" prefix="META-INF">
+			<include name="jboss-app.xml" />
+		</zipfileset>
+		<fileset dir="${build.ears.dir}/jboss/portal" includes="pentaho.war" />
+		<fileset dir="${build.res.dir}/jboss/datasources/${rdbms}" />
+		<!-- Include appropriate third party jars -->
+		<zipfileset dir="${build.third-party.dir}" prefix="lib">
+			<excludesfile name="excludejars.jboss" />
+			<exclude name="gnu-regexp.jar" />
+			<exclude name="dom4j.jar" />
+		</zipfileset>
+		<zipfileset dir="${build.jars.dir}" prefix="lib" />
+		
+	</ear>
+</target>
+
+<!-- ======================================================================
+	          target: ear-pentaho-jboss-no-portal
+
+	          Create a pentaho ear file confiured for jboss and a specified rdbms.
+
+	          This is a reusable target.
+
+	          Parameters:
+	          - rdbms - current values include hsqldb and mysql5
+
+	          Current targets that use this target:
+	          - ear-pentaho-jboss-hsqldb-no-portal
+	          - ear-pentaho-jboss-mysql5-no-portal
+
+	         ======================================================================== -->
+<target name="ear-pentaho-jboss-no-portal">
+
+	<!-- make ear -->
+	<ear destfile="${build.ears.dir}/jboss/no-portal/${rdbms}/pentaho.ear" appxml="${build.ears.dir}/jboss/no-portal/${rdbms}/application.xml" duplicate="preserve">
+		
+		<!-- copy over any custom changes to ear -->
+		<zipfileset dir="custom-ear" />
+		
+		<fileset dir="${build.wars.dir}">
+			<include name="pentaho-style.war" />
+		</fileset>
+		<zipfileset dir="${webapp.dir}/WEB-INF/" prefix="META-INF">
+			<include name="jboss-app.xml" />
+		</zipfileset>
+		<zipfileset dir="${build.res.dir}/ear" prefix="META-INF">
+			<include name="jboss-classloading.xml" />
+		</zipfileset>
+		<fileset dir="${build.ears.dir}/jboss/no-portal" includes="pentaho.war" />
+		<fileset dir="${build.res.dir}/jboss/datasources/${rdbms}" />
+		<!-- Include appropriate third party jars -->
+	    <!-- as of JBoss5, we are no longer putting jars in the EAR due to complications with 
+	         classloading and loading or resources resources when jars live in pentaho.ear/lib -->
+		<!--zipfileset dir="${build.third-party.dir}" prefix="lib">
+			<excludesfile name="excludejars-noportal.jboss" />
+			<excludesfile name="jars-with-log4jxml.jboss" />
+			<exclude name="**/licenses/*" />
+			<exclude name="**/quartz-oracle-1.5.2.jar" />
+		</zipfileset>
+		<zipfileset dir="${build.jars.dir}" prefix="lib" /-->
+		
+	</ear>
+</target>
+
+
+<!-- ===================================================================
+        target: ear-pentaho-orion2.0.5
+       =================================================================== -->
+<target name="ear-pentaho-orion2.0.5" depends="init, init-pentaho-ears, zip-pentaho-style-war, war-pentaho-tomcat">
+
+	<ear destfile="${build.ears.dir}/orion/pentaho.ear" appxml="${ear.dir}/application.xml">
+		<manifest>
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+		</manifest>
+		<fileset dir="${build.wars.dir}">
+			<include name="pentaho-style.war" />
+		</fileset>
+		<fileset dir="${build.wars.dir}/tomcat" includes="pentaho.war" />
+		<metainf dir="${staging.resources}/orion" includes="*.xml" />
+	</ear>
+
+</target>
+
+<!-- ===================================================================
+        target: build-all
+       =================================================================== -->
+<target name="build-all" depends="zip-pentaho-portal-layout-war, zip-pentaho-style-war, war-pentaho-tomcat, war-pentaho-jboss, war-pentaho-jboss-no-portal, ear-all-pentaho-jboss" />
+</project>

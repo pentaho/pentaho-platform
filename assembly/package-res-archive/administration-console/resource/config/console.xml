@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<console> 
+  <solution-path></solution-path>
+  <war-path></war-path>
+  <platform-username>joe</platform-username>  
+  <biserver-status-check-period-millis>30000</biserver-status-check-period-millis>  
+  <homepage-url>http://www.pentaho.com/console_home</homepage-url>  
+  <homepage-timeout-millis>15000</homepage-timeout-millis>  
+  <!-- comma separated list of roles (no spaces); do not include any role prefix -->  
+  <default-roles></default-roles>
+  <default-server-dir>biserver-ce</default-server-dir>
+</console>

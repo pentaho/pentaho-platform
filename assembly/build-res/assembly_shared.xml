@@ -1,0 +1,62 @@
+<project name="assembly_shared" xmlns:ivy="antlib:org.apache.ivy.ant">
+  <!-- Import the subfloor-pkg.xml file which contains all the default tasks -->
+  <import file="subfloor-pkg.xml" />
+  
+  <!--
+    ======================================================================= check-blacklist searches for illegal classes
+    that we have fetched via IVY and fail the assembly if they are present.
+    ====================================================================
+  -->
+  <target name="check-blacklist" depends="remove-servlet-api">
+
+    <available property="Servlet.class.present" classname="javax.servlet.Servlet">
+      <classpath>
+        <fileset dir="${lib.dir}">
+          <include name="**/*.jar" />
+        </fileset>
+      </classpath>
+    </available>
+    <fail if="Servlet.class.present" message="!!! Blacklisted class javax.servlet.Servlet found in a retrieved jar.  Assembly cannot proceed !!!" />
+  </target>
+
+  <target name="remove-servlet-api" depends="test-servlet-api-exists" if="servlet-api-exists">
+    <echo message="WARNING: servlet-api-*.jar is in the lib directory! Removing..." />
+    <delete failonerror="true">
+      <fileset dir="${lib.dir}" includes="**/servlet-api-*.jar" />
+    </delete>
+  </target>
+
+  <target name="test-servlet-api-exists">
+    <pathconvert property="servlet-api-exists" setonempty="false" pathsep=" ">
+      <path>
+        <fileset dir="${lib.dir}" includes="servlet-api-*.jar" />
+      </path>
+    </pathconvert>
+  </target>
+  
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: resolve-plugins                      
+         - - - - - - - - - - - - - - - - - -->
+  <target name="resolve-plugins" depends="install-ivy">
+    <ivy:resolve file="${ivyfile}" conf="plugin" />
+    <ivy:retrieve conf="plugin" pattern="${basedir}/${plugins.dir}/[module]-[revision](-[classifier]).[ext]" />
+  </target>
+  
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: resolve-datasource-libs
+         - - - - - - - - - - - - - - - - - -->
+  <target name="resolve-datasource-libs" depends="install-ivy">
+    <ivy:resolve file="${ivyfile}" conf="datasource-libs" />
+    <ivy:retrieve conf="datasource-libs" pattern="${container.lib.dir}/[module]-[revision](-[classifier]).[ext]" />
+  </target>
+
+
+  <!-- - - - - - - - - - - - - - - - - - 
+          target: resolve-solutions                     
+         - - - - - - - - - - - - - - - - - -->
+  <target name="resolve-solutions" depends="install-ivy">
+    <ivy:resolve file="${ivyfile}" conf="solution" />
+    <ivy:retrieve conf="solution" pattern="${basedir}/${solution-archives.dir}/[module]-[revision](-[classifier]).[ext]" />
+  </target>
+</project>

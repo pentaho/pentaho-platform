@@ -1,0 +1,6 @@
+**/xercesImpl*.jar
+**/xml-apis*.jar
+**/portlet-api*.jar
+**/stax-api-*.jar
+**/wsdl4j-qname*.jar
+**/xmlParserAPIs*.jar
