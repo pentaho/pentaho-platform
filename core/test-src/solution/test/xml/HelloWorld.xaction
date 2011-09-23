@@ -1,0 +1,31 @@
+<action-sequence>
+  <name>HelloWorld.xaction</name>
+  <title>Hello World Action Sequence</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+
+  <documentation>
+    <author>James Dixon</author>
+    <description>The most basic Action Sequence Document</description>
+    <help>Hello World demonstrates the most basic Action Sequence document.  It uses the Hello World Component.</help>
+  </documentation>
+
+  <inputs/>
+
+  <outputs/>
+
+  <resources/>
+
+  <actions>
+      <action-definition>
+        <action-name>Hello World Action</action-name>
+        <action-inputs/>
+        <action-outputs/>
+        <logging-level>DEBUG</logging-level>
+        <component-name>HelloWorldComponent</component-name>
+        <component-definition>
+          <quote>That is the question</quote>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

@@ -1,0 +1,91 @@
+<filters xmlns:xf="http://www.w3.org/2002/xforms"><head><link rel="stylesheet" type="text/css" href="/pentaho-style/active/default.css" /><xf:model id="actionparam"><xf:instance><data xmlns=""><DEPARTMENT>"Central"</DEPARTMENT></data></xf:instance><xf:submission action="" separator="&amp;" method="urlencoded-get" id="actionparam" /></xf:model></head><id><![CDATA[secure_parameter_page_example]]></id><title><![CDATA[Secure Parameter Page Portlet Example]]></title><description><![CDATA[This shows an example of a secure parameter page embedded as a portlet]]></description><icon><![CDATA[custom-parameter-page-example.png]]></icon><help><![CDATA[just testing...]]></help><action><![CDATA[/portal/auth/portal/pentaho/Secure%20Stuff/SecureReportParameterExampleWindow?action=d&windowstate=normal&mode=view]]></action><display><![CDATA[/portal/auth/portal/pentaho/Secure%20Stuff/SecureReportParameterExampleWindow?action=e&windowstate=normal&mode=view]]></display><target><![CDATA[Report_Window]]></target><filter><id><![CDATA[DEPARTMENT]]></id><title><![CDATA[Department]]></title><help><![CDATA[]]></help><control><xf:select1  model="actionparam" id="DEPARTMENT" ref="DEPARTMENT"><xf:item><xf:label>Executive Management</xf:label><xf:value>Executive Management</xf:value></xf:item><xf:item><xf:label>Finance</xf:label><xf:value>Finance</xf:value></xf:item><xf:item><xf:label>Human Resource</xf:label><xf:value>Human Resource</xf:value></xf:item><xf:item><xf:label>Marketing &amp; Communication</xf:label><xf:value>Marketing &amp; Communication</xf:value></xf:item><xf:item><xf:label>Product Development</xf:label><xf:value>Product Development</xf:value></xf:item><xf:item><xf:label>Professional Services</xf:label><xf:value>Professional Services</xf:value></xf:item><xf:item><xf:label>Sales</xf:label><xf:value>Sales</xf:value></xf:item></xf:select1></control></filter><input type="hidden" name="solution" value="samples"></input><input type="hidden" name="action" value="secure-parameter-page-example.xaction"></input><input type="hidden" name="path" value="secure"></input></filters>
+<!-- 
+<filters xmlns:xf="http://www.w3.org/2002/xforms">
+	<head>
+		<link rel="stylesheet" type="text/css"
+			href="/pentaho-style/active/default.css" />
+		<xf:model id="actionparam">
+			<xf:instance>
+				<data xmlns="">
+					<DEPARTMENT>"Central"</DEPARTMENT>
+				</data>
+			</xf:instance>
+			<xf:submission action="" separator="&amp;"
+				method="urlencoded-get" id="actionparam" />
+		</xf:model>
+	</head>
+	<id>
+		<![CDATA[secure_parameter_page_example]]>
+	</id>
+	<title>
+		<![CDATA[Secure Parameter Page Portlet Example]]>
+	</title>
+	<description>
+		<![CDATA[This shows an example of a secure parameter page embedded as a portlet]]>
+	</description>
+	<icon>
+		<![CDATA[custom-parameter-page-example.png]]>
+	</icon>
+	<help>
+		<![CDATA[just testing...]]>
+	</help>
+	<action>
+		<![CDATA[/portal/auth/portal/pentaho/Secure%20Stuff/SecureReportParameterExampleWindow?action=d&windowstate=normal&mode=view]]>
+	</action>
+	<display>
+		<![CDATA[/portal/auth/portal/pentaho/Secure%20Stuff/SecureReportParameterExampleWindow?action=e&windowstate=normal&mode=view]]>
+	</display>
+	<target>
+		<![CDATA[Report_Window]]>
+	</target>
+	<filter>
+		<id>
+			<![CDATA[DEPARTMENT]]>
+		</id>
+		<title>
+			<![CDATA[Department]]>
+		</title>
+		<help>
+			<![CDATA[]]>
+		</help>
+		<control>
+			<xf:select1 model="actionparam" id="DEPARTMENT"
+				ref="DEPARTMENT">
+				<xf:item>
+					<xf:label>Executive Management</xf:label>
+					<xf:value>Executive Management</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Finance</xf:label>
+					<xf:value>Finance</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Human Resource</xf:label>
+					<xf:value>Human Resource</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Marketing &amp; Communication</xf:label>
+					<xf:value>Marketing &amp; Communication</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Product Development</xf:label>
+					<xf:value>Product Development</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Professional Services</xf:label>
+					<xf:value>Professional Services</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Sales</xf:label>
+					<xf:value>Sales</xf:value>
+				</xf:item>
+			</xf:select1>
+		</control>
+	</filter>
+	<input type="hidden" name="solution" value="samples"></input>
+	<input type="hidden" name="action"
+		value="secure-parameter-page-example.xaction">
+	</input>
+	<input type="hidden" name="path" value="secure"></input>
+</filters>
+ -->
