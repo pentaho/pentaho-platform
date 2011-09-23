@@ -18,7 +18,5 @@ import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.platform.api.engine.ILogger;
 
 public interface IPentahoLoggingConnection extends IPentahoConnection {
-
   public void setLogger(ILogger logger);
-
 }
