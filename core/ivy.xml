@@ -76,7 +76,6 @@
 
 		<!--  internal test dependencies -->
 		<dependency org="pentaho" name="pentaho-xul-core"                    rev="${dependency.pentaho-xul.revision}" changing="true" conf="test->default" transitive="false" />
-		<dependency org="pentaho" name="pentaho-bi-platform-test-foundation" rev="${project.revision}"                changing="true" conf="test->default" transitive="true" />
 		<!--  external test dependencies -->
 		<dependency org="junit"     name="junit"        rev="4.4"   conf="test->default"/>
 		<dependency org="org.jmock" name="jmock-junit4" rev="2.5.1" conf="test->default"/>
