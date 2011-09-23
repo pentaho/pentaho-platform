@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- 
+This is the spring configuration file that is used to wire system listeners into the Pentaho
+BI Platform. System listeners are notified when the platform starts up and shuts down. System 
+listeners can be added, removed, and initialized here. Each bean in the list is a system listener.
+You can intialize any listeners properties, as shown in the QuartzSystemListener and 
+VersionCheckSystemListener.
+-->
+
+<beans>
+	<bean id="systemListenersList" class="java.util.ArrayList">
+		<constructor-arg>
+			<list>
+				<bean class="org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener"/>
+				<bean class="org.pentaho.platform.plugin.action.kettle.KettleSystemListener"/>
+				<bean class="org.pentaho.platform.plugin.action.mondrian.MondrianSystemListener"/>
+				<bean class="org.pentaho.platform.scheduler.QuartzSystemListener">
+					<property name="quartzProperties">
+						<props>
+							<prop key="hsqldb.cache_file_scale">1</prop>
+							<prop key="runtime.gc_interval">0</prop>
+							<prop key="hsqldb.first_identity">0</prop>
+							<prop key="version">1.8.0</prop>
+							<prop key="modified">no</prop>
+							<prop key="hsqldb.script_format">0</prop>
+							<prop key="sql.enforce_size">false</prop>
+							<prop key="hsqldb.cache_size_scale">8</prop>
+							<prop key="hsqldb.cache_scale">14</prop>
+							<prop key="hsqldb.log_size">200</prop>
+							<prop key="sql.enforce_strict_size">false</prop>
+							<prop key="readonly">false</prop>
+							<prop key="hsqldb.compatible_version">1.7.2</prop>
+							<prop key="hsqldb.original_version">1.8.0</prop>
+							<prop key="sql.compare_in_locale">false</prop>
+							<prop key="hsqldb.nio_data_file">true</prop>
+							<prop key="hsqldb.cache_version">1.7.0</prop>
+							<prop key="hsqldb.default_table_type">memory</prop>
+						</props>
+					</property>
+				</bean>
+				<bean class="org.pentaho.platform.scheduler.versionchecker.VersionCheckSystemListener">
+					<property name="repeatIntervalSeconds">
+						<value>86400</value>
+					</property>
+					<property name="requestedReleases" value="Minor, GA"/>
+					<property name="disableVersionCheck">
+						<value>false</value>
+					</property>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+</beans>

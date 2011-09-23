@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+
+	<setting1>value1</setting1>
+	
+	<user1>
+		<setting2>value2</setting2>
+	</user1>
+	
+</settings>

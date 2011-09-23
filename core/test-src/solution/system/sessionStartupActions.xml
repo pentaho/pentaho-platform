@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- 
+This is the spring configuration file that is used to wire session startup actions into the Pentaho
+BI Platform. Session startup actions are action sequences that are run when a particular type of
+session is started up. At the time of this writing the known session types were: 
+PentahoHttpSession, PentahoPortletSession, UserSession, & Standalone session.
+-->
+
+<beans>
+	<bean id="sessionStartupActionsList" class="java.util.ArrayList">
+		<constructor-arg>
+			<list>
+			
+				<!-- Start of PentahoHttpSession startup actions. -->
+				<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
+					<property name="sessionType" value="org.pentaho.platform.web.http.session.PentahoHttpSession"/>
+					<property name="actionPath" value="samples/rules/session-region-list.xaction"/>
+					<property name="actionOutputScope" value="session"/>
+				</bean>
+				<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
+					<property name="sessionType" value="org.pentaho.platform.web.http.session.PentahoHttpSession"/>
+					<property name="actionPath" value="samples/secure/global-department-list.xaction"/>
+					<property name="actionOutputScope" value="global"/>
+				</bean>
+				<!-- End of PentahoHttpSession startup actions. -->
+				
+				<!-- Start of PentahoPortletSession startup actions. -->
+				<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
+					<property name="sessionType" value="org.pentaho.platform.web.http.portal.PentahoPortletSession"/>
+					<property name="actionPath" value="samples/rules/session-region-list.xaction"/>
+					<property name="actionOutputScope" value="session"/>
+				</bean>
+				<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
+					<property name="sessionType" value="org.pentaho.platform.web.http.portal.PentahoPortletSession"/>
+					<property name="actionPath" value="samples/secure/global-department-list.xaction"/>
+					<property name="actionOutputScope" value="global"/>
+				</bean>
+				<!-- End of PentahoPortletSession startup actions. -->
+			
+				<!-- Start of UserSession startup actions. -->
+				<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
+					<property name="sessionType" value="org.pentaho.core.session.UserSession"/>
+					<property name="actionPath" value="samples/rules/session-region-list.xaction"/>
+					<property name="actionOutputScope" value="session"/>
+				</bean>
+				<bean class="org.pentaho.platform.engine.core.system.SessionStartupAction">
+					<property name="sessionType" value="org.pentaho.core.session.UserSession"/>
+					<property name="actionPath" value="samples/secure/global-department-list.xaction"/>
+					<property name="actionOutputScope" value="global"/>
+				</bean>
+				<!-- End of UserSession startup actions. -->
+				
+			</list>
+		</constructor-arg>
+	</bean>
+</beans>
