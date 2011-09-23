@@ -1,0 +1,39 @@
+
+<action-sequence>
+
+	<name>script_rule_error3.xaction</name>
+	<version>1</version>
+	<title>Sample Javascript rule</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description>Javascript rule test</description>
+		<help>just testing...</help>
+	</documentation>
+
+	<inputs/>
+
+	<outputs>
+		<rule-result>
+			<type>string</type>
+		</rule-result>
+	</outputs>
+  <resources/>
+  
+  <actions>
+      <action-definition>
+        <action-outputs>
+          <rule-result type="string"/>
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+			      this should cause a runtime error 
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

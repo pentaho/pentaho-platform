@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>JFreeReport HTML Example</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description><![CDATA[
+			This is an example of an HTML report produced by JFreeReport. 
+			<p/>It shows the actual headcount cost, budgeted headcount 
+			cost, and variance for every position in the specified
+			department and region
+		]]></description>  
+    <icon>/style/icons/jfree1.png</icon>  
+    <help/> 
+  </documentation>
+
+  <inputs> 
+    <region type="string"> 
+      <sources> 
+        <request>region</request> 
+      </sources> 
+    </region>  
+    <department type="string"> 
+      <sources> 
+        <request>department</request> 
+      </sources> 
+    </department> 
+  </inputs>
+
+  <outputs> 
+    <report type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </report> 
+  </outputs>
+
+  <resources> 
+    <!-- 	Use this section to identify any files that the 
+			component needs to execute the report -->  
+    <report-definition> 
+      <solution-file> 
+        <location>embedded_report.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition>
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Report Data</action-type>
+      <action-inputs>
+        <region type="string"/>
+        <department type="string"/>
+      </action-inputs>
+      <action-outputs>
+        <query-result type="result-set" mapping="reportData"/>
+      </action-outputs>
+      <component-definition>
+        <jndi>SampleData</jndi>
+        <query><![CDATA[select 	QUADRANT_ACTUALS.REGION, 
+						QUADRANT_ACTUALS.DEPARTMENT,   
+						QUADRANT_ACTUALS.POSITIONTITLE,   
+						QUADRANT_ACTUALS.ACTUAL,   
+						QUADRANT_ACTUALS.BUDGET,   
+						QUADRANT_ACTUALS.VARIANCE  
+					from QUADRANT_ACTUALS
+					where QUADRANT_ACTUALS.REGION = {PREPARE:region} 
+					and QUADRANT_ACTUALS.DEPARTMENT = {PREPARE:department}
+					order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]></query>
+      </component-definition>
+    </action-definition>
+
+    <action-definition>
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Pentaho Report</action-type>
+      <action-inputs>
+        <data type="result-set" mapping="reportData"/>
+      </action-inputs>
+      <action-resources>
+        <report-definition type="resource"/>
+      </action-resources>
+      <action-outputs>
+        <report-output type="content" mapping="report"/>
+      </action-outputs>
+      <component-definition>
+        <output-type>html</output-type>
+      </component-definition>
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,70 @@
+<chart>
+	
+	<!--  this is the background for the whole image -->
+	<!--  TODO support gradient and texture painting -->
+	<chart-type>LineChart</chart-type>
+	<title>Sample Chart</title>
+	<!-- 
+	<subtitles>
+		<subtitle>a simple sample</subtitle> 
+	</subtitles -->
+	<domain-label-rotation>.7</domain-label-rotation>
+	<domain-label-rotation-dir></domain-label-rotation-dir>
+	<markers-visible>true</markers-visible>
+	<chart-background type="color">#FFFFFF</chart-background>
+	<plot-background type="color">#FFFFFF</plot-background>
+	<!-- <orientation>Horizontal</orientation> -->
+	<height>550</height>
+	<width>650</width>
+	<!-- <is-3D>true</is-3D> -->
+	<!-- <is-stacked>true</is-stacked> -->
+	<color-palette>
+		<color>#336699</color>
+		<color>#99CCFF</color>
+		<color>#999933</color>
+		<color>#666699</color>
+		<color>#CC9933</color>
+		<color>#006666</color>
+		<color>#3399FF</color>
+		<color>#993300</color>
+		<color>#CCCC99</color>
+		<color>#666666</color>
+		<color>#FFCC66</color>
+		<color>#6699CC</color>
+		<color>#663366</color>
+		<color>#9999CC</color>
+		<color>#CCCCCC</color>
+		<color>#669999</color>
+		<color>#CCCC66</color>
+		<color>#CC6600</color>
+		<color>#9999FF</color>
+		<color>#0066CC</color>
+		<color>#99CCCC</color>
+		<color>#999999</color>
+		<color>#FFCC00</color>
+		<color>#009999</color>
+		<color>#99CC33</color>
+		<color>#FF9900</color>
+		<color>#999966</color>
+		<color>#66CCCC</color>
+		<color>#339966</color>
+		<color>#CCCC33</color>
+	</color-palette>
+	
+    <include-legend>false</include-legend>
+	
+	<!-- Specify where the data for the chart comes from -->
+	<data>
+		<!-- Specify the path to the action sequence that provides the data -->
+		<data-solution>samples</data-solution>
+		<data-path>charts/samplesDashboard</data-path>
+		<data-action>linechart_data.xaction</data-action>
+
+		<!-- Specify the output of the action sequence that contains the data -->
+		<data-output>rule-result</data-output>
+		
+		<!-- Specify whether to get the chart series from the rows or columns -->
+		<data-orientation>columns</data-orientation>
+	</data>	
+
+</chart>

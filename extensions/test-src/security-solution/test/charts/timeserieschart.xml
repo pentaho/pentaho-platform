@@ -1,0 +1,41 @@
+<chart>
+	<dataset-type>TimeSeriesCollection</dataset-type>
+	<chart-type>LineChart</chart-type>
+<subtitles>
+	<subtitle>
+		<![CDATA[Product Lines]]>
+	</subtitle>
+</subtitles>	
+	<domain-vertical-tick-labels>true</domain-vertical-tick-labels>
+	<title>Time Series Chart Sample</title>
+	<border-visible>false</border-visible>
+	<markers-visible>true</markers-visible>
+	<domain-title>Time</domain-title>
+	<color-palette>
+		<color>#EE7733</color>
+		<color>#9EAA36</color>
+		<color>#BF0000</color>
+		<color>#FCCF12</color>
+		<color>#772200</color>
+		<color>#DDCC88</color>
+		<color>#123D82</color>
+		<color>#4A0866</color>
+		<color>#445500</color>-
+		<color>#FFAA00</color>
+		<color>#1E8AD3</color>
+		<color>#AA6611</color>
+		<color>#772200</color>
+	</color-palette>
+	<data>
+		<!-- Specify the path to the action sequence that provides the data -->
+		<data-solution>samples</data-solution>
+		<data-path>charts/samplesDashboard</data-path>
+		<data-action>timeserieschart_data.xaction</data-action>
+		<!-- Specify the output of the action sequence that contains the data -->
+		<data-output>results</data-output>
+		<!-- Specify whether to get the chart series from the rows or columns -->
+		<data-orientation>columns</data-orientation>
+    	<domain-period-type>Day</domain-period-type>
+	</data>	
+	
+</chart>

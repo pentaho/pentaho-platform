@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Barchart Data</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description>Return the variance between headcount actual and budget for every department</description>  
+    <help/> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <query_result type="result-set"/>
+  </outputs>
+
+  <resources> 
+    <catalog> 
+      <solution-file> 
+        <location>steelwheels.mondrian.xml</location>  
+        <mime-type>text/plain</mime-type> 
+      </solution-file> 
+    </catalog> 
+  </resources>
+  
+  <!-- Define an input called 'REGION'. This will be passed in when the user clicks on a slice of the pie chart -->  
+  <!-- Define an output called 'rule-result' -->  
+  <!-- This action sequence does not require any external resources -->  
+  <actions> 
+    <action-definition> 
+      <component-name>MDXLookupRule</component-name>
+      <action-type>OLAP</action-type>
+      <action-resources> 
+        <catalog type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <query-results type="result-set" mapping="query_result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <location>mondrian</location>  
+        <query><![CDATA[select {[Time].Children} ON COLUMNS,
+  {[Product].Children} ON ROWS
+from [SteelWheelsSales]
+where [Measures].[Sales]]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

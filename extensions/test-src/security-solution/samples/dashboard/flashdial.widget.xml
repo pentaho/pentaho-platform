@@ -1,0 +1,53 @@
+<chart>
+  <chart_type>DialPct</chart_type>
+  <dial_limits full-span="216" min-clamp="-20" max-clamp="236" />
+
+  <radial_ticks param_name="large_ticks" x="125" y="125" radius="80" length="15" 
+     start_angle="250" end_angle="467" tick_count="11" thickness="4" color="444444" />
+
+  <radial_ticks param_name="small_ticks" x="125" y="125" radius="87" length="8" 
+     start_angle="260" end_angle="456" tick_count="10" thickness="2" color="444444" />
+
+  <radial_numbers param_name="tick_numbers" x="125" y="125" radius="80" start_angle="245" end_angle="460"
+    start_number="0" end_number="100" tick_count="11" font_size="12" color="444444" />
+
+<!-- 
+  <data>
+    <data-solution>samples</data-solution>
+    <data-path>dashboard</data-path>
+    <data-action>regions_headcount_data.xaction</data-action>
+    <data-output>rule-result</data-output>
+    <data-name>POSITIONTITLE</data-name>
+    <data-value>ACTUAL</data-value>
+    <data-orientation>columns</data-orientation>
+  </data>
+-->
+
+  <template>
+    <gauge>    
+      <!-- large gauge -->
+      <circle x="125" y="125" radius="110" fill_color="4E5515" fill_alpha="100" line_thickness="6" line_color="333333" line_alpha="90"/>
+      <circle x="125" y="125" radius="100" start="240" end="480" fill_color="99bbff" fill_alpha="75" line_thickness="4" line_alpha="20"/>
+      <circle x="125" y="125" radius="80" start="240" end="480" fill_color="99bbff" fill_alpha="80"/>
+      <circle x="125" y="125" radius="30" fill_color="333333" fill_alpha="100" line_alpha="0"/>
+      <circle x="125" y="125" radius="90" start="130" end="230" fill_color="333333" fill_alpha="100" line_alpha="0"/>
+      
+      <!-- 90% zone -->
+      <circle x="125" y="125" radius="94" start="62" end="108" fill_color="88D426" fill_alpha="100"/>
+      
+      {large_ticks}
+      
+      {small_ticks}
+
+      {tick_numbers}
+      
+      <rotate x="125" y="125" start="250" span="{span}" step="10" shake_frequency="100" shake_span="6" shadow_alpha="15">
+        <rect x="123" y="35" width="5" height="110" fill_color="ffffff" fill_alpha="90" line_alpha="0"/>
+      </rotate>
+      
+      <circle x="125" y="125" radius="12" fill_color="111111" fill_alpha="100" line_thickness="5" line_alpha="50"/>
+      <text x="75" y="175" width="100" size="14" color="ffffff" alpha="70" align="center">{data}%</text>
+    </gauge>
+  </template>
+  
+</chart>

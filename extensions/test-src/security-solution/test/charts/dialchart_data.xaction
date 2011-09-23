@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Barchart Data</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description>Sample data values for dial chart</description>  
+    <help/> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <results type="string">
+      <destinations>
+        <response>content</response>
+      </destinations>
+    </results>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>Create dial values in memory resultset</action-type>
+      <action-outputs> 
+        <results type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[var results = new JavaScriptResultSet();
+results.setColumnHeaders( 'DIAL_DATA', 'DIAL_MIN', 'DIAL_MAX' );
+results.addRow( new Array(57.0, 0.0, 100.0) );]]></script> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>
