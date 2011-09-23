@@ -1,0 +1,68 @@
+
+<action-sequence>
+
+	<name>script_rule_emailed.xaction</name>
+	<version>1</version>
+	<title>Rule result sent to email</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description>Email test</description>
+		<help>just testing...</help>
+	</documentation>
+
+	<inputs>
+		<to type="string">
+		  <default-value>joe.pentaho@pentaho.org</default-value>
+		</to>
+		<from type="string">
+		  <default-value>joe.pentaho@pentaho.com</default-value>
+		</from>
+		<subject type="string">
+		  <default-value>Notification: The result of a business rule...</default-value>
+			<sources>
+				<request>email-subject</request> 
+			</sources>
+		</subject>
+		<message-plain type="string">
+		  <default-value>oops</default-value>
+			<sources>
+				<request>rule-result</request> 
+			</sources>
+		</message-plain>
+	</inputs>
+	<outputs/>
+  <resources/>
+  
+  <actions>
+        <action-definition>
+        <action-outputs>
+          <rule-result type="string"/>
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+			      function region() { 
+				    return "Central";
+			    } 
+			    region(); 
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+  
+      <action-definition>
+        <action-inputs>
+          <to type="string"/>
+          <subject type="string"/>
+          <message-plain type="string"/>
+        </action-inputs>
+        <component-name>EmailComponent</component-name>
+        <action-type>email</action-type>
+      	<component-definition/>
+      </action-definition>
+  </actions>
+</action-sequence>
+

@@ -1,0 +1,84 @@
+<chart>
+	
+	<!--  this is the background for the whole image -->
+	<!--  TODO support gradient and texture painting -->
+	<chart-type>BarChart</chart-type>
+	<title>Sample Bar Chart</title>
+	<title-position>TOP</title-position>
+	<title-font>
+		<font-family>Serif</font-family>
+		<size>36</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</title-font>
+	<subtitles>
+		<subtitle>a simple sample</subtitle>
+	</subtitles>
+	<domain-title>Domain Title</domain-title>
+	<range-title>Range Title</range-title>
+	<chart-background type="gradient">
+		<x1>0.0</x1>
+		<y1>0.0</y1>
+		<color1>#000000</color1>
+		<x2>200.0</x2>
+		<y2>200.0</y2>
+		<color2>#FFFFFF</color2>
+		<cyclic>true</cyclic>
+	</chart-background>
+ <!-- 
+	<chart-background type="texture">
+		<x1>0.0</x1>
+		<y1>0.0</y1>
+		<x2>20.0</x2>
+		<y2>20.0</y2>
+		<texture-image>test\charts\texture.png</texture-image>
+	</chart-background>
+-->
+	<plot-background type="image">samples/charts/ChartBackground.jpg</plot-background>
+
+	<orientation>vertical</orientation>
+	<height>550</height>
+	<width>650</width>
+	<is-3D>true</is-3D>
+	<is-stacked>false</is-stacked>
+	<category-label-rotation>45.0</category-label-rotation>
+	<border-visible>true</border-visible>
+	<border-paint>#3399FF</border-paint>
+	<url-template><![CDATA[/pentaho/Pivot?solution=samples&path=analysis&action=query1.xaction&department=.[{DEPARTMENT}]&measures=.[{MEASURES}]]]></url-template>
+	<paramName>MEASURES</paramName>
+	<series-name>DEPARTMENT</series-name>
+	<color-palette>
+		<color>#336699</color>
+		<color>#99CCFF</color>
+		<color>#999933</color>
+		<color>#666699</color>
+		<color>#CC9933</color>
+		<color>#006666</color>
+		<color>#3399FF</color>
+		<color>#993300</color>
+		<color>#CCCC99</color>
+		<color>#666666</color>
+		<color>#FFCC66</color>
+		<color>#6699CC</color>
+		<color>#663366</color>
+		<color>#9999CC</color>
+		<color>#CCCCCC</color>
+		<color>#669999</color>
+		<color>#CCCC66</color>
+		<color>#CC6600</color>
+		<color>#9999FF</color>
+		<color>#0066CC</color>
+		<color>#99CCCC</color>
+		<color>#999999</color>
+		<color>#FFCC00</color>
+		<color>#009999</color>
+		<color>#99CC33</color>
+		<color>#FF9900</color>
+		<color>#999966</color>
+		<color>#66CCCC</color>
+		<color>#339966</color>
+		<color>#CCCC33</color>
+	</color-palette>
+    <include-legend>true</include-legend>
+	
+</chart>

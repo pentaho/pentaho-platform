@@ -1,0 +1,10 @@
+<chart>
+	<pie>
+		<name>Pie 1</name>
+		
+		<!--  this is the background for the whole image -->
+		<!--  TODO support gradient and texture painting -->
+		<background-color>#ffffff</background-color>
+	</pie>
+	<chart-type>PieChart</chart-type>
+</chart>

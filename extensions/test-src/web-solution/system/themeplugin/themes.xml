@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes root-folder="themes">
+    <core system="true">
+        <file>styles.css</file>
+        <file>script1.js</file>
+        <file>script2.js</file>
+    </core>
+</themes>

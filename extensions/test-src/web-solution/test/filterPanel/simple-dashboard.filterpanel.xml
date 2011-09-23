@@ -1,0 +1,21 @@
+<filters>
+	<name>CustomerNamesFilter</name>
+	<filter>
+		<!-- Title text displayed in the filter panel -->
+		<title>Customer</title>
+		<!-- name of the parameter placed in session scope, must be valid xml element name (no whitespace) -->
+		<name>customernumber</name>
+		<!-- type of control to use, valid values are
+			select-one, text, hidden, radio, checkbox, select-multiple -->
+		<type>list</type>
+		<data-solution>samples</data-solution>
+		<data-path>simpleDashboard</data-path>
+		<data-action>getCustomerNames.xaction</data-action>
+		<!-- name of session scoped variable containing the LOV -->
+		<data-output>customerNamesList</data-output>
+		<!-- maps to the <option> element's text -->
+		<data-display>customername</data-display>
+		<!-- maps to the <option> element's value attribute in the HTML form -->
+		<data-value>customernumber</data-value>
+	</filter>
+</filters>

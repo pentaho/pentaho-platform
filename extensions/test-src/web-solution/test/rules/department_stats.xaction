@@ -1,0 +1,39 @@
+
+<action-sequence>
+
+	<name>department_stats.xaction</name>
+	<version>1</version>
+	<title>Departmental Stats</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>William Seyler</author>
+		<description>Test data for charts</description>
+		<help>just testing...</help>
+	</documentation>
+
+	<inputs>
+  </inputs>
+  
+	<outputs>
+		<rule-result>
+			<type>list</type>
+		</rule-result>
+	</outputs>
+  <resources/>
+  
+  <actions> 
+      <action-definition>
+
+        <action-outputs>
+          <rule-result type="list"/>
+        </action-outputs>
+        
+        <component-name>SQLLookupRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+          <jndi>SampleData</jndi>
+          <query><![CDATA[select department, actual, budget, variance from QUADRANT_ACTUALS]]></query>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin title="themeplugin">
+   <static-paths>
+     <static-path url="themeplugin/themes" localFolder="themes"/>
+   </static-paths>
+</plugin>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <inputs/>
+
+  <outputs> 
+    <customerNamesList type="result-set"> 
+      <destinations/> 
+    </customerNamesList> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Relational</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="customerNamesList"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <live><![CDATA[true]]></live>  
+        <query><![CDATA[select distinct customers.customernumber, customers.customername from customers inner join orderfact on customers.customernumber = orderfact.customernumber]]></query>
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

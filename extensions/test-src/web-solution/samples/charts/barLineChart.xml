@@ -1,0 +1,60 @@
+<chart>
+	<chart-type>BarLineChart</chart-type>
+	<border-visible>true</border-visible>
+	<include-legend>false</include-legend>
+	<is-3D>false</is-3D>
+	<markers-visible>false</markers-visible>
+	<orientation>vertical</orientation>
+	<color-palette>
+		<color>#D0DC00</color>
+		<color>#006566</color>
+		<color>#000000</color>
+	</color-palette>
+	<url-template>
+		<![CDATA[http://www.wikipedia.com?search={department}]]>
+	</url-template>
+	<use-base-url>false</use-base-url>
+	<url-target>_blank</url-target>
+	<paramName>department</paramName>
+	<domain-label-rotation-dir>up</domain-label-rotation-dir>
+	<domain-label-rotation>0.25</domain-label-rotation>
+	<use-base-url>false</use-base-url>
+	<url-target>_self</url-target>
+	<bar-series>
+		<series>actual</series>
+		<series>budget</series>
+	</bar-series>
+	<line-series>
+		<series>variance</series>
+	</line-series>
+	<lines-range-tick-format>###0.00 %</lines-range-tick-format>
+	<range-tick-format>#,##0 EUR</range-tick-format>
+	<lines-range-tick-font>
+		<font-family>Arial</font-family>
+		<size>10</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</lines-range-tick-font>
+	<range-tick-font>
+		<font-family>Arial</font-family>
+		<size>10</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</range-tick-font>
+	<range-title-font>
+		<font-family>Arial</font-family>
+		<size>10</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</range-title-font>
+	<range-title>Actual/Budget in EUR</range-title>
+	<lines-range-tick-font>
+		<font-family>Arial</font-family>
+		<size>10</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</lines-range-tick-font>
+	<lines-range-title>Variance in %</lines-range-title>
+	<lines-range-minimum>-0.1</lines-range-minimum>
+	<lines-range-maximum>0.1</lines-range-maximum>
+</chart>

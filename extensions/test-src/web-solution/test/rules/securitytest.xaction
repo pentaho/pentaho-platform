@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>securitytest.xaction</name>  
+  <title>Security Tests</title>  
+  <version>1</version>  
+  <logging-level>DEBUG</logging-level>  
+  <documentation> 
+    <author>Marc Batchelor</author>  
+    <description>This action sequence demonstrates using security information from an action sequence document</description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon/> 
+  </documentation>  
+  <inputs>
+    <principalName type="string">
+      <sources>
+        <security>principalName</security>
+      </sources>
+    </principalName>
+    <principalRoles type="string-list">
+      <sources>
+        <security>principalRoles</security>
+      </sources>
+    </principalRoles>
+    <principalAuthenticated type="string">
+      <sources>
+        <security>principalAuthenticated</security>
+      </sources>
+    </principalAuthenticated>
+    <principalAdministrator type="string">
+      <sources>
+        <security>principalAdministrator</security>
+      </sources>
+    </principalAdministrator>
+    <systemRoleNames type="string-list">
+      <sources>
+        <security>systemRoleNames</security>
+      </sources>
+    </systemRoleNames>
+    <systemUserNames type="string-list">
+      <sources>
+        <security>systemUserNames</security>
+      </sources>
+    </systemUserNames>
+  </inputs>  
+	<outputs>
+		<rule-result type="string"/>
+	</outputs>
+  <resources/>  
+  <actions>
+      <action-definition>
+      	<action-inputs>
+			<principalName type="string"/>
+			<principalRoles type="string-list"/>
+			<principalAuthenticated type="string"/>
+			<principalAdministrator type="string"/>
+			<systemRoleNames type="string-list"/>
+			<systemUserNames type="string-list"/>
+      	</action-inputs>
+        <action-outputs>
+          	<rule-result type="string"/>
+        </action-outputs>
+        
+        <component-name>org.pentaho.component.JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+			    function getStringFromList(aList) {
+			      var rtn = "";
+			      for (i=0; i<aList.size(); i++) {
+			        rtn += ( (i>0 ? ", " : "") + aList.get(i) );
+			      }
+			      return rtn;
+			    }
+			  
+			    function checkAll( ) {
+			      var outputVar = "";
+			      outputVar = "Userid: " + principalName + ", Authenticated(" + principalAuthenticated + "), Administrator(" + principalAdministrator + ")";
+			      outputVar += "\n User Roles: ";
+			      outputVar += getStringFromList(principalRoles);
+				  outputVar += "\n System Roles: ";
+			      outputVar += getStringFromList(systemRoleNames);
+				  outputVar += "\n System Users: ";
+			      outputVar += getStringFromList(systemUserNames);
+			      out.println(outputVar);
+			      return outputVar;
+			    } 
+			    checkAll( ); 
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+
+  </actions> 
+</action-sequence>
