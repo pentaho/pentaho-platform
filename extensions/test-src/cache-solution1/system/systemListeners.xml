@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- 
+This is the spring configuration file that is used to wire system listeners into the Pentaho
+BI Platform. System listeners are notified when the platform starts up and shuts down. System 
+listeners can be added, removed, and initialized here. Each bean in the list is a system listener.
+You can intialize any listeners properties, as shown in the QuartzSystemListener and 
+VersionCheckSystemListener.
+-->
+
+<beans>
+	<bean id="systemListenersList" class="java.util.ArrayList">
+		<constructor-arg>
+			<list>
+			</list>
+		</constructor-arg>
+	</bean>
+</beans>
