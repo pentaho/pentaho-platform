@@ -4,7 +4,7 @@
     
 	<configurations>
 		<conf name="default"/>
-		<conf name="test" visibility="private"/>
+		<conf name="test"/>
 		<conf name="source" />
 	</configurations>
     
@@ -14,7 +14,6 @@
 	</publications>
     
 	<dependencies defaultconf="default->default">
-
 		<!--  external dependencies -->
 		<dependency org="batik" name="batik-awt-util" rev="1.6"    transitive="false"/>
 		<dependency org="batik" name="batik-dom"      rev="1.6"    transitive="false"/>
@@ -59,8 +58,6 @@
 		<dependency org="org.netbeans" name="jmi"    rev="200507110943" transitive="false"/>
 		<dependency org="org.netbeans" name="mdrapi" rev="200507110943" transitive="false"/>
 
-
-
 		<!--  internal dependencies -->
 		<dependency org="pentaho" name="pentaho-platform-api"     rev="${project.revision}"  changing="true"/>
 		<dependency org="pentaho" name="pentaho-connections"      rev="${dependency.pentaho-connections.revision}" changing="true"/>
@@ -70,10 +67,6 @@
 		<dependency org="pentaho-kettle" name="kettle-engine" rev="${dependency.kettle.revision}" changing="true"/>
 		<dependency org="pentaho-kettle" name="kettle-core"   rev="${dependency.kettle.revision}" changing="true"/>
 
-
-
-
-
 		<!--  internal test dependencies -->
 		<dependency org="pentaho" name="pentaho-xul-core"                    rev="${dependency.pentaho-xul.revision}" changing="true" conf="test->default" transitive="false" />
 		<!--  external test dependencies -->
@@ -82,24 +75,5 @@
     	<dependency org="org.jmock" name="jmock-legacy" rev="2.5.1" conf="test->default" />
 		<dependency org="hsqldb" name="hsqldb" rev="1.8.0.7" conf="test->default" />
     	<dependency org="log4j" name="log4j" rev="1.2.14" conf="test->default" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	</dependencies>
 </ivy-module>
