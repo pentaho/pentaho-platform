@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- 
+This is the spring configuration file that is used to wire session startup actions into the Pentaho
+BI Platform. Session startup actions are action sequences that are run when a particular type of
+session is started up. At the time of this writing the known session types were: 
+PentahoHttpSession, PentahoPortletSession, UserSession, & Standalone session.
+-->
+
+<beans>
+	<bean id="sessionStartupActionsList" class="java.util.ArrayList"/>
+</beans>
