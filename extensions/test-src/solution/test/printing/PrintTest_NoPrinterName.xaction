@@ -1,0 +1,44 @@
+<action-sequence>
+
+  <name>PrintTest1.xaction</name>
+	<version>1</version>
+	<title>Priting a file</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>William E. Seyler</author>
+		<description>..</description>
+		<help>This is just a test...</help>
+		<result-type>report</result-type>
+	</documentation>
+
+	<inputs>
+		<copies type="string">
+		  <default-value>1</default-value>
+		</copies>
+		<orientation type="string">
+		  <default-value>landscape</default-value>
+		</orientation>
+	</inputs>
+	<outputs/>
+	<resources>
+		<printFile>
+			<solution-file>
+				<location>70221acf-005e-11da-ba22-d93f2f80f7c0.fo.xml</location>
+				<mime-type>image/png</mime-type>
+			</solution-file>
+		</printFile>
+	</resources>
+  
+  <actions>
+      <action-definition>
+        <action-inputs>
+          <copies type="string"/>
+          <orientation type="string"/>
+        </action-inputs>
+        <component-name>PrintComponent</component-name>
+        <action-type>print</action-type>
+      	<component-definition/>
+      </action-definition>
+  </actions>
+</action-sequence>
+

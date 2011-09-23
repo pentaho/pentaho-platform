@@ -1,0 +1,68 @@
+
+<action-sequence>
+
+	<name>text_only_email-loop_property.xaction</name>
+	<version>1</version>
+	<title>Text Only Email.xml</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description>Email test</description>
+		<help>just testing...</help>
+	</documentation>
+
+	<inputs>
+		<to type="property-map-list">
+		  <default-value type="property-map-list">
+		    <property-map>
+		       <entry key="to">joe.pentaho@pentaho.org</entry>
+		       <entry key="subject">text_only_email-loop_property.xaction - Subject for .ORG Guy</entry>
+		       <entry key="message-plain">HI .ORG Guy!</entry>
+		    </property-map>
+		    <property-map>
+		       <entry key="to">joe.pentaho@pentaho.org</entry>
+		       <entry key="subject">text_only_email-loop_property.xaction - Subject for .COM Boy</entry>
+		       <entry key="message-plain">Hi .COM Boy!</entry>
+		    </property-map>
+		    <property-map>
+		       <entry key="to">joe.pentaho@pentaho.org</entry>
+		       <entry key="subject">text_only_email-loop_property.xaction - Subject for .NET Dude</entry>
+		       <entry key="message-plain">Hi .Net Dude!</entry>
+		    </property-map>
+		    <property-map>
+		       <entry key="to">joe.pentaho@pentaho.org</entry>
+		       <entry key="subject">text_only_email-loop_property.xaction - Subject for Doug</entry>
+		       <entry key="message-plain">Hi Doug!</entry>
+		    </property-map>
+		  </default-value>
+		</to>
+		<from type="string">
+		  <default-value>joe.pentaho@pentaho.org</default-value>
+		</from>
+		<subject type="string">
+		  <default-value>Fake Subject</default-value>
+		</subject>
+		<message-plain type="string">
+		  <default-value>Old Message Text</default-value>
+		</message-plain>
+		
+	</inputs>
+	<outputs/>
+  <resources/>
+  
+  <actions loop-on="to">
+      <action-definition>
+        <action-inputs>
+          <to type="string"/>
+          <subject type="string"/>
+          <message-plain type="string"/>
+        </action-inputs>
+        <component-name>EmailComponent</component-name>
+        <action-type>property-map-email</action-type>
+      	<component-definition>
+      	  <type>property-map-email</type>
+      	</component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>
+

@@ -1,0 +1,47 @@
+
+<chart>
+
+	<!-- This file defines the pie chart that shows the actual values for each region -->
+
+	<!-- Specify the title of the chart -->
+	<title>Headcount Spending by Region</title>
+
+	<!-- Specify the location of the title -->
+	<title-position>top</title-position>
+
+	<!-- Specify the font of the title -->
+	<title-font>
+		<font-family>Ariel</font-family>
+		<size>20</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</title-font>
+
+	<width>450</width>
+	<height>300</height>
+
+	<!-- Specify the 3D-ness of the bars -->
+	<is-3D>false</is-3D>
+
+	<!-- Specify if the chart has a border and the border color -->
+	<border-visible>false</border-visible>
+
+	<!-- Specify is the chart legend should be shown -->
+	<include-legend>false</include-legend>
+
+	<!-- Specify where the data for the chart comes from -->
+	<data>
+		<!-- Specify the path to the action sequence that provides the data -->
+		<data-solution></data-solution>
+		<data-path>/test-src/solution/samples/dashboard/regions_headcount_data.xaction</data-path>
+		<data-action></data-action>
+
+		<!-- Specify the output of the action sequence that contains the data -->
+		<data-output>rule-result</data-output>
+		<data-name>REGION</data-name>
+		<data-value>ACTUAL</data-value>
+
+		<!-- Specify whether to get the pie series from the rows or columns -->
+		<data-orientation>columns</data-orientation>
+	</data>
+</chart>

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-085.dtd">
+<!--
+  The report needs JFreeReport 0.8.6 or the message-field
+  contents will look funny.
+-->
+<report bottommargin="36" leftmargin="36" name="Quadrant For Region" orientation="portrait" pageformat="LETTER" rightmargin="36" topmargin="36">
+  <!-- This is what is called 'title' in JasperReports -->
+  <pageheader fontname="Arial" fontsize="10">
+    <label alignment="right" height="15" width="100%" x="0" y="2">Pentaho Sample Report</label>
+    <label alignment="right" height="15" width="100%" x="0" y="17">JFreeReport</label>
+  </pageheader>
+  <pagefooter>
+    <!--<message-field alignment="center" fontname="Arial" fontsize="10"
+  height="15" width="100%" x="0">$(PageofPages)</message-field>
+-->
+  </pagefooter>
+  <reportheader>
+    <rectangle color="#009999" draw="false" fill="true" height="20" width="100%" x="0" y="0"/>
+    <label alignment="left" color="white" fontname="Arial Unicode MS" fontsize="14" fontstyle="bold" height="20" vertical-alignment="middle" width="100%" x="0" y="0">Regional Report</label>
+    <!--<imageref dynamic="false" height="40" keepAspectRatio="false"
+  scale="true"
+  src="http://localhost:8080/pentaho/images/quadrant_logo.gif"
+  width="30%" x="70%" y="25"/>
+-->
+  </reportheader>
+  <groups>
+    <group name="RegionGroup">
+      <fields>
+        <field>REGION</field>
+      </fields>
+      <groupheader fontname="Arial" fontsize="12" fontstyle="bold">
+        <message-field color="#009999" height="18" vertical-alignment="middle" width="100%" x="0" y="5">Region: $(REGION)</message-field>
+      </groupheader>
+      <groupfooter fontname="Arial" fontsize="12" fontstyle="bold" pagebreak-after-print="true">
+        <rectangle color="#009999" draw="false" fill="true" height="15" width="100%" x="0" y="0"/>
+        <message-field color="white" height="15" vertical-alignment="middle" width="55%" x="0" y="0">$(REGION) Total</message-field>
+        <number-field alignment="right" fieldname="RegionActual" format="$#,##0" height="15" vertical-alignment="middle" width="15%" x="55%" y="0"/>
+        <number-field alignment="right" fieldname="RegionBudget" format="$#,##0" height="15" vertical-alignment="middle" width="15%" x="70%" y="0"/>
+        <number-field alignment="right" fieldname="RegionVariance" format="$#,##0" height="15" name="Variance Region Field" vertical-alignment="middle" width="15%" x="85%" y="0"/>
+        <line color="black" weight=".5" width="14%" x1="56%" x2="70%" y1="16" y2="16"/>
+        <line color="black" weight=".5" width="14%" x1="71%" x2="85%" y1="16" y2="16"/>
+        <line color="black" weight=".5" width="14%" x1="86%" x2="100%" y1="16" y2="16"/>
+        <line color="black" weight=".5" width="14%" x1="56%" x2="70%" y1="17" y2="17"/>
+        <line color="black" weight=".5" width="14%" x1="71%" x2="85%" y1="17" y2="17"/>
+        <line color="black" weight=".5" width="14%" x1="86%" x2="100%" y1="17" y2="17"/>
+        <rectangle color="white" fill="true" height="14" width="100%" x="0" y="18"/>
+      </groupfooter>
+    </group>
+    <group name="DepartmentGroup">
+      <fields>
+        <field>REGION</field>
+        <field>DEPARTMENT</field>
+      </fields>
+      <groupheader color="white" fontname="Arial" fontsize="10" fontstyle="bold" repeat="true">
+        <rectangle color="#FF6600" draw="false" fill="true" height="15" width="100%" x="0" y="0"/>
+        <label alignment="left" height="15" vertical-alignment="middle" width="15%" x="0" y="0">Department</label>
+        <label alignment="left" height="15" vertical-alignment="middle" width="40%" x="15%" y="0">Position</label>
+        <label alignment="right" height="15" vertical-alignment="middle" width="15%" x="55%" y="0">Actual</label>
+        <label alignment="right" height="15" vertical-alignment="middle" width="15%" x="70%" y="0">Budget</label>
+        <label alignment="right" height="15" vertical-alignment="middle" width="15%" x="85%" y="0">Variance</label>
+        <message-field color="black" fontsize="12" height="15" width="100%" x="0" y="16">$(DEPARTMENT)</message-field>
+      </groupheader>
+      <!--
+      By specifiying a band height that is greater than the used size, we
+      enforce some empty space between the groups.
+      -->
+      <groupfooter fontname="Arial" fontsize="11" fontstyle="bold">
+        <rectangle color="#66FF66" fill="true" height="14" width="85%" x="15%" y="0"/>
+        <label height="14" width="40%" x="15%" y="0">Total</label>
+        <number-field alignment="right" fieldname="DepartmentActual" format="$#,##0" height="14" width="15%" x="55%" y="0"/>
+        <number-field alignment="right" fieldname="DepartmentBudget" format="$#,##0" height="14" width="15%" x="70%" y="0"/>
+        <number-field alignment="right" fieldname="DepartmentVariance" format="$#,##0" height="14" name="Variance Department Field" width="15%" x="85%" y="0"/>
+        <line color="black" weight=".25" width="14%" x1="56%" x2="70%" y1="16" y2="16"/>
+        <line color="black" weight=".25" width="14%" x1="71%" x2="85%" y1="16" y2="16"/>
+        <line color="black" weight=".25" width="14%" x1="86%" x2="100%" y1="16" y2="16"/>
+        <line color="black" weight=".25" width="14%" x1="56%" x2="70%" y1="17" y2="17"/>
+        <line color="black" weight=".25" width="14%" x1="71%" x2="85%" y1="17" y2="17"/>
+        <line color="black" weight=".25" width="14%" x1="86%" x2="100%" y1="17" y2="17"/>
+        <rectangle color="white" fill="true" height="14" width="100%" x="0" y="18"/>
+      </groupfooter>
+    </group>
+  </groups>
+  <!-- This is what is called 'detail' in JasperReports -->
+  <items fontname="Arial" fontsize="10" vertical-alignment="middle">
+    <string-field fieldname="POSITIONTITLE" height="15" vertical-alignment="middle" width="40%" x="15%" y="0"/>
+    <number-field alignment="right" fieldname="ACTUAL" format="$#,##0" height="15" width="15%" x="55%" y="0"/>
+    <number-field alignment="right" fieldname="BUDGET" format="$#,##0" height="15" width="15%" x="70%" y="0"/>
+    <number-field alignment="right" fieldname="VARIANCE" format="$#,##0" height="15" name="Variance Field" width="15%" x="85%" y="0"/>
+    <line color="gray" height="0" weight=".25" width="85%" x1="15%" x2="100%" y1="16" y2="16"/>
+    <line color="white" height="0" weight=".25" width="85%" x1="15%" x2="100%" y1="17" y2="17"/>
+  </items>
+  <functions>
+    <!-- This makes sure, that we can access the parameter as if it was a column from the table -->
+    <property-ref name="REGION"/>
+    <expression class="org.jfree.report.modules.misc.beanshell.BSHExpression" name="isVarianceNegative">
+      <properties>
+        <property name="expression">           Object getValue()           {             Object value = dataRow.get(&quot;VARIANCE&quot;);             if (value instanceof Number == false)             {               return Boolean.FALSE;             }             Number number = (Number) value;             if (number.doubleValue() &lt; 0)             {               return Boolean.TRUE;             }             return Boolean.FALSE;           }</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ElementColorFunction" name="changeColor">
+      <properties>
+        <property name="element">Variance Field</property>
+        <property name="field">isVarianceNegative</property>
+        <property name="colorTrue">red</property>
+        <property name="colorFalse">black</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.modules.misc.beanshell.BSHExpression" name="isDepartmentVarianceNegative">
+      <properties>
+        <property name="expression">           Object getValue()           {             Object value = dataRow.get(&quot;DepartmentVariance&quot;);             if (value instanceof Number == false)             {               return Boolean.FALSE;             }             Number number = (Number) value;             if (number.doubleValue() &lt; 0)             {               return Boolean.TRUE;             }             return Boolean.FALSE;           }</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ElementColorFunction" name="changeDepartmentColor">
+      <properties>
+        <property name="element">Variance Department Field</property>
+        <property name="field">isDepartmentVarianceNegative</property>
+        <property name="colorTrue">red</property>
+        <property name="colorFalse">black</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.modules.misc.beanshell.BSHExpression" name="isRegionVarianceNegative">
+      <properties>
+        <property name="expression">           Object getValue()           {             Object value = dataRow.get(&quot;RegionVariance&quot;);             if (value instanceof Number == false)             {               return Boolean.FALSE;             }             Number number = (Number) value;             if (number.doubleValue() &lt; 0)             {               return Boolean.TRUE;             }             return Boolean.FALSE;           }</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ElementColorFunction" name="changeRegionColor">
+      <properties>
+        <property name="element">Variance Region Field</property>
+        <property name="field">isRegionVarianceNegative</property>
+        <property name="colorTrue">red</property>
+        <property name="colorFalse">black</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ItemSumFunction" name="RegionActual">
+      <properties>
+        <property name="field">ACTUAL</property>
+        <property name="group">RegionGroup</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ItemSumFunction" name="RegionBudget">
+      <properties>
+        <property name="field">BUDGET</property>
+        <property name="group">RegionGroup</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ItemSumFunction" name="RegionVariance">
+      <properties>
+        <property name="field">VARIANCE</property>
+        <property name="group">RegionGroup</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ItemSumFunction" name="DepartmentActual">
+      <properties>
+        <property name="field">ACTUAL</property>
+        <property name="group">DepartmentGroup</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ItemSumFunction" name="DepartmentBudget">
+      <properties>
+        <property name="field">BUDGET</property>
+        <property name="group">DepartmentGroup</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ItemSumFunction" name="DepartmentVariance">
+      <properties>
+        <property name="field">VARIANCE</property>
+        <property name="group">DepartmentGroup</property>
+      </properties>
+    </expression>
+    <function class="org.jfree.report.function.PageOfPagesFunction" name="PageofPages"/>
+  </functions>
+  <configuration>
+    <property name="org.jfree.report.modules.output.table.html.BodyFragment">true</property>
+    <property name="org.jfree.report.modules.output.pageable.pdf.Encoding">Identity-H</property>
+    <property name="org.jfree.report.modules.output.pageable.pdf.EmbedFonts">true</property>
+  </configuration>
+</report>

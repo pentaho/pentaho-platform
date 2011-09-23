@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Angelo Rodriguez</author>  
+    <description>%description</description>  
+    <help>just testing...</help>  
+    <result-type>report</result-type>  
+    <icon>JFree-quadrant-budget-hsql.png</icon> 
+  </documentation>
+
+  <inputs>
+  	<output-type type="string">
+      <sources> 
+        <request>output-type</request> 
+      </sources> 
+  	</output-type>
+  </inputs>
+
+  <outputs/>
+
+  <resources> 
+    <datadocument> 
+      <solution-file> 
+        <location>Quad_Data.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </datadocument>  
+    <report-definition> 
+      <solution-file> 
+        <location>JFreeQuadForRegion.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>XQueryLookupRule</component-name>
+      <action-type>XQuery For Report Data</action-type>
+      <action-resources> 
+        <document type="resource" mapping="datadocument"/> 
+      </action-resources>
+      <action-outputs> 
+        <query-result type="result-set" mapping="reportData"/> 
+      </action-outputs>
+      <component-definition> 
+        <live>false</live>  
+        <!--query><![CDATA[/descendant::row[REGION='Central']]]></query-->  
+        <query><![CDATA[/result-set/*]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>Create Report Using Query Results</action-type>
+      <action-inputs> 
+        <data type="result-set" mapping="reportData"/> 
+        <output-type type="string"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <component-definition> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

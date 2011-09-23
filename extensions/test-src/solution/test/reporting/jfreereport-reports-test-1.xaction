@@ -1,0 +1,63 @@
+<action-sequence>
+	<name>jfreereport-reports-test-1.xaction</name>
+	<version>1</version>
+	<title>JFreeReport HTML Example</title>	
+    <logging-level>debug</logging-level>
+	<documentation>
+		<author>Marc Batchelor</author>
+		<description><![CDATA[
+			This is an example of an HTML report produced by JFreeReport. 
+<p/>			It shows the actual headcount cost, budgeted headcount cost, and variance for every position, department and region
+<p/>			It demostrates using colors and styles for headers and groupings. It also shows sub-totals.
+		]]></description>
+		<icon>/style/icons/jfree1.png</icon>
+		<help>just testing...</help>
+		<result-type>report</result-type>
+	</documentation>
+
+	<inputs>
+		<output-type type="string">
+			<default-value>html</default-value>
+			<sources>
+				<request>type</request> 
+			</sources>
+		</output-type>
+	</inputs>
+  
+	<outputs>
+		<!-- an output stream will be provided by default -->
+	</outputs>
+
+	<resources> 
+		<!-- use this section to identify any files that the component needs to execute the report -->
+		<report-definition>
+			<solution-file>
+				<location>JFreeQuadrantForRegion.xml</location>
+				<mime-type>text/xml</mime-type>
+			</solution-file>
+		</report-definition>
+	</resources>
+  
+  <actions>
+      <action-definition>
+
+        <action-inputs>
+          	<output-type type="string">
+	  		<default-value>html</default-value>
+	  		<sources>
+	  			<request>type</request> 
+	  		</sources>
+		</output-type>
+        </action-inputs>
+                
+	<component-name>JFreeReportComponent</component-name>
+        <action-type>report</action-type>
+      	<component-definition>
+      	  <live>true</live>
+          <jndi>SampleData</jndi>
+          <source>sql</source>
+          <query><![CDATA[select   QUADRANT_ACTUALS.REGION,   QUADRANT_ACTUALS.DEPARTMENT,   QUADRANT_ACTUALS.POSITIONTITLE,   QUADRANT_ACTUALS.ACTUAL,   QUADRANT_ACTUALS.BUDGET,   QUADRANT_ACTUALS.VARIANCE  from QUADRANT_ACTUALS order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT]]></query>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

@@ -1,0 +1,38 @@
+<action-sequence>
+  <name>ContentOutputTest_error2.xaction</name>
+  <title>Content Output Component Test - Error 2</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+
+  <documentation>
+    <author>Marc Batchelor</author>
+    <description>Error handling test</description>
+    <help>Test.</help>
+  </documentation>
+
+  <inputs>
+    <CONTENTOUTPUT type="string">
+      <default-value><![CDATA[This is sample output from the content-output component.]]>
+      </default-value>
+    </CONTENTOUTPUT>
+  </inputs>
+
+  <outputs />
+
+  <resources/>
+
+  <actions>
+      <action-definition>
+        <action-name>Content Output Test</action-name>
+        <action-inputs>
+          <CONTENTOUTPUT type="string" />
+        </action-inputs>
+        <action-outputs>
+          <testoutput type="string" />
+        </action-outputs>
+        <logging-level>DEBUG</logging-level>
+        <component-name>org.pentaho.plugin.core.ContentOutputComponent</component-name>
+        <component-definition />
+      </action-definition>
+  </actions>
+</action-sequence>

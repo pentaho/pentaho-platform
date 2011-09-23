@@ -1,0 +1,98 @@
+
+<action-sequence>
+
+	<name>script_rule_newstyle.xaction</name>
+	<version>1</version>
+	<title>New Multi-output Javascript rule</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>Marc Batchelor</author>
+		<description>Javascript rule test</description>
+		<help>Demonstrating conditional actions...</help>
+	</documentation>
+
+	<inputs />
+
+	<outputs>
+		<rule-result type="string"/>
+	</outputs>
+  <resources/>
+  
+  <actions name="mainAction">
+      <action-definition>
+      	<action-inputs />
+        <action-outputs>
+          	<testOut1 type="string" />
+			<testOut2 type="string" />
+			<testOut3 type="string" />
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[
+                testOut1 = "Newstyle 1";
+			    testOut2 = "Newstyle 2";
+			    testOut3 = "Newstyle 3";
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+	  
+      <action-definition>
+      	<action-inputs />
+        <action-outputs>
+          	<testOut4 type="string" />
+			<testOut5 type="string" />
+			<testOut6 type="string" />
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[
+      		  function getResults() {
+      		    var rtn = new Array(3);
+                rtn[0] = "Oldstyle 1";
+			    rtn[1] = "Oldstyle 2";
+			    rtn[2] = "Oldstyle 3";
+			    return rtn;
+			  }
+			  getResults();
+		      ]]>
+		      </script>
+		      <output1>testOut4</output1>
+		      <output2>testOut5</output2>
+		      <output3>testOut6</output3>
+        </component-definition>
+      </action-definition>
+	  
+      <action-definition>
+      	<action-inputs>
+			  <testOut1 type="string" />
+			  <testOut2 type="string" />
+			  <testOut3 type="string" />
+			  <testOut4 type="string" />
+			  <testOut5 type="string" />
+			  <testOut6 type="string" />
+		  </action-inputs>
+        <action-outputs>
+          	<rule-result type="string"/>
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[
+			    var tmp = "<br>" + testOut1 + "<br>" + testOut2 + "<br>" + testOut3;
+			    tmp += "<br>" + testOut4 + "<br>" + testOut5 + "<br>" + testOut6;
+			    out.print(tmp);
+  			    rule_result = tmp;
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+	  
+	  
+  </actions>
+</action-sequence>

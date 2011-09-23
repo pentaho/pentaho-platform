@@ -1,0 +1,55 @@
+<action-sequence>
+	<name>jfreereport-reports-test-2.xaction</name>
+	<version>1</version>
+	<title>JFreeReport Demo Example</title>	
+    <logging-level>debug</logging-level>
+	<documentation>
+		<author>Marc Batchelor</author>
+		<description><![CDATA[
+			This is an example of using JFreeReport to execute their own demos in the demo jar file. This demonstrates the use of
+			jar resources, and arbitrary tablemodel objects.
+		]]></description>
+		<icon>/style/icons/jfree1.png</icon>
+		<help>just testing...</help>
+		<result-type>report</result-type>
+	</documentation>
+
+	<inputs>
+		<output-type type="string">
+			<default-value>pdf</default-value>
+			<sources>
+				<request>type</request> 
+			</sources>
+		</output-type>
+	</inputs>
+  
+	<outputs>
+		<!-- an output stream will be provided by default -->
+	</outputs>
+
+	<resources> 
+		<!-- use this section to identify any files that the component needs to execute the report -->
+		<report-jar>
+		  <solution-file>
+		    <location>jfreereport-demo-0.8.5-5.jar</location>
+		    <mime-type>application/x-java-archive</mime-type>
+		  </solution-file>
+		</report-jar>
+	</resources>
+  
+  <actions>
+      <action-definition>
+
+        <action-inputs>
+          <output-type type="string"/>
+        </action-inputs>
+
+        <component-name>JFreeReportComponent</component-name>
+            <action-type>report</action-type>
+            <component-definition>
+                  <report-location>org/jfree/report/demo/report1.xml</report-location>
+                  <class-location>org.jfree.report.demo.SampleData1</class-location>
+            </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

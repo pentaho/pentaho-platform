@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Subaction call to test a shared connection</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author/>  
+    <description>Test MDX IPreparedComponent interface, share connection functionality</description>  
+    <help/>  
+  </documentation>
+
+  <inputs>
+     <conn>
+        <sources>
+           <request>conn</request>
+        </sources>
+     </conn>
+  </inputs>
+
+  <outputs/> 
+
+  <resources/> 
+  
+    <actions> 
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Qry Selected Territory and Selected Productline</action-type>
+        <action-inputs>
+          <!-- passed in from parent -->
+          <prepared_component mapping="conn"/>
+        </action-inputs>
+        <action-outputs> 
+          <query-results/>
+        </action-outputs>
+        <component-definition> 
+          <query><![CDATA[SELECT BUDGET FROM QUADRANT_ACTUALS WHERE REGION='Western' AND DEPARTMENT='Sales']]></query>
+        </component-definition> 
+      </action-definition>
+    </actions>
+
+</action-sequence>

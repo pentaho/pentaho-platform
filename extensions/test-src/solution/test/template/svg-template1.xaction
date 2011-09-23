@@ -1,0 +1,71 @@
+
+<action-sequence>
+
+	<name>svg-template1.xaction</name>
+	<version>1</version>
+	<title>Test of template component</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description></description>
+		<help></help>
+	</documentation>
+
+	<inputs>
+	</inputs>
+
+	<outputs>
+		<output type="string"/>
+	</outputs>
+	<resources> 
+		<template>
+			<solution-file>
+				<location>world-map-template.svg</location>
+				<mime-type>text/xml</mime-type>
+			</solution-file>
+		</template>
+	</resources>
+  
+  <actions>
+      <action-definition>
+        <component-name>JavascriptRule</component-name>
+      	<action-inputs/>
+        <action-outputs>
+          	<regions type="list"/>
+        </action-outputs>
+        
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+			      function getRegions( ) {
+			      	var results = new JavaScriptResultSet();
+			      	results.setColumnHeaders( new Array( 'country', 'value', 'color' ) );
+		      		results.addRow( new Array( 'Germany', '120000', '#008000' ) );
+		      		results.addRow( new Array( 'Italy', '120000', '#ffff00' ) );
+		      		results.addRow( new Array( 'Thailand', '120000', '#80ff00' ) );
+		      		results.addRow( new Array( 'France', '120000', '#ff8000' ) );
+		      		results.addRow( new Array( 'China', '120000', '#ff8000' ) );
+		      		results.addRow( new Array( 'Brazil', '120000', '#88ff00' ) );
+		      		results.addRow( new Array( 'United States', '120000', '#808000' ) );
+			      	return results;
+			      }
+			    getRegions( ); 
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+      <action-definition>
+      	<action-inputs>
+			<regions type="list"/>
+      	</action-inputs>
+        <action-outputs>
+          	<output type="string"/>
+        </action-outputs>
+        
+        <component-name>TemplateComponent</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

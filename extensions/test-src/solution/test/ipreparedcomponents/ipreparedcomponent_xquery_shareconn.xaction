@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>IPreparedComponent XQuery Share Connection Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Will Gorman</author>  
+    <description>This tests the XQueryBaseComponent's implementation of the IPreparedComponent interface, verifying that we can share a connection across components</description>  
+    <help/>  
+    <result-type>prepared_component</result-type>
+    <icon/> 
+  </documentation>
+
+  <inputs>
+    <position type="string">
+      <sources>
+        <request>position</request>
+      </sources>
+      <default-value>Engineer</default-value>
+    </position>
+  </inputs>
+  
+  <outputs>
+		<prepared_component>
+			<type>prepared_component</type>
+		</prepared_component>
+  </outputs>
+  
+  <resources>
+    <document>
+      <solution-file>
+        <location>Quad_Data.xml</location>
+        <mime-type>text/xml</mime-type>
+      </solution-file>
+    </document>
+  </resources>
+
+
+  <actions>
+
+    <action-definition>
+      <component-name>XQueryLookupRule</component-name>
+      <action-type>Get XQuery Connection</action-type>
+      <action-resources>
+        <document type="resource"/>
+      </action-resources>
+      <action-outputs>
+          <prepared_component mapping="conn" type="xquery-connection"/>
+      </action-outputs>
+      <component-definition/>
+    </action-definition>
+
+    <action-definition>
+      <component-name>XQueryLookupRule</component-name>
+      <action-type>XQuery For Report Data</action-type>
+      <action-resources>
+        <document type="resource"/>
+      </action-resources>
+      <action-inputs>
+          <prepared_component mapping="conn"/>
+      </action-inputs>
+      <action-outputs>
+          <prepared_component/>
+      </action-outputs>
+      <component-definition>
+        <live>true</live>      
+        <query><![CDATA[/descendant::row[POSITIONTITLE='{position}']]]></query>
+      </component-definition>
+    </action-definition>
+  </actions>
+
+</action-sequence>

@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Written by Eclipse BIRT 1.0 -->
+<report xmlns=" http://www.eclipse.org/birt/2005/design" version="1">
+    <property name="author">James Dixon</property>
+    <property name="createdBy">Eclipse BIRT Designer Version 1.0.0 Build &lt;20050405-1230></property>
+    <property name="units">in</property>
+    <property name="comments">a comment</property>
+    <html-property name="description">This is the description from the BIRT report designer</html-property>
+    <data-sources>
+        <oda-data-source extensionName="jdbc" name="Data source">
+            <list-property name="userProperties">
+                <structure>
+                    <property name="name">valid</property>
+                    <property name="type">string</property>
+                </structure>
+            </list-property>
+            <property name="valid">true</property>
+            <property name="driverName">jdbc</property>
+            <property name="odaDriverClass">org.hsqldb.jdbcDriver</property>
+            <property name="odaURL">jdbc:hsqldb:hsql://localhost/sampledata</property>
+            <property name="odaUser">pentaho_user</property>
+            <property name="odaPassword">password</property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set name="Data Set">
+            <property name="dataSource">Data source</property>
+            <property name="queryText">select 
+  QUADRANT_ACTUALS.REGION as "region", 
+  QUADRANT_ACTUALS.DEPARTMENT as "department", 
+  QUADRANT_ACTUALS.POSITIONTITLE as "positiontitle", 
+  QUADRANT_ACTUALS.ACTUAL as "actual", 
+  QUADRANT_ACTUALS.BUDGET as "budget", 
+  QUADRANT_ACTUALS.VARIANCE as "variance" 
+ from QUADRANT_ACTUALS </property>
+            <property name="type">JdbcSelectDataSet</property>
+        </oda-data-set>
+    </data-sets>
+    <styles>
+        <style name="report"/>
+        <style name="label"/>
+        <style name="text"/>
+        <style name="data">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">9pt</property>
+        </style>
+        <style name="table"/>
+        <style name="grid"/>
+        <style name="list"/>
+        <style name="image"/>
+        <style name="None Style"/>
+        <style name="Column Headers">
+            <property name="backgroundColor">#FF6600</property>
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#FFFFFF</property>
+        </style>
+        <style name="Major Group">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">10pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#028892</property>
+        </style>
+        <style name="Major Group Title">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">14pt</property>
+            <property name="color">#DD636F</property>
+        </style>
+        <style name="Sub-Total">
+            <property name="backgroundColor">#CCFFCC</property>
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+        </style>
+        <style name="Data Row">
+            <property name="borderBottomColor">#C0C0C0</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">0.4pt</property>
+            <property name="paddingTop">0.1pt</property>
+            <property name="verticalAlign">middle</property>
+        </style>
+        <style name="Logo">
+            <property name="backgroundImage">C:\files\dev\code\jboss-4.0.1sp1\server\default\deploy\samples.war\images\quadrant-stores.jpg</property>
+            <property name="backgroundRepeat">no-repeat</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage">
+            <property name="topMargin">0in</property>
+            <property name="leftMargin">0.5in</property>
+            <property name="bottomMargin">0in</property>
+            <property name="rightMargin">0.5in</property>
+            <page-footer>
+                <grid>
+                    <property name="width">100%</property>
+                    <column/>
+                    <column/>
+                    <column/>
+                    <row>
+                        <property name="height">0.1in</property>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                    </row>
+                    <row>
+                        <property name="height">0.25in</property>
+                        <cell>
+                            <text>
+                                <property name="fontFamily">sans-serif</property>
+                                <property name="fontSize">9pt</property>
+                                <text-property name="content"><![CDATA[http://www.pentaho.org]]></text-property>
+                            </text>
+                        </cell>
+                        <cell>
+                            <text>
+                                <property name="fontFamily">sans-serif</property>
+                                <property name="fontSize">9pt</property>
+                                <property name="textAlign">center</property>
+                                <text-property name="content"><![CDATA[Sample output from Pentaho Reporting]]></text-property>
+                            </text>
+                        </cell>
+                        <cell>
+                            <text>
+                                <property name="fontFamily">sans-serif</property>
+                                <property name="fontSize">9pt</property>
+                                <property name="textAlign">right</property>
+                                <property name="contentType">html</property>
+                                <text-property name="content"><![CDATA[<value-of>new Date()</value-of>]]></text-property>
+                            </text>
+                        </cell>
+                    </row>
+                </grid>
+            </page-footer>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <table>
+            <property name="pageBreakAfter">always</property>
+            <property name="pageBreakBefore">auto</property>
+            <property name="dataSet">Data Set</property>
+            <column>
+                <property name="width">55pt</property>
+            </column>
+            <column>
+                <property name="width">236pt</property>
+            </column>
+            <column>
+                <property name="width">85pt</property>
+            </column>
+            <column>
+                <property name="width">85pt</property>
+            </column>
+            <column>
+                <property name="width">85pt</property>
+            </column>
+            <header>
+                <row>
+                    <cell/>
+                    <cell/>
+                    <cell/>
+                    <cell/>
+                    <cell/>
+                </row>
+            </header>
+            <group>
+                <property name="groupName">Region</property>
+                <property name="interval">none</property>
+                <property name="sortDirection">asc</property>
+                <expression name="keyExpr">row["region"]</expression>
+                <header>
+                    <row>
+                        <cell>
+                            <property name="colSpan">5</property>
+                            <property name="rowSpan">1</property>
+                            <property name="style">Major Group</property>
+                            <grid>
+                                <property name="width">100%</property>
+                                <column/>
+                                <column/>
+                                <row>
+                                    <cell/>
+                                    <cell>
+                                        <property name="textAlign">right</property>
+                                        <image>
+                                            <property name="height">45pt</property>
+                                            <property name="width">150pt</property>
+                                            <expression name="imageName">C:\Documents and Settings\James Dixon\My Documents\Pentaho\stuff\quadrant-stores2.png</expression>
+                                        </image>
+                                    </cell>
+                                </row>
+                                <row>
+                                    <property name="height">20pt</property>
+                                    <cell>
+                                        <label>
+                                            <property name="style">Major Group Title</property>
+                                            <text-property name="text">Regional Report</text-property>
+                                        </label>
+                                    </cell>
+                                    <cell/>
+                                </row>
+                            </grid>
+</cell>
+                    </row>
+                    <row>
+                        <property name="height">20pt</property>
+                        <cell>
+                            <property name="colSpan">2</property>
+                            <property name="rowSpan">1</property>
+                            <property name="style">Major Group</property>
+                            <grid>
+                                <property name="canShrink">false</property>
+                                <column>
+                                    <property name="width">50pt</property>
+                                </column>
+                                <column/>
+                                <row>
+                                    <cell>
+                                        <label>
+                                            <property name="fontSize">12pt</property>
+                                            <text-property name="text">Region:</text-property>
+                                        </label>
+                                    </cell>
+                                    <cell>
+                                        <data>
+                                            <property name="fontSize">12pt</property>
+                                            <property name="fontWeight">bold</property>
+                                            <expression name="valueExpr">row["region"]</expression>
+                                        </data>
+                                    </cell>
+                                </row>
+                            </grid>
+                        </cell>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                    </row>
+                </header>
+                <footer>
+                    <row>
+                        <property name="backgroundColor">#028892</property>
+                        <cell>
+                            <property name="colSpan">2</property>
+                            <property name="rowSpan">1</property>
+                            <grid>
+                                <column/>
+                                <column/>
+                                <row>
+                                    <cell>
+                                        <data>
+                                            <property name="fontSize">12pt</property>
+                                            <property name="fontWeight">bold</property>
+                                            <property name="color">#FFFFFF</property>
+                                            <expression name="valueExpr">row["region"]</expression>
+                                        </data>
+                                    </cell>
+                                    <cell>
+                                        <label>
+                                            <property name="fontFamily">sans-serif</property>
+                                            <property name="fontSize">12pt</property>
+                                            <property name="fontWeight">bold</property>
+                                            <property name="color">#FFFFFF</property>
+                                            <text-property name="text">Total</text-property>
+                                        </label>
+                                    </cell>
+                                </row>
+                            </grid>
+                        </cell>
+                        <cell>
+                            <data>
+                                <property name="fontSize">12pt</property>
+                                <property name="color">#FFFFFF</property>
+                                <structure name="numberFormat">
+                                    <property name="category">Currency</property>
+                                    <property name="pattern">$#,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <expression name="valueExpr">Total.sum(row["actual"])</expression>
+                            </data>
+                        </cell>
+                        <cell>
+                            <data>
+                                <property name="fontSize">12pt</property>
+                                <property name="color">#FFFFFF</property>
+                                <structure name="numberFormat">
+                                    <property name="category">Currency</property>
+                                    <property name="pattern">$#,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <expression name="valueExpr">Total.sum(row["budget"])</expression>
+                            </data>
+                        </cell>
+                        <cell>
+                            <data>
+                                <property name="fontSize">12pt</property>
+                                <property name="color">#FFFFFF</property>
+                                <structure name="numberFormat">
+                                    <property name="category">Currency</property>
+                                    <property name="pattern">$#,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <expression name="valueExpr">Total.sum(row["variance"])</expression>
+                            </data>
+                        </cell>
+                    </row>
+                    <row>
+                        <property name="backgroundColor">#FFFFFF</property>
+                        <cell>
+                            <grid>
+                                <property name="pageBreakAfter">always</property>
+                                <property name="width">100%</property>
+                                <column/>
+                                <row>
+                                    <cell/>
+                                </row>
+                            </grid>
+</cell>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                    </row>
+                </footer>
+            </group>
+            <group>
+                <property name="groupName">Department</property>
+                <property name="interval">none</property>
+                <property name="sortDirection">asc</property>
+                <expression name="keyExpr">row["department"]</expression>
+                <header>
+                    <row>
+                        <property name="height">20pt</property>
+                        <property name="style">Column Headers</property>
+                        <property name="verticalAlign">middle</property>
+                        <cell>
+                            <property name="style">Column Headers</property>
+                            <property name="paddingTop">6pt</property>
+                            <property name="verticalAlign">baseline</property>
+                            <label>
+                                <property name="backgroundColor">#FF6600</property>
+                                <property name="fontFamily">sans-serif</property>
+                                <property name="fontSize">9pt</property>
+                                <property name="fontWeight">bold</property>
+                                <text-property name="text">Department</text-property>
+                            </label>
+                        </cell>
+                        <cell>
+                            <property name="style">Column Headers</property>
+                            <property name="paddingTop">6pt</property>
+                            <label>
+                                <property name="style">Column Headers</property>
+                                <property name="backgroundColor">#FF6600</property>
+                                <property name="fontFamily">sans-serif</property>
+                                <property name="fontSize">9pt</property>
+                                <property name="fontWeight">bold</property>
+                                <text-property name="text">Position</text-property>
+                            </label>
+                        </cell>
+                        <cell>
+                            <property name="style">Column Headers</property>
+                            <property name="paddingTop">6pt</property>
+                            <label>
+                                <property name="backgroundColor">#FF6600</property>
+                                <property name="fontFamily">sans-serif</property>
+                                <property name="fontSize">9pt</property>
+                                <property name="fontWeight">bold</property>
+                                <property name="textAlign">right</property>
+                                <text-property name="text">Actual</text-property>
+                            </label>
+                        </cell>
+                        <cell>
+                            <property name="style">Column Headers</property>
+                            <property name="paddingTop">6pt</property>
+                            <property name="verticalAlign">baseline</property>
+                            <label>
+                                <property name="backgroundColor">#FF6600</property>
+                                <property name="fontFamily">sans-serif</property>
+                                <property name="fontSize">9pt</property>
+                                <property name="fontWeight">bold</property>
+                                <property name="textAlign">right</property>
+                                <text-property name="text">Budget</text-property>
+                            </label>
+                        </cell>
+                        <cell>
+                            <property name="style">Column Headers</property>
+                            <property name="paddingTop">6pt</property>
+                            <property name="verticalAlign">baseline</property>
+                            <label>
+                                <property name="backgroundColor">#FF6600</property>
+                                <property name="fontFamily">sans-serif</property>
+                                <property name="fontSize">9pt</property>
+                                <property name="fontWeight">bold</property>
+                                <property name="textAlign">right</property>
+                                <text-property name="text">Variance</text-property>
+                            </label>
+                        </cell>
+                    </row>
+                    <row>
+                        <property name="height">0.04in</property>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                    </row>
+                    <row>
+                        <cell>
+                            <property name="colSpan">2</property>
+                            <property name="rowSpan">1</property>
+                            <data>
+                                <property name="fontWeight">bold</property>
+                                <expression name="valueExpr">row["department"]</expression>
+                            </data>
+                        </cell>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                    </row>
+                </header>
+                <footer>
+                    <row>
+                        <property name="style">Sub-Total</property>
+                        <cell>
+                            <property name="colSpan">1</property>
+                            <property name="rowSpan">1</property>
+                            <property name="style">Sub-Total</property>
+                        </cell>
+                        <cell>
+                            <property name="style">Sub-Total</property>
+                            <label>
+                                <text-property name="text">Total</text-property>
+                            </label>
+                        </cell>
+                        <cell>
+                            <property name="style">Sub-Total</property>
+                            <data>
+                                <structure name="numberFormat">
+                                    <property name="category">Currency</property>
+                                    <property name="pattern">$#,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <expression name="valueExpr">Total.sum(row["actual"])</expression>
+                            </data>
+                        </cell>
+                        <cell>
+                            <property name="style">Sub-Total</property>
+                            <data>
+                                <structure name="numberFormat">
+                                    <property name="category">Currency</property>
+                                    <property name="pattern">$#,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <expression name="valueExpr">Total.sum(row["budget"])</expression>
+                            </data>
+                        </cell>
+                        <cell>
+                            <property name="style">Sub-Total</property>
+                            <data>
+                                <structure name="numberFormat">
+                                    <property name="category">Currency</property>
+                                    <property name="pattern">$#,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <expression name="highlightTestExpr">Total.sum(row["variance"])</expression>
+                                <list-property name="highlightRules">
+                                    <structure>
+                                        <property name="operator">lt</property>
+                                        <property name="color">#FF0000</property>
+                                        <expression name="value1">0</expression>
+                                    </structure>
+                                </list-property>
+                                <expression name="valueExpr">Total.sum(row["variance"])</expression>
+                            </data>
+                        </cell>
+                    </row>
+                    <row>
+                        <cell>
+                            <label>
+                                <property name="color">#FFFFFF</property>
+                                <text-property name="text">.</text-property>
+                            </label>
+                        </cell>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                    </row>
+                </footer>
+            </group>
+            <detail>
+                <row>
+                    <property name="style">Data Row</property>
+                    <cell>
+                        <property name="style">None Style</property>
+                    </cell>
+                    <cell>
+                        <property name="style">Data Row</property>
+                        <data>
+                            <expression name="valueExpr">row["positiontitle"]</expression>
+                        </data>
+                    </cell>
+                    <cell>
+                        <property name="style">Data Row</property>
+                        <data>
+                            <structure name="numberFormat">
+                                <property name="category">Currency</property>
+                                <property name="pattern">$#,##0</property>
+                            </structure>
+                            <property name="textAlign">right</property>
+                            <expression name="valueExpr">row["actual"]</expression>
+                        </data>
+                    </cell>
+                    <cell>
+                        <property name="style">Data Row</property>
+                        <data>
+                            <structure name="numberFormat">
+                                <property name="category">Currency</property>
+                                <property name="pattern">$#,##0</property>
+                            </structure>
+                            <property name="textAlign">right</property>
+                            <expression name="valueExpr">row["budget"]</expression>
+                        </data>
+                    </cell>
+                    <cell>
+                        <property name="style">Data Row</property>
+                        <data>
+                            <structure name="numberFormat">
+                                <property name="category">Currency</property>
+                                <property name="pattern">$#,##0</property>
+                            </structure>
+                            <property name="textAlign">right</property>
+                            <expression name="highlightTestExpr">row["variance"]</expression>
+                            <list-property name="highlightRules">
+                                <structure>
+                                    <property name="operator">lt</property>
+                                    <property name="color">#FF0000</property>
+                                    <expression name="value1">0</expression>
+                                </structure>
+                            </list-property>
+                            <expression name="valueExpr">row["variance"]</expression>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row>
+                    <cell>
+                        <property name="colSpan">5</property>
+                        <property name="rowSpan">1</property>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+    </body>
+    <list-property name="images">
+        <structure>
+            <property name="name">C:\files\dev\code\jboss-4.0.1sp1\server\default\deploy\samples.war\images\quadrant-stores.gif</property>
+            <property name="data">
+                R0lGODlhAgFNAPcAAACMlKWlpaWlvaWlzqW9vaW9zqW93qXO572lpb29pb3e98bejM6lpc6lzs69pc69
+                3s7Ovc7n587n987n/95ja969pd7Opd7e997359739973/+fOpefevef39+f/9+f//++cAPfevffezvf/
+                9/f////nzv/33v//5///9///////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////
+                /ywAAAAAAgFNAAAI/gBTCBxIsKDBgwgTKlzIsKHDhxAjSpxIsaLFixgzatzI8SKKCgFCBpjQsaRFEChT
+                qlzJsuVKggBiypxJs6ZNmhY3iBQ54IPJnwZRONhJEqjRhi6TKmUJ86bTpzglnmCws2oAARqO/jwBUmRR
+                rWANLh2rtCnUszdRRCxhte3IsByFEoVLVyDZu0wHot1bcy0Ct1ax1sX4ce7gsHgTozTLl6/ahzp3GiAh
+                UK5kyocpnhjqNTNYxYkZN0YL0cRfkQcIqo3c2bPEwq1dAwWNV/RoqI8bhtgpuKDpnallQ4Qd8qvwiawD
+                KChI+67t204fEg8Q3GDyyccdWi6enWLy5QSb/pN9Dt1m7oVTd4I3uFukgAzdGU43Ht/hd+bil5IvH7Uh
+                W8MGiVAVffUVtN1bBUKmHn75JbUffzKdp9B/IfVmUAmnhbReggVxBSCHC90XXoMO6gXhUw+1F1JPCKUn
+                kgKYgTjQgQTKaN2CI5LY0oMnSphQciwe5GJI1dmYwnxGKiTiQDq6xCOECopkwAgtZhgAdgRReGWMKWDI
+                k08IsSbYkBZe6F5WNBakJZb/bUiQmFmRmVWWl3W5U5AEDdkWdk3uaOKJaTU0HZZBdRXSlGruVACXv60I
+                ZodUVaXACRlixWVlhr7oYWwCrTnCdm6moKeGlJ7JpZYFjMCZpB1aaRWi/n3mJRCg0Qm66pVUHnQgoZ3W
+                OVCjAeA5Y6Y7RRDpVXMWlNxOEtxKn6e3unlgsceWaaeUxJ6Z57F7UhbrS3/SSpOPumZapIGZCnvtoadm
+                qO66gFWowaVetiVAAh/CWwAHrNIZr6n+/kvktvHC+m1KT/Ln0KYDIzSduqgy6u6jAy0Lnory3gicQBhz
+                F/CdFL/Zb8fWaolsr74KhNmSdh28WLjiRmjrxg7fCnHKXU4MKc2i3mqpapliicKyz1ZlLcGoDbQZb/N+
+                PFKMGA/gwUEsp+Dyy7PG3B963J4LNMiJSinxl75ZaRzGJVsJ40AmF40jQvV6zDHTYTuapc4aa8jg/sEJ
+                l0euQXp6PSzYHy9KELBS1x0sxVr+/KvZh5t9Km/wJaSlsI03zbZkuQqEeMgCVX01CH1DtzC3vOZpc8hr
+                tks2QVFTDOx7ipcJLIKbv45Q7JG7V3nu7N6tu8gv7v1t6bf9vbOUnaNLOPBb9m438Yc2X6q8kw+vp9vV
+                KxS09ZVqjnJIhj8+fMVvt+wy8qOdjrNqqytevud4oy820ifDfufUg3MKb+rKwpmcFMerz1EtfVa7Gvsa
+                ozz84cph6WIdzuKmruScS05c4t2MnCW/SwUwafhz3Piix7b6UU85xovVAvminVsBUCBLYx4BxzY9TPEM
+                htVKlkD4xRP+2dB//q1LyIEumMMOSm9xByxejvgGM601sH/dK9f7InbExG3whqLKYQYFyMGPvRCG5loe
+                srIXvBKeL3QIHN0K97KwCNaMczMUXg1FFcYQ6jAFGJvfkTLFvQDo0UC3IqK2vEhDJOYNhUs8XhNj9kT7
+                zdGBXgui+eY4HUFiT3/DSxMhhVhHpWmxcIW04gf1lkgVLlJcUcqY0howNT2FioqTNKQjSQjD8BWEh5Tk
+                YxwhKEBbbtKMj0SjEpmkwFPSqpFzAxgeBxY3RP6yUyZMwXWs98mBaBCH+YJlmODoSWWOsIDRFCYpibk+
+                YwLqIW0b4QRuNwF64cyAJ+RV3KwVNR9mkShk/qRlEssIzUFCT4/wHKUz1cfErGlNZv5RW2VUJAAI0M2I
+                sRRlMuc4O/Et0585y+b7ClLPI4rwf64LpjTTWEyDHhQA0unktO63y34+Em2/g1fJBuS0Pv7xlg8d4UxZ
+                Sr8zjnSYdXmMWoR6pMoUtahEJWpEgPSoUTVMTSaUpDVpOsuPNnNDHevjF0eIu59e8p+htOcsQ5UkjNyu
+                SCaTmwONY0HAda2bGL0nS6elVQ8e7q3YjKtUMyrSqpWVMMRi06vsmgILPNRkoaKrOL86S0Quq6v6Imxl
+                boWgZVn1neH06kD/mpFmxus9hE1rWyQKvaoQwJdOU1QXobdVru7ktHpV/lQoQadZNy3gtrjNrW53y1vd
+                EoQCwA2ucIdL3OIOVyKidQtZG9uW5a70KhgI36WGZi8MrPabkoUhZSsUXW+CVI6yPKFte0ve8vp2IMZN
+                r3qJO5HbAeZoJ7TK2nQ1neIMMCjbncAIdAlK+WRrAvdl7Wz3uVnzGri8MVqvgtVLERI4dTmseZdAx7kQ
+                CrEIg3AjG5KeqRASWNgnGAZrFcW62PEe+MS5/e2CV3zckmxHcEbJrmoYMt2fILMgMmYIind82wSz+McU
+                +MlvBtCB5nH2yBHh8Y5VDOQVA6UEB7gxkqdcECWj2MdNXjCVt9wdK5+YyVleL5fHLBsvHxjLYWYw/pnX
+                PBgzGxjMaTYum+cMFzebF81xLi6d93wUO5cXznluMZ/ZzJabYsTP5MVzoIU76Dnr5KMZQXRvAb1o4Db6
+                IL9BVJIKnWOJSJq3iq50kC8N1S11mtSf3i2lK03qsj2w1TpOdW5DzWpY93RRp760rFOMXlELes4qKsqo
+                iqQiYf1mUbtp5yQlHOyI7Aa0ewyWBzjzLtaQdde4pfWi95wcSw27sRbykgF4+JW00qfbd1wIv3ojl3tx
+                80jROgi2b7vqbc+5TQIRgQTMRyh8i5sElGlU4jCTntSkR9PXAo++IfLsDFAGNganiuPaA2OBzHsB2g40
+                nXdD2lsDHI1WNGxv/rwE7c3RrrBjnFvHHdLwyV6lcu0RtsQdnpCL11vjc153ujOKpfSUL+YB/0vqdBKk
+                mE+15M6+yr6jHSRy97O1F894nun8n45n+uMH/3h7wCPuEcSoMFbcOmbaI2GGtBze0k5mUf5TcYvP++ZT
+                n7Nl1HVszNQ9mQqg0tXhp9z+lV0hDX84SIpeHMqwfSFR77Wvg7tn2Jz86R//N2W27vEYOZXC+61QTBuy
+                7srJJewew7dCbK74xY+a2zXcewpUL/p/E+zvRY0M7NnzcsEbEujXansKEi8Q0zN+0JGpTtcp4/PIk/Lq
+                Xx/KyjWme46+3OWgR9DhR//20i++0ekJ0t3R/k74p/HcyI+e039qlH3a7k7pNuy+sl1f83lLPc6XNqz2
+                hf7xkfYGJCdHPibXX/sD4qkEAmB+y3Ryn8c/RndPN5M4pNd7vnd6a3YCD9ABq/cXwkd/uZN3Wfd0RuYl
+                qVEY8wOBEvgbRaITX9R56QcmuPdTBncBn9IVy8F7KdCADkhmemIhdRcjlkVzE2hqzjcglsctj5ceynYQ
+                gcd0/ON0LqU3lvGC1ceAvrdnjTIlMaJ6UxVFHmcQHhZXfDUZU4gAyzeAnqd8KKhWLiKFdqKA7md9vrZn
+                kpUbuZYCb3gQhLUb86UrKmMgNOYwBIEZlMGHcHiHfhiId2hrhFguArB0G4WYiHs2Fc2niI7IWWxRI484
+                iUe2Aa1lFAEBAAA7
+            </property>
+        </structure>
+        <structure>
+            <property name="name">C:\files\dev\code\jboss-4.0.1sp1\server\default\deploy\samples.war\images\quadrant-stores.png</property>
+            <property name="data">
+                iVBORw0KGgoAAAANSUhEUgAAAQIAAABNCAIAAADCVP0KAAAAK3RFWHRDcmVhdGlvbiBUaW1lAFN1biAx
+                IE1heSAyMDA1IDIyOjI4OjIyIC0wNTAw6yQiGAAAAAd0SU1FB9UFAgIeH7YDhoMAAAAJcEhZcwAACxIA
+                AAsSAdLdfvwAAAAEZ0FNQQAAsY8L/GEFAAAIWklEQVR42u2dO09rRxDHTZLScIU7CyFdxYosUVBQuKGh
+                o+IDuI+UKtLt8hnSRUoVKT0fgIrODY0LFxRIVnQiJITcGQFuI3L2+Dz2/TjePS/+vwr8mDO2d87M7M7O
+                7n18fPQA+Nz8ULcCoHY2y9ubxbr4f3QxnQzrVqpaiBm8/LUX+jKHvxQ+5/vf/wx9uf9++3VHCav59SwS
+                H/6EI+RTAG/AoRj/KdHsOn5ycHZ1Oe7XrSnwx3d1K9AkYhPQ2UDOenFzPV/VrS3wB8wgI46QbUwgI5rd
+                Ljd16ww8gaAoZfVAZ4kJTOzD55HEJ9wtjxAcdQJ4g4TN8p7zBHEyzAzx/vhyejFiX7NePCA06gTwBoTN
+                8yPrCgZnJ5IJoeHJ2SBiXEL0tJoMMXXUAripD26WA96gJ7GC0ak81umPTzmH8PKGBKEDwAxi3l85X/Bl
+                X/XS/S8D5v/14zPsoP3ADGJ/+cTlBYcHyry3f3DIPrB+fa9bf7AzMAMRjTMQ3QHCoi4AM+ht3l7YBzTO
+                QOIOQAeAGQiZgSOIijoAJkwFtDGRBBIVDXn/oZ+f6zmXdbLycnHGy2ikuFRGaa6TPaURV1551Uv4yi/V
+                t6esECP1MItCJsxAiIkMJMnBTv7DFfG3JD/iI/n5HD6mZBXcWYhRZiDljRclJY+7FDwiKGo4ylKneDTZ
+                l/et5vLx6iREUMxoA36Up3meKy9KilvKzlbADAS0GbKEoMmBpNSpIJrZFQOKpSKMkLtHd73el3cmG/Ck
+                PM16sYi0T5ctbkFQ1GiEJY0iPLa5G6dCxNGYxdJbIWvXGG+9mK1ZQcGUF6BiHzHg4vO04WQ6nchei2KK
+                FiEMpNFF/uP1x+dnAxshQvITD4Fs6PbHl3y9oC2xlOlUl9Z7UZ6HkkEG+RUnpaxnhhnsOF8aEmEAj47p
+                Udc/+moxlMSywa9HdNQ3PC5jB4Ozc0M66kV5HlZGWSkiMIMGw1uoMAhKLeXxuY+wLm4BZ0pVKe86l20N
+                zECgMdUR5qlcmxFsrBssMx7N0wh+lK8KmEFzMRe+hhnBZizuymGUDwXMoONYrA426bZcEzCD9uDjPg7l
+                pcAMdr4XhsrbXKs8GkXLlIcZfDKCTba0GpiBACqnPx8wA9cJC2G5rdlRLw+MXAbMQERcOFjN1c0ag0UZ
+                gn02ZkGje8qjtM6wgSAvAovmx6SCpmW5nw0NLiepCngDbbMJuk4/mkk9Qp0xUattsknKwwy0zSbYGsZo
+                djt/eLTuaeRbr1JhvTk6CTMcvShfGTADSZki/ZOxJcHrKNKWa4ZFGMFlwhlhPFYUE3lRPhQkN6CPoqmA
+                3Y+i8U1yx1S2JiU1+a+qcw9UIRGXcCRjj3klNwhkTkVQi5ci7msxayJsTQkUm/hRvirgDQikRy/zAJcH
+                DCeKzSl89XAOH4vEhsX8zw8CqTkJWwFYKXYDSUx9mH6TwnYEX3hRvipgBgni9o1odm08x0Pe93oLPwqY
+                Y0FWc865KDIMIWuhzFOQYasJvXd9NS+7F9KMF+UrAhOmW0gK8CjpYLJQv8WwAYuMviiyE6froL1gB8z2
+                9LVMhcHAYiOxoAmrymBEnvZvDH6UrwZiBnf//BH6Muc/fcv//vfnbztIsuLHv90/kTYFkEGCi7HGEEgk
+                FdnI0zoV4UgF+n3np683M/NI0mkSCznp3YW5NXtRvhIQFFEMJ9Mrh53ixsY4sTzjhndTk6nYOuU6MZvT
+                zZ/MgxB3/ChfAQiKWMjZTmNV07/tkKWeI12nDrRNF7cdQqTirLusJToxIkocz+xFSNkvtIbrurH38fGB
+                oMgRtstOE39W4AaCohLQS2qji5P9JheNARsQFJVim08/HcMPdAOYQVniqB8m0BUQFAEAMwAAZgBAD2YA
+                QA8pMmgB29W3XQ51MgFvAJpOWpPNFoj7Bd6gu+SL3SHvoxWQVsiG3OgHMwCNpzi6KRQIigCAGQCAoKjt
+                0MWuVKkrW9m93WzGVsIaqmTZvKKX/Me/iBGhrLNVaFjiM9IpTi41FnnyZroC/XVIEyV4gxYT/7r0vlFm
+                u7PLG/U7r9+lh7fyImIJkgaXpTW05uX+Vn+F2GDMewrhDVpLtq2dOmx4/pw+lySVqpki7o3py8heuiPx
+                PkmOQI5vsZdD6bXTm296t43ulydD9YUYDX2xXh9utcvu+Oze2E1+jLnWE8EbtJWsv1Cxnb8/nthMi2at
+                UbI3kq3zyQPyiXnqFGVeRL6JOmt+wfV+KauhC4UOWZMduh9ZfjK6br93D2bQflxbRWdWQPWEyVqpyBos
+                ymbrMxFFcyWdhLDNrLUtZPNWZKY1B5hBW8nacJH90KsdZWXYDVhdnztaQggN3chbA5r6LSM3aC1F+5M4
+                Pe3ZzsH47NXItB3ypmEdwBu0F7r9iU2TPbUgtwN/7HvwetNwR4xtx+ENWg1pf3KQTZEYu8X4xmYZoF4N
+                U8ROyhzwBq2HagqmOImExsPZ9M5H6LppWAcwgy5QdNzmO2eLSCZ18nzB7uSe3JKofHg1v05QDXIXDf2R
+                G6wp94cZdAOhbbUSySDOgn3bk3vU06MaCQoNif0EcxD5Z5VO5KamS64OM2gvq3mec26W9+ma2LEx8hbW
+                uvKVBNuC/rwNfnZnzy7PSzBrmFw7QI0F91mLYGy1TC+VKxTdLzdIkdsM3yvesFaakjW4Zt9t6FPPkLfB
+                Z6dMJf3pDRqmFqhqbL87zJxtVtkxFl4Gb9Be2DbV8c87td1jxrfudnnvFjIBxHTrJiKEOSCThmlSYuHC
+                SsMpWhh7XkNCbBCtfEFtbIv6mrBFlJhB3d8G+Jw0xwoQFIHaSCaowqUFLsAMQE0k6XHItMABmAGoB2IF
+                djNbFfA/y8waM69yfXIAAAAASUVORK5CYII=
+            </property>
+        </structure>
+        <structure>
+            <property name="name">C:\files\dev\code\jboss-4.0.1sp1\server\default\deploy\samples.war\images\quadrant-stores.jpg</property>
+            <property name="data">
+                /9j/4AAQSkZJRgABAQIAHAAcAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcI
+                CQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwM
+                DAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCABNAQIDASIAAhEBAxEB/8QA
+                HwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIh
+                MUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVW
+                V1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXG
+                x8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQF
+                BgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAV
+                YnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOE
+                hYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq
+                8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9A/jH+2r8TfCvxd8VaXYeJfIsdN1i7tbaL+zrRvLjSZ1VctES
+                cAAZJJrm/wDhvT4sf9DX/wCUyz/+NVyH7Qn/ACXzxx/2MF//AOlMlcfX+amd8d8S08xxEIZjXSU5pJVq
+                iSSk9F7x/WmXcN5TLCUpSwtNtxj9iPZeR6//AMN6fFj/AKGv/wApln/8ao/4b0+LH/Q1/wDlMs//AI1X
+                kFFeX/r/AMUf9DLEf+Dqn/yR2/6s5P8A9AlL/wAFx/yPr748/tReOvBf/BKDVfiXpmufZvG1t5Pl6l9i
+                t327tYS2P7pozEf3JK8p3z15r84/+Hyv7SX/AEUf/wAt/S//AJGr7d/ai/5QV65/27/+pBFX5CV/qp4P
+                04Y3hLA4nGJVKkqVJuUvek26UG227tttttvdu5/mD9IXOcwy3i+rhsurzo00pe7CUox/i1FtFpbJL0SX
+                Q+nv+Hyv7SX/AEUf/wAt/S//AJGo/wCHyv7SX/RR/wDy39L/APkavmGiv03+zMH/AM+o/wDgK/yPw7/W
+                /Pv+g2t/4Mn/APJH2z+y3/wVi/aA+I37Tfw58Paz4++2aPr3ijTNOvrf+w9Nj8+Ca7ijkTcluGXKsRlS
+                CM8EGv2fr+db9iT/AJPP+EX/AGOujf8ApdDX9FNfEcV4alRq01Sio3T2SXXyP6G8F81xuOwWJnja0qjU
+                lZyk5W06XbEZgikkgAckntXyT8Rv21vGXxI+Isnhj4ZWMYBm8mC6WFZ7m6Kk7nG/MSRH1YHAG4sucD6F
+                /aG8QyeFfgb4rvoXMc0OmzLGw6qzKVU/mwr5v/4JkeHY7nxR4p1V0UyWltBbRsV5XzGZmwf+2Yr5OC5q
+                jT2Sv/X3fiftM3y0+Zbt2/L/AD/Ara5+0j8bv2fNes5vG1rDe2V4MLDcQW4ikAYFtsttgLJgEYYnAbJU
+                8V9V/C74kad8W/Aun6/pjN9lvkzsf78Lg4ZG91II/Xoa86/b00CLWf2bdWnkVDJps9vcxMRkqfNWM49P
+                lciuQ/4JoeIHvPhtr+ms4YWOoLMi91EkYH5ZQ1VJ8ymn9n/gf5/gTUXK4yXXT+v66n0pRWH4g+J3hrwl
+                qa2Wq+IdD0y8dQ6wXd/FDKykkAhWYHBIPPtWhrniGw8MaXJfalfWenWUWN9xczLDEmSAMsxAGSQOvel0
+                uPrYuUVneGvF+k+NLF7rR9U07VraNzE0tncpOiuACVLISAcEHHuKf4h8T6Z4R043mrajY6XaBghnu50g
+                jDHoNzEDJoem4LXYvUVhzfE/w1beHYtYk8Q6HHpNxJ5UV61/ELeR+flWTdtJ+VuAc8H0rQ0HxFp/irTE
+                vdLvrPUrKUkJcWsyzROQcHDKSDggigC5Xzd/wUU8c634I0Lwu+i6xqukPcT3Alayu5LcygKmA2wjOMnr
+                617/AOJvGWj+CrSO41nVdN0mCV/LSS9uUgR2wTtBcgE4BOPavmX/AIKU6lbaz4P8F3dncQXdrcTXEkU0
+                LiSOVSkZDKw4IPqKyq7K3dGlLfXs/wAj3j9nPVbrXPgX4VvL25uLy7uNOieWeeQySSsRyWY5JPua7SuC
+                /ZjkWL9nfwizMFVdLiJJOABt610Xhr4l+HPGl49vo/iDRNWuI08x4rO+indVyBuIRiQMkDPvXTV/iSS7
+                s56T/dxb7I26KoaJ4q0vxNJdJpupWGoPYymG5W2uElNvIOqPtJ2tweDzUXifxvovgmCKXWdX0vSI52Kx
+                ve3UdushHJALkZP0rO5oalFYerfE/wANaBp1leX3iHQ7K01FPMtJ57+KOO6XAO6NiwDDBHIz1Faljq1r
+                qmmRXttc29xZzRiWOeKQPFIhGQwYcEY79KGBYorD8O/E/wANeL7mWHSfEOh6pNBGZZEtL+Kdo0HBYhWJ
+                A5HJ45o8NfE7w14zvmtdH8Q6Hq1yiGVobO/inkVAQCxVWJxkgZ9xQBuUVn+JPFuleDLBbrWNT0/SrV3E
+                azXlykEbMQSFDMQM4B49jXw9+yV4t0rw3+1TeajqOp6fYaewvdtzc3KRQncx24diBz255pRd58nk393+
+                YS0jzea/E+8aKhs9St9RtIri3nhngnQSRyRuGSRSMhgRwQRyCKKqzJ5l3Py5/aE/5L544/7GC/8A/SmS
+                uPrsP2hP+S+eOP8AsYL/AP8ASmSuPr/KjP8A/kaYn/r5P/0pn9oZZ/udH/DH8kFFFFeSdx7/APtRf8oK
+                9c/7d/8A1IIq/ISv17/ai/5QV65/27/+pBFX5CV/sL4I/wDJF5f/ANeqX/pqmf5KfSY/5Lar6S/9PVQo
+                oor9XP5+PT/2JP8Ak8/4Rf8AY66N/wCl0Nf0U1/Ot+xJ/wAnn/CL/sddG/8AS6Gv6Ka+A4x/jU/R/mf0
+                z4Ef7hiv8a/9JPL/ANs64W2/Zm8VMwJDQxJx6meMD+deUf8ABMNU/sLxe3HmefbA8842yY4/OvWf2yrP
+                7d+zR4qTn5YI5ODj7s0bf0rx3/gmDcqYfGUOfnDWj49R++FfHUPiqei/Nf8ABP3et8EH5v8AJHsn7Y3/
+                ACbT4r/690/9GpXjP/BMCViPGaZ+UfY2A9/3/wDhXr37Yeq20v7NvjFEnike3jihlVGDNE7SREKwHQkM
+                pwezA9DXk/8AwTCsWTT/ABjc7W2SSWsQPYlRKSP/AB4fnRQ+Kp6L8wrfw4rz/wAjiv8AgoH/AMnK6d/2
+                Drb/ANGyV9B/tw/8mva/9bb/ANKI6+fP+Cgf/Jyunf8AYOtv/RslfQf7cP8Aya9r/wBbb/0ojrN/7uv8
+                T/NGkf8AeF6L8jlv+Ca3/JEtW/7DUn/oiGvIf2zvEF/8XP2obfwrDORb2M1vplohb92ks2wu5HrucA+y
+                CvXv+Ca3/JEtW/7DUn/oiGvFr0if/goKPPAUf8JQo546SDb/ACFdE0pYmnCW1l+UV+phGTjQnNb6/m3+
+                ho/tZ/s1R/s8fDnTF0fWdVvNJ1O9UX1vdlChuUjbZKgVRt+UyDHJ6cnFe/fsHf8AJs2if9drn/0e9c9/
+                wUj/AOSE6f8A9hmH/wBEzV0P7B3/ACbNon/Xa5/9HvUUZNqpfuv0KqxS9nb+tz5o+Kr337TP7YM2hyXk
+                kVudRbS7c43C1giLBiq5xk7Xb3Jqf9sf4JH4BWugaPp2q6jf+HLxprm2hvSryWs42CTDKqjawKHGOoP4
+                u/ZqxL+3MjO53f2lqJ55LHZPXpH/AAU8RToPhBsDcLi5AOOQNsdYrShTffV/P/g6mu9ea7bfj+mnoew/
+                s+f8mveG/wDsCr/6Aa+M/wBk/wAIa78RvHOpeHtF1QaKmr6bJHqF6Iy8kNsHQsEAZeWbYp5HDGvsz9nz
+                /k17w3/2BV/9ANfNv/BNT/ksWs/9ghv/AEdFXSkniZp9n/7cc6bWHg13X/tp9O/An9nzRv2fdIvrPRrr
+                U7qPUJVmlN7IjsGC4+XYi4H1zXyF48gvP2pf2xp9HlvJIraXUJNPgfO4W9tBu3bAeMkI7Y/vMa++D0r4
+                Q/Y4In/bCieYBZDJfMAeMNsk4/nWcferx5tbJv7rFy92jLl6tL77/wDDlb9sf4I/8KFuNA0jT9U1K/8A
+                D1wk9zaxXrI7202UEuCqqMMBGcY65+tfXPwN/wCTZ/Df/YBi/wDRNeIf8FP/APj28F/715/KCvb/AIG/
+                8mz+G/8AsAxf+iahtvDVL9//AJI1SSrU7dv1X/Dnxj+yH8Jn+NPj/UNDl1O90zSZbBpNQ+yFVluY1kTb
+                GCQQBvKscgj5elP+PnwyP7Knx20+PQdRu5UgSHUbOWUgTRfMQVYqAG5Q9AAQ2COuey/4Jqf8li1n/sEN
+                /wCjoqg/4KO/8l503/sEQ/8Ao6WujapSt1f6v/IyppSVRS6f8D/M+rPjR8FdK+P3g630jWLjULa2iuEv
+                A1nIiSbwrKBl1YYw57elfEH7PvwR0r4r/Hm58L6jcahDp8IuSsltIizHyzhcllYfXj8q/Q+1/wCPaP8A
+                3R/KviH9jD/k8G++l/8A+hGsYJe2t3Un9yQuZugpPe8fx3Ps7w34Vt/C/h2w0y3eZ4NOto7WNpCC7Kih
+                QSQAM4HOAKK06Ktzk3dsj2MOx8s/EL/gml/wnnj7XNc/4TX7J/bOoT33kf2P5nk+bIz7N3njON2M4Gcd
+                BWP/AMOp/wDqfP8Ayif/AHRVj4kf8lE1/wD7CNx/6NasWv5ox3BfBU8TUnVyu8nJtv29VXd9XZS0ufX0
+                /EviClBU4V9ErL3YbL/t00v+HU//AFPn/lE/+6KP+HU//U+f+UT/AO6KzaK5f9SOB/8AoVf+V63/AMkX
+                /wARQ4i/5/8A/ktP/wCQPUvij+w1/wALJ/YVvvgr/wAJR9i+2+X/AMTn+zfM2bdQW9/1HmjOduz/AFnf
+                PtXyD/xDhf8AVZf/AC0v/u2vpL9qn/lGLr3/AG7/APp2ir80a/orJOIamT5dh8Fl0eSkoQ5Y3vyrlSSv
+                JNuySV27vrqYYHwOynxAU8+zeX73mcXpLX7d/dqQW830/DRfTn/EOF/1WX/y0v8A7to/4hwv+qy/+Wl/
+                9218x0V6f+v+Y9//AEn/AORO7/iTvhX+f8Kn/wAuPsT4I/8ABAr/AIU58Z/CPi//AIWx/aP/AAiutWes
+                fZP+EY8n7V9nnSby9/2ttu7ZjdtOM5welfopX4xfst/8nNfDr/sZ9M/9K4q/Z2ms8xGZfvMRvHTp+iR4
+                Wb+FOW8DTjhMtd1VXM/i3Wn2pz/NGH8TfCI8ffDvW9FJAOqWUtspJwFZkIU/gcGvjD9iX4o2PwS+LGsa
+                R4mmbSYNUi+xSyTExrbXEb4AkP8AAOXG7scZwMkfddeYfGL9kPwX8a9TOoajaXVhqkhXzb3T5RFLMFBA
+                DhgyN1HzFd3yqM4GKUbxnzb3Vn/XzPJlaUOV9Hf+vuR8dfHG7X4XeLPE/h7w14mtNe8MeJvLu5GhuVuw
+                cSb1V3BP7xWBBOcspBPJwPp//gn14An8H/A4311C8M2v3TXaBhgmEKEQ/Q4Yj2YHvVVP+CcngW10jUIo
+                7nXbi7uYCltPdXKt9jk7OFjRA3uGyMeh5rr/ANk34b+LPhT8Nm0bxReWdyLa4cWEcLGRreHP3S/GQTll
+                GMqDgn+FdKVoxcfJfnt66L5EVLykn5/pv8/60Pnb/gozpU+k/HLR9TdCba502MRt0DNHK+5fqAy/99Cv
+                SP2vv2gfCPjD9mme20rXNO1C81prbyrWGdWniAdZCZEB3JgKQdwHJAr2z4o/CLw/8ZPD403xBYJeQIxe
+                JwxSWB8Y3Iw5B9uhxyDXk+k/8E4vAGnalDPNdeJL+KJstbz3caxyj0Yxxq+P91gfeslFuHs3te/43NXL
+                31UW9rC/8E59Fn0z4CT3Eqsqajqk08ORjcoSOPI9RuRh+FeDftDO/wAJ/wBtaXVrlGW3j1O11VSFJ8yI
+                7GYjPXkOOO4NfdWg6DZ+F9GttO062hs7GzjEUMMS7UjUdABXH/Gz9nLwx8e7KFNbt547u1G2C9tHEdxE
+                uclckFSp9GBxkkYJzWs5P2sasen5af5IyhFezdOXX+v1PBf+Cgnxs8P+NvAmhaRoWq2OsGS7+3TvZzrM
+                kCqjKquVOAzFzweRtPFeqfsHf8mzaJ/12uf/AEe9RP8AsKeBx8OP+EbiOrwRPdrez3yTRm8uXUOqqzGM
+                rtAkOAqj16kk+g/CX4W6f8GvA1r4f0ua8nsrRnZHunVpSXcsclVUdSe1ELRU13/4A53ly+X/AAT4n8Pa
+                xF8EP23ZrnVGFra2WuXCyuw4jhm3gOfbZIG+ldP/AMFDfippHxC17w9Z6JqFpqttpUUrz3NpIJoRJKUw
+                gkXKk7UyQDxmvov42/sn+EvjxqMN9qsd7ZajEAhu7CVY5ZUGcI+5WUgZ643cAZxxWP4h/Yb8E694G0nQ
+                EOradaaTI8wktZoxNdyuqqzys6NuJ2joAB0AAwBiov2cYP7P4/1v6mjkvaSmuv4f1t6G7+z5/wAmveG/
+                +wKv/oBr5t/4Jqf8li1n/sEN/wCjoq+vvB3gSz8EeA7Lw7aSXMllYWotI3lZTKUAxkkADP4D6VxHwP8A
+                2SvDnwC8S3OqaPe63c3F3bG1dbyaJ0CllbICRqc5Ud63Ul7aU+jT/X/Mx5X7GMOqt+n+R6jXwH4C1eL4
+                FftrPJq7rZ2lnq9zBNI4IVIpd6q5z0XDq2fTmvvyvM/jX+yb4R+O2pRX+qRXllqUYCteWEixSzIAQFfc
+                rK2M9cbuAM44rJXjUU10uvvsaO0oOD6nzj/wUM+LGkfELxR4fsdFv7TVLbSoJZJbm1mE0JklK/IGUlSQ
+                qAnB/iFfTfwN/wCTZ/Df/YBi/wDRNcx4j/YU8D+IPB+j6Kh1fTrbR2kkElrNGJruSQIHklZ423MfLXoA
+                B0AAwB6d4U8FWvg/wNY+H7aS4ezsLRbON5WBlKKu0EkADOPYD2ocbUZ01u3/AJ/5jUv3kJvp/mj4/wD+
+                Can/ACWLWf8AsEN/6OiqD/go7/yXnTf+wRD/AOjpa+jvgf8AsleHPgF4ludU0e91u5uLu2Nq63k0ToFL
+                K2QEjU5yo70z41/sieGvjv4tg1nV77XLa6t7ZbVVs5okjKqzMCQ0bHOWPf0rVyXPTf8ALv8Aj/mTT93n
+                v1/4H+R6ja/8e0f+6P5V8Q/sYf8AJ4N99L//ANCNfcEaCONVHRRivLPhj+yH4a+FHxIl8Uadfa5NqEwl
+                DR3M0TQjzDlsBY1P05/OojpV5+lpL7yOV+xUOt4/geqUUUUFnyT8SP8Akomv/wDYRuP/AEa1YtbXxI/5
+                KJr/AP2Ebj/0a1Ytfz/jP48/V/meY9wooornEdN+1T/yjF17/t3/APTtFX5o1+l37VP/ACjF17/t3/8A
+                TtFX5o1+oy/3fD/9e4fkf1R4L/8AIjqf9fX/AOkQCiiisj9cO7/Zb/5Oa+HX/Yz6Z/6VxV+ztfjF+y3/
+                AMnNfDr/ALGfTP8A0rir9na+iyX+HL1P548af99w3+B/mFFFFe0fiwUUUUAFFFFABRRRQAVm+MfFFv4J
+                8KalrF2k0ltpdtJdSrEAZGVFLEKCQM4HcivHv2sfHd5pHjzwToFx4g1Dwn4Z12aX+0NUsZPJmVl27EEv
+                /LMZIyemDk8A1sfHD4YzW/7MusadN4n8S3R0ezuLtLs3Src3iLHIVhuHC/vUIOG4BbAyaiUn7NzXn+Bc
+                Yr2ig+tvxO8+F/xGsfiz4FsPEGnRXUNlqKs0aXKqsq7XZDkKzDqp6E1v18yfBbXp/gd+w9d+LLW/1K8v
+                Li3LW9vdzCW2spDO0K+UhA2rlgzDJyRVO51nxL8D7f4beLJPGPiHXB4vmii1ex1G5M1qBOEcmFMfu9uT
+                jHPAxgEqd5xXtHFbJpfN7IxjJ8ik/N/Jbn1PRXz38Xda8R6j+2h4c8O6X4i1LSLC/wBHLTpFKxjA/f7n
+                WMnZ5u1flZlO0hTg4xWp+0x41vfg98P/AAn4YsPEF9Zza9ex6bPrl9OHube2GBLM0pwA/wAy/PxgZIwc
+                EZX0T7u342NGrSa7K/4XPcKK+efgP8RZNA/aO1HwXZeMbvxt4bu9PF9aXd3fpfzQTALvTzl6jAb5eg44
+                ySS291jUPip+1N4i8M6l4z8QeE20aOJtCstNnFst98gd3fcCJscHYeq7scK1NatJdU392j/r5i6Nvpb8
+                T6IopsCNHCiu/mOqgM2Mbj3OO1OoBHMeENU8VXnjbxHBrOmWFpoVtJENGuYZd0t2hU7y43HBBx2X/gXW
+                unrxr4H+KNT1b9pL4pWN3qN9c2Ony2otbeW4d4rYFWzsUnC574ArxzwkfFfjX9nnxv4mm8e+L7a48N6j
+                cGzih1BwrbVjLLI332UggKoYBTk4OTUqS5FJ7cqfy0X3lcvvuP8Aet+Fz7Ior57+LX7QXiDQ/wBk3wpq
+                1lOsfiLxWttZm6CgGJnQl5FGMBjtx7bsjoK9Y+Efwxn+GOhyW9z4i8ReI7m52PLNq14bkxuFwwjyMqhO
+                Tgk/WtHGzkn0dvn/AEzNSuotdVf5HWUUUVJR8k/Ej/komv8A/YRuP/RrVi19c3PgDQb25kmm0TSJZpWL
+                u72cbM7E5JJIyST3pn/Ct/Dv/QA0X/wBi/8Aia/N6/A9edSU1VWrb2ZyPDu+58k0V9bf8K38O/8AQA0X
+                /wAAYv8A4mj/AIVv4d/6AGi/+AMX/wATWX+olf8A5+r7mH1Z9z5v/ap/5Ri69/27/wDp2ir80a/cPVfA
+                mh674Yk0S+0bSrzRZcb7Ce0jktXw4cZjIKnDgN06jPWuZ/4Zb+GX/ROvAn/ggtP/AI3X1zyefsqdPmXu
+                RUfuP17gXxAw+Q5fLB1qUptzcrppbxira/4T8YqK/Z3/AIZb+GX/AETrwJ/4ILT/AON0f8Mt/DL/AKJ1
+                4E/8EFp/8bqP7Fn/ADI+0/4jTgv+gaf3o/J39lv/AJOa+HX/AGM+mf8ApXFX7O1xelfs4fDzQ9Ttr2y8
+                BeC7O9s5Vnt7iDRLaOWCRSGV1YICrAgEEcgiu0r08BhHh4uLd7n5nx3xdRz6vSrUabhyJrVp7u/QKKKK
+                7z4QKKKKACiiigAooooA84/aU8T+CdL8HppnjyOZdH1YOsdwLSSZIZlA2gMisUkIZipxyEfnsfN/hDFr
+                kH7CviePWftfkJYXw0r7UhSY2Xk/uyQe2d23k/LjHGK+j6KlxvGUf5lb+vP9ClK0ovs7nzd4K8C3XxI/
+                4J3RaTYxNPey2kssES/eleO6aQKPc7cD61y+p+MoPj/4b+FfgvQ4by41nQbq2l1uL7LJGNLW3RY3Lsyh
+                QMluhPIA6kA/XNFauV6jn0bTt5rb/gmaj7ih5NffufPvjf8A5SG+Ef8AsByf+g3NWv24/Bz3+n+EfEja
+                cdU07wvqgn1KDyvOX7KxQyMyfxJ+7APseeM17xRWfSKXR3/G/wDwC27yb7q34WPDPgX4r8P+OvjVey+C
+                PC3hm38JabYBW1q30Q2dy90xGYUchfl2nJG3PHoRnB/bZ8Q+E9ejfSfL1OD4j6XLA+hm2sZftF0WZWHl
+                yKMMmSw+9kOjYGRz9I0UNXsu3373CLs2+5594m+LN78J/hj4WutcsZdS17VprHTZra3ZUeS5lA8wrn5c
+                jDkDgEgDIzkegjkelec+MdPTxX+0d4Vs7nm30HTbrWI06iSdnSFSf90MxHua9GqubmXN3b+7a33pkJcv
+                u9kvv3/Jo8M/Z+/5On+L3/Xa0/8AQXrzr4P/APJlnxU/7CN7/wCioa+uKKz5fc5P7vL+Wv4GvN7/AD/3
+                ub8LWPlT4p+FNR1v9h/wDqem2811J4cFrqM0cQJYRKjhnwOcKSCT2GT2r2Bf2oNE1r4Pa14w0K2v9Ytd
+                EgEksXkvb7pMAtFuZf4MgsyhgAcgmvS6K0m2+a3V39Hp9+xlCKjy+St6o888K/H/AP4Sbwvpupf8Ix4i
+                j/tC1iudsdv5qLvQNgNxuHPBwM9cCivQ6K6vbUP+ff4s4nh8TfSr/wCSo//Z
+            </property>
+        </structure>
+        <structure>
+            <property name="name">C:\Documents and Settings\James Dixon\My Documents\Pentaho\stuff\quadrant-stores2.png</property>
+            <property name="data">
+                iVBORw0KGgoAAAANSUhEUgAAAQIAAABNCAIAAADCVP0KAAAAK3RFWHRDcmVhdGlvbiBUaW1lAFN1biAx
+                IE1heSAyMDA1IDIyOjI4OjIyIC0wNTAw6yQiGAAAAAd0SU1FB9UGDhYbC8f3aH8AAAAJcEhZcwAACvAA
+                AArwAUKsNJgAAAAEZ0FNQQAAsY8L/GEFAAAF6klEQVR42u2dv2vjSBTHJ7dbOlmizoTAcuYwpEjhwk2a
+                dKnyB7g/uOpgu/sbrju46uD6/AGp0qlxo0LFFgGz6DCE4E4hG7eHV2PHtmbeaGYkj35Y/n6qxHaenqP3
+                1XszejM6WiwWDIDD5mPdDoDamU8e7sN4+3vvejTs1u1UtXAZvPxzVPZhTn/b5pwPf/5d9uH+/+P3HS3M
+                gjs/oi8fYIQcBMgGEhnx/07k3yVveoPbm36nbk+BO36q24EmkUhAp4ENcXh/F8zq9ha4AzJYk1TINhJY
+                E/kPk3ndPgNHoCh6Z/aYHiUuEWofeRzJc8J4cobiqBUgGyyZT75KmSAZDAsh3unfjK574mfi8BGlUStA
+                NuDMn6diKvAGF4oJoe7FwIuElBA9zYZdTB3tAdLUhzTLgWzAFCroXaprnU7/UkoIL98xQGgBkEHC26uU
+                Cz4dZ330+JMn/B5Pn6GD/QcySPLlkzQuOD3JHPd2Tk7FF+LXt7r9BzsDGVA0yYCmA5RFbQAyYPPvL+IL
+                mmSgSAegBUAGZGSQE1RFLQATpgRtTaSAV0VdOX/o5+dY7rZO0d7GnPEwGit5OqM0x1m/pTFX3Pmsj8id
+                X1n/vcwOMd4PE25tQgakJjKwHBzslD/yQs8lP4lTfvpyfE3FXfDcRow2S3LeeFDe8rhLwyOKooaT2eqU
+                RJN9e98sUMdrLiPEMaMG3Dif5jnIPChvbik6WwEZELQjZAWlDg4UrU5bIt+uGZC2ighGxtP8fr1NxiYN
+                OHI+TRyGkfbtos0tKIoaDbmlsS2Pba7G70ZoNK5r6ZWROG+NF4d+LBoqzXlCqvahBZc8TusOR6Oh6rNo
+                ptgjSCD1rjcnr9O/Gng2RsjgJwmBdeh2+jdyv6AtiZXRSDesd+K8TMoGD/JbyUrRzAwZ7DhfWiYkgHvn
+                6ajrnH22CCXaNvj5LF31dc+L6MAbXBmGo06clxFtFLVCgQwajKxQEgSFbuXJYx9yX9wCSUpVOZ93Ltsa
+                yIDQmO4I81SuTQQb+waLxKN5GsGN81UBGTQXc+NrORFsxuKqXI7zZQEZtByLu4NNuizXBGSwP7i4jsN5
+                JZDBztfCssZtebs8GsWeOQ8ZHBilTbbsNZABAZ3ThwdkkHfCgtxua3bVKwORq4AMKPTGwSzI3qyxtCqD
+                6LMxNzTa5zxa6wwLCDZNYFFwzjto9mzsZ0OD20mqAtlAu9lEuk8/8pUZoc6aaK812STnIQPtZhNiD2Pk
+                PwSPU+s9jVz7VaisN1cn5YSjE+crAzJQtCmmT5nYEhxHkbZds1xIBBcpZ0g8VlQTOXG+LPjYIP0omgrY
+                /VE0rlleMTO3JuU9+a9Zzz3IKomkAccy9oRPSkGgSirELdkKXddi9oQsTSmpNnHjfFUgG3D4Hr3CC9I4
+                oDvMWJwidw9vkGuRRFjC73IQKOVElgKIVuwCiQ59hP0myXIEVzhxvioggyV0+Ubk3xmf46He93qFHAXC
+                Y0FmgZRcMkYYZNSSkiexYetJeu36LCi6FtKME+crAhOmK/gQYKrYwSTM/hPDAiwefVFkZ063g3YoBszq
+                6WtrFzzPYiEx8UR0xevxt92LwY3z1cBlMP72V9mHufrly+bn/379soMlK37+N/830g4BVPDioq8RAq+k
+                Iht72qRCHqmQ/rury9d73xxJOk8SIxdsXM6l2YnzlYCiKEV3OLrNsVLcuDFOYs+44N20yVSiTrVPwuJ0
+                8zdzYCQ/bpyvABRFIvzZTv2sTf9WIZt6j+86daLddHG1Q4jSnPUua0ufBBMFHs/sxEjRf2gNx83H0WKx
+                QFGUE3GXnSaeVpAPFEUFSN9S611fHDe5aQzYgKKoEKvx9NM58kA7gAyKklT9kEBbQFEEAGQAAGQAAIMM
+                AGCQAQAMMgCAQQYAMMgAAAYZAMAgAwAYZAAAgwwAYJABAAwyAIBBBgAwyAAABhkAwCADABhkAACDDABg
+                kAEADDIAgEEGADDIAAAGGQDAIAMA2GpH67p9AKBmkA0AgAwAgAwASPgBwUMLi6jkOo0AAAAASUVORK5C
+                YII=
+            </property>
+        </structure>
+    </list-property>
+</report>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<DataSources>
+  <DataSource>
+    <DataSourceName>Provider=Mondrian;DataSource=RolesTest</DataSourceName>
+    <DataSourceDescription>Steel Wheels Roles Test</DataSourceDescription>
+    <URL>http://localhost:8080/pentaho/Xmla?userid=joe&amp;password=password</URL>
+    <DataSourceInfo>Provider=mondrian;Jdbc=jdbc:hsqldb:hsql://localhost/sampledata;JdbcDrivers=org.hsqldb.jdbcDriver;JdbcUser=pentaho_user;JdbcPassword=password;</DataSourceInfo>
+    <ProviderName>PentahoXMLA</ProviderName>
+    <ProviderType>MDP</ProviderType>
+    <AuthenticationMode>Unauthenticated</AuthenticationMode>
+    <Catalogs>
+        <Catalog name="SteelWheelsRoles">
+      <Definition>solution:test/analysis/TestRoles.mondrian.xml</Definition>
+    </Catalog>
+    </Catalogs>
+  </DataSource>
+</DataSources>

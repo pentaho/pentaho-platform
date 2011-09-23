@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>IPreparedComponent Available Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Will Gorman</author>  
+    <description>This tests the XQueryBaseComponent's implementation of the IPreparedComponent interface, verifying that we can gain access to the component</description>  
+    <help/>  
+    <result-type>prepared_component</result-type>
+    <icon/> 
+  </documentation>
+  <actions>
+    <action-definition>
+      <component-name>XQueryLookupRule</component-name>
+      <action-type>XQuery For Report Data</action-type>
+      <component-definition>
+        <live>false</live>
+        <query><![CDATA[/descendant::row[POSITIONTITLE='{PREPARELATER:POSITIONTITLE}']]]></query>
+      </component-definition>
+    </action-definition>
+  </actions>
+</action-sequence>

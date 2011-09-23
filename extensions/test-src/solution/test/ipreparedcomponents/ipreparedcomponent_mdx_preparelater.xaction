@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Test MDX IPreparedComponent PreparedLater</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author/>  
+    <description>Test MDX IPreparedComponent interface, PREPAREDLATER: functionality</description>  
+    <help/>  
+  </documentation>
+
+  <inputs> 
+    <territory type="string"> 
+      <sources> 
+        <request>territory</request> 
+      </sources>  
+      <default-value>EMEA</default-value>
+    </territory>  
+  </inputs>
+
+  <outputs> 
+    <prepared_component type="prepared_component"/> 
+    <second_prepared_component type="prepared_component"/>
+  </outputs>
+
+  <resources> 
+    <catalog> 
+      <url> 
+        <location>samples/steel-wheels/analysis/steelwheels.mondrian.xml</location>  
+        <mime-type>text/plain</mime-type> 
+      </url> 
+    </catalog>  
+  </resources>
+  
+    <actions> 
+
+      <action-definition>
+        <component-name>MDXLookupRule</component-name>
+        <action-type>Qry Selected Territory and Selected Productline</action-type>
+        <action-inputs/>
+        <action-resources>
+          <catalog type="resource"/>
+        </action-resources>
+        <action-outputs>
+          <prepared_component/>
+        </action-outputs>
+        <component-definition>
+          <jndi>SampleData</jndi>
+          <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS, NON EMPTY TopCount([Customers].[All Customers].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales] where ([Product].[All Products].[Classic Cars], [Markets].[All Markets].[EMEA] )]]></query>
+          <location>mondrian</location>
+          <user-id>sa</user-id>
+        </component-definition>
+      </action-definition>
+
+      <action-definition> 
+        <component-name>MDXLookupRule</component-name>
+        <action-type>Qry Selected Territory and Selected Productline</action-type>
+        <action-inputs>
+           <territory/>
+        </action-inputs>
+        <action-resources> 
+          <catalog type="resource"/> 
+        </action-resources>
+        <action-outputs> 
+          <prepared_component mapping="second_prepared_component"/>
+        </action-outputs>
+        <component-definition> 
+          <jndi>SampleData</jndi>
+          <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS, NON EMPTY TopCount([Customers].[All Customers].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales] where ([Product].[All Products].[{PREPARELATER:productline}], [Markets].[All Markets].[{territory}] )]]></query>  
+          <location>mondrian</location>  
+          <user-id>sa</user-id> 
+        </component-definition> 
+      </action-definition>
+    </actions>
+
+</action-sequence>

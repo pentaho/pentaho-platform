@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Cross Tab Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation>
+    <author>Marc Batchelor</author>  
+    <description>This action sequence demonstrates the capabilities of the cross-tab feature of the SQL Component</description>
+    <help/>
+    <result-type>rule</result-type>
+    <icon/>
+  </documentation>
+
+  <inputs/>
+
+  <outputs>
+    <rule-result type="result-set" />
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition>
+      <component-name>SQLLookupRule</component-name>
+      <action-type>SQL Query</action-type>
+      <action-outputs>
+        <query_result type="result-set"/>
+      </action-outputs>
+      <component-definition>
+      	<live>true</live>
+        <jndi>SampleData</jndi>
+        <query>
+          <![CDATA[
+						select REGION, DEPARTMENT, SUM(ACTUAL) AS ACTUAL
+						from QUADRANT_ACTUALS
+						GROUP BY DEPARTMENT, REGION
+						order by ACTUAL desc
+					]]>
+				</query>
+      </component-definition>
+    </action-definition>
+    
+    <action-definition>
+      <component-name>ResultSetCrosstabComponent</component-name>
+      <action-type>rule</action-type>
+      <action-outputs>
+        <rule-result type="result-set" />
+      </action-outputs>
+      <action-inputs>
+        <result_set type="result-set" mapping="query_result" />
+      </action-inputs>
+      <component-definition>
+        <pivot_column>1</pivot_column>
+        <measures_column>3</measures_column>
+        <unique_row_identifier_column>2</unique_row_identifier_column>
+      </component-definition>
+    </action-definition>
+    
+  </actions>
+</action-sequence>

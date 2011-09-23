@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>jasper-reports-test-2.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon and Barry Klawans</author>  
+    <description>%description</description>  
+    <icon>jasper-reports-test-2.png</icon>  
+    <help/>  
+    <result-type>report</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>pdf</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type>  
+    <REGION type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>REGION</request> 
+      </sources> 
+    </REGION> 
+  </inputs>
+
+  <outputs> 
+    <!-- an output stream will be provided by default --> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <report-definition> 
+      <solution-file> 
+        <location>QuadrantForRegion.jrxml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>JasperReportsComponent</component-name>
+      <action-type>report</action-type>
+      <action-inputs> 
+        <output-type type="string"/>  
+        <REGION type="string"/> 
+      </action-inputs>
+      <action-resources>
+        <report-definition type="resource"/>
+      </action-resources>
+      <component-definition> 
+        <!-- use this section to provide any report specific settings, kinda like hard-coded local variables -->  
+        <jndi>SampleData</jndi> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,68 @@
+
+<filters>
+	<name>RegionFilter</name>
+	<filter>
+		<title>Select a Region</title>
+		<name>REGION</name>
+		<type>radio</type>
+		<!-- session-attribute>REGION-list</session-attribute -->
+		<data-solution>samples</data-solution>
+		<data-path>portal</data-path>
+		<data-action>regions.rule.xaction</data-action>
+		<data-output>rule-result</data-output>
+		<data-display>REGION</data-display>
+		<data-value>REGION</data-value>
+	</filter>
+	<filter>
+		<title>Select one or more Departments</title>
+		<name>DEPARTMENT</name>
+		<type>list-multi</type>
+		<data-solution>samples</data-solution>
+		<data-path>portal</data-path>
+		<data-action>departments.rule.xaction</data-action>
+		<data-output>rule-result</data-output>
+		<data-display>DEPARTMENT</data-display>
+		<data-value>DEPARTMENT</data-value>
+	</filter>
+	<filter>
+		<title>Select one or more Position Titles</title>
+		<name>POSITIONTITLE</name>
+		<type>list-multi</type>
+		<data-display>POSITIONTITLE</data-display>
+		<data-value>POSITIONTITLE</data-value>
+		<empty-accepted>false</empty-accepted>
+		<value-in-list>true</value-in-list>
+	    <static-lov>
+	    	<headers>
+    	    	<header>POSITIONTITLE</header>    	    	
+            </headers>
+            <rows>
+        	    <row>
+            		<item>CEO</item>
+            	</row>
+        	    <row>
+            		<item>CMO</item>
+            	</row>
+           	    <row>
+            		<item>IS</item>
+                </row>            
+           	    <row>
+             		<item>EOE</item>
+	            </row>     
+           	    <row>
+            		<item>CTO</item>
+                </row>                                         
+            </rows>
+	   </static-lov>		
+	</filter>	
+	<filter>
+		<title>Year</title>
+		<name>year</name>
+		<type>text-box</type>
+		<data-display>year</data-display>
+		<data-value>year</data-value>
+		<empty-accepted>false</empty-accepted>
+		<value-in-list>false</value-in-list>
+		<static-lov/>
+	</filter>	
+</filters>

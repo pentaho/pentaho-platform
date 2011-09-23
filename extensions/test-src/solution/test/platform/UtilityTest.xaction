@@ -1,0 +1,97 @@
+<action-sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+  <name>UtilityTest.xaction</name>
+  <title>Utility Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+
+  <documentation>
+    <author>Doug Moran</author>
+    <description>Test of the utility component functionality</description>
+    <help></help>
+  </documentation>
+
+  <inputs>
+    <a-map type="property-map-list">
+      <default-value type="property-map-list">
+        <property-map>
+          <entry key="apple">Good</entry>
+          <entry key="orange">Sweet</entry>
+          <entry key="grapefruit">Sour</entry>
+          <entry key="pomegranate">Funny</entry>
+        </property-map>
+        <property-map>
+          <entry key="carrot">Good</entry>
+          <entry key="cucumber">Long</entry>
+          <entry key="potato">Dimply</entry>
+          <entry key="broccoli">Flowery</entry>
+          <entry key="zucchini">Funny</entry>
+        </property-map>
+        <property-map>
+          <entry key="big mac">Sloppy</entry>
+          <entry key="whopper">Lame</entry>
+          <entry key="taco">Greasy</entry>
+        </property-map>
+      </default-value>
+    </a-map>
+    
+    <a-string type="string">
+      <default-value type="string">A String</default-value>    
+    </a-string>
+
+    <b-string type="string">
+      <default-value type="string">B String</default-value>    
+    </b-string>
+
+    <c-string type="string">
+      <default-value type="string">This is the Message - Param {0} Param {1}</default-value>    
+    </c-string>
+
+    <z-out type="property-map-list" />
+
+  </inputs>
+  
+  <outputs>
+    <z-out type="property-map-list" />
+  </outputs>
+  
+  <actions>
+    <action-definition>
+      <action-name>format</action-name>
+      <component-name>UtilityComponent</component-name>
+
+      <action-inputs>
+        <a-string type="string"/>
+        <b-string type="string"/>
+        <c-string type="string"/>
+
+        <d-string type="string">
+          <default-value type="string">D String</default-value>    
+        </d-string>
+      </action-inputs>
+
+      <action-outputs>
+        <action1-out type="string"/>
+      </action-outputs>
+
+      <component-definition>
+        <format>
+          <format-string>"This is the Message - Param {0} Param {1}"</format-string>
+          <arg>a-string</arg>
+          <arg>b-string</arg>
+          <return>tmp-out</return>
+        </format>
+        <copy>
+          <from>tmp-out</from>
+          <return>action1-out</return>
+        </copy>
+        <print>
+          <delimiter>" - "</delimiter>
+          <arg>tmp-out</arg>
+          <arg>" Constant "</arg>
+          <arg>d-string</arg>
+        </print>
+      </component-definition>
+    </action-definition>
+
+  </actions>
+</action-sequence>

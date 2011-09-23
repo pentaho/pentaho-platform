@@ -1,0 +1,216 @@
+<action-sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+  <name>LoopingTest.xaction</name>
+  <title>Component Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation>
+    <author>Doug Moran</author>
+    <description>Test of the Multiple Test Component Sequence with multiple loops</description>
+    <help>still just testing...</help>
+  </documentation>
+
+  <inputs>
+    <a-map type="property-map-list">
+      <default-value type="property-map-list">
+        <property-map>
+          <entry key="apple">Good</entry>
+          <entry key="orange">Sweet</entry>
+          <entry key="grapefruit">Sour</entry>
+          <entry key="pomegranate">Funny</entry>
+        </property-map>
+        <property-map>
+          <entry key="carrot">Good</entry>
+          <entry key="cucumber">Long</entry>
+          <entry key="potato">Dimply</entry>
+          <entry key="broccoli">Flowery</entry>
+          <entry key="zucchini">Funny</entry>
+        </property-map>
+        <property-map>
+          <entry key="big mac">Sloppy</entry>
+          <entry key="whopper">Lame</entry>
+          <entry key="taco">Greasy</entry>
+        </property-map>
+      </default-value>
+			<sources>
+				<runtime>runtime-a</runtime> 
+			</sources>
+    </a-map>
+    
+    <b-map type="property-map-list">
+      <default-value type="property-map-list">
+        <property-map>
+          <entry key="name">orange</entry>
+          <entry key="color">orange</entry>
+          <entry key="shape">sphere</entry>
+          <entry key="texture">dimply</entry>
+        </property-map>
+        <property-map>
+          <entry key="name">grapefruit</entry>
+          <entry key="color">Yellow</entry>
+          <entry key="shape">sphere</entry>
+          <entry key="texture">dimply</entry>
+        </property-map>
+        <property-map>
+          <entry key="name">carrot</entry>
+          <entry key="color">orange</entry>
+          <entry key="shape">cone</entry>
+          <entry key="texture">bumpy</entry>
+        </property-map>
+        <property-map>
+          <entry key="name">cucumber</entry>
+          <entry key="color">green</entry>
+          <entry key="shape">ellipsoid</entry>
+          <entry key="texture">smooth</entry>
+        </property-map>
+        <property-map>
+          <entry key="name">zucchini</entry>
+          <entry key="color">green</entry>
+          <entry key="shape">ellipsoid</entry>
+          <entry key="texture">semi-smooth</entry>
+        </property-map>
+        <property-map>
+          <entry key="name">taco</entry>
+          <entry key="color">brown</entry>
+          <entry key="shape">saddle</entry>
+          <entry key="texture">rough</entry>
+        </property-map>
+      </default-value>
+			<sources>
+				<runtime>runtime-a</runtime> 
+			</sources>
+    </b-map>
+    
+    <c-string type="string">
+      <default-value type="string">name</default-value>    
+    </c-string>
+  </inputs>
+  
+  <outputs>
+    <z-out type="property-map-list"/>
+  </outputs>
+  
+  <actions loop-on="a-map">
+    <action-definition>
+      <action-name>Action 1</action-name>
+      <component-name>TestComponent</component-name>
+
+      <action-inputs>
+        <a-map type="property-map"/>
+        <b-map type="property-map-list"/>
+        <c-string type="string"/>
+      </action-inputs>
+
+      <action-outputs>
+        <action1-out type="property-map-list"/>
+      </action-outputs>
+
+      <component-definition>
+        <test>merge</test>
+        <p1>a-map</p1>
+        <p2>b-map</p2>
+        <p3>c-string</p3>
+        <newname>action1-out</newname>
+      </component-definition>
+    </action-definition>
+
+   <actions loop-on="action1-out">
+      <action-definition>
+        <action-name>Action 2</action-name>
+        <component-name>TestComponent</component-name>
+
+        <action-inputs>
+          <action1-out type="property-map"/>
+        </action-inputs>
+
+        <action-outputs>
+          <action2-out type="string-list"/>
+        </action-outputs>
+        
+        <component-definition>
+          <test>getkeys</test>
+          <p1>action1-out</p1>
+          <newname>action2-out</newname>
+        </component-definition>
+      </action-definition>
+
+      <action-definition>
+        <action-name>Action 3</action-name>
+        <component-name>TestComponent</component-name>
+
+        <action-inputs>
+          <action2-out type="string-list"/>
+        </action-inputs>
+
+        <action-outputs>
+          <z-out type="string-list" append="true"/>
+        </action-outputs>
+        
+        <component-definition>
+          <test>rename</test>
+          <p1>action2-out</p1>
+          <newname>z-out</newname>
+        </component-definition>
+      </action-definition>
+      
+      <actions loop-on="z-out">
+         <action-definition>
+            <action-name>Action 4</action-name>
+            <component-name>TestComponent</component-name>
+      
+            <action-inputs>
+              <z-out type="string"/>
+            </action-inputs>
+      
+            <action-outputs>
+              <msg type="string"/>
+            </action-outputs>
+      
+            <component-definition>
+              <test>format</test>
+              <p1>This is a formatted message -{0}</p1>
+              <p2>z-out</p2>
+              <p3>z-out</p3>
+              <newname>msg</newname>
+            </component-definition>
+          </action-definition>
+          
+         <action-definition>
+            <action-name>Action 5</action-name>
+            <component-name>TestComponent</component-name>
+      
+            <action-inputs>
+              <msg type="string-list"/>
+            </action-inputs>
+      
+            <action-outputs>
+            </action-outputs>
+      
+            <component-definition>
+              <test>print</test>
+              <p1>msg</p1>
+            </component-definition>
+          </action-definition>      
+          
+      </actions>
+   </actions> 
+
+   <action-definition>
+      <action-name>Action 6</action-name>
+      <component-name>TestComponent</component-name>
+
+      <action-inputs>
+        <z-out type="string-list"/>
+      </action-inputs>
+
+      <action-outputs>
+      </action-outputs>
+
+      <component-definition>
+        <test>print</test>
+        <p1>z-out</p1>
+      </component-definition>
+    </action-definition>
+
+
+  </actions>
+</action-sequence>

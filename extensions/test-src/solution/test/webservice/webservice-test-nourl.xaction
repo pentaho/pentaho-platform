@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>XQuery - Getting Nodes from SOAP</title>
+  <inputs/>
+
+  <outputs> 
+    <soap_response type="result-set"> 
+      <destinations/> 
+    </soap_response> 
+  </outputs>
+
+  <actions> 
+    <action-definition> 
+      <component-name>org.pentaho.platform.plugin.action.xml.webservice.WebServiceLookupRule</component-name>
+      <action-type>XML</action-type>
+      <action-resources> 
+        <document type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <query-result type="result-set" mapping="soap_response"/> 
+      </action-outputs>
+      <component-definition>
+        <query><![CDATA[//*[name() = 'Title']]]></query>
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

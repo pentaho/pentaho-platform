@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Barchart Data</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description>Return the variance between headcount actual and budget for every department</description>  
+    <help/> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <!-- Define an input called 'REGION'. This will be passed in when the user clicks on a slice of the pie chart -->  
+  <!-- Define an output called 'rule-result' -->  
+  <!-- This action sequence does not require any external resources -->  
+  <actions> 
+    <action-definition> 
+      <!-- Define a local input called 'REGION' -->  
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Variance Data</action-type>
+      <action-inputs/>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <!-- Define the datasource for the query -->  
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <source>sql</source>  
+        <!-- Define the query to execute. Note the parameter {REGION} in the query -->  
+        <query><![CDATA[select department, sum(variance) 
+from QUADRANT_ACTUALS 
+group by department]]></query> 
+      </component-definition>  
+      <!-- Define a local output called 'rule-result' -->  
+      <!-- Specify the component to execute -->  
+      <!-- Define the settings for the component --> 
+    </action-definition>
+    <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>Bar Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="query_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="bar"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <by-row>true</by-row>  
+          <title><![CDATA[Pricing for 1960's Models]]></title>  
+          <width><![CDATA[550]]></width>  
+          <height><![CDATA[550]]></height> 
+        </component-definition> 
+      </action-definition>
+  </actions> 
+</action-sequence>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>text_only_email.xaction</name>
+  <title>Text Only Email</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <help>just testing...</help>  
+    <result-type>email</result-type>  
+    <description>This is the description</description> 
+  </documentation>
+
+  <inputs> 
+    <to type="string"> 
+      <default-value><![CDATA[joe.pentaho@pentaho.org]]></default-value> 
+    </to>  
+    <subject type="string"> 
+      <default-value>text_only_email.xaction - Pentaho email Test</default-value>  
+      <sources> 
+        <request>email-subject</request> 
+      </sources> 
+    </subject>  
+    <message-plain type="string"> 
+      <default-value>This is the message text</default-value> 
+    </message-plain> 
+  </inputs>
+
+  <outputs/>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>EmailComponent</component-name>
+      <action-type>email</action-type>
+      <action-inputs> 
+        <to type="string"/>  
+        <subject type="string"/>  
+        <message-plain type="string"/> 
+      </action-inputs>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>IPreparedComponent HQL Available Test</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Will Gorman</author>  
+    <description>This tests the HQLBaseComponent's implementation of IPreparedComponent to see if it's available after executing</description>  
+    <help/>  
+    <result-type>prepared_component</result-type> 
+  </documentation>
+
+  <inputs/> 
+
+  <outputs> 
+    <prepared_component type="prepared_component"/>
+  </outputs>
+
+  <resources> 
+    <hibernateConfig> 
+      <solution-file> 
+        <location>HQL_Datasource.cfg.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </hibernateConfig> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>HQLLookupRule</component-name>
+      <action-type>HQL Prepared Component</action-type>
+      <hibernateConfig> 
+        <catalog type="resource"/> 
+      </hibernateConfig>
+      <action-outputs> 
+        <prepared_component/> 
+      </action-outputs>
+      <component-definition> 
+        <classNames>org.pentaho.platform.repository.content.ContentItem, org.pentaho.platform.repository.content.ContentItemFile, org.pentaho.platform.repository.content.ContentLocation, org.pentaho.platform.repository.runtime.RuntimeElement</classNames>  
+        <query><![CDATA[select name as Name, path as Path, title as Title, mimeType as mimeType, id as Id from ContentItem]]></query>  
+        <!--query><![CDATA[select * from RuntimeElementsasdf]]></query--> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

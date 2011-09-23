@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence>
+   <name>AttachmentsTest.xaction</name>
+   <version>1</version>
+   <title>Email A report</title>
+   <logging-level>debug</logging-level>
+   <documentation>
+      <author>Doug Moran</author>
+      <description>This Action Sequence will run a report and email it</description>
+      <help/>
+      <result-type>email</result-type>
+      <icon>BurstActionSequence.png</icon>
+   </documentation>
+   <inputs>
+      <REGION type="string">
+         <sources>
+            <request>REGION</request>
+         </sources>
+         <default-value>Central</default-value>
+      </REGION>
+      <output-type type="string">
+         <default-value>pdf</default-value>
+      </output-type>
+      <attach type="string">
+         <default-value>report-output</default-value>
+      </attach>
+   </inputs>
+   <outputs/>
+   <resources>
+      <report-definition>
+         <solution-file>
+            <location>JFreeQuadrantForRegion.xml</location>
+            <mime-type>text/xml</mime-type>
+         </solution-file>
+      </report-definition>
+      <a-resource>
+         <solution-file>
+            <location>content1.html</location>
+            <mime-type>text/html</mime-type>
+         </solution-file>
+      </a-resource>
+   </resources>
+   <actions>
+      <action-definition>
+         <action-inputs>
+            <output-type type="string"/>
+         </action-inputs>
+         <action-outputs>
+            <report-output type="content" mapping="central-report"/>
+         </action-outputs>
+         <component-name>JFreeReportComponent</component-name>
+         <action-type>report</action-type>
+         <component-definition>
+            <source>sql</source>
+            <live>true</live>
+            <jndi>SampleData</jndi>
+            <query>select QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT, QUADRANT_ACTUALS.POSITIONTITLE, QUADRANT_ACTUALS.ACTUAL, QUADRANT_ACTUALS.BUDGET, QUADRANT_ACTUALS.VARIANCE from QUADRANT_ACTUALS where QUADRANT_ACTUALS.REGION='Central' order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT</query>
+         </component-definition>
+      </action-definition>
+      <action-definition>
+         <action-inputs>
+            <output-type type="string"/>
+         </action-inputs>
+         <action-outputs>
+            <report-output type="content" mapping="eastern-report"/>
+         </action-outputs>
+         <component-name>JFreeReportComponent</component-name>
+         <action-type>report</action-type>
+         <component-definition>
+            <source>sql</source>
+            <live>true</live>
+            <jndi>SampleData</jndi>
+            <query>select QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT, QUADRANT_ACTUALS.POSITIONTITLE, QUADRANT_ACTUALS.ACTUAL, QUADRANT_ACTUALS.BUDGET, QUADRANT_ACTUALS.VARIANCE from QUADRANT_ACTUALS where QUADRANT_ACTUALS.REGION='Eastern' order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT</query>
+         </component-definition>
+      </action-definition>
+      <action-definition>
+         <action-inputs>
+            <output-type type="string"/>
+         </action-inputs>
+         <action-outputs>
+            <report-output type="content" mapping="western-report"/>
+         </action-outputs>
+         <component-name>JFreeReportComponent</component-name>
+         <action-type>report</action-type>
+         <component-definition>
+            <source>sql</source>
+            <live>true</live>
+            <jndi>SampleData</jndi>
+            <query>select QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT, QUADRANT_ACTUALS.POSITIONTITLE, QUADRANT_ACTUALS.ACTUAL, QUADRANT_ACTUALS.BUDGET, QUADRANT_ACTUALS.VARIANCE from QUADRANT_ACTUALS where QUADRANT_ACTUALS.REGION='Western' order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT</query>
+         </component-definition>
+      </action-definition>
+      <action-definition>
+         <action-inputs>
+            <output-type type="string"/>
+         </action-inputs>
+         <action-outputs>
+            <report-output type="content" mapping="southern-report"/>
+         </action-outputs>
+         <component-name>JFreeReportComponent</component-name>
+         <action-type>report</action-type>
+         <component-definition>
+            <source>sql</source>
+            <live>true</live>
+            <jndi>SampleData</jndi>
+            <query>select QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT, QUADRANT_ACTUALS.POSITIONTITLE, QUADRANT_ACTUALS.ACTUAL, QUADRANT_ACTUALS.BUDGET, QUADRANT_ACTUALS.VARIANCE from QUADRANT_ACTUALS where QUADRANT_ACTUALS.REGION='Southern' order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT</query>
+         </component-definition>
+      </action-definition>
+      <action-definition>
+         <component-name>EmailComponent</component-name>
+         <action-inputs>
+            <a-resource type="content"/>
+            <message-html type="string"/>
+            <eastern-report type="content"/>
+            <western-report type="content"/>
+            <central-report type="content"/>
+            <southern-report type="content"/>
+         </action-inputs>
+         <component-definition>
+            <to>dmoran@doug.org</to>
+            <from>dmoran@pentaho.org</from>
+            <eastern-name>Eastern Report.pdf</eastern-name>
+            <western-name>Western Report.pdf</western-name>
+            <southern-name>Southern Report.pdf</southern-name>
+            <central-name>Central Report.pdf</central-name>
+            <resource-name>HTML Attachment.html</resource-name>
+
+            <attachment-ref name-param="eastern-name" input-param="eastern-report"/>
+            <attachment-ref name-param="western-name" input-param="western-report"/>
+            <attachment-ref name-param="southern-name" input-param="southern-report"/>
+            <attachment-ref name-param="central-name" input-param="central-report"/>
+            <attachment-ref name-param="resource-name" resource-param="a-resource"/>
+            <subject>Regional Reports</subject>
+            <message-plain><![CDATA[Hi, 
+
+The four regional reports are attached along with some HTML content. 
+
+
+Doug.]]></message-plain>
+         </component-definition>
+      </action-definition>
+   </actions>
+</action-sequence>

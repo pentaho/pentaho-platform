@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence>
+  <name>ChartBeans Sample 2</name>
+  <title>ChartBeans Sample 2</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Curtis Boyden</author>  
+    <description/>  
+    <help/>
+  </documentation>
+
+  <inputs>
+    <seriesColumn type="string">
+      <sources>
+        <request>seriesColumn</request>
+      </sources>
+      <default-value>LINE</default-value>
+    </seriesColumn>
+    <categoryColumn type="string">
+      <sources>
+        <request>category-column</request>
+      </sources>
+      <default-value>YEAR</default-value>
+    </categoryColumn>
+    <valueColumn type="string">
+      <sources>
+        <request>value-column</request>
+      </sources>
+      <default-value>PRICE</default-value>
+    </valueColumn>
+    <title type="string">
+      <sources>
+        <request>title</request>
+      </sources>
+      <default-value>A new custom title - 2</default-value>
+    </title>
+    <chartWidth type="string">
+      <sources>
+        <request>chart-width</request>
+      </sources>
+      <default-value>400</default-value>
+    </chartWidth>
+    <chartHeight type="string">
+      <sources>
+        <request>chart-width</request>
+      </sources>
+      <default-value>400</default-value>
+    </chartHeight>
+    <chartEngine type="string">
+      <sources>
+        <request>chart-engine</request>
+      </sources>
+      <default-value>JFreeChart</default-value>
+    </chartEngine>
+    <outputType type="string">
+      <sources>
+        <request>output-type</request>
+      </sources>
+      <default-value>png</default-value>
+    </outputType>
+  </inputs>
+
+  <outputs>
+    <chartContent type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </chartContent> 
+  </outputs>
+  
+  <!-- Define an input called 'REGION'. This will be passed in when the user clicks on a slice of the pie chart -->  
+  <!-- Define an output called 'rule-result' -->  
+  <!-- This action sequence does not require any external resources -->  
+  <actions> 
+    <action-definition> 
+      <!-- Define a local input called 'REGION' -->  
+      <component-name>JavascriptRule</component-name>
+      <action-inputs />
+      <action-outputs> 
+        <rtn type="result-set" mapping="chartData"/> 
+      </action-outputs>
+      <component-definition>
+        <script>
+         function testIt() {
+              var rtn = new JavaScriptResultSet();
+              rtn.setColumnHeaders( 'LINE', 'YEAR', 'PRICE' );
+              rtn.addRow( new Array('Planes', '2005', 47.0) );
+              rtn.addRow( new Array('Planes', '2006', 52.0) );
+              rtn.addRow( new Array('Planes', '2007', 57.0) );
+              rtn.addRow( new Array('Planes', '2008', 65.0) );
+              rtn.addRow( new Array('Trains', '2005', 29.0) );
+              rtn.addRow( new Array('Trains', '2006', 22.0) );
+              rtn.addRow( new Array('Trains', '2007', 24.0) );
+              rtn.addRow( new Array('Trains', '2008', 19.0) );
+              rtn.addRow( new Array('Automobiles', '2005', 9.0) );
+              rtn.addRow( new Array('Automobiles', '2006', 7.5) );
+              rtn.addRow( new Array('Automobiles', '2007', 8.2) );
+              rtn.addRow( new Array('Automobiles', '2008', 8.0) );
+              return rtn;
+          }
+          testIt();
+        </script>
+      </component-definition>
+    </action-definition>
+    
+    <action-definition>
+      <component-name>ChartBeansAction</component-name>
+      <action-inputs> 
+        <chartData type="result-set" />
+        <seriesColumn type="string"/>
+        <categoryColumn type="string"/>
+        <valueColumn type="string"/>
+        <title type="string"/>
+        <chartWidth type="string"/>
+        <chartHeight type="string"/>
+        <chartEngine type="string"/>
+        <outputType type="string"/>
+      </action-inputs>
+      <action-resources/> 
+      <action-outputs>
+        <chartContent type="content"/>
+      </action-outputs>
+      <component-definition> 
+        <chartModelXml><![CDATA[
+<chartModel style="border-top-width: 1; border-top-color: #987654; background-color: #EEEEEE;">
+  <title style="font-family: monospace; color: #123456; font-size: 20px; font-weight: bold; font-style: oblique;">{title}</title>
+  <legend style="font-family: verdana; font-size: 18px; font-weight: bold; border-top-width: 2; border-top-color: #654321; font-style: italic;"/>
+  <barPlot orientation="VERTICAL" style="opacity: 0.75; background-color: #FFFFFF;" flavor="THREED">
+    <palette>
+      <paint style="color: #FF0000;"/>
+      <paint style="color: #00FF00;"/>
+      <paint style="color: #0000FF;"/>
+      <paint style="color: #FFFF00;"/>
+      <paint style="color: #00FFFF;"/>
+      <paint style="color: #FF00FF;"/>
+      <paint style="color: #000000;"/>
+    </palette>
+    <xAxisLabel style="font-family: san-serif; color: #192837; font-size: 10px;">xAxis</xAxisLabel>
+    <yAxisLabel style="font-family: san-serif; color: #192837; font-size: 12px; font-weight: bold; font-style: oblique;">yAxis</yAxisLabel>
+  </barPlot>
+</chartModel>
+        ]]></chartModelXml>
+      </component-definition>
+      <action-name>Test the test POJO</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

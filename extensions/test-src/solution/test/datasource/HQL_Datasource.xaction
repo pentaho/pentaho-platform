@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>HQL_Datasource.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <icon>SQL_Datasource.png</icon>  
+    <help>Help</help>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type> 
+  </inputs>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources> 
+    <hibernateConfig> 
+      <solution-file> 
+        <location>HQL_Datasource.cfg.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </hibernateConfig> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>HQLLookupRule</component-name>
+      <action-type>HQL For Report Data</action-type>
+      <hibernateConfig> 
+        <catalog type="resource"/> 
+      </hibernateConfig>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <classNames>org.pentaho.repository.content.ContentItem, org.pentaho.repository.content.ContentItemFile, org.pentaho.repository.content.ContentLocation, org.pentaho.repository.runtime.RuntimeElement</classNames>  
+        <query><![CDATA[select name as Name, path as Path, title as Title, mimeType as mimeType, id as Id from ContentItem]]></query>  
+        <max_rows>2</max_rows>
+        <timeout>100</timeout> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

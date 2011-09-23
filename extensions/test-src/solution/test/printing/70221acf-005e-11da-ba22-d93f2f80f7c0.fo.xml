@@ -1,0 +1,2364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+	<fo:layout-master-set>
+		<fo:simple-page-master master-name="Simple MasterPage" page-height="11in" page-width="8.5in" margin-left="0.5in" margin-top="0in" margin-bottom="0in" margin-right="0.5in">
+			<fo:region-body margin-top="1in" margin-bottom="1in" margin-left="0cm" margin-right="0cm" overflow="hidden"/>
+			<fo:region-after region-name="xsl-region-after-Simple MasterPage" extent="1in" overflow="hidden"/>
+		</fo:simple-page-master>
+	</fo:layout-master-set>
+	<fo:page-sequence master-reference="Simple MasterPage">
+		<fo:static-content flow-name="xsl-region-after-Simple MasterPage">
+			<fo:block>
+				<fo:block width="100%">
+					<fo:table table-omit-header-at-break="true">
+						<fo:table-column/>
+						<fo:table-column/>
+						<fo:table-column/>
+						<fo:table-body>
+							<fo:table-row height="0.1in">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="0.25in">
+								<fo:table-cell>
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+											<fo:inline>
+													http://www.pentaho.org
+											</fo:inline>
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="center">
+											<fo:inline>
+													Sample output from Pentaho Reporting
+											</fo:inline>
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+											<fo:inline>
+													7/29/05 2:27 PM
+											</fo:inline>
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+						</fo:table-body>
+					</fo:table>
+				</fo:block>
+			</fo:block>
+		</fo:static-content>
+		<fo:flow flow-name="xsl-region-body">
+			<fo:block>
+				<fo:block break-after="page" keep-with-next="auto" break-before="auto" keep-with-previous="auto">
+					<fo:table>
+						<fo:table-column column-width="55pt"/>
+						<fo:table-column column-width="236pt"/>
+						<fo:table-column column-width="85pt"/>
+						<fo:table-column column-width="85pt"/>
+						<fo:table-column column-width="85pt"/>
+						<fo:table-header>
+							<fo:table-row>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+						</fo:table-header>
+						<fo:table-body>
+							<fo:table-row>
+								<fo:table-cell number-columns-spanned="5" font-family="sans-serif" font-size="10pt" font-weight="bold" color="#028892">
+									<fo:block>
+										<fo:block width="100%">
+											<fo:table table-omit-header-at-break="true">
+												<fo:table-column/>
+												<fo:table-column/>
+												<fo:table-body>
+													<fo:table-row>
+														<fo:table-cell>
+															<fo:block/>
+														</fo:table-cell>
+														<fo:table-cell text-align="right">
+															<fo:block>
+																<fo:block height="45pt" width="150pt">
+																	<fo:external-graphic src="C:/temp/logo.png" height="45pt" width="150pt"/>
+																</fo:block>
+															</fo:block>
+														</fo:table-cell>
+													</fo:table-row>
+													<fo:table-row height="20pt">
+														<fo:table-cell>
+															<fo:block>
+																<fo:block font-family="sans-serif" font-size="14pt" color="#dd636f">
+																		Regional Report
+																</fo:block>
+															</fo:block>
+														</fo:table-cell>
+														<fo:table-cell>
+															<fo:block/>
+														</fo:table-cell>
+													</fo:table-row>
+												</fo:table-body>
+											</fo:table>
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="20pt">
+								<fo:table-cell number-columns-spanned="2" font-family="sans-serif" font-size="10pt" font-weight="bold" color="#028892">
+									<fo:block>
+										<fo:block>
+											<fo:table table-omit-header-at-break="true">
+												<fo:table-column column-width="50pt"/>
+												<fo:table-column/>
+												<fo:table-body>
+													<fo:table-row>
+														<fo:table-cell>
+															<fo:block>
+																<fo:block font-size="12pt">
+																		Region:
+																</fo:block>
+															</fo:block>
+														</fo:table-cell>
+														<fo:table-cell>
+															<fo:block>
+																<fo:block font-family="sans-serif" font-size="12pt" font-weight="bold">
+																		Central
+																</fo:block>
+															</fo:block>
+														</fo:table-cell>
+													</fo:table-row>
+												</fo:table-body>
+											</fo:table>
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="20pt" font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" vertical-align="middle">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600">
+												Department
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff">
+												Position
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Actual
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Budget
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Variance
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="0.04in">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell number-columns-spanned="2">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold">
+												Executive Management
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												CEO
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$549,625
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$522,250
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$27,375
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												SVP WW Operations
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$476,000
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$725,887
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$249,887
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												SVP Strategic Development
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$383,242
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$403,405
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$20,163
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												SVP Partnerships
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$367,415
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$392,100
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$24,685
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block>
+												Total
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$1,776,282
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$2,043,642
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$267,360
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block color="#ffffff">
+												.
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="20pt" font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" vertical-align="middle">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600">
+												Department
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff">
+												Position
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Actual
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Budget
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Variance
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="0.04in">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell number-columns-spanned="2">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold">
+												Finance
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												CFO
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$770,272
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$719,855
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$50,417
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Administrative Assisitant
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$827,861
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$760,990
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$66,871
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												IS
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$570,759
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$577,346
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$6,587
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Controller
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$570,373
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$577,070
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$6,697
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Payroll
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$367,415
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$432,100
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$64,685
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block>
+												Total
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,106,680
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,067,361
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$39,319
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block color="#ffffff">
+												.
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="20pt" font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" vertical-align="middle">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600">
+												Department
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff">
+												Position
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Actual
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Budget
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Variance
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="0.04in">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell number-columns-spanned="2">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold">
+												Human Resource
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Administration
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$549,625
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$552,250
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$2,625
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												SVP HR
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$574,895
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$570,300
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$4,595
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												HR Generalists
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$856,190
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$771,225
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$84,965
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												HR Training
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$397,473
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$443,570
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$46,097
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Sexual Harassment
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$530,473
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$538,570
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$8,097
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												EOE
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$530,207
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$538,380
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$8,173
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block>
+												Total
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,438,863
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,414,295
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$24,568
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block color="#ffffff">
+												.
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="20pt" font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" vertical-align="middle">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600">
+												Department
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff">
+												Position
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Actual
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Budget
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Variance
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="0.04in">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell number-columns-spanned="2">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold">
+												Marketing &amp; Communication
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												CMO
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$827,861
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$760,990
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$66,871
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Product Marketing Mgr
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$693,531
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$665,040
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$28,491
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Analyst Relations
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$383,375
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$443,500
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$60,125
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Press Relations
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$497,296
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$524,872
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$27,576
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Graphics
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$782,375
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$728,500
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$53,875
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Writer
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$405,985
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$459,650
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$53,665
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block>
+												Total
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,590,423
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,582,552
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$7,871
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block color="#ffffff">
+												.
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="20pt" font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" vertical-align="middle">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600">
+												Department
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff">
+												Position
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Actual
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Budget
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Variance
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="0.04in">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell number-columns-spanned="2">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold">
+												Product Development
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												CTO
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$405,985
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$459,650
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$53,665
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												VP Engineering
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$383,242
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$443,405
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$60,163
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Senior Engineer
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$770,272
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$719,855
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$50,417
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Engineer
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$695,925
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$666,750
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$29,175
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												QA Manager
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$374,863
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$437,420
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$62,557
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												QA Engineer
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$367,415
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$432,100
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$64,685
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block>
+												Total
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$2,997,702
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,159,180
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$161,478
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block color="#ffffff">
+												.
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="20pt" font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" vertical-align="middle">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600">
+												Department
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff">
+												Position
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Actual
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Budget
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Variance
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="0.04in">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell number-columns-spanned="2">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold">
+												Professional Services
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												SVP Services
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$4,042,220
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$4,180,000
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$137,780
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Services Mgr
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$4,401,586
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$4,680,000
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$278,414
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Senior Consultant
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,994,859
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,980,000
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$14,859
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Staff Consultant
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,824,426
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$4,180,000
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$355,574
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Trainer
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,804,948
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$3,380,000
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$424,948
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block>
+												Total
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$20,068,039
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$20,400,000
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$331,961
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block color="#ffffff">
+												.
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="20pt" font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" vertical-align="middle">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600">
+												Department
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff">
+												Position
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Actual
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Budget
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" color="#ffffff" padding-top="6pt" vertical-align="baseline">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ff6600" text-align="right">
+												Variance
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row height="0.04in">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell number-columns-spanned="2">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" font-weight="bold">
+												Sales
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												District Manager
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$682,625
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$617,250
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$65,375
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Senior Sales Rep
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$497,223
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$484,820
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$12,403
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Sales Rep
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$675,975
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$612,500
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$63,475
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Account Executive
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$409,975
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$422,500
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$12,525
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt">
+												Pre-Sales
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$649,375
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$593,500
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell border-bottom-color="#c0c0c0" border-bottom-style="solid" border-bottom-width="0.4pt" padding-top="0.1pt" vertical-align="middle">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$55,875
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block>
+												Total
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$2,915,173
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" text-align="right">
+												$2,730,570
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell font-family="sans-serif" font-size="9pt" font-weight="bold" background-color="#ccffcc">
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="9pt" color="#FF0000" text-align="right">
+												-$184,603
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block color="#ffffff">
+												.
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row background-color="#028892">
+								<fo:table-cell number-columns-spanned="2">
+									<fo:block>
+										<fo:block>
+											<fo:table table-omit-header-at-break="true">
+												<fo:table-column/>
+												<fo:table-column/>
+												<fo:table-body>
+													<fo:table-row>
+														<fo:table-cell>
+															<fo:block>
+																<fo:block font-family="sans-serif" font-size="12pt" font-weight="bold" color="#ffffff">
+																		Central
+																</fo:block>
+															</fo:block>
+														</fo:table-cell>
+														<fo:table-cell>
+															<fo:block>
+																<fo:block font-family="sans-serif" font-size="12pt" font-weight="bold" color="#ffffff">
+																		Total
+																</fo:block>
+															</fo:block>
+														</fo:table-cell>
+													</fo:table-row>
+												</fo:table-body>
+											</fo:table>
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="12pt" color="#ffffff" text-align="right">
+												$37,893,162
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="12pt" color="#ffffff" text-align="right">
+												$38,397,600
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block>
+										<fo:block font-family="sans-serif" font-size="12pt" color="#ffffff" text-align="right">
+												$504,438
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row background-color="#ffffff">
+								<fo:table-cell>
+									<fo:block>
+										<fo:block width="100%" break-after="page" keep-with-next="auto">
+											<fo:table table-omit-header-at-break="true">
+												<fo:table-column/>
+												<fo:table-body>
+													<fo:table-row>
+														<fo:table-cell>
+															<fo:block/>
+														</fo:table-cell>
+													</fo:table-row>
+												</fo:table-body>
+											</fo:table>
+										</fo:block>
+									</fo:block>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+								<fo:table-cell>
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+							<fo:table-row>
+								<fo:table-cell number-columns-spanned="5">
+									<fo:block/>
+								</fo:table-cell>
+							</fo:table-row>
+						</fo:table-body>
+					</fo:table>
+				</fo:block>
+			</fo:block>
+		</fo:flow>
+	</fo:page-sequence>
+</fo:root>

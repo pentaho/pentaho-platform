@@ -1,0 +1,53 @@
+<action-sequence>
+	<name>quadrant-budget-hsql.xaction</name>
+	<version>1</version>
+	<title>Reporting Test 1</title>	
+        <logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description>Javascript rule test</description>
+		<help>just testing...</help>
+		<result-type>report</result-type>
+	</documentation>
+
+	<inputs>
+		<output-type type="string">
+			<default-value>pdf</default-value>
+			<sources>
+				<request>type</request> 
+			</sources>
+		</output-type>
+	</inputs>
+  
+	<outputs>
+		<!-- report-output type="content">
+		</report-output -->
+	</outputs>
+
+	<resources>
+		<report-definition>
+			<solution-file>
+				<location>quadrant-budget-hsql.rptdesign</location>
+				<mime-type>text/xml</mime-type>
+			</solution-file>
+		</report-definition>
+	</resources>
+  
+  <actions>
+      <action-definition>
+
+        <action-inputs>
+            <output-type type="string"/>
+        </action-inputs>
+        
+        <action-outputs>
+            <!--  report-output typ="content"/ -->
+        </action-outputs>
+        
+	<component-name>BIRTReportComponent</component-name>
+        <action-type>report</action-type>
+      	<component-definition>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

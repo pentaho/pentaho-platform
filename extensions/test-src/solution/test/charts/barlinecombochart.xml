@@ -1,0 +1,80 @@
+<chart> 
+  <chart-type>BarLineChart</chart-type>  
+  <border-visible>true</border-visible>  
+  <include-legend>false</include-legend>  
+  <is-3D>false</is-3D>  
+  <markers-visible>false</markers-visible>  
+  <orientation>vertical</orientation>  
+  <color-palette> 
+  		<color>#EE7733</color>
+		<color>#9EAA36</color>
+		<color>#BF0000</color>
+		<color>#FCCF12</color>
+		<color>#772200</color>
+		<color>#DDCC88</color>
+		<color>#123D82</color>
+		<color>#4A0866</color>
+		<color>#445500</color>-
+		<color>#FFAA00</color>
+		<color>#1E8AD3</color>
+		<color>#AA6611</color>
+		<color>#772200</color>
+  </color-palette>  
+  <paramName>department</paramName>  
+  <domain-label-rotation-dir>up</domain-label-rotation-dir>  
+  <domain-label-rotation>0.25</domain-label-rotation>  
+  <use-base-url>false</use-base-url>  
+  <url-target>_self</url-target>  
+  <bar-series> 
+    <series>actual</series>  
+    <series>budget</series> 
+  </bar-series>  
+  <line-series> 
+    <series>variance</series> 
+  </line-series>  
+  <lines-range-tick-format>###0.00 %</lines-range-tick-format>  
+  <range-tick-format>#,##0 EUR</range-tick-format>  
+  <lines-range-tick-font> 
+    <font-family>Arial</font-family>  
+    <size>10</size>  
+    <is-bold>false</is-bold>  
+    <is-italic>false</is-italic> 
+  </lines-range-tick-font>  
+  <range-tick-font> 
+    <font-family>Arial</font-family>  
+    <size>10</size>  
+    <is-bold>false</is-bold>  
+    <is-italic>false</is-italic> 
+  </range-tick-font>  
+  <range-title-font> 
+    <font-family>Arial</font-family>  
+    <size>10</size>  
+    <is-bold>false</is-bold>  
+    <is-italic>false</is-italic> 
+  </range-title-font>  
+  <range-title>Actual/Budget in EUR</range-title>  
+  <lines-range-tick-font> 
+    <font-family>Arial</font-family>  
+    <size>10</size>  
+    <is-bold>false</is-bold>  
+    <is-italic>false</is-italic> 
+  </lines-range-tick-font>  
+  <lines-range-title>Variance in %</lines-range-title>  
+  <lines-range-minimum>-0.1</lines-range-minimum>  
+  <lines-range-maximum>0.1</lines-range-maximum> 
+
+	<!-- Specify where the data for the chart comes from -->
+	<data>
+		<!-- Specify the path to the action sequence that provides the data -->
+		<data-solution>samples</data-solution>
+		<data-path>charts/samplesDashboard</data-path>
+		<data-action>barlinecombochart_data.xaction</data-action>
+
+		<!-- Specify the output of the action sequence that contains the data -->
+		<data-output>results</data-output>
+		
+		<!-- Specify whether to get the chart series from the rows or columns -->
+		<data-orientation>columns</data-orientation>
+	</data>	
+  
+</chart>

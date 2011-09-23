@@ -1,0 +1,43 @@
+
+<action-sequence>
+
+	<name>regions.rule.xaction</name>
+	<version>1</version>
+	<title>Regions list</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description></description>
+		<help></help>
+		<result-type>rule</result-type>
+	</documentation>
+
+	<inputs>
+    </inputs>
+  
+	<outputs>
+		<rule-result type="list"/>
+	</outputs>
+  <resources/>
+  
+  <actions>
+      <action-definition>
+
+        <action-inputs>
+          <dept type="string"/>
+        </action-inputs>
+        
+        <action-outputs>
+			<rule-result type="list"/>
+        </action-outputs>
+        
+        <component-name>SQLLookupRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+          <jndi>SampleData</jndi>
+          <query><![CDATA[select distinct REGION from QUADRANT_ACTUALS order by REGION]]></query>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>
+

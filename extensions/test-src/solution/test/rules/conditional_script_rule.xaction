@@ -1,0 +1,107 @@
+
+<action-sequence>
+
+	<name>conditional_script_rule.xaction</name>
+	<version>1</version>
+	<title>Conditional Javascript rule</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>Marc Batchelor</author>
+		<description>Javascript rule test</description>
+		<help>Demonstrating conditional actions...</help>
+	</documentation>
+
+	<inputs>
+		<condTest type="string">
+		  <default-value>true</default-value>
+			<sources>
+				<request>condTest</request> 
+			</sources>
+		</condTest>
+		<conditionalActionDone type="string">
+			<default-value>Did not do it</default-value>
+			<sources>
+				<request>cad</request>
+			</sources>
+		</conditionalActionDone>
+	</inputs>
+
+	<outputs>
+		<rule-result type="string"/>
+	</outputs>
+  <resources/>
+  
+  <actions name="mainAction">
+	  <actions name="subActions">
+		<condition>
+			<![CDATA[
+				(condTest == "true");
+			]]>
+		</condition>
+		  <action-definition>
+			  <action-inputs>
+				<condTest type="string"/>
+			  </action-inputs>
+			<action-outputs>
+				  <conditionalActionDone type="string"/>
+			</action-outputs>
+			
+			<component-name>JavascriptRule</component-name>
+			<action-type>rule</action-type>
+			  <component-definition>
+				  <script><![CDATA[ 
+					function doConditionally() {
+					  out.println("I am here");
+					  return "did it";
+					} 
+					doConditionally(); 
+				  ]]>
+				  </script>
+			</component-definition>
+		  </action-definition>
+      </actions>
+      <action-definition>
+      	<action-inputs />
+        <action-outputs>
+          	<testOut1 type="string" />
+			<testOut2 type="string" />
+			<testOut3 type="string" />
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[
+                testOut1 = "This is a test";
+			    testOut2 = "This is another test";
+			    testOut3 = "This is the last test";
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+	  
+      <action-definition>
+      	<action-inputs>
+			  <testOut1 type="string" />
+			  <testOut2 type="string" />
+			  <testOut3 type="string" />
+		  </action-inputs>
+        <action-outputs>
+          	<rule-result type="string"/>
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[
+			    var tmp = testOut1 + "<br>" + testOut2 + "<br>" + testOut3;
+			    out.print(tmp);
+  			    rule_result = tmp;
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+	  
+	  
+  </actions>
+</action-sequence>

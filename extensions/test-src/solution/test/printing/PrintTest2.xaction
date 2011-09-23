@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>PrintTest2.xaction</name>
+  <title>Priting a file</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>William E. Seyler</author>  
+    <description>..</description>  
+    <help>This is just a test...</help> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>pdf</default-value> 
+    </output-type>  
+    <REGION type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>REGION</request> 
+      </sources> 
+    </REGION>  
+    <printerName type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>printerName</request> 
+      </sources> 
+    </printerName>  
+    <copies type="string"> 
+      <default-value>1</default-value> 
+    </copies>  
+    <orientation type="string"> 
+      <default-value>portrait</default-value> 
+    </orientation>  
+    <!--  report-output type="content">
+		  <default-value>fred</default-value>
+		</report-output --> 
+  </inputs>
+
+  <outputs> 
+    <report-output type="content"/> 
+  </outputs>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>/reporting/quadrant-budget-for-region-hsql.rptdesign</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>BIRTReportComponent</component-name>
+      <action-type>report</action-type>
+      <action-inputs> 
+        <output-type type="string"/>  
+        <REGION type="string"/> 
+      </action-inputs>
+      <action-resources>
+        <report-definition type="resource"/>
+      </action-resources>
+      <action-outputs> 
+        <report-output type="content"/> 
+      </action-outputs>
+      <component-definition/> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>PrintComponent</component-name>
+      <action-type>print</action-type>
+      <action-inputs> 
+        <printerName type="string"/>  
+        <report-output type="string"/> 
+      </action-inputs>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

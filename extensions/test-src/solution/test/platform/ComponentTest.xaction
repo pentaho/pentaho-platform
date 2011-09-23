@@ -1,0 +1,62 @@
+<action-sequence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+  <name>ComponentTest.xaction</name>
+  <title>Component Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation>
+    <author>James Dixon</author>
+    <description>First test of the Test Component Sequence</description>
+    <help>just testing...</help>
+  </documentation>
+  <inputs>
+    <fruit type="string">
+      <default-value>apples</default-value>
+			<sources>
+				<request>theFruit</request> 
+			</sources>
+    </fruit>
+    <more-fruit type="string">
+      <default-value>oranges</default-value>
+    </more-fruit>
+    <how-many type="long">
+      <default-value>10</default-value>
+    </how-many>
+  </inputs>
+  <outputs>
+    <message type="string"/>
+  </outputs>
+  <resources>
+    <message-template>
+      <solution-file>
+        <location>message.txt</location>
+        <mime-type>text/text</mime-type>
+      </solution-file>
+    </message-template>
+  </resources>
+  <actions>
+      <action-definition>
+        <component-name>TestComponent</component-name>
+        <action-type>Test?</action-type>
+        <logging-level>INFORMATION</logging-level>
+        <documentation>
+          <author>James Dixon</author>
+          <description>First test of the TestComponent</description>
+          <help>just testing...</help>
+        </documentation>
+        <action-inputs>
+          <fruit type="string"/>
+          <more-fruit type="string"/>
+          <how-many type="long"/>
+        </action-inputs>
+        <action-outputs>
+          <oranges type="string"/>
+        </action-outputs>
+        <component-definition>
+        	<test>something</test>
+          <setting1>This is the first setting</setting1>
+          <setting2>This is the second setting</setting2>
+          <setting3>This is the third setting</setting3>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

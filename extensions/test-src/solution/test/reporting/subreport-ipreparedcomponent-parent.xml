@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-088.dtd">
+<report name="Subreport Example 2">
+
+	<items>
+		<string-field fieldname="POSITIONTITLE" height="12" width="100%"/> 
+                <sub-report href="subreport-test.xml" query="subreport_query">
+                   <import-parameter name="POSITIONTITLE"/>
+                </sub-report>
+
+	</items>
+</report>

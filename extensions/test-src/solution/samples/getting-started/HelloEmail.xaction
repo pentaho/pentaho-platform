@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>  
+  <version>1</version>  
+  <logging-level>DEBUG</logging-level>  
+  <documentation> 
+    <author>Joe Pentaho</author>  
+    <description>%description</description>  
+    <help>%help</help>  
+    <result-type>rule</result-type>  
+    <icon>HelloEmail.png</icon> 
+  </documentation>  
+  <inputs> 
+    <to type="string"> 
+      <sources> 
+        <request>to</request> 
+      </sources>  
+      <default-value/> 
+    </to>  
+    <subject type="string"> 
+      <sources> 
+        <request>email-subject</request> 
+      </sources>  
+      <default-value>%subject</default-value> 
+    </subject> 
+  </inputs>  
+  <outputs/>  
+  <resources/>  
+  <actions> 
+    <action-definition> 
+      <component-name>EmailComponent</component-name>  
+      <action-type>Email</action-type>  
+      <action-inputs> 
+        <to type="string"/>  
+        <subject type="string"/> 
+      </action-inputs>  
+      <component-definition> 
+        <message-plain><![CDATA[%message]]></message-plain> 
+      </component-definition> 
+    </action-definition> 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>SampleTransformation.xaction</name>  
+  <version>1</version>  
+  <title>%title</title>  
+  <logging-level>debug</logging-level>  
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description>%description</description>  
+    <help>%help</help>  
+    <result-type>rule</result-type>  
+    <icon>HelloETL.png</icon> 
+  </documentation>  
+  <inputs/>  
+  <outputs>
+    <rule-result type="list"/>
+  </outputs>  
+  <resources> 
+    <transformation-file> 
+      <solution-file> 
+        <location>sample.ktr</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </transformation-file> 
+  </resources>  
+  <actions> 
+    <action-definition> 
+      <action-inputs/>  
+      <action-outputs> 
+        <rule-result type="list"/> 
+      </action-outputs>  
+        
+      <action-resources>
+        <transformation-file type="resource"/>
+      </action-resources>
+      
+      <component-name>KettleComponent</component-name>  
+      <action-type>rule</action-type>  
+      <component-definition> 
+        <importstep>XML Output</importstep> 
+      </component-definition> 
+    </action-definition> 
+  </actions> 
+</action-sequence>

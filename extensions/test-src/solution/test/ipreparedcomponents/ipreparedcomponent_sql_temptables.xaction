@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>IPreparedComponent Test Temp Tables</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Will Gorman</author>  
+    <description>This tests the SQLBaseComponent's implementation of the IPreparedComponent interface, verifying that sql connections are shared across components</description>  
+    <help/>  
+    <result-type>rule</result-type>
+    <icon/> 
+  </documentation>
+
+  <inputs/>
+
+	<outputs>
+		<a_result>
+			<type>result-set</type>
+		</a_result>
+                <no_results>
+                        <type>result-set</type>
+                </no_results>
+	</outputs>
+
+  <resources/>
+  
+  <actions>
+
+      <!-- first create a connection -->
+
+    <action-definition>
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Connection</action-type>
+      <action-inputs/>
+      <action-outputs>
+        <prepared_component type="sql-connection" mapping="connObj"/>
+      </action-outputs>
+      <component-definition>
+        <jndi>SampleDataAdmin</jndi>
+      </component-definition>
+    </action-definition>
+
+      <!-- second, create temporary table w/ connection and add data -->
+
+      <action-definition>
+        <action-inputs>
+          <prepared_component mapping="connObj"/>
+        </action-inputs>
+        <action-outputs/>
+        <component-name>SQLExecute</component-name>
+        <action-type>Create a temp table</action-type>
+        <component-definition>
+          <continue_on_exception>true</continue_on_exception>
+          <query><![CDATA[
+            drop table tmptbl;
+            create temp table tmptbl(val int) ON COMMIT PRESERVE ROWS;
+            insert into tmptbl values (1)
+          ]]></query>
+        </component-definition>
+      </action-definition>
+
+
+      <!-- third, extract inserted data from temporary table -->
+
+    <action-definition>
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Check for Data</action-type>
+      <action-inputs>
+         <prepared_component mapping="connObj"/>
+      </action-inputs>
+      <action-outputs>
+        <query-result mapping="a_result"/>
+      </action-outputs>
+      <component-definition>
+        <query>SELECT * FROM tmptbl</query>
+      </component-definition>
+    </action-definition>
+
+    <!-- fourth, with another connection, tmptbl should contain zero results. -->
+    <!-- note, in hsqldb, temp tables are available to all, but there data is per session -->
+    <!-- http://hsqldb.org/doc/guide/ch09.html#create_table-section -->
+    <action-definition>
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Check for Data</action-type>
+      <action-outputs>
+        <query-result mapping="no_results"/>
+      </action-outputs>
+      <component-definition>
+        <jndi>SampleDataAdmin</jndi>
+        <query>SELECT count(*) FROM tmptbl</query>
+      </component-definition>
+    </action-definition>
+
+    <!-- fifth, drop the table -->
+      <action-definition>
+        <action-inputs>
+          <prepared_component mapping="connObj"/>
+        </action-inputs>
+        <action-outputs/>
+        <component-name>SQLExecute</component-name>
+        <action-type>Drop the Table</action-type>
+        <component-definition>
+          <continue_on_exception>true</continue_on_exception>
+          <query><![CDATA[
+            drop table tmptbl
+          ]]></query>
+        </component-definition>
+      </action-definition>
+  </actions> 
+</action-sequence>

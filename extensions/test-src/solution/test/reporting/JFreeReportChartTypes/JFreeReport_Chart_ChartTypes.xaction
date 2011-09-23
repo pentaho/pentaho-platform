@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>JFreeReport_Chart_ChartTypes.xaction</name>
+  <title>Multiple Chart Types</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Marc Batchelor</author>  
+    <description>This demonstrates multiple chart types within the JFreeReport definition</description>  
+    <icon>JFreeReport_WithChart.png</icon>  
+    <help>Help</help>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type>  
+    <chart_type type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>chart_type</request> 
+      </sources> 
+    </chart_type>  
+    <chart_type_FILTER type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="chart_type">multipie</entry>  
+          <entry key="Display">Multi-Pie</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="chart_type">line</entry>  
+          <entry key="Display">Line</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="chart_type">area</entry>  
+          <entry key="Display">Area</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="chart_type">stackedarea</entry>  
+          <entry key="Display">Stacked Area</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="chart_type">bar</entry>  
+          <entry key="Display">Bar</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="chart_type">stackedbar</entry>  
+          <entry key="Display">Stacked Bar</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="chart_type">stackedbarpercentages</entry>  
+          <entry key="Display">Stacked Bar As Percentages</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="chart_type">pie</entry>  
+          <entry key="Display">Pie</entry> 
+        </property-map> 
+      </default-value> 
+    </chart_type_FILTER> 
+  </inputs>
+
+  <resources> 
+    <document> 
+      <solution-file> 
+        <location>Quad_Data.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </document>  
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <multipie> 
+      <solution-file> 
+        <location>JFreeReport_Chart_Multipie.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </multipie>  
+    <line> 
+      <solution-file> 
+        <location>JFreeReport_Chart_Line.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </line>  
+    <area> 
+      <solution-file> 
+        <location>JFreeReport_Chart_Area.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </area>  
+    <stackedarea> 
+      <solution-file> 
+        <location>JFreeReport_Chart_StackedArea.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </stackedarea>  
+    <stackedbar> 
+      <solution-file> 
+        <location>JFreeReport_Chart_StackedBar.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </stackedbar>  
+    <stackedbarpercentages> 
+      <solution-file> 
+        <location>JFreeReport_Chart_StackedBarPercentages.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </stackedbarpercentages>  
+    <bar> 
+      <solution-file> 
+        <location>JFreeReport_Chart_Bar.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </bar>  
+    <pie> 
+      <solution-file> 
+        <location>JFreeReport_Chart_Pie.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </pie> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-inputs> 
+        <chart_type type="string"/>  
+        <chart_type_FILTER type="string"/> 
+      </action-inputs>
+      <action-outputs/>
+      <component-definition> 
+        <handle-all-prompts>true</handle-all-prompts>  
+        <selections> 
+          <chart_type style="select"> 
+            <filter value-col-name="chart_type" display-col-name="Display">chart_type_FILTER</filter>  
+            <title>Select the Chart Type</title> 
+          </chart_type> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>XQueryLookupRule</component-name>
+      <action-type>rule</action-type>
+      <action-resources>
+        <document type="resource"/>
+      </action-resources>
+      <action-outputs> 
+        <result-set type="list"/> 
+      </action-outputs>
+      <component-definition> 
+        <live>false</live>  
+        <!--	<query><![CDATA[/descendant::row[REGION='Central']]]></query> -->  
+        <query><![CDATA[/result-set/*]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>report</action-type>
+      <action-inputs> 
+        <output-type type="string"/>  
+        <data type="list" mapping="result-set"/>  
+        <resource-name type="string" mapping="chart_type"/> 
+      </action-inputs>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

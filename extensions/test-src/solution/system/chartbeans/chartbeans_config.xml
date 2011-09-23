@@ -1,0 +1,13 @@
+<chartbeans-config>
+  <!-- Configure the behavior of Pentaho Chartbeans -->
+
+
+  <!-- 
+    Set the default chart rendering engine.
+    This is the engine that is used if neither the ChartModel nor the ActionSequence
+    specify an engine to use.
+   -->
+  <!-- <default-chart-engine>JFreeChart</default-chart-engine> -->
+  <default-chart-engine>OpenFlashChart</default-chart-engine>
+  <max-data-points-per-chart>100</max-data-points-per-chart>
+</chartbeans-config>

@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<DataSources>
+  <DataSource>
+    <DataSourceName>Provider=Mondrian;DataSource=SteelWheels</DataSourceName>
+    <DataSourceDescription>Steel Wheels Demo Data</DataSourceDescription>
+    <URL>http://localhost:8080/pentaho/Xmla?userid=joe&amp;password=password</URL>
+    <DataSourceInfo>Provider=mondrian;Jdbc=jdbc:hsqldb:hsql://localhost/sampledata;JdbcDrivers=org.hsqldb.jdbcDriver;JdbcUser=pentaho_user;JdbcPassword=password;</DataSourceInfo>
+    <ProviderName>PentahoXMLA</ProviderName>
+    <ProviderType>MDP</ProviderType>
+    <AuthenticationMode>Unauthenticated</AuthenticationMode>
+    <Catalogs>
+        <Catalog name="SteelWheels">
+      <Definition>solution:test/charts/steelwheels.mondrian.xml</Definition>
+    </Catalog>
+    </Catalogs>
+  </DataSource>
+    <DataSource>
+    <DataSourceName>Provider=Mondrian;DataSource=SteelWheels2</DataSourceName>
+    <DataSourceDescription>Steel Wheels 2 Demo Data</DataSourceDescription>
+    <URL></URL>
+    <DataSourceInfo>Provider=mondrian;Jdbc=jdbc:hsqldb:hsql://localhost/sampledata2;JdbcDrivers=org.hsqldb.jdbcDriver;JdbcUser=pentaho_user;JdbcPassword=password;</DataSourceInfo>
+    <ProviderName></ProviderName>
+    <ProviderType>None</ProviderType>
+    <AuthenticationMode></AuthenticationMode>
+    <Catalogs>
+        <Catalog name="SteelWheels2">
+      <Definition>solution:test/charts/steelwheels.mondrian.xml</Definition>
+    </Catalog>
+    </Catalogs>
+  </DataSource>
+  <DataSource>
+    <DataSourceName>Provider=Mondrian;DataSource=SteelWheels3</DataSourceName>
+    <DataSourceDescription>Steel Wheels 3 Demo Data</DataSourceDescription>
+    <URL>http://localhost:8080/pentaho/Xmla?userid=joe&#38;password=password</URL>
+    <DataSourceInfo>Provider=mondrian;DataSource=SampleData;</DataSourceInfo>
+    <ProviderName>PentahoXMLA</ProviderName>
+    <ProviderType>MDP</ProviderType>
+    <AuthenticationMode>Unauthenticated</AuthenticationMode>
+    <Catalogs>
+      <Catalog name="SteelWheels3">
+        <Definition>
+          solution:test/charts/steelwheels.mondrian.xml
+        </Definition>
+      </Catalog>
+    </Catalogs>
+  </DataSource>
+  <DataSource>
+    <DataSourceName>Provider=Mondrian;DataSource=SteelWheels4</DataSourceName>
+    <DataSourceDescription>Steel Wheels 4 Demo Data</DataSourceDescription>
+    <URL>http://localhost:8080/pentaho/Xmla?userid=joe&#38;password=password</URL>
+    <DataSourceInfo>Provider=mondrian;DataSource=SampleData;</DataSourceInfo>
+    <ProviderName>PentahoXMLA</ProviderName>
+    <ProviderType>MDP</ProviderType>
+    <AuthenticationMode>Unauthenticated</AuthenticationMode>
+    <Catalogs>
+      <Catalog name="SteelWheels4">
+        <DataSourceInfo>Provider=mondrian;DataSource=SampleData;EnableXmla=False</DataSourceInfo>  
+        <Definition>
+          solution:test/charts/steelwheels.mondrian.xml
+        </Definition>
+      </Catalog>
+    </Catalogs>
+  </DataSource>
+</DataSources>

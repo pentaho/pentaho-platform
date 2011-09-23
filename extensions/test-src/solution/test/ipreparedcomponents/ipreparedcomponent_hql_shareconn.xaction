@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Test HQL IPreparedComponent Share Connection</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author/>  
+    <description>Test HQL IPreparedComponent interface share connection functionality</description>  
+    <help/>  
+  </documentation>
+
+  <inputs> 
+    <mimetype type="string"> 
+      <sources> 
+        <request>mimetype</request> 
+      </sources>  
+      <default-value>text/html</default-value>
+    </mimetype>  
+  </inputs>
+
+  <outputs> 
+    <prepared_component type="prepared_component"/> 
+  </outputs>
+
+  <resources> 
+    <hibernateConfig> 
+      <solution-file> 
+        <location>HQL_Datasource.cfg.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </hibernateConfig> 
+  </resources>
+
+  <actions>
+
+    <action-definition> 
+      <component-name>HQLLookupRule</component-name>
+      <action-type>HQL Get Connection</action-type>
+      <hibernateConfig> 
+        <catalog type="resource"/> 
+      </hibernateConfig>
+      <action-inputs>
+         <mimetype/>
+      </action-inputs>
+      <action-outputs> 
+        <prepared_component mapping="conn"/> 
+      </action-outputs>
+      <component-definition> 
+        <classNames>org.pentaho.platform.repository.content.ContentItem, org.pentaho.platform.repository.content.ContentItemFile, org.pentaho.platform.repository.content.ContentLocation, org.pentaho.platform.repository.runtime.RuntimeElement</classNames>
+      </component-definition>
+    </action-definition>
+ 
+    <action-definition>
+      <component-name>HQLLookupRule</component-name>
+      <action-type>HQL Prepared Component Test</action-type>
+      <action-inputs>
+         <prepared_component mapping="conn"/>
+      </action-inputs>
+      <action-outputs> 
+        <prepared_component/>
+      </action-outputs>
+      <component-definition>
+        <classNames>org.pentaho.platform.repository.content.ContentItem, org.pentaho.platform.repository.content.ContentItemFile, org.pentaho.platform.repository.content.ContentLocation, org.pentaho.platform.repository.runtime.RuntimeElement</classNames>
+        <query><![CDATA[select name as Name, path as Path, title as Title, mimeType as mimeType, id as Id from ContentItem where mimeType = '{mimetype}']]></query>
+      </component-definition>
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

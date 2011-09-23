@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>IPreparedComponent Available Test</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Will Gorman</author>  
+    <description>This tests the SQLBaseComponent's implementation of the IPreparedComponent interface, verifying that we can gain access to the component</description>  
+    <help/>  
+    <result-type>rule</result-type>
+    <icon/> 
+  </documentation>
+
+	<inputs/>
+	<outputs>
+		<prepared_component>
+			<type>prepared_component</type>
+		</prepared_component>
+	</outputs>
+  <resources/>
+  
+  <actions>
+
+      <!-- create a prepared_component -->
+
+    <action-definition>
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Component</action-type>
+      <action-inputs/>
+      <action-outputs>
+        <prepared_component type="sql-connection"/>
+      </action-outputs>
+      <component-definition>
+        <jndi>SampleData</jndi>
+      </component-definition>
+    </action-definition>
+  </actions> 
+</action-sequence>

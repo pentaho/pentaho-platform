@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Dynamic SQL Tech Tip</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Marc Batchelor</author>  
+    <description>This action sequence demonstrates how to use a javascript rule to dynamically generate SQL for use in a report.</description>  
+    <help>No help available.</help>  
+    <result-type>report</result-type>  
+    <icon/> 
+  </documentation>
+
+  <inputs> 
+    <region type="string"> 
+      <sources> 
+        <request>region</request> 
+      </sources>  
+      <default-value>Central</default-value> 
+    </region>  
+    <deptorposn type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>deptorposn</request> 
+      </sources> 
+    </deptorposn>  
+    <type type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </type>  
+    <type_FILTER type="property-map-list"> 
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="type">pdf</entry>  
+          <entry key="Display">PDF</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="type">xls</entry>  
+          <entry key="Display">Excel File</entry> 
+        </property-map>  
+        <property-map> 
+          <entry key="type">html</entry>  
+          <entry key="Display">Web Page</entry> 
+        </property-map> 
+      </default-value> 
+    </type_FILTER>  
+    <region_FILTER type="string-list"> 
+      <sources> 
+        <request>region_FILTER</request> 
+      </sources>  
+      <default-value type="string-list"> 
+        <list-item>Central</list-item>  
+        <list-item>Eastern</list-item>  
+        <list-item>Southern</list-item>  
+        <list-item>Western</list-item> 
+      </default-value> 
+    </region_FILTER>  
+    <deptorposn_RS type="result-set"> 
+      <sources/>  
+      <default-value type="result-set">
+        <row>
+          <deptorposn>department</deptorposn>
+          <Display>Department</Display>
+        </row>
+        <row>
+          <deptorposn>positiontitle</deptorposn>
+          <Display>Position</Display>
+        </row>
+      </default-value>
+      <columns>
+        <deptorposn type="string"/>
+        <Display type="string"/>
+      </columns>
+    </deptorposn_RS> 
+  </inputs>
+
+  <outputs/>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>SampleDynamicColumn.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>SecureFilter Parameter Input</action-type>
+      <action-inputs> 
+        <deptorposn_RS type="result-set"/>  
+        <deptorposn type="string"/>  
+        <type type="string"/>  
+        <type_FILTER type="property-map-list"/>  
+        <region type="string"/>  
+        <region_FILTER type="string-list"/> 
+      </action-inputs>
+      <component-definition> 
+        <selections> 
+          <deptorposn style="radio"> 
+            <title>Department or Position</title>  
+            <filter value-col-name="deptorposn" display-col-name="Display">deptorposn_RS</filter> 
+          </deptorposn>  
+          <region style="select"> 
+            <title>Region</title>  
+            <filter>region_FILTER</filter> 
+          </region>  
+          <type style="select"> 
+            <title>Report Format</title>  
+            <filter value-col-name="type" display-col-name="Display">type_FILTER</filter> 
+          </type> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>JavaScript DSQL</action-type>
+      <action-inputs> 
+        <deptorposn type="string"/>  
+        <region type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[
+         query = "select " + deptorposn;
+         query += " as column1, sum(actual) from QUADRANT_ACTUALS where region={PREPARE:region} group by ";
+         query += deptorposn + " order by actual desc";]]></script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>JavaScript ColumnTitle</action-type>
+      <action-inputs> 
+        <deptorposn type="string"/>  
+        <deptorposn_RS type="result-set"/> 
+      </action-inputs>
+      <action-outputs> 
+        <columnTitle type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[
+          columnTitle="UNDEFINED"; // Make sure it is initialized to something
+          rowCnt = deptorposn_RS.getRowCount();
+          for (i=0; i<rowCnt; i++) {
+            colName = deptorposn_RS.getValueAt(i, 0); // get row: i, col 0
+            if (colName == deptorposn) {
+              columnTitle = deptorposn_RS.getValueAt(i, 1); // get row:i, column 1
+              break;
+            }
+          }
+        ]]> </script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>ReportUsingDSQL</action-type>
+      <action-inputs> 
+        <region type="string"/>  
+        <columnTitle type="string"/>  
+        <query type="string"/>  
+        <output-type type="string" mapping="type"/> 
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <component-definition> 
+        <source>sql</source>  
+        <jndi>SampleData</jndi>  
+        <live>true</live> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

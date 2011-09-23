@@ -1,0 +1,51 @@
+
+<action-sequence>
+
+	<name>template1.xaction</name>
+	<version>1</version>
+	<title>Test of template component</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description></description>
+		<help></help>
+	</documentation>
+
+	<inputs>
+		<customer type="string">
+		  <default-value>None</default-value>
+			<sources>
+				<request>customer</request> 
+			</sources>
+		</customer>
+			<region type="string">
+		  		<default-value>West</default-value>
+		  	</region>
+		  	<template type="string">
+		  		<default-value>Customer '{customer}' is in region {region}</default-value>
+		  	</template>
+	</inputs>
+
+	<outputs>
+		<output type="string"/>
+	</outputs>
+  <resources/>
+  
+  <actions>
+      <action-definition>
+      	<action-inputs>
+			<customer type="string"/>
+			<region type="string"/>
+			<template type="string"/>
+      	</action-inputs>
+        <action-outputs>
+          	<output type="string"/>
+        </action-outputs>
+        
+        <component-name>TemplateComponent</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

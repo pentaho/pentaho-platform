@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence>
+   <name>UrlContentTest.xaction</name>
+   <version>1</version>
+   <title>Email A report</title>
+   <logging-level>debug</logging-level>
+   <documentation>
+      <author>Doug Moran</author>
+      <description>This Action Sequence will run a report and email it</description>
+      <help/>
+      <result-type>email</result-type>
+      <icon>BurstActionSequence.png</icon>
+   </documentation>
+   <inputs>
+      <REGION type="string">
+         <sources>
+            <request>REGION</request>
+         </sources>
+         <default-value>Central</default-value>
+      </REGION>
+      <output-type type="string">
+         <sources>
+            <request>type</request>
+         </sources>
+         <default-value>html</default-value>
+      </output-type>
+   </inputs>
+   <outputs/>
+   <resources>
+      <report-definition>
+         <solution-file>
+            <location>JFreeQuadrantForRegion.xml</location>
+            <mime-type>text/xml</mime-type>
+         </solution-file>
+      </report-definition>
+      <a-resource>
+         <solution-file>
+            <location>content1.html</location>
+            <mime-type>text/html</mime-type>
+         </solution-file>
+      </a-resource>
+   </resources>
+   <actions>
+      <action-definition>
+         <action-inputs>
+            <output-type type="string"/>
+         </action-inputs>
+         <action-outputs>
+            <report-output type="content" mapping="southern-report"/>
+         </action-outputs>
+         <component-name>JFreeReportComponent</component-name>
+         <action-type>report</action-type>
+         <component-definition>
+            <source>sql</source>
+            <live>true</live>
+            <jndi>SampleData</jndi>
+            <query>select QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT, QUADRANT_ACTUALS.POSITIONTITLE, QUADRANT_ACTUALS.ACTUAL, QUADRANT_ACTUALS.BUDGET, QUADRANT_ACTUALS.VARIANCE from QUADRANT_ACTUALS where QUADRANT_ACTUALS.REGION='Southern' order by QUADRANT_ACTUALS.REGION, QUADRANT_ACTUALS.DEPARTMENT</query>
+         </component-definition>
+      </action-definition>
+      <action-definition>
+         <component-name>TemplateComponent</component-name>
+         <component-definition>
+            <template><![CDATA[<HTML>Your report is ready. Here is a link to Southern report. <P> <A HREF="{southern-report}">Report for Southern Region</A> <P> Pentaho Dude]]></template>
+         </component-definition>
+         <action-type>Message Template</action-type>
+         <action-inputs>
+            <southern-report type="content"/>
+         </action-inputs>
+         <action-outputs>
+            <output-message type="string" mapping="message-html"/>
+         </action-outputs>
+      </action-definition>
+      <action-definition>
+         <component-name>EmailComponent</component-name>
+         <action-inputs>
+            <output-type type="string"/>
+            <message-html type="string"/>
+         </action-inputs>
+         <action-resources>
+            <a-resource type="content"/>
+         </action-resources>
+         <component-definition>
+            <to>dmoran@doug.org</to> 
+            <from>dmoran@pentaho.org</from>
+            <resource-name>HTML Attachment.html</resource-name>
+            <attachment-ref name-param="resource-name" resource-param="a-resource"/>
+            <subject>Regional Reports</subject>
+         </component-definition>
+      </action-definition>
+   </actions>
+</action-sequence>

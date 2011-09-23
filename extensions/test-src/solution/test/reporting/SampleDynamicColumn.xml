@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<report name="SampleDynamicColumn" orientation="landscape" pageformat="LETTER" leftmargin="10" rightmargin="10" topmargin="10" bottommargin="10">
+  <parser-config/>
+  <reportheader fontname="SansSerif" fontsize="11" fontstyle="bold">
+    <message-field height="18" alignment="center" width="100%" x="0%" y="0">Region: $(region)</message-field>
+  </reportheader>
+  <groups>
+    <group name="dummy">
+      <groupheader repeat="true" color="#000000" fontname="SansSerif" fontsize="11" fontstyle="bold" height="20">
+        <band name="DummyGroupNoDataBandElement">
+          <label height="11" vertical-alignment="middle" alignment="left" width="100%" x="0%" y="0">No Data Available</label>
+        </band>
+        <band name="DummyGroupDataBandElement">
+          <rectangle color="#808080" draw="false" fill="true" height="18" width="100%" x="0%" y="0"/>
+          <message-field color="#D0D0D0" fontname="SansSerif" fontsize="12" fontstyle="bold" height="18" vertical-alignment="middle" alignment="left" width="50%" x="0%" y="0">$(columnTitle)</message-field>
+          <label color="#D0D0D0" fontname="SansSerif" fontsize="12" fontstyle="bold" height="18" vertical-alignment="middle" alignment="right" width="50%" x="50%" y="0">Actual</label>
+        </band>
+      </groupheader>
+      <groupfooter name="dummyGroupFooter" color="#000000" fontname="SansSerif" fontsize="11" fontstyle="bold">
+        <rectangle color="white" fill="false" height="18" width="0" x="0%" y="0"/>
+        <number-field fieldname="Summary_ACTUALExpression" height="15" vertical-alignment="middle" alignment="right" width="50%" x="50%" y="2"/>
+        <message-field height="15" width="50%" x="0%" y="2" alignment="left" vertical-alignment="middle">Grand Total</message-field>
+      </groupfooter>
+    </group>
+  </groups>
+  <items color="#000000" fontname="SansSerif" fontsize="9" fontstyle="bold">
+    <rectangle name="rowBandingElement" color="#E0E0E0" draw="false" fill="true" height="11" x="0%" width="100%" y="0"/>
+    <string-field name="COLUMN1Element" fieldname="COLUMN1" vertical-alignment="middle" alignment="left" width="50%" x="0%" y="0" height="11"/>
+    <number-field name="ACTUALElement" fieldname="ACTUAL" vertical-alignment="middle" alignment="right" width="50%" x="50%" y="0" height="11"/>
+  </items>
+  <functions>
+    <property-ref name="columnTitle"/>
+    <property-ref name="region"/>
+    <function name="backgroundTrigger" class="org.pentaho.jfreereport.functions.ElementVisibilitySwitchFunction">
+      <properties>
+        <property name="element">rowBandingElement</property>
+        <property name="numberOfElements">1</property>
+        <property name="initialState">true</property>
+      </properties>
+    </function>
+    <expression class="org.jfree.report.function.HideElementIfDataAvailableExpression" name="DummyGroupNoDataBandElementHideIfNullTrigger">
+      <properties>
+        <property name="element">DummyGroupNoDataBandElement</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ShowElementIfDataAvailableExpression" name="DummyGroupDataBandElementHideIfNullTrigger">
+      <properties>
+        <property name="element">DummyGroupDataBandElement</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ShowElementIfDataAvailableExpression" name="dummyGroupFooterHideIfNullTrigger">
+      <properties>
+        <property name="element">dummyGroupFooter</property>
+      </properties>
+    </expression>
+    <expression class="org.jfree.report.function.ItemSumFunction" name="Summary_ACTUALExpression">
+      <properties>
+        <property name="field">ACTUAL</property>
+      </properties>
+    </expression>
+  </functions>
+</report>

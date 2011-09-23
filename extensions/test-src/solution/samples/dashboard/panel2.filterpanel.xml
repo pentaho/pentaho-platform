@@ -1,0 +1,28 @@
+
+<filters>
+	<name>RegionFilter</name>
+	<filter>
+		<title>Region</title>
+		<name>REGION</name>
+		<type>radio</type>
+		<session-attribute>REGION-list</session-attribute>
+		<!-- data-solution>test</data-solution>
+		<data-path>dashboard</data-path>
+		<data-action>regions.rule.xaction</data-action>
+		<data-output>rule-result</data-output -->
+		<data-display>REGION</data-display>
+		<data-value>REGION</data-value>
+	</filter>
+	<filter>
+		<title>Department</title>
+		<name>DEPARTMENT</name>
+		<type>select</type>
+		<data-solution>test</data-solution>
+		<data-path>dashboard</data-path>
+		<data-action>departments.rule.xaction</data-action>
+		<data-output>rule-result</data-output>
+		<data-display>DEPARTMENT</data-display>
+		<data-value>DEPARTMENT</data-value>
+	</filter>
+	
+</filters>

@@ -1,0 +1,61 @@
+
+<action-sequence>
+
+	<name>template2.xaction</name>
+	<version>1</version>
+	<title>Test of template component</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description></description>
+		<help></help>
+	</documentation>
+
+	<inputs>
+	</inputs>
+
+	<outputs>
+		<output type="string"/>
+	</outputs>
+  <resources/>
+  
+  <actions>
+      <action-definition>
+        <component-name>JavascriptRule</component-name>
+      	<action-inputs/>
+        <action-outputs>
+          	<regions type="list"/>
+        </action-outputs>
+        
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+			      function getRegions( ) {
+			      	var results = new JavaScriptResultSet();
+			      	results.setColumnHeaders( new Array( 'REGION', 'VALUE', 'COLOR' ) );
+		      		results.addRow( new Array( 'Eastern', '120000', '#00ff00' ) );
+		      		results.addRow( new Array( 'Western', '90000', '#ffff00' ) );
+		      		results.addRow( new Array( 'Southern', '75000', '#ff0000' ) );
+			      	return results;
+			      }
+			    getRegions( ); 
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+      <action-definition>
+      	<action-inputs>
+			<regions type="list"/>
+      	</action-inputs>
+        <action-outputs>
+          	<output type="string"/>
+        </action-outputs>
+        
+        <component-name>TemplateComponent</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+			<template>Eastern is {regions:REGION:Eastern:VALUE:missing} with a color of {regions:REGION:Eastern:COLOR:missing}, Western is {regions:REGION:Western:VALUE:missing} with a color of {regions:REGION:Western:COLOR:missing}, Southern is {regions:REGION:Southern:VALUE:missing} with a color of {regions:REGION:Southern:COLOR:missing}</template>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

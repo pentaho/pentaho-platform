@@ -1,0 +1,49 @@
+
+<chart>
+	<title>Headcount Spending by Region</title>
+	<title-position>TOP</title-position>
+	<title-font>
+		<font-family>Ariel</font-family>
+		<size>20</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</title-font>
+	<chart-type>pie</chart-type>
+	<include-legend>false</include-legend>
+	<width>450</width>
+	<height>300</height>
+	<data>
+		<data-solution></data-solution>
+		<data-path>/test-src/solution/samples/dashboard/regions_headcount_data.xaction</data-path>
+		<data-action></data-action>
+		<data-output>rule-result</data-output>
+		<data-name>POSITIONTITLE</data-name>
+		<data-value>ACTUAL</data-value>
+		<data-orientation>columns</data-orientation>
+	</data>
+	<!-- template>/samples/flashdashboard/flashPieTemplate2.xml</template -->
+	<template>
+		<chart>
+		    <background-color>#445544</background-color>
+			<chart_data>{data}</chart_data>
+			<chart_grid_h alpha='20' color='000000' thickness='1' type='solid' />
+			<chart_rect positive_color='ffffff' positive_alpha='20' negative_color='ff0000' negative_alpha='10' />
+			<chart_type>pie</chart_type>
+			<chart_value color='ffffff' alpha='90' font='arial' bold='true' size='12' position='inside' prefix='' suffix='' decimals='0' separator='' as_percentage='true' />
+			<draw>
+				<text color='aaaaaa' alpha='100' font='arial' rotation='0' bold='true' size='20' x='0' y='-110' width='400' height='150' h_align='center' v_align='bottom'>{title}</text>
+			</draw>
+			<legend_label layout='horizontal' bullet='circle' font='arial' bold='true' size='13' color='ffffff' alpha='85' />
+			<legend_rect fill_color='aaaaaa' fill_alpha='100' line_color='000000' line_alpha='0' line_thickness='0' />
+			<series_color>
+				<color>ddaa41</color>
+				<color>88dd11</color>
+				<color>4e62dd</color>
+				<color>ff8811</color>
+				<color>4d4d4d</color>
+				<color>5a4b6e</color>
+			</series_color>
+			<link_data url='{drill-url}' /> 
+		</chart>	
+	</template>
+</chart>

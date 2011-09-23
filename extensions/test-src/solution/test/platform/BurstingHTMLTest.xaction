@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>BurstingHTMLTest.xaction</name>
+  <title>Bursting Test 1</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Doug Moran</author>  
+    <description>Bursting rule test sending HTML Attachment</description>  
+    <help>This bad boy tests the ability to loop and burst HTML</help>  
+    <icon>burst.png</icon>  
+    <result-type>report</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value>html</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type>  
+    <to type="string"> 
+      <default-value>rmansoor@pentaho.org</default-value> 
+    </to>  
+    <from type="string"> 
+      <default-value>rmansoor@pentaho.org</default-value> 
+    </from>  
+    <subject type="string"> 
+      <default-value>Burst Test</default-value>  
+      <sources> 
+        <request>email-subject</request> 
+      </sources> 
+    </subject>  
+    <attach type="string"> 
+      <default-value>report-output</default-value> 
+    </attach>  
+    <attach-name type="string"> 
+      <default-value>report.html</default-value> 
+    </attach-name>  
+    <report-output type="content"/> 
+  </inputs>
+
+  <outputs> 
+    <report-output type="content"/> 
+  </outputs>
+
+  <resources> 
+    <report-definition> 
+      <solution-file> 
+        <location>/reporting/quadrant-budget-for-region-and-dept-hsql.rptdesign</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>rule</action-type>
+      <action-outputs> 
+        <rule-result type="list"/>  
+        <DEPARTMENT type="string"/>  
+        <REGION type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select distinct Region, Department from QUADRANT_ACTUALS where Region='Western']]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <actions loop-on="rule-result"> 
+      <action-definition> 
+        <component-name>org.pentaho.component.TestComponent</component-name>
+        <action-inputs> 
+          <DEPARTMENT type="string"/>  
+          <REGION type="string"/> 
+        </action-inputs>
+        <action-outputs> 
+          <message-html type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <test>format</test>  
+          <p1> <![CDATA[
+		    <html><body><span style="font-family:tahoma,ariel;color:#000080;font-weight:bold">
+		     Hi,<p>Here is the report you requested for {0} in the {1} region.</p>
+		     </span></body></html>
+		  ]]> </p1>  
+          <p2>DEPARTMENT</p2>  
+          <p3>REGION</p3>  
+          <newname>message-html</newname> 
+        </component-definition>
+        <action-name>Generate Message</action-name> 
+      </action-definition>
+  
+      <message-html type="string"> 
+        <default-value/> 
+      </message-html>  
+      <action-definition> 
+        <component-name>TestComponent</component-name>
+        <action-inputs> 
+          <DEPARTMENT type="string"/>  
+          <REGION type="string"/> 
+        </action-inputs>
+        <action-outputs/>
+        <component-definition> 
+          <test>print2</test>  
+          <p1>REGION</p1>  
+          <p2>DEPARTMENT</p2> 
+        </component-definition>
+        <action-name>Print it</action-name> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>BIRTReportComponent</component-name>
+        <action-type>report</action-type>
+        <action-inputs> 
+          <output-type type="string"/>  
+          <REGION type="string"/>  
+          <DEPARTMENT type="string"/> 
+        </action-inputs>
+        <action-resources>
+          <report-definition type="resource"/>
+        </action-resources>
+        <action-outputs> 
+          <report-output type="content"/> 
+        </action-outputs>
+        <component-definition/> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>EmailComponent</component-name>
+        <action-type>email</action-type>
+        <action-inputs> 
+          <report-output type="content"/>  
+          <to type="string"/>  
+          <subject type="string"/>  
+          <from type="string"/>  
+          <message-html type="string"/>  
+          <attach type="string"/>  
+          <attach-name type="string"/> 
+        </action-inputs>
+        <component-definition/> 
+      </action-definition>
+ 
+    </actions>
+ 
+  </actions> 
+</action-sequence>

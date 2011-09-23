@@ -1,0 +1,64 @@
+<action-sequence>
+	<name>custom-parameter-page-example.xaction</name>
+	<version>1</version>
+	<title>Custom Parameter Page Test</title>	
+        <logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description>This shows an example of a custom parameter page</description>
+		<help>just testing...</help>
+		<result-type>report</result-type>
+	</documentation>
+
+	<inputs>
+		<output-type type="string">
+			<default-value>html</default-value>
+			<sources>
+				<request>type</request> 
+			</sources>
+		</output-type>
+		<REGION type="string">
+			<default-value></default-value>
+			<sources>
+				<request>REGION</request> 
+			</sources>
+		</REGION>
+		<DEPARTMENT type="string">
+			<default-value></default-value>
+			<sources>
+				<request>DEPARTMENT</request> 
+			</sources>
+		</DEPARTMENT>
+	</inputs>
+  
+	<outputs/>
+
+	<resources>
+		<report-definition>
+			<solution-file>
+				<location>custom-parameter-page-example.rptdesign</location>
+				<mime-type>text/xml</mime-type>
+			</solution-file>
+		</report-definition>
+	</resources>
+  
+  <actions>
+      <action-definition>
+
+        <action-inputs>
+            <output-type type="string"/>
+            <REGION type="string"/>
+            <DEPARTMENT type="string"/>
+        </action-inputs>
+        
+        <action-outputs/>
+        
+	<component-name>BIRTReportComponent</component-name>
+        <action-type>report</action-type>
+      	<component-definition>
+      		<xsl>CustomReportParameters.xsl</xsl>
+      		<target>Report_Window</target>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

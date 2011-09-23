@@ -1,0 +1,66 @@
+<action-sequence>
+	<name>quadrant-budget-for-region-and-dept-to-repository.xaction</name>
+	<version>1</version>
+	<title>Reporting Parameter Test</title>	
+        <logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description>Javascript rule test</description>
+		<help>just testing...</help>
+	</documentation>
+
+	<inputs>
+		<output-type type="string">
+			<default-value>pdf</default-value>
+			<sources>
+				<request>type</request> 
+			</sources>
+		</output-type>
+		<REGION type="string">
+			<default-value></default-value>
+			<sources>
+				<request>REGION</request> 
+			</sources>
+		</REGION>
+		<DEPARTMENT type="string">
+			<default-value></default-value>
+			<sources>
+				<request>DEPARTMENT</request> 
+			</sources>
+		</DEPARTMENT>
+	</inputs>
+  
+	<outputs>
+		<report-output type="content">
+		</report-output>
+	</outputs>
+
+	<resources>
+		<report-definition>
+			<solution-file>
+				<location>quadrant-budget-for-region-and-dept-hsql.rptdesign</location>
+				<mime-type>text/xml</mime-type>
+			</solution-file>
+		</report-definition>
+	</resources>
+  
+  <actions>
+      <action-definition>
+
+        <action-inputs>
+            <output-type type="string"/>
+            <REGION type="string"/>
+            <DEPARTMENT type="string"/>
+        </action-inputs>
+        
+        <action-outputs>
+          <report-output type="content"/>
+        </action-outputs>
+        
+	<component-name>BIRTReportComponent</component-name>
+        <action-type>report</action-type>
+      	<component-definition>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

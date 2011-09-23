@@ -1,0 +1,38 @@
+<widget>
+	<dial>
+		<name>Gauge 1</name>
+		<units>$</units>
+		
+		<!--  this is the background for the whole image -->
+		<!--  TODO support gradient and texture painting -->
+		<background-color>#ffffff</background-color>
+		
+		<!--  this ia the background for the dial --> 
+		<!--  TODO support gradient and texture painting -->
+		<dial-background-color>#777777</dial-background-color>
+		
+		<!--  this is the color of the needle -->
+		<needle-color>#222222</needle-color>
+		
+		<!--  intervals define ranges on the dial that are colored differently from the dial background -->
+		<interval>
+			<label>under</label>
+			<!-- this is the value that the range starts at -->
+			<minimum>-5</minimum>
+			<!-- this is the value that the range stops at -->
+			<maximum>0</maximum>
+			<!--  this is the color of the range -->
+			<!--  TODO support gradient and texture painting -->
+			<color>#40bb40</color>
+			<!--  this is the color of the text for the range value and tick marks -->
+			<text-color>#404040</text-color>
+		</interval>
+		<interval>
+			<label>over</label>
+			<minimum>0</minimum>
+			<maximum>5</maximum>
+			<color>#bb4040</color>
+			<text-color>#404040</text-color>
+		</interval>
+	</dial>
+</widget>
