@@ -1,0 +1,154 @@
+version: 1
+
+dn: ou=users,dc=pentaho,dc=org
+ou: users
+objectclass: organizationalUnit
+objectclass: top
+
+dn: uid=joe,ou=users,dc=pentaho,dc=org
+mail: joe.pentaho@pentaho.org
+objectclass: inetOrgPerson
+objectclass: organizationalPerson
+objectclass: person
+objectclass: top
+uid: joe
+cn: joe
+businesscategory: cn=ceo,ou=roles,dc=pentaho,dc=org
+businesscategory: cn=Admin,ou=roles,dc=pentaho,dc=org
+userpassword:: cGFzc3dvcmQ=
+sn: Pentaho
+
+dn: uid=suzy,ou=users,dc=pentaho,dc=org
+mail: suzy.pentaho@pentaho.org
+objectclass: groupofuniquenames
+objectclass: inetOrgPerson
+objectclass: organizationalPerson
+objectclass: person
+objectclass: top
+uid: suzy
+cn: suzy
+userpassword:: cGFzc3dvcmQ=
+businesscategory: cn=cto,ou=roles,dc=pentaho,dc=org
+businesscategory: cn=is,ou=roles,dc=pentaho,dc=org
+sn: Pentaho
+uniqueMember: cn=A,ou=B
+
+dn: uid=tiffany,ou=users,dc=pentaho,dc=org
+mail: tiffany.pentaho@pentaho.org
+objectclass: inetOrgPerson
+objectclass: organizationalPerson
+objectclass: person
+objectclass: top
+uid: tiffany
+cn: tiffany
+businesscategory: cn=devmgr,ou=roles,dc=pentaho,dc=org
+businesscategory: cn=dev,ou=roles,dc=pentaho,dc=org
+userpassword:: cGFzc3dvcmQ=
+sn: Pentaho
+
+dn: uid=pat,ou=users,dc=pentaho,dc=org
+mail: pat.pentaho@pentaho.org
+objectclass: inetOrgPerson
+objectclass: organizationalPerson
+objectclass: person
+objectclass: top
+uid: pat
+cn: pat
+businesscategory: cn=dev,ou=roles,dc=pentaho,dc=org
+userpassword:: cGFzc3dvcmQ=
+sn: Pentaho
+
+dn: ou=groups,dc=pentaho,dc=org
+ou: groups
+objectclass: organizationalUnit
+objectclass: top
+
+dn: cn=Sales,ou=groups,dc=pentaho,dc=org
+cn: Sales
+objectclass: groupofuniquenames
+objectclass: top
+uniquemember: uid=joe,ou=users,dc=pentaho,dc=org
+
+dn: cn=Marketing,ou=groups,dc=pentaho,dc=org
+cn: Marketing
+objectclass: groupofuniquenames
+objectclass: top
+uniquemember: uid=suzy,ou=users,dc=pentaho,dc=org
+
+dn: cn=Development,ou=groups,dc=pentaho,dc=org
+cn: Development
+objectclass: groupOfUniqueNames
+objectclass: top
+uniquemember: uid=pat,ou=users,dc=pentaho,dc=org
+uniquemember: uid=tiffany,ou=users,dc=pentaho,dc=org
+
+dn: ou=roles,dc=pentaho,dc=org
+ou: roles
+objectclass: organizationalUnit
+objectclass: top
+
+dn: cn=devmgr,ou=roles,dc=pentaho,dc=org
+l: Orlando
+objectclass: organizationalRole
+objectclass: top
+description: Development Manager
+roleoccupant: uid=tiffany,ou=users,dc=pentaho,dc=org
+cn: devmgr
+
+dn: cn=cto,ou=roles,dc=pentaho,dc=org
+cn: cto
+description: CTO Role
+objectclass: organizationalRole
+objectclass: top
+roleoccupant: uid=suzy,ou=users,dc=pentaho,dc=org
+l: Orlando
+st: Florida
+
+dn: cn=ceo,ou=roles,dc=pentaho,dc=org
+cn: ceo
+description: CEO Role
+objectclass: organizationalRole
+objectclass: top
+roleoccupant: uid=joe,ou=users,dc=pentaho,dc=org
+l: Orlando
+st: Florida
+
+dn: cn=is,ou=roles,dc=pentaho,dc=org
+cn: is
+description: Information Systems
+objectclass: organizationalRole
+objectclass: top
+roleoccupant: uid=suzy,ou=users,dc=pentaho,dc=org
+l: Orlando
+st: Florida
+
+dn: cn=dev,ou=roles,dc=pentaho,dc=org
+objectclass: organizationalRole
+objectclass: top
+roleoccupant: uid=pat,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=tiffany,ou=users,dc=pentaho,dc=org
+cn: dev
+
+dn: cn=Admin,ou=roles,dc=pentaho,dc=org
+objectclass: organizationalRole
+objectclass: top
+roleoccupant: uid=joe,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=admin,dc=pentaho,dc=org
+cn: Admin
+
+dn: cn=Authenticated,ou=roles,dc=pentaho,dc=org
+objectclass: organizationalRole
+objectclass: top
+roleoccupant: uid=joe,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=suzy,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=suzy,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=pat,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=pat,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=tiffany,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=tiffany,ou=users,dc=pentaho,dc=org
+cn: Authenticated
+
+dn: cn=Anonymous,ou=roles,dc=pentaho,dc=org
+cn: Anonymous
+objectclass: organizationalRole
+objectclass: top
