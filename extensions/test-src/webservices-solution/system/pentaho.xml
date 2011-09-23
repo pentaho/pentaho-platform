@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pentaho-system>
+
+	<log-file>server.log</log-file>
+	<log-level>DEBUG</log-level>	
+
+</pentaho-system>
