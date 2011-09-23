@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Test Resultset With Different Data Types</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Ramaiz Mansoor</author>  
+    <description>This action sequence test the different data types</description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon/> 
+  </documentation>
+
+  <inputs/>
+  <resources/>
+  <actions> 
+
+      <action-definition>
+      	<action-inputs />
+        <action-outputs>
+          	<rs1 type="list"/>
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+              var rs1 = new JavaScriptResultSet();
+              rs1.setColumnHeaders( 'Total');
+              rs1.addRow( new Array( 25.60 ) );
+              rs1.addRow( new Array( 26.80 ) );
+              rs1.addRow( new Array( 34.60 ) );
+              rs1.addRow( new Array( 67.90 ) );
+              rs1.getColumnCount();
+              rs1.getRowCount();
+              rs1.getValueAt(1,1);
+              rs1.close();
+              rs1.closeConnection();
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+
+      <action-definition>
+      	<action-inputs />
+        <action-outputs>
+          	<rs2 type="list"/>
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+              var rs2 = new JavaScriptResultSet();
+              rs2.setColumnHeaders( 'Count');
+              rs2.addRow( new Array( 45 ) );
+              rs2.addRow( new Array( 56 ) );
+              rs2.addRow( new Array( 78 ) );
+              rs2.addRow( new Array( 49 ) );
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+
+      <action-definition>
+      	<action-inputs />
+        <action-outputs>
+          	<rs3 type="list"/>
+        </action-outputs>
+        
+        <component-name>JavascriptRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+              var rs3 = new JavaScriptResultSet();
+              rs3.setColumnHeaders( 'Count');
+              rs3.addRow( new Array( 454353453453 ) );
+              rs3.addRow( new Array( 565675675675 ) );
+              rs3.addRow( new Array( 78567567575 ) );
+              rs3.addRow( new Array( 49567575675 ) );
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+  </actions> 
+</action-sequence>

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-085.dtd">
+<!--
+  The report needs JFreeReport 0.8.6 or the message-field
+  contents will look funny.
+-->
+<report name="Quadrant For Region" orientation="portrait" pageformat="LETTER"
+  topmargin="0pt" leftmargin="5pt" bottommargin="0pt" rightmargin="5pt" >
+
+   <configuration> 
+     <property name="org.jfree.report.modules.output.table.html.BodyFragment">true</property> 
+     <property name="org.jfree.report.modules.output.table.html.ProportionalColumnWidths">true</property>
+   </configuration>
+
+  <!-- This is what is called 'title' in JasperReports -->
+
+  <groups>
+
+    <group name="DepartmentGroup">
+      <fields>
+        <field>REGION</field>
+        <field>DEPARTMENT</field>
+      </fields>
+      <groupheader fontname="Arial" fontsize="6" fontstyle="bold">
+        <label x="0" y="0" width="160" height="10" color="#8C944A">Position</label>
+        <label x="160" y="0" width="100" height="14" color="#8C944A" alignment="right">Actual</label>
+        <label x="260" y="0" width="100" height="14" color="#8C944A" alignment="right">Budget</label>
+        <label x="360" y="0" width="100" height="14" color="#8C944A" alignment="right">Variance</label>
+        <label x="460" y="0" width="5" height="14" color="#8C944A" alignment="right"></label>
+      </groupheader>
+      <!--
+      By specifiying a band height that is greater than the used size, we
+      enforce some empty space between the groups.
+      -->
+      <groupfooter fontname="Arial" fontsize="9" fontstyle="bold" height="24">
+        <label x="0" y="0" width="160" height="14" color="#8C944A" >Total</label>
+        <number-field x="160" y="0" width="80" height="14" fieldname="DepartmentActual" format="$#,##0" color="#8C944A" alignment="right" />
+        <number-field x="260" y="0" width="80" height="14" fieldname="DepartmentBudget" format="$#,##0" color="#8C944A" alignment="right" />
+        <number-field name="Variance Department Field" x="360" y="0" width="80" height="14" fieldname="DepartmentVariance" format="$#,##0" color="#8C944A" alignment="right" />
+      </groupfooter>
+    </group>
+  </groups>
+
+  <!-- This is what is called 'detail' in JasperReports -->
+  <items fontname="Arial" fontsize="8" color="#404040">
+    <string-field x="0" y="0" width="160" height="12" fieldname="POSITIONTITLE" name="URL-Field"/>
+    <number-field x="160" y="0" width="80" height="12" fieldname="ACTUAL" format="$#,##0" alignment="right" />
+    <number-field x="260" y="0" width="80" height="12" fieldname="BUDGET" format="$#,##0" alignment="right" />
+    <number-field name="Variance Field" x="360" y="0" width="80" height="12" fieldname="VARIANCE" format="$#,##0" alignment="right" />
+  </items>
+
+  <functions>
+    <!-- This makes sure, that we can access the parameter as if it was a column from the table -->
+    <property-ref name="REGION"/>
+
+    <expression class="org.jfree.report.modules.misc.beanshell.BSHExpression"
+                name="isVarianceNegative">
+      <properties>
+        <property name="expression">
+          Object getValue()
+          {
+            Object value = dataRow.get("VARIANCE");
+            if (value instanceof Number == false)
+            {
+              return Boolean.FALSE;
+            }
+            Number number = (Number) value;
+            if (number.doubleValue() &lt; 0)
+            {
+              return Boolean.TRUE;
+            }
+            return Boolean.FALSE;
+          }
+        </property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ElementColorFunction"
+                name="changeColor">
+      <properties>
+        <property name="element">Variance Field</property>
+        <property name="field">isVarianceNegative</property>
+        <property name="colorTrue">red</property>
+        <property name="colorFalse">black</property>
+      </properties>
+    </expression>
+
+
+    <expression class="org.jfree.report.modules.misc.beanshell.BSHExpression"
+                name="isDepartmentVarianceNegative">
+      <properties>
+        <property name="expression">
+          Object getValue()
+          {
+            Object value = dataRow.get("DepartmentVariance");
+            if (value instanceof Number == false)
+            {
+              return Boolean.FALSE;
+            }
+            Number number = (Number) value;
+            if (number.doubleValue() &lt; 0)
+            {
+              return Boolean.TRUE;
+            }
+            return Boolean.FALSE;
+          }
+        </property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ElementColorFunction"
+                name="changeDepartmentColor">
+      <properties>
+        <property name="element">Variance Department Field</property>
+        <property name="field">isDepartmentVarianceNegative</property>
+        <property name="colorTrue">red</property>
+        <property name="colorFalse">black</property>
+      </properties>
+    </expression>
+
+
+
+    <expression class="org.jfree.report.modules.misc.beanshell.BSHExpression"
+                name="isRegionVarianceNegative">
+      <properties>
+        <property name="expression">
+          Object getValue()
+          {
+            Object value = dataRow.get("RegionVariance");
+            if (value instanceof Number == false)
+            {
+              return Boolean.FALSE;
+            }
+            Number number = (Number) value;
+            if (number.doubleValue() &lt; 0)
+            {
+              return Boolean.TRUE;
+            }
+            return Boolean.FALSE;
+          }
+        </property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ElementColorFunction"
+                name="changeRegionColor">
+      <properties>
+        <property name="element">Variance Region Field</property>
+        <property name="field">isRegionVarianceNegative</property>
+        <property name="colorTrue">red</property>
+        <property name="colorFalse">black</property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ItemSumFunction"
+                name="RegionActual">
+      <properties>
+        <property name="field">ACTUAL</property>
+        <property name="group">RegionGroup</property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ItemSumFunction"
+                name="RegionBudget">
+      <properties>
+        <property name="field">BUDGET</property>
+        <property name="group">RegionGroup</property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ItemSumFunction"
+                name="RegionVariance">
+      <properties>
+        <property name="field">VARIANCE</property>
+        <property name="group">RegionGroup</property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ItemSumFunction"
+                name="DepartmentActual">
+      <properties>
+        <property name="field">ACTUAL</property>
+        <property name="group">DepartmentGroup</property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ItemSumFunction"
+                name="DepartmentBudget">
+      <properties>
+        <property name="field">BUDGET</property>
+        <property name="group">DepartmentGroup</property>
+      </properties>
+    </expression>
+
+    <expression class="org.jfree.report.function.ItemSumFunction"
+                name="DepartmentVariance">
+      <properties>
+        <property name="field">VARIANCE</property>
+        <property name="group">DepartmentGroup</property>
+      </properties>
+    </expression>
+    
+     <function name="AddHRefs" class="org.jfree.report.function.CreateHyperLinksFunction">
+       <properties>
+         <property name="field">URLCreateExpression</property>
+         <property name="element">URL-Field</property>
+       </properties>
+     </function>
+    
+     <expression name="URLCreateExpression" class="org.jfree.report.function.TextFormatExpression">
+       <properties>
+         <property name="pattern">drill.php?region={0}&amp;position={1}&amp;department={2}</property>
+         <property name="field[0]">REGION</property>
+         <property name="field[1]">POSITIONTITLE</property>
+         <property name="field[2]">DEPARTMENT</property>
+         <property name="urlEncodeValues">true</property>
+       </properties>
+     </expression>
+
+  </functions>
+</report>

@@ -1,0 +1,60 @@
+<action-sequence>
+	<name>SampleJavascriptRule.xaction</name>
+	<version>1</version>
+	<title>%title</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description>%description</description>
+		<icon>SampleJavascriptRule.png</icon>
+		<result-type>rule</result-type>
+	</documentation>
+
+	<inputs />
+
+	<outputs>
+		<rule-result>
+			<type>string</type>
+		</rule-result>
+	</outputs>
+		
+	<resources>
+		<javascript-library-Sample1>
+			<solution-file>
+				<location>Sample1Lib.js</location>
+				<mime-type>text/javascript</mime-type>
+			</solution-file>
+		</javascript-library-Sample1>
+		
+		<javascript-library-Sample2>
+			<solution-file>
+				<location>Sample2Lib.js</location>
+				<mime-type>text/javascript</mime-type>
+			</solution-file>
+		</javascript-library-Sample2>
+		
+	</resources>
+
+	<actions>
+		<action-definition>
+			<action-outputs>
+				<rule-result type="string" />
+			</action-outputs>
+			<!-- 
+			<action-resources>
+				<javascript-libary-Sample1/>
+				<javascript-libary-Sample2/>
+			</action-resources>
+			-->
+			<component-name>JavascriptRule</component-name>
+			<action-type>rule</action-type>
+			<component-definition>
+				<script>
+					<![CDATA[ 
+			    region() + " " + city(); 
+		      ]]>
+				</script>
+			</component-definition>
+		</action-definition>
+	</actions>
+</action-sequence>

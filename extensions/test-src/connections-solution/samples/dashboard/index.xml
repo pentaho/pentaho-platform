@@ -1,0 +1,7 @@
+<index>
+	<name>%directory_name</name>
+	<description>%directory_description</description>
+	<icon>dashboard.jpg</icon>
+	<visible>true</visible>
+	<display-type>list</display-type>
+</index>

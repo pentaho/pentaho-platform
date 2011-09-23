@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Time Series Chart Example</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description>Sample executing the TimeSeries chart type</description>  
+    <help/>  
+    <result-type>chart</result-type>  
+    <icon>folder.png</icon> 
+  </documentation>
+  <inputs/>
+
+  <outputs> 
+    <image-tag type="string"/> 
+  </outputs>
+
+  <resources>
+      <timeseries> 
+      <solution-file> 
+        <location>samplesDashboard/timeserieschart.xml</location>  
+        <mime-type/> 
+      </solution-file> 
+    </timeseries> 
+   </resources>
+  
+  <actions> 
+     <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Relational</action-type>
+        <action-outputs> 
+          <query-result type="result-set" mapping="query_result"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi><![CDATA[SampleData]]></jndi>  
+          <live><![CDATA[true]]></live>  
+          <query><![CDATA[select a.productname as productname, b.orderdate, SUM(c.quantityordered) as orders
+    from    products as a, 
+            orders as b, 
+            orderdetails as c   
+    where   a.productcode = c.productcode AND MONTH(b.orderdate) = 1 AND (a.productname LIKE '1969%') 
+    group by a.productname, b.orderdate]]></query>
+        </component-definition> 
+      </action-definition>
+      <action-definition> 
+        <component-name>org.pentaho.ui.component.charting.TimeSeriesCollectionChartComponent</component-name>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="query_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="timeseries"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition>
+          <by-row>false</by-row>  
+          <width><![CDATA[450]]></width>  
+          <height><![CDATA[300]]></height>  
+          <title><![CDATA[Time Series Chart Sample]]></title>
+        </component-definition> 
+      </action-definition>
+  </actions> 
+</action-sequence>

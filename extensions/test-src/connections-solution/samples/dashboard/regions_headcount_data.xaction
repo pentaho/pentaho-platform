@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Regions and departments</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description>Return the actual headcount costs total for each region</description>  
+    <help/> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <rule-result type="result-set"/>
+  </outputs>
+
+  <resources/>
+  
+  <!-- Define an output called 'rule-result' -->  
+  <!-- This action sequence does not require any external resources -->  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Headcount Data</action-type>
+      <action-inputs/>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <!-- Define the datasource for the query -->  
+        <jndi>SampleData</jndi>  
+        <!-- Define the query to execute. Note the parameter {REGION} in the query -->  
+        <query><![CDATA[select REGION, sum(ACTUAL) as ACTUAL
+from QUADRANT_ACTUALS 
+group by REGION 
+order by ACTUAL]]></query> 
+      </component-definition>  
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

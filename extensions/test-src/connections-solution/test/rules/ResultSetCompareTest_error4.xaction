@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Test Resultset Compare Error 4</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Ramaiz Mansoor</author>  
+    <description>Thie action tests the resultset compare utility - Error 1 Path</description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon/> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <COMPARERESULT type="string"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>rule</action-type>
+      <action-inputs/>
+      <action-outputs> 
+        <rs1 type="list"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[ 
+              var rs1 = new JavaScriptResultSet();
+              rs1.setColumnHeaders( 'REGION');
+              rs1.addRow( new Array( 'Central' ) );
+              rs1.addRow( new Array( 'Eastern' ) ); // Won't compare here...
+              rs1.addRow( new Array( 'Western' ) );
+              rs1.addRow( new Array( 'Southern' ) );
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>rule</action-type>
+      <action-inputs/>
+      <action-outputs> 
+        <rs2 type="list"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[ 
+              var rs2 = new JavaScriptResultSet();
+              rs2.setColumnHeaders( 'REGION');
+              rs2.addRow( new Array( 'Central' ) );
+              rs2.addRow( new Array( 'Western' ) );
+              rs2.addRow( new Array( 'East' ) ); // Won't compare here...
+              rs2.addRow( new Array( 'Southern' ) );
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>org.pentaho.plugin.core.ResultSetCompareComponent</component-name>
+      <action-inputs> 
+        <result-set-from type="list" mapping="rs1"/> 
+      </action-inputs>
+      <action-outputs> 
+        <COMPARERESULT type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <output_mismatches>true</output_mismatches>  
+        <!-- Show mismatches in the error log -->  
+        <stop-on-error><![CDATA[true]]></stop-on-error>  
+        <!-- Don't error out if we have errors. We'll display them down lower -->  
+        <compare-result>COMPARERESULT</compare-result>  
+        <!-- Will contain "No Mismatches" if everything was good. Otherwise, will have the list of bad rates -->  
+        <compare-column>0</compare-column>  
+        <!-- What column in the result sets to compare --> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

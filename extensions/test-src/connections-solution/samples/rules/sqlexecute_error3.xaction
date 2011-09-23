@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Test SQL Execute Error 3</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Marc Batchelor</author>  
+    <description>This tests the SQL Execute rule to make sure that it errors properly when forced to single-line.</description>
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon/> 
+  </documentation>
+
+  <inputs/>
+
+	<outputs>
+		<rule-result>
+			<type>list</type>
+		</rule-result>
+	</outputs>
+
+  <resources/>
+  
+  <actions>
+      <action-definition>
+
+        <action-outputs>
+          <rule-result type="list"/>
+        </action-outputs>
+        
+        <component-name>SQLExecute</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+          <jndi>SampleDataAdmin</jndi>
+          <force_single_statement>true</force_single_statement>
+          <!--
+            Should error on the drop table because foo doesn't exist.
+          -->
+          <query><![CDATA[
+            drop table foo
+          ]]></query>
+        </component-definition>
+      </action-definition>
+  </actions> 
+</action-sequence>

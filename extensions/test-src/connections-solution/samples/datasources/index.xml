@@ -1,0 +1,7 @@
+<index>
+	<name>%name</name>
+	<description>%description</description>
+	<icon>datasources.png</icon>
+	<visible>true</visible>
+	<display-type>list</display-type>
+</index>

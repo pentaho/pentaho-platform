@@ -1,0 +1,75 @@
+
+<action-sequence>
+
+	<name>script_rule4.xaction</name>
+	<version>1</version>
+	<title>Sample Javascript rule</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description>Javascript rule test</description>
+		<help>just testing...</help>
+	</documentation>
+
+	<inputs>
+	</inputs>
+
+	<outputs>
+          	<columns type="string"/>
+          	<rows type="string"/>
+          	<firstrow type="string"/>
+          	<lastrow type="string"/>
+	</outputs>
+  <resources/>
+  
+  <actions>
+      <action-definition>
+        <component-name>JavascriptRule</component-name>
+      	<action-inputs/>
+        <action-outputs>
+          	<regions type="list"/>
+        </action-outputs>
+        
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+			      function getRegions( ) {
+			      	var results = new JavaScriptResultSet();
+			      	results.setColumnHeaders( 'REGION' );
+		      		results.addRow( new Array( 'Eastern' ) );
+		      		results.addRow( new Array( 'Western' ) );
+		      		results.addRow( new Array( 'Southern' ) );
+			      	return results;
+			      }
+			    getRegions( ); 
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+      
+      <action-definition>
+        <component-name>JavascriptRule</component-name>
+      	<action-inputs>
+          	<regions type="list"/>
+      	</action-inputs>
+        <action-outputs>
+          	<columns type="string"/>
+          	<rows type="string"/>
+          	<firstrow type="string"/>
+          	<lastrow type="string"/>
+        </action-outputs>
+        
+        <action-type>rule</action-type>
+      	<component-definition>
+      		<script><![CDATA[ 
+	      		regions.addRow( new Array( 'bogus' ) );
+		      	firstrow = regions.getValueAt(0,0);
+		      	lastrow = regions.getValueAt(regions.getRowCount()-1,0);
+		      	columns = regions.getColumnCount();
+		      	rows = regions.getRowCount();
+		      ]]>
+		      </script>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>
