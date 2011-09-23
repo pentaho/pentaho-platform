@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Joe Pentaho</author>  
+    <description>%description</description>  
+    <help>%help</help>  
+    <result-type>rule</result-type>  
+    <icon>HelloWorld.png</icon> 
+  </documentation>
+
+  <inputs>
+    <quote type="string">
+      <sources>
+        <request>quote</request>
+      </sources>
+    </quote>
+  </inputs>
+
+  <outputs/>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>HelloWorldComponent</component-name>
+      <action-type>Hello World</action-type>
+      <action-inputs>
+        <quote type="string"/>
+      </action-inputs>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>
