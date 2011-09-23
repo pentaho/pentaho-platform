@@ -1,0 +1,6 @@
+<enunciate basedir="src/" defaultRestSubcontext="/api">
+  <modules>
+    <docs splashPackage="com.pentaho.api" title="Pentaho BIServer api doc" copyright="Pentaho.com" docsDir="apidocs">
+    </docs>
+  </modules>
+</enunciate> 
