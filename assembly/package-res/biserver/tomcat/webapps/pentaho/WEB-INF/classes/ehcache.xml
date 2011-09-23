@@ -1,0 +1,199 @@
+<ehcache updateCheck="false">
+
+    <!-- Sets the path to the directory where cache .data files are created.
+
+         If the path is a Java System Property it is replaced by
+         its value in the running VM.
+
+         The following properties are translated:
+         user.home - User's home directory
+         user.dir - User's current working directory
+         java.io.tmpdir - Default temp file path -->
+    <diskStore path="java.io.tmpdir/_pentaho"/>
+
+
+    <!--Default Cache configuration. These will applied to caches programmatically created through
+        the CacheManager.
+
+        The following attributes are required:
+
+        maxElementsInMemory            - Sets the maximum number of objects that will be created in memory
+        eternal                        - Sets whether elements are eternal. If eternal,  timeouts are ignored and the
+                                         element is never expired.
+        overflowToDisk                 - Sets whether elements can overflow to disk when the in-memory cache
+                                         has reached the maxInMemory limit.
+
+        The following attributes are optional:
+        timeToIdleSeconds              - Sets the time to idle for an element before it expires.
+                                         i.e. The maximum amount of time between accesses before an element expires
+                                         Is only used if the element is not eternal.
+                                         Optional attribute. A value of 0 means that an Element can idle for infinity.
+                                         The default value is 0.
+        timeToLiveSeconds              - Sets the time to live for an element before it expires.
+                                         i.e. The maximum time between creation time and when an element expires.
+                                         Is only used if the element is not eternal.
+                                         Optional attribute. A value of 0 means that and Element can live for infinity.
+                                         The default value is 0.
+        diskPersistent                 - Whether the disk store persists between restarts of the Virtual Machine.
+                                         The default value is false.
+        diskExpiryThreadIntervalSeconds- The number of seconds between runs of the disk expiry thread. The default value
+                                         is 120 seconds.
+        -->
+
+    <defaultCache
+        maxElementsInMemory="1000"
+        eternal="false"
+        overflowToDisk="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"
+        />
+	
+	<cache name="pentahoCache"
+        maxElementsInMemory="15000"
+        eternal="false"
+        overflowToDisk="true"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"
+		/>
+
+	<!-- Defines a cache used by libloader. This cache holds the raw binary data loaded via libloader.  -->
+	<!--  NOTE: this cache name should be "libloader-data", but this entry should exist until such time -->
+	<!--        that the cache name has been changed in the libloader code. - dkincade                  -->
+	<cache name="liblayout-data"
+        maxElementsInMemory="1000"
+        eternal="false"
+        overflowToDisk="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"
+		/>
+		
+	<!-- Defines a cache used by libloader. This cache holds the parsed object loaded via libloader.       -->
+	<!--  NOTE: this cache name should be "libloader-factory", but this entry should exist until such time -->
+	<!--        that the cache name has been changed in the libloader code. - dkincade                     -->
+	<cache name="liblayout-factory"
+        maxElementsInMemory="1000"
+        eternal="false"
+        overflowToDisk="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"
+		/>				
+
+	<!-- Defines a cache used by libloader. This cache holds the raw binary data loaded via libloader.  -->
+    <!--  This cache will replace the improperly named 'liblayout-data' cache in the near future -->
+    <!--  so it is being added now so it doesn't get forgotten                                   -->
+	<cache name="libloader-data"
+        maxElementsInMemory="1000"
+        eternal="false"
+        overflowToDisk="true"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"
+		/>
+		
+	<!-- Defines a cache used by libloader. This cache holds the parsed object loaded via libloader. -->
+	<cache name="libloader-bundles"
+          maxElementsInMemory="100"
+          eternal="false"
+          overflowToDisk="false"
+          timeToIdleSeconds="0"
+          timeToLiveSeconds="0"
+          diskPersistent="false"
+          diskExpiryThreadIntervalSeconds="120"
+        />
+ 
+	<!-- Defines a cache used by libloader. This cache holds the parsed object loaded via libloader. -->
+    <!--  This cache will replace the improperly named 'liblayout-factory' cache in the near future  -->
+    <!--  so it is being added now so it doesn't get forgotten                                       -->
+	<cache name="libloader-factory"
+        maxElementsInMemory="1000"
+        eternal="false"
+        overflowToDisk="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"
+		/>		
+	
+	<cache name="mondrian-catalog-cache"
+        maxElementsInMemory="30"
+        eternal="false"
+        overflowToDisk="true"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"
+		/>		
+
+
+  <!--
+    Defines a cache used by the reporting engine to hold small datasets.
+    This cache can be configured to have a separate instance for each logged in user via the
+    global report configuration. This per-user cache is required if role or other security and
+    filter information is used in ways invisible for the reporting engine.
+  -->
+  <cache name="report-dataset-cache"
+        maxElementsInMemory="50"
+        eternal="false"
+        overflowToDisk="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"
+    />
+
+  <!--
+     Defines a cache used by the reporting plugin to hold paginated report objects.
+     Warning: These report keep their connections open as long as the report object
+     lives in the cache. This cache exists on a per-user basis. Keep it reasonably
+     small to not exhaust your resources.
+  -->
+  <cache name="report-output-handlers"
+        maxElementsInMemory="10"
+        eternal="false"
+        overflowToDisk="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="600"
+        diskPersistent="false"
+        diskExpiryThreadIntervalSeconds="120"
+    />
+
+  <!-- Repository File Entity caching below. These are used by the Hibernate 2nd-level cache when using the ehCache provider. -->
+  <cache
+    name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+    diskPersistent="false"
+  />
+  <cache
+    name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile.childrenFiles"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+    diskPersistent="false"
+  />
+
+  <cache
+    name="org.pentaho.platform.repository.solution.dbbased.RepositoryFile.accessControls"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="600"
+    overflowToDisk="true"
+    diskPersistent="false"
+  />
+
+</ehcache>
