@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- 
+This is the spring configuration file that is used to wire administration tasks into the Pentaho
+BI Platform. These administration tasks are accessable from the Pentaho Administration console.
+-->
+
+<beans>
+	<bean id="administrationPluginsList" class="java.util.ArrayList">
+		<constructor-arg>
+			<list>
+				<bean class="org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter"/>
+			</list>
+		</constructor-arg>
+	</bean>
+</beans>

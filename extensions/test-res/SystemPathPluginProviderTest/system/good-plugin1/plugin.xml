@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin title="Plugin 1">
+  <lifecycle-listener class="org.pentaho.test.platform.plugin.pluginmgr.FooInitializer" />
+  <content-generator scope="global" id="test1" type="test-type-3">
+    <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1
+    </classname>
+    <fileinfo-classname>org.pentaho.test.platform.plugin.pluginmgr.FileInfoGenerator
+    </fileinfo-classname>
+    <title>Test Generator 1</title>
+  </content-generator>
+  
+  <bean id="FooComponent" class="org.pentaho.test.platform.plugin.pluginmgr.FooComponent" />
+  <bean id="genericBean" class="java.lang.Object" />
+  
+  <webservice 
+    type="xml,gwt"
+    title="%TestWS1.TITLE%" 
+    description="A test webservice"
+    class="org.pentaho.test.platform.engine.core.EchoServiceBean">
+    <extra class="java.lang.String"/>
+  </webservice>
+  <!-- webservice 
+    title="%TestWS.TITLE%" 
+    description="A test webservice"
+    class="org.pentaho.test.platform.engine.core.EchoServiceBean">
+    <extra class="org.pentaho.platform.webservice.services.datasource.WSDataSource"/>
+  </webservice>
+  <webservice 
+    title="WS2" 
+    description="A test webservice">
+    <extra class="org.pentaho.platform.webservice.services.datasource.WSDataSource"/>
+  </webservice-->
+</plugin>

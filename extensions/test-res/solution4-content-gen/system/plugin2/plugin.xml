@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin title="Plugin 2">
+
+    <content-generator scope="global" id="test1" type="test-type-3">
+        <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1</classname>
+        <fileinfo-classname>org.pentaho.test.platform.plugin.pluginmgr.FileInfoGenerator</fileinfo-classname>
+        <title>Test Generator 1</title>
+    </content-generator>
+    
+</plugin>

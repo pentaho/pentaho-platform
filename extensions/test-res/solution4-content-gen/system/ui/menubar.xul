@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<window>
+
+  <menubar id="menu" orient="vertical"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+   xmlns:HTML="http://www.w3.org/Profiles/XHTML-transitional">
+   
+    <menu id="file-menu" label="{file}">
+      <menupopup id="file-submenu">
+	    <menuitem id="home-menu-menuitem" label="{home}" command="/pentaho/PreviousHome"/>
+	    <menuitem id="new-report-menuitem" label="{new-report}" command="javascript:popPage('/pentaho/adhoc/waqr.html')"/>
+	    <menuitem id="new-pivot-menuitem" label="{new-view}" command="javascript:popPage('/pentaho/NewAnalysisView')"/>
+	    <menuitem id="logout-menu-menuitem"  label="{logout}" command="/pentaho/Logout"/>
+      </menupopup>
+   	</menu>
+   	
+    <menu id="view-menu" label="{view}">
+      <menupopup id="view-submenu">
+	    <menuitem id="navigate-menuitem" label="{solutions}" command="/pentaho/Navigate"/>
+	    <menuitem id="usercontent-menuitem" label="{file-cache}" command="/pentaho/UserContent"/>
+      </menupopup>
+    </menu>
+
+    <menu id="admins-menu" label="{admin}">
+      <menupopup id="admin-submenu">
+	    <menuitem id="admin-menu-menuitem" label="Admin Home" command="/pentaho/Admin"/>
+      </menupopup>
+   	</menu>
+
+    <menu id="about-menu" label="{about}">
+      <menupopup id="about-submenu">
+		<menuitem id="pentaho-menuitem" label="{pentaho.org}" command="javascript:popPage('http://www.pentaho.com')"/>
+		<menuitem id="demos-menuitem" label="{demos}" command="javascript:popPage('http://www.pentaho.com/products/demos/showNtell.php')"/>
+		<menuitem id="downloads-menuitem" label="{downloads}" command="javascript:popPage('http://www.pentaho.com/download/')"/>
+		<menuitem id="nightlies-menuitem" label="{nightly}" command="javascript:popPage('ftp://download.pentaho.org/')"/>
+		<menuitem id="tracker-menuitem" label="{tracker}" command="javascript:popPage('http://jira.pentaho.com/secure/Dashboard.jspa')"/>
+		<menuitem id="forums-menuitem" label="{forums}" command="javascript:popPage('http://forums.pentaho.org/')"/>
+		<menuitem id="about-menuitem" label="{about}" command="javascript:modalWin('About')"/>
+      </menupopup>
+    </menu>
+
+  </menubar>
+
+      <menupopup id="testpopup">
+		<menuitem id="popup1-menuitem" label="test" command="test command"/>
+      </menupopup>
+
+</window>
