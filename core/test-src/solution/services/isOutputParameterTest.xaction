@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>isOutputParameterTest.xaction</name>
+  <title>Companion xaction for IsOutputParameterTest.testIsOutputParameter</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>TGF</author>  
+    <description></description>  
+    <help/>  
+    <result-type></result-type>  
+    <icon></icon> 
+  </documentation>
+
+  <inputs>
+    <visible1 type="string"> 
+			<default-value>Is</default-value>
+		</visible1>
+    <visible2 type="string"> 
+			<default-value>Is</default-value>
+		</visible2>
+     <hidden type="string"> 
+			<default-value>IsNot</default-value>
+		</hidden>
+  </inputs>
+
+  <outputs>
+    <visible1 type="string"/> 
+    <visible2 type="string" is-output-parameter="true"/>
+    <hidden type="string" is-output-parameter="false"/>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+ 
+  </actions> 
+</action-sequence>

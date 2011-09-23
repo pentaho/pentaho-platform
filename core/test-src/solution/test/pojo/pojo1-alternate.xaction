@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>pojo1.xaction</name>
+  <title>pojo1</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description/>  
+    <help/> 
+  </documentation>
+
+  <inputs> 
+    <input1 type="string">
+      <sources>
+        <request>input1</request>
+      </sources>
+      <default-value><![CDATA[abcde]]></default-value>
+    </input1>
+   	<int2>
+      <sources>
+        <request>int2</request>
+      </sources>
+   	</int2>
+   	<bool2>
+      <sources>
+        <request>bool2</request>
+      </sources>
+   	</bool2>
+   	<float2>
+      <sources>
+        <request>float2</request>
+      </sources>
+   	</float2>
+   	<double2>
+      <sources>
+        <request>double2</request>
+      </sources>
+   	</double2>
+   	<bigdecimal>
+      <sources>
+        <request>bigdecimal</request>
+      </sources>
+   	</bigdecimal>
+   	<long2>
+      <sources>
+        <request>long2</request>
+      </sources>
+   	</long2>
+    
+  </inputs>
+
+  <outputs> 
+    <output1 type="string"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>org.pentaho.test.platform.engine.services.TestPojo1</component-name>
+      <action-inputs> 
+        <input1 type="string"/> 
+	        <int2/>
+	        <bool2/>
+	        <float2/>
+	        <double2/>
+	        <bigdecimal/>
+	        <long2/>
+      </action-inputs>
+      <action-outputs> 
+        <output1 type="string"/> 
+      </action-outputs>
+      <component-definition> 
+      </component-definition>
+      <action-name>Test the test POJO</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

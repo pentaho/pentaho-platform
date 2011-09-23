@@ -11,9 +11,5 @@ used by the system you should edit those files and not this one. This file shoul
 -->
 
 <beans>
-	<bean id="pentahoSystemProxy" class="org.pentaho.platform.engine.core.system.SpringPentahoSystemProxy">	
-		<property name="administrationPlugins" ref="administrationPluginsList"/>
-		<property name="systemListeners" ref="systemListenersList"/>
-		<property name="sessionStartupActions" ref="sessionStartupActionsList"/>
-	</bean>
+	<bean id="pentahoSystemProxy" class="org.pentaho.platform.engine.core.system.SpringPentahoSystemProxy"/>	
 </beans>

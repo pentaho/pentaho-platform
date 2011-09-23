@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>TestAction</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Aaron Phillips</author>  
+    <description>JUnit testing</description>  
+    <help>%help</help>  
+    <result-type>rule</result-type>  
+    <icon>HelloWorld.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <message type="string"> 
+      <default-value>message input text</default-value> 
+    </message> 
+  </inputs>
+
+  <outputs> 
+    <myContentOutput type="content">
+      <destinations>
+        <runtime>content</runtime>
+      </destinations>
+    </myContentOutput> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>TestStreamingAction</component-name>
+      <action-type>JUnit Test Action</action-type>
+      <action-inputs> 
+        <message type="string"/> 
+      </action-inputs>
+      <action-resources/>
+      <action-outputs> 
+        <myContentOutput type="content"/> 
+      </action-outputs>
+      <component-definition/>  
+      <action-name>TestAction</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

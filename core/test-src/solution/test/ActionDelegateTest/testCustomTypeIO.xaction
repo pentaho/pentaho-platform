@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>TestAction</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Aaron Phillips</author>  
+    <description>JUnit testing</description>  
+    <help>%help</help>  
+    <result-type>rule</result-type>  
+    <icon>HelloWorld.png</icon> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs/>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>TestAction</component-name>
+      <action-type>JUnit Test Action 1</action-type>
+      <action-inputs> 
+      </action-inputs>
+      <action-resources/>
+      <action-outputs> 
+        <custom/> 
+      </action-outputs>
+      <component-definition/>  
+      <action-name>TestAction 1</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>TestAction</component-name>
+      <action-type>JUnit Test Action 2</action-type>
+      <action-inputs> 
+        <custom/>  
+      </action-inputs>
+      <action-resources/>
+      <action-outputs/>
+      <component-definition/>  
+      <action-name>TestAction 2</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

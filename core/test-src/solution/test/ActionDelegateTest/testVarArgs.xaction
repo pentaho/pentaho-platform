@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>TestAction</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Aaron Phillips</author>  
+    <description>JUnit testing</description>  
+    <help>%help</help>  
+    <result-type>rule</result-type>  
+    <icon>HelloWorld.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <message type="string"> 
+      <default-value>message text</default-value> 
+    </message>  
+    <varArg1 type="string"> 
+      <default-value>varArg1 text</default-value> 
+    </varArg1> 
+  </inputs>
+
+  <outputs/>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>TestVarArgsAction</component-name>
+      <action-type>JUnit Test Action 1</action-type>
+      <action-inputs> 
+        <message type="string"/>  
+        <varArg1 type="string"/>  
+        <varArg2/> 
+      </action-inputs>
+      <action-resources/>
+      <action-outputs/>
+      <component-definition/>  
+      <action-name>TestAction 1</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,47 @@
+<action-sequence>
+  <name>pojo1.xaction</name>
+  <title>pojo1</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+
+  <documentation>
+    <author>James Dixon</author>
+    <description></description>
+    <help></help>
+  </documentation>
+
+  <inputs/>
+
+  <outputs>
+   	<output1 type="string"/>
+  </outputs>
+
+  <resources/>
+
+  <actions>
+      <action-definition>
+        <action-name>Test the test POJO</action-name>
+        <action-inputs/>
+        <action-outputs>
+        	<output1 type="string"/>
+        </action-outputs>
+        <logging-level>DEBUG</logging-level>
+      <component-name>org.pentaho.platform.engine.services.solution.PojoComponent</component-name>
+        <component-definition>
+          <class>org.pentaho.test.platform.engine.services.TestPojo1</class>
+          <input1>abcde</input1>
+	        <int1>11</int1>
+	        <int2>22</int2>
+	        <bool1>true</bool1>
+	        <bool2>true</bool2>
+	        <float1>33.3</float1>
+	        <float2>44.4</float2>
+	        <double1>55.5</double1>
+	        <double2>66.6</double2>
+	        <bigdecimal>77.7</bigdecimal>
+	        <long1>88</long1>
+	        <long2>99</long2>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

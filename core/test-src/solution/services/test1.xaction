@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>test1.xaction</name>
+  <title>test1</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description></description>  
+    <help/>  
+    <result-type></result-type>  
+    <icon></icon> 
+  </documentation>
+
+  <inputs> 
+  </inputs>
+
+  <outputs> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+ 
+  </actions> 
+</action-sequence>

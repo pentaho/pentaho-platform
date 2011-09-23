@@ -13,6 +13,7 @@ PentahoSystem which is initialized after Spring
   
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
   <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
+  <bean id="systemStartupSession" class="org.pentaho.platform.engine.security.session.TrustedSystemStartupSession" scope="prototype" />
   
   <bean id="ISolutionRepository" class="org.pentaho.test.platform.engine.services.MockSolutionRepository" scope="singleton" />
 
@@ -26,6 +27,6 @@ PentahoSystem which is initialized after Spring
   <bean id="connection-HQL" class="org.pentaho.platform.plugin.services.connections.hql.HQLConnection" scope="prototype" />
 
   <bean id="IDatasourceService" class="org.pentaho.test.platform.engine.services.MockDataSourceService" scope="singleton">
-  	<constructor-arg value="false" />
+  	<constructor-arg value="true"/>
   </bean>
 </beans>
