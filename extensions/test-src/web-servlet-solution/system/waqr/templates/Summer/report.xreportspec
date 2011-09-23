@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report-spec>
+	<report-name>Web-based-Adhoc-Query-Reporting</report-name>
+	<report-desc>Created by the Web-based Adhoc Query and Reporting Client</report-desc>
+	<page-format>LETTER</page-format>
+	<orientation>landscape</orientation>
+	<use-row-banding>true</use-row-banding>
+	<row-banding-color>#F9F9EC</row-banding-color>
+	<use-column-header-background-color>true</use-column-header-background-color>
+	<column-header-background-color>#F98F13</column-header-background-color>
+	<grand-totals-label>Grand Total</grand-totals-label>
+	<grand-totals-horizontal-alignment>left</grand-totals-horizontal-alignment>
+	<use-dummy-group-footer-background-color>true</use-dummy-group-footer-background-color>
+	<dummy-group-footer-background-color>#E2869C</dummy-group-footer-background-color>
+	<use-horizontal-gridlines>true</use-horizontal-gridlines>
+	<use-vertical-gridlines>true</use-vertical-gridlines>
+	<horizontal-gridlines-color>#AED163</horizontal-gridlines-color>
+	<vertical-gridlines-color>#AED163</vertical-gridlines-color>
+	<group-header-font-name>Arial</group-header-font-name>
+	<group-header-font-style>1</group-header-font-style>
+	<group-header-font-size>12</group-header-font-size>
+	<group-header-font-color>#1A7439</group-header-font-color>
+	<group-footer-font-name>Arial</group-footer-font-name>
+	<group-footer-font-style>1</group-footer-font-style>
+	<group-footer-font-size>12</group-footer-font-size>
+	<group-footer-font-color>#1A7439</group-footer-font-color>
+	<column-header-font-name>Arial</column-header-font-name>
+	<column-header-font-style>0</column-header-font-style>
+	<column-header-font-size>10</column-header-font-size>
+	<column-header-font-color>#1A7439</column-header-font-color>
+	<column-header-gap>6</column-header-gap>
+	<column-header-top-gap>1</column-header-top-gap>
+	<items-font-name>Arial</items-font-name>
+	<items-font-style>0</items-font-style>
+	<items-font-size>10</items-font-size>
+	<items-font-color>#4F383C</items-font-color>
+</report-spec>

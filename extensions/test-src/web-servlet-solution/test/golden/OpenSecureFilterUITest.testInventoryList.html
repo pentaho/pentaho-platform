@@ -1,0 +1,150 @@
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="/pentaho-style/pentaho.css">
+      <title>01. DETAILED INVENTORY REPORT</title><script type="text/javascript">
+
+          function dynExec(funcName, formName, objectName) {
+            var func = funcName + formName + "('" + objectName + "');";
+            var rtn = false;
+            try {
+              rtn = eval(func);
+            } catch (ignored) {
+              rtn = false;
+            }
+            return rtn;
+          }
+
+          function setXFormsValue(formName, objectName) {
+            // Will cause invoke of setXFormsValueformname(object);
+            return dynExec("setXFormsValue", formName, objectName);
+          }
+          function activate(formName, objectName) {
+            // Will cause invoke of activateformname(object);
+            return dynExec("activate", formName, objectName);
+          }
+          function upload(formName, objectName) {
+            // Will cause invoke of uploadformname(object);
+            return dynExec("upload", formName, objectName);
+          }
+		function getCurrentUrlParms() {
+		  var rtn = "";
+		  var windHref = window.location.href;
+		  if (windHref.indexOf("?")>1) {
+			var qryStr = windHref.substr(windHref.indexOf("?"));
+			var parms  = qryStr.split("&");
+			for (var i=1; i < parms.length; i++) {
+			  var thisParm = parms[i].split("=");
+			  if ( (thisParm[0] != "solution") &&
+				   (thisParm[0] != "path") &&
+				   (thisParm[0] != "action") ) {
+				// need to add this one to the parameters...
+				rtn += "&" + parms[i];
+			  } 
+			}
+		  }
+		  return rtn;
+		}
+          </script>
+      			
+      			<script>
+      			  var urlInventory_List=unescape('http://localhost:8080/pentaho/ViewAction?');
+      			  var target=unescape('');
+      			  function doFormInventory_List( background ) {
+      			    var submitUrl = urlInventory_List;
+      				//var curParms = getCurrentUrlParms();
+      				//submitUrl += curParms;
+      				
+      			    var form = document.forms['formInventory_List'];
+      			    var elements = form.elements;
+      			    var i;
+      			    var amp;
+      			    if (submitUrl.indexOf("?") != -1) {	    	
+      			    	if ((submitUrl.lastIndexOf("?") == (submitUrl.length-1)) || (submitUrl.lastIndexOf('&') == (submitUrl.length-1)))
+      {
+      			    		amp = "";
+      			    	} else {
+      			    		amp = '&';
+      			    	}
+      			    } else {
+      			    	amp = "?";
+      			    }
+      			    
+      			    for( i=0; i<elements.length; i++ ) {
+      			      if( elements[i].type == 'select-one' || elements[i].type == 'text' || elements[i].type == 'hidden') {
+      			        submitUrl += amp + elements[ i ].name + '=' + escape( elements[ i ].value );
+      				      amp = '&';
+      			      } else if( elements[i].type == 'radio' ) {
+      			      	if( elements[i].checked ) {
+      			          submitUrl += amp + elements[ i ].name + '=' + escape( elements[ i ].value );
+      				      amp = '&';
+      			      	}
+      			      } else if( elements[i].type == 'checkbox' ) {
+      			      	if( elements[i].checked ) {
+      				      submitUrl += amp + elements[i].name + "=" + escape( elements[i].value );
+      				      amp = '&';
+      			      	}
+      			      } else if( elements[i].type == 'select-multiple' ) {
+      				    var options = elements[i].options;
+      				    var j;
+      				    for( j=0; j!=options.length; j++ ) {
+      				      if( options[j].selected ) {
+      	  			        submitUrl += amp + elements[i].name + '=' + escape( options[ j ].value );
+      				      amp = '&';
+      				      }
+      				    }
+      				  }
+      			    }
+      				if( background == true ) {
+      					submitUrl += amp + 'background=true';
+      					if( !confirm ( 'Info:  Reports that prompt for parameters are not supported with this feature.  ' +
+      					    'Run in Background may report errors. Click OK to continue.' ) ) {
+      						return false;
+      					}
+      				}
+      			    if( target == '' ) {
+      				    document.location.href=submitUrl;
+      				} else {
+      					window.open( submitUrl, target );
+      				}
+      			    return false;
+      			  }
+      			</script>
+      		</head>
+   <body dir="LTR">
+      <div style="margin:10px"><span class="portlet-section-header">01. DETAILED INVENTORY REPORT</span></div>
+      <div style="margin:10px;border:1px solid #808080">
+         <form name="formInventory_List">
+            <table>
+               <tr>
+                  <td><span class="portlet-font">Use this form to supply the parameters required for this content</span></td>
+               </tr>
+               <tr>
+                  <td class="portlet-section-subheader"><br>Select: Select Product Line
+                  </td>
+               </tr>
+               <tr>
+                  <td class="portlet-font"><select id="productline" name="productline" title="" multiple="true" size="5" class="portlet-form-field" onchange="javascript:setXFormsValue('Inventory_List', 'productline');">
+                        <option value="">Choose...</option>
+                        <option id="" value="Classic Cars" title="" selected>Classic Cars</option>
+                        <option id="" value="Motorcycles" title="">Motorcycles</option>
+                        <option id="" value="Planes" title="">Planes</option>
+                        <option id="" value="Ships" title="">Ships</option>
+                        <option id="" value="Trains" title="">Trains</option>
+                        <option id="" value="Trucks and Buses" title="">Trucks and Buses</option>
+                        <option id="" value="Vintage Cars" title="">Vintage Cars</option></select><span id="productline-required" class="required-symbol"></span></td>
+               </tr>
+               <tr>
+                  <td class="portlet-section-subheader"><br>Select: Select Report Format
+                  </td>
+               </tr>
+               <tr>
+                  <td class="portlet-font"><input id="type_pdf" class="portlet-form-field" type="radio" name="type" value="pdf" title="" onclick="javascript:setXFormsValue('Inventory_List', 'type');"><span id="type-label" class="portlet-form-field-label">PDF</span><input id="type_xls" class="portlet-form-field" type="radio" name="type" value="xls" title="" onclick="javascript:setXFormsValue('Inventory_List', 'type');"><span id="type-label" class="portlet-form-field-label">Excel</span><input id="type_html" class="portlet-form-field" type="radio" name="type" value="html" title="" checked onclick="javascript:setXFormsValue('Inventory_List', 'type');"><span id="type-label" class="portlet-form-field-label">Web Page</span><span id="type-required" class="required-symbol"></span></td>
+               </tr>
+               <tr>
+                  <td><br><input type="button" name="go" class="portlet-form-button" value="Update..." onClick="doFormInventory_List(false)"><input type="button" name="go" class="portlet-form-button" value="Background" onClick="doFormInventory_List(true)"></td>
+               </tr>
+            </table><input xmlns:xf="http://www.w3.org/2002/xforms" type="hidden" name="solution" value="samples"><input xmlns:xf="http://www.w3.org/2002/xforms" type="hidden" name="action" value="Inventory List.xaction"><input xmlns:xf="http://www.w3.org/2002/xforms" type="hidden" name="path" value="steel-wheels/reports"></form>
+      </div>
+   </body>
+</html>

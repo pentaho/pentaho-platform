@@ -1,0 +1,129 @@
+<html xmlns="http://org.pentaho">
+   
+   <head>
+      	
+      
+      <link rel="stylesheet" type="text/css" href="/pentaho-style/pentaho.css"></link>
+      
+      <title xmlns="" xmlns:xf="http://www.w3.org/2002/xforms">Parameter Page Customization Example</title>
+      			
+      			<script xmlns="" xmlns:xf="http://www.w3.org/2002/xforms">
+      			  var url=unescape('ViewAction?');
+      			  var target=unescape('');
+      			  function doForm() {
+      			    var submitUrl = url;
+      			    var form = document.forms['parameter-form'];
+      			    var elements = form.elements;
+      			    var i;
+      			    for( i=0; i<elements.length; i++ ) {
+      			      if( elements[i].type == 'select-one' || elements[i].type == 'text' || elements[i].type == 'hidden') {
+      			        submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			      } else if( elements[i].type == 'radio' ) {
+      			      	if( elements[i].checked ) {
+      			          submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			      	}
+      			      } else if( elements[i].type == 'checkbox' ) {
+      			      	if( elements[i].checked ) {
+      				      submitUrl += '&' + elements[i].name + "=" + escape( elements[i].value );
+      			      	}
+      			      } else if( elements[i].type == 'select-multiple' ) {
+      				    var options = elements[i].options;
+      				    var j;
+      				    for( j=0; j!=options.length; j++ ) {
+      				      if( options[j].selected ) {
+      	  			        submitUrl += '&' + elements[i].name + '=' + escape( options[ j ].value );
+      				      }
+      				    }
+      				  }
+      			    }
+      			    if( target == '' ) {
+      				    document.location.href=submitUrl;
+      				} else {
+      					window.open( submitUrl, target );
+      				}
+      			    return false;
+      			  }
+      			</script>
+      		
+      	<link rel="stylesheet" type="text/css" href="/pentaho-style/active/default.css"></link>
+      
+      
+   </head>
+   
+   <body dir="LTR" style="border:2px solid #dddddd">
+      
+      <div xmlns:xf="http://www.w3.org/2002/xforms" xmlns="" style="margin:10px"><span class="portlet-section-header">Parameter Page Customization Example 2</span></div>
+      
+      <div xmlns:xf="http://www.w3.org/2002/xforms" xmlns="" style="margin:10px;border:1px solid #808080;padding:5px;">
+         
+         <form xmlns="http://org.pentaho" enctype="application/x-www-form-urlencoded" name="parameter-form" id="parameter-form" method="GET">
+            
+            <table xmlns="" width="100%" style="padding:5px;">
+               
+               <tr>
+                  
+                  <td><span class="portlet-font">Use this form to supply the parameters required for this content. 
+                        
+                        <p></p>This parameter page was generated using at html template. You can find the template in pentaho-demo/samples/reporting/parameter_template.html
+                        </span></td>
+                  
+               </tr>
+               
+               <tr>
+                  
+                  <td class="portlet-section-subheader">Select a DEPARTMENT<br><span class="portlet-font">Try 'Finance' or maybe 'Sales' </span>
+                     
+                  </td>
+                  
+               </tr>
+               
+               <tr>
+                  			
+                  
+                  <td class="portlet-font"><input id="DEPARTMENT" name="DEPARTMENT" type="text" value="" title="" class="portlet-form-input-field" onchange="javascript:setXFormsValue('', 'DEPARTMENT');"><span id="DEPARTMENT-required" class="required-symbol"></span></td>
+                  
+               </tr>
+               
+               <tr>
+                  
+                  <td class="portlet-section-subheader"><br>Select a REGION
+                     
+                  </td>
+                  
+               </tr>
+               
+               <tr>
+                  			
+                  
+                  <td class="portlet-font">
+                     				<input id="REGION" class="portlet-form-field" type="radio" name="REGION" value="Central" title="">
+                     				<span id="REGION-label" class="portlet-form-field-label">Central</span>
+                     				<input id="REGION" class="portlet-form-field" type="radio" name="REGION" value="Eastern" title="">
+                     				<span id="REGION-label" class="portlet-form-field-label">Eastern</span>
+                     				<input id="REGION" class="portlet-form-field" type="radio" name="REGION" value="Western" title="">
+                     				<span id="REGION-label" class="portlet-form-field-label">Western</span>
+                     				<input id="REGION" class="portlet-form-field" type="radio" name="REGION" value="Southern" title="">
+                     				<span id="REGION-label" class="portlet-form-field-label">Southern</span>
+                     				<span id="REGION-required" class="required-symbol"></span></td>
+                  
+                  
+               </tr>
+               
+               <tr>
+                  
+                  <td><br><input type="button" name="go" class="portlet-form-button" value="Run..." onClick="doForm()"></td>
+                  
+               </tr>
+               
+            </table>
+            		<input xmlns="" type="hidden" name="solution" value="samples">
+            		<input xmlns="" type="hidden" name="action" value="custom-parameter-page-example2.xaction">
+            		<input xmlns="" type="hidden" name="path" value="reporting">
+            	    
+         </form>
+         
+      </div>
+      
+   </body>
+   
+</html>

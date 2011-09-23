@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<filters>
+	<name>CustomerNamesFilter</name>
+	<filter>
+		<!-- Title text displayed in the filter panel -->
+		<title>Customer_session_attribute</title>
+		<!-- name of the parameter placed in session scope, must be valid xml element name (no whitespace) -->
+		<name>customernumber</name>
+		<!-- type of control to display in the filter panel -->
+		<type>list</type>
+		<!-- name of global scoped variable containing the LOV -->
+		<session-attribute>customerNamesList</session-attribute>
+		<!-- maps to the <option> element's text -->
+		<data-display>customername</data-display>
+		<!-- maps to the <option> element's value attribute in the HTML form -->
+		<data-value>customernumber</data-value>
+	</filter>
+	<filter>
+		<!-- Title text displayed in the filter panel -->
+		<title>Customer_global_attribute</title>
+		<!-- name of the parameter placed in session scope, must be valid xml element name (no whitespace) -->
+		<name>customernumber</name>
+		<!-- type of control to display in the filter panel -->
+		<type>list</type>
+		<!-- name of global scoped variable containing the LOV -->
+		<global-attribute>customerNamesList</global-attribute>
+		<!-- maps to the <option> element's text -->
+		<data-display>customername</data-display>
+		<!-- maps to the <option> element's value attribute in the HTML form -->
+		<data-value>customernumber</data-value>
+	</filter>
+	<filter>
+		<!-- Title text displayed in the filter panel -->
+		<title>Customer</title>
+		<!-- name of the parameter placed in session scope, must be valid xml element name (no whitespace) -->
+		<name>customernumber</name>
+		<!-- type of control to display in the filter panel -->
+		<type>list</type>
+		<!-- name of global scoped variable containing the LOV -->
+		<static-lov>
+			<headers>
+				<header>customername</header>
+				<header>customernumber</header>
+			</headers>
+			<rows>
+				<row>
+					<item>Bart</item>
+					<item>0</item>
+				</row>
+				<row>
+					<item>Maggie</item>
+					<item>1</item>
+				</row>
+				<row>
+					<item>Homer</item>
+					<item>2</item>
+				</row>
+				<row>
+					<item>Übermensch</item>
+					<item>3</item>
+				</row>
+			</rows>
+		</static-lov>
+		<!-- maps to the <option> element's text -->
+		<data-display>customername</data-display>
+		<!-- maps to the <option> element's value attribute in the HTML form -->
+		<data-value>customernumber</data-value>
+	</filter>
+	<filter>
+		<!-- Title text displayed in the filter panel -->
+		<title>Customer_action_sequence</title>
+		<!-- name of the parameter placed in session scope, must be valid xml element name (no whitespace) -->
+		<name>customernumber</name>
+		<!-- type of control to use, valid values are
+			select-one, text, hidden, radio, checkbox, select-multiple -->
+		<type>list</type>
+		<data-solution>samples</data-solution>
+		<data-path>simpleDashboard</data-path>
+		<data-action>getCustomerNames.xaction</data-action>
+		<!-- name of session scoped variable containing the LOV -->
+		<data-output>customerNamesList</data-output>
+		<!-- maps to the <option> element's text -->
+		<data-display>customername</data-display>
+		<!-- maps to the <option> element's value attribute in the HTML form -->
+		<data-value>customernumber</data-value>
+	</filter>
+</filters>

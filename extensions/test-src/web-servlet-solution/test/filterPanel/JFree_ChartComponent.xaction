@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>JFree_ChartComponent.xaction</name>
+  <title>Simple Chart</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Steven Barkdull</author>  
+    <description>Creates a chart image based on a SQL query</description>  
+    <icon/>  
+    <help>You R going to need it.</help>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <inputs> 
+    <chart-type type="string"> 
+      <default-value>.png</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </chart-type>  
+    <customernumber type="string"> 
+      <sources> 
+        <session>customernumber</session> 
+      </sources>  
+      <default-value><![CDATA[141]]></default-value>
+    </customernumber> 
+  </inputs>
+
+  <outputs> 
+    <imgtag type="string"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </imgtag> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Query For Chart Data</action-type>
+      <action-inputs> 
+        <customernumber type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="chartData"/> 
+      </action-outputs>
+      <component-definition> 
+        <source>sql</source>  
+        <live>true</live>  
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select top 5 products.productname, count( orderfact.productcode) as Amount from orderfact inner join products on orderfact.productcode = products.productcode and orderfact.customernumber = {PREPARE:customernumber} group by orderfact.productcode, products.productname]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>ChartComponent</component-name>
+      <action-type>Create The Chart</action-type>
+      <action-inputs> 
+        <output-type type="string" mapping="chart-type"/>  
+        <chart-data type="result-set" mapping="chartData"/> 
+      </action-inputs>
+      <action-outputs> 
+        <chart-filename type="string"/>  
+        <base-url type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <by-row>false</by-row>  
+        <height>400</height>  
+        <width>600</width>  
+        <title>Top 5 Models Sold by Customer</title>  
+        <chart-attributes> 
+          <!--  this is the background for the whole image -->  
+          <!--  TODO support gradient and texture painting -->  
+          <chart-type>PieChart</chart-type>  
+          <title-position>TOP</title-position>  
+          <height/>  
+          <width/>  
+          <title/>  
+          <title-font> 
+            <font-family>Serif</font-family>  
+            <size>36</size>  
+            <is-bold>false</is-bold>  
+            <is-italic>false</is-italic> 
+          </title-font>  
+          <range-title>US Dollars</range-title>  
+          <chart-background type="color">#FFFFFF</chart-background>  
+          <plot-background type="color">#FF0000</plot-background>  
+          <orientation>Horizontal</orientation>  
+          <is-3D>false</is-3D>  
+          <is-stacked>false</is-stacked>  
+          <category-label-rotation>0</category-label-rotation>  
+          <border-visible>false</border-visible>  
+          <border-paint>#3399FF</border-paint>  
+          <include-legend>true</include-legend> 
+        </chart-attributes> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>TemplateComponent</component-name>
+      <action-type>Message Template</action-type>
+      <action-inputs> 
+        <base-url type="string"/>  
+        <chart-filename type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <output-message type="string" mapping="imgtag"/> 
+      </action-outputs>
+      <component-definition> 
+        <template><![CDATA[<img src="{base-url}/getImage?image={chart-filename}" />]]></template> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

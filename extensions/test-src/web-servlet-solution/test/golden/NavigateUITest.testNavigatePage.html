@@ -1,0 +1,346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+	<title>Pentaho Business Intelligence Platform</title>
+        <link href="/pentaho-style/styles-new.css" rel="stylesheet" type="text/css" />
+	<!-- link rel="stylesheet" type="text/css" href="/pentaho-style/active/default.css" / -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="shortcut icon" href="/pentaho-style/favicon.ico" />
+
+	<link rel="stylesheet" type="text/css" href="/pentaho-style/menus/transmenu.css">
+	<script language="javascript" src="/pentaho-style/menus/transmenu.js"></script>
+	<script language="javascript" src="/pentaho-style/pentaho.js"></script>
+
+</head>
+
+<body class="body_level1" dir="LTR">
+
+<div class="banner_level1"></div>
+
+		<div id="logout" style="position:absolute;top:3px;left:3px;height:30px;width:200px;z-index:100">
+			<span style="font-size:1em">
+				<a href="Logout" style="font-size:1em;color:white">
+					Logout
+				</a>
+			</span>
+		</div>
+
+			<div id="menu" class="banner_menu">
+				<a id="home" href="Home">Home</a>
+				<a id="navigate" href="Navigate?solution=&path=&action=">Navigate</a>
+				<a id="admin" href="Admin">Admin</a>
+				<a id="about" href="#">About</a>
+			</div>
+
+	<script language="javascript">
+	
+		var isAdmin = "false";
+		var isLoggedIn = "true";
+	
+	// set up drop downs anywhere in the body of the page. I think the bottom of the page is better.. 
+	// but you can experiment with effect on loadtime.
+	if (TransMenu.isSupported()) {
+
+		var ms = new TransMenuSet(TransMenu.direction.down, 1, 0, TransMenu.reference.bottomLeft);
+
+		var menu1 = ms.addMenu(document.getElementById("home"));
+		
+		var menu2 = ms.addMenu(document.getElementById("navigate"));
+		
+		var menu3 = ms.addMenu(document.getElementById("admin"));
+//		menu3.addItem("Scheduler...","javascript:modalWin('SchedulerAdmin')");
+//		menu3.addItem("Update...","javascript:modalWin('Publish')");
+
+		var menu4 = ms.addMenu(document.getElementById("about"));
+		menu4.addItem("Pentaho.org...", "javascript:popPage('http://www.pentaho.org')");
+//		menu4.addItem("Documentation...", "javascript:popPage('http://www.pentaho.org/documentation.html')");
+		menu4.addItem("Demos...", "javascript:popPage('http://www.pentaho.org/demo')");
+		menu4.addItem("Downloads...", "javascript:popPage('http://www.pentaho.org/download')");
+		menu4.addItem("Forums...", "javascript:popPage('http://www.pentaho.org/forums')");
+//		menu4.addItem("About...", "javascript:modalWin('About')");
+		
+		TransMenu.renderAll();
+	}
+	</script>
+	
+<div class="banner_menu"></div>
+
+
+
+	
+<table width="100%">
+   <tr>
+      <td style="text-align:right">View:<a href="Navigate?view=files-icons.xsl">Icons</a> | 
+         				<a href="Navigate?view=files-list.xsl">List</a> | 
+         				<a href="Navigate?view=default">Default</a></td>
+   </tr>
+</table>
+		<script type="text/javascript">
+		
+		function adminPopup( href, popup, target ) {
+			if( popup ) {
+				if( !confirm('Do you really want to do this?') ){
+					return;
+				}
+			}
+			var opts = "";
+			if( popup ) {
+				opts = "width=350,height=200,toolbar=no,scrollbars=yes,status=no,resizable=no";
+			} else {
+				opts = "width=780,height=380,toolbar=no,scrollbars=yes,status=no,resizable=yes";
+			}
+			opts = "";
+			if( target == '.' ) {
+				window.location.href = href;
+			} else {
+				window.open( href, "admin_popup"+popup, opts );
+			}
+		}
+		
+		</script>
+	
+<div id="flydiv" style="position:absolute;top:-1000px;left:-1000px;height:180px;width:180px;z-index:100" onmouseover="flyStay()" onmouseout="hideFly()">
+   <table border="0" cellpadding="0" cellspacing="0" style="vertical-align:bottom">
+      <tr>
+         <td width="5" height="9"><img border="0" src="/pentaho-style/images/fly-top-left.png"></td>
+         <td colspan="2" style="background-image: url(/pentaho-style/images/fly-top.png);background-repeat: repeat-x;"></td>
+         <td><img border="0" src="/pentaho-style/images/fly-top-right.png"></td>
+      </tr>
+      <tr style="background-color: #e6e9db;">
+         <td valign="top" style="background-image: url(/pentaho-style/images/fly-left.png);background-repeat: repeat-y; height: 171px;" colspan="2"><a href="javascript:void" onclick="document.getElementById('img-t1').blur(); document.getElementById('img-t1').src='/pentaho-style/images/btn_info_active.png'; document.getElementById('img-t2').src='/pentaho-style/images/btn_actions.png'; /*document.getElementById('img-t3').src='/pentaho-style/images/btn_archive.png'; */ document.getElementById('flyTab1').style.display='block'; document.getElementById('flyTab2').style.display='none'; document.getElementById('flyTab3').style.display='none'; return false;"><img id="img-t1" src="/pentaho-style/images/btn_info_active.png" alt="Info" width="64" height="39" border="0"></a><br><a href="javascript:void" onclick="document.getElementById('img-t2').blur(); document.getElementById('img-t1').src='/pentaho-style/images/btn_info.png'; document.getElementById('img-t2').src='/pentaho-style/images/btn_actions_active.png'; /*document.getElementById('img-t3').src='/pentaho-style/images/btn_archive.png'; */ document.getElementById('flyTab1').style.display='none'; document.getElementById('flyTab2').style.display='block'; document.getElementById('flyTab3').style.display='none'; return false;"><img id="img-t2" src="/pentaho-style/images/btn_actions.png" width="64" height="39" border="0"></a></td>
+         <td>
+            <table border="0" cellpadding="0" cellspacing="0" style="vertical-align:bottom">
+               <tr>
+                  <td valign="top">
+                     <div style="height:150px;width:420px;overflow:auto;padding-left:3px">
+                        <table id="flyTable" width="100%" cellpadding="0" cellspacing="0">
+                           <tr>
+                              <td>
+                                 <div id="flyTab1" style="display:block;padding:0px;margin:0px">
+                                    <table cellpadding="0" cellspacing="0" border="0" width="400">
+                                       <tr>
+                                          <td valign="top">
+                                             <div id="flyTitle1" style="border-bottomx: 1px solid #818f49; padding-bottom: 2px; color: #ef8033; font: normal 1em Tahoma, 'Trebuchet MS', Arial;">Title1</div>
+                                             <div id="flyDesc1" style="padding-top: 5px; color: #000000; font: normal .85em Tahoma, 'Trebuchet MS', Arial;">
+                                                												Desc1
+                                                												
+                                                <p>xx</p>
+                                             </div>
+                                          </td>
+                                          <td style="padding:5px;width:140px"><img id="flyimg" border="0" src="/pentaho-style/images/icon_folder_sm.png" width="140" height="140"></td>
+                                       </tr>
+                                    </table>
+                                 </div>
+                                 <div id="flyTab2" style="display:none">
+                                    <div id="flyTitle2" style="border-bottomx: 1px solid #818f49; padding-bottom: 2px; color: #ef8033; font: normal 1em Tahoma, 'Trebuchet MS', Arial;">Actions</div>
+                                    <div id="flyDesc2" style="padding-top: 5px; color: #000000; font: normal .85em Tahoma, 'Trebuchet MS', Arial;"></div>
+                                 </div>
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </td>
+               </tr>
+            </table>
+         </td>
+         <td style="background-image: url(/pentaho-style/images/fly-right.png);background-repeat: repeat-y;"></td>
+      </tr>
+      <tr>
+         <td><img border="0" src="/pentaho-style/images/fly-bot-left.png"></td>
+         <td colspan="2"><img src="/pentaho-style/images/fly-bot.png" height="16" width="100%"></td>
+         <td><img border="0" src="/pentaho-style/images/fly-bot-right.png"></td>
+      </tr>
+   </table>
+</div>
+<div style="margin:10px">
+   <table border="0" width="100%" cellpadding="0" cellspacing="0" style="padding:1px">
+      <tr>
+         <td width="100%" class="content_header" style="padding-left:5px">Pentaho BI Components Demo</td>
+      </tr>
+      <tr>
+         <td width="100%" style="padding-left:5px">These sample JSP pages show how Pentaho components can be used in web pages.
+            <p/>
+            The Pentaho BI Platform includes these sample JSP to show how our BI components can be
+            embedded into another application's web pages.
+            <p/>
+            Use the options on the menu below to try the samples.
+            <p/>
+            Read the <a href="http://wiki.pentaho.org/display/PentahoDoc/Creating+Pentaho+Solutions" target="sf">'Creating Pentaho Solutions'</a>
+            document for information on how to modify the examples or build your own system.
+         </td>
+      </tr>
+   </table>
+   <table border="0" width="100%" class="content_header" cellpadding="0" cellspacing="0">
+      <tr>
+         <td width="100%">Browse&nbsp;1&nbsp;Solution(s)</td>
+      </tr>
+   </table>
+   <table border="0" width="100%" class="content_container" cellpadding="0" cellspacing="0">
+      <tr>
+         <td class="content_body_scroll" style="margin-left:0px;padding-left:0px">
+            <div class="content_home_scroll" style="left:0px;margin-left:0px;height:280px">
+               <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                  <tr style="cursor:pointer" onclick="var id='contentdiv23'; var e=document.getElementById(id); if(e.style.display=='none') { e.style.display='block'; document.getElementById('contentimg3').src='/pentaho-style/images/btn_minus.png'; } else { e.style.display='none'; document.getElementById('contentimg3').src='/pentaho-style/images/btn_plus.png'; } return false;">
+                     <td class="" style="border:1px solid #808080;padding:5px;background:#eeeeee;width:400px" onmouseover="this.style.background='#dddddd'" onmouseout="this.style.background='#eeeeee'"><img src="/pentaho-style/images/btn_minus.png" border="0" id="contentimg3"><a href="#">Samples</a></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" style="padding-left:0px">
+                        <div id="contentdiv23" style="display:block">
+                           <table width="100%" class="list_tablexx" border="0" cellpadding="0" cellspacing="0">
+                              <tr>
+                                 <td colspan="2" class="list_colHead_first">Name</td>
+                                 <td class="list_colHead_fill">Author</td>
+                              </tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=steel-wheels&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Steel Wheels&#34;,&#34;Reporting, Analysis, and Dashboarding Samples for Steel Wheels, Inc.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/', '.', 'samples', 'steel-wheels', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=steel-wheels&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Steel Wheels&#34;,&#34;Reporting, Analysis, and Dashboarding Samples for Steel Wheels, Inc.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/', '.', 'samples', 'steel-wheels', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "> Steel Wheels</a><div class="list_description">Reporting, Analysis, and Dashboarding Samples for Steel Wheels, Inc.</div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=getting-started&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Getting Started&#34;,&#34;A collection of examples to verify that your Pentaho BI Platform is installed correctly.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/GettingStarted.png', '.', 'samples', 'getting-started', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=getting-started&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Getting Started&#34;,&#34;A collection of examples to verify that your Pentaho BI Platform is installed correctly.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/GettingStarted.png', '.', 'samples', 'getting-started', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "> Getting Started</a><div class="list_description">A collection of examples to verify that your Pentaho BI Platform is installed correctly.</div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=reporting&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Reporting Examples&#34;,&#34;Examples of HTML and PDF reports&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/reporting.png', '.', 'samples', 'reporting', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=reporting&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Reporting Examples&#34;,&#34;Examples of HTML and PDF reports&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/reporting.png', '.', 'samples', 'reporting', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "> Reporting Examples</a><div class="list_description">Examples of HTML and PDF reports</div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=rules&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Business Rules Examples&#34;,&#34;Examples of business rules using scripting and database tables.<br/&gt;Rules are used as part of business intelligence process, but here you can run them individually&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/rules.png', '.', 'samples', 'rules', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=rules&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Business Rules Examples&#34;,&#34;Examples of business rules using scripting and database tables.<br/&gt;Rules are used as part of business intelligence process, but here you can run them individually&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/rules.png', '.', 'samples', 'rules', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "> Business Rules Examples</a><div class="list_description">Examples of business rules using scripting and database tables.<br/>Rules are used as part of business intelligence process,
+                                       but here you can run them individually
+                                    </div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=printing&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Printing Examples&#34;,&#34;Examples of content sent to printers. Content -&gt; Printer. Got it?&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/printing.png', '.', 'samples', 'printing', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=printing&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Printing Examples&#34;,&#34;Examples of content sent to printers. Content -&gt; Printer. Got it?&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/printing.png', '.', 'samples', 'printing', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "> Printing Examples</a><div class="list_description">Examples of content sent to printers. Content -> Printer. Got it?</div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=bursting&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Bursting Examples&#34;,&#34;Bursting allows you to break a large task, like delivering reports to department managers, into a simple process that is repeated for each individual case.<br/&gt;The rules that determine the cases, and the processes for creating the content and delivering it can be customized to meet the requirements.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/burst.png', '.', 'samples', 'bursting', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=bursting&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Bursting Examples&#34;,&#34;Bursting allows you to break a large task, like delivering reports to department managers, into a simple process that is repeated for each individual case.<br/&gt;The rules that determine the cases, and the processes for creating the content and delivering it can be customized to meet the requirements.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/burst.png', '.', 'samples', 'bursting', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "> Bursting Examples</a><div class="list_description">Bursting allows you to break a large task, like delivering reports to department managers, into a simple process that is repeated
+                                       for each individual case.<br/>The rules that determine the cases, and the processes for creating the content and delivering
+                                       it can be customized to meet the requirements.
+                                    </div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=datasources&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; DataSource Examples&#34;,&#34;Examples of data sets being returned from different OLAP and RDBMS data sources.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/datasources.png', '.', 'samples', 'datasources', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=datasources&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; DataSource Examples&#34;,&#34;Examples of data sets being returned from different OLAP and RDBMS data sources.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/datasources.png', '.', 'samples', 'datasources', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "> DataSource Examples</a><div class="list_description">Examples of data sets being returned from different OLAP and RDBMS data sources.</div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=charts&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Chart Examples&#34;,&#34;Examples of various chart types displayed with a variety of data.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/Charts.png', '.', 'samples', 'charts', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=charts&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Chart Examples&#34;,&#34;Examples of various chart types displayed with a variety of data.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/Charts.png', '.', 'samples', 'charts', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "> Chart Examples</a><div class="list_description">Examples of various chart types displayed with a variety of data.</div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=secure&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Secure Filters Examples (Portal only)&#34;,&#34;Examples of using session based filters and queries to determine the selections that users may pick based on their user id<p/&gt;<FONT color='red'&gt;These examples require a user id and only show data when logged in through the portal demo.</FONT&gt; &#34;, 'http://localhost:8080/pentaho/getImage?image=icons/security.png', '.', 'samples', 'secure', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=secure&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Secure Filters Examples (Portal only)&#34;,&#34;Examples of using session based filters and queries to determine the selections that users may pick based on their user id<p/&gt;<FONT color='red'&gt;These examples require a user id and only show data when logged in through the portal demo.</FONT&gt; &#34;, 'http://localhost:8080/pentaho/getImage?image=icons/security.png', '.', 'samples', 'secure', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "> Secure Filters Examples (Portal only)</a><div class="list_description">Examples of using session based filters and queries to determine the selections that users may pick based on their user id<p/><FONT
+                                       color="red">These examples require a user id and only show data when logged in through the portal demo.</FONT> 
+                                    </div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=analysis&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Analysis Examples&#34;,&#34;Slice and dice data using JPivot integrated into the Pentaho BI Platform&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/analysis.png', '.', 'samples', 'analysis', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=analysis&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34; Analysis Examples&#34;,&#34;Slice and dice data using JPivot integrated into the Pentaho BI Platform&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/analysis.png', '.', 'samples', 'analysis', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "> Analysis Examples</a><div class="list_description">Slice and dice data using JPivot integrated into the Pentaho BI Platform</div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=dashboard&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34;Dashboards&#34;,&#34;This uses Pentaho UI to build an interactive dashboard with a JSP page. The 'Dashboard Building Guide' explains the workings of this dashboard in detail.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/dashboard.jpg', '.', 'samples', 'dashboard', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=dashboard&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34;Dashboards&#34;,&#34;This uses Pentaho UI to build an interactive dashboard with a JSP page. The 'Dashboard Building Guide' explains the workings of this dashboard in detail.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/dashboard.jpg', '.', 'samples', 'dashboard', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); ">Dashboards</a><div class="list_description">This uses Pentaho UI to build an interactive dashboard with a JSP page. The 'Dashboard Building Guide' explains the workings
+                                       of this dashboard in detail.
+                                    </div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=etl&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34;Data Integration with Kettle&#34;,&#34;A collection of examples demonstrating the Kettle ETL Component.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/ETL.png', '.', 'samples', 'etl', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=etl&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34;Data Integration with Kettle&#34;,&#34;A collection of examples demonstrating the Kettle ETL Component.&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/ETL.png', '.', 'samples', 'etl', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); ">Data Integration with Kettle</a><div class="list_description">A collection of examples demonstrating the Kettle ETL Component.</div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=svg&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34;SVG Examples&#34;,&#34;Examples of using SVG to display data graphically&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/svg.png', '.', 'samples', 'svg', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=svg&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34;SVG Examples&#34;,&#34;Examples of using SVG to display data graphically&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/svg.png', '.', 'samples', 'svg', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); ">SVG Examples</a><div class="list_description">Examples of using SVG to display data graphically</div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr><tr>
+                              <tr class="listrow_file">
+                                 <td class="list_col_fill" width="40" height="40">
+                                    <div style="cursor: pointer;height:32px;padding:5px 5px 0px 0px;margin: 4px 0px 0px 0px; vertical-align: bottom"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=services&amp;action=" onclick="hideFly(  ); return true;"><img border="0" src="/pentaho-style/images/folder_active.png" style="positionXX:relative" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34;Web Service Example&#34;,&#34;This action runs an example web service and returns a SOAP response&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/WebServiceExample.png', '.', 'samples', 'services', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); "></a></div>
+                                 </td>
+                                 <td class="list_col_first"><a class="home_btn" href="http://localhost:8080/pentaho/./Navigate?&amp;solution=samples&amp;path=services&amp;action=" onclick="hideFly(  ); return true;" onmouseover="&#xA;this.src = '/pentaho-style/images/folder_rollover.png'; showFly( event, 600, 205, &#34;Web Service Example&#34;,&#34;This action runs an example web service and returns a SOAP response&#34;, 'http://localhost:8080/pentaho/getImage?image=icons/WebServiceExample.png', '.', 'samples', 'services', '' );" onmouseout="this.src='/pentaho-style/images/folder_active.png'; hideFly(  ); ">Web Service Example</a><div class="list_description">This action runs an example web service and returns a SOAP response</div>
+                                 </td>
+                                 <td class="list_col_fill"></td>
+                              </tr></tr>
+                           </table>
+                        </div>
+                     </td>
+                  </tr>
+               </table>
+            </div>
+         </td>
+      </tr>
+   </table>
+</div>
+
+
+	<table border="0" cellpadding="0" cellspacing="0" width="100%" >
+		<tr>
+			<td width="100%" style="text-align:right">
+				<div class="footer_version">&copy; 2006, Pentaho. V1.2.0 build 419 RC3</div>
+			</td>
+		</tr>
+		<tr>
+			<td style="top:10px">
+				<a href="http://www.sourceforge.net/" target="_blank"><img height="37" id="sflogo" alt="SourceForge.net Logo" src="/pentaho-style/sfLogo.png" width="125" border="0" /></a>
+			</td>
+		</tr>
+	</table>
+
+</body>
+</html>
+
+
+

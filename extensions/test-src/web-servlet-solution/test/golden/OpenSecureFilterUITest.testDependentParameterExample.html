@@ -1,0 +1,264 @@
+<html xmlns="http://org.pentaho">
+   
+   <head>
+      	
+      
+      <link rel="stylesheet" type="text/css" href="/pentaho-style/pentaho.css"></link>
+      
+      <title xmlns="" xmlns:xf="http://www.w3.org/2002/xforms">Dynamic Dependent Parameter Page Example</title>
+      
+      			<script xmlns="" xmlns:xf="http://www.w3.org/2002/xforms">
+      			
+      			  var url=unescape('ViewAction?');
+      			  var target=unescape('');
+      			  function doForm() {
+      			    var submitUrl = url;
+      			    var form = document.forms['parameter-form'];
+      			    var elements = form.elements;
+      			    var i;
+      			    for( i=0; i<elements.length; i++ ) {
+      			      if( elements[i].type == 'select-one' || elements[i].type == 'text' || elements[i].type == 'hidden') {
+      			        submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			      } else if( elements[i].type == 'radio' ) {
+      			      	if( elements[i].checked ) {
+      			          submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			      	}
+      			      } else if( elements[i].type == 'checkbox' ) {
+      			      	if( elements[i].checked ) {
+      				      submitUrl += '&' + elements[i].name + "=" + escape( elements[i].value );
+      			      	}
+      			      } else if( elements[i].type == 'select-multiple' ) {
+      				    var options = elements[i].options;
+      				    var j;
+      				    for( j=0; j!=options.length; j++ ) {
+      				      if( options[j].selected ) {
+      	  			        submitUrl += '&' + elements[i].name + '=' + escape( options[ j ].value );
+      				      }
+      				    }
+      				  }
+      			    }
+      			    if( target == '' ) {
+      				    document.location.href=submitUrl;
+      				} else {
+      					window.open( submitUrl, target );
+      				}
+      			    return false;
+      			  }
+
+				  function returnObjById( id ) {
+    				if (document.getElementById)
+        				var returnVar = document.getElementById(id);
+    				else if (document.all)
+        				var returnVar = document.all[id];
+    				else if (document.layers)
+        				var returnVar = document.layers[id];
+    				return returnVar;
+			      }
+
+	              function sendRequest( url, query, func, dependentFunction ) {
+      				http_request = false;
+	  				var returnType = "text/xml";
+	  
+      				if (window.XMLHttpRequest) { // Mozilla, Safari,...
+         			  http_request = new XMLHttpRequest();
+         			  if (http_request.overrideMimeType) {
+                        http_request.overrideMimeType(returnType);
+                      }
+                    } else if (window.ActiveXObject) { // IE
+                      try {
+                        http_request = new ActiveXObject("Msxml2.XMLHTTP");
+                      } catch (e) {
+                        try {
+                          http_request = new ActiveXObject("Microsoft.XMLHTTP");
+                        } catch (e) {}
+                      }
+                    }
+                    if (!http_request) {
+                      alert('Cannot create XMLHTTP instance');
+                      return false;
+                    }
+      
+                    http_request.onreadystatechange = function() { pentahoResponse(http_request, func, dependentFunction); };
+                    http_request.open('POST', url, true);
+                    http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    http_request.setRequestHeader("Content-length", query.length);
+                    http_request.setRequestHeader("Connection", "close");
+                    http_request.send(query);
+                  }
+
+                  function pentahoResponse(http_request, func, dependentFunction) {
+                    if (http_request.readyState == 4) {
+                      if (http_request.status == 200) {
+				        var content = http_request.responseText; 
+				        eval( func+'content )' );
+				        eval( dependentFunction );
+                      } else {
+				        eval( func+'( "There was a problem with the request." )' );
+                      }
+                    }
+                  }
+    
+	              function paramService( params, func, dependentFunction ) {
+		            var url = "/pentaho/ServiceAction";
+		            var query = "";
+		            if( params ) {
+		              query += "?";
+			          for( idx=0; idx<params.length; idx+=2 ) {
+				        query += "&" +escape( params[idx] ) + "=" + escape( params[idx+1] );
+			          }
+		            }
+		            return sendRequest( url, query, func, dependentFunction );
+	              }    
+	              
+	              function parseSOAPResultSet(dependentControlName, content) {
+	                CDATA_START_TAG = "\<DATA-ITEM\>\<!\[CDATA\[";
+	                CDATA_END_TAG = "\]\]\>\</DATA-ITEM\>";
+      				dependentControl = returnObjById(dependentControlName);
+	                dependentControl.options.length = 0;
+                    index = 0;
+	                while (content.indexOf(CDATA_START_TAG) >= 0) {
+	                  cdataBeginIdx = content.indexOf(CDATA_START_TAG);
+	                  cdataEndIdx = content.indexOf(CDATA_END_TAG);
+ 	                  text = content.substring(cdataBeginIdx+CDATA_START_TAG.length, cdataEndIdx);
+	                  content = content.substring(cdataEndIdx+CDATA_END_TAG.length);
+	                  dependentControl.options[index] = new Option(text, text);
+	                  index++;
+	                }
+	              }
+	              
+	              
+                
+      			</script>
+      		
+      	<link rel="stylesheet" type="text/css" href="/pentaho-style/active/default.css"></link>
+      
+      
+   </head>
+   
+   <body dir="LTR" style="border:2px solid #dddddd">
+      
+      <div xmlns:xf="http://www.w3.org/2002/xforms" xmlns="" style="margin:10px"><span class="portlet-section-header">Dynamic Dependent Parameter Page Example</span></div>
+      
+      <div xmlns:xf="http://www.w3.org/2002/xforms" xmlns="" style="margin:10px;border:1px solid #808080;padding:5px;">
+         
+         <form xmlns="http://org.pentaho" enctype="application/x-www-form-urlencoded" name="parameter-form" id="parameter-form" method="POST">
+            
+            <table xmlns="" width="100%" style="padding:5px;">
+               
+               <tr>
+                  
+                  <td class="portlet-font">The region selections control the department choices and the department selections filter the positions.</td>
+                  
+               </tr>
+               
+               
+               <tr>
+                  
+                  <td class="portlet-font">Region: <select id="REGION" name="REGION" size="1" title="" class="portlet-form-field" onchange="javascript:setXFormsValue('', 'REGION');">
+                        <option value="">Choose...</option>
+                        <option id="" value="Central" title="" selected>Central</option>
+                        <option id="" value="Eastern" title="">Eastern</option>
+                        <option id="" value="Western" title="">Western</option>
+                        <option id="" value="Southern" title="">Southern</option></select><span id="REGION-required" class="required-symbol"></span></td>
+                  
+               </tr>
+               
+               
+               <tr>
+                  
+                  <td class="portlet-font">Department: <select id="DEPARTMENT" name="DEPARTMENT" size="1" title="" class="portlet-form-field" onchange="javascript:setXFormsValue('', 'DEPARTMENT');">
+                        <option value="">Choose...</option>
+                        <option id="" value="Executive Management" title="">Executive Management</option>
+                        <option id="" value="Finance" title="">Finance</option>
+                        <option id="" value="Human Resource" title="">Human Resource</option>
+                        <option id="" value="Marketing &amp; Communication" title="">Marketing &amp; Communication</option>
+                        <option id="" value="Product Development" title="">Product Development</option>
+                        <option id="" value="Professional Services" title="">Professional Services</option>
+                        <option id="" value="Sales" title="">Sales</option></select><span id="DEPARTMENT-required" class="required-symbol"></span></td>
+                  
+               </tr>
+               
+               
+               <tr>
+                  
+                  <td class="portlet-font">Position: <select id="POSITIONTITLE" name="POSITIONTITLE" size="1" title="" class="portlet-form-field" onchange="javascript:setXFormsValue('', 'POSITIONTITLE');">
+                        <option value="">Choose...</option>
+                        <option id="" value="Account Executive" title="">Account Executive</option>
+                        <option id="" value="Administration" title="">Administration</option>
+                        <option id="" value="Administrative Assistant" title="">Administrative Assistant</option>
+                        <option id="" value="Analyst Relations" title="">Analyst Relations</option>
+                        <option id="" value="CEO" title="">CEO</option>
+                        <option id="" value="CFO" title="">CFO</option>
+                        <option id="" value="CMO" title="">CMO</option>
+                        <option id="" value="CTO" title="">CTO</option>
+                        <option id="" value="Controller" title="">Controller</option>
+                        <option id="" value="District Manager" title="">District Manager</option>
+                        <option id="" value="EOE" title="">EOE</option>
+                        <option id="" value="Engineer" title="">Engineer</option>
+                        <option id="" value="Graphics" title="">Graphics</option>
+                        <option id="" value="HR Generalists" title="">HR Generalists</option>
+                        <option id="" value="HR Training" title="">HR Training</option>
+                        <option id="" value="IS" title="">IS</option>
+                        <option id="" value="Payroll" title="">Payroll</option>
+                        <option id="" value="Pre-Sales" title="">Pre-Sales</option>
+                        <option id="" value="Press Relations" title="">Press Relations</option>
+                        <option id="" value="Product Marketing Mgr" title="">Product Marketing Mgr</option>
+                        <option id="" value="QA Engineer" title="">QA Engineer</option>
+                        <option id="" value="QA Manager" title="">QA Manager</option>
+                        <option id="" value="SVP HR" title="">SVP HR</option>
+                        <option id="" value="SVP Partnerships" title="">SVP Partnerships</option>
+                        <option id="" value="SVP Services" title="">SVP Services</option>
+                        <option id="" value="SVP Strategic Development" title="">SVP Strategic Development</option>
+                        <option id="" value="SVP WW Operations" title="">SVP WW Operations</option>
+                        <option id="" value="Sales Rep" title="">Sales Rep</option>
+                        <option id="" value="Senior Consultant" title="">Senior Consultant</option>
+                        <option id="" value="Senior Engineer" title="">Senior Engineer</option>
+                        <option id="" value="Senior Sales Rep" title="">Senior Sales Rep</option>
+                        <option id="" value="Services Mgr" title="">Services Mgr</option>
+                        <option id="" value="Sexual Harassment" title="">Sexual Harassment</option>
+                        <option id="" value="Staff Consultant" title="">Staff Consultant</option>
+                        <option id="" value="Trainer" title="">Trainer</option>
+                        <option id="" value="VP Engineering" title="">VP Engineering</option>
+                        <option id="" value="Writer" title="">Writer</option></select><span id="POSITIONTITLE-required" class="required-symbol"></span></td>
+                  
+               </tr>
+               
+               
+               <tr>
+                  
+                  <td><br><input type="button" name="go" class="portlet-form-button" value="Run..." onClick="doForm()"></td>
+                  
+               </tr>
+               
+            </table>
+            		<input xmlns="" type="hidden" name="solution" value="samples">
+            		<input xmlns="" type="hidden" name="action" value="DependentParameterExample.xaction">
+            		<input xmlns="" type="hidden" name="path" value="reporting/dep-param">
+            	    
+         </form>
+         
+         	  
+         	<script>
+
+      var regionControl = returnObjById("REGION");
+	  regionControl.onchange=regionChangeFunction;
+
+      var deptControl = returnObjById("DEPARTMENT");
+	  deptControl.onchange=departmentChangeFunction;
+
+	  function departmentChangeFunction() {
+        paramService(new Array( "dept", deptControl.value, "solution", "samples", "path", "reporting/dep-param", "action", "PositionTitlesForDept.xaction" ), "parseSOAPResultSet(\"POSITIONTITLE\", ", "");
+      }
+
+	  function regionChangeFunction() {
+        paramService(new Array( "region", regionControl.value, "solution", "samples", "path", "reporting/dep-param", "action", "DepartmentsForRegion.xaction" ), "parseSOAPResultSet(\"DEPARTMENT\", ", "departmentChangeFunction()");
+      }
+
+      
+    </script>
+         
+         </div>
+      
+   </body>
+   
+</html>

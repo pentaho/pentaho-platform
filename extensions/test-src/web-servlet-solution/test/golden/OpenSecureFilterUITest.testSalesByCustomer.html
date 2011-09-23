@@ -1,0 +1,213 @@
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="/pentaho-style/pentaho.css">
+      <title>04. SALES BY CUSTOMER</title><script type="text/javascript">
+
+          function dynExec(funcName, formName, objectName) {
+            var func = funcName + formName + "('" + objectName + "');";
+            var rtn = false;
+            try {
+              rtn = eval(func);
+            } catch (ignored) {
+              rtn = false;
+            }
+            return rtn;
+          }
+
+          function setXFormsValue(formName, objectName) {
+            // Will cause invoke of setXFormsValueformname(object);
+            return dynExec("setXFormsValue", formName, objectName);
+          }
+          function activate(formName, objectName) {
+            // Will cause invoke of activateformname(object);
+            return dynExec("activate", formName, objectName);
+          }
+          function upload(formName, objectName) {
+            // Will cause invoke of uploadformname(object);
+            return dynExec("upload", formName, objectName);
+          }
+		function getCurrentUrlParms() {
+		  var rtn = "";
+		  var windHref = window.location.href;
+		  if (windHref.indexOf("?")>1) {
+			var qryStr = windHref.substr(windHref.indexOf("?"));
+			var parms  = qryStr.split("&");
+			for (var i=1; i < parms.length; i++) {
+			  var thisParm = parms[i].split("=");
+			  if ( (thisParm[0] != "solution") &&
+				   (thisParm[0] != "path") &&
+				   (thisParm[0] != "action") ) {
+				// need to add this one to the parameters...
+				rtn += "&" + parms[i];
+			  } 
+			}
+		  }
+		  return rtn;
+		}
+          </script>
+      			
+      			<script>
+      			  var urlSales_by_Customer=unescape('http://localhost:8080/pentaho/ViewAction?');
+      			  var target=unescape('');
+      			  function doFormSales_by_Customer( background ) {
+      			    var submitUrl = urlSales_by_Customer;
+      				//var curParms = getCurrentUrlParms();
+      				//submitUrl += curParms;
+      				
+      			    var form = document.forms['formSales_by_Customer'];
+      			    var elements = form.elements;
+      			    var i;
+      			    var amp;
+      			    if (submitUrl.indexOf("?") != -1) {	    	
+      			    	if ((submitUrl.lastIndexOf("?") == (submitUrl.length-1)) || (submitUrl.lastIndexOf('&') == (submitUrl.length-1)))
+      {
+      			    		amp = "";
+      			    	} else {
+      			    		amp = '&';
+      			    	}
+      			    } else {
+      			    	amp = "?";
+      			    }
+      			    
+      			    for( i=0; i<elements.length; i++ ) {
+      			      if( elements[i].type == 'select-one' || elements[i].type == 'text' || elements[i].type == 'hidden') {
+      			        submitUrl += amp + elements[ i ].name + '=' + escape( elements[ i ].value );
+      				      amp = '&';
+      			      } else if( elements[i].type == 'radio' ) {
+      			      	if( elements[i].checked ) {
+      			          submitUrl += amp + elements[ i ].name + '=' + escape( elements[ i ].value );
+      				      amp = '&';
+      			      	}
+      			      } else if( elements[i].type == 'checkbox' ) {
+      			      	if( elements[i].checked ) {
+      				      submitUrl += amp + elements[i].name + "=" + escape( elements[i].value );
+      				      amp = '&';
+      			      	}
+      			      } else if( elements[i].type == 'select-multiple' ) {
+      				    var options = elements[i].options;
+      				    var j;
+      				    for( j=0; j!=options.length; j++ ) {
+      				      if( options[j].selected ) {
+      	  			        submitUrl += amp + elements[i].name + '=' + escape( options[ j ].value );
+      				      amp = '&';
+      				      }
+      				    }
+      				  }
+      			    }
+      				if( background == true ) {
+      					submitUrl += amp + 'background=true';
+      					if( !confirm ( 'Info:  Reports that prompt for parameters are not supported with this feature.  ' +
+      					    'Run in Background may report errors. Click OK to continue.' ) ) {
+      						return false;
+      					}
+      				}
+      			    if( target == '' ) {
+      				    document.location.href=submitUrl;
+      				} else {
+      					window.open( submitUrl, target );
+      				}
+      			    return false;
+      			  }
+      			</script>
+      		</head>
+   <body dir="LTR">
+      <div style="margin:10px"><span class="portlet-section-header">04. SALES BY CUSTOMER</span></div>
+      <div style="margin:10px;border:1px solid #808080">
+         <form name="formSales_by_Customer">
+            <table>
+               <tr>
+                  <td><span class="portlet-font">Use this form to supply the parameters required for this content</span></td>
+               </tr>
+               <tr>
+                  <td class="portlet-section-subheader"><br>Select: Start Date
+                  </td>
+               </tr>
+               <tr>
+                  <td class="portlet-font"><select id="time_start" name="time_start" size="1" title="" class="portlet-form-field" onchange="javascript:setXFormsValue('Sales_by_Customer', 'time_start');">
+                        <option value="">Choose...</option>
+                        <option id="" value="2003-01-01" title="">Jan 01 2003</option>
+                        <option id="" value="2003-02-01" title="">Feb 01 2003</option>
+                        <option id="" value="2003-03-01" title="">Mar 01 2003</option>
+                        <option id="" value="2003-04-01" title="">Apr 01 2003</option>
+                        <option id="" value="2003-05-01" title="">May 01 2003</option>
+                        <option id="" value="2003-06-01" title="">June 01 2003</option>
+                        <option id="" value="2003-07-01" title="">July 01 2003</option>
+                        <option id="" value="2003-08-01" title="">Aug 01 2003</option>
+                        <option id="" value="2003-09-01" title="">Sep 01 2003</option>
+                        <option id="" value="2003-10-01" title="">Oct 01 2003</option>
+                        <option id="" value="2003-11-01" title="">Nov 01 2003</option>
+                        <option id="" value="2003-12-01" title="">Dec 01 2003</option>
+                        <option id="" value="2004-01-01" title="">Jan 01 2004</option>
+                        <option id="" value="2004-02-01" title="">Feb 01 2004</option>
+                        <option id="" value="2004-03-01" title="">Mar 01 2004</option>
+                        <option id="" value="2004-04-01" title="">Apr 01 2004</option>
+                        <option id="" value="2004-05-01" title="">May 01 2004</option>
+                        <option id="" value="2004-06-01" title="">Jun 01 2004</option>
+                        <option id="" value="2004-07-01" title="">Jul 01 2004</option>
+                        <option id="" value="2004-08-01" title="">Aug 01 2004</option>
+                        <option id="" value="2004-09-01" title="">Sep 01 2004</option>
+                        <option id="" value="2004-10-01" title="">Oct 01 2004</option>
+                        <option id="" value="2004-11-01" title="">Nov 01 2004</option>
+                        <option id="" value="2004-12-01" title="">Dec 01 2004</option>
+                        <option id="" value="2005-01-01" title="" selected>Jan 01 2005</option>
+                        <option id="" value="2005-02-01" title="">Feb 01 2005</option>
+                        <option id="" value="2005-03-01" title="">Mar 01 2005</option>
+                        <option id="" value="2005-04-01" title="">Apr 01 2005</option>
+                        <option id="" value="2005-05-01" title="">May 01 2005</option>
+                        <option id="" value="2005-06-01" title="">Jun 01 2005</option>
+                        <option id="" value="2005-07-01" title="">Jul 01 2005</option></select><span id="time_start-required" class="required-symbol"></span></td>
+               </tr>
+               <tr>
+                  <td class="portlet-section-subheader"><br>Select: End Date
+                  </td>
+               </tr>
+               <tr>
+                  <td class="portlet-font"><select id="time_stop" name="time_stop" size="1" title="" class="portlet-form-field" onchange="javascript:setXFormsValue('Sales_by_Customer', 'time_stop');">
+                        <option value="">Choose...</option>
+                        <option id="" value="2003-02-01" title="">Jan 31 2003</option>
+                        <option id="" value="2003-03-01" title="">Feb 28 2003</option>
+                        <option id="" value="2003-04-01" title="">Mar 31 2003</option>
+                        <option id="" value="2003-05-01" title="">Apr 30 2003</option>
+                        <option id="" value="2003-06-01" title="">May 31 2003</option>
+                        <option id="" value="2003-07-01" title="">June 30 2003</option>
+                        <option id="" value="2003-08-01" title="">July 31 2003</option>
+                        <option id="" value="2003-09-01" title="">Aug 31 2003</option>
+                        <option id="" value="2003-10-01" title="">Sep 30 2003</option>
+                        <option id="" value="2003-11-01" title="">Oct 31 2003</option>
+                        <option id="" value="2003-12-01" title="">Nov 30 2003</option>
+                        <option id="" value="2004-01-01" title="">Dec 31 2003</option>
+                        <option id="" value="2004-02-01" title="">Jan 31 2004</option>
+                        <option id="" value="2004-03-01" title="">Feb 29 2004</option>
+                        <option id="" value="2004-04-01" title="">Mar 31 2004</option>
+                        <option id="" value="2004-05-01" title="">Apr 30 2004</option>
+                        <option id="" value="2004-06-01" title="">May 31 2004</option>
+                        <option id="" value="2004-07-01" title="">Jun 30 2004</option>
+                        <option id="" value="2004-08-01" title="">Jul 31 2004</option>
+                        <option id="" value="2004-09-01" title="">Aug 31 2004</option>
+                        <option id="" value="2004-10-01" title="">Sep 30 2004</option>
+                        <option id="" value="2004-11-01" title="">Oct 31 2004</option>
+                        <option id="" value="2004-12-01" title="">Nov 30 2004</option>
+                        <option id="" value="2005-01-01" title="">Dec 31 2004</option>
+                        <option id="" value="2005-02-01" title="">Jan 31 2005</option>
+                        <option id="" value="2005-03-01" title="">Feb 28 2005</option>
+                        <option id="" value="2005-04-01" title="">Mar 31 2005</option>
+                        <option id="" value="2005-05-01" title="">Apr 30 2005</option>
+                        <option id="" value="2005-06-01" title="" selected>May 31 2005</option>
+                        <option id="" value="2005-07-01" title="">Jun 30 2005</option>
+                        <option id="" value="2005-08-01" title="">Jul 31 2005</option></select><span id="time_stop-required" class="required-symbol"></span></td>
+               </tr>
+               <tr>
+                  <td class="portlet-section-subheader"><br>Select: Report Output
+                  </td>
+               </tr>
+               <tr>
+                  <td class="portlet-font"><input id="type_pdf" class="portlet-form-field" type="radio" name="type" value="pdf" title="" checked onclick="javascript:setXFormsValue('Sales_by_Customer', 'type');"><span id="type-label" class="portlet-form-field-label">PDF</span><input id="type_xls" class="portlet-form-field" type="radio" name="type" value="xls" title="" onclick="javascript:setXFormsValue('Sales_by_Customer', 'type');"><span id="type-label" class="portlet-form-field-label">Excel</span><input id="type_html" class="portlet-form-field" type="radio" name="type" value="html" title="" onclick="javascript:setXFormsValue('Sales_by_Customer', 'type');"><span id="type-label" class="portlet-form-field-label">Web Page</span><span id="type-required" class="required-symbol"></span></td>
+               </tr>
+               <tr>
+                  <td><br><input type="button" name="go" class="portlet-form-button" value="Update..." onClick="doFormSales_by_Customer(false)"><input type="button" name="go" class="portlet-form-button" value="Background" onClick="doFormSales_by_Customer(true)"></td>
+               </tr>
+            </table><input xmlns:xf="http://www.w3.org/2002/xforms" type="hidden" name="solution" value="samples"><input xmlns:xf="http://www.w3.org/2002/xforms" type="hidden" name="action" value="Sales_by_Customer.xaction"><input xmlns:xf="http://www.w3.org/2002/xforms" type="hidden" name="path" value="steel-wheels/reports"></form>
+      </div>
+   </body>
+</html>

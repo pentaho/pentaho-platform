@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!--
+charset below is utf-8 to assist tools reading this file. The value will be replaced with the system encoding
+before returning to client. Do not modify the line below.
+-->
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+	<title>{system}</title>
+        <link href="/pentaho-style/styles-new.css" rel="stylesheet" type="text/css" />
+	<link rel="shortcut icon" href="/pentaho-style/favicon.ico" />
+
+	<link rel="stylesheet" type="text/css" href="/pentaho-style/menus/transmenu.css"/>
+	<script language="javascript" src="/pentaho-style/menus/transmenu.js"></script>
+	<script language="javascript">
+		var backgroundAlert = "{background-alert}";
+		var gRepositoryName = "{repository-name}";
+	</script>
+	<script language="javascript" src="/pentaho-style/pentaho.js"></script>
+	<script language="javascript" src="/pentaho/js/options.js"></script>
+	{header-content}
+	
+	<style>
+
+	h1{
+		margin: 0;
+		padding: 0;
+		font-size: 1.75em;
+		color: #F46500;
+		text-align: left;
+	}
+	h2{
+		margin: 0;
+		padding: 0;
+		font-size: 1.5em;
+		color: #F46500;
+		text-align: left;
+	}
+	h3{
+		margin: 0;
+		padding: 0;
+		font-size: 1.25em;
+		color: #000;
+		text-align: left;
+	}
+	
+	p{
+		text-align: left;
+		margin: 0;
+		padding: 0 0 4px 0;
+	}
+	</style>
+
+</head>
+
+<body class="body" dir="{text-direction}" {body-tag} >
+
+<div class="banner"></div>
+
+			<div id="menu">
+				<a id="home-menu" href="Home">{home}</a>
+				<a id="navigate-menu" href="#">{navigate}</a>
+				<a id="admin-menu" href="Admin">{admin}</a>
+				<a id="logout-menu" href="Logout">{logout}</a>
+				<a id="about-menu" href="#">{about}</a>
+			</div>
+
+		<div id="backgroundalert" style="display:none;position:absolute;top:3px;left:3px;height:30px;width:200px;z-index:100">
+			<span style="font-size:1em">
+				<a href="UserContent" style="font-size:1em;color:white">
+					{new-content}
+				</a>
+			</span>
+		</div>
+
+	<script language="javascript">
+
+		function docLoaded() {
+			try {
+				if( backgroundAlert == 'true' ) {
+					document.getElementById( 'backgroundalert' ).style.display='block';
+				}
+			} catch (e) {alert(e)}
+		}
+
+ 		document.onload=docLoaded();
+
+		isAdmin = "{isAdmin}";
+		isLoggedIn = "{isLoggedIn}";
+
+	// set up drop downs anywhere in the body of the page. I think the bottom of the page is better..
+	// but you can experiment with effect on loadtime.
+	if (TransMenu.isSupported()) {
+
+		var ms = new TransMenuSet(TransMenu.direction.down, 1, 0, TransMenu.reference.bottomLeft);
+
+		var menu1 = ms.addMenu(document.getElementById("home-menu"));
+
+		var menu2 = ms.addMenu(document.getElementById("navigate-menu"));
+		menu2.addItem("New Report", "javascript:popPage('adhoc/waqr.html')");
+		menu2.addItem("New Analysis View", "javascript:popPage('NewAnalysisView')");
+		menu2.addItem("{solutions}", "Navigate");
+		menu2.addItem("{file-cache}", "UserContent");
+		
+
+		var menu3 = ms.addMenu(document.getElementById("admin-menu"));
+
+		var menu5 = ms.addMenu(document.getElementById("logout-menu"));
+
+		var menu4 = ms.addMenu(document.getElementById("about-menu"));
+		menu4.addItem("{pentaho.org}", "javascript:popPage('http://www.pentaho.org')");
+		menu4.addItem("{demos}", "javascript:popPage('http://www.pentaho.com/products/demos/')");
+		menu4.addItem("{downloads}", "javascript:popPage('http://www.pentaho.org/download')");
+		menu4.addItem("{forums}", "javascript:popPage('http://www.pentaho.org/forums')");
+		menu4.addItem("{about}", "javascript:modalWin('About')");
+
+		TransMenu.renderAll();
+	}
+	</script>
+
+<noscript>
+
+<td valign="top" style="fpadding: 0px 0px 0px 15px; font-size: .85em;text-align:left"><table align="center" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+         <td><img border="0" src="/pentaho-style/images/fly-top-left1.png"></td>
+         <td style="background-image: url(/pentaho-style/images/fly-top1.png);background-repeat: repeat-x;"></td>
+         <td><img border="0" src="/pentaho-style/images/fly-top-right1.png"></td>
+      </tr>
+
+      <tr style="background-color: #e5e5e5;">
+         <td style="background-image: url(/pentaho-style/images/fly-left1.png);background-repeat: repeat-y;"></td>
+         <td style="padding:0px" valign="top">
+
+            <table id="WarningTable" style="padding: 0px 5px 5px 5px;">
+               <tr>
+                  <td colspan="2" style="font-size:1.6em" class="content_header_line">
+				  Warning !!!
+				  </td>
+
+               </tr>
+				<tr>
+                 <td colspan="2"style="font-size:1em" class="content_header">Your browser doesn't support JavaScript or you have disabled JavaScript. 
+	  Javascript should be enabled <br/> with this site. For example, the
+	  dropdown menu will not properly function without Javascript.</td>
+
+               </tr>
+             </table>
+         </td>
+         <td style="background-image: url(/pentaho-style/images/fly-right1.png);background-repeat: repeat-y;"></td>
+      </tr>
+      <tr>
+         <td><img border="0" src="/pentaho-style/images/fly-bot-left1.png"></td>
+         <td><img src="/pentaho-style/images/fly-bot1.png" height="25" width="100%"></td>
+         <td><img border="0" src="/pentaho-style/images/fly-bot-right1.png"></td>
+      </tr>
+   </table>
+</td>
+		</noscript>
+	{content}
+	{footer}
+</body>
+</html>

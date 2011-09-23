@@ -1,0 +1,97 @@
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link rel="stylesheet" type="text/css" href="/pentaho-style/pentaho.css">
+      <title>Parameter Page Customization Example</title><script type="text/javascript">
+
+          function dynExec(funcName, formName, objectName) {
+            var func = funcName + formName + "('" + objectName + "');";
+            var rtn = false;
+            try {
+              rtn = eval(func);
+            } catch (ignored) {
+              rtn = false;
+            }
+            return rtn;
+          }
+
+          function setXFormsValue(formName, objectName) {
+            // Will cause invoke of setXFormsValueformname(object);
+            return dynExec("setXFormsValue", formName, objectName);
+          }
+          function activate(formName, objectName) {
+            // Will cause invoke of activateformname(object);
+            return dynExec("activate", formName, objectName);
+          }
+          function upload(formName, objectName) {
+            // Will cause invoke of uploadformname(object);
+            return dynExec("upload", formName, objectName);
+          }
+          </script>
+      			
+      			<script>
+      			  var url=unescape('http://localhost:8080/pentaho/ViewAction?');
+      			  var target=unescape('Report_Window');
+      			  function doForm() {
+      			    var submitUrl = url;
+      
+      			    var form = document.forms['form'];
+      			    var elements = form.elements;
+      			    var i;
+      			    for( i=0; i<elements.length; i++ ) {
+      			      if( elements[i].type == 'select-one' || elements[i].type == 'text' || elements[i].type == 'hidden') {
+      			        submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			      }
+      				      amp = '&';
+      			      if( elements[i].type == 'radio' ) {
+      			      	if( elements[i].checked ) {
+      			          submitUrl += '&' + elements[ i ].name + '=' + escape( elements[ i ].value );
+      			      	}
+      			      }
+      			    }
+      			    if( target == '' ) {
+      				    document.location.href=submitUrl;
+      				} else {
+      					window.open( submitUrl, target, '' );
+      				}
+      			    return false;
+      			  }
+      			</script>
+      		</head>
+   <body dir="LTR">
+      <div style="margin:10px"><span class="portlet-section-header">Parameter Page Customization Example</span></div>
+      <div style="margin:10px;border:1px solid #808080">
+         <form name="form">
+            <table>
+               <tr>
+                  <td><span class="portlet-font">This parameter page is generated using a custom (XSL) template. You can create a custom template for each report if you want
+                        to...</span></td>
+               </tr>
+               <tr>
+                  <td class="portlet-section-subheader"><br>Select: Region
+                  </td>
+               </tr>
+               <tr>
+                  <td class="portlet-font"><input id="REGION" name="REGION" type="text" value="" title="" class="portlet-form-input-field" onchange="javascript:setXFormsValue('custom_parameter_page_example', 'REGION');"><span id="REGION-required" class="required-symbol"></span></td>
+               </tr>
+               <tr>
+                  <td class="portlet-section-subheader"><br>Select: Department
+                  </td>
+               </tr>
+               <tr>
+                  <td class="portlet-font"><input id="DEPARTMENT" name="DEPARTMENT" type="text" value="" title="" class="portlet-form-input-field" onchange="javascript:setXFormsValue('custom_parameter_page_example', 'DEPARTMENT');"><span id="DEPARTMENT-required" class="required-symbol"></span></td>
+               </tr>
+               <tr>
+                  <td class="portlet-section-subheader"><br>Select: Report Format
+                  </td>
+               </tr>
+               <tr>
+                  <td class="portlet-font"><input id="type" name="type" type="text" value="html" title="" class="portlet-form-input-field" onchange="javascript:setXFormsValue('custom_parameter_page_example', 'type');"><span id="type-required" class="required-symbol"></span></td>
+               </tr>
+               <tr>
+                  <td><br><input type="button" name="go" class="portlet-form-button" value="Update..." onClick="doForm()"></td>
+               </tr>
+            </table><input xmlns:xf="http://www.w3.org/2002/xforms" type="hidden" name="solution" value="samples"><input xmlns:xf="http://www.w3.org/2002/xforms" type="hidden" name="action" value="custom-parameter-page-example.xaction"><input xmlns:xf="http://www.w3.org/2002/xforms" type="hidden" name="path" value="reporting"></form>
+      </div>
+   </body>
+</html>

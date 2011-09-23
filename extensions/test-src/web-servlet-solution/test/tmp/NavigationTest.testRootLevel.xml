@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repository><file type="FILE.FOLDER" visible="false" name="test"><title>test</title><file type="FILE.FOLDER" visible="false" name="golden"><path>golden</path><title>golden</title></file><file type="FILE.FOLDER" visible="false" name="tmp"><path>tmp</path><title>tmp</title></file></file></repository>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>analysis_productline.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <help/>  
+    <result-type>report</result-type>  
+    <description>%description</description>  
+    <icon>analysis_productline.png</icon> 
+  </documentation>
+
+  <inputs> 
+    <mode type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>mode</request> 
+      </sources> 
+    </mode> 
+  </inputs>
+
+  <outputs> 
+    <model type="string"/>  
+    <connection type="string"/>  
+    <mdx type="string"/>  
+    <options type="list"/>  
+    <title type="string"/>  
+    <url type="string"> 
+      <destinations> 
+        <response>redirect</response> 
+      </destinations> 
+    </url>  
+    <charttype type="string"/>  
+    <chartlocation type="string"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>PivotViewComponent</component-name>
+      <action-type>Pivot View</action-type>
+      <action-inputs> 
+        <mode type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <model type="string"/>  
+        <connection type="string"/>  
+        <mdx type="string"/>  
+        <options type="list"/>  
+        <title type="string"/>  
+        <url type="string"/>  
+        <charttype type="string"/>  
+        <chartlocation type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <title>Drill Down to Pivot Table</title>  
+        <viewer>Pivot</viewer>  
+        <model>samples/steel-wheels/analysis/steelwheels.mondrian.xml</model>  
+        <charttype>16</charttype>  
+        <chartlocation>top</chartlocation>  
+        <!--  connection>jdbc/SampleData</connection -->  
+        <!--  query>default</query -->  
+        <options> 
+          <personal/>  
+          <cube-nav/>  
+          <mdx-edit/>  
+          <sort-conf/>  
+          <spacer/>  
+          <level-style/>  
+          <hide-spans/>  
+          <properties/>  
+          <non-empty/>  
+          <swap-axes/>  
+          <spacer/>  
+          <drill-member/>  
+          <drill-position/>  
+          <drill-replace/>  
+          <drill-thru/>  
+          <spacer/>  
+          <chart/>  
+          <chart-conf/>  
+          <spacer/>  
+          <print-conf/>  
+          <print-pdf/>  
+          <spacer/>  
+          <excel/> 
+        </options>  
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select Hierarchize(Union(Union(Union(Crossjoin({[Markets].[All Markets].[APAC]}, {[Time].[All Years].[2003], [Time].[All Years].[2004], [Time].[All Years].[2005]}), Crossjoin({[Markets].[All Markets].[EMEA]}, {[Time].[All Years].[2003], [Time].[All Years].[2004], [Time].[All Years].[2005]})), Crossjoin({[Markets].[All Markets].[Japan]}, {[Time].[All Years].[2003], [Time].[All Years].[2004], [Time].[All Years].[2005]})), Crossjoin({[Markets].[All Markets].[NA]}, {[Time].[All Years].[2003], [Time].[All Years].[2004], [Time].[All Years].[2005]}))) ON COLUMNS,
+  {[Product].[All Products].[Classic Cars], [Product].[All Products].[Motorcycles], [Product].[All Products].[Planes], [Product].[All Products].[Ships], [Product].[All Products].[Trains], [Product].[All Products].[Trucks and Buses], [Product].[All Products].[Vintage Cars]} ON ROWS
+from [SteelWheelsSales]
+where [Measures].[Sales]]]></query> 
+      </component-definition>  
+      <action-name>Pivot View</action-name>  
+      <logging-level>DEBUG</logging-level> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<index>
+	<name>Pentaho</name>
+	<description>A Pentaho template</description>
+	<icon>thumbnail.png</icon>
+	<visible>true</visible>
+	<jfree-template>jfreereport-template.xml</jfree-template>
+	<xreportspec-template>report.xreportspec</xreportspec-template>
+</index>
