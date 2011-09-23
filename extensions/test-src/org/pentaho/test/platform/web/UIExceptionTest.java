@@ -22,7 +22,7 @@ import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.engine.core.BaseTestCase;
 
 public class UIExceptionTest extends BaseTestCase {
-  private static final String SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-src/web-servlet-solution";
 
 
   public String getSolutionPath() {

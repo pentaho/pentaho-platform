@@ -42,7 +42,7 @@ public class BaseMenuProviderTest {
   @SuppressWarnings("deprecation")
   @Before
   public void init0() {
-    microPlatform = new MicroPlatform("plugin-mgr/test-res/BaseMenuProviderTest/");
+    microPlatform = new MicroPlatform("test-res/BaseMenuProviderTest/");
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
     microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     microPlatform.define(IPluginManager.class, DefaultPluginManager.class);

@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ThemeManagerTest extends BaseTest {
 
-  private static final String SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-src/web-solution";
 
    public String getSolutionPath() {
        return SOLUTION_PATH;

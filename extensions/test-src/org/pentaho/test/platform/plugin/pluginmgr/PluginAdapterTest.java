@@ -52,7 +52,7 @@ public class PluginAdapterTest {
   @SuppressWarnings("deprecation")
   @Before
   public void init0() {
-    microPlatform = new MicroPlatform("plugin-mgr/test-res/PluginManagerTest/");
+    microPlatform = new MicroPlatform("test-res/PluginManagerTest/");
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
     microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     microPlatform.define(IPluginManager.class, DefaultPluginManager.class);

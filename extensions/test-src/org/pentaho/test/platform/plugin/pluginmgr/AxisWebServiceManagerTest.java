@@ -67,7 +67,7 @@ public class AxisWebServiceManagerTest {
   @Before
   public void init0() throws ServiceInitializationException {
     //set solution path to a place that hosts an axis config file
-    microPlatform = new MicroPlatform("plugin-mgr/test-res/AxisWebServiceManagerTest/");
+    microPlatform = new MicroPlatform("test-res/AxisWebServiceManagerTest/");
     assertNotNull(PentahoSystem.getObjectFactory());
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
     assertNotNull(PentahoSystem.getObjectFactory());

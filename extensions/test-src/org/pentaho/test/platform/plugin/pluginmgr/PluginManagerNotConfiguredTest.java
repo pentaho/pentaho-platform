@@ -42,7 +42,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 
 public class PluginManagerNotConfiguredTest extends BaseTest {
-  private static final String SOLUTION_PATH = "plugin-mgr/test-res/solution1-no-config"; //$NON-NLS-1$
+  private static final String SOLUTION_PATH = "test-res/solution1-no-config"; //$NON-NLS-1$
 
   private static final String ALT_SOLUTION_PATH = "test-res/solution1-no-config"; //$NON-NLS-1$
 

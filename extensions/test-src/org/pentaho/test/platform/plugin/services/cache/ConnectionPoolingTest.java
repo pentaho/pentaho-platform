@@ -32,8 +32,8 @@ public class ConnectionPoolingTest extends BaseTest {
   PooledDatasourceSystemListener listener;
   StandaloneSession session;
   
-  private static final String SOLUTION_PATH = "cache/test-src/solution";
-  private static final String ALT_SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-src/cache-solution";
+  private static final String ALT_SOLUTION_PATH = "test-src/cache-solution";
   private static final String PENTAHO_XML_PATH = "/system/pentaho.xml";
     @Override
   public String getSolutionPath() {

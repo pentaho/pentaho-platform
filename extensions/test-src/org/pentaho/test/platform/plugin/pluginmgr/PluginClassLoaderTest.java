@@ -43,7 +43,7 @@ public class PluginClassLoaderTest {
   @Before
   public void init() {
     // now load a class
-    pluginLoader = new PluginClassLoader(new File("./plugin-mgr/test-res/PluginClassLoaderTest/"), getClass().getClassLoader());
+    pluginLoader = new PluginClassLoader(new File("./test-res/PluginClassLoaderTest/"), getClass().getClassLoader());
   }
 
   @SuppressWarnings("unchecked")

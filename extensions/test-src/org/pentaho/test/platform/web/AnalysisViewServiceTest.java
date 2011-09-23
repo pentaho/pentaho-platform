@@ -36,7 +36,7 @@ import org.pentaho.test.platform.engine.core.BaseTest;
  */
 @SuppressWarnings("nls")
 public class AnalysisViewServiceTest extends BaseTest {
-  private static final String SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-src/web-servlet-solution";
 
 
   public String getSolutionPath() {

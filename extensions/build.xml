@@ -7,7 +7,7 @@
   
   See common_build.xml for more details
 ============================================================================-->
-<project name="extensions" basedir="." default="default">
+<project name="extensions" basedir="." default="default" xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<description>
 	  This build file is used to create the API project
@@ -28,5 +28,54 @@
       THE TASKS THAT NEED TO DIFFER FROM THE DEFAULT IMPLEMENTATION OF THE TASKS
       FOUND IN common_build.xml.
     --> 
+	
+
+	<property name="enunciate.home" value="${basedir}/enunciate" />
+	<property name="enunciate.bin.dir" value="${bin.dir}/enunciate" />
+	
+	<!-- Override package to just do enunciate. there is no native assembly or package involved -->
+	<target name="package" depends="enunciate"/>
+	<target name="assemble"/>
+	
+	<!-- Override resolve to tack on a resolve of enunciate jars needed for doc generation -->
+	<target name="resolve" depends="subfloor.resolve, resolve-enunciate" />
+	<target name="resolve-enunciate" depends="resolve-init">
+		<ivy:resolve file="${ivyfile}" conf="enunciate" />
+		<ivy:retrieve conf="enunciate" pattern="${basedir}/enunciate/lib/[module]-[revision](-[classifier]).[ext]" />
+	</target>
+
+	  <!--=======================================================================
+	      enunciate
+	      
+	      Generates enunciate documentation for the resoruce 
+	      classes comprising the BIServer REST api
+	      ====================================================================-->
+	<target name="enunciate">
+		<path id="enunciate.classpath">
+			<fileset dir="${lib.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<dirset dir="${classes.dir}" />
+			<fileset dir="${dist.dir}">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${enunciate.home}/lib">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+
+		<taskdef name="enunciate" classname="org.codehaus.enunciate.main.EnunciateTask">
+			<classpath refid="enunciate.classpath" />
+		</taskdef>
+
+		<enunciate dir="${basedir}/src" configFile="${basedir}/enunciate.xml" generateDir="${enunciate.bin.dir}/generate" compileDir="${enunciate.bin.dir}/compile" buildDir="${enunciate.bin.dir}/build" packageDir="${enunciate.bin.dir}/package" verbose="true">
+			<include name="**/http/api/resources/*.java" />
+			<!-- have to exclude class that contains jersey multipart endpoint until http://jira.codehaus.org/browse/ENUNCIATE-537 is fixed -->
+			<exclude name="**/http/api/resources/RepositoryImportResource.java" />
+			<classpath refid="enunciate.classpath" />
+			<export artifactId="docs" destination="${dist.dir}/${package.basename}.zip" />
+		</enunciate>
+	</target>
+
 
 </project>

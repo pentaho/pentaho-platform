@@ -42,8 +42,8 @@ import org.pentaho.test.platform.engine.core.BaseTest;
 @SuppressWarnings("nls")
 public class GlobalOutputTest extends BaseTest {
 
-	  private static final String SOLUTION_PATH = "outputs/test-src/solution";
-	  private static final String ALT_SOLUTION_PATH = "test-src/solution";
+	  private static final String SOLUTION_PATH = "test-src/outputs-solution";
+	  private static final String ALT_SOLUTION_PATH = "test-src/outputs-solution";
 	  private static final String PENTAHO_XML_PATH = "/system/pentahoObjects.spring.xml";
 
 	  @Override 

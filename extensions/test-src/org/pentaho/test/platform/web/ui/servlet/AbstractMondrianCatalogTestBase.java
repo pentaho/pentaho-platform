@@ -65,9 +65,9 @@ public abstract class AbstractMondrianCatalogTestBase extends BaseTest {
   protected static final String DEFAULT_FILE_CONTENT = "<?xml version=\"1.0\"?><Schema name=\"Foo\" />"; //$NON-NLS-1$
 
   // ~ Constructors ====================================================================================================
-  private static final String SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-src/web-servlet-solution";
 
-  private static final String ALT_SOLUTION_PATH = "test-src/solution";
+  private static final String ALT_SOLUTION_PATH = "test-src/web-servlet-solution";
 
   private static final String PENTAHO_XML_PATH = "/system/pentaho.xml";
 

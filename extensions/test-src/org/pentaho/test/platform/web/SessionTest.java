@@ -35,9 +35,9 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 public class SessionTest extends BaseTest {
-  private static final String SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-src/web-solution";
 
-  private static final String ALT_SOLUTION_PATH = "test-src/solution";
+  private static final String ALT_SOLUTION_PATH = "test-src/web-solution";
 
   private static final String PENTAHO_XML_PATH = "/system/pentaho.xml";
 

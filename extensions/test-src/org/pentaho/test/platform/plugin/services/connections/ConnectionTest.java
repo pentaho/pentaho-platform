@@ -42,8 +42,8 @@ import org.pentaho.test.platform.engine.core.BaseTest;
  */
 @SuppressWarnings("nls")
 public class ConnectionTest extends BaseTest {
-	 private static final String SOLUTION_PATH = "connections/test-src/solution";
-	  private static final String ALT_SOLUTION_PATH = "test-src/solution";
+	 private static final String SOLUTION_PATH = "test-src/connections-solution";
+	  private static final String ALT_SOLUTION_PATH = "test-src/connections-solution";
 	  private static final String PENTAHO_XML_PATH = "/system/pentaho.xml";
 
 	  public String getSolutionPath() {

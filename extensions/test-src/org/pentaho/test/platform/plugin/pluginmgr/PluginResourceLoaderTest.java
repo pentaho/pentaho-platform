@@ -57,7 +57,7 @@ public class PluginResourceLoaderTest {
   @Before
   public void init() throws ClassNotFoundException {
     resLoader = new PluginResourceLoader();
-    classLoader = new PluginClassLoader(new File("./plugin-mgr/test-res/PluginResourceLoaderTest"), getClass().getClassLoader());
+    classLoader = new PluginClassLoader(new File("./test-res/PluginResourceLoaderTest"), getClass().getClassLoader());
     pluginClass = classLoader.loadClass("PluginResLoaderDummyClass");
   }
 

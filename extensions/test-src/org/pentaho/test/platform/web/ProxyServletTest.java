@@ -38,7 +38,7 @@ import com.mockrunner.mock.web.MockHttpSession;
  * @author mlowery
  */
 public class ProxyServletTest extends BaseTestCase {
-  private static final String SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-src/web-servlet-solution";
 
 
   public String getSolutionPath() {

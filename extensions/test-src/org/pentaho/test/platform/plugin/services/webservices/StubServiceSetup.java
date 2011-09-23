@@ -57,7 +57,7 @@ public class StubServiceSetup extends SystemSolutionAxisConfigurator {
   public InputStream getConfigXml( ) {
 
     try {
-      File f = new File( "webservices/test-src/solution/system/axis2_config.xml"); //$NON-NLS-1$
+      File f = new File( "test-src/webservices-solution/system/axis2_config.xml"); //$NON-NLS-1$
       return new FileInputStream( f );
     } catch (Exception e) {
       // TODO log this

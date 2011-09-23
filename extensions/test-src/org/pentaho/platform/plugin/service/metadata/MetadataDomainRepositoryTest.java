@@ -25,7 +25,7 @@ public class MetadataDomainRepositoryTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     File tmpDir = createTempDirectory();
-    File srcDir = new File("metadata/test-res/MetadataDomainRepositoryTest");
+    File srcDir = new File("test-res/MetadataDomainRepositoryTest");
     FileUtils.copyDirectory(srcDir, tmpDir);
     microPlatform = new MicroPlatform("tests/integration-tests/resource/");
     microPlatform.define(IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL);

@@ -21,8 +21,8 @@ import org.pentaho.test.platform.engine.core.SimpleObjectFactory;
 
 public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
 
-  private static final String SOLUTION_PATH = "metadata/test-src/solution"; //$NON-NLS-1$
-  private static final String ALT_SOLUTION_PATH = "test-src/solution"; //$NON-NLS-1$
+  private static final String SOLUTION_PATH = "test-src/metadata-solution"; //$NON-NLS-1$
+  private static final String ALT_SOLUTION_PATH = "test-src/metadata-solution"; //$NON-NLS-1$
   private static final String PENTAHO_XML_PATH = "/system/pentahoObjects.spring.xml"; //$NON-NLS-1$
 
   private static final String CACHE_NAME = "metadata-domain-repository"; //$NON-NLS-1$

@@ -40,7 +40,7 @@ import com.mockrunner.mock.web.MockHttpSession;
  */
 @SuppressWarnings("nls")
 public class GetContentTest extends BaseTestCase {
-  private static final String SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-src/web-servlet-solution";
 
 
   public String getSolutionPath() {

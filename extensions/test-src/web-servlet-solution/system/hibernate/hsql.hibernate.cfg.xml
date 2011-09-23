@@ -11,7 +11,7 @@
     <property name="hibernate.cache.use_query_cache">true</property>
       
     <property name="connection.driver_class">org.hsqldb.jdbcDriver</property>
-    <property name="connection.url">jdbc:hsqldb:file:test-src/solution/system/data/hibernate</property>
+    <property name="connection.url">jdbc:hsqldb:file:test-src/web-servlet-solution/system/data/hibernate</property>
     <property name="connection.username">hibuser</property>
     <property name="connection.password">password</property>
     <property name="dialect">org.hibernate.dialect.HSQLDialect</property>

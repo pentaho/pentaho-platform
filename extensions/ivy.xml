@@ -1,24 +1,362 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
-    <info organisation="${ivy.artifact.group}" module="${ivy.artifact.id}" revision="${project.revision}" />
-    
+	<info organisation="${ivy.artifact.group}" module="${ivy.artifact.id}" revision="${project.revision}" />
+		
 	<configurations>
-		<conf name="default"/>
+		<conf name="runtime" />
+		<conf name="default" extends="runtime"/>
 		<conf name="test" visibility="private"/>
+    	<conf name="enunciate" visibility="private"/>
 		<conf name="source" />
 	</configurations>
-    
+		
 	<publications>
 		<artifact name="${ivy.artifact.id}" type="jar" conf="default"/>
 		<artifact name="${ivy.artifact.id}" m:classifier="sources" type="source" ext="jar" conf="source"/>
 	</publications>
-    
+		
 	<dependencies defaultconf="default->default">
+
 		<!--  external dependencies -->
-		<dependency org="commons-logging"     name="commons-logging"  rev="1.1.1" transitive="false"/>
-		<dependency org="commons-lang"        name="commons-lang"     rev="2.4"   transitive="false"/>
+		<dependency org="commons-collections" name="commons-collections" rev="3.2"   transitive="false"/>
+		<dependency org="commons-dbcp"        name="commons-dbcp"        rev="1.2.1" transitive="false"/>
+		<dependency org="commons-io"          name="commons-io"          rev="1.4"   transitive="false"/>
+		<dependency org="commons-fileupload"  name="commons-fileupload"  rev="1.2.1"/>
+		<dependency org="commons-httpclient"  name="commons-httpclient"  rev="3.0.1" transitive="false" />
+		<dependency org="commons-logging"     name="commons-logging"     rev="1.1.1" transitive="false"/>
+		<dependency org="commons-lang"        name="commons-lang"        rev="2.4"   transitive="false"/>
+		<dependency org="commons-vfs"         name="commons-vfs"         rev="1.0"   transitive="false"/>
+
+		<!--  compile time batik -->
+		<dependency org="batik"        name="batik-awt-util" rev="1.6"     transitive="false"/>
+		<dependency org="batik"        name="batik-dom"      rev="1.6"     transitive="false"/>
+		<dependency org="batik"        name="batik-svggen"   rev="1.6"     transitive="false"/>
+		
+		    <!--  runtime batik -->
+		<dependency org="batik" name="batik-css" rev="1.6" />
+		<dependency org="batik" name="batik-ext" rev="1.6" />
+		<dependency org="batik" name="batik-gui-util" rev="1.6" />
+		<dependency org="batik" name="batik-gvt" rev="1.6" />
+		<dependency org="batik" name="batik-parser" rev="1.6" />
+		<dependency org="batik" name="batik-script" rev="1.6" />
+		<dependency org="batik" name="batik-svg-dom" rev="1.6" />
+		<dependency org="batik" name="batik-swing" rev="1.6" />
+		<dependency org="batik" name="batik-util" rev="1.6" />
+		<dependency org="batik" name="batik-xml" rev="1.6" />
+		<dependency org="fop" name="fop" rev="0.20.5" transitive="false" />
+		<!-- required by fop -->
+		<dependency org="log4j" name="log4j" rev="1.2.16" transitive="false" />
+		<dependency org="org.springframework" name="spring" rev="2.5.6" transitive="false" />		
+		
+		<!--  external birt dependencies -->
+		<dependency org="com.ibm.icu" name="icu4j" rev="3.6.1" />
+		<dependency org="org.eclipse.birt" name="coreapi" rev="2.2.1" />
+		<dependency org="org.eclipse.birt" name="engineapi" rev="2.2.1" />
+		<dependency org="org.eclipse.birt" name="modelapi" rev="2.2.1" />
+		
+		<dependency org="jfree" name="jcommon" rev="1.0.14" />
+		<dependency org="jfree" name="jfreechart" rev="${dependency.jfreechart.revision}">
+			<exclude org="jfree" name="jcommon" />
+		</dependency>		
+		
+		<dependency org="jasperreports" name="jasperreports" rev="2.0.5" transitive="false" />
+		<dependency org="net.sf.saxon" name="saxon" rev="9.1.0.8" transitive="false" />
+		<dependency org="org.quartz-scheduler" name="quartz" rev="1.7.2" transitive="false"/>
+		
+		<dependency org="rhino" name="js" rev="1.7R1" />
+		<!--  open flash chart json builder -->
+		<dependency org="com.thoughtworks.xstream" name="xstream"            rev="1.3.1" />
+		
+		<!--  this is a runtime dependency, used sometimes in JavascriptRules (CDF) as well as plugins (XDASH) -->
+		<dependency org="org.json" name="json" rev="${dependency.json.revision}" transitive="false" changing="true"/>
+		
+		<!--  external lib/xml dependencies -->
+		<dependency org="jaxen" name="jaxen" rev="1.1" transitive="false" />
+		<dependency org="xerces" name="xercesImpl" rev="2.8.1">
+			<exclude org="xml-apis" name="xml-apis" />
+		</dependency>
+		<dependency org="xml-apis" name="xml-apis" rev="1.0.b2" /> <!--  Changede rev:2.0.2 to rev:1.0.b2 as the maven2 pom indicates this should be so -->
+ 
+		<dependency org="dom4j"        name="dom4j"          rev="1.6.1"   transitive="false"/>
+		<dependency org="wsdl4j"       name="wsdl4j"         rev="1.6.2"   transitive="false"/>
+		<dependency org="javax.jcr"    name="jcr"            rev="1.0"     transitive="false"/>
+		<dependency org="avalon-framework"             name="avalon-framework"           rev="4.1.3"         transitive="false"/>
+		<dependency org="org.apache.geronimo.specs"    name="geronimo-stax-api_1.0_spec" rev="1.0"           transitive="false"/>
+		<dependency org="org.springframework.security" name="spring-security-core"       rev="2.0.5.RELEASE" transitive="false" />
+		<dependency org="org.springframework.ldap"     name="spring-ldap-core"           rev="1.3.0.RELEASE" transitive="false" />
+		<dependency org="javax.mail" name="mail" rev="1.4.1" transitive="false" />
+
+
+		<!-- Hibernate and dependencies -->
+		<dependency org="org.hibernate"     name="hibernate"    rev="3.2.6.ga" transitive="false"/>
+		<dependency org="antlr"             name="antlr"        rev="2.7.6"    transitive="false"/>
+		<dependency org="asm"               name="asm"          rev="1.5.3"    transitive="false"/>
+		<dependency org="asm"               name="asm-attrs"    rev="1.5.3"    transitive="false"/>
+		<dependency org="javax.transaction" name="jta"          rev="1.0.1B"   transitive="false"/>
+		<dependency org="net.sf.ehcache"    name="ehcache"      rev="1.2.3"    transitive="false"/>
+		<dependency org="net.sf.ehcache"    name="ehcache-core" rev="2.0.1"    transitive="false"/>
+		<dependency org="cglib" name="cglib-nodep" rev="2.1_3" transitive="false" />
+
+		<dependency org="org.apache.axis2" name="axis2-adb"       rev="1.4.1" transitive="false"/>
+		<dependency org="org.apache.axis2" name="axis2-codegen"   rev="1.4.1" transitive="false"/>
+		<dependency org="org.apache.axis2" name="axis2-java2wsdl" rev="1.4.1" transitive="false"/>
+		<dependency org="org.apache.axis2" name="axis2-kernel"    rev="1.4.1" transitive="false"/>
+
+		<dependency org="org.apache.ws.commons.axiom" name="axiom-api"  rev="1.2.7" transitive="false"/>
+		<dependency org="org.apache.ws.commons.axiom" name="axiom-dom"  rev="1.2.7" transitive="false"/>
+		<dependency org="org.apache.ws.commons.axiom" name="axiom-impl" rev="1.2.7" transitive="false"/>
+
+		<dependency org="oro" name="oro" rev="2.0.8"/>
+		<dependency org="org.tuckey"          name="urlrewrite"          rev="3.2.0"/>
+		<dependency org="javax.servlet" name="servlet-api" rev="2.4"/>
+
+   
+		<!-- START JAX-WS (Service extension) dependencies.  You can comment these out if you are not deploying 
+		     a service to the BIServer
+		-->
+		<!-- metro -->
+		<dependency org="metro" name="metro-webservices-api" rev="2.0" />
+		<dependency org="metro" name="metro-webservices-rt" rev="2.0" />
+
+		<!-- jaxws-spring extension (allows spring configuration of web services); see pentahoServices.spring.xml -->
+		<dependency org="org.jvnet.jax-ws-commons.spring" name="jaxws-spring" rev="1.8" transitive="false" />
+		<dependency org="org.apache.xbean" name="xbean-spring" rev="2.7" />
+		
+		<!-- jersey -->
+		<dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.5"/>
+		<dependency org="com.sun.jersey.contribs" name="jersey-apache-client" rev="1.5" transitive="false" />
+		
+		<!-- jersey -->
+		<dependency org="com.sun.jersey" name="jersey-core" rev="1.5" transitive="false" />
+		<dependency org="com.sun.jersey" name="jersey-json" rev="1.5" transitive="false" />
+		<dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.5" transitive="false" />
+		<dependency org="com.sun.jersey" name="jersey-client" rev="1.5" transitive="false" />
+		<dependency org="com.sun.jersey" name="jersey-server" rev="1.5" transitive="false" />
+
+		<!-- END JAX-WS (Service extension) dependencies -->
+
+		<dependency org="org.codehaus.jettison" name="jettison" rev="1.1">
+			<artifact name="jettison" type="jar"/>
+		</dependency>
+		<dependency org="org.codehaus.castor" name="castor" rev="1.0.5" transitive="false" />
+		<dependency org="com.sun" name="jai_codec" rev="1.1.2" />
+		<dependency org="com.sun" name="jai_core" rev="1.1.2" />
+		<dependency org="javax.faces" name="jsf-api" rev="1.1" />
+		<dependency org="jakarta-taglibs" name="standard" rev="1.0.6" />
+		<dependency org="com.tonbeller" name="jpivot" rev="${dependency.jpivot.revision}">
+			<artifact name="jpivot" type="jar" />
+		</dependency>
+		<dependency org="com.tonbeller" name="tbutils-wcf" rev="1.8.0-070305" />
+		<dependency org="com.tonbeller" name="wcf" rev="${dependency.wcf.revision}" />
+		<dependency org="javax.servlet" name="jstl" rev="1.0.5" />
+		<dependency org="javatar" name="javatar" rev="2.5"  transitive="false"/>
+		<dependency org="com.google.gwt" name="gwt-servlet" rev="2.0.3"/>
+
 
 		<!--  internal dependencies -->
-		<dependency org="pentaho" name="pentaho-platform-core" rev="${project.revision}" changing="true"/>
+		    
+		<!--  charting  -->
+		<dependency org="pentaho" name="pentaho-chartbeans" rev="${dependency.pentaho-chartbeans.revision}" changing="true" />
+		
+		<!--  Pentaho Reporting Library -->
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-core"                             rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions"                       rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-hibernate"             rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-kettle"                rev="${dependency.pentaho-reporting.revision}" changing="true" transitive="false"/>
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-mondrian"              rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-olap4j"                rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-pmd"                   rev="${dependency.pentaho-reporting.revision}" changing="true" transitive="false"/>
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-reportdesigner-parser" rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-sampledata"            rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-scripting"             rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-xpath"                 rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-drill-down"            rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-classic-extensions-toc"                   rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-legacy-charts"                            rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-legacy-functions"                         rev="${dependency.pentaho-reporting.revision}" changing="true" />
+		<dependency org="${dependency.reporting-engine.group}" name="pentaho-reporting-engine-wizard-core"                              rev="${dependency.pentaho-reporting.revision}" changing="true" transitive="false"/>
+		<dependency org="pentaho"                              name="pentaho-report-wizard-core"                                        rev="${dependency.pentaho-report-wizard-core.revision}" changing="true"/>
+		
+		
+		<!-- olap -->
+		<dependency org="pentaho" name="mondrian" rev="${dependency.mondrian.revision}" changing="true" >
+			<exclude org="commons-dbcp" name="commons-dbcp"/>
+			<exclude org="javax.servlet" name="jsp-api"/>
+			<exclude org="javax.servlet" name="servlet-api"/>
+		</dependency>
+
+		<!-- kettle and dependencies -->  
+		<dependency org="pentaho-kettle"           name="kettle-engine" rev="${dependency.kettle.revision}" changing="true"/>
+		<dependency org="pentaho-kettle"           name="kettle-core"   rev="${dependency.kettle.revision}" changing="true"/>
+		<dependency org="pentaho-kettle"           name="kettle-db"     rev="${dependency.kettle.revision}" changing="true"/>
+		<dependency org="org.snmp4j"               name="snmp4j"        rev="1.9.3d"                        conf="default->default" transitive="false"/>
+		<dependency org="salesforce"               name="salesforce-partner"    rev="21.0"                          conf="default->default" transitive="false"/>
+		<dependency org="rome"                     name="rome"          rev="1.0"                           conf="default->default" transitive="false"/>
+		<dependency org="georss-rome"              name="georss-rome"   rev="0.9.8"                         conf="default->default" transitive="false"/>
+		<dependency org="feed4j"                   name="feed4j"        rev="1.0"                           conf="default->default" transitive="false"/>
+		<dependency org="net.sourceforge.nekohtml" name="nekohtml"      rev="0.9.5"                         conf="default->default" transitive="false"/>
+		<dependency org="janino"                   name="janino"        rev="2.5.16"                        conf="default->default" transitive="false"/>
+		<dependency org="javassist"                name="javassist"     rev="3.4.GA"                        conf="default->default" transitive="false"/>
+		<dependency org="org.scannotation"         name="scannotation"  rev="1.0.2"                         conf="default->default" transitive="false"/>
+		<dependency org="org.syslog4j"             name="syslog4j"      rev="0.9.34"                        conf="default->default" transitive="false"/>
+		<dependency org="ldapjdk"                  name="ldapjdk"       rev="20000524"                      conf="default->default" transitive="false"/>
+		<dependency org="trilead-ssh2"             name="trilead-ssh2"  rev="build213"                      conf="default->default" transitive="false"/>
+		<dependency org="ftp4che"                  name="ftp4che"       rev="0.7.1"                         conf="default->default" transitive="false"/>
+		<dependency org="ascsapjco3wrp"            name="ascsapjco3wrp" rev="20100529"                      conf="default->default" transitive="false"/>
+		<dependency org="jcifs"                    name="jcifs"         rev="1.3.3"                         conf="default->default" transitive="false"/>
+		<dependency org="com.jcraft"               name="jsch"          rev="0.1.44"                        conf="default->default" transitive="false"/>
+		<dependency org="com.jcraft"               name="jzlib"         rev="1.0.7"                    conf="default->default" transitive="false" />
+		<dependency org="com.enterprisedt"         name="edtFTPj"       rev="2.0.4"                         conf="default->default" transitive="false"/>
+		<dependency org="jdom"                     name="jdom"          rev="1.0"                           conf="default->default" transitive="false"/>
+		<dependency org="javadbf"                  name="javadbf"       rev="20081125"                      conf="default->default" transitive="false"/>
+		<dependency org="org.ini4j"                name="ini4j"         rev="0.5.1"                         conf="default->default" transitive="false"/>
+		<dependency org="jexcelapi"                name="jxl"           rev="2.6.10"                        conf="default->default" transitive="false"/>
+		<dependency org="secondstring"             name="secondstring"  rev="20060615"                      conf="default->default" transitive="false"/>
+		<dependency org="commons-validator"        name="commons-validator"  rev="1.3.1"                    conf="default->default" transitive="false"/>
+		<dependency org="com.healthmarketscience.jackcess" name="jackcess"   rev="1.2.4"                    conf="default->default" transitive="false"/>
+		<dependency org="org.apache.hbase"         name="hbase"              rev="0.90.1"                   conf="default->default" transitive="false" />
+		<dependency org="org.apache.zookeeper"     name="zookeeper"          rev="3.3.2"                    conf="default->default" transitive="false" />
+		<dependency org="postgresql"               name="postgresql"         rev="8.4-702.jdbc3"            conf="default->default" transitive="false"/>
+		  
+		
+		<!-- kettle jdbc drivers -->
+		<dependency org="infobright"                 name="infobright-core"  rev="3.4"                           conf="default->default" transitive="false"/>
+		<dependency org="jtds"                       name="jtds"             rev="1.2.5"                         conf="default->default" transitive="false"/>
+		<dependency org="com.ibm"                    name="db2jcc"           rev="2.3.63"                        conf="default->default" transitive="false"/>
+		<dependency org="com.ibm"                    name="db2jcc_license_cu" rev="2.3.63"                       conf="default->default" transitive="false"/>
+		<dependency org="com.ibm"                    name="unijdbc"          rev="20060908"                      conf="default->default" transitive="false"/>
+		<dependency org="net.sf.jt400"               name="jt400"            rev="6.1"                           conf="default->default" transitive="false"/>
+		<dependency org="org.xerial"                 name="sqlite-jdbc"      rev="3.7.2"                         conf="default->default" transitive="false"/>
+		<dependency org="ifxjdbc"                    name="ifxjdbc"          rev="20050429"                      conf="default->default" transitive="false"/>
+		<dependency org="oracle"                     name="orai18n"          rev="10.2.0.3.0"                    conf="default->default" transitive="false"/>
+		<dependency org="oracle"                     name="ojdbc"            rev="10.2.0.3.0"                    conf="default->default" transitive="false"/>
+		<dependency org="jaybird"                    name="jaybird-full"     rev="2.1.0"                         conf="default->default" transitive="false"/>
+		<dependency org="com.sap"                    name="sapdbc"           rev="7.4.4"                         conf="default->default" transitive="false"/>
+		<dependency org="monetdb"                    name="monetdb-jdbc"     rev="1.7"                           conf="default->default" transitive="false"/>
+		<dependency org="com.oracle"                 name="rdbthin"          rev="20060316"                      conf="default->default" transitive="false"/>
+		<dependency org="luciddb"                    name="LucidDbClient-minimal" rev="0.9.4"                    conf="default->default" transitive="false"/>
+		<dependency org="interbase"                  name="interclient"      rev="20050506"                      conf="default->default" transitive="false"/>
+		<dependency org="com.kingbase"               name="kingbasejdbc"     rev="20070625"                      conf="default->default" transitive="false"/>
+		<dependency org="com.extendb"                name="xdbjdbc"          rev="20060427"                      conf="default->default" transitive="false"/>
+		<dependency org="com.ingres"                 name="iijdbc"           rev="2.5"                           conf="default->default" transitive="false"/>
+		<dependency org="org.apache.hadoop.hive"     name="hive-jdbc"        rev="${dependency.hive-jdbc.revision}"     changing="true" transitive="false" />
+		<dependency org="org.mongodb"                name="mongo-java-driver" rev="2.5.3"                        conf="default->default" transitive="false" />
+   
+		<!-- begin selected transitive dependencies of hive-jdbc -->
+		<dependency org="net.sf.kosmosfs"            name="kfs"              rev="0.3" transitive="false" />
+		<dependency org="xmlenc"                     name="xmlenc"           rev="0.52" transitive="false" />
+		<dependency org="org.apache.hadoop.hive"     name="hive-metastore"   rev="${dependency.hive-jdbc.revision}" changing="true" transitive="false" />
+		<dependency org="org.apache.hadoop.hive"     name="hive-exec"        rev="${dependency.hive-jdbc.revision}" changing="true" transitive="false" />
+		<dependency org="org.apache.hadoop.hive"     name="hive-service"     rev="${dependency.hive-jdbc.revision}" changing="true" transitive="false" />
+		<dependency org="org.apache.thrift"          name="libfb303"            rev="0.5.0" transitive="false" />
+		<dependency org="org.codehaus.jackson"       name="jackson-core-asl"   rev="1.5.2" changing="true" transitive="false"/>
+		<dependency org="org.codehaus.jackson"       name="jackson-mapper-asl" rev="1.5.2" changing="true" transitive="false"/>
+		<!-- end selected transitive dependencies of hive-jdbc -->
+		
+		<dependency org="pentaho"                    name="pentaho-s3-vfs"   rev="${dependency.pentaho-s3-vfs.revision}" conf="default->default" transitive="false" changing="true" />
+		<dependency org="pentaho"                    name="pentaho-hdfs-vfs" rev="${dependency.pentaho-hdfs-vfs.revision}" conf="default->default" transitive="false" changing="true" />
+		<dependency org="org.apache.hadoop"          name="hadoop-core"      rev="0.20.2-cdh3u0"                        conf="default->default" transitive="false" changing="false" />
+		<dependency org="net.java.dev.jets3t"        name="jets3t"           rev="0.7.4"                         conf="default->default" transitive="false" />
+		<dependency org="org.odftoolkit"             name="odfdom-java"      rev="0.8.6"                         conf="default->default" transitive="false" />
+		<dependency org="org.apache.poi"             name="poi"              rev="3.7"                           conf="default->default" transitive="false" />
+		<dependency org="org.apache.poi"             name="poi-ooxml"        rev="3.7"                           conf="default->default" transitive="false" />
+		<dependency org="org.apache.poi"             name="poi-ooxml-schemas" rev="3.7"                          conf="default->default" transitive="false" />
+		<dependency org="org.apache.xbean"           name="xbean"            rev="2.5"                           conf="default->default" transitive="false" />
+		<dependency org="org.yaml"                   name="snakeyaml"        rev="1.7"                           conf="default->default" transitive="false" />
+		<dependency org="com.googlecode.json-simple" name="json-simple"      rev="1.1"                           conf="default->default" transitive="false" />
+		<dependency org="jsonpath"                   name="jsonpath"         rev="1.0"                           conf="default->default" transitive="false" />
+		<dependency org="org.antlr"                  name="antlr-runtime"    rev="3.1.1"                         conf="default->default" transitive="false" />
+		<dependency org="org.drools"                 name="drools-api"       rev="5.0.1"                         conf="default->default" transitive="false" />
+		<dependency org="org.drools"                 name="drools-compiler"  rev="5.0.1"                         conf="default->default" transitive="false" />
+		<dependency org="org.drools"                 name="drools-core"      rev="5.0.1"                         conf="default->default" transitive="false" />
+		<dependency org="org.mvel"                   name="mvel2"            rev="2.0.10"                        conf="default->default" transitive="false" />
+
+		<!-- google libs for analytics -->
+		<dependency org="com.google.gdata" name="gdata-analytics" rev="2.1" transitive="false"/>
+		<dependency org="com.google.gdata" name="gdata-analytics-meta" rev="2.1" transitive="false"/>
+		<dependency org="com.google.gdata" name="gdata-client" rev="1.0" transitive="false"/>
+		<dependency org="com.google.gdata" name="gdata-client-meta" rev="1.0" transitive="false"/>
+		<dependency org="com.google.gdata" name="gdata-core" rev="1.0" transitive="false"/>
+		<dependency org="com.google.code.findbugs" name="jsr305" rev="1.3.9" transitive="false"/>
+
+
+		<!-- platform -->
+		<dependency org="pentaho" name="pentaho-connections"        rev="${dependency.pentaho-connections.revision}"        changing="true"/>
+		<dependency org="pentaho" name="pentaho-xul-core"           rev="${dependency.pentaho-xul.revision}"                changing="true"/>
+		<dependency org="pentaho" name="pentaho-xul-html"           rev="${dependency.pentaho-xul.revision}"                changing="true"/>
+		<dependency org="pentaho" name="pentaho-versionchecker"     rev="${dependency.pentaho-versionchecker.revision}"     changing="true"/>
+		<dependency org="pentaho" name="pentaho-actionsequence-dom" rev="${dependency.pentaho-actionsequence-dom.revision}" changing="true"/>
+		<dependency org="pentaho" name="pentaho-metadata"           rev="${dependency.pentaho-metadata.revision}"           changing="true"/>
+		
+		<!--  import old jars for now until other projects are online -->
+		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-api"             rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-util"            rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-core"     rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-security" rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-services" rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-repository"      rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-ui-foundation"   rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-scheduler"       rev="${project.revision}" changing="true" conf="default->default"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-scheduler2"      rev="${project.revision}" changing="true" conf="default->default"/>
+
+		<!-- <dependency org="pentaho" name="pentaho-platform-core" rev="${project.revision}" changing="true"/> -->
+
+		<!--  runtime dependencies -->
+		<dependency org="annogen" name="annogen" rev="0.1.0" conf="runtime->default"/>
+		<dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="3.1" conf="runtime->default"/>
+		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.0-beta3" transitive="false" conf="runtime->default"/>
+		<!-- rev 2.0.4 would be better -->
+		<dependency org="org.apache.ws.commons.neethi" name="neethi" rev="2.0.1" transitive="false" conf="runtime->default"/>
+		<dependency org="woodstox" name="wstx-asl" rev="3.2.4" transitive="false" conf="runtime->default"/>
+		<dependency org="org.apache.ws.commons.schema" name="XmlSchema" rev="1.4.2" transitive="false" conf="runtime->default"/>
+
+		<!--  testing dependencies -->
+		<dependency org="junit" name="junit" rev="4.4" conf="test->default" />
+		<dependency org="com.dumbster" name="dumbster" rev="1.6.0" conf="test->default" />
+		
+		<dependency org="org.jmock" name="jmock-junit4" rev="2.5.1" conf="test->default" />
+		<dependency org="pentaho" name="pentaho-bi-platform-test-foundation" rev="${project.revision}" changing="true"
+		conf="test->default" transitive="false" />
+		<dependency org="hsqldb" name="hsqldb" rev="1.8.0.7" conf="test->default" />
+		<dependency org="simple-jndi" name="simple-jndi" rev="0.11.3" conf="test->default" />
+		<dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.0" transitive="false" conf="test->default"/>
+
+		<dependency org="com.mockrunner" name="mockrunner-servlet" rev="0.3.7" conf="test->default" />
+		<dependency org="com.mockrunner" name="mockrunner" rev="0.3.1" conf="test->default" />
+
+		<!-- Necessary because Pentaho's security tests re-use Spring's Security test classes. -->
+		<dependency org="org.springframework.security" name="spring-security-core-tests" rev="2.0.5.RELEASE" transitive="false" conf="test->default" />
+		<dependency org="org.apache.directory.server"  name="apacheds-core" rev="1.0.2" conf="test->default"/>
+		<dependency org="org.apache.directory.server"  name="apacheds-server-jndi" rev="1.0.2" conf="test->default"/>
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.8" conf="test->default" />
+		<!-- end security test dependencies -->
+				
+		<dependency org="com.sun.jersey.jersey-test-framework" name="jersey-test-framework-core" rev="1.5" conf="test->default"/>
+        <dependency org="com.sun.jersey.jersey-test-framework" name="jersey-test-framework-grizzly" rev="1.5" conf="test->default"/>
+		
+		<dependency org="org.springframework" name="spring-test" rev="2.5.6" conf="test->default" />
+
+		<dependency org="org.springframework" name="spring-mock" rev="2.0.8" conf="test->default">
+			<!--
+				prevent Spring from grabbing these jars. We are already getting the versions we need in our default
+				configuration
+			-->
+			<exclude org="javax.servlet" name="servlet-api" />
+			<exclude org="avalon-framework" name="avalon-framework" />
+			<exclude org="log4j" name="log4j" />
+		</dependency>
+
+		<!-- dependencies for generating doc -->
+		<dependency org="org.codehaus.enunciate" name="enunciate-top" rev="1.21.1" conf="enunciate->default"/>
+
+        <exclude org="org.glassfish" module="javax.servlet"/>
+		<!-- CM-241 -->
+		<exclude org="cglib"  module="cglib" />
+		
+        <override org="pentaho" module="mondrian" rev="${dependency.mondrian.revision}"/>
+
+        <override org="junit" module="junit" rev="4.4"/>
+        <override org="asm" module="asm" rev="3.1"/>
+        
 	</dependencies>
 </ivy-module>

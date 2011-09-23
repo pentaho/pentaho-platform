@@ -52,7 +52,7 @@ public class SystemPathPluginProviderTest {
 
   @Before
   public void init() {
-    microPlatform = new MicroPlatform("plugin-mgr/test-res/SystemPathPluginProviderTest/");
+    microPlatform = new MicroPlatform("test-res/SystemPathPluginProviderTest/");
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
 
     provider = new SystemPathXmlPluginProvider();
@@ -92,7 +92,7 @@ public class SystemPathPluginProviderTest {
   @SuppressWarnings("deprecation")
   @Test(expected = PlatformPluginRegistrationException.class)
   public void testLoad_BadSolutionPath() throws PlatformPluginRegistrationException {
-    MicroPlatform mp = new MicroPlatform("plugin-mgr/test-res/SystemPathPluginProviderTest/system");
+    MicroPlatform mp = new MicroPlatform("test-res/SystemPathPluginProviderTest/system");
     mp.define(ISolutionEngine.class, SolutionEngine.class);
     mp.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     mp.init();

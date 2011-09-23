@@ -93,7 +93,7 @@ public class DefaultPluginManagerTest {
 
   @Before
   public void init0() {
-    microPlatform = new MicroPlatform("plugin-mgr/test-res/PluginManagerTest/");
+    microPlatform = new MicroPlatform("test-res/PluginManagerTest/");
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
     microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     microPlatform.define(IPluginProvider.class, SystemPathXmlPluginProvider.class);
