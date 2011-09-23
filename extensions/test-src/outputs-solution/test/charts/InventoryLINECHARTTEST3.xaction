@@ -1,0 +1,115 @@
+<action-sequence>
+  <inputs>
+    <outputType type="string">
+      <sources>
+        <request>outputType</request>
+        <request>type</request>
+      </sources>
+      <default-value><![CDATA[pdf]]></default-value>
+    </outputType>
+    <outputTypeList type="property-map-list">
+      <sources>
+        <runtime>outputTypeList</runtime>
+      </sources>
+      <default-value type="property-map-list">
+        <property-map>
+          <entry key="report-output-desc">PDF</entry>
+          <entry key="report-output-type-id">pdf</entry>
+        </property-map>
+        <property-map>
+          <entry key="report-output-desc">Excel</entry>
+          <entry key="report-output-type-id">xls</entry>
+        </property-map>
+        <property-map>
+          <entry key="report-output-desc">Word</entry>
+          <entry key="report-output-type-id">rtf</entry>
+        </property-map>
+        <property-map>
+          <entry key="report-output-desc">Web Page</entry>
+          <entry key="report-output-type-id">html</entry>
+        </property-map>
+        <property-map>
+          <entry key="report-output-desc">Comma Separated Value</entry>
+          <entry key="report-output-type-id">csv</entry>
+        </property-map>
+      </default-value>
+    </outputTypeList>
+  </inputs>
+  <outputs>
+    <content type="content">
+      <destinations>
+        <response>content</response>
+      </destinations>
+    </content>
+  </outputs>
+  <resources>
+    <report-definition>
+      <solution-file>
+        <location>InventoryLINECHARTTEST3.xml</location>
+        <mime-type>text/xml</mime-type>
+      </solution-file>
+    </report-definition>
+  </resources>
+  <actions>
+    <action-definition>
+      <component-name>SecureFilterComponent</component-name>
+      <component-definition>
+        <selections>
+          <outputType style="radio">
+            <title>Choose Report Format</title>
+            <filter value-col-name="report-output-type-id" display-col-name="report-output-desc">outputTypeList</filter>
+          </outputType>
+        </selections>
+      </component-definition>
+      <action-type>Prompt for Report Export Type</action-type>
+      <action-inputs>
+        <outputTypeList type="property-map-list"/>
+        <outputType type="string"/>
+      </action-inputs>
+    </action-definition>
+    <action-definition>
+      <component-name>SQLLookupRule</component-name>
+      <component-definition>
+        <jndi><![CDATA[SampleData]]></jndi>
+        <query><![CDATA[SELECT
+      PRODUCTS.PRODUCTVENDOR ,
+     SUM(ORDERDETAILS.QUANTITYORDERED*ORDERDETAILS.PRICEEACH)SOLD_PRICE
+FROM
+      ORDERS  INNER JOIN  ORDERDETAILS  ON  ORDERS.ORDERNUMBER  =  ORDERDETAILS.ORDERNUMBER
+     INNER JOIN  PRODUCTS  ON  ORDERDETAILS.PRODUCTCODE  =  PRODUCTS.PRODUCTCODE 
+WHERE
+     (ORDERS.ORDERDATE >= '2005-01-01'
+ AND ORDERS.ORDERDATE <= '2005-05-31')
+GROUP BY
+     PRODUCTS.PRODUCTVENDOR
+ORDER BY
+     2 DESC]]></query>
+        <live><![CDATA[true]]></live>
+      </component-definition>
+      <action-outputs>
+        <query-result type="result-set" mapping="query_result"/>
+      </action-outputs>
+    </action-definition>
+    <action-definition>
+      <component-name>JFreeReportComponent</component-name>
+      <component-definition/>
+      <action-type>report</action-type>
+      <action-inputs>
+        <output-type type="string" mapping="outputType"/>
+        <data type="result-set" mapping="query_result"/>
+      </action-inputs>
+      <action-outputs>
+        <report-output type="content" mapping="content"/>
+      </action-outputs>
+    </action-definition>
+  </actions>
+  <title>InventoryLINECHARTTEST3</title>
+  <version>1</version>
+  <documentation>
+    <author>Report Designer</author>
+    <description/>
+    <icon>PentahoReporting.png</icon>
+    <help>Choose Report Output Format.</help>
+    <result-type>report</result-type>
+  </documentation>
+</action-sequence>

@@ -1,0 +1,84 @@
+<chart>
+	<chart-type>BubbleChart</chart-type>
+	<dataset-type>XYZSeriesCollection</dataset-type> 
+	<title>Bubble Sample Chart</title>
+	<border-visible>true</border-visible>
+	<include-legend>true</include-legend>
+	<is-3D>false</is-3D>
+	<markers-visible>false</markers-visible>
+	<orientation>vertical</orientation>
+	<url-template>
+		<![CDATA[javascript:loadRegionPieChart({department})]]>
+	</url-template>
+	<series-name>department</series-name>
+	<use-base-url>false</use-base-url>
+	<url-target>_self</url-target>
+	<range-title-font>
+		<font-family>Arial</font-family>
+		<size>10</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</range-title-font>
+	<range-title>Share of Total Budget</range-title>
+	<domain-title>Share of Total Actual</domain-title>
+	<domain-title-font>
+		<font-family>Arial</font-family>
+		<size>10</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</domain-title-font>
+	<domain-minimum>5000000</domain-minimum>
+	<domain-maximum>20000000</domain-maximum>
+	<domain-tick-font>
+		<font-family>Arial</font-family>
+		<size>5</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</domain-tick-font>
+	<domain-tick-format>#000 test</domain-tick-format>
+	<range-tick-format>#000</range-tick-format>
+	<range-minimum>5000000</range-minimum>
+	<range-tick-font>
+		<font-family>Arial</font-family>
+		<size>5</size>
+		<is-bold>false</is-bold>
+		<is-italic>false</is-italic>
+	</range-tick-font>
+	<max-bubble-size>100</max-bubble-size>
+	<bubble-label-content>
+		<![CDATA[{0} Act.: {1}, Budg.: {2} = Var.{3}]]>
+	</bubble-label-content>
+	<bubble-label-z-format>#,###.00 EUR</bubble-lable-z-format>
+
+	<!-- Specify where the data for the chart comes from -->
+	<color-palette>	
+		<color>#EE7733</color>
+		<color>#9EAA36</color>
+		<color>#BF0000</color>
+		<color>#FCCF12</color>
+		<color>#772200</color>
+		<color>#DDCC88</color>
+		<color>#123D82</color>
+		<color>#4A0866</color>
+		<color>#445500</color>-
+		<color>#FFAA00</color>
+		<color>#1E8AD3</color>
+		<color>#AA6611</color>
+		<color>#772200</color>
+	</color-palette>
+	<data>
+		<!-- Specify the path to the action sequence that provides the data -->
+		<data-solution>samples</data-solution>
+		<data-path>charts/samplesDashboard</data-path>
+		<data-action>xyzchart_data.xaction</data-action>
+
+		<!-- Specify the output of the action sequence that contains the data -->
+		<data-output>results</data-output>
+		
+		<!-- Specify whether to get the chart series from the rows or columns -->
+		<data-orientation>columns</data-orientation>
+	</data>	
+
+
+
+</chart>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Time Series Chart Example</title>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description>Sample executing the TimeSeries chart type</description>  
+    <help/>  
+    <result-type>chart</result-type>  
+    <icon>folder.png</icon> 
+  </documentation>
+
+  <inputs/>
+
+  <outputs> 
+    <results type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Execute the Query to Gen an XYZ Series Dataset</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="results"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <live><![CDATA[true]]></live>  
+        <query><![CDATA[select department, sum(actual) as actual, sum(budget) as budget, sum(variance) as variance from QUADRANT_ACTUALS WHERE NOT department like 'Prof%'  GROUP BY department]]></query>
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

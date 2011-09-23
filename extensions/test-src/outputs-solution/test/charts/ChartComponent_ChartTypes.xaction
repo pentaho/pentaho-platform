@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>JFreeReport_Chart_ChartTypes.xaction</name>
+  <title>Multiple Chart Types</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Gretchen Moran</author>  
+    <description>This demonstrates multiple chart types using the ChartComponent in the action sequence</description>  
+    <icon>BarChart.png</icon>  
+    <help>Help</help>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <inputs> 
+    <chart_type type="string"> 
+      <default-value/>  
+      <sources> 
+        <request>chart_type</request> 
+      </sources> 
+    </chart_type>  
+    <chart_type_FILTER type="property-map-list"> 
+      <default-value type="property-map-list">
+        <property-map>
+          <entry key="Display">Line</entry>
+          <entry key="chart_type">line</entry>
+        </property-map>
+        <property-map>
+          <entry key="Display">Dashed Line</entry>
+          <entry key="chart_type">dashedline</entry>
+        </property-map>
+        <property-map>
+          <entry key="Display">Area</entry>
+          <entry key="chart_type">area</entry>
+        </property-map>
+        <property-map>
+          <entry key="Display">Bar</entry>
+          <entry key="chart_type">bar</entry>
+        </property-map>
+        <property-map>
+          <entry key="Display">Pie</entry>
+          <entry key="chart_type">pie</entry>
+        </property-map>
+        <property-map>
+          <entry key="Display">Bar Line</entry>
+          <entry key="chart_type">barline</entry>
+        </property-map>
+        <property-map>
+          <entry key="Display">Bubble</entry>
+          <entry key="chart_type">bubble</entry>
+        </property-map>
+        <property-map>
+          <entry key="Display">Dial</entry>
+          <entry key="chart_type">dial</entry>
+        </property-map>
+        <property-map>
+          <entry key="Display">XY</entry>
+          <entry key="chart_type">xy</entry>
+        </property-map>
+        <property-map>
+          <entry key="Display">Pie Grid</entry>
+          <entry key="chart_type">piegrid</entry>
+        </property-map>
+        <property-map>
+          <entry key="Display">Time Series</entry>
+          <entry key="chart_type">timeseries</entry>
+        </property-map>
+      </default-value> 
+    </chart_type_FILTER> 
+  </inputs>
+
+  <outputs> 
+    <image-tag type="string"/> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <line> 
+      <solution-file> 
+        <location>samplesDashboard/lineChart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </line>  
+    <dashedline> 
+      <solution-file> 
+        <location>dashedLineChart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </dashedline>  
+    <area> 
+      <solution-file> 
+        <location>samplesDashboard/areachart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </area>  
+    <bar> 
+      <solution-file> 
+        <location>samplesDashboard/barchart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </bar>  
+    <pie> 
+      <solution-file> 
+        <location>samplesDashboard/piechart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </pie>  
+    <barline> 
+      <solution-file> 
+        <location>samplesDashboard/barlinecombochart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </barline>  
+    <bubble> 
+      <solution-file> 
+        <location>samplesDashboard/bubblechart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </bubble>  
+    <dial> 
+      <solution-file> 
+        <location>samplesDashboard/dialchart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </dial>  
+    <xy> 
+      <solution-file> 
+        <location>samplesDashboard/xychart.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </xy>  
+    <piegrid> 
+      <solution-file> 
+        <location>samplesDashboard/piegridchart.xml</location>  
+        <mime-type/> 
+      </solution-file> 
+    </piegrid>  
+    <timeseries> 
+      <solution-file> 
+        <location>samplesDashboard/timeserieschart.xml</location>  
+        <mime-type/> 
+      </solution-file> 
+    </timeseries> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SecureFilterComponent</component-name>
+      <action-type>Select the Chart Type</action-type>
+      <action-inputs> 
+        <chart_type type="string"/>  
+        <chart_type_FILTER type="property-map-list"/> 
+      </action-inputs>
+      <action-outputs/>
+      <component-definition> 
+        <handle-all-prompts>true</handle-all-prompts>  
+        <selections> 
+          <chart_type style="select"> 
+            <filter value-col-name="chart_type" display-col-name="Display">chart_type_FILTER</filter>  
+            <title>Select the Chart Type</title> 
+          </chart_type> 
+        </selections> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Chart Data Query</action-type>
+      <action-outputs> 
+        <query-result type="result-set" mapping="query_result"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi><![CDATA[SampleData]]></jndi>  
+        <live><![CDATA[true]]></live>  
+        <query><![CDATA[select productname, buyprice, msrp from products
+where productname like '196%' 
+order by productname]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'bar']]></condition>  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>Bar Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="query_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="bar"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <by-row>true</by-row>  
+          <title><![CDATA[Pricing for 1960's Models]]></title>  
+          <width><![CDATA[550]]></width>  
+          <height><![CDATA[550]]></height> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'line']]></condition>  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>Line Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="query_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="line"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <by-row>true</by-row>  
+          <title><![CDATA[Pricing for 1960's Models]]></title>  
+          <width><![CDATA[550]]></width>  
+          <height><![CDATA[550]]></height> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'pie']]></condition>  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>Pie Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="query_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="pie"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <by-row>true</by-row>  
+          <title><![CDATA[Pricing for 1960's Models]]></title>  
+          <width><![CDATA[550]]></width>  
+          <height><![CDATA[550]]></height> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'area']]></condition>  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>Area Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="query_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="area"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <by-row>true</by-row>  
+          <title><![CDATA[Pricing for 1960's Models]]></title>  
+          <width><![CDATA[550]]></width>  
+          <height><![CDATA[550]]></height> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'dashedline']]></condition>  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>Dashed Line Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="query_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="dashedline"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <by-row>true</by-row>  
+          <title><![CDATA[Pricing for 1960's Models]]></title>  
+          <width><![CDATA[550]]></width>  
+          <height><![CDATA[550]]></height> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'barline']]></condition>  
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Relational</action-type>
+        <action-outputs> 
+          <query-result type="result-set" mapping="barline_result"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi><![CDATA[SampleData]]></jndi>  
+          <query><![CDATA[select department, sum(actual) as Actual, sum(budget) as Budget, (CAST (sum(variance) AS DOUBLE)/ CAST (sum(budget) AS DOUBLE)) as Variance from QUADRANT_ACTUALS GROUP BY department]]></query>  
+          <live><![CDATA[true]]></live> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>Bar Line Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="barline_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="barline"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <width><![CDATA[550]]></width>  
+          <height><![CDATA[550]]></height> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'bubble']]></condition>  
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Relational</action-type>
+        <action-outputs> 
+          <query-result type="result-set" mapping="bubble_result"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi><![CDATA[SampleData]]></jndi>  
+          <query><![CDATA[select department, sum(actual) as actual, sum(budget) as budget, sum(variance) as variance from QUADRANT_ACTUALS WHERE NOT department like 'Prof%'  GROUP BY department]]></query>  
+          <live><![CDATA[true]]></live> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>Bubble Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="bubble_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="bubble"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <width><![CDATA[550]]></width>  
+          <height><![CDATA[550]]></height> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'dial']]></condition>  
+      <action-definition> 
+        <component-name>JavascriptRule</component-name>
+        <action-type>Create a memory result set with proper data values</action-type>
+        <action-outputs> 
+          <results type="result-set"/> 
+        </action-outputs>
+        <component-definition> 
+          <script><![CDATA[
+
+var results = new JavaScriptResultSet();
+results.setColumnHeaders( 'DIAL_DATA' );
+results.addRow( new Array(57.0, 0.0, 100.0) );
+
+]]></script> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>Dial Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="results"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="dial"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <by-row>true</by-row>  
+          <width><![CDATA[550]]></width>  
+          <height><![CDATA[550]]></height>  
+          <title><![CDATA[My Dial Chart]]></title> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'xy']]></condition>  
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Relational</action-type>
+        <action-outputs> 
+          <query-result type="result-set" mapping="query_result"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi><![CDATA[SampleData]]></jndi>  
+          <live><![CDATA[true]]></live>  
+          <query><![CDATA[select PRODUCTLINE, SUM(BUYPRICE) as BuyPrice, SUM(MSRP) as MSRP from PRODUCTS group by PRODUCTLINE order by PRODUCTLINE;]]></query> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>XY Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="query_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="xy"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition> 
+          <by-row>false</by-row>  
+          <width><![CDATA[450]]></width>  
+          <height><![CDATA[300]]></height>  
+          <title><![CDATA[XY Chart Sample]]></title> 
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'piegrid']]></condition>  
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Relational</action-type>
+        <action-outputs> 
+          <query-result type="result-set" mapping="query_result"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi><![CDATA[SampleData]]></jndi>  
+          <query><![CDATA[SELECT DEPARTMENT, ACTUAL, BUDGET, VARIANCE FROM QUADRANT_ACTUALS ORDER BY DEPARTMENT]]></query>  
+          <live><![CDATA[true]]></live> 
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>Pie Grid Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="query_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="piegrid"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition>
+          <by-row>true</by-row>  
+          <width><![CDATA[450]]></width>  
+          <height><![CDATA[300]]></height>  
+          <title><![CDATA[Pie Grid Chart Sample]]></title>
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[chart_type == 'timeseries']]></condition>  
+      <action-definition> 
+        <component-name>SQLLookupRule</component-name>
+        <action-type>Relational</action-type>
+        <action-outputs> 
+          <query-result type="result-set" mapping="query_result"/> 
+        </action-outputs>
+        <component-definition> 
+          <jndi><![CDATA[SampleData]]></jndi>  
+          <live><![CDATA[true]]></live>  
+          <query><![CDATA[select a.productname as productname, b.orderdate, SUM(c.quantityordered) as orders
+    from    products as a, 
+            orders as b, 
+            orderdetails as c   
+    where   a.productcode = c.productcode AND MONTH(b.orderdate) = 1 AND (a.productname LIKE '1969%') 
+    group by a.productname, b.orderdate]]></query>
+        </component-definition> 
+      </action-definition>
+  
+      <action-definition> 
+        <component-name>ChartComponent</component-name>
+        <action-type>TimeSeries Chart</action-type>
+        <action-inputs> 
+          <chart-data type="result-set" mapping="query_result"/> 
+        </action-inputs>
+        <action-resources> 
+          <chart-attributes type="resource" mapping="timeseries"/> 
+        </action-resources>
+        <action-outputs> 
+          <chart-filename type="string"/>  
+          <base-url type="string"/>  
+          <chart-mapping type="string"/>  
+          <image-tag type="string"/> 
+        </action-outputs>
+        <component-definition>
+          <by-row>false</by-row>  
+          <width><![CDATA[450]]></width>  
+          <height><![CDATA[300]]></height>  
+          <title><![CDATA[Time Series Chart Sample]]></title>
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+ 
+  </actions> 
+</action-sequence>

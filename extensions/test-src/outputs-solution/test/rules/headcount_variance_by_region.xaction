@@ -1,0 +1,39 @@
+
+<action-sequence>
+
+	<name>headcount_variance_by_region.xaction</name>
+	<version>1</version>
+	<title>Regions and departments</title>
+	<logging-level>debug</logging-level>
+	<documentation>
+		<author>James Dixon</author>
+		<description>query rule test</description>
+		<help>just testing...</help>
+	</documentation>
+
+	<inputs>
+  </inputs>
+  
+	<outputs>
+		<rule-result>
+			<type>list</type>
+		</rule-result>
+	</outputs>
+  <resources/>
+  
+  <actions> 
+      <action-definition>
+
+        <action-outputs>
+          <rule-result type="list"/>
+        </action-outputs>
+        
+        <component-name>SQLLookupRule</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+          <jndi>SampleData</jndi>
+          <query><![CDATA[select REGION, (sum(CAST(ACTUAL AS FLOAT))*100/sum(CAST(BUDGET AS FLOAT)))-100 as VARIANCE from QUADRANT_ACTUALS group by REGION]]></query>
+        </component-definition>
+      </action-definition>
+  </actions>
+</action-sequence>

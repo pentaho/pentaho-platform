@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Test SQL Execute Error 2</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Marc Batchelor</author>  
+    <description>This tests the SQL Execute rule to make sure that it errors properly with semi-colons in the sql.</description>
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon/> 
+  </documentation>
+
+  <inputs/>
+
+	<outputs>
+		<rule-result>
+			<type>list</type>
+		</rule-result>
+	</outputs>
+
+  <resources/>
+  
+  <actions>
+      <action-definition>
+
+        <action-outputs>
+          <rule-result type="list"/>
+        </action-outputs>
+        
+        <component-name>SQLExecute</component-name>
+        <action-type>rule</action-type>
+      	<component-definition>
+          <jndi>SampleDataAdmin</jndi>
+          <!--
+            Should error when the execution starts because of the
+            split on the semi-colon.
+          -->
+          <query><![CDATA[
+            update DEPARTMENT_MANAGERS set EMAIL = 'joe@pentaho;.org' where EMAIL = 'joe@pentaho;.org'
+          ]]></query>
+        </component-definition>
+      </action-definition>
+  </actions> 
+</action-sequence>
