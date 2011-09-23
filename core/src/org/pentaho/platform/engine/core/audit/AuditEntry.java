@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright 2005 - 2008 Pentaho Corporation.  All rights reserved. 
+ * Copyright 2005 - 2011 Pentaho Corporation.  All rights reserved. 
  * 
  * @created Mar 21, 2005 
  * @author Marc Batchelor
