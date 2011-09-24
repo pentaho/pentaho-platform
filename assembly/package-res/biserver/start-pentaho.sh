@@ -19,8 +19,6 @@ if [ -e "$DIR/promptuser.sh" ]; then
   rm "$DIR/promptuser.sh"
 fi
 if [ "$?" = 0 ]; then
-  cd "$DIR/data"
-  sh start_hypersonic.sh &
   cd "$DIR/tomcat/bin"
   export CATALINA_OPTS="-Xms256m -Xmx768m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000"
   JAVA_HOME=$_PENTAHO_JAVA_HOME

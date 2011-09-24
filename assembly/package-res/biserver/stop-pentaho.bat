@@ -21,8 +21,4 @@ set JRE_HOME=%_PENTAHO_JAVA_HOME%
 :start
 shutdown.bat
 endlocal
-
-cd ..\data
-start stop_hypersonic.bat
-
 exit

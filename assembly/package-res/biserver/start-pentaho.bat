@@ -8,9 +8,7 @@ echo WScript.Quit(1); > promptuser.js
 
 call set-pentaho-env.bat "%~dp0jre"
 
-cd data
-start start_hypersonic.bat
-cd ..\tomcat\bin
+cd tomcat\bin
 set CATALINA_HOME=%~dp0tomcat
 set CATALINA_OPTS=-Xms256m -Xmx768m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
 
