@@ -51,7 +51,7 @@
   <property name="datasource.res.dir" value="${package.res.dir}/appserver/tomcat/res/datasources"/>
   <property name="bi-developers.visible" value="true" description="Should the bi-developers samples be visible" />
   <property name="mantle.tmp.dir" value="${basedir}/temp" />
-
+  <property name="tomcat.dir" value="${subfloor.resources.dir}/apache-tomcat-6.0.29" description="Directory where tomcat is deployed"/>
 
   <!-- =================================
           target: clean-all
@@ -105,14 +105,37 @@
           depends="install-plugins,package-zip,package-targz"
           description="Packages an previously assembled archive-based BIServer community edition" />
 
+  <!--=======================================================================
+	      target: tomcat.download-check
+         ====================================================================-->
+  <target name="tomcat.download-check" 
+          description="Fetches tomcat from apache if it is not already present">
+    <condition property="tomcat.available">
+      <available file="${tomcat.dir}" />
+    </condition>
+    <antcall target="tomcat.download" />
+  </target>
 
+  <!--=======================================================================
+          target: tomcat.download
+         ====================================================================-->
+  <target name="tomcat.download" 
+          unless="tomcat.available"
+          description="Fetches tomcat from apache">
+    <mkdir dir="${subfloor.tmp.dir}" />
+    <get src="http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29-windows-x86.zip"
+         dest="${subfloor.tmp.dir}/apache-tomcat-6.0.29-windows-x86.zip"
+         usetimestamp="true" />
+	<unzip src="${subfloor.tmp.dir}/apache-tomcat-6.0.29-windows-x86.zip" dest="${tomcat.dir}/.."/>
+  </target>
+	
   <!-- =================================
           target: assemble-tomcat
       		This is the primary target for setting up the container structure
       		and the structure for the wars that will go into the container.  This
       		task does not zip, tar or compress.                            
          ================================= -->
-  <target name="assemble-tomcat" depends="install-antcontrib,init.stage.pentaho,resolve-datasource-libs">
+  <target name="assemble-tomcat" depends="install-antcontrib,init.stage.pentaho,resolve-datasource-libs,tomcat.download-check">
     <sequential>
       <!-- Copy pure tomcat 6.0 -->
       <copy todir="${stage.dir.server}/tomcat">
