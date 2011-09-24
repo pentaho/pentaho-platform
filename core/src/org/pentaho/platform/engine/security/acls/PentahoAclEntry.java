@@ -38,8 +38,7 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.acl.basic.AbstractBasicAclEntry;
 
 /**
- * Base Pentaho Access Control entry. Subclassed <tt>AbstractBasicAclEntry</tt> from Spring Security project. Provides 
- * known access controls.
+ * Base Pentaho Access Control entry. Subclassed <tt>AbstractBasicAclEntry</tt> from Spring Security project. Provides known access controls.
  * 
  * @author mbatchel
  */
@@ -62,7 +61,7 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
 
   private static final Map validPermissionsNameMap = new HashMap();
   public int recipientType = PentahoAclEntry.RECIPIENT_STRING;
-  
+
   // Prevent breakage downstream by inadvertant or malicious modifications to validPermissions array
   private int[] lazyPermissionClone;
 
@@ -73,33 +72,23 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
     PentahoAclEntry.validPermissionsNameMap.put(PentahoAclEntry.PERMISSIONS_LIST_SOLUTIONS, Collections.unmodifiableMap(solutionPermissionsMap));
     PentahoAclEntry.validPermissionsNameMap.put(PentahoAclEntry.PERMISSIONS_LIST_ALL, Collections.unmodifiableMap(allPermissionsMap));
 
-    // TODO gmoran Are two lists really necessary any more? 
+    // TODO gmoran Are two lists really necessary any more?
     // TODO mlowery Why does PentahoAclEntry know about what permissions are valid for solutions?
-    solutionPermissionsMap.put(
-        Messages.getInstance().getString("PentahoAclEntry.USER_ADMINISTER"), new Integer(PentahoAclEntry.PERM_FULL_CONTROL)); //$NON-NLS-1$
-    solutionPermissionsMap.put(
-        Messages.getInstance().getString("PentahoAclEntry.USER_MANAGE_PERMS"), new Integer(PentahoAclEntry.PERM_UPDATE_PERMS)); //$NON-NLS-1$
-    solutionPermissionsMap.put(
-        Messages.getInstance().getString("PentahoAclEntry.USER_UPDATE"), new Integer(PentahoAclEntry.PERM_UPDATE)); //$NON-NLS-1$
-    solutionPermissionsMap.put(
-        Messages.getInstance().getString("PentahoAclEntry.USER_CREATE"), new Integer(PentahoAclEntry.PERM_CREATE)); //$NON-NLS-1$
-    solutionPermissionsMap.put(
-        Messages.getInstance().getString("PentahoAclEntry.USER_DELETE"), new Integer(PentahoAclEntry.PERM_DELETE)); //$NON-NLS-1$
-    solutionPermissionsMap.put(
-        Messages.getInstance().getString("PentahoAclEntry.USER_EXECUTE"), new Integer(PentahoAclEntry.PERM_EXECUTE));//$NON-NLS-1$
-    solutionPermissionsMap.put(
-        Messages.getInstance().getString("PentahoAclEntry.USER_SUBSCRIBE"), new Integer(PentahoAclEntry.PERM_SUBSCRIBE));//$NON-NLS-1$
+    solutionPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_ADMINISTER"), new Integer(PentahoAclEntry.PERM_FULL_CONTROL)); //$NON-NLS-1$
+    solutionPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_MANAGE_PERMS"), new Integer(PentahoAclEntry.PERM_UPDATE_PERMS)); //$NON-NLS-1$
+    solutionPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_UPDATE"), new Integer(PentahoAclEntry.PERM_UPDATE)); //$NON-NLS-1$
+    solutionPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_CREATE"), new Integer(PentahoAclEntry.PERM_CREATE)); //$NON-NLS-1$
+    solutionPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_DELETE"), new Integer(PentahoAclEntry.PERM_DELETE)); //$NON-NLS-1$
+    solutionPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_EXECUTE"), new Integer(PentahoAclEntry.PERM_EXECUTE));//$NON-NLS-1$
+    solutionPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_SUBSCRIBE"), new Integer(PentahoAclEntry.PERM_SUBSCRIBE));//$NON-NLS-1$
 
     allPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_NONE"), new Integer(0)); //$NON-NLS-1$
-    allPermissionsMap
-        .put(Messages.getInstance().getString("PentahoAclEntry.USER_EXECUTE"), new Integer(PentahoAclEntry.PERM_EXECUTE)); //$NON-NLS-1$
-    allPermissionsMap.put(
-        Messages.getInstance().getString("PentahoAclEntry.USER_SUBSCRIBE"), new Integer(PentahoAclEntry.PERM_SUBSCRIBE)); //$NON-NLS-1$
+    allPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_EXECUTE"), new Integer(PentahoAclEntry.PERM_EXECUTE)); //$NON-NLS-1$
+    allPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_SUBSCRIBE"), new Integer(PentahoAclEntry.PERM_SUBSCRIBE)); //$NON-NLS-1$
     allPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_CREATE"), new Integer(PentahoAclEntry.PERM_CREATE)); //$NON-NLS-1$
     allPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_UPDATE"), new Integer(PentahoAclEntry.PERM_UPDATE)); //$NON-NLS-1$
     allPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_DELETE"), new Integer(PentahoAclEntry.PERM_DELETE)); //$NON-NLS-1$
-    allPermissionsMap.put(
-        Messages.getInstance().getString("PentahoAclEntry.USER_ALL"), new Integer(PentahoAclEntry.PERM_FULL_CONTROL)); //$NON-NLS-1$
+    allPermissionsMap.put(Messages.getInstance().getString("PentahoAclEntry.USER_ALL"), new Integer(PentahoAclEntry.PERM_FULL_CONTROL)); //$NON-NLS-1$
 
     initializePermissionsArray();
   }
@@ -110,9 +99,8 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
       Field[] fields = IPentahoAclEntry.class.getDeclaredFields();
       for (Field field : fields) {
         // if field is public static final int
-        if ((int.class == field.getType()) && Modifier.isPublic(field.getModifiers())
-            && Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers())
-            && field.getName().startsWith(PERMISSION_PREFIX)) {
+        if ((int.class == field.getType()) && Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())
+            && Modifier.isFinal(field.getModifiers()) && field.getName().startsWith(PERMISSION_PREFIX)) {
           if (PentahoAclEntry.logger.isDebugEnabled()) {
             PentahoAclEntry.logger.debug("Candidate field: " + field.getName()); //$NON-NLS-1$
           }
@@ -148,7 +136,7 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
       PentahoAclEntry.validPermissions[PentahoAclEntry.validPermissions.length - 1] = PentahoAclEntry.PERM_FULL_CONTROL;
     }
   }
-  
+
   public PentahoAclEntry() {
     super();
   }
@@ -189,10 +177,10 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
       this.setRecipientType(PentahoAclEntry.RECIPIENT_STRING);
     }
   }
-  
+
   /**
-   * As implemented, this method says that all permission combinations are valid.  (Well not all. FULL_CONTROL must
-   * stand alone.  It cannot be combined with other bits.)
+   * As implemented, this method says that all permission combinations are valid. (Well not all. FULL_CONTROL must stand alone. It cannot be combined with other
+   * bits.)
    * 
    * <ol>
    * <li>Find the permission value (call it p) that is the highest power of two.</li>
@@ -260,21 +248,18 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
   }
 
   /**
-   * @return Returns the validPermissionsNameMap.
-   * This method is generally useful for UI work as it returns a Map
-   * of Permission atomic values (as Integer objects) keyed by a human
-   * readable permission name.
+   * @return Returns the validPermissionsNameMap. This method is generally useful for UI work as it returns a Map of Permission atomic values (as Integer
+   *         objects) keyed by a human readable permission name.
    */
   public static Map getValidPermissionsNameMap() {
     return PentahoAclEntry.getValidPermissionsNameMap(PentahoAclEntry.PERMISSIONS_LIST_SOLUTIONS);
   }
 
   /**
-   * @return Returns the validPermissionsNameMap.
-   * This method is generally useful for UI work as it returns a Map
-   * of Permission atomic values (as Integer objects) keyed by a human
-   * readable permission name.
-   * @param permissionsListType - The permissions list for solutions is different than that for other UIs
+   * @return Returns the validPermissionsNameMap. This method is generally useful for UI work as it returns a Map of Permission atomic values (as Integer
+   *         objects) keyed by a human readable permission name.
+   * @param permissionsListType
+   *          - The permissions list for solutions is different than that for other UIs
    */
   public static Map getValidPermissionsNameMap(final String permissionsListType) {
     return (Map) PentahoAclEntry.validPermissionsNameMap.get(permissionsListType);
@@ -293,25 +278,17 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
     // be re-evaluated.
     //
     PentahoAclEntry rhs = (PentahoAclEntry) obj;
-    return new EqualsBuilder()
-    .append(getRecipient(), rhs.getRecipient())
-    .append(getRecipientType(), rhs.getRecipientType())
-    .append(getAclObjectIdentity(), rhs.getAclObjectIdentity())
-    .append(getAclObjectParentIdentity(), rhs.getAclObjectParentIdentity())
-//    .append(getValidPermissions(),rhs.getValidPermissions())
-    .append(getMask(), rhs.getMask()).isEquals();
+    return new EqualsBuilder().append(getRecipient(), rhs.getRecipient()).append(getRecipientType(), rhs.getRecipientType())
+        .append(getAclObjectIdentity(), rhs.getAclObjectIdentity()).append(getAclObjectParentIdentity(), rhs.getAclObjectParentIdentity())
+        // .append(getValidPermissions(),rhs.getValidPermissions())
+        .append(getMask(), rhs.getMask()).isEquals();
   }
 
   public int hashCode() {
-    return new HashCodeBuilder(79, 211)
-    .append(getRecipient())
-    .append(getRecipientType())
-    .append(getAclObjectIdentity())
-    .append(getAclObjectParentIdentity())
+    return new HashCodeBuilder(79, 211).append(getRecipient()).append(getRecipientType()).append(getAclObjectIdentity()).append(getAclObjectParentIdentity())
     // MB - Commented out because it's not relevant
     // .append(getValidPermissions())
-    .append(getMask())
-    .toHashCode();
+        .append(getMask()).toHashCode();
   }
 
 }
