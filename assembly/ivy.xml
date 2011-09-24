@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0">
-  <info organisation="pentaho" module="pentaho-bi-platform-assembly" revision="${project.revision}" />
+  <info organisation="pentaho" module="pentaho-platform-assembly" revision="${project.revision}" />
   <configurations>
     <conf name="default" />
     <conf name="plugin" />
@@ -12,12 +12,8 @@
   <dependencies defaultconf="default->default">
 
     <!-- Pentaho -->
-    <dependency org="pentaho" name="pentaho-bi-platform-web-servlet" rev="${project.revision}" changing="true">
-      <exclude org="asm" module="asm"/>
-    </dependency>
-    <dependency org="pentaho" name="pentaho-bi-platform-security-userroledao" rev="${project.revision}" changing="true" />
+    <dependency org="pentaho" name="pentaho-platform-extensions" rev="${project.revision}" changing="true"/>
     <dependency org="pentaho" name="mantle" rev="${project.revision}" changing="true" />
-    <dependency org="pentaho" name="pentaho-bi-platform-scheduler2" rev="${project.revision}" changing="true" />
 
 	<!--  Reporting -->
     <!-- NOTE: this reporting plugin jar will be removed once the reporting plugin is 3.5 plugin compliant -->
