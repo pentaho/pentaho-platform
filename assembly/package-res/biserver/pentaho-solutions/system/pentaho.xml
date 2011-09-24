@@ -176,6 +176,8 @@
     <entry name="org.pentaho.web.ContentHandler" value="getImage?image={0}"/>
     <entry name="org.jfree.base.LogLevel" value="Warn"/>
     <entry name="org.jfree.base.LogTarget" value="org.jfree.logger.log4j.Log4JLogTarget"/>
+    <entry name="org.jfree.report.NoPrinterAvailable" value="true"/>
+    <entry name="org.jfree.report.modules.output.table.html.EmptyCellsUseCSS" value="true"/>
   </report-config>
   <dbcp-defaults>
 	  <max-act-conn>20</max-act-conn>

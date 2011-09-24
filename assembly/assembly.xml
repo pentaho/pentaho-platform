@@ -32,6 +32,7 @@
   <property name="rdbms" value="hsqldb" description="Default database for open assembly is hsqldb" />
   <property name="stage.dir.server" value="${stage.dir}/${package.id}" />
   <property name="stage.dir.solutions" value="${stage.dir.server}/pentaho-solutions"/>
+  <property name="stage.sampledata.lib.dir" value="${stage.dir.server}/data/lib" />
   <property name="container.stage.dir" value="${stage.dir.server}/tomcat" />
   <property name="container.deploy.dir" value="${stage.dir.server}/tomcat/webapps" />
   <property name="prep.pentaho.war.dir" value="${stage.dir.server}/tomcat/webapps/pentaho" />
@@ -39,6 +40,7 @@
   <property name="prep.pentaho.war.meta.dir" value="${prep.pentaho.war.dir}/META-INF" />
   <property name="container.lib.dir" value="${stage.dir.server}/tomcat/lib" />
   <property name="plugins.dir" value="plugins" />
+  <property name="solution-archives.dir" value="solution-archives" />
 
   <!-- default relative project paths -->
   <property name="bi.platform.core.dir"       value="../${prefix}core" />
@@ -79,6 +81,7 @@
     <mkdir dir="${stage.dir.server}/tomcat" />
     <mkdir dir="${prep.pentaho.war.dir}" />
     <mkdir dir="${container.deploy.dir}" />
+    <mkdir dir="${solution-archives.dir}" />
   </target>
 
 
@@ -153,6 +156,12 @@
       	token="&lt;Connector"
       	value="&lt;Connector URIEncoding=&quot;UTF-8&quot;" />
 
+      <!-- modify the tomcat/conf/context.xml to disable session persistence between restarts -->
+      <replaceregexp
+          file="${stage.dir.server}/tomcat/conf/context.xml"
+          match="\&lt;!--[ \r\n\t]*(\&lt;Manager[ ]*pathname=.*)[ \r\n\t]*--\&gt;"
+          replace="\1" />
+
       <!-- Copy required jars to lib -->
       <mkdir dir="${stage.dir.server}/tomcat/lib" />
       <copy todir="${stage.dir.server}/tomcat/lib">
@@ -161,7 +170,7 @@
         </fileset>
       </copy>
 
-      <!-- Add libs needed by tomcat -->
+      <!-- Add libs pentaho needs in the tomcat lib directory -->
       <copy todir="${stage.dir.server}/tomcat/server/lib">
         <fileset dir="${lib.dir}">
           <include name="cglib*.jar" />
@@ -175,7 +184,7 @@
   <!-- =================================
           target: assemble-pentaho-webapp
          ================================= -->
-  <target name="assemble-pentaho-webapp" depends="assemble-tomcat">
+  <target name="assemble-pentaho-webapp" depends="assemble-tomcat,resolve-solutions">
     <!-- Copy the base configuration -->
     <copy todir="${stage.dir.server}">
       <fileset dir="${package.res.dir}/biserver">
@@ -217,11 +226,19 @@
     <copy file="${datasource.res.dir}/${rdbms}/context.xml" todir="${prep.pentaho.war.meta.dir}" />
 
     <!-- copy db specific changes into system -->
-    <copy todir="${stage.dir.solutions}" overwrite="true">
+    <copy todir="${stage.dir.solutions}/system" overwrite="true">
       <fileset dir="${system.solution.dir}/dialects/${rdbms}">
         <include name="**/**" />
       </fileset>
     </copy>
+
+    <!-- install solution archives -->
+    <unzip dest="${stage.dir.solutions}" overwrite="true">
+      <fileset file="${solution-archives.dir}/*.zip" />
+    </unzip>
+
+    <!-- Add libraries to the sample data -->
+    <antcall target="resolve-sampledata-libs"/>
 
   </target>
 
@@ -399,5 +416,11 @@
       </if>
     </sequential>
   </target>
-  
+
+  <target name="resolve-sampledata-libs" depends="resolve-init">
+    <mkdir dir="${stage.sampledata.lib.dir}" />
+    <ivy:resolve file="${ivyfile}" conf="sampledata-libs" />
+    <ivy:retrieve conf="sampledata-libs" pattern="${stage.sampledata.lib.dir}/[module]-[revision](-[classifier]).[ext]" />
+  </target>
+
 </project>
