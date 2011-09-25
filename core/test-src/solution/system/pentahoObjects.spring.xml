@@ -20,9 +20,9 @@ PentahoSystem which is initialized after Spring
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
   <bean id="systemSettingsService" class="org.pentaho.platform.engine.core.system.PathBasedSystemSettings" />
   
-  <bean id="GoodObject" class="org.pentaho.test.platform.engine.core.GoodObject" scope="session" />
-  <bean id="BadObject" class="org.pentaho.test.platform.engine.core.BadObject" scope="prototype" />
-  <bean id="BadObjectRuntime" class="org.pentaho.test.platform.engine.core.BadObjectRuntime" scope="prototype" />
+  <bean id="GoodObject" class="org.pentaho.platform.engine.core.GoodObject" scope="session" />
+  <bean id="BadObject" class="org.pentaho.platform.engine.core.BadObject" scope="prototype" />
+  <bean id="BadObjectRuntime" class="org.pentaho.platform.engine.core.BadObjectRuntime" scope="prototype" />
     
     <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory, 
        not directly from the PentahoObjectFactory. -->
