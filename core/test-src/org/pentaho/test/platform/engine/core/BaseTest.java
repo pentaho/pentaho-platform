@@ -59,7 +59,7 @@ import org.springframework.core.io.FileSystemResource;
  * and uses the {@link StandaloneSpringPentahoObjectFactory} as the object factory implementation.  Also
  * inits the system.
  */
-public abstract class BaseTest extends GenericPentahoTest implements IActionCompleteListener, ILogger {
+public class BaseTest extends GenericPentahoTest implements IActionCompleteListener, ILogger {
 
   protected static final boolean debug = PentahoSystem.debug;
 

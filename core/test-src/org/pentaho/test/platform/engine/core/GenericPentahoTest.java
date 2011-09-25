@@ -192,4 +192,9 @@ public class GenericPentahoTest extends TestCase {
   public String getSolutionPath() {
     return solutionPath;
   }
+  
+  public void testNothing() {
+    assertTrue(true);
+  }
+  
 }
