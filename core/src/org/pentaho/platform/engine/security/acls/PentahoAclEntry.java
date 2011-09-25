@@ -99,7 +99,7 @@ public class PentahoAclEntry extends AbstractBasicAclEntry implements IPentahoAc
       Field[] fields = IPentahoAclEntry.class.getDeclaredFields();
       for (Field field : fields) {
         // if field is public static final int
-        if ((int.class == field.getType()) && Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())
+        if (int.class == field.getType() && Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())
             && Modifier.isFinal(field.getModifiers()) && field.getName().startsWith(PERMISSION_PREFIX)) {
           if (PentahoAclEntry.logger.isDebugEnabled()) {
             PentahoAclEntry.logger.debug("Candidate field: " + field.getName()); //$NON-NLS-1$
