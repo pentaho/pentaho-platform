@@ -343,4 +343,9 @@ public abstract class BaseTest extends GenericPentahoTest implements IActionComp
     messages.add(Messages.getInstance().getString("Message.USER_ERROR", message, getClass().getName())); //$NON-NLS-1$
   }
 
+  public void testNothing() {
+    assertTrue(true);
+  }
+  
+  
 }
