@@ -15,8 +15,14 @@ PentahoSystem which is initialized after Spring
   <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
   
   <bean id="ISolutionRepository" class="org.pentaho.platform.engine.services.MockSolutionRepository" scope="singleton" />
-
   <bean id="IPluginManager" class="org.pentaho.platform.engine.services.MockPluginManager" scope="singleton" />
+    
+  <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
+  <bean id="systemSettingsService" class="org.pentaho.platform.engine.core.system.PathBasedSystemSettings" />
+  
+  <bean id="GoodObject" class="org.pentaho.test.platform.engine.core.GoodObject" scope="session" />
+  <bean id="BadObject" class="org.pentaho.test.platform.engine.core.BadObject" scope="prototype" />
+  <bean id="BadObjectRuntime" class="org.pentaho.test.platform.engine.core.BadObjectRuntime" scope="prototype" />
     
     <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory, 
        not directly from the PentahoObjectFactory. -->
@@ -25,7 +31,7 @@ PentahoSystem which is initialized after Spring
   <bean id="connection-XML" class="org.pentaho.platform.plugin.services.connections.xquery.XQConnection" scope="prototype" />
   <bean id="connection-HQL" class="org.pentaho.platform.plugin.services.connections.hql.HQLConnection" scope="prototype" />
 
-  <bean id="IDatasourceService" class="org.pentaho.test.platform.engine.services.MockDataSourceService" scope="singleton">
+  <bean id="IDatasourceService" class="org.pentaho.platform.engine.services.MockDataSourceService" scope="singleton">
   	<constructor-arg value="false" />
   </bean>
 </beans>
