@@ -45,7 +45,7 @@ public class BiPlatformRepositoryClientTest extends TestCase {
 
   private Document getServiceDocument() throws IOException, DocumentException {
     
-    File file = new File("test/test/xml/SolutionRepositoryService.xml");
+    File file = new File("test-src/solution/test/xml/SolutionRepositoryService.xml");
     FileInputStream in = new FileInputStream( file );
     byte b[] = new byte[2048];
     StringBuilder sb = new StringBuilder();
