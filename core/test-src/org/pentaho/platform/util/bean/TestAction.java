@@ -1,4 +1,4 @@
-package org.pentaho.test.platform.util.bean;
+package org.pentaho.platform.util.bean;
 
 import org.pentaho.platform.api.action.IAction;
 

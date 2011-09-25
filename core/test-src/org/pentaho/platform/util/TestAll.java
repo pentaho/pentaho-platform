@@ -19,7 +19,7 @@
  * 
  */
 
-package org.pentaho.test.platform.util;
+package org.pentaho.platform.util;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

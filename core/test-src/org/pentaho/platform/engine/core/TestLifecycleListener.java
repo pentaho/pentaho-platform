@@ -1,4 +1,4 @@
-package org.pentaho.test.platform.engine.core;
+package org.pentaho.platform.engine.core;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;

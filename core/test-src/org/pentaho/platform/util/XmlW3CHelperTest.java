@@ -18,7 +18,7 @@
  * @author James Dixon
  */
 
-package org.pentaho.test.platform.util;
+package org.pentaho.platform.util;
 
 import java.io.InputStream;
 

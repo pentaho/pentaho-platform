@@ -1,4 +1,4 @@
-package org.pentaho.test.platform.engine.services;
+package org.pentaho.platform.engine.services;
 
 import java.util.Properties;
 import java.util.regex.Matcher;

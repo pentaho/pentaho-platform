@@ -16,7 +16,7 @@
  * Copyright 2008 Pentaho Corporation.  All rights reserved. 
  * 
  */
-package org.pentaho.test.platform.engine.core;
+package org.pentaho.platform.engine.core;
 
 import org.pentaho.platform.api.engine.IPentahoInitializer;
 import org.pentaho.platform.api.engine.IPentahoSession;

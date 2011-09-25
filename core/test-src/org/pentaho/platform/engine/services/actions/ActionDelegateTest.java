@@ -1,4 +1,4 @@
-package org.pentaho.test.platform.engine.services.actions;
+package org.pentaho.platform.engine.services.actions;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -47,7 +47,7 @@ import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.engine.core.PluginManagerAdapter;
-import org.pentaho.test.platform.engine.services.ServiceTestHelper;
+import org.pentaho.platform.engine.services.ServiceTestHelper;
 
 /**
  * This JUnit test verifies the proper functioning of IActions as surrogate components.

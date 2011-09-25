@@ -16,7 +16,7 @@
  * Copyright 2008 Pentaho Corporation.  All rights reserved. 
  * 
  */
-package org.pentaho.test.platform.engine.core;
+package org.pentaho.platform.engine.core;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;

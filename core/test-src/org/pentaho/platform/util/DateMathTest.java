@@ -18,7 +18,7 @@
  * @author Michael D'Amour
  * 
  */
-package org.pentaho.test.platform.util;
+package org.pentaho.platform.util;
 
 import java.util.Calendar;
 import java.util.Locale;

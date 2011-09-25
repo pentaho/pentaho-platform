@@ -1,4 +1,4 @@
-package org.pentaho.test.platform.engine.services.actions;
+package org.pentaho.platform.engine.services.actions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;

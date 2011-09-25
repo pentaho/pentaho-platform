@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  */
-package org.pentaho.test.platform.engine.services;
+package org.pentaho.platform.engine.services;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;

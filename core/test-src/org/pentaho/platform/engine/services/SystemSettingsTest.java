@@ -20,7 +20,7 @@
  * 
  */
 
-package org.pentaho.test.platform.engine.services;
+package org.pentaho.platform.engine.services;
 
 import java.io.File;
 import java.util.Iterator;

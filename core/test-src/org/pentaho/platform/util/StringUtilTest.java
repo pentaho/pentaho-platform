@@ -18,7 +18,7 @@
  * @author Michael D'Amour
  * 
  */
-package org.pentaho.test.platform.util;
+package org.pentaho.platform.util;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

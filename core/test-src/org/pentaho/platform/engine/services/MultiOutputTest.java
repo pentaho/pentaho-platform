@@ -15,7 +15,7 @@
  * Copyright 2005 - 2009 Pentaho Corporation. All rights reserved.
  * 
 */
-package org.pentaho.test.platform.engine.services;
+package org.pentaho.platform.engine.services;
 
 import java.util.ArrayList;
 import java.util.HashMap;

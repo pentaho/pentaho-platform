@@ -14,7 +14,7 @@
  *
  * Copyright 2007 - 2008 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.test.platform.util;
+package org.pentaho.platform.util;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

@@ -18,7 +18,7 @@
  * @created Dec 4, 2008
  * @author James Dixon
  */
-package org.pentaho.test.platform.engine.core;
+package org.pentaho.platform.engine.core;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;

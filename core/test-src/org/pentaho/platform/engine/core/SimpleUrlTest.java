@@ -19,7 +19,7 @@
  * @author James Dixon
  */
 
-package org.pentaho.test.platform.engine.core;
+package org.pentaho.platform.engine.core;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

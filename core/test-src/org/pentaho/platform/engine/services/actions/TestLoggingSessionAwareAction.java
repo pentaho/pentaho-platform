@@ -1,4 +1,4 @@
-package org.pentaho.test.platform.engine.services.actions;
+package org.pentaho.platform.engine.services.actions;
 
 import org.apache.commons.logging.Log;
 import org.pentaho.platform.api.action.ILoggingAction;

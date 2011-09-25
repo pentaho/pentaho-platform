@@ -14,7 +14,7 @@
  *
  * Copyright 2006 - 2010 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.test.platform.engine.core;
+package org.pentaho.platform.engine.core;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;

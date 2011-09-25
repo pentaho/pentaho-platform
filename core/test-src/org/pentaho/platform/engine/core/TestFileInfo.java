@@ -18,7 +18,7 @@
  * @created Jan 6, 2009
  * @author James Dixon
  */
-package org.pentaho.test.platform.engine.core;
+package org.pentaho.platform.engine.core;
 
 import org.pentaho.platform.api.engine.IFileInfo;
 

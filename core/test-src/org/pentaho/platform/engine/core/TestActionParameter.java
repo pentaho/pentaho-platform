@@ -15,7 +15,7 @@
  * Copyright 2008 - 2009 Pentaho Corporation. All rights reserved.
  * 
 */
-package org.pentaho.test.platform.engine.core;
+package org.pentaho.platform.engine.core;
 
 import java.util.List;
 import java.util.Map;

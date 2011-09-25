@@ -1,4 +1,4 @@
-package org.pentaho.test.platform.engine.core;
+package org.pentaho.platform.engine.core;
 
 import static org.junit.Assert.*;
 import java.io.File;

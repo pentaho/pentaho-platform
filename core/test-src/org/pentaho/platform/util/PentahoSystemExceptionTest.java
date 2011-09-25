@@ -14,7 +14,7 @@
  *
  * Copyright 2006 - 2008 Pentaho Corporation.  All rights reserved.
  */
-package org.pentaho.test.platform.util;
+package org.pentaho.platform.util;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
