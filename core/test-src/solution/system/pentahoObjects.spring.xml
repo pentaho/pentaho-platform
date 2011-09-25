@@ -11,7 +11,7 @@ PentahoSystem which is initialized after Spring
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
   default-lazy-init="true">
   
-  <bean id="ISolutionEngine" class="org.pentaho.platform.engine.core.TestSolutionEngine" scope="prototype" />
+  <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
   <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
   
   <bean id="ISolutionRepository" class="org.pentaho.platform.engine.services.MockSolutionRepository" scope="singleton" />
