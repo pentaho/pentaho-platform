@@ -26,7 +26,7 @@
         <logging-level>DEBUG</logging-level>
       <component-name>org.pentaho.platform.engine.services.solution.PojoComponent</component-name>
         <component-definition>
-          <class>org.pentaho.test.platform.engine.services.TestPojo3</class>
+          <class>org.pentaho.platform.engine.services.TestPojo3</class>
         </component-definition>
       </action-definition>
   </actions>

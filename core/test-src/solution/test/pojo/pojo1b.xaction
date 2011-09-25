@@ -28,7 +28,7 @@
         <logging-level>DEBUG</logging-level>
       <component-name>org.pentaho.platform.engine.services.solution.PojoComponent</component-name>
         <component-definition>
-          <class>org.pentaho.test.platform.engine.services.TestPojo1</class>
+          <class>org.pentaho.platform.engine.services.TestPojo1</class>
           <input1>abcde</input1>
 	        <int1>11</int1>
 	        <int2>22</int2>

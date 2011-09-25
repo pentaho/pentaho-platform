@@ -72,7 +72,7 @@
         <output1 type="string"/> 
       </action-outputs>
       <component-definition> 
-        <class>org.pentaho.test.platform.engine.services.TestPojo1</class> 
+        <class>org.pentaho.platform.engine.services.TestPojo1</class> 
       </component-definition>
       <action-name>Test the test POJO</action-name>  
       <logging-level>DEBUG</logging-level> 

@@ -58,7 +58,7 @@
   
   <actions> 
     <action-definition> 
-      <component-name>org.pentaho.test.platform.engine.services.TestPojo1</component-name>
+      <component-name>org.pentaho.platform.engine.services.TestPojo1</component-name>
       <action-inputs> 
         <input1 type="string"/> 
 	        <int2/>
