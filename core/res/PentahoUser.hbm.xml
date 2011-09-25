@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.pentaho.platform.engine.security.userroledao">
+
+  <!--
+    Depends on Hibernate configuration with hibernate.hbm2ddl.auto=update.
+  -->
+
+  <class name="PentahoUser" table="USERS">
+    <id access="field" name="username" column="USERNAME" type="string" length="50">
+      <generator class="assigned" />
+    </id>
+    <!-- TODO mlowery empty string on Oracle converted to null...not what we want here -->
+    <property name="password" column="PASSWORD" type="string" length="50" not-null="true" />
+    <property name="description" column="DESCRIPTION" type="string" length="100" not-null="false" />
+    <property name="enabled" column="ENABLED" type="boolean" not-null="true" />
+    <!-- lazy=false since session is closed in dao; if lazy=true, session would need to stay open beyond dao call -->
+    <set name="roles" table="GRANTED_AUTHORITIES" order-by="AUTHORITY" lazy="false">
+      <key column="USERNAME" />
+      <many-to-many column="AUTHORITY" class="PentahoRole" />
+    </set>
+  </class>
+
+</hibernate-mapping>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.pentaho.platform.engine.security.userroledao">
+  <!--
+    Depends on Hibernate configuration with hibernate.hbm2ddl.auto=update.
+  -->
+  
+  <class name="PentahoRole" table="AUTHORITIES">
+    <id access="field" name="name" column="AUTHORITY" type="string" length="50">
+      <generator class="assigned" />
+    </id>
+    <property name="description" column="DESCRIPTION" type="string" length="100" not-null="false" />
+    <!--
+      inverse="true" means that any users added to a role's users set will not be persisted; instead, you must persist
+      by editing the other direction (i.e. add a role to the user object)
+    -->
+    <!-- lazy=false since session is closed in dao; if lazy=true, session would need to stay open beyond dao call -->
+    <set name="users" table="GRANTED_AUTHORITIES" inverse="true" order-by="USERNAME" lazy="false">
+      <key column="AUTHORITY" />
+      <many-to-many column="USERNAME" class="PentahoUser" />
+    </set>
+  </class>
+
+</hibernate-mapping>
