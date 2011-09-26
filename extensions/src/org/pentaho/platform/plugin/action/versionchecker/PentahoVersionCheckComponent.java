@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.plugin.action.messages.Messages;
-import org.pentaho.platform.plugin.services.versionchecker.PentahoVersionCheckReflectHelper;
+import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 
 /**
  * Version Check Component

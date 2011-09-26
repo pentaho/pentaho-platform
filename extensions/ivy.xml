@@ -289,17 +289,10 @@
 		<dependency org="pentaho" name="pentaho-metadata"           rev="${dependency.pentaho-metadata.revision}"           changing="true"/>
 		
 		<!--  import old jars for now until other projects are online -->
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-api"             rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-util"            rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-core"     rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-security" rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-services" rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-repository"      rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-ui-foundation"   rev="${project.revision}" changing="true"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-scheduler"       rev="${project.revision}" changing="true" conf="default->default"/>
-		<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-scheduler2"      rev="${project.revision}" changing="true" conf="default->default"/>
-
-		<!-- <dependency org="pentaho" name="pentaho-platform-core" rev="${project.revision}" changing="true"/> -->
+		<dependency org="${ivy.artifact.group}" name="pentaho-platform-api"             rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-platform-core"            rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-platform-repository"      rev="${project.revision}" changing="true"/>
+		<dependency org="${ivy.artifact.group}" name="pentaho-platform-scheduler"       rev="${project.revision}" changing="true" conf="default->default"/>
 
 		<!--  runtime dependencies -->
 		<dependency org="annogen" name="annogen" rev="0.1.0" conf="runtime->default"/>
