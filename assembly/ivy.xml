@@ -123,7 +123,7 @@
     <!--  Make sure we get the correct version of kettle and pentaho-metadata -->
     <conflict org="pentaho-kettle" rev="${dependency.kettle.revision}" />
     <conflict org="pentaho" module="pentaho-metadata" rev="${dependency.pentaho-metadata.revision}" />
-    
+    <conflict org="pentaho-reporting" rev="3.8-SNAPSHOT" />
   </dependencies>
 
 </ivy-module>

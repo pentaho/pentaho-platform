@@ -28,7 +28,7 @@
   <property name="bi.platform.open.assembly.dir" value="." />
 
   <!-- custom platform assembly properties -->
-  <property name="package.res.dir" value="${basedir}/package-res"/>
+  <property name="package.res.dir" value="package-res"/>
   <property name="rdbms" value="hsqldb" description="Default database for open assembly is hsqldb" />
   <property name="stage.dir.server" value="${stage.dir}/${package.id}" />
   <property name="stage.dir.solutions" value="${stage.dir.server}/pentaho-solutions"/>
@@ -67,12 +67,6 @@
 
 
   <!-- =================================
-          target: install-resources
-         ================================= -->
-  <target name="install-resources" />
-
-
-  <!-- =================================
           private target: init.stage.pentaho
          ================================= -->
   <target name="init.stage.pentaho">
@@ -89,14 +83,16 @@
   <!-- ================================= 
           target: assemble
          ================================= -->
-  <target name="assemble" depends="assemble-no-plugins,install-plugins" description="Assembles an archive-based BIServer community edition"/>
+  <target name="assemble"
+          depends="assemble-no-plugins,install-plugins"
+          description="Assembles an archive-based BIServer community edition"/>
 
 
   <!-- =================================
           target: assemble-no-plugins                      
          ================================= -->
   <target name="assemble-no-plugins"
-          depends="check-blacklist,validate-mantle-svn-revisions,assemble-tomcat,assemble-pentaho-webapp,update-solutions">
+          depends="check-blacklist,validate-mantle-svn-revisions,assemble-tomcat,assemble-pentaho-webapp,install-resources,install-solutions,update-solutions">
     <chmod perm="a+x" dir="${stage.dir}" includes="**/*.sh" />
   </target>
 
@@ -263,6 +259,17 @@
   </macrodef>
 
 
+  <!-- =================================
+          target: install-resources
+         ================================= -->
+  <target name="install-resources" />
+
+
+  <!-- =================================
+          target: install-solutions
+         ================================= -->
+  <target name="install-solutions" />
+
 
   <!-- =================================
           target: update-solutions
@@ -270,7 +277,7 @@
   <target name="update-solutions">
 
       <!-- Set the visible value of the sample dirs -->
-      <set-solution-visibility dir="${bi-developers.solution.dir}" visible="${bi-developers.visible}" />
+      <set-solution-visibility dir="${stage.dir.solutions}/bi-developers" visible="${bi-developers.visible}" />
 
   </target>
 
@@ -378,7 +385,7 @@
     </sequential>
   </target>
 
-  <target name="validate-mantle-svn-revisions" unless="suppress-svn-validation">
+  <target name="validate-mantle-svn-revisions" unless="suppress-svn-validation" depends="install-antcontrib">
     <sequential>
       <mkdir dir="${mantle.tmp.dir}/mantle" />
       <mkdir dir="${mantle.tmp.dir}/mantle-pkg" />
