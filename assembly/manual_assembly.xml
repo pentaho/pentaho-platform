@@ -1,19 +1,26 @@
-<project name="j2ee_manual_deployments_ce">
+<project name="Open_Manual_Assembly" basedir="." default="" xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <property file="override.properties"
             description="Properties customized for your particular assembly environment belong in this file." />
   <property file="manual_assembly.properties" description="Default properties belong in this file." />
 
   <!-- subfloor / assembly property overrides -->
-  <property name="package-res-manual.dir" value="package-res-manual" />
+  <property name="package-res-manual.dir" value="${basedir}/package-res/manual-deployment" />
   <property name="stage.dir" value="bin/manual-stage" />
 
   <property name="plugins.dir" value="plugins" />
   <property name="solution-archives.dir" value="solution-archives" />
 
-  <property name="bi.platform.assembly.dir" value="." />
   <!-- set license dir here before we import assembly_shared.xml since subfloor will set it also -->
-  <property name="license.dir" value="${bi.platform.assembly.dir}/licenses" />
+  <property name="pkg.res.dir" value="${basedir}/package-res" />
+  <property name="license.dir" value="${pkg.res.dir}/biserver/licenses" />
+  <property name="manual-deployment.res.dir" value="${pkg.res.dir}/manual-deployment/pentaho-res" />
+  <property name="pkg.sampledata.dir" value="${pkg.res.dir}/biserver/data" />
+  <property name="pkg.pentaho-solutions.dir" value="${pkg.res.dir}/biserver/pentaho-solutions" />
+  <property name="pkg.webapp.dir" value="${pkg.res.dir}/biserver/tomcat/webapps"/>
+  <property name="pkg.pentaho.webapp.dir" value="${pkg.webapp.dir}/pentaho" />
+  <property name="pkg.pentaho.webapp.classes.dir" value="${pkg.pentaho.webapp.dir}/WEB-INF/classes" />
+
 
   <!-- Import the ant script that includes targets share between manual and archive-based assemblies -->
   <import file="build-res/assembly_shared.xml" />
@@ -47,7 +54,9 @@
   <target name="do-assemble">
     <!-- copy package-res-manual stuff into stage dir -->
     <copy todir="${approot.stage.dir}">
-      <fileset dir="${package-res-manual.dir}" />
+      <fileset dir="${pkg.res.dir}/manual-deployment">
+        <include name="*.*"/>
+      </fileset>
     </copy>
 
     <!-- create version.properties -->
@@ -73,44 +82,15 @@
           target: assemble-message-bundles                      
          - - - - - - - - - - - - - - - - - -->
   <target name="assemble-message-bundles">
-    <copy todir="${approot.stage.dir}/pentaho-classes">
-      <fileset dir="${bi.platform.util.dir}/src">
-        <include name="**/messages*properties" />
+    <unzip dest="${approot.stage.dir}/pentaho-classes">
+      <patternset>
+        <include name="**/messages*properties"/>
+      </patternset>
+      <fileset dir="${lib.dir}">
+        <include name="pentaho-bi-platform-*.jar"/>
+        <include name="pentaho-platform-*.jar"/>
       </fileset>
-      <fileset dir="${bi.platform.engine.core.dir}/src">
-        <include name="**/messages*properties" />
-      </fileset>
-      <fileset dir="${bi.platform.engine.services.dir}/src">
-        <include name="**/messages*properties" />
-      </fileset>
-      <fileset dir="${bi.platform.engine.security.dir}/src">
-        <include name="**/messages*properties" />
-      </fileset>
-      <fileset dir="${bi.platform.repository.dir}/src">
-        <include name="**/messages*properties" />
-      </fileset>
-      <fileset dir="${bi.platform.scheduler.dir}/src">
-        <include name="**/messages*properties" />
-      </fileset>
-      <fileset dir="${bi.platform.ui.foundation.dir}/src">
-        <include name="**/messages*properties" />
-      </fileset>
-      <fileset dir="${bi.platform.plugin.services.dir}/messages/src">
-        <include name="**/messages*properties" />
-      </fileset>
-      <fileset dir="${bi.platform.plugin.actions.dir}/src">
-        <include name="**/messages*properties" />
-      </fileset>
-      <fileset dir="${bi.platform.web.dir}/src">
-        <include name="**/messages*properties" />
-      </fileset>
-      <fileset dir="${bi.platform.web.servlet.dir}/src">
-        <include name="**/messages*properties" />
-      </fileset>
-      <fileset dir="${bi.platform.security.userroledao.dir}/src">
-        <include name="**/messages*properties" />
-      </fileset>
-    </copy>
+    </unzip>
   </target>
 
   <!-- - - - - - - - - - - - - - - - - - 
@@ -131,6 +111,7 @@
     <copy todir="${approot.stage.dir}/pentaho-jars">
       <fileset dir="${lib.dir}">
         <include name="pentaho-bi-platform-*.jar" />
+        <include name="pentaho-platform-*.jar"/>
       </fileset>
     </copy>
 
@@ -139,6 +120,7 @@
       <fileset dir="${lib.dir}">
         <include name="*.jar" />
         <exclude name="pentaho-bi-platform-*.jar" />
+        <exclude name="pentaho-platform-*.jar"/>
       </fileset>
     </copy>
   </target>
@@ -149,47 +131,46 @@
   <target name="assemble-resource-files">
     <!--  ear related files -->
     <copy todir="${approot.stage.dir}/pentaho-res">
-      <fileset dir="${bi.platform.appserver.dir}/res" />
+      <fileset dir="${manual-deployment.res.dir}" />
     </copy>
 
     <!--  ehcache related config -->
-    <copy todir="${approot.stage.dir}/pentaho-res">
-      <fileset dir="${bi.platform.engine.services.dir}/res" />
+    <copy todir="${approot.stage.dir}/pentaho-res/ehcache">
+      <fileset dir="${pkg.pentaho.webapp.classes.dir}" >
+        <include name="ehcache.xml"/>
+      </fileset>
     </copy>
 
     <!-- jboss datasources -->
     <copy todir="${approot.stage.dir}/pentaho-res/jboss">
-      <fileset dir="${bi.platform.appserver.dir}/jboss/res" />
-    </copy>
-
-    <!-- portal-layout.war -->
-    <copy todir="${approot.stage.dir}/pentaho-res/jboss/pentaho-portal-layout.war">
-      <fileset dir="${bi.platform.appserver.dir}/jboss/webapps/pentaho-portal-layout" />
+      <fileset dir="${pkg.res.dir}/appserver/jboss/res" />
     </copy>
 
     <!-- jfreereport files -->
     <copy todir="${approot.stage.dir}/pentaho-res/jfreereport">
-      <fileset dir="${bi.platform.plugin.actions.dir}/src/org/pentaho/platform/plugin/action/jfreereport/res" />
+      <fileset dir="${pkg.pentaho.webapp.classes.dir}" >
+        <include name="classic-engine.properties"/>
+        <include name="loader.properties"/>
+      </fileset>
     </copy>
 
     <!-- mondrian files -->
     <copy todir="${approot.stage.dir}/pentaho-res/mondrian">
-      <fileset dir="${bi.platform.plugin.actions.dir}/src/org/pentaho/platform/plugin/action/mondrian/res" />
+      <fileset dir="${pkg.pentaho.webapp.classes.dir}" >
+        <include name="mondrian.properties"/>
+      </fileset>
     </copy>
 
     <!-- log4j files -->
     <copy todir="${approot.stage.dir}/pentaho-res/log4j">
-      <fileset dir="${bi.platform.plugin.actions.dir}/res/log4j" />
+      <fileset dir="${pkg.pentaho.webapp.classes.dir}" >
+        <include name="log4j.*"/>
+      </fileset>
     </copy>
 
     <!--  orion files -->
     <copy todir="${approot.stage.dir}/pentaho-res/orion">
-      <fileset dir="${bi.platform.appserver.dir}/orion/res" />
-    </copy>
-
-    <!--  security example files -->
-    <copy todir="${approot.stage.dir}/pentaho-res/security-samples">
-      <fileset dir="${bi.platform.engine.security.dir}/res/samples" />
+      <fileset dir="${pkg.res.dir}/appserver/orion/res" />
     </copy>
 
   </target>
@@ -295,8 +276,12 @@
          - - - - - - - - - - - - - - - - - -->
   <target name="assemble-webapps" depends="install-antcontrib">
     <copy todir="${approot.stage.dir}/pentaho-webapp">
-      <fileset dir="${bi.platform.appserver.dir}/webapps/pentaho">
+      <fileset dir="${pkg.pentaho.webapp.dir}">
+        <exclude name="**/classes/classic-engine.properties" />
+        <exclude name="**/classes/ehcache.xml"/>
         <exclude name="**/classes/loader.properties" />
+        <exclude name="**/classes/log4j.*"/>
+        <exclude name="**/classes/mondrian.properties"/>
       </fileset>
     </copy>
 
@@ -305,7 +290,7 @@
     </unzip>
 
     <copy todir="${approot.stage.dir}/pentaho-res/styles/pentaho-style.war">
-      <fileset dir="${bi.platform.appserver.dir}/webapps/pentaho-style" />
+      <fileset dir="${pkg.webapp.dir}/pentaho-style" />
     </copy>
 
     <mkdir dir="${approot.stage.dir}/custom-pentaho-webapp/META-INF" />
@@ -332,16 +317,20 @@
           target: assemble-solutions: install only those solution archives that are required for system operation                      
          - - - - - - - - - - - - - - - - - -->
   <target name="assemble-solutions" depends="resolve-solutions">
-    <unzip dest="${approot.stage.dir}/pentaho-data">
-      <fileset dir="${lib.dir}" includes="pentaho-bi-platform-sample-data-*.zip" />
-    </unzip>
+    <copy todir="${approot.stage.dir}/pentaho-data">
+      <fileset dir="${pkg.sampledata.dir}"/>
+    </copy>
+
+    <mkdir dir="${approot.stage.dir}/pentaho-data/lib" />
+    <ivy:resolve file="${ivyfile}" conf="sampledata-libs" />
+    <ivy:retrieve conf="sampledata-libs" pattern="${approot.stage.dir}/pentaho-data/lib/[module]-[revision](-[classifier]).[ext]" />
 
     <!-- create pentaho-solutions folder -->
     <mkdir dir="${approot.stage.dir}/pentaho-solutions/tmp" />
 
     <!-- copy over default system solution, but no samples -->
     <copy todir="${approot.stage.dir}/pentaho-solutions" overwrite="true">
-      <fileset dir="${bi.platform.sample.solution.dir}">
+      <fileset dir="${pkg.pentaho-solutions.dir}">
         <exclude name="**/bi-developers**"/>
         <exclude name="**/steel-wheels**"/>
       </fileset>
@@ -351,13 +340,6 @@
     <unzip dest="${approot.stage.dir}/pentaho-solutions" overwrite="true">
       <fileset file="${solution-archives.dir}/pentaho-cdf-solution*.zip" />
     </unzip>
-
-    <!-- copy repository.spring.xml into system; this is for Jackrabbit -->
-    <copy todir="${approot.stage.dir}/pentaho-solutions/system" overwrite="true">
-      <fileset dir="${bi.platform.repository.dir}/src">
-        <include name="repository.spring.xml" />
-      </fileset>
-    </copy>
   </target>
 
 

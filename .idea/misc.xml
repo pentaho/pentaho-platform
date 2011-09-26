@@ -3,6 +3,20 @@
   <component name="DependencyValidationManager">
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
+  <component name="FacetAutodetectingManager">
+    <autodetection-disabled>
+      <facet-type id="android" />
+      <facet-type id="ejb" />
+      <facet-type id="google-app-engine" />
+      <facet-type id="gwt" />
+      <facet-type id="hibernate" />
+      <facet-type id="javaeeApplication" />
+      <facet-type id="jpa" />
+      <facet-type id="jsf" />
+      <facet-type id="Spring" />
+      <facet-type id="web" />
+    </autodetection-disabled>
+  </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
     <option name="OPTION_SCOPE" value="protected" />
@@ -20,10 +34,71 @@
     <option name="LOCALE" />
     <option name="OPEN_IN_BROWSER" value="true" />
   </component>
+  <component name="ProjectResources">
+    <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$/core">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchMap">
+                <map>
+                  <entry key="svn://source.pentaho.org/svnroot/pentaho-platform/branches">
+                    <value>
+                      <list />
+                    </value>
+                  </entry>
+                  <entry key="svn://source.pentaho.org/svnroot/pentaho-platform/tags">
+                    <value>
+                      <list />
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="branchUrls">
+                <list>
+                  <option value="svn://source.pentaho.org/svnroot/pentaho-platform/branches" />
+                  <option value="svn://source.pentaho.org/svnroot/pentaho-platform/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="svn://source.pentaho.org/svnroot/pentaho-platform/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/extensions">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchMap">
+                <map>
+                  <entry key="svn://source.pentaho.org/svnroot/pentaho-platform/branches">
+                    <value>
+                      <list />
+                    </value>
+                  </entry>
+                  <entry key="svn://source.pentaho.org/svnroot/pentaho-platform/tags">
+                    <value>
+                      <list />
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="branchUrls">
+                <list>
+                  <option value="svn://source.pentaho.org/svnroot/pentaho-platform/branches" />
+                  <option value="svn://source.pentaho.org/svnroot/pentaho-platform/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="svn://source.pentaho.org/svnroot/pentaho-platform/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
