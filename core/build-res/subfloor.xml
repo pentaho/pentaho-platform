@@ -717,7 +717,7 @@ TYPICAL TARGET SEQUENCE
       <equals arg1="${tests.publish}" arg2="true" />
       <then>
         <antcall target="publish-local-nojar.internal">
-          <param name="ivy.artifact.id" value="${ivy.artifact.id}"/>
+          <param name="ivy.artifact.id" value="${ivy.artifact.id}-test"/>
         </antcall>
       </then>
     </if>
@@ -762,7 +762,7 @@ TYPICAL TARGET SEQUENCE
       <equals arg1="${tests.publish}" arg2="true" />
       <then>
         <antcall target="subfloor.publish-nojar">
-          <param name="ivy.artifact.id" value="${ivy.artifact.id}"/>
+          <param name="ivy.artifact.id" value="${ivy.artifact.id}-test"/>
         </antcall>
       </then>
     </if>
