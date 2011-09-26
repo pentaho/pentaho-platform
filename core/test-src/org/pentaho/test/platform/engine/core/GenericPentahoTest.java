@@ -59,7 +59,7 @@ public class GenericPentahoTest extends TestCase {
   private void init() {
     InputStream s = null;
     // start with a default solution path
-    solutionPath = "test-src/solution"; //$NON-NLS-1$
+    solutionPath = "test-res/solution"; //$NON-NLS-1$
     try {
       URL url = ClassLoader.getSystemResource(PROPERTIES_FILE_NAME);
       if (url != null) {
