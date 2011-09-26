@@ -46,7 +46,7 @@ public class GlobalListPublisherTest extends TestCase {
     
     StandaloneSession session = new StandaloneSession("test");
     
-    StandaloneApplicationContext appContext = new StandaloneApplicationContext("test-src/solution", "");
+    StandaloneApplicationContext appContext = new StandaloneApplicationContext("test-res/solution", "");
 
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory( );
     factory.init("test-res/solution/system/pentahoObjects.GlobalListPublisherTest.spring.xml", null );
