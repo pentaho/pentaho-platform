@@ -26,16 +26,14 @@
     <dependency org="${ivy.artifact.group}" name="pentaho-platform-api"  rev="${project.revision}" changing="true" conf="default->default" />
     <dependency org="${ivy.artifact.group}" name="pentaho-platform-core" rev="${project.revision}" changing="true" conf="default->default" />
     <dependency org="pentaho" name="pentaho-versionchecker" rev="${dependency.pentaho-versionchecker.revision}" changing="true" />
-    <dependency org="pentaho" name="pentaho-bi-platform-plugin-services" rev="${project.revision}" transitive="false" changing="true" conf="default->default"/>
         
     <!-- metro -->
     <dependency org="metro" name="metro-webservices-api" rev="2.0" conf="test->default"/>
     <dependency org="metro" name="metro-webservices-rt" rev="2.0" conf="test->default"/>
     <dependency org="org.springframework" name="spring" rev="2.5.6" transitive="false" conf="test->default" />
     <dependency org="org.springframework" name="spring-test" rev="2.5.6" conf="test->default" />
-    <dependency org="pentaho" name="pentaho-bi-platform-test-foundation" rev="${project.revision}" changing="true" conf="test->default" />
-
     
+    <dependency org="pentaho" name="pentaho-bi-platform-test-foundation" rev="${project.revision}" changing="true" conf="test->default" />
   </dependencies>
 
 </ivy-module>

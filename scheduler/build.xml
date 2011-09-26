@@ -7,7 +7,7 @@
   
   See common_build.xml for more details
 ============================================================================-->
-<project name="Scheduler2" basedir="." default="default" 
+<project name="scheduler" basedir="." default="default" 
 	xmlns:ivy="antlib:org.apache.ivy.ant" >
 
   <!-- The continuous target is used by CI ... this is the list of -->

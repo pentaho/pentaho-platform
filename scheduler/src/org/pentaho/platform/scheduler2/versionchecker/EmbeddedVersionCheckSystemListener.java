@@ -36,7 +36,7 @@ import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.versionchecker.PentahoVersionCheckReflectHelper;
+import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 
 public class EmbeddedVersionCheckSystemListener implements IPentahoSystemListener {
 

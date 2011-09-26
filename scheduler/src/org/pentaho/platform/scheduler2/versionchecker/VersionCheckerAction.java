@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IAction;
-import org.pentaho.platform.plugin.services.versionchecker.PentahoVersionCheckReflectHelper;
+import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 
 public class VersionCheckerAction implements IAction {
 
