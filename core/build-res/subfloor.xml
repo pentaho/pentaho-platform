@@ -1151,12 +1151,11 @@ TYPICAL TARGET SEQUENCE
   <target name="jar"
           depends="jar.main,jar.test"
           description="Jars up the bin directory after a compile">
-
   </target>
 
   <target name="jar.test"
           depends="jar.main,compile-tests"
-          if="${tests.publish}">
+          if="tests.publish">
     <jar destfile="${dist.dir}/${ivy.artifact.id}-test-${project.revision}.jar" manifest="${dist.manifest.file}">
       <fileset dir="${testclasses.dir}"/>
     </jar>
