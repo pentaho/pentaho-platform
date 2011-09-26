@@ -128,9 +128,9 @@ public class XmlHelperTest extends TestCase {
     try {
       InputStream inStrm = new FileInputStream("test-res/solution/test/xml/XmlHelperTest1.xml"); //$NON-NLS-1$
       String xslName = "CustomReportParametersForPortlet.xsl"; //$NON-NLS-1$
-      String xslPath = "system/custom/xsl"; //$NON-NLS-1$
+      String xslPath = "test-res/solution/system/custom/xsl"; //$NON-NLS-1$
 
-      StringBuffer b = XmlHelper.transformXml(xslName, xslPath, inStrm, null, new JarEntityResolver());
+      StringBuffer b = XmlHelper.transformXml(xslName, xslPath, inStrm, null, new TestEntityResolver());
       Assert.assertTrue(!StringUtils.isEmpty(b.toString()));
     } catch (Throwable e) {
       System.out.println("Exception thrown " + e.getMessage()); //$NON-NLS-1$
