@@ -16,12 +16,12 @@
  */
 package org.pentaho.platform.util;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-//import org.dom4j.Document;
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
@@ -49,7 +49,7 @@ public class CleanXmlHelperTest extends TestCase {
 
     try {
 
-      InputStream in = resourceClass.getResourceAsStream("/test/xml/query_without_connection.xaction"); //$NON-NLS-1$
+      InputStream in = new FileInputStream("test-res/solution/test/xml/query_without_connection.xaction"); //$NON-NLS-1$
       XmlDom4JHelper.getDocFromStream(in);
       Assert.assertTrue(true);
     } catch (Exception e) {
