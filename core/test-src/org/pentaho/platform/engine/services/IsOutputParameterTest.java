@@ -34,7 +34,7 @@ import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings({"all"})
 public class IsOutputParameterTest extends BaseTest {
-  private static final String SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-res/solution";
   private static final String xactionName ="isOutputParameterTest.xaction"; 
 
   public String getSolutionPath() {

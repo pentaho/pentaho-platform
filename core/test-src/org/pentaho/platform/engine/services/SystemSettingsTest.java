@@ -44,8 +44,8 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 @SuppressWarnings("nls")
 public class SystemSettingsTest extends TestCase {
 
-	private static final String SOLUTION_PATH = "projects/core/test-src/solution";
-	private static final String ALT_SOLUTION_PATH = "test-src/solution";
+	private static final String SOLUTION_PATH = "test-res/solution";
+	private static final String ALT_SOLUTION_PATH = "test-res/solution";
 	private static final String PENTAHO_XML_PATH = "/system/pentaho.xml";
 	private static final String DEFAULT_SPRING_CONFIG_FILE_NAME = "pentahoObjects.spring.xml";	
 	final String SYSTEM_FOLDER = "/system";

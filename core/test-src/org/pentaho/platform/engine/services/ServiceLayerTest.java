@@ -46,7 +46,7 @@ public class ServiceLayerTest extends TestCase {
 
   private static final String DEFAULT_SPRING_CONFIG_FILE_NAME = "pentahoObjects.spring.xml";
 
-  private static final String SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-res/solution";
 
   public String getSolutionPath() {
     return SOLUTION_PATH;

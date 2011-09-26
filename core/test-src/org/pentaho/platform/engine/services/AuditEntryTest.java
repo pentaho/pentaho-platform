@@ -28,7 +28,7 @@ import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings("nls")
 public class AuditEntryTest extends BaseTest {
-  private static final String SOLUTION_PATH = "test-src/solution";
+  private static final String SOLUTION_PATH = "test-res/solution";
   public String getSolutionPath() {
        return SOLUTION_PATH;  
   }
