@@ -87,7 +87,7 @@ public class AuditConnectionTest extends BaseTest {
       // Load mock object factory with mock datasource service that produces null datasources
       StandaloneSession session = new StandaloneSession();
       StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory( );
-      factory.init("test-src/solution/system/pentahoObjects.datasourceservice.null.spring.xml", null );
+      factory.init("test-res/solution/system/pentahoObjects.datasourceservice.null.spring.xml", null );
       PentahoSystem.setObjectFactory(factory);
   
       AuditConnection auditConnection = new AuditConnection();
