@@ -20,6 +20,8 @@
 
 package org.pentaho.platform.util;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import junit.framework.Assert;
@@ -29,12 +31,12 @@ import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
 
 public class XmlW3CHelperTest extends TestCase {
 
-  public void testXmlW3C() {
-    String path = "/test/xml/query_without_connection.xaction"; //$NON-NLS-1$
+  public void testXmlW3C() throws FileNotFoundException {
+    String path = "test-res/solution/test/xml/query_without_connection.xaction"; //$NON-NLS-1$
 //    String domString = "<root><subroot>this is sub root</subroot></root>";//$NON-NLS-1$
 
     Class resourceClass = this.getClass();
-    InputStream in = resourceClass.getResourceAsStream(path);
+    InputStream in = new FileInputStream(path);
 
     byte bytes[] = new byte[10000];
     try {
@@ -60,7 +62,7 @@ public class XmlW3CHelperTest extends TestCase {
     }
   }
 
-  public static void main(final String[] args) {
+  public static void main(final String[] args) throws FileNotFoundException {
     XmlW3CHelperTest test = new XmlW3CHelperTest();
     try {
       test.testXmlW3C();

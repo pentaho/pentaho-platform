@@ -19,6 +19,7 @@ package org.pentaho.platform.util;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +39,6 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.tree.DefaultElement;
-import org.pentaho.platform.util.JarEntityResolver;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -85,8 +85,7 @@ public class XmlHelperTest extends TestCase {
   public void testGetXMLFromDocument() throws FileNotFoundException, TransformerConfigurationException,
       TransformerException {
     try {
-      Class resourceClass = this.getClass();
-      InputStream in = resourceClass.getResourceAsStream("/test/xml/JFreeQuadrantForRegion.xml");
+      InputStream in = new FileInputStream("test-res/solution/test/xml/JFreeQuadrantForRegion.xml");
       org.dom4j.Document doc = XmlDom4JHelper.getDocFromStream(in);
 
       org.w3c.dom.Document w3cDoc = XmlW3CHelper.getDomFromString(doc.asXML());
@@ -127,7 +126,7 @@ public class XmlHelperTest extends TestCase {
 
   public void testXForm() throws TransformerException {
     try {
-      InputStream inStrm = XmlHelperTest.class.getResourceAsStream("/test/xml/XmlHelperTest1.xml"); //$NON-NLS-1$
+      InputStream inStrm = new FileInputStream("test-res/solution/test/xml/XmlHelperTest1.xml"); //$NON-NLS-1$
       String xslName = "CustomReportParametersForPortlet.xsl"; //$NON-NLS-1$
       String xslPath = "system/custom/xsl"; //$NON-NLS-1$
 
@@ -163,8 +162,7 @@ public class XmlHelperTest extends TestCase {
 
   public void testGetDocFromString() {
     try {
-      Class resourceClass = this.getClass();
-      InputStream in = resourceClass.getResourceAsStream("/test/xml/index.xml");
+      InputStream in = new FileInputStream("test-res/solution/test/xml/index.xml");
       Document doc = XmlDom4JHelper.getDocFromStream(in);
       System.out.println("Document as String" + doc.getStringValue()); //$NON-NLS-1$      
     } catch (Exception e) {
