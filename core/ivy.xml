@@ -64,8 +64,10 @@
 		<dependency org="pentaho" name="pentaho-actionsequence-dom" rev="${dependency.pentaho-actionsequence-dom.revision}" changing="true"/>
 		<dependency org="pentaho" name="pentaho-cwm"                rev="1.5.4"/>
 		<dependency org="pentaho" name="pentaho-metadata"           rev="${dependency.pentaho-metadata.revision}" changing="true"/>
+		<dependency org="pentaho" name="pentaho-versionchecker"     rev="${dependency.pentaho-versionchecker.revision}"     changing="true"/>
 		<dependency org="pentaho-kettle" name="kettle-engine" rev="${dependency.kettle.revision}" changing="true"/>
 		<dependency org="pentaho-kettle" name="kettle-core"   rev="${dependency.kettle.revision}" changing="true"/>
+
 
 		<!--  internal test dependencies -->
 		<dependency org="pentaho" name="pentaho-xul-core"                    rev="${dependency.pentaho-xul.revision}" changing="true" conf="test->default" transitive="false" />
