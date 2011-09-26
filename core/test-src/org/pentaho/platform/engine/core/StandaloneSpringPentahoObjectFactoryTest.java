@@ -39,7 +39,7 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
     StandaloneSession session2 = new StandaloneSession();
     
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory( );
-    factory.init("test-src/solution/system/pentahoObjects.spring.xml", null );
+    factory.init("test-res/solution/system/pentahoObjects.spring.xml", null );
     
     GoodObject goodObject = factory.get( GoodObject.class, session);
     assertNotNull( goodObject );
@@ -70,13 +70,13 @@ public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {
     
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory( );
     
-    File f = new File("test-src/solution/system/pentahoObjects.spring.xml");
+    File f = new File("test-res/solution/system/pentahoObjects.spring.xml");
     FileSystemResource fsr = new FileSystemResource(f);
     GenericApplicationContext appCtx = new GenericApplicationContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(appCtx);
     xmlReader.loadBeanDefinitions(fsr);
     
-    factory.init("test-src/solution/system/pentahoObjects.spring.xml", appCtx );
+    factory.init("test-res/solution/system/pentahoObjects.spring.xml", appCtx );
     
     GoodObject obj = factory.get(GoodObject.class, session);
     assertNotNull( obj );
