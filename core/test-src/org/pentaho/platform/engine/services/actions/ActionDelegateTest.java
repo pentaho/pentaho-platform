@@ -451,7 +451,7 @@ public class ActionDelegateTest {
     ISolutionEngine solutionEngine = ServiceTestHelper.getSolutionEngine();
     outputHandler.setSession(session);
 
-    String xactionStr = ServiceTestHelper.getXAction("test-src/solution/test/ActionDelegateTest", actionSequenceFile);
+    String xactionStr = ServiceTestHelper.getXAction("test-res/solution/test/ActionDelegateTest", actionSequenceFile);
 
     /*
      * execute the action sequence, providing the outputHandler created above
