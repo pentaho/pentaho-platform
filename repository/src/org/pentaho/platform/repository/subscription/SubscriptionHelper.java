@@ -115,10 +115,9 @@ public class SubscriptionHelper {
     IRuntimeContext runtime = null;
     String instanceId = null;
     boolean persisted = false;
-    ActionInfo contentInfo = ActionInfo.parseActionString(content.getActionReference());
 
     try {
-      runtime = solutionEngine.execute(contentInfo.getSolutionName(), contentInfo.getPath(), contentInfo.getActionName(),
+      runtime = solutionEngine.execute(content.getActionReference(),
           "Subscriptions", false, true, instanceId, persisted, parameterProviderMap, outputHandler, null, urlFactory, messages); //$NON-NLS-1$
     } finally {
       runtime.dispose();
@@ -303,7 +302,7 @@ public class SubscriptionHelper {
           Map parameterProviderMap = new HashMap();
           parameterProviderMap.put(IParameterProvider.SCOPE_REQUEST, parameterProvider);
           parameterProviderMap.put(IParameterProvider.SCOPE_SESSION, sessionParameters);
-          runtime = solutionEngine.execute(contentInfo.getSolutionName(), contentInfo.getPath(), actionName,
+          runtime = solutionEngine.execute(content.getActionReference(),
               "Subscriptions", false, true, instanceId, persisted, parameterProviderMap, outputHandler, null, urlFactory, messages); //$NON-NLS-1$
           // see if we need to provide feedback to the caller
 
