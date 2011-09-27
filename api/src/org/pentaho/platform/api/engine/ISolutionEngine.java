@@ -50,13 +50,9 @@ public interface ISolutionEngine extends ILogger {
    * Executes the action sequence specified in the manner described in the
    * parameters
    * 
-   * @param solutionName
-   *            the name at the root level of the solution path
    * @param actionPath
-   *            the path relative to the solutionName that will lead to the
+   *            the path to the solution action that will lead to the
    *            requested action
-   * @param actionName
-   *            name of the action sequence document
    * @param processId
    *            id for the given action sequence document
    * @param async
@@ -83,16 +79,14 @@ public interface ISolutionEngine extends ILogger {
    * @see org.pentaho.platform.api.engine.IRuntimeContext
    */
   @SuppressWarnings("unchecked")
-  public IRuntimeContext execute(String solutionName, String actionPath, String actionName, String processId,
+  public IRuntimeContext execute(String actionPath, String processId,
       boolean async, boolean instanceEnds, String instanceId, boolean persisted, Map parameterProviderMap,
       IOutputHandler outputHandler, IActionCompleteListener listener, IPentahoUrlFactory urlFactory, List messages);
 
   /**
    * Executes the action sequence specified
    * @param runtime The runtime context for the execution
-   * @param solutionName Name of the solution
-   * @param sequencePath path to the solution
-   * @param sequenceName name of the action sequence
+   * @param actionPath path to the action
    * @param processId id for the given process, typically a GUID or unique id for this execution
    * @param async true if the execution should be asynchronous.
    * @param instanceEnds currently true indicating that the process ends with this execution
@@ -104,8 +98,7 @@ public interface ISolutionEngine extends ILogger {
    * @see IActionSequence
    */
   @SuppressWarnings("unchecked")
-  public IRuntimeContext execute(IRuntimeContext runtime, String solutionName, String sequencePath,
-      String sequenceName, String processId, boolean async, boolean instanceEnds, Map parameterProviderMap,
+  public IRuntimeContext execute(IRuntimeContext runtime, String actionPath, String processId, boolean async, boolean instanceEnds, Map parameterProviderMap,
       IOutputHandler outputHandler);
 
   /**
