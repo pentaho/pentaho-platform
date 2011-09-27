@@ -93,16 +93,22 @@ public class QuartzThreadsTest {
   @Test
   public void shutdownKillsAllSchedulerThreads() throws SchedulerException, InterruptedException {
     int preCount = Thread.getAllStackTraces().keySet().size();
+    int expectedThreadCount = preCount-1-WORKER_THREAD_COUNT;  //1 thread is the quartz scheduler itself
     System.out.println("Prior to shutdown, thread count is "+preCount);
 
     scheduler.shutdown();
 
-    Thread.sleep(5000);  //allow some time for the threads to be killed. apparently quartz does not wait on them before returning from shutdown
+    for (int i=0;i<30;i++) {
+        int postCount = Thread.getAllStackTraces().keySet().size();
+    	if (expectedThreadCount == postCount) {
+    		break;
+    	}
+    	Thread.sleep(1000);  //allow some time for the threads to be killed. apparently quartz does not wait on them before returning from shutdown
+    }
     
     int postCount = Thread.getAllStackTraces().keySet().size();
     System.out.println("After shutdown, thread count is "+postCount);
 
-    int expectedThreadCount = preCount-1-WORKER_THREAD_COUNT;  //1 thread is the quartz scheduler itself
     Assert.assertEquals("Shutdown did not kill all of the threads", expectedThreadCount, postCount);
 
     Set<Thread> threads = Thread.getAllStackTraces().keySet();
