@@ -269,6 +269,20 @@ TYPICAL TARGET SEQUENCE
             description="Base directory that holds all IVY dependency report files" />
   <property name="ivy.configs" value="*" description="Set of configs used for IVY reporting and checking operations" />
 
+  <!-- Tattletale properties -->
+  <property name="tattletale.url"
+            value="http://repo.pentaho.org/artifactory/repo/jboss/tattletale/1.1.2.Final/tattletale-1.1.2.Final.zip"
+            description="The URL from which to download tattletale" />
+  <property name="tattletale.classname"
+            value="org.jboss.tattletale.ant.ReportTask"
+            description="The name of the class which will run the tattletale reports" />
+  <property name="tattletale.reports.dir"
+            value="${bin.dir}/reports/tattletale"
+            description="Base directory that holds the output of the tattletale reports" />
+  <property name="tattletale.configfile"
+            value=""
+            description="The configuration file for the tattletale report" />
+
   <!-- Load the manifest file (if any) as a properties file -->
   <property name="dist.manifest.file"
             value="${dist.dir}/MANIFEST.MF"
@@ -757,11 +771,11 @@ TYPICAL TARGET SEQUENCE
       
       Publishes the jar file for this project to a Maven2 repository.
       ====================================================================-->
-  <target name="publish-nojar" depends="install-antcontrib,create-pom,ivy.deliver,publish-local-nojar.internal">
+  <target name="publish-nojar" depends="install-antcontrib,create-pom,ivy.deliver,publish-nojar.internal">
     <if>
       <equals arg1="${tests.publish}" arg2="true" />
       <then>
-        <antcall target="publish-local-nojar.internal">
+        <antcall target="publish-nojar.internal">
           <param name="ivy.artifact.id" value="${ivy.artifact.id}-test"/>
         </antcall>
       </then>
@@ -1779,4 +1793,42 @@ TYPICAL TARGET SEQUENCE
     </sequential>
   </macrodef>
 
+  <!--=======================================================================
+    install-tattletale
+    
+    (Fetches and) installs TATTLETALE for use by this ant script
+    ====================================================================-->
+  <target name="install-tattletale" depends="install-antcontrib">
+    <if>
+      <istrue value="${tattletale.isinstalled}" />
+      <then>
+        <echo message="Skipping TATTLETALE install.  TATTLETALE has already been configured by the build" />
+      </then>
+      <else>
+        <download-antlib name="tattletale"
+                         url="${tattletale.url}"
+                         classname="${tattletale.classname}" 
+                         extension="zip"/>
+                          
+        <taskdef name="tattletale.report" classname="${tattletale.classname}">
+          <classpath>
+            <fileset dir="${subfloor.resources.dir}/tattletale">
+              <include name="*.jar" />
+            </fileset>
+          </classpath>
+        </taskdef>
+
+        <property name="tattletale.isinstalled" value="true" />
+      </else>
+    </if>
+  </target>
+  
+  <!--=======================================================================
+    tattletale-report
+    
+    Generates a tattletale report for this project
+    ====================================================================-->
+  <target name="tattletale-report" depends="install-tattletale,jar">
+    <tattletale.report source="${basedir}" destination="${tattletale.reports.dir}"/>
+  </target>
 </project>
