@@ -93,7 +93,7 @@ public class GlobalListPublisherTest extends TestCase {
     
     // check that we made it all the way to executing the startup action
     assertEquals( session, engine.initSession );
-    assertEquals( "test.xaction", engine.actionPath );
+    assertEquals( startupAction1.getActionPath(), engine.actionPath );
     assertEquals( "testvalue", globalParams.getParameter( "testoutput" ) );
     
     param.setValue("testvalue2");
