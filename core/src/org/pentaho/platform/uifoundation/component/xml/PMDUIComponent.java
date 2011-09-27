@@ -348,7 +348,7 @@ public class PMDUIComponent extends XmlComponent {
     lookupParameters.setParameter("mql", mql); //$NON-NLS-1$
 
     IRuntimeContext runtime = SolutionHelper.doAction(
-        "system", "metadata", "PickList.xaction", "lookup-list", lookupParameters, getSession(), messages, this); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        "/system/metadata/PickList.xaction", "lookup-list", lookupParameters, getSession(), messages, this); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     IPentahoResultSet results = null;
     if (runtime != null) {
       if (runtime.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS) {

@@ -645,8 +645,6 @@ public class PentahoSystem {
     if(sessionStartupActions != null) {
 	    for (ISessionStartupAction sessionStartupAction : sessionStartupActions) {
 	      // parse the actionStr out to identify an action
-	      ActionInfo actionInfo = ActionInfo.parseActionString(sessionStartupAction.getActionPath());
-	      if (actionInfo != null) {
 	        // now execute the action...
 	
 	        SimpleOutputHandler outputHandler = null;
@@ -673,9 +671,7 @@ public class PentahoSystem {
 	        try {
 	          context = solutionEngine
 	              .execute(
-	                  actionInfo.getSolutionName(),
-	                  actionInfo.getPath(),
-	                  actionInfo.getActionName(),
+	                  sessionStartupAction.getActionPath(),
 	                  "Session startup actions", false, true, instanceId, false, parameterProviderMap, outputHandler, null, urlFactory, messages); //$NON-NLS-1$
 	
 	          // if context is null, then we cannot check the status
@@ -703,11 +699,6 @@ public class PentahoSystem {
 	            context.dispose();
 	          }
 	        }
-	
-	      } else {
-	        Logger.error(PentahoSystem.class.getName(), Messages.getInstance().getErrorString(
-	            "PentahoSystem.ERROR_0016_COULD_NOT_PARSE_ACTION", sessionStartupAction.getActionPath())); //$NON-NLS-1$
-	      }
 	    }
     }
   }
@@ -754,9 +745,6 @@ public class PentahoSystem {
     
     if(globalStartupActions != null) {
       for (ISessionStartupAction globalStartupAction : globalStartupActions) {
-        // parse the actionStr out to identify an action
-        ActionInfo actionInfo = ActionInfo.parseActionString(globalStartupAction.getActionPath());
-        if (actionInfo != null) {
           // now execute the action...
   
           SimpleOutputHandler outputHandler = null;
@@ -777,9 +765,7 @@ public class PentahoSystem {
           try {
             context = solutionEngine
                 .execute(
-                    actionInfo.getSolutionName(),
-                    actionInfo.getPath(),
-                    actionInfo.getActionName(),
+                    globalStartupAction.getActionPath(),
                     "Global startup actions", false, true, instanceId, false, parameterProviderMap, outputHandler, null, urlFactory, messages); //$NON-NLS-1$
   
             // if context is null, then we cannot check the status
@@ -808,10 +794,6 @@ public class PentahoSystem {
             }
           }
   
-        } else {
-          Logger.error(PentahoSystem.class.getName(), Messages.getInstance().getErrorString(
-              "PentahoSystem.ERROR_0016_COULD_NOT_PARSE_ACTION", globalStartupAction.getActionPath())); //$NON-NLS-1$
-        }
       }
     }
   }

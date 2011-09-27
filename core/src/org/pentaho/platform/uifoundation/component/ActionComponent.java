@@ -102,12 +102,11 @@ public class ActionComponent extends BaseUIComponent {
 
     IRuntimeContext context = null;
     try {
+      String actionSeqPath = ActionInfo.buildSolutionPath(solutionName, actionPath, actionName);
+      
       context = solutionEngine
           .execute(
-              solutionName,
-              actionPath,
-              actionName,
-              Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_TEST"), false, true, instanceId, false, getParameterProviders(), outputHandler, null, urlFactory, getMessages()); //$NON-NLS-1$
+              actionSeqPath, Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_TEST"), false, true, instanceId, false, getParameterProviders(), outputHandler, null, urlFactory, getMessages()); //$NON-NLS-1$
     } finally {
       if (context != null) {
         context.dispose();

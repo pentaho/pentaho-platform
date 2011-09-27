@@ -201,8 +201,6 @@ public class SolutionHelper {
 
       IPentahoUrlFactory urlFactory = new SimpleUrlFactory(url);
 
-      ActionInfo solutionRef = ActionInfo.parseActionString(actionSequence);
-
       String processName = description;
       boolean persisted = false;
       //for now, the messages list needs to be untyped since we may put exceptions as well as strings in it
@@ -226,8 +224,7 @@ public class SolutionHelper {
         outputHandler = new SimpleOutputHandler(outputStream, true);
         outputHandler.setOutputPreference(IOutputHandler.OUTPUT_TYPE_DEFAULT);
       }
-      solutionEngine.execute(solutionRef.getSolutionName(), solutionRef.getPath(), solutionRef.getActionName(),
-          processName, false, true, null, persisted, parameterProviderMap, outputHandler, null, urlFactory, messages);
+      solutionEngine.execute(actionSequence, processName, false, true, null, persisted, parameterProviderMap, outputHandler, null, urlFactory, messages);
 
     } finally {
       if (manageHibernate) {
@@ -255,13 +252,13 @@ public class SolutionHelper {
    * 
    * @return the runtime context
    */
-  public static boolean doAction(final String solutionName, final String actionPath, final String actionName,
+  public static boolean doAction(String actionPath,
       final String processId, final IParameterProvider parameterProvider, final OutputStream outputStream,
       final IPentahoSession userSession, final ArrayList messages, final ILogger logger) {
     int status = IRuntimeContext.RUNTIME_STATUS_FAILURE;
     IRuntimeContext runtime = null;
     try {
-      runtime = SolutionHelper.doActionInternal(solutionName, actionPath, actionName, processId, parameterProvider,
+      runtime = SolutionHelper.doActionInternal(actionPath, processId, parameterProvider,
           outputStream, userSession, messages, logger);
       if (runtime != null) {
         status = runtime.getStatus();
@@ -290,23 +287,21 @@ public class SolutionHelper {
    * 
    * @return the runtime context
    */
-  public static IRuntimeContext doAction(final String solutionName, final String actionPath, final String actionName,
+  public static IRuntimeContext doAction(final String actionPath,
       final String processId, final IParameterProvider parameterProvider, final IPentahoSession userSession,
       final ArrayList messages, final ILogger logger) {
-    return doActionInternal(solutionName, actionPath, actionName, processId, parameterProvider, null, userSession,
+    return doActionInternal(actionPath, processId, parameterProvider, null, userSession,
         messages, logger);
   }
 
-  private static IRuntimeContext doActionInternal(final String solutionName, final String actionPath,
-      final String actionName, final String processId, final IParameterProvider parameterProvider,
+  private static IRuntimeContext doActionInternal(final String actionPath, final String processId, final IParameterProvider parameterProvider,
       final OutputStream outputStream, final IPentahoSession userSession, final ArrayList messages, final ILogger logger) {
     SimpleOutputHandler outputHandler = new SimpleOutputHandler(outputStream, false);
     BaseRequestHandler requestHandler = new BaseRequestHandler(userSession, null, outputHandler, parameterProvider,
         null);
 
     requestHandler.setProcessId(processId);
-    requestHandler.setAction(actionPath, actionName);
-    requestHandler.setSolutionName(solutionName);
+    requestHandler.setActionPath(actionPath);
 
     return requestHandler.handleActionRequest(0, 0);
   }

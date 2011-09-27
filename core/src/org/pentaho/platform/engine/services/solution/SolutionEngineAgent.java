@@ -112,8 +112,6 @@ public class SolutionEngineAgent {
       IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
       IPentahoUrlFactory urlFactory = new SimpleUrlFactory(requestContext.getContextPath()); //$NON-NLS-1$
 
-      ActionInfo solutionRef = ActionInfo.parseActionString(actionSequence);
-
       String processName = description;
       boolean persisted = false;
       List messages = new ArrayList();
@@ -124,7 +122,7 @@ public class SolutionEngineAgent {
         outputHandler = new SimpleOutputHandler(outputStream, false);
         outputHandler.setOutputPreference(IOutputHandler.OUTPUT_TYPE_DEFAULT);
       }
-      solutionEngine.execute(solutionRef.getSolutionName(), solutionRef.getPath(), solutionRef.getActionName(),
+      solutionEngine.execute(actionSequence,
           processName, false, true, null, persisted, parameterProviderMap, outputHandler, null, urlFactory, messages);
 
     } finally {

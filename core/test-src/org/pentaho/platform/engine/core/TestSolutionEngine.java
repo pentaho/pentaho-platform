@@ -39,16 +39,11 @@ public class TestSolutionEngine implements ISolutionEngine {
   
   public IPentahoSession initSession;
   
-  public String solutionName;
-  
   public String actionPath;
-  
-  public String actionName;
   
   public String errorMsg = null;
   
-  public IRuntimeContext execute(IRuntimeContext runtime, String solutionName, String sequencePath,
-      String sequenceName, String processId, boolean async, boolean instanceEnds, Map parameterProviderMap,
+  public IRuntimeContext execute(IRuntimeContext runtime, String actionPath, String processId, boolean async, boolean instanceEnds, Map parameterProviderMap,
       IOutputHandler outputHandler) {
     // TODO Auto-generated method stub
     return null;
@@ -61,12 +56,10 @@ public class TestSolutionEngine implements ISolutionEngine {
     return null;
   }
 
-  public IRuntimeContext execute(String solutionName, String actionPath, String actionName, String processId,
+  public IRuntimeContext execute(String actionPath, String processId,
       boolean async, boolean instanceEnds, String instanceId, boolean persisted, Map parameterProviderMap,
       IOutputHandler outputHandler, IActionCompleteListener listener, IPentahoUrlFactory urlFactory, List messages) {
-    this.solutionName = solutionName;
     this.actionPath = actionPath;
-    this.actionName = actionName;
     executeCount++;
     if( errorMsg != null ) {
       throw new RuntimeException( errorMsg );

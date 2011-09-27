@@ -168,33 +168,33 @@ public class SolutionEngine extends PentahoMessenger implements ISolutionEngine,
     this.runtime = runtime;
   }
 
-  protected void auditStart(final String solutionName, final String sequencePath, final String sequenceName,
+  protected void auditStart(final String actionPath,
       final String instanceId) {
     if (debug) {
-      debug(Messages.getInstance().getString("SolutionEngine.DEBUG_STARTING_EXECUTION", solutionName, sequencePath, sequenceName)); //$NON-NLS-1$
+      debug(Messages.getInstance().getString("SolutionEngine.DEBUG_STARTING_EXECUTION", actionPath)); //$NON-NLS-1$
     }
-    genLogIdFromInfo(instanceId, SolutionEngine.LOG_NAME, sequenceName);
+    genLogIdFromInfo(instanceId, SolutionEngine.LOG_NAME, actionPath);
   }
 
-  public IRuntimeContext execute(final String solutionName, final String sequencePath, final String sequenceName,
+  public IRuntimeContext execute(final String actionPath,
       final String processId, final boolean async, final boolean instanceEnds, final String instanceId,
       final boolean isPersisted, final Map parameterProviderMap, final IOutputHandler outputHandler,
       final IActionCompleteListener pListener, final IPentahoUrlFactory urlFactory, final List messages) {
     applyParameterMappers(parameterProviderMap);
-    return execute(solutionName, sequencePath, sequenceName, processId, async, instanceEnds, instanceId, isPersisted,
+    return execute(actionPath, processId, async, instanceEnds, instanceId, isPersisted,
         parameterProviderMap, outputHandler, pListener, urlFactory, messages, null);
   }
 
-  public IRuntimeContext execute(final String actionSequenceXML, final String sequenceName, final String processId,
+  public IRuntimeContext execute(final String actionSequenceXML, final String sequencePath, final String processId,
       final boolean async, final boolean instanceEnds, final String instanceId, final boolean isPersisted,
       final Map parameterProviderMap, final IOutputHandler outputHandler, final IActionCompleteListener pListener,
       final IPentahoUrlFactory urlFactory, final List messages) {
     applyParameterMappers(parameterProviderMap);
-    return execute("InMemorySolution", "", sequenceName, processId, async, instanceEnds, instanceId, //$NON-NLS-1$ //$NON-NLS-2$
+    return execute(sequencePath, processId, async, instanceEnds, instanceId, //$NON-NLS-1$ //$NON-NLS-2$
         isPersisted, parameterProviderMap, outputHandler, pListener, urlFactory, messages, actionSequenceXML);
   }
 
-  protected IRuntimeContext execute(final String solutionName, final String sequencePath, final String sequenceName,
+  protected IRuntimeContext execute(final String actionPath,
       final String processId, final boolean async, final boolean instanceEnds, String instanceId,
       final boolean isPersisted, final Map parameterProviderMap, final IOutputHandler outputHandler,
       final IActionCompleteListener pListener, final IPentahoUrlFactory urlFactory, final List messages,
@@ -206,14 +206,14 @@ public class SolutionEngine extends PentahoMessenger implements ISolutionEngine,
 
     setMessages(messages);
 
-    auditStart(solutionName, sequencePath, sequenceName, instanceId);
+    auditStart(actionPath, instanceId);
 
-    if (!checkParameters(sequencePath, processId)) {
+    if (!checkParameters(actionPath, processId)) {
       return null;
     }
 
     session.setProcessId(processId);
-    session.setActionName(sequenceName);
+    session.setActionName(actionPath);
 
     // create the runtime context object for this operation
     if (debug) {
@@ -256,14 +256,14 @@ public class SolutionEngine extends PentahoMessenger implements ISolutionEngine,
       status = IRuntimeContext.RUNTIME_STATUS_SETUP_FAIL;
       return null;
     }
-    createRuntime(runtimeData, solutionName, outputHandler, processId, urlFactory);
+    createRuntime(runtimeData, actionPath, outputHandler, processId, urlFactory);
     runtime.setLoggingLevel(loggingLevel);
     instanceId = runtime.getInstanceId();
-    genLogIdFromInfo(instanceId, SolutionEngine.LOG_NAME, sequenceName);
+    genLogIdFromInfo(instanceId, SolutionEngine.LOG_NAME, actionPath);
 
     if (newInstance) {
       // audit the creation of this against the session
-      AuditHelper.audit(session.getId(), session.getName(), sequenceName, getObjectName(), processId,
+      AuditHelper.audit(session.getId(), session.getName(), actionPath, getObjectName(), processId,
           MessageTypes.INSTANCE_START, instanceId, "", 0, this); //$NON-NLS-1$
     }
 
@@ -305,24 +305,24 @@ public class SolutionEngine extends PentahoMessenger implements ISolutionEngine,
     if (outputHandler != null) {
       outputHandler.setRuntimeContext(runtime);
     }
-    return executeInternal(sequencePath, processId, async, instanceEnds,
+    return executeInternal(actionPath, processId, async, instanceEnds,
         parameterProviderMap, actionSequenceXML);
   }
 
-  public IRuntimeContext execute(final IRuntimeContext pRuntime, final String solutionName, final String sequencePath,
-      final String sequenceName, final String processId, final boolean async, final boolean instanceEnds,
+  public IRuntimeContext execute(final IRuntimeContext pRuntime, String actionPath,
+      final String processId, final boolean async, final boolean instanceEnds,
       final Map parameterProviderMap, final IOutputHandler outputHandler) {
     applyParameterMappers(parameterProviderMap);
 
     runtime = pRuntime;
     runtime.setOutputHandler(outputHandler);
-    auditStart("", sequencePath, FilenameUtils.getName(sequencePath), runtime.getInstanceId());
+    auditStart(actionPath, runtime.getInstanceId());
 
-    if (!checkParameters(sequencePath, processId)) {
+    if (!checkParameters(actionPath, processId)) {
       status = IRuntimeContext.RUNTIME_STATUS_FAILURE;
       return null;
     }
-    return executeInternal(sequencePath, processId, async, instanceEnds,
+    return executeInternal(actionPath, processId, async, instanceEnds,
         parameterProviderMap);
 
   }

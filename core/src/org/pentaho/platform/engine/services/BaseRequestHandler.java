@@ -48,10 +48,6 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
 
   protected IPentahoUrlFactory urlFactory;
 
-  private String solutionName;
-
-  private String actionName;
-
   private String actionPath;
 
   protected String processId;
@@ -125,20 +121,6 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
     return instanceId;
   }
 
-  public void setAction(final String actionPath, final String actionName) {
-    this.actionName = actionName;
-    this.actionPath = actionPath;
-
-  }
-
-  public void setSolutionName(final String solutionName) {
-    this.solutionName = solutionName;
-  }
-
-  public String getSolutionName() {
-    return solutionName;
-  }
-
   public IRuntimeContext handleActionRequest(final int timeout, final int timeoutType) {
 
     // Get the solution engine
@@ -156,7 +138,7 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
     }
 
     dispose();
-    runtime = solutionEngine.execute(solutionName, actionPath, actionName, processId, false, instanceEnds, instanceId, true, parameterProviders, outputHandler,
+    runtime = solutionEngine.execute(actionPath, processId, false, instanceEnds, instanceId, true, parameterProviders, outputHandler,
         this, urlFactory, messages);
 
     // need to wait until this is complete
@@ -200,10 +182,6 @@ public class BaseRequestHandler implements IActionRequestHandler, IActionComplet
 
   public void setParameterXsl(final String xsl) {
     this.parameterXsl = xsl;
-  }
-
-  public String getActionName() {
-    return actionName;
   }
 
   public String getActionPath() {

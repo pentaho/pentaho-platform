@@ -399,7 +399,10 @@ public class WidgetGridComponent extends XmlComponent {
 
     ArrayList messages = new ArrayList();
     String processId = this.getClass().getName();
-    context = solutionEngine.execute(solution, actionPath, actionName, processId, false, true, instanceId, false,
+    
+    String actionSeqPath = ActionInfo.buildSolutionPath(solution, actionPath, actionName);
+    
+    context = solutionEngine.execute(actionSeqPath, processId, false, true, instanceId, false,
         parameterProviders, outputHandler, null, urlFactory, messages);
 
     if (actionOutput != null) {

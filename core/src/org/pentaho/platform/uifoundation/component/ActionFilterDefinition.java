@@ -30,6 +30,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
+import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
@@ -82,7 +83,8 @@ public class ActionFilterDefinition extends FilterDefinition {
 
     IRuntimeContext context = null;
     try {
-      context = solutionEngine.execute(solution, actionPath, actionName, processId, false, true, instanceId, false,
+      String actionSeqPath = ActionInfo.buildSolutionPath(solution, actionPath, actionName);
+      context = solutionEngine.execute(actionSeqPath, processId, false, true, instanceId, false,
           parameterProviders, outputHandler, null, null, messages);
 
       if (listSource != null) {

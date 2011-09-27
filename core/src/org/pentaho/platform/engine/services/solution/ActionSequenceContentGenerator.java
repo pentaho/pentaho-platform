@@ -37,6 +37,7 @@ import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -87,15 +88,18 @@ public class ActionSequenceContentGenerator extends BaseContentGenerator {
 		    String parameterXsl = systemSettings.getSystemSetting("default-parameter-xsl", "DefaultParameterForm.xsl"); //$NON-NLS-1$ //$NON-NLS-2$
 		    boolean forcePrompt = "true".equalsIgnoreCase( requestParams.getStringParameter( "prompt" ,"false" ) );  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		    boolean doSubscribe = "yes".equalsIgnoreCase( requestParams.getStringParameter("subscribepage", "no") ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
 		    String solutionName = requestParams.getStringParameter("solution", null); //$NON-NLS-1$
 		    String actionPath = requestParams.getStringParameter("path", null); //$NON-NLS-1$
 		    String actionName = requestParams.getStringParameter("action2", null); //$NON-NLS-1$
 
-		    createOutputFileName( solutionName, actionPath, actionName );
+        String actionSeqPath = ActionInfo.buildSolutionPath(solutionName, actionPath, actionName);
 		    
-		    if (actionName == null) {
+		    createOutputFileName( actionSeqPath );
+		    
+		    if (actionSeqPath == null) {
 		      // now look for a primary action
-		      actionName = requestParams.getStringParameter("action", null); //$NON-NLS-1$
+		      actionSeqPath = requestParams.getStringParameter("action", null); //$NON-NLS-1$
 		    }
 
 		    int outputPreference = IOutputHandler.OUTPUT_TYPE_DEFAULT;
@@ -113,7 +117,7 @@ public class ActionSequenceContentGenerator extends BaseContentGenerator {
 		      solutionEngine.setParameterXsl(parameterXsl);
 		    }
 		    
-		    runtime = solutionEngine.execute(solutionName, actionPath, actionName, processId, false, instanceEnds, instanceId, false, parameterProviders, outputHandler, null, urlFactory, messages);
+		    runtime = solutionEngine.execute(actionSeqPath, processId, false, instanceEnds, instanceId, false, parameterProviders, outputHandler, null, urlFactory, messages);
 
 	        boolean doMessages = "true".equalsIgnoreCase(requestParams.getStringParameter("debug", "false")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       	    boolean doWrapper = "true".equalsIgnoreCase( requestParams.getStringParameter( "wrapper" ,"true" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -126,9 +130,10 @@ public class ActionSequenceContentGenerator extends BaseContentGenerator {
 		
 	}
 	
-	protected void createOutputFileName( String solutionName, String actionPath, String actionName ) {
+	protected void createOutputFileName( String actionPath ) {
         ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, userSession);
-        IActionSequence actionSequence = repository.getActionSequence(solutionName, actionPath, actionName,
+        ActionInfo info = ActionInfo.parseActionString(actionPath);
+        IActionSequence actionSequence = repository.getActionSequence(info.getSolutionName(), info.getPath(), info.getActionName(),
                 PentahoSystem.loggingLevel, ISolutionRepository.ACTION_EXECUTE);
         String fileName = "content"; //$NON-NLS-1$
         if (actionSequence != null) {
@@ -176,11 +181,13 @@ public class ActionSequenceContentGenerator extends BaseContentGenerator {
 	    String actionPath = requestParams.getStringParameter("path", null); //$NON-NLS-1$
 	    String actionName = requestParams.getStringParameter("action2", null); //$NON-NLS-1$
 
-	    createOutputFileName( solutionName, actionPath, actionName );
+      String actionSeqPath = ActionInfo.buildSolutionPath(solutionName, actionPath, actionName);
 	    
-	    if (actionName == null) {
+	    createOutputFileName( actionSeqPath );
+	    
+	    if (actionSeqPath == null) {
 	      // now look for a primary action
-	      actionName = requestParams.getStringParameter("action", null); //$NON-NLS-1$
+	      actionSeqPath = requestParams.getStringParameter("action", null); //$NON-NLS-1$
 	    }
 
 	    int outputPreference = IOutputHandler.OUTPUT_TYPE_DEFAULT;

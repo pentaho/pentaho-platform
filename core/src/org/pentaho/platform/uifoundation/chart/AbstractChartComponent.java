@@ -178,7 +178,7 @@ public abstract class AbstractChartComponent extends XmlComponent {
 
     ArrayList messages = new ArrayList();
     String processId = this.getClass().getName();
-    context = solutionEngine.execute("", actionPath, "", processId, false, true, instanceId, false, //$NON-NLS-1$ //$NON-NLS-2$
+    context = solutionEngine.execute(actionPath, processId, false, true, instanceId, false, //$NON-NLS-1$ //$NON-NLS-2$
         parameterProviders, outputHandler, null, urlFactory, messages);
 
     if (context == null) {

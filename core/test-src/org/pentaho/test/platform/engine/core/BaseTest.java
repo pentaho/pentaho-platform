@@ -190,17 +190,17 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
     dispose();
   }
 
-  public IRuntimeContext run(String solutionId, String path, String actionName) {
+  public IRuntimeContext run(String actionPath) {
     assertTrue(initOk);
 
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
 
-    return run(solutionId, path, actionName, parameterProvider);
+    return run(actionPath, parameterProvider);
   }
 
-  public IRuntimeContext run(String solutionId, String path, String actionName, IParameterProvider parameterProvider) {
+  public IRuntimeContext run(String actionPath, IParameterProvider parameterProvider) {
 
-    return run(solutionId, path, actionName, parameterProvider, null, null);
+    return run(actionPath, parameterProvider, null, null);
   }
 
   public IOutputHandler getOutputHandler(OutputStream stream) {
@@ -223,7 +223,7 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
     return session;
   }
 
-  public IRuntimeContext run(String solutionId, String path, String actionName, IParameterProvider parameterProvider,
+  public IRuntimeContext run(String actionPath, IParameterProvider parameterProvider,
       String testName, String fileExtension) {
     assertTrue(initOk);
 
@@ -244,10 +244,10 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
       outputHandler.setSession(session);
     }
 
-    return run(solutionId, path, actionName, instanceId, false, parameterProvider, outputHandler, session);
+    return run(actionPath, instanceId, false, parameterProvider, outputHandler, session);
   }
 
-  public IRuntimeContext run(String solutionId, String path, String actionName, String instanceId, boolean persisted,
+  public IRuntimeContext run(String actionPath, String instanceId, boolean persisted,
       IParameterProvider parameterProvider, IOutputHandler outputHandler, IPentahoSession session) {
     assertTrue(initOk);
 
@@ -255,15 +255,15 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
     solutionEngine.setLoggingLevel(getLoggingLevel());
     solutionEngine.init(session);
 
-    return run(solutionEngine, solutionId, path, actionName, instanceId, persisted, parameterProvider, outputHandler);
+    return run(solutionEngine, actionPath, instanceId, persisted, parameterProvider, outputHandler);
   }
 
-  public IRuntimeContext run(ISolutionEngine solutionEngine, String solutionId, String path, String actionName,
+  public IRuntimeContext run(ISolutionEngine solutionEngine, String actionPath,
       String instanceId, boolean persisted, IParameterProvider parameterProvider, IOutputHandler outputHandler) {
     assertTrue(initOk);
 
-    info(Messages.getInstance().getString("BaseTest.INFO_START_TEST_MSG", actionName)); //$NON-NLS-1$
-    info(actionName);
+    info(Messages.getInstance().getString("BaseTest.INFO_START_TEST_MSG", actionPath)); //$NON-NLS-1$
+    info(actionPath);
 
     String baseUrl = ""; //$NON-NLS-1$  
     HashMap<String,IParameterProvider> parameterProviderMap = new HashMap<String,IParameterProvider>();
@@ -274,11 +274,9 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
     dispose();
     context = solutionEngine
         .execute(
-            solutionId,
-            path,
-            actionName,
+            actionPath,
             Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_TEST"), false, true, instanceId, persisted, parameterProviderMap, outputHandler, this, urlFactory, messages); //$NON-NLS-1$
-    info(Messages.getInstance().getString("BaseTest.INFO_FINISH_TEST_MSG", actionName)); //$NON-NLS-1$
+    info(Messages.getInstance().getString("BaseTest.INFO_FINISH_TEST_MSG", actionPath)); //$NON-NLS-1$
 
     // TODO compare message stack with saved version
 
