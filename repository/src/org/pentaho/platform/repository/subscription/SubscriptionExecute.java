@@ -195,18 +195,8 @@ public class SubscriptionExecute extends PentahoBase {
       String instanceId = null;
       String processId = this.getClass().getName();
 
-      if (solutionName == null) {
-        error(Messages.getInstance().getErrorString("SubscriptionExecute.ERROR_0001_SOLUTION_NAME_MISSING")); //$NON-NLS-1$
-        return;
-      }
-      if (actionPath == null) {
-        error(Messages.getInstance().getErrorString("SubscriptionExecute.ERROR_0002_ACTION_PATH_MISSING")); //$NON-NLS-1$
-        return;
-      }
-      if (actionName == null) {
-        error(Messages.getInstance().getErrorString("SubscriptionExecute.ERROR_0003_ACTION_NAME_MISSING")); //$NON-NLS-1$
-        return;
-      }
+      String actionSeqPath = ActionInfo.buildSolutionPath(solutionName, actionPath, actionName);
+      
       if (SubscriptionExecute.debug) {
         if (SubscriptionExecute.debug) {
           debug(Messages.getInstance().getString("SubscriptionExecute.DEBUG_EXECUTION_INFO", solutionName + "/" + actionPath + "/" + actionName)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -247,8 +237,7 @@ public class SubscriptionExecute extends PentahoBase {
 
         requestHandler.setInstanceId(instanceId);
         requestHandler.setProcessId(processId);
-        requestHandler.setAction(actionPath, actionName);
-        requestHandler.setSolutionName(solutionName);
+        requestHandler.setActionPath(actionSeqPath);
         IRuntimeContext rt = null;
         try {
           rt = requestHandler.handleActionRequest(0, 0);
