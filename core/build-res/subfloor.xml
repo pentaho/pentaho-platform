@@ -203,7 +203,7 @@ TYPICAL TARGET SEQUENCE
   <property name="junit.haltonfailure" value="no" description="Fail the build if a test fails" />
   <property name="junit.maxmemory" value="256M" description="Heap size when Junit is run in fork mode" />
   <property name="headless.unittest" value="true" description="Runs the unit tests in headless mode" />
-  <property name="tests.publish" value="false" description="Create and publish the tests as jar"/>
+  <property name="tests.publish" value="" description="Create and publish the tests as jar, this variable must not be set if you do not want this feature enabled"/>
 
   <!-- Code Coverage properties -->
   <property name="instrumented.classes.dir"
