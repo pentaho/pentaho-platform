@@ -22,6 +22,7 @@ import org.pentaho.actionsequence.dom.ActionSequenceDocument;
 import org.pentaho.actionsequence.dom.actions.PivotViewAction;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoSystemException;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.web.servlet.AnalysisViewService;
 import org.pentaho.platform.web.servlet.messages.Messages;
@@ -45,6 +46,7 @@ public class AnalysisViewServiceTest extends BaseTest {
   public void testLoadAnalysisViewTemplate() {
     AnalysisViewService avs = new AnalysisViewService();
     StandaloneSession initialSession = new StandaloneSession(Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_SESSION")); //$NON-NLS-1$
+    PentahoSessionHolder.setSession(initialSession);
     IPentahoSession session = sessionStartup(initialSession);
     try {
       ActionSequenceDocument doc = avs.loadAnalysisViewTemplate(session);

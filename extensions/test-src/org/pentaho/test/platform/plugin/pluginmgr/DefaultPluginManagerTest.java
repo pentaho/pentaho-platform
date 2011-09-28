@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ import org.pentaho.platform.api.engine.PluginServiceDefinition;
 import org.pentaho.platform.api.engine.SolutionFileMetaAdapter;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.solution.ContentGeneratorInfo;
 import org.pentaho.platform.engine.core.solution.ContentInfo;
 import org.pentaho.platform.engine.core.solution.FileInfo;
@@ -72,6 +74,7 @@ import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceM
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.GwtRpcServiceManager;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.IServiceTypeManager;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
+import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.engine.core.EchoServiceBean;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.ui.xul.IMenuCustomization;
@@ -93,11 +96,14 @@ public class DefaultPluginManagerTest {
 
   @Before
   public void init0() {
-    microPlatform = new MicroPlatform("test-res/PluginManagerTest/");
+    microPlatform = new MicroPlatform("test-res/PluginManagerTest");
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
     microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     microPlatform.define(IPluginProvider.class, SystemPathXmlPluginProvider.class);
     microPlatform.define(IServiceManager.class, DefaultServiceManager.class, Scope.GLOBAL);
+    microPlatform.define(IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL);
+    FileSystemBackedUnifiedRepository repo = (FileSystemBackedUnifiedRepository)PentahoSystem.get(IUnifiedRepository.class);
+    repo.setRootDir(new File("test-res/PluginManagerTest"));
 
     session = new StandaloneSession();
     pluginManager = new DefaultPluginManager();
@@ -273,7 +279,7 @@ public class DefaultPluginManagerTest {
     //This test is to validate a bug that had existed where a solution path ending in '/' was causing
     //the PluginClassLoader to not be able to open plugin jars, thus you would get ClassNotFound exceptions
     //when accessing plugin classes.
-    MicroPlatform mp = new MicroPlatform("plugin-mgr/test-res/PluginManagerTest/");
+    MicroPlatform mp = new MicroPlatform("test-res/PluginManagerTest/");
     mp.define(ISolutionEngine.class, SolutionEngine.class);
     mp.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
     mp.define(IServiceManager.class, DefaultServiceManager.class);
@@ -295,7 +301,7 @@ public class DefaultPluginManagerTest {
   
   @Test
   public void test8c_loadClass() throws PlatformInitializationException, PluginBeanException {
-    MicroPlatform mp = new MicroPlatform("plugin-mgr/test-res/PluginManagerTest/");
+    MicroPlatform mp = new MicroPlatform("test-res/PluginManagerTest/");
     mp.define(IPluginProvider.class, Tst8PluginProvider.class).start();
     pluginManager.reload();
     pluginManager.loadClass("PluginOnlyClass");
