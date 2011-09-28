@@ -51,6 +51,9 @@ public class VFSOutputTest extends BaseTest {
     // create a user session
     IPentahoSession session = new StandaloneSession( "test" );
     PentahoSessionHolder.setSession(session);
+
+    System.out.println("solution.root.dir = " + System.getProperty("solution.root.dir"));
+    
     IRuntimeContext context = run("/test/platform/VFSOutputTest_file.xaction", parameterProvider, "VFSOutputTest.testFileOutput", ".txt"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
     assertEquals( Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus() ); //$NON-NLS-1$
 
