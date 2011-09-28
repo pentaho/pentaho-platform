@@ -12,6 +12,7 @@ PentahoSystem which is initialized after Spring
   default-lazy-init="true">
   
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
+  <bean id="IUnifiedRepository" class="org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository" scope="prototype" />
   <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.filebased.ExtensionFileBasedSolutionRepository" scope="session" />
   <bean id="IContentRepository" class="org.pentaho.platform.repository.content.ContentRepository" scope="session" />
   <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.runtime.RuntimeRepository" scope="session" />

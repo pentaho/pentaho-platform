@@ -19,6 +19,7 @@
 */
 package org.pentaho.test.platform.plugin;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
@@ -53,6 +55,7 @@ import org.pentaho.platform.plugin.action.mondrian.mapper.MondrianUserSessionUse
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.connections.sql.SQLConnection;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
+import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -67,11 +70,14 @@ public class UserRoleMapperTest {
     microPlatform = new MicroPlatform("test-src/solution");
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
     microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class);
+    microPlatform.define(IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL);
     microPlatform.define(IMondrianCatalogService.class, MondrianCatalogHelper.class, Scope.GLOBAL);
     microPlatform.define("connection-SQL", SQLConnection.class);
     microPlatform.define("connection-MDX", MDXConnection.class);
     microPlatform.define(IDatasourceService.class, JndiDatasourceService.class, Scope.GLOBAL);
     microPlatform.define(IUserRoleListService.class, TestUserRoleListService.class, Scope.GLOBAL);
+    FileSystemBackedUnifiedRepository repo = (FileSystemBackedUnifiedRepository)PentahoSystem.get(IUnifiedRepository.class);
+    repo.setRootDir(new File("test-src/solution"));
     try {
       microPlatform.start();
     } catch (PlatformInitializationException ex) {

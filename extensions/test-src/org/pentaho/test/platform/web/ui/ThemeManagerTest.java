@@ -1,30 +1,21 @@
 package org.pentaho.test.platform.web.ui;
 
-import com.mockrunner.mock.web.MockHttpSession;
-import com.mockrunner.mock.web.MockServletContext;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.pentaho.platform.api.engine.*;
-import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.ui.IThemeManager;
-import org.pentaho.platform.api.ui.ThemeResource;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
-import org.pentaho.platform.engine.services.solution.SolutionEngine;
-import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
-import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider;
-import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
-import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
-import org.pentaho.test.platform.engine.core.BaseTest;
-import org.pentaho.test.platform.engine.core.MicroPlatform;
-
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.ui.IThemeManager;
+import org.pentaho.platform.api.ui.ThemeResource;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.test.platform.engine.core.BaseTest;
+
+import com.mockrunner.mock.web.MockServletContext;
 
 /**
  * User: nbaker
@@ -48,12 +39,14 @@ public class ThemeManagerTest extends BaseTest {
     MockServletContext context = new MockServletContext();
     context.addResourcePaths("/", Arrays.asList("test-module/"));
     context.addResourcePaths("/test-module/", Arrays.asList("themes.xml"));
-    context.setResource("/test-module/themes.xml", getClass().getResource("/solution/system/themeplugin/themes.xml"));
-    context.setResourceAsStream("/test-module/themes.xml", getClass().getResourceAsStream("/solution/system/themeplugin/themes.xml"));
+    File themesDotXML = new File(getSolutionPath() + "/system/themeplugin/themes.xml");
+    context.setResource("/test-module/themes.xml", themesDotXML.toURI().toURL());
+    context.setResourceAsStream("/test-module/themes.xml", new FileInputStream(themesDotXML));
     PentahoSystem.getApplicationContext().setContext(context);
 
-
-    PentahoSystem.get(IPluginManager.class).reload(new StandaloneSession());
+    StandaloneSession session = new StandaloneSession();
+    PentahoSessionHolder.setSession(session);
+    PentahoSystem.get(IPluginManager.class).reload();
 
     IThemeManager themeManager = PentahoSystem.get(IThemeManager.class);
     
