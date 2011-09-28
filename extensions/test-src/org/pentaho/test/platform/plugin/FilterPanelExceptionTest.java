@@ -22,6 +22,10 @@ import org.pentaho.test.platform.engine.core.BaseTest;
 
 public class FilterPanelExceptionTest extends BaseTest {
 
+  public String getSolutionPath() {
+    return "test-src/solution";
+  }
+  
   public void testFilterPanelException1() {
     startTest();
     info("Expected: Exception will be caught and thrown as a FilterPanel Exception"); //$NON-NLS-1$
