@@ -20,7 +20,7 @@
   <outputs>
     <content type="content">
     		<destinations>
-    			<file>file://c:/tmp/VFSOutputTest.testFileOutput.txt</file>
+    			<file>file:///tmp/VFSOutputTest.testFileOutput.txt</file>
     			<!--<file>vfs-ftp://jdixon:mypassword@prosource.pentaho.org/release/VFSOutputTest.testFileOutput.txt</file>-->
     		</destinations>
     </content> 
