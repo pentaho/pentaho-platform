@@ -87,6 +87,9 @@ public class StandaloneApplicationContext implements IApplicationContext {
       fileDeleter = (ITempFileDeleter)session.getAttribute(ITempFileDeleter.DELETER_SESSION_VARIABLE);
     }
     final String newPrefix = new StringBuilder().append(prefix).append(session.getId().substring(0, 10)).append('-').toString();
+    if (parentDir != null) {
+      parentDir.mkdirs();
+    }
     final File file = File.createTempFile(newPrefix, extn, parentDir);
     if (fileDeleter != null) {
       fileDeleter.trackTempFile(file);
