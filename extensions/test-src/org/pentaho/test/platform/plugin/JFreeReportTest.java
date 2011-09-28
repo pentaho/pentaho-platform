@@ -72,7 +72,7 @@ public class JFreeReportTest extends BaseTest {
     SimpleOutputHandler outputHandler = new SimpleOutputHandler(outputStream, true);
     StandaloneSession session = new StandaloneSession(Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_SESSION")); //$NON-NLS-1$
     IRuntimeContext context = run(
-        "test", "reporting", "jfreereport-reports-test-param.xaction", null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        "/test/reporting/jfreereport-reports-test-param.xaction", null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
     // TODO need some validation of success
@@ -87,7 +87,7 @@ public class JFreeReportTest extends BaseTest {
     SimpleOutputHandler outputHandler = new SimpleOutputHandler(outputStream, true);
     StandaloneSession session = new StandaloneSession(Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_SESSION")); //$NON-NLS-1$
     IRuntimeContext context = run(
-        "test", "reporting", "jfreereport-reports-test-param2.xaction", null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        "/test/reporting/jfreereport-reports-test-param2.xaction", null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
     // TODO need some validation of success

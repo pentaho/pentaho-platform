@@ -39,7 +39,7 @@ public class TemplateTest extends BaseTest {
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
     parameterProvider.setParameter("customer", "Acme"); //$NON-NLS-1$ //$NON-NLS-2$
 
-    IRuntimeContext context = run("test", "template", "template1.xaction", parameterProvider); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/template/template1.xaction", parameterProvider); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
     assertNotNull("", context.getOutputParameter("output")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -52,7 +52,7 @@ public class TemplateTest extends BaseTest {
     startTest();
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
 
-    IRuntimeContext context = run("test", "template", "template2.xaction", parameterProvider); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/template/template2.xaction", parameterProvider); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
     assertNotNull("", context.getOutputParameter("output")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -71,7 +71,7 @@ public class TemplateTest extends BaseTest {
     SimpleOutputHandler outputHandler = new SimpleOutputHandler(outputStream, true);
     StandaloneSession session = new StandaloneSession(Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_SESSION")); //$NON-NLS-1$
     IRuntimeContext context = run(
-        "test", "template", "europemap.xaction", null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        "/test/template/europemap.xaction", null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 

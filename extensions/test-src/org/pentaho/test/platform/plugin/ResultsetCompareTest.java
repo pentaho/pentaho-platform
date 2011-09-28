@@ -32,7 +32,7 @@ public class ResultsetCompareTest extends BaseTest {
 
   public void testRSCompareOK() {
     startTest();
-    IRuntimeContext context = run("test", "rules", "ResultSetCompareTest.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/ResultSetCompareTest.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
     IActionParameter rtn = context.getOutputParameter("COMPARERESULT");//$NON-NLS-1$
@@ -44,7 +44,7 @@ public class ResultsetCompareTest extends BaseTest {
 
   public void testRSCompareNotOK1() {
     startTest();
-    IRuntimeContext context = run("test", "rules", "ResultSetCompareTest_error1.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/ResultSetCompareTest_error1.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     IActionParameter rtn = context.getOutputParameter("COMPARERESULT");//$NON-NLS-1$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
@@ -56,7 +56,7 @@ public class ResultsetCompareTest extends BaseTest {
 
   public void testRSCompareNotOK2() {
     startTest();
-    IRuntimeContext context = run("test", "rules", "ResultSetCompareTest_error2.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/ResultSetCompareTest_error2.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(context.getStatus(), IRuntimeContext.RUNTIME_STATUS_FAILURE);
 
     finishTest();
@@ -64,7 +64,7 @@ public class ResultsetCompareTest extends BaseTest {
 
   public void testRSCompareNotOK3() {
     startTest();
-    IRuntimeContext context = run("test", "rules", "ResultSetCompareTest_error3.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/ResultSetCompareTest_error3.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(context.getStatus(), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL);
 
     finishTest();
@@ -73,7 +73,7 @@ public class ResultsetCompareTest extends BaseTest {
 
   public void testRSCompareNotOK4() {
     startTest();
-    IRuntimeContext context = run("test", "rules", "ResultSetCompareTest_error4.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/ResultSetCompareTest_error4.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(context.getStatus(), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL);
 
     finishTest();
@@ -82,7 +82,7 @@ public class ResultsetCompareTest extends BaseTest {
 
   public void testRSCompareNotOK5() {
     startTest();
-    IRuntimeContext context = run("test", "rules", "ResultSetCompareTest_error5.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/ResultSetCompareTest_error5.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(context.getStatus(), IRuntimeContext.RUNTIME_STATUS_FAILURE);
 
     finishTest();

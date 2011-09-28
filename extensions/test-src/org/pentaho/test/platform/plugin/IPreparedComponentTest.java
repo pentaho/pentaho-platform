@@ -43,7 +43,7 @@ public class IPreparedComponentTest extends BaseTest {
   public void testIPreparedComponentSQLAvailable() {
     startTest();
     info("Expected: Successful execution with object available"); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "ipreparedcomponents", "ipreparedcomponent_sql_available.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/ipreparedcomponents/ipreparedcomponent_sql_available.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 
@@ -185,7 +185,7 @@ public class IPreparedComponentTest extends BaseTest {
   public void testIPreparedComponentXQueryAvailable() {
     startTest();
     info("Expected: Successful execution with object available"); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "ipreparedcomponents", "ipreparedcomponent_xquery_available.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/ipreparedcomponents/ipreparedcomponent_xquery_available.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 
@@ -201,7 +201,7 @@ public class IPreparedComponentTest extends BaseTest {
   public void testIPreparedComponentXQueryAvailableErrorNoDocument() {
     startTest();
     IRuntimeContext context = run(
-        "test", "ipreparedcomponents", "ipreparedcomponent_xquery_available_error_nodocument.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        "/test/ipreparedcomponents/ipreparedcomponent_xquery_available_error_nodocument.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus()); //$NON-NLS-1$
 
@@ -218,7 +218,7 @@ public class IPreparedComponentTest extends BaseTest {
     startTest();
     info("Expected: Successful execution with object available"); //$NON-NLS-1$
     IRuntimeContext context = run(
-        "test", "ipreparedcomponents", "ipreparedcomponent_xquery_available_error_nopreparedcomponent.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+        "/test/ipreparedcomponents/ipreparedcomponent_xquery_available_error_nopreparedcomponent.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus()); //$NON-NLS-1$
 
@@ -228,7 +228,7 @@ public class IPreparedComponentTest extends BaseTest {
   public void testIPreparedComponentXQueryPrepareLater() {
     startTest();
     info("Expected: Successful execution with object available"); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "ipreparedcomponents", "ipreparedcomponent_xquery_preparelater.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/ipreparedcomponents/ipreparedcomponent_xquery_preparelater.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 
@@ -260,7 +260,7 @@ public class IPreparedComponentTest extends BaseTest {
   public void testIPreparedComponentXQueryShareConnection() {
     startTest();
     info("Expected: Successful execution with object available"); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "ipreparedcomponents", "ipreparedcomponent_xquery_shareconn.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/ipreparedcomponents/ipreparedcomponent_xquery_shareconn.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 

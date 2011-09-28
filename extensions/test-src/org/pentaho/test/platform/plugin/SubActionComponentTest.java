@@ -73,7 +73,7 @@ public class SubActionComponentTest extends BaseTest {
     parameterProvider.setParameter(SUBACTION_PARAM, SUBACTION);
     parameterProvider.setParameter(TEST_INPUT_PARAM, TEST_STRING);
 
-    IRuntimeContext context = run(SOLUTION_NAME, "platform", TEST_XACTION, parameterProvider, testName, CO_TEST_EXTN);
+    IRuntimeContext context = run("/" + SOLUTION_NAME + "/platform/" + TEST_XACTION, parameterProvider, testName, CO_TEST_EXTN);
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 
@@ -145,7 +145,7 @@ public class SubActionComponentTest extends BaseTest {
   public void testChildConnectionNotSharing() {
     startTest();
     info("Expected: Failed execution with object not available"); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "platform", "SubActionConnectionTest2.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/platform/SubActionConnectionTest2.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     // xaction should fail, because connection isn't available
     assertEquals(

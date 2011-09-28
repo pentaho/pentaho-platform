@@ -202,7 +202,7 @@ public class MultipleComponentTest extends BaseTest {
     startTest();
     String testName = HW_TEST_NAME + System.currentTimeMillis();
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-    IRuntimeContext context = run("test", "platform", "HelloWorld.xaction", parameterProvider, testName, HW_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/platform/HelloWorld.xaction", parameterProvider, testName, HW_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
     if (context != null) {
@@ -415,7 +415,7 @@ public class MultipleComponentTest extends BaseTest {
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
     String testName = "PivotViewTest_" + System.currentTimeMillis(); //$NON-NLS-1$
     String testExt = ".html";//$NON-NLS-1$
-    IRuntimeContext context = run("test", "analysis", "query1.xaction", parameterProvider, testName, testExt); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/analysis/query1.xaction", parameterProvider, testName, testExt); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
     finishTest();

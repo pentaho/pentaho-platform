@@ -39,7 +39,7 @@ public class RulesTest extends BaseTest {
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
     parameterProvider.setParameter("customer", "Acme"); //$NON-NLS-1$ //$NON-NLS-2$
 
-    IRuntimeContext context = run("test", "rules", "script_rule1.xaction", parameterProvider); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/script_rule1.xaction", parameterProvider); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 
@@ -54,7 +54,7 @@ public class RulesTest extends BaseTest {
   public void testScriptRuleError1() {
     startTest();
     info(Messages.getInstance().getString("RulesTest.USER_ERRORS_EXPECTED_SCRIPT_NOT_DEFINED")); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "rules", "script_rule_error1.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/script_rule_error1.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus()); //$NON-NLS-1$
 
@@ -68,7 +68,7 @@ public class RulesTest extends BaseTest {
   public void testScriptRuleError2() {
     startTest();
     info(Messages.getInstance().getString("RulesTest.USER_ERRORS_EXPECTED_OUTPUT_NOT_DEFINED")); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "rules", "script_rule_error2.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/script_rule_error2.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus()); //$NON-NLS-1$
 
@@ -80,7 +80,7 @@ public class RulesTest extends BaseTest {
   public void testScriptRuleError3() {
     startTest();
     info(Messages.getInstance().getString("RulesTest.USER_ERRORS_EXPECTED_SCRIPT_INVALID")); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "rules", "script_rule_error3.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/script_rule_error3.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus()); //$NON-NLS-1$
 
@@ -93,7 +93,7 @@ public class RulesTest extends BaseTest {
     startTest();
 
     info("This should generate errors because the input to the script has a minus sign in the input name."); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "rules", "script_rule_error4.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/script_rule_error4.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus()); //$NON-NLS-1$
     assertEquals(
@@ -104,7 +104,7 @@ public class RulesTest extends BaseTest {
   public void testScriptCompoundResult() {
     startTest();
     info(Messages.getInstance().getString("RulesTest.USER_ERRORS_EXPECTED_SCRIPT_INVALID")); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "rules", "script_rule3.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/script_rule3.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 

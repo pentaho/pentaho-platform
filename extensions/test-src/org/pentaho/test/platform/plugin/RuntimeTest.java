@@ -47,7 +47,7 @@ public class RuntimeTest extends BaseTest {
     StandaloneSession session = new StandaloneSession(Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_SESSION")); //$NON-NLS-1$
 
     IRuntimeContext context = run(
-        "test", "platform", "HelloWorld.xaction", null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        "/test/platform/HelloWorld.xaction", null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 
@@ -67,7 +67,7 @@ public class RuntimeTest extends BaseTest {
     solutionEngine.init(session);
     solutionEngine.setForcePrompt(true);
     IRuntimeContext context = run(solutionEngine,
-        "test", "reporting", "jfreereport-reports-test-param.xaction", null, false, parameterProvider, outputHandler); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        "/test/reporting/jfreereport-reports-test-param.xaction", null, false, parameterProvider, outputHandler); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 
@@ -76,7 +76,7 @@ public class RuntimeTest extends BaseTest {
 
   public void testMultiComponent() {
     startTest();
-    IRuntimeContext context = run("test", "platform", "MultiComponentTest.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/platform/MultiComponentTest.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
     finishTest();
@@ -92,7 +92,7 @@ public class RuntimeTest extends BaseTest {
 
   public void testLooping() {
     startTest();
-    IRuntimeContext context = run("test", "platform", "LoopingTest.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/platform/LoopingTest.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
     finishTest();

@@ -109,7 +109,7 @@ public class SQLExecuteComponentTest extends BaseTest {
   public void testSQLExecuteErrorDropTable() {
     startTest();
     info("Expected: Failed execution - should error out at the drop table statement"); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "rules", "sqlexecute_error1.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/sqlexecute_error1.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus()); //$NON-NLS-1$
   }
@@ -117,7 +117,7 @@ public class SQLExecuteComponentTest extends BaseTest {
   public void testSQLExecuteErrorSQLWithSemiColons() {
     startTest();
     info("Expected: Failed execution - should error out because of the semi-colon"); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "rules", "sqlexecute_error2.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/sqlexecute_error2.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus()); //$NON-NLS-1$
   }
@@ -125,7 +125,7 @@ public class SQLExecuteComponentTest extends BaseTest {
   public void testSQLExecuteErrorDropTableSingleStatement() {
     startTest();
     info("Expected: Failed execution - should error out at the drop table statement"); //$NON-NLS-1$
-    IRuntimeContext context = run("test", "rules", "sqlexecute_error3.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/test/rules/sqlexecute_error3.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_FAILURE, context.getStatus()); //$NON-NLS-1$
   }
