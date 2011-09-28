@@ -94,6 +94,11 @@ public class SolutionFolderTest  {
       }
    }
    
+   @Test 
+   public void dummyTest() {
+     assertTrue(true);
+   }
+   
 //   @Test
 //   public void testLocaleParseNoPath() {
 //      
