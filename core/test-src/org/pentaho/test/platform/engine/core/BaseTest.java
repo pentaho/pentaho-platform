@@ -39,6 +39,7 @@ import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -89,6 +90,9 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
 
   public void setUp() {
 
+    // used by test repository impl such as FileSystemRepositoryFileDao
+    System.setProperty("solution.root.dir", getSolutionPath());
+    
     messages = TestManager.getMessagesList();
     if (messages == null) {
       messages = new ArrayList<String>();
@@ -119,6 +123,7 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
 
       //force Spring to inject PentahoSystem, there has got to be a better way than this, perhaps an alternate way of initting spring's app context
       springApplicationContext.getBean("pentahoSystemProxy"); //$NON-NLS-1$
+      
       initOk = PentahoSystem.init(applicationContext);
     } else {
       initOk = true;
