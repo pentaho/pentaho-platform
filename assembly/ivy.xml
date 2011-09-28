@@ -91,9 +91,9 @@
     	<artifact name="common-ui" type="zip" />
     </dependency>
     
-<dependency org="pentaho" name="waqr-plugin-package" rev="${dependency.waqr-plugin.revision}" changing="true" transitive="false" conf="plugin->default"/>
+    <dependency org="pentaho" name="waqr-plugin-package" rev="${dependency.waqr-plugin.revision}" changing="true" transitive="false" conf="plugin->default"/>
 
-<dependency org="pentaho" name="pentaho-cdf" rev="${dependency.pentaho-cdf-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
+    <dependency org="pentaho" name="pentaho-cdf" rev="${dependency.pentaho-cdf-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
       <artifact name="pentaho-cdf" type="zip" /> <!-- download the zip file, not the jar -->
     </dependency>
 
@@ -103,8 +103,6 @@
 
     <!--  Other archive resources -->
     <dependency org="pentaho" name="mantle-package" rev="${project.revision}" transitive="false" changing="true" />
-    <dependency org="pentaho" name="pentaho-open-admin-console-package" rev="${project.revision}" transitive="false" changing="true" />
-    <dependency org="pentaho" name="pentaho-bi-platform-sample-data" rev="${project.revision}" transitive="false" changing="true" />
 
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
