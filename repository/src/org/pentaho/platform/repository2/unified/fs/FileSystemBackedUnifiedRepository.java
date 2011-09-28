@@ -151,6 +151,10 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
     repositoryFileDao.setRootDir(rootDir);
   }
 
+  public void setRootDir(String rootDir) {
+    repositoryFileDao.setRootDir(new File(rootDir));
+  }
+  
   public boolean hasAccess(String path, EnumSet<RepositoryFilePermission> permissions) {
     throw new UnsupportedOperationException();
   }
