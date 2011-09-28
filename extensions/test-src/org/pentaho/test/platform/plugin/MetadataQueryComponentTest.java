@@ -1,5 +1,6 @@
 package org.pentaho.test.platform.plugin;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,11 +28,13 @@ import org.pentaho.metadata.repository.InMemoryMetadataDomainRepository;
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.action.pentahometadata.MetadataQueryComponent;
 import org.pentaho.platform.plugin.services.connections.sql.SQLConnection;
+import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 @SuppressWarnings("nls")
@@ -46,6 +49,9 @@ public class MetadataQueryComponentTest {
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
     microPlatform.define(IMetadataDomainRepository.class, InMemoryMetadataDomainRepository.class, Scope.GLOBAL);
     microPlatform.define("connection-SQL", SQLConnection.class);
+    microPlatform.define(IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL);
+    FileSystemBackedUnifiedRepository repos = (FileSystemBackedUnifiedRepository)PentahoSystem.get(IUnifiedRepository.class);
+    repos.setRootDir(new File("test-src/solution"));
     
     // TODO: need to define the IDatasourceService.class
     microPlatform.define(IDatasourceService.class, JndiDatasourceService.class, Scope.GLOBAL);
