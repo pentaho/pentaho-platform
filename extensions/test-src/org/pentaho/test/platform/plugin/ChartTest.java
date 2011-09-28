@@ -26,7 +26,6 @@ import java.util.Locale;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
-//import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
@@ -36,14 +35,12 @@ import org.pentaho.platform.engine.services.BaseRequestHandler;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.uifoundation.chart.CategoryDatasetChartComponent;
 import org.pentaho.platform.uifoundation.chart.ChartHelper;
-//import org.pentaho.platform.uifoundation.chart.JFreeChartEngine;
-//import org.pentaho.platform.uifoundation.chart.PieDatasetChartComponent;
 import org.pentaho.platform.uifoundation.chart.TimeSeriesCollectionChartComponent;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
-import org.pentaho.test.platform.engine.core.BaseTestCase;
+import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings("nls")
-public class ChartTest extends BaseTestCase {
+public class ChartTest extends BaseTest {
   StandaloneApplicationContext applicationContext = null;
 
   IPentahoSession session;
@@ -236,9 +233,9 @@ public class ChartTest extends BaseTestCase {
     parameters.setParameter("chart-type", ""); //$NON-NLS-1$ //$NON-NLS-2$      
     StringBuffer content = new StringBuffer();
     StandaloneSession session = new StandaloneSession(Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_SESSION")); //$NON-NLS-1$
-    ChartHelper.doChart("/test-src/solutions/samples/dashboard/departments.widget.xml", parameters, content, session, messages, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    ChartHelper.doChart("/samples/dashboard/departments.widget.xml", parameters, content, session, messages, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     try {
-      OutputStream os = getOutputStream(SOLUTION_PATH, "ChartTest.testChartHelper_Null", ".html"); //$NON-NLS-1$ //$NON-NLS-2$
+      OutputStream os = getOutputStream("ChartTest.testChartHelper_Null", ".html"); //$NON-NLS-1$ //$NON-NLS-2$
       os.write(content.toString().getBytes());
     } catch (Exception e) {
 
@@ -413,7 +410,7 @@ public class ChartTest extends BaseTestCase {
 
     categoryChartComponent.setDataAction("/test-src/solution/test/rules/department_stats.xaction", "rule-result"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-    OutputStream outputStream = getOutputStream(SOLUTION_PATH, "ChartTest." + testName, ".html"); //$NON-NLS-1$//$NON-NLS-2$
+    OutputStream outputStream = getOutputStream("ChartTest." + testName, ".html"); //$NON-NLS-1$//$NON-NLS-2$
     String contentType = "text/html"; //$NON-NLS-1$
 
     SimpleParameterProvider requestParameters = new SimpleParameterProvider();
@@ -487,9 +484,9 @@ public class ChartTest extends BaseTestCase {
         path, chartWidth, chartHeight, urlFactory, messages);
 
     timeSeriesChartComponent.setLoggingLevel(ILogger.ERROR);
-    timeSeriesChartComponent.setDataAction("/test-src/solutions/test/rules/department_stats.xaction", "rule-result"); //$NON-NLS-1$ //$NON-NLS-2$
+    timeSeriesChartComponent.setDataAction("/test/rules/department_stats.xaction", "rule-result"); //$NON-NLS-1$ //$NON-NLS-2$
 
-    OutputStream outputStream = getOutputStream(SOLUTION_PATH, "ChartTest." + testName, ".html"); //$NON-NLS-1$//$NON-NLS-2$
+    OutputStream outputStream = getOutputStream("ChartTest." + testName, ".html"); //$NON-NLS-1$//$NON-NLS-2$
     String contentType = "text/html"; //$NON-NLS-1$
 
     SimpleParameterProvider requestParameters = new SimpleParameterProvider();

@@ -58,9 +58,7 @@
 	<!-- Specify where the data for the chart comes from -->
 	<data>
 		<!-- Specify the path to the action sequence that provides the data -->
-		<data-solution>samples</data-solution>
-		<data-path>dashboard</data-path>
-		<data-action>department_variance_data.xaction</data-action>
+		<data-path>/samples/dashboard/department_variance_data.xaction</data-path>
 
 		<!-- Specify the output of the action sequence that contains the data -->
 		<data-output>rule-result</data-output>

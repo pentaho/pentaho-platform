@@ -28,7 +28,7 @@ PentahoSystem which is initialized after Spring
   <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository.datasource.DatasourceMgmtService" scope="prototype" />
   <bean id="IAclPublisher" class="org.pentaho.platform.engine.security.acls.AclPublisher" scope="singleton" />
   <bean id="IAclVoter" class="org.pentaho.platform.engine.security.acls.voter.PentahoBasicAclVoter" scope="singleton" />
-  
+  <bean id="IMessageFormatter" class="org.pentaho.platform.engine.services.MessageFormatter" scope="singleton" />
     
     <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory, 
        not directly from the PentahoObjectFactory. -->
