@@ -186,15 +186,12 @@ public class SolutionEngineInteractivityService extends ServletBase {
 
   protected void setupRequestHandler(final HttpServletRequest request, final HttpServletRequestHandler requestHandler) {
     String prompt = request.getParameter("prompt"); //$NON-NLS-1$
-    String solutionName = request.getParameter("solution"); //$NON-NLS-1$
     String actionPath = request.getParameter("path"); //$NON-NLS-1$
-    String actionName = request.getParameter("action"); //$NON-NLS-1$
     String processId = this.getClass().getName();
     String instanceId = request.getParameter("instance-id"); //$NON-NLS-1$
     requestHandler.setInstanceId(instanceId);
     requestHandler.setProcessId(processId);
-    requestHandler.setAction(actionPath, actionName);
-    requestHandler.setSolutionName(solutionName);
+    requestHandler.setActionPath(actionPath);
     requestHandler.setForcePrompt((prompt != null) && prompt.equalsIgnoreCase("yes")); //$NON-NLS-1$
   }
 

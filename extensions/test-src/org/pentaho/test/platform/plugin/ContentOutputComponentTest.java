@@ -62,7 +62,7 @@ public class ContentOutputComponentTest extends BaseTest {
     String testName = CO_TEST_NAME + "string_" + System.currentTimeMillis(); //$NON-NLS-1$
     SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
     IRuntimeContext context = run(
-        "test", "platform", "ContentOutputTest.xaction", parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        "/test/platform/ContentOutputTest.xaction", parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus()); //$NON-NLS-1$
 
@@ -84,7 +84,7 @@ public class ContentOutputComponentTest extends BaseTest {
     }
     testName = CO_TEST_NAME + "ByteArrayOutputStream_" + System.currentTimeMillis(); //$NON-NLS-1$
     parameterProvider.setParameter("CONTENTOUTPUT", baos);//$NON-NLS-1$ 
-    context = run("test", "platform", "ContentOutputTest_Bytearray.xaction", parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    context = run("/test/platform/ContentOutputTest_Bytearray.xaction", parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus());
     is = this.getInputStreamFromOutput(testName, CO_TEST_EXTN);
     assertNotNull(is); // Did the test execute properly...
@@ -106,7 +106,7 @@ public class ContentOutputComponentTest extends BaseTest {
     lookingFor = "This is as a simple bytearray input stream"; //$NON-NLS-1$
     ByteArrayInputStream bais = new ByteArrayInputStream(lookingFor.getBytes());
     parameterProvider.setParameter("CONTENTOUTPUT", bais);//$NON-NLS-1$ 
-    context = run("test", "platform", "ContentOutputTest_Bytearray.xaction", parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    context = run("/test/platform/ContentOutputTest_Bytearray.xaction", parameterProvider, testName, CO_TEST_EXTN); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(IRuntimeContext.RUNTIME_STATUS_SUCCESS, context.getStatus());
     is = this.getInputStreamFromOutput(testName, CO_TEST_EXTN);
     assertNotNull(is); // Did the test execute properly...

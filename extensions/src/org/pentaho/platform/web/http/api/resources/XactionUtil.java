@@ -52,10 +52,12 @@ import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
+import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.ActionSequenceJCRHelper;
 import org.pentaho.platform.engine.services.SoapHelper;
+import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.platform.web.http.HttpOutputHandler;
@@ -190,9 +192,6 @@ public class XactionUtil
   protected static IRuntimeContext executeInternal(RepositoryFile file, IParameterProvider requestParams, HttpServletRequest httpServletRequest, IOutputHandler outputHandler, Map<String, IParameterProvider> parameterProviders, IPentahoSession userSession)
     throws Exception
   {
-    String solutionName = null;
-    String actionPath = file.getPath();
-    String actionName = null;
     String processId = XactionUtil.class.getName();
     String instanceId = httpServletRequest.getParameter("instance-id"); //$NON-NLS-1$
     SimpleUrlFactory urlFactory = new SimpleUrlFactory(""); //$NON-NLS-1$
@@ -214,7 +213,7 @@ public class XactionUtil
     if (parameterXsl != null) {
       solutionEngine.setParameterXsl(parameterXsl);
     }
-    return solutionEngine.execute(solutionName, actionPath, actionName, processId, false, instanceEnds, instanceId, false, parameterProviders, outputHandler, null, urlFactory, messages);
+    return solutionEngine.execute(file.getPath() + "/" + file.getName(), processId, false, instanceEnds, instanceId, false, parameterProviders, outputHandler, null, urlFactory, messages);
   }
 
   @SuppressWarnings("unchecked")

@@ -29,6 +29,7 @@ import org.pentaho.platform.api.engine.IServiceManager;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener;
@@ -48,6 +49,7 @@ import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
 import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
+import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 
 /**
  * This class is designed to help embedded deployments start the Pentaho system
@@ -74,6 +76,7 @@ public class PentahoBoot extends PentahoSystemBoot {
     if( objectFactory instanceof IPentahoDefinableObjectFactory ) {
       define( ISolutionEngine.class, SolutionEngine.class, Scope.LOCAL );
       define( ISolutionRepository.class, FileBasedSolutionRepository.class, Scope.SESSION );
+      define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.SESSION );
       define( "connection-XML", XQConnection.class, Scope.LOCAL ); //$NON-NLS-1$
       define( "connection-SQL", SQLConnection.class, Scope.LOCAL ); //$NON-NLS-1$
       define( "file", FileOutputHandler.class, Scope.LOCAL ); //$NON-NLS-1$

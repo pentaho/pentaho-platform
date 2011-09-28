@@ -128,6 +128,9 @@ public class HttpWebService extends ServletBase {
       String actionPath = request.getParameter("path"); //$NON-NLS-1$
       String solutionName = actionPath.substring(0, actionPath.indexOf('/', 1));
       String actionName = actionPath.substring(actionPath.lastIndexOf('/'));
+      
+      String actionSeqPath = ActionInfo.buildSolutionPath(solutionName, actionPath, actionName);
+      
       String component = request.getParameter("component"); //$NON-NLS-1$
       String content = getPayloadAsString(request);
 
@@ -184,8 +187,7 @@ public class HttpWebService extends ServletBase {
         requestHandler.setParameterProvider( IParameterProvider.SCOPE_SESSION , new HttpSessionParameterProvider(userSession));
         requestHandler.setInstanceId(instanceId);
         requestHandler.setProcessId(processId);
-        requestHandler.setAction(actionPath, actionName);
-        requestHandler.setSolutionName(solutionName);
+        requestHandler.setActionPath(actionSeqPath);
 
         if (ServletBase.debug) {
           debug(Messages.getInstance().getString("HttpWebService.DEBUG_WEB_SERVICE_START")); //$NON-NLS-1$

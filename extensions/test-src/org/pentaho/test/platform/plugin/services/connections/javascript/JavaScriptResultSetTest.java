@@ -82,7 +82,7 @@ public class JavaScriptResultSetTest extends BaseTest {
   public void testRSCompareNotOK3()
   {
     startTest();
-    IRuntimeContext context = run("samples", "rules", "ResultSetCompareTest_error3.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/samples/rules/ResultSetCompareTest_error3.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(context.getStatus(), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL);
 
     finishTest();
@@ -92,7 +92,7 @@ public class JavaScriptResultSetTest extends BaseTest {
   public void testRSCompareNotOK4()
   {
     startTest();
-    IRuntimeContext context = run("samples", "rules", "ResultSetCompareTest_error4.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IRuntimeContext context = run("/samples/rules/ResultSetCompareTest_error4.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(context.getStatus(), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL);
 
     finishTest();

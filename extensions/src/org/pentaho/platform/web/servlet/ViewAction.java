@@ -50,6 +50,7 @@ import org.pentaho.platform.api.engine.IUITemplater;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.scheduler.BackgroundExecutionException;
+import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -225,8 +226,8 @@ public class ViewAction extends ServletBase {
     String instanceId = request.getParameter("instance-id"); //$NON-NLS-1$
     requestHandler.setInstanceId(instanceId);
     requestHandler.setProcessId(processId);
-    requestHandler.setAction(actionPath, actionName);
-    requestHandler.setSolutionName(solutionName);
+    String actionSeqPath = ActionInfo.buildSolutionPath(solutionName, actionPath, actionName);
+    requestHandler.setActionPath(actionSeqPath);
     requestHandler.setForcePrompt((prompt != null) && prompt.equalsIgnoreCase("yes")); //$NON-NLS-1$
   }
 

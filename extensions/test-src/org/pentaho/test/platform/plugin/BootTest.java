@@ -11,10 +11,14 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.services.solution.SolutionHelper;
 import org.pentaho.platform.plugin.boot.PentahoBoot;
+import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 
 @SuppressWarnings({"all"})
 public class BootTest extends TestCase {
@@ -22,7 +26,16 @@ public class BootTest extends TestCase {
   public void testBoot() throws PlatformInitializationException {
     PentahoBoot boot = new PentahoBoot();
     boot.setFilePath("test-src/solution");
+
     boot.enableReporting();
+    
+    // create a user session
+    IPentahoSession session = new StandaloneSession( "test" );
+    PentahoSessionHolder.setSession(session);
+    
+    FileSystemBackedUnifiedRepository repo = (FileSystemBackedUnifiedRepository)PentahoSystem.get(IUnifiedRepository.class);
+    repo.setRootDir(new File("test-src/solution"));
+    
     boolean ok = boot.start();
     assertTrue( ok );
 
@@ -36,9 +49,6 @@ public class BootTest extends TestCase {
       // pass the outputType parameter
       Map parameters = new HashMap();
       parameters.put( "output-type" , outputType );
-      
-      // create a user session
-      IPentahoSession session = new StandaloneSession( "test" );
       
       // run the report
       SolutionHelper.execute( "test report", session, "boot/report.xaction", parameters, outputStream);
