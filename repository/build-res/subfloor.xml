@@ -771,11 +771,11 @@ TYPICAL TARGET SEQUENCE
       
       Publishes the jar file for this project to a Maven2 repository.
       ====================================================================-->
-  <target name="publish-nojar" depends="install-antcontrib,create-pom,ivy.deliver,publish-local-nojar.internal">
+  <target name="publish-nojar" depends="install-antcontrib,create-pom,ivy.deliver,publish-nojar.internal">
     <if>
       <equals arg1="${tests.publish}" arg2="true" />
       <then>
-        <antcall target="publish-local-nojar.internal">
+        <antcall target="publish-nojar.internal">
           <param name="ivy.artifact.id" value="${ivy.artifact.id}-test"/>
         </antcall>
       </then>
