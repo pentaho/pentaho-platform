@@ -15,8 +15,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
-import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
-import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 
 public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
 
@@ -24,7 +22,6 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
 
   private FileSystemFileAclDao repositoryFileAclDao = new FileSystemFileAclDao();
   
-
   public boolean canUnlockFile(Serializable fileId) {
     return repositoryFileDao.canUnlockFile(fileId);
   }
@@ -151,10 +148,6 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
     repositoryFileDao.setRootDir(rootDir);
   }
 
-  public void setRootDir(String rootDir) {
-    repositoryFileDao.setRootDir(new File(rootDir));
-  }
-  
   public boolean hasAccess(String path, EnumSet<RepositoryFilePermission> permissions) {
     throw new UnsupportedOperationException();
   }

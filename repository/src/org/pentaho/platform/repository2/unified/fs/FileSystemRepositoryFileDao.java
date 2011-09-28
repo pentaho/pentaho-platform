@@ -30,7 +30,7 @@ import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 
 public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
-  File rootDir = new File(System.getProperty("user.dir"));
+  File rootDir = new File(System.getProperty("solution.root.dir", System.getProperty("user.dir")));
   
   public boolean canUnlockFile(Serializable fileId) {
     throw new UnsupportedOperationException("This operation is not support by this repository");
