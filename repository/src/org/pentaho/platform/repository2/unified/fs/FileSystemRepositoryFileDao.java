@@ -123,7 +123,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     try {
       data = (T) new SimpleRepositoryFileData(new FileInputStream(f), "UTF-8", "text/plain");
     } catch (FileNotFoundException e) {
-      throw new UnifiedRepositoryException();
+      throw new UnifiedRepositoryException(e);
     }
     return data;
   }
