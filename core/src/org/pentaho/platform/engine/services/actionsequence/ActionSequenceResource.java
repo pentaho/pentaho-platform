@@ -33,6 +33,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.web.HttpUtil;
@@ -150,6 +151,10 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
       RepositoryFile repositoryFile = null;
       if (locale == null) {
         repositoryFile = REPOSITORY.getFile(filePath);
+        try {
+          inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+        } catch (UnifiedRepositoryException ure) {
+        }
       } else {
         String extension = FilenameUtils.getExtension(filePath);
         String baseName = FilenameUtils.removeExtension(filePath);
@@ -161,19 +166,32 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
         String variant = locale.getVariant();
         if (!variant.equals("")) { //$NON-NLS-1$
           repositoryFile = REPOSITORY.getFile(baseName + "_" + language + "_" + country + "_" + variant + extension); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          try {
+            inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+          } catch (UnifiedRepositoryException ure) {
+          }
         }
-        if (repositoryFile == null) {
+        if (inputStream == null) {
           repositoryFile = REPOSITORY.getFile(baseName + "_" + language + "_" + country + extension); //$NON-NLS-1$//$NON-NLS-2$
+          try {
+            inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+          } catch (UnifiedRepositoryException ure) {
+          }
         }
-        if (repositoryFile == null) {
+        if (inputStream == null) {
           repositoryFile = REPOSITORY.getFile(baseName + "_" + language + extension); //$NON-NLS-1$
+          try {
+            inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+          } catch (UnifiedRepositoryException ure) {
+          }
         }
-        if (repositoryFile == null) {
+        if (inputStream == null) {
           repositoryFile = REPOSITORY.getFile(filePath);
+          try {
+            inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+          } catch (UnifiedRepositoryException ure) {
+          }
         }
-      }
-      if (repositoryFile != null) {
-        inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
       }
     }
     return inputStream;
