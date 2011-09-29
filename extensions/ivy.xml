@@ -48,18 +48,11 @@
 		<dependency org="log4j" name="log4j" rev="1.2.16" transitive="false" />
 		<dependency org="org.springframework" name="spring" rev="2.5.6" transitive="false" />		
 		
-		<!--  external birt dependencies -->
-		<dependency org="com.ibm.icu" name="icu4j" rev="3.6.1" />
-		<dependency org="org.eclipse.birt" name="coreapi" rev="2.2.1" />
-		<dependency org="org.eclipse.birt" name="engineapi" rev="2.2.1" />
-		<dependency org="org.eclipse.birt" name="modelapi" rev="2.2.1" />
-		
 		<dependency org="jfree" name="jcommon" rev="1.0.14" />
 		<dependency org="jfree" name="jfreechart" rev="${dependency.jfreechart.revision}">
 			<exclude org="jfree" name="jcommon" />
 		</dependency>		
 		
-		<dependency org="jasperreports" name="jasperreports" rev="2.0.5" transitive="false" />
 		<dependency org="net.sf.saxon" name="saxon" rev="9.1.0.8" transitive="false" />
 		<dependency org="org.quartz-scheduler" name="quartz" rev="1.7.2" transitive="false"/>
 		
