@@ -40,7 +40,7 @@
 		<dependency org="metro" name="metro-webservices-rt"  rev="2.0" transitive="false"/>
 
 		<!-- gwt -->
-		<dependency org="com.google.gwt" name="gwt-servlet" rev="2.0.3" transitive="false"/>
+		<dependency org="com.google.gwt" name="gwt-servlet" rev="2.4.0" transitive="false"/>
 
 		<!-- Hibernate and dependencies -->
 		<dependency org="org.hibernate"     name="hibernate"    rev="3.2.6.ga" transitive="false"/>
