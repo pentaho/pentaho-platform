@@ -143,8 +143,7 @@
 		<dependency org="com.tonbeller" name="wcf" rev="${dependency.wcf.revision}" />
 		<dependency org="javax.servlet" name="jstl" rev="1.0.5" />
 		<dependency org="javatar" name="javatar" rev="2.5"  transitive="false"/>
-		<dependency org="com.google.gwt" name="gwt-servlet" rev="2.0.3"/>
-
+		<dependency org="com.google.gwt" name="gwt-servlet" rev="2.4.0"/>
 
 		<!--  internal dependencies -->
 		    
