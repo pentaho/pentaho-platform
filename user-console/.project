@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>mantle</name>
-	<comment>mantle project</comment>
+	<name>pentaho-user-console</name>
+	<comment>Pentaho User Console (Mantle)</comment>
 	<projects>
 	</projects>
 	<buildSpec>
