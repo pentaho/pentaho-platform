@@ -59,7 +59,7 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 @Path("/scheduler")
 public class SchedulerResource extends AbstractJaxRSResource {
 
-  protected IScheduler scheduler = PentahoSystem.get(IScheduler.class, "IScheduler2", null); //$NON-NLS-1$
+  protected IScheduler scheduler = PentahoSystem.get(IScheduler.class, null); //$NON-NLS-1$
   protected IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
   IPluginManager pluginMgr = PentahoSystem.get(IPluginManager.class);
   Random random = new Random(new Date().getTime());
@@ -90,7 +90,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       pentahoSession.getName();
       HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
       String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName()) + "/workspace/" + FilenameUtils.getBaseName(scheduleRequest.getInputFile()) + ".*"; //$NON-NLS-1$ //$NON-NLS-2$
-      String actionId = FilenameUtils.getExtension(scheduleRequest.getInputFile()) + "." + "backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
+      String actionId = FilenameUtils.getExtension(scheduleRequest.getInputFile()); //$NON-NLS-1$ //$NON-NLS-2$
       job = scheduler.createJob(Integer.toString(Math.abs(random.nextInt())), actionId, parameterMap, scheduleRequest.getJobTrigger(), new RepositoryFileStreamProvider(scheduleRequest.getInputFile(), outputFile));
     } catch (SchedulerException e) {
       return Response.serverError().entity(e.toString()).build();
