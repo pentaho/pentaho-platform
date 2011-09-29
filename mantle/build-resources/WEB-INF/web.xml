@@ -1,0 +1,775 @@
+<?xml version="1.0"?>
+<!DOCTYPE web-app PUBLIC
+   "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+   "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+
+  <context-param>
+    <param-name>solution-path</param-name>
+    <param-value></param-value> 
+  </context-param>
+<!--
+  <context-param>
+    <param-name>pentaho-system-cfg</param-name>
+    <param-value>c:/tmp/test_pentaho.xml</param-value>
+  </context-param>
+ -->
+
+  <!--  This context parameter is being deprecated. We don't use this any more. We have added a new context parameter called fully-qualified-server-url -->
+  <context-param>
+		<param-name>base-url</param-name>
+		<param-value></param-value>
+  </context-param>
+
+	<!--  FullyQualifiedServerUrl is used only in the case of offline content generation and whenever something need to talk back to the server -->
+  <context-param>
+		<param-name>fully-qualified-server-url</param-name>
+		<param-value>http://localhost:8080/pentaho/</param-value>
+  </context-param>
+	
+  <context-param>
+    <param-name>locale-language</param-name>
+    <!-- for example 'fr' for French, 'de' for German, da for danish -->
+    <param-value></param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>locale-country</param-name>
+    <!-- for example 'FR' for France, 'CA' for Canada -->
+    <param-value></param-value>
+  </context-param>
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>/WEB-INF/applicationContext-spring-security.xml /WEB-INF/applicationContext-common-authorization.xml /WEB-INF/applicationContext-spring-security-memory.xml /WEB-INF/applicationContext-pentaho-security-memory.xml</param-value>
+  </context-param>
+
+  <!--
+    This defaults to UTF-8. Uncomment this section and change the value for other encodings.
+    Also change the URIEncoding in Tomcat's server.xml.
+  -->
+  <context-param>
+    <param-name>encoding</param-name>
+    <param-value>UTF-8</param-value>
+  </context-param>
+
+    <!-- this defaults to LTR (left to right), uncomment this section and change the value for other text directions
+  <context-param>
+    <param-name>text-direction</param-name>
+    <param-value>RTL</param-value>
+  </context-param>
+   -->
+
+  <!--
+  *
+  * hibernateManaged should be set to true if running the BI Platform
+  * in a managed environment (like JBoss, Orion, etc). In this configuration,
+  * you should specify another location for the hibernate.cfg.xml (see below)
+  * instead of simply using the default one provided. This setting essentially
+  * tells the HibernateUtil class to use JNDI to locate the factory class for
+  * getting sessions. This allows the platform to use Hibernate across boundaries
+  * in message beans (for example).
+  *
+  <context-param>
+    <param-name>hibernateManaged</param-name>
+    <param-value>true</param-value>
+  </context-param>
+  -->
+
+  <!--
+  *
+  * In managed environments, the transaction manager lookup class is specific to
+  * the container they're bound into. Thus, you will need a different configuration file
+  * depending upon the server that it's being deployed into. This setting allows the
+  * deployment to specify where to find the container-specific hibernate configuration.
+  *
+  <context-param>
+    <param-name>hibernateConfigPath</param-name>
+    <param-value>system/hibernate/hibernate-jboss-managed.xml</param-value>
+  </context-param>
+  -->
+
+  <context-param>
+    <param-name>com.tonbeller.wcf.controller.RequestContextFactory</param-name>
+    <param-value>com.tonbeller.wcf.controller.RequestContextFactoryImpl</param-value>
+  </context-param>
+
+  <!-- insert additional context-params -->
+
+  <filter> <!-- This must be the first filter listed in the web.xml -->
+    <filter-name>Set Character Encoding Filter</filter-name>
+    <filter-class>org.pentaho.platform.web.http.filters.PentahoAwareCharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>ignore</param-name>
+      <param-value>yes</param-value>
+    </init-param>
+  </filter>
+  	<!-- Pentaho Request Context Filter is use to extract the Context Path from Servlet Request and store it in the PentahoRequestContextHolder.
+	This is needed to get the relative path to the server for online content generation and requesting of resources.
+	 -->
+	<filter>
+		<filter-name>Pentaho Request Context Filter</filter-name>
+		<filter-class>org.pentaho.platform.web.http.filters.PentahoRequestContextFilter</filter-class>
+	</filter>
+
+  <filter>
+    <filter-name>Spring Security Filter Chain Proxy</filter-name>
+    <filter-class>org.springframework.security.util.FilterToBeanProxy</filter-class>
+    <init-param>
+      <param-name>targetBean</param-name>
+      <param-value>filterChainProxy</param-value>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>SystemStatusFilter</filter-name>
+    <filter-class>org.pentaho.platform.web.http.filters.SystemStatusFilter</filter-class>
+    <init-param>
+      <param-name>initFailurePage</param-name>
+      <param-value>InitFailure</param-value>
+      <description>This page is displayed if the PentahoSystem fails to properly initialize.</description>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>JPivotController</filter-name>
+    <filter-class>com.tonbeller.wcf.controller.RequestFilter</filter-class>
+    <init-param>
+      <param-name>errorJSP</param-name>
+      <param-value>PivotError</param-value>
+      <description>URI of error page</description>
+    </init-param>
+    <init-param>
+      <param-name>busyJSP</param-name>
+      <param-value>PivotBusy</param-value>
+      <description>This page is displayed if a the user clicks
+        on a query before the previous query has finished</description>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>Proxy Trusting Filter</filter-name>
+    <filter-class>org.pentaho.platform.web.http.filters.ProxyTrustingFilter</filter-class>
+    <init-param>
+      <param-name>TrustedIpAddrs</param-name>
+      <param-value></param-value>
+      <description>Comma separated list of IP addresses of a trusted hosts.</description>
+    </init-param>
+  </filter>
+	
+	<!--  Pentaho Web Context Filter checks to see if webcontext.js is being requested. It writes the content of webcontext.js 
+	      webcontext.js contains value for CONTEXT_PATH and FULLY_QUALIFIED_SERVER_URL
+	-->
+	<filter>
+		<filter-name>Pentaho Web Context Filter</filter-name>
+		<filter-class>org.pentaho.platform.web.http.filters.PentahoWebContextFilter</filter-class>
+	</filter>
+<!-- insert additional filters -->
+
+  <filter-mapping>
+    <filter-name>Set Character Encoding Filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>SystemStatusFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>JPivotController</filter-name>
+    <url-pattern>/Pivot</url-pattern>
+  </filter-mapping>
+  
+  <filter-mapping>
+    <filter-name>Proxy Trusting Filter</filter-name>
+    <url-pattern>/SchedulerAdmin</url-pattern>
+  </filter-mapping>
+  
+  <filter-mapping>
+    <filter-name>Proxy Trusting Filter</filter-name>
+    <url-pattern>/ServiceAction</url-pattern>
+  </filter-mapping>
+  
+  <filter-mapping>
+    <filter-name>Proxy Trusting Filter</filter-name>
+    <url-pattern>/Publish</url-pattern>
+  </filter-mapping>
+  
+  <filter-mapping>
+    <filter-name>Proxy Trusting Filter</filter-name>
+    <url-pattern>/ResetRepository</url-pattern>
+  </filter-mapping>
+
+
+  <!-- Filter mapping for security. Note that all objects are locked down. We could change this here as desired. -->
+  <filter-mapping>
+    <filter-name>Spring Security Filter Chain Proxy</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  <filter-mapping>
+		<filter-name>Pentaho Request Context Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+      <filter-mapping>
+		<filter-name>Pentaho Web Context Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>	
+  <!-- insert additional filter-mappings -->
+
+  <!-- JPivot resources initializer -->
+  <listener>
+    <listener-class>com.tonbeller.tbutils.res.ResourcesFactoryContextListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.session.PentahoHttpSessionListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.context.SolutionContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.context.PentahoCacheContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.pentaho.platform.web.http.session.PentahoCacheSessionListener</listener-class>
+  </listener>
+  <!-- insert additional listeners -->
+
+
+
+  <!-- ********************* JPivot Servlets ******************* -->
+  <!-- jfreechart provided servlet -->
+  <servlet>
+    <servlet-name>DisplayChart</servlet-name>
+    <servlet-class>org.jfree.chart.servlet.DisplayChart</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>GetChart</servlet-name>
+    <display-name>GetChart</display-name>
+    <description>Default configuration created for servlet.</description>
+    <servlet-class>com.tonbeller.jpivot.chart.GetChart</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>Print</servlet-name>
+    <display-name>Print</display-name>
+    <description>Default configuration created for servlet.</description>
+    <servlet-class>com.tonbeller.jpivot.print.PrintServlet</servlet-class>
+  </servlet>
+  <!-- ********************* End JPivot Servlets ******************* -->
+  	
+  <servlet>
+      <servlet-name>ViewAction</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.ViewAction</servlet-class>
+  </servlet>
+
+  <servlet>
+      <servlet-name>content</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.UIServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+      <servlet-name>ServiceAction</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.HttpWebService</servlet-class>
+  </servlet>
+
+  <servlet>
+      <servlet-name>GetImage</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.GetImage</servlet-class>
+  </servlet>
+
+  <servlet>
+      <servlet-name>GetContent</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.GetContent</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>Xmla</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.PentahoXmlaServlet</servlet-class>
+    <init-param>
+      <param-name>DataSourcesConfig</param-name>
+      <param-value>${pentaho.solutionpath}${pentaho.olap.xmladatasources}</param-value>
+    </init-param>
+    <init-param>
+      <param-name>CharacterEncoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </servlet>
+
+  <servlet>
+      <servlet-name>BackgroundExecutionStatus</servlet-name>
+    <jsp-file>/jsp/BackgroundStatus.jsp</jsp-file>
+  </servlet>
+
+  <servlet>
+      <servlet-name>RepositoryFilePublisher</servlet-name>
+    <servlet-class>org.pentaho.platform.web.servlet.RepositoryFilePublisher</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>Pivot</servlet-name>
+    <jsp-file>/jsp/Pivot.jsp</jsp-file>
+  </servlet>
+  <!-- Pentaho JSP Mappings -->
+  <servlet>
+    <servlet-name>Chart</servlet-name>
+    <jsp-file>/jsp/Chart.jsp</jsp-file>
+  </servlet>
+  <servlet>
+    <servlet-name>Navigate</servlet-name>
+    <jsp-file>/jsp/Navigate.jsp</jsp-file>
+  </servlet>
+  <servlet>
+    <servlet-name>PieChart</servlet-name>
+    <jsp-file>/jsp/PieChart.jsp</jsp-file>
+  </servlet>
+  <servlet>
+    <servlet-name>Publish</servlet-name>
+    <jsp-file>/jsp/Publish.jsp</jsp-file>
+  </servlet>
+  <servlet>
+    <servlet-name>Task</servlet-name>
+    <jsp-file>/jsp/Task.jsp</jsp-file>
+  </servlet>
+  <servlet>
+    <servlet-name>SchedulerAdmin</servlet-name>
+    <jsp-file>/jsp/SchedulerAdmin.jsp</jsp-file>
+  </servlet>
+  <servlet>
+    <servlet-name>UpdateSampleEmails</servlet-name>
+    <jsp-file>/jsp/UpdateSampleEmails.jsp</jsp-file>
+  </servlet>
+  <servlet>
+    <servlet-name>Widgets</servlet-name>
+    <jsp-file>/jsp/Widgets.jsp</jsp-file>
+  </servlet>
+
+  <servlet>
+    <servlet-name>PivotError</servlet-name>
+    <jsp-file>/jsp/PivotError.jsp</jsp-file>
+  </servlet>
+
+  <servlet>
+    <servlet-name>PivotBusy</servlet-name>
+    <jsp-file>/jsp/PivotBusy.jsp</jsp-file>
+  </servlet>
+  <servlet>
+    <servlet-name>SolutionManager</servlet-name>
+    <jsp-file>/jsp/SolutionManager.jsp</jsp-file>
+  </servlet>
+
+    <servlet>
+      <servlet-name>SampleDashboard</servlet-name>
+      <jsp-file>/jsp/SampleDashboard.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+      <servlet-name>ChartSamplesDashboard</servlet-name>
+      <jsp-file>/jsp/ChartSamplesDashboard.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+      <servlet-name>SampleDrill</servlet-name>
+      <jsp-file>/jsp/SampleDrill.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+      <servlet-name>SWDashboard</servlet-name>
+      <jsp-file>/jsp/SWDashboard.jsp</jsp-file>
+    </servlet>
+
+  <servlet>
+    <servlet-name>Home</servlet-name>
+    <jsp-file>/jsp/Home.jsp</jsp-file>
+  </servlet>
+
+  <servlet>
+    <servlet-name>PreviousHome</servlet-name>
+    <jsp-file>/jsp/OldHome.jsp</jsp-file>
+  </servlet>
+
+  <servlet>
+    <servlet-name>Admin</servlet-name>
+    <jsp-file>/jsp/Admin.jsp</jsp-file>
+  </servlet>
+
+  <servlet>
+    <servlet-name>About</servlet-name>
+    <jsp-file>/jsp/About.jsp</jsp-file>
+  </servlet>
+
+  <servlet>
+    <servlet-name>InitFailure</servlet-name>
+    <jsp-file>/jsp/InitFailure.jsp</jsp-file>
+  </servlet>
+
+  <servlet>
+    <servlet-name>UserContent</servlet-name>
+    <jsp-file>/jsp/UserContent.jsp</jsp-file>
+  </servlet>
+
+  <servlet>
+    <servlet-name>Map</servlet-name>
+    <jsp-file>/jsp/Map.jsp</jsp-file>
+  </servlet>
+
+    <!-- ================================= merged servlets =================================== -->
+   <servlet>
+       <servlet-name>ManageUsers</servlet-name>
+       <servlet-class>org.pentaho.platform.web.servlet.SubscriptionUserCleanup</servlet-class>
+       <init-param>
+         <param-name>password</param-name>
+         <param-value/>
+         <description>password used for protecting access to servlet</description>
+       </init-param>
+     </servlet>
+
+     <servlet>
+       <servlet-name>AdhocWebService</servlet-name>
+       <servlet-class>org.pentaho.platform.web.servlet.AdhocWebService</servlet-class>
+     </servlet>
+     <servlet>
+	   <servlet-name>AnalysisViewService</servlet-name>
+	   <servlet-class>org.pentaho.platform.web.servlet.AnalysisViewService</servlet-class>
+     </servlet>
+	<servlet>
+	  <servlet-name>MondrianCatalogPublisher</servlet-name>
+	  <servlet-class>org.pentaho.platform.web.servlet.MondrianCatalogPublisher</servlet-class>
+	</servlet>
+	
+     <servlet>
+         <servlet-name>SolutionRepositoryService</servlet-name>
+         <servlet-class>org.pentaho.platform.web.servlet.SolutionRepositoryService</servlet-class>
+     </servlet>
+
+     <servlet>
+       <servlet-name>RepositoryTree</servlet-name>
+       <jsp-file>/jsp/RepositoryTree.jsp</jsp-file>
+     </servlet>
+
+     <servlet>
+       <servlet-name>PropertiesPanel</servlet-name>
+       <jsp-file>/jsp/PropertiesPanel.jsp</jsp-file>
+     </servlet>
+
+     <servlet>
+       <servlet-name>PropertiesEditor</servlet-name>
+       <jsp-file>/jsp/PropertiesEditor.jsp</jsp-file>
+     </servlet>
+
+     <servlet>
+       <servlet-name>SubscriptionAdmin</servlet-name>
+       <jsp-file>/jsp/SubscriptionAdmin.jsp</jsp-file>
+     </servlet>
+     <servlet>
+       <servlet-name>DialPct</servlet-name>
+       <jsp-file>/chart/DialPct.jsp</jsp-file>
+     </servlet>
+
+     <servlet>
+       <servlet-name>SampleFlashDashboard</servlet-name>
+       <jsp-file>/jsp/SampleFlashDashboard.jsp</jsp-file>
+     </servlet>
+   <servlet>
+       <servlet-name>GetResource</servlet-name>
+     <servlet-class>org.pentaho.platform.web.servlet.GetResource</servlet-class>
+   </servlet>
+
+     <servlet>
+     	<servlet-name>ResetRepository</servlet-name>
+     	<jsp-file>/jsp/ResetRepository.jsp</jsp-file>
+     </servlet>
+
+  <!-- insert additional servlets -->
+    
+    
+  <servlet-mapping>
+    <servlet-name>Xmla</servlet-name>
+    <url-pattern>/Xmla</url-pattern>
+  </servlet-mapping>
+
+
+  <!-- ********************* End JPivot Mappings ******************* -->
+  <servlet-mapping>
+    <servlet-name>DisplayChart</servlet-name>
+    <url-pattern>/DisplayChart</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Print</servlet-name>
+    <url-pattern>/Print</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>GetChart</servlet-name>
+    <url-pattern>/GetChart</url-pattern>
+  </servlet-mapping>
+  <!-- ********************* End JPivot Servlet Mappings ******************* -->
+
+  <!-- Pentaho JSPs -->
+  <servlet-mapping>
+    <servlet-name>Chart</servlet-name>
+    <url-pattern>/Chart</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Navigate</servlet-name>
+    <url-pattern>/Navigate</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>PieChart</servlet-name>
+    <url-pattern>/PieChart</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Publish</servlet-name>
+    <url-pattern>/Publish</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SchedulerAdmin</servlet-name>
+    <url-pattern>/SchedulerAdmin</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Task</servlet-name>
+    <url-pattern>/Task</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>TestSuite</servlet-name>
+    <url-pattern>/TestSuite</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>UpdateSampleEmails</servlet-name>
+    <url-pattern>/UpdateSampleEmails</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Widgets</servlet-name>
+    <url-pattern>/Widgets</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SolutionManager</servlet-name>
+    <url-pattern>/SolutionManager</url-pattern>
+  </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>SampleDashboard</servlet-name>
+      <url-pattern>/SampleDashboard</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>ChartSamplesDashboard</servlet-name>
+      <url-pattern>/ChartSamplesDashboard</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>SampleDrill</servlet-name>
+      <url-pattern>/SampleDrill</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>SWDashboard</servlet-name>
+      <url-pattern>/SWDashboard</url-pattern>
+    </servlet-mapping>
+
+  <!-- Pentaho Servlets -->
+
+  <servlet-mapping>
+    <servlet-name>ViewAction</servlet-name>
+    <url-pattern>/ViewAction</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>content</servlet-name>
+    <url-pattern>/content</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ServiceAction</servlet-name>
+    <url-pattern>/ServiceAction</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>GetImage</servlet-name>
+    <url-pattern>/getImage</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>GetContent</servlet-name>
+    <url-pattern>/GetContent</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>BackgroundExecutionStatus</servlet-name>
+    <url-pattern>/BackgroundExecutionStatus</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>RepositoryFilePublisher</servlet-name>
+    <url-pattern>/RepositoryFilePublisher</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Pivot</servlet-name>
+    <url-pattern>/Pivot</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>PivotError</servlet-name>
+    <url-pattern>/PivotError</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>PivotBusy</servlet-name>
+    <url-pattern>/PivotBusy</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Home</servlet-name>
+    <url-pattern>/Home</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>PreviousHome</servlet-name>
+    <url-pattern>/PreviousHome</url-pattern>
+  </servlet-mapping>
+
+
+  <servlet-mapping>
+    <servlet-name>Admin</servlet-name>
+    <url-pattern>/Admin</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>About</servlet-name>
+    <url-pattern>/About</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>InitFailure</servlet-name>
+    <url-pattern>/InitFailure</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>UserContent</servlet-name>
+    <url-pattern>/UserContent</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Map</servlet-name>
+    <url-pattern>/Map</url-pattern>
+  </servlet-mapping>
+
+    <!-- =============================== merged servlet-mappings ============================= -->
+      <servlet-mapping>
+        <servlet-name>RepositoryTree</servlet-name>
+        <url-pattern>/RepositoryTree</url-pattern>
+      </servlet-mapping>
+
+      <servlet-mapping>
+        <servlet-name>PropertiesPanel</servlet-name>
+        <url-pattern>/PropertiesPanel</url-pattern>
+      </servlet-mapping>
+
+      <servlet-mapping>
+        <servlet-name>PropertiesEditor</servlet-name>
+        <url-pattern>/PropertiesEditor</url-pattern>
+      </servlet-mapping>
+
+      <servlet-mapping>
+        <servlet-name>DialPct</servlet-name>
+        <url-pattern>/DialPct</url-pattern>
+      </servlet-mapping>
+
+      <servlet-mapping>
+        <servlet-name>SampleFlashDashboard</servlet-name>
+        <url-pattern>/SampleFlashDashboard</url-pattern>
+      </servlet-mapping>
+
+      <servlet-mapping>
+        <servlet-name>SubscriptionAdmin</servlet-name>
+        <url-pattern>/SubscriptionAdmin</url-pattern>
+      </servlet-mapping>
+
+      <servlet-mapping>
+        <servlet-name>ManageUsers</servlet-name>
+        <url-pattern>/ManageUsers</url-pattern>
+      </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>GetResource</servlet-name>
+      <url-pattern>/GetResource</url-pattern>
+    </servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ResetRepository</servlet-name>
+		<url-pattern>/ResetRepository</url-pattern>
+	</servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>AdhocWebService</servlet-name>
+      <url-pattern>/AdhocWebService</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>AnalysisViewService</servlet-name>
+      <url-pattern>/AnalysisViewService</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>MondrianCatalogPublisher</servlet-name>
+      <url-pattern>/MondrianCatalogPublisher</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>SolutionRepositoryService</servlet-name>
+      <url-pattern>/SolutionRepositoryService</url-pattern>
+    </servlet-mapping>
+
+  <!-- insert additional servlet mappings -->
+
+    <session-config>
+      <session-timeout>30</session-timeout>
+    </session-config>
+
+    <welcome-file-list>
+      <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    <taglib>
+      <taglib-uri>http://www.tonbeller.com/wcf</taglib-uri>
+      <taglib-location>/WEB-INF/wcf/wcf-tags.tld</taglib-location>
+    </taglib>
+
+     <taglib>
+       <taglib-uri>http://www.tonbeller.com/jpivot</taglib-uri>
+       <taglib-location>/WEB-INF/jpivot/jpivot-tags.tld</taglib-location>
+     </taglib>
+
+  <!-- insert additional tag libs -->
+
+    <resource-ref>
+      <description>Quartz Connection</description>
+      <res-ref-name>jdbc/Quartz</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+    </resource-ref>
+
+    <resource-ref>
+      <description>Hibernate</description>
+      <res-ref-name>jdbc/Hibernate</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+    </resource-ref>
+
+  <!-- insert additional resource-refs -->
+
+  <security-constraint>
+    <display-name>Default JSP Security Constraints</display-name>
+    <web-resource-collection>
+      <web-resource-name>Portlet Directory</web-resource-name>
+      <url-pattern>/jsp/*</url-pattern>
+      <http-method>GET</http-method>
+      <http-method>POST</http-method>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>PENTAHO_ADMIN</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>NONE</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+
+</web-app>

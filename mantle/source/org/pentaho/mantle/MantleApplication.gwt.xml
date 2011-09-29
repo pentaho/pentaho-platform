@@ -1,0 +1,29 @@
+<module rename-to="mantle">
+
+	<!-- Inherit the core Web Toolkit stuff. -->
+	<inherits name='com.google.gwt.user.User'/>
+	<inherits name='com.google.gwt.xml.XML'/>
+	
+	<inherits name='org.pentaho.ui.Xul'/>
+    <inherits name='org.pentaho.ui.xul.Gwt'/>
+    <inherits name='com.googlecode.gwtx.Java'/> 
+    <inherits name="com.google.gwt.json.JSON" />
+	
+	<inherits name='org.pentaho.platform.repository.usersettings.pojo.UserSettings'/>
+    <inherits name='org.pentaho.gwt.widgets.Widgets'/>
+    <inherits name='org.pentaho.mantle.login.MantleLogin' />
+    <inherits name="org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService"/>
+    <inherits name='org.pentaho.gwt.widgets.client.filechooser.FileChooser'/>
+    <generate-with class="org.pentaho.mantle.rebind.CommandExecGenerator" > 
+        <when-type-assignable class="org.pentaho.mantle.client.commands.CommandExec"/> 
+    </generate-with>
+
+    <set-property name="gwt.suppressNonStaticFinalFieldWarnings" value="true" /> 
+
+	<!-- Specify the app entry point class.                   -->
+	<entry-point class='org.pentaho.mantle.client.MantleEntryPoint'/>
+	
+	<servlet path="/MantleService" class="org.pentaho.mantle.server.DebugMantleServlet" />
+	
+  
+</module>

@@ -1,0 +1,5 @@
+ivy resolve
+start bi server
+run or debug mantle.launch (or platform equiv)
+ -by right clicking on it and hit run as or debug as (java application)
+ 

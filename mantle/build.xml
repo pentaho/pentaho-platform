@@ -1,0 +1,85 @@
+<!--===========================================================================
+  This is the build file for the Pentaho Mantle project.
+
+  This build file will use the common_build.xml file as the default build
+  process and should only override the tasks that need to differ from
+  the common build file.
+
+  See common_build.xml for more details
+============================================================================-->
+<project name="Pentaho Mantle" basedir="." default="jar" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <description>
+	  This build file is used to create the Pentaho Commons Action Sequence DOM
+		project and works with the common_build.xml file.
+	</description>
+
+  <!-- Import the version information -->
+  <property file="${basedir}/version.properties" />
+
+  <!-- Define the default location of the gwt common build file -->
+  <property name="gwt.common.build.file"
+            value="./build-res/subfloor-gwt.xml"
+            description="This is the location of the standardized subfloor-gwt.xml file" />
+
+  <!-- Property used to change the default version in PUC's help - about -->
+  <property name="user.console.revision" value="" />
+
+  <!-- Import the common_build.xml file which contains all the default tasks -->
+  <import file="${gwt.common.build.file}" />
+
+  <!--
+      AS STATED ABOVE, THE ONLY TASKS THAT SHOULD EXIST IN THIS BUILD FILE ARE
+      THE TASKS THAT NEED TO DIFFER FROM THE DEFAULT IMPLEMENTATION OF THE TASKS
+      FOUND IN common_build.xml.
+    -->
+
+  <!-- Directory in which the source will be copied before a compile -->
+  <property name="temp-src.dir" value="${bin.dir}/src" />
+
+  <!--=======================================================================
+      gwt-compile
+
+      Performs the required gwt compiles
+      ====================================================================-->
+  <target name="gwt-compile" description="Performs the required GWT Compilation">
+  	<delete dir="${stage.dir}"/>
+    <copy todir="${codegenlib.dir}">
+      <fileset dir="${dist.dir}">
+        <include name="${ivy.artifact.id}-${project.revision}.jar" />
+      </fileset>
+    </copy>
+    <!-- Compile the Mantle Application -->
+    <ant antfile="${gwt.common.build.file}" target="gwt-compile">
+      <property name="gwt-module.path" value="org.pentaho.mantle.MantleApplication" />
+    </ant>
+  </target>
+
+
+  <!--=======================================================================
+      assemble (override)
+
+      Overriden to force gwt javascript compilation
+      ====================================================================-->
+  <target name="assemble" depends="gwt-compile">
+    <copy todir="${stage.dir}">
+      <fileset dir="${gwt.output.dir}">
+        <exclude name=".gwt-tmp/" />
+        <exclude name="*-aux/" />
+      </fileset>
+    </copy>
+  </target>
+
+  <!--=======================================================================
+      update-version-string
+
+      Sets the user-console-revision in the MantleSettings.properties file.
+      This will change the content in PUC's Help - About dialog
+      ====================================================================-->
+  <target name="update-versions-string">
+    <echo message="Changing version information to [${user.console.revision}]" />
+	<replace file="${src.dir}/org/pentaho/mantle/server/MantleSettings.properties"
+		token="user-console-revision=" value="user-console-revision=${user.console.revision}" />
+  </target>
+
+</project>

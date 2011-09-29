@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE web-app PUBLIC
+   "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+   "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+
+  <servlet>
+    <servlet-name>MantleServlet</servlet-name>
+    <display-name>MantleServlet</display-name>
+    <description>MantleServlet</description>
+    <servlet-class>org.pentaho.mantle.server.DebugMantleServlet</servlet-class>
+  </servlet>
+  	
+  <servlet-mapping>
+    <servlet-name>MantleServlet</servlet-name>
+    <url-pattern>/mantle/MantleService</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>MantleServlet</servlet-name>
+    <url-pattern>MantleService</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+  	<servlet-name>MantleServlet</servlet-name>
+  	<url-pattern>/mantle/MantleLoginService</url-pattern> 
+  </servlet-mapping>
+
+</web-app>

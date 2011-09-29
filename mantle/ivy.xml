@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
+    <info organisation="${ivy.artifact.group}" module="${ivy.artifact.id}" revision="${project.revision}" />
+    
+    <configurations>
+    	<conf name="default"/>
+    	<conf name="runtime"/>
+    	<conf name="source" />    	
+    	<conf name="test" visibility="private"/>
+    	<conf name="codegen"       visibility="private"/>
+    	<conf name="codegen-mac"   visibility="private" extends="codegen"/>
+    	<conf name="codegen-win"   visibility="private" extends="codegen"/>
+    	<conf name="codegen-linux" visibility="private" extends="codegen"/>
+    </configurations>
+    
+    <publications>
+    	<artifact name="${ivy.artifact.id}" type="jar" conf="default"/>
+    	<artifact name="${ivy.artifact.id}" m:classifier="sources" type="source" ext="jar" conf="source" />
+    </publications>
+    
+    <dependencies defaultconf="default->default">
+        <!--  Actual dependencies -->
+        <dependency org="commons-logging"       name="commons-logging"    rev="1.1"   transitive="false"/>
+        <dependency org="commons-httpclient"    name="commons-httpclient" rev="3.0.1" transitive="false"/>
+        <dependency org="commons-lang"          name="commons-lang"       rev="2.4"   transitive="false"/>
+        <dependency org="commons-codec"         name="commons-codec"      rev="1.3"   transitive="false"/>
+    	<dependency org="org.springframework"   name="spring"             rev="2.5.6" transitive="false" />
+        <dependency org="org.springframework.security"   name="spring-security-core"      rev="2.0.5.RELEASE" transitive="false"/>
+		<dependency org="metro" name="metro-webservices-api" rev="2.0" transitive="false"/>
+        
+        <dependency org="com.google.gwt"        name="gwt-servlet"        rev="${dependency.gwt.revision}" transitive="false"/>
+
+	    <!--  Pentaho dependencies -->
+    	<dependency org="${ivy.artifact.group}" name="mondrian" rev="${dependency.mondrian.revision}" changing="true" transitive="false">
+          <exclude org="commons-dbcp" name="commons-dbcp"/>
+          <exclude org="javax.servlet" name="jsp-api"/>
+          <exclude org="javax.servlet" name="servlet-api"/>
+        </dependency>
+    	
+        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-plugin-actions"  rev="${project.revision}" conf="default->default" changing="true" transitive="false"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-web"             rev="${project.revision}" conf="default->default" changing="true" transitive="false"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-api" rev="${project.revision}" conf="default->default" changing="true" transitive="false">
+          <artifact name="pentaho-bi-platform-api"/>
+        </dependency>
+        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-plugin-services" rev="${project.revision}" conf="default->default" changing="true" transitive="false">
+          <artifact name="pentaho-bi-platform-plugin-services"/>
+        </dependency>
+        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-repository" rev="${project.revision}" conf="default->default" changing="true" transitive="false">
+          <artifact name="pentaho-bi-platform-repository"/>
+        </dependency>
+    	<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-util" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>
+    	<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-core" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>
+    	<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-security" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>
+    	<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-services" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>
+    	<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-scheduler" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-ui-foundation" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>        
+        
+        <!--  Codegen dependencies -->
+        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-api" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
+          <artifact name="pentaho-bi-platform-api" type="source" ext="jar" m:classifier="sources"/>
+        </dependency>
+        
+        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-repository" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
+          <artifact name="pentaho-bi-platform-repository" type="source" ext="jar" m:classifier="sources"/>
+        </dependency>
+        
+        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-plugin-services" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
+          <artifact name="pentaho-bi-platform-plugin-services" type="source" ext="jar" m:classifier="sources"/>
+        </dependency>
+
+        <dependency org="org.zenica"            name="gwt-datepicker"     rev="r30" conf="codegen->default"/>
+        <!-- The organization of GWT Widgets can not be varied since we do not create optimized versions of the GWT Widgets -->
+        <dependency org="pentaho" name="pentaho-gwt-widgets" rev="${dependency.pentaho-gwt-widgets.revision}" conf="codegen->default" changing="true" transitive="false">
+          <artifact name="pentaho-gwt-widgets"/>
+          <artifact name="pentaho-gwt-widgets" type="source" ext="jar" m:classifier="sources"/>
+        </dependency>
+        
+        <dependency org="pentaho" name="pentaho-xul-core" rev="${dependency.pentaho-xul.revision}" conf="codegen->default" changing="true" transitive="false">
+          <artifact name="pentaho-xul-core"/>
+          <artifact name="pentaho-xul-core" type="source" ext="jar" m:classifier="sources"/>
+        </dependency>
+        
+        <dependency org="pentaho" name="pentaho-xul-gwt" rev="${dependency.pentaho-xul.revision}" conf="codegen->default" changing="true" transitive="false">
+          <artifact name="pentaho-xul-gwt"/>
+          <artifact name="pentaho-xul-gwt" type="source" ext="jar" m:classifier="sources"/>
+        </dependency>
+		
+		<dependency org="com.google.code.gwtx" name="gwtx" rev="1.5.2" conf="codegen->default" transitive="false"/>
+        <dependency org="com.google.gwt" name="gwt-incubator" rev="${dependency.gwt-incubator.revision}" conf="codegen->default" transitive="false"/>
+        <dependency org="com.allen_sauer" name="gwt-dnd" rev="${dependency.gwt-dnd.revision}"       conf="codegen->default" transitive="false"/>
+        <dependency org="com.google.gwt" name="gwt-user" rev="${dependency.gwt.revision}" conf="codegen->default" transitive="false"/>
+        <dependency org="com.google.gwt" name="gwt-dev"  rev="${dependency.gwt.revision}" conf="codegen->default" transitive="false"/>
+
+        <dependency org="javax.validation" name="validation-api"  rev="1.0.0.GA" conf="codegen->default" transitive="false">
+          <artifact name="validation-api"/>
+          <artifact name="validation-api" type="source" ext="jar" m:classifier="sources"/>
+        </dependency>
+
+        <!--  Testing dependencies -->
+        <dependency org="junit"          name="junit"          rev="4.4" conf="test->default" />
+
+    </dependencies>
+</ivy-module>

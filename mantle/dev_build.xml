@@ -1,0 +1,161 @@
+<!-- ======================================================================
+     description: main build file for mantle
+     ====================================================================== -->
+<project name="mantle-demo" default="compile-mantle">
+	<description>mantle build process..</description>
+
+	<property file="dev_override.properties" />
+	<property file="dev_build.properties" />
+
+	<propertyfile file="version.properties">
+		<entry pattern="####" key="release.build.number" type="int" operation="+" value="1" />
+	</propertyfile>
+
+	<property file="version.properties" />
+
+	<path id="classpath">
+		<fileset dir="war/WEB-INF/lib"/>
+	</path>
+
+	<!-- ===================================================================
+        target: clean              
+       =================================================================== -->
+	<target name="clean" depends="">
+		<delete dir="dist" />
+		<delete dir="${gwt.output.dir}" />
+		<delete dir="login-output" />
+		<delete failonerror="no">
+			<fileset dir="${pentaho-webapp-root}/WEB-INF/lib/">
+				<include name="**/mantle*.jar" />
+			</fileset>
+		</delete>
+		<delete dir="${pentaho-webapp-root}/mantle" />
+	</target>
+
+
+	<!-- ===================================================================
+        target: init              
+       =================================================================== -->
+	<target name="init">
+		<mkdir dir="dist/bin" />
+		<copy todir="dist/bin">
+			<fileset dir="source" includes="**/*.png, **/*.jpg, **/*.gif, **/*.properties, **/*.xml" />
+		</copy>
+		<mkdir dir="${pentaho-webapp-root}/mantle" />
+	</target>
+
+	<target name="compile" depends="init">
+		<javac destdir="dist/bin" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" compiler="modern" source="1.5" target="1.5" fork="true">
+			<src path="source" />
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+	<target name="compile-mantle-dev" depends="compile">
+		<java classname="com.google.gwt.dev.Compiler" fork="true" failonerror="true" maxmemory="1024M">
+			<jvmarg value="-Xss8M"/>    	
+			<classpath>
+				<pathelement location="source" />
+				<pathelement location="dist/bin"/>
+				<path refid="classpath" />
+			</classpath>
+			<arg value="-localWorkers" />
+			<arg value="-4" />
+			<arg value="${mantle-dev.app}" />
+			<!--
+			<arg value="-logLevel" />
+			<arg value="TRACE" />
+			-->
+		</java>
+	</target>
+
+	<target name="compile-mantle-login" depends="clean, compile">
+		<java classname="com.google.gwt.dev.Compiler" fork="true" failonerror="true" maxmemory="1024M">
+			<jvmarg value="-Xss8M"/>    	
+			<classpath>
+				<pathelement location="source" />
+				<path refid="classpath" />
+			</classpath>
+			<arg value="-localWorkers" />
+			<arg value="-4" />
+			<arg value="org.pentaho.mantle.login.MantleLogin" />
+			<!--
+			<arg value="-logLevel" />
+			<arg value="TRACE" />
+			-->
+		</java>
+	</target>
+  
+	<target name="compile-mantle" depends="clean, compile, compile-mantle-login">
+		<java classname="com.google.gwt.dev.GWTCompiler" fork="true" failonerror="true" maxmemory="512M">
+			<jvmarg value="-Xss8M"/>    	
+			<classpath>
+				<pathelement location="source" />
+				<pathelement location="dist/bin"/>
+				<path refid="classpath" />
+			</classpath>
+			<arg value="-localWorkers" />
+			<arg value="-4" />
+			<arg value="${mantle.app}" />
+			<!--
+			<arg value="-logLevel" />
+			<arg value="TRACE" />
+			-->
+		</java>
+	</target>
+
+	<target name="dist" depends="clean, compile">
+		<mkdir dir="dist/pentaho.war/WEB-INF/lib" />
+		<jar basedir="dist/bin" destfile="dist/mantle-${release.major.number}.${release.minor.number}.${release.milestone.number}.${release.build.number}.jar" />
+		<copy todir="dist/pentaho.war/WEB-INF/lib">
+			<fileset dir="dist" includes="mantle*.jar" />
+		</copy>
+		<copy todir="dist/pentaho.war/WEB-INF/" file="${pentaho-webapp-root}/WEB-INF/web.xml" />
+  
+  	<copy todir="dist/pentaho.war/mantle">
+  		<fileset dir="${gwt.output.dir}/mantle" includes="**/*" />
+  	</copy>
+  	<zip destfile="dist/mantle-${release.major.number}.${release.minor.number}.${release.milestone.number}.${release.build.number}.zip">
+  		<zipfileset dir="dist/pentaho.war" prefix="pentaho.war" />
+  	</zip>
+  	<delete dir="dist/pentaho.war" />
+  </target>
+  
+  <target name="deploy-to-pentaho-pci" depends="">
+  	<jar basedir="dist/bin" destfile="${pentaho-webapp-root}/WEB-INF/lib/mantle-${release.major.number}.${release.minor.number}.${release.milestone.number}.jar" />
+  	<copy todir="${pentaho-webapp-root}/mantle"  failonerror="false">
+  		<fileset dir="${gwt.output.dir}/mantle" includes="**/*" />
+  	</copy>
+  	<copy todir="${pentaho-webapp-root}/mantleLogin" failonerror="false">
+  		<fileset dir="login-output/mantleLogin" includes="**/*" />
+  	</copy>
+  	<copy todir="${pentaho-webapp-root}/WEB-INF/lib">
+  		<fileset dir="lib" includes="gwt-servlet-1.5.2.jar" />
+  	</copy>
+  <!--touch file="${pentaho-webapp-root}/WEB-INF/web.xml"/-->
+  </target>
+  
+  <target name="compile-deploy" depends="clean, compile-mantle">
+  <antcall target="deploy-to-pentaho-pci">
+  </antcall>
+  </target>
+  
+  <target name="compile-deploy-dev" depends="clean, compile-mantle-dev">
+  <antcall target="deploy-to-pentaho-pci">
+  </antcall>
+  </target>
+
+  <target name="compile-all-deploy-dev" depends="clean">
+    <antcall target="compile-mantle-login-dev"/>
+    <antcall target="compile-mantle-dev"/>
+    <antcall target="deploy-to-pentaho-pci"/>
+  </target>	
+	
+  <target name="compile-login-deploy-dev" depends="clean">
+    <antcall target="compile-mantle-login-dev"/>
+    <antcall target="deploy-to-pentaho-pci"/>
+  </target>
+
+
+
+</project>

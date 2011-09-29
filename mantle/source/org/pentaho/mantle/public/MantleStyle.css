@@ -1,0 +1,600 @@
+html{
+  height: 100%;
+  overflow: hidden;
+}
+
+body{
+  height: 100%;
+}
+
+.launchImage {
+  cursor: pointer;
+  cursor: hand;
+}
+
+.launchButtonPanel {
+  width: 562px;
+}
+
+.launchPanel {
+  height: 100%;
+}
+
+.reportParameterDisclosurePanel {
+  text-decoration:none;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.reportPageControl {
+  cursor: pointer;
+  cursor: hand;
+}
+
+.pageControlPanel {
+  padding: 0px 5px;
+}
+
+.solutionDisclosureHeaderWidget {
+  text-decoration:none;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.solutionDisclosureHeaderWidgetHover {
+  text-decoration:none;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.solutionDisclosureWidget {
+  text-decoration:none;
+  margin-top: 3px;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.solutionDisclosureWidget-open .header {
+ text-decoration: none;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.solutionDisclosureWidget-closed .header {
+ text-decoration: none;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.solutionBrowserDescription {
+  margin: 10px 20px 10px 20px;
+}
+
+.classicNavigatorFileLabelHover {
+  text-decoration: none;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.classicNavigatorFileLabel {
+  text-decoration: none;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.classicNavigatorPanel {
+  margin: 5px 5px 5px 5px;
+}
+
+.numSolutionsLabel {
+  text-decoration: none;
+}
+
+.breadCrumbLabel {
+  text-decoration: underline;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.breadCrumbLabelHover {
+  text-decoration: underline;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.welcomeTab {
+  padding: 0px 10 0px 10px;
+}
+
+.anchorLabelNoUnderline {
+}
+
+.anchorLabel {
+  cursor: pointer;
+  cursor: hand;
+  text-decoration: underline;
+}
+
+.fileLabel {
+  cursor: pointer;
+  cursor: hand;
+}
+
+.fileLabelSelected {
+  cursor: pointer;
+  cursor: hand;
+}
+
+.fileLabel .gwt-Label {
+  padding-left: 5px;
+  font-size: .8em;
+}
+
+.fileLabelSelected .gwt-Label {
+  padding-left: 5px;
+  font-size: .8em;
+}
+
+
+.filesPanelMenuLabel {
+  vertical-align: middle;
+  line-height: 29px;
+  padding-left: 10px;
+}
+
+.browsePanelMenuLabel {
+  vertical-align: middle;
+  line-height: 29px;
+  padding-left: 10px;
+}
+
+
+.mainToolbar {
+  height: 46px;
+}
+
+.puc-horizontal-split-panel {
+}
+
+.puc-horizontal-split-panel .hsplitter {
+  cursor: w-resize;
+  margin-right: 10px;
+  padding-left: 4px;
+  padding-right: 2px;
+}
+
+
+.puc-vertical-split-panel .vsplitter {
+  cursor: n-resize;
+  padding-top: 4px;
+  padding-bottom: 2px;
+  overflow: hidden;
+}
+
+#loading {
+  position: absolute;
+  left: 48%;
+  top: 45%;
+  margin-left: -45px;
+  padding: 2px;
+  z-index: 20001;
+  height: auto;
+}
+
+#loading .loading-indicator {
+  padding: 10px;
+  margin: 0;
+  height: auto;
+}
+
+#loading .loading-indicator img {
+  background: white;
+  margin-right:8px;
+  float:left;
+  vertical-align:top;
+}
+
+.applicationShell {
+    border: 0px;
+    height: 100%;
+    width: 100%;
+}
+
+/*
+* {
+  margin: 0px;
+  padding: 0px;
+}
+*/
+
+body {
+  color: black;
+  margin: 0px;
+  padding: 0px;
+}
+
+h2 {
+  font-weight: normal;
+}
+
+table {
+/*  font-size: 100%;*/
+}
+
+code {
+  font-size: small;
+}
+
+
+
+
+
+
+
+
+
+
+.backgroundContentAction {
+  cursor: pointer;
+  cursor: hand;
+}
+
+.backgroundContentTable content {
+  margin: 10px 10px 10px 10px;
+  padding: 10px 10px 10px 10px;
+}
+
+
+.backgroundContentHeaderTableCell {
+ padding: 8px;
+ 
+}
+.backgroundContentHeaderTableCellRight {
+ padding: 8px;
+
+}
+
+.backgroundContentTableCell {
+ padding: 0px 10px 0px 10px;
+}
+
+.backgroundContentTableCellRight {
+ padding: 0px 10px 0px 10px;
+}
+
+.backgroundContentTableCellBottom {
+ padding: 0px 10px 0px 10px;
+}
+
+.backgroundContentTableCellBottomRight {
+ padding: 0px 10px 0px 10px;
+}
+
+
+
+
+
+
+
+.gwt-BorderedPanel {
+}
+
+.gwt-Button {
+   height:22px;
+   margin: 0px 4px 2px 4px;
+}
+
+.gwt-Button:hover {
+   margin: 0px 4px 2px 4px;
+   height:22px;
+   cursor: pointer;
+   cursor: hand;
+}
+
+.gwt-Button:disabled {
+   margin: 0px 4px 2px 4px;
+   height:22px;
+   cursor: default;
+}
+
+.dialogContentPanel {
+    padding: 0px 0px 0px 0px;
+    font-size: 12px;
+}
+
+.viewContentDialogBox {
+  padding: 2px 2px 2px 2px;
+}
+
+.viewContentDialogBox .Caption {
+  text-align: left;
+  padding: 3px 0px 3px 5px;
+}
+
+.gwt-HTML {
+  text-align: left;
+}
+
+.gwt-Hyperlink {
+}
+
+.gwt-Image {
+}
+
+.gwt-Label {
+}
+
+.gwt-ListBox {
+}
+
+
+.menuBarAndLogoPanel {
+  
+}
+
+.logoPanel-ContainerToolBar {
+  
+}
+
+.logoPanel-Container {
+}
+
+.pucContentDeck {
+}
+
+.workspaceDisclosureContentWrapper {
+  padding: 10px;
+  margin: 0 10px 10px;
+}
+
+.IE .workspaceDisclosureContentWrapper {
+  padding: 0px;
+  margin: 0px;
+}
+
+.IE .workspacePanel .pentaho-disclosure-panel-open {
+  padding-top: 0px;
+}
+
+.IE .workspacePanel .pentaho-disclosure-panel-closed {
+  padding-top: 0px;
+}
+
+
+.gwt-Tree .gwt-TreeItem {
+  white-space: nowrap;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-Tree .gwt-TreeItem-selected {
+  white-space: nowrap;
+  cursor: pointer;
+  cursor: hand;
+}
+
+
+.gwt-StackPanel .gwt-StackPanelItem {
+  padding: 5px 5px 5px 5px;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-PushButton-up {
+  padding: 2px 2px 2px 2px;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-PushButton-up-hovering {
+  padding: 2px 2px 2px 2px;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-PushButton-down {
+  padding: 2px 2px 2px 2px;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-PushButton-down-hovering {
+  background-color: #C3D9FF;
+  padding: 2px 2px 2px 2px;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-ToggleButton-up {
+  padding: 3px;
+  margin: 2px;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-ToggleButton-up-hovering {
+  padding: 3px;
+  margin: 2px;
+  cursor: pointer;
+  cursor: hand;
+
+}
+
+.gwt-ToggleButton-down {
+  padding: 2px;
+  margin: 2px;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-ToggleButton-down-hovering {
+  padding: 2px;
+  margin: 2px;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-RichTextToolbar {
+  padding: 2px 2px 2px 2px;
+}
+
+.gwt-RichTextToolbar .gwt-PushButton-up {
+  margin-right: 2px;
+}
+
+.gwt-RichTextToolbar .gwt-PushButton-up-hovering {
+  margin-right: 2px;
+}
+
+.gwt-RichTextToolbar .gwt-PushButton-down {
+  margin-right: 2px;
+}
+
+.gwt-RichTextToolbar .gwt-PushButton-down-hovering {
+  margin-right: 2px;
+}
+
+.gwt-RichTextToolbar .gwt-ToggleButton-up {
+  margin-right: 2px;
+}
+
+.gwt-RichTextToolbar .gwt-ToggleButton-up-hovering {
+  margin-right: 2px;
+}
+
+.gwt-RichTextToolbar .gwt-ToggleButton-down {
+  margin-right: 2px;
+}
+
+.gwt-RichTextToolbar .gwt-ToggleButton-down-hovering {
+  margin-right: 2px;
+}
+
+.gwt-SuggestBoxPopup .item-selected {
+  padding: 2px 2px 2px 2px;
+}
+
+.gwt-SliderBar-shell {
+  height: 34pt;
+  width: 50%;
+}
+.gwt-SliderBar-shell .gwt-SliderBar-line {
+  height: 4px;
+  width: 95%;
+  top: 22pt;
+  overflow: hidden;
+}
+.gwt-SliderBar-shell .gwt-SliderBar-knob {
+  top: 14pt;
+  width: 11px;
+  height: 21px;
+  z-index: 1;
+  cursor: pointer;
+}
+.gwt-SliderBar-shell .gwt-SliderBar-tick {
+  top: 12pt;
+  width: 1px;
+  height: 8pt;
+  overflow: hidden;
+}
+.gwt-SliderBar-shell .gwt-SliderBar-label {
+  top: 2pt;
+  cursor: default;
+}
+.gwt-SliderBar-shell .gwt-SliderBar-line-sliding {
+  cursor: pointer;
+}
+
+.titledToolbar{
+  position:absolute;
+  width:100%;
+  
+}
+
+.panelWithTitledToolbar{
+  height: 100%;
+}
+
+.files-list-panel{
+  position:absolute;
+  height:100% !important;
+  height:100% -29px;
+  width:100%;
+  overflow:auto;
+}
+.files-toolbar{
+  width:100%;
+  height:29px;
+  position:absolute;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.folder-list-panel{
+  position:absolute;
+  height:100% !important;
+  height:100% -29px;
+  width:100%;
+  overflow:auto;
+}
+.puc-navigator-panel {
+  padding: 6px 0px 0px 0px;
+  overflow-x: visible;
+  overflow-y: visible;
+  height: 100%;
+  margin: 0px;
+  position: absolute;
+}
+
+.gwt-PopupPanel{
+  z-index:100;
+}
+
+.waitPopup{
+  position: absolute;
+  left: 44%;
+  top: 44%;
+  padding: 15px 8px;
+  z-index: 20001;
+  height: auto;
+}
+.waitPopup_title{
+
+  margin-left: 40px;
+  padding-bottom: 3px;
+}
+
+.waitPopup_msg{
+  margin-left: 40px;
+
+}
+.mantle-toolbar-combo-button{
+  margin: 1px;
+}
+
+.mantle-toolbar-combo-button-hovering{
+  margin: 1px;
+}
+
+.mantle-toolbar-combo-button-disabled{
+  margin: 1px;
+}
+
+.filesPanelToolbar{
+  padding-right:3px;
+}
+.fileItemDragProxy{
+  z-index:1500 !important;
+  width: 25px;
+}
+.validDrop{
+}
+
+/* BISERVER-6181 - add padding to bottom of the file list panel*/
+.filter-list-panel-container {
+  bottom: 14px !important; /* override the inline style that is set by gwt, simple padding doesn't work */
+}
+.IE .filter-list-panel-container {
+  padding-bottom: 6px !important; /* ie setting the padding works */
+}
+/* end fix BISERVER-6181 */

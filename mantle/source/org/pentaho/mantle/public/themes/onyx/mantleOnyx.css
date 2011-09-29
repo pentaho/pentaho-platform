@@ -1,0 +1,622 @@
+.puc-logo{
+    background: url('images/logo.png') no-repeat center center;
+}
+.puc-logo-spacer{
+    width: 152px;
+    height: 75px;
+}
+
+.launchButtonPanel {
+  background-image: url(../../quicklaunch_icon_panel.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.launchPanel {
+  background-color: white;
+  background-image: url(../../quicklaunch_bg.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.reportParameterDisclosurePanel {
+  background-color: #d8d8d8;
+  border-bottom:1px solid #848484;
+}
+
+.errorLabel {
+  color: red;
+}
+
+.reportPageControl {
+  border: 1px solid black;
+}
+
+.pageControlPanel {
+  background-color: LightCyan;
+  border-bottom: 1px solid black;
+}
+
+.solutionDisclosureHeaderWidget {
+  background-color:#EEEEEE;
+  border:5px solid #EEEEEE;
+  color:#778645;
+}
+
+.solutionDisclosureHeaderWidgetHover {
+  background-color:#DDDDDD;
+  border:5px solid #DDDDDD; 
+  color:#EF6507;
+}
+
+.solutionDisclosureWidget {
+  background-color:#EEEEEE;
+  border:1px solid #808080;
+  color:#778645;
+}
+
+.classicNavigatorTable {
+  background-color: white;
+}
+
+.classicNavigatorTableCell {
+ border-bottom: 1px solid #808080;
+}
+
+.classicNavigatorTableHeader {
+ background-color: #C2CFA2;
+ color: black;
+ border: 1px solid #808080;
+}
+
+.classicNavigatorFileLabelHover {
+  color: #EF6507;
+}
+
+.classicNavigatorFileLabel {
+  color: #778645;
+}
+
+.numSolutionsLabel {
+  color: #778645;
+}
+
+.breadCrumbLabel {
+  color: #778645;
+}
+
+.breadCrumbLabelHover {
+  color: #EF6507;
+}
+
+.fileLabel {
+  background-color: #ffffff;
+}
+
+.fileLabelSelected {
+  background-color: #dbdbdb;
+}
+
+
+.permissionsTable {
+  border: 1px solid #7f9db9;
+}
+
+
+.filesPanelMenuLabel {
+  background-color: #d8d8d8;
+  background-image: url(../../images/subtoolbar_bg.png);
+  background-position:center;
+  background-repeat: repeat-x;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #848484;
+}
+
+.browsePanelMenuLabel {
+  background-color: #d8d8d8;
+  background-image: url(../../images/subtoolbar_bg.png);
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #848484;
+  background-repeat: repeat-x;
+  background-position:center;
+}
+
+.mantle-default-tab-background {
+	background-color: white;
+}
+
+.mainToolbar {
+  background-image: url(../../toolbar_bg.png);
+  background-repeat: repeat-x;
+  background-position: top center;
+}
+
+.puc-horizontal-split-panel {
+}
+
+.puc-horizontal-split-panel .hsplitter {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-top: 1px solid #aaaaaa;
+  border-right: 1px solid #aaaaaa;
+}
+
+.puc-horizontal-split-panel .left {
+  background-color: #E8EEF7;
+}
+
+.puc-vertical-split-panel {
+}
+
+
+#loading {
+  background: white;
+  border: 1px solid #ccc;
+}
+
+#loading a {
+  background: white;
+  color: #225588;
+}
+
+#loading .loading-indicator {
+  background: white;
+  color: #444;
+  font: bold 13px tahoma, arial, helvetica;
+}
+
+#loading .loading-indicator img {
+  background: white;
+}
+
+#loading-msg {
+  background: white;
+  font: normal 10px arial, tahoma, sans-serif;
+}
+
+a, a:visited {
+  color:#ef8033;
+}
+
+a:active, a:hover {
+  color:#949e3e;
+}
+
+.filePropertyTabContent {
+  border-left: 2px solid #87944C;
+  border-bottom: 2px solid #87944C;
+  border-right: 2px solid #87944C;
+}
+
+.filePropertiesDialogContent {
+  background: white;
+}
+
+
+.backgroundContentAction {
+  color: blue;
+  font-size: 0.8em;
+}
+
+.backgroundContentTable {
+ background: black;
+ font-size: 0.8em;
+}
+
+.backgroundContentHeaderTableCell {
+ 
+  background: #1a1a1a; /* Old browsers */
+  background: -moz-linear-gradient(top, #1a1a1a 0%, #333333 50%, #000000 51%, #000000 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1a1a1a), color-stop(50%,#333333), color-stop(51%,#000000), color-stop(100%,#000000)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* IE10+ */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
+  zoom: 1;
+  background: linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* W3C */	
+}
+
+.backgroundContentHeaderTableCell .gwt-Label {
+	color: white;
+}
+
+.backgroundContentHeaderTableCellRight {
+	 
+  background: #1a1a1a; /* Old browsers */
+  background: -moz-linear-gradient(top, #1a1a1a 0%, #333333 50%, #000000 51%, #000000 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#1a1a1a), color-stop(50%,#333333), color-stop(51%,#000000), color-stop(100%,#000000)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* IE10+ */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#FF777777', endColorstr = '#FF000000');
+  zoom: 1;
+  background: linear-gradient(top, #1a1a1a 0%,#333333 50%,#000000 51%,#000000 100%); /* W3C */	
+ 
+}
+
+.backgroundContentHeaderTableCellRight .gwt-Label {
+	color: white;
+}
+
+
+.backgroundContentTableCell {
+ background-color: white;
+}
+
+.backgroundContentTableCellRight {
+ background-color: white;
+}
+
+.backgroundContentTableCellBottom {
+ background-color: white;
+}
+
+.backgroundContentTableCellBottomRight {
+ background-color: white;
+}
+
+
+
+
+
+.gwt-Button {
+   background-image: expression('url(buttonbg.gif)');
+   background-image:url(../../buttonbg.gif);
+   font-weight: plain;
+   border-style:solid;
+   border-color:#000000;
+   border-width:1px;
+}
+
+.gwt-Button:hover {
+   background-image:url(../../buttonhoverbg.gif);
+   background-image: expression('url(buttonhoverbg.gif)');
+   font-weight: plain;
+   border-style:solid;
+   border-color:#000000;
+   border-width:1px;
+}
+
+.gwt-Button:disabled {
+   background-image:url(../../buttonbg.gif);
+   background-image: expression('url(buttonbg.gif)');
+   border-style:solid;
+   border-color:#c0c0c0;
+   border-width:1px;
+}
+
+.gwt-Canvas {
+}
+
+.gwt-CheckBox {
+}
+
+.gwt-CheckBox label {
+  margin: 0px 0px 0px 4px;
+}
+
+.dialogContentPanel {
+  background-color: #e8eefa;
+    font-size: 12px;
+}
+
+.viewContentDialogBox {
+  background-color: #ececec;
+  border: 3px solid #000000;
+}
+
+.viewContentDialogBox .Caption {
+  background-color: #d0d0d0;
+  color: black;
+  cursor: move;
+  border-bottom: 1px solid #000000;
+}
+
+.gwt-FileUpload {
+}
+
+.gwt-Frame {
+  border: none;
+  overflow:visible; 
+  width:100%; 
+}
+
+
+.workspacePanel {
+	background-color: #d4d6db;
+}
+
+.workspaceDisclosureContentWrapper {
+	background-color: #9f9f9f;
+	border: 1px solid black;
+}
+
+.IE .workspaceDisclosureContentWrapper {
+	background-color: #9f9f9f;
+	border: 0px solid transparent;
+}
+
+.workspaceMessage {
+	font-size: 0.8em;
+}
+
+.gwt-TextBox-readonly {
+  color: #888;
+}
+
+.gwt-Tree {
+  background: white;
+}
+
+
+.gwt-Tree .gwt-TreeItem-selected {
+  background-color: #DDDDDD;
+}
+
+.gwt-StackPanel {
+  background-color: #EEEEEE;
+  border: 1px solid #808080;
+}
+
+.gwt-StackPanel .gwt-StackPanelItem {
+  background-color: #EEEEEE;
+}
+
+.gwt-PushButton-up {
+  background-color: #C3D9FF;
+  border: 2px solid transparent;
+  border-color: #E8F1FF rgb(157, 174, 205) rgb(157, 174, 205) rgb(232, 241, 255);
+}
+
+.gwt-PushButton-up-hovering {
+  background-color: #C3D9FF;
+  border: 2px solid transparent;
+  border-color: #E8F1FF rgb(157, 174, 205) rgb(157, 174, 205) rgb(232, 241, 255);
+}
+
+.gwt-PushButton-down {
+  background-color: #C3D9FF;
+  border: 2px solid transparent;
+  border-color: #9DAECD rgb(232, 241, 255) rgb(232, 241, 255) rgb(157, 174, 205);
+}
+
+.gwt-PushButton-down-hovering {
+  background-color: #C3D9FF;
+  border: 2px solid transparent;
+  border-color: #9DAECD rgb(232, 241, 255) rgb(232, 241, 255) rgb(157, 174, 205);
+}
+
+.gwt-ToggleButton-up {
+  background-image: url(../../buttonbg.gif);
+  background-color: #E8F1FF;
+  border-width: 1px;
+  border-style: solid;
+  border-color: white #a0a0a0 #a0a0a0 white;
+}
+
+.gwt-ToggleButton-up-hovering {
+  background-image: url(../../buttonhoverbg.gif);
+  background-color: #E8F1FF;
+  border-width: 1px;
+  border-style: solid;
+  border-color: white black black white;
+}
+
+.gwt-ToggleButton-down {
+  background-image: url(../../buttonbg.gif);
+  background-color: #E8F1FF;
+  border-width: 2px;
+  border-style: solid;
+  border-color: black white white black;
+}
+
+.gwt-ToggleButton-down-hovering {
+  background-image: url(../../buttonhoverbg.gif);
+  background-color: #E8F1FF;
+  border-width: 2px;
+  border-style: solid;
+  border-color: black white white black;
+}
+
+.gwt-RichTextArea {
+  border: 1px solid black;
+  background-color: white;
+}
+
+.gwt-RichTextToolbar {
+  background-color: #C3D9FF;
+}
+
+.gwt-RichTextToolbar .gwt-PushButton-up {
+  border: 1px solid #C3D9FF;
+}
+
+.gwt-RichTextToolbar .gwt-PushButton-up-hovering {
+  border: 1px solid #C3D9FF;
+  border-color: #E8F1FF rgb(157, 174, 205) rgb(157, 174, 205) rgb(232, 241, 255);
+}
+
+.gwt-RichTextToolbar .gwt-PushButton-down {
+  border: 1px solid #C3D9FF;
+  border-color: #9DAECD rgb(232, 241, 255) rgb(232, 241, 255) rgb(157, 174, 205);
+}
+
+.gwt-RichTextToolbar .gwt-PushButton-down-hovering {
+  border: 1px solid #C3D9FF;
+  border-color: #9DAECD rgb(232, 241, 255) rgb(232, 241, 255) rgb(157, 174, 205);
+}
+
+.gwt-RichTextToolbar .gwt-ToggleButton-up {
+  border: 1px solid #C3D9FF;
+}
+
+.gwt-RichTextToolbar .gwt-ToggleButton-up-hovering {
+  border: 1px solid #C3D9FF;
+  border-color: #E8F1FF rgb(157, 174, 205) rgb(157, 174, 205) rgb(232, 241, 255);
+}
+
+.gwt-RichTextToolbar .gwt-ToggleButton-down {
+  background-color: #E8F1FF;
+  border: 1px solid #C3D9FF;
+  border-color: #9DAECD rgb(232, 241, 255) rgb(232, 241, 255) rgb(157, 174, 205);
+}
+
+.gwt-RichTextToolbar .gwt-ToggleButton-down-hovering {
+  background-color: #E8F1FF;
+  border: 1px solid #C3D9FF;
+  border-color: #9DAECD rgb(232, 241, 255) rgb(232, 241, 255) rgb(157, 174, 205);
+}
+
+.gwt-SuggestBoxPopup {
+  background-color: white;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+}
+
+.gwt-SuggestBoxPopup .item {
+  padding: 2px 2px 2px 2px;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-SuggestBoxPopup .item-selected {
+  color: white;
+  background-color: #d0d0d0;
+  border: 1px solid #d0d0d0;
+  cursor: pointer;
+  cursor: hand;
+}
+
+.gwt-SliderBar-shell {
+  border: 2px solid #faf9f7;
+  border-right: 2px solid #848280;
+  border-bottom: 2px solid #848280;
+  background-color: #efebe7;
+}
+.gwt-SliderBar-shell .gwt-SliderBar-line {
+  border: 1px solid black;
+  background-color: white;
+}
+.gwt-SliderBar-shell .gwt-SliderBar-tick {
+  background: black;
+}
+.gwt-SliderBar-shell .gwt-SliderBar-label {
+  font-size: 8pt;
+}
+.gwt-SliderBar-shell-focused {
+}
+.gwt-SliderBar-shell .gwt-SliderBar-line-sliding {
+  background-color: #DDDDDD;
+}
+
+.files-list-panel{
+  background: white;
+  border: 1px solid black;
+}
+.files-toolbar{
+  border: 1px solid #aaaaaa;
+}
+
+.folder-list-panel{
+  border: 1px solid black;
+}
+.puc-navigator-panel {
+	background-color: rgba(255, 255, 255, 0.2);
+	border-top: 1px solid #aaaaaa;
+}
+
+.waitPopup{
+  border: 1px solid #ccc;
+  background: white;
+}
+
+.waitPopup_table{
+  color: #444;
+  background-image: url(../../large-loading.gif);
+  background-position: left center;
+  background-repeat: no-repeat;
+  font: bold 13px tahoma, arial, helvetica;
+}
+
+.waitPopup_title{
+
+  color: #444;
+  font: bold 16px tahoma, arial, helvetica;
+}
+
+.waitPopup_msg{
+  font: normal 13px arial, tahoma, sans-serif;
+
+}
+
+.mantle-toolbar-combo-button-hovering{
+  background-color: #d0d0d0;
+  cursor: pointer;
+}
+
+.fileItemDragProxy{
+  opacity: 0.85;
+  filter: alpha(opacity=85);
+  border: 1px dashed #999 !important;
+  background: transparent;
+}
+
+#solutionTree .gwt-TreeItem{
+  font-size: .8em;
+}
+
+#solutionTree .gwt-TreeItem-selected{
+  font-size: .8em;
+  background-color: #dbdbdb;
+}
+
+.gwt-MenuItem,
+.gwt-MenuItem-selected,
+.gwt-MenuItem-checkbox-unchecked,
+.gwt-MenuItem-checkbox-checked,
+.disabledMenuItem {
+  font-size: .8em;
+}
+
+
+/*
+ fix for toolbar buttons not supporting transparency in IE,
+ it is a known bug that once you apply any filter or -ms-filter via css, all pngs lose transparency
+ this "fixes" the problem
+ */
+.toolbar-button img {
+  filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='scale')";
+}
+
+.files-toolbar .toolbar-button-hovering {
+  background-color: #d0d0d0;
+  border: 1px solid transparent;
+}
+
+.mainToolbar-Wrapper{
+  padding: 1px 6px 4px 6px;
+}
+
+/*========== Launch Page Styles ================= */
+#outterWrapper {
+ padding: 0px; margin-top: 0px; display:inline-block;
+}
+.largeGraphicButton {
+ padding: 22px 0 8px 0px;
+}
+.largeGraphicSpacer {
+ background-image: url('images/seperator_vert.png');
+}
+.smallButton{
+ padding: 2px 0 30px 0px;
+}
+.newDsPanel{
+ padding: 10px 0px 10px 10px;
+}
+.bottomButtonWrapper{
+ padding: 20px 20px 0px 57px;
+}
+.launcher-bottom-text{
+    line-height: 1.5; padding: 10px 20px 0px 40px; font-size: .8em; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left;"><div style="font-size: 1.2em; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left
+}

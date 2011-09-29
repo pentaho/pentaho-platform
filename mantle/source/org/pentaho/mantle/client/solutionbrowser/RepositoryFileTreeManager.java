@@ -1,0 +1,125 @@
+package org.pentaho.mantle.client.solutionbrowser;
+
+import java.util.ArrayList;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
+import org.pentaho.gwt.widgets.client.filechooser.XMLToRepositoryFileTreeConverter;
+
+public class RepositoryFileTreeManager {
+  public static final String SEPARATOR = "/"; //$NON-NLS-1$
+  public static final String FOLDER_HOME = "home"; //$NON-NLS-1$
+  private ArrayList<IRepositoryFileTreeListener> listeners = new ArrayList<IRepositoryFileTreeListener>();
+
+  private RepositoryFileTree fileTree;
+  private static RepositoryFileTreeManager instance;
+
+  private static boolean fetching = false;
+
+  private RepositoryFileTreeManager() {
+    flagRepositoryFileTreeLoaded(false);
+  }
+
+  private native void flagRepositoryFileTreeLoaded(boolean repositoryFileTreeLoaded)
+  /*-{
+    $wnd.mantle_repository_loaded = repositoryFileTreeLoaded;
+  }-*/;
+
+  public static RepositoryFileTreeManager getInstance() {
+    if (instance == null) {
+      instance = new RepositoryFileTreeManager();
+    }
+    return instance;
+  }
+
+  public void addRepositoryFileTreeListener(IRepositoryFileTreeListener listener) {
+    listeners.add(listener);
+    synchronized (RepositoryFileTreeManager.class) {
+      if (!fetching && fileTree == null) {
+        fetching = true;
+        fetchRepositoryFileTree(true);
+      }
+    }
+  }
+
+  public void removeRepositoryFileTreeListener(IRepositoryFileTreeListener listener) {
+    listeners.remove(listener);
+  }
+
+  private void fireRepositoryFileTreeFetched() {
+    fetching = false;
+    for (IRepositoryFileTreeListener listener : listeners) {
+      listener.onFetchRepositoryFileTree(fileTree);
+    }
+    // flag that we have the document so that other things might start to use it (PDB-500)
+    flagRepositoryFileTreeLoaded(true);
+  }
+
+  public void beforeFetchRepositoryFileTree() {
+    for (IRepositoryFileTreeListener listener : listeners) {
+      listener.beforeFetchRepositoryFileTree();
+    }
+  }
+
+  public void fetchRepositoryFileTree(final boolean forceReload) {
+    if (forceReload || fileTree == null) {
+      fetchRepositoryFileTree(null);
+    }
+  }
+  public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback, final boolean forceReload) {
+    if (forceReload || fileTree == null) {
+      fetchRepositoryFileTree(callback);
+    } else {
+      callback.onSuccess(fileTree);
+    }
+  }
+
+  private native String getFullyQualifiedURL()/*-{
+  return $wnd.FULL_QUALIFIED_URL;
+  }-*/;
+  
+  public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback) {
+    // notify listeners that we are about to talk to the server (in case there's anything they want to do
+    // such as busy cursor or tree loading indicators)
+    beforeFetchRepositoryFileTree();
+    RequestBuilder builder = null;
+    builder = new RequestBuilder(RequestBuilder.GET, getFullyQualifiedURL() + "api/repo/files/:/children?depth=-1&filter=*"); //$NON-NLS-1$
+
+    RequestCallback innerCallback = new RequestCallback() {
+
+      public void onError(Request request, Throwable exception) {
+        Window.alert(exception.toString());
+      }
+
+      public void onResponseReceived(Request request, Response response) {
+        if (response.getStatusCode() == Response.SC_OK) {
+          String xmlData = response.getText(); 
+          XMLToRepositoryFileTreeConverter converter = new XMLToRepositoryFileTreeConverter(xmlData);
+          fileTree = converter.getTree();
+          fireRepositoryFileTreeFetched();
+          if (callback != null) {
+            callback.onSuccess(fileTree);
+          }        
+        } else {
+          Window.alert("Solution Repository not found.");
+        }
+      }
+
+    };
+    try {
+      builder.sendRequest(null, innerCallback);
+    } catch (RequestException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+}

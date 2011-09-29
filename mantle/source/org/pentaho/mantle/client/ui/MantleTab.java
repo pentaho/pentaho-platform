@@ -1,0 +1,229 @@
+package org.pentaho.mantle.client.ui;
+
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.utils.FrameUtils;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
+import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
+
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+
+public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
+
+  private PopupPanel popupMenu = new MantlePopupPanel(true);
+
+  private static enum TABCOMMANDTYPE {
+    BACK, RELOAD, RELOAD_ALL, CLOSE, CLOSE_ALL, CLOSE_OTHERS, NEW_WINDOW, CREATE_DEEP_LINK
+  };
+
+  private class TabCommand implements Command {
+
+    TABCOMMANDTYPE mode = TABCOMMANDTYPE.RELOAD;
+    PopupPanel popupMenu;
+
+    public TabCommand(TABCOMMANDTYPE inMode, PopupPanel popupMenu) {
+      this.mode = inMode;
+      this.popupMenu = popupMenu;
+    }
+
+    public void execute() {
+      popupMenu.hide();
+      if (mode == TABCOMMANDTYPE.RELOAD) {
+        reloadTab();
+      } else if (mode == TABCOMMANDTYPE.RELOAD_ALL) {
+        reloadAllTabs();
+      } else if (mode == TABCOMMANDTYPE.CLOSE) {
+        closeTab();
+      } else if (mode == TABCOMMANDTYPE.CLOSE_OTHERS) {
+        getTabPanel().closeOtherTabs(MantleTab.this);
+      } else if (mode == TABCOMMANDTYPE.CLOSE_ALL) {
+        getTabPanel().closeAllTabs();
+      } else if (mode == TABCOMMANDTYPE.NEW_WINDOW) {
+        openTabInNewWindow();
+      } else if (mode == TABCOMMANDTYPE.CREATE_DEEP_LINK) {
+        createDeepLink();
+      } else if (mode == TABCOMMANDTYPE.BACK) {
+        back();
+      }
+    }
+  }
+
+  public void createDeepLink() {
+    if (getContent() instanceof IFrameTabPanel) {
+      PromptDialogBox dialogBox = new PromptDialogBox(Messages.getString("deepLink"), Messages.getString("ok"), Messages.getString("cancel"), false, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          true);
+      String url = Window.Location.getProtocol() + "//" + Window.Location.getHostName() + ":" + Window.Location.getPort() + Window.Location.getPath() //$NON-NLS-1$ //$NON-NLS-2$
+          + "?name=" + getLabelText() + "&startup-url="; //$NON-NLS-1$ //$NON-NLS-2$
+      String startup = ((IFrameTabPanel) getContent()).getUrl();
+      TextBox urlbox = new TextBox();
+      urlbox.setText(url + URL.encodeComponent(startup));
+      urlbox.setVisibleLength(80);
+      dialogBox.setContent(urlbox);
+      dialogBox.center();
+    }
+  }
+
+  public void openTabInNewWindow() {
+    if (getContent() instanceof IFrameTabPanel) {
+      VerticalPanel vp = new VerticalPanel();
+      vp.add(new Label(Messages.getString("openWindowQuestion"))); //$NON-NLS-1$
+
+      final PromptDialogBox openNewWindowConfirmDialog = new PromptDialogBox(
+          Messages.getString("openWindowConfirm"), Messages.getString("yes"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      final IDialogCallback callback = new IDialogCallback() {
+
+        public void cancelPressed() {
+          openNewWindowConfirmDialog.hide();
+        }
+
+        public void okPressed() {
+          ((IFrameTabPanel) getContent()).openTabInNewWindow();
+          openNewWindowConfirmDialog.hide();
+        } 
+      };
+      openNewWindowConfirmDialog.setCallback(callback);
+      openNewWindowConfirmDialog.center();
+    }
+  }
+
+  public void back() {
+    ((IFrameTabPanel) getContent()).back();
+  }
+
+  public void reloadTab() {
+    if (getContent() instanceof IFrameTabPanel) {
+      VerticalPanel vp = new VerticalPanel();
+      vp.add(new Label(Messages.getString("reloadQuestion"))); //$NON-NLS-1$
+
+      final PromptDialogBox reloadConfirmDialog = new PromptDialogBox(
+          Messages.getString("reloadConfirm"), Messages.getString("yes"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      final IDialogCallback callback = new IDialogCallback() {
+
+        public void cancelPressed() {
+          reloadConfirmDialog.hide();
+        }
+
+        public void okPressed() {
+          ((IFrameTabPanel) getContent()).reload();
+          reloadConfirmDialog.hide();
+        } 
+      };
+      reloadConfirmDialog.setCallback(callback);
+      reloadConfirmDialog.center();
+    }
+  }
+
+  public void reloadAllTabs() {
+    for (int i = 0; i < getTabPanel().getTabCount(); i++) {
+      if (getTabPanel().getTab(i).getContent() instanceof IFrameTabPanel) {
+        ((IFrameTabPanel) getTabPanel().getTab(i).getContent()).reload();
+      }
+    }
+  }
+
+  public MantleTab(String text, String tooltip, MantleTabPanel tabPanel, Widget content, boolean closeable) {
+    super(text, tooltip, tabPanel, content, closeable);
+    popupMenu.addCloseHandler(new CloseHandler<PopupPanel>() {
+      public void onClose(CloseEvent<PopupPanel> event) {
+        FrameUtils.setEmbedVisibility(((IFrameTabPanel) getTabPanel().getSelectedTab().getContent()).getFrame(), true);
+        new Timer() {
+          public void run() {
+            getContent().getElement().getStyle().setHeight(100, Unit.PCT);
+          }
+        }.schedule(250);
+      }
+    });
+  }
+
+  public void onDoubleClick(Event event) {
+    openTabInNewWindow();
+  }
+
+  public void onRightClick(Event event) {
+    FrameUtils.setEmbedVisibility(((IFrameTabPanel) getTabPanel().getSelectedTab().getContent()).getFrame(), false);
+
+    int left = Window.getScrollLeft() + DOM.eventGetClientX(event);
+    int top = Window.getScrollTop() + DOM.eventGetClientY(event);
+    popupMenu.setPopupPosition(left, top);
+    MenuBar menuBar = new MenuBar(true);
+    menuBar.setAutoOpen(true);
+    if (getContent() instanceof IFrameTabPanel) {
+      MenuItem backMenuItem = new MenuItem(Messages.getString("back"), new TabCommand(TABCOMMANDTYPE.BACK, popupMenu)); //$NON-NLS-1$
+      menuBar.addItem(backMenuItem);
+      backMenuItem.getElement().setId("back"); //$NON-NLS-1$
+      menuBar.addSeparator();
+      MenuItem reloadTabMenuItem = new MenuItem(Messages.getString("reloadTab"), new TabCommand(TABCOMMANDTYPE.RELOAD, popupMenu)); //$NON-NLS-1$
+      menuBar.addItem(reloadTabMenuItem);
+      reloadTabMenuItem.getElement().setId("reloadTab"); //$NON-NLS-1$
+    }
+    if (getTabPanel().getTabCount() > 1) {
+      MenuItem reloadAllTabsMenuItem = new MenuItem(Messages.getString("reloadAllTabs"), new TabCommand(TABCOMMANDTYPE.RELOAD_ALL, popupMenu)); //$NON-NLS-1$
+      menuBar.addItem(reloadAllTabsMenuItem);
+      reloadAllTabsMenuItem.getElement().setId("reloadAllTabs"); //$NON-NLS-1$
+    } else {
+      MenuItem reloadAllTabsMenuItem = new MenuItem(Messages.getString("reloadAllTabs"), (Command) null); //$NON-NLS-1$
+      menuBar.addItem(reloadAllTabsMenuItem);
+      reloadAllTabsMenuItem.getElement().setId("reloadAllTabs"); //$NON-NLS-1$
+      reloadAllTabsMenuItem.setStyleName("disabledMenuItem"); //$NON-NLS-1$
+    }
+    menuBar.addSeparator();
+    if (getContent() instanceof IFrameTabPanel) {
+      MenuItem openTabInNewWindowMenuItem = new MenuItem(Messages.getString("openTabInNewWindow"), new TabCommand(TABCOMMANDTYPE.NEW_WINDOW, popupMenu)); //$NON-NLS-1$
+      menuBar.addItem(openTabInNewWindowMenuItem);
+      openTabInNewWindowMenuItem.getElement().setId("openTabInNewWindow"); //$NON-NLS-1$
+      MenuItem createDeepLinkMenuItem = new MenuItem(Messages.getString("createDeepLink"), new TabCommand(TABCOMMANDTYPE.CREATE_DEEP_LINK, popupMenu)); //$NON-NLS-1$
+      menuBar.addItem(createDeepLinkMenuItem);
+      createDeepLinkMenuItem.getElement().setId("deepLink"); //$NON-NLS-1$
+      menuBar.addSeparator();
+    }
+    menuBar.addItem(new MenuItem(Messages.getString("closeTab"), new TabCommand(TABCOMMANDTYPE.CLOSE, popupMenu))); //$NON-NLS-1$
+    if (getTabPanel().getTabCount() > 1) {
+      MenuItem closeOtherTabsMenuItem = new MenuItem(Messages.getString("closeOtherTabs"), new TabCommand(TABCOMMANDTYPE.CLOSE_OTHERS, popupMenu)); //$NON-NLS-1$
+      menuBar.addItem(closeOtherTabsMenuItem);
+      closeOtherTabsMenuItem.getElement().setId("closeOtherTabs"); //$NON-NLS-1$
+      MenuItem closeAllTabsMenuItem = new MenuItem(Messages.getString("closeAllTabs"), new TabCommand(TABCOMMANDTYPE.CLOSE_ALL, popupMenu)); //$NON-NLS-1$
+      menuBar.addItem(closeAllTabsMenuItem);
+      closeAllTabsMenuItem.getElement().setId("closeAllTabs"); //$NON-NLS-1$
+    } else {
+      MenuItem closeOtherTabsMenuItem = new MenuItem(Messages.getString("closeOtherTabs"), (Command) null); //$NON-NLS-1$
+      closeOtherTabsMenuItem.setStyleName("disabledMenuItem"); //$NON-NLS-1$
+      MenuItem closeAllTabsMenuItem = new MenuItem(Messages.getString("closeAllTabs"), (Command) null); //$NON-NLS-1$
+      closeAllTabsMenuItem.setStyleName("disabledMenuItem"); //$NON-NLS-1$
+      menuBar.addItem(closeOtherTabsMenuItem);
+      menuBar.addItem(closeAllTabsMenuItem);
+      closeOtherTabsMenuItem.getElement().setId("closeOtherTabs"); //$NON-NLS-1$
+      closeAllTabsMenuItem.getElement().setId("closeAllTabs"); //$NON-NLS-1$
+    }
+    popupMenu.setWidget(menuBar);
+    popupMenu.hide();
+    popupMenu.show();
+  }
+
+  @Override
+  public void setLabelText(String text) {
+    super.setLabelText(text);
+
+      if (getContent() instanceof IFrameTabPanel) {
+        // this causes saved frames of the same type to all enjoy the same ID, which is
+        // severely problematic for getting the callback hook - it will give you the wrong one
+        // ((IFrameTabPanel) getContent()).setId(text);
+        ((IFrameTabPanel) getContent()).setId(text + System.currentTimeMillis());
+      }
+  }
+}
