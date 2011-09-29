@@ -52,7 +52,7 @@
   <property name="bi-developers.solution.dir" value="${solutions.dir}/bi-developers" />
   <property name="datasource.res.dir" value="${package.res.dir}/appserver/tomcat/res/datasources"/>
   <property name="bi-developers.visible" value="true" description="Should the bi-developers samples be visible" />
-  <property name="mantle.tmp.dir" value="${basedir}/temp" />
+  <property name="user-console.tmp.dir" value="${basedir}/temp" />
   <property name="tomcat.dir" value="${subfloor.resources.dir}/apache-tomcat-6.0.29" description="Directory where tomcat is deployed"/>
 
   <!-- =================================
@@ -62,7 +62,7 @@
     <delete dir="${plugins.dir}" />
     <delete dir="${solution-archives.dir}" />
     <delete dir="${devlib.dir}" />
-    <delete dir="${mantle.tmp.dir}"/>
+    <delete dir="${user-console.tmp.dir}"/>
   </target>
 
 
@@ -92,7 +92,7 @@
           target: assemble-no-plugins                      
          ================================= -->
   <target name="assemble-no-plugins"
-          depends="check-blacklist,validate-mantle-svn-revisions,assemble-tomcat,assemble-pentaho-webapp,install-resources,install-solutions,update-solutions">
+          depends="check-blacklist,validate-user-console-svn-revisions,assemble-tomcat,assemble-pentaho-webapp,install-resources,install-solutions,update-solutions">
     <chmod perm="a+x" dir="${stage.dir}" includes="**/*.sh" />
   </target>
 
@@ -192,9 +192,9 @@
       </fileset>
     </copy>
 
-    <!-- Explode the mantle generated files -->
+    <!-- Explode the user-console generated files -->
     <unzip dest="${prep.pentaho.war.dir}">
-      <fileset dir="${lib.dir}" includes="mantle-package-*.zip" />
+      <fileset dir="${lib.dir}" includes="pentaho-user-console-package-*.zip" />
     </unzip>
 
     <!-- Add general libs -->
@@ -320,7 +320,7 @@
     <fileset dir="${lib.dir}">
       <include name="*.jar" />
     </fileset>
-    <fileset dir="../mantle/lib">
+    <fileset dir="../user-console/lib">
       <include name="*.jar" />
     </fileset>
   </path>
@@ -346,7 +346,7 @@
               <exclude name="${test.excl}" />
               <exclude name="${com.excl}" />
             </fileset>
-            <fileset dir="../mantle/source">
+            <fileset dir="../user-console/source">
               <include name="${java.incl}" />
               <exclude name="${test.excl}" />
               <exclude name="${com.excl}" />
@@ -385,18 +385,18 @@
     </sequential>
   </target>
 
-  <target name="validate-mantle-svn-revisions" unless="suppress-svn-validation" depends="install-antcontrib">
+  <target name="validate-user-console-svn-revisions" unless="suppress-svn-validation" depends="install-antcontrib">
     <sequential>
-      <mkdir dir="${mantle.tmp.dir}/mantle" />
-      <mkdir dir="${mantle.tmp.dir}/mantle-pkg" />
+      <mkdir dir="${user-console.tmp.dir}/user-console" />
+      <mkdir dir="${user-console.tmp.dir}/user-console-pkg" />
 
-      <property name="mantle.rev" value="${project.revision}.${build.id}" />
-      <property name="mantle.pkg.rev" value="${project.revision}.${build.id}" />
+      <property name="user-console.rev" value="${project.revision}.${build.id}" />
+      <property name="user-console.pkg.rev" value="${project.revision}.${build.id}" />
 
-      <unjar src="${lib.dir}/mantle-${project.revision}.jar" dest="${mantle.tmp.dir}/mantle" />
-      <unzip src="${lib.dir}/mantle-package-${project.revision}.zip" dest="${mantle.tmp.dir}/mantle-pkg" />
+      <unjar src="${lib.dir}/pentaho-user-console-${project.revision}.jar" dest="${user-console.tmp.dir}/user-console" />
+      <unzip src="${lib.dir}/pentaho-user-console-package-${project.revision}.zip" dest="${user-console.tmp.dir}/user-console-pkg" />
 
-      <loadfile property="mantle.rev" srcFile="${mantle.tmp.dir}/mantle/META-INF/MANIFEST.MF">
+      <loadfile property="user-console.rev" srcFile="${user-console.tmp.dir}/user-console/META-INF/MANIFEST.MF">
         <filterchain>
           <linecontains>
             <contains value="Implementation-Version" />
@@ -404,7 +404,7 @@
         </filterchain>
       </loadfile>
 
-      <loadfile property="mantle.pkg.rev" srcFile="${mantle.tmp.dir}/mantle/META-INF/MANIFEST.MF">
+      <loadfile property="user-console.pkg.rev" srcFile="${user-console.tmp.dir}/user-console/META-INF/MANIFEST.MF">
         <filterchain>
           <linecontains>
             <contains value="Implementation-Version" />
@@ -412,13 +412,13 @@
         </filterchain>
       </loadfile>
       <if>
-        <equals arg1="${mantle.rev}" arg2="${mantle.pkg.rev}" />
+        <equals arg1="${user-console.rev}" arg2="${user-console.pkg.rev}" />
         <then>
-          <echo message="Mantle SVN revisions in sync" />
-          <delete dir="${mantle.tmp.dir}" />
+          <echo message="User-Console SVN revisions in sync" />
+          <delete dir="${user-console.tmp.dir}" />
         </then>
         <else>
-          <fail message="Mantle SVN revisions out of sync.  Currently reporting: ${mantle.rev} / ${mantle.pkg.rev}.  Please correct and rebuild. " />
+          <fail message="User-Console SVN revisions out of sync.  Currently reporting: ${user-console.rev} / ${user-console.pkg.rev}.  Please correct and rebuild. " />
         </else>
       </if>
     </sequential>

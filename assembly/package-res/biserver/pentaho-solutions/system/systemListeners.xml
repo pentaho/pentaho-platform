@@ -17,16 +17,17 @@
 
         <bean id="mondrianSystemListener" class="org.pentaho.platform.plugin.action.mondrian.MondrianSystemListener" />
         <bean id="quartzSystemListener" class="org.pentaho.platform.scheduler2.quartz.EmbeddedQuartzSystemListener" />
-        <bean id="versionCheckerSystemListener" class="org.pentaho.platform.scheduler.versionchecker.VersionCheckSystemListener">
+        
+        <bean id="versionCheckerSystemListener" class="org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener">
           <property name="repeatIntervalSeconds">
             <value>86400</value>
           </property>
           <property name="requestedReleases" value="Minor, GA" />
           <property name="disableVersionCheck">
-
             <value>false</value>
           </property>
         </bean>
+        
         <bean id="pooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener" />
         <!--
           <bean id="nonPooledDataSourceSystemListener"

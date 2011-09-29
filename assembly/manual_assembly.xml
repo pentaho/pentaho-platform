@@ -286,7 +286,7 @@
     </copy>
 
     <unzip dest="${approot.stage.dir}/pentaho-webapp">
-      <fileset dir="${lib.dir}" includes="mantle-package-*.zip" />
+      <fileset dir="${lib.dir}" includes="pentaho-user-console-package-*.zip" />
     </unzip>
 
     <copy todir="${approot.stage.dir}/pentaho-res/styles/pentaho-style.war">

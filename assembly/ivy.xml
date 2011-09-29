@@ -13,7 +13,7 @@
 
     <!-- Pentaho -->
     <dependency org="pentaho" name="pentaho-platform-extensions" rev="${project.revision}" changing="true"/>
-    <dependency org="pentaho" name="mantle" rev="${project.revision}" changing="true" />
+    <dependency org="pentaho" name="pentaho-user-console" rev="${project.revision}" changing="true" />
 
 	<!--  Reporting -->
     <!-- NOTE: this reporting plugin jar will be removed once the reporting plugin is 3.5 plugin compliant -->
@@ -47,15 +47,6 @@
     <dependency org="metro" name="metro-webservices-api" rev="2.0" />
     <dependency org="metro" name="metro-webservices-rt" rev="2.0" />
 
-    <!-- BIRT -->
-    <dependency org="org.eclipse/birt" name="chartengineapi" rev="2.2.1" />
-    <dependency org="org.eclipse/birt" name="org.eclipse.emf.common" rev="2.2.1.v200702131851-birt-custom" />
-    <dependency org="org.eclipse/birt" name="org.eclipse.emf.ecore" rev="2.2.2.v200702131851-birt-custom" />
-    <dependency org="org.eclipse/birt" name="org.eclipse.emf.ecore.xmi" rev="2.2.2.v200702131851-birt-custom" />
-    <dependency org="org.eclipse/birt" name="org.w3c.css.sac" rev="1.3.0.v200706111724-birt-custom" />
-    <dependency org="org.eclipse/birt" name="scriptapi" rev="2.2.1" />
-    <dependency org="com.ibm.icu" name="com.ibm.icu" rev="3.6.1-v20070906-birt-custom" />
-
     <!-- COMMONS -->
     <dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.0" transitive="false" />
     <dependency org="commons-cli" name="commons-cli" rev="1.0" transitive="false" />
@@ -63,8 +54,6 @@
     <dependency org="commons-discovery" name="commons-discovery" rev="0.4" transitive="false" />
     <dependency org="commons-jxpath" name="commons-jxpath" rev="1.2" transitive="false" />
     <dependency org="concurrent" name="concurrent" rev="1.3.4" />
-    <dependency org="org.eclipse/birt" name="dataadapterapi" rev="2.2.1" />
-    <dependency org="org.eclipse/birt" name="dteapi" rev="2.2.1" />
     <dependency org="jakarta-regexp" name="jakarta-regexp" rev="1.2" />
     <dependency org="javax.xml" name="jaxrpc-api" rev="1.1" />
     <dependency org="jcommon-logging-log4jlog" name="jcommon-logging-log4jlog" rev="1.0.2" />
@@ -102,7 +91,7 @@
     <dependency org="pentaho" name="pentaho-cdf-solution" rev="${dependency.pentaho-cdf-plugin.revision}" changing="true" transitive="false" conf="solution->default" />
 
     <!--  Other archive resources -->
-    <dependency org="pentaho" name="mantle-package" rev="${project.revision}" transitive="false" changing="true" />
+    <dependency org="pentaho" name="pentaho-user-console-package" rev="${project.revision}" transitive="false" changing="true" />
 
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
