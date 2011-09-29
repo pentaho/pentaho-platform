@@ -62,7 +62,6 @@ import org.pentaho.platform.api.engine.IBackgroundExecution;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IFileInfo;
-import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPermissionMask;
 import org.pentaho.platform.api.engine.IPermissionRecipient;
@@ -86,7 +85,6 @@ import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
-import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -99,19 +97,16 @@ import org.pentaho.platform.engine.services.solution.StandardSettings;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
-import org.pentaho.platform.plugin.services.versionchecker.PentahoVersionCheckReflectHelper;
 import org.pentaho.platform.repository.content.ContentItemFile;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository.subscription.Schedule;
 import org.pentaho.platform.repository.subscription.Subscription;
 import org.pentaho.platform.repository.subscription.SubscriptionHelper;
-import org.pentaho.platform.scheduler.SchedulerHelper;
 import org.pentaho.platform.util.VersionHelper;
 import org.pentaho.platform.util.VersionInfo;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.util.web.SimpleUrlFactory;
+import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
-import org.pentaho.platform.web.refactor.UserFilesComponent;
 import org.pentaho.ui.xul.IMenuCustomization;
 import org.pentaho.ui.xul.IMenuCustomization.CustomizationType;
 import org.pentaho.ui.xul.XulOverlay;
@@ -160,19 +155,19 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     return SecurityHelper.isPentahoAdministrator(getPentahoSession());
   }
 
-  @SuppressWarnings("rawtypes")
-  private UserFilesComponent getUserFilesComponent() {
-    UserFilesComponent userFiles = PentahoSystem.get(UserFilesComponent.class, "IUserFilesComponent", getPentahoSession()); //$NON-NLS-1$
-    IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
-    String thisUrl = requestContext.getContextPath() + "UserContent?"; //$NON-NLS-1$
-    SimpleUrlFactory urlFactory = new SimpleUrlFactory(thisUrl);
-    userFiles.setUrlFactory(urlFactory);
-    userFiles.setRequest(getThreadLocalRequest());
-    userFiles.setResponse(getThreadLocalResponse());
-    userFiles.setMessages(new ArrayList());
-    userFiles.validate(getPentahoSession(), null);
-    return userFiles;
-  }
+//  @SuppressWarnings("rawtypes")
+//  private UserFilesComponent getUserFilesComponent() {
+//    UserFilesComponent userFiles = PentahoSystem.get(UserFilesComponent.class, "IUserFilesComponent", getPentahoSession()); //$NON-NLS-1$
+//    IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
+//    String thisUrl = requestContext.getContextPath() + "UserContent?"; //$NON-NLS-1$
+//    SimpleUrlFactory urlFactory = new SimpleUrlFactory(thisUrl);
+//    userFiles.setUrlFactory(urlFactory);
+//    userFiles.setRequest(getThreadLocalRequest());
+//    userFiles.setResponse(getThreadLocalResponse());
+//    userFiles.setMessages(new ArrayList());
+//    userFiles.validate(getPentahoSession(), null);
+//    return userFiles;
+//  }
 
   @SuppressWarnings("rawtypes")
   public String getSoftwareUpdatesDocument() {
@@ -283,15 +278,17 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
   }
 
   public boolean cancelBackgroundJob(String jobName, String jobGroup) {
-    UserFilesComponent userFiles = getUserFilesComponent();
-    boolean status = userFiles.cancelJob(jobName, jobGroup);
-    return status;
+//    UserFilesComponent userFiles = getUserFilesComponent();
+//    boolean status = userFiles.cancelJob(jobName, jobGroup);
+//    return status;
+    return false;
   }
 
   public boolean deleteContentItem(String contentId) {
-    UserFilesComponent userFiles = getUserFilesComponent();
-    boolean status = userFiles.deleteContent(contentId);
-    return status;
+//    UserFilesComponent userFiles = getUserFilesComponent();
+//    boolean status = userFiles.deleteContent(contentId);
+//    return status;
+    return false;
   }
 
   public void refreshRepository() {
@@ -329,29 +326,30 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
 
   public ArrayList<JobSchedule> getMySchedules() {
     ArrayList<JobSchedule> jobSchedules = null;
-    try {
-      List<IJobSchedule> schedules = SchedulerHelper.getMySchedules(getPentahoSession());
-      jobSchedules = iJobSchedule2JobSchedule(schedules);
-      // these are functionally the same exact objects (mantle
-      // JobSchedule/platform JobSchedule)
-    } catch (Exception e) {
-      logger.error(e.getMessage());
-      jobSchedules = new ArrayList<JobSchedule>();
-    }
+    // try {
+    // List<IJobSchedule> schedules =
+    // SchedulerHelper.getMySchedules(getPentahoSession());
+    // jobSchedules = iJobSchedule2JobSchedule(schedules);
+    // // these are functionally the same exact objects (mantle
+    // // JobSchedule/platform JobSchedule)
+    // } catch (Exception e) {
+    // logger.error(e.getMessage());
+    // jobSchedules = new ArrayList<JobSchedule>();
+    // }
     return jobSchedules;
   }
 
   public ArrayList<JobSchedule> getAllSchedules() {
     ArrayList<JobSchedule> jobSchedules = null;
-    try {
-      List<IJobSchedule> schedules = SchedulerHelper.getAllSchedules(getPentahoSession());
-      jobSchedules = iJobSchedule2JobSchedule(schedules);
-      // these are functionally the same exact objects (mantle
-      // JobSchedule/platform JobSchedule)
-    } catch (Exception e) {
-      logger.error(e.getMessage());
-      jobSchedules = new ArrayList<JobSchedule>();
-    }
+//    try {
+//      List<IJobSchedule> schedules = SchedulerHelper.getAllSchedules(getPentahoSession());
+//      jobSchedules = iJobSchedule2JobSchedule(schedules);
+//      // these are functionally the same exact objects (mantle
+//      // JobSchedule/platform JobSchedule)
+//    } catch (Exception e) {
+//      logger.error(e.getMessage());
+//      jobSchedules = new ArrayList<JobSchedule>();
+//    }
     return jobSchedules;
   }
 
@@ -376,19 +374,19 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
   }
 
   public void deleteJob(String jobName, String jobGroup) {
-    SchedulerHelper.deleteJob(getPentahoSession(), jobName, jobGroup);
+    //SchedulerHelper.deleteJob(getPentahoSession(), jobName, jobGroup);
   }
 
   public void runJob(String jobName, String jobGroup) {
-    SchedulerHelper.runJob(getPentahoSession(), jobName, jobGroup);
+    //SchedulerHelper.runJob(getPentahoSession(), jobName, jobGroup);
   }
 
   public void resumeJob(String jobName, String jobGroup) {
-    SchedulerHelper.resumeJob(getPentahoSession(), jobName, jobGroup);
+    //SchedulerHelper.resumeJob(getPentahoSession(), jobName, jobGroup);
   }
 
   public void suspendJob(String jobName, String jobGroup) {
-    SchedulerHelper.suspendJob(getPentahoSession(), jobName, jobGroup);
+    //SchedulerHelper.suspendJob(getPentahoSession(), jobName, jobGroup);
   }
 
   // public void createCronJob(String solutionName, String path, String

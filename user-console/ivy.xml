@@ -37,35 +37,25 @@
           <exclude org="javax.servlet" name="servlet-api"/>
         </dependency>
     	
-        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-plugin-actions"  rev="${project.revision}" conf="default->default" changing="true" transitive="false"/>
-        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-web"             rev="${project.revision}" conf="default->default" changing="true" transitive="false"/>
-        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-api" rev="${project.revision}" conf="default->default" changing="true" transitive="false">
-          <artifact name="pentaho-bi-platform-api"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-api"        rev="${project.revision}" conf="default->default" changing="true" transitive="false">
+          <artifact name="pentaho-platform-api"/>
         </dependency>
-        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-plugin-services" rev="${project.revision}" conf="default->default" changing="true" transitive="false">
-          <artifact name="pentaho-bi-platform-plugin-services"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-core"  rev="${project.revision}" conf="default->default" changing="true" transitive="false"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-scheduler"  rev="${project.revision}" conf="default->default" changing="true" transitive="false"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-repository" rev="${project.revision}" conf="default->default" changing="true" transitive="false">
+          <artifact name="pentaho-platform-repository"/>
         </dependency>
-        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-repository" rev="${project.revision}" conf="default->default" changing="true" transitive="false">
-          <artifact name="pentaho-bi-platform-repository"/>
-        </dependency>
-    	<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-util" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>
-    	<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-core" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>
-    	<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-security" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>
-    	<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-engine-services" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>
-    	<dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-scheduler" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>
-        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-ui-foundation" rev="${project.revision}" changing="true" conf="default->default" transitive="false"/>        
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-extensions"  rev="${project.revision}" conf="default->default" changing="true" transitive="false"/>
         
         <!--  Codegen dependencies -->
-        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-api" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
-          <artifact name="pentaho-bi-platform-api" type="source" ext="jar" m:classifier="sources"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-api" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
+          <artifact name="pentaho-platform-api" type="source" ext="jar" m:classifier="sources"/>
         </dependency>
-        
-        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-repository" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
-          <artifact name="pentaho-bi-platform-repository" type="source" ext="jar" m:classifier="sources"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-repository" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
+          <artifact name="pentaho-platform-repository" type="source" ext="jar" m:classifier="sources"/>
         </dependency>
-        
-        <dependency org="${ivy.artifact.group}" name="pentaho-bi-platform-plugin-services" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
-          <artifact name="pentaho-bi-platform-plugin-services" type="source" ext="jar" m:classifier="sources"/>
+        <dependency org="${ivy.artifact.group}" name="pentaho-platform-extensions" rev="${project.revision}" conf="codegen->default" changing="true" transitive="false">
+          <artifact name="pentaho-platform-extensions" type="source" ext="jar" m:classifier="sources"/>
         </dependency>
 
         <dependency org="org.zenica"            name="gwt-datepicker"     rev="r30" conf="codegen->default"/>

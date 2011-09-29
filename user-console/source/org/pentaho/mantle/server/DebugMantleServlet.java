@@ -39,7 +39,7 @@ import com.google.gwt.user.server.rpc.RPCServletUtils;
 public class DebugMantleServlet extends HttpServlet {
 
   private static final long serialVersionUID = -2907930444468382603L;
-
+  
   public void doPost(HttpServletRequest req, HttpServletResponse resp) {
     // use HTTPClient to forward on the data to whatever server we want
     // eg. http://localhost:8080/pentaho/MantleService
