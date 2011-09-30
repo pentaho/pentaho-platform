@@ -26,11 +26,6 @@ PentahoSystem which is initialized after Spring
   <!-- <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.runtime.RuntimeRepository" scope="session" /> -->
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
   <bean id="IUITemplater" class="org.pentaho.platform.web.http.WebTemplateHelper" scope="singleton" />
-  <bean id="IUserFilesComponent" class="org.pentaho.platform.web.refactor.UserFilesComponent" scope="session" />
-  <bean id="IBackgroundExecution" class="org.pentaho.platform.scheduler.SecurityAwareBackgroundExecutionHelper" scope="singleton" />
-  <bean id="BackgroundSubscriptionExecution" class="org.pentaho.platform.scheduler.SecurityAwareBackgroundSubscriptionHelper" scope="singleton" />
-  <bean id="ISubscriptionRepository" class="org.pentaho.platform.repository.subscription.SubscriptionRepository" scope="singleton" />
-  <bean id="ISubscriptionScheduler" class="org.pentaho.platform.scheduler.QuartzSubscriptionScheduler" scope="singleton" />
   <!-- Concrete implementation of IMetadataDomainRepository -->
   <bean id="IMetadataDomainRepositoryImpl" class="org.pentaho.platform.plugin.services.metadata.SecurityAwareMetadataDomainRepository" scope="singleton">
 	<property name="metadataRootFolder" value="${metadata.domains.dir}" />
@@ -53,7 +48,6 @@ PentahoSystem which is initialized after Spring
   <bean id="IConditionalExecution" class="org.pentaho.platform.plugin.condition.javascript.ConditionalExecution" scope="prototype" />
   <bean id="IMessageFormatter" class="org.pentaho.platform.engine.services.MessageFormatter" scope="singleton" />
   <bean id="INavigationComponent" class="org.pentaho.platform.uifoundation.component.xml.NavigationComponent" scope="prototype" />
-  <bean id="IVersionCheckDataProvider" class="org.pentaho.platform.plugin.services.versionchecker.PentahoVersionCheckDataProvider" scope="prototype" />
   <!--
     IDatasourceService - options are: 
     org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService
