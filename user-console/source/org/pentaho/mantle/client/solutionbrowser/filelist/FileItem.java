@@ -126,7 +126,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     this.filesListPanel = filesListPanel;
     this.iconStr = fileIconStr;
 
-    sinkEvents(Event.ONDBLCLICK | Event.ONMOUSEUP);
+    sinkEvents(Event.ONCLICK | Event.ONDBLCLICK | Event.ONMOUSEUP);
     DOM.setElementAttribute(getElement(), "oncontextmenu", "return false;"); //$NON-NLS-1$ //$NON-NLS-2$
     DOM.setElementAttribute(popupMenu.getElement(), "oncontextmenu", "return false;"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -246,15 +246,13 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       toggleSelect(false, false);
       SolutionBrowserPerspective.getInstance().openFile(filesListPanel.getSelectedFileItems().get(0).getPath(), 
           filesListPanel.getSelectedFileItems().get(0).getLocalizedName() , COMMAND.RUN);
-    } else if ((DOM.eventGetType(event) & Event.ONMOUSEUP) == Event.ONMOUSEUP){
-      if(DOM.eventGetButton(event) == NativeEvent.BUTTON_LEFT) {
-        toggleSelect(metaKeyDown, shiftKeyDown);
-        fireFileSelectionEvent();
-      } else if (DOM.eventGetButton(event) == NativeEvent.BUTTON_RIGHT) {
-        final int left = Window.getScrollLeft() + DOM.eventGetClientX(event);
-        final int top = Window.getScrollTop() + DOM.eventGetClientY(event);
-        handleRightClick(left, top, metaKeyDown);
-      }
+    } else if ((DOM.eventGetType(event) & Event.ONCLICK) == Event.ONCLICK) {
+      toggleSelect(metaKeyDown, shiftKeyDown);
+      fireFileSelectionEvent();      
+    } else if ((DOM.eventGetType(event) & Event.ONMOUSEUP) == Event.ONMOUSEUP && DOM.eventGetButton(event) == NativeEvent.BUTTON_RIGHT){
+      final int left = Window.getScrollLeft() + DOM.eventGetClientX(event);
+      final int top = Window.getScrollTop() + DOM.eventGetClientY(event);
+      handleRightClick(left, top, metaKeyDown);
     }
     super.onBrowserEvent(event);
   }

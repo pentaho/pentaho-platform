@@ -82,7 +82,8 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     typeLabel.setText(fileSummary.getName().substring(fileSummary.getName().lastIndexOf(".")));
       NumberFormat numberFormat = NumberFormat.getDecimalFormat();
     sizeLabel.setText(numberFormat.format(fileSummary.getFileSize()/1000.00)+" KB");
-    lastModifiedDateLabel.setText(fileSummary.getLastModifiedDate().toString());
+    // TODO Need to find out why last modified date is coming in as null
+    lastModifiedDateLabel.setText(fileSummary.getLastModifiedDate() != null ? fileSummary.getLastModifiedDate().toString() : "");
     }
 
   /* (non-Javadoc)
