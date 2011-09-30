@@ -17,7 +17,6 @@
  */
 package org.pentaho.platform.engine.security;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -35,7 +34,6 @@ import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.engine.core.system.UserSession;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -311,6 +309,16 @@ public class SecurityHelper {
   
   public static Authentication getAuthentication() {
     return SecurityContextHolder.getContext().getAuthentication();
+  }
+  
+  /**
+   * Remove this method when data-access is JCR-branched
+   * @param ignoredSession
+   * @param ignoredAllowAnonymous
+   * @return
+   */
+  public static Authentication getAuthentication(IPentahoSession ignoredSession, boolean ignoredAllowAnonymous) {
+    return getAuthentication();
   }
   
   /**
