@@ -27,6 +27,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -57,11 +58,14 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -83,6 +87,33 @@ public class RepositoryResource extends AbstractJaxRSResource {
     return fileResource.doGetFileOrDir(pathId);
   }
 
+  
+  @GET
+  @Path("{pathId : .+}/default")
+  @Produces( { WILDCARD })
+  public Response doExecuteDefault(@PathParam("pathId") String pathId) throws FileNotFoundException, MalformedURLException, URISyntaxException {
+    String perspective = null;
+    StringBuffer buffer = null;
+    String url = null;
+    String path = FileResource.idToPath(pathId);
+    String extension = path.substring(path.lastIndexOf('.') + 1);
+    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession());
+    IContentInfo info = pluginManager.getContentTypeInfo(extension);
+    for (IPluginOperation operation : info.getOperations()) {
+      if (operation.getId().equalsIgnoreCase("RUN")) { //$NON-NLS-1$
+        perspective = operation.getPerspective();
+        break;
+      }
+    }
+    if(perspective != null) {
+        buffer = httpServletRequest.getRequestURL();
+        url = buffer.substring(0, buffer.lastIndexOf("/") + 1) + perspective; //$NON-NLS-1$
+        return Response.seeOther((new URL(url)).toURI()).build();      
+    } else {
+      return Response.status(NOT_FOUND).build();
+    }
+  }
+  
   /**
    * Services a HTTP form POST request for a resource identified by the compound key 
    * <code>contextId</code>, and <code>resourceId</code>
