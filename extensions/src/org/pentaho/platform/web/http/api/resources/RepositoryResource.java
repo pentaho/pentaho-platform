@@ -111,7 +111,9 @@ public class RepositoryResource extends AbstractJaxRSResource {
     }
     
     buffer = httpServletRequest.getRequestURL();
-    url = buffer.substring(0, buffer.lastIndexOf("/") + 1) + perspective; //$NON-NLS-1$
+    String queryString = httpServletRequest.getQueryString();
+    url = buffer.substring(0, buffer.lastIndexOf("/") + 1) + perspective + //$NON-NLS-1$
+      ((queryString != null && queryString.length() > 0) ? "?" + httpServletRequest.getQueryString(): ""); //$NON-NLS-1$ //$NON-NLS-2$
     return Response.seeOther((new URL(url)).toURI()).build();      
   }
   
