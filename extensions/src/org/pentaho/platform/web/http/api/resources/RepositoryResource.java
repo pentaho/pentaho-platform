@@ -76,6 +76,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
   protected IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class);
 
   private static final Log logger = LogFactory.getLog(RepositoryResource.class);
+  public static final String GENERATED_CONTENT_PERSPECTIVE = "generatedContent"; //$NON-NLS-1$
 
   protected IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
   
@@ -105,13 +106,13 @@ public class RepositoryResource extends AbstractJaxRSResource {
         break;
       }
     }
-    if(perspective != null) {
-        buffer = httpServletRequest.getRequestURL();
-        url = buffer.substring(0, buffer.lastIndexOf("/") + 1) + perspective; //$NON-NLS-1$
-        return Response.seeOther((new URL(url)).toURI()).build();      
-    } else {
-      return Response.status(NOT_FOUND).build();
+    if(perspective == null) {
+      perspective = GENERATED_CONTENT_PERSPECTIVE;
     }
+    
+    buffer = httpServletRequest.getRequestURL();
+    url = buffer.substring(0, buffer.lastIndexOf("/") + 1) + perspective; //$NON-NLS-1$
+    return Response.seeOther((new URL(url)).toURI()).build();      
   }
   
   /**
