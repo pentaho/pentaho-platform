@@ -213,7 +213,7 @@ public class XactionUtil
     if (parameterXsl != null) {
       solutionEngine.setParameterXsl(parameterXsl);
     }
-    return solutionEngine.execute(file.getPath() + "/" + file.getName(), processId, false, instanceEnds, instanceId, false, parameterProviders, outputHandler, null, urlFactory, messages);
+    return solutionEngine.execute(file.getPath(), processId, false, instanceEnds, instanceId, false, parameterProviders, outputHandler, null, urlFactory, messages);
   }
 
   @SuppressWarnings("unchecked")
