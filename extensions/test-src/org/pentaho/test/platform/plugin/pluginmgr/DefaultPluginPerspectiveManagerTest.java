@@ -41,6 +41,7 @@ public class DefaultPluginPerspectiveManagerTest {
   private IPluginPerspective createTestPerspective(final String pname) {
     return new IPluginPerspective() {
       private String name = pname;
+      private String contentUrl = "test-content-url";
       
       public void setToolBarOverlay(XulOverlay arg0) {
       }
@@ -52,7 +53,8 @@ public class DefaultPluginPerspectiveManagerTest {
       public void setMenuBarOverlay(XulOverlay arg0) {
       }
       
-      public void setContentUrl(String arg0) {
+      public void setContentUrl(String contentUrl) {
+        this.contentUrl = contentUrl;
       }
       
       public XulOverlay getToolBarOverlay() {
@@ -68,13 +70,13 @@ public class DefaultPluginPerspectiveManagerTest {
       }
       
       public String getContentUrl() {
-        return "test-content-url";
+        return contentUrl;
       }
     };
   }
   
   @Test
-  public void asdf() {
+  public void testPerspectiveManager() {
     IPluginPerspectiveManager manager = PentahoSystem.get(IPluginPerspectiveManager.class);
     assertNotNull(manager);
     
@@ -84,6 +86,9 @@ public class DefaultPluginPerspectiveManagerTest {
     assertEquals(1, manager.getPluginPerspectives().size());
     assertEquals("test-perspective-name", manager.getPluginPerspectives().get(0).getName());
     assertEquals("test-content-url", manager.getPluginPerspectives().get(0).getContentUrl());
+
+    manager.getPluginPerspectives().get(0).setContentUrl("different");
+    assertEquals("different", manager.getPluginPerspectives().get(0).getContentUrl());
     
     manager.removePluginPerspective(testPerspective);
     assertEquals(0, manager.getPluginPerspectives().size());
