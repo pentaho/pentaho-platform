@@ -10,4 +10,5 @@
   <context:annotation-config />
 
   <bean id="xaction" class="org.pentaho.platform.web.http.ActionSequenceContentGenerator" scope="prototype"/>
+  <bean id="xaction.parameter" class="org.pentaho.platform.web.http.ActionSequenceParameterContentGenerator" scope="prototype"/>
 </beans>
