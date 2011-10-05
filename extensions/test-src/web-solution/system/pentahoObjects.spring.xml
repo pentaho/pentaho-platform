@@ -41,6 +41,7 @@ PentahoSystem which is initialized after Spring
   <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository.datasource.DatasourceMgmtService" scope="prototype" />
   <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider" scope="singleton" />
   <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager" scope="singleton" />
+  <bean id="IPluginPerspectiveManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginPerspectiveManager" scope="singleton" />
   <bean id="IServiceManager" class="org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager" scope="singleton" />
   <bean id="IPluginResourceLoader" class="org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader" scope="singleton" />
   <bean id="IChartBeansGenerator" class="org.pentaho.platform.plugin.action.chartbeans.DefaultChartBeansGenerator" scope="singleton" />

@@ -25,6 +25,7 @@ PentahoSystem which is initialized after Spring
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.core.audit.AuditFileEntry" scope="singleton" />
   <bean id="IAclVoter" class="org.pentaho.platform.engine.security.acls.voter.PentahoBasicAclVoter" scope="singleton" />
   <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager" scope="singleton" />
+  <bean id="IPluginPerspectiveManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginPerspectiveManager" scope="singleton" />
   <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider" scope="singleton" />
 
 </beans>
