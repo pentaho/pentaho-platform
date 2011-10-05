@@ -167,28 +167,36 @@ public class ActionSequenceResource implements org.pentaho.platform.api.engine.I
         if (!variant.equals("")) { //$NON-NLS-1$
           repositoryFile = REPOSITORY.getFile(baseName + "_" + language + "_" + country + "_" + variant + extension); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
           try {
-            inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+            if(repositoryFile != null) {
+              inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();  
+            }
           } catch (UnifiedRepositoryException ure) {
           }
         }
         if (inputStream == null) {
           repositoryFile = REPOSITORY.getFile(baseName + "_" + language + "_" + country + extension); //$NON-NLS-1$//$NON-NLS-2$
           try {
-            inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+            if(repositoryFile != null) {
+              inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+            }
           } catch (UnifiedRepositoryException ure) {
           }
         }
         if (inputStream == null) {
           repositoryFile = REPOSITORY.getFile(baseName + "_" + language + extension); //$NON-NLS-1$
           try {
-            inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+            if(repositoryFile != null) {
+              inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+            }
           } catch (UnifiedRepositoryException ure) {
           }
         }
         if (inputStream == null) {
           repositoryFile = REPOSITORY.getFile(filePath);
           try {
-            inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+            if(repositoryFile != null) {
+              inputStream = REPOSITORY.getDataForRead(repositoryFile.getId(), SimpleRepositoryFileData.class).getStream();
+            }
           } catch (UnifiedRepositoryException ure) {
           }
         }
