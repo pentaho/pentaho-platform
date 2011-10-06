@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IPluginPerspective;
-import org.pentaho.platform.api.engine.IPluginPerspectiveManager;
+import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 
 public class DefaultPluginPerspectiveManager implements
     IPluginPerspectiveManager {
