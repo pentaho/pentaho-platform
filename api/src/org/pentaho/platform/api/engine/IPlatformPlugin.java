@@ -75,6 +75,12 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
   public List<IContentInfo> getContentInfos();
   
   /**
+   * Returns a list of perspective objects for this plug-in
+   * @return plugin perspectives
+   */
+  public List<IPluginPerspective> getPluginPerspectives();
+  
+  /**
    * Returns a list of bean configurations for this plugin-in
    */
   public Collection<PluginBeanDefinition> getBeans();
