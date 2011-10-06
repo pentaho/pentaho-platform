@@ -131,7 +131,7 @@ public class PentahoSystem {
   
   private static IPentahoObjectFactory pentahoObjectFactory = null;
   
-  private static final Map initializationFailureDetailsMap = new HashMap();
+  private static final Map initializationFailureDetailsMap = Collections.synchronizedMap(new HashMap());
 
   private static final List<String> RequiredObjects = new ArrayList<String>();
 
@@ -154,6 +154,8 @@ public class PentahoSystem {
   public static final int SYSTEM_PENTAHOXML_FAILED = (int) Math.pow(2, 4); // 16
 
   public static final int SYSTEM_SETTINGS_FAILED = (int) Math.pow(2, 5); // 32
+
+  public static final int SYSTEM_OTHER_FAILED = (int) Math.pow(2, 6); // 64
 
   private static int initializedStatus = PentahoSystem.SYSTEM_NOT_INITIALIZED;
 
@@ -512,17 +514,27 @@ public class PentahoSystem {
         rtn.addAll(l);
       }
     }
+    if (PentahoSystem.hasFailed(PentahoSystem.SYSTEM_OTHER_FAILED)) {
+      rtn.add(Messages.getString("PentahoSystem.USER_INITIALIZATION_SYSTEM_OTHER_FAILED"));//$NON-NLS-1$
+      List l = PentahoSystem.getAdditionalInitializationFailureMessages(PentahoSystem.SYSTEM_OTHER_FAILED);
+      if (l != null) {
+        rtn.addAll(l);
+      }
+    }
     return rtn;
   }
 
-  public static synchronized void addInitializationFailureMessage(final int failureBit, final String message) {
+  public static void addInitializationFailureMessage(final int failureBit, final String message) {
     Integer i = new Integer(failureBit);
     List l = (List) PentahoSystem.initializationFailureDetailsMap.get(i);
     if (l == null) {
-      l = new ArrayList();
+      l = Collections.synchronizedList(new ArrayList());
       PentahoSystem.initializationFailureDetailsMap.put(i, l);
     }
-    l.add("&nbsp;&nbsp;&nbsp;" + message);//$NON-NLS-1$
+    final String msg = "&nbsp;&nbsp;&nbsp;" + message; //$NON-NLS-1$
+    if (!l.contains(msg)) {
+      l.add(msg);
+    }
   }
 
   private static final boolean hasFailed(final int errorToCheck) {
