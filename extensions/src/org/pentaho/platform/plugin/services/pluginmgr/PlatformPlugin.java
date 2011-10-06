@@ -33,9 +33,9 @@ import org.pentaho.platform.api.engine.IPluginLifecycleListener;
 import org.pentaho.platform.api.engine.PluginBeanDefinition;
 import org.pentaho.platform.api.engine.PluginLifecycleException;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.IMenuCustomization;
 import org.pentaho.ui.xul.XulOverlay;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 /**
@@ -251,6 +251,12 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
       externalResources.put(context, res);
     }
     return Collections.unmodifiableList(res);
+  }
+
+  @Override
+  public List<IPluginPerspective> getPluginPerspectives() {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }
