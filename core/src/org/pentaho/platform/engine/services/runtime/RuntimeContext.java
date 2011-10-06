@@ -1712,8 +1712,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
         return;
       }
       // add the standard parameters that we need
-      createFeedbackParameter("solution", "solution", "", "", false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      createFeedbackParameter("action", "action", "", getActionName(), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       createFeedbackParameter("path", "path", "", getSolutionPath(), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       // ProSolutionEngine proSolutionEngine = (ProSolutionEngine) solutionEngine;
       IParameterProvider parameterProvider = (IParameterProvider) parameterProviders.get("PRO_EDIT_SUBSCRIPTION"); //$NON-NLS-1$
@@ -1726,7 +1724,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       Iterator parameterNameIterator = parameterProvider.getParameterNames();
       while (parameterNameIterator.hasNext()) {
         String name = (String) parameterNameIterator.next();
-        if (!"solution".equals(name) && !"action".equals(name) && !"path".equals(name) && (xformFields.get(name) == null)) {//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$                   
+        if (!"path".equals(name) && (xformFields.get(name) == null)) {//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$                   
           // TODO we need to check to see if this has been handled as
           // a control before adding a hidden field
           Object value = parameterProvider.getParameter(name);

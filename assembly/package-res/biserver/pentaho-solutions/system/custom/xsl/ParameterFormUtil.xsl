@@ -87,7 +87,7 @@
 								<xsl:if test="$USEPOSTFORFORMS='true'">
 									<xsl:attribute name="method">post</xsl:attribute>
 									<xsl:attribute name="target">_blank</xsl:attribute>
-									<xsl:attribute name="action">ViewAction</xsl:attribute>
+									<xsl:attribute name="action">generatedContent?</xsl:attribute>
 								</xsl:if>
 
 								<xsl:attribute name="name">form_<xsl:value-of select="/filters/id" /></xsl:attribute>
