@@ -25,9 +25,9 @@ import org.junit.Test;
 import org.pentaho.platform.api.engine.IPluginPerspective;
 import org.pentaho.platform.api.engine.IPluginPerspectiveManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginPerspective;
 import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginPerspectiveManager;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
-import org.pentaho.ui.xul.XulOverlay;
 
 @SuppressWarnings("nls")
 public class DefaultPluginPerspectiveManagerTest {
@@ -38,41 +38,12 @@ public class DefaultPluginPerspectiveManagerTest {
     microPlatform.define(IPluginPerspectiveManager.class, DefaultPluginPerspectiveManager.class);
   }
 
-  private IPluginPerspective createTestPerspective(final String pname) {
-    return new IPluginPerspective() {
-      private String name = pname;
-      private String contentUrl = "test-content-url";
-      
-      public void setToolBarOverlay(XulOverlay arg0) {
-      }
-      
-      public void setName(String name) {
-        this.name = name;
-      }
-      
-      public void setMenuBarOverlay(XulOverlay arg0) {
-      }
-      
-      public void setContentUrl(String contentUrl) {
-        this.contentUrl = contentUrl;
-      }
-      
-      public XulOverlay getToolBarOverlay() {
-        return null;
-      }
-      
-      public String getName() {
-        return name;
-      }
-      
-      public XulOverlay getMenuBarOverlay() {
-        return null;
-      }
-      
-      public String getContentUrl() {
-        return contentUrl;
-      }
-    };
+  private IPluginPerspective createTestPerspective(final String id, final String title) {
+    IPluginPerspective perspective = new DefaultPluginPerspective();
+    perspective.setId(id);
+    perspective.setTitle(title);
+    perspective.setContentUrl("test-content-url");
+    return perspective;
   }
   
   @Test
@@ -80,11 +51,12 @@ public class DefaultPluginPerspectiveManagerTest {
     IPluginPerspectiveManager manager = PentahoSystem.get(IPluginPerspectiveManager.class);
     assertNotNull(manager);
     
-    IPluginPerspective testPerspective = createTestPerspective("test-perspective-name");
+    IPluginPerspective testPerspective = createTestPerspective("test-perspective-id", "test-perspective-title");
     manager.addPluginPerspective(testPerspective);
     
     assertEquals(1, manager.getPluginPerspectives().size());
-    assertEquals("test-perspective-name", manager.getPluginPerspectives().get(0).getName());
+    assertEquals("test-perspective-id", manager.getPluginPerspectives().get(0).getId());
+    assertEquals("test-perspective-title", manager.getPluginPerspectives().get(0).getTitle());
     assertEquals("test-content-url", manager.getPluginPerspectives().get(0).getContentUrl());
 
     manager.getPluginPerspectives().get(0).setContentUrl("different");
@@ -93,15 +65,16 @@ public class DefaultPluginPerspectiveManagerTest {
     manager.removePluginPerspective(testPerspective);
     assertEquals(0, manager.getPluginPerspectives().size());
 
-    manager.addPluginPerspective(createTestPerspective("test-perspective-name-1"));
-    manager.addPluginPerspective(createTestPerspective("test-perspective-name-2"));
-    manager.addPluginPerspective(createTestPerspective("test-perspective-name-3"));
-    manager.addPluginPerspective(createTestPerspective("test-perspective-name-4"));
-    manager.addPluginPerspective(createTestPerspective("test-perspective-name-5"));
+    manager.addPluginPerspective(createTestPerspective("test-perspective-id-1", "test-perspective-title-1"));
+    manager.addPluginPerspective(createTestPerspective("test-perspective-id-2", "test-perspective-title-2"));
+    manager.addPluginPerspective(createTestPerspective("test-perspective-id-3", "test-perspective-title-3"));
+    manager.addPluginPerspective(createTestPerspective("test-perspective-id-4", "test-perspective-title-4"));
+    manager.addPluginPerspective(createTestPerspective("test-perspective-id-5", "test-perspective-title-5"));
     assertEquals(5, manager.getPluginPerspectives().size());
 
     for (int i=0;i<5;i++) {
-      assertEquals("test-perspective-name-" + (i+1), manager.getPluginPerspectives().get(i).getName());
+      assertEquals("test-perspective-id-" + (i+1), manager.getPluginPerspectives().get(i).getId());
+      assertEquals("test-perspective-title-" + (i+1), manager.getPluginPerspectives().get(i).getTitle());
     }
     
     manager.clearPluginPerspectives();

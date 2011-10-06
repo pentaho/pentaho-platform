@@ -11,6 +11,9 @@ public class DefaultPluginPerspective implements IPluginPerspective {
   private XulOverlay menuBarOverlay;
   private XulOverlay toolBarOverlay;
 
+  public DefaultPluginPerspective() {
+  }
+  
   public String getId() {
     return id;
   }
