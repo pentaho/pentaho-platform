@@ -16,7 +16,7 @@
  *
  */
 
-package org.pentaho.platform.api.engine;
+package org.pentaho.platform.api.engine.perspective.pojo;
 
 import org.pentaho.ui.xul.XulOverlay;
 

@@ -16,9 +16,11 @@
  *
  */
 
-package org.pentaho.platform.api.engine;
+package org.pentaho.platform.api.engine.perspective;
 
 import java.util.List;
+
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 
 public interface IPluginPerspectiveManager {
   
