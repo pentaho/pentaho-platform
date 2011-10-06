@@ -22,8 +22,11 @@ import org.pentaho.ui.xul.XulOverlay;
 
 public interface IPluginPerspective {
   
-  public String getName();
-  public void setName(String name);
+  public String getId();
+  public void setId(String id);
+
+  public String getTitle();
+  public void setTitle(String title);
   
   public String getContentUrl();
   public void setContentUrl(String contentUrl);
