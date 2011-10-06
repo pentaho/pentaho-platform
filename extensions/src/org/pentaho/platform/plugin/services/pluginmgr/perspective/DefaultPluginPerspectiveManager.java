@@ -15,7 +15,7 @@
  * Copyright 2011 Pentaho Corporation.  All rights reserved.
  *
  */
-package org.pentaho.platform.plugin.services.pluginmgr;
+package org.pentaho.platform.plugin.services.pluginmgr.perspective;
 
 import java.util.ArrayList;
 import java.util.List;

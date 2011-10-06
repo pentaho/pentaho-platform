@@ -1,4 +1,4 @@
-package org.pentaho.platform.plugin.services.pluginmgr;
+package org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo;
 
 import org.pentaho.platform.api.engine.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
