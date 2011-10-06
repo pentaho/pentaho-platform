@@ -49,6 +49,8 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
 
   private List<XulOverlay> overlays = new ArrayList<XulOverlay>();
   
+  private List<IPluginPerspective> perspectives = new ArrayList<IPluginPerspective>();
+  
   private Collection<PluginBeanDefinition> beanDefinitions = new ArrayList<PluginBeanDefinition>();
 
   private DefaultListableBeanFactory beanFactory;
@@ -116,6 +118,10 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
     return overlays;
   }
 
+  public List<IPluginPerspective> getPluginPerspectives() {
+    return Collections.unmodifiableList(perspectives);
+  }
+  
   /**
    * Sets the unique id for this plug-in
    * @param id
@@ -253,10 +259,8 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
     return Collections.unmodifiableList(res);
   }
 
-  @Override
-  public List<IPluginPerspective> getPluginPerspectives() {
-    // TODO Auto-generated method stub
-    return null;
+  public void addPluginPerspective(IPluginPerspective perspective) {
+    perspectives.add(perspective);    
   }
 
 }

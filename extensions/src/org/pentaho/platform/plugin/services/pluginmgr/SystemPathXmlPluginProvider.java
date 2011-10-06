@@ -36,6 +36,7 @@ import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IContentGeneratorInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
+import org.pentaho.platform.api.engine.IPluginPerspective;
 import org.pentaho.platform.api.engine.IPluginProvider;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.engine.PluginBeanDefinition;
@@ -159,6 +160,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     processBeans(plugin, doc);
     processWebservices(plugin, doc);
     processExternalResources(plugin, doc);
+    processPerspectives(plugin, doc);
 
     String listenerCount = (StringUtils.isEmpty(plugin.getLifecycleListenerClassname())) ? "0" : "1"; //$NON-NLS-1$//$NON-NLS-2$
 
@@ -172,6 +174,20 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     plugin.setSourceDescription(folder);
 
     return plugin;
+  }
+
+  /**
+   * @param plugin
+   * @param doc
+   */
+  protected void processPerspectives(PlatformPlugin plugin, Document doc) {
+    // TODO Auto-generated method stub
+    List<?> perspectiveNodes = doc.selectNodes("//perspective");
+    for (Object obj : perspectiveNodes) {
+      Element node = (Element) obj;
+      IPluginPerspective perspective = PerspectiveUtil.createPerspective(node);
+      plugin.addPluginPerspective(perspective);
+    }
   }
 
   protected void processStaticResourcePaths(PlatformPlugin plugin, Document doc, IPentahoSession session) {
