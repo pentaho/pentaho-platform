@@ -515,7 +515,7 @@ public class PentahoSystem {
       }
     }
     if (PentahoSystem.hasFailed(PentahoSystem.SYSTEM_OTHER_FAILED)) {
-      rtn.add(Messages.getString("PentahoSystem.USER_INITIALIZATION_SYSTEM_OTHER_FAILED"));//$NON-NLS-1$
+      rtn.add(Messages.getInstance().getString("PentahoSystem.USER_INITIALIZATION_SYSTEM_OTHER_FAILED"));//$NON-NLS-1$
       List l = PentahoSystem.getAdditionalInitializationFailureMessages(PentahoSystem.SYSTEM_OTHER_FAILED);
       if (l != null) {
         rtn.addAll(l);
