@@ -689,13 +689,21 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    * {@inheritDoc}
    */
   public RepositoryFileTree getTree(final String relPath, final int depth, final String filter) {
+    return getTree(relPath, depth, filter, true);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+
+  public RepositoryFileTree getTree(final String relPath, final int depth, final String filter, final boolean showHidden) {
     Assert.hasText(relPath);
     return (RepositoryFileTree) jcrTemplate.execute(new JcrCallback() {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         String absPath = pathConversionHelper.relToAbs(relPath);
         return JcrRepositoryFileUtils.getTree(session, pentahoJcrConstants, ownerLookupHelper, pathConversionHelper,
-            absPath, depth, filter);
+            absPath, depth, filter, showHidden);
       }
     });
   }

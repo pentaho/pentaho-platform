@@ -40,12 +40,12 @@ public class RepositoryFileTreeManager {
     return instance;
   }
 
-  public void addRepositoryFileTreeListener(IRepositoryFileTreeListener listener) {
+  public void addRepositoryFileTreeListener(IRepositoryFileTreeListener listener, Integer depth, String filter, Boolean showHidden) {
     listeners.add(listener);
     synchronized (RepositoryFileTreeManager.class) {
       if (!fetching && fileTree == null) {
         fetching = true;
-        fetchRepositoryFileTree(true);
+        fetchRepositoryFileTree(true, depth, filter, showHidden);
       }
     }
   }
@@ -69,14 +69,14 @@ public class RepositoryFileTreeManager {
     }
   }
 
-  public void fetchRepositoryFileTree(final boolean forceReload) {
+  public void fetchRepositoryFileTree(final boolean forceReload, Integer depth, String filter, Boolean showHidden) {
     if (forceReload || fileTree == null) {
-      fetchRepositoryFileTree(null);
+      fetchRepositoryFileTree(null, depth, filter, showHidden);
     }
   }
-  public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback, final boolean forceReload) {
+  public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback, final boolean forceReload, Integer depth, String filter, Boolean showHidden) {
     if (forceReload || fileTree == null) {
-      fetchRepositoryFileTree(callback);
+      fetchRepositoryFileTree(callback, depth, filter, showHidden);
     } else {
       callback.onSuccess(fileTree);
     }
@@ -86,12 +86,23 @@ public class RepositoryFileTreeManager {
   return $wnd.FULL_QUALIFIED_URL;
   }-*/;
   
-  public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback) {
+  public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback,  Integer depth,  String filter,  Boolean showHidden) {
     // notify listeners that we are about to talk to the server (in case there's anything they want to do
     // such as busy cursor or tree loading indicators)
     beforeFetchRepositoryFileTree();
     RequestBuilder builder = null;
-    builder = new RequestBuilder(RequestBuilder.GET, getFullyQualifiedURL() + "api/repo/files/:/children?depth=-1&filter=*"); //$NON-NLS-1$
+    String url = getFullyQualifiedURL() + "api/repo/files/:/children?"; //$NON-NLS-1$
+    if(depth == null) {
+      depth = -1;
+    }
+    if(filter == null) {
+      filter = "*"; //$NON-NLS-1$
+    }
+    if(showHidden == null) {
+      showHidden = Boolean.FALSE;
+    }
+    url = url + "depth=" + depth + "&filter=" + filter + "&showHidden=" + showHidden;  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    builder = new RequestBuilder(RequestBuilder.GET, url); 
 
     RequestCallback innerCallback = new RequestCallback() {
 

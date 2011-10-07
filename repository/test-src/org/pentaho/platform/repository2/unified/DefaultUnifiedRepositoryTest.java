@@ -1794,6 +1794,28 @@ public class DefaultUnifiedRepositoryTest extends JackrabbitRepositoryTestBase i
     root = repo.getTree(ClientRepositoryPaths.getEtcFolderPath() + "/pdi", -1, "*Schema*");
     assertEquals(2, root.getChildren().size());
   }
+
+  @Test
+  public void testGetTreeWithShowHidden() throws Exception {
+    manager.startup();
+    setUpRoleBindings();
+    RepositoryFileTree root = null;
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+    RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    final String dataString = "Hello World!";
+    final String encoding = "UTF-8";
+    byte[] data = dataString.getBytes(encoding);
+    ByteArrayInputStream dataStream = new ByteArrayInputStream(data);
+    final String mimeType = "text/plain";
+    final SimpleRepositoryFileData content = new SimpleRepositoryFileData(dataStream, encoding, mimeType);
+    RepositoryFile newFile1 = repo.createFile(publicFolder.getId(), new RepositoryFile.Builder("helloworld.xaction").versioned(true)
+        .hidden(true).build(), content, null);
+    root = repo.getTree(publicFolder.getPath(), -1, null, true);
+    assertFalse(root.getChildren().isEmpty());
+    root = repo.getTree(publicFolder.getPath(), -1, null, false);
+    assertTrue(root.getChildren().isEmpty());
+  }
+  
   
   @Test
   public void testGetDataForReadInBatch_unversioned() throws Exception {

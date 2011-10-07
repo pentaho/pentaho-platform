@@ -83,6 +83,8 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
   void unlockFile(final String fileId);
 
   RepositoryFileTreeDto getTree(final String path, final int depth, final String filter);
+  
+  RepositoryFileTreeDto getTree(final String path, final int depth, final String filter, final boolean showHidden);
 
   RepositoryFileAclDto getAcl(final String fileId);
 

@@ -180,6 +180,10 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     throw new UnsupportedOperationException("This operation is not support by this repository");
   }
 
+  public RepositoryFileTree getTree(String relPath, int depth, String filter, boolean showHidden) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
   public List<VersionSummary> getVersionSummaries(Serializable fileId) {
     throw new UnsupportedOperationException("This operation is not support by this repository");
   }

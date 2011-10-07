@@ -133,7 +133,11 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
   }
 
   public RepositoryFileTree getTree(String path, int depth, String filter) {
-    return repositoryFileDao.getTree(path, depth, filter);
+    return getTree(path, depth, filter, true);
+  }
+
+  public RepositoryFileTree getTree(String path, int depth, String filter, boolean showHidden) {
+    return repositoryFileDao.getTree(path, depth, filter, showHidden);
   }
 
   public List<VersionSummary> getVersionSummaries(Serializable fileId) {

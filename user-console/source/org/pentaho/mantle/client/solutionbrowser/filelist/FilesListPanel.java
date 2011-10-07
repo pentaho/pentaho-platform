@@ -115,7 +115,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
 
     setupNativeHooks(this);
     
-    RepositoryFileTreeManager.getInstance().addRepositoryFileTreeListener(this);
+    RepositoryFileTreeManager.getInstance().addRepositoryFileTreeListener(this, null, null, showHiddenFiles);
   }
 
   public void beforeFetchRepositoryFileTree() {
@@ -132,7 +132,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
   }
   
   @SuppressWarnings("unused")
-  private void showOpenFileDialog(final JavaScriptObject callback, final String path, final String title, final String okText, final String fileTypes) {
+  private void showOpenFileDialog(final JavaScriptObject callback, final String path, final String title, final String okText, final String fileTypes, final Boolean showHidden) {
     RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(new AsyncCallback<RepositoryFileTree>() {
       public void onFailure(Throwable caught) {
       }
@@ -155,7 +155,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
         });
         dialog.show();
       }
-    }, false);
+    }, false, null, null, showHidden);
   }
 
   private native void notifyOpenFileCallback(JavaScriptObject obj, RepositoryFileDto repositoryFile)
@@ -166,10 +166,10 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
   private static native void setupNativeHooks(FilesListPanel filesListPanel)
   /*-{
     $wnd.openFileDialog = function(callback,title, okText, fileTypes) { 
-      filesListPanel.@org.pentaho.mantle.client.solutionbrowser.filelist.FilesListPanel::showOpenFileDialog(Lcom/google/gwt/core/client/JavaScriptObject;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(callback, null, title, okText, fileTypes);      
+      filesListPanel.@org.pentaho.mantle.client.solutionbrowser.filelist.FilesListPanel::showOpenFileDialog(Lcom/google/gwt/core/client/JavaScriptObject;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)(callback, null, title, okText, fileTypes, null);      
     }
     $wnd.openFileDialogWithPath = function(callback, path, title, okText, fileTypes) { 
-      filesListPanel.@org.pentaho.mantle.client.solutionbrowser.filelist.FilesListPanel::showOpenFileDialog(Lcom/google/gwt/core/client/JavaScriptObject;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(callback, path, title, okText, fileTypes);      
+      filesListPanel.@org.pentaho.mantle.client.solutionbrowser.filelist.FilesListPanel::showOpenFileDialog(Lcom/google/gwt/core/client/JavaScriptObject;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)(callback, path, title, okText, fileTypes, null);      
     }
   }-*/;
 

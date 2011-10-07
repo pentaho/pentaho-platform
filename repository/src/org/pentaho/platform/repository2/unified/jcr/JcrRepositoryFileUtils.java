@@ -108,7 +108,7 @@ public class JcrRepositoryFileUtils {
     String description = null;
     Map<String, String> titleMap = null;
     Map<String, String> descriptionMap = null;
-    
+
     String locale = null;
 
     id = getNodeId(session, pentahoJcrConstants, node);
@@ -184,10 +184,11 @@ public class JcrRepositoryFileUtils {
 
     owner = getRepositoryFileSid(session, pentahoJcrConstants, ownerLookupHelper, node);
 
-    RepositoryFile file = new RepositoryFile.Builder(id, name).createdDate(created).creatorId(creatorId).lastModificationDate(lastModified)
-        .folder(folder).versioned(versioned).path(path).versionId(versionId).fileSize(fileSize).locked(locked).lockDate(lockDate).hidden(hidden)
-        .lockMessage(lockMessage).lockOwner(lockOwner).owner(owner).title(title).description(description).titleMap(
-            titleMap).descriptionMap(descriptionMap).locale(locale).build();
+    RepositoryFile file = new RepositoryFile.Builder(id, name).createdDate(created).creatorId(creatorId)
+        .lastModificationDate(lastModified).folder(folder).versioned(versioned).path(path).versionId(versionId)
+        .fileSize(fileSize).locked(locked).lockDate(lockDate).hidden(hidden).lockMessage(lockMessage)
+        .lockOwner(lockOwner).owner(owner).title(title).description(description).titleMap(titleMap)
+        .descriptionMap(descriptionMap).locale(locale).build();
 
     return file;
   }
@@ -788,6 +789,13 @@ public class JcrRepositoryFileUtils {
   public static RepositoryFileTree getTree(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IOwnerLookupHelper ownerLookupHelper, final IPathConversionHelper pathConversionHelper,
       final String absPath, final int depth, final String filter) throws RepositoryException {
+    return getTree(session, pentahoJcrConstants, ownerLookupHelper, pathConversionHelper, absPath, depth, filter, true);
+  }
+
+  public static RepositoryFileTree getTree(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final IOwnerLookupHelper ownerLookupHelper, final IPathConversionHelper pathConversionHelper,
+      final String absPath, final int depth, final String filter, final boolean showHidden)
+      throws RepositoryException {
 
     Item fileItem = session.getItem(absPath);
     // items are nodes or properties; this must be a node
@@ -796,7 +804,9 @@ public class JcrRepositoryFileUtils {
 
     RepositoryFile rootFile = JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, ownerLookupHelper,
         pathConversionHelper, fileNode, false);
-
+    if (!showHidden && rootFile.isHidden()) {
+      return null;
+    }
     List<RepositoryFileTree> children;
     // if depth is neither negative (indicating unlimited depth) nor positive (indicating at least one more level to go)
     if (depth != 0) {
@@ -806,8 +816,11 @@ public class JcrRepositoryFileUtils {
         while (childNodes.hasNext()) {
           Node childNode = childNodes.nextNode();
           if (isSupportedNodeType(pentahoJcrConstants, childNode)) {
-            children.add(getTree(session, pentahoJcrConstants, ownerLookupHelper, pathConversionHelper,
-                childNode.getPath(), depth - 1, filter));
+            RepositoryFileTree repositoryFileTree = getTree(session, pentahoJcrConstants, ownerLookupHelper, pathConversionHelper,
+                childNode.getPath(), depth - 1, filter, showHidden);
+            if(repositoryFileTree != null) {
+              children.add(repositoryFileTree);  
+            }
           }
         }
       }
@@ -817,9 +830,9 @@ public class JcrRepositoryFileUtils {
     }
     return new RepositoryFileTree(rootFile, children);
   }
-  
-  
-  public static void setFileMetadata(final Session session, final Serializable fileId, Map<String, Serializable> metadataMap) throws ItemNotFoundException, RepositoryException {
+
+  public static void setFileMetadata(final Session session, final Serializable fileId,
+      Map<String, Serializable> metadataMap) throws ItemNotFoundException, RepositoryException {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
 
     Node fileNode = session.getNodeByUUID(fileId.toString());
@@ -827,7 +840,7 @@ public class JcrRepositoryFileUtils {
     Assert.hasText(prefix);
     Node metadataNode = fileNode.getNode(pentahoJcrConstants.getPHO_METADATA());
     checkoutNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, metadataNode);
-    
+
     PropertyIterator propertyIter = metadataNode.getProperties(prefix + ":*");
     while (propertyIter.hasNext()) {
       propertyIter.nextProperty().remove();
@@ -836,28 +849,30 @@ public class JcrRepositoryFileUtils {
     for (String key : metadataMap.keySet()) {
       setMetadataItemForFile(session, key, metadataMap.get(key), metadataNode);
     }
-    
+
     checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, metadataNode, null);
   }
-    
-  private static void setMetadataItemForFile(final Session session, final String metadataKey, final Serializable metadataObj, final Node metadataNode) throws ItemNotFoundException, RepositoryException {
+
+  private static void setMetadataItemForFile(final Session session, final String metadataKey,
+      final Serializable metadataObj, final Node metadataNode) throws ItemNotFoundException, RepositoryException {
     Assert.notNull(metadataNode);
     String prefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS);
     Assert.hasText(prefix);
     if (metadataObj instanceof String) {
-      metadataNode.setProperty(prefix + ":" + metadataKey, (String)metadataObj); //$NON-NLS-1$
+      metadataNode.setProperty(prefix + ":" + metadataKey, (String) metadataObj); //$NON-NLS-1$
     } else if (metadataObj instanceof Calendar) {
-      metadataNode.setProperty(prefix + ":" + metadataKey, (Calendar)metadataObj); //$NON-NLS-1$      
+      metadataNode.setProperty(prefix + ":" + metadataKey, (Calendar) metadataObj); //$NON-NLS-1$      
     } else if (metadataObj instanceof Double) {
-      metadataNode.setProperty(prefix + ":" + metadataKey, (Double)metadataObj); //$NON-NLS-1$
+      metadataNode.setProperty(prefix + ":" + metadataKey, (Double) metadataObj); //$NON-NLS-1$
     } else if (metadataObj instanceof Long) {
-      metadataNode.setProperty(prefix + ":" + metadataKey, (Long)metadataObj); //$NON-NLS-1$
+      metadataNode.setProperty(prefix + ":" + metadataKey, (Long) metadataObj); //$NON-NLS-1$
     } else if (metadataObj instanceof Boolean) {
-      metadataNode.setProperty(prefix + ":" + metadataKey, (Boolean)metadataObj); //$NON-NLS-1$
+      metadataNode.setProperty(prefix + ":" + metadataKey, (Boolean) metadataObj); //$NON-NLS-1$
     }
   }
 
-  public static Map<String, Serializable> getFileMetadata(final Session session, final Serializable fileId) throws ItemNotFoundException, RepositoryException {
+  public static Map<String, Serializable> getFileMetadata(final Session session, final Serializable fileId)
+      throws ItemNotFoundException, RepositoryException {
     Map<String, Serializable> values = new HashMap<String, Serializable>();
     String prefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS);
     Node fileNode = session.getNodeByUUID(fileId.toString());
@@ -866,15 +881,15 @@ public class JcrRepositoryFileUtils {
     Node metadataNode = null;
     try {
       metadataNode = fileNode.getNode(metadataNodeName);
-    } catch (PathNotFoundException pathNotFound) {  // No meta on this return an empty Map
+    } catch (PathNotFoundException pathNotFound) { // No meta on this return an empty Map
       return values;
     }
     PropertyIterator iter = metadataNode.getProperties(prefix + ":*");
-    while( iter.hasNext()) {
+    while (iter.hasNext()) {
       Property property = iter.nextProperty();
       String key = property.getName().substring(property.getName().indexOf(':') + 1);
       Serializable value = null;
-      switch( property.getType() ) {
+      switch (property.getType()) {
         case PropertyType.STRING:
           value = property.getString();
           break;

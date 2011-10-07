@@ -96,7 +96,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     getElement().setId("solutionTree");
     getElement().getStyle().setProperty("margin", "29px 0px 10px 0px"); //$NON-NLS-1$ //$NON-NLS-2$
 
-    RepositoryFileTreeManager.getInstance().addRepositoryFileTreeListener(this);
+    RepositoryFileTreeManager.getInstance().addRepositoryFileTreeListener(this, null, null, showHiddenFiles);
     UserSettingsManager.getInstance().addUserSettingsListener(this);
   }
 
@@ -357,8 +357,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       boolean isVisible = !file.isHidden();
       boolean isDirectory = file.isFolder();
       String fileName = file.getName();
-      if ((isVisible || showHiddenFiles) && !(!StringUtils.isEmpty(fileName)
-          && fileName.equals(ETC_FOLDER)) ) {
+      if (!(!StringUtils.isEmpty(fileName) && fileName.equals(ETC_FOLDER)) ) {
         
         // TODO Mapping Title to LocalizedName
         String localizedName = file.getTitle();
@@ -481,7 +480,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
 
   public void setShowHiddenFiles(boolean showHiddenFiles) {
     this.showHiddenFiles = showHiddenFiles;
-    onFetchRepositoryFileTree(repositoryFileTree);
+    RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(true,null, null,showHiddenFiles);
   }
 
   public boolean isShowLocalizedFileNames() {

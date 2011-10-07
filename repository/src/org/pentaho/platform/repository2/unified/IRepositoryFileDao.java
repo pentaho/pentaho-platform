@@ -39,6 +39,8 @@ public interface IRepositoryFileDao {
   RepositoryFile getFile(final String relPath);
 
   RepositoryFileTree getTree(final String relPath, final int depth, final String filter);
+  
+  RepositoryFileTree getTree(final String relPath, final int depth, final String filter, final boolean showHidden);
 
   RepositoryFile getFile(final String relPath, final boolean loadLocaleMaps);
 

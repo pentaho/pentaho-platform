@@ -74,6 +74,6 @@ public class OpenFileCommand extends AbstractCommand {
         });
         dialog.center();
       }
-    }, false);
+    }, false, null, null, SolutionBrowserPerspective.getInstance().getSolutionTree().isShowHiddenFiles());
   }
 }

@@ -409,15 +409,15 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path("/children")
   @Produces( { APPLICATION_XML, APPLICATION_JSON })
-  public RepositoryFileTreeDto doGetRootChildren(@QueryParam("depth") Integer depth, @QueryParam("filter") String filter) {
-    return doGetChildren(PATH_SEPERATOR, depth, filter);
+  public RepositoryFileTreeDto doGetRootChildren(@QueryParam("depth") Integer depth, @QueryParam("filter") String filter, @QueryParam("showHidden") Boolean showHidden) {
+    return doGetChildren(PATH_SEPERATOR, depth, filter, showHidden);
   }
 
   @GET
   @Path("{pathId : .+}/children")
   @Produces( { APPLICATION_XML, APPLICATION_JSON })
   public RepositoryFileTreeDto doGetChildren(@PathParam("pathId") String pathId, @QueryParam("depth") Integer depth,
-      @QueryParam("filter") String filter) {
+      @QueryParam("filter") String filter, @QueryParam("showHidden") Boolean showHidden) {
 
     String path = null;
     if (filter == null) {
@@ -433,8 +433,10 @@ public class FileResource extends AbstractJaxRSResource {
         path = idToPath(pathId);
       }
     }
-
-    return repoWs.getTree(path, depth, filter);
+    if(showHidden == null) {
+      showHidden = Boolean.FALSE;
+    }
+    return repoWs.getTree(path, depth, filter, showHidden.booleanValue());
   }
 
 }

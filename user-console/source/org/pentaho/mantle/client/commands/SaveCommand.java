@@ -129,7 +129,7 @@ public class SaveCommand extends AbstractCommand {
           clearValues();
         }
       }
-    }, false);
+    }, false, null, null, SolutionBrowserPerspective.getInstance().getSolutionTree().isShowHiddenFiles());
   }
 
   /**

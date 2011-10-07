@@ -378,9 +378,13 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   public RepositoryFileTree getTree(final String path, final int depth, final String filter) {
+    return getTree(path, depth, filter, true);
+  }
+
+  public RepositoryFileTree getTree(final String path, final int depth, final String filter, final boolean showHidden) {
     return callLogThrow(new Callable<RepositoryFileTree>() {
       public RepositoryFileTree call() throws Exception {
-        return delegatee.getTree(path, depth, filter);
+        return delegatee.getTree(path, depth, filter, showHidden);
       }
     }, Messages.getInstance().getString("ExceptionLoggingDecorator.getTree", path)); //$NON-NLS-1$
   }

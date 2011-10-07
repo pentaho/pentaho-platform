@@ -418,9 +418,17 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    */
   public RepositoryFileTree getTree(final String path, final int depth, final String filter) {
     Assert.hasText(path);
-    return repositoryFileDao.getTree(path, depth, filter);
+    return getTree(path, depth, filter, true);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public RepositoryFileTree getTree(final String path, final int depth, final String filter, final boolean showHidden) {
+    Assert.hasText(path);
+    return repositoryFileDao.getTree(path, depth, filter, showHidden);
+  }
+  
   private RepositoryFile internalCreateFile(final Serializable parentFolderId, final RepositoryFile file,
       final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
