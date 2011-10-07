@@ -153,6 +153,10 @@ body{
   height: 46px;
 }
 
+#main_toolbar {
+	background: black;
+}
+
 .puc-horizontal-split-panel {
 }
 

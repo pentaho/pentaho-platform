@@ -7,7 +7,7 @@
     <toolbarspacer width="10"/>
     <toolbarbutton id="openButton" image="images/open_32.png" onclick="mainToolbarHandler.openClicked()" tooltiptext="${openEllipsis}"/>
     <toolbarspacer width="20"/>
-    <toolbarbutton id="newAnalysisButton" image="images/new_analysis_32.png" disabledimage="images/new_analysis_32_disabled.png" onclick="mainToolbarHandler.newAnalysisClicked()" tooltiptext="${newAnalysisView}"/>
+    <toolbarbutton id="dummyPluginContentButton" pen:visible="false"/>
     <toolbarspacer width="20"/>
     <toolbarbutton id="editContentButton" image="images/editContent_32.png" disabledimage="images/editContent_32_disabled.png"  onclick="mainToolbarHandler.editContentClicked()" tooltiptext="${editContent}" disabled="true" type="toggle" pen:visible="true"/>
     <toolbarspacer id="editButtonSpacer" width="20" pen:visible="true"/>

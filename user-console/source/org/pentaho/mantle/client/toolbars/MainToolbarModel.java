@@ -17,7 +17,7 @@
  */
 package org.pentaho.mantle.client.toolbars;
 
-import org.pentaho.mantle.client.XulMain;
+import org.pentaho.mantle.client.XulMainToolbar;
 import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
@@ -42,7 +42,7 @@ public class MainToolbarModel extends XulEventSourceAdapter implements
     SolutionBrowserListener {
 
   private SolutionBrowserPerspective solutionBrowser;
-  private XulMain main;
+  private XulMainToolbar main;
   private boolean saveEnabled;
   private boolean saveAsEnabled;
   private boolean newAnalysisEnabled;
@@ -53,7 +53,7 @@ public class MainToolbarModel extends XulEventSourceAdapter implements
   private JavaScriptObject callback;
   
   public MainToolbarModel(final SolutionBrowserPerspective solutionBrowser,
-      XulMain main) {
+      XulMainToolbar main) {
     this.solutionBrowser = solutionBrowser;
     this.solutionBrowser.addSolutionBrowserListener(this);
     this.main = main;
