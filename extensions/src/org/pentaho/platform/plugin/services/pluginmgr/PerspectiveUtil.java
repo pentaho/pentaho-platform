@@ -18,7 +18,8 @@
 package org.pentaho.platform.plugin.services.pluginmgr;
 
 import org.dom4j.Element;
-import org.pentaho.platform.api.engine.IPluginPerspective;
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
+import org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.impl.DefaultXulOverlay;
