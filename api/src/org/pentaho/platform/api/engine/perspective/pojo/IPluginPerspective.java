@@ -18,9 +18,11 @@
 
 package org.pentaho.platform.api.engine.perspective.pojo;
 
+import java.io.Serializable;
+
 import org.pentaho.ui.xul.XulOverlay;
 
-public interface IPluginPerspective {
+public interface IPluginPerspective extends Serializable {
   
   public String getId();
   public void setId(String id);
