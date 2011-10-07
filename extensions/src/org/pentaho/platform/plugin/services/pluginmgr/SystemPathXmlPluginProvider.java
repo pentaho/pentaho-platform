@@ -53,9 +53,9 @@ import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.ui.xul.IMenuCustomization;
+import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.IMenuCustomization.CustomizationType;
 import org.pentaho.ui.xul.IMenuCustomization.ItemType;
-import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.impl.DefaultXulOverlay;
 import org.pentaho.ui.xul.util.MenuCustomization;
 
@@ -160,7 +160,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     processBeans(plugin, doc);
     processWebservices(plugin, doc);
     processExternalResources(plugin, doc);
-    processPerspectives(plugin, doc);
+//    processPerspectives(plugin, doc);
 
     String listenerCount = (StringUtils.isEmpty(plugin.getLifecycleListenerClassname())) ? "0" : "1"; //$NON-NLS-1$//$NON-NLS-2$
 
