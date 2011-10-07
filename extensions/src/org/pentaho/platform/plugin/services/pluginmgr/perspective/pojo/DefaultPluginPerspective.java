@@ -1,9 +1,11 @@
 package org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo;
 
+import java.io.Serializable;
+
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
 
-public class DefaultPluginPerspective implements IPluginPerspective {
+public class DefaultPluginPerspective implements Serializable, IPluginPerspective {
 
   private String id;
   private String title;
