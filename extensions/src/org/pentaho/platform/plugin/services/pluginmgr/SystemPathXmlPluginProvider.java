@@ -160,8 +160,8 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     processBeans(plugin, doc);
     processWebservices(plugin, doc);
     processExternalResources(plugin, doc);
-//    processPerspectives(plugin, doc);
-
+    processPerspectives(plugin, doc);
+    
     String listenerCount = (StringUtils.isEmpty(plugin.getLifecycleListenerClassname())) ? "0" : "1"; //$NON-NLS-1$//$NON-NLS-2$
 
     String msg = Messages.getInstance().getString(
@@ -182,11 +182,13 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
    */
   protected void processPerspectives(PlatformPlugin plugin, Document doc) {
     // TODO Auto-generated method stub
-    List<?> perspectiveNodes = doc.selectNodes("//perspective");
-    for (Object obj : perspectiveNodes) {
+    List<?> nodes = doc.selectNodes("/*/perspective"); //$NON-NLS-1$
+    for (Object obj : nodes) {
       Element node = (Element) obj;
-      IPluginPerspective perspective = PerspectiveUtil.createPerspective(node);
-      plugin.addPluginPerspective(perspective);
+      if (node != null) {
+        IPluginPerspective perspective = PerspectiveUtil.createPerspective(node);
+        plugin.addPluginPerspective(perspective);
+      }
     }
   }
 

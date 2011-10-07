@@ -36,11 +36,14 @@ import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.engine.PluginBeanDefinition;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
+import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginMessageLogger;
 import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider;
+import org.pentaho.platform.plugin.services.pluginmgr.perspective.DefaultPluginPerspectiveManager;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
@@ -54,6 +57,7 @@ public class SystemPathPluginProviderTest {
   public void init() {
     microPlatform = new MicroPlatform("test-res/SystemPathPluginProviderTest/");
     microPlatform.define(ISolutionEngine.class, SolutionEngine.class);
+    microPlatform.define(IPluginPerspectiveManager.class, DefaultPluginPerspectiveManager.class);
 
     provider = new SystemPathXmlPluginProvider();
   }
@@ -249,5 +253,25 @@ public class SystemPathPluginProviderTest {
         return type.getExtension().equals("test-type-missing-title");
       }
     }));
+  }
+  
+  @SuppressWarnings("deprecation")
+  @Test
+  public void testLoadPerspectives() throws PlatformPluginRegistrationException {
+    microPlatform.define(ISolutionRepository.class, FileBasedSolutionRepository.class).init();
+    List<IPlatformPlugin> plugins = provider.getPlugins(new StandaloneSession());
+
+    IPlatformPlugin plugin = (IPlatformPlugin) CollectionUtils
+        .find(plugins, new PluginNameMatcherPredicate("Plugin 1"));
+    assertNotNull("Plugin 1 should have been found", plugin);
+
+    assertEquals(2, plugin.getPluginPerspectives().size());
+    IPluginPerspective perspective = plugin.getPluginPerspectives().get(0);
+    assertEquals(perspective.getId(), "perspective1");
+    assertEquals(perspective.getTitle(), "Test Perspective 1");
+    assertEquals(perspective.getMenuBarOverlay().getId(), "menuoverlay1");
+    assertEquals(perspective.getToolBarOverlay().getId(), "toolbaroverlay1");
+    assertTrue(perspective.getMenuBarOverlay().getSource().length() > 0);
+    assertTrue(perspective.getToolBarOverlay().getSource().length() > 0);
   }
 }
