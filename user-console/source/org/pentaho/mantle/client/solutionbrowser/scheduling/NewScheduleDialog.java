@@ -35,7 +35,6 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
-import org.pentaho.platform.web.http.api.resources.SimpleJobScheduleRequest;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
