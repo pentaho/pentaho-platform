@@ -39,4 +39,6 @@ public interface IPluginPerspective extends Serializable {
   public XulOverlay getToolBarOverlay();
   public void setToolBarOverlay(XulOverlay toolBarOverlay);
   
+  public int getLayoutPriority();
+  public void setLayoutPriority(int layoutPriority);
 }

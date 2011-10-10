@@ -30,11 +30,22 @@ import org.pentaho.ui.xul.impl.DefaultXulOverlay;
  *
  */
 public class PerspectiveUtil {
+  public static final int DEFAULT_LAYOUT_PRIORITY = 1000;
+  
   static IPluginPerspective createPerspective(Element perspectiveNode) {
     if (perspectiveNode != null) {
       String title = perspectiveNode.attributeValue("title"); //$NON-NLS-1$
       String id = perspectiveNode.attributeValue("id"); //$NON-NLS-1$
       String contentUrl = perspectiveNode.attributeValue("content-url"); //$NON-NLS-1$
+      String layoutPriorityStr = perspectiveNode.attributeValue("layout-priority"); //$NON-NLS-1$
+      int layoutPriority = DEFAULT_LAYOUT_PRIORITY;
+      if (layoutPriorityStr != null && layoutPriorityStr.length() > 0) {
+        try {
+          layoutPriority = Integer.parseInt(layoutPriorityStr);
+        } catch (Exception e) {
+          layoutPriority = DEFAULT_LAYOUT_PRIORITY;
+        }
+      }
       XulOverlay menuOverlay = processOverlay((Element)perspectiveNode.selectSingleNode("//menu-overlay")); //$NON-NLS-1$
       XulOverlay toolbarOverlay = processOverlay((Element)perspectiveNode.selectSingleNode("//toolbar-overlay")); //$NON-NLS-1$
       
@@ -42,6 +53,7 @@ public class PerspectiveUtil {
       perspective.setTitle(title);
       perspective.setId(id);
       perspective.setContentUrl(contentUrl);
+      perspective.setLayoutPriority(layoutPriority);
       perspective.setMenuBarOverlay(menuOverlay);
       perspective.setToolBarOverlay(toolbarOverlay);
       PentahoSystem.get(IPluginPerspectiveManager.class).addPluginPerspective(perspective);

@@ -273,5 +273,6 @@ public class SystemPathPluginProviderTest {
     assertEquals(perspective.getToolBarOverlay().getId(), "toolbaroverlay1");
     assertTrue(perspective.getMenuBarOverlay().getSource().length() > 0);
     assertTrue(perspective.getToolBarOverlay().getSource().length() > 0);
+    assertEquals(perspective.getLayoutPriority(), 500);
   }
 }

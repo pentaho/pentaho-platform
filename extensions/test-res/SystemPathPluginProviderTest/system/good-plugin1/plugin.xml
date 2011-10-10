@@ -19,7 +19,7 @@
     class="org.pentaho.test.platform.engine.core.EchoServiceBean">
     <extra class="java.lang.String"/>
   </webservice>
-  <perspective id="perspective1" title="Test Perspective 1">
+  <perspective id="perspective1" title="Test Perspective 1" layout-priority="500">
     <toolbar-overlay id="toolbaroverlay1" resourcebundle="bogus.properties">
 	    <button 
 		    id="performaction1" 

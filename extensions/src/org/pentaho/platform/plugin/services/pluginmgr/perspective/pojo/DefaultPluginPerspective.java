@@ -12,6 +12,7 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
   private String contentUrl;
   private XulOverlay menuBarOverlay;
   private XulOverlay toolBarOverlay;
+  private int layoutPriority;
 
   public DefaultPluginPerspective() {
   }
@@ -54,6 +55,22 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
 
   public void setToolBarOverlay(XulOverlay toolBarOverlay) {
     this.toolBarOverlay = toolBarOverlay;
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective#getLayoutPriority()
+   */
+  @Override
+  public int getLayoutPriority() {
+    return layoutPriority;
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective#setLayoutPriority(int)
+   */
+  @Override
+  public void setLayoutPriority(int layoutPriority) {
+    this.layoutPriority = layoutPriority;
   }
 
 }

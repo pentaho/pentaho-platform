@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.pluginmgr.PerspectiveUtil;
 import org.pentaho.platform.plugin.services.pluginmgr.perspective.DefaultPluginPerspectiveManager;
 import org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -75,6 +76,7 @@ public class DefaultPluginPerspectiveManagerTest {
     for (int i=0;i<5;i++) {
       assertEquals("test-perspective-id-" + (i+1), manager.getPluginPerspectives().get(i).getId());
       assertEquals("test-perspective-title-" + (i+1), manager.getPluginPerspectives().get(i).getTitle());
+      assertEquals(PerspectiveUtil.DEFAULT_LAYOUT_PRIORITY, manager.getPluginPerspectives().get(i).getLayoutPriority());
     }
     
     manager.clearPluginPerspectives();
