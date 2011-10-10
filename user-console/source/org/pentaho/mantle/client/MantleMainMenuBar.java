@@ -32,7 +32,7 @@ import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
@@ -112,7 +112,7 @@ public class MantleMainMenuBar extends MenuBar implements IViewMenuCallback, Sol
 
   public void buildMenuBar(final HashMap<String, String> settings, final boolean isAdministrator) {
     clearItems();
-    SolutionBrowserPerspective.getInstance().addSolutionBrowserListener(this);
+    SolutionBrowserPanel.getInstance().addSolutionBrowserListener(this);
 
     saveMenuItem = new PentahoMenuItem(Messages.getString("save"), new SaveCommand(false)); //$NON-NLS-1$
     saveMenuItem.getElement().setId("save");
@@ -239,7 +239,7 @@ public class MantleMainMenuBar extends MenuBar implements IViewMenuCallback, Sol
     standardViewMenuItems.add(new MenuItemSeparator());
 
     MenuItem refreshItem = new MenuItem(Messages.getString("refresh"),
-        SolutionBrowserPerspective.getInstance().isWorkspaceShowing() ? new RefreshWorkspaceCommand() : new RefreshRepositoryCommand());
+        SolutionBrowserPanel.getInstance().isWorkspaceShowing() ? new RefreshWorkspaceCommand() : new RefreshRepositoryCommand());
     refreshItem.getElement().setId("view_refresh_menu_item");
     standardViewMenuItems.add(refreshItem); //$NON-NLS-1$
     installViewMenu(viewMenuAdditions);

@@ -27,7 +27,7 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.dialogs.GeneratedContentDialog;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 
@@ -90,7 +90,7 @@ public class ShowGeneratedContentCommand extends AbstractCommand {
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
             String workspacePath = response.getText();
-            String childrenURL = contextURL + "api/repo/files/" + SolutionBrowserPerspective.pathToId(workspacePath) + "/children";
+            String childrenURL = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(workspacePath) + "/children";
             RequestBuilder workspaceFilesRequestBuilder = new RequestBuilder(RequestBuilder.GET, childrenURL);
             workspaceFilesRequestBuilder.setHeader("accept", "application/json");
             try {

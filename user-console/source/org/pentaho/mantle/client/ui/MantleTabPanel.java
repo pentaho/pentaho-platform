@@ -1,3 +1,21 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this 
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html 
+ * or from the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright 2011 Pentaho Corporation.  All rights reserved.
+ *
+ * @author Michael D'Amour
+ */
 package org.pentaho.mantle.client.ui;
 
 import java.util.ArrayList;
@@ -12,7 +30,7 @@ import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 
@@ -129,17 +147,17 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     for (int i = 1; i < parentList.size(); i++) {
       parentList.get(i).getStyle().setProperty("height", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    SolutionBrowserPerspective.getInstance().showContent();
-    SolutionBrowserPerspective.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.OPEN, getSelectedTabIndex());
+    SolutionBrowserPanel.getInstance().showContent();
+    SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.OPEN, getSelectedTabIndex());
 
     // if showContent is the thing that turns on our first tab, which is entirely possible, then we
     // would encounter the same timing issue as before
     panel.setUrl(url);
 
-    SolutionBrowserPerspective.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, getSelectedTabIndex());
+    SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, getSelectedTabIndex());
     
     if (setFileInfoInFrame) {
-      setFileInfoInFrame(SolutionBrowserPerspective.getInstance().getFilesListPanel().getSelectedFileItems().get(0));
+      setFileInfoInFrame(SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().get(0));
     }
 
     // create a timer to check the readyState
@@ -258,7 +276,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     IFrameTabPanel panel = getCurrentFrame();
     if (panel != null) {
       panel.setSaveEnabled(enabled);
-      SolutionBrowserPerspective.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, getSelectedTabIndex());
+      SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, getSelectedTabIndex());
     }
   }
 
@@ -270,7 +288,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     IFrameTabPanel panel = getCurrentFrame();
     if (panel != null) {
       panel.addOverlay(id);
-      SolutionBrowserPerspective.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.OPEN, getSelectedTabIndex());
+      SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.OPEN, getSelectedTabIndex());
     }
   }
 
@@ -278,7 +296,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     IFrameTabPanel panel = getCurrentFrame();
     if (panel != null) {
       panel.setEditEnabled(enable);
-      SolutionBrowserPerspective.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.UNDEFINED, getSelectedTabIndex());
+      SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.UNDEFINED, getSelectedTabIndex());
     }
   }
 
@@ -286,7 +304,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     IFrameTabPanel panel = getCurrentFrame();
     if (panel != null) {
       panel.setEditSelected(selected);
-      SolutionBrowserPerspective.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.UNDEFINED, getSelectedTabIndex());
+      SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.UNDEFINED, getSelectedTabIndex());
     }
   }
 
@@ -398,8 +416,8 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
             clearClosingFrame(frameElement);
             MantleTabPanel.super.closeTab(closeTab, invokePreTabCloseHook);
             if (getTabCount() == 0) {
-              SolutionBrowserPerspective.getInstance().showContent();
-              SolutionBrowserPerspective.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.CLOSE, -1);
+              SolutionBrowserPanel.getInstance().showContent();
+              SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.CLOSE, -1);
             }
           }
         });
@@ -412,8 +430,8 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     super.closeTab(closeTab, invokePreTabCloseHook);
 
     if (getTabCount() == 0) {
-      SolutionBrowserPerspective.getInstance().showContent();
-      SolutionBrowserPerspective.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.CLOSE, -1);
+      SolutionBrowserPanel.getInstance().showContent();
+      SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.CLOSE, -1);
     }
   }
 
@@ -488,7 +506,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       return;
     }
 
-    SolutionBrowserPerspective.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, getSelectedTabIndex());
+    SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, getSelectedTabIndex());
     Window.setTitle(Messages.getString("productName") + " - " + selectedTab.getLabelText()); //$NON-NLS-1$ //$NON-NLS-2$
 
     // first turn off all tabs that should be

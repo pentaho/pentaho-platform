@@ -29,13 +29,14 @@ import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.toolbars.MainToolbarController;
 import org.pentaho.mantle.client.toolbars.MainToolbarModel;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 import org.pentaho.ui.xul.XulException;
+import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.GwtXulRunner;
 import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
@@ -49,7 +50,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class XulMainToolbar extends SimplePanel implements IXulLoaderCallback, SolutionBrowserListener {
 
-  private Map<String, MantleXulOverlay> overlayMap = new HashMap<String, MantleXulOverlay>();
+  private Map<String, XulOverlay> overlayMap = new HashMap<String, XulOverlay>();
 
   private MainToolbarModel model;
 
@@ -57,19 +58,25 @@ public class XulMainToolbar extends SimplePanel implements IXulLoaderCallback, S
 
   private GwtXulDomContainer container;
 
-  private SolutionBrowserPerspective solutionBrowser;
-
-  public XulMainToolbar(final SolutionBrowserPerspective solutionBrowser) {
-    this.solutionBrowser = solutionBrowser;
+  private static XulMainToolbar instance;
+  
+  private XulMainToolbar() {
     // instantiate our Model and Controller
-    controller = new MainToolbarController(solutionBrowser, new MainToolbarModel(solutionBrowser, this));
+    controller = new MainToolbarController(new MainToolbarModel(this));
 
     // Invoke the async loading of the XUL DOM.
     AsyncXulLoader.loadXulFromUrl(GWT.getModuleBaseURL() + "xul/main_toolbar.xul", GWT.getModuleBaseURL() + "messages/mantleMessages", this);
-    solutionBrowser.addSolutionBrowserListener(this);
+    SolutionBrowserPanel.getInstance().addSolutionBrowserListener(this);
     setStylePrimaryName("mainToolbar-Wrapper");
   }
 
+  public static XulMainToolbar getInstance() {
+    if (instance == null) {
+      instance = new XulMainToolbar();
+    }
+    return instance;
+  }
+  
   /**
    * Callback method for the MantleXulLoader. This is called when the Xul file has been processed.
    * 
@@ -92,9 +99,8 @@ public class XulMainToolbar extends SimplePanel implements IXulLoaderCallback, S
     }
 
     // TODO: remove controller reference from model when Bindings in place
-    model = new MainToolbarModel(solutionBrowser, this);
+    model = new MainToolbarModel(this);
     controller.setModel(model);
-    controller.setSolutionBrowser(solutionBrowser);
 
     // Get the toolbar from the XUL doc
     Toolbar bar = (Toolbar) container.getDocumentRoot().getElementById("mainToolbar").getManagedObject(); //$NON-NLS-1$
@@ -105,12 +111,12 @@ public class XulMainToolbar extends SimplePanel implements IXulLoaderCallback, S
   }
 
   private void fetchOverlays() {
-    AsyncCallback<ArrayList<MantleXulOverlay>> callback = new AsyncCallback<ArrayList<MantleXulOverlay>>() {
+    AsyncCallback<ArrayList<XulOverlay>> callback = new AsyncCallback<ArrayList<XulOverlay>>() {
       public void onFailure(Throwable caught) {
         doLogin();
       }
 
-      public void onSuccess(ArrayList<MantleXulOverlay> overlays) {
+      public void onSuccess(ArrayList<XulOverlay> overlays) {
         XulMainToolbar.this.loadOverlays(overlays);
       }
     };
@@ -148,8 +154,8 @@ public class XulMainToolbar extends SimplePanel implements IXulLoaderCallback, S
   public void overlayLoaded() {
   }
 
-  public void loadOverlays(List<MantleXulOverlay> overlays) {
-    for (MantleXulOverlay overlay : overlays) {
+  public void loadOverlays(List<XulOverlay> overlays) {
+    for (XulOverlay overlay : overlays) {
       overlayMap.put(overlay.getId(), overlay);
       if (overlay.getId().startsWith("startup")) {
         AsyncXulLoader.loadOverlayFromSource(overlay.getSource(), overlay.getResourceBundleUri(), container, this);
@@ -168,7 +174,7 @@ public class XulMainToolbar extends SimplePanel implements IXulLoaderCallback, S
   public void applyOverlay(String id) {
     if (overlayMap != null && !overlayMap.isEmpty()) {
       if (overlayMap.containsKey(id)) {
-        MantleXulOverlay overlay = overlayMap.get(id);
+        XulOverlay overlay = overlayMap.get(id);
         AsyncXulLoader.loadOverlayFromSource(overlay.getSource(), overlay.getResourceBundleUri(), container, this);
       } else {
         // Should I log this or throw an exception here
@@ -187,7 +193,7 @@ public class XulMainToolbar extends SimplePanel implements IXulLoaderCallback, S
   public void removeOverlay(String id) {
     if (overlayMap != null && !overlayMap.isEmpty()) {
       if (overlayMap.containsKey(id)) {
-        MantleXulOverlay overlay = overlayMap.get(id);
+        XulOverlay overlay = overlayMap.get(id);
         AsyncXulLoader.removeOverlayFromSource(overlay.getSource(), overlay.getResourceBundleUri(), container, this);
       } else {
         // Should I log this or throw an exception here

@@ -37,7 +37,7 @@ import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileTreeListener;
 import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
@@ -118,7 +118,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       }
     }
 
-    SolutionBrowserPerspective.getInstance().updateViewMenu();
+    SolutionBrowserPanel.getInstance().updateViewMenu();
   }
 
   public void onBrowserEvent(Event event) {
@@ -152,9 +152,9 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
         menuBar.addItem(new MenuItem(Messages.getString("delete"), new FolderCommand(FolderCommand.COMMAND.DELETE, popupMenu, getRepositoryFiles().get(0)))); //$NON-NLS-1$
         menuBar.addSeparator();
         MenuItem pasteMenuItem = menuBar.addItem(new MenuItem(Messages.getString("paste"), new FolderCommand(FolderCommand.COMMAND.PASTE, popupMenu, ((RepositoryFileTree)this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-        pasteMenuItem.setStyleName( SolutionBrowserPerspective.getInstance().getClipboard().hasContent() ? "gwt-MenuItem" : "disabledMenuItem");
+        pasteMenuItem.setStyleName( SolutionBrowserPanel.getInstance().getClipboard().hasContent() ? "gwt-MenuItem" : "disabledMenuItem");
         menuBar.addSeparator();
-        if (SolutionBrowserPerspective.getInstance().isAdministrator()) {
+        if (SolutionBrowserPanel.getInstance().isAdministrator()) {
           menuBar.addItem(new MenuItem(Messages.getString("exportRepositoryFiles"), new FolderCommand(FolderCommand.COMMAND.EXPORT, popupMenu, ((RepositoryFileTree)this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
           menuBar.addItem(new MenuItem(Messages.getString("importRepositoryFilesElipsis"), new FolderCommand(FolderCommand.COMMAND.IMPORT, popupMenu, ((RepositoryFileTree)this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
           menuBar.addSeparator();

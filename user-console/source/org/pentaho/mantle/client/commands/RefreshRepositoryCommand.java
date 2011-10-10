@@ -17,7 +17,7 @@
 package org.pentaho.mantle.client.commands;
 
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 public class RefreshRepositoryCommand extends AbstractCommand {
 
@@ -38,7 +38,7 @@ public class RefreshRepositoryCommand extends AbstractCommand {
   }
 
   protected void performOperation(final boolean feedback) {
-    RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(true,null, null, SolutionBrowserPerspective.getInstance().getSolutionTree().isShowHiddenFiles());
+    RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(true,null, null, SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles());
   }
 
   protected void performOperation() {

@@ -26,7 +26,7 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Button;
@@ -262,7 +262,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String url = contextURL + "api/repo/files/" + SolutionBrowserPerspective.pathToId(fileSummary.getPath()) + "/acl";  //$NON-NLS-1$//$NON-NLS-2$
+    String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/acl";  //$NON-NLS-1$//$NON-NLS-2$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, url);
     builder.setHeader("Content-Type", "application/xml");
 
@@ -326,7 +326,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String url = contextURL + "api/repo/files/" + SolutionBrowserPerspective.pathToId(fileSummary.getPath()) + "/acl"; //$NON-NLS-1$ //$NON-NLS-2$
+    String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/acl"; //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     try {
       builder.sendRequest(null, new RequestCallback() {

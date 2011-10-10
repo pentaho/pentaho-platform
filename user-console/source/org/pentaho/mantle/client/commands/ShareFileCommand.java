@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.ui.MantleTabPanel;
 
@@ -32,11 +32,11 @@ public class ShareFileCommand implements Command {
   }
 
   public void execute() {
-    SolutionBrowserPerspective sbp = SolutionBrowserPerspective.getInstance();
+    SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
     List<RepositoryFile> selectedList = sbp.getFilesListPanel().getRepositoryFiles();
     if (selectedList != null && selectedList.size() == 1) {
       RepositoryFile item = selectedList.get(0);
-    FilePropertiesDialog dialog = new FilePropertiesDialog(item, PluginOptionsHelper.getEnabledOptions(item.getName()), SolutionBrowserPerspective
+    FilePropertiesDialog dialog = new FilePropertiesDialog(item, PluginOptionsHelper.getEnabledOptions(item.getName()), SolutionBrowserPanel
         .getInstance().isAdministrator(), new MantleTabPanel(), null, FilePropertiesDialog.Tabs.PERMISSION);
     dialog.showTab(FilePropertiesDialog.Tabs.PERMISSION);
     dialog.center();

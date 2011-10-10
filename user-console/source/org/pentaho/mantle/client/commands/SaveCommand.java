@@ -28,7 +28,7 @@ import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 
 import com.google.gwt.core.client.JsArrayString;
@@ -57,7 +57,7 @@ public class SaveCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    final SolutionBrowserPerspective navigatorPerspective = SolutionBrowserPerspective.getInstance();
+    final SolutionBrowserPanel navigatorPerspective = SolutionBrowserPanel.getInstance();
 
     retrieveCachedValues(navigatorPerspective.getContentTabPanel().getCurrentFrame());
 
@@ -129,7 +129,7 @@ public class SaveCommand extends AbstractCommand {
           clearValues();
         }
       }
-    }, false, null, null, SolutionBrowserPerspective.getInstance().getSolutionTree().isShowHiddenFiles());
+    }, false, null, null, SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles());
   }
 
   /**
@@ -151,7 +151,7 @@ public class SaveCommand extends AbstractCommand {
     fileInfo.setName(this.name);
     fileInfo.setPath(this.path);
     fileInfo.setType(this.type);
-    SolutionBrowserPerspective.getInstance().getContentTabPanel().getCurrentFrame().setFileInfo(fileInfo);
+    SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().setFileInfo(fileInfo);
   }
 
   private void clearValues() {
@@ -217,7 +217,7 @@ public class SaveCommand extends AbstractCommand {
   @SuppressWarnings("unused")
   private void doTabRename() {
     if (tabName != null) { // Save-As does not modify the name of the tab.
-      PentahoTab tab = SolutionBrowserPerspective.getInstance().getContentTabPanel().getSelectedTab();
+      PentahoTab tab = SolutionBrowserPanel.getInstance().getContentTabPanel().getSelectedTab();
       tab.setLabelText(tabName);
       tab.setLabelTooltip(tabName);
     }

@@ -10,7 +10,7 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper.ContentTypePlugin;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 
@@ -90,7 +90,7 @@ public class ScheduleHelper {
           extension = repositoryFile.getPath().substring(repositoryFile.getPath().lastIndexOf(".") + 1); //$NON-NLS-1$
           }
 
-        if (SolutionBrowserPerspective.getInstance().getExecutableFileExtensions().contains(extension)) {
+        if (SolutionBrowserPanel.getInstance().getExecutableFileExtensions().contains(extension)) {
           showScheduleDialog(repositoryFile.getPath());
               } else {
                   final MessageDialogBox dialogBox = new MessageDialogBox(

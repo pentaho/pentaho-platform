@@ -56,7 +56,7 @@ public class FolderCommand implements Command {
       popupMenu.hide();
     }
 
-    SolutionBrowserPerspective sbp = SolutionBrowserPerspective.getInstance();
+    SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
 
     if (mode == COMMAND.PROPERTIES) {
       new FilePropertiesCommand(repositoryFile, FilePropertiesDialog.Tabs.GENERAL).execute();

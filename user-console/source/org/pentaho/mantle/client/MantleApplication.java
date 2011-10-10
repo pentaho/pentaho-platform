@@ -30,7 +30,8 @@ import org.pentaho.mantle.client.commands.LoginCommand;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.ui.PerspectiveSwitcher;
 import org.pentaho.mantle.client.usersettings.IMantleSettingsListener;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
@@ -48,9 +49,10 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -67,20 +69,33 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   private MantleMainMenuBar menuBar;
 
   // solution browser view
-  private SolutionBrowserPerspective solutionBrowserPerspective;
+  private SolutionBrowserPanel solutionBrowserPerspective;
 
   private XulMainToolbar mainToolbar;
 
   private CommandExec commandExec = GWT.create(CommandExec.class);
 
+  private DeckPanel contentDeck = new DeckPanel();
+
   // Floating clear div that when shown intercepts mouse events.
   public static AbsolutePanel overlayPanel = new AbsolutePanel();
 
-  public void loadApplication() {
+  private static MantleApplication instance;
 
+  private MantleApplication() {
+  }
+
+  public static MantleApplication getInstance() {
+    if (instance == null) {
+      instance = new MantleApplication();
+    }
+    return instance;
+  }
+
+  public void loadApplication() {
     menuBar = new MantleMainMenuBar();
-    solutionBrowserPerspective = SolutionBrowserPerspective.getInstance(menuBar);
-    mainToolbar = new XulMainToolbar(solutionBrowserPerspective);
+    solutionBrowserPerspective = SolutionBrowserPanel.getInstance(menuBar);
+    mainToolbar = XulMainToolbar.getInstance();
 
     // registered our native JSNI hooks
     setupNativeHooks(this, new LoginCommand());
@@ -90,7 +105,6 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
 
     // listen to any reloads of mantle settings
     MantleSettingsManager.getInstance().addMantleSettingsListener(this);
-
   }
 
   public native void setupNativeHooks(MantleApplication mantle, LoginCommand loginCmd)
@@ -168,13 +182,19 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     menuAndLogoPanel.setCellSpacing(0);
     menuAndLogoPanel.setStyleName("menuBarAndLogoPanel"); //$NON-NLS-1$
     menuAndLogoPanel.setWidth("100%"); //$NON-NLS-1$
-    
+
     if ("true".equals(settings.get("show-menu-bar"))) {
       menuAndLogoPanel.setWidget(0, 0, menuBar);
       menuAndLogoPanel.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
     }
+
+    menuAndLogoPanel.setWidget(0, 1, new PerspectiveSwitcher());
+    menuAndLogoPanel.getCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
+    menuAndLogoPanel.getCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
+
     if ("true".equals(settings.get("show-main-toolbar"))) {
       menuAndLogoPanel.setWidget(1, 0, mainToolbar);
+      menuAndLogoPanel.getFlexCellFormatter().setColSpan(1, 0, 2);
       mainToolbar.setWidth("100%"); //$NON-NLS-1$
     }
 
@@ -188,7 +208,11 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     PluginOptionsHelper.buildEnabledOptionsList(settings);
 
     // show stuff we've created/configured
-    mainApplicationPanel.add(solutionBrowserPerspective);
+    contentDeck.add(solutionBrowserPerspective);
+    contentDeck.showWidget(contentDeck.getWidgetIndex(solutionBrowserPerspective));
+    contentDeck.setStyleName("applicationShell");
+    
+    mainApplicationPanel.add(contentDeck);
 
     // menubar=no,location=no,resizable=yes,scrollbars=no,status=no,width=1200,height=800
     RootPanel.get().add(mainApplicationPanel);
@@ -234,7 +258,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
         if (solutionBrowserPerspective.getContentTabPanel().getWidgetCount() > 0) {
           solutionBrowserPerspective.getContentTabPanel().selectTab(0);
         }
-        
+
         // startup-url on the URL for the app, wins over user-settings
         String startupURL = Window.Location.getParameter("startup-url"); //$NON-NLS-1$
         if (startupURL != null && !"".equals(startupURL)) { //$NON-NLS-1$
@@ -250,5 +274,13 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
       MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
       dialogBox.center();
     }
+  }
+
+  public DeckPanel getContentDeck() {
+    return contentDeck;
+  }
+
+  public void setContentDeck(DeckPanel contentDeck) {
+    this.contentDeck = contentDeck;
   }
 }

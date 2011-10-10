@@ -24,7 +24,7 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.dialogs.OverwritePromptDialog;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
 import com.google.gwt.core.client.GWT;
@@ -74,14 +74,14 @@ public class PasteFilesCommand extends AbstractCommand {
    */
   @Override
   protected void performOperation(boolean feedback) {
-    final SolutionBrowserClipboard clipBoard = SolutionBrowserPerspective.getInstance().getClipboard();
+    final SolutionBrowserClipboard clipBoard = SolutionBrowserPanel.getInstance().getClipboard();
     final List<FileItem> clipboardFileItems = (List<FileItem>) clipBoard.getData();
     final List<RepositoryFile> pasteFiles = new ArrayList<RepositoryFile>();
     for (FileItem fileItem : clipboardFileItems) {
       pasteFiles.add(fileItem.getRepositoryFile());
     }
     if (pasteFiles != null && pasteFiles.size() > 0 && destinationFolder != null) {
-      String getChildrenUrl = contextURL + "api/repo/files/" + SolutionBrowserPerspective.pathToId(destinationFolder.getPath()) + "/children?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
+      String getChildrenUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(destinationFolder.getPath()) + "/children?depth=1"; //$NON-NLS-1$ //$NON-NLS-2$
       RequestBuilder childrenRequestBuilder = new RequestBuilder(RequestBuilder.GET, getChildrenUrl);
       try {
         childrenRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -150,7 +150,7 @@ public class PasteFilesCommand extends AbstractCommand {
     temp = temp.substring(0, temp.length()-1);
     final String filesList = temp;
     
-    String pasteChildrenUrl = contextURL + "api/repo/files/" + SolutionBrowserPerspective.pathToId(destinationFolder.getPath()) + "/children?mode=" + overwriteMode;  //$NON-NLS-1$//$NON-NLS-2$
+    String pasteChildrenUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(destinationFolder.getPath()) + "/children?mode=" + overwriteMode;  //$NON-NLS-1$//$NON-NLS-2$
     RequestBuilder pasteChildrenRequestBuilder = new RequestBuilder(RequestBuilder.PUT, pasteChildrenUrl);
     pasteChildrenRequestBuilder.setHeader("Content-Type", "text/plain");  //$NON-NLS-1$//$NON-NLS-2$
     try {
@@ -163,7 +163,7 @@ public class PasteFilesCommand extends AbstractCommand {
 
         @Override
         public void onResponseReceived(Request pasteChildrenRequest, Response pasteChildrenResponse) {
-          SolutionBrowserClipboard.ClipboardAction action = SolutionBrowserPerspective.getInstance().getClipboard().getClipboardAction();
+          SolutionBrowserClipboard.ClipboardAction action = SolutionBrowserPanel.getInstance().getClipboard().getClipboardAction();
           if (action == SolutionBrowserClipboard.ClipboardAction.CUT) {
             new DeleteFileCommand(clipboardFileItems).execute(false);
             clipBoard.clear();

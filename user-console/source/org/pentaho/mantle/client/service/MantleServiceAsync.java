@@ -19,14 +19,18 @@
  */
 package org.pentaho.mantle.client.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.pentaho.mantle.client.MantleXulOverlay;
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.objects.SubscriptionSchedule;
 import org.pentaho.mantle.client.objects.SubscriptionState;
 import org.pentaho.mantle.client.objects.WorkspaceContent;
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
+import org.pentaho.ui.xul.XulOverlay;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -95,7 +99,8 @@ public interface MantleServiceAsync {
   public void setShowLocalizedFileNames(boolean showLocalizedFileNames, AsyncCallback<Void> callback);
   public void setShowHiddenFiles(boolean showHiddenFiles, AsyncCallback<Void> callback);
   public void repositorySupportsACLS(AsyncCallback<Boolean> callback);
-  public void getOverlays(AsyncCallback<ArrayList<MantleXulOverlay>> callback);
+  public void getOverlays(AsyncCallback<ArrayList<XulOverlay>> callback);
+  public void getPluginPerpectives(AsyncCallback<ArrayList<IPluginPerspective>> callback);
   public void getSystemThemes(AsyncCallback<Map<String, String>> callback);
   public void getActiveTheme(AsyncCallback<String> callback);
 }

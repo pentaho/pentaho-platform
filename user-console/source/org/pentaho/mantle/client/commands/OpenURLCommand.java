@@ -21,7 +21,7 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogValidatorCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import com.google.gwt.user.client.ui.TextBox;
 
@@ -45,7 +45,7 @@ public class OpenURLCommand extends AbstractCommand {
       }
 
       public void okPressed() {
-        SolutionBrowserPerspective.getInstance().getContentTabPanel().showNewURLTab(textBox.getText(), textBox.getText(), textBox.getText(), false);
+        SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(textBox.getText(), textBox.getText(), textBox.getText(), false);
       }
 
     };

@@ -21,7 +21,7 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogValidatorCallback;
 import org.pentaho.mantle.client.dialogs.AnalysisViewDialog;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
@@ -36,7 +36,7 @@ public class AnalysisViewCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    final SolutionBrowserPerspective navigatorPerspective = SolutionBrowserPerspective.getInstance();
+    final SolutionBrowserPanel navigatorPerspective = SolutionBrowserPanel.getInstance();
 
     final AnalysisViewDialog analysisDialog = new AnalysisViewDialog();
     IDialogCallback callback = new IDialogCallback() {

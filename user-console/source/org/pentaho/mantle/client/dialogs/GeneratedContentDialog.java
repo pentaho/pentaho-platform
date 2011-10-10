@@ -28,7 +28,7 @@ import org.pentaho.gwt.widgets.client.table.BaseTable;
 import org.pentaho.gwt.widgets.client.table.ColumnComparators.BaseColumnComparator;
 import org.pentaho.gwt.widgets.client.table.ColumnComparators.ColumnComparatorTypes;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -119,7 +119,7 @@ public class GeneratedContentDialog extends PromptDialogBox implements TableList
       String dateStr = table.getText(selectedRow, 1);
       for (RepositoryFile fileDto : workspaceFiles) {
         if (dateStr.equals(fileDto.getCreatedDate().toLocaleString())) {
-          SolutionBrowserPerspective.getInstance().openFile(fileDto, COMMAND.RUN);
+          SolutionBrowserPanel.getInstance().openFile(fileDto, COMMAND.RUN);
           break;
         }
       }

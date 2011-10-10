@@ -30,7 +30,7 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.FileTypeEnabledOptions;
 import org.pentaho.mantle.client.solutionbrowser.IFileSummary;
 import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 
 import com.google.gwt.dom.client.NativeEvent;
@@ -243,7 +243,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     Boolean shiftKeyDown = DOM.eventGetShiftKey(event);
     if ((DOM.eventGetType(event) & Event.ONDBLCLICK) == Event.ONDBLCLICK) {
       toggleSelect(false, false);
-      SolutionBrowserPerspective.getInstance().openFile(filesListPanel.getSelectedFileItems().get(0).getRepositoryFile(), COMMAND.RUN);
+      SolutionBrowserPanel.getInstance().openFile(filesListPanel.getSelectedFileItems().get(0).getRepositoryFile(), COMMAND.RUN);
     } else if ((DOM.eventGetType(event) & Event.ONCLICK) == Event.ONCLICK) {
       toggleSelect(metaKeyDown, shiftKeyDown);
       fireFileSelectionEvent();      
@@ -268,7 +268,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
 
     String menuItems[];
     FileCommand.COMMAND menuCommands[];
-    if (SolutionBrowserPerspective.getInstance().isAdministrator()) {
+    if (SolutionBrowserPanel.getInstance().isAdministrator()) {
       menuItems = adminMenuItems;
       menuCommands = adminMenuCommands;
     } else {

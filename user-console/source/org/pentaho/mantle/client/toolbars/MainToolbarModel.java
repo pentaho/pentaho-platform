@@ -22,7 +22,7 @@ import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
@@ -41,7 +41,6 @@ import com.google.gwt.user.client.ui.Widget;
 public class MainToolbarModel extends XulEventSourceAdapter implements
     SolutionBrowserListener {
 
-  private SolutionBrowserPerspective solutionBrowser;
   private XulMainToolbar main;
   private boolean saveEnabled;
   private boolean saveAsEnabled;
@@ -52,10 +51,8 @@ public class MainToolbarModel extends XulEventSourceAdapter implements
   private boolean workspaceSelected;
   private JavaScriptObject callback;
   
-  public MainToolbarModel(final SolutionBrowserPerspective solutionBrowser,
-      XulMainToolbar main) {
-    this.solutionBrowser = solutionBrowser;
-    this.solutionBrowser.addSolutionBrowserListener(this);
+  public MainToolbarModel(XulMainToolbar main) {
+    SolutionBrowserPanel.getInstance().addSolutionBrowserListener(this);
     this.main = main;
   }
 
@@ -136,8 +133,8 @@ public class MainToolbarModel extends XulEventSourceAdapter implements
     setContentEditSelected(editSelected);
     setCallback(callback);
 
-    setWorkspaceSelected(solutionBrowser.isWorkspaceShowing());
-    setShowBrowserSelected(solutionBrowser.isNavigatorShowing());
+    setWorkspaceSelected(SolutionBrowserPanel.getInstance().isWorkspaceShowing());
+    setShowBrowserSelected(SolutionBrowserPanel.getInstance().isNavigatorShowing());
 
     if (panel instanceof IFrameTabPanel) {
       if (SolutionBrowserListener.EventType.OPEN.equals(type)

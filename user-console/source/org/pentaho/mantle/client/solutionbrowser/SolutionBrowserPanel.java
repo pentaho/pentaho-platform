@@ -88,7 +88,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.VerticalSplitPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SolutionBrowserPerspective extends HorizontalPanel {
+public class SolutionBrowserPanel extends HorizontalPanel {
 
   private static final String defaultSplitPosition = "220px"; //$NON-NLS-1$
 
@@ -154,7 +154,7 @@ public class SolutionBrowserPerspective extends HorizontalPanel {
 
     public void onTreeItemSelected(TreeItem item) {
       filesListPanel.setShowHiddenFiles(solutionTree.isShowHiddenFiles());
-      filesListPanel.populateFilesList(SolutionBrowserPerspective.this, solutionTree, item);
+      filesListPanel.populateFilesList(SolutionBrowserPanel.this, solutionTree, item);
       filesListPanel.getToolbar().setEnabled(false);
     }
 
@@ -164,29 +164,29 @@ public class SolutionBrowserPerspective extends HorizontalPanel {
 
   };
 
-  private static SolutionBrowserPerspective instance;
+  private static SolutionBrowserPanel instance;
 
-  private SolutionBrowserPerspective(final IViewMenuCallback viewMenuCallback) {
+  private SolutionBrowserPanel(final IViewMenuCallback viewMenuCallback) {
     RootPanel.get().getElement().getStyle().setProperty("position", "relative");
     dragController = new SolutionBrowserDragController(contentTabPanel);
     instance = this;
     this.viewMenuCallback = viewMenuCallback;
 
-    SolutionBrowserPerspective.setupNativeHooks();
+    SolutionBrowserPanel.setupNativeHooks();
 
     solutionTree.addTreeListener(treeListener);
     initializeExecutableFileTypes();
     buildUI();
   }
 
-  public static SolutionBrowserPerspective getInstance(IViewMenuCallback viewMenuCallback) {
+  public static SolutionBrowserPanel getInstance(IViewMenuCallback viewMenuCallback) {
     if (instance == null) {
-      instance = new SolutionBrowserPerspective(viewMenuCallback);
+      instance = new SolutionBrowserPanel(viewMenuCallback);
     }
     return instance;
   }
 
-  public static SolutionBrowserPerspective getInstance() {
+  public static SolutionBrowserPanel getInstance() {
     return getInstance(null);
   }
 
@@ -341,20 +341,20 @@ public class SolutionBrowserPerspective extends HorizontalPanel {
   }
 
   private static void setupNativeHooks() {
-    setupNativeHooks(SolutionBrowserPerspective.getInstance());
+    setupNativeHooks(SolutionBrowserPanel.getInstance());
     ExecuteUrlInNewTabCommand.setupNativeHooks();
   }
 
-  private static native void setupNativeHooks(SolutionBrowserPerspective solutionNavigator)
+  private static native void setupNativeHooks(SolutionBrowserPanel solutionNavigator)
   /*-{
     $wnd.sendMouseEvent = function(event) {
-      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective::mouseUp(Lcom/google/gwt/user/client/Event;)(event);
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::mouseUp(Lcom/google/gwt/user/client/Event;)(event);
     }
     $wnd.mantle_setNavigatorShowing = function(show) {
-      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective::setNavigatorShowing(Z)(show);
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
     }
     $wnd.mantle_confirmBackgroundExecutionDialog = function(url) {
-      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);      
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);      
     }    
   }-*/;
 
@@ -637,7 +637,7 @@ public class SolutionBrowserPerspective extends HorizontalPanel {
       protected void performOperation(boolean feedback) {
         final FileItem selectedFileItem = filesListPanel.getSelectedFileItems().get(0);
         String url = null;
-          url = "api/repo/files/" + SolutionBrowserPerspective.pathToId(filesListPanel.getSelectedFileItems().get(0).getRepositoryFile().getPath()) + "/generatedContent"; //$NON-NLS-1$ //$NON-NLS-2$
+          url = "api/repo/files/" + SolutionBrowserPanel.pathToId(filesListPanel.getSelectedFileItems().get(0).getRepositoryFile().getPath()) + "/generatedContent"; //$NON-NLS-1$ //$NON-NLS-2$
           url = getPath() + url;
 
         if (mode == FileCommand.COMMAND.BACKGROUND) {

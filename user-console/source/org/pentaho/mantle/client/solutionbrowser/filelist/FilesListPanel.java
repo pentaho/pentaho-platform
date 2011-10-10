@@ -36,7 +36,7 @@ import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileTreeListener;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper.ContentTypePlugin;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.toolbars.FilesToolbar;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTree;
@@ -85,7 +85,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
           } else if (event.getKeyCode() == KeyCodes.KEY_DOWN) {
             selectNextItem(selectedFileItems);
           } else if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
-            SolutionBrowserPerspective sbp = SolutionBrowserPerspective.getInstance();
+            SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
             FilesListPanel flp = sbp.getFilesListPanel();
             List<FileItem> items = flp.getSelectedFileItems();
             if(items != null && items.size() == 1) {
@@ -174,7 +174,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
   }-*/;
 
   @SuppressWarnings("unchecked")
-  public void populateFilesList(SolutionBrowserPerspective perspective, SolutionTree solutionTree, TreeItem item) {
+  public void populateFilesList(SolutionBrowserPanel perspective, SolutionTree solutionTree, TreeItem item) {
     filesList.clear();
     // Get the user object. 
     RepositoryFileTree tree = (RepositoryFileTree) item.getUserObject();

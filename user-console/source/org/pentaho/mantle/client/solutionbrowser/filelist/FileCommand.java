@@ -34,7 +34,7 @@ import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.commands.ShowGeneratedContentCommand;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleHelper;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
@@ -92,7 +92,7 @@ public class FileCommand implements Command {
       popupMenu.hide();
     }
 
-    SolutionBrowserPerspective sbp = SolutionBrowserPerspective.getInstance();
+    SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
     FilesListPanel flp = sbp.getFilesListPanel();
     if (flp.getSelectedFileItems() == null || flp.getSelectedFileItems().size() < 1) {
       return;

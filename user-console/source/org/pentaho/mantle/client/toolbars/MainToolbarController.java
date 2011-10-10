@@ -20,7 +20,7 @@ package org.pentaho.mantle.client.toolbars;
 import com.google.gwt.user.client.Element;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.ToggleWorkspaceCommand;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.gwt.binding.GwtBindingFactory;
@@ -46,10 +46,8 @@ public class MainToolbarController extends AbstractXulEventHandler {
   private XulToolbarbutton workspaceBtn;
   private XulToolbarbutton showBrowserBtn;
   private XulToolbarbutton contentEditBtn;
-  private SolutionBrowserPerspective solutionBrowser;
 
-  public MainToolbarController(SolutionBrowserPerspective solutionBrowser, MainToolbarModel model) {
-    this.solutionBrowser = solutionBrowser;
+  public MainToolbarController(MainToolbarModel model) {
     this.model = model;
   }
 
@@ -103,7 +101,7 @@ public class MainToolbarController extends AbstractXulEventHandler {
   public void workspaceClicked() {
     ToggleWorkspaceCommand toggleWorkspaceCommand = new ToggleWorkspaceCommand();
     toggleWorkspaceCommand.execute();
-    model.setWorkspaceSelected(solutionBrowser.isWorkspaceShowing());
+    model.setWorkspaceSelected(SolutionBrowserPanel.getInstance().isWorkspaceShowing());
   }
 
   @Bindable
@@ -203,7 +201,7 @@ public class MainToolbarController extends AbstractXulEventHandler {
   public void editContentClicked() {
     model.setContentEditToggled();
 
-    executeEditContentCallback(SolutionBrowserPerspective.getInstance().getContentTabPanel().getCurrentFrame().getFrame().getElement(), model.isContentEditSelected());
+    executeEditContentCallback(SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().getFrame().getElement(), model.isContentEditSelected());
   }
 
   private native void executeEditContentCallback(Element obj, boolean selected)
@@ -222,16 +220,6 @@ public class MainToolbarController extends AbstractXulEventHandler {
   public void setModel(MainToolbarModel model) {
 
     this.model = model;
-  }
-
-  public SolutionBrowserPerspective getSolutionBrowser() {
-
-    return solutionBrowser;
-  }
-
-  public void setSolutionBrowser(SolutionBrowserPerspective solutionBrowser) {
-
-    this.solutionBrowser = solutionBrowser;
   }
 
 }

@@ -32,7 +32,7 @@ import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
@@ -179,7 +179,7 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
 
   @Override
   public void popupClosed(PopupPanel panel) {
-    IFrameTabPanel iframeTab = SolutionBrowserPerspective.getInstance().getContentTabPanel().getCurrentFrame();
+    IFrameTabPanel iframeTab = SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame();
     if (iframeTab == null || iframeTab.getFrame() == null) {
       return;
     }
@@ -189,7 +189,7 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
 
   @Override
   public void popupOpened(PopupPanel panel) {
-    IFrameTabPanel iframeTab = SolutionBrowserPerspective.getInstance().getContentTabPanel().getCurrentFrame();
+    IFrameTabPanel iframeTab = SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame();
     if (iframeTab == null || iframeTab.getFrame() == null) {
       return;
     }

@@ -18,7 +18,7 @@ package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import com.google.gwt.user.client.ui.Frame;
 
@@ -69,7 +69,7 @@ public class UrlCommand extends AbstractCommand {
         dialogBox.center();
         frame.setSize(width, height);
     } else {
-      SolutionBrowserPerspective navigatorPerspective = SolutionBrowserPerspective.getInstance();
+      SolutionBrowserPanel navigatorPerspective = SolutionBrowserPanel.getInstance();
       navigatorPerspective.getContentTabPanel().showNewURLTab( title, "", url, false); //$NON-NLS-1$
     }
   }

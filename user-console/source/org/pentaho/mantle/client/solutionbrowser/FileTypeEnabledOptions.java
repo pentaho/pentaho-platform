@@ -58,7 +58,7 @@ public class FileTypeEnabledOptions {
       case CUT:
       case COPY:
       case DELETE:
-        validSelectionCount = SolutionBrowserPerspective.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0;
+        validSelectionCount = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0;
         break;
       case BACKGROUND:
       case CREATE_FOLDER:
@@ -74,7 +74,7 @@ public class FileTypeEnabledOptions {
       case SHARE:
       case SUBSCRIBE:
       case GENERATED_CONTENT:
-        validSelectionCount = SolutionBrowserPerspective.getInstance().getFilesListPanel().getSelectedFileItems().size() == 1;
+        validSelectionCount = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() == 1;
         break;
     }
     if (command == COMMAND.CUT || command == COMMAND.COPY || command == COMMAND.DELETE || command == COMMAND.GENERATED_CONTENT) {

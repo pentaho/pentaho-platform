@@ -21,7 +21,7 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -72,7 +72,7 @@ public class NewFolderCommand extends AbstractCommand {
 
       @SuppressWarnings("unchecked")
       public void okPressed() {
-          String createDirUrl = contextURL + "api/repo/dirs/" + SolutionBrowserPerspective.pathToId(parentFolder.getPath() + "/" + folderNameTextBox.getText());  //$NON-NLS-1$
+          String createDirUrl = contextURL + "api/repo/dirs/" + SolutionBrowserPanel.pathToId(parentFolder.getPath() + "/" + folderNameTextBox.getText());  //$NON-NLS-1$
           RequestBuilder createDirRequestBuilder = new RequestBuilder(RequestBuilder.PUT, createDirUrl);
 
           try {

@@ -1,5 +1,4 @@
 <module rename-to="mantle">
-
 	<!-- Inherit the core Web Toolkit stuff. -->
 	<inherits name='com.google.gwt.user.User'/>
 	<inherits name='com.google.gwt.xml.XML'/>
@@ -10,6 +9,7 @@
     <inherits name="com.google.gwt.json.JSON" />
 	
 	<inherits name='org.pentaho.platform.repository.usersettings.pojo.UserSettings'/>
+	<inherits name='org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective'/>
     <inherits name='org.pentaho.gwt.widgets.Widgets'/>
     <inherits name='org.pentaho.mantle.login.MantleLogin' />
     <inherits name="org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService"/>
@@ -24,6 +24,4 @@
 	<entry-point class='org.pentaho.mantle.client.MantleEntryPoint'/>
 	
 	<servlet path="/MantleService" class="org.pentaho.mantle.server.DebugMantleServlet" />
-	
-  
 </module>

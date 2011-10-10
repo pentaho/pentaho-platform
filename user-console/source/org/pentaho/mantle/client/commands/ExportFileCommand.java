@@ -17,7 +17,7 @@
 package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
@@ -42,7 +42,7 @@ public class ExportFileCommand extends AbstractCommand {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String exportURL = contextURL + "api/repo/files/" + SolutionBrowserPerspective.pathToId(path) + "/download";
+    String exportURL = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(path) + "/download";
     Window.open(exportURL, "_new", "");
   }
 

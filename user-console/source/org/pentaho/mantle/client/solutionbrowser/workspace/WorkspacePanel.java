@@ -34,7 +34,7 @@ import org.pentaho.mantle.client.objects.SimpleMessageException;
 import org.pentaho.mantle.client.objects.SubscriptionBean;
 import org.pentaho.mantle.client.objects.WorkspaceContent;
 import org.pentaho.mantle.client.service.MantleServiceCache;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -192,7 +192,7 @@ public class WorkspacePanel extends ScrollPanel {
             // Frame iframe = new Frame("GetContent?action=view&id=" + jobDetail.id);
             // viewDialog.setContent(iframe);
             // iframe.setPixelSize(1024, 600);
-            SolutionBrowserPerspective.getInstance().getContentTabPanel().showNewURLTab(jobDetail.name, jobDetail.name,
+            SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(jobDetail.name, jobDetail.name,
                 "GetContent?action=view&id=" + jobDetail.id, false); //$NON-NLS-1$
           }
         });
@@ -487,7 +487,7 @@ public class WorkspacePanel extends ScrollPanel {
     }
 
     if (action.equals("archived") || action.equals("run") || action.equals("edit")) { //$NON-NLS-1$ //$NON-NLS-2$
-      SolutionBrowserPerspective.getInstance().getContentTabPanel().showNewURLTab(subscription.getName(), subscription.getId(), url, false);
+      SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(subscription.getName(), subscription.getId(), url, false);
     } else {
       viewDialog.center();
       final Frame iframe = new Frame(url);

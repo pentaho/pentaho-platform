@@ -22,7 +22,7 @@ import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -45,7 +45,7 @@ public class OpenFileCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    final SolutionBrowserPerspective solutionBrowserPerspective = SolutionBrowserPerspective.getInstance();
+    final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
 
     RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(new AsyncCallback<RepositoryFileTree>() {
       public void onFailure(Throwable caught) {
@@ -74,6 +74,6 @@ public class OpenFileCommand extends AbstractCommand {
         });
         dialog.center();
       }
-    }, false, null, null, SolutionBrowserPerspective.getInstance().getSolutionTree().isShowHiddenFiles());
+    }, false, null, null, SolutionBrowserPanel.getInstance().getSolutionTree().isShowHiddenFiles());
   }
 }

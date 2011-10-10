@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.CommandExec;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
@@ -68,7 +68,7 @@ public class CommandExecGenerator extends Generator {
     ClassSourceFileComposerFactory composer = null;
     composer = new ClassSourceFileComposerFactory(packageName, className);
     composer.addImplementedInterface(CommandExec.class.getName());
-    composer.addImport(SolutionBrowserPerspective.class.getName());
+    composer.addImport(SolutionBrowserPanel.class.getName());
     composer.addImport(Command.class.getName());
 
     SourceWriter sourceWriter = null;

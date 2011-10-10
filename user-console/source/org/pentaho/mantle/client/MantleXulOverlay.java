@@ -19,7 +19,9 @@ package org.pentaho.mantle.client;
 
 import java.io.Serializable;
 
-public class MantleXulOverlay implements Serializable {
+import org.pentaho.ui.xul.XulOverlay;
+
+public class MantleXulOverlay implements Serializable, XulOverlay {
 
   private String id;
 

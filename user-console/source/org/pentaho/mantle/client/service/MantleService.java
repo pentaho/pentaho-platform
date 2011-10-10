@@ -19,14 +19,19 @@
  */
 package org.pentaho.mantle.client.service;
 
-import java.util.*;
-import org.pentaho.mantle.client.MantleXulOverlay;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.pentaho.mantle.client.objects.SimpleMessageException;
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.objects.SubscriptionSchedule;
 import org.pentaho.mantle.client.objects.SubscriptionState;
 import org.pentaho.mantle.client.objects.WorkspaceContent;
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
+import org.pentaho.ui.xul.XulOverlay;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
@@ -94,7 +99,8 @@ public interface MantleService extends RemoteService {
   
   public boolean repositorySupportsACLS();
   
-  public ArrayList<MantleXulOverlay> getOverlays();
+  public ArrayList<XulOverlay> getOverlays();
+  public ArrayList<IPluginPerspective> getPluginPerpectives();
   
   public Map<String, String> getSystemThemes();
   public String getActiveTheme();

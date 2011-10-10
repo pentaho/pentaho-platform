@@ -1,3 +1,25 @@
+.mantle-perspective-toggle {
+	background: black;
+	color: white;
+	padding: 0px 5px 0px 5px;
+	cursor: pointer;
+	cursor: hand;
+	white-space: nowrap;
+}
+
+.mantle-perspective-toggle-up {
+	color: gray;
+}
+
+.mantle-perspective-toggle-up-hovering {
+	color: white;
+}
+
+.mantle-perspective-toggle-down {
+	color: white;
+}
+
+
 .puc-logo{
     background: url('images/logo.png') no-repeat center center;
 }

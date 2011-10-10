@@ -16,7 +16,7 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.ui.MantleTabPanel;
 
@@ -56,7 +56,7 @@ public class ExecuteUrlInNewTabCommand extends AbstractCommand {
   }-*/;
 
   protected void performOperation() {
-    MantleTabPanel contentTabPanel = SolutionBrowserPerspective.getInstance().getContentTabPanel();
+    MantleTabPanel contentTabPanel = SolutionBrowserPanel.getInstance().getContentTabPanel();
     contentTabPanel.showNewURLTab(this.tabName, this.tabToolTip, "about:blank", false); //$NON-NLS-1$
     NamedFrame namedFrame = ((IFrameTabPanel) contentTabPanel.getSelectedTab().getContent()).getFrame();
     final FormPanel form = new FormPanel(namedFrame);

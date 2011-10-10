@@ -52,7 +52,7 @@ public class MantleEntryPoint implements EntryPoint, IResourceBundleLoadCallback
   public void bundleLoaded(String bundleName) {
     Window.setTitle(Messages.getString("productName")); //$NON-NLS-1$
 
-    MantleApplication mantle = new MantleApplication();
+    MantleApplication mantle = MantleApplication.getInstance();
     mantle.loadApplication();
 
     RootPanel loadingPanel = RootPanel.get("loading"); //$NON-NLS-1$

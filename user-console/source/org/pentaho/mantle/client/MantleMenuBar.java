@@ -19,7 +19,7 @@ package org.pentaho.mantle.client;
 
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 
 import com.google.gwt.user.client.DOM;
@@ -77,7 +77,7 @@ public class MantleMenuBar extends MenuBar {
   }
 
   private Frame getActiveBrowserPerspectiveFrame() {
-    IFrameTabPanel panel = SolutionBrowserPerspective.getInstance().getContentTabPanel().getCurrentFrame();
+    IFrameTabPanel panel = SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame();
     if (panel == null) {
       return null;
     } else {

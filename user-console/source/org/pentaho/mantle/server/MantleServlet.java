@@ -20,7 +20,6 @@
 package org.pentaho.mantle.server;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,7 +34,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,28 +45,22 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.mantle.client.MantleXulOverlay;
 import org.pentaho.mantle.client.objects.JobDetail;
 import org.pentaho.mantle.client.objects.JobSchedule;
-import org.pentaho.mantle.client.objects.RolePermission;
 import org.pentaho.mantle.client.objects.SimpleMessageException;
-import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.objects.SubscriptionBean;
 import org.pentaho.mantle.client.objects.SubscriptionSchedule;
 import org.pentaho.mantle.client.objects.SubscriptionState;
-import org.pentaho.mantle.client.objects.UserPermission;
 import org.pentaho.mantle.client.objects.WorkspaceContent;
 import org.pentaho.mantle.client.service.MantleService;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
-import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IBackgroundExecution;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IContentInfo;
-import org.pentaho.platform.api.engine.IFileInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPermissionMask;
-import org.pentaho.platform.api.engine.IPermissionRecipient;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginOperation;
-import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository.IContentRepository;
 import org.pentaho.platform.api.repository.ISchedule;
@@ -88,11 +80,6 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.engine.security.SimplePermissionMask;
-import org.pentaho.platform.engine.security.SimpleRole;
-import org.pentaho.platform.engine.security.SimpleUser;
-import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
-import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.engine.services.solution.StandardSettings;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
@@ -130,6 +117,7 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
 
   @Override
   protected void doUnexpectedFailure(Throwable e) {
+    e.printStackTrace();
     try {
       getThreadLocalResponse().sendRedirect("../Home"); //$NON-NLS-1$
       PentahoSystem.systemExitPoint();
@@ -1069,11 +1057,11 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     return versionInfo.getVersionNumber();
   }
 
-  public ArrayList<MantleXulOverlay> getOverlays() {
+  public ArrayList<XulOverlay> getOverlays() {
     IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getPentahoSession()); //$NON-NLS-1$
 
     List<XulOverlay> overlays = pluginManager.getOverlays();
-    ArrayList<MantleXulOverlay> result = new ArrayList<MantleXulOverlay>();
+    ArrayList<XulOverlay> result = new ArrayList<XulOverlay>();
     for (XulOverlay overlay : overlays) {
       MantleXulOverlay tempOverlay = new MantleXulOverlay(overlay.getId(), overlay.getOverlayUri(), overlay.getSource(), overlay.getResourceBundleUri());
       result.add(tempOverlay);
@@ -1081,6 +1069,35 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     return result;
   }
 
+  public ArrayList<IPluginPerspective> getPluginPerpectives() {
+    IPluginPerspectiveManager manager = PentahoSystem.get(IPluginPerspectiveManager.class, getPentahoSession()); //$NON-NLS-1$
+    return new ArrayList<IPluginPerspective>(manager.getPluginPerspectives());
+//    ArrayList<IPluginPerspective> perspectives = new ArrayList<IPluginPerspective>();
+//    
+//    DefaultPluginPerspective perspective1 = new DefaultPluginPerspective();
+//    perspective1.setId("google");
+//    perspective1.setTitle("Google");
+//    perspective1.setContentUrl("http://www.google.com");
+//    perspective1.setLayoutPriority(101);
+//    perspectives.add(perspective1);
+//
+//    DefaultPluginPerspective perspective2 = new DefaultPluginPerspective();
+//    perspective2.setId("yahoo");
+//    perspective2.setTitle("Yahoo");
+//    perspective2.setContentUrl("http://www.yahoo.com");
+//    perspective2.setLayoutPriority(102);
+//    perspectives.add(perspective2);
+//
+//    DefaultPluginPerspective perspective3 = new DefaultPluginPerspective();
+//    perspective3.setId("bing");
+//    perspective3.setTitle("Bing");
+//    perspective3.setContentUrl("http://www.bing.com");
+//    perspective3.setLayoutPriority(103);
+//    perspectives.add(perspective3);
+    
+//    return perspectives;
+  }
+  
   public void purgeReportingDataCache() {
     ICacheManager cacheManager = PentahoSystem.get(ICacheManager.class);
     cacheManager.clearRegionCache("report-dataset-cache");

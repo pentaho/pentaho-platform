@@ -20,7 +20,7 @@ package org.pentaho.mantle.client.commands;
 import java.util.List;
 
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserClipboard;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
 /**
@@ -51,7 +51,7 @@ public class CutFilesCommand extends AbstractCommand {
    */
   @Override
   protected void performOperation(boolean feedback) {
-    SolutionBrowserClipboard clipBoard = SolutionBrowserPerspective.getInstance().getClipboard();
+    SolutionBrowserClipboard clipBoard = SolutionBrowserPanel.getInstance().getClipboard();
     clipBoard.setDataForCut(repositoryFiles);
     clipBoard.setMimeType("jcrFiles/list");
   }

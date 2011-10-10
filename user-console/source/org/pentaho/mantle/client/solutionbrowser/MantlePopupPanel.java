@@ -25,7 +25,7 @@ public class MantlePopupPanel extends PopupPanel {
     // This catches auto-hiding initiated closes
     addCloseHandler(new CloseHandler<PopupPanel>() {
       public void onClose(CloseEvent<PopupPanel> event) {
-        IFrameTabPanel iframeTab = SolutionBrowserPerspective.getInstance().getContentTabPanel().getCurrentFrame();
+        IFrameTabPanel iframeTab = SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame();
         if (iframeTab == null || iframeTab.getFrame() == null) {
           return;
         }
@@ -61,7 +61,7 @@ public class MantlePopupPanel extends PopupPanel {
   public void hide() {
     super.hide();
 
-    IFrameTabPanel iframeTab = SolutionBrowserPerspective.getInstance().getContentTabPanel().getCurrentFrame();
+    IFrameTabPanel iframeTab = SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame();
     if (iframeTab == null || iframeTab.getFrame() == null) {
       return;
     }
@@ -72,7 +72,7 @@ public class MantlePopupPanel extends PopupPanel {
   @Override
   public void show() {
     super.show();
-    IFrameTabPanel iframeTab = SolutionBrowserPerspective.getInstance().getContentTabPanel().getCurrentFrame();
+    IFrameTabPanel iframeTab = SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame();
     if (iframeTab == null || iframeTab.getFrame() == null) {
       return;
     }
