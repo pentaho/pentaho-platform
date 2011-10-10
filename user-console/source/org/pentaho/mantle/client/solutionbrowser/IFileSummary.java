@@ -11,5 +11,4 @@ public interface IFileSummary {
   String getLocalizedName();
   String getName();
   String getPath();
-  String getSolution();
 }

@@ -300,7 +300,6 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     if (tp != null && selectedFileItem != null) {
       SolutionFileInfo fileInfo = new SolutionFileInfo();
       fileInfo.setName(selectedFileItem.getName());
-      fileInfo.setSolution(selectedFileItem.getSolution());
       fileInfo.setPath(selectedFileItem.getPath());
       tp.setFileInfo(fileInfo);
     }

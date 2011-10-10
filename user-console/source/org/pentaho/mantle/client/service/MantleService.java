@@ -68,12 +68,10 @@ public interface MantleService extends RemoteService {
   public WorkspaceContent getWorkspaceContent();
   
   // file api
-  public SolutionFileInfo getSolutionFileInfo(String solutionName, String path, String fileName);
-  public void setSolutionFileInfo(SolutionFileInfo fileInfo) throws SimpleMessageException;
   public ArrayList<String> getAllUsers();
   public ArrayList<String> getAllRoles();
   public boolean doesSolutionRepositorySupportPermissions();
-  public boolean hasAccess(String solutionName, String path, String fileName, int actionOperation);
+  public boolean hasAccess(String path, String fileName, int actionOperation);
   
   // mantle settings
   public HashMap<String,String> getMantleSettings();

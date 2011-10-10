@@ -405,7 +405,7 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
   @SuppressWarnings("static-access")
   public void createCronJob(String solutionName, String path, String actionName, String triggerName, String triggerGroup, String description,
       String cronExpression) throws SimpleMessageException {
-    if (!hasAccess(solutionName, path, actionName, ISolutionRepository.ACTION_SUBSCRIBE)) {
+    if (!hasAccess(path, actionName, ISolutionRepository.ACTION_SUBSCRIBE)) {
       throw new SimpleMessageException(ServerMessages.getInstance().getString("noSchedulePermission")); //$NON-NLS-1$
     }
 
@@ -439,7 +439,7 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
   @SuppressWarnings("static-access")
   public void createSimpleTriggerJob(String triggerName, String triggerGroup, String description, Date startDate, Date endDate, int repeatCount,
       int repeatInterval, String solutionName, String path, String actionName) throws SimpleMessageException {
-    if (!hasAccess(solutionName, path, actionName, ISolutionRepository.ACTION_SUBSCRIBE)) {
+    if (!hasAccess(path, actionName, ISolutionRepository.ACTION_SUBSCRIBE)) {
       throw new SimpleMessageException(ServerMessages.getInstance().getString("noSchedulePermission")); //$NON-NLS-1$
     }
 
@@ -483,164 +483,9 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     return new ArrayList<String>(userRoleListService.getAllUsers());
   }
 
-  @SuppressWarnings("deprecation")
-  public SolutionFileInfo getSolutionFileInfo(String solutionName, String path, String fileName) {
-    if (fileName == null || path == null || solutionName == null) {
-      throw new IllegalArgumentException("getSolutionFileInfo called with null parameters"); //$NON-NLS-1$
-    }
 
-    SolutionFileInfo solutionFileInfo = new SolutionFileInfo();
-    ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, getPentahoSession());
-
-    String fullPath = ActionInfo.buildSolutionPath(solutionName, path, fileName);
-    ISolutionFile solutionFile = repository.getSolutionFile(fullPath, ISolutionRepository.ACTION_EXECUTE);
-
-    if (solutionFile == null) {
-      // the file does not exist!
-      throw new NullPointerException("Could not find file: " + fullPath);
-    }
-
-    solutionFileInfo.solution = solutionName;
-    solutionFileInfo.path = path;
-    solutionFileInfo.name = fileName;
-
-    // Get Localized name
-    if (!solutionFile.isDirectory()) {
-      solutionFileInfo.localizedName = repository.getLocalizedFileProperty(solutionFile, "title", ISolutionRepository.ACTION_EXECUTE); //$NON-NLS-1$
-    }
-    if (StringUtils.isEmpty(solutionFileInfo.localizedName)) {
-      solutionFileInfo.localizedName = repository.getLocalizedFileProperty(solutionFile, "name", ISolutionRepository.ACTION_EXECUTE); //$NON-NLS-1$
-    }
-
-    // Find file Type, if plugin, also get the title
-    int lastDot = -1;
-    if (solutionFile.isDirectory()) {
-      solutionFileInfo.type = SolutionFileInfo.Type.FOLDER;
-    } else if ((lastDot = fileName.lastIndexOf('.')) > -1 && !fileName.startsWith(".")) { //$NON-NLS-1$
-      String extension = fileName.substring(lastDot + 1);
-
-      // Check to see if its a plug-in
-      boolean isPlugin = false;
-      IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getPentahoSession()); //$NON-NLS-1$
-      if (pluginManager != null) {
-        Set<String> types = pluginManager.getContentTypes();
-        isPlugin = types != null && types.contains(extension);
-      }
-
-      if (isPlugin) {
-        // Get the reported type from the plug-in manager
-        solutionFileInfo.type = SolutionFileInfo.Type.PLUGIN;
-        solutionFileInfo.pluginTypeName = "unused";
-
-        // get the title for the plugin file
-        InputStream inputStream = ActionSequenceResource.getInputStream(solutionFile.getFullPath(), LocaleHelper.getLocale());
-        IFileInfo fileInfo = pluginManager.getFileInfo(extension, getPentahoSession(), solutionFile, inputStream);
-        solutionFileInfo.localizedName = fileInfo.getTitle();
-      } else if (fileName.endsWith("analysisview.xaction")) { //$NON-NLS-1$
-        solutionFileInfo.type = SolutionFileInfo.Type.ANALYSIS_VIEW;
-      } else if (fileName.endsWith(".url")) { //$NON-NLS-1$
-        solutionFileInfo.type = SolutionFileInfo.Type.URL;
-      } else {
-        solutionFileInfo.type = SolutionFileInfo.Type.XACTION;
-      }
-    }
-
-    if (solutionFile.getData() == null) {
-      solutionFileInfo.size = 0;
-    } else {
-      solutionFileInfo.size = solutionFile.getData().length;
-    }
-    solutionFileInfo.lastModifiedDate = new Date(solutionFile.getLastModified());
-
-    solutionFileInfo.isDirectory = solutionFile.isDirectory();
-    if (!solutionFile.isDirectory()) {
-      ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class, getPentahoSession());
-      ISubscribeContent subscribeContent = subscriptionRepository.getContentByActionReference(fullPath); //$NON-NLS-1$
-      solutionFileInfo.isSubscribable = (subscribeContent != null) && (subscribeContent.getSchedules() != null && subscribeContent.getSchedules().size() > 0);
-    } else {
-      solutionFileInfo.isSubscribable = false;
-    }
-
-    solutionFileInfo.canEffectiveUserManage = isAdministrator() || repository.hasAccess(solutionFile, PentahoAclEntry.PERM_UPDATE_PERMS);
-    solutionFileInfo.supportsAccessControls = repository.supportsAccessControls();
-    if (solutionFileInfo.canEffectiveUserManage && solutionFileInfo.supportsAccessControls) {
-      ArrayList<RolePermission> rolePermissions = new ArrayList<RolePermission>();
-      ArrayList<UserPermission> userPermissions = new ArrayList<UserPermission>();
-      if (solutionFile instanceof IAclSolutionFile) {
-        Map<IPermissionRecipient, IPermissionMask> filePermissions = repository.getEffectivePermissions((solutionFile));
-        for (Map.Entry<IPermissionRecipient, IPermissionMask> filePerm : filePermissions.entrySet()) {
-          IPermissionRecipient permRecipient = filePerm.getKey();
-          if (permRecipient instanceof SimpleRole) {
-            // entry belongs to a role
-            rolePermissions.add(new RolePermission(permRecipient.getName(), filePerm.getValue().getMask()));
-          } else {
-            // entry belongs to a user
-            userPermissions.add(new UserPermission(permRecipient.getName(), filePerm.getValue().getMask()));
-          }
-        }
-      }
-      solutionFileInfo.userPermissions = userPermissions;
-      solutionFileInfo.rolePermissions = rolePermissions;
-    }
-    return solutionFileInfo;
-  }
-
-  public boolean hasAccess(String solutionName, String path, String fileName, int actionOperation) {
-    ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, getPentahoSession());
-    String fullPath = ActionInfo.buildSolutionPath(solutionName, path, fileName);
-    ISolutionFile solutionFile = repository.getSolutionFile(fullPath, actionOperation);
-    return solutionFile != null;
-  }
-
-  @SuppressWarnings("static-access")
-  public void setSolutionFileInfo(SolutionFileInfo fileInfo) throws SimpleMessageException {
-    if ("true".equalsIgnoreCase(PentahoSystem.getSystemSetting("kiosk-mode", "false"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      throw new SimpleMessageException(ServerMessages.getInstance().getString("featureDisabled")); //$NON-NLS-1$
-    }
-    try {
-      ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, getPentahoSession());
-      if (repository.supportsAccessControls()) {
-        String fullPath = ActionInfo.buildSolutionPath(fileInfo.solution, fileInfo.path, fileInfo.name);
-        ISolutionFile solutionFile = repository.getSolutionFile(fullPath, ISolutionRepository.ACTION_SHARE);
-
-        Map<IPermissionRecipient, IPermissionMask> origAcl = repository.getEffectivePermissions((solutionFile));
-
-        Map<IPermissionRecipient, IPermissionMask> acl = new HashMap<IPermissionRecipient, IPermissionMask>();
-        for (UserPermission userPermission : fileInfo.userPermissions) {
-          acl.put(new SimpleUser(userPermission.name), new SimplePermissionMask(userPermission.mask));
-        }
-        for (RolePermission rolePermission : fileInfo.rolePermissions) {
-          acl.put(new SimpleRole(rolePermission.name), new SimplePermissionMask(rolePermission.mask));
-        }
-
-        // only set the permissions if the user made a change to the effective
-        // acls (otherwise, keep inheriting);
-        // this will avoid creating access control entries in the database when
-        // they are the same as the ACEs
-        // that would be inherited!
-        if (!origAcl.equals(acl)) {
-          repository.setPermissions(solutionFile, acl);
-          repository.resetRepository();
-        }
-
-        if (!solutionFile.isDirectory()) {
-          ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class, getPentahoSession());
-          String actionRef = fileInfo.solution + fileInfo.path + "/" + fileInfo.name; //$NON-NLS-1$
-          ISubscribeContent subscribeContent = subscriptionRepository.getContentByActionReference(actionRef);
-          if (fileInfo.isSubscribable && subscribeContent == null) {
-            // make this actionRef subscribable
-            subscriptionRepository.addContent(actionRef, ""); //$NON-NLS-1$
-          } else if (!fileInfo.isSubscribable && subscribeContent != null) {
-            // remove this actionRef from the subscribable list
-            subscriptionRepository.deleteSubscribeContent(subscribeContent);
-          }
-        }
-      }
-    } catch (Exception e) {
-      // e.printStackTrace();
-      throw new SimpleMessageException(e.getMessage());
-    } finally {
-    }
+  public boolean hasAccess(String path, String fileName, int actionOperation) {
+    return true;
   }
 
   public boolean doesSolutionRepositorySupportPermissions() {
@@ -929,13 +774,13 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
       final ISubscription currentSubscr = subscrIter.next();
       final ActionInfo actionInfo = ActionInfo.parseActionString(currentSubscr.getContent().getActionReference());
       String localizedName = actionInfo.getActionName();
-      try {
-        SolutionFileInfo info = getSolutionFileInfo(actionInfo.getSolutionName(), actionInfo.getPath(), actionInfo.getActionName());
-        localizedName = info.getLocalizedName();
-      } catch (NullPointerException npe) {
-        logger.error(npe.getMessage(), npe);
-        continue;
-      }
+//      try {
+//        SolutionFileInfo info = getSolutionFileInfo(actionInfo.getPath(), actionInfo.getActionName());
+//        localizedName = info.getLocalizedName();
+//      } catch (NullPointerException npe) {
+//        logger.error(npe.getMessage(), npe);
+//        continue;
+//      }
 
       Schedule schedule = null;
       final Iterator<ISchedule> schedIterator = currentSubscr.getSchedules().iterator();

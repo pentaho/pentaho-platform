@@ -193,8 +193,9 @@ public class QuartzScheduler implements IScheduler {
       if (interval > 0) {
         interval *= 1000;
       }
+      int repeatCount = simpleTrigger.getRepeatCount() < 0 ? SimpleTrigger.REPEAT_INDEFINITELY : simpleTrigger.getRepeatCount();
       quartzTrigger = new SimpleTrigger(jobId.toString(), jobId.getUserName(), simpleTrigger.getStartTime(),
-          simpleTrigger.getEndTime(), simpleTrigger.getRepeatCount(), interval);
+          simpleTrigger.getEndTime(), repeatCount, interval);
     } else {
       throw new SchedulerException(Messages.getInstance().getString("QuartzScheduler.ERROR_0002_TRIGGER_WRONG_TYPE")); //$NON-NLS-1$
     }

@@ -475,11 +475,16 @@ public class SolutionBrowserPerspective extends HorizontalPanel {
     return id;
   }
 
-  public void openFile(final String fileNameWithPath, final String localizedFileName, final FileCommand.COMMAND mode) {
+  public List<String> getExecutableFileExtensions() {
+    return executableFileExtensions;
+  }
+  
+  public void openFile(final RepositoryFile repositoryFile, final FileCommand.COMMAND mode) {
+    String fileNameWithPath = repositoryFile.getPath();
     if (mode == FileCommand.COMMAND.EDIT) {
       editFile();
     } else if (mode == FileCommand.COMMAND.SCHEDULE_NEW) {
-      ScheduleHelper.createSchedule(fileNameWithPath);
+      ScheduleHelper.createSchedule(repositoryFile);
     } else if (mode == FileCommand.COMMAND.SHARE) {
       (new ShareFileCommand()).execute();
     } else {
@@ -497,7 +502,7 @@ public class SolutionBrowserPerspective extends HorizontalPanel {
         if (mode == FileCommand.COMMAND.NEWWINDOW) {
           Window.open(url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no"); //$NON-NLS-1$ //$NON-NLS-2$
         } else {
-          contentTabPanel.showNewURLTab(localizedFileName, localizedFileName, url, true);
+          contentTabPanel.showNewURLTab(repositoryFile.getTitle(), repositoryFile.getTitle(), url, true);
       }
         }
           }
@@ -582,13 +587,12 @@ public class SolutionBrowserPerspective extends HorizontalPanel {
           return;
         }
 
-    FileItem item = filesListPanel.getSelectedFileItems().get(0);
-    RepositoryFile file = item.getRepositoryFile();
+    RepositoryFile file = filesListPanel.getSelectedFileItems().get(0).getRepositoryFile();
     if (file.getName().endsWith(".analysisview.xaction")) { //$NON-NLS-1$
-      openFile(item.getPath(), item.getLocalizedName(), COMMAND.RUN);
+      openFile(file, COMMAND.RUN);
     } else {
       // check to see if a plugin supports editing
-      ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(item.getName());
+      ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(file.getName());
       if (plugin != null && plugin.hasCommand(COMMAND.EDIT)) {
         // load the editor for this plugin
         String editUrl = getPath() +  "api/repos/" + pathToId(file.getPath()) + "/" + (plugin != null && (plugin.getCommandPerspective(COMMAND.EDIT) != null) ? plugin.getCommandPerspective(COMMAND.EDIT):"editor"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$       
@@ -604,7 +608,7 @@ public class SolutionBrowserPerspective extends HorizontalPanel {
 
           contentTabPanel
               .showNewURLTab(
-                  Messages.getString("editingColon") + item.getLocalizedName(), Messages.getString("editingColon") + item.getLocalizedName(), editUrl, true); //$NON-NLS-1$ //$NON-NLS-2$
+                  Messages.getString("editingColon") + file.getTitle(), Messages.getString("editingColon") + file.getTitle(), editUrl, true); //$NON-NLS-1$ //$NON-NLS-2$
 
         // Store representation of file in the frame for reference later when
         // save is called
@@ -684,7 +688,7 @@ public class SolutionBrowserPerspective extends HorizontalPanel {
               }
             }
           };
-          MantleServiceCache.getService().hasAccess(selectedFileItem.getSolution(), selectedFileItem.getRepositoryFile().getPath(),
+          MantleServiceCache.getService().hasAccess(selectedFileItem.getRepositoryFile().getPath(),
               selectedFileItem.getRepositoryFile().getName(), 3, callback);
         } else {
           contentTabPanel.showNewURLTab(selectedFileItem.getLocalizedName(), selectedFileItem.getLocalizedName(), url,

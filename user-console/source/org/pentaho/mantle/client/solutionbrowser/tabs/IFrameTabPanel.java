@@ -90,7 +90,6 @@ public class IFrameTabPanel extends VerticalPanel {
   public void setFileInfo(FileItem item) {
     SolutionFileInfo fileInfo = new SolutionFileInfo();
     fileInfo.setName(item.getName());
-    fileInfo.setSolution(item.getSolution());
     fileInfo.setPath(item.getPath());
     setFileInfo(fileInfo);
   }

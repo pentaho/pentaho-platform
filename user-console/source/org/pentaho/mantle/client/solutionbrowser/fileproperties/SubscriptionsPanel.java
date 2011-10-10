@@ -257,7 +257,7 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
           subSchedule.id = appliedLB.getValue(i);
           currentSchedules.add(subSchedule);
         }
-        MantleServiceCache.getService().setSubscriptions(fileSummary.getSolution(), fileSummary.getPath(), fileSummary.getName(), enableSubscriptions.isChecked(), currentSchedules, callback); //$NON-NLS-1$
+        MantleServiceCache.getService().setSubscriptions("", fileSummary.getPath(), fileSummary.getName(), enableSubscriptions.isChecked(), currentSchedules, callback); //$NON-NLS-1$
       }
     }
   }
@@ -310,7 +310,7 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
       }
 
     };
-    MantleServiceCache.getService().getSubscriptionState(fileSummary.getSolution(), fileSummary.getPath(), fileSummary.getName(), callBack); //$NON-NLS-1$
+    MantleServiceCache.getService().getSubscriptionState("", fileSummary.getPath(), fileSummary.getName(), callBack); //$NON-NLS-1$
   }
 
 }

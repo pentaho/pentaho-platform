@@ -32,7 +32,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class SimpleJobTrigger extends JobTrigger implements Serializable {
   private static final long serialVersionUID = 7838270781497116177L;
-  private int repeatCount;
+  public static final int REPEAT_INDEFINITELY = -1;
+  private int repeatCount = -1;
   private long repeatInterval;
   
   public SimpleJobTrigger(Date startTime, Date endTime, int repeatCount, long repeatIntervalSeconds) {

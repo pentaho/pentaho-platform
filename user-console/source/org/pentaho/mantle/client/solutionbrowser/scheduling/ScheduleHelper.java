@@ -3,6 +3,7 @@ package org.pentaho.mantle.client.solutionbrowser.scheduling;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.messages.Messages;
@@ -11,9 +12,6 @@ import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPerspective;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper.ContentTypePlugin;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 
 import com.google.gwt.http.client.Request;
@@ -53,7 +51,7 @@ public class ScheduleHelper {
           public void onSuccess(Boolean subscribable) {
 
             if (subscribable) {
-              NewScheduleDialog dialog = new NewScheduleDialog("", fileNameWithPath, "");
+              NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath);
               dialog.center();
             } else {
               MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("info"), //$NON-NLS-1$
@@ -62,7 +60,7 @@ public class ScheduleHelper {
             }
           }
         };
-        MantleServiceCache.getService().hasAccess("", fileNameWithPath, "", 3, callback);
+        MantleServiceCache.getService().hasAccess(fileNameWithPath, "", 3, callback);
 
       }
 
@@ -83,43 +81,20 @@ public class ScheduleHelper {
     MantleServiceCache.getService().isAuthenticated(callback);
   }
 
-  public static void createSchedule(final String fileNameWithPath) {
+  public static void createSchedule(final RepositoryFile repositoryFile) {
     AbstractCommand scheduleCommand = new AbstractCommand() {
 
       private void schedule() {
-        AsyncCallback<SolutionFileInfo> callback = new AsyncCallback<SolutionFileInfo>() {
-
-          public void onFailure(Throwable caught) {
-            // show error
-            final MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), caught.toString(), false, false, true); //$NON-NLS-1$
-            dialogBox.center();
+        String extension = ""; //$NON-NLS-1$
+        if (repositoryFile.getPath().lastIndexOf(".") > 0) { //$NON-NLS-1$
+          extension = repositoryFile.getPath().substring(repositoryFile.getPath().lastIndexOf(".") + 1); //$NON-NLS-1$
           }
 
-          public void onSuccess(SolutionFileInfo fileInfo) {
-            if (fileInfo.isSubscribable) {
-              if (fileInfo.getType().equals(SolutionFileInfo.Type.PLUGIN)) {
-                // see if this file is a plugin
-                ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(fileInfo.getName());
-                // TODO need to figure out the url for command. We don't support this anymore
-                String url = null; //plugin.getCommandUrl(selectedFileItem, COMMAND.SCHEDULE_NEW);
-                String displayName = fileInfo.getLocalizedName();
-                if (displayName == null || displayName.length() < 1) {
-                  displayName = fileInfo.getName();
-                }
-                SolutionBrowserPerspective.getInstance().getContentTabPanel().showNewURLTab(displayName, displayName, url, false);
+        if (SolutionBrowserPerspective.getInstance().getExecutableFileExtensions().contains(extension)) {
+          showScheduleDialog(repositoryFile.getPath());
               } else {
-                SolutionBrowserPerspective.getInstance().executeActionSequence(FileCommand.COMMAND.SUBSCRIBE);
-              }
-            } else {
-              if (fileInfo.getType().equals(SolutionFileInfo.Type.PLUGIN)) {
-                // see if this file is a plugin
-                ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(fileInfo.getName());
-                // TODO need to figure out the url for command. We don't support this anymore
-                String url = null; //plugin.getCommandUrl(selectedFileItem, COMMAND.SCHEDULE_NEW);
-                if (StringUtils.isEmpty(url)) {
-                  // content is not subscribable but the schedule url (subscription) is empty
                   final MessageDialogBox dialogBox = new MessageDialogBox(
-                      Messages.getString("open"), Messages.getString("scheduleInvalidFileType", fileNameWithPath), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+              Messages.getString("open"), Messages.getString("scheduleInvalidFileType", repositoryFile.getPath()), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
 
                   dialogBox.setCallback(new IDialogCallback() {
                     public void cancelPressed() {
@@ -133,18 +108,7 @@ public class ScheduleHelper {
                   dialogBox.center();
                   return;
                 }
-                // at this point we know that:
-                // 1. the file is not subscribable
-                // 2. there is a subscribe url in the plugin
-                // 3. the intention probably exists for the content to be schedulable
-                showScheduleDialog(fileNameWithPath);
-              } else {
-                showScheduleDialog(fileNameWithPath);
-              }
-            }
-          }
-        };
-        MantleServiceCache.getService().getSolutionFileInfo("", fileNameWithPath, "", callback);
+        
       }
 
       protected void performOperation() {

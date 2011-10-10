@@ -114,7 +114,6 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   private RepositoryFile repositoryFile;
   private ArrayList<IFileItemListener> listeners = new ArrayList<IFileItemListener>();
   private FileTypeEnabledOptions options;
-  private String solution;
   private String url;
   private String iconStr;
   private Image dropIndicator = new Image();
@@ -244,8 +243,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     Boolean shiftKeyDown = DOM.eventGetShiftKey(event);
     if ((DOM.eventGetType(event) & Event.ONDBLCLICK) == Event.ONDBLCLICK) {
       toggleSelect(false, false);
-      SolutionBrowserPerspective.getInstance().openFile(filesListPanel.getSelectedFileItems().get(0).getPath(), 
-          filesListPanel.getSelectedFileItems().get(0).getLocalizedName() , COMMAND.RUN);
+      SolutionBrowserPerspective.getInstance().openFile(filesListPanel.getSelectedFileItems().get(0).getRepositoryFile(), COMMAND.RUN);
     } else if ((DOM.eventGetType(event) & Event.ONCLICK) == Event.ONCLICK) {
       toggleSelect(metaKeyDown, shiftKeyDown);
       fireFileSelectionEvent();      
@@ -361,14 +359,6 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
 
   public void removeFileSelectionChangedListener(IFileItemListener listener) {
     listeners.remove(listener);
-  }
-
-  public String getSolution() {
-    return solution;
-  }
-
-  public void setSolution(String solution) {
-    this.solution = solution;
   }
 
   public String getPath() {

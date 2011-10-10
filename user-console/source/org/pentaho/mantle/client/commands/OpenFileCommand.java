@@ -63,7 +63,7 @@ public class OpenFileCommand extends AbstractCommand {
           @Override
           public void fileSelected(RepositoryFile repositoryFile, String filePath, String fileName, String title) {
             dialog.hide();
-            solutionBrowserPerspective.openFile(filePath, fileName, openMethod);
+            solutionBrowserPerspective.openFile(repositoryFile, openMethod);
           }
 
           @Override

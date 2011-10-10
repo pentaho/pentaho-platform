@@ -70,12 +70,10 @@ public interface MantleServiceAsync {
   public void getWorkspaceContent(AsyncCallback<WorkspaceContent> callback);
   
   // file api
-  public void getSolutionFileInfo(String solutionName, String path, String fileName, AsyncCallback<SolutionFileInfo> callback);
-  public void setSolutionFileInfo(SolutionFileInfo fileInfo, AsyncCallback<Void> callback);
   public void getAllUsers(AsyncCallback<ArrayList<String>> callback);
   public void getAllRoles(AsyncCallback<ArrayList<String>> callback);
   public void doesSolutionRepositorySupportPermissions(AsyncCallback<Boolean> callback);
-  public void hasAccess(String solutionName, String path, String fileName, int actionOperation, AsyncCallback<Boolean> callback);
+  public void hasAccess(String path, String fileName, int actionOperation, AsyncCallback<Boolean> callback);
   
   // mantle settings
   public void getMantleSettings(AsyncCallback<HashMap<String,String>> callback);

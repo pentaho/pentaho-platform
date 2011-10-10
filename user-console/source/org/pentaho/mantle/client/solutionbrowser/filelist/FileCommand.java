@@ -103,7 +103,7 @@ public class FileCommand implements Command {
     
     if (mode == COMMAND.RUN || mode == COMMAND.NEWWINDOW) {
       if(selectedItem != null) {
-        sbp.openFile(selectedItem.getPath(), selectedItem.getLocalizedName(), mode);
+        sbp.openFile(selectedItem.getRepositoryFile(), mode);
       }
     } else if (mode == COMMAND.PROPERTIES) {
       new FilePropertiesCommand(fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get(0) : fileSummary, FilePropertiesDialog.Tabs.GENERAL).execute();
@@ -117,7 +117,7 @@ public class FileCommand implements Command {
     } else if (mode == COMMAND.BACKGROUND) {
       new RunInBackgroundCommand(selectedItem).execute(true);
     } else if (mode == COMMAND.SCHEDULE_NEW) {
-      ScheduleHelper.createSchedule(selectedItem.getPath());
+      ScheduleHelper.createSchedule(selectedItem.getRepositoryFile());
     } else if (mode == COMMAND.SHARE) {
       new ShareFileCommand().execute();
     } else if (mode == COMMAND.IMPORT) {

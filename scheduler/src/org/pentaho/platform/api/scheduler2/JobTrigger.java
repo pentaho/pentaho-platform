@@ -17,7 +17,10 @@
  */
 package org.pentaho.platform.api.scheduler2;
 
+import java.io.Serializable;
 import java.util.Date;
+
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
  * The marker superclass for the various types of job triggers.
@@ -27,11 +30,13 @@ import java.util.Date;
  * @see SimpleJobTrigger
  * @see ComplexJobTrigger
  */
-public abstract class JobTrigger {
+@XmlSeeAlso({SimpleJobTrigger.class, ComplexJobTrigger.class, CronJobTrigger.class})
+public abstract class JobTrigger implements Serializable{
   public static final SimpleJobTrigger ONCE_NOW = new SimpleJobTrigger(new Date(), null, 0, 0L);
   
   private Date startTime;
   private Date endTime;
+  
   
   public JobTrigger() {
   }

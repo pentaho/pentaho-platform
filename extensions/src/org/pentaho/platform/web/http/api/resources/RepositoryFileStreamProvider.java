@@ -156,4 +156,9 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
     }
     return new RepositoryFileInputStream(repositoryFile);
   }
+
+  public String toString() {
+    // TODO Auto-generated method stub
+    return "input file = " + inputFilePath + ":" + "outputFile = " + outputFilePath;
+  }
 }

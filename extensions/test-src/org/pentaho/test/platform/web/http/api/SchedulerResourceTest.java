@@ -30,7 +30,7 @@ import org.pentaho.platform.plugin.services.pluginmgr.PlatformPlugin;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileReader;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileWriter;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
-import org.pentaho.platform.web.http.api.resources.SimpleJobScheduleRequest;
+import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.engine.security.userrole.ws.MockUserRoleListService;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -104,10 +104,10 @@ public class SchedulerResourceTest extends JerseyTest {
       Assert.fail();
     }
     
-    SimpleJobScheduleRequest jobScheduleRequest = new SimpleJobScheduleRequest();
+    JobScheduleRequest jobScheduleRequest = new JobScheduleRequest();
     jobScheduleRequest.setInputFile("/public/schedulerTest/inputFile.prpt");
     jobScheduleRequest.setOutputFile("/public/schedulerTest/outputFile.txt");
-    jobScheduleRequest.setJobTrigger(JobTrigger.ONCE_NOW);
+    jobScheduleRequest.setSimpleJobTrigger(JobTrigger.ONCE_NOW);
     
     WebResource webResource = resource();
     ClientResponse postResponse = webResource.path("scheduler/job").type(MediaType.APPLICATION_XML).post(ClientResponse.class, jobScheduleRequest);

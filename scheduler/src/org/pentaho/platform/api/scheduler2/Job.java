@@ -22,6 +22,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import antlr.debug.MessageAdapter;
+
 /**
  * A {@link Job} is a representation of the union between an action to be
  * performed, data to be supplied, and a schedule upon which the action will be fired.  
@@ -38,6 +44,7 @@ import java.util.Map;
  * 
  * @author aphillips
  */
+@XmlRootElement
 public class Job {
 
   public enum JobState {NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN};
@@ -46,15 +53,18 @@ public class Job {
   Map<String, Serializable> jobParams = new HashMap<String, Serializable>();
   Date lastRun;
   Date nextRun;
+  @XmlTransient
   String schedulableClass;
   String jobId;
   String userName;
   String jobName;
+  @XmlTransient
   JobState state = JobState.UNKNOWN;
   
   /**
    * @return the trigger that determines when the job executes
    */
+  @XmlJavaTypeAdapter(JobTriggerAdapter.class)
   public JobTrigger getJobTrigger() {
     return jobTrigger;
   }
@@ -63,6 +73,7 @@ public class Job {
    * @return the map containing the parameters to be passed to the action executed
    * by this job
    */
+  @XmlJavaTypeAdapter(JobParamsAdapter.class)
   public Map<String, Serializable> getJobParams() {
     return jobParams;
   }
@@ -85,6 +96,7 @@ public class Job {
   /**
    * @return the class name of the IAction that will be executed by this job.
    */
+  @XmlTransient
   public String getSchedulableClass() {
     return schedulableClass;
   }
@@ -182,6 +194,7 @@ public class Job {
   /**
    * @return the current job state
    */
+  @XmlTransient
   public JobState getState() {
     return state;
   }

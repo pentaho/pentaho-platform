@@ -89,7 +89,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
             FilesListPanel flp = sbp.getFilesListPanel();
             List<FileItem> items = flp.getSelectedFileItems();
             if(items != null && items.size() == 1) {
-              sbp.openFile(items.get(0).getPath(), items.get(0).getLocalizedName(), COMMAND.RUN);
+              sbp.openFile(items.get(0).getRepositoryFile(), COMMAND.RUN);
             }
           }
         }

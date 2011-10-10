@@ -119,8 +119,7 @@ public class GeneratedContentDialog extends PromptDialogBox implements TableList
       String dateStr = table.getText(selectedRow, 1);
       for (RepositoryFile fileDto : workspaceFiles) {
         if (dateStr.equals(fileDto.getCreatedDate().toLocaleString())) {
-          SolutionBrowserPerspective.getInstance().openFile(fileDto.getPath(), 
-          fileDto.getTitle() , COMMAND.RUN);
+          SolutionBrowserPerspective.getInstance().openFile(fileDto, COMMAND.RUN);
           break;
         }
       }

@@ -26,7 +26,6 @@ import java.util.Date;
 import org.pentaho.mantle.client.solutionbrowser.IFileSummary;
 
 public class SolutionFileInfo implements Serializable, IFileSummary {
-  public String solution;
   public String path;
   public String name;
   public String localizedName;
@@ -36,7 +35,6 @@ public class SolutionFileInfo implements Serializable, IFileSummary {
   public Type type;
   public String pluginTypeName;
   public boolean isDirectory = false;
-  public boolean isSubscribable = false;
   public boolean supportsAccessControls = true;
   public boolean canEffectiveUserManage = false;
   
@@ -48,14 +46,6 @@ public class SolutionFileInfo implements Serializable, IFileSummary {
   public SolutionFileInfo() {
   }
   
-  public String getSolution() {
-    return solution;
-  }
-
-  public void setSolution(String solution) {
-    this.solution = solution;
-  }
-
   public String getPath() {
     return path;
   }
@@ -102,14 +92,6 @@ public class SolutionFileInfo implements Serializable, IFileSummary {
 
   public void setDirectory(boolean isDirectory) {
     this.isDirectory = isDirectory;
-  }
-
-  public boolean isSubscribable() {
-    return isSubscribable;
-  }
-
-  public void setSubscribable(boolean isSubscribable) {
-    this.isSubscribable = isSubscribable;
   }
 
   public boolean isSupportsAccessControls() {

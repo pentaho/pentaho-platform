@@ -47,7 +47,7 @@ public class SolutionBrowserDragController extends PickupDragController{
       preview.removeFromParent();
       preview = null;
       MantleApplication.overlayPanel.setVisible(false);
-      notifyContentDragEnd(item.getSolution(), item.getPath(), item.getName(), item.getLocalizedName());
+      notifyContentDragEnd(item.getPath(), item.getName(), item.getLocalizedName());
       currentDragItem = null;
     }
 
@@ -117,9 +117,9 @@ public class SolutionBrowserDragController extends PickupDragController{
       return false;
     }-*/;
 
-    private native void notifyFrameOfDragEnd( Element e, int x, int y, String solution, String path, String name, String localizedName)/*-{
+    private native void notifyFrameOfDragEnd( Element e, int x, int y, String path, String name, String localizedName)/*-{
       try{
-        e.contentWindow.mantleDragEnd(x,y, solution, path, name, localizedName);
+        e.contentWindow.mantleDragEnd(x,y, "", path, name, localizedName);
       } catch(e){
         //alert(e);
       }
@@ -131,7 +131,7 @@ public class SolutionBrowserDragController extends PickupDragController{
     *
     * @return valid drop flag
     */
-    private void notifyContentDragEnd(String solution, String path, String name, String localizedName){
+    private void notifyContentDragEnd(String path, String name, String localizedName){
       if(contentTabPanel.getCurrentFrame() == null){
         return;
       }
@@ -139,7 +139,7 @@ public class SolutionBrowserDragController extends PickupDragController{
       int rawY = this.context.mouseY;
       int offsetX = rawX - contentTabPanel.getCurrentFrame().getFrame().getAbsoluteLeft();
       int offsetY = rawY - contentTabPanel.getCurrentFrame().getFrame().getAbsoluteTop();
-      notifyFrameOfDragEnd(contentTabPanel.getCurrentFrame().getFrame().getElement(), offsetX, offsetY, solution, path, name, localizedName);
+      notifyFrameOfDragEnd(contentTabPanel.getCurrentFrame().getFrame().getElement(), offsetX, offsetY, path, name, localizedName);
     }
 
     @Override
