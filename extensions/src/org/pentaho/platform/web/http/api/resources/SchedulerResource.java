@@ -120,6 +120,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
                 } else {
                   qualifiedDayOfWeek.setQualifier(DayOfWeekQualifier.values()[weekOfMonth]);
                 }
+                complexJobTrigger.addDayOfWeekRecurrence(qualifiedDayOfWeek);
               }
             }
           } else {
