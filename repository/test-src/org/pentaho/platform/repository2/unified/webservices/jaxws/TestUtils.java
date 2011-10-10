@@ -228,7 +228,7 @@ public class TestUtils {
         NodeRepositoryFileData.class);
     assertNotNull(file1DataAtVersion);
     assertEquals("ciao world", file1DataAtVersion.getNode().getProperty("prop1").getString());
-    RepositoryFileTree tree = repo.getTree(ClientRepositoryPaths.getRootFolderPath(), -1, null);
+    RepositoryFileTree tree = repo.getTree(ClientRepositoryPaths.getRootFolderPath(), -1, null, true);
     assertNotNull(tree.getFile().getId());
     assertNotNull(tree.getChildren().get(0).getFile().getId());
     System.out.println(tree);

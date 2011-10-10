@@ -66,8 +66,6 @@ public interface IUnifiedRepositoryWebServiceAsync {
 
   void unlockFile(java.lang.String fileId, AsyncCallback<Void> callback);
 
-  void getTree(java.lang.String path, int depth, java.lang.String filter, AsyncCallback<RepositoryFileTreeDto> callback);
-  
   void getTree(java.lang.String path, int depth, java.lang.String filter, boolean showHidden, AsyncCallback<RepositoryFileTreeDto> callback);
 
   void getAcl(java.lang.String fileId, AsyncCallback<RepositoryFileAclDto> callback);

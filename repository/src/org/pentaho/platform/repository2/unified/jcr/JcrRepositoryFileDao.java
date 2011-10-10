@@ -685,14 +685,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     });
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public RepositoryFileTree getTree(final String relPath, final int depth, final String filter) {
-    return getTree(relPath, depth, filter, true);
-  }
-
-  /**
+ /**
    * {@inheritDoc}
    */
 

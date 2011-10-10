@@ -160,7 +160,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     processBeans(plugin, doc);
     processWebservices(plugin, doc);
     processExternalResources(plugin, doc);
-    processPerspectives(plugin, doc);
+    //processPerspectives(plugin, doc);
     
     String listenerCount = (StringUtils.isEmpty(plugin.getLifecycleListenerClassname())) ? "0" : "1"; //$NON-NLS-1$//$NON-NLS-2$
 

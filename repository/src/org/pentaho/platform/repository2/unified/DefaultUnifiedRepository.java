@@ -416,14 +416,6 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
-  public RepositoryFileTree getTree(final String path, final int depth, final String filter) {
-    Assert.hasText(path);
-    return getTree(path, depth, filter, true);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public RepositoryFileTree getTree(final String path, final int depth, final String filter, final boolean showHidden) {
     Assert.hasText(path);
     return repositoryFileDao.getTree(path, depth, filter, showHidden);

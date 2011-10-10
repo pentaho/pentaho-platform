@@ -788,12 +788,6 @@ public class JcrRepositoryFileUtils {
 
   public static RepositoryFileTree getTree(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IOwnerLookupHelper ownerLookupHelper, final IPathConversionHelper pathConversionHelper,
-      final String absPath, final int depth, final String filter) throws RepositoryException {
-    return getTree(session, pentahoJcrConstants, ownerLookupHelper, pathConversionHelper, absPath, depth, filter, true);
-  }
-
-  public static RepositoryFileTree getTree(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IOwnerLookupHelper ownerLookupHelper, final IPathConversionHelper pathConversionHelper,
       final String absPath, final int depth, final String filter, final boolean showHidden)
       throws RepositoryException {
 

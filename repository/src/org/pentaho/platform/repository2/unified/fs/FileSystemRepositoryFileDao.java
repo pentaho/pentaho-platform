@@ -176,10 +176,6 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     return getFile(fileId.toString());
   }
 
-  public RepositoryFileTree getTree(String relPath, int depth, String filter) {
-    throw new UnsupportedOperationException("This operation is not support by this repository");
-  }
-
   public RepositoryFileTree getTree(String relPath, int depth, String filter, boolean showHidden) {
     throw new UnsupportedOperationException("This operation is not support by this repository");
   }

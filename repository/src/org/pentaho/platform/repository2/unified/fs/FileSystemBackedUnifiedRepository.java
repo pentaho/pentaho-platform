@@ -132,10 +132,6 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
     return repositoryFileDao.getFileById(fileId, loadLocaleMaps);
   }
 
-  public RepositoryFileTree getTree(String path, int depth, String filter) {
-    return getTree(path, depth, filter, true);
-  }
-
   public RepositoryFileTree getTree(String path, int depth, String filter, boolean showHidden) {
     return repositoryFileDao.getTree(path, depth, filter, showHidden);
   }

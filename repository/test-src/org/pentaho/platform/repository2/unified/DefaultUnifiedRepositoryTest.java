@@ -1775,23 +1775,23 @@ public class DefaultUnifiedRepositoryTest extends JackrabbitRepositoryTestBase i
     manager.startup();
     setUpRoleBindings();
     login(USERNAME_SUZY, TENANT_ID_ACME);
-    RepositoryFileTree root = repo.getTree(ClientRepositoryPaths.getRootFolderPath(), 0, null);
+    RepositoryFileTree root = repo.getTree(ClientRepositoryPaths.getRootFolderPath(), 0, null, true);
     assertNotNull(root.getFile());
     assertNull(root.getChildren());
 
-    root = repo.getTree(ClientRepositoryPaths.getRootFolderPath(), 1, null);
+    root = repo.getTree(ClientRepositoryPaths.getRootFolderPath(), 1, null, true);
     assertNotNull(root.getFile());
     assertNotNull(root.getChildren());
     assertFalse(root.getChildren().isEmpty());
     assertNull(root.getChildren().get(0).getChildren());
 
-    root = repo.getTree(ClientRepositoryPaths.getRootFolderPath(), -1, null);
+    root = repo.getTree(ClientRepositoryPaths.getRootFolderPath(), -1, null, true);
     assertNotNull(root.getFile());
     assertNotNull(root.getChildren());
     assertFalse(root.getChildren().isEmpty());
     assertFalse(root.getChildren().get(0).getChildren().isEmpty());
 
-    root = repo.getTree(ClientRepositoryPaths.getEtcFolderPath() + "/pdi", -1, "*Schema*");
+    root = repo.getTree(ClientRepositoryPaths.getEtcFolderPath() + "/pdi", -1, "*Schema*", true);
     assertEquals(2, root.getChildren().size());
   }
 

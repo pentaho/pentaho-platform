@@ -317,10 +317,6 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     return repoWebService.canUnlockFile(fileId.toString());
   }
 
-  public RepositoryFileTree getTree(final String path, final int depth, final String filter) {
-    return getTree(path, depth, filter, true);
-  }
-
   public RepositoryFileTree getTree(final String path, final int depth, final String filter, final boolean showHidden) {
     return repositoryFileTreeAdapter.unmarshal(repoWebService.getTree(path, depth, filter, showHidden));
   }
