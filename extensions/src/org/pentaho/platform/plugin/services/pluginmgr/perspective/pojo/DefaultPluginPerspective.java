@@ -60,7 +60,6 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective#getLayoutPriority()
    */
-  @Override
   public int getLayoutPriority() {
     return layoutPriority;
   }
@@ -68,7 +67,6 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective#setLayoutPriority(int)
    */
-  @Override
   public void setLayoutPriority(int layoutPriority) {
     this.layoutPriority = layoutPriority;
   }
