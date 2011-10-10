@@ -27,6 +27,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -137,10 +138,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
         for (int year : proxyTrigger.getYears()) {
           complexJobTrigger.addYearlyRecurrence(year);
         }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(complexJobTrigger.getStartTime());
+        complexJobTrigger.setHourlyRecurrence(calendar.get(Calendar.HOUR_OF_DAY));
+        complexJobTrigger.setMinuteRecurrence(calendar.get(Calendar.MINUTE));
         jobTrigger = complexJobTrigger;
       } else if (scheduleRequest.getCronString() != null) {
         if (scheduler instanceof QuartzScheduler) {
-          jobTrigger = ((QuartzScheduler)scheduler).createComplexTrigger(scheduleRequest.getCronString());
+          jobTrigger = QuartzScheduler.createComplexTrigger(scheduleRequest.getCronString());
         } else {
           throw new IllegalArgumentException();
         }
