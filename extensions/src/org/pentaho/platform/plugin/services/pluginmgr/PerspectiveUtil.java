@@ -46,8 +46,8 @@ public class PerspectiveUtil {
           layoutPriority = DEFAULT_LAYOUT_PRIORITY;
         }
       }
-      XulOverlay menuOverlay = processOverlay((Element)perspectiveNode.selectSingleNode("//menu-overlay")); //$NON-NLS-1$
-      XulOverlay toolbarOverlay = processOverlay((Element)perspectiveNode.selectSingleNode("//toolbar-overlay")); //$NON-NLS-1$
+      XulOverlay menuOverlay = processOverlay((Element)perspectiveNode.selectSingleNode("menu-overlay")); //$NON-NLS-1$
+      XulOverlay toolbarOverlay = processOverlay((Element)perspectiveNode.selectSingleNode("toolbar-overlay")); //$NON-NLS-1$
       
       IPluginPerspective perspective = new DefaultPluginPerspective();
       perspective.setTitle(title);
