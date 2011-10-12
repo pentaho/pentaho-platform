@@ -51,7 +51,8 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    * @param platformRoles Sorted list of the roles defined in the catalog
    * @return
    */
-  protected abstract String[] mapRoles(String[] mondrianRoles, String[] platformRoles);
+  protected abstract String[] mapRoles(String[] mondrianRoles, String[] platformRoles)
+      throws PentahoAccessControlException;
   
   /**
    * This method returns the role names as found in the Mondrian schema. The returned names

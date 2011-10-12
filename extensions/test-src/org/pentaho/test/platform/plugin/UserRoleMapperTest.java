@@ -212,6 +212,21 @@ public class UserRoleMapperTest {
     final MondrianLookupMapUserRoleListMapper mapper = new MondrianLookupMapUserRoleListMapper();
     mapper.setLookupMap(lookup);
 
+    mapper.setFailOnEmptyRoleList(true);
+    try {
+      SecurityHelper.runAsUser("joe", new Callable<String[]>() {
+        @Override
+        public String[] call() throws Exception {
+          return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
+        }
+      });
+      Assert.fail();
+    } catch (PentahoAccessControlException e) {
+      // no op.
+    }
+
+    mapper.setFailOnEmptyRoleList(false);
+    
     try {
       String[] roles = SecurityHelper.runAsUser("joe", new Callable<String[]>() {
         @Override
@@ -248,16 +263,28 @@ public class UserRoleMapperTest {
   
   @Test
   public void testNoMatchMondrianOneToOneUserRoleListMapper() throws Exception {
-    final IConnectionUserRoleMapper mapper = new MondrianOneToOneUserRoleListMapper();
+    final MondrianOneToOneUserRoleListMapper mapper = new MondrianOneToOneUserRoleListMapper();
+    mapper.setFailOnEmptyRoleList(true);
     try {
-      String[] roles = SecurityHelper.runAsUser("joe", new Callable<String[]>() {
+      SecurityHelper.runAsUser("joe", new Callable<String[]>() {
+        @Override
+        public String[] call() throws Exception {
+          return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
+        }
+      });
+      Assert.fail();
+    } catch (PentahoAccessControlException e) {
+        // No op.
+    }
+    mapper.setFailOnEmptyRoleList(false);
+    try {
+      String[] roles = SecurityHelper.runAsUser("simplebob", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles"); 
         }
       });
-      Assert.assertNull(roles);
-      
+      Assert.assertArrayEquals(new String[] {"Role1", "Role2"}, roles);
     } catch (PentahoAccessControlException e) {
       Assert.fail(e.getMessage());
     }

@@ -24,12 +24,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.plugin.action.messages.Messages;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 public class MondrianLookupMapUserRoleListMapper extends MondrianAbstractPlatformUserRoleMapper implements InitializingBean {
 
   private Map<String, String> lookupMap;
+  protected boolean failOnEmptyRoleList = true;
 
   /**
    * This version of the mapper uses a map that would be supplied in the spring configuration
@@ -54,14 +57,15 @@ public class MondrianLookupMapUserRoleListMapper extends MondrianAbstractPlatfor
    * she will receive the role M_ENG,M_SVCS (which mondrian will resolve additively).
    * 
    */
-  protected String[] mapRoles(String[] mondrianRoles, String[] platformRoles) {
-    String[] rtn = null;
+  protected String[] mapRoles(String[] mondrianRoles, String[] platformRoles)
+    throws PentahoAccessControlException
+  {
     // This mapper doesn't need the mondrian catalog to do the mapping
+    final ArrayList<String> mappedRolesList = new ArrayList<String>();
     if ( (mondrianRoles != null) && (platformRoles != null) ) {
-      ArrayList<String> mappedRolesList = new ArrayList<String>();
-      String aRole = null;
       for (int i=0; i<platformRoles.length; i++) {
-        aRole = lookupMap.get(platformRoles[i]); // Find what the platform role maps to in all of mondrian
+        final String aRole =
+          lookupMap.get(platformRoles[i]); // Find what the platform role maps to in all of mondrian
         if (aRole != null) { // OK, we found it.
           int foundIdx = Arrays.binarySearch(mondrianRoles, aRole); // For this model, does the mapped entity exist?
           if (foundIdx >=0) { // >=0 means we have it.
@@ -69,12 +73,17 @@ public class MondrianLookupMapUserRoleListMapper extends MondrianAbstractPlatfor
           }
         }
       }
-      if (mappedRolesList.size() > 0) {
-        // We were able to map the roles - return the mappings.
-        rtn = mappedRolesList.toArray(new String[mappedRolesList.size()]);
-      }
     }
-    return rtn;
+    if (mappedRolesList.size()>0) {
+      // We were able to map the roles - return the mappings.
+      return mappedRolesList.toArray(new String[mappedRolesList.size()]);
+    } else if (failOnEmptyRoleList) {
+        throw new PentahoAccessControlException(
+          Messages.getInstance().getErrorString(
+            "MondrianOneToOneUserRoleListMapper.ERROR_001_NO_CORRESPONDENCE")); //$NON-NLS-1$
+    } else {
+      return null;
+    }
   }
   
   public void setLookupMap(Map<String, String> value) {
@@ -88,5 +97,12 @@ public class MondrianLookupMapUserRoleListMapper extends MondrianAbstractPlatfor
   public void afterPropertiesSet() throws Exception {
     Assert.notNull(this.lookupMap);
   }
-  
+
+  public void setFailOnEmptyRoleList(boolean failOnEmptyRoleList) {
+    this.failOnEmptyRoleList = failOnEmptyRoleList;
+  }
+
+  public boolean isFailOnEmptyRoleList() {
+    return failOnEmptyRoleList;
+  }
 }

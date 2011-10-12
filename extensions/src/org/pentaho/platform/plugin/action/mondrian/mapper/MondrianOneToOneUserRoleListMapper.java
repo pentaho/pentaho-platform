@@ -23,20 +23,29 @@ package org.pentaho.platform.plugin.action.mondrian.mapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MondrianOneToOneUserRoleListMapper extends MondrianAbstractPlatformUserRoleMapper {
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.plugin.action.messages.Messages;
+import org.springframework.beans.factory.InitializingBean;
+
+public class MondrianOneToOneUserRoleListMapper
+  extends MondrianAbstractPlatformUserRoleMapper
+  implements InitializingBean
+{
+  protected boolean failOnEmptyRoleList = true;
   
   /**
    * This mapper maps directly from a Pentaho to a Mondrian role. This is useful when your
    * roles exist both in the platform and identically named in the mondrian catalog.
    */
-  protected String[] mapRoles(String[] mondrianRoles, String[] platformRoles) {
+  protected String[] mapRoles(String[] mondrianRoles, String[] platformRoles)
+    throws PentahoAccessControlException
+  {
     //
     // This class assumes that the platform roles list contains roles that
     // are defined in the mondrian schema. All roles that the user has 
     // that are defined in the mondrian schema are returned.
     //
     // Note - this mapper doesn't need the mondrian catalog to do the mapping
-    String[] rtn = null;
     ArrayList<String> rtnRoles = new ArrayList<String>();
     int posn;
     // For each platform role...
@@ -49,9 +58,26 @@ public class MondrianOneToOneUserRoleListMapper extends MondrianAbstractPlatform
       }
     }
     if (rtnRoles.size()>0) {
-      rtn = rtnRoles.toArray(new String[rtnRoles.size()]);
+      return rtnRoles.toArray(new String[rtnRoles.size()]);
+    } else if (failOnEmptyRoleList) {
+        throw new PentahoAccessControlException(
+          Messages.getInstance().getErrorString(
+            "MondrianOneToOneUserRoleListMapper.ERROR_001_NO_CORRESPONDENCE")); //$NON-NLS-1$
+    } else {
+      return null;
     }
-    return rtn;
   }
-  
+
+  public void setFailOnEmptyRoleList(boolean failOnEmptyRoleList) {
+    this.failOnEmptyRoleList = failOnEmptyRoleList;
+  }
+
+  public boolean isFailOnEmptyRoleList() {
+    return failOnEmptyRoleList;
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    // No op.
+  }
 }
