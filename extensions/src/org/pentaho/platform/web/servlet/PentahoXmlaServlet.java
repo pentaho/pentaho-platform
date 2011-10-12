@@ -17,20 +17,33 @@
 */
 package org.pentaho.platform.web.servlet;
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 
 import mondrian.server.DynamicContentFinder;
+import mondrian.spi.CatalogLocator;
+import mondrian.spi.impl.ServletContextCatalogLocator;
+import mondrian.xmla.XmlaHandler.ConnectionFactory;
 import mondrian.xmla.impl.DynamicDatasourceXmlaServlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Node;
+import org.olap4j.OlapConnection;
+import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.util.XmlParseException;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
+import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.xml.sax.EntityResolver;
@@ -62,7 +75,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
   // ~ Methods =========================================================================================================
 
-  
+  @Override
   protected DynamicContentFinder makeContentFinder(String dataSourcesUrl) {
     return new DynamicContentFinder(dataSourcesUrl) {
       @Override
@@ -96,7 +109,30 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
       }
     };
   }
+  
+  @Override
+  protected CatalogLocator makeCatalogLocator(ServletConfig servletConfig) {
+    return new ServletContextCatalogLocator(servletConfig.getServletContext()) {
+      @Override
+      public String locate(String catalogPath) {
+        if (catalogPath.startsWith("solution:")) { //$NON-NLS-1$
+          catalogPath = catalogPath.substring(9);
+          if (catalogPath.startsWith("/")) {
+            catalogPath = catalogPath.substring(1);
+          }
+          return
+            "file:" + //$NON-NLS-1$
+            PentahoSystem
+              .getApplicationContext()
+              .getSolutionPath(catalogPath);
+        } else {
+          return super.locate(catalogPath);
+        }
+      }
+    };
+  }
 
+  @Override
   protected String makeDataSourcesUrl(ServletConfig config) {
     final String path =
       "file:" + //$NON-NLS-1$
@@ -111,5 +147,91 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
             path));
     }
     return path;
+  }
+  
+  @Override
+  protected ConnectionFactory createConnectionFactory(ServletConfig servletConfig) throws ServletException {
+      
+    final ConnectionFactory delegate =
+      super.createConnectionFactory(servletConfig);
+    
+    /*
+     * This wrapper for the connection factory allows us to
+     * override the list of roles with the ones defined in
+     * the IPentahoSession and filter it through the
+     * IConnectionUserRoleMapper.
+     */
+    return new ConnectionFactory() {
+
+      public Map<String, Object> getPreConfiguredDiscoverDatasourcesResponse() {
+        return delegate.getPreConfiguredDiscoverDatasourcesResponse();
+      }
+      
+      
+      public OlapConnection getConnection(
+        String databaseName,
+        String catalogName,
+        String roleName,
+        Properties props)
+        throws SQLException
+      {
+        // What we do here is to filter the role names with the mapper.
+        // First, get a user role mapper, if one is configured.
+        final IPentahoSession session =
+          PentahoSessionHolder.getSession();
+        
+        final IConnectionUserRoleMapper mondrianUserRoleMapper =
+          PentahoSystem.get(
+              IConnectionUserRoleMapper.class,
+              MDXConnection.MDX_CONNECTION_MAPPER_KEY,
+              null); // Don't use the user session here yet.
+        
+        String[] effectiveRoles = new String[0];
+        
+        /*
+         * If Catalog/Schema are null (this happens with high level metadata requests,
+         * like DISCOVER_DATASOURCES) we can't use the role mapper, even if it
+         * is present and configured. 
+         */
+        if (mondrianUserRoleMapper != null
+            && catalogName != null) 
+        {
+          // Use the role mapper.
+          try {
+            effectiveRoles =
+              mondrianUserRoleMapper
+                .mapConnectionRoles(
+                  session,
+                  catalogName);
+            if (effectiveRoles == null) {
+              effectiveRoles = new String[0];
+            }
+          } catch (PentahoAccessControlException e) {
+            throw new SQLException(e);
+          }
+        }
+        
+        // Now we tokenize that list.
+        boolean addComma = false;
+        roleName = ""; //$NON-NLS-1$
+        for (String role : effectiveRoles) {
+          if (addComma) {
+            roleName = roleName.concat(","); //$NON-NLS-1$
+          }
+          roleName = roleName.concat(role);
+          addComma = true;
+        }
+        
+        // Now let the delegate connection factory do its magic.
+        return 
+          delegate.getConnection(
+            databaseName,
+            catalogName,
+            roleName.equals("")
+              ? null
+              : roleName,
+            props);
+      }
+    };
   }
 }
