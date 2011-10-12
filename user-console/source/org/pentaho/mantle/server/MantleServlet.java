@@ -1071,6 +1071,15 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
 
   public ArrayList<IPluginPerspective> getPluginPerpectives() {
     IPluginPerspectiveManager manager = PentahoSystem.get(IPluginPerspectiveManager.class, getPentahoSession()); //$NON-NLS-1$
+
+    for (IPluginPerspective perspective : manager.getPluginPerspectives()) {
+      if (perspective.getToolBarOverlay() != null) {
+        XulOverlay orig = perspective.getToolBarOverlay();
+        MantleXulOverlay tmpOverlay = new MantleXulOverlay(orig.getId(), orig.getOverlayUri(), orig.getSource(), orig.getResourceBundleUri());
+        perspective.setToolBarOverlay(tmpOverlay);
+      }
+    }
+    
     return new ArrayList<IPluginPerspective>(manager.getPluginPerspectives());
 //    ArrayList<IPluginPerspective> perspectives = new ArrayList<IPluginPerspective>();
 //    
