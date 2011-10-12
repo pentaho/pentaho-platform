@@ -144,9 +144,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
         complexJobTrigger.setHourlyRecurrence(calendar.get(Calendar.HOUR_OF_DAY));
         complexJobTrigger.setMinuteRecurrence(calendar.get(Calendar.MINUTE));
         jobTrigger = complexJobTrigger;
-      } else if (scheduleRequest.getCronString() != null) {
+      } else if (scheduleRequest.getCronJobTrigger() != null) {
         if (scheduler instanceof QuartzScheduler) {
-          jobTrigger = QuartzScheduler.createComplexTrigger(scheduleRequest.getCronString());
+          ComplexJobTrigger complexJobTrigger = QuartzScheduler.createComplexTrigger(scheduleRequest.getCronJobTrigger().getCronString());
+          complexJobTrigger.setStartTime(scheduleRequest.getCronJobTrigger().getStartTime());
+          complexJobTrigger.setEndTime(scheduleRequest.getCronJobTrigger().getEndTime());
+          jobTrigger = complexJobTrigger;
         } else {
           throw new IllegalArgumentException();
         }

@@ -64,12 +64,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   
   ScheduleEditorWizardPanel scheduleEditorWizardPanel = new ScheduleEditorWizardPanel();
   
-  String path;
-  
+  String path; 
   Boolean done = false;
-  /**
-   * @param path
-   */
+
   public NewScheduleDialog(String path) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     this.path = path;
@@ -83,6 +80,19 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     JSONObject trigger = new JSONObject();
     trigger.put("repeatInterval", new JSONNumber(interval)); //$NON-NLS-1$
     trigger.put("repeatCount", new JSONNumber(repeatCount)); //$NON-NLS-1$
+    trigger.put("startTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDate))); //$NON-NLS-1$
+    if (endDate != null) {
+      endDate.setHours(23);
+      endDate.setMinutes(59);
+      endDate.setSeconds(59);
+    }
+    trigger.put("endTime", endDate == null ? JSONNull.getInstance() : new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate))); //$NON-NLS-1$
+    return trigger;
+  }
+  
+  protected JSONObject getJsonCronTrigger(String cronString, Date startDate, Date endDate) {
+    JSONObject trigger = new JSONObject();
+    trigger.put("cronString", new JSONString(cronString)); //$NON-NLS-1$
     trigger.put("startTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDate))); //$NON-NLS-1$
     if (endDate != null) {
       endDate.setHours(23);
@@ -197,9 +207,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         scheduleRequest.put("complexJobTrigger", getJsonComplexTrigger(null, null, scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedDaysOfWeek(), startDateTime, endDate));//$NON-NLS-1$
       }      
     } else if (scheduleType == ScheduleType.CRON) { // Cron jobs 
-//      MantleServiceCache.getService().createSimpleTriggerJob(triggerName, triggerGroup, description, startDateTime, endDate, repeatCount, repeatInterval, solutionName, path, actionName, scheduleCallback);
+      scheduleRequest.put("cronJobTrigger", getJsonCronTrigger(scheduleEditorWizardPanel.getScheduleEditor().getCronString(), startDateTime, endDate));//$NON-NLS-1$
     } else if ((scheduleType == ScheduleType.WEEKLY) && (daysOfWeek.size() > 0)) {
-        scheduleRequest.put("complexJobTrigger", getJsonComplexTrigger(null, null, scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedDaysOfWeek(), startDateTime, endDate));//$NON-NLS-1$
+      scheduleRequest.put("complexJobTrigger", getJsonComplexTrigger(null, null, scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedDaysOfWeek(), startDateTime, endDate));//$NON-NLS-1$
     } else if ((scheduleType == ScheduleType.MONTHLY) || ((scheduleType == ScheduleType.YEARLY) && (monthOfYear != null))) {
       if (dayOfMonth != null) {
         scheduleRequest.put("complexJobTrigger", getJsonComplexTrigger(monthOfYear, dayOfMonth, startDateTime, endDate));//$NON-NLS-1$

@@ -7,18 +7,17 @@ public class CronJobTrigger extends JobTrigger {
   String cronString;
 
   public CronJobTrigger() {
-    this.cronString = cronString;
   }
   
   protected CronJobTrigger(String cronString) {
     this.cronString = cronString;
   }
   
-  public String getCrongString() {
+  public String getCronString() {
     return cronString;
   }
 
-  public void setCrongString(String crongString) {
+  public void setCronString(String crongString) {
     this.cronString = crongString;
   }
 

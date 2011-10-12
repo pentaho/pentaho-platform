@@ -25,6 +25,7 @@ import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.pentaho.platform.api.scheduler2.CronJobTrigger;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 
 @XmlRootElement
@@ -57,7 +58,7 @@ public class JobScheduleRequest implements Serializable {
   String inputFile;
   String outputFile;
    
-  String cronString;
+  CronJobTrigger cronJobTrigger;
   ComplexJobTriggerProxy complexJobTrigger;
   SimpleJobTrigger simpleJobTrigger;
   
@@ -77,25 +78,26 @@ public class JobScheduleRequest implements Serializable {
     this.outputFile = file;
   }
   
-  public String getCronString() {
-    return cronString;
+  public CronJobTrigger getCronJobTrigger() {
+    return cronJobTrigger;
   }
 
-  public void setCronString(String cronString) {
-    if (cronString != null) {
+  public void setCronJobTrigger(CronJobTrigger jobTrigger) {
+    if (jobTrigger != null) {
       setComplexJobTrigger(null);
       setSimpleJobTrigger(null);
     }
-    this.cronString = cronString;
+    this.cronJobTrigger = jobTrigger;
   }
 
+  
   public ComplexJobTriggerProxy getComplexJobTrigger() {
     return complexJobTrigger;
   }
   
   public void setComplexJobTrigger(ComplexJobTriggerProxy jobTrigger) {
     if (jobTrigger != null) {
-      setCronString(null);
+      setCronJobTrigger(null);
       setSimpleJobTrigger(null);
     }
     this.complexJobTrigger = jobTrigger;
@@ -107,7 +109,7 @@ public class JobScheduleRequest implements Serializable {
   
   public void setSimpleJobTrigger(SimpleJobTrigger jobTrigger) {
     if (jobTrigger != null) {
-      setCronString(null);
+      setCronJobTrigger(null);
       setComplexJobTrigger(null);
     }
     this.simpleJobTrigger = jobTrigger;
