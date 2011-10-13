@@ -19,6 +19,7 @@
 package org.pentaho.platform.api.engine.perspective.pojo;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import org.pentaho.ui.xul.XulOverlay;
 
@@ -41,4 +42,8 @@ public interface IPluginPerspective extends Serializable {
   
   public int getLayoutPriority();
   public void setLayoutPriority(int layoutPriority);
+  
+  public ArrayList<String> getRoles();
+  public void setRoles(ArrayList<String> roles);
+
 }
