@@ -1,0 +1,47 @@
+<html>
+	<head>
+		<title>Test Perspective Content</title>
+	</head>
+	
+	<body bgcolor="white">
+		<H1>It worked!</H1>
+		<p>
+		If you are viewing this the default test perspective successfully loaded.
+		</p>
+		<p>
+		This perspective defines a javascript function which is associated with a button on the main toolbar.
+		<p>
+		The main toolbar in PUC is now interactive.  You can check the state of any button and toggle enable/disable.
+		</p>
+		<p>
+		The button has an id of "default.perspective.test.overlay.button".  
+		To check the state invoke:<BR>
+		<code>
+			var enabled = window.top.mantle_isToolbarButtonEnabled("default.perspective.test.overlay.button");
+		</code>
+		</p>
+		
+		<p>
+		To toggle set the state:<BR>
+		<code>
+			window.top.mantle_setToolbarButtonEnabled("default.perspective.test.overlay.button", !enabled);
+		</code>
+		</p>
+		
+		<p>
+		Click to <button onclick="alert(window.top.mantle_isToolbarButtonEnabled('default.perspective.test.overlay.button'))">read</button> state (enabled/disabled) state of PUC main toolbar button.
+		<BR>
+		Click to <button onclick="window.top.mantle_setToolbarButtonEnabled('default.perspective.test.overlay.button', true)">enable</button> PUC main toolbar button.
+		<BR>
+		Click to <button onclick="window.top.mantle_setToolbarButtonEnabled('default.perspective.test.overlay.button', false)">disable</button> PUC main toolbar button.
+		</p>
+		
+	</body>
+	
+	<script type="text/javascript">
+		window.top.defaultTestPerspectiveFunction = function() {
+			alert('Success!');
+		}
+	</script>
+	
+</html>

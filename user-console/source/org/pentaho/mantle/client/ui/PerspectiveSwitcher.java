@@ -22,10 +22,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.mantle.client.MantleApplication;
-import org.pentaho.mantle.client.XulMainToolbar;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.toolbars.XulMainToolbar;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
 
@@ -48,7 +49,7 @@ public class PerspectiveSwitcher extends HorizontalPanel {
   // create an overlay list to later register with the main toolbar
   private ArrayList<XulOverlay> toolbarOverlays = new ArrayList<XulOverlay>();
 
-  private ToggleButton defaultPerspective;
+  private ArrayList<IPluginPerspective> perspectives;
 
   public PerspectiveSwitcher() {
     setWidth("100%");
@@ -66,7 +67,13 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     MantleServiceCache.getService().getPluginPerpectives(callback);
   }
 
+  // public void selectDefaultPerspective() {
+  // showPerspective(toggles.get(0), perspectives.get(0));
+  // }
+
   protected void setPluginPerspectives(final ArrayList<IPluginPerspective> perspectives) {
+
+    this.perspectives = perspectives;
 
     // layoutPriority of -1 is for the default perspective
     // anything lower will be added before the default
@@ -81,15 +88,14 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     add(p);
     setCellWidth(p, "100%");
 
-    defaultPerspective = new ToggleButton("BI Browser", new ClickHandler() {
-      public void onClick(ClickEvent event) {
-        showPerspective((ToggleButton) event.getSource(), null);
+    // sort perspectives
+    Collections.sort(perspectives, new Comparator<IPluginPerspective>() {
+      public int compare(IPluginPerspective o1, IPluginPerspective o2) {
+        Integer p1 = new Integer(o1.getLayoutPriority());
+        Integer p2 = new Integer(o2.getLayoutPriority());
+        return p1.compareTo(p2);
       }
     });
-    defaultPerspective.getElement().setAttribute("layoutPriority", "-1");
-    defaultPerspective.setStyleName("mantle-perspective-toggle");
-    defaultPerspective.setDown(true);
-    toggles.add(defaultPerspective);
 
     for (final IPluginPerspective perspective : perspectives) {
       // if we have a toolbar overlay add it to the list
@@ -105,26 +111,19 @@ public class PerspectiveSwitcher extends HorizontalPanel {
       tb.setStyleName("mantle-perspective-toggle");
       tb.getElement().setAttribute("layoutPriority", "" + perspective.getLayoutPriority());
       toggles.add(tb);
+      add(tb);
     }
 
-    // sort toggles, then add them
-    Collections.sort(toggles, new Comparator<ToggleButton>() {
-      public int compare(ToggleButton o1, ToggleButton o2) {
-        Integer p1 = new Integer(o1.getElement().getAttribute("layoutPriority"));
-        Integer p2 = new Integer(o2.getElement().getAttribute("layoutPriority"));
-        return p1.compareTo(p2);
-      }
-    });
-    
-    for (ToggleButton toggle : toggles) {
-      add(toggle);
-    }
-    
     // register all toolbar overlays with XulMainToolbar
     XulMainToolbar.getInstance().loadOverlays(toolbarOverlays);
+    
+    showPerspective(toggles.get(0), perspectives.get(0));
   }
 
-  private void showPerspective(ToggleButton source, IPluginPerspective perspective) {
+  private void showPerspective(final ToggleButton source, final IPluginPerspective perspective) {
+
+    final IPluginPerspective defaultPerspective = perspectives.get(0);
+
     // deselect all other toggles
     for (ToggleButton disableMe : toggles) {
       if (disableMe != source) {
@@ -133,23 +132,40 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     }
 
     // remove all existing perspective overlays
-    for (final XulOverlay removeMe : toolbarOverlays) {
-      XulMainToolbar.getInstance().removeOverlay(removeMe.getId());
+    XulMainToolbar.getInstance().reset(new ICallback<Void>() {
+      public void onHandle(Void nothing) {
+        // apply current overlay or default if none selected
+        if (source.isDown() && perspective.getToolBarOverlay() != null) {
+          XulMainToolbar.getInstance().applyOverlay(perspective.getToolBarOverlay().getId());
+        } else if (!source.isDown() && defaultPerspective.getToolBarOverlay() != null) {
+          // apply default perspective overlay
+          XulMainToolbar.getInstance().applyOverlay(defaultPerspective.getToolBarOverlay().getId());
+        }
+      }
+    });
+
+    // see if we need to show the default perspective
+    // if source is not down then no perspectives are selected, select the first one
+    if (!source.isDown()) {
+      toggles.get(0).setDown(true);
+      if (defaultPerspective.getId().equals("default.perspective")) {
+        MantleApplication.getInstance().getContentDeck()
+            .showWidget(MantleApplication.getInstance().getContentDeck().getWidgetIndex(SolutionBrowserPanel.getInstance()));
+        return;
+      }
     }
 
-    // see if we need to show the default perspective (BI Browser)
-    if (perspective == null || !source.isDown()) {
+    // if the selected perspective is "default.perspective"
+    if (perspective.getId().equals("default.perspective")) {
       MantleApplication.getInstance().getContentDeck()
           .showWidget(MantleApplication.getInstance().getContentDeck().getWidgetIndex(SolutionBrowserPanel.getInstance()));
-      defaultPerspective.setDown(true);
       return;
     }
 
-    // apply current overlay
-    if (perspective.getToolBarOverlay() != null) {
-      XulMainToolbar.getInstance().applyOverlay(perspective.getToolBarOverlay().getId());
-    }
+    hijackContentArea(perspective);
+  }
 
+  private void hijackContentArea(IPluginPerspective perspective) {
     // hijack content area (or simply find and select existing content)
     Frame frame = null;
     for (int i = 0; i < MantleApplication.getInstance().getContentDeck().getWidgetCount(); i++) {
@@ -165,7 +181,6 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     }
 
     MantleApplication.getInstance().getContentDeck().showWidget(MantleApplication.getInstance().getContentDeck().getWidgetIndex(frame));
-
   }
 
 }

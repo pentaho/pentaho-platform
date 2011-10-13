@@ -1,0 +1,23 @@
+<plugin title="Default Plugin Perspective" name="default-plugin-perspective">
+
+	<perspective id="default.perspective" title="BI Browser" layout-priority="-1" roles="Authenticated">
+	</perspective>
+
+	<perspective id="test.admin" title="Admin Test" layout-priority="100" roles="Admin" content-url="content/default-plugin-perspective/resources/html/admin.html">
+	</perspective>
+	
+	<perspective id="default.perspective.test" title="Test Perspective" layout-priority="100" roles="Authenticated" content-url="content/default-plugin-perspective/resources/html/index.html">
+	    <toolbar-overlay id="default.perspective.test.overlay"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
+			<overlay id="default.perspective.test.overlay"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
+	            <toolbar id="mainToolbar">
+                  <toolbarbutton id="default.perspective.test.overlay.button" image="../content/default-plugin-perspective/resources/images/enabled32.png" onclick="mainToolbarHandler.executeMantleFunc('defaultTestPerspectiveFunction();')" tooltiptext="${defaultPerspectiveTestToolbarButton}"  insertafter="dummyPluginContentButton"/>
+	            </toolbar>
+			</overlay>    		
+	    </toolbar-overlay>    				
+	</perspective>
+		
+	<static-paths>
+		<static-path url="/default-plugin-perspective/resources" localFolder="resources"/>
+	</static-paths>
+	
+</plugin>

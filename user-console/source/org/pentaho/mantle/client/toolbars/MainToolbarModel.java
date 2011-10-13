@@ -17,7 +17,6 @@
  */
 package org.pentaho.mantle.client.toolbars;
 
-import org.pentaho.mantle.client.XulMainToolbar;
 import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;

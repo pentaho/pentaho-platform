@@ -17,7 +17,6 @@
  */
 package org.pentaho.mantle.client.toolbars;
 
-import com.google.gwt.user.client.Element;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.ToggleWorkspaceCommand;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -28,6 +27,7 @@ import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.Element;
 
 /**
  * 
@@ -70,6 +70,27 @@ public class MainToolbarController extends AbstractXulEventHandler {
     bf.createBinding(model, "contentEditEnabled", contentEditBtn, "!disabled");
     bf.createBinding(model, "contentEditSelected", this, "editContentSelected");
 
+    setupNativeHooks(this);
+  }
+
+  public native void setupNativeHooks(MainToolbarController controller)
+  /*-{
+    $wnd.mantle_isToolbarButtonEnabled = function(id) { 
+      return controller.@org.pentaho.mantle.client.toolbars.MainToolbarController::isToolbarButtonEnabled(Ljava/lang/String;)(id);      
+    }
+    $wnd.mantle_setToolbarButtonEnabled = function(id, enabled) { 
+      controller.@org.pentaho.mantle.client.toolbars.MainToolbarController::setToolbarButtonEnabled(Ljava/lang/String;Z)(id, enabled);      
+    }
+  }-*/;
+
+  public boolean isToolbarButtonEnabled(String id) {
+    XulToolbarbutton button = (XulToolbarbutton) document.getElementById(id);
+    return !button.isDisabled();
+  }
+
+  public void setToolbarButtonEnabled(String id, boolean enabled) {
+    XulToolbarbutton button = (XulToolbarbutton) document.getElementById(id);
+    button.setDisabled(!enabled);
   }
 
   @Bindable
@@ -210,7 +231,6 @@ public class MainToolbarController extends AbstractXulEventHandler {
       obj.contentWindow.editContentToggled(selected);
     } catch (e){if(console){console.log(e);}}
   }-*/;
-
 
   public MainToolbarModel getModel() {
 

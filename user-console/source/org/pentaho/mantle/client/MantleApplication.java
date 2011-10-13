@@ -31,6 +31,7 @@ import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.toolbars.XulMainToolbar;
 import org.pentaho.mantle.client.ui.PerspectiveSwitcher;
 import org.pentaho.mantle.client.usersettings.IMantleSettingsListener;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
@@ -71,8 +72,6 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   // solution browser view
   private SolutionBrowserPanel solutionBrowserPerspective;
 
-  private XulMainToolbar mainToolbar;
-
   private CommandExec commandExec = GWT.create(CommandExec.class);
 
   private DeckPanel contentDeck = new DeckPanel();
@@ -95,7 +94,6 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   public void loadApplication() {
     menuBar = new MantleMainMenuBar();
     solutionBrowserPerspective = SolutionBrowserPanel.getInstance(menuBar);
-    mainToolbar = XulMainToolbar.getInstance();
 
     // registered our native JSNI hooks
     setupNativeHooks(this, new LoginCommand());
@@ -135,12 +133,10 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
         
   }-*/;
 
-  @SuppressWarnings("unused")
   private void executeCommand(String commandName) {
     commandExec.execute(commandName);
   }
 
-  @SuppressWarnings("unused")
   private void addGlassPaneListener(JavaScriptObject obj) {
     GlassPane.getInstance().addGlassPaneListener(new GlassPaneNativeListener(obj));
   }
@@ -151,7 +147,6 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
    * @param title
    * @param message
    */
-  @SuppressWarnings("unused")
   private void showMessage(String title, String message) {
     MessageDialogBox dialog = new MessageDialogBox(title, message, true, false, true);
     dialog.center();
@@ -193,6 +188,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     menuAndLogoPanel.getCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
 
     if ("true".equals(settings.get("show-main-toolbar"))) {
+      XulMainToolbar mainToolbar = XulMainToolbar.getInstance();
       menuAndLogoPanel.setWidget(1, 0, mainToolbar);
       menuAndLogoPanel.getFlexCellFormatter().setColSpan(1, 0, 2);
       mainToolbar.setWidth("100%"); //$NON-NLS-1$
@@ -241,6 +237,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
         dialogBox.center();
       }
 
+      @SuppressWarnings("deprecation")
       @Override
       public void onResponseReceived(Request arg0, Response response) {
         Boolean isAdministrator = Boolean.parseBoolean(response.getText());
