@@ -41,7 +41,7 @@ public class DefaultPluginPerspectiveManager implements IPluginPerspectiveManage
     for (IPluginPerspective perspective : pluginPerspectives) {
       ArrayList<String> roles = perspective.getRoles();
       boolean allowed = true;
-      if (roles != null || roles.size() > 0) {
+      if (roles != null && roles.size() > 0) {
         // we're going to have to check the user
         allowed = false;
         for (String roleName : roles) {
