@@ -70,6 +70,7 @@ public class PerspectiveUtil {
       perspective.setLayoutPriority(layoutPriority);
       perspective.setMenuBarOverlay(menuOverlay);
       perspective.setToolBarOverlay(toolbarOverlay);
+      perspective.setRoles(roles);
       
       PentahoSystem.get(IPluginPerspectiveManager.class).addPluginPerspective(perspective);
       return perspective;
