@@ -17,6 +17,9 @@
 
 package org.pentaho.platform.plugin.services.pluginmgr;
 
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
 import org.dom4j.Element;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
@@ -46,6 +49,17 @@ public class PerspectiveUtil {
           layoutPriority = DEFAULT_LAYOUT_PRIORITY;
         }
       }
+      
+      String roleStr = perspectiveNode.attributeValue("roles");
+      ArrayList<String> roles = new ArrayList<String>();
+      if (roleStr != null) {
+        StringTokenizer st = new StringTokenizer(roleStr, ";, ");
+        while (st.hasMoreTokens()) {
+          String role = st.nextToken();
+          roles.add(role);
+        }
+      }
+
       XulOverlay menuOverlay = processOverlay((Element)perspectiveNode.selectSingleNode("menu-overlay")); //$NON-NLS-1$
       XulOverlay toolbarOverlay = processOverlay((Element)perspectiveNode.selectSingleNode("toolbar-overlay")); //$NON-NLS-1$
       
@@ -56,6 +70,7 @@ public class PerspectiveUtil {
       perspective.setLayoutPriority(layoutPriority);
       perspective.setMenuBarOverlay(menuOverlay);
       perspective.setToolBarOverlay(toolbarOverlay);
+      
       PentahoSystem.get(IPluginPerspectiveManager.class).addPluginPerspective(perspective);
       return perspective;
     }

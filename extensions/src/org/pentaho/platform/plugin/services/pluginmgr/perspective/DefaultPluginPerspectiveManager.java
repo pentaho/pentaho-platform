@@ -24,20 +24,41 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.security.SecurityHelper;
+import org.springframework.security.GrantedAuthorityImpl;
 
-public class DefaultPluginPerspectiveManager implements
-    IPluginPerspectiveManager {
+public class DefaultPluginPerspectiveManager implements IPluginPerspectiveManager {
 
-  private static final Log logger = LogFactory
-      .getLog(DefaultPluginPerspectiveManager.class);
+  private static final Log logger = LogFactory.getLog(DefaultPluginPerspectiveManager.class);
 
   private ArrayList<IPluginPerspective> pluginPerspectives = new ArrayList<IPluginPerspective>();
 
   public List<IPluginPerspective> getPluginPerspectives() {
-    // don't return the actual list, otherwise the user could remove items
-    // without
-    // going through our api
-    return new ArrayList<IPluginPerspective>(pluginPerspectives);
+    // don't return the actual list, otherwise the user could remove items without going through our api
+    ArrayList<IPluginPerspective> allowedPerspectives = new ArrayList<IPluginPerspective>();
+
+    for (IPluginPerspective perspective : pluginPerspectives) {
+      ArrayList<String> roles = perspective.getRoles();
+      boolean allowed = true;
+      if (roles != null || roles.size() > 0) {
+        // we're going to have to check the user
+        allowed = false;
+        for (String roleName : roles) {
+          GrantedAuthorityImpl role = new GrantedAuthorityImpl(roleName);
+          allowed = SecurityHelper.isGranted(PentahoSessionHolder.getSession(), role);
+          if (allowed) {
+            // don't need to check anymore
+            break;
+          }
+        }
+      }
+      if (allowed) {
+        allowedPerspectives.add(perspective);
+      }
+    }
+
+    return allowedPerspectives;
   }
 
   public void addPluginPerspective(IPluginPerspective pluginPerspective) {
