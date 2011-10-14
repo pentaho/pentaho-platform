@@ -16,6 +16,7 @@
  */
 package org.pentaho.mantle.client.commands;
 
+import java.util.Date;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
@@ -33,6 +34,8 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
@@ -59,7 +62,21 @@ public class RunInBackgroundCommand extends AbstractCommand {
   protected void performOperation() {
     performOperation(true);
   }
-
+  
+  protected JSONObject getJsonSimpleTrigger(int repeatCount, int interval, Date startDate, Date endDate) {
+    JSONObject trigger = new JSONObject();
+    trigger.put("repeatInterval", new JSONNumber(interval)); //$NON-NLS-1$
+    trigger.put("repeatCount", new JSONNumber(repeatCount)); //$NON-NLS-1$
+    trigger.put("startTime", startDate != null ? new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDate)) : JSONNull.getInstance()); //$NON-NLS-1$
+    if (endDate != null) {
+      endDate.setHours(23);
+      endDate.setMinutes(59);
+      endDate.setSeconds(59);
+    }
+    trigger.put("endTime", endDate == null ? JSONNull.getInstance() : new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate))); //$NON-NLS-1$
+    return trigger;
+  }
+  
   protected void performOperation(boolean feedback) {
     // delete file
     VerticalPanel vp = new VerticalPanel();
@@ -84,8 +101,8 @@ public class RunInBackgroundCommand extends AbstractCommand {
         JSONObject scheduleRequest = new JSONObject();
         scheduleRequest.put("inputFile", new JSONString(repositoryFile.getPath())); //$NON-NLS-1$ //$NON-NLS-2$
         scheduleRequest.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
-        scheduleRequest.put("jobTrigger", trigger); //$NON-NLS-1$
-        
+        scheduleRequest.put("simpleJobTrigger", getJsonSimpleTrigger(0, 0, null, null)); //$NON-NLS-1$
+
         RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, scheduleJobUrl);
         scheduleFileRequestBuilder.setHeader("Content-Type", "application/json");  //$NON-NLS-1$//$NON-NLS-2$
         try {
