@@ -43,7 +43,7 @@ public interface IPluginPerspective extends Serializable {
   public int getLayoutPriority();
   public void setLayoutPriority(int layoutPriority);
   
-  public ArrayList<String> getRoles();
-  public void setRoles(ArrayList<String> roles);
+  public ArrayList<String> getRequiredSecurityActions();
+  public void setRequiredSecurityActions(ArrayList<String> actions);
 
 }

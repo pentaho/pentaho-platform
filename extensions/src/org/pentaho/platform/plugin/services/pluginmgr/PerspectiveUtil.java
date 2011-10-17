@@ -50,13 +50,13 @@ public class PerspectiveUtil {
         }
       }
       
-      String roleStr = perspectiveNode.attributeValue("roles");
-      ArrayList<String> roles = new ArrayList<String>();
-      if (roleStr != null) {
-        StringTokenizer st = new StringTokenizer(roleStr, ";, ");
+      String securityActionStr = perspectiveNode.attributeValue("required-security-action");
+      ArrayList<String> actions = new ArrayList<String>();
+      if (securityActionStr != null) {
+        StringTokenizer st = new StringTokenizer(securityActionStr, ";, ");
         while (st.hasMoreTokens()) {
-          String role = st.nextToken();
-          roles.add(role);
+          String action = st.nextToken();
+          actions.add(action);
         }
       }
 
@@ -70,7 +70,7 @@ public class PerspectiveUtil {
       perspective.setLayoutPriority(layoutPriority);
       perspective.setMenuBarOverlay(menuOverlay);
       perspective.setToolBarOverlay(toolbarOverlay);
-      perspective.setRoles(roles);
+      perspective.setRequiredSecurityActions(actions);
       
       PentahoSystem.get(IPluginPerspectiveManager.class).addPluginPerspective(perspective);
       return perspective;

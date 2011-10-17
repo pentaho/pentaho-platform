@@ -22,9 +22,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.springframework.security.GrantedAuthorityImpl;
 
@@ -39,14 +41,14 @@ public class DefaultPluginPerspectiveManager implements IPluginPerspectiveManage
     ArrayList<IPluginPerspective> allowedPerspectives = new ArrayList<IPluginPerspective>();
 
     for (IPluginPerspective perspective : pluginPerspectives) {
-      ArrayList<String> roles = perspective.getRoles();
+      ArrayList<String> actions = perspective.getRequiredSecurityActions();
+      IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
       boolean allowed = true;
-      if (roles != null && roles.size() > 0) {
+      if (policy != null && actions != null && actions.size() > 0) {
         // we're going to have to check the user
         allowed = false;
-        for (String roleName : roles) {
-          GrantedAuthorityImpl role = new GrantedAuthorityImpl(roleName);
-          allowed = SecurityHelper.isGranted(PentahoSessionHolder.getSession(), role);
+        for (String actionName : actions) {
+          allowed = policy.isAllowed(actionName);
           if (allowed) {
             // don't need to check anymore
             break;

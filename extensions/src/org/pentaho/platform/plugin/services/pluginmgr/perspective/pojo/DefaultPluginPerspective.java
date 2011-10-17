@@ -14,7 +14,7 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
   private XulOverlay menuBarOverlay;
   private XulOverlay toolBarOverlay;
   private int layoutPriority;
-  private ArrayList<String> roles;
+  private ArrayList<String> securityActions;
   
   public DefaultPluginPerspective() {
   }
@@ -73,11 +73,11 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
     this.layoutPriority = layoutPriority;
   }
 
-  public ArrayList<String> getRoles() {
-    return roles;
+  public ArrayList<String> getRequiredSecurityActions() {
+    return securityActions;
   }
 
-  public void setRoles(ArrayList<String> roles) {
-    this.roles = roles;
+  public void setRequiredSecurityActions(ArrayList<String> securityActions) {
+    this.securityActions = securityActions;
   }
 }
