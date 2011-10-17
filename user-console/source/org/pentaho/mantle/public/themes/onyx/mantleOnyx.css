@@ -5,6 +5,7 @@
 	cursor: pointer;
 	cursor: hand;
 	white-space: nowrap;
+	font-size: .8em;
 }
 
 .mantle-perspective-toggle-up {
