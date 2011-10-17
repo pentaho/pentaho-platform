@@ -264,9 +264,8 @@ public class FileResourceTest extends JerseyTest {
     assertTrue(testFile1 == null);
     assertTrue(testFile2 == null);
     
-    List<RepositoryFileDto> deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(List.class);
-    assertEquals(2, deletedFiles.size());
-
+    RepositoryFileDto[] deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
+    assertEquals(2, deletedFiles.length);
   }
   
   @Test
