@@ -439,4 +439,10 @@ public class FileResource extends AbstractJaxRSResource {
     return repoWs.getTree(path, depth, filter, showHidden.booleanValue());
   }
 
+  @GET
+  @Path("/deleted")
+  @Produces( { APPLICATION_XML, APPLICATION_JSON })
+  public List<RepositoryFileDto> doGetDeletedFiles() {
+    return repoWs.getDeletedFiles();
+  }
 }

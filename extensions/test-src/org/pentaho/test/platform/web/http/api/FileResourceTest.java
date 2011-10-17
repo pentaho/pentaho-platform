@@ -260,8 +260,13 @@ public class FileResourceTest extends JerseyTest {
     } catch (UniformInterfaceException UIE) {
       assertEquals(UIE.getResponse().getStatus(), 204);
     }
+    
     assertTrue(testFile1 == null);
     assertTrue(testFile2 == null);
+    
+    List<RepositoryFileDto> deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(List.class);
+    assertEquals(2, deletedFiles.size());
+
   }
   
   @Test
