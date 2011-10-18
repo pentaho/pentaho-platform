@@ -80,6 +80,7 @@ public class SolutionBrowserClipboard {
   private void clearCutStyling() {
     if (hasContent() && clipboardAction == ClipboardAction.CUT) {
       if (data instanceof List<?>) {
+        @SuppressWarnings("unchecked")
         List<FileItem> values = (List<FileItem>) data;
         for(FileItem fileItem : values) {
           fileItem.setStyleName("fileLabel"); //$NON-NLS-1$
@@ -91,6 +92,7 @@ public class SolutionBrowserClipboard {
   private void applyCutStyling() {
     if (hasContent() && clipboardAction == ClipboardAction.CUT) {
       if (data instanceof List<?>) {
+        @SuppressWarnings("unchecked")
         List<FileItem> values = (List<FileItem>) data;
         for(FileItem fileItem : values) {
           fileItem.setStyleName("fileLabelCutSelected"); //$NON-NLS-1$

@@ -26,12 +26,36 @@
 		</menubar>
 		
 		<menubar id="viewmenu" label="${view}" layout="vertical">
+			<menuitem id="showBrowserMenuItem" label="Show Browser" command="mainMenubarHandler.showBrowserClicked()" type="checkbox" checked="true" />		
+			<menuitem id="showWorkspaceMenuItem" label="Show Workspace" command="mainMenubarHandler.showWorkspaceClicked()" type="checkbox" checked="false" />		
+			<menubarseparator id="showStuffSeparator"/>
+			<menuitem id="useDescriptionsMenuItem" label="Use Descriptions for Tooltips" command="mainMenubarHandler.useDescriptionsForTooltipsClicked()" type="checkbox" checked="false" />		
+			<menubarseparator id="descriptionsSeparator"/>
+			<menubar id="languagemenu" label="${languages}" layout="vertical">
+			</menubar>
+			<menubar id="themesmenu" label="${themes}" layout="vertical">
+			</menubar>
+			<menubarseparator id="refreshSeparator"/>
+			<menuitem id="refreshMenuItem" label="${refresh}" command="mainMenubarHandler.refreshContent()" />		
 		</menubar>		
 
-		<menubar id="toolsmenu" label="${tools}" layout="vertical">
+		<menubar id="toolsmenu" label="${tools}" layout="vertical" visible="false">
+			<menubar id="refreshmenu" label="${refresh}" layout="vertical">
+				<menuitem id="refreshRepositoryCacheMenuItem" label="${refreshRepository}" command="mainMenubarHandler.executeMantleCommand('RefreshRepositoryCommand')" />		
+				<menuitem id="refreshSystemSettingsMenuItem" label="${refreshSystemSettings}" command="mainMenubarHandler.executeMantleCommand('RefreshSystemSettingsCommand')" />		
+				<menuitem id="refreshReportingMetadataMenuItem" label="${refreshReportingMetadata}" command="mainMenubarHandler.executeMantleCommand('RefreshMetaDataCommand')" />		
+				<menuitem id="executeGlobalActionsMenuItem" label="${executeGlobalActions}" command="mainMenubarHandler.executeMantleCommand('ExecuteGlobalActionsCommand')" />		
+				<menuitem id="purgeMondrianSchemaCacheMenuItem" label="${purgeMondrianSchemaCache}" command="mainMenubarHandler.executeMantleCommand('PurgeMondrianSchemaCacheCommand')" />		
+				<menuitem id="purgeReportingDataCacheMenuItem" label="${purgeReportingDataCache}" command="mainMenubarHandler.executeMantleCommand('PurgeReportingDataCacheCommand')" />		
+			</menubar>
 		</menubar>		
 		
 		<menubar id="helpmenu" label="${help}" layout="vertical">
+			<menuitem id="documentationMenuItem" label="${documentation}" command="mainMenubarHandler.documentationClicked()" />		
+			<menubarseparator id="documentationSeparator"/>
+			<menuitem id="pentahoDotComMenuItem" label="${pentahoHomePageName}" command="mainMenubarHandler.executeMantleCommand('PentahoHomeCommand')" />		
+			<menubarseparator id="aboutSeparator"/>
+			<menuitem id="aboutMenuItem" label="${about}" command="mainMenubarHandler.executeMantleCommand('AboutCommand')" />		
 		</menubar>		
 		
 	</menubar>

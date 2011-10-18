@@ -42,7 +42,7 @@ public class NewFolderCommand extends AbstractCommand {
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
   private RepositoryFile parentFolder;
-  
+
   public NewFolderCommand(RepositoryFile parentFolder) {
     this.parentFolder = parentFolder;
   }
@@ -70,41 +70,40 @@ public class NewFolderCommand extends AbstractCommand {
         newFolderDialog.hide();
       }
 
-      @SuppressWarnings("unchecked")
       public void okPressed() {
-          String createDirUrl = contextURL + "api/repo/dirs/" + SolutionBrowserPanel.pathToId(parentFolder.getPath() + "/" + folderNameTextBox.getText());  //$NON-NLS-1$
-          RequestBuilder createDirRequestBuilder = new RequestBuilder(RequestBuilder.PUT, createDirUrl);
+        String createDirUrl = contextURL + "api/repo/dirs/" + SolutionBrowserPanel.pathToId(parentFolder.getPath() + "/" + folderNameTextBox.getText()); //$NON-NLS-1$
+        RequestBuilder createDirRequestBuilder = new RequestBuilder(RequestBuilder.PUT, createDirUrl);
 
-          try {
-            createDirRequestBuilder.sendRequest("", new RequestCallback() {
+        try {
+          createDirRequestBuilder.sendRequest("", new RequestCallback() {
 
-              @Override
-              public void onError(Request createFolderRequest, Throwable exception) {
+            @Override
+            public void onError(Request createFolderRequest, Throwable exception) {
+              MessageDialogBox dialogBox = new MessageDialogBox(
+                  Messages.getString("error"), Messages.getString("couldNotCreateFolder", folderNameTextBox.getText()), //$NON-NLS-1$ //$NON-NLS-2$
+                  false, false, true);
+              dialogBox.center();
+
+            }
+
+            @Override
+            public void onResponseReceived(Request createFolderRequest, Response createFolderResponse) {
+              if (createFolderResponse.getStatusText().equalsIgnoreCase("OK")) { //$NON-NLS-1$
+                new RefreshRepositoryCommand().execute(false);
+              } else {
                 MessageDialogBox dialogBox = new MessageDialogBox(
                     Messages.getString("error"), Messages.getString("couldNotCreateFolder", folderNameTextBox.getText()), //$NON-NLS-1$ //$NON-NLS-2$
                     false, false, true);
                 dialogBox.center();
-
               }
+            }
 
-              @Override
-              public void onResponseReceived(Request createFolderRequest, Response createFolderResponse) {
-                if (createFolderResponse.getStatusText().equalsIgnoreCase("OK")) { //$NON-NLS-1$
-                  new RefreshRepositoryCommand().execute(false);
-                } else {
-                  MessageDialogBox dialogBox = new MessageDialogBox(
-                      Messages.getString("error"), Messages.getString("couldNotCreateFolder", folderNameTextBox.getText()), //$NON-NLS-1$ //$NON-NLS-2$
-                      false, false, true);
-                  dialogBox.center();                  
-                }
-              }
-              
-            });
-          } catch (RequestException e) {
-            Window.alert(e.getLocalizedMessage());
-          }
+          });
+        } catch (RequestException e) {
+          Window.alert(e.getLocalizedMessage());
+        }
 
-       }
+      }
     };
     newFolderDialog.setCallback(callback);
     newFolderDialog.center();

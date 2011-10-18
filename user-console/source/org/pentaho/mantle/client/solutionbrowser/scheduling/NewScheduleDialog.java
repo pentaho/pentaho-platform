@@ -30,11 +30,8 @@ import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
-import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -49,8 +46,6 @@ import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * @author wseyler
@@ -76,6 +71,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     setPixelSize(475, 465);
   }
 
+  @SuppressWarnings("deprecation")
   protected JSONObject getJsonSimpleTrigger(int repeatCount, int interval, Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     trigger.put("repeatInterval", new JSONNumber(interval)); //$NON-NLS-1$
@@ -90,6 +86,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
   
+  @SuppressWarnings("deprecation")
   protected JSONObject getJsonCronTrigger(String cronString, Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     trigger.put("cronString", new JSONString(cronString)); //$NON-NLS-1$
@@ -103,6 +100,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
   
+  @SuppressWarnings("deprecation")
   protected JSONObject getJsonComplexTrigger(MonthOfYear month, WeekOfMonth weekOfMonth, List<DayOfWeek> daysOfWeek, Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     if (month != null) {
@@ -134,6 +132,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
   
+  @SuppressWarnings("deprecation")
   protected JSONObject getJsonComplexTrigger(MonthOfYear month, int dayOfMonth, Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     
@@ -160,6 +159,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   /* (non-Javadoc)
    * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#finish()
    */
+  @SuppressWarnings("deprecation")
   @Override
   protected boolean onFinish() {
     String scheduleJobUrl = contextURL + "api/scheduler/job"; //$NON-NLS-1$

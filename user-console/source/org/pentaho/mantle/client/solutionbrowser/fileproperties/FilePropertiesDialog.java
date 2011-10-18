@@ -38,11 +38,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
   private PermissionsPanel permissionsTab;
   private SubscriptionsPanel subscriptionsTab;
 
-//  private RepositoryFileDto fileSummary;
-  private FileTypeEnabledOptions options;
-  private boolean isAdministrator = false;
-  private Tabs defaultTab = Tabs.GENERAL;
-
   public FilePropertiesDialog(RepositoryFile fileSummary, FileTypeEnabledOptions options, final boolean isAdministrator, final PentahoTabPanel propertyTabs,
       final IDialogCallback callback, Tabs defaultTab) {
     super(Messages.getString("properties"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -57,8 +52,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
     subscriptionsTab.getElement().setId("filePropertiesSubscriptionsTab");
     okButton.getElement().setId("filePropertiesOKButton");
     cancelButton.getElement().setId("filePropertiesCancelButton");
-
-    this.defaultTab = defaultTab;
 
     super.setCallback(new IDialogCallback() {
 
@@ -75,9 +68,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
         }
       }
     });
-    this.options = options;
     this.propertyTabs = propertyTabs;
-    this.isAdministrator = isAdministrator;
     propertyTabs.addTab(Messages.getString("general"), Messages.getString("general"), false, generalTab);
     getWidget().setHeight("100%"); //$NON-NLS-1$
     getWidget().setWidth("100%"); //$NON-NLS-1$
@@ -161,7 +152,6 @@ public class FilePropertiesDialog extends PromptDialogBox {
 //  }
 
   public void showTab(Tabs tab) {
-    this.defaultTab = tab;
     if (tab == Tabs.GENERAL && propertyTabs.getWidgetIndex(generalTab) > -1) {
       propertyTabs.selectTab(propertyTabs.getWidgetIndex(generalTab));
     } else if (tab == Tabs.PERMISSION && propertyTabs.getWidgetIndex(permissionsTab) > -1) {

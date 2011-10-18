@@ -2,7 +2,9 @@ package org.pentaho.mantle.client.solutionbrowser;
 
 import java.util.ArrayList;
 
-import com.google.gwt.core.client.GWT;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
+import org.pentaho.gwt.widgets.client.filechooser.XMLToRepositoryFileTreeConverter;
+
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -10,9 +12,6 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
-import org.pentaho.gwt.widgets.client.filechooser.XMLToRepositoryFileTreeConverter;
 
 public class RepositoryFileTreeManager {
   public static final String SEPARATOR = "/"; //$NON-NLS-1$

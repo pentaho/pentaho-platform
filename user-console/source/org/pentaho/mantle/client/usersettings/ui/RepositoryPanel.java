@@ -17,7 +17,6 @@
 package org.pentaho.mantle.client.usersettings.ui;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
@@ -95,12 +94,12 @@ public class RepositoryPanel extends UserPreferencesPanel {
 
   public void setShowHiddenFiles(boolean show) {
     // update setting
-    AsyncCallback callback = new AsyncCallback() {
+    AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 
       public void onFailure(Throwable caught) {
       }
 
-      public void onSuccess(Object result) {
+      public void onSuccess(Void result) {
       }
 
     };
@@ -109,12 +108,12 @@ public class RepositoryPanel extends UserPreferencesPanel {
 
   public void setShowLocalizedFileNames(boolean show) {
     // update setting
-    AsyncCallback callback = new AsyncCallback() {
+    AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 
       public void onFailure(Throwable caught) {
       }
 
-      public void onSuccess(Object result) {
+      public void onSuccess(Void result) {
       }
 
     };
@@ -123,12 +122,12 @@ public class RepositoryPanel extends UserPreferencesPanel {
 
   public void setShowNavigator(boolean show) {
     // update setting
-    AsyncCallback callback = new AsyncCallback() {
+    AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 
       public void onFailure(Throwable caught) {
       }
 
-      public void onSuccess(Object result) {
+      public void onSuccess(Void result) {
       }
 
     };
@@ -137,16 +136,16 @@ public class RepositoryPanel extends UserPreferencesPanel {
 
   public boolean onApply() {
     boolean anythingSet = false;
-    if (showHiddenFilesCB.isChecked() != showHiddenFiles) {
-      setShowHiddenFiles(showHiddenFilesCB.isChecked());
+    if (showHiddenFilesCB.getValue() != showHiddenFiles) {
+      setShowHiddenFiles(showHiddenFilesCB.getValue());
       anythingSet = true;
     }
-    if (showNavigatorCB.isChecked() != showNavigator) {
-      setShowNavigator(showNavigatorCB.isChecked());
+    if (showNavigatorCB.getValue() != showNavigator) {
+      setShowNavigator(showNavigatorCB.getValue());
       anythingSet = true;
     }
-    if (showLocalizedFileNamesCB.isChecked() != showLocalizedFileNames) {
-      setShowLocalizedFileNames(showLocalizedFileNamesCB.isChecked());
+    if (showLocalizedFileNamesCB.getValue() != showLocalizedFileNames) {
+      setShowLocalizedFileNames(showLocalizedFileNamesCB.getValue());
       anythingSet = true;
     }
     if (anythingSet) {

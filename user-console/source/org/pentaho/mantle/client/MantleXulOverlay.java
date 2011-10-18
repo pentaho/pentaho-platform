@@ -23,6 +23,8 @@ import org.pentaho.ui.xul.XulOverlay;
 
 public class MantleXulOverlay implements Serializable, XulOverlay {
 
+  private static final long serialVersionUID = -8768857471764745784L;
+
   private String id;
 
   private String overlayUri;

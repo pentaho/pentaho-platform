@@ -21,7 +21,6 @@ package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
 import java.util.ArrayList;
 
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
@@ -30,6 +29,7 @@ import org.pentaho.mantle.client.objects.SubscriptionSchedule;
 import org.pentaho.mantle.client.objects.SubscriptionState;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.IFileSummary;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -257,7 +257,7 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
           subSchedule.id = appliedLB.getValue(i);
           currentSchedules.add(subSchedule);
         }
-        MantleServiceCache.getService().setSubscriptions("", fileSummary.getPath(), fileSummary.getName(), enableSubscriptions.isChecked(), currentSchedules, callback); //$NON-NLS-1$
+        MantleServiceCache.getService().setSubscriptions("", fileSummary.getPath(), fileSummary.getName(), enableSubscriptions.getValue(), currentSchedules, callback); //$NON-NLS-1$
       }
     }
   }

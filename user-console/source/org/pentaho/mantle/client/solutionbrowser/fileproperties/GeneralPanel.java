@@ -19,7 +19,6 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
 

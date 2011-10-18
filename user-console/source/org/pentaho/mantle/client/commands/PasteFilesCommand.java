@@ -75,6 +75,7 @@ public class PasteFilesCommand extends AbstractCommand {
   @Override
   protected void performOperation(boolean feedback) {
     final SolutionBrowserClipboard clipBoard = SolutionBrowserPanel.getInstance().getClipboard();
+    @SuppressWarnings("unchecked")
     final List<FileItem> clipboardFileItems = (List<FileItem>) clipBoard.getData();
     final List<RepositoryFile> pasteFiles = new ArrayList<RepositoryFile>();
     for (FileItem fileItem : clipboardFileItems) {
@@ -141,6 +142,7 @@ public class PasteFilesCommand extends AbstractCommand {
   }
   
   void performSave(final SolutionBrowserClipboard clipBoard, Integer overwriteMode) {
+    @SuppressWarnings("unchecked")
     final List<FileItem> clipboardFileItems = (List<FileItem>) clipBoard.getData();
     String temp = ""; //$NON-NLS-1$
     for (FileItem fileItem : clipboardFileItems) {

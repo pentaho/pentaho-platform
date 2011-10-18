@@ -4,14 +4,10 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.service.MantleServiceCache;
-import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper.ContentTypePlugin;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 
 import com.google.gwt.http.client.Request;
@@ -37,9 +33,9 @@ public class ScheduleHelper {
   }-*/;
 
   private static void showScheduleDialog(final String fileNameWithPath) {
-    final AsyncCallback callback = new AsyncCallback() {
+    final AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 
-      public void onSuccess(Object result) {
+      public void onSuccess(Boolean result) {
         // if we are still authenticated, perform the action, otherwise present login
         AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 

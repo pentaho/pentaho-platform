@@ -82,6 +82,7 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
     }
   }
 
+  @SuppressWarnings("deprecation")
   public void createDeepLink() {
     if (getContent() instanceof IFrameTabPanel) {
       PromptDialogBox dialogBox = new PromptDialogBox(Messages.getString("deepLink"), Messages.getString("ok"), Messages.getString("cancel"), false, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

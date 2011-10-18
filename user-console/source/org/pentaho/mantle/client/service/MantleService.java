@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.pentaho.mantle.client.objects.SimpleMessageException;
-import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.objects.SubscriptionSchedule;
 import org.pentaho.mantle.client.objects.SubscriptionState;
 import org.pentaho.mantle.client.objects.WorkspaceContent;

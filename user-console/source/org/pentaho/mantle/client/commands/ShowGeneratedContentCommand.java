@@ -29,7 +29,6 @@ import org.pentaho.mantle.client.dialogs.GeneratedContentDialog;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -138,6 +137,7 @@ public class ShowGeneratedContentCommand extends AbstractCommand {
   
   private List<RepositoryFile> parseWorkspaceFiles(String JSONString) {
     List<RepositoryFile> files = new ArrayList<RepositoryFile>();
+    @SuppressWarnings("deprecation")
     JSONValue value = JSONParser.parse(JSONString);
     
     JSONObject repositoryFileTreeDtoObject = value.isObject();

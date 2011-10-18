@@ -37,7 +37,6 @@ import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleHelper;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;

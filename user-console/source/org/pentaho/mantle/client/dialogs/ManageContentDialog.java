@@ -52,10 +52,10 @@ public class ManageContentDialog extends PromptDialogBox {
   }
 
   public STATE getState() {
-    if (editRadioButton.isChecked()) {
+    if (editRadioButton.getValue()) {
       return STATE.EDIT;
     }
-    if (shareRadioButton.isChecked()) {
+    if (shareRadioButton.getValue()) {
       return STATE.SHARE;
     }
     return STATE.SCHEDULE;

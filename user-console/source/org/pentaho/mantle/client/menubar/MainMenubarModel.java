@@ -17,18 +17,24 @@
  */
 package org.pentaho.mantle.client.menubar;
 
+import java.util.HashMap;
+
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
+import org.pentaho.mantle.client.commands.OpenDocCommand;
 import org.pentaho.mantle.client.commands.OpenFileCommand;
+import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
+import org.pentaho.mantle.client.commands.RefreshWorkspaceCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
-import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 import org.pentaho.ui.xul.stereotype.Bindable;
 
-import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MainMenubarModel extends XulEventSourceAdapter implements SolutionBrowserListener {
@@ -114,9 +120,47 @@ public class MainMenubarModel extends XulEventSourceAdapter implements SolutionB
     cmd.execute();
   }
 
-  MenuItem editContent = new MenuItem(Messages.getString("editEllipsis"), new OpenFileCommand(COMMAND.EDIT));//$NON-NLS-1$
-  MenuItem shareContent = new MenuItem(Messages.getString("shareEllipsis"), new OpenFileCommand(COMMAND.SHARE)); //$NON-NLS-1$
-  MenuItem scheduleContent = new MenuItem(Messages.getString("scheduleEllipsis"), new OpenFileCommand(COMMAND.SCHEDULE_NEW)); //$NON-NLS-1$
+  @Bindable
+  public void toggleShowBrowser() {
+    boolean showing = SolutionBrowserPanel.getInstance().isNavigatorShowing();
+    SolutionBrowserPanel.getInstance().setNavigatorShowing(!showing);
+  }
+
+  @Bindable
+  public void toggleShowWorkspace() {
+    boolean showing = SolutionBrowserPanel.getInstance().isWorkspaceShowing();
+    if (showing) {
+      SolutionBrowserPanel.getInstance().showContent();
+    } else {
+      SolutionBrowserPanel.getInstance().showWorkspace();
+    }
+  }
+
+  @Bindable
+  public void refreshContent() {
+    Command cmd = SolutionBrowserPanel.getInstance().isWorkspaceShowing() ? new RefreshWorkspaceCommand() : new RefreshRepositoryCommand();
+    cmd.execute();
+  }
+
+  @Bindable
+  public void toggleUseDescriptionsForTooltips() {
+    SolutionBrowserPanel.getInstance().toggleUseDescriptionCommand.execute();
+  }
+
+  @Bindable
+  public void openDocumentation() {
+    MantleSettingsManager.getInstance().fetchMantleSettings(new AsyncCallback<HashMap<String, String>>() {
+
+      public void onSuccess(HashMap<String, String> result) {
+        OpenDocCommand cmd = new OpenDocCommand(result.get("documentation-url"));
+        cmd.execute();
+      }
+
+      public void onFailure(Throwable caught) {
+      }
+    }, false);
+
+  }
 
   public void solutionBrowserEvent(EventType type, Widget panel, FileItem selectedFileItem) {
     this.selectedFileItem = selectedFileItem;

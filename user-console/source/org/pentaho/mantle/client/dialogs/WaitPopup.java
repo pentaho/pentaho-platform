@@ -20,22 +20,21 @@ import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.dom.client.Style.Display;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
-public class WaitPopup extends SimplePanel{
+public class WaitPopup extends SimplePanel {
 
   static private WaitPopup instance = new WaitPopup();
   private static FocusPanel pageBackground = null;
   private static int clickCount = 0;
-  
-  private WaitPopup(){
+
+  private WaitPopup() {
     setStyleName("waitPopup"); //$NON-NLS-1$
     VerticalPanel vp = new VerticalPanel();
     Label lbl = new Label(Messages.getString("pleaseWait")); //$NON-NLS-1$
@@ -46,16 +45,15 @@ public class WaitPopup extends SimplePanel{
     vp.add(lbl);
     vp.setStyleName("waitPopup_table"); //$NON-NLS-1$
     this.add(vp);
-    
+
     if (pageBackground == null) {
       pageBackground = new FocusPanel();
       pageBackground.getElement().setId("pageBackground");//$NON-NLS-1$
       pageBackground.setHeight("100%"); //$NON-NLS-1$
       pageBackground.setWidth("100%"); //$NON-NLS-1$
       pageBackground.setStyleName("glasspane"); //$NON-NLS-1$
-      pageBackground.addClickListener(new ClickListener() {
-
-        public void onClick(Widget sender) {
+      pageBackground.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
           clickCount++;
           if (clickCount > 1) {
             clickCount = 0;
@@ -67,8 +65,8 @@ public class WaitPopup extends SimplePanel{
       this.setVisible(false);
     }
   }
-  
-  public static WaitPopup getInstance(){
+
+  public static WaitPopup getInstance() {
     return instance;
   }
 
@@ -85,9 +83,9 @@ public class WaitPopup extends SimplePanel{
         getElement().getStyle().setDisplay(Display.NONE);
         pageBackground.getElement().getStyle().setDisplay(Display.NONE);
       }
-      
+
       // Notify listeners that this wait dialog is shown (hide pdfs, flash, etc.)
-      if(visible){
+      if (visible) {
         GlassPane.getInstance().show();
       } else {
         GlassPane.getInstance().hide();
@@ -95,6 +93,5 @@ public class WaitPopup extends SimplePanel{
     } catch (Throwable t) {
     }
   }
-  
-  
+
 }

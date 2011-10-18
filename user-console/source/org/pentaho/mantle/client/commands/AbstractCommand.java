@@ -125,7 +125,7 @@ public abstract class AbstractCommand implements Command{
    * @param feedback  if the feedback needs to be sent back to the caller. Not used currently
    */
 	private void doLogin(final boolean feedback) {
-		MantleLoginDialog.performLogin(new AsyncCallback<Object>() {
+		MantleLoginDialog.performLogin(new AsyncCallback<Boolean>() {
 
 			public void onFailure(Throwable caught) {
 				MessageDialogBox dialogBox = new MessageDialogBox(
@@ -146,7 +146,7 @@ public abstract class AbstractCommand implements Command{
 				dialogBox.center();
 			}
 
-			public void onSuccess(Object result) {
+			public void onSuccess(Boolean result) {
 			  if(commandCallback != null){
 			    execute(commandCallback, feedback);
 			  } else {
@@ -170,7 +170,7 @@ public abstract class AbstractCommand implements Command{
       @Override
       public void run() {
 
-        MantleLoginDialog.performLogin(new AsyncCallback<Object>() {
+        MantleLoginDialog.performLogin(new AsyncCallback<Boolean>() {
 
           public void onFailure(Throwable caught) {
             MessageDialogBox dialogBox = new MessageDialogBox(
@@ -188,7 +188,7 @@ public abstract class AbstractCommand implements Command{
             dialogBox.center();
           }
 
-          public void onSuccess(Object result) {
+          public void onSuccess(Boolean result) {
             if(commandCallback != null){
               execute(commandCallback);
             } else {

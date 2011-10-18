@@ -68,6 +68,7 @@ public class GeneratedContentDialog extends PromptDialogBox implements TableList
     initGui();
   }
   
+  @SuppressWarnings("deprecation")
   private void initGui() {
     setCallback(this);
     // Make the dialog title "Some Title Archive"

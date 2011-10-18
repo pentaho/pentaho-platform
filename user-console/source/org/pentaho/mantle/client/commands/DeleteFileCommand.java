@@ -22,10 +22,7 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebServiceCache;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -33,8 +30,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 

@@ -17,14 +17,25 @@
  */
 package org.pentaho.mantle.client.menubar;
 
+import java.util.Map;
+
+import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
+import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
+import org.pentaho.mantle.client.commands.SwitchThemeCommand;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.toolbars.MainToolbarController;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
+import org.pentaho.ui.xul.containers.XulMenubar;
 import org.pentaho.ui.xul.gwt.binding.GwtBindingFactory;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 
 public class MainMenubarController extends AbstractXulEventHandler {
 
@@ -32,6 +43,12 @@ public class MainMenubarController extends AbstractXulEventHandler {
   private XulMenuitem propertiesMenuItem;
   private XulMenuitem saveMenuItem;
   private XulMenuitem saveAsMenuItem;
+  private XulMenuitem showBrowserMenuItem;
+  private XulMenuitem showWorkspaceMenuItem;
+
+  private XulMenubar languageMenu;
+  private XulMenubar themesMenu;
+  private XulMenubar toolsMenu;
 
   public MainMenubarController(MainMenubarModel model) {
     this.model = model;
@@ -45,6 +62,55 @@ public class MainMenubarController extends AbstractXulEventHandler {
     propertiesMenuItem = (XulMenuitem) document.getElementById("propertiesMenuItem");
     saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem");
     saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem");
+    showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem");
+    showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem");
+    languageMenu = (XulMenubar) document.getElementById("languagemenu");
+    themesMenu = (XulMenubar) document.getElementById("themesmenu");
+    toolsMenu = (XulMenubar) document.getElementById("toolsmenu");
+    
+    // install language sub-menus
+    Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
+    if (supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty()) {
+      MenuBar langMenu = (MenuBar) languageMenu.getManagedObject();
+      for (String lang : supportedLanguages.keySet()) {
+        MenuItem langMenuItem = new MenuItem(supportedLanguages.get(lang), new SwitchLocaleCommand(lang)); //$NON-NLS-1$
+        langMenuItem.getElement().setId(supportedLanguages.get(lang) + "_menu_item");
+        langMenu.addItem(langMenuItem);
+      }
+    }
+
+    // install themes
+    MantleServiceCache.getService().getActiveTheme(new AsyncCallback<String>() {
+      public void onFailure(Throwable throwable) {
+      }
+
+      public void onSuccess(final String activeTheme) {
+        MantleServiceCache.getService().getSystemThemes(new AsyncCallback<Map<String, String>>() {
+          public void onFailure(Throwable throwable) {
+
+          }
+
+          public void onSuccess(Map<String, String> strings) {
+            for (String themeId : strings.keySet()) {
+              CheckBoxMenuItem themeMenuItem = new CheckBoxMenuItem(strings.get(themeId), new SwitchThemeCommand(themeId)); //$NON-NLS-1$
+              themeMenuItem.getElement().setId(themeId + "_menu_item");
+              themeMenuItem.setChecked(themeId.equals(activeTheme));
+              ((MenuBar) themesMenu.getManagedObject()).addItem(themeMenuItem);
+            }
+          }
+        });
+      }
+    });
+
+    MantleServiceCache.getService().isAdministrator(new AsyncCallback<Boolean>() {
+      public void onFailure(Throwable caught) {
+      }
+
+      public void onSuccess(Boolean isAdministrator) {
+        toolsMenu.setVisible(isAdministrator);
+      }
+    });
+
     BindingFactory bf = new GwtBindingFactory(this.document);
     bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled");
     bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled");
@@ -125,6 +191,35 @@ public class MainMenubarController extends AbstractXulEventHandler {
     model.executeScheduleContent();
   }
 
+  @Bindable
+  public void showBrowserClicked() {
+    boolean checked = ((CheckBoxMenuItem) showBrowserMenuItem.getManagedObject()).isChecked();
+    ((CheckBoxMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(!checked);
+    model.toggleShowBrowser();
+  }
+  
+  @Bindable
+  public void showWorkspaceClicked() {
+    boolean checked = ((CheckBoxMenuItem) showWorkspaceMenuItem.getManagedObject()).isChecked();
+    ((CheckBoxMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(!checked);
+    model.toggleShowWorkspace();
+  }
+
+  @Bindable
+  public void useDescriptionsForTooltipsClicked() {
+    model.toggleUseDescriptionsForTooltips();
+  }
+
+  @Bindable
+  public void refreshContent() {
+    model.refreshContent();
+  }
+
+  @Bindable
+  public void documentationClicked() {
+    model.openDocumentation();
+  }
+  
   private native void executeJS(JavaScriptObject obj, String js)
   /*-{
     try{

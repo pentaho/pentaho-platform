@@ -28,7 +28,6 @@ import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.RepositoryFileUtils;
 import org.pentaho.mantle.client.dialogs.FileDialog;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
@@ -131,7 +130,6 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
     this.showHiddenFiles = showHiddenFiles;
   }
   
-  @SuppressWarnings("unused")
   private void showOpenFileDialog(final JavaScriptObject callback, final String path, final String title, final String okText, final String fileTypes, final Boolean showHidden) {
     RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(new AsyncCallback<RepositoryFileTree>() {
       public void onFailure(Throwable caught) {
@@ -173,7 +171,6 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
     }
   }-*/;
 
-  @SuppressWarnings("unchecked")
   public void populateFilesList(SolutionBrowserPanel perspective, SolutionTree solutionTree, TreeItem item) {
     filesList.clear();
     // Get the user object. 
@@ -198,20 +195,19 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
         if (!file.isFolder() && (isShowHiddenFiles() || !file.isHidden())) { 
           // TODO Currently Old solution repository stores url type files. New repository does not have that concept. What do we need to do here
           //String url = fileElement.getAttribute("url"); //$NON-NLS-1$
-          String url = "url";
           ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(file.getName());
           String icon = null;
           if (plugin != null) {
             icon = plugin.getFileIcon();
           }
           // TODO Mapping Title to LocalizedName. Is this correct ? 
-          String localizedName = file.getTitle();
-          String description = file.getDescription();
-          // TODO Mapping Title to ToolTip. Is this correct ?
-          String tooltip = localizedName;
-          if (solutionTree.isUseDescriptionsForTooltip() && !StringUtils.isEmpty(description)) {
-            tooltip = description;
-          }
+
+          // String localizedName = file.getTitle();
+          // String description = file.getDescription();
+          // // TODO Mapping Title to ToolTip. Is this correct ?
+          // if (solutionTree.isUseDescriptionsForTooltip() && !StringUtils.isEmpty(description)) {
+          // tooltip = description;
+          // }
           final FileItem fileLabel = new FileItem(file,this, PluginOptionsHelper.getEnabledOptions(file.getName()), toolbar.getSupportsACLs(), icon);
           // BISERVER-2317: Request for more IDs for Mantle UI elements
           // set element id as the filename

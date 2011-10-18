@@ -26,14 +26,11 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
-import org.pentaho.mantle.client.commands.ShowBrowserCommand;
-import org.pentaho.mantle.client.commands.ToggleWorkspaceCommand;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.EmptyCallback;
@@ -77,12 +74,10 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.HorizontalSplitPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.MenuItemSeparator;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.TreeListener;
-import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.VerticalSplitPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -112,9 +107,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     public void execute() {
       solutionTree.setShowLocalizedFileNames(!solutionTree.isShowLocalizedFileNames());
 
-      // update view menu
-      updateViewMenu();
-
       // update setting
       MantleServiceCache.getService().setShowLocalizedFileNames(solutionTree.isShowLocalizedFileNames(), EmptyCallback.getInstance());
     }
@@ -126,21 +118,15 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       solutionTree.setShowHiddenFiles(!solutionTree.isShowHiddenFiles());
       solutionTree.setSelectedItem(solutionTree.getSelectedItem(), true);
 
-      // update view menu
-      updateViewMenu();
-
       // update setting
       MantleServiceCache.getService().setShowHiddenFiles(solutionTree.isShowHiddenFiles(), EmptyCallback.getInstance());
     }
   };
 
-  private Command UseDescriptionCommand = new Command() {
+  public Command toggleUseDescriptionCommand = new Command() {
     public void execute() {
       solutionTree.setUseDescriptionsForTooltip(!solutionTree.isUseDescriptionsForTooltip());
       solutionTree.setSelectedItem(solutionTree.getSelectedItem(), true);
-
-      // update view menu
-      updateViewMenu();
 
       // update setting
       MantleServiceCache.getService().setUserSetting(IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS,
@@ -427,7 +413,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     contentPanel.showWidget(contentPanel.getWidgetIndex(workspacePanel));
     // TODO Not sure what event type to pass
     fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.UNDEFINED, -1);
-    updateViewMenu();
   }
 
   public void showContent() {
@@ -448,7 +433,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     }
     // TODO Not sure what event type to pass
     fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, contentTabPanel.getSelectedTabIndex());
-    updateViewMenu();
   }
 
   @SuppressWarnings("nls")
@@ -687,33 +671,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     authCmd.execute();
   }
 
-  public void updateViewMenu() {
-    ArrayList<UIObject> viewMenuItems = new ArrayList<UIObject>();
-
-    // menu items
-    CheckBoxMenuItem showWorkspaceMenuItem = new CheckBoxMenuItem(Messages.getString("workspace"), new ToggleWorkspaceCommand()); //$NON-NLS-1$
-    CheckBoxMenuItem showHiddenFilesMenuItem = new CheckBoxMenuItem(Messages.getString("showHiddenFiles"), ShowHideFilesCommand); //$NON-NLS-1$
-    CheckBoxMenuItem showLocalizedFileNamesMenuItem = new CheckBoxMenuItem(Messages.getString("showLocalizedFileNames"), ToggleLocalizedNamesCommand); //$NON-NLS-1$
-    CheckBoxMenuItem showSolutionBrowserMenuItem = new CheckBoxMenuItem(Messages.getString("showSolutionBrowser"), new ShowBrowserCommand()); //$NON-NLS-1$
-    CheckBoxMenuItem useDescriptionsMenuItem = new CheckBoxMenuItem(Messages.getString("useDescriptionsForTooltips"), UseDescriptionCommand); //$NON-NLS-1$
-
-    showWorkspaceMenuItem.setChecked(isWorkspaceShowing());
-    showLocalizedFileNamesMenuItem.setChecked(solutionTree.isShowLocalizedFileNames());
-    showHiddenFilesMenuItem.setChecked(solutionTree.isShowHiddenFiles());
-    showSolutionBrowserMenuItem.setChecked(showSolutionBrowser);
-    useDescriptionsMenuItem.setChecked(solutionTree.isUseDescriptionsForTooltip());
-
-    // viewMenuItems.add(showLocalizedFileNamesMenuItem);
-    viewMenuItems.add(showSolutionBrowserMenuItem);
-    viewMenuItems.add(showWorkspaceMenuItem);
-    viewMenuItems.add(new MenuItemSeparator());
-    viewMenuItems.add(useDescriptionsMenuItem);
-    viewMenuItems.add(showHiddenFilesMenuItem);
-    viewMenuItems.add(new MenuItemSeparator());
-
-    // viewMenuCallback.installViewMenu(viewMenuItems);
-  }
-
   public WorkspacePanel getWorkspacePanel() {
     return workspacePanel;
   }
@@ -752,7 +709,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       solutionNavigatorAndContentPanel.setSplitPosition("0px"); //$NON-NLS-1$
       solutionNavigatorPanel.setVisible(false); //$NON-NLS-1$
     }
-    updateViewMenu();
   }
 
   public void addSolutionBrowserListener(SolutionBrowserListener listener) {

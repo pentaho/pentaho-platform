@@ -1,17 +1,16 @@
 package org.pentaho.mantle.client.commands;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 /**
- * User: nbaker
- * Date: 5/13/11
+ * User: nbaker Date: 5/13/11
  */
 public class SwitchThemeCommand extends AbstractCommand {
 
@@ -34,9 +33,9 @@ public class SwitchThemeCommand extends AbstractCommand {
 
       public void onSuccess(Void aVoid) {
         // forcing a setTimeout to fix a problem in IE BISERVER-6385
-        DeferredCommand.addCommand(new Command(){
+        Scheduler.get().scheduleDeferred(new Command() {
           public void execute() {
-           Window.Location.reload();
+            Window.Location.reload();
           }
         });
       }

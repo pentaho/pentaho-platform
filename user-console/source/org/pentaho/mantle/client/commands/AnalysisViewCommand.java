@@ -23,7 +23,6 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 
 public class AnalysisViewCommand extends AbstractCommand {

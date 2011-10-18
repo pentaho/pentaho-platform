@@ -17,16 +17,12 @@
 package org.pentaho.mantle.client.commands;
 
 import java.util.Date;
-import java.util.List;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebServiceCache;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -40,8 +36,6 @@ import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -63,6 +57,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
     performOperation(true);
   }
   
+  @SuppressWarnings("deprecation")
   protected JSONObject getJsonSimpleTrigger(int repeatCount, int interval, Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     trigger.put("repeatInterval", new JSONNumber(interval)); //$NON-NLS-1$

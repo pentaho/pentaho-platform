@@ -92,7 +92,6 @@ public class SolutionBrowserDragController extends PickupDragController{
       if(contentTabPanel.getCurrentFrame() == null){
         return false;
       }
-      FileItem item = (FileItem) context.draggable;
       int rawX = this.context.mouseX;
       int rawY = this.context.mouseY;
       int offsetX = rawX - contentTabPanel.getCurrentFrame().getFrame().getAbsoluteLeft();

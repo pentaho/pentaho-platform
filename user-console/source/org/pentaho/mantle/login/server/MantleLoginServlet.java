@@ -30,18 +30,20 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class MantleLoginServlet extends RemoteServiceServlet implements MantleLoginService {
 
-private AuthenticationTrustResolver resolver = new AuthenticationTrustResolverImpl();
+  private static final long serialVersionUID = -4817690707790477958L;
+
+  private AuthenticationTrustResolver resolver = new AuthenticationTrustResolverImpl();
 
   public ArrayList<String> getAllUsers() {
     IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
-    ArrayList<String> users =  new ArrayList<String>(userRoleListService.getAllUsers());
+    ArrayList<String> users = new ArrayList<String>(userRoleListService.getAllUsers());
     Collections.sort(users);
     return users;
   }
 
   /**
-   * Note that this implementation is different from MantleServlet.isAuthenticated. This method must return false if the
-   * user is anonymous. That is not the case for MantleServlet.isAuthenticated.
+   * Note that this implementation is different from MantleServlet.isAuthenticated. This method must return false if the user is anonymous. That is not the case
+   * for MantleServlet.isAuthenticated.
    */
   public boolean isAuthenticated() {
     return !resolver.isAnonymous(SecurityContextHolder.getContext().getAuthentication());

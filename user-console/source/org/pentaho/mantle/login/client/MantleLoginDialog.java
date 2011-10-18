@@ -24,11 +24,13 @@ import java.util.Map;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.utils.PropertiesUtil;
-import org.pentaho.gwt.widgets.client.utils.StringTokenizer;
+import org.pentaho.gwt.widgets.client.utils.i18n.PropertiesUtil;
+import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.login.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -39,7 +41,6 @@ import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
-import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -62,7 +63,7 @@ public class MantleLoginDialog extends PromptDialogBox {
   private final PasswordTextBox passwordTextBox = new PasswordTextBox();
   private CheckBox newWindowChk = new CheckBox();
   private String returnLocation = null;
-  
+
   private static boolean showUsersList = false;
   private static boolean showNewWindowOption = true;
   private static boolean openInNewWindowDefault = false;
@@ -82,6 +83,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     public void cancelPressed() {
     }
 
+    @SuppressWarnings("deprecation")
     public void okPressed() {
       String path = Window.Location.getPath();
       if (!path.endsWith("/")) { //$NON-NLS-1$
@@ -104,8 +106,8 @@ public class MantleLoginDialog extends PromptDialogBox {
                 long year = 1000 * 60 * 60 * 24 * 365;
                 // one year into the future
                 Date expirationDate = new Date(System.currentTimeMillis() + year);
-                Cookies.setCookie("loginNewWindowChecked", "" + newWindowChk.isChecked(), expirationDate); //$NON-NLS-1$ //$NON-NLS-2$
-                outerCallback.onSuccess(newWindowChk != null && newWindowChk.isChecked());
+                Cookies.setCookie("loginNewWindowChecked", "" + newWindowChk.getValue(), expirationDate); //$NON-NLS-1$ //$NON-NLS-2$
+                outerCallback.onSuccess(newWindowChk != null && newWindowChk.getValue());
               } else {
                 outerCallback.onFailure(new Throwable(Messages.getString("authFailed"))); //$NON-NLS-1$
               }
@@ -170,7 +172,7 @@ public class MantleLoginDialog extends PromptDialogBox {
         public void onResponseReceived(Request request, Response response) {
           String propertiesFileText = response.getText();
           // build a simple map of key/value pairs from the properties file
-          HashMap<String,String> settings = PropertiesUtil.buildProperties(propertiesFileText);
+          HashMap<String, String> settings = PropertiesUtil.buildProperties(propertiesFileText);
           StringTokenizer useridTokenizer = new StringTokenizer(settings.get("userIds"), ','); //$NON-NLS-1$
           StringTokenizer passwordTokenizer = new StringTokenizer(settings.get("userPasswords"), ','); //$NON-NLS-1$
           StringTokenizer userdisplayTokenizer = new StringTokenizer(settings.get("userDisplayNames"), ','); //$NON-NLS-1$
@@ -200,7 +202,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     }
   }
 
-  public MantleLoginDialog(AsyncCallback callback, boolean showNewWindowOption) {
+  public MantleLoginDialog(AsyncCallback<Boolean> callback, boolean showNewWindowOption) {
     this();
     setCallback(callback);
     setShowNewWindowOption(showNewWindowOption);
@@ -210,7 +212,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     showNewWindowOption = show;
   }
 
-  public static void performLogin(final AsyncCallback callback) {
+  public static void performLogin(final AsyncCallback<Boolean> callback) {
     // let's only login if we are not actually logged in
     SERVICE.isAuthenticated(new AsyncCallback<Boolean>() {
 
@@ -236,7 +238,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     userTextBox.setStyleName("login-panel-label");
     passwordTextBox.setStyleName("login-panel-label");
     newWindowChk.setStyleName("login-panel-label");
-    
+
     VerticalPanel credentialsPanel = new VerticalPanel();
 
     credentialsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -253,10 +255,10 @@ public class MantleLoginDialog extends PromptDialogBox {
       spacer.setHeight("8px"); //$NON-NLS-1$
       credentialsPanel.add(spacer);
     }
-    
+
     Label usernameLabel = new Label(Messages.getString("username") + ":");
     usernameLabel.setStyleName("login-panel-label");
-    
+
     credentialsPanel.add(usernameLabel); //$NON-NLS-1$ //$NON-NLS-2$
     credentialsPanel.add(userTextBox);
 
@@ -271,7 +273,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     credentialsPanel.add(passwordTextBox);
 
     boolean reallyShowNewWindowOption = showNewWindowOption;
-    
+
     String showNewWindowOverride = Window.Location.getParameter("showNewWindowOption"); //$NON-NLS-1$
     if (showNewWindowOverride != null && !"".equals(showNewWindowOverride)) { //$NON-NLS-1$
       // if the override is set, we MUST obey it above all else
@@ -279,7 +281,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     } else if (getReturnLocation() != null && !"".equals(getReturnLocation())) { //$NON-NLS-1$
       StringTokenizer st = new StringTokenizer(getReturnLocation(), "?&"); //$NON-NLS-1$
       // first token will be ignored, it is 'up to the ?'
-      for (int i=1;i<st.countTokens();i++) {
+      for (int i = 1; i < st.countTokens(); i++) {
         StringTokenizer paramTokenizer = new StringTokenizer(st.tokenAt(i), "="); //$NON-NLS-1$
         if (paramTokenizer.countTokens() == 2) {
           // we've got a name=value token
@@ -290,7 +292,7 @@ public class MantleLoginDialog extends PromptDialogBox {
         }
       }
     }
-    
+
     // New Window checkbox
     if (reallyShowNewWindowOption) {
       spacer = new SimplePanel();
@@ -302,15 +304,15 @@ public class MantleLoginDialog extends PromptDialogBox {
 
       String cookieCheckedVal = Cookies.getCookie("loginNewWindowChecked"); //$NON-NLS-1$
       if (cookieCheckedVal != null) {
-        newWindowChk.setChecked(Boolean.parseBoolean(cookieCheckedVal));
+        newWindowChk.setValue(Boolean.parseBoolean(cookieCheckedVal));
       } else {
         // default is false, per BISERVER-2384
-        newWindowChk.setChecked(openInNewWindowDefault);
+        newWindowChk.setValue(openInNewWindowDefault);
       }
 
       credentialsPanel.add(newWindowChk);
     }
-    
+
     userTextBox.setTabIndex(1);
     passwordTextBox.setTabIndex(2);
     if (reallyShowNewWindowOption) {
@@ -326,7 +328,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     loginPanel.setStyleName("login-panel");
     loginPanel.add(lockImage);
     loginPanel.add(credentialsPanel);
-    
+
     return loginPanel;
   }
 
@@ -339,9 +341,9 @@ public class MantleLoginDialog extends PromptDialogBox {
     for (Map.Entry<String, String[]> entry : defaultUsers.entrySet()) {
       usersListBox.addItem(entry.getKey());
     }
-    usersListBox.addChangeListener(new ChangeListener() {
+    usersListBox.addChangeHandler(new ChangeHandler() {
 
-      public void onChange(Widget sender) {
+      public void onChange(ChangeEvent event) {
         String key = usersListBox.getValue(usersListBox.getSelectedIndex());
         userTextBox.setText(defaultUsers.get(key)[0]);
         passwordTextBox.setText(defaultUsers.get(key)[1]);
@@ -357,7 +359,7 @@ public class MantleLoginDialog extends PromptDialogBox {
     this.returnLocation = returnLocation;
     // the return location might have a parameter in the url to configure options,
     // so we must rebuild the UI if the return location is changed
-    setContent(buildLoginPanel(openInNewWindowDefault));    
+    setContent(buildLoginPanel(openInNewWindowDefault));
   }
 
 }
