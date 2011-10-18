@@ -16,6 +16,7 @@ package org.pentaho.platform.repository2.unified.importexport;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -30,6 +31,12 @@ public interface ImportSource {
   IRepositoryFileBundle getFile(final String path);
 
   Iterable<IRepositoryFileBundle> getFiles() throws IOException;
+  
+  void addFile(IRepositoryFileBundle file);
+  
+  String getUploadDir();
+  
+  List<ImportSource> getDependentImportSources();
 
   /**
    * ImportSource instances are expected to present bytes in InputStreams as encoded by the given charset.

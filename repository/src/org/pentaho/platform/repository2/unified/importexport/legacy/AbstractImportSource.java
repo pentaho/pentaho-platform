@@ -17,7 +17,9 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.pentaho.platform.repository2.unified.importexport.ImportSource;
@@ -30,7 +32,10 @@ public abstract class AbstractImportSource implements ImportSource {
   /**
    * Keys are extensions and values are MIME types.
    */
+  protected Map<String, ImportSource> sourceTypes = new HashMap<String, ImportSource>();
   protected Map<String, String> mimeTypes = new HashMap<String, String>();
+  protected List<ImportSource> dependentImportSources = new ArrayList<ImportSource>();
+  protected List<IRepositoryFileBundle> files = new ArrayList<IRepositoryFileBundle>();  
   
   public AbstractImportSource() {
     super();
@@ -67,5 +72,33 @@ public abstract class AbstractImportSource implements ImportSource {
     mimeTypes.put("waqr.xml", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("xwaqr", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put(null, null);
+  }
+  
+  public void addFile(IRepositoryFileBundle file) {
+  }
+  
+  public String getUploadDir() {
+	  return null;
+  }
+  
+  public List<ImportSource> getDependentImportSources() {
+	  return dependentImportSources;
+  }
+  
+  protected ImportSource resolveDependentImportSource(String key) {
+	  if(sourceTypes.isEmpty()) {
+		  initializeSourceTypes();
+	  }
+	  ImportSource importSource = sourceTypes.get(key);
+	  if(importSource != null) {
+		  if(!dependentImportSources.contains(importSource)) {
+			  dependentImportSources.add(importSource);
+		  }
+	  }
+	  return importSource;
+  }
+  
+  private void initializeSourceTypes() {
+	  sourceTypes.put(".mondrian.xml", new MondrianSchemaImportSource());
   }
 }

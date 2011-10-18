@@ -64,7 +64,11 @@ public class Importer {
     Assert.notNull(converters);
     this.unifiedRepository = unifiedRepository;
     this.converters = converters;
-    pluginManager = PentahoSystem.get(IPluginManager.class, null);
+    try {
+    	pluginManager = PentahoSystem.get(IPluginManager.class, null);
+    } catch(Exception e) {
+    	logger.debug("Executing outside the BIPLATFORM");
+    }
   }
 
   // ~ Methods =========================================================================================================

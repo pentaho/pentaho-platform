@@ -71,6 +71,10 @@ public class RepositoryFileBundle implements IRepositoryFileBundle, Serializable
   public String getPath() {
     return path;
   }
+  
+  public void setPath(String path) {
+	  this.path = path;
+  }
 
   public String getCharset() {
     return charset;

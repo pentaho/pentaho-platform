@@ -40,6 +40,7 @@ import org.pentaho.platform.repository2.unified.importexport.Converter;
 import org.pentaho.platform.repository2.unified.importexport.ImportSource;
 import org.pentaho.platform.repository2.unified.importexport.Importer;
 import org.pentaho.platform.repository2.unified.importexport.StreamConverter;
+import org.pentaho.platform.repository2.unified.importexport.legacy.MondrianSchemaImportSource;
 import org.pentaho.platform.repository2.unified.importexport.legacy.SingleFileStreamImportSource;
 import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
@@ -106,15 +107,18 @@ public class RepositoryImportResource {
     converters.put("xml", streamConverter); //$NON-NLS-1$
 
     Importer importer = new Importer(repository, converters);
-    ImportSource src = null;
     try {
       if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) { //$NON-NLS-1$
-        ZipInputStream zis = new ZipInputStream(fileIS);
-        src = new ZipSolutionRepositoryImportSource(zis, "UTF-8"); //$NON-NLS-1$
+    	ImportSource src = new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8", new String[] {"/system/", ".mondrian.xml"}); //$NON-NLS-1$
+        importer.doImport(src, uploadDir, null);
+        for(ImportSource dependentImportSource : src.getDependentImportSources()) {
+        	importer.doImport(dependentImportSource, dependentImportSource.getUploadDir(), null);
+        }
       } else {
-        src = new SingleFileStreamImportSource(fileIS, fileInfo.getFileName(), "UTF-8"); //$NON-NLS-1$
+    	ImportSource src = new SingleFileStreamImportSource(fileIS, fileInfo.getFileName(), "UTF-8"); //$NON-NLS-1$
+        importer.doImport(src, uploadDir, null);
       }
-      importer.doImport(src, uploadDir, null);
+      
     } catch (IOException e) {
       return Response.serverError().entity(e.toString()).build();
     }

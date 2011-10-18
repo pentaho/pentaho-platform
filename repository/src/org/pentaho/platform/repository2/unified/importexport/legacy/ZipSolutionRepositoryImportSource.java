@@ -17,7 +17,6 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,6 +28,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.repository2.unified.importexport.ImportSource;
 import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
 
 /**
@@ -41,11 +41,17 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
   private String charSet;
   private String ownerName;
   private ZipInputStream zipInputStream;
+  private String[] filters;
 
-  public ZipSolutionRepositoryImportSource(ZipInputStream zipInputStream, String charSet) {
+  public ZipSolutionRepositoryImportSource(ZipInputStream zipInputStream, String charSet, String[] filtersParam) {
     super();
     this.zipInputStream = zipInputStream;
-    this.charSet = charSet;  
+    this.charSet = charSet;
+    this.filters = (filtersParam == null) ? new String[] {} : filtersParam;
+  }
+  
+  public ZipSolutionRepositoryImportSource(ZipInputStream zipInputStream, String charSet) {
+	this(zipInputStream, charSet, null);
   }
   
   /* (non-Javadoc)
@@ -69,7 +75,17 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
       while (entry != null) {
         String entryName = FilenameUtils.separatorsToUnix(entry.getName());
         String extension = "";
-        if (!entryName.contains("/system/")) { // don't do anything as this is a system folder item
+       
+        boolean includeFile = true;
+        ImportSource importSource = null;
+        for(String filter : this.filters) {
+        	if (entryName.contains(filter)) {
+        		importSource = resolveDependentImportSource(filter);
+        		includeFile = importSource != null;
+        		break;
+        	}
+        }
+        if (includeFile) {
           boolean isDir = entry.getSize() == 0;
           if (!isDir) {
             extension = entryName.substring(entryName.lastIndexOf('.') + 1);
@@ -92,7 +108,12 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
           
           String parentDir =  new File(entryName).getParent() == null ? "/" : new File(entryName).getParent() + "/";    
           RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, parentDir, tempFile, charSet, mimeTypes.get(extension.toLowerCase()));
-          files.add(repoFileBundle);
+          if(importSource != null) {
+        	  repoFileBundle.setPath("");
+        	  importSource.addFile(repoFileBundle);
+          } else {
+        	  files.add(repoFileBundle);
+          }
         }
         zipInputStream.closeEntry();
         entry = zipInputStream.getNextEntry();
@@ -105,7 +126,7 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
 //    }
     return files;
   }
-
+  
   /* (non-Javadoc)
    * @see org.pentaho.platform.repository2.unified.importexport.ImportSource#getRequiredCharset()
    */
