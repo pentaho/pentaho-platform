@@ -15,7 +15,7 @@
  * Copyright 2011 Pentaho Corporation.  All rights reserved.
  * 
  */
-package org.pentaho.mantle.client.menubar;
+package org.pentaho.mantle.client.ui.menubar;
 
 import java.util.Map;
 
@@ -24,7 +24,7 @@ import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
-import org.pentaho.mantle.client.toolbars.MainToolbarController;
+import org.pentaho.mantle.client.ui.toolbar.MainToolbarController;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.containers.XulMenubar;

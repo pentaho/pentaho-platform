@@ -17,18 +17,16 @@
 package org.pentaho.mantle.client.images;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dev.Disconnectable;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.DisclosurePanelImages;
 import com.google.gwt.user.client.ui.HorizontalSplitPanelImages;
-import com.google.gwt.user.client.ui.ImageBundle;
-import com.google.gwt.user.client.ui.TreeImages;
+import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.VerticalSplitPanelImages;
 
-public interface MantleImages extends ImageBundle, TreeImages, HorizontalSplitPanelImages, VerticalSplitPanelImages, DisclosurePanelImages {
+public interface MantleImages extends ClientBundle, Tree.Resources, HorizontalSplitPanelImages, VerticalSplitPanelImages {
 
   public static final MantleImages images = (MantleImages) GWT.create(MantleImages.class);
-  public static final BookmarkImages bookmarkImages = (BookmarkImages) GWT.create(BookmarkImages.class);
 
   AbstractImagePrototype plus();
 
@@ -56,11 +54,11 @@ public interface MantleImages extends ImageBundle, TreeImages, HorizontalSplitPa
   
   AbstractImagePrototype file_report();
   
-  AbstractImagePrototype treeOpen();
+  ImageResource treeOpen();
 
-  AbstractImagePrototype treeClosed();
+  ImageResource treeClosed();
 
-  AbstractImagePrototype treeLeaf();
+  ImageResource treeLeaf();
 
   AbstractImagePrototype closeTab();
 
@@ -130,6 +128,6 @@ public interface MantleImages extends ImageBundle, TreeImages, HorizontalSplitPa
 
   AbstractImagePrototype drop_invalid();
   
-  AbstractImagePrototype disclosurePanelOpen();
-  AbstractImagePrototype disclosurePanelClosed();
+  ImageResource disclosurePanelOpen();
+  ImageResource disclosurePanelClosed();
 }

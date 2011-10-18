@@ -47,7 +47,7 @@ import org.pentaho.mantle.client.solutionbrowser.toolbars.BrowserToolbar;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTree;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
 import org.pentaho.mantle.client.solutionbrowser.workspace.WorkspacePanel;
-import org.pentaho.mantle.client.ui.MantleTabPanel;
+import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
@@ -396,7 +396,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   /**
    * This method is called via JSNI
    */
-  @SuppressWarnings("unused")
   private void mouseUp(Event e) {
     solutionNavigatorAndContentPanel.onBrowserEvent(e);
   }
@@ -498,6 +497,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
+            @SuppressWarnings("deprecation")
             JSONObject jsonObject = (JSONObject) JSONParser.parse(response.getText());
             JSONArray jsonList = (JSONArray) jsonObject.get("executableFileTypeDto");
             for (int i = 0; i < jsonList.size(); i++) {

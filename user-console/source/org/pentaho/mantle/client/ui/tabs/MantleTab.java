@@ -16,7 +16,7 @@
  *
  * @author Michael D'Amour
  */
-package org.pentaho.mantle.client.ui;
+package org.pentaho.mantle.client.ui.tabs;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;

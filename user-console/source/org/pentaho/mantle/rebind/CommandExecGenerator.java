@@ -184,6 +184,7 @@ public class CommandExecGenerator extends Generator {
     sourceWriter.println("}");
   }
 
+  @SuppressWarnings("unused")
   private String boxPrimative(JType type) {
     if (type.isPrimitive() != null) {
       JPrimitiveType primative = type.isPrimitive();

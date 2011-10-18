@@ -28,6 +28,7 @@ import java.util.ArrayList;
  * 
  */
 public class SubscriptionState implements Serializable {
+  private static final long serialVersionUID = -4694414328048798007L;
   public Boolean subscriptionsEnabled;
   public ArrayList<SubscriptionSchedule> availableSchedules;
   public ArrayList<SubscriptionSchedule> appliedSchedules;

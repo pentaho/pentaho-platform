@@ -22,6 +22,7 @@ package org.pentaho.mantle.client.objects;
 import java.io.Serializable;
 
 public class JobDetail implements Serializable {
+  private static final long serialVersionUID = 4556560206144741862L;
   public String id;
   public String name;
   public String fullname;

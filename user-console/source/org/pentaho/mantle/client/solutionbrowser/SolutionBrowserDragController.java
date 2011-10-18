@@ -2,7 +2,7 @@ package org.pentaho.mantle.client.solutionbrowser;
 
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-import org.pentaho.mantle.client.ui.MantleTabPanel;
+import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;

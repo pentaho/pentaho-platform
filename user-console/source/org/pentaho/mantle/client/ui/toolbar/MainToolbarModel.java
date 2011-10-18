@@ -15,7 +15,7 @@
  * Copyright 2008 - 2009 Pentaho Corporation.  All rights reserved.
  * 
  */
-package org.pentaho.mantle.client.toolbars;
+package org.pentaho.mantle.client.ui.toolbar;
 
 import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;

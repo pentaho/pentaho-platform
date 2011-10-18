@@ -26,6 +26,7 @@ import java.util.Date;
 import org.pentaho.mantle.client.solutionbrowser.IFileSummary;
 
 public class SolutionFileInfo implements Serializable, IFileSummary {
+  private static final long serialVersionUID = 5180921684949664558L;
   public String path;
   public String name;
   public String localizedName;

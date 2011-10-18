@@ -29,6 +29,7 @@ import java.util.Date;
  *
  */
 public class SubscriptionSchedule implements Serializable {
+  private static final long serialVersionUID = 8190087491154642396L;
   public String id; 
   public String title;
   public String scheduleReference;

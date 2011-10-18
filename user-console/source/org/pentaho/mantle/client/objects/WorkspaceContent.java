@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 public class WorkspaceContent implements Serializable
 {
+  private static final long serialVersionUID = -4201572866324739341L;
   private ArrayList<JobDetail> scheduledJobs;
   private ArrayList<JobDetail> completedJobs;
   private ArrayList<JobSchedule> mySchedules;

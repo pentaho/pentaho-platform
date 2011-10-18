@@ -22,6 +22,7 @@ package org.pentaho.mantle.client.objects;
 import java.io.Serializable;
 
 public class UserPermission implements Serializable {
+  private static final long serialVersionUID = 4396089838181301563L;
   public String name;
   public int mask;
   

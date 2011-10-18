@@ -59,13 +59,18 @@ public class WorkspacePanel extends ScrollPanel {
   private static final int MYSCHEDULES = 2;
   private static final int ALLSCHEDULES = 3;
   private static final String DELETE = "delete"; //$NON-NLS-1$
-  
-  private DisclosurePanel allScheduledContentDisclosure = new DisclosurePanel(MantleImages.images, Messages.getString("allSchedulesAdminOnly"), false); //$NON-NLS-1$
-  private DisclosurePanel subscriptionsContentDisclosure = new DisclosurePanel(MantleImages.images, Messages.getString("publicSchedules"), false); //$NON-NLS-1$
-  private DisclosurePanel myScheduledContentDisclosure = new DisclosurePanel(MantleImages.images, Messages.getString("mySchedules"), false); //$NON-NLS-1$
-  private DisclosurePanel waitingContentDisclosure = new DisclosurePanel(MantleImages.images, Messages.getString("waiting"), false); //$NON-NLS-1$
-  private DisclosurePanel completedContentDisclosure = new DisclosurePanel(MantleImages.images, Messages.getString("complete"), false); //$NON-NLS-1$
-  
+
+  private DisclosurePanel allScheduledContentDisclosure = new DisclosurePanel(MantleImages.images.disclosurePanelOpen(),
+      MantleImages.images.disclosurePanelClosed(), Messages.getString("allSchedulesAdminOnly")); //$NON-NLS-1$
+  private DisclosurePanel subscriptionsContentDisclosure = new DisclosurePanel(MantleImages.images.disclosurePanelOpen(),
+      MantleImages.images.disclosurePanelClosed(), Messages.getString("publicSchedules")); //$NON-NLS-1$
+  private DisclosurePanel myScheduledContentDisclosure = new DisclosurePanel(MantleImages.images.disclosurePanelOpen(),
+      MantleImages.images.disclosurePanelClosed(), Messages.getString("mySchedules")); //$NON-NLS-1$
+  private DisclosurePanel waitingContentDisclosure = new DisclosurePanel(MantleImages.images.disclosurePanelOpen(),
+      MantleImages.images.disclosurePanelClosed(), Messages.getString("waiting")); //$NON-NLS-1$
+  private DisclosurePanel completedContentDisclosure = new DisclosurePanel(MantleImages.images.disclosurePanelOpen(),
+      MantleImages.images.disclosurePanelClosed(), Messages.getString("complete")); //$NON-NLS-1$
+
   private FlexTable allScheduledContentTable;
   private FlexTable subscriptionsContentTable;
   private FlexTable myScheduledContentTable;
@@ -73,12 +78,14 @@ public class WorkspacePanel extends ScrollPanel {
   private FlexTable completedContentTable;
   private FlexTable workspaceTable = new FlexTable();
 
-  private boolean isAdministrator = false;
-
   public WorkspacePanel(boolean isAdministrator) {
     getElement().setAttribute("id", "workspacePanel");
     setStyleName("workspacePanel");
-    this.isAdministrator = isAdministrator;
+    allScheduledContentDisclosure.setOpen(false);
+    subscriptionsContentDisclosure.setOpen(false);
+    myScheduledContentDisclosure.setOpen(false);
+    waitingContentDisclosure.setOpen(false);
+    completedContentDisclosure.setOpen(false);
     buildScheduledAndCompletedContentPanel(isAdministrator);
   }
 
@@ -150,16 +157,15 @@ public class WorkspacePanel extends ScrollPanel {
   }
 
   public void setAdministrator(boolean isAdministrator) {
-    this.isAdministrator = isAdministrator;
     buildScheduledAndCompletedContentPanel(isAdministrator);
   }
 
   private void buildScheduledAndCompletedContentPanel(boolean isAdministrator) {
     workspaceTable = new FlexTable();
-    
+
     HTML workspaceMessage = new HTML(Messages.getString("workspaceMessage"));
     workspaceMessage.setStylePrimaryName("workspaceMessage");
-    
+
     workspaceTable.setWidget(0, 0, workspaceMessage); //$NON-NLS-1$
     workspaceTable.setWidget(1, 0, waitingContentDisclosure);
     workspaceTable.setWidget(2, 0, completedContentDisclosure);
@@ -192,8 +198,8 @@ public class WorkspacePanel extends ScrollPanel {
             // Frame iframe = new Frame("GetContent?action=view&id=" + jobDetail.id);
             // viewDialog.setContent(iframe);
             // iframe.setPixelSize(1024, 600);
-            SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(jobDetail.name, jobDetail.name,
-                "GetContent?action=view&id=" + jobDetail.id, false); //$NON-NLS-1$
+            SolutionBrowserPanel.getInstance().getContentTabPanel()
+                .showNewURLTab(jobDetail.name, jobDetail.name, "GetContent?action=view&id=" + jobDetail.id, false); //$NON-NLS-1$
           }
         });
         viewLabel.setStyleName("backgroundContentAction"); //$NON-NLS-1$
@@ -317,7 +323,7 @@ public class WorkspacePanel extends ScrollPanel {
       subscrTable.getCellFormatter().setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_RIGHT);
       subscrTable.getCellFormatter().setStyleName(row, 3, "backgroundContentTableCell"); //$NON-NLS-1$
       subscrTable.getCellFormatter().setStyleName(row, 4, "backgroundContentTableCellRight"); //$NON-NLS-1$      
-      
+
       ArrayList<String[]> scheduleList = currentSubscr.getContent();
       if (scheduleList != null) {
         int scheduleSize = scheduleList.size();
@@ -353,8 +359,7 @@ public class WorkspacePanel extends ScrollPanel {
           actionButtonsPanel.add(new HTML("&nbsp;|&nbsp;")); //$NON-NLS-1$
           actionButtonsPanel.add(lblDeleteContent);
           subscrTable.setWidget(row, 4, actionButtonsPanel);
-          
-          
+
           subscrTable.getCellFormatter().setStyleName(row, 0, "backgroundContentTableCell"); //$NON-NLS-1$
           subscrTable.getCellFormatter().setStyleName(row, 1, "backgroundContentTableCell"); //$NON-NLS-1$
           subscrTable.getCellFormatter().setStyleName(row, 2, "backgroundContentTableCell"); //$NON-NLS-1$
@@ -370,8 +375,7 @@ public class WorkspacePanel extends ScrollPanel {
             subscrTable.getCellFormatter().setStyleName(row, 3, "backgroundContentTableCellBottom"); //$NON-NLS-1$
             subscrTable.getCellFormatter().setStyleName(row, 4, "backgroundContentTableCellBottomRight"); //$NON-NLS-1$
           }
-          
-          
+
         }
       }
     }
@@ -571,8 +575,8 @@ public class WorkspacePanel extends ScrollPanel {
       scheduleTable.setWidget(row + 1, 1, new HTML(jobSchedule.jobGroup));
       scheduleTable.setWidget(row + 1, 2, new HTML(
           jobSchedule.jobDescription == null || jobSchedule.jobDescription.trim().length() == 0 ? "&nbsp;" : jobSchedule.jobDescription)); //$NON-NLS-1$
-      scheduleTable.setWidget(row + 1, 3, new HTML(
-          (jobSchedule.previousFireTime == null ? Messages.getString("never") : jobSchedule.previousFireTime.toString()) + "<BR>" //$NON-NLS-1$ //$NON-NLS-2$
+      scheduleTable.setWidget(row + 1, 3,
+          new HTML((jobSchedule.previousFireTime == null ? Messages.getString("never") : jobSchedule.previousFireTime.toString()) + "<BR>" //$NON-NLS-1$ //$NON-NLS-2$
               + (jobSchedule.nextFireTime == null ? "-" : jobSchedule.nextFireTime.toString()))); //$NON-NLS-1$
       scheduleTable.setWidget(row + 1, 4, new HTML(getTriggerStateName(jobSchedule.triggerState)));
       scheduleTable.setWidget(row + 1, 5, actionPanel);
@@ -963,10 +967,6 @@ public class WorkspacePanel extends ScrollPanel {
 
     public Label getLblDelete() {
       return lblDelete;
-    }
-
-    public void setLblDelete(Label lblDelete) {
-      this.lblDelete = lblDelete;
     }
 
     public DeleteSubscriptionClickHandler(SubscriptionBean subscription, Label lblDelete) {

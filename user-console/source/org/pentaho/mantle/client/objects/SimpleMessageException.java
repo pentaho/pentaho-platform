@@ -19,6 +19,7 @@ package org.pentaho.mantle.client.objects;
 import java.io.Serializable;
 
 public class SimpleMessageException extends Exception implements Serializable {
+  private static final long serialVersionUID = 8230188785861011214L;
   public String message;
 
   public SimpleMessageException() {

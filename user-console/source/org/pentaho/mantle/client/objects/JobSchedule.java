@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class JobSchedule implements Serializable {
+  private static final long serialVersionUID = -4958765050443723116L;
   public String name;
   public String fullname;
   public String triggerName;

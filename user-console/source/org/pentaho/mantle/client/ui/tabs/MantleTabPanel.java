@@ -16,7 +16,7 @@
  *
  * @author Michael D'Amour
  */
-package org.pentaho.mantle.client.ui;
+package org.pentaho.mantle.client.ui.tabs;
 
 import java.util.ArrayList;
 import java.util.Collections;

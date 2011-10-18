@@ -26,7 +26,7 @@ import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.toolbars.XulMainToolbar;
+import org.pentaho.mantle.client.ui.toolbar.XulMainToolbar;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
 

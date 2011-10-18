@@ -15,7 +15,7 @@
  * Copyright 2011 Pentaho Corporation.  All rights reserved.
  * 
  */
-package org.pentaho.mantle.client.menubar;
+package org.pentaho.mantle.client.ui.menubar;
 
 import java.util.HashMap;
 
