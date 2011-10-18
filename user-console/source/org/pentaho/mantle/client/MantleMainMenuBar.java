@@ -49,7 +49,8 @@ import com.google.gwt.user.client.ui.MenuItemSeparator;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.Widget;
 
-public class MantleMainMenuBar extends MenuBar implements IViewMenuCallback, SolutionBrowserListener {
+@Deprecated
+public class MantleMainMenuBar extends MenuBar implements SolutionBrowserListener {
 
   private MantleMenuBar viewMenu = new MantleMenuBar(true);
   // menu items (to be enabled/disabled)
@@ -238,8 +239,8 @@ public class MantleMainMenuBar extends MenuBar implements IViewMenuCallback, Sol
 
     standardViewMenuItems.add(new MenuItemSeparator());
 
-    MenuItem refreshItem = new MenuItem(Messages.getString("refresh"),
-        SolutionBrowserPanel.getInstance().isWorkspaceShowing() ? new RefreshWorkspaceCommand() : new RefreshRepositoryCommand());
+    MenuItem refreshItem = new MenuItem(Messages.getString("refresh"), SolutionBrowserPanel.getInstance().isWorkspaceShowing() ? new RefreshWorkspaceCommand()
+        : new RefreshRepositoryCommand());
     refreshItem.getElement().setId("view_refresh_menu_item");
     standardViewMenuItems.add(refreshItem); //$NON-NLS-1$
     installViewMenu(viewMenuAdditions);

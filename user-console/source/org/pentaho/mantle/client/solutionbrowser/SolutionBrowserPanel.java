@@ -29,7 +29,6 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
-import org.pentaho.mantle.client.IViewMenuCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
@@ -103,7 +102,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private WorkspacePanel workspacePanel = null;
 
   private MantleTabPanel contentTabPanel = new MantleTabPanel(true);
-  private IViewMenuCallback viewMenuCallback;
   private boolean showSolutionBrowser = false;
   private boolean isAdministrator = false;
   private ArrayList<SolutionBrowserListener> listeners = new ArrayList<SolutionBrowserListener>();
@@ -166,11 +164,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   private static SolutionBrowserPanel instance;
 
-  private SolutionBrowserPanel(final IViewMenuCallback viewMenuCallback) {
+  private SolutionBrowserPanel() {
     RootPanel.get().getElement().getStyle().setProperty("position", "relative");
     dragController = new SolutionBrowserDragController(contentTabPanel);
     instance = this;
-    this.viewMenuCallback = viewMenuCallback;
 
     SolutionBrowserPanel.setupNativeHooks();
 
@@ -179,15 +176,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     buildUI();
   }
 
-  public static SolutionBrowserPanel getInstance(IViewMenuCallback viewMenuCallback) {
+  public static SolutionBrowserPanel getInstance() {
     if (instance == null) {
-      instance = new SolutionBrowserPanel(viewMenuCallback);
+      instance = new SolutionBrowserPanel();
     }
     return instance;
-  }
-
-  public static SolutionBrowserPanel getInstance() {
-    return getInstance(null);
   }
 
   private void buildUI() {
@@ -203,11 +196,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorPanel.setTopWidget(topPanel);
     solutionNavigatorPanel.setBottomWidget(filesListPanel);
 
-    /* BISERVER-6181 - - add padding to bottom of file list panel.
-       add a css class to allow us to override inline styles to add the padding
-    */
+    /*
+     * BISERVER-6181 - - add padding to bottom of file list panel. add a css class to allow us to override inline styles to add the padding
+     */
     filesListPanel.getElement().getParentElement().addClassName("filter-list-panel-container");
-
 
     solutionNavigatorPanel.setSplitPosition("60%"); //$NON-NLS-1$
     solutionNavigatorAndContentPanel.setStyleName("puc-horizontal-split-panel");
@@ -380,13 +372,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   /**
-   * The passed in URL has all the parameters set for background execution. We
-   * simply call GET on the URL and handle the response object. If the response
-   * object contains a particular string then we display success message box.
+   * The passed in URL has all the parameters set for background execution. We simply call GET on the URL and handle the response object. If the response object
+   * contains a particular string then we display success message box.
    * 
    * @param url
-   *          Complete url with all the parameters set for scheduling a job in
-   *          the background.
+   *          Complete url with all the parameters set for scheduling a job in the background.
    */
   private void runInBackground(final String url) {
 
@@ -401,10 +391,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
         public void onResponseReceived(Request request, Response response) {
           /*
-           * We are checking for this specific string because if the job was
-           * scheduled successfully by QuartzBackgroundExecutionHelper then the
-           * response is an html that contains the specific string. We have
-           * coded this way because we did not want to touch the old way.
+           * We are checking for this specific string because if the job was scheduled successfully by QuartzBackgroundExecutionHelper then the response is an
+           * html that contains the specific string. We have coded this way because we did not want to touch the old way.
            */
           if ("true".equals(response.getHeader("background_execution"))) {
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("info"), Messages.getString("backgroundJobScheduled"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
@@ -454,7 +442,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     if (showIndex != -1) {
       contentPanel.showWidget(showIndex);
     }
-    
+
     if (contentTabPanel.getSelectedTabIndex() != -1) {
       contentTabPanel.selectTab(contentTabPanel.getSelectedTab());
     }
@@ -466,11 +454,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   @SuppressWarnings("nls")
   public static String pathToId(String path) {
     String id = path.replace("/", ":");
-    if(!id.startsWith(":")) {
+    if (!id.startsWith(":")) {
       id = ":" + id;
     }
-    if(id.endsWith(":")) {
-      id = id.substring(0, id.length()-2);
+    if (id.endsWith(":")) {
+      id = id.substring(0, id.length() - 2);
     }
     return id;
   }
@@ -478,7 +466,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   public List<String> getExecutableFileExtensions() {
     return executableFileExtensions;
   }
-  
+
   public void openFile(final RepositoryFile repositoryFile, final FileCommand.COMMAND mode) {
     String fileNameWithPath = repositoryFile.getPath();
     if (mode == FileCommand.COMMAND.EDIT) {
@@ -494,98 +482,98 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         extension = fileNameWithPath.substring(fileNameWithPath.lastIndexOf(".") + 1); //$NON-NLS-1$
       }
       if (!executableFileExtensions.contains(extension)) {
-        url = getPath() +  "api/repos/" + pathToId(fileNameWithPath) + "/content"; //$NON-NLS-1$ //$NON-NLS-2$ 
-      } else { 
+        url = getPath() + "api/repos/" + pathToId(fileNameWithPath) + "/content"; //$NON-NLS-1$ //$NON-NLS-2$ 
+      } else {
         ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(fileNameWithPath);
-        url = getPath() +  "api/repos/" + pathToId(fileNameWithPath) + "/" + (plugin != null && (plugin.getCommandPerspective(mode) != null) ? plugin.getCommandPerspective(mode):"generatedContent"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        url = getPath()
+            + "api/repos/" + pathToId(fileNameWithPath) + "/" + (plugin != null && (plugin.getCommandPerspective(mode) != null) ? plugin.getCommandPerspective(mode) : "generatedContent"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
-        if (mode == FileCommand.COMMAND.NEWWINDOW) {
-          Window.open(url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no"); //$NON-NLS-1$ //$NON-NLS-2$
-        } else {
-          contentTabPanel.showNewURLTab(repositoryFile.getTitle(), repositoryFile.getTitle(), url, true);
+      if (mode == FileCommand.COMMAND.NEWWINDOW) {
+        Window.open(url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no"); //$NON-NLS-1$ //$NON-NLS-2$
+      } else {
+        contentTabPanel.showNewURLTab(repositoryFile.getTitle(), repositoryFile.getTitle(), url, true);
       }
-        }
-          }
-
+    }
+  }
 
   protected void initializeExecutableFileTypes() {
-//    GeneratedContentDialog dialog = new GeneratedContentDialog();
-//    dialog.show();
+    // GeneratedContentDialog dialog = new GeneratedContentDialog();
+    // dialog.show();
     final String moduleBaseURL = GWT.getModuleBaseURL();
     final String moduleName = GWT.getModuleName();
     final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
     final String url = contextURL + "api/repos/executableTypes"; //$NON-NLS-1$
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     executableTypesRequestBuilder.setHeader("accept", "application/json");
-                try {
+    try {
       executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
-                    public void onError(Request request, Throwable exception) {
-//          showError(exception);
-                    }
+        public void onError(Request request, Throwable exception) {
+          // showError(exception);
+        }
 
-                    public void onResponseReceived(Request request, Response response) {
+        public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
-            JSONObject jsonObject = (JSONObject)JSONParser.parse(response.getText());
-            JSONArray jsonList = (JSONArray)jsonObject.get("executableFileTypeDto");
+            JSONObject jsonObject = (JSONObject) JSONParser.parse(response.getText());
+            JSONArray jsonList = (JSONArray) jsonObject.get("executableFileTypeDto");
             for (int i = 0; i < jsonList.size(); i++) {
-              JSONObject executableType = (JSONObject)jsonList.get(i);
+              JSONObject executableType = (JSONObject) jsonList.get(i);
               executableFileExtensions.add(executableType.get("extension").isString().stringValue());
-                          }
-//            List<String> workspaceFiles = parseWorkspaceFiles(response.getText());
-          } else {
-//            showServerError(response);
-                        }
-                    }
-                  });
-                } catch (RequestException e) {
-//      showError(e);
-              }
             }
+            // List<String> workspaceFiles = parseWorkspaceFiles(response.getText());
+          } else {
+            // showServerError(response);
+          }
+        }
+      });
+    } catch (RequestException e) {
+      // showError(e);
+    }
+  }
 
-//  private List<RepositoryFileDto> parseWorkspaceFiles(String JSONString) {
-//    List<RepositoryFileDto> files = new ArrayList<RepositoryFileDto>();
-//    JSONValue value = JSONParser.parse(JSONString);
-//    
-//    JSONObject repositoryFileTreeDtoObject = value.isObject();
-//    JSONArray childrenArray = repositoryFileTreeDtoObject.get("children").isArray();
-//    if (childrenArray != null) {
-//      for (int i=0; i<childrenArray.size(); i++) {
-//        JSONObject rftdo = childrenArray.get(i).isObject();
-//        JSONObject repositoryFileJSON = rftdo.get("file").isObject();
-//        Boolean isFolder = repositoryFileJSON.get("folder").isBoolean().booleanValue();
-//        if (!isFolder) {
-//          RepositoryFileDto newRepositoryFile = new RepositoryFileDto();
-//          newRepositoryFile.setDescription(repositoryFileJSON.get("description").isString().stringValue());
-//          newRepositoryFile.setFileSize((long) repositoryFileJSON.get("fileSize").isNumber().doubleValue());
-//          newRepositoryFile.setFolder(isFolder);
-//          newRepositoryFile.setHidden(repositoryFileJSON.get("hidden").isBoolean().booleanValue());
-//          newRepositoryFile.setId(repositoryFileJSON.get("id").isString().stringValue());
-//          newRepositoryFile.setLocale(repositoryFileJSON.get("locale").isString().stringValue());
-//          newRepositoryFile.setLocked(repositoryFileJSON.get("locked").isBoolean().booleanValue());
-//          newRepositoryFile.setLockMessage(repositoryFileJSON.get("lockMessage").isString().stringValue());
-//          newRepositoryFile.setLockOwner(repositoryFileJSON.get("lockOwner").isString().stringValue());
-//          newRepositoryFile.setName(repositoryFileJSON.get("name").isString().stringValue());
-//          newRepositoryFile.setOriginalParentFolderId(repositoryFileJSON.get("originalParentFolderId").isString().stringValue());
-//          newRepositoryFile.setOriginalParentFolderPath(repositoryFileJSON.get("originalParentFolderPath").isString().stringValue());
-//          newRepositoryFile.setOwner(repositoryFileJSON.get("owner").isString().stringValue());
-//          newRepositoryFile.setOwnerType((int) repositoryFileJSON.get("ownerType").isNumber().doubleValue());
-//          newRepositoryFile.setPath(repositoryFileJSON.get("path").isString().stringValue());
-//          newRepositoryFile.setTitle(repositoryFileJSON.get("title").isString().stringValue());
-//          newRepositoryFile.setVersioned(repositoryFileJSON.get("versioned").isBoolean().booleanValue());
-//          newRepositoryFile.setVersionId(repositoryFileJSON.get("versionId").isString().stringValue());
-//          
-//          files.add(newRepositoryFile);
-//        }
-//      }
-//    }
-//    return files;
-//  }
+  // private List<RepositoryFileDto> parseWorkspaceFiles(String JSONString) {
+  // List<RepositoryFileDto> files = new ArrayList<RepositoryFileDto>();
+  // JSONValue value = JSONParser.parse(JSONString);
+  //
+  // JSONObject repositoryFileTreeDtoObject = value.isObject();
+  // JSONArray childrenArray = repositoryFileTreeDtoObject.get("children").isArray();
+  // if (childrenArray != null) {
+  // for (int i=0; i<childrenArray.size(); i++) {
+  // JSONObject rftdo = childrenArray.get(i).isObject();
+  // JSONObject repositoryFileJSON = rftdo.get("file").isObject();
+  // Boolean isFolder = repositoryFileJSON.get("folder").isBoolean().booleanValue();
+  // if (!isFolder) {
+  // RepositoryFileDto newRepositoryFile = new RepositoryFileDto();
+  // newRepositoryFile.setDescription(repositoryFileJSON.get("description").isString().stringValue());
+  // newRepositoryFile.setFileSize((long) repositoryFileJSON.get("fileSize").isNumber().doubleValue());
+  // newRepositoryFile.setFolder(isFolder);
+  // newRepositoryFile.setHidden(repositoryFileJSON.get("hidden").isBoolean().booleanValue());
+  // newRepositoryFile.setId(repositoryFileJSON.get("id").isString().stringValue());
+  // newRepositoryFile.setLocale(repositoryFileJSON.get("locale").isString().stringValue());
+  // newRepositoryFile.setLocked(repositoryFileJSON.get("locked").isBoolean().booleanValue());
+  // newRepositoryFile.setLockMessage(repositoryFileJSON.get("lockMessage").isString().stringValue());
+  // newRepositoryFile.setLockOwner(repositoryFileJSON.get("lockOwner").isString().stringValue());
+  // newRepositoryFile.setName(repositoryFileJSON.get("name").isString().stringValue());
+  // newRepositoryFile.setOriginalParentFolderId(repositoryFileJSON.get("originalParentFolderId").isString().stringValue());
+  // newRepositoryFile.setOriginalParentFolderPath(repositoryFileJSON.get("originalParentFolderPath").isString().stringValue());
+  // newRepositoryFile.setOwner(repositoryFileJSON.get("owner").isString().stringValue());
+  // newRepositoryFile.setOwnerType((int) repositoryFileJSON.get("ownerType").isNumber().doubleValue());
+  // newRepositoryFile.setPath(repositoryFileJSON.get("path").isString().stringValue());
+  // newRepositoryFile.setTitle(repositoryFileJSON.get("title").isString().stringValue());
+  // newRepositoryFile.setVersioned(repositoryFileJSON.get("versioned").isBoolean().booleanValue());
+  // newRepositoryFile.setVersionId(repositoryFileJSON.get("versionId").isString().stringValue());
+  //
+  // files.add(newRepositoryFile);
+  // }
+  // }
+  // }
+  // return files;
+  // }
 
   public void editFile() {
     if (filesListPanel.getSelectedFileItems() == null || filesListPanel.getSelectedFileItems().size() != 1) {
-          return;
-        }
+      return;
+    }
 
     RepositoryFile file = filesListPanel.getSelectedFileItems().get(0).getRepositoryFile();
     if (file.getName().endsWith(".analysisview.xaction")) { //$NON-NLS-1$
@@ -595,7 +583,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(file.getName());
       if (plugin != null && plugin.hasCommand(COMMAND.EDIT)) {
         // load the editor for this plugin
-        String editUrl = getPath() +  "api/repos/" + pathToId(file.getPath()) + "/" + (plugin != null && (plugin.getCommandPerspective(COMMAND.EDIT) != null) ? plugin.getCommandPerspective(COMMAND.EDIT):"editor"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$       
+        String editUrl = getPath()
+            + "api/repos/" + pathToId(file.getPath()) + "/" + (plugin != null && (plugin.getCommandPerspective(COMMAND.EDIT) != null) ? plugin.getCommandPerspective(COMMAND.EDIT) : "editor"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$       
         // See if it's already loaded
         for (int i = 0; i < contentTabPanel.getTabCount(); i++) {
           Widget w = contentTabPanel.getTab(i).getContent();
@@ -606,9 +595,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
           }
         }
 
-          contentTabPanel
-              .showNewURLTab(
-                  Messages.getString("editingColon") + file.getTitle(), Messages.getString("editingColon") + file.getTitle(), editUrl, true); //$NON-NLS-1$ //$NON-NLS-2$
+        contentTabPanel
+            .showNewURLTab(Messages.getString("editingColon") + file.getTitle(), Messages.getString("editingColon") + file.getTitle(), editUrl, true); //$NON-NLS-1$ //$NON-NLS-2$
 
         // Store representation of file in the frame for reference later when
         // save is called
@@ -637,8 +625,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       protected void performOperation(boolean feedback) {
         final FileItem selectedFileItem = filesListPanel.getSelectedFileItems().get(0);
         String url = null;
-          url = "api/repo/files/" + SolutionBrowserPanel.pathToId(filesListPanel.getSelectedFileItems().get(0).getRepositoryFile().getPath()) + "/generatedContent"; //$NON-NLS-1$ //$NON-NLS-2$
-          url = getPath() + url;
+        url = "api/repo/files/" + SolutionBrowserPanel.pathToId(filesListPanel.getSelectedFileItems().get(0).getRepositoryFile().getPath()) + "/generatedContent"; //$NON-NLS-1$ //$NON-NLS-2$
+        url = getPath() + url;
 
         if (mode == FileCommand.COMMAND.BACKGROUND) {
           MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("info"), //$NON-NLS-1$
@@ -679,8 +667,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
             public void onSuccess(Boolean subscribable) {
               if (subscribable) {
-                contentTabPanel.showNewURLTab(selectedFileItem.getLocalizedName(), selectedFileItem.getLocalizedName(),
-                    myurl, true);
+                contentTabPanel.showNewURLTab(selectedFileItem.getLocalizedName(), selectedFileItem.getLocalizedName(), myurl, true);
               } else {
                 MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("info"), //$NON-NLS-1$
                     Messages.getString("noSchedulePermission"), false, false, true); //$NON-NLS-1$
@@ -688,11 +675,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
               }
             }
           };
-          MantleServiceCache.getService().hasAccess(selectedFileItem.getRepositoryFile().getPath(),
-              selectedFileItem.getRepositoryFile().getName(), 3, callback);
+          MantleServiceCache.getService()
+              .hasAccess(selectedFileItem.getRepositoryFile().getPath(), selectedFileItem.getRepositoryFile().getName(), 3, callback);
         } else {
-          contentTabPanel.showNewURLTab(selectedFileItem.getLocalizedName(), selectedFileItem.getLocalizedName(), url,
-              true);
+          contentTabPanel.showNewURLTab(selectedFileItem.getLocalizedName(), selectedFileItem.getLocalizedName(), url, true);
         }
       }
 
@@ -725,7 +711,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     viewMenuItems.add(showHiddenFilesMenuItem);
     viewMenuItems.add(new MenuItemSeparator());
 
-    viewMenuCallback.installViewMenu(viewMenuItems);
+    // viewMenuCallback.installViewMenu(viewMenuItems);
   }
 
   public WorkspacePanel getWorkspacePanel() {
@@ -794,13 +780,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
           listener.solutionBrowserEvent(null, null, null);
         } else {
           List<FileItem> selectedItems = filesListPanel.getSelectedFileItems();
-          if(selectedItems.size() > 0) {
+          if (selectedItems.size() > 0) {
             for (FileItem fileItem : selectedItems) {
               listener.solutionBrowserEvent(type, tabContent, fileItem);
             }
           } else {
-              listener.solutionBrowserEvent(type, tabContent, null);
-        }
+            listener.solutionBrowserEvent(type, tabContent, null);
+          }
         }
       } catch (Exception e) {
         // don't let this fail, it will disturb normal processing
@@ -827,15 +813,15 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   private String getPath() {
-      String mypath = Window.Location.getPath();
-      if (!mypath.endsWith("/")) { //$NON-NLS-1$
-        mypath = mypath.substring(0, mypath.lastIndexOf("/") + 1); //$NON-NLS-1$
-      }
-      mypath = mypath.replaceAll("/mantle/", "/"); //$NON-NLS-1$ //$NON-NLS-2$
-      if (!mypath.endsWith("/")) { //$NON-NLS-1$
-        mypath = "/" + mypath; //$NON-NLS-1$
-      }
-      return mypath;
+    String mypath = Window.Location.getPath();
+    if (!mypath.endsWith("/")) { //$NON-NLS-1$
+      mypath = mypath.substring(0, mypath.lastIndexOf("/") + 1); //$NON-NLS-1$
+    }
+    mypath = mypath.replaceAll("/mantle/", "/"); //$NON-NLS-1$ //$NON-NLS-2$
+    if (!mypath.endsWith("/")) { //$NON-NLS-1$
+      mypath = "/" + mypath; //$NON-NLS-1$
+    }
+    return mypath;
   }
 
   /**

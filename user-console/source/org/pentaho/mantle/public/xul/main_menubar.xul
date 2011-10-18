@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<window width="400" height="275" title="Placeholder"
+  xmlns="http://www.pentaho.org/there.is.only.xul"  xmlns:pen="http://www.pentaho.org/2008/xul" onload="mainMenubarHandler.init()">
+  
+	<menubar id="mainMenubar" layout="horizontal">
+		<menubar id="filemenu" label="${file}" layout="vertical">
+			<menubar id="newmenu" label="${new}" layout="vertical">
+				<menuitem id="analysisMenuItem" label="${newAnalysisView}" command="mainMenubarHandler.executeMantleCommand('AnalysisViewCommand')" />		
+				<!-- the rest of the menu items here are provided by the plugins overlays -->	
+			</menubar>
+			<menuitem id="openMenuItem" label="${openEllipsis}" command="mainMenubarHandler.executeMantleCommand('OpenFileCommand')" />		
+			<menubarseparator id="openSeparator"/>
+			<menuitem id="saveMenuItem" label="${save}" command="mainMenubarHandler.saveClicked()" disabled="true" />		
+			<menuitem id="saveAsMenuItem" label="${saveAsEllipsis}" command="mainMenubarHandler.saveAsClicked()" disabled="true" />		
+			<menubarseparator id="saveSeparator"/>
+			<menubar id="managemenu" label="${manage}" layout="vertical">
+				<menuitem id="editMenuItem" label="${editEllipsis}" command="mainMenubarHandler.editContentClicked()"/>		
+				<menuitem id="shareMenuItem" label="${shareEllipsis}" command="mainMenubarHandler.shareContentClicked()"/>		
+				<menuitem id="scheduleMenuItem" label="${scheduleEllipsis}" command="mainMenubarHandler.scheduleContentClicked()"/>		
+			</menubar>
+			<menubarseparator id="manageSeparator"/>
+			<menuitem id="propertiesMenuItem" label="${propertiesEllipsis}" command="mainMenubarHandler.propertiesClicked()" disabled="true"/>		
+			<menubarseparator id="logoutSeparator"/>
+			<menuitem id="logoutMenuItem" label="${logout}" command="mainMenubarHandler.executeMantleCommand('LogoutCommand')" />		
+		</menubar>
+		
+		<menubar id="viewmenu" label="${view}" layout="vertical">
+		</menubar>		
+
+		<menubar id="toolsmenu" label="${tools}" layout="vertical">
+		</menubar>		
+		
+		<menubar id="helpmenu" label="${help}" layout="vertical">
+		</menubar>		
+		
+	</menubar>
+  
+</window>

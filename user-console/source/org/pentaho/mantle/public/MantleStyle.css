@@ -157,6 +157,10 @@ body{
 	background: black;
 }
 
+#mainMenubar {
+	background: black;
+}
+
 .mantle-perspective-switcher {
 	background: black;
 	height: 26px;

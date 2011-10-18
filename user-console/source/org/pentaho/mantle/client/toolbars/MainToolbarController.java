@@ -185,6 +185,12 @@ public class MainToolbarController extends AbstractXulEventHandler {
     }
   }-*/;
 
+  @Bindable
+  public void executeMantleCommand(String cmd) {
+    String js = "executeCommand('" + cmd + "')";
+    executeMantleCall(js);
+  }
+  
   private native void executeJS(JavaScriptObject obj, String js)
   /*-{
     try{

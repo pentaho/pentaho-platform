@@ -28,6 +28,7 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.commands.LoginCommand;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
+import org.pentaho.mantle.client.menubar.XulMainMenubar;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -66,9 +67,6 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
 
   public static String mantleRevisionOverride = null;
 
-  // menu items (to be enabled/disabled)
-  private MantleMainMenuBar menuBar;
-
   // solution browser view
   private SolutionBrowserPanel solutionBrowserPerspective;
 
@@ -92,8 +90,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   }
 
   public void loadApplication() {
-    menuBar = new MantleMainMenuBar();
-    solutionBrowserPerspective = SolutionBrowserPanel.getInstance(menuBar);
+    solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
 
     // registered our native JSNI hooks
     setupNativeHooks(this, new LoginCommand());
@@ -179,7 +176,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     menuAndLogoPanel.setWidth("100%"); //$NON-NLS-1$
 
     if ("true".equals(settings.get("show-menu-bar"))) {
-      menuAndLogoPanel.setWidget(0, 0, menuBar);
+      menuAndLogoPanel.setWidget(0, 0, XulMainMenubar.getInstance());
       menuAndLogoPanel.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
     }
 
@@ -242,7 +239,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
       public void onResponseReceived(Request arg0, Response response) {
         Boolean isAdministrator = Boolean.parseBoolean(response.getText());
         solutionBrowserPerspective.setAdministrator(isAdministrator);
-        menuBar.buildMenuBar(settings, isAdministrator);
+        //menuBar.buildMenuBar(settings, isAdministrator);
 
         int numStartupURLs = Integer.parseInt(settings.get("num-startup-urls")); //$NON-NLS-1$
         for (int i = 0; i < numStartupURLs; i++) {
