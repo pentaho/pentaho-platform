@@ -131,12 +131,15 @@
     parent="abstractBackingRepositoryLifecycleManager" />
   <bean id="pdiBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.PdiBackingRepositoryLifecycleManager"
     parent="abstractBackingRepositoryLifecycleManager" />
+  <bean id="mondrianBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager"
+    parent="abstractBackingRepositoryLifecycleManager" />
 
   <bean id="backingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DelegatingBackingRepositoryLifecycleManager">
     <constructor-arg>
       <list>
         <ref bean="defaultBackingRepositoryLifecycleManager" />
         <ref bean="pdiBackingRepositoryLifecycleManager" />
+        <ref bean="mondrianBackingRepositoryLifecycleManager" />
       </list>
     </constructor-arg>
   </bean>
