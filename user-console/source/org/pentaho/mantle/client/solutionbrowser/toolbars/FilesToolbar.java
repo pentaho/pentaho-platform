@@ -100,10 +100,8 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     label.setStyleName("pentaho-titled-toolbar-label");
     add(label); //$NON-NLS-1$
     add(GLUE);
-    Image runImage = new Image();
-    MantleImages.images.run().applyTo(runImage);
-    Image runDisabledImage = new Image();
-    MantleImages.images.runDisabled().applyTo(runDisabledImage);
+    Image runImage = new Image(MantleImages.images.run());
+    Image runDisabledImage = new Image(MantleImages.images.runDisabled());
     runBtn = new ToolbarButton(runImage, runDisabledImage);
     runBtn.setId("filesToolbarRun");
     runCmd = new FileCommand(FileCommand.COMMAND.RUN, null, repositoryFileProvider);
@@ -111,10 +109,8 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     runBtn.setToolTip(Messages.getString("open")); //$NON-NLS-1$
     add(runBtn);
 
-    Image editImage = new Image();
-    MantleImages.images.update().applyTo(editImage);
-    Image editDisabledImage = new Image();
-    MantleImages.images.updateDisabled().applyTo(editDisabledImage);
+    Image editImage = new Image(MantleImages.images.update());
+    Image editDisabledImage = new Image(MantleImages.images.updateDisabled());
     editBtn = new ToolbarButton(editImage, editDisabledImage);
     editBtn.setId("filesToolbarEdit");
     editCmd = new FileCommand(FileCommand.COMMAND.EDIT, null, repositoryFileProvider);
@@ -122,10 +118,8 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     editBtn.setToolTip(Messages.getString("edit")); //$NON-NLS-1$
     add(editBtn);
 
-    Image miscImage = new Image();
-    MantleImages.images.misc().applyTo(miscImage);
-    Image miscDisabledImage = new Image();
-    MantleImages.images.miscDisabled().applyTo(miscDisabledImage);
+    Image miscImage = new Image(MantleImages.images.misc());
+    Image miscDisabledImage = new Image(MantleImages.images.miscDisabled());
     miscComboBtn = new ToolbarComboButton(miscImage, miscDisabledImage);
     miscComboBtn.setId("filesToolbarOptions");
     MantleServiceCache.getService().repositorySupportsACLS(new AsyncCallback<Boolean>() {

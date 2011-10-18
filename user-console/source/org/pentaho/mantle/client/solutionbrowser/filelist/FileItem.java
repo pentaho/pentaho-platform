@@ -142,13 +142,13 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     if (fileIconStr != null) {
       fileIcon.setUrl(fileIconStr);
     } else if (name.endsWith(ANALYSIS_VIEW_SUFFIX)) {
-      MantleImages.images.file_analysis().applyTo(fileIcon);
+      fileIcon.setResource(MantleImages.images.file_analysis());
     } else if (name.endsWith(XACTION_SUFFIX)) {
-      MantleImages.images.file_action().applyTo(fileIcon);
+      fileIcon.setResource(MantleImages.images.file_action());
     } else if (name.endsWith(URL_SUFFIX)) {
-      MantleImages.images.file_url().applyTo(fileIcon);
+      fileIcon.setResource(MantleImages.images.file_url());
     } else {
-      MantleImages.images.fileIcon().applyTo(fileIcon);
+      fileIcon.setResource(MantleImages.images.fileIcon());
     }
     fileIcon.setWidth("16px"); //$NON-NLS-1$
     fileLabel.setWidth("100%"); //$NON-NLS-1$
@@ -413,7 +413,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     setWidget(0, 0, dropIndicator);
     addStyleName("fileItemDragProxy");//$NON-NLS-1$
     setDroppable(false);
-    MantleImages.images.drop_invalid().applyTo(dropIndicator);
+    dropIndicator.setResource(MantleImages.images.drop_invalid());
   }
 
   public void setDroppable(boolean canDrop){
@@ -422,10 +422,10 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     }
     if(canDrop){
 
-      MantleImages.images.drop_valid().applyTo(dropIndicator);
+      dropIndicator.setResource(MantleImages.images.drop_valid());
       addStyleName("validDrop");//$NON-NLS-1$
     } else {
-      MantleImages.images.drop_invalid().applyTo(dropIndicator);
+      dropIndicator.setResource(MantleImages.images.drop_invalid());
       removeStyleName("validDrop");//$NON-NLS-1$
     }
 

@@ -229,38 +229,38 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   private native void setupNativeHooks(MantleTabPanel tabPanel)
   /*-{  
     $wnd.enableContentEdit = function(enable) { 
-      tabPanel.@org.pentaho.mantle.client.ui.MantleTabPanel::enableContentEdit(Z)(enable);      
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::enableContentEdit(Z)(enable);      
     }
     $wnd.setContentEditSelected = function(enable) { 
-      tabPanel.@org.pentaho.mantle.client.ui.MantleTabPanel::setContentEditSelected(Z)(enable);      
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setContentEditSelected(Z)(enable);      
     }
     $wnd.registerContentOverlay = function(id) { 
-      tabPanel.@org.pentaho.mantle.client.ui.MantleTabPanel::registerContentOverlay(Ljava/lang/String;)(id);      
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::registerContentOverlay(Ljava/lang/String;)(id);      
     }
     $wnd.enableSave = function(enable) {
-      tabPanel.@org.pentaho.mantle.client.ui.MantleTabPanel::setCurrentTabSaveEnabled(Z)(enable);
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::setCurrentTabSaveEnabled(Z)(enable);
     }
     $wnd.closeTab = function(url) {
-      tabPanel.@org.pentaho.mantle.client.ui.MantleTabPanel::closeTab(Ljava/lang/String;)(url);
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::closeTab(Ljava/lang/String;)(url);
     }    
     $wnd.mantle_openTab = function(name, title, url) {
-      tabPanel.@org.pentaho.mantle.client.ui.MantleTabPanel::showNewURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, title, url);
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showNewURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, title, url);
     }    
     $wnd.openURL = function(name, tooltip, url){
       if(url.indexOf('http') != 0 && url.indexOf('/') != 0){
         // relative url. Prepend with root to fix issue with cross frame calls
         url = $wnd.CONTEXT_PATH + url;
       }
-      tabPanel.@org.pentaho.mantle.client.ui.MantleTabPanel::showNewURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, tooltip, url);
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showNewURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, tooltip, url);
     }    
     $wnd.mantle_openNamedFrameTab = function(name, title, frameName, url) {
-      tabPanel.@org.pentaho.mantle.client.ui.MantleTabPanel::showNewNamedFrameURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, title, frameName, url);
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showNewNamedFrameURLTab(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(name, title, frameName, url);
     }
     $wnd.hideLoadingIndicator = function() {
-      tabPanel.@org.pentaho.mantle.client.ui.MantleTabPanel::hideLoadingIndicator()();
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::hideLoadingIndicator()();
     }
     $wnd.showLoadingIndicator = function() {
-      tabPanel.@org.pentaho.mantle.client.ui.MantleTabPanel::showLoadingIndicator()();
+      tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::showLoadingIndicator()();
     }
   }-*/;
 

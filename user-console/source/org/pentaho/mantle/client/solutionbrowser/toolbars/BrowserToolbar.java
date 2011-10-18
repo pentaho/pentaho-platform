@@ -62,9 +62,9 @@ public class BrowserToolbar extends Toolbar {
     add(label); //$NON-NLS-1$
     add(GLUE);
     Image refreshImage = new Image();
-    MantleImages.images.refresh().applyTo(refreshImage);
+    refreshImage.setResource(MantleImages.images.refresh());
     Image refreshDisabledImage = new Image();
-    MantleImages.images.runDisabled().applyTo(refreshDisabledImage);
+    refreshDisabledImage.setResource(MantleImages.images.runDisabled());
     refreshBtn = new ToolbarButton(refreshImage, refreshDisabledImage);
     refreshBtn.setCommand(new RefreshRepositoryCommand());
     refreshBtn.setToolTip(Messages.getString("refresh")); //$NON-NLS-1$

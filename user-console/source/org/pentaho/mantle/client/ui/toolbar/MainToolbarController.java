@@ -76,10 +76,10 @@ public class MainToolbarController extends AbstractXulEventHandler {
   public native void setupNativeHooks(MainToolbarController controller)
   /*-{
     $wnd.mantle_isToolbarButtonEnabled = function(id) { 
-      return controller.@org.pentaho.mantle.client.toolbars.MainToolbarController::isToolbarButtonEnabled(Ljava/lang/String;)(id);      
+      return controller.@org.pentaho.mantle.client.ui.toolbar.MainToolbarController::isToolbarButtonEnabled(Ljava/lang/String;)(id);      
     }
     $wnd.mantle_setToolbarButtonEnabled = function(id, enabled) { 
-      controller.@org.pentaho.mantle.client.toolbars.MainToolbarController::setToolbarButtonEnabled(Ljava/lang/String;Z)(id, enabled);      
+      controller.@org.pentaho.mantle.client.ui.toolbar.MainToolbarController::setToolbarButtonEnabled(Ljava/lang/String;Z)(id, enabled);      
     }
   }-*/;
 

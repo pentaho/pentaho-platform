@@ -19,115 +19,115 @@ package org.pentaho.mantle.client.images;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.HorizontalSplitPanelImages;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.VerticalSplitPanelImages;
+import com.google.gwt.user.client.ui.HorizontalSplitPanel;
+import com.google.gwt.user.client.ui.Tree.Resources;
+import com.google.gwt.user.client.ui.VerticalSplitPanel;
 
-public interface MantleImages extends ClientBundle, Tree.Resources, HorizontalSplitPanelImages, VerticalSplitPanelImages {
+public interface MantleImages extends ClientBundle, Resources, HorizontalSplitPanel.Resources, VerticalSplitPanel.Resources {
 
   public static final MantleImages images = (MantleImages) GWT.create(MantleImages.class);
 
-  AbstractImagePrototype plus();
+  ImageResource plus();
 
-  AbstractImagePrototype minus();
+  ImageResource minus();
 
-  AbstractImagePrototype file();
+  ImageResource file();
 
-  AbstractImagePrototype fileHover();
+  ImageResource fileHover();
 
-  AbstractImagePrototype folder();
+  ImageResource folder();
 
-  AbstractImagePrototype folderHover();
+  ImageResource folderHover();
 
-  AbstractImagePrototype smallFolder();
+  ImageResource smallFolder();
 
-  AbstractImagePrototype smallFolderHover();
+  ImageResource smallFolderHover();
 
-  AbstractImagePrototype fileIcon();
+  ImageResource fileIcon();
 
-  AbstractImagePrototype file_url();
+  ImageResource file_url();
 
-  AbstractImagePrototype file_action();
+  ImageResource file_action();
 
-  AbstractImagePrototype file_analysis();
-  
-  AbstractImagePrototype file_report();
-  
+  ImageResource file_analysis();
+
+  ImageResource file_report();
+
   ImageResource treeOpen();
 
   ImageResource treeClosed();
 
   ImageResource treeLeaf();
 
-  AbstractImagePrototype closeTab();
+  ImageResource closeTab();
 
-  AbstractImagePrototype closeTabHover();
+  ImageResource closeTabHover();
 
-  AbstractImagePrototype backButton();
+  ImageResource backButton();
 
-  AbstractImagePrototype backToFirstPage();
+  ImageResource backToFirstPage();
 
-  AbstractImagePrototype forwardButton();
+  ImageResource forwardButton();
 
-  AbstractImagePrototype forwardToLastPage();
+  ImageResource forwardToLastPage();
 
-  AbstractImagePrototype run();
-  
-  AbstractImagePrototype runDisabled();
+  ImageResource run();
 
-  AbstractImagePrototype update();
+  ImageResource runDisabled();
 
-  AbstractImagePrototype updateDisabled();
+  ImageResource update();
 
-  AbstractImagePrototype misc();
-  
-  AbstractImagePrototype miscDisabled();
+  ImageResource updateDisabled();
 
-  AbstractImagePrototype horizontalSplitPanelThumb();
+  ImageResource misc();
 
-  AbstractImagePrototype verticalSplitPanelThumb();
+  ImageResource miscDisabled();
 
-  AbstractImagePrototype new_analysis_32();
+  ImageResource horizontalSplitPanelThumb();
 
-  AbstractImagePrototype new_report_32();
+  ImageResource verticalSplitPanelThumb();
 
-  AbstractImagePrototype print_32();
+  ImageResource new_analysis_32();
 
-  AbstractImagePrototype print_32_disabled();
+  ImageResource new_report_32();
 
-  AbstractImagePrototype save_32();
+  ImageResource print_32();
 
-  AbstractImagePrototype saveAs_32();
+  ImageResource print_32_disabled();
 
-  AbstractImagePrototype save_32_disabled();
+  ImageResource save_32();
 
-  AbstractImagePrototype saveAs_32_disabled();
+  ImageResource saveAs_32();
 
-  AbstractImagePrototype space1x13();
+  ImageResource save_32_disabled();
 
-  AbstractImagePrototype space1x20();
+  ImageResource saveAs_32_disabled();
 
-  AbstractImagePrototype space1x23();
+  ImageResource space1x13();
 
-  AbstractImagePrototype generic_square_32();
-  
-  AbstractImagePrototype generic_square_32_disabled();
+  ImageResource space1x20();
 
-  AbstractImagePrototype browser_hide_32();
-  
-  AbstractImagePrototype browser_show_32();
-  
-  AbstractImagePrototype workspace_32();
-    
-  AbstractImagePrototype refresh();
-  
-  AbstractImagePrototype open_32();
+  ImageResource space1x23();
 
-  AbstractImagePrototype drop_valid();
+  ImageResource generic_square_32();
 
-  AbstractImagePrototype drop_invalid();
-  
+  ImageResource generic_square_32_disabled();
+
+  ImageResource browser_hide_32();
+
+  ImageResource browser_show_32();
+
+  ImageResource workspace_32();
+
+  ImageResource refresh();
+
+  ImageResource open_32();
+
+  ImageResource drop_valid();
+
+  ImageResource drop_invalid();
+
   ImageResource disclosurePanelOpen();
+
   ImageResource disclosurePanelClosed();
 }
