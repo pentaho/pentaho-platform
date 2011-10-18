@@ -6,7 +6,6 @@
 	<menubar id="mainMenubar" layout="horizontal">
 		<menubar id="filemenu" label="${file}" layout="vertical">
 			<menubar id="newmenu" label="${new}" layout="vertical">
-				<menuitem id="analysisMenuItem" label="${newAnalysisView}" command="mainMenubarHandler.executeMantleCommand('AnalysisViewCommand')" />		
 				<!-- the rest of the menu items here are provided by the plugins overlays -->	
 			</menubar>
 			<menuitem id="openMenuItem" label="${openEllipsis}" command="mainMenubarHandler.executeMantleCommand('OpenFileCommand')" />		

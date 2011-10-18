@@ -45,10 +45,23 @@
         -->
     </menu-items>
 
-
+    <overlays>
+	    <overlay id="startup.jpivot" resourcebundle="content/default-plugin/resources/messages/messages">
+	    	<overlay id="startup.jpivot" resourcebundle="content/default-plugin/resources/messages/messages">
+				<menubar id="newmenu">
+					<menuitem id="jpivotMenuItem" label="${analysisView}" command="mainMenubarHandler.executeMantleCommand('AnalysisViewCommand')" />		
+				</menubar>
+			</overlay>    		
+	    </overlay>    		
+    </overlays>  
+    
     <external-resources>
         <file context="global">js/themes.js</file>
     </external-resources>
+    
+   <static-paths>
+     <static-path url="/default-plugin/resources" localFolder="resources"/>
+   </static-paths>
 
 
 </plugin>
