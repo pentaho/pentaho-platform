@@ -24,6 +24,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.apache.commons.pool.ObjectPool;
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.data.DatasourceServiceException;
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
@@ -31,7 +32,6 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
-import org.pentaho.platform.api.repository.datasource.IDatasource;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
@@ -50,8 +50,8 @@ public class PooledDatasourceSystemListener implements IPentahoSystemListener {
       if(!cacheManager.cacheEnabled(IDatasourceService.JDBC_DATASOURCE)) {
         cacheManager.addCacheRegion(IDatasourceService.JDBC_DATASOURCE);
       }
-      List<IDatasource> datasources = datasourceMgmtSvc.getDatasources();
-      for (IDatasource datasource : datasources) {
+      List<DatabaseMeta> datasources = datasourceMgmtSvc.getDatasources();
+      for (DatabaseMeta datasource : datasources) {
         try {
           Logger.debug(this, "  Setting up pooled Data Source - " + datasource); //$NON-NLS-1$
           final DataSource ds = PooledDatasourceHelper.setupPooledDataSource(datasource);

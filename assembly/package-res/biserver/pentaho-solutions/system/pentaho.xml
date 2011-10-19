@@ -179,6 +179,19 @@
     <entry name="org.jfree.report.NoPrinterAvailable" value="true"/>
     <entry name="org.jfree.report.modules.output.table.html.EmptyCellsUseCSS" value="true"/>
   </report-config>
+  <sampledata-datasource>
+	  <name>SampleData</name>
+	  <host>localhost</host>
+	  <type>Hypersonic</type>
+	  <port>9001</port>
+	  <access>0</access>
+	  <username>pentaho_user</username>
+	  <password>password</password>
+	  <max-active>20</max-active>
+	  <max-idle>5</max-idle>
+	  <max-wait>1000</max-wait>
+	  <query>select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES</query>
+  </sampledata-datasource>
   <dbcp-defaults>
 	  <max-act-conn>20</max-act-conn>
 	  <max-idle-conn>2</max-idle-conn>

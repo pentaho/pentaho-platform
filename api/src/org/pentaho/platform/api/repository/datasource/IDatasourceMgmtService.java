@@ -19,23 +19,31 @@
  */
 package org.pentaho.platform.api.repository.datasource;
 
+import java.io.Serializable;
 import java.util.List;
 
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.engine.IPentahoInitializer;
 
 public interface IDatasourceMgmtService extends IPentahoInitializer {
+  
   public static final String IDATASOURCEMGMTSERVICE = "IDatasourceMgmtService"; //$NON-NLS-1$
-  public void createDatasource(IDatasource newDataSource) throws DuplicateDatasourceException, DatasourceMgmtServiceException;
+  
+  public void createDatasource(DatabaseMeta databaseMeta) throws DuplicateDatasourceException, DatasourceMgmtServiceException;
 
-  public void deleteDatasource(String jndiName) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
+  public void deleteDatasourceByName(String name) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
 
-  public void deleteDatasource(IDatasource dataSource) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
+  public void deleteDatasourceById(Serializable id) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
 
-  public IDatasource getDatasource(String JndiName) throws DatasourceMgmtServiceException;
+  public DatabaseMeta getDatasourceByName(String name) throws DatasourceMgmtServiceException;
 
-  public List<IDatasource> getDatasources() throws DatasourceMgmtServiceException;
+  public DatabaseMeta getDatasourceById(Serializable id) throws DatasourceMgmtServiceException;
 
-  public void updateDatasource(IDatasource datasource) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
+  public List<DatabaseMeta> getDatasources() throws DatasourceMgmtServiceException;
+  
+  public List<Serializable> getDatasourceIds() throws DatasourceMgmtServiceException;
 
+  public void updateDatasourceByName(String name, DatabaseMeta databaseMeta) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
 
+  public void updateDatasourceById(Serializable id, DatabaseMeta databaseMeta) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
 }

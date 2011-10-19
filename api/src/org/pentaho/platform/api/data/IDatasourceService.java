@@ -32,6 +32,11 @@ public interface IDatasourceService {
    public static final String JDBC_POOL = "JDBC_POOL" ; //$NON-NLS-1$
    public static final String JDBC_DATASOURCE = "DataSource" ; //$NON-NLS-1$
    public static final String IDATASOURCE_SERVICE = "IDatasourceService" ; //$NON-NLS-1$
+   public static final String MAX_ACTIVE_KEY = "POOLING_maxActive";
+   public static final String MAX_IDLE_KEY = "POOLING_maxIdle";
+   public static final String MAX_WAIT_KEY = "POOLING_maxWait";
+   public static final String QUERY_KEY = "query";
+
   /**
    * This method clears the JNDI DS cache.  The need exists because after a JNDI
    * connection edit the old DS must be removed from the cache.

@@ -21,16 +21,13 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.apache.commons.dbcp.BasicDataSource;
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
-import org.pentaho.platform.api.repository.datasource.IDatasource;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
@@ -50,11 +47,11 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
           cacheManager.addCacheRegion(IDatasourceService.JDBC_DATASOURCE);
         }
       }
-      List<IDatasource> datasources = datasourceMgmtSvc.getDatasources();
-      for (IDatasource datasource : datasources) {
+      List<DatabaseMeta> datasources = datasourceMgmtSvc.getDatasources();
+      for (DatabaseMeta datasource : datasources) {
         Logger.debug(this, "(storing DataSource under key \"" + IDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$
             + datasource.getName() + "\")"); //$NON-NLS-1$
-        cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE, datasource.getName(), convert(datasource));
+        cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE, datasource.getName(), PooledDatasourceHelper.convert(datasource));
        }
       Logger.debug(this, "NonPooledDatasourceSystemListener: done with init"); //$NON-NLS-1$
       return true;
@@ -78,16 +75,5 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
     Logger.debug(this, "NonPooledDatasourceSystemListener: completed shutdown"); //$NON-NLS-1$
     return;
   }
-  private DataSource convert(IDatasource datasource) {
-    BasicDataSource basicDatasource = new BasicDataSource();
-    basicDatasource.setDriverClassName(datasource.getDriverClass());
-    basicDatasource.setMaxActive(datasource.getMaxActConn());
-    basicDatasource.setMaxIdle(datasource.getIdleConn());
-    basicDatasource.setMaxWait(datasource.getWait());
-    basicDatasource.setUrl(datasource.getUrl());
-    basicDatasource.setUsername(datasource.getUserName());
-    basicDatasource.setPassword(datasource.getPassword());
-    basicDatasource.setValidationQuery(datasource.getQuery());
-    return basicDatasource;
-  }
+
 }

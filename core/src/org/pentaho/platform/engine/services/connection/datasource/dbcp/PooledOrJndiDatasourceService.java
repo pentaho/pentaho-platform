@@ -22,11 +22,11 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.data.DatasourceServiceException;
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
-import org.pentaho.platform.api.repository.datasource.IDatasource;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
@@ -40,10 +40,10 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
 		DataSource ds = null;
 		try {
       IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get(IDatasourceMgmtService.class,null);
-			IDatasource dataSource = datasourceMgmtSvc.getDatasource(datasource);
+			DatabaseMeta databaseMeta = datasourceMgmtSvc.getDatasourceByName(datasource);
 			// Look in the database for the datasource
-			if(dataSource != null) {
-			  ds = PooledDatasourceHelper.setupPooledDataSource(dataSource);
+			if(databaseMeta != null) {
+			  ds = PooledDatasourceHelper.setupPooledDataSource(databaseMeta);
 			// Database does not have the datasource, look in jndi now
 			} else {
 			  ds = getJndiDataSource(datasource);

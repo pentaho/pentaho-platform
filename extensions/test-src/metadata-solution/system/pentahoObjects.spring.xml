@@ -16,10 +16,9 @@ PentahoSystem which is initialized after Spring
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
   <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
   <bean id="ICacheManager" class="org.pentaho.platform.plugin.services.cache.CacheManager" scope="singleton" />
-  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository.datasource.DatasourceMgmtService" scope="prototype" />
+    <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService" scope="prototype" />
   <bean id="IDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService" scope="prototype" />
   <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton" />
-  <bean id="IDatasource" class="org.pentaho.platform.repository.datasource.Datasource" scope="singleton" />
   <bean id="systemStartupSession" class="org.pentaho.platform.engine.security.session.TrustedSystemStartupSession" scope="prototype" />
   
     

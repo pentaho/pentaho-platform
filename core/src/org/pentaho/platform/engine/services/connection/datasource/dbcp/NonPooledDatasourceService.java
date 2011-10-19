@@ -22,12 +22,11 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.data.DatasourceServiceException;
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
-import org.pentaho.platform.api.repository.datasource.IDatasource;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
@@ -56,9 +55,9 @@ public class NonPooledDatasourceService extends BaseDatasourceService {
     }
     try {
       IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get(IDatasourceMgmtService.class,null); 
-      IDatasource datasource = datasourceMgmtSvc.getDatasource(dsName);
-      if(datasource != null) {
-        dataSource = convert(datasource);
+      DatabaseMeta databaseMeta = datasourceMgmtSvc.getDatasourceByName(dsName);
+      if(databaseMeta != null) {
+        dataSource = PooledDatasourceHelper.convert(databaseMeta);
         cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE,dsName, (DataSource) dataSource);  
       } else {
         throw new DatasourceServiceException(Messages.getInstance().getErrorString("NonPooledDatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE")); //$NON-NLS-1$
@@ -99,16 +98,4 @@ public class NonPooledDatasourceService extends BaseDatasourceService {
     return dsName;
   }
 
-  private DataSource convert(IDatasource datasource) {
-    BasicDataSource basicDatasource = new BasicDataSource();
-    basicDatasource.setDriverClassName(datasource.getDriverClass());
-    basicDatasource.setMaxActive(datasource.getMaxActConn());
-    basicDatasource.setMaxIdle(datasource.getIdleConn());
-    basicDatasource.setMaxWait(datasource.getWait());
-    basicDatasource.setUrl(datasource.getUrl());
-    basicDatasource.setUsername(datasource.getUserName());
-    basicDatasource.setPassword(datasource.getPassword());
-    basicDatasource.setValidationQuery(datasource.getQuery());
-    return basicDatasource;
-  }
 }

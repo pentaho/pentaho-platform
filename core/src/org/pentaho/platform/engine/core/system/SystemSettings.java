@@ -86,7 +86,7 @@ public class SystemSettings extends PentahoBase implements ISystemSettings {
     debug(Messages.getInstance().getString("SYSTEMSETTINGS.DEBUG_GET_SYSTEM_SETTING_PATH", File.separator + path)); //$NON-NLS-1$
     Document doc = getSystemSettingsDocument(path);
     if (doc == null) {
-      return null;
+      return defaultValue;
     }
     Node node = doc.selectSingleNode("//" + settingName); //$NON-NLS-1$
     if (node == null) {

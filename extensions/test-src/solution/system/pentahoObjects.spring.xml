@@ -24,8 +24,7 @@ PentahoSystem which is initialized after Spring
   <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.SimpleRuntimeRepository" scope="session" />
   <bean id="IDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService" scope="prototype" />
   <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton" />
-  <bean id="IDatasource" class="org.pentaho.platform.repository.datasource.Datasource" scope="singleton" />
-  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository.datasource.DatasourceMgmtService" scope="prototype" />
+    <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService" scope="prototype" />
   <bean id="IAclPublisher" class="org.pentaho.platform.engine.security.acls.AclPublisher" scope="singleton" />
   <bean id="IAclVoter" class="org.pentaho.platform.engine.security.acls.voter.PentahoBasicAclVoter" scope="singleton" />
   <bean id="IMessageFormatter" class="org.pentaho.platform.engine.services.MessageFormatter" scope="singleton" />

@@ -14,13 +14,17 @@
  */
 package org.pentaho.platform.repository2.unified.spring;
 
+import java.util.concurrent.Callable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
+import org.springframework.security.event.authentication.AbstractAuthenticationEvent;
 import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
 import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
 import org.springframework.util.Assert;
@@ -55,12 +59,21 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
     if (event instanceof AuthenticationSuccessEvent || event instanceof InteractiveAuthenticationSuccessEvent) {
       logger.debug("received AbstractAuthenticationEvent"); //$NON-NLS-1$
       try {
-        // by using PentahoSystem instead of dependency injection, this lookup is lazy, allowing PentahoSystem to get
-        // initialized before this class uses Jackrabbit (which uses PentahoSystem on login)
-        IBackingRepositoryLifecycleManager manager = PentahoSystem.get(IBackingRepositoryLifecycleManager.class);
-        Assert.state(manager != null);
-        manager.newTenant();
-        manager.newUser();
+        AbstractAuthenticationEvent aEvent = (AbstractAuthenticationEvent) event;
+        // run as user to populate SecurityContextHolder and PentahoSessionHolder since Spring Security events are fired
+        //   before SecurityContextHolder is set
+        SecurityHelper.runAsUser(aEvent.getAuthentication().getName(), new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            // by using PentahoSystem instead of dependency injection, this lookup is lazy, allowing PentahoSystem to get
+            // initialized before this class uses Jackrabbit (which uses PentahoSystem on login)
+            IBackingRepositoryLifecycleManager manager = PentahoSystem.get(IBackingRepositoryLifecycleManager.class);
+            Assert.state(manager != null);
+            manager.newTenant();
+            manager.newUser();
+            return null;  
+          }
+        });
       } catch (Exception e) {
         logger.error(e.getLocalizedMessage(), e);
       }

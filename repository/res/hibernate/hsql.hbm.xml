@@ -535,42 +535,6 @@
 		</query>
 
 	</class>
-	<class name="org.pentaho.platform.repository.datasource.Datasource" table="DATASOURCE">
-      <cache usage="read-write"/>
-	  <id column="NAME" name="name" type="string" length="50">
-	  	<generator class="assigned" />
-	  </id>
-      <property name="maxActConn" type="int" not-null="true">
-        <column name="MAXACTCONN"  not-null="true" />
-      </property>
-      <property name="driverClass" type="string" not-null="true">
-        <column name="DRIVERCLASS" length="50" not-null="true" />
-      </property>
-      <property name="idleConn" type="int" not-null="true">
-        <column name="IDLECONN"  not-null="true" />
-      </property>
-      <property name="userName" type="string" not-null="false">
-        <column name="USERNAME" length="50" not-null="false" />
-      </property>
-      <property name="password" type="string" not-null="false">
-        <column name="PASSWORD" length="150" not-null="false" />
-      </property>
-      <property name="url" type="string" not-null="true">
-        <column name="URL" length="512" not-null="true" />
-      </property>
-      <property name="query" type="string" not-null="false">
-        <column name="QUERY" length="100" not-null="false" />
-      </property>
-      <property name="wait" type="long" not-null="true">
-        <column name="WAIT"  not-null="true" />
-      </property>    
- 	  <query name="findAllDatasources">
-	  	<![CDATA[
-	       from org.pentaho.platform.repository.datasource.Datasource
-	    ]]>
-	  </query>  
-    </class>
-    
 	<class
 		name="org.pentaho.platform.repository.usersettings.pojo.UserSetting"
 		table="USER_SETTINGS">

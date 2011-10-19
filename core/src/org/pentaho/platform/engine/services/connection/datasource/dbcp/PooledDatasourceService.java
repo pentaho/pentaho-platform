@@ -22,11 +22,11 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.data.DatasourceServiceException;
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
-import org.pentaho.platform.api.repository.datasource.IDatasource;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
@@ -40,11 +40,9 @@ public class PooledDatasourceService extends BaseDatasourceService {
 		DataSource ds = null;
 		try {
       IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get(IDatasourceMgmtService.class,null);
-			IDatasource dataSource = datasourceMgmtSvc
-					.getDatasource(datasource);
+			DatabaseMeta databaseMeta = datasourceMgmtSvc.getDatasourceByName(datasource);
 			if(datasource != null) {
-	      ds = PooledDatasourceHelper
-        .setupPooledDataSource(dataSource);
+	      ds = PooledDatasourceHelper.setupPooledDataSource(databaseMeta);
 			} else  {
 			  throw new DatasourceServiceException(Messages.getInstance().getErrorString("PooledDatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE")); //$NON-NLS-1$
 			}
