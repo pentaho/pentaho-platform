@@ -130,8 +130,10 @@ public class JcrRepositoryFileUtils {
 
     Map<String, Serializable> metadata = getFileMetadata(session, id);
     creatorId = (String) metadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
-    hidden = node.getProperty(pentahoJcrConstants.getPHO_HIDDEN()).getBoolean();
-    if (isPentahoFile(pentahoJcrConstants, node)) {
+    if (node.hasProperty(pentahoJcrConstants.getPHO_HIDDEN())) {
+      hidden = node.getProperty(pentahoJcrConstants.getPHO_HIDDEN()).getBoolean();
+    }
+    if (node.hasProperty(pentahoJcrConstants.getPHO_FILESIZE())) {
       fileSize = node.getProperty(pentahoJcrConstants.getPHO_FILESIZE()).getLong();
     }
     if (isPentahoFile(pentahoJcrConstants, node)) {

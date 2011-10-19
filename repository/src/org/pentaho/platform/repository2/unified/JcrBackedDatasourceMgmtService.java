@@ -15,9 +15,11 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-import org.pentaho.platform.api.util.IPasswordService;
-import org.pentaho.platform.api.util.PasswordServiceException;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+// PDI does not encrypt password, so we have to comment out password encryption untill 
+// we implement password encryption while creating a new connection in pdi
+//import org.pentaho.platform.api.util.IPasswordService;
+//import org.pentaho.platform.api.util.PasswordServiceException;
+//import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository.messages.Messages;
@@ -50,15 +52,15 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
   public void createDatasource(DatabaseMeta databaseMeta) throws DuplicateDatasourceException,
       DatasourceMgmtServiceException {
     try {
-      IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession());
-      databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
+      //IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession());
+      //databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
 
       RepositoryFile file = new RepositoryFile.Builder(DatabaseHelper.checkAndSanitize(databaseMeta.getName() 
-          + RepositoryObjectType.DATABASE.getExtension())).title(RepositoryFile.ROOT_LOCALE, databaseMeta.getName()).build();
+          + RepositoryObjectType.DATABASE.getExtension())).title(RepositoryFile.ROOT_LOCALE, databaseMeta.getName()).versioned(true).build();
       file = repository.createFile(getDatabaseParentFolderId(), file, new NodeRepositoryFileData(DatabaseHelper.DatabaseMetaToDataNode(databaseMeta)), null);
-    }  catch(PasswordServiceException pse) {
-      throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
-          "DatasourceMgmtService.ERROR_0007_UNABLE_TO_ENCRYPT_PASSWORD"), pse );//$NON-NLS-1$
+    //}  catch(PasswordServiceException pse) {
+    //  throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
+    //      "DatasourceMgmtService.ERROR_0007_UNABLE_TO_ENCRYPT_PASSWORD"), pse );//$NON-NLS-1$
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
           "DatasourceMgmtService.ERROR_0001_UNABLE_TO_CREATE_DATASOURCE",databaseMeta.getName()), ure );//$NON-NLS-1$
@@ -134,16 +136,16 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
       if(file != null) {
         NodeRepositoryFileData data = repository.getDataForRead(file.getId(), NodeRepositoryFileData.class);
         DatabaseMeta databaseMeta = DatabaseHelper.assemble(file, data);
-        IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession());
-        databaseMeta.setPassword(passwordService.decrypt(databaseMeta.getPassword()));
+        //IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession());
+        //databaseMeta.setPassword(passwordService.decrypt(databaseMeta.getPassword()));
         return databaseMeta;
       } else {
         throw new DatasourceMgmtServiceException(Messages.getInstance()
             .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE"));//$NON-NLS-1$
       }
-    } catch(PasswordServiceException pse) {
-      throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0008_UNABLE_TO_DECRYPT_PASSWORD"), pse );//$NON-NLS-1$
+    //} catch(PasswordServiceException pse) {
+    //  throw new DatasourceMgmtServiceException(Messages.getInstance()
+    //      .getErrorString("DatasourceMgmtService.ERROR_0008_UNABLE_TO_DECRYPT_PASSWORD"), pse );//$NON-NLS-1$
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance()
           .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", file.getName()), ure);//$NON-NLS-1$
@@ -158,15 +160,15 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
         for(RepositoryFile file:repositoryFiles) {
           NodeRepositoryFileData data = repository.getDataForRead(file.getId(), NodeRepositoryFileData.class);
           DatabaseMeta databaseMeta = DatabaseHelper.assemble(file, data);
-          IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession());
-          databaseMeta.setPassword(passwordService.decrypt(databaseMeta.getPassword()));
+     //     IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession());
+    //      databaseMeta.setPassword(passwordService.decrypt(databaseMeta.getPassword()));
           datasourceList.add(databaseMeta);
         }
       }
       return datasourceList;
-    } catch(PasswordServiceException pse) {
-      throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0008_UNABLE_TO_DECRYPT_PASSWORD"), pse );//$NON-NLS-1$
+    //} catch(PasswordServiceException pse) {
+    //  throw new DatasourceMgmtServiceException(Messages.getInstance()
+    //      .getErrorString("DatasourceMgmtService.ERROR_0008_UNABLE_TO_DECRYPT_PASSWORD"), pse );//$NON-NLS-1$
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
           "DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", ""), ure );//$NON-NLS-1$ //$NON-NLS-2$
@@ -218,9 +220,9 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
 
   private void updateDatasource(RepositoryFile file, DatabaseMeta databaseMeta) throws NonExistingDatasourceException, DatasourceMgmtServiceException {
     try {
-      IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession()); 
+      //IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession()); 
       // Store the new encrypted password in the datasource object
-      databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
+      //databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
 
       if(file != null) {
         file = new RepositoryFile.Builder(file).title(RepositoryFile.ROOT_LOCALE, file.getName()).build();
@@ -230,9 +232,9 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
         throw new NonExistingDatasourceException(Messages.getInstance().getErrorString(
             "DatasourceMgmtService.ERROR_0006_DATASOURCE_DOES_NOT_EXIST", databaseMeta.getName()) );//$NON-NLS-1$
       }
-    } catch(PasswordServiceException pse) {
-      throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0007_UNABLE_TO_ENCRYPT_PASSWORD"), pse );//$NON-NLS-1$
+    //} catch(PasswordServiceException pse) {
+    //  throw new DatasourceMgmtServiceException(Messages.getInstance()
+    //      .getErrorString("DatasourceMgmtService.ERROR_0007_UNABLE_TO_ENCRYPT_PASSWORD"), pse );//$NON-NLS-1$
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
           "DatasourceMgmtService.ERROR_0003_UNABLE_TO_UPDATE_DATASOURCE", databaseMeta.getName()), ure ); //$NON-NLS-1$
