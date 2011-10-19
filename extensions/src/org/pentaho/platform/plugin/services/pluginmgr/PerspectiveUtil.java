@@ -89,10 +89,7 @@ public class PerspectiveUtil {
       Element overlayElement = (Element) overlayNode;
       String id = overlayElement.attributeValue("id"); //$NON-NLS-1$
       String resourceBundleUri = overlayElement.attributeValue("resourcebundle"); //$NON-NLS-1$
-      String xml = null;
-      if (overlayElement.elements() != null && overlayElement.elements().size() > 0) {
-        xml = ((Element) overlayElement.elements().get(0)).asXML();
-      }
+      String xml = overlayNode.asXML();
       overlays.add(new DefaultXulOverlay(id, null, xml, resourceBundleUri));
     }
 
