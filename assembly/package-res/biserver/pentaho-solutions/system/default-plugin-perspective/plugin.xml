@@ -7,13 +7,21 @@
 	</perspective>
 	
 	<perspective id="default.perspective.test" title="Test Perspective" layout-priority="100" roles="Authenticated" content-url="content/default-plugin-perspective/resources/html/index.html">
-	    <toolbar-overlay id="default.perspective.test.overlay"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
-			<overlay id="default.perspective.test.overlay"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
-	            <toolbar id="mainToolbar">
-                  <toolbarbutton id="default.perspective.test.overlay.button" image="../content/default-plugin-perspective/resources/images/enabled32.png" onclick="mainToolbarHandler.executeMantleFunc('defaultTestPerspectiveFunction();')" tooltiptext="${defaultPerspectiveTestToolbarButton}"  insertafter="dummyPluginContentButton"/>
-	            </toolbar>
-			</overlay>    		
-	    </toolbar-overlay>    				
+		<overlay id="default.perspective.toolbar.test.overlay"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
+            <toolbar id="mainToolbar">
+                 <toolbarbutton id="default.perspective.test.overlay.button" image="../content/default-plugin-perspective/resources/images/enabled32.png" onclick="mainToolbarHandler.executeMantleFunc('defaultTestPerspectiveFunction();')" tooltiptext="${defaultPerspectiveTestToolbarButton}"  insertafter="dummyPluginContentButton"/>
+            </toolbar>			
+		</overlay>
+		<overlay id="default.perspective.menubar.test.overlay"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
+			<menubar id="mainMenubar">
+				<menubar id="testPerspectiveMenuBar" label="${test}" layout="vertical" insertafter="toolsmenu">
+					<menuitem id="default.perspective.test.overlay.menubar" label="${testItem}" js-command="alert('Test Item Clicked')" />		
+				</menubar>
+			</menubar>
+			<menubar id="newmenu">
+				<menuitem id="default.perspective.test.overlay.new.menu.item" label="${defaultPerspectiveTestMenuItem}" command="mainMenubarHandler.executeMantleFunc('defaultTestPerspectiveFunction();')" />		
+			</menubar>	
+		</overlay>
 	</perspective>
 		
 	<static-paths>
