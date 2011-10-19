@@ -53,9 +53,9 @@ import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.ui.xul.IMenuCustomization;
-import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.IMenuCustomization.CustomizationType;
 import org.pentaho.ui.xul.IMenuCustomization.ItemType;
+import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.impl.DefaultXulOverlay;
 import org.pentaho.ui.xul.util.MenuCustomization;
 
@@ -345,12 +345,9 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     List<?> nodes = doc.selectNodes("//overlays/overlay"); //$NON-NLS-1$
     for (Object obj : nodes) {
       Element node = (Element) obj;
-      String xml = null;
       String id = node.attributeValue("id"); //$NON-NLS-1$
       String resourceBundleUri = node.attributeValue("resourcebundle"); //$NON-NLS-1$
-      if (node.elements() != null && node.elements().size() > 0) {
-        xml = ((Element) node.elements().get(0)).asXML();
-      }
+      String xml = node.asXML();
       if (StringUtils.isNotEmpty(id) && StringUtils.isNotEmpty(xml)) {
         XulOverlay overlay = new DefaultXulOverlay(id, null, xml, resourceBundleUri);
         plugin.addOverlay(overlay);
