@@ -1,7 +1,9 @@
 package org.pentaho.mantle.client.solutionbrowser;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.gwt.widgets.client.filechooser.XMLToRepositoryFileTreeConverter;
 
@@ -19,6 +21,7 @@ public class RepositoryFileTreeManager {
   private ArrayList<IRepositoryFileTreeListener> listeners = new ArrayList<IRepositoryFileTreeListener>();
 
   private RepositoryFileTree fileTree;
+  private List<RepositoryFile> trashItems;
   private static RepositoryFileTreeManager instance;
 
   private static boolean fetching = false;
@@ -56,7 +59,7 @@ public class RepositoryFileTreeManager {
   private void fireRepositoryFileTreeFetched() {
     fetching = false;
     for (IRepositoryFileTreeListener listener : listeners) {
-      listener.onFetchRepositoryFileTree(fileTree);
+      listener.onFetchRepositoryFileTree(fileTree, trashItems);
     }
     // flag that we have the document so that other things might start to use it (PDB-500)
     flagRepositoryFileTreeLoaded(true);
@@ -111,10 +114,34 @@ public class RepositoryFileTreeManager {
 
       public void onResponseReceived(Request request, Response response) {
         if (response.getStatusCode() == Response.SC_OK) {
-          String xmlData = response.getText(); 
-          XMLToRepositoryFileTreeConverter converter = new XMLToRepositoryFileTreeConverter(xmlData);
+          final XMLToRepositoryFileTreeConverter converter = new XMLToRepositoryFileTreeConverter(response.getText());
           fileTree = converter.getTree();
-          fireRepositoryFileTreeFetched();
+          String deletedFilesUrl = getFullyQualifiedURL() + "api/repo/files/deleted";
+          RequestBuilder deletedFilesRequestBuilder = new RequestBuilder(RequestBuilder.GET, deletedFilesUrl);
+          try {
+            deletedFilesRequestBuilder.sendRequest(null, new RequestCallback(){
+
+              public void onError(Request request, Throwable exception) {
+                fireRepositoryFileTreeFetched();
+                Window.alert(exception.toString());
+              }
+
+              public void onResponseReceived(Request delRequest, Response delResponse) {
+                if (delResponse.getStatusCode() == Response.SC_OK) {
+                  String xmlData = delResponse.getText();
+                  trashItems = converter.getTrashFiles(delResponse.getText());
+                  fireRepositoryFileTreeFetched();
+                } else {
+                  fireRepositoryFileTreeFetched();
+                  Window.alert("Unable to retrieve trash.");
+                }
+              }
+              
+            });
+          } catch (Exception e) {
+            fireRepositoryFileTreeFetched();
+            Window.alert("Unable to retrieve trash.");
+          }
           if (callback != null) {
             callback.onSuccess(fileTree);
           }        

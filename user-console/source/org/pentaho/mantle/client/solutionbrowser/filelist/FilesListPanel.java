@@ -369,7 +369,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
     return toolbar;
   }
 
-  public void onFetchRepositoryFileTree(RepositoryFileTree repositoryFileTree) {
+  public void onFetchRepositoryFileTree(RepositoryFileTree fileTree, List<RepositoryFile> trashItems) {
     // TODO Auto-generated method stub
     
   }

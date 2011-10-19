@@ -64,6 +64,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
   private boolean createRootNode = false;
   private boolean useDescriptionsForTooltip = false;
   public RepositoryFileTree repositoryFileTree;
+  public List<RepositoryFile> trashItems;
   public static final String ETC_FOLDER = "etc";//$NON-NLS-1$
   private FileTreeItem selectedItem = null;
 
@@ -155,7 +156,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
         MenuItem pasteMenuItem = menuBar
             .addItem(new MenuItem(
                 Messages.getString("paste"), new FolderCommand(FolderCommand.COMMAND.PASTE, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-        pasteMenuItem.setStyleName(SolutionBrowserPanel.getInstance().getClipboard().hasContent() ? "gwt-MenuItem" : "disabledMenuItem");
+        pasteMenuItem.setStyleName( SolutionBrowserPanel.getInstance().getClipboard().hasContent() ? "gwt-MenuItem" : "disabledMenuItem");
         menuBar.addSeparator();
         if (SolutionBrowserPanel.getInstance().isAdministrator()) {
           menuBar
@@ -196,13 +197,14 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     WaitPopup.getInstance().setVisible(false);
   }
 
-  public void onFetchRepositoryFileTree(RepositoryFileTree repositoryFileTree) {
+  public void onFetchRepositoryFileTree(RepositoryFileTree fileTree, List<RepositoryFile> trashItems) {
 
     if (repositoryFileTree == null) {
       WaitPopup.getInstance().setVisible(false);
       return;
     }
     this.repositoryFileTree = repositoryFileTree;
+    this.trashItems = trashItems;
     // remember selectedItem, so we can reselect it after the tree is loaded
     clear();
     // get document root item
@@ -210,8 +212,8 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     FileTreeItem rootItem = null;
     if (createRootNode) {
       rootItem = new FileTreeItem();
-      rootItem.setText(rootRepositoryFile.getPath());
-      rootItem.setTitle(rootRepositoryFile.getPath());
+      rootItem.setText(rootRepositoryFile.getPath()); 
+      rootItem.setTitle(rootRepositoryFile.getPath()); 
       rootItem.getElement().setId(rootRepositoryFile.getId());
       // added so we can traverse the true names
       rootItem.setFileName("/"); //$NON-NLS-1$
@@ -314,7 +316,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     // let's check if the currentItem matches our segments (it might point to the last item before
     // we eventually failed to find the complete match)
     FileTreeItem tmpItem = currentItem;
-    depth = pathSegments.size() - 1;
+    depth = pathSegments.size()-1;
     while (tmpItem != null && depth >= 0) {
       if (tmpItem.getFileName().equalsIgnoreCase(pathSegments.get(depth))) {
         tmpItem = (FileTreeItem) tmpItem.getParentItem();
@@ -361,12 +363,12 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
 
   private void buildSolutionTree(FileTreeItem parentTreeItem, RepositoryFileTree repositoryFileTree) {
     List<RepositoryFileTree> children = repositoryFileTree.getChildren();
-    for (RepositoryFileTree treeItem : children) {
+    for (RepositoryFileTree treeItem:children) {
       RepositoryFile file = (RepositoryFile) treeItem.getFile();
       boolean isDirectory = file.isFolder();
       String fileName = file.getName();
-      if (!(!StringUtils.isEmpty(fileName) && fileName.equals(ETC_FOLDER))) {
-
+      if (!(!StringUtils.isEmpty(fileName) && fileName.equals(ETC_FOLDER)) ) {
+        
         // TODO Mapping Title to LocalizedName
         String localizedName = file.getTitle();
         String description = file.getDescription();
@@ -374,7 +376,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
         childTreeItem.getElement().setAttribute("id", file.getId());//$NON-NLS-1$
         childTreeItem.setUserObject(treeItem);
         ElementUtils.killAllTextSelection(childTreeItem.getElement());
-        childTreeItem.setURL(fileName);
+        childTreeItem.setURL(fileName); 
         if (showLocalizedFileNames) {
           childTreeItem.setText(localizedName);
           if (isUseDescriptionsForTooltip() && !StringUtils.isEmpty(description)) {
@@ -459,6 +461,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     }
   }
 
+  
   public void setShowLocalizedFileNames(boolean showLocalizedFileNames) {
     this.showLocalizedFileNames = showLocalizedFileNames;
     // use existing tree and switch text/title
@@ -483,7 +486,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
 
   public void setShowHiddenFiles(boolean showHiddenFiles) {
     this.showHiddenFiles = showHiddenFiles;
-    RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(true, null, null, showHiddenFiles);
+    RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(true,null, null,showHiddenFiles);
   }
 
   public boolean isShowLocalizedFileNames() {
@@ -496,7 +499,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
 
   public void setUseDescriptionsForTooltip(boolean useDescriptionsForTooltip) {
     this.useDescriptionsForTooltip = useDescriptionsForTooltip;
-    onFetchRepositoryFileTree(repositoryFileTree);
+    onFetchRepositoryFileTree(repositoryFileTree, trashItems);
   }
 
   public boolean isAdministrator() {
