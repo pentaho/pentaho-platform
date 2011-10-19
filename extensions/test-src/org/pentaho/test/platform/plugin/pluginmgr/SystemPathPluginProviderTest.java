@@ -269,10 +269,6 @@ public class SystemPathPluginProviderTest {
     IPluginPerspective perspective = plugin.getPluginPerspectives().get(0);
     assertEquals(perspective.getId(), "perspective1");
     assertEquals(perspective.getTitle(), "Test Perspective 1");
-    assertEquals(perspective.getMenuBarOverlay().getId(), "menuoverlay1");
-    assertEquals(perspective.getToolBarOverlay().getId(), "toolbaroverlay1");
-    assertTrue(perspective.getMenuBarOverlay().getSource().length() > 0);
-    assertTrue(perspective.getToolBarOverlay().getSource().length() > 0);
     assertEquals(perspective.getLayoutPriority(), 500);
   }
 }

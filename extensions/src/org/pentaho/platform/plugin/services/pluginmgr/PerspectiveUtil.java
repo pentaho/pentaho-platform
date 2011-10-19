@@ -14,13 +14,14 @@
  * @author wseyler
  */
 
-
 package org.pentaho.platform.plugin.services.pluginmgr;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.dom4j.Element;
+import org.dom4j.Node;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -30,11 +31,11 @@ import org.pentaho.ui.xul.impl.DefaultXulOverlay;
 
 /**
  * @author wseyler
- *
+ * 
  */
 public class PerspectiveUtil {
   public static final int DEFAULT_LAYOUT_PRIORITY = 1000;
-  
+
   static IPluginPerspective createPerspective(Element perspectiveNode) {
     if (perspectiveNode != null) {
       String title = perspectiveNode.attributeValue("title"); //$NON-NLS-1$
@@ -49,7 +50,7 @@ public class PerspectiveUtil {
           layoutPriority = DEFAULT_LAYOUT_PRIORITY;
         }
       }
-      
+
       String securityActionStr = perspectiveNode.attributeValue("required-security-action");
       ArrayList<String> actions = new ArrayList<String>();
       if (securityActionStr != null) {
@@ -60,38 +61,41 @@ public class PerspectiveUtil {
         }
       }
 
-      XulOverlay menuOverlay = processOverlay((Element)perspectiveNode.selectSingleNode("menu-overlay")); //$NON-NLS-1$
-      XulOverlay toolbarOverlay = processOverlay((Element)perspectiveNode.selectSingleNode("toolbar-overlay")); //$NON-NLS-1$
-      
+      ArrayList<XulOverlay> overlays = processOverlays(perspectiveNode); //$NON-NLS-1$
+
       IPluginPerspective perspective = new DefaultPluginPerspective();
       perspective.setTitle(title);
       perspective.setId(id);
       perspective.setContentUrl(contentUrl);
       perspective.setLayoutPriority(layoutPriority);
-      perspective.setMenuBarOverlay(menuOverlay);
-      perspective.setToolBarOverlay(toolbarOverlay);
+      perspective.setOverlays(overlays);
       perspective.setRequiredSecurityActions(actions);
-      
+
       PentahoSystem.get(IPluginPerspectiveManager.class).addPluginPerspective(perspective);
       return perspective;
     }
     return null;
   }
 
-  /**
-   * @param selectSingleNode
-   * @return
-   */
-  static private XulOverlay processOverlay(Element node) {
+  static private ArrayList<XulOverlay> processOverlays(Element node) {
     if (node == null) {
       return null;
     }
-    String xml = null;
-    String id = node.attributeValue("id"); //$NON-NLS-1$
-    String resourceBundleUri = node.attributeValue("resourcebundle"); //$NON-NLS-1$
-    if (node.elements() != null && node.elements().size() > 0) {
-      xml = ((Element) node.elements().get(0)).asXML();
+    ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
+
+    @SuppressWarnings("unchecked")
+    List<Node> overlayElements = (List<Node>) node.selectNodes("overlay");
+    for (Node overlayNode : overlayElements) {
+      Element overlayElement = (Element) overlayNode;
+      String id = overlayElement.attributeValue("id"); //$NON-NLS-1$
+      String resourceBundleUri = overlayElement.attributeValue("resourcebundle"); //$NON-NLS-1$
+      String xml = null;
+      if (overlayElement.elements() != null && overlayElement.elements().size() > 0) {
+        xml = ((Element) overlayElement.elements().get(0)).asXML();
+      }
+      overlays.add(new DefaultXulOverlay(id, null, xml, resourceBundleUri));
     }
-    return new DefaultXulOverlay(id, null, xml, resourceBundleUri);
+
+    return overlays;
   }
 }

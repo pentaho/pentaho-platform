@@ -26,6 +26,7 @@ import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.ui.menubar.XulMainMenubar;
 import org.pentaho.mantle.client.ui.toolbar.XulMainToolbar;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
@@ -46,9 +47,8 @@ public class PerspectiveSwitcher extends HorizontalPanel {
 
   private ArrayList<ToggleButton> toggles = new ArrayList<ToggleButton>();
 
-  // create an overlay list to later register with the main toolbar
-  private ArrayList<XulOverlay> toolbarOverlays = new ArrayList<XulOverlay>();
-
+  // create an overlay list to later register with the main toolbar/menubar
+  private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
   private ArrayList<IPluginPerspective> perspectives;
 
   public PerspectiveSwitcher() {
@@ -98,9 +98,9 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     });
 
     for (final IPluginPerspective perspective : perspectives) {
-      // if we have a toolbar overlay add it to the list
-      if (perspective.getToolBarOverlay() != null) {
-        toolbarOverlays.add(perspective.getToolBarOverlay());
+      // if we have overlays add it to the list
+      if (perspective.getOverlays() != null) {
+        overlays.addAll(perspective.getOverlays());
       }
 
       ToggleButton tb = new ToggleButton(perspective.getTitle(), new ClickHandler() {
@@ -115,8 +115,11 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     }
 
     // register all toolbar overlays with XulMainToolbar
-    XulMainToolbar.getInstance().loadOverlays(toolbarOverlays);
-    
+    XulMainToolbar.getInstance().loadOverlays(overlays);
+
+    // register all menubar overlays with XulMainMenubar
+    XulMainMenubar.getInstance().loadOverlays(overlays);
+
     showPerspective(toggles.get(0), perspectives.get(0));
   }
 
@@ -135,11 +138,30 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     XulMainToolbar.getInstance().reset(new ICallback<Void>() {
       public void onHandle(Void nothing) {
         // apply current overlay or default if none selected
-        if (source.isDown() && perspective.getToolBarOverlay() != null) {
-          XulMainToolbar.getInstance().applyOverlay(perspective.getToolBarOverlay().getId());
-        } else if (!source.isDown() && defaultPerspective.getToolBarOverlay() != null) {
+        if (source.isDown() && perspective.getOverlays() != null) {
+          for (XulOverlay overlay : perspective.getOverlays()) {
+            XulMainToolbar.getInstance().applyOverlay(overlay.getId());
+          }
+        } else if (!source.isDown() && defaultPerspective.getOverlays() != null) {
           // apply default perspective overlay
-          XulMainToolbar.getInstance().applyOverlay(defaultPerspective.getToolBarOverlay().getId());
+          for (XulOverlay overlay : defaultPerspective.getOverlays()) {
+            XulMainToolbar.getInstance().applyOverlay(overlay.getId());
+          }
+        }
+      }
+    });
+    XulMainMenubar.getInstance().reset(new ICallback<Void>() {
+      public void onHandle(Void nothing) {
+        // apply current overlay or default if none selected
+        if (source.isDown() && perspective.getOverlays() != null) {
+          for (XulOverlay overlay : perspective.getOverlays()) {
+            XulMainMenubar.getInstance().applyOverlay(overlay.getId());
+          }
+        } else if (!source.isDown() && defaultPerspective.getOverlays() != null) {
+          // apply default perspective overlay
+          for (XulOverlay overlay : defaultPerspective.getOverlays()) {
+            XulMainMenubar.getInstance().applyOverlay(overlay.getId());
+          }
         }
       }
     });

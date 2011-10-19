@@ -112,7 +112,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     }
   };
 
-  private Command ShowHideFilesCommand = new Command() {
+  public Command toggleShowHideFilesCommand = new Command() {
     public void execute() {
       filesListPanel.setShowHiddenFiles(!solutionTree.isShowHiddenFiles());
       solutionTree.setShowHiddenFiles(!solutionTree.isShowHiddenFiles());

@@ -51,8 +51,8 @@ public class XulMainToolbar extends SimplePanel implements IXulLoaderCallback, S
   private GwtXulDomContainer container;
   private boolean fetchedOverlays = false;
   private ICallback<Void> loadCompleteCallback = null;
-  private int numStartupOverlays = 0;
-  private int startupOverlaysLoaded = 0;
+  private int numStickyOverlays = 0;
+  private int stickyOverlaysLoaded = 0;
 
   private static XulMainToolbar instance;
 
@@ -139,7 +139,7 @@ public class XulMainToolbar extends SimplePanel implements IXulLoaderCallback, S
   }
 
   public void overlayLoaded() {
-    if (numStartupOverlays == startupOverlaysLoaded && loadCompleteCallback != null) {
+    if (numStickyOverlays == stickyOverlaysLoaded && loadCompleteCallback != null) {
       loadCompleteCallback.onHandle(null);
       loadCompleteCallback = null;
     }
@@ -151,20 +151,20 @@ public class XulMainToolbar extends SimplePanel implements IXulLoaderCallback, S
       overlayMap.put(overlay.getId(), overlay);
     }
 
-    // count number of startup overlays
-    numStartupOverlays = 0;
+    // count number of sticky overlays
+    numStickyOverlays = 0;
     for (XulOverlay overlay : overlayMap.values()) {
-      if (overlay.getId().startsWith("startup")) {
-        numStartupOverlays++;
+      if (overlay.getId().startsWith("startup") || overlay.getId().startsWith("sticky")) {
+        numStickyOverlays++;
       }
     }
 
-    startupOverlaysLoaded = 0;
+    stickyOverlaysLoaded = 0;
     for (XulOverlay overlay : overlayMap.values()) {
-      if (overlay.getId().startsWith("startup")) {
+      if (overlay.getId().startsWith("startup") || overlay.getId().startsWith("sticky")) {
         AsyncXulLoader.loadOverlayFromSource(overlay.getSource(), overlay.getResourceBundleUri(), container, new IXulLoaderCallback() {
           public void overlayLoaded() {
-            startupOverlaysLoaded++;
+            stickyOverlaysLoaded++;
             XulMainToolbar.this.overlayLoaded();
           }
 

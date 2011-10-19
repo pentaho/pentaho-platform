@@ -70,7 +70,6 @@ import org.pentaho.platform.api.repository.ISubscription;
 import org.pentaho.platform.api.repository.ISubscriptionRepository;
 import org.pentaho.platform.api.scheduler.BackgroundExecutionException;
 import org.pentaho.platform.api.scheduler.IJobDetail;
-import org.pentaho.platform.api.scheduler.IJobSchedule;
 import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.api.ui.Theme;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
@@ -103,7 +102,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class MantleServlet extends RemoteServiceServlet implements MantleService {
 
   private static final long serialVersionUID = 119274827408056040L;
-  
+
   protected static final Log logger = LogFactory.getLog(MantleServlet.class);
   private static final String DESC_SEPERATOR = " : "; //$NON-NLS-1$
 
@@ -143,19 +142,19 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     return SecurityHelper.isPentahoAdministrator(getPentahoSession());
   }
 
-//  @SuppressWarnings("rawtypes")
-//  private UserFilesComponent getUserFilesComponent() {
-//    UserFilesComponent userFiles = PentahoSystem.get(UserFilesComponent.class, "IUserFilesComponent", getPentahoSession()); //$NON-NLS-1$
-//    IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
-//    String thisUrl = requestContext.getContextPath() + "UserContent?"; //$NON-NLS-1$
-//    SimpleUrlFactory urlFactory = new SimpleUrlFactory(thisUrl);
-//    userFiles.setUrlFactory(urlFactory);
-//    userFiles.setRequest(getThreadLocalRequest());
-//    userFiles.setResponse(getThreadLocalResponse());
-//    userFiles.setMessages(new ArrayList());
-//    userFiles.validate(getPentahoSession(), null);
-//    return userFiles;
-//  }
+  // @SuppressWarnings("rawtypes")
+  // private UserFilesComponent getUserFilesComponent() {
+  //    UserFilesComponent userFiles = PentahoSystem.get(UserFilesComponent.class, "IUserFilesComponent", getPentahoSession()); //$NON-NLS-1$
+  // IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
+  //    String thisUrl = requestContext.getContextPath() + "UserContent?"; //$NON-NLS-1$
+  // SimpleUrlFactory urlFactory = new SimpleUrlFactory(thisUrl);
+  // userFiles.setUrlFactory(urlFactory);
+  // userFiles.setRequest(getThreadLocalRequest());
+  // userFiles.setResponse(getThreadLocalResponse());
+  // userFiles.setMessages(new ArrayList());
+  // userFiles.validate(getPentahoSession(), null);
+  // return userFiles;
+  // }
 
   @SuppressWarnings("rawtypes")
   public String getSoftwareUpdatesDocument() {
@@ -266,16 +265,16 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
   }
 
   public boolean cancelBackgroundJob(String jobName, String jobGroup) {
-//    UserFilesComponent userFiles = getUserFilesComponent();
-//    boolean status = userFiles.cancelJob(jobName, jobGroup);
-//    return status;
+    // UserFilesComponent userFiles = getUserFilesComponent();
+    // boolean status = userFiles.cancelJob(jobName, jobGroup);
+    // return status;
     return false;
   }
 
   public boolean deleteContentItem(String contentId) {
-//    UserFilesComponent userFiles = getUserFilesComponent();
-//    boolean status = userFiles.deleteContent(contentId);
-//    return status;
+    // UserFilesComponent userFiles = getUserFilesComponent();
+    // boolean status = userFiles.deleteContent(contentId);
+    // return status;
     return false;
   }
 
@@ -329,52 +328,52 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
 
   public ArrayList<JobSchedule> getAllSchedules() {
     ArrayList<JobSchedule> jobSchedules = null;
-//    try {
-//      List<IJobSchedule> schedules = SchedulerHelper.getAllSchedules(getPentahoSession());
-//      jobSchedules = iJobSchedule2JobSchedule(schedules);
-//      // these are functionally the same exact objects (mantle
-//      // JobSchedule/platform JobSchedule)
-//    } catch (Exception e) {
-//      logger.error(e.getMessage());
-//      jobSchedules = new ArrayList<JobSchedule>();
-//    }
+    // try {
+    // List<IJobSchedule> schedules = SchedulerHelper.getAllSchedules(getPentahoSession());
+    // jobSchedules = iJobSchedule2JobSchedule(schedules);
+    // // these are functionally the same exact objects (mantle
+    // // JobSchedule/platform JobSchedule)
+    // } catch (Exception e) {
+    // logger.error(e.getMessage());
+    // jobSchedules = new ArrayList<JobSchedule>();
+    // }
     return jobSchedules;
   }
 
-  private ArrayList<JobSchedule> iJobSchedule2JobSchedule(List<IJobSchedule> iJobSchedules) {
-    ArrayList<JobSchedule> jobSchedules = new ArrayList<JobSchedule>();
-    for (IJobSchedule iJobSchedule : iJobSchedules) {
-      JobSchedule jobSchedule = new JobSchedule();
-      jobSchedule.fullname = iJobSchedule.getFullname();
-      jobSchedule.jobDescription = iJobSchedule.getJobDescription();
-      jobSchedule.jobGroup = iJobSchedule.getJobGroup();
-      jobSchedule.jobName = iJobSchedule.getJobName();
-      jobSchedule.name = iJobSchedule.getName();
-      jobSchedule.nextFireTime = iJobSchedule.getNextFireTime();
-      jobSchedule.previousFireTime = iJobSchedule.getPreviousFireTime();
-      jobSchedule.triggerGroup = iJobSchedule.getTriggerGroup();
-      jobSchedule.triggerName = iJobSchedule.getTriggerName();
-      jobSchedule.triggerState = iJobSchedule.getTriggerState();
-
-      jobSchedules.add(jobSchedule);
-    }
-    return jobSchedules;
-  }
+  // private ArrayList<JobSchedule> iJobSchedule2JobSchedule(List<IJobSchedule> iJobSchedules) {
+  // ArrayList<JobSchedule> jobSchedules = new ArrayList<JobSchedule>();
+  // for (IJobSchedule iJobSchedule : iJobSchedules) {
+  // JobSchedule jobSchedule = new JobSchedule();
+  // jobSchedule.fullname = iJobSchedule.getFullname();
+  // jobSchedule.jobDescription = iJobSchedule.getJobDescription();
+  // jobSchedule.jobGroup = iJobSchedule.getJobGroup();
+  // jobSchedule.jobName = iJobSchedule.getJobName();
+  // jobSchedule.name = iJobSchedule.getName();
+  // jobSchedule.nextFireTime = iJobSchedule.getNextFireTime();
+  // jobSchedule.previousFireTime = iJobSchedule.getPreviousFireTime();
+  // jobSchedule.triggerGroup = iJobSchedule.getTriggerGroup();
+  // jobSchedule.triggerName = iJobSchedule.getTriggerName();
+  // jobSchedule.triggerState = iJobSchedule.getTriggerState();
+  //
+  // jobSchedules.add(jobSchedule);
+  // }
+  // return jobSchedules;
+  // }
 
   public void deleteJob(String jobName, String jobGroup) {
-    //SchedulerHelper.deleteJob(getPentahoSession(), jobName, jobGroup);
+    // SchedulerHelper.deleteJob(getPentahoSession(), jobName, jobGroup);
   }
 
   public void runJob(String jobName, String jobGroup) {
-    //SchedulerHelper.runJob(getPentahoSession(), jobName, jobGroup);
+    // SchedulerHelper.runJob(getPentahoSession(), jobName, jobGroup);
   }
 
   public void resumeJob(String jobName, String jobGroup) {
-    //SchedulerHelper.resumeJob(getPentahoSession(), jobName, jobGroup);
+    // SchedulerHelper.resumeJob(getPentahoSession(), jobName, jobGroup);
   }
 
   public void suspendJob(String jobName, String jobGroup) {
-    //SchedulerHelper.suspendJob(getPentahoSession(), jobName, jobGroup);
+    // SchedulerHelper.suspendJob(getPentahoSession(), jobName, jobGroup);
   }
 
   // public void createCronJob(String solutionName, String path, String
@@ -470,7 +469,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
     return new ArrayList<String>(userRoleListService.getAllUsers());
   }
-
 
   public boolean hasAccess(String path, String fileName, int actionOperation) {
     return true;
@@ -762,13 +760,13 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
       final ISubscription currentSubscr = subscrIter.next();
       final ActionInfo actionInfo = ActionInfo.parseActionString(currentSubscr.getContent().getActionReference());
       String localizedName = actionInfo.getActionName();
-//      try {
-//        SolutionFileInfo info = getSolutionFileInfo(actionInfo.getPath(), actionInfo.getActionName());
-//        localizedName = info.getLocalizedName();
-//      } catch (NullPointerException npe) {
-//        logger.error(npe.getMessage(), npe);
-//        continue;
-//      }
+      // try {
+      // SolutionFileInfo info = getSolutionFileInfo(actionInfo.getPath(), actionInfo.getActionName());
+      // localizedName = info.getLocalizedName();
+      // } catch (NullPointerException npe) {
+      // logger.error(npe.getMessage(), npe);
+      // continue;
+      // }
 
       Schedule schedule = null;
       final Iterator<ISchedule> schedIterator = currentSubscr.getSchedules().iterator();
@@ -1073,40 +1071,19 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     IPluginPerspectiveManager manager = PentahoSystem.get(IPluginPerspectiveManager.class, getPentahoSession()); //$NON-NLS-1$
 
     for (IPluginPerspective perspective : manager.getPluginPerspectives()) {
-      if (perspective.getToolBarOverlay() != null) {
-        XulOverlay orig = perspective.getToolBarOverlay();
-        MantleXulOverlay tmpOverlay = new MantleXulOverlay(orig.getId(), orig.getOverlayUri(), orig.getSource(), orig.getResourceBundleUri());
-        perspective.setToolBarOverlay(tmpOverlay);
+      if (perspective.getOverlays() != null) {
+        ArrayList<XulOverlay> safeOverlays = new ArrayList<XulOverlay>();
+        for (XulOverlay orig : perspective.getOverlays()) {
+          MantleXulOverlay tmpOverlay = new MantleXulOverlay(orig.getId(), orig.getOverlayUri(), orig.getSource(), orig.getResourceBundleUri());
+          safeOverlays.add(tmpOverlay);
+        }
+        perspective.setOverlays(safeOverlays);
       }
     }
-    
+
     return new ArrayList<IPluginPerspective>(manager.getPluginPerspectives());
-//    ArrayList<IPluginPerspective> perspectives = new ArrayList<IPluginPerspective>();
-//    
-//    DefaultPluginPerspective perspective1 = new DefaultPluginPerspective();
-//    perspective1.setId("google");
-//    perspective1.setTitle("Google");
-//    perspective1.setContentUrl("http://www.google.com");
-//    perspective1.setLayoutPriority(101);
-//    perspectives.add(perspective1);
-//
-//    DefaultPluginPerspective perspective2 = new DefaultPluginPerspective();
-//    perspective2.setId("yahoo");
-//    perspective2.setTitle("Yahoo");
-//    perspective2.setContentUrl("http://www.yahoo.com");
-//    perspective2.setLayoutPriority(102);
-//    perspectives.add(perspective2);
-//
-//    DefaultPluginPerspective perspective3 = new DefaultPluginPerspective();
-//    perspective3.setId("bing");
-//    perspective3.setTitle("Bing");
-//    perspective3.setContentUrl("http://www.bing.com");
-//    perspective3.setLayoutPriority(103);
-//    perspectives.add(perspective3);
-    
-//    return perspectives;
   }
-  
+
   public void purgeReportingDataCache() {
     ICacheManager cacheManager = PentahoSystem.get(ICacheManager.class);
     cacheManager.clearRegionCache("report-dataset-cache");

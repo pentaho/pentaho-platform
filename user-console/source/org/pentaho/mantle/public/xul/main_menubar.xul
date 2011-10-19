@@ -25,10 +25,11 @@
 		</menubar>
 		
 		<menubar id="viewmenu" label="${view}" layout="vertical">
-			<menuitem id="showBrowserMenuItem" label="Show Browser" command="mainMenubarHandler.showBrowserClicked()" type="checkbox" checked="true" />		
-			<menuitem id="showWorkspaceMenuItem" label="Show Workspace" command="mainMenubarHandler.showWorkspaceClicked()" type="checkbox" checked="false" />		
+			<menuitem id="showBrowserMenuItem" label="${showBrowser}" command="mainMenubarHandler.showBrowserClicked()" type="checkbox" checked="true" />		
+			<menuitem id="showWorkspaceMenuItem" label="${showWorkspace}" command="mainMenubarHandler.showWorkspaceClicked()" type="checkbox" checked="false" />		
 			<menubarseparator id="showStuffSeparator"/>
-			<menuitem id="useDescriptionsMenuItem" label="Use Descriptions for Tooltips" command="mainMenubarHandler.useDescriptionsForTooltipsClicked()" type="checkbox" checked="false" />		
+			<menuitem id="useDescriptionsMenuItem" label="${useDescriptionsForTooltips}" command="mainMenubarHandler.useDescriptionsForTooltipsClicked()" type="checkbox" checked="false" />		
+			<menuitem id="showHiddenFilesMenuItem" label="${showHiddenFiles}" command="mainMenubarHandler.showHiddenFilesClicked()" type="checkbox" checked="false" />		
 			<menubarseparator id="descriptionsSeparator"/>
 			<menubar id="languagemenu" label="${languages}" layout="vertical">
 			</menubar>

@@ -24,7 +24,7 @@ import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
-import org.pentaho.mantle.client.ui.toolbar.MainToolbarController;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.containers.XulMenubar;
@@ -45,6 +45,8 @@ public class MainMenubarController extends AbstractXulEventHandler {
   private XulMenuitem saveAsMenuItem;
   private XulMenuitem showBrowserMenuItem;
   private XulMenuitem showWorkspaceMenuItem;
+  private XulMenuitem useDescriptionsMenuItem;
+  private XulMenuitem showHiddenFilesMenuItem;
 
   private XulMenubar languageMenu;
   private XulMenubar themesMenu;
@@ -64,10 +66,12 @@ public class MainMenubarController extends AbstractXulEventHandler {
     saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem");
     showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem");
     showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem");
+    useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem");
+    showHiddenFilesMenuItem = (XulMenuitem) document.getElementById("showHiddenFilesMenuItem");
     languageMenu = (XulMenubar) document.getElementById("languagemenu");
     themesMenu = (XulMenubar) document.getElementById("themesmenu");
     toolsMenu = (XulMenubar) document.getElementById("toolsmenu");
-    
+
     // install language sub-menus
     Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
     if (supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty()) {
@@ -115,10 +119,18 @@ public class MainMenubarController extends AbstractXulEventHandler {
     bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled");
     bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled");
     bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled");
+
+    setupNativeHooks(this);
   }
 
-  public native void setupNativeHooks(MainToolbarController controller)
+  public native void setupNativeHooks(MainMenubarController controller)
   /*-{
+    $wnd.mantle_isMenuItemEnabled = function(id) { 
+      return controller.@org.pentaho.mantle.client.ui.menubar.MainMenubarController::isMenuItemEnabled(Ljava/lang/String;)(id);      
+    }
+    $wnd.mantle_setMenuItemEnabled = function(id, enabled) { 
+      controller.@org.pentaho.mantle.client.ui.menubar.MainMenubarController::setMenuItemEnabled(Ljava/lang/String;Z)(id, enabled);      
+    }
   }-*/;
 
   public boolean isMenuItemEnabled(String id) {
@@ -197,7 +209,7 @@ public class MainMenubarController extends AbstractXulEventHandler {
     ((CheckBoxMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(!checked);
     model.toggleShowBrowser();
   }
-  
+
   @Bindable
   public void showWorkspaceClicked() {
     boolean checked = ((CheckBoxMenuItem) showWorkspaceMenuItem.getManagedObject()).isChecked();
@@ -207,7 +219,16 @@ public class MainMenubarController extends AbstractXulEventHandler {
 
   @Bindable
   public void useDescriptionsForTooltipsClicked() {
+    boolean checked = ((CheckBoxMenuItem) useDescriptionsMenuItem.getManagedObject()).isChecked();
+    ((CheckBoxMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(!checked);
     model.toggleUseDescriptionsForTooltips();
+  }
+
+  @Bindable
+  public void showHiddenFilesClicked() {
+    boolean checked = ((CheckBoxMenuItem) showHiddenFilesMenuItem.getManagedObject()).isChecked();
+    ((CheckBoxMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(!checked);
+    SolutionBrowserPanel.getInstance().toggleShowHideFilesCommand.execute();
   }
 
   @Bindable
@@ -219,7 +240,12 @@ public class MainMenubarController extends AbstractXulEventHandler {
   public void documentationClicked() {
     model.openDocumentation();
   }
-  
+
+  @Bindable
+  public void executeMantleFunc(String funct) {
+    executeMantleCall(funct);
+  }
+
   private native void executeJS(JavaScriptObject obj, String js)
   /*-{
     try{

@@ -46,8 +46,8 @@ public class XulMainMenubar extends SimplePanel implements IXulLoaderCallback {
   private GwtXulDomContainer container;
   private boolean fetchedOverlays = false;
   private ICallback<Void> loadCompleteCallback = null;
-  private int numStartupOverlays = 0;
-  private int startupOverlaysLoaded = 0;
+  private int numStickyOverlays = 0;
+  private int stickyOverlaysLoaded = 0;
 
   private static XulMainMenubar instance;
 
@@ -92,7 +92,7 @@ public class XulMainMenubar extends SimplePanel implements IXulLoaderCallback {
       return;
     }
 
-    // Get the toolbar from the XUL doc
+    // Get the menubar from the XUL doc
     MenuBar bar = (MenuBar) container.getDocumentRoot().getElementById("mainMenubar").getManagedObject(); //$NON-NLS-1$
     this.setWidget(bar);
 
@@ -128,7 +128,7 @@ public class XulMainMenubar extends SimplePanel implements IXulLoaderCallback {
   }
 
   public void overlayLoaded() {
-    if (numStartupOverlays == startupOverlaysLoaded && loadCompleteCallback != null) {
+    if (numStickyOverlays == stickyOverlaysLoaded && loadCompleteCallback != null) {
       loadCompleteCallback.onHandle(null);
       loadCompleteCallback = null;
     }
@@ -140,20 +140,20 @@ public class XulMainMenubar extends SimplePanel implements IXulLoaderCallback {
       overlayMap.put(overlay.getId(), overlay);
     }
 
-    // count number of startup overlays
-    numStartupOverlays = 0;
+    // count number of sticky overlays
+    numStickyOverlays = 0;
     for (XulOverlay overlay : overlayMap.values()) {
-      if (overlay.getId().startsWith("startup")) {
-        numStartupOverlays++;
+      if (overlay.getId().startsWith("startup") || overlay.getId().startsWith("sticky")) {
+        numStickyOverlays++;
       }
     }
 
-    startupOverlaysLoaded = 0;
+    stickyOverlaysLoaded = 0;
     for (XulOverlay overlay : overlayMap.values()) {
-      if (overlay.getId().startsWith("startup")) {
+      if (overlay.getId().startsWith("startup") || overlay.getId().startsWith("sticky")) {
         AsyncXulLoader.loadOverlayFromSource(overlay.getSource(), overlay.getResourceBundleUri(), container, new IXulLoaderCallback() {
           public void overlayLoaded() {
-            startupOverlaysLoaded++;
+            stickyOverlaysLoaded++;
             XulMainMenubar.this.overlayLoaded();
           }
 

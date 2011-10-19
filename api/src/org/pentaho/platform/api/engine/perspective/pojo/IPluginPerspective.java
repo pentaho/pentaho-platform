@@ -34,11 +34,8 @@ public interface IPluginPerspective extends Serializable {
   public String getContentUrl();
   public void setContentUrl(String contentUrl);
   
-  public XulOverlay getMenuBarOverlay();
-  public void setMenuBarOverlay(XulOverlay menuBarOverlay);
-  
-  public XulOverlay getToolBarOverlay();
-  public void setToolBarOverlay(XulOverlay toolBarOverlay);
+  public ArrayList<XulOverlay> getOverlays();
+  public void setOverlays(ArrayList<XulOverlay> overlays);
   
   public int getLayoutPriority();
   public void setLayoutPriority(int layoutPriority);

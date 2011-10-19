@@ -11,8 +11,7 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
   private String id;
   private String title;
   private String contentUrl;
-  private XulOverlay menuBarOverlay;
-  private XulOverlay toolBarOverlay;
+  private ArrayList<XulOverlay> overlays;
   private int layoutPriority;
   private ArrayList<String> securityActions;
   
@@ -43,20 +42,12 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
     this.contentUrl = contentUrl;
   }
 
-  public XulOverlay getMenuBarOverlay() {
-    return menuBarOverlay;
+  public ArrayList<XulOverlay> getOverlays() {
+    return overlays;
   }
 
-  public void setMenuBarOverlay(XulOverlay menuBarOverlay) {
-    this.menuBarOverlay = menuBarOverlay;
-  }
-
-  public XulOverlay getToolBarOverlay() {
-    return toolBarOverlay;
-  }
-
-  public void setToolBarOverlay(XulOverlay toolBarOverlay) {
-    this.toolBarOverlay = toolBarOverlay;
+  public void setOverlays(ArrayList<XulOverlay> overlays) {
+    this.overlays = overlays;
   }
 
   /* (non-Javadoc)

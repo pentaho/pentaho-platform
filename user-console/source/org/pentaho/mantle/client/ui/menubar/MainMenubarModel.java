@@ -148,6 +148,11 @@ public class MainMenubarModel extends XulEventSourceAdapter implements SolutionB
   }
 
   @Bindable
+  public void toggleShowHideFiles() {
+    SolutionBrowserPanel.getInstance().toggleShowHideFilesCommand.execute();
+  }  
+  
+  @Bindable
   public void openDocumentation() {
     MantleSettingsManager.getInstance().fetchMantleSettings(new AsyncCallback<HashMap<String, String>>() {
 

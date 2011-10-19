@@ -20,35 +20,35 @@
     <extra class="java.lang.String"/>
   </webservice>
   <perspective id="perspective1" title="Test Perspective 1" layout-priority="500">
-    <toolbar-overlay id="toolbaroverlay1" resourcebundle="bogus.properties">
+    <overlay id="toolbaroverlay1" resourcebundle="bogus.properties">
 	    <button 
 		    id="performaction1" 
 		    label="My Label" 
 		    image="somebutton.png"
 		    command="somejavascript or some such"/>
-    </toolbar-overlay>
-    <menu-overlay id="menuoverlay1" resourcebundle="bogus.properties">
+    </overlay>
+    <overlay id="menuoverlay1" resourcebundle="bogus.properties">
 	    <MenuItem 
 		    id="MenuItem1" 
 		    label="My Menu" 
 		    command="somejavascript or some such"/>
-    </menu-overlay>
+    </overlay>
   </perspective>
   
   <perspective id="perspective2" title="Test Perspective 2">
-    <toolbar-overlay id="toolOverlay2" resourcebundle="bogus2.properties">
+    <overlay id="toolOverlay2" resourcebundle="bogus2.properties">
 	    <button 
 		    id="performaction2" 
 		    label="My Label 2" 
 		    image="mybutton.png"
 		    command="somejavascript or some such"/>
-    </toolbar-overlay>
-    <menu-overlay id="menuOverlay2" resourcebundle="bogus.properties">
+    </overlay>
+    <overlay id="menuOverlay2" resourcebundle="bogus.properties">
 	    <MenuItem 
 		    id="MenuItem2" 
 		    label="My Menu2" 
 		    command="somejavascript or some such"/>
-    </menu-overlay>
+    </overlay>
   </perspective>
   
   <!-- webservice 
