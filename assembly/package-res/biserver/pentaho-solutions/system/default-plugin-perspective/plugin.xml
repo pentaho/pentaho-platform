@@ -11,8 +11,6 @@
             <toolbar id="mainToolbar">
                  <toolbarbutton id="default.perspective.test.overlay.button" image="../content/default-plugin-perspective/resources/images/enabled32.png" onclick="mainToolbarHandler.executeMantleFunc('defaultTestPerspectiveFunction();')" tooltiptext="${defaultPerspectiveTestToolbarButton}"  insertafter="dummyPluginContentButton"/>
             </toolbar>			
-		</overlay>
-		<overlay id="default.perspective.menubar.test.overlay"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
 			<menubar id="mainMenubar">
 				<menubar id="testPerspectiveMenuBar" label="${test}" layout="vertical" insertafter="toolsmenu">
 					<menuitem id="default.perspective.test.overlay.menubar" label="${testItem}" js-command="alert('Test Item Clicked')" />		
@@ -22,6 +20,22 @@
 				<menuitem id="default.perspective.test.overlay.new.menu.item" label="${defaultPerspectiveTestMenuItem}" command="mainMenubarHandler.executeMantleFunc('defaultTestPerspectiveFunction();')" />		
 			</menubar>	
 		</overlay>
+		
+		<overlay id="sticky.default.perspective.menubar.test.overlay"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
+            <toolbar id="mainToolbar">
+                 <toolbarbutton id="default.perspective.test.overlay.sticky.button" image="../content/default-plugin-perspective/resources/images/lock32.png" js-command="alert('Sticky Toolbar Button Clicked')" tooltiptext="${stickyButton}"  insertafter="dummyPluginContentButton"/>
+            </toolbar>			
+			<menubar id="mainMenubar">
+				<menubar id="testPerspectiveStickyMenuBar" label="${sticky}" layout="vertical" insertafter="toolsmenu">
+					<menuitem id="default.perspective.test.overlay.sticky.menu.item" label="${stickyMenuItem}" js-command="alert('Sticky Test Item Clicked')" />		
+				</menubar>
+			</menubar>
+			<menubar id="newmenu">
+				<menuitem id="default.perspective.test.overlay.sticky.new.menu.item" label="${stickyMenuItem}" js-command="alert('Sticky Test Item Clicked')" />		
+			</menubar>	
+		</overlay>
+		
+		
 	</perspective>
 		
 	<static-paths>
