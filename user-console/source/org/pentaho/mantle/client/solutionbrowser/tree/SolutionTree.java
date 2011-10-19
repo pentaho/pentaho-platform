@@ -197,18 +197,18 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     WaitPopup.getInstance().setVisible(false);
   }
 
-  public void onFetchRepositoryFileTree(RepositoryFileTree fileTree, List<RepositoryFile> trashItems) {
+  public void onFetchRepositoryFileTree(RepositoryFileTree fileTree, List<RepositoryFile> repositoryTrashItems) {
 
-    if (repositoryFileTree == null) {
+    if (fileTree == null) {
       WaitPopup.getInstance().setVisible(false);
       return;
     }
-    this.repositoryFileTree = repositoryFileTree;
-    this.trashItems = trashItems;
+    repositoryFileTree = fileTree;
+    trashItems = repositoryTrashItems;
     // remember selectedItem, so we can reselect it after the tree is loaded
     clear();
     // get document root item
-    RepositoryFile rootRepositoryFile = (RepositoryFile) repositoryFileTree.getFile();
+    RepositoryFile rootRepositoryFile = repositoryFileTree.getFile();
     FileTreeItem rootItem = null;
     if (createRootNode) {
       rootItem = new FileTreeItem();
@@ -252,6 +252,12 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     WaitPopup.getInstance().setVisible(false);
   }
 
+  private void buildTrash(FileTreeItem solutionRoot, List<RepositoryFile> trashItems) {
+    FileTreeItem trashDir = new FileTreeItem();
+    trashDir.setFileName("Trash");
+//    trashDir
+//    solutionRoot.addItem(trashDir);
+  }
   public ArrayList<FileTreeItem> getAllNodes() {
     ArrayList<FileTreeItem> nodeList = new ArrayList<FileTreeItem>();
     for (int i = 0; i < this.getItemCount(); i++) {
