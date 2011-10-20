@@ -6,7 +6,7 @@
 	<perspective id="test.admin" title="Admin Test" layout-priority="100" required-security-action="org.pentaho.security.administerSecurity" content-url="content/default-plugin-perspective/resources/html/admin.html">
 	</perspective>
 	
-	<perspective id="default.perspective.test" title="Test Perspective" layout-priority="100" roles="Authenticated" content-url="content/default-plugin-perspective/resources/html/index.html">
+	<perspective id="default.perspective.test" title="${testPerspective}" layout-priority="100" roles="Authenticated" resourcebundle="content/default-plugin-perspective/resources/messages/messages" content-url="content/default-plugin-perspective/resources/html/index.html">
 		<overlay id="default.perspective.toolbar.test.overlay"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
             <toolbar id="mainToolbar">
                  <toolbarbutton id="default.perspective.test.overlay.button" image="../content/default-plugin-perspective/resources/images/enabled32.png" onclick="mainToolbarHandler.executeMantleFunc('defaultTestPerspectiveFunction();')" tooltiptext="${defaultPerspectiveTestToolbarButton}"  insertafter="dummyPluginContentButton"/>

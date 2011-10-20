@@ -34,6 +34,7 @@ import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.MenuBar;
@@ -149,22 +150,30 @@ public class XulMainMenubar extends SimplePanel implements IXulLoaderCallback {
     }
 
     stickyOverlaysLoaded = 0;
-    for (XulOverlay overlay : overlayMap.values()) {
+    for (final XulOverlay overlay : overlayMap.values()) {
       if (overlay.getId().startsWith("startup") || overlay.getId().startsWith("sticky")) {
-        AsyncXulLoader.loadOverlayFromSource(overlay.getSource(), overlay.getResourceBundleUri(), container, new IXulLoaderCallback() {
-          public void overlayLoaded() {
-            stickyOverlaysLoaded++;
-            XulMainMenubar.this.overlayLoaded();
-          }
+        Timer loadOverlayTimer = new Timer() {
+          public void run() {
+            if (container != null) {
+              cancel();
+              AsyncXulLoader.loadOverlayFromSource(overlay.getSource(), overlay.getResourceBundleUri(), container, new IXulLoaderCallback() {
+                public void overlayLoaded() {
+                  stickyOverlaysLoaded++;
+                  XulMainMenubar.this.overlayLoaded();
+                }
 
-          public void overlayRemoved() {
-            XulMainMenubar.this.overlayRemoved();
-          }
+                public void overlayRemoved() {
+                  XulMainMenubar.this.overlayRemoved();
+                }
 
-          public void xulLoaded(GwtXulRunner xulRunner) {
-            XulMainMenubar.this.xulLoaded(xulRunner);
+                public void xulLoaded(GwtXulRunner xulRunner) {
+                  XulMainMenubar.this.xulLoaded(xulRunner);
+                }
+              });
+            }
           }
-        });
+        };
+        loadOverlayTimer.scheduleRepeating(250);
       }
     }
   }

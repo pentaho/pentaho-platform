@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import org.pentaho.gwt.widgets.client.ui.ICallback;
+import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
+import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -30,9 +32,11 @@ import org.pentaho.mantle.client.ui.menubar.XulMainMenubar;
 import org.pentaho.mantle.client.ui.toolbar.XulMainToolbar;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
+import org.pentaho.ui.xul.gwt.util.ResourceBundleTranslator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Frame;
@@ -44,6 +48,9 @@ import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
 
 public class PerspectiveSwitcher extends HorizontalPanel {
+
+  public static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
+  public static final String SEPARATOR = "/"; //$NON-NLS-1$
 
   private ArrayList<ToggleButton> toggles = new ArrayList<ToggleButton>();
 
@@ -105,6 +112,12 @@ public class PerspectiveSwitcher extends HorizontalPanel {
 
       ToggleButton tb = new ToggleButton(perspective.getTitle(), new ClickHandler() {
         public void onClick(ClickEvent event) {
+          if (((ToggleButton) event.getSource()).isDown()) {
+            History.newItem(perspective.getId());
+          } else {
+            IPluginPerspective defaultPerspective = perspectives.get(0);
+            History.newItem(defaultPerspective.getId());
+          }
           showPerspective((ToggleButton) event.getSource(), perspective);
         }
       });
@@ -112,6 +125,7 @@ public class PerspectiveSwitcher extends HorizontalPanel {
       tb.getElement().setAttribute("layoutPriority", "" + perspective.getLayoutPriority());
       toggles.add(tb);
       add(tb);
+      loadResourceBundle(tb, perspective);
     }
 
     // register all toolbar overlays with XulMainToolbar
@@ -120,7 +134,57 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     // register all menubar overlays with XulMainMenubar
     XulMainMenubar.getInstance().loadOverlays(overlays);
 
-    showPerspective(toggles.get(0), perspectives.get(0));
+    String historyTokenPerspectiveId = History.getToken();
+    boolean loadDefaultPerspective = true;
+    for (int i = 0; i < perspectives.size(); i++) {
+      if (perspectives.get(i).getId().equalsIgnoreCase(historyTokenPerspectiveId)) {
+        toggles.get(i).setDown(true);
+        loadDefaultPerspective = false;
+        showPerspective(toggles.get(i), perspectives.get(i));
+        break;
+      }
+    }
+    if (loadDefaultPerspective) {
+      showPerspective(toggles.get(0), perspectives.get(0));
+    }
+  }
+  
+  private void loadResourceBundle(final ToggleButton button, final IPluginPerspective perspective) {
+    try {
+      String bundle = perspective.getResourceBundleUri();
+      if (bundle == null) {
+        return;
+      }
+      String folder = ""; //$NON-NLS-1$
+      String baseName = bundle;
+
+      // we have to separate the folder from the base name
+      if (bundle.indexOf(SEPARATOR) > -1) {
+        folder = bundle.substring(0, bundle.lastIndexOf(SEPARATOR) + 1);
+        baseName = bundle.substring(bundle.lastIndexOf(SEPARATOR) + 1);
+      }
+
+      // some may put the .properties on incorrectly
+      if (baseName.contains(PROPERTIES_EXTENSION)) {
+        baseName = baseName.substring(0, baseName.indexOf(PROPERTIES_EXTENSION));
+      }
+      // some may put the .properties on incorrectly
+      if (baseName.contains(".properties")) {
+        baseName = baseName.substring(0, baseName.indexOf(".properties"));
+      }
+
+      final ResourceBundle messageBundle = new ResourceBundle();
+      messageBundle.loadBundle(folder, baseName, true, new IResourceBundleLoadCallback() {
+        public void bundleLoaded(String arg0) {
+          String title = ResourceBundleTranslator.translate(perspective.getTitle(), messageBundle);
+          button.setText(title);
+        }
+      });
+
+    } catch (Throwable t) {
+      Window.alert("Error loading message bundle: " + t.getMessage()); //$NON-NLS-1$
+      t.printStackTrace();
+    }
   }
 
   private void showPerspective(final ToggleButton source, final IPluginPerspective perspective) {
