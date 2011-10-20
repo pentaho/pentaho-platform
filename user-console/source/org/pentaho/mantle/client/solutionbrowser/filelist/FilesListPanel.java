@@ -140,7 +140,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
         dialog.addFileChooserListener(new FileChooserListener() {
 
           public void fileSelected(RepositoryFile repositoryFile,String filePath, String fileName, String title) {
-            notifyOpenFileCallback(callback, RepositoryFileUtils.convertFromRepositoryFile(repositoryFile));
+            notifyOpenFileCallback(callback, repositoryFile, filePath, fileName, title);
           }
 
           public void fileSelectionChanged(RepositoryFile repositoryFile, String filePath, String fileName, String title) {
@@ -156,9 +156,9 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
     }, false, null, null, showHidden);
   }
 
-  private native void notifyOpenFileCallback(JavaScriptObject obj, RepositoryFileDto repositoryFile)
+  private native void notifyOpenFileCallback(JavaScriptObject obj, RepositoryFile repositoryFile, String filePath, String fileName, String title)
   /*-{
-    obj.fileSelected(repositoryFile);
+    obj.fileSelected(repositoryFile, filePath, fileName, title);
   }-*/;
 
   private static native void setupNativeHooks(FilesListPanel filesListPanel)
