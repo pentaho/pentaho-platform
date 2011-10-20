@@ -76,18 +76,18 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
         String entryName = FilenameUtils.separatorsToUnix(entry.getName());
         String extension = "";
        
-        //boolean includeFile = true;
-        //ImportSource importSource = null;
-        //for(String filter : this.filters) {
-        	//if (entryName.contains(filter)) {
-        		//importSource = resolveDependentImportSource(filter);
-        		//includeFile = importSource != null;
-        		//includeFile = false;
-        		//break;
-        	//}
-        //}
-        //if (includeFile) {
-        if(!entryName.contains("/system/")) {
+        boolean includeFile = true;
+        ImportSource importSource = null;
+        for(String filter : this.filters) {
+        	if (entryName.contains(filter)) {
+        		importSource = resolveDependentImportSource(filter);
+        		includeFile = importSource != null;
+        		if(includeFile) {
+        			break;
+        		}
+        	}
+        }
+        if (includeFile) {
           boolean isDir = entry.getSize() == 0;
           if (!isDir) {
             extension = entryName.substring(entryName.lastIndexOf('.') + 1);
@@ -110,12 +110,11 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
           
           String parentDir =  new File(entryName).getParent() == null ? "/" : new File(entryName).getParent() + "/";    
           RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, parentDir, tempFile, charSet, mimeTypes.get(extension.toLowerCase()));
-          //if(importSource != null) {
-          //	  repoFileBundle.setPath("");
-          //	  importSource.addFile(repoFileBundle);
-          //} else {
+          if(importSource != null) {
+        	  importSource.addFile(repoFileBundle);
+          } else {
         	  files.add(repoFileBundle);
-          //}
+          }
         }
         zipInputStream.closeEntry();
         entry = zipInputStream.getNextEntry();

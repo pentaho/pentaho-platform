@@ -21,6 +21,7 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -109,10 +110,11 @@ public class RepositoryImportResource {
     Importer importer = new Importer(repository, converters);
     try {
       if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) { //$NON-NLS-1$
-    	ImportSource src = new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8", new String[] {"/system/", ".mondrian.xml"}); //$NON-NLS-1$
+    	ImportSource src = new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8", new String[] {File.separator + "system" + File.separator, ".mondrian.xml", "datasources.xml"}); //$NON-NLS-1$
         importer.doImport(src, uploadDir, null);
         for(ImportSource dependentImportSource : src.getDependentImportSources()) {
-        	importer.doImport(dependentImportSource, dependentImportSource.getUploadDir(), null);
+        	dependentImportSource.initialize(repository);
+        	importer.doImport(dependentImportSource, File.separator, null);
         }
       } else {
     	ImportSource src = new SingleFileStreamImportSource(fileIS, fileInfo.getFileName(), "UTF-8"); //$NON-NLS-1$

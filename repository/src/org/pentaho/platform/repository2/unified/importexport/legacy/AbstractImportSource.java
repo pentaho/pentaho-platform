@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.repository2.unified.importexport.ImportSource;
 
 /**
@@ -32,6 +33,7 @@ public abstract class AbstractImportSource implements ImportSource {
   /**
    * Keys are extensions and values are MIME types.
    */
+  protected IUnifiedRepository unifiedRepository;
   protected Map<String, ImportSource> sourceTypes = new HashMap<String, ImportSource>();
   protected Map<String, String> mimeTypes = new HashMap<String, String>();
   protected List<ImportSource> dependentImportSources = new ArrayList<ImportSource>();
@@ -77,10 +79,6 @@ public abstract class AbstractImportSource implements ImportSource {
   public void addFile(IRepositoryFileBundle file) {
   }
   
-  public String getUploadDir() {
-	  return null;
-  }
-  
   public List<ImportSource> getDependentImportSources() {
 	  return dependentImportSources;
   }
@@ -99,6 +97,26 @@ public abstract class AbstractImportSource implements ImportSource {
   }
   
   private void initializeSourceTypes() {
-	  sourceTypes.put(".mondrian.xml", new MondrianSchemaImportSource());
+	  MondrianSchemaImportSource importSource = new MondrianSchemaImportSource();
+	  sourceTypes.put(".mondrian.xml", importSource);
+	  sourceTypes.put("datasources.xml", importSource);
+  }
+  
+  public String getRequiredCharset() {
+	return null;
+  }
+
+  public void setOwnerName(String ownerName) {
+  }
+
+  public void setRequiredCharset(String charset) {
+  }
+	
+  public IRepositoryFileBundle getFile(String path) {
+	return null;
+  }
+	
+  public void initialize(IUnifiedRepository unifidedRepository) {
+	  this.unifiedRepository = unifidedRepository;
   }
 }

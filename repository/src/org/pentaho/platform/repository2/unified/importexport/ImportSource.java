@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 
@@ -27,14 +28,14 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
  * @author mlowery
  */
 public interface ImportSource {
+	 
+  void initialize(IUnifiedRepository repository);
 
   IRepositoryFileBundle getFile(final String path);
 
   Iterable<IRepositoryFileBundle> getFiles() throws IOException;
   
   void addFile(IRepositoryFileBundle file);
-  
-  String getUploadDir();
   
   List<ImportSource> getDependentImportSources();
 
@@ -70,6 +71,8 @@ public interface ImportSource {
      * Path to file. Will be appended to destination folder path to create absolute path.
      */
     String getPath();
+    
+    void setPath(String path);
     
     /**
      * Null for folders or binary types.

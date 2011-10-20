@@ -11,11 +11,11 @@
     <Catalogs>
         <Catalog name="SteelWheels">
             <DataSourceInfo>Provider=mondrian;DataSource=SampleData</DataSourceInfo>
-			<Definition>solution:/public/pentaho-solutions/steel-wheels/analysis/steelwheels.mondrian.xml</Definition>
+			<Definition>solution:/etc/mondrian/SteelWheels/schema.xml</Definition>
 		</Catalog>
         <Catalog name="SampleData">
             <DataSourceInfo>Provider=mondrian;DataSource=SampleData</DataSourceInfo>
-            <Definition>solution:/public/pentaho-solutions/steel-wheels/analysis/SampleData.mondrian.xml</Definition>
+            <Definition>solution:/etc/mondrian/SampleData/schema.xml</Definition>
         </Catalog>
     </Catalogs>
   </DataSource>
