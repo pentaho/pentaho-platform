@@ -27,6 +27,12 @@
             <value>false</value>
           </property>
         </bean>
+        
+        <bean id="pooledDataSourceSystemListener" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener" />
+        <!--
+          <bean id="nonPooledDataSourceSystemListener"
+          class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceSystemListener"/>
+        -->
         <bean id="backingRepositoryLifecycleManagerSystemListener" class="org.pentaho.platform.repository2.unified.BackingRepositoryLifecycleManagerSystemListener"/>
         <bean id="pluginSystemListener" class="org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter" />
 

@@ -30,7 +30,6 @@ import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -40,10 +39,10 @@ import org.pentaho.platform.util.logging.Logger;
 public class PooledDatasourceSystemListener implements IPentahoSystemListener {
   public static final String DATASOURCE_REGION = "DATASOURCE";//$NON-NLS-1$
   public boolean startup(final IPentahoSession session) {
-    try {
+    /*try {*/
       ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
       Logger.debug(this, "PooledDatasourceSystemListener: called for startup"); //$NON-NLS-1$
-      IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get(IDatasourceMgmtService.class,session);
+      /*IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.get(IDatasourceMgmtService.class,session);
       if(!cacheManager.cacheEnabled(IDatasourceService.JDBC_POOL)) {
         cacheManager.addCacheRegion(IDatasourceService.JDBC_POOL);
       }
@@ -64,15 +63,12 @@ public class PooledDatasourceSystemListener implements IPentahoSystemListener {
           continue;
         }
        }
-      Logger.debug(this, "PooledDatasourceSystemListener: done with init"); //$NON-NLS-1$
+      Logger.debug(this, "PooledDatasourceSystemListener: done with init"); //$NON-NLS-1$*/
       return true;
-    } catch (ObjectFactoryException objface) {
-      Logger.error(this, Messages.getInstance().getErrorString("PooledDatasourceSystemListener.ERROR_0001_UNABLE_TO_INSTANTIATE_OBJECT"), objface); //$NON-NLS-1$
-      return false;
-    } catch (DatasourceMgmtServiceException dmse) {
+    /*} catch (DatasourceMgmtServiceException dmse) {
       Logger.error(this, Messages.getInstance().getErrorString("PooledDatasourceSystemListener.ERROR_0002_UNABLE_TO_GET_DATASOURCE"), dmse); //$NON-NLS-1$
       return false;
-    }
+    }*/
   }
 
   @SuppressWarnings("unchecked")

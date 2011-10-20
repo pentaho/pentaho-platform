@@ -26,7 +26,6 @@ import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -36,12 +35,11 @@ import org.pentaho.platform.util.logging.Logger;
 public class NonPooledDatasourceSystemListener implements IPentahoSystemListener {
   public static final String DATASOURCE_REGION = "DATASOURCE";//$NON-NLS-1$
   public boolean startup(final IPentahoSession session) {
-    try {
+    /*try {*/
       ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
       Logger.debug(this, "NonPooledDatasourceSystemListener: called for startup"); //$NON-NLS-1$
       boolean cachingAvailable = cacheManager != null && cacheManager.cacheEnabled();
-      IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService)
-        PentahoSystem.getObjectFactory().get(IDatasourceMgmtService.class,session);
+      /*IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.get(IDatasourceMgmtService.class,session);
       if(cachingAvailable) {
         if(!cacheManager.cacheEnabled(IDatasourceService.JDBC_DATASOURCE)) {
           cacheManager.addCacheRegion(IDatasourceService.JDBC_DATASOURCE);
@@ -53,17 +51,13 @@ public class NonPooledDatasourceSystemListener implements IPentahoSystemListener
             + datasource.getName() + "\")"); //$NON-NLS-1$
         cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE, datasource.getName(), PooledDatasourceHelper.convert(datasource));
        }
-      Logger.debug(this, "NonPooledDatasourceSystemListener: done with init"); //$NON-NLS-1$
+      Logger.debug(this, "NonPooledDatasourceSystemListener: done with init"); //$NON-NLS-1$*/
       return true;
-    } catch (ObjectFactoryException objface) {
-      Logger.error(this, Messages.getInstance().getErrorString(
-          "NonPooledDatasourceSystemListener.ERROR_0001_UNABLE_TO_INSTANTIATE_OBJECT",NonPooledDatasourceSystemListener.class.getName()), objface); //$NON-NLS-1$
-      return false;
-    } catch (DatasourceMgmtServiceException dmse) {
+    /*} catch (DatasourceMgmtServiceException dmse) {
       Logger.error(this, Messages.getInstance().getErrorString(
           "NonPooledDatasourceSystemListener.ERROR_0002_UNABLE_TO_GET_DATASOURCE",NonPooledDatasourceSystemListener.class.getName()), dmse); //$NON-NLS-1$
       return false;        
-    }
+    }*/
   }
 
   public void shutdown() {
