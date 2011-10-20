@@ -11,13 +11,15 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
   private String id;
   private String title;
   private String contentUrl;
+  private String resourceBundleUri;
+
   private ArrayList<XulOverlay> overlays;
   private int layoutPriority;
   private ArrayList<String> securityActions;
-  
+
   public DefaultPluginPerspective() {
   }
-  
+
   public String getId() {
     return id;
   }
@@ -33,13 +35,21 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
   public void setTitle(String title) {
     this.title = title;
   }
-  
+
   public String getContentUrl() {
     return contentUrl;
   }
 
   public void setContentUrl(String contentUrl) {
     this.contentUrl = contentUrl;
+  }
+
+  public String getResourceBundleUri() {
+    return resourceBundleUri;
+  }
+
+  public void setResourceBundleUri(String resourceBundleUri) {
+    this.resourceBundleUri = resourceBundleUri;
   }
 
   public ArrayList<XulOverlay> getOverlays() {
@@ -50,14 +60,18 @@ public class DefaultPluginPerspective implements Serializable, IPluginPerspectiv
     this.overlays = overlays;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective#getLayoutPriority()
    */
   public int getLayoutPriority() {
     return layoutPriority;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective#setLayoutPriority(int)
    */
   public void setLayoutPriority(int layoutPriority) {

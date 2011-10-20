@@ -41,6 +41,7 @@ public class PerspectiveUtil {
       String title = perspectiveNode.attributeValue("title"); //$NON-NLS-1$
       String id = perspectiveNode.attributeValue("id"); //$NON-NLS-1$
       String contentUrl = perspectiveNode.attributeValue("content-url"); //$NON-NLS-1$
+      String resourceBundleUri = perspectiveNode.attributeValue("resourcebundle"); //$NON-NLS-1$
       String layoutPriorityStr = perspectiveNode.attributeValue("layout-priority"); //$NON-NLS-1$
       int layoutPriority = DEFAULT_LAYOUT_PRIORITY;
       if (layoutPriorityStr != null && layoutPriorityStr.length() > 0) {
@@ -70,6 +71,7 @@ public class PerspectiveUtil {
       perspective.setLayoutPriority(layoutPriority);
       perspective.setOverlays(overlays);
       perspective.setRequiredSecurityActions(actions);
+      perspective.setResourceBundleUri(resourceBundleUri);
 
       PentahoSystem.get(IPluginPerspectiveManager.class).addPluginPerspective(perspective);
       return perspective;

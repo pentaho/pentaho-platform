@@ -30,9 +30,12 @@ public interface IPluginPerspective extends Serializable {
 
   public String getTitle();
   public void setTitle(String title);
-  
+
   public String getContentUrl();
   public void setContentUrl(String contentUrl);
+
+  public String getResourceBundleUri();
+  public void setResourceBundleUri(String uri);
   
   public ArrayList<XulOverlay> getOverlays();
   public void setOverlays(ArrayList<XulOverlay> overlays);
