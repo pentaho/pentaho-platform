@@ -26,8 +26,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -35,12 +39,12 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author Ezequiel Cuellar
- * 
  */
 public class MondrianSchemaImportSource extends AbstractImportSource {
 
 	private IRepositoryFileBundle datasourcesXML;
 	private final static String ETC_MONDRIAN_JCR_FOLDER = File.separator + "etc" + File.separator + "mondrian";
+	private static final Log logger = LogFactory.getLog(MondrianSchemaImportSource.class);
 
 	public MondrianSchemaImportSource() {
 	}
@@ -55,7 +59,15 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		}
 	}
 
+	/*
+	 * Receives all the mondrian.xml schemas plus the datasources.xml. Mondrian
+	 * schemas referenced in the datasources.xml are placed at
+	 * "etc/mondrian/<catalog>" The rest are imported as is to ensure legacy
+	 * artifacts work. The datasources.xml is filtered out and not imported into
+	 * JCR.
+	 */
 	public Iterable<IRepositoryFileBundle> getFiles() throws IOException {
+
 		List<IRepositoryFileBundle> filesToImport = null;
 		try {
 			if (datasourcesXML == null) {
@@ -65,6 +77,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return filesToImport;
 	}
@@ -76,22 +89,23 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 	private List<IRepositoryFileBundle> processImportingFiles() throws Exception {
 		List<IRepositoryFileBundle> importingFiles = new ArrayList<IRepositoryFileBundle>();
 		for (IRepositoryFileBundle file : super.files) {
-
-			if (isReferencedInDatasourcesXML(file)) {
-				processImportingSchema(file, importingFiles);
+			String datasourceInfo = getDatasourcesXMLDatasourceInfo(file);
+			if (datasourceInfo != null) {
+				processImportingSchema(file, importingFiles, datasourceInfo);
 			} else {
 				file.setPath("public" + File.separator + file.getPath());
 				importingFiles.add(file);
 			}
 		}
+		// Do not import datasources.xml
 		if (importingFiles.contains(datasourcesXML)) {
 			importingFiles.remove(datasourcesXML);
 		}
 		return importingFiles;
 	}
 
-	private void processImportingSchema(IRepositoryFileBundle mondrianFile, List<IRepositoryFileBundle> importingFiles) throws Exception {
-		String repoPath = createCatalog(mondrianFile);
+	private void processImportingSchema(IRepositoryFileBundle mondrianFile, List<IRepositoryFileBundle> importingFiles, String datasourceInfo) throws Exception {
+		String repoPath = createCatalog(mondrianFile, datasourceInfo);
 
 		File tempFile = File.createTempFile("tempFile", null);
 		tempFile.deleteOnExit();
@@ -103,7 +117,10 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		importingFiles.add(repoFileBundle);
 	}
 
-	private String createCatalog(IRepositoryFileBundle file) throws Exception {
+	/*
+	 * Creates "/etc/mondrian/<catalog>"
+	 */
+	private String createCatalog(IRepositoryFileBundle file, String datasourceInfo) throws Exception {
 
 		/*
 		 * This is the default implementation. Use Schema name as defined in the
@@ -121,23 +138,64 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		if (catalog == null) {
 			catalog = super.unifiedRepository.createFolder(etcMondrian.getId(), new RepositoryFile.Builder(catalogName).folder(true).build(), "");
 		}
+		createDatasourceMetadata(catalog, datasourceInfo);
 		return catalogName;
 	}
 
-	private boolean isReferencedInDatasourcesXML(IRepositoryFileBundle file) throws Exception {
+	/*
+	 * Creates "/etc/mondrian/<catalog>/metadata" and the connection nodes
+	 */
+	private void createDatasourceMetadata(RepositoryFile catalog, String datasourceInfoValue) {
 
-		boolean isReferenced = false;
+		String definition = "mondrian:/" + catalog.getName();
+		String datasourceInfo = datasourceInfoValue;
+
+		DataNode node = new DataNode("catalog");
+		node.setProperty("definition", definition);
+		node.setProperty("datasourceInfo", datasourceInfo);
+
+		NodeRepositoryFileData data = new NodeRepositoryFileData(node);
+		RepositoryFile newFile = super.unifiedRepository.createFile(catalog.getId(), new RepositoryFile.Builder("metadata").build(), data, null);
+		System.out.println(newFile.getId());
+
+		// TO RETRIEVE...
+		//RepositoryFile foundFile = super.unifiedRepository.getFile("FULL PATH WITH FILE NAME");
+	    //DataNode foundNode = super.unifiedRepository.getDataForRead(foundFile.getId(), NodeRepositoryFileData.class).getNode();
+		
+		//TODO MondrianCatalogHelperTest.
+	}
+
+	/*
+	 * Parses the datasources.xml and if the current file is referenced in a
+	 * <Definition> it returns the <DataSourceInfo>
+	 */
+	private String getDatasourcesXMLDatasourceInfo(IRepositoryFileBundle file) throws Exception {
+
+		String datasourceInfo = null;
 		String fullFileName = file.getPath() + file.getFile().getName();
 
-		NodeList mondrianFiles = getElementsByTagName(datasourcesXML, "Definition");
-		for (int i = 0; i < mondrianFiles.getLength(); i++) {
-			Node mondrianFile = mondrianFiles.item(i);
-			if (mondrianFile.getTextContent().contains(fullFileName)) {
-				isReferenced = true;
+		NodeList mondrianDefinitions = getElementsByTagName(datasourcesXML, "Definition");
+		for (int i = 0; i < mondrianDefinitions.getLength(); i++) {
+			Node mondrianDefinition = mondrianDefinitions.item(i);
+			if (mondrianDefinition.getTextContent().contains(fullFileName)) {
+				Node datasourceInfoNode = null;
+				NodeList nodeList = mondrianDefinition.getParentNode().getChildNodes();
+				for (int j = 0; j < mondrianDefinitions.getLength(); j++) {
+					datasourceInfoNode = nodeList.item(j);
+					if (datasourceInfoNode.getNodeName().equals("DataSourceInfo")) {
+						break;
+					} else {
+						datasourceInfoNode = null;
+					}
+				}
+				if (datasourceInfoNode == null || !datasourceInfoNode.getNodeName().equals("DataSourceInfo")) {
+					throw new Exception("<DataSourceInfo> not found in datasources.xml for <Definition> " + mondrianDefinition.getTextContent());
+				}
+				datasourceInfo = datasourceInfoNode.getTextContent();
 				break;
 			}
 		}
-		return isReferenced;
+		return datasourceInfo;
 	}
 
 	private NodeList getElementsByTagName(IRepositoryFileBundle documentSource, String tagName) throws Exception {
