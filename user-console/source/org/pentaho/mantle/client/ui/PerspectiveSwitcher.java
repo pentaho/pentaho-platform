@@ -110,7 +110,7 @@ public class PerspectiveSwitcher extends HorizontalPanel {
         overlays.addAll(perspective.getOverlays());
       }
 
-      ToggleButton tb = new ToggleButton(perspective.getTitle(), new ClickHandler() {
+      ToggleButton tb = new ToggleButton( perspective.getTitle(), perspective.getTitle(), new ClickHandler() {
         public void onClick(ClickEvent event) {
           if (((ToggleButton) event.getSource()).isDown()) {
             History.newItem(perspective.getId());
@@ -177,6 +177,8 @@ public class PerspectiveSwitcher extends HorizontalPanel {
       messageBundle.loadBundle(folder, baseName, true, new IResourceBundleLoadCallback() {
         public void bundleLoaded(String arg0) {
           String title = ResourceBundleTranslator.translate(perspective.getTitle(), messageBundle);
+          button.getDownFace().setText(title);
+          button.getUpFace().setText(title);
           button.setText(title);
         }
       });
