@@ -306,11 +306,12 @@ public class RepositoryResourceTest extends JerseyTest {
   public void b3_HappyPath_GET_withMimeType() throws PlatformInitializationException {
     WebResource webResource = resource();
     
-    createTestFile("public:test.xjunit", "sometext");
+    createTestFile("public:test.xjunit", "sometext", "application/pdf");
     
     //get the output of the .xjunit file (should invoke the content generator)
     ClientResponse response = webResource.path("repos/xjunit/report").accept("application/pdf").get(ClientResponse.class);
-    assertResponse(response, ClientResponse.Status.OK, "application/pdf");
+
+    assertResponse(response, ClientResponse.Status.OK, "application/pdf;charset=UTF-8");
   }
   
   @Test
@@ -464,7 +465,7 @@ public class RepositoryResourceTest extends JerseyTest {
 
     @Override
     public String getMimeType(String streamPropertyName) {
-      return "text/html";
+      return "application/pdf;";
     }
 
     @Override
@@ -491,6 +492,12 @@ public class RepositoryResourceTest extends JerseyTest {
   protected void createTestFile(String path, String text) {
     WebResource webResource = resource();
     ClientResponse postResponse = webResource.path("repo/files/"+path).type(MediaType.TEXT_PLAIN).put(ClientResponse.class, text);
+    assertEquals(ClientResponse.Status.OK, postResponse.getClientResponseStatus());
+  }
+  
+  protected void createTestFile(String path, String text, String mediaType) {
+    WebResource webResource = resource();
+    ClientResponse postResponse = webResource.path("repo/files/"+path).type(mediaType).put(ClientResponse.class, text);
     assertEquals(ClientResponse.Status.OK, postResponse.getClientResponseStatus());
   }
 }
