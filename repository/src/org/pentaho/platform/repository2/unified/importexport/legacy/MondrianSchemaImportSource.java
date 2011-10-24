@@ -11,7 +11,7 @@
  * the license for the specific language governing your rights and limitations.
  *
  * @created Jan 28, 2011 
- * @author wseyler
+ * @author Ezequiel Cuellar
  */
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
@@ -155,14 +155,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		node.setProperty("datasourceInfo", datasourceInfo);
 
 		NodeRepositoryFileData data = new NodeRepositoryFileData(node);
-		RepositoryFile newFile = super.unifiedRepository.createFile(catalog.getId(), new RepositoryFile.Builder("metadata").build(), data, null);
-		System.out.println(newFile.getId());
-
-		// TO RETRIEVE...
-		//RepositoryFile foundFile = super.unifiedRepository.getFile("FULL PATH WITH FILE NAME");
-	    //DataNode foundNode = super.unifiedRepository.getDataForRead(foundFile.getId(), NodeRepositoryFileData.class).getNode();
-		
-		//TODO MondrianCatalogHelperTest.
+		super.unifiedRepository.createFile(catalog.getId(), new RepositoryFile.Builder("metadata").build(), data, null);
 	}
 
 	/*

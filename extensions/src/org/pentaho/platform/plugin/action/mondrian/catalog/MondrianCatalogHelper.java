@@ -54,6 +54,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
+import org.apache.commons.vfs.impl.DefaultFileSystemManager;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -66,19 +67,21 @@ import org.pentaho.platform.api.data.DatasourceServiceException;
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPermissionMask;
-import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
-import org.pentaho.platform.engine.services.solution.SolutionReposHelper;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
-import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
+import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
+import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -205,6 +208,12 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     dataSourcesConfig = "file:" + //$NON-NLS-1$
       PentahoSystem.getApplicationContext().getSolutionPath("system/olap/datasources.xml"); //$NON-NLS-1$
     
+    try {
+    	DefaultFileSystemManager dfsm = (DefaultFileSystemManager)VFS.getManager();
+    	dfsm.addProvider("mondrian", new MondrianVfs());
+    } catch (FileSystemException e) {
+    	logger.error(e.getMessage());
+    }
   }
 
   public static String MONDRIAN_CATALOG_CACHE_REGION = "mondrian-catalog-cache"; //$NON-NLS-1$
@@ -263,26 +272,45 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    */
   protected DataSourcesConfig.DataSources makeDataSources() {
 
-    // Resource dataSourcesConfigResource = resourceLoader.getResource(dataSourcesConfig);
+	 StringBuffer datasourcesXML = new StringBuffer(); 
+	 datasourcesXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	 datasourcesXML.append("<DataSources>");
+	 datasourcesXML.append("<DataSource>");
+	 datasourcesXML.append("<DataSourceName>Provider=Mondrian;DataSource=Pentaho</DataSourceName>");
+	 datasourcesXML.append("<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>");
+	 datasourcesXML.append("<URL>http://localhost:8080/pentaho/Xmla?userid=joe&amp;password=password</URL>");
+	 datasourcesXML.append("<DataSourceInfo>Provider=mondrian</DataSourceInfo>");
+	 datasourcesXML.append("<ProviderName>PentahoXMLA</ProviderName>");
+	 datasourcesXML.append("<ProviderType>MDP</ProviderType>");
+	 datasourcesXML.append("<AuthenticationMode>Unauthenticated</AuthenticationMode>");
+	 datasourcesXML.append("<Catalogs>");
+	  
+	  //Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
+	  String etcMondrian = File.separator + "etc" + File.separator + "mondrian";
+	  IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
+	  
+	  RepositoryFile etcMondrianFolder = unifiedRepository.getFile(etcMondrian);
+	  List<RepositoryFile> mondrianCatalogs = unifiedRepository.getChildren(etcMondrianFolder.getId());
+	  
+	  for(RepositoryFile catalog : mondrianCatalogs) {
+		  
+		  String catalogName = catalog.getName();
+		  RepositoryFile metadata = unifiedRepository.getFile(etcMondrian + File.separator + catalogName + File.separator + "metadata");
+		  DataNode metadataNode = unifiedRepository.getDataForRead(metadata.getId(), NodeRepositoryFileData.class).getNode();
+		  String datasourceInfo = metadataNode.getProperty("datasourceInfo").getString();
+		  String definition = metadataNode.getProperty("definition").getString();
 
-    URL dataSourcesConfigUrl = null;
-    try {
-      if (dataSourcesConfig.startsWith("file:")) { //$NON-NLS-1$
-        dataSourcesConfigUrl = new URL(dataSourcesConfig);//dataSourcesConfigResource.getURL();
-      } else if (dataSourcesConfig.startsWith("classpath:")) { //$NON-NLS-1$
-        dataSourcesConfigUrl = getClass().getResource(dataSourcesConfig.substring(10));
-      } else {
-        throw new MondrianCatalogServiceException("dataSourcesConfig is not a valid URL or does not exist", //$NON-NLS-1$
-            Reason.GENERAL);
-      }
-    } catch (IOException e) {
-      throw new MondrianCatalogServiceException(
-          Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0001_INVALID_DATASOURCE_CONFIG", dataSourcesConfig),  //$NON-NLS-1$
-          e, Reason.GENERAL);
-    }
-
-    // don't try to parse a null
-    return (dataSourcesConfigUrl == null) ? null : parseDataSourcesUrl(dataSourcesConfigUrl);
+		  datasourcesXML.append("<Catalog name=\"" + catalogName + "\">");
+		  datasourcesXML.append("<DataSourceInfo>" + datasourceInfo + "</DataSourceInfo>");
+		  datasourcesXML.append("<Definition>" + definition + "</Definition>");
+		  datasourcesXML.append("</Catalog>");
+	  }
+	  
+	  datasourcesXML.append("</Catalogs>");
+	  datasourcesXML.append("</DataSource>");
+	  datasourcesXML.append("</DataSources>");
+	  
+	  return parseDataSources(datasourcesXML.toString());	  
   }
 
   protected DataSourcesConfig.DataSources parseDataSourcesUrl(final URL dataSourcesConfigUrl) {
@@ -627,7 +655,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
             getLocale().toString());
       
       for (DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs) {
-        if (catalog.definition.startsWith("solution:")) { //$NON-NLS-1$
+    	if (catalog.definition.startsWith("mondrian:")) { //$NON-NLS-1$    	  
+    	  
           // try catch here so the whole thing doesn't blow up if one datasource is configured incorrectly.
           try {
             MondrianSchema schema = makeSchema(docAtUrlToString(catalog.definition, pentahoSession));
@@ -722,10 +751,11 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       LocalizingDynamicSchemaProcessor schemaProcessor = new LocalizingDynamicSchemaProcessor();
       PropertyList localeInfo = new PropertyList();
       localeInfo.put("Locale", getLocale().toString()); //$NON-NLS-1$
-
-      String filePath = urlStr.substring(urlStr.indexOf(":")+1); //removes 'solution:'
-      in = new RepositoryFileInputStream(filePath);
-
+      
+      FileSystemManager fsManager = VFS.getManager();
+      SolutionRepositoryVfsFileObject mondrianDS = (SolutionRepositoryVfsFileObject) fsManager.resolveFile(urlStr);
+      
+      in = mondrianDS.getInputStream();
       res = schemaProcessor.filter(null, localeInfo, in);
     } catch (FileNotFoundException fnfe) {
       throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0007_FILE_NOT_FOUND"), fnfe); //$NON-NLS-1$
