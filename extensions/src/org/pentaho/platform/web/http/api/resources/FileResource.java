@@ -144,7 +144,38 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.serverError().build();
     }
   }
+  
+  @PUT
+  @Path("/deletepermanent")
+  @Consumes( { WILDCARD })
+  public Response doDeleteFilesPermanent(String params) {
+    String[] sourceFileIds = params.split("[,]"); //$NON-NLS-1$
+    try {
+      for (int i=0; i<sourceFileIds.length; i++) {
+        repoWs.deleteFileWithPermanentFlag(sourceFileIds[i], true, null);
+      }
+    return Response.ok().build();
+    } catch (Throwable t)  {
+      t.printStackTrace();
+      return Response.serverError().build();
+    }    
+  }
 
+  @PUT
+  @Path("/restore")
+  @Consumes( { WILDCARD })
+  public Response doRestore(String params) {
+    String[] sourceFileIds = params.split("[,]"); //$NON-NLS-1$
+    try {
+      for (int i=0; i<sourceFileIds.length; i++) {
+        repoWs.undeleteFile(sourceFileIds[i], null);
+      }
+    return Response.ok().build();
+    } catch (Throwable t)  {
+      t.printStackTrace();
+      return Response.serverError().build();
+    }    
+  }
   /////////
   // CREATE
 
