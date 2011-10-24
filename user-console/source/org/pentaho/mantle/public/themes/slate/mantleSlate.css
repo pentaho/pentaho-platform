@@ -1,3 +1,38 @@
+.mantle-perspective-toggle {
+	color: #303030;
+	padding: 4px 5px 3px 5px;
+	cursor: pointer;
+	cursor: hand;
+	white-space: nowrap;
+	font-size: .8em;
+    border-top: 2px solid transparent;
+}
+
+.mantle-perspective-toggle-up {
+	color: #303030;
+}
+
+.mantle-perspective-toggle-up-hovering {
+	color: #303030;
+}
+
+.mantle-perspective-toggle-down {
+    border-top: 2px solid #fe700f;
+	color: black;
+}
+
+.mantle-perspective-toggle-down-hovering {
+    border-top: 2px solid #fe700f;
+	color: black;
+}
+
+#mainMenubar {
+}
+
+.mantle-perspective-switcher {
+	height: 26px;
+}
+
 .puc-logo{
     background: url('images/logo.png') no-repeat center center;
 }
