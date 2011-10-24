@@ -218,7 +218,7 @@ public class MondrianCatalogPublisher extends RepositoryFilePublisher {
     }
 
     // flush all schemas
-    mondrian.rolap.agg.AggregationManager.instance().getCacheControl(null).flushSchemaCache();
+    mondrian.rolap.agg.AggregationManager.instance().getCacheControl(null, null).flushSchemaCache();
     
     resp.getWriter().println(ISolutionRepository.FILE_ADD_SUCCESSFUL);
     } finally {

@@ -238,7 +238,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       throw new RuntimeException(e);
     }
 
-    AggregationManager.instance().getCacheControl(null).flushSchemaCache();
+    AggregationManager.instance().getCacheControl(null, null).flushSchemaCache();
   }
   
   public synchronized void reInit(final IPentahoSession pentahoSession) {
