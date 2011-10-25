@@ -58,32 +58,6 @@ public class PluginOptionsHelper {
       addDatasourceOverrideCommandTitle = settings.get("add-datasource-command-title"); //$NON-NLS-1$
     }
 
-    // Another way to override is from a plugin.xml...
-    //
-    // <menu-item id="new_analysis_view_menu_item" anchor="file-new-submenu-new_analysis_view_menu_item" label="New Analysis" command="http://www.dogpile.com"
-    // type="MENU_ITEM" how="REPLACE"/>
-
-    if (settings.get("file-newMenuOverrideTitle0") != null) { //$NON-NLS-1$
-      // For now, only support override of these two menus
-      for (int i = 0; i < 2; i++) {
-        String title = settings.get("file-newMenuOverrideTitle" + i); //$NON-NLS-1$
-        String command = settings.get("file-newMenuOverrideCommand" + i); //$NON-NLS-1$
-        String menuItem = settings.get("file-newMenuOverrideMenuItem" + i); //$NON-NLS-1$
-        if ((menuItem != null) && (command != null) && (title != null)) {
-          if (menuItem.equals("new_analysis_view_menu_item")) { //$NON-NLS-1$
-            newAnalysisViewOverrideCommandUrl = command;
-            newAnalysisViewOverrideCommandTitle = title;
-          } else if (menuItem.equals("manage_datasources_menu_item")) { //$NON-NLS-1$
-            manageDatasourcesOverrideCommandUrl = command;
-            manageDatasourcesOverrideCommandTitle = title;
-          } else if (menuItem.equals("new_datasources_menu_item")) { //$NON-NLS-1$
-            addDatasourceOverrideCommandUrl = command;
-            addDatasourceOverrideCommandTitle = title;
-          }
-        }
-      }
-    }
-
     // load plugins
     int index = 0;
     String pluginSetting = "plugin-content-type-" + index; //$NON-NLS-1$

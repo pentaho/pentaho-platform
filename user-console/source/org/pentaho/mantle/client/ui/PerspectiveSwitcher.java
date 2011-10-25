@@ -43,7 +43,6 @@ import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -59,7 +58,6 @@ public class PerspectiveSwitcher extends HorizontalPanel {
   private ArrayList<IPluginPerspective> perspectives;
 
   public PerspectiveSwitcher() {
-    setWidth("100%");
     getElement().setId("mantle-perspective-switcher");
     setStyleName("mantle-perspective-switcher");
     AsyncCallback<ArrayList<IPluginPerspective>> callback = new AsyncCallback<ArrayList<IPluginPerspective>>() {
@@ -90,10 +88,6 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     clear();
     setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
     setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-    SimplePanel p = new SimplePanel();
-    p.setWidth("100%");
-    add(p);
-    setCellWidth(p, "100%");
 
     // sort perspectives
     Collections.sort(perspectives, new Comparator<IPluginPerspective>() {
@@ -110,7 +104,7 @@ public class PerspectiveSwitcher extends HorizontalPanel {
         overlays.addAll(perspective.getOverlays());
       }
 
-      ToggleButton tb = new ToggleButton( perspective.getTitle(), perspective.getTitle(), new ClickHandler() {
+      ToggleButton tb = new ToggleButton(perspective.getTitle(), perspective.getTitle(), new ClickHandler() {
         public void onClick(ClickEvent event) {
           if (((ToggleButton) event.getSource()).isDown()) {
             History.newItem(perspective.getId());
@@ -148,7 +142,7 @@ public class PerspectiveSwitcher extends HorizontalPanel {
       showPerspective(toggles.get(0), perspectives.get(0));
     }
   }
-  
+
   private void loadResourceBundle(final ToggleButton button, final IPluginPerspective perspective) {
     try {
       String bundle = perspective.getResourceBundleUri();

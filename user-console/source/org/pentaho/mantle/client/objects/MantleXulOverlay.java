@@ -15,7 +15,7 @@
  * Copyright 2008 - 2009 Pentaho Corporation.  All rights reserved.
  * 
 */
-package org.pentaho.mantle.client;
+package org.pentaho.mantle.client.objects;
 
 import java.io.Serializable;
 

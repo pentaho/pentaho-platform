@@ -52,11 +52,7 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -66,9 +62,6 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   public static boolean showAdvancedFeatures = false;
 
   public static String mantleRevisionOverride = null;
-
-  // solution browser view
-  private SolutionBrowserPanel solutionBrowserPerspective;
 
   private CommandExec commandExec = GWT.create(CommandExec.class);
 
@@ -90,8 +83,6 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   }
 
   public void loadApplication() {
-    solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
-
     // registered our native JSNI hooks
     setupNativeHooks(this, new LoginCommand());
 
@@ -158,7 +149,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
       try {
         if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getSettingName())) {
           boolean showNavigator = "true".equals(setting.getSettingValue()); //$NON-NLS-1$
-          solutionBrowserPerspective.setNavigatorShowing(showNavigator);
+          SolutionBrowserPanel.getInstance().setNavigatorShowing(showNavigator);
         }
       } catch (Exception e) {
         MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
@@ -169,46 +160,26 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
 
   public void onFetchMantleSettings(final HashMap<String, String> settings) {
     mantleRevisionOverride = settings.get("user-console-revision");
-    FlexTable menuAndLogoPanel = new FlexTable();
-    menuAndLogoPanel.setCellPadding(0);
-    menuAndLogoPanel.setCellSpacing(0);
-    menuAndLogoPanel.setStyleName("menuBarAndLogoPanel"); //$NON-NLS-1$
-    menuAndLogoPanel.setWidth("100%"); //$NON-NLS-1$
-
     if ("true".equals(settings.get("show-menu-bar"))) {
-      menuAndLogoPanel.setWidget(0, 0, XulMainMenubar.getInstance());
-      menuAndLogoPanel.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+      RootPanel.get("pucMenuBar").add(XulMainMenubar.getInstance());
     }
 
-    menuAndLogoPanel.setWidget(0, 1, new PerspectiveSwitcher());
-    menuAndLogoPanel.getCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
-    menuAndLogoPanel.getCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
-
+    RootPanel.get("pucPerspectives").add(new PerspectiveSwitcher());
+    
     if ("true".equals(settings.get("show-main-toolbar"))) {
-      XulMainToolbar mainToolbar = XulMainToolbar.getInstance();
-      menuAndLogoPanel.setWidget(1, 0, mainToolbar);
-      menuAndLogoPanel.getFlexCellFormatter().setColSpan(1, 0, 2);
-      mainToolbar.setWidth("100%"); //$NON-NLS-1$
+      RootPanel.get("pucToolBar").add(XulMainToolbar.getInstance());
     }
-
-    VerticalPanel mainApplicationPanel = new VerticalPanel();
-    mainApplicationPanel.setStyleName("applicationShell"); //$NON-NLS-1$
-    mainApplicationPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-    mainApplicationPanel.add(menuAndLogoPanel);
-    mainApplicationPanel.setCellHeight(menuAndLogoPanel, "1px"); //$NON-NLS-1$
 
     // update supported file types
     PluginOptionsHelper.buildEnabledOptionsList(settings);
 
     // show stuff we've created/configured
-    contentDeck.add(solutionBrowserPerspective);
-    contentDeck.showWidget(contentDeck.getWidgetIndex(solutionBrowserPerspective));
+    contentDeck.add(SolutionBrowserPanel.getInstance());
+    contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
     contentDeck.setStyleName("applicationShell");
     
-    mainApplicationPanel.add(contentDeck);
-
     // menubar=no,location=no,resizable=yes,scrollbars=no,status=no,width=1200,height=800
-    RootPanel.get().add(mainApplicationPanel);
+    RootPanel.get("pucContent").add(contentDeck);
     RootPanel.get().add(WaitPopup.getInstance());
 
     // Add in the overlay panel
@@ -238,7 +209,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
       @Override
       public void onResponseReceived(Request arg0, Response response) {
         Boolean isAdministrator = Boolean.parseBoolean(response.getText());
-        solutionBrowserPerspective.setAdministrator(isAdministrator);
+        SolutionBrowserPanel.getInstance().setAdministrator(isAdministrator);
         //menuBar.buildMenuBar(settings, isAdministrator);
 
         int numStartupURLs = Integer.parseInt(settings.get("num-startup-urls")); //$NON-NLS-1$
@@ -246,11 +217,11 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
           String url = settings.get("startup-url-" + (i + 1)); //$NON-NLS-1$
           String name = settings.get("startup-name-" + (i + 1)); //$NON-NLS-1$
           if (url != null && !"".equals(url)) { //$NON-NLS-1$
-            solutionBrowserPerspective.getContentTabPanel().showNewURLTab(name != null ? name : url, url, url, false);
+            SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(name != null ? name : url, url, url, false);
           }
         }
-        if (solutionBrowserPerspective.getContentTabPanel().getWidgetCount() > 0) {
-          solutionBrowserPerspective.getContentTabPanel().selectTab(0);
+        if (SolutionBrowserPanel.getInstance().getContentTabPanel().getWidgetCount() > 0) {
+          SolutionBrowserPanel.getInstance().getContentTabPanel().selectTab(0);
         }
 
         // startup-url on the URL for the app, wins over user-settings
@@ -258,7 +229,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
         if (startupURL != null && !"".equals(startupURL)) { //$NON-NLS-1$
           String title = Window.Location.getParameter("name"); //$NON-NLS-1$
           startupURL = URL.decodeComponent(startupURL);
-          solutionBrowserPerspective.getContentTabPanel().showNewURLTab(title, title, startupURL, false);
+          SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(title, title, startupURL, false);
         }
       }
     });

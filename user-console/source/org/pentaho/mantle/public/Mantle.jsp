@@ -27,12 +27,12 @@
 	<head>
 		<title>Pentaho User Console</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-		<meta name="gwt:property" content="locale=<%=ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString())%>">
-		<link rel="shortcut icon" href="/pentaho-style/favicon.ico" />
-		<link rel='stylesheet' href='mantle/MantleStyle.css'/>
+	<meta name="gwt:property" content="locale=<%=ESAPI.encoder().encodeForHTMLAttribute(effectiveLocale.toString())%>">
+	<link rel="shortcut icon" href="/pentaho-style/favicon.ico" />
+	<link rel='stylesheet' href='mantle/MantleStyle.css'/>
     <link rel="stylesheet" href="content/data-access/resources/gwt/datasourceEditorDialog.css"/>
     <link rel="stylesheet" href="mantle/Widgets.css" />
-
+	
     <script language="javascript" type="text/javascript" src="webcontext.js?context=mantle"></script>
         
     <script type="text/javascript" src="mantle/nativeScripts.js"></script>
@@ -95,13 +95,36 @@
 
 	<body oncontextmenu="return false;" class="pentaho-page-background">
 
+	<!--
 	<div id="loading">
     		<div class="loading-indicator">
     			<img src="mantle/large-loading.gif" width="32" height="32"/><%= properties.getString("loadingConsole") %><a href="http://www.pentaho.com"></a><br/>
     			<span id="loading-msg"><%= properties.getString("pleaseWait") %></span>
     		</div>
 	</div>
+	-->
+	
+					
+	
+	<div id="puc" style="height: 100%">
+	
+		<div id="pucTopBar" style="background-color: black; height: 28px">
+			<div id="pucMenuBar" style="float: left">
+			</div>
 
+			<div id="pucPerspectives" style="background-color: red; float: right;">
+			</div>
+		</div>
+		
+		<div id="pucToolBar" style="float: left">
+		</div>
+	
+		<div id="pucContent" style="height: 100%; width: 100%">
+		</div>
+		
+	</div>
+	
+	
 	<!-- OPTIONAL: include this if you want history support -->
 	<iframe id="__gwt_historyFrame" style="width:0px;height:0px;border:0;display:none"></iframe>
 

@@ -42,9 +42,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.mantle.client.MantleXulOverlay;
 import org.pentaho.mantle.client.objects.JobDetail;
 import org.pentaho.mantle.client.objects.JobSchedule;
+import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.objects.SimpleMessageException;
 import org.pentaho.mantle.client.objects.SubscriptionBean;
 import org.pentaho.mantle.client.objects.SubscriptionSchedule;
@@ -93,8 +93,6 @@ import org.pentaho.platform.util.VersionInfo;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
-import org.pentaho.ui.xul.IMenuCustomization;
-import org.pentaho.ui.xul.IMenuCustomization.CustomizationType;
 import org.pentaho.ui.xul.XulOverlay;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -520,89 +518,8 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
         settings.put("new-report-command-title", overrideNewReportTitle); //$NON-NLS-1$
       }
 
-      // see if we have any plugin settings
       IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getPentahoSession()); //$NON-NLS-1$
       if (pluginManager != null) {
-        // get the menu customizations for the plugins, if any
-        List<IMenuCustomization> customs = (List<IMenuCustomization>) pluginManager.getMenuCustomizations();
-        int fileIdx = 0;
-        int fileNewIdx = 0;
-        int fileManageIdx = 0;
-        int viewIdx = 0;
-        int toolsIdx = 0;
-        int toolsRefreshIdx = 0;
-        int aboutIdx = 0;
-        int overrideIdx = 0;
-        // process each customization
-        for (IMenuCustomization custom : customs) {
-          // we only support appending children to the first level sub-menus
-          if (custom.getCustomizationType() == CustomizationType.LAST_CHILD) {
-            String anchor = custom.getAnchorId();
-            // do we have any additions to the file menu?
-            // TODO: support file->new
-            if ("file-submenu".equals(anchor)) { //$NON-NLS-1$
-              settings.put("fileMenuTitle" + fileIdx, custom.getLabel()); //$NON-NLS-1$
-              settings.put("fileMenuCommand" + fileIdx, custom.getCommand()); //$NON-NLS-1$
-              fileIdx++;
-            } else if ("file-new-submenu".equals(anchor)) { //$NON-NLS-1$
-              settings.put("file-newMenuTitle" + fileNewIdx, custom.getLabel()); //$NON-NLS-1$
-              settings.put("file-newMenuCommand" + fileNewIdx, custom.getCommand()); //$NON-NLS-1$
-              fileNewIdx++;
-            } else if ("file-manage-submenu".equals(anchor)) { //$NON-NLS-1$
-              settings.put("file-manageMenuTitle" + fileManageIdx, custom.getLabel()); //$NON-NLS-1$
-              settings.put("file-manageMenuCommand" + fileManageIdx, custom.getCommand()); //$NON-NLS-1$
-              fileManageIdx++;
-            }
-            // do we have any additions to the view menu?
-            else if ("view-submenu".equals(anchor)) { //$NON-NLS-1$
-              settings.put("viewMenuTitle" + viewIdx, custom.getLabel()); //$NON-NLS-1$
-              settings.put("viewMenuCommand" + viewIdx, custom.getCommand()); //$NON-NLS-1$
-              viewIdx++;
-            }
-            // do we have any additions to the tools menu?
-            else if ("tools-submenu".equals(anchor)) { //$NON-NLS-1$
-              settings.put("toolsMenuTitle" + toolsIdx, custom.getLabel()); //$NON-NLS-1$
-              settings.put("toolsMenuCommand" + toolsIdx, custom.getCommand()); //$NON-NLS-1$
-              toolsIdx++;
-            }
-            // do we have any additions to the refresh menu?
-            else if ("tools-refresh-submenu".equals(anchor)) { //$NON-NLS-1$
-              settings.put("tools-refreshMenuTitle" + toolsRefreshIdx, custom.getLabel()); //$NON-NLS-1$
-              settings.put("tools-refreshMenuCommand" + toolsRefreshIdx, custom.getCommand()); //$NON-NLS-1$
-              toolsRefreshIdx++;
-            }
-            // do we have any additions to the about menu?
-            else if ("about-submenu".equals(anchor)) { //$NON-NLS-1$
-              settings.put("helpMenuTitle" + aboutIdx, custom.getLabel()); //$NON-NLS-1$
-              settings.put("helpMenuCommand" + aboutIdx, custom.getCommand()); //$NON-NLS-1$
-              aboutIdx++;
-            }
-          } else if (custom.getCustomizationType() == CustomizationType.REPLACE) {
-            // Support replace of new analysis view and new report only
-            //
-            // Example of overriding via plugin.xml
-            // <menu-item id="new_analysis_view_menu_item"
-            // anchor="file-new-submenu-new_analysis_view_menu_item"
-            // label="New Analysis"
-            // command="http://www.dogpile.com"
-            // type="MENU_ITEM"
-            // how="REPLACE"/>
-            //
-            String anchor = custom.getAnchorId();
-            String anchorStart = "file-new-submenu-"; //$NON-NLS-1$
-            if (anchor.startsWith(anchorStart)) {
-              // Anchor needs to be in two parts
-              // file-new-submenu and the submenu being replaced
-
-              String overrideMenuItem = anchor.substring(anchorStart.length());
-              settings.put("file-newMenuOverrideTitle" + overrideIdx, custom.getLabel()); //$NON-NLS-1$
-              settings.put("file-newMenuOverrideCommand" + overrideIdx, custom.getCommand()); //$NON-NLS-1$
-              settings.put("file-newMenuOverrideMenuItem" + overrideIdx, overrideMenuItem); //$NON-NLS-1$
-              overrideIdx++;
-            }
-          }
-        }
-
         // load content types from IPluginSettings
         int i = 0;
         for (String contentType : pluginManager.getContentTypes()) {
@@ -618,7 +535,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
             }
             i++;
           }
-
         }
       }
 
