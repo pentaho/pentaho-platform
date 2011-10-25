@@ -70,11 +70,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 
 		List<IRepositoryFileBundle> filesToImport = null;
 		try {
-			if (datasourcesXML == null) {
-				filesToImport = super.files;
-			} else {
-				filesToImport = processImportingFiles();
-			}
+			filesToImport = processImportingFiles();
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
@@ -163,29 +159,29 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 	 * <Definition> it returns the <DataSourceInfo>
 	 */
 	private String getDatasourcesXMLDatasourceInfo(IRepositoryFileBundle file) throws Exception {
-
 		String datasourceInfo = null;
-		String fullFileName = file.getPath() + file.getFile().getName();
-
-		NodeList mondrianDefinitions = getElementsByTagName(datasourcesXML, "Definition");
-		for (int i = 0; i < mondrianDefinitions.getLength(); i++) {
-			Node mondrianDefinition = mondrianDefinitions.item(i);
-			if (mondrianDefinition.getTextContent().contains(fullFileName)) {
-				Node datasourceInfoNode = null;
-				NodeList nodeList = mondrianDefinition.getParentNode().getChildNodes();
-				for (int j = 0; j < mondrianDefinitions.getLength(); j++) {
-					datasourceInfoNode = nodeList.item(j);
-					if (datasourceInfoNode.getNodeName().equals("DataSourceInfo")) {
-						break;
-					} else {
-						datasourceInfoNode = null;
+		if(datasourcesXML != null) {
+			String fullFileName = file.getPath() + file.getFile().getName();
+			NodeList mondrianDefinitions = getElementsByTagName(datasourcesXML, "Definition");
+			for (int i = 0; i < mondrianDefinitions.getLength(); i++) {
+				Node mondrianDefinition = mondrianDefinitions.item(i);
+				if (mondrianDefinition.getTextContent().contains(fullFileName)) {
+					Node datasourceInfoNode = null;
+					NodeList nodeList = mondrianDefinition.getParentNode().getChildNodes();
+					for (int j = 0; j < mondrianDefinitions.getLength(); j++) {
+						datasourceInfoNode = nodeList.item(j);
+						if (datasourceInfoNode.getNodeName().equals("DataSourceInfo")) {
+							break;
+						} else {
+							datasourceInfoNode = null;
+						}
 					}
+					if (datasourceInfoNode == null || !datasourceInfoNode.getNodeName().equals("DataSourceInfo")) {
+						throw new Exception("<DataSourceInfo> not found in datasources.xml for <Definition> " + mondrianDefinition.getTextContent());
+					}
+					datasourceInfo = datasourceInfoNode.getTextContent();
+					break;
 				}
-				if (datasourceInfoNode == null || !datasourceInfoNode.getNodeName().equals("DataSourceInfo")) {
-					throw new Exception("<DataSourceInfo> not found in datasources.xml for <Definition> " + mondrianDefinition.getTextContent());
-				}
-				datasourceInfo = datasourceInfoNode.getTextContent();
-				break;
 			}
 		}
 		return datasourceInfo;
@@ -199,5 +195,4 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		nodes = document.getElementsByTagName(tagName);
 		return nodes;
 	}
-
 }
