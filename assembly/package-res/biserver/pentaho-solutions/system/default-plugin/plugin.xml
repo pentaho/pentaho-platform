@@ -4,47 +4,10 @@
     <content-generator id="ws-services" type="ws-services" title="Web services discovery page" class="org.pentaho.platform.plugin.services.webservices.content.StyledHtmlAxisServiceLister"/>
     <content-generator id="ws-run" type="ws-run" title="Web services execution" class="org.pentaho.platform.plugin.services.webservices.content.AxisServiceExecutor"/>
     <content-generator id="ws-wsdl" type="ws-wsdl" title="Web services execution" class="org.pentaho.platform.plugin.services.webservices.content.AxisServiceWsdlGenerator"/>
-    
-    <menu-items>
-        <!--menu-item id="webservices" anchor="tools-submenu" label="Web Services" command="content/ws-services" type="MENU_ITEM" how="LAST_CHILD"/-->
-    
-        <!--menu-item id="pluginupdate1" anchor="tools-refresh-submenu" label="Plugins" command="Publish?publish=now&amp;style=popup&amp;class=org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter" type="MENU_ITEM" how="LAST_CHILD"/-->
-        <!--menu-item id="pluginupdate2" anchor="tools-refresh-submenu-classic" label="Plugins" command="javascript:popPage('Publish?publish=now&amp;style=popup&amp;class=org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter')" type="MENU_ITEM" how="LAST_CHILD"/-->
-        
-        <!-- test menu items -->
-        <!--
-        <menu-item id="test1" anchor="file-submenu" label="File Test 1" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test2" anchor="file-submenu" label="File Test 2" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test3" anchor="file-new-submenu" label="New Test 1" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test4" anchor="file-new-submenu" label="New Test 2" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test5" anchor="file-manage-submenu" label="Manage Test 1" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test6" anchor="file-manage-submenu" label="Manage Test 2" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test7" anchor="view-submenu" label="View Test 1" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test8" anchor="view-submenu" label="View Test 2" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test9" anchor="tools-submenu" label="Tools Test 1" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test10" anchor="tools-submenu" label="Tools Test 2" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test11" anchor="tools-refresh-submenu" label="Refresh Test 1" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test12" anchor="tools-refresh-submenu" label="Refresh Test 2" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test13" anchor="about-submenu" label="About Test 1" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test14" anchor="about-submenu" label="About Test 2" command="http://www.pentaho.com" type="MENU_ITEM" how="LAST_CHILD"/>
 
-        <menu-item id="test1" anchor="file-submenu-classic" label="File Test 3" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test2" anchor="file-submenu-classic" label="File Test 4" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test3" anchor="file-new-submenu-classic" label="New Test 3" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test4" anchor="file-new-submenu-classic" label="New Test 4" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test5" anchor="file-manage-submenu-classic" label="Manage Test 3" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test6" anchor="file-manage-submenu-classic" label="Manage Test 4" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test7" anchor="view-submenu-classic" label="View Test 3" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test8" anchor="view-submenu-classic" label="View Test 4" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test9" anchor="tools-submenu-classic" label="Tools Test 3" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test10" anchor="tools-submenu-classic" label="Tools Test 4" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test11" anchor="tools-refresh-submenu-classic" label="Refresh Test 3" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test12" anchor="tools-refresh-submenu-classic" label="Refresh Test 4" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test13" anchor="about-submenu-classic" label="About Test 3" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        <menu-item id="test14" anchor="about-submenu-classic" label="About Test 4" command="javascript:popPage('http://www.pentaho.com')" type="MENU_ITEM" how="LAST_CHILD"/>
-        -->
-    </menu-items>
-
+	<perspective id="default.perspective" title="${BI.Browser}" layout-priority="-1" resourcebundle="content/default-plugin/resources/messages/messages">
+	</perspective>
+    
     <overlays>
     	<overlay id="startup.jpivot" resourcebundle="content/default-plugin/resources/messages/messages">
 			<menubar id="newmenu">
