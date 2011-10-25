@@ -204,10 +204,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   public MondrianCatalogHelper() {
     super();
     
-    // LEGACY: This configures the dataSourcesConfig
-    dataSourcesConfig = "file:" + //$NON-NLS-1$
-      PentahoSystem.getApplicationContext().getSolutionPath("system/olap/datasources.xml"); //$NON-NLS-1$
-    
     try {
     	DefaultFileSystemManager dfsm = (DefaultFileSystemManager)VFS.getManager();
     	dfsm.addProvider("mondrian", new MondrianVfs());
@@ -272,45 +268,60 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    */
   protected DataSourcesConfig.DataSources makeDataSources() {
 
-	 StringBuffer datasourcesXML = new StringBuffer(); 
-	 datasourcesXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	 datasourcesXML.append("<DataSources>");
-	 datasourcesXML.append("<DataSource>");
-	 datasourcesXML.append("<DataSourceName>Provider=Mondrian;DataSource=Pentaho</DataSourceName>");
-	 datasourcesXML.append("<DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>");
-	 datasourcesXML.append("<URL>http://localhost:8080/pentaho/Xmla?userid=joe&amp;password=password</URL>");
-	 datasourcesXML.append("<DataSourceInfo>Provider=mondrian</DataSourceInfo>");
-	 datasourcesXML.append("<ProviderName>PentahoXMLA</ProviderName>");
-	 datasourcesXML.append("<ProviderType>MDP</ProviderType>");
-	 datasourcesXML.append("<AuthenticationMode>Unauthenticated</AuthenticationMode>");
-	 datasourcesXML.append("<Catalogs>");
+	  URL dataSourcesConfigUrl = null;
+	    
+	  if (dataSourcesConfig == null) { //$NON-NLS-1$
+		String datasourcesXML = generateInMemoryDatasourcesXml();
+	    return parseDataSources(datasourcesXML);
+	  } else if (dataSourcesConfig.startsWith("classpath:")) { //$NON-NLS-1$
+	    dataSourcesConfigUrl = getClass().getResource(dataSourcesConfig.substring(10));
+	    return (dataSourcesConfigUrl == null) ? null : parseDataSourcesUrl(dataSourcesConfigUrl);
+	  } else {
+	    throw new MondrianCatalogServiceException("dataSourcesConfig is not a valid URL or does not exist", //$NON-NLS-1$
+	        Reason.GENERAL);
+	  }
+  }
+  
+  private String generateInMemoryDatasourcesXml() {
 	  
+	  StringBuffer datasourcesXML = new StringBuffer(); 
+	  datasourcesXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	  datasourcesXML.append("<DataSources>");
+	  datasourcesXML.append("<DataSource>");
+	  datasourcesXML.append("<DataSourceName/>");
+	  datasourcesXML.append("<DataSourceDescription/>");
+	  datasourcesXML.append("<URL/>");
+	  datasourcesXML.append("<DataSourceInfo/>");
+	  datasourcesXML.append("<ProviderName/>");
+	  datasourcesXML.append("<ProviderType/>");
+	  datasourcesXML.append("<AuthenticationMode/>");
+	  datasourcesXML.append("<Catalogs>");
+	    		  
 	  //Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
 	  String etcMondrian = File.separator + "etc" + File.separator + "mondrian";
 	  IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
-	  
+	    		  
 	  RepositoryFile etcMondrianFolder = unifiedRepository.getFile(etcMondrian);
 	  List<RepositoryFile> mondrianCatalogs = unifiedRepository.getChildren(etcMondrianFolder.getId());
-	  
+	    		  
 	  for(RepositoryFile catalog : mondrianCatalogs) {
-		  
-		  String catalogName = catalog.getName();
-		  RepositoryFile metadata = unifiedRepository.getFile(etcMondrian + File.separator + catalogName + File.separator + "metadata");
-		  DataNode metadataNode = unifiedRepository.getDataForRead(metadata.getId(), NodeRepositoryFileData.class).getNode();
-		  String datasourceInfo = metadataNode.getProperty("datasourceInfo").getString();
-		  String definition = metadataNode.getProperty("definition").getString();
+	    			  
+	   String catalogName = catalog.getName();
+	    RepositoryFile metadata = unifiedRepository.getFile(etcMondrian + File.separator + catalogName + File.separator + "metadata");
+	    DataNode metadataNode = unifiedRepository.getDataForRead(metadata.getId(), NodeRepositoryFileData.class).getNode();
+	    String datasourceInfo = metadataNode.getProperty("datasourceInfo").getString();
+	    String definition = metadataNode.getProperty("definition").getString();
 
-		  datasourcesXML.append("<Catalog name=\"" + catalogName + "\">");
-		  datasourcesXML.append("<DataSourceInfo>" + datasourceInfo + "</DataSourceInfo>");
-		  datasourcesXML.append("<Definition>" + definition + "</Definition>");
-		  datasourcesXML.append("</Catalog>");
+	    datasourcesXML.append("<Catalog name=\"" + catalogName + "\">");
+	    datasourcesXML.append("<DataSourceInfo>" + datasourceInfo + "</DataSourceInfo>");
+	    datasourcesXML.append("<Definition>" + definition + "</Definition>");
+	    datasourcesXML.append("</Catalog>");
 	  }
-	  
+	    		  
 	  datasourcesXML.append("</Catalogs>");
 	  datasourcesXML.append("</DataSource>");
 	  datasourcesXML.append("</DataSources>");
-	  
-	  return parseDataSources(datasourcesXML.toString());	  
+	  return datasourcesXML.toString();
   }
 
   protected DataSourcesConfig.DataSources parseDataSourcesUrl(final URL dataSourcesConfigUrl) {
