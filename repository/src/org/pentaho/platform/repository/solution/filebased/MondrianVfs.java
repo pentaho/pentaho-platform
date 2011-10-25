@@ -15,7 +15,6 @@
  */
 package org.pentaho.platform.repository.solution.filebased;
 
-import java.io.File;
 import java.util.Collection;
 
 import org.apache.commons.vfs.FileName;
@@ -24,6 +23,7 @@ import org.apache.commons.vfs.FileSystemConfigBuilder;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemOptions;
 import org.apache.commons.vfs.provider.FileProvider;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 /**
  * @author Ezequiel Cuellar
@@ -38,7 +38,7 @@ public class MondrianVfs implements FileProvider {
 	public FileObject findFile(FileObject arg0, String catalog, FileSystemOptions arg2) throws FileSystemException {
 		//Resolves mondrian:/<catalog> to /etc/mondrian/<catalog>/schema.xml
 		catalog = catalog.substring(catalog.indexOf(":")+1); // removes mondrian:
-		return new SolutionRepositoryVfsFileObject(File.separator + "etc" + File.separator + "mondrian" + catalog + File.separator + "schema.xml");
+		return new SolutionRepositoryVfsFileObject(RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian" + catalog + RepositoryFile.SEPARATOR + "schema.xml");
 	}
 
 	public Collection getCapabilities() {

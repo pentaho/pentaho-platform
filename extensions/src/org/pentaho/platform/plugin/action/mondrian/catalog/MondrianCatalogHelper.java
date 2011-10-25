@@ -298,7 +298,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 	  datasourcesXML.append("<Catalogs>");
 	    		  
 	  //Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
-	  String etcMondrian = File.separator + "etc" + File.separator + "mondrian";
+	  String etcMondrian = RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian";
 	  IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
 	    		  
 	  RepositoryFile etcMondrianFolder = unifiedRepository.getFile(etcMondrian);
@@ -307,7 +307,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 	  for(RepositoryFile catalog : mondrianCatalogs) {
 	    			  
 	   String catalogName = catalog.getName();
-	    RepositoryFile metadata = unifiedRepository.getFile(etcMondrian + File.separator + catalogName + File.separator + "metadata");
+	    RepositoryFile metadata = unifiedRepository.getFile(etcMondrian + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR + "metadata");
 	    DataNode metadataNode = unifiedRepository.getDataForRead(metadata.getId(), NodeRepositoryFileData.class).getNode();
 	    String datasourceInfo = metadataNode.getProperty("datasourceInfo").getString();
 	    String definition = metadataNode.getProperty("definition").getString();

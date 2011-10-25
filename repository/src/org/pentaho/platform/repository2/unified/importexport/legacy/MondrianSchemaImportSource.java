@@ -43,7 +43,7 @@ import org.w3c.dom.NodeList;
 public class MondrianSchemaImportSource extends AbstractImportSource {
 
 	private IRepositoryFileBundle datasourcesXML;
-	private final static String ETC_MONDRIAN_JCR_FOLDER = File.separator + "etc" + File.separator + "mondrian";
+	private final static String ETC_MONDRIAN_JCR_FOLDER = RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian";
 	private static final Log logger = LogFactory.getLog(MondrianSchemaImportSource.class);
 
 	public MondrianSchemaImportSource() {
@@ -89,7 +89,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 			if (datasourceInfo != null) {
 				processImportingSchema(file, importingFiles, datasourceInfo);
 			} else {
-				file.setPath("public" + File.separator + file.getPath());
+				file.setPath("public" + RepositoryFile.SEPARATOR + file.getPath());
 				importingFiles.add(file);
 			}
 		}
@@ -109,7 +109,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		IOUtils.copy(mondrianFile.getInputStream(), outputStream);
 
 		RepositoryFile repoFile = new RepositoryFile.Builder("schema.xml").build();
-		RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, ETC_MONDRIAN_JCR_FOLDER + File.separator + repoPath + File.separator, tempFile, "UTF-8", mimeTypes.get("xml".toLowerCase()));
+		RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + repoPath + RepositoryFile.SEPARATOR, tempFile, "UTF-8", mimeTypes.get("xml".toLowerCase()));
 		importingFiles.add(repoFileBundle);
 	}
 
@@ -130,7 +130,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		String catalogName = name.getTextContent();
 
 		RepositoryFile etcMondrian = super.unifiedRepository.getFile(ETC_MONDRIAN_JCR_FOLDER);
-		RepositoryFile catalog = super.unifiedRepository.getFile(ETC_MONDRIAN_JCR_FOLDER + File.separator + catalogName);
+		RepositoryFile catalog = super.unifiedRepository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName);
 		if (catalog == null) {
 			catalog = super.unifiedRepository.createFolder(etcMondrian.getId(), new RepositoryFile.Builder(catalogName).folder(true).build(), "");
 		}
