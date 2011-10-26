@@ -36,6 +36,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.importexport.Converter;
 import org.pentaho.platform.repository2.unified.importexport.ImportSource;
@@ -110,7 +111,7 @@ public class RepositoryImportResource {
     Importer importer = new Importer(repository, converters);
     try {
       if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) { //$NON-NLS-1$
-    	ImportSource src = new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8", new String[] {File.separator + "system" + File.separator, ".mondrian.xml", "datasources.xml"}); //$NON-NLS-1$
+    	ImportSource src = new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8", new String[] {RepositoryFile.SEPARATOR + "system" + RepositoryFile.SEPARATOR, ".mondrian.xml", "datasources.xml"}); //$NON-NLS-1$
         importer.doImport(src, uploadDir, null);
         for(ImportSource dependentImportSource : src.getDependentImportSources()) {
         	dependentImportSource.initialize(repository);
