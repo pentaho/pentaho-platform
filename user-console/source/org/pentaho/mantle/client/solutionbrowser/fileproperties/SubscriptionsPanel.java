@@ -25,8 +25,6 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
-import org.pentaho.mantle.client.objects.SubscriptionSchedule;
-import org.pentaho.mantle.client.objects.SubscriptionState;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.IFileSummary;
 
@@ -236,30 +234,6 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
    * @see org.pentaho.mantle.client.solutionbrowser.fileproperties.IFileModifier#apply()
    */
   public void apply() {
-    if (dirty) {
-      if ((wasEnabled && !enableSubscriptions.getValue() && Window.confirm(Messages.getString("appliedSchedulesWillBeLost"))) || (!wasEnabled)) { // We're
-        AsyncCallback<Void> callback = new AsyncCallback<Void>() {
-
-          public void onFailure(Throwable caught) {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), caught.toString(), false, false, true); //$NON-NLS-1$
-            dialogBox.center();
-          }
-
-          public void onSuccess(Void nothing) {
-            dirty = false; // I don't know if this even gets back here
-          }
-
-        };
-        ArrayList<SubscriptionSchedule> currentSchedules = new ArrayList<SubscriptionSchedule>();
-        for (int i = 0; i < appliedLB.getItemCount(); i++) {
-          SubscriptionSchedule subSchedule = new SubscriptionSchedule();
-          subSchedule.title = appliedLB.getItemText(i);
-          subSchedule.id = appliedLB.getValue(i);
-          currentSchedules.add(subSchedule);
-        }
-        MantleServiceCache.getService().setSubscriptions("", fileSummary.getPath(), fileSummary.getName(), enableSubscriptions.getValue(), currentSchedules, callback); //$NON-NLS-1$
-      }
-    }
   }
 
   public void init(RepositoryFile fileSummary, Document fileInfo) {
@@ -291,26 +265,6 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
    * 
    */
   private void updateState() {
-    AsyncCallback<SubscriptionState> callBack = new AsyncCallback<SubscriptionState>() {
-
-      public void onSuccess(SubscriptionState state) {
-        enableSubscriptions.setValue(state.subscriptionsEnabled);
-        for (SubscriptionSchedule schedule : state.availableSchedules) {
-          availableLB.addItem(schedule.title, schedule.id);
-        }
-        for (SubscriptionSchedule schedule : state.appliedSchedules) {
-          appliedLB.addItem(schedule.title, schedule.id);
-        }
-        updateControls();
-      }
-
-      public void onFailure(Throwable caught) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), caught.toString(), false, false, true); //$NON-NLS-1$
-        dialogBox.center();
-      }
-
-    };
-    MantleServiceCache.getService().getSubscriptionState("", fileSummary.getPath(), fileSummary.getName(), callBack); //$NON-NLS-1$
   }
 
 }

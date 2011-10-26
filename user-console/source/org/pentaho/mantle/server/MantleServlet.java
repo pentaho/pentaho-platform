@@ -28,7 +28,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,9 +45,6 @@ import org.pentaho.mantle.client.objects.JobDetail;
 import org.pentaho.mantle.client.objects.JobSchedule;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.objects.SimpleMessageException;
-import org.pentaho.mantle.client.objects.SubscriptionBean;
-import org.pentaho.mantle.client.objects.SubscriptionSchedule;
-import org.pentaho.mantle.client.objects.SubscriptionState;
 import org.pentaho.mantle.client.objects.WorkspaceContent;
 import org.pentaho.mantle.client.service.MantleService;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
@@ -62,19 +58,13 @@ import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository.IContentRepository;
-import org.pentaho.platform.api.repository.ISchedule;
 import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.repository.ISubscribeContent;
-import org.pentaho.platform.api.repository.ISubscription;
-import org.pentaho.platform.api.repository.ISubscriptionRepository;
 import org.pentaho.platform.api.scheduler.BackgroundExecutionException;
 import org.pentaho.platform.api.scheduler.IJobDetail;
 import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.api.ui.Theme;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
-import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -83,11 +73,6 @@ import org.pentaho.platform.engine.services.solution.StandardSettings;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
-import org.pentaho.platform.repository.content.ContentItemFile;
-import org.pentaho.platform.repository.messages.Messages;
-import org.pentaho.platform.repository.subscription.Schedule;
-import org.pentaho.platform.repository.subscription.Subscription;
-import org.pentaho.platform.repository.subscription.SubscriptionHelper;
 import org.pentaho.platform.util.VersionHelper;
 import org.pentaho.platform.util.VersionInfo;
 import org.pentaho.platform.util.messages.LocaleHelper;
@@ -194,10 +179,8 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
   public WorkspaceContent getWorkspaceContent() {
     WorkspaceContent content = new WorkspaceContent();
     content.setAllSchedules(getAllSchedules());
-    content.setCompletedJobs(getCompletedBackgroundContent());
     content.setMySchedules(getMySchedules());
     content.setScheduledJobs(getScheduledBackgroundContent());
-    content.setSubscriptions(getSubscriptionsForMyWorkspace());
     return content;
   }
 
@@ -229,39 +212,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     }
   }
 
-  public ArrayList<JobDetail> getCompletedBackgroundContent() {
-    getPentahoSession().resetBackgroundExecutionAlert();
-    IBackgroundExecution backgroundExecution = PentahoSystem.get(IBackgroundExecution.class, getPentahoSession());
-    if (backgroundExecution != null) {
-      List<IContentItem> jobsList = (List<IContentItem>) backgroundExecution.getBackgroundExecutedContentList(getPentahoSession());
-      ArrayList<JobDetail> myJobs = new ArrayList<JobDetail>(jobsList.size());
-      SimpleDateFormat fmt = new SimpleDateFormat();
-      for (IContentItem contentItem : jobsList) {
-        JobDetail myJobDetail = new JobDetail();
-        myJobDetail.id = contentItem.getId();
-        String dateStr = ""; //$NON-NLS-1$
-        Date time = contentItem.getFileDateTime();
-        if (time != null) {
-          dateStr = fmt.format(time);
-        }
-        // BISERVER-4207 Old private schedules in myworkspace appear with no date and size -1
-        if (StringUtils.isEmpty(dateStr) || contentItem.getFileSize() <= 0) {
-          continue;
-        }
-        myJobDetail.name = contentItem.getTitle();
-        myJobDetail.fullname = contentItem.getActionName();
-        myJobDetail.description = contentItem.getActionName();
-        myJobDetail.timestamp = dateStr;
-        myJobDetail.size = Long.toString(contentItem.getFileSize());
-        myJobDetail.type = contentItem.getMimeType();
-        myJobs.add(myJobDetail);
-      }
-      return myJobs;
-    } else {
-      return new ArrayList<JobDetail>();
-    }
-  }
-
   public boolean cancelBackgroundJob(String jobName, String jobGroup) {
     // UserFilesComponent userFiles = getUserFilesComponent();
     // boolean status = userFiles.cancelJob(jobName, jobGroup);
@@ -280,26 +230,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     if (isAdministrator()) {
       PentahoSystem.get(ISolutionRepository.class, getPentahoSession()).reloadSolutionRepository(getPentahoSession(), getPentahoSession().getLoggingLevel());
     }
-  }
-
-  public int cleanContentRepository(int daysBack) {
-    int deleteCount = 0;
-    if (isAdministrator()) {
-      // get daysback off the input
-      daysBack = Math.abs(daysBack) * -1;
-
-      // get todays calendar
-      Calendar calendar = Calendar.getInstance();
-      // subtract (by adding a negative number) the daysback amount
-      calendar.add(Calendar.DATE, daysBack);
-      // create the new date for the content repository to use
-      Date agedDate = new Date(calendar.getTimeInMillis());
-      // get the content repository and tell it to remove the items older than
-      // agedDate
-      IContentRepository contentRepository = PentahoSystem.get(IContentRepository.class, getPentahoSession());
-      deleteCount = contentRepository.deleteContentOlderThanDate(agedDate);
-    }
-    return deleteCount;
   }
 
   public void flushMondrianSchemaCache() {
@@ -544,299 +474,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     return settings;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.pentaho.mantle.client.service.MantleService#isSubscriptionContent(java .lang.String)
-   */
-  public Boolean isSubscriptionContent(String actionRef) {
-    ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class, getPentahoSession());
-    return new Boolean(subscriptionRepository.getContentByActionReference(actionRef) != null
-        && subscriptionRepository.getContentByActionReference(actionRef).getSchedules().size() > 0);
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @seeorg.pentaho.mantle.client.service.MantleService# getAvailableSubscriptionSchedules()
-   */
-  public ArrayList<SubscriptionSchedule> getAvailableSubscriptionSchedules(String actionRef) {
-    ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class, getPentahoSession());
-    ISubscribeContent subscribeContent = subscriptionRepository.getContentByActionReference(actionRef);
-    List<ISchedule> appliedList = subscribeContent == null ? new ArrayList<ISchedule>() : subscribeContent.getSchedules();
-    List<ISchedule> availableList = subscriptionRepository.getSchedules();
-    ArrayList<SubscriptionSchedule> unusedScheduleList = new ArrayList<SubscriptionSchedule>();
-    for (ISchedule schedule : availableList) {
-      if (!appliedList.contains(schedule)) {
-        SubscriptionSchedule subSchedule = new SubscriptionSchedule();
-        subSchedule.id = schedule.getId();
-        subSchedule.title = schedule.getTitle();
-        subSchedule.scheduleReference = schedule.getScheduleReference();
-        subSchedule.description = schedule.getDescription();
-        subSchedule.cronString = schedule.getCronString();
-        subSchedule.group = schedule.getGroup();
-        subSchedule.lastTrigger = schedule.getLastTrigger();
-
-        unusedScheduleList.add(subSchedule);
-      }
-    }
-    return unusedScheduleList;
-  }
-
-  /**
-   * Runs and archives the given public schedule.
-   * 
-   * @param publicScheduleName
-   *          The public scedule to be run.
-   * @return message The message that was returned from the API after running and archiving the given public schedule.
-   */
-  public String runAndArchivePublicSchedule(String publicScheduleName) throws SimpleMessageException {
-    final IPentahoSession userSession = getPentahoSession();
-    HttpSessionParameterProvider sessionParameters = new HttpSessionParameterProvider(userSession);
-
-    String response = null;
-    try {
-      response = SubscriptionHelper.createSubscriptionArchive(publicScheduleName, userSession, null, sessionParameters);
-    } catch (BackgroundExecutionException bex) {
-      response = bex.getLocalizedMessage();
-      throw new SimpleMessageException(Messages.getInstance().getErrorString("ViewAction.ViewAction.ERROR_UNABLE_TO_CREATE_SUBSCRIPTION_ARCHIVE")); //$NON-NLS-1$      
-    }
-    return response;
-  }
-
-  /**
-   * Delete the contents under the public schedule and then delete the public schedule
-   * 
-   * @param publicScheduleName
-   *          The public schedule name for the given content id
-   * @param contentItemList
-   *          The list of content items belonging to the given public schedule to be deleted
-   * @return Error message if error occurred else success message
-   */
-  public String deletePublicScheduleAndContents(String publicScheduleName, ArrayList<String> contentItemList) {
-    /*
-     * Iterate through all the content items and delete them
-     */
-    if (contentItemList != null) {
-      Iterator<String> iter = contentItemList.iterator();
-      if (iter != null) {
-        while (iter.hasNext()) {
-          deleteSubscriptionArchive(publicScheduleName, iter.next());
-        }
-      }
-    }
-    /*
-     * Once all the content items are deleted, go ahead and delete the actual public schedule
-     */
-    final String result = SubscriptionHelper.deleteSubscription(publicScheduleName, getPentahoSession());
-    return result;
-  }
-
-  /**
-   * Delete the given content item for the given public schedule.
-   * 
-   * @param publicScheduleName
-   *          The public schedule name for the given content id
-   * @param contentId
-   *          The content item id to be deleted
-   * @return Error message if error occurred else success message
-   */
-  public String deleteSubscriptionArchive(String publicScheduleName, String contentId) {
-    final IPentahoSession session = getPentahoSession();
-    ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class, getPentahoSession());
-    ISubscription subscription = subscriptionRepository.getSubscription(publicScheduleName, session);
-    if (subscription == null) {
-      // TODO surface an error
-      return Messages.getInstance().getString("SubscriptionHelper.USER_SUBSCRIPTION_DOES_NOT_EXIST"); //$NON-NLS-1$
-    }
-    IContentItem contentItem = subscriptionRepository.getContentItem(publicScheduleName, session);
-    if (contentItem == null) {
-      // TODO surface an error
-      return Messages.getInstance().getString("SubscriptionHelper.USER_CONTENT_ITEM_DOES_NOT_EXIST"); //$NON-NLS-1$
-    }
-
-    contentItem.removeVersion(contentId);
-
-    return Messages.getInstance().getString("SubscriptionHelper.USER_ARCHIVE_DELETED"); //$NON-NLS-1$
-  }
-
-  /**
-   * This method provides the content for the My Subscription section in the Workspace.
-   * 
-   * @return List<SubscriptionBean> List of subscriptions and their related information contained within the object.
-   */
-  public ArrayList<SubscriptionBean> getSubscriptionsForMyWorkspace() {
-    ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class, getPentahoSession());
-    final String currentUser = getPentahoSession().getName();
-    final List<ISubscription> userSubscriptionList = subscriptionRepository.getUserSubscriptions(currentUser);
-    final ArrayList<SubscriptionBean> opSubscrList = new ArrayList<SubscriptionBean>();
-
-    Iterator<ISubscription> subscrIter = userSubscriptionList.iterator();
-    while (subscrIter.hasNext()) {
-      final ISubscription currentSubscr = subscrIter.next();
-      final ActionInfo actionInfo = ActionInfo.parseActionString(currentSubscr.getContent().getActionReference());
-      String localizedName = actionInfo.getActionName();
-      // try {
-      // SolutionFileInfo info = getSolutionFileInfo(actionInfo.getPath(), actionInfo.getActionName());
-      // localizedName = info.getLocalizedName();
-      // } catch (NullPointerException npe) {
-      // logger.error(npe.getMessage(), npe);
-      // continue;
-      // }
-
-      Schedule schedule = null;
-      final Iterator<ISchedule> schedIterator = currentSubscr.getSchedules().iterator();
-      // Get the first schedule and get out of the loop
-      // The code is below to avoid null pointer exceptions and get a schedule
-      // only if it exists.
-      if (schedIterator != null) {
-        while (schedIterator.hasNext()) {
-          schedule = (Schedule) schedIterator.next();
-          break;
-        }
-      }
-
-      final SubscriptionBean subscriptionBean = new SubscriptionBean();
-      subscriptionBean.setId(currentSubscr.getId());
-      subscriptionBean.setName(currentSubscr.getTitle());
-      subscriptionBean.setXactionName(localizedName);
-
-      if (!actionInfo.getActionName().endsWith(".")) {
-        int lastDot = actionInfo.getActionName().lastIndexOf('.');
-        String type = actionInfo.getActionName().substring(lastDot + 1);
-        IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getPentahoSession()); //$NON-NLS-1$
-        // IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
-        // String contextPath = requestContext.getContextPath();
-        IContentInfo contentInfo = pluginManager.getContentTypeInfo(type);
-        String editSubscriptionUrl = null;
-        if (contentInfo != null) {
-          for (IPluginOperation operation : contentInfo.getOperations()) {
-            if (operation.getId().equals("SCHEDULE_EDIT")) {
-              // TODO We need to figure out how will this be done using the rest url
-              //editSubscriptionUrl = contextPath + operation.getCommand(); //$NON-NLS-1$
-              // editSubscriptionUrl = editSubscriptionUrl.replaceAll("\\{subscription-id\\}", currentSubscr.getId());
-              break;
-            }
-          }
-        }
-        subscriptionBean.setPluginUrl(editSubscriptionUrl);
-      }
-
-      if (schedule != null) {
-        subscriptionBean.setScheduleDate(schedule.getTitle());
-      }
-      // We have static dashes here because thats the way data is being
-      // displayed currently in 1.7
-      subscriptionBean.setSize("---"); //$NON-NLS-1$
-      subscriptionBean.setType("---"); //$NON-NLS-1$
-      subscriptionBean.setContent(getContentItems(subscriptionRepository, (Subscription) currentSubscr));
-      opSubscrList.add(subscriptionBean);
-    }
-    return opSubscrList;
-  }
-
-  /**
-   * This is a helper method that gets the content item information
-   * 
-   * @param subscriptionRepository
-   * @param currentSubscr
-   * @return List of String arrays where the array consists of formatted date of the content, file type and size, file id, name and OS path.
-   */
-  @SuppressWarnings("unchecked")
-  private ArrayList<String[]> getContentItems(final ISubscriptionRepository subscriptionRepository, final Subscription currentSubscr) {
-    final List<ContentItemFile> contentItemFileList = (List<ContentItemFile>) subscriptionRepository.getSubscriptionArchives(currentSubscr.getId(),
-        getPentahoSession());
-    ArrayList<String[]> archiveList = null;
-
-    if (contentItemFileList != null) {
-      archiveList = new ArrayList<String[]>();
-      for (ContentItemFile contentItemFile : contentItemFileList) {
-        final Date fileItemDate = contentItemFile.getFileDateTime();
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy h:mm a"); //$NON-NLS-1$
-        final String formattedDateStr = dateFormat.format(fileItemDate);
-        final String fileType = contentItemFile.getParent().getMimeType();
-        final String fileSize = String.valueOf(contentItemFile.getFileSize());
-        final String[] tempArchiveArr = new String[6];
-        tempArchiveArr[0] = formattedDateStr;
-        tempArchiveArr[1] = fileType;
-        tempArchiveArr[2] = fileSize;
-        tempArchiveArr[3] = contentItemFile.getId();
-        tempArchiveArr[4] = contentItemFile.getOsFileName();
-        tempArchiveArr[5] = contentItemFile.getOsPath();
-
-        archiveList.add(tempArchiveArr);
-      }
-    }
-    return archiveList;
-  }
-
-  public String deleteArchive(String subscrName, String fileId) {
-    final String result = SubscriptionHelper.deleteSubscriptionArchive(subscrName, fileId, getPentahoSession());
-    return result;
-  }
-
-  // public String viewArchive(String subscrName, String fileId) {
-  // final String result = SubscriptionHelper.getArchived(subscrName, fileId,
-  // getPentahoSession());
-  // return result;
-  // }
-
-  public ArrayList<SubscriptionSchedule> getAppliedSubscriptionSchedules(String actionRef) {
-    ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class, getPentahoSession());
-    ISubscribeContent subscribeContent = subscriptionRepository.getContentByActionReference(actionRef);
-    List<ISchedule> appliedList = subscribeContent == null ? new ArrayList<ISchedule>() : subscribeContent.getSchedules();
-    ArrayList<SubscriptionSchedule> appliedScheduleList = new ArrayList<SubscriptionSchedule>();
-    for (ISchedule schedule : appliedList) {
-      SubscriptionSchedule subSchedule = new SubscriptionSchedule();
-      subSchedule.id = schedule.getId();
-      subSchedule.title = schedule.getTitle();
-      subSchedule.scheduleReference = schedule.getScheduleReference();
-      subSchedule.description = schedule.getDescription();
-      subSchedule.cronString = schedule.getCronString();
-      subSchedule.group = schedule.getGroup();
-      subSchedule.lastTrigger = schedule.getLastTrigger();
-
-      appliedScheduleList.add(subSchedule);
-    }
-    return appliedScheduleList;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.pentaho.mantle.client.service.MantleService#setSubscriptions(java.lang .String, boolean, java.util.List)
-   */
-  @SuppressWarnings("static-access")
-  public void setSubscriptions(String solutionName, String solutionPath, String fileName, boolean enabled, ArrayList<SubscriptionSchedule> currentSchedules) {
-    String filePath = ActionInfo.buildSolutionPath(solutionName, solutionPath, fileName);
-    if ("true".equalsIgnoreCase(PentahoSystem.getSystemSetting("kiosk-mode", "false"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      throw new RuntimeException(ServerMessages.getInstance().getString("featureDisabled")); //$NON-NLS-1$
-    }
-    ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class, getPentahoSession());
-    ISubscribeContent subscribeContent = subscriptionRepository.getContentByActionReference(filePath);
-    if (enabled) {
-      if (subscribeContent == null) {
-        subscribeContent = subscriptionRepository.addContent(filePath, ""); //$NON-NLS-1$
-      }
-
-      subscribeContent.clearsSchedules();
-      ArrayList<ISchedule> updatedSchedules = new ArrayList<ISchedule>();
-      List<ISchedule> availableSchedules = subscriptionRepository.getSchedules();
-      for (SubscriptionSchedule currentSchedule : currentSchedules) {
-        for (ISchedule availableSchedule : availableSchedules) {
-          if (currentSchedule.id.equals(availableSchedule.getId())) {
-            updatedSchedules.add(availableSchedule);
-          }
-        }
-      }
-      subscribeContent.setSchedules(updatedSchedules);
-    } else {
-      if (subscribeContent != null) {
-        subscribeContent.clearsSchedules();
-      }
-    }
-  }
-
   /**
    * Gets the mondrian catalogs and populates a hash map with schema name as the key and list of cube names as strings.
    * 
@@ -862,20 +499,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
       });
     }
     return catalogCubeHashMap;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.pentaho.mantle.client.service.MantleService#getSubscriptionState(java .lang.String)
-   */
-  public SubscriptionState getSubscriptionState(String solutionName, String solutionPath, String fileName) {
-    String filePath = ActionInfo.buildSolutionPath(solutionName, solutionPath, fileName);
-    SubscriptionState state = new SubscriptionState();
-    state.subscriptionsEnabled = isSubscriptionContent(filePath);
-    state.availableSchedules = getAvailableSubscriptionSchedules(filePath);
-    state.appliedSchedules = getAppliedSubscriptionSchedules(filePath);
-    return state;
   }
 
   public ArrayList<IUserSetting> getUserSettings() {

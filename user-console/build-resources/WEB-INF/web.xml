@@ -287,11 +287,6 @@
   </servlet>
 
   <servlet>
-      <servlet-name>GetContent</servlet-name>
-    <servlet-class>org.pentaho.platform.web.servlet.GetContent</servlet-class>
-  </servlet>
-
-  <servlet>
     <servlet-name>Xmla</servlet-name>
     <servlet-class>org.pentaho.platform.web.servlet.PentahoXmlaServlet</servlet-class>
     <init-param>
@@ -590,11 +585,6 @@
   <servlet-mapping>
     <servlet-name>GetImage</servlet-name>
     <url-pattern>/getImage</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>GetContent</servlet-name>
-    <url-pattern>/GetContent</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

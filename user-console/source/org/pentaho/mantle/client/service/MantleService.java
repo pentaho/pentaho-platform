@@ -25,8 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.pentaho.mantle.client.objects.SimpleMessageException;
-import org.pentaho.mantle.client.objects.SubscriptionSchedule;
-import org.pentaho.mantle.client.objects.SubscriptionState;
+import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.objects.WorkspaceContent;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
@@ -47,7 +46,6 @@ public interface MantleService extends RemoteService {
   public String refreshMetadata();
   public void refreshSystemSettings();
   public void refreshRepository();
-  public int cleanContentRepository(int daysBack);
   public void flushMondrianSchemaCache();
   public void purgeReportingDataCache();
 
@@ -59,18 +57,7 @@ public interface MantleService extends RemoteService {
   public void resumeJob(String jobName, String jobGroup);
   public void deleteJob(String jobName, String jobGroup);
   public void runJob(String jobName, String jobGroup);
-  
-  //subscriptions API
-  public Boolean isSubscriptionContent(String actionRef);
-  public ArrayList<SubscriptionSchedule> getAvailableSubscriptionSchedules(String actionRef);
-  public ArrayList<SubscriptionSchedule> getAppliedSubscriptionSchedules(String actionRef);
-  public void setSubscriptions(String solutionName, String solutionPath, String fileName, boolean enabled, ArrayList<SubscriptionSchedule> currentSchedules);
-  public SubscriptionState getSubscriptionState(String solutionName, String solutionPath, String fileName);
-  public String deleteSubscriptionArchive(String subscriptionName, String fileId);
-  public String deletePublicScheduleAndContents(String currSubscr, ArrayList<String> fileItemArrayList);    
-  public String runAndArchivePublicSchedule(String publicScheduleName) throws SimpleMessageException;
-  public WorkspaceContent getWorkspaceContent();
-  
+    
   // file api
   public ArrayList<String> getAllUsers();
   public ArrayList<String> getAllRoles();

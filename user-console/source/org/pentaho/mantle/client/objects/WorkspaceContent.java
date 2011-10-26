@@ -10,7 +10,6 @@ public class WorkspaceContent implements Serializable
   private ArrayList<JobDetail> completedJobs;
   private ArrayList<JobSchedule> mySchedules;
   private ArrayList<JobSchedule> allSchedules;
-  private ArrayList<SubscriptionBean> subscriptions;
 
   public WorkspaceContent()
   {
@@ -56,13 +55,4 @@ public class WorkspaceContent implements Serializable
     this.allSchedules = allSchedules;
   }
 
-  public ArrayList<SubscriptionBean> getSubscriptions()
-  {
-    return subscriptions;
-  }
-
-  public void setSubscriptions(ArrayList<SubscriptionBean> subscriptions)
-  {
-    this.subscriptions = subscriptions;
-  }
 }

@@ -24,9 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.pentaho.mantle.client.objects.SubscriptionSchedule;
-import org.pentaho.mantle.client.objects.SubscriptionState;
-import org.pentaho.mantle.client.objects.WorkspaceContent;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.ui.xul.XulOverlay;
@@ -46,7 +43,6 @@ public interface MantleServiceAsync {
   public void refreshMetadata(AsyncCallback<String> callback);
   public void refreshSystemSettings(AsyncCallback<Void> callback);
   public void refreshRepository(AsyncCallback<Void> callback);
-  public void cleanContentRepository(int daysBack, AsyncCallback<Integer> callback);
   public void flushMondrianSchemaCache(AsyncCallback<Void> callback);
   public void purgeReportingDataCache(AsyncCallback<Void> callback);
 
@@ -59,19 +55,7 @@ public interface MantleServiceAsync {
   public void resumeJob(String jobName, String jobGroup, AsyncCallback<Void> callback);
   public void deleteJob(String jobName, String jobGroup, AsyncCallback<Void> callback);
   public void runJob(String jobName, String jobGroup, AsyncCallback<Void> callback);
-  
-  //subscriptions API
-  public void isSubscriptionContent(String actionRef, AsyncCallback<Boolean> callback);
-  public void getAvailableSubscriptionSchedules(String actionRef, AsyncCallback<ArrayList<SubscriptionSchedule>> callback);
-  public void getAppliedSubscriptionSchedules(String actionRef, AsyncCallback<ArrayList<SubscriptionSchedule>> callback);
-  public void setSubscriptions(String solutionName, String solutionPath, String fileName, boolean enabled, ArrayList<SubscriptionSchedule> currentSchedules, AsyncCallback<Void> callback);
-  public void getSubscriptionState(String solutionName, String solutionPath, String fileName, AsyncCallback<SubscriptionState> callback);
-  public void deleteSubscriptionArchive(String subscriptionName, String fileId, AsyncCallback<String> callback);
-  public void deletePublicScheduleAndContents(String currSubscr, ArrayList<String> fileItemList, AsyncCallback<String> callback);
-  public void runAndArchivePublicSchedule(String publicScheduleName, AsyncCallback<String> callback);
-  // workspace
-  public void getWorkspaceContent(AsyncCallback<WorkspaceContent> callback);
-  
+    
   // file api
   public void getAllUsers(AsyncCallback<ArrayList<String>> callback);
   public void getAllRoles(AsyncCallback<ArrayList<String>> callback);
