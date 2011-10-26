@@ -67,25 +67,21 @@ public class SimpleOutputHandlerTest extends TestCase {
     assertFalse( handler.allowFeedback() );
     handler.setSession( session );
     assertEquals( session, handler.getSession() );
-    handler.setRuntimeContext( null );
 
     handler.setContentItem(new SimpleContentItem(), null, null);
     
-    IContentItem content2 = handler.getOutputContentItem("bogus", "testoutut:bogus", null, null, null, null, null);
+    IContentItem content2 = handler.getOutputContentItem("bogus", "testoutut:bogus", null, null);
     assertEquals( TestOutputHandler.contentItem, content2 );
 
-    content2 = handler.getOutputContentItem("bogus", "bogus", null, null, null, null, null);
+    content2 = handler.getOutputContentItem("bogus", "bogus", null, null);
     assertNull( content2 );
     
-    content2 = handler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null, null, null, null);
+    content2 = handler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null);
     
     assertEquals( out, content2.getOutputStream(null) );
     assertFalse( handler.contentDone() );
     assertNull( handler.getFeedbackContentItem() );
     assertFalse( handler.contentDone() );
-    
-    assertNull( handler.getOutputDefs() );
-    assertNull( handler.getOutputDef(null) );
     
     handler.setOutputPreference( -1 );
     assertEquals( -1, handler.getOutputPreference() );
@@ -98,15 +94,12 @@ public class SimpleOutputHandlerTest extends TestCase {
     handler.setOutput("file:bogus", null);
     
     IContentItem content3 = new BufferedContentItem( null );
-    content3.getOutputStream(null).write( "test data".getBytes() );
-    content3.closeOutputStream();
+    OutputStream os = content3.getOutputStream(null);
+    os.write( "test data".getBytes() );
+    os.close();
     handler.setOutput( IOutputHandler.CONTENT, content3);
     
     assertEquals( "test data", new String( out.toByteArray() ) );
-
-    handler.setOutput( "test", "testoutput");
-
-    assertEquals( "testoutput", handler.getResponseAttributes().get("test") );
     
     handler.setOutput( IOutputHandler.CONTENT, "+test data2");
     assertEquals( "test data+test data2", new String( out.toByteArray() ) );
@@ -149,9 +142,8 @@ public class SimpleOutputHandlerTest extends TestCase {
     assertFalse( handler.allowFeedback() );
     handler.setSession( session );
     assertEquals( session, handler.getSession() );
-    handler.setRuntimeContext( null );
 
-    IContentItem content2 = handler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null, null, null, null);
+    IContentItem content2 = handler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null);
     
     assertEquals( out, content2.getOutputStream(null) );
     assertNull( handler.getFeedbackContentItem() );
@@ -178,7 +170,7 @@ public class SimpleOutputHandlerTest extends TestCase {
     OutputStream out3 = new ByteArrayOutputStream();
 
     handler.setOutputStream(out3, IOutputHandler.RESPONSE, IOutputHandler.CONTENT);
-    IContentItem content3 = handler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null, null, null, null);
+    IContentItem content3 = handler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null);
 
     assertEquals( out3, content3.getOutputStream(null) );
     
@@ -193,7 +185,7 @@ public class SimpleOutputHandlerTest extends TestCase {
         StandaloneObjectFactory.Scope.GLOBAL);
     PentahoSystem.setObjectFactory(factory);
     // Verify we can look up content items when the objectName is required
-    IContentItem contentItem = handler.getOutputContentItem("contentrepo", "myreport", null, null, null);
+    IContentItem contentItem = handler.getOutputContentItem("contentrepo", "myreport", null, null);
     assertNotNull(contentItem);
   }
 }

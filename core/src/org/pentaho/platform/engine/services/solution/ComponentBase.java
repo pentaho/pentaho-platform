@@ -564,10 +564,6 @@ public abstract class ComponentBase extends PentahoMessenger implements ICompone
     return runtimeContext.getInputParameter(parameterName);
   }
 
-  protected String getContentUrl(final IContentItem contentItem) {
-    return runtimeContext.getContentUrl(contentItem);
-  }
-
   protected boolean isPromptPending() {
     return runtimeContext.isPromptPending();
   }
@@ -656,10 +652,6 @@ public abstract class ComponentBase extends PentahoMessenger implements ICompone
     if (!optional) {
       runtimeContext.promptNeeded();
     }
-  }
-
-  protected IPentahoStreamSource getDataSource(final String parameterName) {
-    return runtimeContext.getDataSource(parameterName);
   }
 
   protected IPentahoStreamSource getResourceDataSource(final IActionSequenceResource resource)

@@ -81,7 +81,7 @@ public class SoapHelper {
     } else if (value instanceof IPentahoResultSet) {
       return createSoapElement(name, (IPentahoResultSet) value);
     } else if (value instanceof IContentItem) {
-      return createSoapElement(name, ((IContentItem) value).getId());
+      return createSoapElement(name, ((IContentItem) value).getPath());
     }
     return null;
   }
@@ -235,7 +235,7 @@ public class SoapHelper {
       Iterator outputNameIterator = outputNames.iterator();
       while (outputNameIterator.hasNext()) {
         String outputName = (String) outputNameIterator.next();
-        contentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, "", context.getInstanceId(), "text/xml"); //$NON-NLS-1$
+        contentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, context.getInstanceId(), "text/xml"); //$NON-NLS-1$
         if ((outputNames.size() == 1) && (contentItem != null)) {
           String mimeType = contentItem.getMimeType();
           if ((mimeType != null) && mimeType.startsWith("text/")) { //$NON-NLS-1$

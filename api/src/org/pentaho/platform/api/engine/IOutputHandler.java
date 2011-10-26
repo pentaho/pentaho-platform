@@ -21,7 +21,7 @@
 
 package org.pentaho.platform.api.engine;
 
-import java.util.Map;
+import java.io.IOException;
 
 import org.pentaho.platform.api.repository.IContentItem;
 
@@ -46,14 +46,6 @@ public interface IOutputHandler {
 
   public static final String FILE = "file"; //$NON-NLS-1$
 
-  /**
-   * Returns a map of the valid output parameter definitions for this request.
-   * 
-   * @return Map of parameters in name-value or name-list form
-   */
-  @SuppressWarnings("unchecked")
-  public Map getOutputDefs();
-
   public void setSession(IPentahoSession session);
 
   public IPentahoSession getSession();
@@ -76,15 +68,6 @@ public interface IOutputHandler {
    * @return true if the handler gave something the opportunity to write data to the its response output stream
    */
   public boolean isResponseExpected();
-
-  /**
-   * Retrieve a single output parameter definition by name
-   * 
-   * @param name
-   *            name of the output parameter definition requested
-   * @return IOutputDef, output definition object
-   */
-  public IOutputDef getOutputDef(String name);
 
   /**
    * Retrieve the ContentItem that describes the request interface for
@@ -111,26 +94,7 @@ public interface IOutputHandler {
    *            Name of the content
    * @return ContentItem describing end result output
    */
-  public IContentItem getOutputContentItem(String objectName, String contentName, String solution, String instanceId,
-      String mimeType);
-
-  /**
-   * Retrieve the ContentItem that describes the output from this request's
-   * component execution.
-   * 
-   * @param objectName
-   *            Name of the object
-   * @param contentName
-   *            Name of the content
-   * @param title
-   *            Title of the object
-   * @param url
-   *            URL to view the object
-   * @return ContentItem describing end result output
-   */
-
-  public IContentItem getOutputContentItem(String objectName, String contentName, String title, String url,
-      String solution, String instanceId, String mimeType);
+  public IContentItem getOutputContentItem(String objectName, String contentName, String instanceId, String mimeType);
 
   /**
    * Determines whether this output handler can send feedback ContentItems or
@@ -144,24 +108,6 @@ public interface IOutputHandler {
    */
   public boolean allowFeedback();
 
-  /**
-   * Sets the output ContentItem for this handler.
-   * 
-   * objectName will be the name of the destination node from the action
-   * sequence output contentName will be the value of the destination node
-   * from the action sequence output e.g. if the outputs section in the ation
-   * sequence looks like this: <outputs> <report type="string"> <destinations>
-   * <response>content</response> </destinations> </report> </outputs>
-   * objectName should be 'response' contentName should be 'content'
-   * 
-   * @param content
-   *            ContentItem to set
-   * @param objectName
-   *            Name of the object
-   * @param contentName
-   *            Name of the content
-   */
-  public void setContentItem(IContentItem content, String objectName, String contentName);
 
   /**
    * Sets the output type that is wanted by the handler. Valid values are
@@ -191,12 +137,9 @@ public interface IOutputHandler {
    * @param value
    *            Value of the output
    */
-  public void setOutput(String name, Object value);
+  public void setOutput(String name, Object value) throws IOException;
 
   public IMimeTypeListener getMimeTypeListener();
 
   public void setMimeTypeListener(IMimeTypeListener mimeTypeListener);
-
-  public void setRuntimeContext(IRuntimeContext runtimeContext);
-
 }

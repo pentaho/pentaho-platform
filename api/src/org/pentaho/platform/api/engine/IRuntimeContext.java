@@ -32,7 +32,6 @@ import org.dom4j.DocumentException;
 import org.pentaho.actionsequence.dom.IActionResource;
 import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 
 /**
  * This interface defines methods and constants that are used during
@@ -290,41 +289,33 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public String getInputParameterStringValue(String name);
 
   /**
-   * Gets the named resource as an <tt>InputStream</tt>. This is just a utility
-   * method that interfaces to <tt>ISolutionRepository</tt>
+   * Gets the named resource as an <tt>InputStream</tt>. 
    * @param actionResource The resource to get from the <code>SolutionRepository</code>
    * @return The <code>InputStream</code> that contains the resource.
    * @throws FileNotFoundException 
-   * @see ISolutionRepository#getResourceInputStream(IActionResource)
    */
   public InputStream getResourceInputStream(IActionSequenceResource actionResource) throws FileNotFoundException;
 
   /**
-   * Gets the named resource as a <tt>DataSource</tt>. This is just a utility
-   * method that interfaces to <tt>ISolutionRepository</tt>
+   * Gets the named resource as a <tt>DataSource</tt>. 
    * @param actionResource The resource to get from the <code>SolutionRepository</tt>
    * @return The <code>DataSource</code>
    * @throws FileNotFoundException 
-   * @see ISolutionRepository#getResourceDataSource(IActionResource)
    */
   public IPentahoStreamSource getResourceDataSource(IActionSequenceResource actionResource)
       throws FileNotFoundException;
 
   /**
-   * Gets the named resource as a <tt>String</tt>. This is just a utility
-   * method that interfaces to <tt>ISolutionRepository</tt>
+   * Gets the named resource as a <tt>String</tt>. 
    * @param actionResource The resource to get from the <code>SolutionRepository</tt>
    * @return The <code>String</code>
-   * @see ISolutionRepository#getResourceAsString(IActionResource)
    */
   public String getResourceAsString(IActionSequenceResource actionParameter) throws IOException;
 
   /**
-   * Gets the named resource as a <tt>Document</tt>. This is just a utility
-   * method that interfaces to <tt>ISolutionRepository</tt>
+   * Gets the named resource as a <tt>Document</tt>. 
    * @param actionResource The resource to get from the <code>SolutionRepository</tt>
    * @return The <code>DataSource</code>
-   * @see ISolutionRepository#getResourceAsDocument(IActionResource)
    */
   public Document getResourceAsDocument(IActionSequenceResource actionParameter) throws IOException, DocumentException;
 
@@ -358,15 +349,6 @@ public interface IRuntimeContext extends IAuditable, ILogger {
    * @return An InputStream from the content item
    */
   public InputStream getInputStream(String parameterName);
-
-  /**
-   * Get's the content item associated with the parameter, and returns the content item's
-   * datasource
-   * @param parameterName The name of the parameter
-   * @return The IPentahoStreamSource from the Content Item
-   * @see IContentItem#getDataSource()
-   */
-  public IPentahoStreamSource getDataSource(String parameterName);
 
   /**
    * @return a <tt>Set</tt> containing all the inputs in the current action.
@@ -447,17 +429,6 @@ public interface IRuntimeContext extends IAuditable, ILogger {
    */
   public IContentItem getOutputContentItem(String outputName, String mimeType);
   
-  /**
-   * Returns a url to the passed in content item that can be used to retrieve
-   * the content.
-   * 
-   * @param parameterName
-   *            the parameter name of the content
-   * @return a string representing the URL or null if the name is not a
-   *         content item or is not a valid name.
-   */
-  public String getContentUrl(IContentItem contentItem);
-
   /**
    * Generates a parameter acquisition form for required
    * parameters. This writes directly to the output stream

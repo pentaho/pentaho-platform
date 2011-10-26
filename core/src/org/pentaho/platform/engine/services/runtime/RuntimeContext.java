@@ -89,7 +89,6 @@ import org.pentaho.platform.api.repository.IContentRepository;
 import org.pentaho.platform.api.repository.IRuntimeElement;
 import org.pentaho.platform.api.repository.IRuntimeRepository;
 import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.repository.ISubscriptionRepository;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
@@ -410,8 +409,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
 
   public IContentItem getOutputContentItem(final String mimeType) {
     // TODO check the sequence definition to see where this should come from
-    return outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, actionSequence
-        .getTitle(), null, "", instanceId, mimeType);
+    return outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, instanceId, mimeType);
   }
 
   public IContentItem getOutputContentItem(final String outputName, final String mimeType) {
@@ -433,8 +431,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
         String objectName = destination.getSourceName();
         String contentName = destination.getValue();
         contentName = TemplateUtil.applyTemplate(contentName, this);
-        IContentItem tmpContentItem = outputHandler.getOutputContentItem(objectName, contentName, actionSequence
-            .getTitle(), null, "", instanceId, mimeType);
+        IContentItem tmpContentItem = outputHandler.getOutputContentItem(objectName, contentName, instanceId, mimeType);
         if (contentItem instanceof MultiContentItem) {
           ((MultiContentItem)contentItem).addContentItem(tmpContentItem);
         } else {
@@ -672,7 +669,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
    ccm.put("SQLDataComponent", "org.pentaho.plugin.sql.SQLDataComponent"); //$NON-NLS-1$ //$NON-NLS-2$
    ccm.put("SQLLookupRule", "org.pentaho.plugin.sql.SQLLookupRule"); //$NON-NLS-1$ //$NON-NLS-2$
    ccm.put("SQLExecute", "org.pentaho.plugin.sql.SQLExecute"); //$NON-NLS-1$ //$NON-NLS-2$
-   ccm.put("SubscriptionBurstComponent", "org.pentaho.plugin.SubscriptionBurstComponent"); //$NON-NLS-1$ //$NON-NLS-2$
    ccm.put("XQueryLookupRule", "org.pentaho.plugin.xquery.XQueryLookupRule"); //$NON-NLS-1$ //$NON-NLS-2$
    ccm.put("ResultSetCrosstabComponent", "org.pentaho.plugin.core.ResultSetCrosstabComponent"); //$NON-NLS-1$ //$NON-NLS-2$
    ccm.put("MQLRelationalDataComponent", "org.pentaho.plugin.mql.MQLRelationalDataComponent"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -944,6 +940,10 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       status = IRuntimeContext.RUNTIME_STATUS_FAILURE;
       audit(MessageTypes.ACTION_SEQUENCE_FAILED, MessageTypes.EXECUTION, "", (int) (new Date().getTime() - start)); //$NON-NLS-1$
       throw ex;
+    } catch (IOException ex) {
+      status = IRuntimeContext.RUNTIME_STATUS_FAILURE;
+      audit(MessageTypes.ACTION_SEQUENCE_FAILED, MessageTypes.EXECUTION, "", (int) (new Date().getTime() - start)); //$NON-NLS-1$
+      throw new ActionSequenceException(ex);
     }
   }
 
@@ -1531,47 +1531,6 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
 
   }
 
-  public IPentahoStreamSource getDataSource(final String parameterName) {
-    IPentahoStreamSource dataSource = null;
-    
-    // TODO Temp workaround for content repos bug
-    IActionParameter actionParameter = paramManager.getCurrentInput(parameterName);
-    if (actionParameter == null) {
-      throw new InvalidParameterException(Messages.getInstance().getErrorString(
-          "RuntimeContext.ERROR_0019_INVALID_INPUT_REQUEST", parameterName, actionSequence.getSequenceName())); //$NON-NLS-1$
-    }
-
-    Object locObj = actionParameter.getValue();
-    if (locObj != null) {
-      if (locObj instanceof IContentItem) { // At this point we have an IContentItem so why do anything else?
-        dataSource = ((IContentItem) locObj).getDataSource();
-      } else {
-        String location = locObj.toString();
-
-        // get an output stream to hand to the caller
-        IContentRepository contentRepository = PentahoSystem.get(IContentRepository.class,session);
-        if (contentRepository == null) {
-          warn(Messages.getInstance().getErrorString("RuntimeContext.ERROR_0024_NO_CONTENT_REPOSITORY")); //$NON-NLS-1$
-        } else {
-          IContentItem contentItem = contentRepository.getContentItemByPath(location);
-          if (contentItem != null) {
-            dataSource = contentItem.getDataSource();
-          }
-        }
-      }
-    }
-    //This will return null if the locObj is null
-    return dataSource;
-  }
-
-  public String getContentUrl(final IContentItem contentItem) {
-    if (contentItem == null) {
-      return (null);
-    }
-    IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
-    return (requestContext.getContextPath() + "GetContent?id=" + contentItem.getId()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-  }
-
   public InputStream getInputStream(final String parameterName) {
 
     InputStream inputStream = null;
@@ -1759,7 +1718,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
         contentItem.setMimeType("text/html"); //$NON-NLS-1$ 
         OutputStream os = contentItem.getOutputStream(getActionName());
         os.write(html.getBytes(LocaleHelper.getSystemEncoding()));
-        contentItem.closeOutputStream();
+        os.close();
       } else if (parameterXsl.endsWith(".xsl")) { //$NON-NLS-1$
         String id = actionSequence.getSequenceName();
         int pos = id.indexOf('.');
@@ -1789,43 +1748,7 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
                     xformBody.toString() + "</filters>", null); //$NON-NLS-1$ 
         // add any subscription information here
         Element root = document.getRootElement();
-        Element subscriptionsNode = root.addElement("subscriptions"); //$NON-NLS-1$
-        Element schedulesNode = root.addElement("schedules"); //$NON-NLS-1$
-
-        /*
-         * FIX FOR BISERVER-238 Ezequiel Cuellar:
-         * Add "doSubscribe" attribute to the "subscriptions" element.
-         * The "doSubscribe" attribute will define what logic should be performed
-         * by the DefaultParameterForm.xsl 
-         * */
-        boolean isSubscription = (parameterProvider.getStringParameter("subscribepage", "no").equalsIgnoreCase("yes")) || (editId != null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        subscriptionsNode.addAttribute("doSubscribe", isSubscription ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-        if (isSubscription) {
-          String val = PentahoSystem.getSystemSetting("smtp-email/email_config.xml", "email-subscriptions", "false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-          if (val != null && val.equals("true")) { //$NON-NLS-1$
-            subscriptionsNode.addAttribute("doSubscribeEmail", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-          }
-        }
         
-        if (getSession().getName() == null) {
-          subscriptionsNode.addAttribute("valid-session", "false"); //$NON-NLS-1$ //$NON-NLS-2$
-        } else {
-          subscriptionsNode.addAttribute("valid-session", "true"); //$NON-NLS-1$//$NON-NLS-2$
-          String actionRef = ActionInfo.buildSolutionPath("", getSolutionPath(), getActionName());
-          ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class,getSession());
-          if (subscriptionRepository != null) {
-            try {
-              subscriptionRepository.addSubscriptionsToDocument(getSession().getName(), actionRef, subscriptionsNode,
-                  editId, getSession());
-              subscriptionRepository.addSchedulesToDocument(getSession().getName(), actionRef, schedulesNode, editId);
-            } catch (Throwable t) {
-              //TODO: if this is truly an error, should we just let the exception propgate and fail the execute?
-              error(Messages.getInstance().getErrorString("PRO_SUBSCRIPTREP.ERROR_0005_GENERAL_ERROR"), t); //$NON-NLS-1$
-            }
-          }
-          // TODO...
-        }
         Map<String,String> parameters = new HashMap<String,String>();
         parameters.put("baseUrl", PentahoSystem.getApplicationContext().getBaseUrl()); //$NON-NLS-1$
         parameters.put("actionUrl", this.getUrlFactory().getActionUrlBuilder().getUrl()); //$NON-NLS-1$
@@ -1840,7 +1763,9 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
         try {
           os.write(content.toString().getBytes(LocaleHelper.getSystemEncoding()));
         } finally {
-          contentItem.closeOutputStream();
+          if (os != null) {
+            os.close();
+          }
         }
       }
       /*

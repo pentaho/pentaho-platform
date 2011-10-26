@@ -59,21 +59,9 @@ public class SimpleContentItem implements IContentItem {
     }
   }
 
-  public String getId() {
-    return null;
-  }
-
   public String getPath() {
     // Ensure non-null output
     return simplePath;
-  }
-
-  public String getName() {
-    return null;
-  }
-
-  public String getTitle() {
-    return null;
   }
 
   public String getMimeType() {
@@ -84,25 +72,7 @@ public class SimpleContentItem implements IContentItem {
     this.mimeType = mimeType;
   }
 
-  public String getUrl() {
-    return null;
-  }
-
-  public List getFileVersions() {
-    return null;
-  }
-
-  public void removeAllVersions() {
-  }
-
-  public void removeVersion(final String fileId) {
-  }
-
   public InputStream getInputStream() throws ContentException {
-    return null;
-  }
-
-  public Reader getReader() throws ContentException {
     return null;
   }
 
@@ -114,31 +84,6 @@ public class SimpleContentItem implements IContentItem {
     this.outputStream = outputStream;
   }
 
-  public IPentahoStreamSource getDataSource() {
-    // TODO
-    return null;
-  }
-
-  public String getActionName() {
-    return null;
-  }
-
-  public String getFileId() {
-    return null;
-  }
-
-  public long getFileSize() {
-    return 0;
-  }
-
-  public Date getFileDateTime() {
-    return null;
-  }
-
-  public void makeTransient() {
-    // NOOP
-  }
-  
   public void setName( String name ) {
 	  // don't need this
   }

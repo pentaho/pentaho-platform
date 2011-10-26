@@ -159,10 +159,6 @@ public class PentahoSystem {
 
   private static int initializedStatus = PentahoSystem.SYSTEM_NOT_INITIALIZED;
 
-  private static final String SUBSCRIPTION_REPOSITORY = "ISubscriptionRepository"; //$NON-NLS-1$
-
-  private static final String SUBSCRIPTION_SCHEDULER = "ISubscriptionScheduler"; //$NON-NLS-1$
-
   private static final String USERSETTING_SERVICE = "IUserSettingService"; //$NON-NLS-1$
   
   private static final String ACL_VOTER = "IAclVoter"; //$NON-NLS-1$
@@ -185,8 +181,6 @@ public class PentahoSystem {
     PentahoSystem.KnownOptionalObjects.add(PentahoSystem.ACL_VOTER);
     PentahoSystem.KnownOptionalObjects.add(PentahoSystem.CONDITIONAL_EXECUTION);
     PentahoSystem.KnownOptionalObjects.add(PentahoSystem.RUNTIME_REPOSITORY);
-    PentahoSystem.KnownOptionalObjects.add(PentahoSystem.SUBSCRIPTION_SCHEDULER);
-    PentahoSystem.KnownOptionalObjects.add(PentahoSystem.SUBSCRIPTION_REPOSITORY);
     PentahoSystem.KnownOptionalObjects.add(PentahoSystem.CACHE_MANAGER);
 
     PentahoSystem.KnownOptionalObjects.add(PentahoSystem.CONTENT_REPOSITORY);

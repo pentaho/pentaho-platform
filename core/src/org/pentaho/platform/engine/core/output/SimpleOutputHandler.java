@@ -35,7 +35,6 @@ import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IOutputDef;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -45,8 +44,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
  *
  */
 public class SimpleOutputHandler implements IOutputHandler {
-
-  private Map<String, Object> responseAttributes;
 
   private IContentItem feedbackContent;
 
@@ -64,8 +61,6 @@ public class SimpleOutputHandler implements IOutputHandler {
 
   private IMimeTypeListener mimeTypeListener;
 
-  protected IRuntimeContext runtimeContext;
-  
   private boolean responseExpected;
 
   private static final Log logger = LogFactory.getLog(SimpleOutputHandler.class);
@@ -78,7 +73,6 @@ public class SimpleOutputHandler implements IOutputHandler {
    */
   public SimpleOutputHandler(final IContentItem contentItem, final boolean allowFeedback) {
 
-    responseAttributes = new HashMap<String, Object>();
     contentGenerated = false;
     outputs = new HashMap<String, IContentItem>();
     try {
@@ -107,7 +101,6 @@ public class SimpleOutputHandler implements IOutputHandler {
     if (allowFeedback) {
       feedbackContent = new SimpleContentItem(outputStream);
     }
-    responseAttributes = new HashMap<String, Object>();
     contentGenerated = false;
     outputs = new HashMap<String, IContentItem>();
     setOutputStream(outputStream, IOutputHandler.RESPONSE, IOutputHandler.CONTENT);
@@ -171,22 +164,6 @@ public class SimpleOutputHandler implements IOutputHandler {
   }
 
   /* (non-Javadoc)
-   * @see org.pentaho.platform.api.engine.IOutputHandler#getOutputDefs()
-   */
-  public Map getOutputDefs() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /* (non-Javadoc)
-   * @see org.pentaho.platform.api.engine.IOutputHandler#getOutputDef(java.lang.String)
-   */
-  public IOutputDef getOutputDef(final String name) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /* (non-Javadoc)
    * @see org.pentaho.platform.api.engine.IOutputHandler#getFeedbackContentItem()
    */
   public IContentItem getFeedbackContentItem() {
@@ -206,8 +183,7 @@ public class SimpleOutputHandler implements IOutputHandler {
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.engine.IOutputHandler#getOutputContentItem(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
-  public IContentItem getOutputContentItem(final String outputName, final String contentName, final String solution,
-      final String instanceId, final String localMimeType) {
+  public IContentItem getOutputContentItem(final String outputName, final String contentName, final String instanceId, final String localMimeType) {
     if(outputName.equals(IOutputHandler.RESPONSE) && contentName.equals(IOutputHandler.CONTENT)) {
       responseExpected = true;
     }
@@ -231,86 +207,39 @@ public class SimpleOutputHandler implements IOutputHandler {
   }
 
   /* (non-Javadoc)
-   * @see org.pentaho.platform.api.engine.IOutputHandler#getOutputContentItem(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
-  public IContentItem getOutputContentItem(final String objectName, final String contentName, final String title,
-      final String url, final String solution, final String instanceId, final String localMimeType) {
-    return getOutputContentItem(objectName, contentName, solution, instanceId, localMimeType);
-  }
-
-  /* (non-Javadoc)
    * @see org.pentaho.platform.api.engine.IOutputHandler#setContentItem(org.pentaho.platform.api.repository.IContentItem, java.lang.String, java.lang.String)
    */
   public void setContentItem(final IContentItem content, final String objectName, final String contentName) {
     mimeType = content.getMimeType();
   }
-
+  
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.engine.IOutputHandler#setOutput(java.lang.String, java.lang.Object)
    * 
    * This implementation tries to write the data in "value" to the response outputstream managed by this
    * output handler, or if "value" is null, adds it to a responseAttributes map for later retrieval.
    */
-  public void setOutput(final String name, final Object value) {
+  public void setOutput(final String name, final Object value) throws IOException {
     if (value == null) {
       SimpleOutputHandler.logger.info(Messages.getInstance().getString("SimpleOutputHandler.INFO_VALUE_IS_NULL")); //$NON-NLS-1$
       return;
     }
 
     if (IOutputHandler.CONTENT.equalsIgnoreCase(name)) {
-      IContentItem response = getOutputContentItem("response", IOutputHandler.CONTENT, null, null, null, null, null); //$NON-NLS-1$
+      IContentItem response = getOutputContentItem("response", IOutputHandler.CONTENT, null, null); //$NON-NLS-1$
       if (response != null) {
-        try {
-          //If "value" to set is an IContentItem, then write it to the outputstream 
-          //of the response IContentItem managed by this output handler.
-          if (value instanceof IContentItem) {
-            IContentItem content = (IContentItem) value;
-            // See if we should process the input stream. If it's from
-            // the content repository, then there's an input stream.
-            // SimpleContentItem and HttpContentItem both return null from
-            // getInputStream().
-            InputStream inStr = content.getInputStream();
-            if (inStr != null) {
-              if ((response.getMimeType() == null) || (!response.getMimeType().equalsIgnoreCase(content.getMimeType()))) {
-                response.setMimeType(content.getMimeType());
-              }
-              try {
-                OutputStream outStr = response.getOutputStream(response.getActionName());
-                int inCnt = 0;
-                byte[] buf = new byte[4096];
-                while (-1 != (inCnt = inStr.read(buf))) {
-                  outStr.write(buf, 0, inCnt);
-                }
-              } finally {
-                try {
-                  inStr.close();
-                } catch (Exception ignored) {
-                }
-              }
-              contentGenerated = true;
-            }
-          } else {
-            //if "value" is not an IContentItem, assume it is a string and write it out
-            if (response.getMimeType() == null) {
-              response.setMimeType("text/html"); //$NON-NLS-1$
-            }
-
-            response.getOutputStream(response.getActionName()).write(value.toString().getBytes());
-            contentGenerated = true;
+        //If "value" to set is an IContentItem, then write it to the outputstream 
+        //of the response IContentItem managed by this output handler.
+        if (!(value instanceof IContentItem)) {
+          if (response.getMimeType() == null) {
+            response.setMimeType("text/html"); //$NON-NLS-1$
           }
-        } catch (IOException ioe) {
-          //FIXME: do not swallow this exception
-          SimpleOutputHandler.logger.error(null, ioe);
+
+          response.getOutputStream(null).write(value.toString().getBytes());
+          contentGenerated = true;
         }
       }
-    } else {
-      responseAttributes.put(name, value);
     }
-
-  }
-
-  public Map getResponseAttributes() {
-    return responseAttributes;
   }
 
   /* (non-Javadoc)
@@ -327,12 +256,6 @@ public class SimpleOutputHandler implements IOutputHandler {
     this.mimeTypeListener = mimeTypeListener;
   }
 
-  /* (non-Javadoc)
-   * @see org.pentaho.platform.api.engine.IOutputHandler#setRuntimeContext(org.pentaho.platform.api.engine.IRuntimeContext)
-   */
-  public void setRuntimeContext(final IRuntimeContext runtimeContext) {
-    this.runtimeContext = runtimeContext;
-  }
 
   public boolean isResponseExpected() {
     return responseExpected;

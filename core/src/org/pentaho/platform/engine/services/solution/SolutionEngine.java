@@ -302,9 +302,6 @@ public class SolutionEngine extends PentahoMessenger implements ISolutionEngine,
      }
      }
      */
-    if (outputHandler != null) {
-      outputHandler.setRuntimeContext(runtime);
-    }
     return executeInternal(actionPath, processId, async, instanceEnds,
         parameterProviderMap, actionSequenceXML);
   }

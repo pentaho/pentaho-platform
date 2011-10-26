@@ -65,21 +65,8 @@ public class BufferedContentItem extends SimpleContentItem {
   }
 
   @Override
-  public IPentahoStreamSource getDataSource() {
-    if( inputStream == null ) {
-      inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-    }
-   return new SimpleStreamSource( getName(), getMimeType(), inputStream, outputStream );
-  }
-
-  @Override
   public void setName( String name ) {
     this.name = name;
-  }
-
-  @Override
-  public String getName() {
-    return name;
   }
 
 }

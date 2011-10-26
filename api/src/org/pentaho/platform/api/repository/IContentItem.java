@@ -47,69 +47,14 @@ import org.pentaho.platform.api.engine.IMimeTypeListener;
 public interface IContentItem extends IMimeTypeListener {
 
   /**
-   * Keep multiple versions when request for an output stream is received
-   */
-  public static final int WRITEMODE_KEEPVERSIONS = 0;
-
-  /**
-   * Overwrite each time a request for a new output stream is received.
-   */
-  public static final int WRITEMODE_OVERWRITE = 1;
-
-  /**
-   * Append to existing file when request for a new output stream is received.
-   */
-  public static final int WRITEMODE_APPEND = 2;
-
-  // Probably not necessary or ever used. Wanted to consider it though.
-
-  /**
-   * @return The ContentItem Id
-   */
-  public String getId();
-
-  /**
    * @return The ContentItem path
    */
   public String getPath();
 
   /**
-   * @return The name of the content item
-   */
-  public String getName();
-
-  /**
-   * @return The title of the content item
-   */
-  public String getTitle();
-
-  /**
    * @return The MimeType of the content item.
    */
   public String getMimeType();
-
-  /**
-   * @return The URL (optional) of the content item
-   */
-  public String getUrl();
-
-  /**
-   * @return If this is a multiple-versioned style of content item, return the
-   *         whole list for admin purposes
-   */
-  @SuppressWarnings("unchecked")
-  public List getFileVersions();
-
-  /**
-   * Removes all the version from Hibernate
-   * 
-   */
-  public void removeAllVersions();
-
-  /**
-   * Removes the file with the id specified
-   */
-  public void removeVersion(String fileId);
 
   /**
    * Gets an input stream from the Content item. If the content item doesn't
@@ -121,17 +66,6 @@ public interface IContentItem extends IMimeTypeListener {
    */
   public InputStream getInputStream() throws ContentException;
 
-  /**
-   * Returns a reader from the content item. If the content item doesn't exist
-   * an exception is thrown.
-   * 
-   * @return A Reader from the file system that is pointed to by this content
-   *         item.
-   * @throws ContentException
-   */
-  public IPentahoStreamSource getDataSource();
-
-  public Reader getReader() throws ContentException;
 
   /**
    * The behavior of this method depends upon it's write mode (defined only at
@@ -158,43 +92,11 @@ public interface IContentItem extends IMimeTypeListener {
   public void closeOutputStream();
 
   /**
-   * @return The name of the action from the latest ContentItemFile class that
-   *         the ContentItem contains.
-   */
-  public String getActionName();
-
-  /**
-   * @return This returns the Id of the ContentItemFile class that the
-   *         ContentItem contains.
-   */
-  public String getFileId();
-
-  /**
-   * @return The file size from the latest ContentItemFile class that the
-   *         ContentItem contains.
-   */
-  public long getFileSize();
-
-  /**
-   * @return The file date/time from the latest ContentItemFile class that the
-   *         ContentItem contains.
-   */
-  public Date getFileDateTime();
-
-  /**
    * Sets the mime type
    * 
    * @param mimeType
    *            The mime type to set.
    */
   public void setMimeType(String mimeType);
-
-  /**
-   * Removes all versions of this item from
-   * the repository and removes this item
-   * from underlying persistence layer.
-   *
-   */
-  public void makeTransient();
-
+  
 }

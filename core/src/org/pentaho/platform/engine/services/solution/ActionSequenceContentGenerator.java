@@ -169,64 +169,13 @@ public class ActionSequenceContentGenerator extends BaseContentGenerator {
 	    }
 	}
 	
-	protected void setup( ISolutionEngine solutionEngine ) {
-
-		IParameterProvider requestParams = parameterProviders.get( IParameterProvider.SCOPE_REQUEST );
-	    ISystemSettings systemSettings = PentahoSystem.getSystemSettings();
-
-	    String parameterXsl = systemSettings.getSystemSetting("default-parameter-xsl", "DefaultParameterForm.xsl"); //$NON-NLS-1$ //$NON-NLS-2$
-	    boolean forcePrompt = "true".equalsIgnoreCase( requestParams.getStringParameter( "prompt" ,"false" ) ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	    boolean doSubscribe = "yes".equalsIgnoreCase( requestParams.getStringParameter("subscribepage", "no") ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	    String solutionName = requestParams.getStringParameter("solution", null); //$NON-NLS-1$
-	    String actionPath = requestParams.getStringParameter("path", null); //$NON-NLS-1$
-	    String actionName = requestParams.getStringParameter("action2", null); //$NON-NLS-1$
-
-      String actionSeqPath = ActionInfo.buildSolutionPath(solutionName, actionPath, actionName);
-	    
-	    createOutputFileName( actionSeqPath );
-	    
-	    if (actionSeqPath == null) {
-	      // now look for a primary action
-	      actionSeqPath = requestParams.getStringParameter("action", null); //$NON-NLS-1$
-	    }
-
-	    int outputPreference = IOutputHandler.OUTPUT_TYPE_DEFAULT;
-	    if ( doSubscribe ) {
-	    	forcePrompt = true;
-	        parameterProviders.put("PRO_EDIT_SUBSCRIPTION", requestParams); //$NON-NLS-1$ 
-	        outputPreference = IOutputHandler.OUTPUT_TYPE_PARAMETERS;
-	    }
-	    outputHandler.setOutputPreference(outputPreference);
-
-	    solutionEngine.setLoggingLevel(ILogger.DEBUG);
-	    solutionEngine.init(userSession);
-	    solutionEngine.setForcePrompt(forcePrompt);
-	    if (parameterXsl != null) {
-	      solutionEngine.setParameterXsl(parameterXsl);
-	    }
-/*	    
-	    solutionEngine.setProcessId( processId );
-	    solutionEngine.setIsAsync( false );
-	    solutionEngine.setInstanceEnds( instanceEnds );
-	    solutionEngine.setInstanceId( instanceId );
-	    solutionEngine.setPersisted( false );
-	    solutionEngine.setOutputHandler( outputHandler );
-	    solutionEngine.setListener( actionCompleteListener );
-	    solutionEngine.setUrlFactory( urlFactory );
-	    solutionEngine.setMessages( messages );
-	    solutionEngine.setParameterProviders(parameterProviders);
-
-	    solutionEngine.setActionSequence( solutionName, actionPath, actionName);
-*/	    
-	}
 	protected void postExecute( IRuntimeContext runtime, boolean doMessages, boolean doWrapper ) throws Exception {
     // see if we need to provide feedback to the caller
     if (!outputHandler.contentDone() || doMessages ) {
       IParameterProvider requestParams = parameterProviders.get( IParameterProvider.SCOPE_REQUEST );
-      String solutionName = requestParams.getStringParameter("solution", null); //$NON-NLS-1$
       String actionName = requestParams.getStringParameter("action", null); //$NON-NLS-1$
       
-      IContentItem contentItem = outputHandler.getOutputContentItem( IOutputHandler.RESPONSE, IOutputHandler.CONTENT, solutionName, null, "text/html" );//$NON-NLS-1$
+      IContentItem contentItem = outputHandler.getOutputContentItem( IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, "text/html" );//$NON-NLS-1$
       OutputStream outputStream = contentItem.getOutputStream(actionName);
 
       if (outputStream != null) {
@@ -240,7 +189,7 @@ public class ActionSequenceContentGenerator extends BaseContentGenerator {
               "text/html", runtime, buffer, messages); //$NON-NLS-1$
         }
         outputStream.write(buffer.toString().getBytes(LocaleHelper.getSystemEncoding()));
-        contentItem.closeOutputStream();
+        outputStream.close();
       }
     }
 	}

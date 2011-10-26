@@ -67,7 +67,7 @@ public abstract class BaseXmlContentGenerator extends BaseContentGenerator {
 		} else {
 			intro = Messages.getInstance().getString( "UI.ERROR_0002_BAD_TEMPLATE_OBJECT" ); //$NON-NLS-1$
 		}
-        IContentItem contentItem = outputHandler.getOutputContentItem( IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null, "text/html" );//$NON-NLS-1$
+        IContentItem contentItem = outputHandler.getOutputContentItem( IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, "text/html" );//$NON-NLS-1$
         OutputStream outputStream = contentItem.getOutputStream(null);
         outputStream.write( intro.getBytes() );
         outputStream.write( content.getBytes() );

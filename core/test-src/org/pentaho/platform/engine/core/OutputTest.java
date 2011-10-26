@@ -212,27 +212,13 @@ public class OutputTest extends TestCase {
     content.setOutputStream( out );
     content.setName( "testname" );
     
-    assertEquals("wrong value", null, content.getId() );
 //    assertEquals("wrong value", null, content.getPath() );
     assertNotNull(content.getPath()); // SimpleContentItem changed to not return null for path.
-    assertEquals("wrong value", null, content.getName() );
-    assertEquals("wrong value", null, content.getTitle() );
     assertEquals("wrong value", "test/test", content.getMimeType() );
-    assertEquals("wrong value", null, content.getUrl() );
-    assertEquals("wrong value", null, content.getFileVersions() );
     assertEquals("wrong value", null, content.getInputStream() );
-    assertEquals("wrong value", null, content.getReader() );
     assertEquals("wrong value", out, content.getOutputStream(null) );
-    assertEquals("wrong value", null, content.getDataSource() );
-    assertEquals("wrong value", null, content.getActionName() );
-    assertEquals("wrong value", null, content.getFileId() );
-    assertEquals("wrong value", 0, content.getFileSize() );
-    assertEquals("wrong value", null, content.getFileDateTime() );
 
     // these should not throw errors
-    content.removeVersion( null );
-    content.removeAllVersions();
-    content.makeTransient();
     content.closeOutputStream();
     
     out = new MockExceptionOutputStream();

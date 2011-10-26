@@ -39,17 +39,10 @@ public abstract class SimpleContentGenerator extends BaseContentGenerator {
     }
 
     IParameterProvider requestParams = parameterProviders.get( IParameterProvider.SCOPE_REQUEST );
-    String solutionName = null;
-    if (requestParams != null){
-      solutionName = requestParams.getStringParameter("solution", null); //$NON-NLS-1$
-    }
-    if (solutionName == null){
-      solutionName = "NONE"; 
-    }
     if (instanceId == null){
       setInstanceId(UUIDUtil.getUUIDAsString()); 
     }
-    IContentItem contentItem = outputHandler.getOutputContentItem( "response", "content", solutionName, instanceId, getMimeType() ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IContentItem contentItem = outputHandler.getOutputContentItem( "response", "content", instanceId, getMimeType() ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     if( contentItem == null ) {
       error( Messages.getInstance().getErrorString("SimpleContentGenerator.ERROR_0002_NO_CONTENT_ITEM") ); //$NON-NLS-1$
       throw new InvalidParameterException( Messages.getInstance().getString("SimpleContentGenerator.ERROR_0002_NO_CONTENT_ITEM") );  //$NON-NLS-1$

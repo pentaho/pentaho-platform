@@ -171,11 +171,6 @@ public class TestRuntimeContext extends PentahoBase implements IRuntimeContext {
     return null;
   }
 
-  public String getContentUrl(IContentItem contentItem) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
   public String getCurrentComponentName() {
     // TODO Auto-generated method stub
     return null;
