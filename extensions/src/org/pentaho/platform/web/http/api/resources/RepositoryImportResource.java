@@ -115,7 +115,7 @@ public class RepositoryImportResource {
         importer.doImport(src, uploadDir, null);
         for(ImportSource dependentImportSource : src.getDependentImportSources()) {
         	dependentImportSource.initialize(repository);
-        	importer.doImport(dependentImportSource, File.separator, null);
+        	importer.doImport(dependentImportSource, RepositoryFile.SEPARATOR, null);
         }
       } else {
     	ImportSource src = new SingleFileStreamImportSource(fileIS, fileInfo.getFileName(), "UTF-8"); //$NON-NLS-1$
