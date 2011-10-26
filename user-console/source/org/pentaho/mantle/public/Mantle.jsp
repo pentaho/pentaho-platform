@@ -116,10 +116,10 @@
 			</div>
 		</div>
 		
-		<div id="pucToolBar" style="float: left">
+		<div id="pucToolBar" style="clear; both; float: left; width: 100%">
 		</div>
 	
-		<div id="pucContent" style="height: 100%; width: 100%">
+		<div id="pucContent" style="clear: both; height: 100%; width: 100%">
 		</div>
 		
 	</div>
