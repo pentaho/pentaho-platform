@@ -85,7 +85,6 @@ import org.pentaho.platform.api.engine.InvalidParameterException;
 import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.engine.UnresolvedParameterException;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository.IContentRepository;
 import org.pentaho.platform.api.repository.IRuntimeElement;
 import org.pentaho.platform.api.repository.IRuntimeRepository;
 import org.pentaho.platform.api.repository.ISolutionRepository;
