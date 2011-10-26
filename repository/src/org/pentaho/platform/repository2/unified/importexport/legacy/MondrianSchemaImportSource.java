@@ -141,17 +141,21 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 	/*
 	 * Creates "/etc/mondrian/<catalog>/metadata" and the connection nodes
 	 */
-	private void createDatasourceMetadata(RepositoryFile catalog, String datasourceInfoValue) {
-
+	private void createDatasourceMetadata(RepositoryFile catalog, String datasourceInfo) {
+		
+		RepositoryFile metadata = unifiedRepository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalog.getName() + RepositoryFile.SEPARATOR + "metadata");
+		
 		String definition = "mondrian:/" + catalog.getName();
-		String datasourceInfo = datasourceInfoValue;
-
 		DataNode node = new DataNode("catalog");
 		node.setProperty("definition", definition);
 		node.setProperty("datasourceInfo", datasourceInfo);
-
 		NodeRepositoryFileData data = new NodeRepositoryFileData(node);
-		super.unifiedRepository.createFile(catalog.getId(), new RepositoryFile.Builder("metadata").build(), data, null);
+		
+		if(metadata == null) {
+			super.unifiedRepository.createFile(catalog.getId(), new RepositoryFile.Builder("metadata").build(), data, null);
+		} else {
+			super.unifiedRepository.updateFile(metadata, data, null);
+		}
 	}
 
 	/*
@@ -196,3 +200,4 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		return nodes;
 	}
 }
+ 
