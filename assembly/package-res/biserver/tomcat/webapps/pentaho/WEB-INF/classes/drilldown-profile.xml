@@ -26,39 +26,39 @@
                        bundle-name="org.pentaho.reporting.engine.classic.extensions.drilldown.drilldown-profile"
                        expert="false" hidden="false" deprecated="false" preferred="false">
       <attribute name="extension">xaction</attribute>
-      <attribute name="formula">[&quot;::path&quot;] &amp; &quot;api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/generatedContent?&quot; &amp; [&quot;::parameter&quot;]</attribute>
+      <attribute name="formula">URLBUILDER([&quot;::path&quot;] ; &quot;/api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/generatedContent&quot; ; [&quot;::parameter&quot;])</attribute>
     </drilldown-profile>
     <drilldown-profile name="remote-prpt" class="org.pentaho.reporting.engine.classic.extensions.drilldown.FormulaLinkCustomizer"
                        bundle-name="org.pentaho.reporting.engine.classic.extensions.drilldown.drilldown-profile"
                        expert="false" hidden="false" deprecated="false" preferred="false">
       <attribute name="extension">prpt</attribute>
-      <attribute name="formula">[&quot;::path&quot;] &amp; &quot;api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/viewer?&quot; &amp; [&quot;::parameter&quot;]</attribute>
+      <attribute name="formula">URLBUILDER([&quot;::path&quot;] ; &quot;/api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/viewer&quot; ; [&quot;::parameter&quot;])</attribute>
     </drilldown-profile>
     <drilldown-profile name="remote-prpt-no-parameter" class="org.pentaho.reporting.engine.classic.extensions.drilldown.FormulaLinkCustomizer"
                        bundle-name="org.pentaho.reporting.engine.classic.extensions.drilldown.drilldown-profile"
                        expert="false" hidden="false" deprecated="false" preferred="false">
       <attribute name="extension">prpt</attribute>
-      <attribute name="formula">[&quot;::path&quot;] &amp; &quot;api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/viewer?&quot; &amp; [&quot;::parameter&quot;]</attribute>
+      <attribute name="formula">URLBUILDER([&quot;::path&quot;] ; &quot;/api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/viewer&quot; ; &quot;showParameters=false&amp;&quot; &amp; [&quot;::parameter&quot;])</attribute>
     </drilldown-profile>
     <drilldown-profile name="local-xaction" class="org.pentaho.reporting.engine.classic.extensions.drilldown.FormulaLinkCustomizer"
                        bundle-name="org.pentaho.reporting.engine.classic.extensions.drilldown.drilldown-profile"
                        expert="false" hidden="false" deprecated="false" preferred="false">
       <attribute name="extension">xaction</attribute>
-      <attribute name="formula">ENV(&quot;pentahoBaseURL&quot;) &amp; &quot;api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/generatedContent?&quot; &amp; [&quot;::parameter&quot;]</attribute>
+      <attribute name="formula">URLBUILDER(ENV(&quot;pentahoBaseURL&quot;) ; &quot;/api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/generatedContent&quot; ; [&quot;::parameter&quot;])</attribute>
     </drilldown-profile>
     <drilldown-profile name="local-prpt"
                        class="org.pentaho.reporting.engine.classic.extensions.drilldown.FormulaLinkCustomizer"
                        bundle-name="org.pentaho.reporting.engine.classic.extensions.drilldown.drilldown-profile"
                        expert="false" hidden="false" deprecated="false" preferred="false">
       <attribute name="extension">prpt</attribute>
-      <attribute name="formula">ENV(&quot;pentahoBaseURL&quot;) &amp; &quot;api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/viewer?&quot; &amp; [&quot;::parameter&quot;]</attribute>
+      <attribute name="formula">URLBUILDER(ENV(&quot;pentahoBaseURL&quot;) ; &quot;/api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/viewer&quot; ; [&quot;::parameter&quot;])</attribute>
     </drilldown-profile>
     <drilldown-profile name="local-prpt-no-parameter"
                        class="org.pentaho.reporting.engine.classic.extensions.drilldown.FormulaLinkCustomizer"
                        bundle-name="org.pentaho.reporting.engine.classic.extensions.drilldown.drilldown-profile"
                        expert="false" hidden="false" deprecated="false" preferred="false">
       <attribute name="extension">prpt</attribute>
-      <attribute name="formula">ENV(&quot;pentahoBaseURL&quot;) &amp; &quot;api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/viewer?&quot; &amp; [&quot;::parameter&quot;]</attribute>
+      <attribute name="formula">URLBUILDER(ENV(&quot;pentahoBaseURL&quot;) ; &quot;/api/repos/&quot; &amp; [&quot;::resource&quot;] &amp; &quot;/viewer&quot; ; &quot;showParameters=false&amp;&quot; &amp; [&quot;::parameter&quot;])</attribute>
     </drilldown-profile>
   </group>
 </drilldown-profiles>
