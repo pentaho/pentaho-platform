@@ -135,7 +135,7 @@ public class FilePerspectiveResourceTest extends JerseyTest {
     public void createContent() throws Exception {
       try {
       IContentItem responseContentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE,
-          IOutputHandler.CONTENT, null, null, null);
+          IOutputHandler.CONTENT, null, null);
       //mime type setting will blow up since servlet api used by grizzly is too old
       try {
         responseContentItem.setMimeType("text/plain");

@@ -52,19 +52,7 @@ public class HttpContentItem implements IContentItem {
     // nothing to do here
   }
 
-  public String getId() {
-    return null;
-  }
-
   public String getPath() {
-    return null;
-  }
-
-  public String getName() {
-    return null;
-  }
-
-  public String getTitle() {
     return null;
   }
 
@@ -84,30 +72,7 @@ public class HttpContentItem implements IContentItem {
 	  
   }
 
-  public String getUrl() {
-    return null;
-  }
-
-  public List getFileVersions() {
-    return null;
-  }
-
-  public void removeAllVersions() {
-  }
-
-  public void removeVersion(final String fileId) {
-  }
-
   public InputStream getInputStream() throws ContentException {
-    return null;
-  }
-
-  public IPentahoStreamSource getDataSource() {
-    // TODO
-    return null;
-  }
-
-  public Reader getReader() throws ContentException {
     return null;
   }
 
@@ -120,26 +85,6 @@ public class HttpContentItem implements IContentItem {
 
   public void setOutputStream(final OutputStream outputStream) {
     this.outputStream = outputStream;
-  }
-
-  public String getActionName() {
-    return null;
-  }
-
-  public String getFileId() {
-    return null;
-  }
-
-  public long getFileSize() {
-    return 0;
-  }
-
-  public Date getFileDateTime() {
-    return null;
-  }
-
-  public void makeTransient() {
-    // NOOP
   }
 
   public IMimeTypeListener getMimeTypeListener() {

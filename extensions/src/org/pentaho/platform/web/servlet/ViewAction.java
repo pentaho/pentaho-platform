@@ -181,7 +181,7 @@ public class ViewAction extends ServletBase {
        * such as a form to request parameters such as from a SecureFilterComponent.
        */
       boolean hasResponse = outputHandler.isResponseExpected();
-      IContentItem responseContentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null, null);
+      IContentItem responseContentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null);
 
       boolean success = (runtime != null && runtime.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS);
       boolean debugMessages = doMessages(request);

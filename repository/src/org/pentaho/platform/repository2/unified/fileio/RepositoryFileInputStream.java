@@ -44,16 +44,20 @@ public class RepositoryFileInputStream extends InputStream {
     if (file == null) {
       throw new FileNotFoundException(MessageFormat.format("Repository file {0} not readable or does not exist", path));
     }
-    setStream();
+    if (file.isFolder()) {
+      throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
+    }
   }
 
   public RepositoryFileInputStream(RepositoryFile file) throws FileNotFoundException {
     if (file == null) {
       throw new FileNotFoundException("Repository file cannot be null");
     }
+    if (file.isFolder()) {
+      throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
+    }
     repository = PentahoSystem.get(IUnifiedRepository.class);
     this.file = repository.getFile(file.getPath());
-    setStream();
   }
 
   public RepositoryFileInputStream(Serializable id) throws FileNotFoundException {
@@ -63,30 +67,34 @@ public class RepositoryFileInputStream extends InputStream {
       throw new FileNotFoundException(MessageFormat.format(
           "Repository file with id {0} not readable or does not exist", id));
     }
-    setStream();
+    if (file.isFolder()) {
+      throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
+    }
   }
 
-  protected RepositoryFile getFile() {
+  public RepositoryFile getFile() {
     return file;
   }
 
   protected void setStream() throws FileNotFoundException {
-    if (file.isFolder()) {
-      throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
+    if (fileData == null) {
+      fileData = repository.getDataForRead(file.getId(), SimpleRepositoryFileData.class);
     }
-    fileData = repository.getDataForRead(file.getId(), SimpleRepositoryFileData.class);
     is = fileData.getStream();
   }
 
   @Override
   public int read() throws IOException {
     if (is == null) {
-      throw new IOException("Failed to get input stream for repository file: " + file.getPath());
+      setStream();
     }
     return is.read();
   }
   
   public String getMimeType() {
+    if (fileData == null) {
+      fileData = repository.getDataForRead(file.getId(), SimpleRepositoryFileData.class);
+    }
 	  return fileData.getMimeType();
   }
 }

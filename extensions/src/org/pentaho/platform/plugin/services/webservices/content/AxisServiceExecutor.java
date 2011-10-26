@@ -129,7 +129,7 @@ public class AxisServiceExecutor extends AxisWebServiceRequestDispatcher impleme
   }
 
   public void setContentType( String contentType ) {
-    IContentItem contentItem = outputHandler.getOutputContentItem( "response", "content", "", instanceId, getMimeType() ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    IContentItem contentItem = outputHandler.getOutputContentItem( "response", "content", instanceId, getMimeType() ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     contentItem.setMimeType( contentType );
   }
   

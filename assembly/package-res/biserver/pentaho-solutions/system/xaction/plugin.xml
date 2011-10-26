@@ -17,6 +17,17 @@
 				<operation>
 					<id>NEWWINDOW</id>
 				</operation>        		
+      			<operation>
+        			<id>SCHEDULE_NEW</id>
+        			<perspective>viewer</perspective>
+      			</operation>
+      			<operation>
+        			<id>SCHEDULE_EDIT</id>
+        			<perspective>viewer</perspective>
+      			</operation>
+      			<operation>
+        			<id>BACKGROUND</id>
+      			</operation>
 			</operations>
 	    	</content-type>
 	</content-types>

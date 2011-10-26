@@ -49,7 +49,6 @@ import org.pentaho.platform.api.scheduler.BackgroundExecutionException;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.ActionSequenceContentGenerator;
-import org.pentaho.platform.repository.subscription.SubscriptionHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.platform.web.http.HttpOutputHandler;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
@@ -204,9 +203,7 @@ public class ViewActionExperimental extends ServletBase {
         outputHandler.setMimeTypeListener(listener);
         SimpleUrlFactory urlFactory = new SimpleUrlFactory(requestContext.getContextPath() + "ViewAction?"); //$NON-NLS-1$
         IParameterProvider requestParameters = new HttpRequestParameterProvider(request);
-        if (!handleSubscriptions(request, response, userSession, requestParameters, outputStream, urlFactory)) {
-          handleActionRequest(request, response, outputHandler, outputStream, contentItem, userSession );
-        }
+        handleActionRequest(request, response, outputHandler, outputStream, contentItem, userSession );
       }
     } finally {
       PentahoSystem.systemExitPoint();
@@ -220,88 +217,6 @@ public class ViewActionExperimental extends ServletBase {
     doGet(request, response);
   }
 
-  protected boolean handleSubscriptions(final HttpServletRequest request, final HttpServletResponse response,
-      final IPentahoSession userSession, final IParameterProvider requestParameters, OutputStream outputStream,
-      final SimpleUrlFactory urlFactory) throws ServletException, IOException {
-    // see if we have any subscription information to process
-    String subscribeAction = request.getParameter("subscribe"); //$NON-NLS-1$
-
-    if ("run".equals(subscribeAction)) { //$NON-NLS-1$
-      String name = requestParameters.getStringParameter("subscribe-name", null); //$NON-NLS-1$
-      HttpSessionParameterProvider sessionParameters = new HttpSessionParameterProvider(userSession);
-      HttpOutputHandler outputHandler = new HttpOutputHandler(response, outputStream, true);
-      SubscriptionHelper.runSubscription(name, userSession, sessionParameters, urlFactory, outputHandler);
-      return true;
-    } else if ("archived".equals(subscribeAction)) { //$NON-NLS-1$
-      String name = requestParameters.getStringParameter("subscribe-name", null); //$NON-NLS-1$
-      int pos = name.lastIndexOf(':');
-      if (pos != -1) {
-        String fileId = name.substring(pos + 1);
-        name = name.substring(0, pos);
-        HttpOutputHandler outputHandler = new HttpOutputHandler(response, outputStream, true);
-        SubscriptionHelper.getArchived(name, fileId, userSession, outputHandler);
-      }
-      return true;
-    } else if ("archive".equals(subscribeAction)) { //$NON-NLS-1$
-      String name = requestParameters.getStringParameter("subscribe-name", null); //$NON-NLS-1$
-      HttpSessionParameterProvider sessionParameters = new HttpSessionParameterProvider(userSession);
-      HttpOutputHandler outputHandler = new HttpOutputHandler(response, outputStream, true);
-      IContentItem contentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT,
-          null, null, "text/html"); //$NON-NLS-1$
-      outputStream = contentItem.getOutputStream(name);
-      String resp = null;
-      try {
-        resp = SubscriptionHelper.createSubscriptionArchive(name, userSession, null, sessionParameters);  
-      } catch(BackgroundExecutionException bex) {
-        resp = bex.getLocalizedMessage();
-        error(Messages.getInstance().getErrorString("ViewAction.ERROR_0003_UNABLE_TO_CREATE_SUBSCRIPTION_ARCHIVE")); //$NON-NLS-1$
-        outputStream.write(resp.getBytes());
-        contentItem.closeOutputStream();
-        return false; 
-      }
-      outputStream.write(resp.getBytes());
-      contentItem.closeOutputStream();
-      return true;
-    } else if ("save".equals(subscribeAction)) { //$NON-NLS-1$
-      String solutionName = requestParameters.getStringParameter("solution", null); //$NON-NLS-1$
-      String actionPath = requestParameters.getStringParameter("path", null); //$NON-NLS-1$
-      String actionName = requestParameters.getStringParameter("action", null); //$NON-NLS-1$
-      String actionReference = solutionName + "/" + actionPath + "/" + actionName; //$NON-NLS-1$ //$NON-NLS-2$
-      // HttpSessionParameterProvider sessionParameters = new
-      // HttpSessionParameterProvider( userSession );
-      String result = SubscriptionHelper.saveSubscription(requestParameters, actionReference, userSession);
-      outputStream.write(result.getBytes());
-      return true;
-    } else if ("edit".equals(subscribeAction)) { //$NON-NLS-1$
-      // TODO
-      // get the action information from the subscription
-      String name = requestParameters.getStringParameter("subscribe-name", null); //$NON-NLS-1$ 
-      SubscriptionHelper.editSubscription(name, userSession, urlFactory, outputStream);
-      /*
-       * 
-       * SimpleParameterSetter parameters = new SimpleParameterSetter(); String result = SubscriptionHelper.getSubscriptionParameters( name, parameters,
-       * userSession ); outputPreference = IOutputHandler.OUTPUT_TYPE_PARAMETERS; requestParameters = parameters; SubscriptionHelper.editSubscription if( result !=
-       * null ) { outputStream.write(result.getBytes()); return; }
-       */
-      return true;
-    } else if ("delete".equals(subscribeAction)) { //$NON-NLS-1$
-      String name = requestParameters.getStringParameter("subscribe-name", null); //$NON-NLS-1$
-      String result = SubscriptionHelper.deleteSubscription(name, userSession);
-      outputStream.write(result.getBytes());
-      return true;
-    } else if ("delete-archived".equals(subscribeAction)) { //$NON-NLS-1$
-      String name = requestParameters.getStringParameter("subscribe-name", null); //$NON-NLS-1$
-      int pos = name.lastIndexOf(':');
-      if (pos != -1) {
-        String fileId = name.substring(pos + 1);
-        name = name.substring(0, pos);
-        String result = SubscriptionHelper.deleteSubscriptionArchive(name, fileId, userSession);
-        outputStream.write(result.getBytes());
-        return true;
-      }
-    }
-    return false;
-  }
   
   /*
   // TODO: Test Code Only!!! DM - returns an actionsequence as a string

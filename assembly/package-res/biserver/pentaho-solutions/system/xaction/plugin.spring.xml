@@ -11,4 +11,5 @@
 
   <bean id="xaction" class="org.pentaho.platform.web.http.ActionSequenceContentGenerator" scope="prototype"/>
   <bean id="xaction.parameter" class="org.pentaho.platform.web.http.ActionSequenceParameterContentGenerator" scope="prototype"/>
+  <bean id="xaction.backgroundExecution" class="org.pentaho.reporting.platform.plugin.SimpleReportingAction" scope="prototype"/>
 </beans>

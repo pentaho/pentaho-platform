@@ -54,7 +54,7 @@ public class RepositoryFilePublisher extends ServletBase {
 
   private static final long serialVersionUID = 9019152264205996418L;
 
-  private static final Log logger = LogFactory.getLog(GetContent.class);
+  private static final Log logger = LogFactory.getLog(RepositoryFilePublisher.class);
 
   /**
    * Provides utility methods for publishing solution files to the pentaho server.

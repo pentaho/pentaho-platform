@@ -57,7 +57,6 @@ import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.ISolutionFilter;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.repository.ISubscriptionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.SolutionURIResolver;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
@@ -403,15 +402,6 @@ private void addToRepository( final IFileInfo info, final String solution, final
       dirNode.addAttribute("visible", "true"); //$NON-NLS-1$ //$NON-NLS-2$
       dirNode.addAttribute("displaytype", displayType); //$NON-NLS-1$
     }
-
-    ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class, getSession());
-    boolean subscribable = false;
-    if (subscriptionRepository != null) {
-      subscribable = subscriptionRepository.getContentByActionReference(solution + ISolutionRepository.SEPARATOR
-          + path + ISolutionRepository.SEPARATOR + fileName ) != null;
-    }
-    dirNode.addElement("properties").setText("subscribable=" + Boolean.toString(subscribable)); //$NON-NLS-1$ //$NON-NLS-2$
-
   }
   // TODO sbarkdull, needs to be refactored, consider if
   // how it should work with/, etc. XmlHelper getLocalizedFile
@@ -638,14 +628,6 @@ private void addToRepository( final IFileInfo info, final String solution, final
       dirNode.addAttribute("visible", "true"); //$NON-NLS-1$ //$NON-NLS-2$
       dirNode.addAttribute("displaytype", displayType); //$NON-NLS-1$
     }
-
-    ISubscriptionRepository subscriptionRepository = PentahoSystem.get(ISubscriptionRepository.class, getSession());
-    boolean subscribable = false;
-    if (subscriptionRepository != null) {
-      subscribable = subscriptionRepository.getContentByActionReference(actionSequence.getSolutionName() + '/'
-          + actionSequence.getSolutionPath() + '/' + actionSequence.getSequenceName()) != null;
-    }
-    dirNode.addElement("properties").setText("subscribable=" + Boolean.toString(subscribable)); //$NON-NLS-1$ //$NON-NLS-2$
 
   }
 

@@ -48,7 +48,6 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     repository = PentahoSystem.get(IUnifiedRepository.class, session);
   }
 
-  @Override
   public void createDatasource(DatabaseMeta databaseMeta) throws DuplicateDatasourceException,
       DatasourceMgmtServiceException {
     try {
@@ -68,7 +67,6 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     
   }
 
-  @Override
   public void deleteDatasourceByName(String name) throws NonExistingDatasourceException, DatasourceMgmtServiceException {
     RepositoryFile fileToDelete = null;
     try {
@@ -80,7 +78,6 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     deleteDatasource(fileToDelete);
   }
 
-  @Override
   public void deleteDatasourceById(Serializable id) throws NonExistingDatasourceException,
       DatasourceMgmtServiceException {
     RepositoryFile fileToDelete = null;
@@ -106,7 +103,6 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
           .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",file.getName()), ure);//$NON-NLS-1$
     }
   }
-  @Override
   public DatabaseMeta getDatasourceByName(String name) throws DatasourceMgmtServiceException {
     RepositoryFile file = null;
     try {
@@ -119,7 +115,6 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
   }
   
 
-  @Override
   public DatabaseMeta getDatasourceById(Serializable id) throws DatasourceMgmtServiceException {
     RepositoryFile file = null;
     try {
@@ -151,7 +146,6 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
           .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", file.getName()), ure);//$NON-NLS-1$
     }
   }
-  @Override
   public List<DatabaseMeta> getDatasources() throws DatasourceMgmtServiceException {
     try {
       List<DatabaseMeta> datasourceList = new ArrayList<DatabaseMeta>();
@@ -175,7 +169,6 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     }
   }
   
-  @Override
   public List<Serializable> getDatasourceIds() throws DatasourceMgmtServiceException {
     try {
       List<Serializable> datasourceList = new ArrayList<Serializable>();
@@ -193,7 +186,6 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
   }
 
 
-  @Override
   public void updateDatasourceById(Serializable id, DatabaseMeta databaseMeta) throws NonExistingDatasourceException,
       DatasourceMgmtServiceException {
     RepositoryFile file = null;
@@ -206,7 +198,6 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     updateDatasource(file, databaseMeta);
   }
 
-  @Override
   public void updateDatasourceByName(String name, DatabaseMeta databaseMeta) throws NonExistingDatasourceException, DatasourceMgmtServiceException {
     RepositoryFile file = null;
     try {

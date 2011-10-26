@@ -60,8 +60,6 @@ public class HttpOutputHandler implements IOutputHandler, IMimeTypeListener {
 
   private IMimeTypeListener mimeTypeListener;
 
-  protected IRuntimeContext runtimeContext;
-
   private int outputType = IOutputHandler.OUTPUT_TYPE_DEFAULT;
   
   private OutputStream destinationOutputStream;
@@ -122,24 +120,6 @@ public class HttpOutputHandler implements IOutputHandler, IMimeTypeListener {
   /*
    * (non-Javadoc)
    * 
-   * @see org.pentaho.core.solution.IOutputHandler#getOutputDefs()
-   */
-  public Map getOutputDefs() {
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.pentaho.core.solution.IOutputHandler#getOutputDef(java.lang.String)
-   */
-  public IOutputDef getOutputDef(final String name) {
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
    * @see org.pentaho.core.solution.IOutputHandler#getFeedbackStream()
    */
   public IContentItem getFeedbackContentItem() {
@@ -161,8 +141,7 @@ public class HttpOutputHandler implements IOutputHandler, IMimeTypeListener {
    * 
    * @see org.pentaho.core.solution.IOutputHandler#getContentStream()
    */
-  public IContentItem getOutputContentItem(final String objectName, final String contentName, final String solution, final String instanceId,
-      final String mimeType) {
+  public IContentItem getOutputContentItem(final String objectName, final String contentName, final String instanceId, final String mimeType) {
     if (objectName.equals(IOutputHandler.RESPONSE) && contentName.equals(IOutputHandler.CONTENT)) {
       // assume that content is generated becuase of this
       // change the content type if necessary
@@ -198,18 +177,7 @@ public class HttpOutputHandler implements IOutputHandler, IMimeTypeListener {
     return null;
   }
 
-  public IContentItem getOutputContentItem(final String objectName, final String contentName, final String title, final String url,
-      final String solution, final String instanceId, final String mimeType) {
-    return getOutputContentItem(objectName, contentName, solution, instanceId, mimeType);
-  }
-
-  public void setContentItem(final IContentItem content, final String objectName, final String contentName) {
-    if (objectName.equals(IOutputHandler.RESPONSE) && contentName.equals(IOutputHandler.CONTENT)) {
-      setMimeType(content.getMimeType());
-    }
-  }
-
-  public void setOutput(final String name, final Object value) {
+  public void setOutput(final String name, final Object value) throws IOException{
     if (value == null) {
       HttpOutputHandler.logger.warn(Messages.getInstance().getString("HttpOutputHandler.WARN_0001_VALUE_IS_NULL")); //$NON-NLS-1$
       return;
@@ -245,48 +213,44 @@ public class HttpOutputHandler implements IOutputHandler, IMimeTypeListener {
          HttpOutputHandler.logger.error(e.getLocalizedMessage());
       }
     } else if (IOutputHandler.CONTENT.equalsIgnoreCase(name)) {
-      try {
-        if (value instanceof IContentItem) {
-          IContentItem content = (IContentItem) value;
-          // See if we should process the input stream. If it's from
-          // the content repository, then there's an input stream.
-          // SimpleContentItem and HttpContentItem both return null from
-          // getInputStream().
-          InputStream inStr = content.getInputStream();
-          if (inStr != null) {
-            if ((response.getContentType() == null)
-                || (!response.getContentType().equalsIgnoreCase(content.getMimeType()))) {
-              // response.setContentType( content.getMimeType() );
-              setMimeType(content.getMimeType());
+      if (value instanceof IContentItem) {
+        IContentItem content = (IContentItem) value;
+        // See if we should process the input stream. If it's from
+        // the content repository, then there's an input stream.
+        // SimpleContentItem and HttpContentItem both return null from
+        // getInputStream().
+        InputStream inStr = content.getInputStream();
+        if (inStr != null) {
+          if ((response.getContentType() == null)
+              || (!response.getContentType().equalsIgnoreCase(content.getMimeType()))) {
+            // response.setContentType( content.getMimeType() );
+            setMimeType(content.getMimeType());
+          }
+          try {
+            //Bad idea to write to the output stream directly. This prevents us from
+            //auditing writes.  Use the managed destinationOutputStream instead.
+            //OutputStream outStr = response.getOutputStream();
+            int inCnt = 0;
+            byte[] buf = new byte[4096];
+            while (-1 != (inCnt = inStr.read(buf))) {
+              destinationOutputStream.write(buf, 0, inCnt);
             }
+          } finally {
             try {
-              //Bad idea to write to the output stream directly. This prevents us from
-              //auditing writes.  Use the managed destinationOutputStream instead.
-              //OutputStream outStr = response.getOutputStream();
-              int inCnt = 0;
-              byte[] buf = new byte[4096];
-              while (-1 != (inCnt = inStr.read(buf))) {
-                destinationOutputStream.write(buf, 0, inCnt);
-              }
-            } finally {
-              try {
-                inStr.close();
-              } catch (IOException ignored) {
-                
-              }
+              inStr.close();
+            } catch (IOException ignored) {
+              
             }
-            contentGenerated = true;
           }
-        } else {
-          if (response.getContentType() == null) {
-            setMimeType("text/html"); //$NON-NLS-1$
-          }
-
-          destinationOutputStream.write(value.toString().getBytes());
           contentGenerated = true;
         }
-      } catch (IOException ioe) {
-        HttpOutputHandler.logger.error(null, ioe);
+      } else {
+        if (response.getContentType() == null) {
+          setMimeType("text/html"); //$NON-NLS-1$
+        }
+
+        destinationOutputStream.write(value.toString().getBytes());
+        contentGenerated = true;
       }
     }
   }
@@ -309,10 +273,6 @@ public class HttpOutputHandler implements IOutputHandler, IMimeTypeListener {
   
   public boolean isResponseExpected() {
     return responseExpected;
-  }
-
-  public void setRuntimeContext(final IRuntimeContext runtimeContext) {
-    this.runtimeContext = runtimeContext;
   }
 
   public boolean isWritable() {

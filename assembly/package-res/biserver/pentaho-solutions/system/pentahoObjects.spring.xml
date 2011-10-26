@@ -21,7 +21,6 @@ PentahoSystem which is initialized after Spring
   <!--  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository" scope="session" />-->
   <!-- Uncomment the following line to use a filesystem/db-based repository with meta information stored in a db  -->
   <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.dbbased.DbBasedSolutionRepository" scope="session" />
-  <bean id="IContentRepository" class="org.pentaho.platform.repository.content.ContentRepository" scope="session" />
   <!-- runtime repositories are not used in the current implmentation of the BI platform -->
   <!-- <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.runtime.RuntimeRepository" scope="session" /> -->
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
@@ -39,7 +38,6 @@ PentahoSystem which is initialized after Spring
   <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService" scope="session" />
   <bean id="file" class="org.pentaho.platform.plugin.outputs.FileOutputHandler" scope="session" />
   <bean id="vfs-ftp" class="org.pentaho.platform.plugin.outputs.ApacheVFSOutputHandler" scope="session" />
-  <bean id="contentrepo" class="org.pentaho.platform.repository.content.ContentRepositoryOutputHandler" scope="session" />
   <bean id="IAclPublisher" class="org.pentaho.platform.engine.security.acls.AclPublisher" scope="singleton" />
   <bean id="IAclVoter" class="org.pentaho.platform.engine.security.acls.voter.PentahoBasicAclVoter" scope="singleton" />
   <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />

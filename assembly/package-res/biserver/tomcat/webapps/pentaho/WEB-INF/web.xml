@@ -308,11 +308,6 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>GetContent</servlet-name>
-		<servlet-class>org.pentaho.platform.web.servlet.GetContent</servlet-class>
-	</servlet>
-
-	<servlet>
 		<servlet-name>SubscriptionAdmin</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.SubscriptionAdminServlet</servlet-class>
 	</servlet>
@@ -756,11 +751,6 @@
 	<servlet-mapping>
 		<servlet-name>GetImage</servlet-name>
 		<url-pattern>/content/getImage</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>GetContent</servlet-name>
-		<url-pattern>/GetContent</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

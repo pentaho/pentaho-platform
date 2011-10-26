@@ -131,10 +131,10 @@ public class AxisServiceExecutorTest {
       
       try {
         
-        IContentItem contentItem = outputHandler.getOutputContentItem( "response", "content", "", null, null );
+        IContentItem contentItem = outputHandler.getOutputContentItem( "response", "content", null, null );
         assertEquals( "content type is wrong", null, contentItem.getMimeType() );
         contentGenerator.setContentType( "text/xml" ); 
-        contentItem = outputHandler.getOutputContentItem( "response", "content", "", null, null );
+        contentItem = outputHandler.getOutputContentItem( "response", "content", null, null );
         assertEquals( "content type is wrong", "text/xml", contentItem.getMimeType() );
         
         StubTransportSender.transportOutStr = null;

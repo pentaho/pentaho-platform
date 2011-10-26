@@ -52,8 +52,7 @@ public class HttpServletRequestHandler extends BaseRequestHandler {
   }
 
   public void handleUIRequest(final IUIComponent component, final String contentType) throws IOException {
-    IContentItem contentItem = getOutputHandler().getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT,
-        getActionPath(), getInstanceId(), null);
+    IContentItem contentItem = getOutputHandler().getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, getInstanceId(), null);
     OutputStream outputStream = contentItem.getOutputStream(this.getActionPath());
     ((BaseUIComponent)component).setUrlFactory( urlFactory );
     component.handleRequest(outputStream, this, contentType, getParameterProviders());

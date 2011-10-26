@@ -651,10 +651,6 @@ public class ComponentImplementationExample extends Object implements IComponent
     return runtimeContext.getInputParameter(parameterName);
   }
 
-  protected String getContentUrl(final IContentItem contentItem) {
-    return runtimeContext.getContentUrl(contentItem);
-  }
-
   protected boolean isPromptPending() {
     return runtimeContext.isPromptPending();
   }
@@ -703,10 +699,6 @@ public class ComponentImplementationExample extends Object implements IComponent
     runtimeContext
         .createFeedbackParameter(fieldName, displayName, hint, defaultValues, values, dispNames, displayStyle);
     runtimeContext.promptNeeded();
-  }
-
-  protected IPentahoStreamSource getDataSource(final String parameterName) {
-    return runtimeContext.getDataSource(parameterName);
   }
 
   protected IPentahoStreamSource getResourceDataSource(final IActionSequenceResource resource)

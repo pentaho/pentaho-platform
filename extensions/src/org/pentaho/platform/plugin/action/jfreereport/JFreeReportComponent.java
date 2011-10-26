@@ -63,8 +63,6 @@ import org.pentaho.platform.api.engine.IComponent;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository.IContentLocation;
-import org.pentaho.platform.api.repository.IContentRepository;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.jfreereport.components.JFreeReportValidateParametersComponent;
@@ -75,7 +73,6 @@ import org.pentaho.platform.plugin.action.jfreereport.helper.PentahoTableDataFac
 import org.pentaho.platform.plugin.action.jfreereport.helper.PentahoTableModel;
 import org.pentaho.platform.plugin.action.jfreereport.helper.PentahoURLRewriter;
 import org.pentaho.platform.plugin.action.jfreereport.helper.ReportUtils;
-import org.pentaho.platform.plugin.action.jfreereport.repository.ReportContentRepository;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.reporting.engine.classic.core.ClassicEngineBoot;
@@ -102,7 +99,6 @@ import org.pentaho.reporting.engine.classic.core.modules.output.table.rtf.Stream
 import org.pentaho.reporting.engine.classic.core.modules.output.table.xls.FlowExcelOutputProcessor;
 import org.pentaho.reporting.engine.classic.core.modules.output.xml.XMLProcessor;
 import org.pentaho.reporting.engine.classic.core.modules.parser.base.ReportGenerator;
-import org.pentaho.reporting.engine.classic.core.parameters.DefaultParameterValues;
 import org.pentaho.reporting.engine.classic.core.parameters.ModifiableReportParameterDefinition;
 import org.pentaho.reporting.engine.classic.core.parameters.ParameterDefinitionEntry;
 import org.pentaho.reporting.engine.classic.core.parameters.PlainParameter;
@@ -1014,12 +1010,6 @@ public class JFreeReportComponent extends AbstractJFreeReportComponent {
   public boolean writeHtml(final MasterReport report, final OutputStream outputStream, final int yieldRate,
       String htmlContentHandlerUrlPattern) {
     try {
-      IContentRepository contentRepository = null;
-      if( PentahoSystem.getObjectFactory().objectDefined( IContentRepository.class.getSimpleName() ) ) {
-        contentRepository = PentahoSystem.get( IContentRepository.class, getSession() );
-      } else {
-        debug(Messages.getInstance().getString("JFreeReportHtmlComponent.DEBUG_0044_PROCESSING_WITHOUT_CONTENT_REPOS") ); //$NON-NLS-1$
-      }
 
       if (htmlContentHandlerUrlPattern == null) {
         final Configuration globalConfig = ClassicEngineBoot.getInstance().getGlobalConfig();
@@ -1032,40 +1022,28 @@ public class JFreeReportComponent extends AbstractJFreeReportComponent {
       final URLRewriter rewriter;
       final ContentLocation dataLocation;
       final NameGenerator dataNameGenerator;
-      if ((contentRepository == null) || JFreeReportComponent.DO_NOT_USE_THE_CONTENT_REPOSITORY) {
-        debug(Messages.getInstance().getString("JFreeReportHtmlComponent.DEBUG_0044_PROCESSING_WITHOUT_CONTENT_REPOS")); //$NON-NLS-1$
-        if (ctx != null) {
-          File dataDirectory = new File(ctx.getFileOutputPath("system/tmp/"));//$NON-NLS-1$
-          if (dataDirectory.exists() && (dataDirectory.isDirectory() == false)) {
-            dataDirectory = dataDirectory.getParentFile();
-            if (dataDirectory.isDirectory() == false) {
-              throw new ReportProcessingException(Messages.getInstance().getErrorString(
-                  "JFreeReportDirectoryComponent.ERROR_0001_INVALID_DIR", dataDirectory.getPath())); //$NON-NLS-1$
-            }
-          } else if (dataDirectory.exists() == false) {
-            dataDirectory.mkdirs();
+      if (ctx != null) {
+        File dataDirectory = new File(ctx.getFileOutputPath("system/tmp/"));//$NON-NLS-1$
+        if (dataDirectory.exists() && (dataDirectory.isDirectory() == false)) {
+          dataDirectory = dataDirectory.getParentFile();
+          if (dataDirectory.isDirectory() == false) {
+            throw new ReportProcessingException(Messages.getInstance().getErrorString(
+                "JFreeReportDirectoryComponent.ERROR_0001_INVALID_DIR", dataDirectory.getPath())); //$NON-NLS-1$
           }
-
-          final FileRepository dataRepository = new FileRepository(dataDirectory);
-          dataLocation = dataRepository.getRoot();
-          dataNameGenerator = new DefaultNameGenerator(dataLocation);
-          rewriter = new PentahoURLRewriter(htmlContentHandlerUrlPattern);
-        } else {
-          dataLocation = null;
-          dataNameGenerator = null;
-          rewriter = new PentahoURLRewriter(htmlContentHandlerUrlPattern);
+        } else if (dataDirectory.exists() == false) {
+          dataDirectory.mkdirs();
         }
-      } else {
-        debug(Messages.getInstance().getString("JFreeReportHtmlComponent.DEBUG_045_PROCESSING_WITH_CONTENT_REPOS")); //$NON-NLS-1$
-        final String thePath = getSolutionName() + "/" + getSolutionPath() + "/" + getSession().getId();//$NON-NLS-1$//$NON-NLS-2$
-        final IContentLocation pentahoContentLocation = contentRepository.newContentLocation(thePath, getActionName(),
-            getActionTitle(), getSolutionPath(), true);
-        // todo
-        final ReportContentRepository repository = new ReportContentRepository(pentahoContentLocation, getActionName());
-        dataLocation = repository.getRoot();
+
+        final FileRepository dataRepository = new FileRepository(dataDirectory);
+        dataLocation = dataRepository.getRoot();
         dataNameGenerator = new DefaultNameGenerator(dataLocation);
         rewriter = new PentahoURLRewriter(htmlContentHandlerUrlPattern);
+      } else {
+        dataLocation = null;
+        dataNameGenerator = null;
+        rewriter = new PentahoURLRewriter(htmlContentHandlerUrlPattern);
       }
+
 
       final StreamRepository targetRepository = new StreamRepository(null, outputStream);
       final ContentLocation targetRoot = targetRepository.getRoot();

@@ -22,12 +22,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.pentaho.platform.api.engine.IApplicationContext;
-import org.pentaho.platform.api.repository.IContentLocation;
-import org.pentaho.platform.api.repository.IContentRepository;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.jfreereport.AbstractJFreeReportComponent;
 import org.pentaho.platform.plugin.action.jfreereport.helper.PentahoURLRewriter;
-import org.pentaho.platform.plugin.action.jfreereport.repository.ReportContentRepository;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.reporting.engine.classic.core.ClassicEngineBoot;
 import org.pentaho.reporting.engine.classic.core.MasterReport;
@@ -74,12 +71,6 @@ public class JFreeReportHtmlComponent extends AbstractGenerateStreamContentCompo
   @Override
   protected boolean performExport(final MasterReport report, final OutputStream outputStream) {
     try {
-      IContentRepository contentRepository = null;
-      try {
-        contentRepository = PentahoSystem.get(IContentRepository.class, getSession());
-      } catch (Throwable t) {
-        debug(Messages.getInstance().getString("JFreeReportHtmlComponent.DEBUG_0044_PROCESSING_WITHOUT_CONTENT_REPOS"), t); //$NON-NLS-1$
-      }
 
       String contentHandlerPattern = getInputStringValue(AbstractJFreeReportComponent.REPORTHTML_CONTENTHANDLER);
       if (contentHandlerPattern == null) {
@@ -92,38 +83,25 @@ public class JFreeReportHtmlComponent extends AbstractGenerateStreamContentCompo
       final URLRewriter rewriter;
       final ContentLocation dataLocation;
       final NameGenerator dataNameGenerator;
-      if ((contentRepository == null) || JFreeReportHtmlComponent.DO_NOT_USE_THE_CONTENT_REPOSITORY) {
-        debug(Messages.getInstance().getString("JFreeReportHtmlComponent.DEBUG_0044_PROCESSING_WITHOUT_CONTENT_REPOS")); //$NON-NLS-1$
-        if (ctx != null) {
-          File dataDirectory = new File(ctx.getFileOutputPath("system/tmp/"));//$NON-NLS-1$
-          if (dataDirectory.exists() && (dataDirectory.isDirectory() == false)) {
-            dataDirectory = dataDirectory.getParentFile();
-            if (dataDirectory.isDirectory() == false) {
-              throw new ReportProcessingException(Messages.getInstance().getErrorString(
-                  "JFreeReportDirectoryComponent.ERROR_0001_INVALID_DIR", dataDirectory.getPath())); //$NON-NLS-1$
-            }
-          } else if (dataDirectory.exists() == false) {
-            dataDirectory.mkdirs();
+      if (ctx != null) {
+        File dataDirectory = new File(ctx.getFileOutputPath("system/tmp/"));//$NON-NLS-1$
+        if (dataDirectory.exists() && (dataDirectory.isDirectory() == false)) {
+          dataDirectory = dataDirectory.getParentFile();
+          if (dataDirectory.isDirectory() == false) {
+            throw new ReportProcessingException(Messages.getInstance().getErrorString(
+                "JFreeReportDirectoryComponent.ERROR_0001_INVALID_DIR", dataDirectory.getPath())); //$NON-NLS-1$
           }
-
-          final FileRepository dataRepository = new FileRepository(dataDirectory);
-          dataLocation = dataRepository.getRoot();
-          dataNameGenerator = new DefaultNameGenerator(dataLocation);
-          rewriter = new PentahoURLRewriter(contentHandlerPattern);
-        } else {
-          dataLocation = null;
-          dataNameGenerator = null;
-          rewriter = new PentahoURLRewriter(contentHandlerPattern);
+        } else if (dataDirectory.exists() == false) {
+          dataDirectory.mkdirs();
         }
-      } else {
-        debug(Messages.getInstance().getString("JFreeReportHtmlComponent.DEBUG_045_PROCESSING_WITH_CONTENT_REPOS")); //$NON-NLS-1$
-        final String thePath = getSolutionName() + "/" + getSolutionPath() + "/" + getSession().getId();//$NON-NLS-1$//$NON-NLS-2$
-        final IContentLocation pentahoContentLocation = contentRepository.newContentLocation(thePath, getActionName(),
-            getActionTitle(), getSolutionPath(), true);
-        // todo
-        final ReportContentRepository repository = new ReportContentRepository(pentahoContentLocation, getActionName());
-        dataLocation = repository.getRoot();
+
+        final FileRepository dataRepository = new FileRepository(dataDirectory);
+        dataLocation = dataRepository.getRoot();
         dataNameGenerator = new DefaultNameGenerator(dataLocation);
+        rewriter = new PentahoURLRewriter(contentHandlerPattern);
+      } else {
+        dataLocation = null;
+        dataNameGenerator = null;
         rewriter = new PentahoURLRewriter(contentHandlerPattern);
       }
 

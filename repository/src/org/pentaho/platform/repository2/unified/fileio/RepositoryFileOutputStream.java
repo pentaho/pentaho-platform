@@ -32,23 +32,18 @@ import org.pentaho.platform.util.web.MimeHelper;
 public class RepositoryFileOutputStream extends ByteArrayOutputStream {
 
   protected RepositoryFile file = null;
-  protected RepositoryFile parent = null;
+  protected String path = null;
   protected IUnifiedRepository repository = null;
   protected String charsetName = null;
-  protected boolean isNew;
 
-  public RepositoryFileOutputStream(String path) throws FileNotFoundException {
-    if (path == null) {
-      throw new FileNotFoundException("Repository file path cannot be null");
-    }
-    prepFile(path);
+  public RepositoryFileOutputStream(String path) {
+    this.path = path;
+    repository = PentahoSystem.get(IUnifiedRepository.class);
   }
 
-  public RepositoryFileOutputStream(RepositoryFile file) throws FileNotFoundException {
-    if (file == null) {
-      throw new FileNotFoundException("Repository file cannot be null");
-    }
-    prepFile(file.getPath());
+  public RepositoryFileOutputStream(RepositoryFile file) {
+    this.file = file;
+    repository = PentahoSystem.get(IUnifiedRepository.class);
   }
 
   public RepositoryFileOutputStream(Serializable id) throws FileNotFoundException {
@@ -58,28 +53,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
       throw new FileNotFoundException(MessageFormat.format(
           "Repository file with id {0} not readable or does not exist", id));
     }
-    parent = getParent(file.getPath());
-  }
-  
-  protected void prepFile(String path) throws FileNotFoundException {
     repository = PentahoSystem.get(IUnifiedRepository.class);
-    //see if file already exists
-    file = repository.getFile(path);
-    if (file == null) {
-      //it doesn't exist, so try to create the file in the parent dir
-      parent = getParent(path);
-      if (parent == null) {
-        throw new FileNotFoundException(MessageFormat.format(
-            "Repository file {0} does not exist nor does it's parent, so the file cannot be created", path));
-      }
-      String relPath = path.substring(path.lastIndexOf('/')).replace("/", ""); //$NON-NLS-1$ //$NON-NLS-2$
-      file = new RepositoryFile.Builder(relPath).versioned(true).build(); // Default versioned to true so that we're keeping history
-      isNew = true;
-    } else {
-      if (file.isFolder()) {
-        throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
-      }
-    }
   }
   
   ////
@@ -137,10 +111,25 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
     // but I couldn't figure out a clean way to do that.  For now, charsetName is passed in here and we use it if available.
     final SimpleRepositoryFileData payload = new SimpleRepositoryFileData(bis, charsetName, mimeType);
 
-    if(isNew) {
+    if (file == null) {
+      //it doesn't exist, so try to create the file in the parent dir
+      RepositoryFile parent = getParent(path);
+      if (parent == null) {
+        throw new FileNotFoundException(MessageFormat.format(
+            "Repository file {0} does not exist nor does it's parent, so the file cannot be created", path));
+      }
+      String relPath = path.substring(path.lastIndexOf('/')).replace("/", ""); //$NON-NLS-1$ //$NON-NLS-2$
+      file = new RepositoryFile.Builder(relPath).versioned(true).build(); // Default versioned to true so that we're keeping history
       repository.createFile(parent.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
     } else {
+      if (file.isFolder()) {
+        throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
+      }
       repository.updateFile(file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
     }
+  }
+
+  public String getFilePath() {
+    return path != null ? path : file.getPath();
   }
 }

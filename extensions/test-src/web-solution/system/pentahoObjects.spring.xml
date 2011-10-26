@@ -14,7 +14,6 @@ PentahoSystem which is initialized after Spring
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
   <bean id="IUnifiedRepository" class="org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository" scope="prototype" />
   <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.filebased.ExtensionFileBasedSolutionRepository" scope="session" />
-  <bean id="IContentRepository" class="org.pentaho.platform.repository.content.ContentRepository" scope="session" />
   <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.runtime.RuntimeRepository" scope="session" />
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
   <bean id="IUITemplater" class="org.pentaho.platform.web.http.WebTemplateHelperExperimental" scope="singleton" />
@@ -26,7 +25,6 @@ PentahoSystem which is initialized after Spring
   <bean id="ICwmSchemaFactory" class="org.pentaho.platform.engine.services.metadata.cwm.PlatformCWMSchemaFactory" scope="session"/>
   <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService" scope="session" />
   <bean id="file" class="org.pentaho.platform.plugin.outputs.FileOutputHandler" scope="session" />
-  <bean id="contentrepo" class="org.pentaho.platform.repository.content.ContentRepositoryOutputHandler" scope="session" />
   <bean id="IAclPublisher" class="org.pentaho.platform.engine.security.acls.AclPublisher" scope="singleton" />
   <bean id="IAclVoter" class="org.pentaho.platform.engine.security.acls.voter.PentahoBasicAclVoter" scope="singleton" />
   <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
