@@ -31,29 +31,26 @@ import org.pentaho.platform.util.web.MimeHelper;
 
 public class RepositoryFileOutputStream extends ByteArrayOutputStream {
 
-  protected RepositoryFile file = null;
   protected String path = null;
-  protected IUnifiedRepository repository = null;
+  protected IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
   protected String charsetName = null;
 
   public RepositoryFileOutputStream(String path) {
     this.path = path;
-    repository = PentahoSystem.get(IUnifiedRepository.class);
   }
 
   public RepositoryFileOutputStream(RepositoryFile file) {
-    this.file = file;
-    repository = PentahoSystem.get(IUnifiedRepository.class);
+    path = file.getPath();
   }
 
   public RepositoryFileOutputStream(Serializable id) throws FileNotFoundException {
     repository = PentahoSystem.get(IUnifiedRepository.class);
-    file = repository.getFileById(id);
+    RepositoryFile file = repository.getFileById(id);
     if (file == null) {
       throw new FileNotFoundException(MessageFormat.format(
           "Repository file with id {0} not readable or does not exist", id));
     }
-    repository = PentahoSystem.get(IUnifiedRepository.class);
+    path = file.getPath();
   }
   
   ////
@@ -98,7 +95,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
     ByteArrayInputStream bis = new ByteArrayInputStream(toByteArray());
     
     //make an effort to determine the correct mime type, default to application/octet-stream
-    String ext = FilenameUtils.getExtension(file.getName());
+    String ext = FilenameUtils.getExtension(path);
     String mimeType = "application/octet-stream"; //$NON-NLS-1$
     if(ext != null) {
       String tempMimeType = MimeHelper.getMimeTypeFromExtension("."+ext); //$NON-NLS-1$
@@ -110,7 +107,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
     //FIXME: not a good idea that we assume we are dealing with text.  Best if this is somehow moved to the RepositoryFileWriter
     // but I couldn't figure out a clean way to do that.  For now, charsetName is passed in here and we use it if available.
     final SimpleRepositoryFileData payload = new SimpleRepositoryFileData(bis, charsetName, mimeType);
-
+    RepositoryFile file = repository.getFile(path);
     if (file == null) {
       //it doesn't exist, so try to create the file in the parent dir
       RepositoryFile parent = getParent(path);
@@ -121,15 +118,14 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
       String relPath = path.substring(path.lastIndexOf('/')).replace("/", ""); //$NON-NLS-1$ //$NON-NLS-2$
       file = new RepositoryFile.Builder(relPath).versioned(true).build(); // Default versioned to true so that we're keeping history
       repository.createFile(parent.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
-    } else {
-      if (file.isFolder()) {
+    } else if (file.isFolder()) {
         throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
-      }
+    } else {
       repository.updateFile(file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
     }
   }
 
   public String getFilePath() {
-    return path != null ? path : file.getPath();
+    return path;
   }
 }
