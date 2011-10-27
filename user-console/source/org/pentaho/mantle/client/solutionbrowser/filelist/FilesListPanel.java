@@ -205,7 +205,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
             icon = plugin.getFileIcon();
           }
           if (item == solutionTree.getTrashItem() && file.isFolder()) {
-            icon = "mantle/images/treeLeaf.png"; //$NON-NLS-1$
+            icon = "mantle/images/folderIcon.png"; //$NON-NLS-1$
           }
           // TODO Mapping Title to LocalizedName. Is this correct ? 
 

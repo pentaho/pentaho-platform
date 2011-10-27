@@ -250,7 +250,10 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     Boolean shiftKeyDown = DOM.eventGetShiftKey(event);
     if ((DOM.eventGetType(event) & Event.ONDBLCLICK) == Event.ONDBLCLICK) {
       toggleSelect(false, false);
-      SolutionBrowserPanel.getInstance().openFile(filesListPanel.getSelectedFileItems().get(0).getRepositoryFile(), COMMAND.RUN);
+      FileItem selectedFileItem = filesListPanel.getSelectedFileItems().get(0);
+      if (!selectedFileItem.isInTrash()) {
+        SolutionBrowserPanel.getInstance().openFile(filesListPanel.getSelectedFileItems().get(0).getRepositoryFile(), COMMAND.RUN);
+      }  
     } else if ((DOM.eventGetType(event) & Event.ONCLICK) == Event.ONCLICK) {
       toggleSelect(metaKeyDown, shiftKeyDown);
       fireFileSelectionEvent();      
@@ -444,7 +447,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     this.canDrop = canDrop;
   }
 
-  private boolean isInTrash() {
+  public boolean isInTrash() {
     return repositoryFile.getPath().contains("/.trash/pho:");
   }
 }
