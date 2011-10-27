@@ -35,7 +35,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class DeleteFileCommand extends AbstractCommand {
   String moduleBaseURL = GWT.getModuleBaseURL();
+
   String moduleName = GWT.getModuleName();
+
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
   private List<FileItem> repositoryFiles;
@@ -52,65 +54,43 @@ public class DeleteFileCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    // delete file
-    VerticalPanel vp = new VerticalPanel();
-    vp.add(new Label(Messages.getString("deleteQuestion"))); //$NON-NLS-1$
-    final PromptDialogBox deleteConfirmDialog = new PromptDialogBox(
-        Messages.getString("deleteConfirm"), Messages.getString("yes"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    String temp = "";
+    for (FileItem fileItem : repositoryFiles) {
+      temp += fileItem.getRepositoryFile().getId() + ","; //$NON-NLS-1$
+    }
+    // remove trailing ","
+    temp = temp.substring(0, temp.length() - 1);
+    final String filesList = temp;
 
-    final IDialogCallback callback = new IDialogCallback() {
+    String deleteFilesURL = contextURL + "api/repo/files/delete"; //$NON-NLS-1$
+    RequestBuilder deleteFilesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, deleteFilesURL);
+    deleteFilesRequestBuilder.setHeader("Content-Type", "text/plain"); //$NON-NLS-1$//$NON-NLS-2$
+    try {
+      deleteFilesRequestBuilder.sendRequest(filesList, new RequestCallback() {
 
-      public void cancelPressed() {
-        deleteConfirmDialog.hide();
-      }
-
-      public void okPressed() {
-        String temp = "";
-        for (FileItem fileItem : repositoryFiles) {
-          temp += fileItem.getRepositoryFile().getId() + ","; //$NON-NLS-1$
-        }
-        // remove trailing ","
-        temp = temp.substring(0, temp.length()-1);
-        final String filesList = temp;
-
-        String deleteFilesURL = contextURL + "api/repo/files/delete"; //$NON-NLS-1$
-        RequestBuilder deleteFilesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, deleteFilesURL);
-        deleteFilesRequestBuilder.setHeader("Content-Type", "text/plain");  //$NON-NLS-1$//$NON-NLS-2$
-        try {
-          deleteFilesRequestBuilder.sendRequest(filesList, new RequestCallback() {
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
-              false, false, true);
-              dialogBox.center();
-            }
-
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              if (response.getStatusCode() == 200) {
-                new RefreshRepositoryCommand().execute(false);
-              } else {
-                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
-                    false, false, true);
-                dialogBox.center();
-              }                
-            }
-            
-          });
-        } catch (RequestException e) {
+        @Override
+        public void onError(Request request, Throwable exception) {
           MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true);
           dialogBox.center();
         }
-      }
-    };
-    if (!feedback) {
-      callback.okPressed();
-    } else {
-      deleteConfirmDialog.setCallback(callback);
-      deleteConfirmDialog.center();
+
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == 200) {
+            new RefreshRepositoryCommand().execute(false);
+          } else {
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+                false, false, true);
+            dialogBox.center();
+          }
+        }
+
+      });
+    } catch (RequestException e) {
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+          false, false, true);
+      dialogBox.center();
     }
   }
-
 }

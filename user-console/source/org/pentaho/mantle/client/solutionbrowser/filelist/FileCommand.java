@@ -26,10 +26,12 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.commands.CopyFilesCommand;
 import org.pentaho.mantle.client.commands.CutFilesCommand;
 import org.pentaho.mantle.client.commands.DeleteFileCommand;
+import org.pentaho.mantle.client.commands.DeletePermanentFileCommand;
 import org.pentaho.mantle.client.commands.ExportFileCommand;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.ImportFileCommand;
 import org.pentaho.mantle.client.commands.NewFolderCommand;
+import org.pentaho.mantle.client.commands.RestoreFileCommand;
 import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.commands.ShowGeneratedContentCommand;
@@ -60,7 +62,9 @@ public class FileCommand implements Command {
     EXPORT,
     COPY,
     CUT,
-    GENERATED_CONTENT
+    GENERATED_CONTENT, 
+    RESTORE, 
+    DELETEPERMANENT
   }
 
   COMMAND mode = COMMAND.RUN;
@@ -131,6 +135,18 @@ public class FileCommand implements Command {
       new CutFilesCommand(selectedItemsClone).execute();      
     } else if (mode == COMMAND.GENERATED_CONTENT) {
       new ShowGeneratedContentCommand(selectedItem).execute();
+    } else if (mode == COMMAND.RESTORE) {
+      List<RepositoryFile> selectedItemsClone = new ArrayList<RepositoryFile>();
+      for (FileItem fileItem : selectedItems) {
+        selectedItemsClone.add(fileItem.getRepositoryFile());
+      }
+      new RestoreFileCommand(selectedItemsClone).execute();
+    } else if (mode == COMMAND.DELETEPERMANENT) {
+      List<RepositoryFile> selectedItemsClone = new ArrayList<RepositoryFile>();
+      for (FileItem fileItem : selectedItems) {
+        selectedItemsClone.add(fileItem.getRepositoryFile());
+      }
+      new DeletePermanentFileCommand(selectedItemsClone).execute();
     }
   }
 

@@ -41,15 +41,20 @@ public class FilePropertiesDialog extends PromptDialogBox {
   public FilePropertiesDialog(RepositoryFile fileSummary, FileTypeEnabledOptions options, final boolean isAdministrator, final PentahoTabPanel propertyTabs,
       final IDialogCallback callback, Tabs defaultTab) {
     super(Messages.getString("properties"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    boolean isInTrash = fileSummary.getPath().contains("/.trash/pho:");
     setContent(propertyTabs);
 
-    generalTab = new GeneralPanel(fileSummary);
-    permissionsTab = new PermissionsPanel(fileSummary);
-    subscriptionsTab = new SubscriptionsPanel();
+    generalTab = new GeneralPanel(this, fileSummary);
+    if (!isInTrash) {
+      permissionsTab = new PermissionsPanel(fileSummary);
+      subscriptionsTab = new SubscriptionsPanel();
+    }
 
     generalTab.getElement().setId("filePropertiesGeneralTab");
-    permissionsTab.getElement().setId("filePropertiesPermissionsTab");
-    subscriptionsTab.getElement().setId("filePropertiesSubscriptionsTab");
+    if (!isInTrash) {
+      permissionsTab.getElement().setId("filePropertiesPermissionsTab");
+      subscriptionsTab.getElement().setId("filePropertiesSubscriptionsTab");
+    }
     okButton.getElement().setId("filePropertiesOKButton");
     cancelButton.getElement().setId("filePropertiesCancelButton");
 

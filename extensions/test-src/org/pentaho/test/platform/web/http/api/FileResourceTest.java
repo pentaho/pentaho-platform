@@ -27,9 +27,9 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDt
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
 import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
@@ -253,7 +253,7 @@ public class FileResourceTest extends JerseyTest {
     testFile2 = null;
     try {
       testFile1 = webResource.path("repo/files/public:file1.txt/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class);
-      testFile1 = webResource.path("repo/files/public:file2.txt/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class);
+      testFile2 = webResource.path("repo/files/public:file2.txt/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class);
     } catch (UniformInterfaceException UIE) {
       assertEquals(UIE.getResponse().getStatus(), 204);
     }
@@ -263,6 +263,20 @@ public class FileResourceTest extends JerseyTest {
 
     RepositoryFileDto[] deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
     assertEquals(2, deletedFiles.length);
+    
+    webResource.path("repo/files/deletepermanent").entity(testFile1.getId()).put();
+    
+    deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
+    assertEquals(1, deletedFiles.length);
+    
+    webResource.path("repo/files/restore").entity(testFile2.getId()).put();
+
+    deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
+    assertEquals(0, deletedFiles.length);
+    
+    testFile2 = null;
+    testFile2 = webResource.path("repo/files/public:file2.txt/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class);
+    assertTrue(testFile2 != null);
   }
 
   @Test

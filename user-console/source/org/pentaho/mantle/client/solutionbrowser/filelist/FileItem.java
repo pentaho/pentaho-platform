@@ -98,12 +98,19 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       "cut", //$NON-NLS-1$
       SEPARATOR, "propertiesEllipsis" //$NON-NLS-1$
   };
+  
+  private static final String trashMenuItems[] = { "restore", //$NON-NLS-1$
+    "delete", //$NON-NLS-1$
+    "properties" //$NON-NLS-1$
+  };
 
   private static final FileCommand.COMMAND adminMenuCommands[] = { COMMAND.RUN, COMMAND.NEWWINDOW, COMMAND.BACKGROUND, COMMAND.EDIT, COMMAND.EDIT_ACTION, COMMAND.DELETE, null,
       COMMAND.GENERATED_CONTENT, null, COMMAND.SHARE, COMMAND.SCHEDULE_NEW, null, COMMAND.CUT, COMMAND.COPY, null, COMMAND.EXPORT, null, COMMAND.PROPERTIES};
 
   private static final FileCommand.COMMAND nonAdminMenuCommands[] = { COMMAND.RUN, COMMAND.NEWWINDOW, COMMAND.BACKGROUND, COMMAND.EDIT, COMMAND.EDIT_ACTION, COMMAND.DELETE, null,
       COMMAND.GENERATED_CONTENT, COMMAND.SHARE, COMMAND.SCHEDULE_NEW, null, COMMAND.COPY, COMMAND.CUT,  null, COMMAND.PROPERTIES};
+  
+  private static final FileCommand.COMMAND trashMenuCommands[] = { COMMAND.RESTORE, COMMAND.DELETEPERMANENT, COMMAND.PROPERTIES};
 
   // by creating a single popupMenu, we're reducing total # of widgets used
   // and we can be sure to hide any existing ones by calling hide
@@ -268,12 +275,17 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
 
     String menuItems[];
     FileCommand.COMMAND menuCommands[];
-    if (SolutionBrowserPanel.getInstance().isAdministrator()) {
-      menuItems = adminMenuItems;
-      menuCommands = adminMenuCommands;
+    if (isInTrash()) {
+      menuItems = trashMenuItems;
+      menuCommands = trashMenuCommands;
     } else {
-      menuItems = nonAdminMenuItems;
-      menuCommands = nonAdminMenuCommands;
+      if (SolutionBrowserPanel.getInstance().isAdministrator()) {
+        menuItems = adminMenuItems;
+        menuCommands = adminMenuCommands;
+      } else {
+        menuItems = nonAdminMenuItems;
+        menuCommands = nonAdminMenuCommands;
+      }
     }
 
     popupMenu.setPopupPosition(left, top);
@@ -432,4 +444,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     this.canDrop = canDrop;
   }
 
+  private boolean isInTrash() {
+    return repositoryFile.getPath().contains("/.trash/pho:");
+  }
 }

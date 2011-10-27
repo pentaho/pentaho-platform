@@ -171,12 +171,18 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
 
   public void populateFilesList(SolutionBrowserPanel perspective, SolutionTree solutionTree, TreeItem item) {
     filesList.clear();
-    // Get the user object. 
-    RepositoryFileTree tree = (RepositoryFileTree) item.getUserObject();
-    List<RepositoryFile> files = new ArrayList<RepositoryFile>();
-    // Since we are only listing the files here. Get to each item of the tree and get the file from it
-    for(RepositoryFileTree treeItem :tree.getChildren()) {
-      files.add(treeItem.getFile());
+    List<RepositoryFile> files;
+    
+    if (item == solutionTree.getTrashItem()) {  // If we're populating from the trash then 
+      files = solutionTree.getTrashItems();
+    } else {
+      files = new ArrayList<RepositoryFile>();
+      // Get the user object. 
+      RepositoryFileTree tree = (RepositoryFileTree) item.getUserObject();
+      // Since we are only listing the files here. Get to each item of the tree and get the file from it
+      for(RepositoryFileTree treeItem :tree.getChildren()) {
+        files.add(treeItem.getFile());
+      }
     }
     // let's sort this list based on localized name
     Collections.sort(files, new Comparator<RepositoryFile>() {
@@ -190,13 +196,16 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
       int rowCounter = 0;
       for (int i = 0; i < files.size(); i++) {
         RepositoryFile file = files.get(i);
-        if (!file.isFolder() && (isShowHiddenFiles() || !file.isHidden())) { 
+        if ((item == solutionTree.getTrashItem()) || (!file.isFolder() && (isShowHiddenFiles() || !file.isHidden()))) { 
           // TODO Currently Old solution repository stores url type files. New repository does not have that concept. What do we need to do here
           //String url = fileElement.getAttribute("url"); //$NON-NLS-1$
           ContentTypePlugin plugin = PluginOptionsHelper.getContentTypePlugin(file.getName());
           String icon = null;
           if (plugin != null) {
             icon = plugin.getFileIcon();
+          }
+          if (item == solutionTree.getTrashItem() && file.isFolder()) {
+            icon = "mantle/images/treeLeaf.png"; //$NON-NLS-1$
           }
           // TODO Mapping Title to LocalizedName. Is this correct ? 
 

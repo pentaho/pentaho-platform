@@ -37,12 +37,6 @@ public class SolutionTreeWrapper extends SimplePanel {
     popupMenu.setPopupPosition(left, top);
     MenuBar menuBar = new MenuBar(true);
     menuBar.setAutoOpen(true);
-//    menuBar.addItem(new MenuItem(Messages.getString("createNewFolderEllipsis"), new FileCommand(FileCommand.COMMAND.CREATE_FOLDER, popupMenu, (RepositoryFileDto) null))); //$NON-NLS-1$
-//    if (SolutionBrowserPerspective.getInstance().isAdministrator()) {
-//      menuBar.addSeparator();
-//      menuBar.addItem(new MenuItem(Messages.getString("exportRepositoryFiles"), new FolderCommand(FolderCommand.COMMAND.EXPORT, popupMenu, ((RepositoryFileTreeDto)tree.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-//      menuBar.addItem(new MenuItem(Messages.getString("importRepositoryFilesElipsis"), new FolderCommand(FolderCommand.COMMAND.IMPORT, popupMenu, ((RepositoryFileTreeDto)tree.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-//    }
     popupMenu.setWidget(menuBar);
     popupMenu.show();
   }

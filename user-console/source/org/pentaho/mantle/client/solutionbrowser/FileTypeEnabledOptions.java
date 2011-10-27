@@ -68,6 +68,8 @@ public class FileTypeEnabledOptions {
       case IMPORT:
       case NEWWINDOW:
       case PROPERTIES:
+      case DELETEPERMANENT:
+      case RESTORE:
       case RUN:
       case SCHEDULE_CUSTOM:
       case SCHEDULE_NEW:
@@ -77,7 +79,8 @@ public class FileTypeEnabledOptions {
         validSelectionCount = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() == 1;
         break;
     }
-    if (command == COMMAND.CUT || command == COMMAND.COPY || command == COMMAND.DELETE || command == COMMAND.GENERATED_CONTENT) {
+    if (command == COMMAND.CUT || command == COMMAND.COPY || command == COMMAND.DELETE || command == COMMAND.GENERATED_CONTENT ||
+        command == COMMAND.DELETEPERMANENT || command == COMMAND.RESTORE) {
       return validSelectionCount;
     }
     

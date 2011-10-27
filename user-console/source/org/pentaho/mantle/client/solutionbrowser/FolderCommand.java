@@ -22,14 +22,13 @@ package org.pentaho.mantle.client.solutionbrowser;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.mantle.client.commands.DeleteFolderCommand;
+import org.pentaho.mantle.client.commands.DeletePermanentFileCommand;
 import org.pentaho.mantle.client.commands.ExportFileCommand;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.ImportFileCommand;
 import org.pentaho.mantle.client.commands.NewFolderCommand;
 import org.pentaho.mantle.client.commands.PasteFilesCommand;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -38,7 +37,7 @@ import com.google.gwt.user.client.ui.TreeItem;
 public class FolderCommand implements Command {
 
   public static enum COMMAND {
-    DELETE, PROPERTIES, CREATE_FOLDER, EXPORT, IMPORT, PASTE
+    DELETE, PROPERTIES, CREATE_FOLDER, EXPORT, IMPORT, PASTE, EMPTY_TRASH
   };
 
   COMMAND mode;
@@ -62,8 +61,8 @@ public class FolderCommand implements Command {
       new FilePropertiesCommand(repositoryFile, FilePropertiesDialog.Tabs.GENERAL).execute();
     } else if (mode == COMMAND.DELETE) {
       TreeItem item = sbp.getSolutionTree().getSelectedItem();
-      RepositoryFileTreeDto tree = (RepositoryFileTreeDto) item.getUserObject();
-      new DeleteFolderCommand((RepositoryFileDto)tree.getFile()).execute();
+      RepositoryFileTree tree = (RepositoryFileTree) item.getUserObject();
+      new DeleteFolderCommand(tree.getFile()).execute();
     } else if (mode == COMMAND.CREATE_FOLDER) {
       TreeItem item = sbp.getSolutionTree().getSelectedItem();
       RepositoryFileTree tree = (RepositoryFileTree) item.getUserObject();
@@ -74,6 +73,8 @@ public class FolderCommand implements Command {
       new ImportFileCommand(repositoryFile).execute();
     } else if (mode == COMMAND.PASTE) {
       new PasteFilesCommand(repositoryFile).execute();
+    } else if (mode == COMMAND.EMPTY_TRASH) {
+      new DeletePermanentFileCommand(sbp.getSolutionTree().getTrashItems()).execute();
     }
   }
 
