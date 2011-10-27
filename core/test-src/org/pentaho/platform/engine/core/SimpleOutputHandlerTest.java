@@ -96,7 +96,7 @@ public class SimpleOutputHandlerTest extends TestCase {
     IContentItem content3 = new BufferedContentItem( null );
     OutputStream os = content3.getOutputStream(null);
     os.write( "test data".getBytes() );
-    os.close();
+    content3.closeOutputStream();
     handler.setOutput( IOutputHandler.CONTENT, content3);
     
     assertEquals( "test data", new String( out.toByteArray() ) );
@@ -148,7 +148,12 @@ public class SimpleOutputHandlerTest extends TestCase {
     assertEquals( out, content2.getOutputStream(null) );
     assertNull( handler.getFeedbackContentItem() );
     
-    handler.setOutput( IOutputHandler.CONTENT, "test data");
+    try {
+      handler.setOutput( IOutputHandler.CONTENT, "test data");
+      fail("Exception not detected.");
+    } catch (Exception ex) {
+      // Test passed.
+    }
 
   }
 

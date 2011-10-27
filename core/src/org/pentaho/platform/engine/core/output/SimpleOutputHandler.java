@@ -230,7 +230,34 @@ public class SimpleOutputHandler implements IOutputHandler {
       if (response != null) {
         //If "value" to set is an IContentItem, then write it to the outputstream 
         //of the response IContentItem managed by this output handler.
-        if (!(value instanceof IContentItem)) {
+        if (value instanceof IContentItem) {
+          IContentItem content = (IContentItem) value;
+          // See if we should process the input stream. If it's from
+          // the content repository, then there's an input stream.
+          // SimpleContentItem and HttpContentItem both return null from
+          // getInputStream().
+          InputStream inStr = content.getInputStream();
+          if (inStr != null) {
+            if ((response.getMimeType() == null) || (!response.getMimeType().equalsIgnoreCase(content.getMimeType()))) {
+              response.setMimeType(content.getMimeType());
+            }
+            try {
+              OutputStream outStr = response.getOutputStream(null);
+              int inCnt = 0;
+              byte[] buf = new byte[4096];
+              while (-1 != (inCnt = inStr.read(buf))) {
+                outStr.write(buf, 0, inCnt);
+              }
+            } finally {
+              try {
+                inStr.close();
+              } catch (Exception ignored) {
+              }
+            }
+            contentGenerated = true;
+          }
+        } else {
+          //if "value" is not an IContentItem, assume it is a string and write it out
           if (response.getMimeType() == null) {
             response.setMimeType("text/html"); //$NON-NLS-1$
           }
