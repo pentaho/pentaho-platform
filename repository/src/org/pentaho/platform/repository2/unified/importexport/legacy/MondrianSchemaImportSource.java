@@ -25,6 +25,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,7 +90,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 			if (datasourceInfo != null) {
 				processImportingSchema(file, importingFiles, datasourceInfo);
 			} else {
-				file.setPath("public" + RepositoryFile.SEPARATOR + file.getPath());
+				file.setPath("public" + RepositoryFile.SEPARATOR + FilenameUtils.separatorsToUnix(file.getPath()));
 				importingFiles.add(file);
 			}
 		}
@@ -166,6 +167,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		String datasourceInfo = null;
 		if(datasourcesXML != null) {
 			String fullFileName = file.getPath() + file.getFile().getName();
+			fullFileName = FilenameUtils.separatorsToUnix(fullFileName);
 			NodeList mondrianDefinitions = getElementsByTagName(datasourcesXML, "Definition");
 			for (int i = 0; i < mondrianDefinitions.getLength(); i++) {
 				Node mondrianDefinition = mondrianDefinitions.item(i);
