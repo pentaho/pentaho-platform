@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.AfterClass;
