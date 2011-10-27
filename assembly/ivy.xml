@@ -111,6 +111,7 @@
     <conflict org="pentaho-kettle" rev="${dependency.kettle.revision}" />
     <conflict org="pentaho" module="pentaho-metadata" rev="${dependency.pentaho-metadata.revision}" />
     <conflict org="pentaho-reporting" rev="3.8-SNAPSHOT" />
+    <conflict org="pentaho-library" module="libbase" rev="1.2-SNAPSHOT" />
   </dependencies>
 
 </ivy-module>
