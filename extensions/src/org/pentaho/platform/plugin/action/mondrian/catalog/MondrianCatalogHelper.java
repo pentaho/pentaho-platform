@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +56,7 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
 import org.apache.commons.vfs.impl.DefaultFileSystemManager;
+import org.codehaus.janino.util.enumerator.EnumeratorSet;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -71,6 +73,7 @@ import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.util.XmlParseException;
@@ -82,6 +85,8 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceAdapter;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -267,18 +272,26 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    * Same as implemented in <code>XmlaServlet</code> except takes advantage of Spring's Resource framework.
    */
   protected DataSourcesConfig.DataSources makeDataSources() {
-
-	  URL dataSourcesConfigUrl = null;
-	    
-	  if (dataSourcesConfig == null) { //$NON-NLS-1$
-		String datasourcesXML = generateInMemoryDatasourcesXml();
-	    return parseDataSources(datasourcesXML);
-	  } else if (dataSourcesConfig.startsWith("classpath:")) { //$NON-NLS-1$
-	    dataSourcesConfigUrl = getClass().getResource(dataSourcesConfig.substring(10));
-	    return (dataSourcesConfigUrl == null) ? null : parseDataSourcesUrl(dataSourcesConfigUrl);
-	  } else {
-	    throw new MondrianCatalogServiceException("dataSourcesConfig is not a valid URL or does not exist", //$NON-NLS-1$
-	        Reason.GENERAL);
+	  try{
+		  URL dataSourcesConfigUrl = null;
+		    
+		  if (dataSourcesConfig == null) { //$NON-NLS-1$
+			String datasourcesXML = generateInMemoryDatasourcesXml();
+		    return parseDataSources(datasourcesXML);
+		  } else if (dataSourcesConfig.startsWith("file:")) { //$NON-NLS-1$
+		    dataSourcesConfigUrl = new URL(dataSourcesConfig);//dataSourcesConfigResource.getURL();
+	  	    return (dataSourcesConfigUrl == null) ? null : parseDataSourcesUrl(dataSourcesConfigUrl);
+		  } else if (dataSourcesConfig.startsWith("classpath:")) { //$NON-NLS-1$
+		    dataSourcesConfigUrl = getClass().getResource(dataSourcesConfig.substring(10));
+		    return (dataSourcesConfigUrl == null) ? null : parseDataSourcesUrl(dataSourcesConfigUrl);
+		  } else {
+		    throw new MondrianCatalogServiceException("dataSourcesConfig is not a valid URL or does not exist", //$NON-NLS-1$
+		        Reason.GENERAL);
+		  }
+	  } catch (IOException e) {
+		  throw new MondrianCatalogServiceException(
+          Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0001_INVALID_DATASOURCE_CONFIG", dataSourcesConfig),  //$NON-NLS-1$
+          e, Reason.GENERAL);
 	  }
   }
   
@@ -666,7 +679,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
             getLocale().toString());
       
       for (DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs) {
-    	if (catalog.definition.startsWith("mondrian:")) { //$NON-NLS-1$    	  
+    	if (catalog.definition.startsWith("mondrian:") || catalog.definition.startsWith("solution:")) { //$NON-NLS-1$    	  
     	  
           // try catch here so the whole thing doesn't blow up if one datasource is configured incorrectly.
           try {
@@ -864,6 +877,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    */
   protected boolean hasAccess(final MondrianCatalog cat, final CatalogPermission perm,
       final IPentahoSession pentahoSession) {
+	  //IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
+	  //unifiedRepository.hasAccess(null, null);
 	return true;
   }
 
