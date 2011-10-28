@@ -59,7 +59,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.ServiceConfig;
 import org.pentaho.platform.util.logging.Logger;
-import org.pentaho.ui.xul.IMenuCustomization;
 import org.pentaho.ui.xul.XulOverlay;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -95,9 +94,6 @@ public class DefaultPluginManager implements IPluginManager {
 
   protected List<XulOverlay> overlaysCache = Collections.synchronizedList(new ArrayList<XulOverlay>());
 
-  protected List<IMenuCustomization> menuCustomizationsCache = Collections
-      .synchronizedList(new ArrayList<IMenuCustomization>());
-
   @Override
   public Set<String> getContentTypes() {
     //map.keySet returns a set backed by the map, so we cannot allow modification of the set
@@ -114,11 +110,6 @@ public class DefaultPluginManager implements IPluginManager {
     return contentTypeByExtension.get(type);
   }
 
-  @Override
-  public List<IMenuCustomization> getMenuCustomizations() {
-    return Collections.unmodifiableList(menuCustomizationsCache);
-  }
-
   /**
    * Clears all the lists and maps in preparation for
    * reloading the state from the plugin provider.
@@ -126,7 +117,6 @@ public class DefaultPluginManager implements IPluginManager {
    */
   private void unloadPlugins() {
     overlaysCache.clear();
-    menuCustomizationsCache.clear();
     classLoaderMap.clear();
 
     //TODO: can we reset/reload the spring bean factory here?
@@ -277,9 +267,6 @@ public class DefaultPluginManager implements IPluginManager {
 
     //cache overlays
     overlaysCache.addAll(plugin.getOverlays());
-
-    //cache menu customizations
-    menuCustomizationsCache.addAll(plugin.getMenuCustomizations());
 
     //service registry must take place after bean registry since
     //a service class may be configured as a plugin bean

@@ -64,12 +64,6 @@ public interface IPluginManager {
       throws ObjectFactoryException;
 
   /**
-   * Returns a list of menu customization objects.
-   * @return List of IMenuCustomization objects
-   */
-  public List<IMenuCustomization> getMenuCustomizations();
-
-  /**
   * Causes the plug-in manager object to re-register all of the plug-ins that
   * it knows about.  A {@link IPluginProvider} may be invoked to discover plugins
   * from various sources.

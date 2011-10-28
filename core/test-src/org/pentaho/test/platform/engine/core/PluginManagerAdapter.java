@@ -15,7 +15,6 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PluginBeanException;
-import org.pentaho.ui.xul.IMenuCustomization;
 import org.pentaho.ui.xul.XulOverlay;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -158,11 +157,6 @@ public class PluginManagerAdapter implements IPluginManager {
   public void unloadAllPlugins() {
     // TODO Auto-generated method stub
 
-  }
-
-  public List<IMenuCustomization> getMenuCustomizations() {
-    // TODO Auto-generated method stub
-    return null;
   }
 
   public List<XulOverlay> getOverlays() {

@@ -52,12 +52,8 @@ import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
-import org.pentaho.ui.xul.IMenuCustomization;
-import org.pentaho.ui.xul.IMenuCustomization.CustomizationType;
-import org.pentaho.ui.xul.IMenuCustomization.ItemType;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.impl.DefaultXulOverlay;
-import org.pentaho.ui.xul.util.MenuCustomization;
 
 /**
  * An implmentation of {@link IPluginProvider} that searches for plugin.xml files in the Pentaho
@@ -152,7 +148,6 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
 
     processStaticResourcePaths(plugin, doc, session);
     processPluginInfo(plugin, doc, folder, session);
-    processMenuItems(plugin, doc, session);
     processContentTypes(plugin, doc, session);
     processContentGenerators(plugin, doc, session, folder, repo, hasLib);
     processOverlays(plugin, doc, session);
@@ -166,7 +161,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
 
     String msg = Messages.getInstance().getString(
         "SystemPathXmlPluginProvider.PLUGIN_PROVIDES", //$NON-NLS-1$
-        Integer.toString(plugin.getMenuCustomizations().size()), Integer.toString(plugin.getContentInfos().size()),
+        Integer.toString(plugin.getContentInfos().size()),
         Integer.toString(plugin.getContentGenerators().size()), Integer.toString(plugin.getOverlays().size()),
         listenerCount);
     PluginMessageLogger.add(msg);
@@ -301,45 +296,6 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     }
   }
 
-  protected void processMenuItems(PlatformPlugin plugin, Document doc, IPentahoSession session) {
-    // look for menu system customizations
-    List<?> nodes = doc.selectNodes("//menu-item"); //$NON-NLS-1$
-    for (Object obj : nodes) {
-      Element node = (Element) obj;
-
-      String id = node.attributeValue("id"); //$NON-NLS-1$
-      String label = node.attributeValue("label"); //$NON-NLS-1$
-      try {
-        // create an IMenuCustomization object 
-        String anchorId = node.attributeValue("anchor"); //$NON-NLS-1$
-        String command = node.attributeValue("command"); //$NON-NLS-1$
-        CustomizationType customizationType = CustomizationType.valueOf(node.attributeValue("how")); //$NON-NLS-1$
-        ItemType itemType = ItemType.valueOf(node.attributeValue("type")); //$NON-NLS-1$
-        IMenuCustomization custom = new MenuCustomization();
-        custom.setAnchorId(anchorId);
-        custom.setId(id);
-        custom.setCommand(command);
-        custom.setLabel(label);
-        custom.setCustomizationType(customizationType);
-        custom.setItemType(itemType);
-        // store it
-        //        menuCustomizations.add( custom );
-        plugin.addMenuCustomization(custom);
-        if (customizationType == CustomizationType.DELETE) {
-          PluginMessageLogger.add(Messages.getInstance().getString("PluginManager.USER_MENU_ITEM_DELETE", id)); //$NON-NLS-1$
-        } else if (customizationType == CustomizationType.REPLACE) {
-          PluginMessageLogger.add(Messages.getInstance().getString("PluginManager.USER_MENU_ITEM_REPLACE", id, label)); //$NON-NLS-1$
-        } else {
-          PluginMessageLogger.add(Messages.getInstance().getString("PluginManager.USER_MENU_ITEM_ADDITION", id, label)); //$NON-NLS-1$
-        }
-      } catch (Exception e) {
-        PluginMessageLogger.add(Messages.getInstance().getString("PluginManager.ERROR_0009_MENU_CUSTOMIZATION_ERROR", id, label)); //$NON-NLS-1$
-        Logger.error(getClass().toString(), Messages.getInstance().getErrorString(
-            "PluginManager.ERROR_0009_MENU_CUSTOMIZATION_ERROR", id, label), e); //$NON-NLS-1$
-      }
-    }
-  }
-
   protected void processOverlays(PlatformPlugin plugin, Document doc, IPentahoSession session) {
     // look for content types
     List<?> nodes = doc.selectNodes("//overlays/overlay"); //$NON-NLS-1$
@@ -361,7 +317,6 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     for (Object obj : nodes) {
       Element node = (Element) obj;
 
-      // create an IMenuCustomization object 
       String title = XmlDom4JHelper.getNodeText("title", node); //$NON-NLS-1$
       String extension = node.attributeValue("type"); //$NON-NLS-1$
 
@@ -424,7 +379,6 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     for (Object obj : nodes) {
       Element node = (Element) obj;
 
-      // create an IMenuCustomization object 
       String className = getProperty(node, "class"); //$NON-NLS-1$
       if (className == null) {
         className = XmlDom4JHelper.getNodeText("classname", node, null); //$NON-NLS-1$

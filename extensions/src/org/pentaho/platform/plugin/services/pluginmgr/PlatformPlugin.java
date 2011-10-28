@@ -63,9 +63,6 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
   
   private Map<String, String> metaProviderMap = new HashMap<String, String>();
   
-  @SuppressWarnings("unchecked")
-  private List menuOverlays = new ArrayList();
-
   private String id;
 
   //this value needs to default to an empty string so the plugin dir will not say "null" in the path if the path is not explicitly set
@@ -78,7 +75,6 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
   private ClassLoaderType loaderType;
 
   private Map<String, List<String>> externalResources = new HashMap<String, List<String>>();
-
   
   public PlatformPlugin() {
   }
@@ -160,15 +156,6 @@ public class PlatformPlugin implements IPlatformPlugin, IPentahoInitializer {
    */
   public void addOverlay(XulOverlay overlay) {
     overlays.add(overlay);
-  }
-
-  public List<?> getMenuCustomizations() {
-    return menuOverlays;
-  }
-
-  @SuppressWarnings("unchecked")
-  public void addMenuCustomization(IMenuCustomization customization) {
-    menuOverlays.add(customization);
   }
 
   public String getSourceDescription() {
