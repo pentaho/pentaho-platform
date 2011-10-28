@@ -44,6 +44,7 @@ import org.w3c.dom.NodeList;
 public class MondrianSchemaImportSource extends AbstractImportSource {
 
 	private IRepositoryFileBundle datasourcesXML;
+	private String mainRepositoryLocation;
 	private final static String ETC_MONDRIAN_JCR_FOLDER = RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian";
 	private static final Log logger = LogFactory.getLog(MondrianSchemaImportSource.class);
 
@@ -90,7 +91,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 			if (datasourceInfo != null) {
 				processImportingSchema(file, importingFiles, datasourceInfo);
 			} else {
-				file.setPath("public" + RepositoryFile.SEPARATOR + FilenameUtils.separatorsToUnix(file.getPath()));
+				file.setPath(this.mainRepositoryLocation + RepositoryFile.SEPARATOR + FilenameUtils.separatorsToUnix(file.getPath()));
 				importingFiles.add(file);
 			}
 		}
@@ -200,6 +201,10 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		Document document = builder.parse(documentSource.getInputStream());
 		nodes = document.getElementsByTagName(tagName);
 		return nodes;
+	}
+	
+	public void setOwnerName(String ownerName) {
+		this.mainRepositoryLocation = ownerName;
 	}
 }
  

@@ -115,6 +115,7 @@ public class RepositoryImportResource {
         importer.doImport(src, uploadDir, null);
         for(ImportSource dependentImportSource : src.getDependentImportSources()) {
         	dependentImportSource.initialize(repository);
+        	dependentImportSource.setOwnerName(uploadDir);
         	importer.doImport(dependentImportSource, RepositoryFile.SEPARATOR, null);
         }
       } else {
