@@ -82,6 +82,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
       setWidget(7, 1, originalLocationLabel);
       
       Button restoreButton = new Button("Restore");
+      restoreButton.setStylePrimaryName("pentaho-button");
       restoreButton.addClickHandler(new ClickHandler() {
 
         @Override
