@@ -29,7 +29,6 @@ import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
-import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.messages.Messages;
 
@@ -64,7 +63,6 @@ public String processTemplate(String template, final String title, final String 
     if (WebTemplateHelper.footerTemplate == null) {
       WebTemplateHelper.footerTemplate = getTemplate(WebTemplateHelper.FOOTER_TEMPLATE_FILENAME, session);
     }
-    template = template.replaceAll("\\{menu\\}", getMenuHtml( session ) ); //$NON-NLS-1$
     template = template.replaceFirst("\\{footer\\}", WebTemplateHelper.footerTemplate); //$NON-NLS-1$
     template = template.replaceAll("\\{title\\}", title); //$NON-NLS-1$
     template = template.replaceAll("\\{home\\}", Messages.getInstance().getString("UI.USER_HOME")); //$NON-NLS-1$ //$NON-NLS-2$
