@@ -36,6 +36,7 @@ import org.pentaho.ui.xul.gwt.util.ResourceBundleTranslator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -185,6 +186,14 @@ public class PerspectiveSwitcher extends HorizontalPanel {
 
   private void showPerspective(final ToggleButton source, final IPluginPerspective perspective) {
 
+    // before we show.. de-activate current perspective (based on shown widget)
+    Widget w = MantleApplication.getInstance().getContentDeck().getWidget(MantleApplication.getInstance().getContentDeck().getVisibleWidget());
+    if (w instanceof Frame && !perspective.getId().equals(w.getElement().getId())) {
+      // invoke deactivation method
+      Frame frame = (Frame) w;
+      perspectiveDeactivated(frame.getElement());
+    }    
+    
     final IPluginPerspective defaultPerspective = perspectives.get(0);
 
     // deselect all other toggles
@@ -223,6 +232,9 @@ public class PerspectiveSwitcher extends HorizontalPanel {
             XulMainMenubar.getInstance().applyOverlay(overlay.getId());
           }
         }
+        if (!source.isDown() || !perspective.getId().equals("default.perspective")) {
+          hijackContentArea(perspective);
+        }
       }
     });
 
@@ -244,10 +256,10 @@ public class PerspectiveSwitcher extends HorizontalPanel {
       return;
     }
 
-    hijackContentArea(perspective);
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {
+    
     // hijack content area (or simply find and select existing content)
     Frame frame = null;
     for (int i = 0; i < MantleApplication.getInstance().getContentDeck().getWidgetCount(); i++) {
@@ -263,6 +275,25 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     }
 
     MantleApplication.getInstance().getContentDeck().showWidget(MantleApplication.getInstance().getContentDeck().getWidgetIndex(frame));
+
+    final Element frameElement = frame.getElement();
+    perspectiveActivated(frameElement);
   }
 
+  private native void perspectiveActivated(Element frameElement)
+  /*-{
+    try {
+      frameElement.contentWindow.perspectiveActivated();
+    } catch (e) {
+    }
+  }-*/;
+
+  private native void perspectiveDeactivated(Element frameElement)
+  /*-{
+    try {
+      frameElement.contentWindow.perspectiveDeactivated();
+    } catch (e) {
+    }
+  }-*/;
+  
 }

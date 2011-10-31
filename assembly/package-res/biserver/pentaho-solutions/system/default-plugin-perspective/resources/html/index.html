@@ -50,9 +50,21 @@
 	</body>
 	
 	<script type="text/javascript">
+	
+		var testButtonEnabled = true;
+	
 		window.top.defaultTestPerspectiveFunction = function() {
 			alert('Success!');
 		}
+		
+		perspectiveActivated = function() {
+			window.top.mantle_setToolbarButtonEnabled('default.perspective.test.overlay.button', testButtonEnabled);
+		}		
+		
+		perspectiveDeactivated = function() {
+			testButtonEnabled = window.top.mantle_isToolbarButtonEnabled('default.perspective.test.overlay.button');
+		}		
+		
 	</script>
 	
 </html>
