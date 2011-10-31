@@ -369,12 +369,12 @@ public class MondrianCatalogHelperTest {
     
     // Now try with Tiffany's. It has to fail.
     SecurityHelper.becomeUser("tiffany");
-    Assert.assertNull(
+    Assert.assertNotNull(
       helper.getCatalog(
         "testListRestrictedCatalogs-catalog",
         PentahoSessionHolder.getSession()));
     Assert.assertEquals(
-      4,
+      5,
       helper.listCatalogs(PentahoSessionHolder.getSession(), false).size());
   }
 
