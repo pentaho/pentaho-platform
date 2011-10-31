@@ -25,7 +25,6 @@ import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUITemplater;
 import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.ui.IMenuProvider;
 import org.pentaho.platform.api.util.IVersionHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -143,13 +142,4 @@ public String processTemplate(String template, final String title, final String 
         }
       }
 
-  public String getMenuHtml( final IPentahoSession session ) {
-    
-    IMenuProvider menuProvider = (IMenuProvider) PentahoSystem.get(IMenuProvider.class, session);
-    if( menuProvider != null ) {
-      return menuProvider.getMenuBar("menu", "system/ui/menubar.xul", session).toString(); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-    Logger.error( WebTemplateHelper.class.getName(), Messages.getInstance().getString("WebTemplateHelper.ERROR_0001_COULD_NOT_CREATE_MENUBAR") ); //$NON-NLS-1$
-    return ""; //$NON-NLS-1$
-  }
 }

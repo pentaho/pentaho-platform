@@ -17,7 +17,6 @@ PentahoSystem which is initialized after Spring
   <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager" scope="singleton" />
   <bean id="IPluginResourceLoader" class="org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader" scope="singleton" />
   <bean id="IPluginPerspectiveManager" class="org.pentaho.platform.plugin.services.pluginmgr.perspective.DefaultPluginPerspectiveManager" scope="singleton" />
-  <bean id="IMenuProvider" class="org.pentaho.test.platform.plugin.pluginmgr.MenuProvider" scope="singleton" />
     
     <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory, 
        not directly from the PentahoObjectFactory. -->
