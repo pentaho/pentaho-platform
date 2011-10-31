@@ -77,7 +77,6 @@ import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepos
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.engine.core.EchoServiceBean;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
-import org.pentaho.ui.xul.IMenuCustomization;
 import org.pentaho.ui.xul.XulOverlay;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -423,18 +422,6 @@ public class DefaultPluginManagerTest {
 
   }
 
-  @Test
-  public void test12_MenuCustomizationRegistration() throws PlatformInitializationException {
-    microPlatform.define(IPluginProvider.class, Tst12PluginProvider.class);
-    microPlatform.start();
-
-    pluginManager.reload();
-
-    IMenuCustomization menuCust = pluginManager.getMenuCustomizations().get(0);
-    assertNotNull(menuCust);
-    assertEquals("menuCust12label", menuCust.getLabel());
-  }
-
   @SuppressWarnings("deprecation")
   @Test
   public void test13_LEGACY_getServicePlugin() throws PlatformInitializationException {
@@ -749,53 +736,6 @@ public class DefaultPluginManagerTest {
     public List<IPlatformPlugin> getPlugins(IPentahoSession session) throws PlatformPluginRegistrationException {
       PlatformPlugin p = new PlatformPlugin();
       p.setId("test12Plugin");
-      p.addMenuCustomization(new IMenuCustomization() {
-
-        public String getAnchorId() {
-          return "anchorId";
-        }
-
-        public String getCommand() {
-          return "command";
-        }
-
-        public CustomizationType getCustomizationType() {
-          return CustomizationType.INSERT_BEFORE;
-        }
-
-        public String getId() {
-          return "id";
-        }
-
-        public ItemType getItemType() {
-          return ItemType.MENU_ITEM;
-        }
-
-        public String getLabel() {
-          return "menuCust12label";
-        }
-
-        //This is retarded, why do we have setters in a bean-like interface?
-        public void setAnchorId(String anchorId) {
-        }
-
-        public void setCommand(String command) {
-        }
-
-        public void setCustomizationType(CustomizationType customizationType) {
-        }
-
-        public void setId(String id) {
-        }
-
-        public void setItemType(ItemType itemType) {
-        }
-
-        public void setLabel(String label) {
-        }
-
-      });
-
       return Arrays.asList((IPlatformPlugin) p);
     }
   }
