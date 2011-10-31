@@ -22,12 +22,14 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.data.DatasourceServiceException;
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 
@@ -39,16 +41,14 @@ public class PooledDatasourceService extends BaseDatasourceService {
 	DataSource retrieve(String datasource) throws DatasourceServiceException {
 		DataSource ds = null;
 		try {
-      IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get(IDatasourceMgmtService.class,null);
-			DatabaseMeta databaseMeta = datasourceMgmtSvc.getDatasourceByName(datasource);
+      IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.get(IDatasourceMgmtService.class,PentahoSessionHolder.getSession());
+			IDatabaseConnection databaseConnection = datasourceMgmtSvc.getDatasourceByName(datasource);
 			if(datasource != null) {
-	      ds = PooledDatasourceHelper.setupPooledDataSource(databaseMeta);
+	      ds = PooledDatasourceHelper.setupPooledDataSource(databaseConnection);
 			} else  {
 			  throw new DatasourceServiceException(Messages.getInstance().getErrorString("PooledDatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE")); //$NON-NLS-1$
 			}
 			cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE, datasource, ds);
-    } catch (ObjectFactoryException objface) {
-      throw new DatasourceServiceException(Messages.getInstance().getErrorString("PooledDatasourceService.ERROR_0001_UNABLE_TO_INSTANTIATE_OBJECT"),objface); //$NON-NLS-1$
 		} catch (DatasourceMgmtServiceException daoe) {
 		  throw new DatasourceServiceException(Messages.getInstance().getErrorString("PooledDatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE"),daoe); //$NON-NLS-1$
 		}

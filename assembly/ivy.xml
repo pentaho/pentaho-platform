@@ -14,7 +14,10 @@
     <!-- Pentaho -->
     <dependency org="pentaho" name="pentaho-platform-extensions" rev="${project.revision}" changing="true"/>
     <dependency org="pentaho" name="pentaho-user-console" rev="${project.revision}" changing="true" />
-
+    
+    <!-- Pentaho Commons  -->
+    <dependency org="pentaho" name="pentaho-database-model"     rev="${dependency.pentaho-database-model}"               changing="true" transitive="false"/>
+    
 	<!--  Reporting -->
     <!-- NOTE: this reporting plugin jar will be removed once the reporting plugin is 3.5 plugin compliant -->
     <dependency org="pentaho-reporting-engine" name="pentaho-reporting-engine-classic-core-platform-plugin" rev="${dependency.pentaho-reporting-plugin.revision}" changing="true"/>

@@ -56,7 +56,6 @@ PentahoSystem which is initialized after Spring
   -->
   <bean id="IDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService" scope="singleton" />
   <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton" />
-  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService" scope="prototype" />
   <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider" scope="singleton" />
   
   <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager" scope="singleton" />
@@ -107,6 +106,13 @@ PentahoSystem which is initialized after Spring
   <alias name="userDetailsService" alias="UserDetailsService"/> 
 
   <bean id="IMondrianCatalogService" class="org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper" scope="singleton" />
+
+  <bean id="IDatabaseDialectService" class="org.pentaho.database.service.DatabaseDialectService" scope="singleton" />
+  
+  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService" scope="singleton">
+    <constructor-arg ref="unifiedRepository" />
+    <constructor-arg ref="IDatabaseDialectService" />
+  </bean>
 
 <!--  This mondrian user/role mapper assumes that roles from the platform also exist in mondrian -->
   

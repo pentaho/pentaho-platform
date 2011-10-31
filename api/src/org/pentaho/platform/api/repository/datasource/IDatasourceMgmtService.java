@@ -19,31 +19,30 @@
  */
 package org.pentaho.platform.api.repository.datasource;
 
-import java.io.Serializable;
 import java.util.List;
 
-import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.engine.IPentahoInitializer;
 
 public interface IDatasourceMgmtService extends IPentahoInitializer {
   
   public static final String IDATASOURCEMGMTSERVICE = "IDatasourceMgmtService"; //$NON-NLS-1$
   
-  public void createDatasource(DatabaseMeta databaseMeta) throws DuplicateDatasourceException, DatasourceMgmtServiceException;
+  public void createDatasource(IDatabaseConnection databaseConnection) throws DuplicateDatasourceException, DatasourceMgmtServiceException;
 
   public void deleteDatasourceByName(String name) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
 
-  public void deleteDatasourceById(Serializable id) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
+  //public void deleteDatasourceById(Serializable id) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
 
-  public DatabaseMeta getDatasourceByName(String name) throws DatasourceMgmtServiceException;
+  public IDatabaseConnection getDatasourceByName(String name) throws DatasourceMgmtServiceException;
 
-  public DatabaseMeta getDatasourceById(Serializable id) throws DatasourceMgmtServiceException;
+  //public IDatabaseConnection getDatasourceById(Serializable id) throws DatasourceMgmtServiceException;
 
-  public List<DatabaseMeta> getDatasources() throws DatasourceMgmtServiceException;
+  public List<IDatabaseConnection> getDatasources() throws DatasourceMgmtServiceException;
   
-  public List<Serializable> getDatasourceIds() throws DatasourceMgmtServiceException;
+  //public List<Serializable> getDatasourceIds() throws DatasourceMgmtServiceException;
 
-  public void updateDatasourceByName(String name, DatabaseMeta databaseMeta) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
+  public void updateDatasourceByName(String name, IDatabaseConnection databaseConnection) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
 
-  public void updateDatasourceById(Serializable id, DatabaseMeta databaseMeta) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
+  //public void updateDatasourceById(Serializable id, IDatabaseConnection databaseConnection) throws NonExistingDatasourceException, DatasourceMgmtServiceException;
 }

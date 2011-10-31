@@ -22,12 +22,12 @@ package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.platform.api.data.DatasourceServiceException;
 import org.pentaho.platform.api.data.IDatasourceService;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 
@@ -39,11 +39,11 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
 	DataSource retrieve(String datasource) throws DatasourceServiceException {
 		DataSource ds = null;
 		try {
-      IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.getObjectFactory().get(IDatasourceMgmtService.class,null);
-			DatabaseMeta databaseMeta = datasourceMgmtSvc.getDatasourceByName(datasource);
+      IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.get(IDatasourceMgmtService.class,PentahoSessionHolder.getSession());
+			IDatabaseConnection databaseConnection = datasourceMgmtSvc.getDatasourceByName(datasource);
 			// Look in the database for the datasource
-			if(databaseMeta != null) {
-			  ds = PooledDatasourceHelper.setupPooledDataSource(databaseMeta);
+			if(databaseConnection != null) {
+			  ds = PooledDatasourceHelper.setupPooledDataSource(databaseConnection);
 			// Database does not have the datasource, look in jndi now
 			} else {
 			  ds = getJndiDataSource(datasource);
@@ -52,14 +52,6 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
 			if(ds != null) {
 			  cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE, datasource, ds);  
 			}
-
-    } catch (ObjectFactoryException objface) {
-      try {
-        return getJndiDataSource(datasource);  
-      }
-      catch(DatasourceServiceException dse) {
-       throw new DatasourceServiceException(Messages.getInstance().getErrorString("PooledOrJndiDatasourceService.ERROR_0003_UNABLE_TO_GET_JNDI_DATASOURCE") ,dse);  //$NON-NLS-1$
-      }
 		} catch (DatasourceMgmtServiceException daoe) {
       try {
         return getJndiDataSource(datasource);  

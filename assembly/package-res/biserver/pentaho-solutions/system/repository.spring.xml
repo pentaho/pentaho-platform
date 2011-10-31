@@ -68,10 +68,6 @@
   </bean>
 
 
-  <bean id="datasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService">
-    <constructor-arg ref="unifiedRepository" />
-  </bean>
-
   <bean id="unifiedRepository" class="org.pentaho.platform.repository2.unified.ExceptionLoggingDecorator">
     <constructor-arg ref="unifiedRepositoryProxy" />
   </bean>
@@ -137,7 +133,8 @@
   <bean id="pdiBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.PdiBackingRepositoryLifecycleManager"
     parent="abstractBackingRepositoryLifecycleManager" />
   <bean id="sampleDataRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.SampleDataRepositoryLifecycleManager" >
-    <constructor-arg ref="datasourceMgmtService" />
+    <constructor-arg ref="IDatasourceMgmtService" />
+    <constructor-arg ref="IDatabaseDialectService" />    
   </bean>
   <bean id="mondrianBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager"
     parent="abstractBackingRepositoryLifecycleManager" />

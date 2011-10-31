@@ -19,7 +19,7 @@
  */
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import java.util.Properties;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -29,21 +29,40 @@ import org.apache.commons.dbcp.DriverManagerConnectionFactory;
 import org.apache.commons.dbcp.PoolableConnectionFactory;
 import org.apache.commons.dbcp.PoolingDataSource;
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.exception.KettleDatabaseException;
+import org.pentaho.database.DatabaseDialectException;
+import org.pentaho.database.IDatabaseDialect;
+import org.pentaho.database.dialect.GenericDatabaseDialect;
+import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.platform.api.data.DatasourceServiceException;
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.logging.Logger;
 
 public class PooledDatasourceHelper {
 
-  public static PoolingDataSource setupPooledDataSource(DatabaseMeta databaseMeta) throws DatasourceServiceException{
-	 try {
-	    PoolingDataSource poolingDataSource = null;
+  public static PoolingDataSource setupPooledDataSource(IDatabaseConnection databaseConnection) throws DatasourceServiceException{
+    PoolingDataSource poolingDataSource = null;
+    String driverClass = null;
+    String url = null;
+    try {
 	    ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
+	    IDatabaseDialectService databaseDialectService = PentahoSystem.get(IDatabaseDialectService.class);
+      IDatabaseDialect dialect = databaseDialectService.getDialect(databaseConnection);
+      if (databaseConnection.getDatabaseType().getShortName().equals("GENERIC")) { //$NON-NLS-1$
+        driverClass = databaseConnection.getAttributes().get(GenericDatabaseDialect.ATTRIBUTE_CUSTOM_DRIVER_CLASS);
+      } else {
+        driverClass = dialect.getNativeDriver();
+      }
+      try {
+        url = dialect.getURLWithExtraOptions(databaseConnection);
+      } catch (DatabaseDialectException e) {
+        url = null;
+      }
+
 	    // Read default connecion pooling parameter
       String maxdleConn = PentahoSystem.getSystemSetting("dbcp-defaults/max-idle-conn", null);  //$NON-NLS-1$ 
       String minIdleConn = PentahoSystem.getSystemSetting("dbcp-defaults/min-idle-conn", null);  //$NON-NLS-1$    
@@ -65,31 +84,31 @@ public class PooledDatasourceHelper {
 	    int minIdleConnection =  !StringUtil.isEmpty(minIdleConn) ? Integer.parseInt(minIdleConn) : -1;
 	    int maxIdleConnection =  !StringUtil.isEmpty(maxdleConn) ? Integer.parseInt(maxdleConn) : -1;
 
-	    Properties properties = databaseMeta.getAttributes();
+	    Map<String, String> attributes = databaseConnection.getAttributes();
 	    
-	    if(properties.containsKey(IDatasourceService.MAX_ACTIVE_KEY)) {
-	      maxActiveConnection = Integer.parseInt(properties.getProperty(IDatasourceService.MAX_ACTIVE_KEY));
+	    if(attributes.containsKey(IDatasourceService.MAX_ACTIVE_KEY)) {
+	      maxActiveConnection = Integer.parseInt(attributes.get(IDatasourceService.MAX_ACTIVE_KEY));
 	    } else  {
 	      if(!StringUtil.isEmpty(maxActConn)) {
 	         maxActiveConnection = Integer.parseInt(maxActConn);
 	      }
 	    }
-      if(properties.containsKey(IDatasourceService.MAX_IDLE_KEY)) {
-        numIdleConnection = Integer.parseInt(properties.getProperty(IDatasourceService.MAX_IDLE_KEY));
+      if(attributes.containsKey(IDatasourceService.MAX_IDLE_KEY)) {
+        numIdleConnection = Integer.parseInt(attributes.get(IDatasourceService.MAX_IDLE_KEY));
       } else  {
         if(!StringUtil.isEmpty(numIdleConn)) {
           numIdleConnection = Integer.parseInt(numIdleConn);
         }
       }
-      if(properties.containsKey(IDatasourceService.MAX_WAIT_KEY)) {
-        waitTime = Integer.parseInt(properties.getProperty(IDatasourceService.MAX_WAIT_KEY));
+      if(attributes.containsKey(IDatasourceService.MAX_WAIT_KEY)) {
+        waitTime = Integer.parseInt(attributes.get(IDatasourceService.MAX_WAIT_KEY));
       } else  {
         if(!StringUtil.isEmpty(wait)) {
           waitTime = Long.parseLong(wait);
         }
       }
-      if(properties.containsKey(IDatasourceService.QUERY_KEY)) {
-        validQuery = properties.getProperty(IDatasourceService.QUERY_KEY);
+      if(attributes.containsKey(IDatasourceService.QUERY_KEY)) {
+        validQuery = attributes.get(IDatasourceService.QUERY_KEY);
       }
       if(!StringUtil.isEmpty(whenExhaustedAction)) {
         whenExhaustedActionType = Byte.parseByte(whenExhaustedAction);
@@ -97,7 +116,7 @@ public class PooledDatasourceHelper {
         whenExhaustedActionType = GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
       }
 	    poolingDataSource = new PoolingDataSource();
-	    Class.forName(databaseMeta.getDriverClass());
+	    Class.forName(driverClass);
 	    // As the name says, this is a generic pool; it returns  basic Object-class objects.
 	    final GenericObjectPool pool = new GenericObjectPool(null);
       pool.setWhenExhaustedAction(whenExhaustedActionType);  
@@ -116,8 +135,8 @@ public class PooledDatasourceHelper {
 	    Here, we use the DriverManagerConnectionFactory because that essentially
 	    uses DriverManager as the source of connections.
 	    */
-	    ConnectionFactory factory = new DriverManagerConnectionFactory(databaseMeta.getURL(), databaseMeta.getUsername(),
-	        databaseMeta.getPassword());
+	    ConnectionFactory factory = new DriverManagerConnectionFactory(url, databaseConnection.getUsername(),
+	        databaseConnection.getPassword());
 
 	    /*
 	    Puts pool-specific wrappers on factory connections.  For clarification:
@@ -149,39 +168,45 @@ public class PooledDatasourceHelper {
 	    poolingDataSource.setPool(pool);
 
 	    // store the pool, so we can get to it later
-      cacheManager.putInRegionCache(IDatasourceService.JDBC_POOL, databaseMeta.getName(), pool);
+      cacheManager.putInRegionCache(IDatasourceService.JDBC_POOL, databaseConnection.getName(), pool);
 	    return (poolingDataSource);
 	  } catch(Exception e) {
 	      throw new DatasourceServiceException(e);
 	  }
   }
   
-  public static DataSource convert(DatabaseMeta databaseMeta) {
+  public static DataSource convert(IDatabaseConnection databaseConnection) {
     BasicDataSource basicDatasource = new BasicDataSource();
-    basicDatasource.setDriverClassName(databaseMeta.getDriverClass());
+    IDatabaseDialectService databaseDialectService = PentahoSystem.get(IDatabaseDialectService.class, PentahoSessionHolder.getSession());
+    IDatabaseDialect dialect = databaseDialectService.getDialect(databaseConnection);
+    if (databaseConnection.getDatabaseType().getShortName().equals("GENERIC")) { //$NON-NLS-1$
+      basicDatasource.setDriverClassName(databaseConnection.getAttributes().get(GenericDatabaseDialect.ATTRIBUTE_CUSTOM_DRIVER_CLASS));
+    } else {
+      basicDatasource.setDriverClassName(dialect.getNativeDriver());
+    }
     try {
-      basicDatasource.setUrl(databaseMeta.getURL());
-    } catch (KettleDatabaseException e) {
+      basicDatasource.setUrl(dialect.getURLWithExtraOptions(databaseConnection));
+    } catch (DatabaseDialectException e) {
       basicDatasource.setUrl(null);
     }
-    basicDatasource.setUsername(databaseMeta.getUsername());
-    basicDatasource.setPassword(databaseMeta.getPassword());
-    Properties properties = databaseMeta.getAttributes();
-    if(properties.contains(IDatasourceService.MAX_ACTIVE_KEY)) {
-      String value = properties.getProperty(IDatasourceService.MAX_ACTIVE_KEY);
+    basicDatasource.setUsername(databaseConnection.getUsername());
+    basicDatasource.setPassword(databaseConnection.getPassword());
+    Map<String, String> attributes = databaseConnection.getAttributes();
+    if(attributes.containsKey(IDatasourceService.MAX_ACTIVE_KEY)) {
+      String value = attributes.get(IDatasourceService.MAX_ACTIVE_KEY);
       basicDatasource.setMaxActive(Integer.parseInt(value));  
     }
-    if(properties.contains(IDatasourceService.MAX_WAIT_KEY)) {
-      String value = properties.getProperty(IDatasourceService.MAX_WAIT_KEY);
+    if(attributes.containsKey(IDatasourceService.MAX_WAIT_KEY)) {
+      String value = attributes.get(IDatasourceService.MAX_WAIT_KEY);
       basicDatasource.setMaxWait(Integer.parseInt(value));  
     }
-    if(properties.contains(IDatasourceService.MAX_IDLE_KEY)) {
-      String value = properties.getProperty(IDatasourceService.MAX_IDLE_KEY);
+    if(attributes.containsKey(IDatasourceService.MAX_IDLE_KEY)) {
+      String value = attributes.get(IDatasourceService.MAX_IDLE_KEY);
       basicDatasource.setMaxIdle(Integer.parseInt(value));  
     }
-    if(properties.contains(IDatasourceService.QUERY_KEY)) {
-      basicDatasource.setValidationQuery(properties.getProperty(IDatasourceService.QUERY_KEY));  
-    }
+    if(attributes.containsKey(IDatasourceService.QUERY_KEY)) {
+      basicDatasource.setValidationQuery(attributes.get(IDatasourceService.QUERY_KEY));  
+    } 
     return basicDatasource;
   }
 }

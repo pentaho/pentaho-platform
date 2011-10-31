@@ -1,21 +1,24 @@
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.util.Enumeration;
-import java.util.Properties;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.database.model.DatabaseAccessType;
+import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.database.model.IDatabaseConnection;
+import org.pentaho.database.service.IDatabaseDialectService;
+import org.pentaho.database.util.DatabaseTypeHelper;
 import org.pentaho.di.repository.RepositoryObjectType;
-import org.pentaho.di.repository.StringObjectId;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
-import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 
 public class DatabaseHelper {
 
   // ~ Static fields/initializers ======================================================================================
 
+ 
   private static final String PROP_INDEX_TBS = "INDEX_TBS"; //$NON-NLS-1$
 
   private static final String PROP_DATA_TBS = "DATA_TBS"; //$NON-NLS-1$
@@ -39,51 +42,53 @@ public class DatabaseHelper {
   private static final String NODE_ROOT = "databaseMeta"; //$NON-NLS-1$
 
   private static final String NODE_ATTRIBUTES = "attributes"; //$NON-NLS-1$
-
-  public static DataNode DatabaseMetaToDataNode(final DatabaseMeta databaseMeta)  {
+  
+  private DatabaseTypeHelper databaseTypeHelper;
+  
+  public DatabaseHelper(IDatabaseDialectService databaseDialectService) {
+    this.databaseTypeHelper = new DatabaseTypeHelper(databaseDialectService.getDatabaseTypes());
+  }
+  
+  public DataNode databaseConnectionToDataNode(final IDatabaseConnection databaseConnection)  {
     DataNode rootNode = new DataNode(NODE_ROOT);
 
     // Then the basic db information
-    rootNode.setProperty(PROP_TYPE, databaseMeta.getPluginId());
-    rootNode.setProperty(PROP_CONTYPE, DatabaseMeta.getAccessTypeDesc(databaseMeta.getAccessType()));
-    rootNode.setProperty(PROP_HOST_NAME, databaseMeta.getHostname());
-    rootNode.setProperty(PROP_DATABASE_NAME, databaseMeta.getDatabaseName());
-    rootNode.setProperty(PROP_PORT, new Long(databaseMeta.getDatabasePortNumberString()));
-    rootNode.setProperty(PROP_USERNAME, databaseMeta.getUsername());
-    rootNode.setProperty(PROP_PASSWORD, databaseMeta.getPassword());
-    rootNode.setProperty(PROP_SERVERNAME, databaseMeta.getServername());
-    rootNode.setProperty(PROP_DATA_TBS, databaseMeta.getDataTablespace());
-    rootNode.setProperty(PROP_INDEX_TBS, databaseMeta.getIndexTablespace());
-
+    rootNode.setProperty(PROP_TYPE, databaseConnection.getDatabaseType().getShortName());
+    rootNode.setProperty(PROP_CONTYPE, databaseConnection.getAccessType().getName());
+    rootNode.setProperty(PROP_HOST_NAME, databaseConnection.getHostname());
+    rootNode.setProperty(PROP_DATABASE_NAME, databaseConnection.getDatabaseName());
+    rootNode.setProperty(PROP_PORT, new Long(databaseConnection.getDatabasePort()));
+    rootNode.setProperty(PROP_USERNAME, databaseConnection.getUsername());
+    rootNode.setProperty(PROP_PASSWORD, databaseConnection.getPassword());
+    rootNode.setProperty(PROP_SERVERNAME, databaseConnection.getInformixServername());
+    rootNode.setProperty(PROP_DATA_TBS, databaseConnection.getDataTablespace());
+    rootNode.setProperty(PROP_INDEX_TBS, databaseConnection.getIndexTablespace());
     DataNode attrNode = rootNode.addNode(NODE_ATTRIBUTES);
 
   // Now store all the attributes set on the database connection...
   // 
-  Properties attributes = databaseMeta.getAttributes();
-  Enumeration<Object> keys = databaseMeta.getAttributes().keys();
-  while (keys.hasMoreElements()) {
-    String code = (String) keys.nextElement();
-    String attribute = (String) attributes.get(code);
-  
-    // Save this attribute
-    //
-    attrNode.setProperty(code, attribute);
+  Map<String, String> attributes = databaseConnection.getAttributes();
+  Set<String> keys = attributes.keySet();
+  for(String key:keys) {
+    String value = attributes.get(key);
+    attrNode.setProperty(key, value);
   }
     return rootNode;
   }
   
-  public static DatabaseMeta dataNodeToDatabaseMeta(final DataNode rootNode) {
-    DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setDatabaseType(getString(rootNode, PROP_TYPE));
-    databaseMeta.setAccessType(DatabaseMeta.getAccessType(getString(rootNode, PROP_CONTYPE)));
-    databaseMeta.setHostname(getString(rootNode, PROP_HOST_NAME));
-    databaseMeta.setDBName(getString(rootNode, PROP_DATABASE_NAME));
-    databaseMeta.setDBPort(getString(rootNode, PROP_PORT));
-    databaseMeta.setUsername(getString(rootNode, PROP_USERNAME));
-    databaseMeta.setPassword(getString(rootNode, PROP_PASSWORD));
-    databaseMeta.setServername(getString(rootNode, PROP_SERVERNAME));
-    databaseMeta.setDataTablespace(getString(rootNode, PROP_DATA_TBS));
-    databaseMeta.setIndexTablespace(getString(rootNode, PROP_INDEX_TBS));
+  public IDatabaseConnection dataNodeToDatabaseConnection(final Serializable id, final String name, final DataNode rootNode) {
+    IDatabaseConnection databaseConnection = new DatabaseConnection();
+    databaseConnection.setDatabaseType(databaseTypeHelper.getDatabaseTypeByShortName(getString(rootNode, PROP_TYPE)));
+    databaseConnection.setName(name);
+    databaseConnection.setAccessType(DatabaseAccessType.getAccessTypeByName(getString(rootNode, PROP_CONTYPE)));
+    databaseConnection.setHostname(getString(rootNode, PROP_HOST_NAME));
+    databaseConnection.setDatabaseName(getString(rootNode, PROP_DATABASE_NAME));
+    databaseConnection.setDatabasePort(getString(rootNode, PROP_PORT));
+    databaseConnection.setUsername(getString(rootNode, PROP_USERNAME));
+    databaseConnection.setPassword(getString(rootNode, PROP_PASSWORD));
+    databaseConnection.setInformixServername(getString(rootNode, PROP_SERVERNAME));
+    databaseConnection.setDataTablespace(getString(rootNode, PROP_DATA_TBS));
+    databaseConnection.setIndexTablespace(getString(rootNode, PROP_INDEX_TBS));
 
     // Also, load all the properties we can find...
 
@@ -91,20 +96,13 @@ public class DatabaseHelper {
     for (DataProperty property : attrNode.getProperties()) {
       String code = property.getName();
       String attribute = property.getString();
-      databaseMeta.getAttributes().put(code, (attribute == null || attribute.length() ==0) ? "": attribute); //$NON-NLS-1$
+      databaseConnection.getAttributes().put(code, (attribute == null || attribute.length() ==0) ? "": attribute); //$NON-NLS-1$
     }
     
-    return databaseMeta;
+    return databaseConnection;
   }
-  
-  public static DatabaseMeta assemble(RepositoryFile file, NodeRepositoryFileData data) {
-    DatabaseMeta databaseMeta = (DatabaseMeta) dataNodeToDatabaseMeta(data.getNode());
-    databaseMeta.setName(file.getTitle());
-    databaseMeta.setObjectId(new StringObjectId(file.getId().toString()));
-    databaseMeta.clearChanged();
-    return databaseMeta;
-  }
-  private static String getString(DataNode node, String name) {
+
+  private String getString(DataNode node, String name) {
     if (node.hasProperty(name)) {
       return node.getProperty(name).getString();
     } else {
@@ -115,7 +113,7 @@ public class DatabaseHelper {
   /**
    * Performs one-way conversion on incoming String to produce a syntactically valid JCR path (section 4.6 Path Syntax). 
    */
-  public static String checkAndSanitize(final String in) {
+  public String checkAndSanitize(final String in) {
     if (in == null) {
       throw new IllegalArgumentException();
     }

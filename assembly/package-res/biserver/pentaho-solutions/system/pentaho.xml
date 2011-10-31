@@ -184,7 +184,7 @@
 	  <host>localhost</host>
 	  <type>Hypersonic</type>
 	  <port>9001</port>
-	  <access>0</access>
+	  <access>NATIVE</access>
 	  <username>pentaho_user</username>
 	  <password>password</password>
 	  <max-active>20</max-active>
