@@ -248,7 +248,10 @@ public class FileResourceTest extends JerseyTest {
     assertTrue(testFile1 != null);
     assertTrue(testFile2 != null);
 
-    webResource.path("repo/files/delete").entity(testFile1.getId() + "," + testFile2.getId()).put();
+    String testFile1Id = testFile1.getId();
+    String testFile2Id = testFile2.getId();
+    
+    webResource.path("repo/files/delete").entity(testFile1Id + "," + testFile2Id).put();
     testFile1 = null;
     testFile2 = null;
     try {
@@ -264,12 +267,12 @@ public class FileResourceTest extends JerseyTest {
     RepositoryFileDto[] deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
     assertEquals(2, deletedFiles.length);
     
-    webResource.path("repo/files/deletepermanent").entity(testFile1.getId()).put();
+    webResource.path("repo/files/deletepermanent").entity(testFile1Id).put();
     
     deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
     assertEquals(1, deletedFiles.length);
     
-    webResource.path("repo/files/restore").entity(testFile2.getId()).put();
+    webResource.path("repo/files/restore").entity(testFile2Id).put();
 
     deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
     assertEquals(0, deletedFiles.length);
