@@ -97,13 +97,6 @@ public interface IPlatformPlugin extends IPluginLifecycleListener {
   public Map<String,String> getStaticResourceMap();
   
   /**
-   * Returns a list of menu overlays for this plug-in
-   * @return
-   */
-  @SuppressWarnings("unchecked")
-  public List getMenuCustomizations();
-  
-  /**
    * Returns the fully qualified name of the lifecycle listener class
    * defined by this plugin.  The class must be a {@link IPluginLifecycleListener}.
    * @return lifecycle listener class name
