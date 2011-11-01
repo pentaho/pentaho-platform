@@ -61,8 +61,7 @@
         <xsl:value-of select="." />
       </xsl:for-each>
             
-                                
-      <xsl:if test="/filters/subscriptions/@doSubscribe !='true' ">
+                              
                               
         
             
@@ -89,7 +88,6 @@
                  
               </td>
           </tr>
-    </xsl:if>
     <xsl:apply-templates select="input" />
     </table>
   </xsl:template>
