@@ -105,25 +105,20 @@
 	-->
 	
 					
-	
-	<div id="puc" style="height: 100%">
-	
-		<div id="pucTopBar" style="background-color: black; height: 28px">
-			<div id="pucMenuBar" style="float: left">
-			</div>
+	<table cellspacing="0" cellpadding="0" style="width: 100%; height: 100%">
+		<tr>
+			<td id="pucMenuBar" style="width:100%"></td>
+			<td id="pucPerspectives"></td>
+		</tr>
 
-			<div id="pucPerspectives" style="background-color: red; float: right;">
-			</div>
-		</div>
+		<tr>
+			<td id="pucToolBar" colspan="2"></td>
+		</tr>
 		
-		<div id="pucToolBar" style="clear; both; float: left; width: 100%">
-		</div>
-	
-		<div id="pucContent" style="clear: both; height: 100%; width: 100%">
-		</div>
-		
-	</div>
-	
+		<tr>
+			<td id="pucContent" colspan="2" style="width:100%;height:100%"></td>
+		</tr>
+	</table>
 	
 	<!-- OPTIONAL: include this if you want history support -->
 	<iframe id="__gwt_historyFrame" style="width:0px;height:0px;border:0;display:none"></iframe>
