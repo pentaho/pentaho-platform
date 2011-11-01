@@ -154,7 +154,7 @@ public class MetadataQueryComponentTest {
   @Test
   public void testMultiValuedParameters() {
     String mql = "<mql><domain_id>DOMAIN</domain_id><model_id>MODEL</model_id>" +
-                 "<parameters><parameter name=\"param1\" type=\"STRING\" defaultValue=\"Alpha Cognac;ANG Resellers;&quot;American Souvenirs Inc;test;quoted&quot;\"/></parameters>" +
+                 "<parameters><parameter name=\"param1\" type=\"STRING\" defaultValue=\"Alpha Cognac|ANG Resellers|&quot;American Souvenirs Inc|test|quoted&quot;\"/></parameters>" +
                  "<selections><selection>" +
                  "<view>CATEGORY</view>" +
                  "<column>LC_CUSTOMERNAME</column>" +
