@@ -37,6 +37,7 @@ PentahoSystem which is initialized after Spring
   <!--  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.plugin.services.metadata.MetadataDomainRepository" scope="singleton"/>-->
   <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService" scope="session" />
   <bean id="file" class="org.pentaho.platform.plugin.outputs.FileOutputHandler" scope="session" />
+  <bean id="contentrepo" class="org.pentaho.platform.repository2.unified.fileio.RepositoryContentOutputHandler" scope="session"/>
   <bean id="vfs-ftp" class="org.pentaho.platform.plugin.outputs.ApacheVFSOutputHandler" scope="session" />
   <bean id="IAclPublisher" class="org.pentaho.platform.engine.security.acls.AclPublisher" scope="singleton" />
   <bean id="IAclVoter" class="org.pentaho.platform.engine.security.acls.voter.PentahoBasicAclVoter" scope="singleton" />
