@@ -34,6 +34,7 @@ import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.util.ResourceBundleTranslator;
 
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Element;
@@ -71,6 +72,7 @@ public class PerspectiveSwitcher extends HorizontalPanel {
       }
     };
     MantleServiceCache.getService().getPluginPerpectives(callback);
+    registerFunctions(this);
   }
 
   // public void selectDefaultPerspective() {
@@ -130,15 +132,7 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     XulMainMenubar.getInstance().loadOverlays(overlays);
 
     String historyTokenPerspectiveId = History.getToken();
-    boolean loadDefaultPerspective = true;
-    for (int i = 0; i < perspectives.size(); i++) {
-      if (perspectives.get(i).getId().equalsIgnoreCase(historyTokenPerspectiveId)) {
-        toggles.get(i).setDown(true);
-        loadDefaultPerspective = false;
-        showPerspective(toggles.get(i), perspectives.get(i));
-        break;
-      }
-    }
+    boolean loadDefaultPerspective = setPerspective(historyTokenPerspectiveId);
     if (loadDefaultPerspective) {
       showPerspective(toggles.get(0), perspectives.get(0));
     }
@@ -184,6 +178,18 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     }
   }
 
+  public boolean setPerspective(final String perspectiveId) {
+    // return value to indicate if perspective now shown
+    for (int i = 0; i < perspectives.size(); i++) {
+      if (perspectives.get(i).getId().equalsIgnoreCase(perspectiveId)) {
+        toggles.get(i).setDown(true);
+        showPerspective(toggles.get(i), perspectives.get(i));
+        return true;
+      }
+    }
+    return false;
+  }
+  
   private void showPerspective(final ToggleButton source, final IPluginPerspective perspective) {
 
     // before we show.. de-activate current perspective (based on shown widget)
@@ -192,8 +198,8 @@ public class PerspectiveSwitcher extends HorizontalPanel {
       // invoke deactivation method
       Frame frame = (Frame) w;
       perspectiveDeactivated(frame.getElement());
-    }    
-    
+    }
+
     final IPluginPerspective defaultPerspective = perspectives.get(0);
 
     // deselect all other toggles
@@ -259,7 +265,7 @@ public class PerspectiveSwitcher extends HorizontalPanel {
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {
-    
+
     // hijack content area (or simply find and select existing content)
     Frame frame = null;
     for (int i = 0; i < MantleApplication.getInstance().getContentDeck().getWidgetCount(); i++) {
@@ -295,5 +301,30 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     } catch (e) {
     }
   }-*/;
+
+  private native void registerFunctions(PerspectiveSwitcher switcher)
+  /*-{
+    $wnd.mantle_getPerspectives = function() {
+      return switcher.@org.pentaho.mantle.client.ui.PerspectiveSwitcher::getPerspectives()();      
+    }
+    $wnd.mantle_setPerspective = function(perspectiveId) {
+      switcher.@org.pentaho.mantle.client.ui.PerspectiveSwitcher::setPerspective(Ljava/lang/String;)(perspectiveId);      
+    }
+  }-*/;
+  
+  private JsArrayString getPerspectives() {
+    JsArrayString stringArray = getJsArrayString();
+    for (IPluginPerspective perspective: perspectives) {
+      stringArray.push(perspective.getId());
+    }
+    return stringArray;
+  }
+  
+  private native JsArrayString getJsArrayString()
+  /*-{
+    return [];
+  }-*/;
+
+  
   
 }
