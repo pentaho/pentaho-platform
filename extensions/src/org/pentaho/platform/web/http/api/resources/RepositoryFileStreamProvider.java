@@ -118,18 +118,9 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
         parentFolder = repository.createFolder(parentFolder.getId(), new RepositoryFile.Builder(folderName).folder(true).build(), null);
       }     
     }
-    RepositoryFile outputFile = null;
-    if (inputFilePath != null) {
-      RepositoryFile inputFile = repository.getFile(inputFilePath);
-      if ((inputFile != null) && !inputFile.isFolder()) {
-        outputFile = new RepositoryFile.Builder(newFileName).creatorId(inputFile.getId().toString()).build();
-      } else {
-        outputFile = new RepositoryFile.Builder(newFileName).build();
-      }
-    }
-
-    repositoryFile = repository.createFile(parentFolder.getId(), outputFile, new SimpleRepositoryFileData(IOUtils.toInputStream("", "UTF-8"), "UTF-8", "text/plain"), "");
-    return new RepositoryFileOutputStream(repositoryFile);
+    
+    String filePath = parentFolder.getPath() + "/" + newFileName; //$NON-NLS-1$
+    return new RepositoryFileOutputStream(filePath);
   }
 
   public String getOutputFilePath() {
