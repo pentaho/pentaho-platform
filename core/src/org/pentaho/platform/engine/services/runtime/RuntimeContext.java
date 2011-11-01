@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,7 +74,6 @@ import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterManager;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IParameterResolver;
-import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -92,8 +92,6 @@ import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
 import org.pentaho.platform.engine.core.output.MultiContentItem;
-import org.pentaho.platform.engine.core.solution.ActionInfo;
-import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.PentahoMessenger;
@@ -377,9 +375,8 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
           "RuntimeContext.ERROR_0021_INVALID_OUTPUT_REQUEST", outputName, actionSequence.getSequenceName())); //$NON-NLS-1$
     }
 
-    // contentrepo : {solution}/{path}/{action}.{extension}
-    int seqNum = getContentSequenceNumber();
-    String contentName = "contentrepo:" + getSolutionPath() + ((seqNum > 0) ? Integer.toString(seqNum) : "") + extension; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    String filePath = "~/workspace/" + FilenameUtils.getBaseName(getSolutionPath()) + extension; //$NON-NLS-1$
+    String contentName = "contentrepo:" + filePath; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
     if (!IActionParameter.TYPE_CONTENT.equals(outputParameter.getType())) {
       warn(Messages.getInstance().getErrorString("RuntimeContext.ERROR_0023_INVALID_OUTPUT_STREAM", outputName)); //$NON-NLS-1$
@@ -391,19 +388,19 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       if (output != null) {
         // TODO get this info
         output.setInstanceId(instanceId);
+        output.setSolutionPath(filePath);
         output.setMimeType(mimeType);
         output.setSession(session);
-        output.setSolutionPath(getSolutionPath());
         IContentItem contentItem = output.getFileOutputContentItem();
         setOutputValue(outputName, contentItem);
         return contentItem;
       }
+      
+      
     } catch (Exception e) {
 
     }
-
     return null;
-
   }
 
   public IContentItem getOutputContentItem(final String mimeType) {
