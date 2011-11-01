@@ -88,6 +88,7 @@ import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository.IRuntimeElement;
 import org.pentaho.platform.api.repository.IRuntimeRepository;
 import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
@@ -575,6 +576,37 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
     }
   }
 
+  public IPentahoStreamSource getDataSource(final String parameterName) {
+    IPentahoStreamSource dataSource = null;
+    
+    // TODO Temp workaround for content repos bug
+    IActionParameter actionParameter = paramManager.getCurrentInput(parameterName);
+    if (actionParameter == null) {
+      throw new InvalidParameterException(Messages.getInstance().getErrorString(
+          "RuntimeContext.ERROR_0019_INVALID_INPUT_REQUEST", parameterName, actionSequence.getSequenceName())); //$NON-NLS-1$
+    }
+
+    Object locObj = actionParameter.getValue();
+    if (locObj != null) {
+      if (locObj instanceof IContentItem) { // At this point we have an IContentItem so why do anything else?
+        dataSource = ((IContentItem) locObj).getDataSource();
+      } else {
+//        String location = locObj.toString();
+//
+//        // get an output stream to hand to the caller
+//        IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class, session);
+//        unifiedRepository.getFile(location);
+//        
+//        IContentItem contentItem = contentRepository.getContentItemByPath(location);
+//        if (contentItem != null) {
+//          dataSource = contentItem.getDataSource();
+//        }
+      }
+    }
+    //This will return null if the locObj is null
+    return dataSource;
+  }
+  
   @SuppressWarnings({"unchecked"})
   protected static Map getComponentClassMap() {
     if (RuntimeContext.componentClassMap == null) {

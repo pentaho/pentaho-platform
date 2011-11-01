@@ -76,6 +76,11 @@ public class HttpContentItem implements IContentItem {
     return null;
   }
 
+  public IPentahoStreamSource getDataSource() {
+    // TODO
+    return null;
+  }
+  
   public OutputStream getOutputStream(final String actionName) {
     if (mimeType == null) {
       setMimeType("text/html"); //$NON-NLS-1$

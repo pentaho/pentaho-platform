@@ -87,4 +87,9 @@ public class SimpleContentItem implements IContentItem {
   public void setName( String name ) {
 	  // don't need this
   }
+  
+  public IPentahoStreamSource getDataSource() {
+    // TODO
+    return null;
+  }
 }

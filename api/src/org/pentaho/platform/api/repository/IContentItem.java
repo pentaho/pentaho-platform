@@ -66,6 +66,7 @@ public interface IContentItem extends IMimeTypeListener {
    */
   public InputStream getInputStream() throws ContentException;
 
+  public IPentahoStreamSource getDataSource();
 
   /**
    * The behavior of this method depends upon it's write mode (defined only at

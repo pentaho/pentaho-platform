@@ -351,6 +351,15 @@ public interface IRuntimeContext extends IAuditable, ILogger {
   public InputStream getInputStream(String parameterName);
 
   /**
+   * Get's the content item associated with the parameter, and returns the content item's
+   * datasource
+   * @param parameterName The name of the parameter
+   * @return The IPentahoStreamSource from the Content Item
+   * @see IContentItem#getDataSource()
+   */
+  public IPentahoStreamSource getDataSource(String parameterName);
+
+  /**
    * @return a <tt>Set</tt> containing all the inputs in the current action.
    */
   @SuppressWarnings("unchecked")

@@ -85,7 +85,7 @@ public class ActionSequenceParameterMgr implements IActionParameterMgr {
   }
 
   public IPentahoStreamSource getDataSource(final IActionInput actionInput) {
-    return null;
+    return runtimeContext.getDataSource(actionInput.getName());
   }
 
   public void setOutputValue(final IActionOutput actionOutput, final Object value) {

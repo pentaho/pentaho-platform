@@ -9,6 +9,7 @@ import java.util.Collections;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.repository.ContentException;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -37,6 +38,27 @@ public class RepositoryFileContentItem implements IContentItem {
         e.printStackTrace();
       }
     }
+  }
+
+  public IPentahoStreamSource getDataSource() {
+    return new IPentahoStreamSource() {
+      
+      public OutputStream getOutputStream() throws IOException {
+        return RepositoryFileContentItem.this.getOutputStream(null);
+      }
+      
+      public String getName() {
+        return FilenameUtils.getName(filePath);
+      }
+      
+      public InputStream getInputStream() throws IOException {
+        return RepositoryFileContentItem.this.getInputStream();
+      }
+      
+      public String getContentType() {
+        return getMimeType();
+      }
+    };
   }
 
   public InputStream getInputStream() throws ContentException {
@@ -106,7 +128,7 @@ public class RepositoryFileContentItem implements IContentItem {
     if (!fileExtension.equals(currentFileExtension)) {
       outputStream = null;
       inputStream = null;
-      filePath = FilenameUtils.getFullPathNoEndSeparator(filePath) + "/" + FilenameUtils.getBaseName(filePath) + "." + fileExtension;
+      filePath = FilenameUtils.getFullPathNoEndSeparator(filePath) + "/" + FilenameUtils.getBaseName(filePath) + fileExtension;
     }
   }
 
