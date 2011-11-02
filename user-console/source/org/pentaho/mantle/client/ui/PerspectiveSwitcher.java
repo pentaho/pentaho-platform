@@ -132,9 +132,9 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     XulMainMenubar.getInstance().loadOverlays(overlays);
 
     String historyTokenPerspectiveId = History.getToken();
-    boolean loadDefaultPerspective = setPerspective(historyTokenPerspectiveId);
-    if (loadDefaultPerspective) {
-      showPerspective(toggles.get(0), perspectives.get(0));
+    boolean loadedFromHistory = setPerspective(historyTokenPerspectiveId);
+    if (!loadedFromHistory) {
+      setPerspective(perspectives.get(0).getId());
     }
   }
 

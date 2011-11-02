@@ -104,21 +104,78 @@
 	</div>
 	-->
 	
-					
+	<!-- Standard -->
 	<table cellspacing="0" cellpadding="0" style="width: 100%; height: 100%">
 		<tr>
-			<td id="pucMenuBar" style="width:100%"></td>
-			<td id="pucPerspectives"></td>
+			<td>
+				<table cellspacing="0" cellpadding="0" >
+					<tr>
+						<td id="pucMenuBar" style="width:100%"></td>
+						<td id="pucPerspectives"></td>
+					</tr>
+				</table>
+			</td>
 		</tr>
 
 		<tr>
-			<td id="pucToolBar" colspan="2"></td>
+			<td id="pucToolBar"></td>
+		</tr>
+		
+		<tr>
+			<td id="pucContent" style="width:100%;height:100%"></td>
+		</tr>
+	</table>
+
+	<!-- Toolbar On Top -->
+	<!-- 
+	<table cellspacing="0" cellpadding="0" style="width: 100%; height: 100%">
+		<tr>
+			<td id="pucToolBar"></td>
+		</tr>
+		
+		<tr>
+			<td>
+				<table cellspacing="0" cellpadding="0" >
+					<tr>
+						<td id="pucMenuBar" style="width:100%"></td>
+						<td id="pucPerspectives"></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		
+		<tr>
+			<td id="pucContent" style="width:100%;height:100%"></td>
+		</tr>
+	</table>
+	-->
+	
+	
+	<!-- LOGO -->
+	<!--
+	<table cellspacing="0" cellpadding="0" style="width: 100%; height: 100%">
+		<tr>
+			<td colspan="2">
+				<table cellspacing="0" cellpadding="0" style="width: 100%">
+					<tr>
+						<td id="pucMenuBar" style="width:100%"></td>
+						<td id="pucPerspectives"></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+
+		<tr>
+			<td id="pucToolBar"></td>
+			<td style="background-color: white;">LOGO PANEL</td>
 		</tr>
 		
 		<tr>
 			<td id="pucContent" colspan="2" style="width:100%;height:100%"></td>
 		</tr>
 	</table>
+	-->
+
 	
 	<!-- OPTIONAL: include this if you want history support -->
 	<iframe id="__gwt_historyFrame" style="width:0px;height:0px;border:0;display:none"></iframe>
