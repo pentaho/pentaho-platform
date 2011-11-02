@@ -17,6 +17,7 @@
 */
 package org.pentaho.platform.web.servlet;
 
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,10 @@ import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Service;
+import javax.xml.ws.soap.SOAPBinding;
 
 import mondrian.server.DynamicContentFinder;
 import mondrian.spi.CatalogLocator;
@@ -33,20 +38,33 @@ import mondrian.xmla.impl.DynamicDatasourceXmlaServlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs.VFS;
+import org.apache.commons.vfs.impl.DefaultFileSystemManager;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.olap4j.OlapConnection;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
+import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
+import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
+import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
+import org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedRepositoryJaxwsWebService;
+import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedRepositoryToWebServiceAdapter;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.xml.sax.EntityResolver;
+
+import com.sun.xml.ws.developer.JAXWSProperties;
 
 /**
  * Filters out <code>DataSource</code> elements that are not XMLA-related.
@@ -71,6 +89,13 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
 
   public PentahoXmlaServlet() {
     super();
+    
+    try {
+    	DefaultFileSystemManager dfsm = (DefaultFileSystemManager)VFS.getManager();
+    	dfsm.addProvider("mondrian", new MondrianVfs());
+    } catch (FileSystemException e) {
+    	logger.error(e.getMessage());
+    }
   }
 
   // ~ Methods =========================================================================================================
@@ -80,7 +105,15 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
     return new DynamicContentFinder(dataSourcesUrl) {
       @Override
       public String getContent() {
-        String original = super.getContent();
+
+	    IUnifiedRepository repo = getRepository();
+	    if(repo == null) {
+	    	return null;
+	    }
+	  	IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(IMondrianCatalogService.class, "IMondrianCatalogService", PentahoSessionHolder.getSession());
+        MondrianCatalogHelper helper = (MondrianCatalogHelper) mondrianCatalogService;
+        String original = helper.generateInMemoryDatasourcesXml(repo);
+        
         EntityResolver loader = new PentahoEntityResolver();
         Document originalDocument = null;
         try {
@@ -107,6 +140,31 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
         }
         return modifiedDocument.asXML();
       }
+      
+      private IUnifiedRepository getRepository() {
+    	  IUnifiedRepository repo = null;
+    	  try {
+    		Service service = Service.create(new URL("http://localhost:8080/pentaho/webservices/unifiedRepository?wsdl"),
+  		        new QName("http://www.pentaho.org/ws/1.0", "unifiedRepository"));
+
+  		    IUnifiedRepositoryJaxwsWebService repoWebService = service.getPort(IUnifiedRepositoryJaxwsWebService.class);
+
+  		    // basic auth
+  		    ((BindingProvider) repoWebService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "joe");
+  		    ((BindingProvider) repoWebService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "password");
+  		    // accept cookies to maintain session on server
+  		    ((BindingProvider) repoWebService).getRequestContext().put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
+  		    // support streaming binary data
+  		    ((BindingProvider) repoWebService).getRequestContext().put(JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192);
+  		    SOAPBinding binding = (SOAPBinding) ((BindingProvider) repoWebService).getBinding();
+  		    binding.setMTOMEnabled(true);
+
+  		    repo = new UnifiedRepositoryToWebServiceAdapter(repoWebService);
+    	  } catch (Exception e) {
+    		  logger.error(e.getMessage());
+    	  }
+    	  return repo;
+      }
     };
   }
   
@@ -115,38 +173,25 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
     return new ServletContextCatalogLocator(servletConfig.getServletContext()) {
       @Override
       public String locate(String catalogPath) {
-        if (catalogPath.startsWith("solution:")) { //$NON-NLS-1$
-          catalogPath = catalogPath.substring(9);
-          if (catalogPath.startsWith("/")) {
-            catalogPath = catalogPath.substring(1);
-          }
-          return
-            "file:" + //$NON-NLS-1$
-            PentahoSystem
-              .getApplicationContext()
-              .getSolutionPath(catalogPath);
-        } else {
-          return super.locate(catalogPath);
-        }
+    	if(catalogPath.startsWith("mondrian:")) { //$NON-NLS-1$
+    		try {
+    			FileSystemManager fsManager = VFS.getManager();
+    			SolutionRepositoryVfsFileObject catalog = (SolutionRepositoryVfsFileObject) fsManager.resolveFile(catalogPath);
+    			catalogPath = "solution:" + catalog.getFileRef();
+    		} catch (FileSystemException e) {
+    			logger.error(e.getMessage());
+    		}
+    	} else {
+    		catalogPath = super.locate(catalogPath);
+    	}
+    	return catalogPath;  
       }
     };
   }
 
   @Override
   protected String makeDataSourcesUrl(ServletConfig config) {
-    final String path =
-      "file:" + //$NON-NLS-1$
-      PentahoSystem
-        .getApplicationContext()
-        .getSolutionPath("system/olap/datasources.xml");  //$NON-NLS-1$
-    if (logger.isDebugEnabled()) {
-      logger.debug(
-        Messages.getInstance()
-          .getString(
-            "PentahoXmlaServlet.DEBUG_SCHEMA_FILE_PATH",
-            path));
-    }
-    return path;
+	return null;
   }
   
   @Override
