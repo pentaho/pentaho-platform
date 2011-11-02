@@ -20,6 +20,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +36,9 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
   protected String path = null;
   protected IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
   protected String charsetName = null;
+  protected boolean version = true;
+  protected boolean closed = false;
+  protected boolean flushed = false;
 
   public RepositoryFileOutputStream(String path) {
     this.path = path;
@@ -85,11 +90,18 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
 
   @Override
   public void close() throws IOException {
-    flush();
+    if (!closed) {
+      flush();
+      closed = true;
+      reset();
+    }
   }
 
   @Override
   public void flush() throws IOException {
+    if (closed) {
+      return;
+    }
     super.flush();
     
     ByteArrayInputStream bis = new ByteArrayInputStream(toByteArray());
@@ -107,22 +119,55 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
     //FIXME: not a good idea that we assume we are dealing with text.  Best if this is somehow moved to the RepositoryFileWriter
     // but I couldn't figure out a clean way to do that.  For now, charsetName is passed in here and we use it if available.
     final SimpleRepositoryFileData payload = new SimpleRepositoryFileData(bis, charsetName, mimeType);
-    RepositoryFile file = repository.getFile(path);
-    if (file == null) {
-      //it doesn't exist, so try to create the file in the parent dir
-      RepositoryFile parent = getParent(path);
-      if (parent == null) {
-        throw new FileNotFoundException(MessageFormat.format(
-            "Repository file {0} does not exist nor does it's parent, so the file cannot be created", path));
+    if (!flushed) {
+      RepositoryFile file = repository.getFile(path);
+      RepositoryFile parentFolder = getParent(path);
+      String baseFileName = FilenameUtils.getBaseName(path);
+      String extension = FilenameUtils.getExtension(path);
+      if (file == null) {      
+        ArrayList<String> foldersToCreate = new ArrayList<String>();
+        String parentPath = FilenameUtils.getFullPathNoEndSeparator(path);
+        while ((parentPath != null) && (parentPath.length() > 0) && (repository.getFile(parentPath) == null)) {
+          foldersToCreate.add(FilenameUtils.getName(parentPath));
+          parentPath = FilenameUtils.getFullPathNoEndSeparator(parentPath);
+        }
+        Collections.reverse(foldersToCreate);
+        parentFolder = ((parentPath != null) && (parentPath.length() > 0)) ? repository.getFile(parentPath) : repository.getFile("/");
+        if (!parentFolder.isFolder()) {
+          throw new FileNotFoundException();
+        }
+        for (String folderName : foldersToCreate) {
+          parentFolder = repository.createFolder(parentFolder.getId(), new RepositoryFile.Builder(folderName).folder(true).build(), null);
+        }          
+        file = new RepositoryFile.Builder(FilenameUtils.getName(path)).versioned(true).build(); // Default versioned to true so that we're keeping history
+        repository.createFile(parentFolder.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
+      } else if (file.isFolder()) {
+          throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
+      } else {
+        if (version) {
+          int nameCount = 1;
+          String newFileName = null;
+          while (file != null) {
+            nameCount ++;
+            if ((extension != null) && (extension.length() > 0)) {
+              newFileName = baseFileName + "(" + nameCount + ")." + extension;  //$NON-NLS-1$ //$NON-NLS-2$
+            } else {
+              newFileName = baseFileName + "(" + nameCount + ")";  //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            file = repository.getFile(parentFolder.getPath() + "/" + newFileName); //$NON-NLS-1$
+          }
+          file = new RepositoryFile.Builder(newFileName).versioned(true).build(); // Default versioned to true so that we're keeping history
+          file = repository.createFile(parentFolder.getId(), file, payload, "New File"); //$NON-NLS-1$
+          path = file.getPath();
+        } else {
+          repository.updateFile(file, payload, "New File"); //$NON-NLS-1$
+        }
       }
-      String relPath = path.substring(path.lastIndexOf('/')).replace("/", ""); //$NON-NLS-1$ //$NON-NLS-2$
-      file = new RepositoryFile.Builder(relPath).versioned(true).build(); // Default versioned to true so that we're keeping history
-      repository.createFile(parent.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
-    } else if (file.isFolder()) {
-        throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
     } else {
-      repository.updateFile(file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
+      RepositoryFile file = repository.getFile(path);
+      repository.updateFile(file, payload, "New File"); //$NON-NLS-1$
     }
+    flushed = true;
   }
 
   public String getFilePath() {

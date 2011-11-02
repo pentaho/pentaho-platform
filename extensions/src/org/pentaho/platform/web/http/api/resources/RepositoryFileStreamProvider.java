@@ -50,9 +50,7 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
   }
 
   public OutputStream getOutputStream() throws Exception {
-    IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
     String tempOutputFilePath = outputFilePath;
-    String baseFileName = FilenameUtils.getBaseName(tempOutputFilePath);
     String extension = FilenameUtils.getExtension(tempOutputFilePath);
     if ("*".equals(extension)) { //$NON-NLS-1$
       tempOutputFilePath = tempOutputFilePath.substring(0, tempOutputFilePath.lastIndexOf('.'));
@@ -83,44 +81,7 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
       }
     }
     
-    if (extension.length() > 0){
-      extension = "." + extension; //$NON-NLS-1$
-    }
-    
-    RepositoryFile repositoryFile = repository.getFile(tempOutputFilePath);
-    RepositoryFile parentFolder = null;
-    String newFileName = null;
-    if (repositoryFile != null) {
-      if (repositoryFile.isFolder()) {
-        throw new FileNotFoundException();
-      }
-      parentFolder = repository.getFile(FilenameUtils.getFullPathNoEndSeparator(tempOutputFilePath));
-      int nameCount = 1;
-      while (repositoryFile != null) {
-        nameCount ++;
-        newFileName = baseFileName + "(" + nameCount + ")" + extension;  //$NON-NLS-1$ //$NON-NLS-2$
-        repositoryFile = repository.getFile(FilenameUtils.getFullPathNoEndSeparator(tempOutputFilePath) + "/" + newFileName); //$NON-NLS-1$
-      }
-    } else {
-      newFileName = FilenameUtils.getName(tempOutputFilePath);
-      ArrayList<String> foldersToCreate = new ArrayList<String>();
-      String parentPath = FilenameUtils.getFullPathNoEndSeparator(tempOutputFilePath);
-      while ((parentPath != null) && (parentPath.length() > 0) && (repository.getFile(parentPath) == null)) {
-        foldersToCreate.add(FilenameUtils.getName(parentPath));
-        parentPath = FilenameUtils.getFullPathNoEndSeparator(parentPath);
-      }
-      Collections.reverse(foldersToCreate);
-      parentFolder = ((parentPath != null) && (parentPath.length() > 0)) ? repository.getFile(parentPath) : repository.getFile(FileResource.PATH_SEPERATOR);
-      if (!parentFolder.isFolder()) {
-        throw new FileNotFoundException();
-      }
-      for (String folderName : foldersToCreate) {
-        parentFolder = repository.createFolder(parentFolder.getId(), new RepositoryFile.Builder(folderName).folder(true).build(), null);
-      }     
-    }
-    
-    String filePath = parentFolder.getPath() + "/" + newFileName; //$NON-NLS-1$
-    return new RepositoryFileOutputStream(filePath);
+    return new RepositoryFileOutputStream(tempOutputFilePath);
   }
 
   public String getOutputFilePath() {
