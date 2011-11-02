@@ -276,7 +276,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 		  URL dataSourcesConfigUrl = null;
 		    
 		  if (dataSourcesConfig == null) { //$NON-NLS-1$
-			String datasourcesXML = generateInMemoryDatasourcesXml();
+			String datasourcesXML = generateInMemoryDatasourcesXml(PentahoSystem.get(IUnifiedRepository.class));
 		    return parseDataSources(datasourcesXML);
 		  } else if (dataSourcesConfig.startsWith("file:")) { //$NON-NLS-1$
 		    dataSourcesConfigUrl = new URL(dataSourcesConfig);//dataSourcesConfigResource.getURL();
@@ -295,7 +295,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 	  }
   }
   
-  private String generateInMemoryDatasourcesXml() {
+  public String generateInMemoryDatasourcesXml(IUnifiedRepository unifiedRepository) {
 	  
 	  StringBuffer datasourcesXML = new StringBuffer(); 
 	  datasourcesXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -312,7 +312,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 	    		  
 	  //Creates <Catalogs> from the "/etc/mondrian/<catalog>/metadata" nodes.
 	  String etcMondrian = RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian";
-	  IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
 	    		  
 	  RepositoryFile etcMondrianFolder = unifiedRepository.getFile(etcMondrian);
 	  List<RepositoryFile> mondrianCatalogs = unifiedRepository.getChildren(etcMondrianFolder.getId());
