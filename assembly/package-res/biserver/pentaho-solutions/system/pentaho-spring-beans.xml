@@ -20,5 +20,6 @@
   <import resource="applicationContext-spring-security-hibernate.xml" />
   <import resource="applicationContext-pentaho-security-hibernate.xml" />
   <import resource="pentahoObjects.spring.xml" />
+  <import resource="GettingStartedDB-spring.xml" /> <!-- Remove this line to unhook the Getting Started DB -->
 
 </beans>
