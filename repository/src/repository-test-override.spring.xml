@@ -22,6 +22,16 @@
     <property name="homeDir" value="file:/tmp/jackrabbit-test" />
   </bean>
   
+    <bean id="backingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DelegatingBackingRepositoryLifecycleManager">
+    <constructor-arg>
+      <list>
+        <ref bean="defaultBackingRepositoryLifecycleManager" />
+        <ref bean="pdiBackingRepositoryLifecycleManager" />
+        <ref bean="mondrianBackingRepositoryLifecycleManager" />
+      </list>
+    </constructor-arg>
+  </bean>
+  
   <!-- 
   To enable RMI in a unit test, put jackrabbit-jcr-rmi-1.5.0.jar in dev-lib and add to Eclipse classpath.
   
