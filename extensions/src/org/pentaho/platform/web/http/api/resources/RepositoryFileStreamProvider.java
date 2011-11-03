@@ -81,7 +81,7 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
       }
     }
     
-    return new RepositoryFileOutputStream(tempOutputFilePath);
+    return new RepositoryFileOutputStream(tempOutputFilePath, true, true);
   }
 
   public String getOutputFilePath() {

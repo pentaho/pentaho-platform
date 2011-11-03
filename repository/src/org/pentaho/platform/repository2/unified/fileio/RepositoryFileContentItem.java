@@ -16,12 +16,15 @@ import org.pentaho.platform.util.web.MimeHelper;
 
 public class RepositoryFileContentItem implements IContentItem {
 
-  String filePath;
   RepositoryFileInputStream inputStream;
   RepositoryFileOutputStream outputStream;
   
   public RepositoryFileContentItem(String filePath) {
-    this.filePath = filePath;
+    outputStream = new RepositoryFileOutputStream(filePath);
+  }
+  
+  RepositoryFileContentItem(RepositoryFileOutputStream outputStream) {
+    this.outputStream = outputStream;
   }
   
   public void closeOutputStream() {
@@ -39,11 +42,11 @@ public class RepositoryFileContentItem implements IContentItem {
     return new IPentahoStreamSource() {
       
       public OutputStream getOutputStream() throws IOException {
-        return RepositoryFileContentItem.this.getOutputStream(null);
+        return outputStream;
       }
       
       public String getName() {
-        return FilenameUtils.getName(filePath);
+        return FilenameUtils.getName(getPath());
       }
       
       public InputStream getInputStream() throws IOException {
@@ -60,7 +63,7 @@ public class RepositoryFileContentItem implements IContentItem {
     if (inputStream == null) {
       try {
         RepositoryFileOutputStream outputStream = (RepositoryFileOutputStream)getOutputStream(null);
-        if ((outputStream.version) && !(outputStream.flushed)) {
+        if ((outputStream.autoCreateUniqueFileName) && !(outputStream.flushed)) {
           throw new FileNotFoundException("File not yet versioned.");
         }
         if (inputStream == null) {
@@ -81,18 +84,15 @@ public class RepositoryFileContentItem implements IContentItem {
   }
 
   public String getMimeType() {
-    return MimeHelper.getMimeTypeFromExtension("." + FilenameUtils.getExtension(filePath));
+    return MimeHelper.getMimeTypeFromExtension("." + FilenameUtils.getExtension(getPath()));
   }
 
   public OutputStream getOutputStream(String arg0) throws IOException {
-    if (outputStream == null) {
-      outputStream = new RepositoryFileOutputStream(filePath);
-    }
     return outputStream;
   }
 
   public String getPath() {
-    return filePath;
+    return outputStream.getFilePath();
   }
 
   public void setMimeType(String mimeType) {
@@ -100,11 +100,16 @@ public class RepositoryFileContentItem implements IContentItem {
     if (fileExtension == null) {
       throw new IllegalArgumentException("Unknown mime type");
     }
-    String currentFileExtension = FilenameUtils.getExtension(filePath);
-    if (!fileExtension.equals(currentFileExtension)) {
-      outputStream = null;
-      inputStream = null;
-      filePath = FilenameUtils.getFullPathNoEndSeparator(filePath) + "/" + FilenameUtils.getBaseName(filePath) + fileExtension;
+    String requestedFileExtension = MimeHelper.getExtension(mimeType);
+    String currentExtension = FilenameUtils.getExtension(outputStream.getFilePath());
+    if (requestedFileExtension == null) {
+      if (currentExtension != null) {
+        String tempFilePath = FilenameUtils.getFullPathNoEndSeparator(outputStream.getFilePath()) + "/" + FilenameUtils.getBaseName(outputStream.getFilePath());
+        outputStream = new RepositoryFileOutputStream(tempFilePath, outputStream.autoCreateUniqueFileName, outputStream.autoCreateDirStructure);
+      }
+    } else if (!requestedFileExtension.substring(1).equals(currentExtension.toLowerCase())){
+      String tempFilePath = FilenameUtils.getFullPathNoEndSeparator(outputStream.getFilePath()) + "/" + FilenameUtils.getBaseName(outputStream.getFilePath()) + requestedFileExtension;
+      outputStream = new RepositoryFileOutputStream(tempFilePath, outputStream.autoCreateUniqueFileName, outputStream.autoCreateDirStructure);
     }
   }
 

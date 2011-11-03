@@ -13,15 +13,15 @@ import org.pentaho.platform.util.web.MimeHelper;
 
 public class RepositoryFileOutputHandler implements IOutputHandler {
 
-  private String filePath;
+  private RepositoryFileOutputStream outputStream;
   private boolean contentGenerated;
   private boolean responseExpected;
   private IMimeTypeListener mimeTypeListener;
   private int outputType = IOutputHandler.OUTPUT_TYPE_DEFAULT;
   private IPentahoSession session;
   
-  public RepositoryFileOutputHandler(String filePath) {
-    this.filePath = filePath;
+  public RepositoryFileOutputHandler(RepositoryFileOutputStream outputStream) {
+    this.outputStream = outputStream;
     contentGenerated = false;
   }
   
@@ -45,11 +45,19 @@ public class RepositoryFileOutputHandler implements IOutputHandler {
     IContentItem outputContentItem = null;
     if(outputName.equals(IOutputHandler.RESPONSE) && contentName.equals(IOutputHandler.CONTENT)) {
       String requestedFileExtension = MimeHelper.getExtension(localMimeType);
+      String currentExtension = FilenameUtils.getExtension(outputStream.getFilePath());
       if (requestedFileExtension == null) {
-        outputContentItem = new RepositoryFileContentItem(filePath);
-      } else {
-        String tempFilePath = FilenameUtils.getFullPathNoEndSeparator(filePath) + "/" + FilenameUtils.getBaseName(filePath) + requestedFileExtension;
+        if (currentExtension != null) {
+          String tempFilePath = FilenameUtils.getFullPathNoEndSeparator(outputStream.getFilePath()) + "/" + FilenameUtils.getBaseName(outputStream.getFilePath());
+          outputContentItem = new RepositoryFileContentItem(tempFilePath);
+        } else {
+          outputContentItem = new RepositoryFileContentItem(outputStream);
+        }
+      } else if (!requestedFileExtension.substring(1).equals(currentExtension.toLowerCase())){
+        String tempFilePath = FilenameUtils.getFullPathNoEndSeparator(outputStream.getFilePath()) + "/" + FilenameUtils.getBaseName(outputStream.getFilePath()) + requestedFileExtension;
         outputContentItem = new RepositoryFileContentItem(tempFilePath);
+      } else {
+        outputContentItem = new RepositoryFileContentItem(outputStream);
       }
       responseExpected = true;
     } else {

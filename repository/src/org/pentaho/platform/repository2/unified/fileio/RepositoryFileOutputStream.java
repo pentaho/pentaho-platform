@@ -36,26 +36,43 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
   protected String path = null;
   protected IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
   protected String charsetName = null;
-  protected boolean version = true;
+  protected boolean autoCreateUniqueFileName = false;
+  protected boolean autoCreateDirStructure = false;
   protected boolean closed = false;
   protected boolean flushed = false;
 
-  public RepositoryFileOutputStream(String path) {
+  public RepositoryFileOutputStream(String path, boolean autoCreateUniqueFileName, boolean autoCreateDirStructure) {
     this.path = path;
+    this.autoCreateDirStructure = autoCreateDirStructure;
+    this.autoCreateUniqueFileName = autoCreateUniqueFileName;
   }
 
-  public RepositoryFileOutputStream(RepositoryFile file) {
-    path = file.getPath();
+  public RepositoryFileOutputStream(RepositoryFile file, boolean autoCreateUniqueFileName, boolean autoCreateDirStructure) {
+    this(file.getPath(), autoCreateUniqueFileName, autoCreateDirStructure);
   }
-
-  public RepositoryFileOutputStream(Serializable id) throws FileNotFoundException {
+  
+  public RepositoryFileOutputStream(Serializable id, boolean autoCreateUniqueFileName, boolean autoCreateDirStructure) throws FileNotFoundException {
     repository = PentahoSystem.get(IUnifiedRepository.class);
     RepositoryFile file = repository.getFileById(id);
     if (file == null) {
       throw new FileNotFoundException(MessageFormat.format(
           "Repository file with id {0} not readable or does not exist", id));
     }
-    path = file.getPath();
+    this.path = file.getPath();
+    this.autoCreateDirStructure = autoCreateDirStructure;
+    this.autoCreateUniqueFileName = autoCreateUniqueFileName;
+  }
+  
+  public RepositoryFileOutputStream(String path) {
+    this(path, false, false);
+  }
+
+  public RepositoryFileOutputStream(RepositoryFile file) {
+    this(file.getPath(), false, false);
+  }
+
+  public RepositoryFileOutputStream(Serializable id) throws FileNotFoundException {
+    this(id, false, false);
   }
   
   ////
@@ -125,26 +142,32 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
       String baseFileName = FilenameUtils.getBaseName(path);
       String extension = FilenameUtils.getExtension(path);
       if (file == null) {      
-        ArrayList<String> foldersToCreate = new ArrayList<String>();
-        String parentPath = FilenameUtils.getFullPathNoEndSeparator(path);
-        while ((parentPath != null) && (parentPath.length() > 0) && (repository.getFile(parentPath) == null)) {
-          foldersToCreate.add(FilenameUtils.getName(parentPath));
-          parentPath = FilenameUtils.getFullPathNoEndSeparator(parentPath);
+        if (autoCreateDirStructure) {
+          ArrayList<String> foldersToCreate = new ArrayList<String>();
+          String parentPath = FilenameUtils.getFullPathNoEndSeparator(path);
+          while ((parentPath != null) && (parentPath.length() > 0) && (repository.getFile(parentPath) == null)) {
+            foldersToCreate.add(FilenameUtils.getName(parentPath));
+            parentPath = FilenameUtils.getFullPathNoEndSeparator(parentPath);
+          }
+          Collections.reverse(foldersToCreate);
+          parentFolder = ((parentPath != null) && (parentPath.length() > 0)) ? repository.getFile(parentPath) : repository.getFile("/");
+          if (!parentFolder.isFolder()) {
+            throw new FileNotFoundException();
+          }
+          for (String folderName : foldersToCreate) {
+            parentFolder = repository.createFolder(parentFolder.getId(), new RepositoryFile.Builder(folderName).folder(true).build(), null);
+          }          
+        } else {
+          if (parentFolder == null) {
+            throw new FileNotFoundException();
+          }
         }
-        Collections.reverse(foldersToCreate);
-        parentFolder = ((parentPath != null) && (parentPath.length() > 0)) ? repository.getFile(parentPath) : repository.getFile("/");
-        if (!parentFolder.isFolder()) {
-          throw new FileNotFoundException();
-        }
-        for (String folderName : foldersToCreate) {
-          parentFolder = repository.createFolder(parentFolder.getId(), new RepositoryFile.Builder(folderName).folder(true).build(), null);
-        }          
         file = new RepositoryFile.Builder(FilenameUtils.getName(path)).versioned(true).build(); // Default versioned to true so that we're keeping history
         repository.createFile(parentFolder.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
       } else if (file.isFolder()) {
           throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
       } else {
-        if (version) {
+        if (autoCreateUniqueFileName) {
           int nameCount = 1;
           String newFileName = null;
           while (file != null) {
@@ -172,5 +195,13 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
 
   public String getFilePath() {
     return path;
+  }
+
+  public boolean getAutoCreateUniqueFileName() {
+    return autoCreateUniqueFileName;
+  }
+
+  public boolean getAutoCreateDirStructure() {
+    return autoCreateDirStructure;
   }
 }
