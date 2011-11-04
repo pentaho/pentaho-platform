@@ -40,7 +40,7 @@ public class ActionSequenceAction implements IStreamProcessingAction, IStreaming
   public void execute() throws Exception {
     IOutputHandler outputHandler = null;
     if (xactionResultsOutputStream instanceof RepositoryFileOutputStream) {
-      outputHandler = new RepositoryFileOutputHandler(((RepositoryFileOutputStream)xactionResultsOutputStream).getFilePath());
+      outputHandler = new RepositoryFileOutputHandler(((RepositoryFileOutputStream)xactionResultsOutputStream));
     } else {
       outputHandler = new SimpleOutputHandler(xactionResultsOutputStream, false);
     }
