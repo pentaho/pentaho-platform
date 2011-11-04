@@ -8,6 +8,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="api" exported="" />
     <orderEntry type="module-library">
       <library name="core/lib">
         <CLASSES>
