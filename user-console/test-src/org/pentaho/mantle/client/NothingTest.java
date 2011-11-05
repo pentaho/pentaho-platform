@@ -18,17 +18,16 @@
 package org.pentaho.mantle.client;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
-import org.junit.Test;
-import org.pentaho.mantle.client.objects.MantleXulOverlay;
+import org.pentaho.mantle.client.objects.UserPermission;
 
-public class TestNothing {
+public class NothingTest extends TestCase {
 
-  @Test
-  public void nothing() {
+  public void testNothing() {
     Assert.assertTrue(true);
-    MantleXulOverlay overlay = new MantleXulOverlay();
-    Assert.assertNull(overlay.getId());
+    UserPermission userPerm = new UserPermission();
+    Assert.assertNotNull(userPerm.toString());
   }
 
 }
