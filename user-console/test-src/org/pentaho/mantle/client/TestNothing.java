@@ -18,13 +18,17 @@
 package org.pentaho.mantle.client;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+import org.pentaho.mantle.client.objects.MantleXulOverlay;
 
 public class TestNothing {
 
   @Test
   public void nothing() {
     Assert.assertTrue(true);
+    MantleXulOverlay overlay = new MantleXulOverlay();
+    Assert.assertNull(overlay.getId());
   }
 
 }
