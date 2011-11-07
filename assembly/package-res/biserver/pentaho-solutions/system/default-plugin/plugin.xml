@@ -7,6 +7,9 @@
 
 	<perspective id="default.perspective" title="${BI.Browser}" layout-priority="-1" resourcebundle="content/default-plugin/resources/messages/messages">
 	</perspective>
+
+	<perspective id="workspace.perspective" title="${workspace}" layout-priority="0" resourcebundle="content/default-plugin/resources/messages/messages">
+	</perspective>
     
     <overlays>
     	<overlay id="startup.jpivot" resourcebundle="content/default-plugin/resources/messages/messages">
