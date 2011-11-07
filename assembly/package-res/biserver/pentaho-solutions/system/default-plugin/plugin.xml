@@ -21,6 +21,7 @@
     
     <external-resources>
         <file context="global">js/themes.js</file>
+      <file context="global">content/common-ui/resources/themes/jquery.js</file>
     </external-resources>
     
    <static-paths>
