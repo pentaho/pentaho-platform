@@ -16,8 +16,6 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +24,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
-import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -45,7 +39,6 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 
 	private IRepositoryFileBundle datasourcesXML;
 	private String mainRepositoryLocation;
-	private final static String ETC_MONDRIAN_JCR_FOLDER = RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian";
 	private static final Log logger = LogFactory.getLog(MondrianSchemaImportSource.class);
 
 	public MondrianSchemaImportSource() {
@@ -89,7 +82,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		for (IRepositoryFileBundle file : super.files) {
 			String datasourceInfo = getDatasourcesXMLDatasourceInfo(file);
 			if (datasourceInfo != null) {
-				processImportingSchema(file, importingFiles, datasourceInfo);
+				processImportingSchema(file, datasourceInfo);
 			} else {
 				file.setPath(this.mainRepositoryLocation + RepositoryFile.SEPARATOR + FilenameUtils.separatorsToUnix(file.getPath()));
 				importingFiles.add(file);
@@ -102,62 +95,15 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		return importingFiles;
 	}
 
-	private void processImportingSchema(IRepositoryFileBundle mondrianFile, List<IRepositoryFileBundle> importingFiles, String datasourceInfo) throws Exception {
-		String repoPath = createCatalog(mondrianFile, datasourceInfo);
+	private void processImportingSchema(IRepositoryFileBundle mondrianFile, String datasourceInfo) throws Exception {
 
-		File tempFile = File.createTempFile("tempFile", null);
-		tempFile.deleteOnExit();
-		FileOutputStream outputStream = new FileOutputStream(tempFile);
-		IOUtils.copy(mondrianFile.getInputStream(), outputStream);
-
-		RepositoryFile repoFile = new RepositoryFile.Builder("schema.xml").build();
-		RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + repoPath + RepositoryFile.SEPARATOR, tempFile, "UTF-8", mimeTypes.get("xml".toLowerCase()));
-		importingFiles.add(repoFileBundle);
-	}
-
-	/*
-	 * Creates "/etc/mondrian/<catalog>"
-	 */
-	private String createCatalog(IRepositoryFileBundle file, String datasourceInfo) throws Exception {
-
-		/*
-		 * This is the default implementation. Use Schema name as defined in the
-		 * mondrian.xml schema. Pending create alternate implementation. Use
-		 * catalog name from datasources.xml
-		 */
-
-		NodeList schemas = getElementsByTagName(file, "Schema");
+		NodeList schemas = getElementsByTagName(mondrianFile, "Schema");
 		Node schema = schemas.item(0);
 		Node name = schema.getAttributes().getNamedItem("name");
 		String catalogName = name.getTextContent();
 
-		RepositoryFile etcMondrian = super.unifiedRepository.getFile(ETC_MONDRIAN_JCR_FOLDER);
-		RepositoryFile catalog = super.unifiedRepository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName);
-		if (catalog == null) {
-			catalog = super.unifiedRepository.createFolder(etcMondrian.getId(), new RepositoryFile.Builder(catalogName).folder(true).build(), "");
-		}
-		createDatasourceMetadata(catalog, datasourceInfo);
-		return catalogName;
-	}
-
-	/*
-	 * Creates "/etc/mondrian/<catalog>/metadata" and the connection nodes
-	 */
-	private void createDatasourceMetadata(RepositoryFile catalog, String datasourceInfo) {
-		
-		RepositoryFile metadata = unifiedRepository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalog.getName() + RepositoryFile.SEPARATOR + "metadata");
-		
-		String definition = "mondrian:/" + catalog.getName();
-		DataNode node = new DataNode("catalog");
-		node.setProperty("definition", definition);
-		node.setProperty("datasourceInfo", datasourceInfo);
-		NodeRepositoryFileData data = new NodeRepositoryFileData(node);
-		
-		if(metadata == null) {
-			super.unifiedRepository.createFile(catalog.getId(), new RepositoryFile.Builder("metadata").build(), data, null);
-		} else {
-			super.unifiedRepository.updateFile(metadata, data, null);
-		}
+		MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper();
+		helper.addSchema(mondrianFile.getInputStream(), catalogName, datasourceInfo);
 	}
 
 	/*
@@ -166,7 +112,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 	 */
 	private String getDatasourcesXMLDatasourceInfo(IRepositoryFileBundle file) throws Exception {
 		String datasourceInfo = null;
-		if(datasourcesXML != null) {
+		if (datasourcesXML != null) {
 			String fullFileName = file.getPath() + file.getFile().getName();
 			fullFileName = FilenameUtils.separatorsToUnix(fullFileName);
 			NodeList mondrianDefinitions = getElementsByTagName(datasourcesXML, "Definition");
@@ -202,9 +148,8 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		nodes = document.getElementsByTagName(tagName);
 		return nodes;
 	}
-	
+
 	public void setOwnerName(String ownerName) {
 		this.mainRepositoryLocation = ownerName;
 	}
 }
- 
