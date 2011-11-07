@@ -96,10 +96,6 @@
     <!--  Other archive resources -->
     <dependency org="pentaho" name="pentaho-user-console-package" rev="${project.revision}" transitive="false" changing="true" />
 
-    <!-- For conflict statement to work, you have to ask for the resource you want to win the conflict in the same IVY.XML
-         in which you have your conflict statement. So this can be removed once we have a true build -->
-    <dependency org="pentaho-library" name="libbase" rev="1.2-SNAPSHOT" changing="true" transitive="false" conf="default->default" />
-
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
       are exporting these jars in their default dependencies.
@@ -119,7 +115,6 @@
     <conflict org="pentaho" module="pentaho-metadata" rev="${dependency.pentaho-metadata.revision}" />
     <conflict org="pentaho-reporting" rev="3.8-SNAPSHOT" />
 
-    <conflict org="pentaho-library" module="libbase" rev="1.2-SNAPSHOT" />
   </dependencies>
 
 </ivy-module>
