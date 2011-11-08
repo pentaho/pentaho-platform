@@ -289,7 +289,6 @@ public class WorkspacePanel extends SimplePanel {
             // Add it to the root panel.
             setWidget(tableAndPager);
             getElement().getStyle().setBackgroundColor("white");
-
           } else {
             // showServerError(response);
           }
@@ -302,8 +301,16 @@ public class WorkspacePanel extends SimplePanel {
 
   private final native JsArray<JsJob> parseJson(String json)
   /*-{
-    var obj = eval('(' + json + ')')
-    return obj.job;
+    var obj = eval('(' + json + ')');
+    
+    var arr = [];
+    if (obj.job.constructor.toString().indexOf("Array") == -1) {
+      arr.push(obj.job);
+    } else {
+      arr = obj.job; 
+    }
+    return arr;
+    //return obj.job;
   }-*/;
 
   public interface CellTableResources extends Resources {
