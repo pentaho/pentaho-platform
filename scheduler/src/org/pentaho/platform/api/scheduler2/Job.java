@@ -26,8 +26,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import antlr.debug.MessageAdapter;
-
 /**
  * A {@link Job} is a representation of the union between an action to be
  * performed, data to be supplied, and a schedule upon which the action will be fired.  
@@ -58,13 +56,11 @@ public class Job {
   String jobId;
   String userName;
   String jobName;
-  @XmlTransient
   JobState state = JobState.UNKNOWN;
   
   /**
    * @return the trigger that determines when the job executes
    */
-  @XmlJavaTypeAdapter(JobTriggerAdapter.class)
   public JobTrigger getJobTrigger() {
     return jobTrigger;
   }
@@ -194,7 +190,6 @@ public class Job {
   /**
    * @return the current job state
    */
-  @XmlTransient
   public JobState getState() {
     return state;
   }
