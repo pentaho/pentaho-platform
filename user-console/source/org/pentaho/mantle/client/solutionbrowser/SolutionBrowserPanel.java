@@ -46,7 +46,6 @@ import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.solutionbrowser.toolbars.BrowserToolbar;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTree;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
-import org.pentaho.mantle.client.solutionbrowser.workspace.WorkspacePanel;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 
@@ -94,7 +93,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private FilesListPanel filesListPanel = new FilesListPanel();
   private DeckPanel contentPanel = new DeckPanel();
   private LaunchPanel launchPanel = new LaunchPanel();
-  private WorkspacePanel workspacePanel = null;
 
   private MantleTabPanel contentTabPanel = new MantleTabPanel(true);
   private boolean showSolutionBrowser = false;
@@ -224,9 +222,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorPanel.getElement().getParentElement().addClassName("puc-navigator-panel");
     solutionNavigatorPanel.getElement().getParentElement().removeAttribute("style");
 
-    workspacePanel = new WorkspacePanel(isAdministrator);
     contentPanel.setAnimationEnabled(false);
-    contentPanel.add(workspacePanel);
     contentPanel.add(launchPanel);
     contentPanel.add(contentTabPanel);
     if (showSolutionBrowser) {
@@ -398,20 +394,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
    */
   private void mouseUp(Event e) {
     solutionNavigatorAndContentPanel.onBrowserEvent(e);
-  }
-
-  public boolean isWorkspaceShowing() {
-    if (contentPanel.getWidgetCount() > 0) {
-      return contentPanel.getWidgetIndex(workspacePanel) == contentPanel.getVisibleWidget();
-    }
-    return false;
-  }
-
-  public void showWorkspace() {
-    workspacePanel.refreshWorkspace();
-    contentPanel.showWidget(contentPanel.getWidgetIndex(workspacePanel));
-    // TODO Not sure what event type to pass
-    fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.UNDEFINED, -1);
   }
 
   public void showContent() {
@@ -671,10 +653,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     authCmd.execute();
   }
 
-  public WorkspacePanel getWorkspacePanel() {
-    return workspacePanel;
-  }
-
   public MantleTabPanel getContentTabPanel() {
     return contentTabPanel;
   }
@@ -686,7 +664,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   public void setAdministrator(boolean isAdministrator) {
     this.isAdministrator = isAdministrator;
     solutionTree.setAdministrator(isAdministrator);
-    workspacePanel.setAdministrator(isAdministrator);
   }
 
   public boolean isNavigatorShowing() {
@@ -731,18 +708,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
     for (SolutionBrowserListener listener : listeners) {
       try {
-        if (isWorkspaceShowing()) {
-          // cause all menus to be disabled for the selected file/tab
-          listener.solutionBrowserEvent(null, null, null);
-        } else {
-          List<FileItem> selectedItems = filesListPanel.getSelectedFileItems();
-          if (selectedItems.size() > 0) {
-            for (FileItem fileItem : selectedItems) {
-              listener.solutionBrowserEvent(type, tabContent, fileItem);
-            }
-          } else {
-            listener.solutionBrowserEvent(type, tabContent, null);
+        List<FileItem> selectedItems = filesListPanel.getSelectedFileItems();
+        if (selectedItems.size() > 0) {
+          for (FileItem fileItem : selectedItems) {
+            listener.solutionBrowserEvent(type, tabContent, fileItem);
           }
+        } else {
+          listener.solutionBrowserEvent(type, tabContent, null);
         }
       } catch (Exception e) {
         // don't let this fail, it will disturb normal processing

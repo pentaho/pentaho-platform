@@ -20,13 +20,10 @@
 package org.pentaho.mantle.client.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.pentaho.mantle.client.objects.SimpleMessageException;
-import org.pentaho.mantle.client.objects.SolutionFileInfo;
-import org.pentaho.mantle.client.objects.WorkspaceContent;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.ui.xul.XulOverlay;
@@ -36,7 +33,6 @@ import com.google.gwt.user.client.rpc.RemoteService;
 public interface MantleService extends RemoteService {
   public boolean isAuthenticated();
   public boolean isAdministrator();
-  public boolean cancelBackgroundJob(String jobName, String jobGroup);
   public boolean deleteContentItem(String contentId);
   
   public String getSoftwareUpdatesDocument();
@@ -49,15 +45,6 @@ public interface MantleService extends RemoteService {
   public void flushMondrianSchemaCache();
   public void purgeReportingDataCache();
 
-  //schedule API
-  public void createCronJob(String solutionName, String path, String actionName, String triggerName, String triggerGroup, String description, String cronExpression) throws SimpleMessageException;
-  public void createSimpleTriggerJob(String triggerName, String triggerGroup, String description, Date strStartDate, Date strEndDate, int repeatCount, int strRepeatInterval,
-      String solutionName, String path, String actionName) throws SimpleMessageException;
-  public void suspendJob(String jobName, String jobGroup);
-  public void resumeJob(String jobName, String jobGroup);
-  public void deleteJob(String jobName, String jobGroup);
-  public void runJob(String jobName, String jobGroup);
-    
   // file api
   public ArrayList<String> getAllUsers();
   public ArrayList<String> getAllRoles();

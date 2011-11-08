@@ -29,6 +29,7 @@ import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.ui.PerspectiveSwitcher;
 import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 import org.pentaho.ui.xul.stereotype.Bindable;
@@ -127,19 +128,14 @@ public class MainMenubarModel extends XulEventSourceAdapter implements SolutionB
   }
 
   @Bindable
-  public void toggleShowWorkspace() {
-    boolean showing = SolutionBrowserPanel.getInstance().isWorkspaceShowing();
-    if (showing) {
-      SolutionBrowserPanel.getInstance().showContent();
-    } else {
-      SolutionBrowserPanel.getInstance().showWorkspace();
-    }
-  }
-
-  @Bindable
   public void refreshContent() {
-    Command cmd = SolutionBrowserPanel.getInstance().isWorkspaceShowing() ? new RefreshWorkspaceCommand() : new RefreshRepositoryCommand();
-    cmd.execute();
+    if ("workspace.perspective".equals(PerspectiveSwitcher.getInstance().getActivePerspective().getId())){
+      Command cmd = new RefreshWorkspaceCommand();
+      cmd.execute();
+    } else {
+      Command cmd = new RefreshRepositoryCommand();
+      cmd.execute();
+    }
   }
 
   @Bindable

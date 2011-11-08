@@ -20,12 +20,9 @@
 package org.pentaho.mantle.server;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -41,14 +38,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.mantle.client.objects.JobDetail;
-import org.pentaho.mantle.client.objects.JobSchedule;
 import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.objects.SimpleMessageException;
-import org.pentaho.mantle.client.objects.WorkspaceContent;
 import org.pentaho.mantle.client.service.MantleService;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
-import org.pentaho.platform.api.engine.IBackgroundExecution;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -57,19 +50,14 @@ import org.pentaho.platform.api.engine.IPluginOperation;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
-import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.scheduler.BackgroundExecutionException;
-import org.pentaho.platform.api.scheduler.IJobDetail;
 import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.api.ui.Theme;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
-import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.engine.services.solution.StandardSettings;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
@@ -77,7 +65,6 @@ import org.pentaho.platform.util.VersionHelper;
 import org.pentaho.platform.util.VersionInfo;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
-import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
 import org.pentaho.ui.xul.XulOverlay;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -176,49 +163,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     return getPentahoSession() != null && getPentahoSession().isAuthenticated();
   }
 
-  public WorkspaceContent getWorkspaceContent() {
-    WorkspaceContent content = new WorkspaceContent();
-    content.setAllSchedules(getAllSchedules());
-    content.setMySchedules(getMySchedules());
-    content.setScheduledJobs(getScheduledBackgroundContent());
-    return content;
-  }
-
-  public ArrayList<JobDetail> getScheduledBackgroundContent() {
-    getPentahoSession().resetBackgroundExecutionAlert();
-    IBackgroundExecution backgroundExecution = PentahoSystem.get(IBackgroundExecution.class, getPentahoSession());
-    if (backgroundExecution != null) {
-      try {
-        List<IJobDetail> jobsList = (List<IJobDetail>) backgroundExecution.getScheduledAndExecutingBackgroundJobs(getPentahoSession());
-        ArrayList<JobDetail> myJobs = new ArrayList<JobDetail>(jobsList.size());
-        for (IJobDetail jobDetail : jobsList) {
-          JobDetail myJobDetail = new JobDetail();
-          myJobDetail.id = jobDetail.getName();
-          myJobDetail.name = jobDetail.getActionName();
-          myJobDetail.fullname = jobDetail.getFullName();
-          myJobDetail.description = jobDetail.getDescription();
-          myJobDetail.timestamp = jobDetail.getSubmissionDate();
-          myJobDetail.group = jobDetail.getGroupName();
-          myJobs.add(myJobDetail);
-        }
-        return myJobs;
-      } catch (BackgroundExecutionException bee) {
-        // since this is GWT-RPC we cannot serialize this particular exception
-        // so we will return an empty list, like the else condition below
-        return new ArrayList<JobDetail>();
-      }
-    } else {
-      return new ArrayList<JobDetail>();
-    }
-  }
-
-  public boolean cancelBackgroundJob(String jobName, String jobGroup) {
-    // UserFilesComponent userFiles = getUserFilesComponent();
-    // boolean status = userFiles.cancelJob(jobName, jobGroup);
-    // return status;
-    return false;
-  }
-
   public boolean deleteContentItem(String contentId) {
     // UserFilesComponent userFiles = getUserFilesComponent();
     // boolean status = userFiles.deleteContent(contentId);
@@ -236,155 +180,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     if (isAdministrator()) {
       IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(IMondrianCatalogService.class, "IMondrianCatalogService", getPentahoSession()); //$NON-NLS-1$
       mondrianCatalogService.reInit(getPentahoSession());
-    }
-  }
-
-  public ArrayList<JobSchedule> getMySchedules() {
-    ArrayList<JobSchedule> jobSchedules = null;
-    // try {
-    // List<IJobSchedule> schedules =
-    // SchedulerHelper.getMySchedules(getPentahoSession());
-    // jobSchedules = iJobSchedule2JobSchedule(schedules);
-    // // these are functionally the same exact objects (mantle
-    // // JobSchedule/platform JobSchedule)
-    // } catch (Exception e) {
-    // logger.error(e.getMessage());
-    // jobSchedules = new ArrayList<JobSchedule>();
-    // }
-    return jobSchedules;
-  }
-
-  public ArrayList<JobSchedule> getAllSchedules() {
-    ArrayList<JobSchedule> jobSchedules = null;
-    // try {
-    // List<IJobSchedule> schedules = SchedulerHelper.getAllSchedules(getPentahoSession());
-    // jobSchedules = iJobSchedule2JobSchedule(schedules);
-    // // these are functionally the same exact objects (mantle
-    // // JobSchedule/platform JobSchedule)
-    // } catch (Exception e) {
-    // logger.error(e.getMessage());
-    // jobSchedules = new ArrayList<JobSchedule>();
-    // }
-    return jobSchedules;
-  }
-
-  // private ArrayList<JobSchedule> iJobSchedule2JobSchedule(List<IJobSchedule> iJobSchedules) {
-  // ArrayList<JobSchedule> jobSchedules = new ArrayList<JobSchedule>();
-  // for (IJobSchedule iJobSchedule : iJobSchedules) {
-  // JobSchedule jobSchedule = new JobSchedule();
-  // jobSchedule.fullname = iJobSchedule.getFullname();
-  // jobSchedule.jobDescription = iJobSchedule.getJobDescription();
-  // jobSchedule.jobGroup = iJobSchedule.getJobGroup();
-  // jobSchedule.jobName = iJobSchedule.getJobName();
-  // jobSchedule.name = iJobSchedule.getName();
-  // jobSchedule.nextFireTime = iJobSchedule.getNextFireTime();
-  // jobSchedule.previousFireTime = iJobSchedule.getPreviousFireTime();
-  // jobSchedule.triggerGroup = iJobSchedule.getTriggerGroup();
-  // jobSchedule.triggerName = iJobSchedule.getTriggerName();
-  // jobSchedule.triggerState = iJobSchedule.getTriggerState();
-  //
-  // jobSchedules.add(jobSchedule);
-  // }
-  // return jobSchedules;
-  // }
-
-  public void deleteJob(String jobName, String jobGroup) {
-    // SchedulerHelper.deleteJob(getPentahoSession(), jobName, jobGroup);
-  }
-
-  public void runJob(String jobName, String jobGroup) {
-    // SchedulerHelper.runJob(getPentahoSession(), jobName, jobGroup);
-  }
-
-  public void resumeJob(String jobName, String jobGroup) {
-    // SchedulerHelper.resumeJob(getPentahoSession(), jobName, jobGroup);
-  }
-
-  public void suspendJob(String jobName, String jobGroup) {
-    // SchedulerHelper.suspendJob(getPentahoSession(), jobName, jobGroup);
-  }
-
-  // public void createCronJob(String solutionName, String path, String
-  // actionName, String cronExpression) throws SimpleMessageException {
-  //    if ("true".equalsIgnoreCase(PentahoSystem.getSystemSetting("kiosk-mode", "false"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-  //      throw new SimpleMessageException(ServerMessages.getString("featureDisabled")); //$NON-NLS-1$
-  // }
-  // try {
-  // SchedulerHelper.createCronJob(getPentahoSession(), solutionName, path,
-  // actionName, cronExpression);
-  // } catch (Exception e) {
-  // throw new SimpleMessageException(e.getMessage());
-  // }
-  // }
-
-  @SuppressWarnings("static-access")
-  public void createCronJob(String solutionName, String path, String actionName, String triggerName, String triggerGroup, String description,
-      String cronExpression) throws SimpleMessageException {
-    if (!hasAccess(path, actionName, ISolutionRepository.ACTION_SUBSCRIBE)) {
-      throw new SimpleMessageException(ServerMessages.getInstance().getString("noSchedulePermission")); //$NON-NLS-1$
-    }
-
-    if ("true".equalsIgnoreCase(PentahoSystem.getSystemSetting("kiosk-mode", "false"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      throw new SimpleMessageException(ServerMessages.getInstance().getString("featureDisabled")); //$NON-NLS-1$
-    }
-
-    try {
-      IBackgroundExecution backgroundExecutionHandler = PentahoSystem.get(IBackgroundExecution.class, getPentahoSession());
-      SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-      parameterProvider.setParameter(StandardSettings.SOLUTION, solutionName);
-      parameterProvider.setParameter(StandardSettings.PATH, path);
-      parameterProvider.setParameter(StandardSettings.ACTION, actionName);
-      parameterProvider.setParameter(StandardSettings.CRON_STRING, cronExpression);
-      parameterProvider.setParameter(StandardSettings.SCHEDULE_NAME, triggerName);
-      parameterProvider.setParameter(StandardSettings.SCHEDULE_GROUP_NAME, getPentahoSession().getName());
-      parameterProvider.setParameter(StandardSettings.DESCRIPTION, triggerGroup + DESC_SEPERATOR + description);
-      backgroundExecutionHandler.backgroundExecuteAction(getPentahoSession(), parameterProvider);
-    } catch (Exception e) {
-      throw new SimpleMessageException(e.getMessage());
-    } finally {
-      PentahoSystem.systemExitPoint(); // Since we're creating something an
-      // hibernate might throw an exception on
-      // the onAfterResponseSerialized() method
-      // of this
-      // class
-      // we need to do it before hand to see if we're going to error out.
-    }
-  }
-
-  @SuppressWarnings("static-access")
-  public void createSimpleTriggerJob(String triggerName, String triggerGroup, String description, Date startDate, Date endDate, int repeatCount,
-      int repeatInterval, String solutionName, String path, String actionName) throws SimpleMessageException {
-    if (!hasAccess(path, actionName, ISolutionRepository.ACTION_SUBSCRIBE)) {
-      throw new SimpleMessageException(ServerMessages.getInstance().getString("noSchedulePermission")); //$NON-NLS-1$
-    }
-
-    if ("true".equalsIgnoreCase(PentahoSystem.getSystemSetting("kiosk-mode", "false"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      throw new SimpleMessageException(ServerMessages.getInstance().getString("featureDisabled")); //$NON-NLS-1$
-    }
-
-    try {
-      IBackgroundExecution backgroundExecutionHandler = PentahoSystem.get(IBackgroundExecution.class, getPentahoSession());
-      SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
-      parameterProvider.setParameter(StandardSettings.SOLUTION, solutionName);
-      parameterProvider.setParameter(StandardSettings.PATH, path);
-      parameterProvider.setParameter(StandardSettings.ACTION, actionName);
-      parameterProvider.setParameter(StandardSettings.REPEAT_COUNT, Integer.toString(repeatCount));
-      parameterProvider.setParameter(StandardSettings.REPEAT_TIME_MILLISECS, Integer.toString(repeatInterval));
-      parameterProvider.setParameter(StandardSettings.START_DATE_TIME, startDate);
-      parameterProvider.setParameter(StandardSettings.END_DATE_TIME, endDate);
-      parameterProvider.setParameter(StandardSettings.SCHEDULE_NAME, triggerName);
-      parameterProvider.setParameter(StandardSettings.SCHEDULE_GROUP_NAME, getPentahoSession().getName());
-      parameterProvider.setParameter(StandardSettings.DESCRIPTION, triggerGroup + DESC_SEPERATOR + description);
-      backgroundExecutionHandler.backgroundExecuteAction(getPentahoSession(), parameterProvider);
-    } catch (Exception e) {
-      throw new SimpleMessageException(e.getMessage());
-    } finally {
-      PentahoSystem.systemExitPoint(); // Since we're creating something an
-      // hibernate might throw an exception on
-      // the onAfterResponseSerialized() method
-      // of this
-      // class
-      // we need to do it before hand to see if we're going to error out.
     }
   }
 

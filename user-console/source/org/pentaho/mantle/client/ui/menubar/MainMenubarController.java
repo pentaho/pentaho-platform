@@ -44,7 +44,6 @@ public class MainMenubarController extends AbstractXulEventHandler {
   private XulMenuitem saveMenuItem;
   private XulMenuitem saveAsMenuItem;
   private XulMenuitem showBrowserMenuItem;
-  private XulMenuitem showWorkspaceMenuItem;
   private XulMenuitem useDescriptionsMenuItem;
   private XulMenuitem showHiddenFilesMenuItem;
 
@@ -65,7 +64,6 @@ public class MainMenubarController extends AbstractXulEventHandler {
     saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem");
     saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem");
     showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem");
-    showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem");
     useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem");
     showHiddenFilesMenuItem = (XulMenuitem) document.getElementById("showHiddenFilesMenuItem");
     languageMenu = (XulMenubar) document.getElementById("languagemenu");
@@ -208,13 +206,6 @@ public class MainMenubarController extends AbstractXulEventHandler {
     boolean checked = ((CheckBoxMenuItem) showBrowserMenuItem.getManagedObject()).isChecked();
     ((CheckBoxMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(!checked);
     model.toggleShowBrowser();
-  }
-
-  @Bindable
-  public void showWorkspaceClicked() {
-    boolean checked = ((CheckBoxMenuItem) showWorkspaceMenuItem.getManagedObject()).isChecked();
-    ((CheckBoxMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(!checked);
-    model.toggleShowWorkspace();
   }
 
   @Bindable

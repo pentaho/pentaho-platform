@@ -47,7 +47,6 @@ public class MainToolbarModel extends XulEventSourceAdapter implements
   private boolean contentEditEnabled;
   private boolean contentEditSelected;
   private boolean showBrowserSelected;
-  private boolean workspaceSelected;
   private JavaScriptObject callback;
   
   public MainToolbarModel(XulMainToolbar main) {
@@ -132,7 +131,6 @@ public class MainToolbarModel extends XulEventSourceAdapter implements
     setContentEditSelected(editSelected);
     setCallback(callback);
 
-    setWorkspaceSelected(SolutionBrowserPanel.getInstance().isWorkspaceShowing());
     setShowBrowserSelected(SolutionBrowserPanel.getInstance().isNavigatorShowing());
 
     if (panel instanceof IFrameTabPanel) {
@@ -158,25 +156,12 @@ public class MainToolbarModel extends XulEventSourceAdapter implements
   }
 
   @Bindable
-  public boolean isWorkspaceSelected() {
-    return workspaceSelected;
-  }
-
-  @Bindable
   public void setShowBrowserSelected(boolean showBrowserSelected) {
     boolean prevVal = this.showBrowserSelected;
 
     this.showBrowserSelected = showBrowserSelected;
     this
         .firePropertyChange("showBrowserSelected", prevVal, showBrowserSelected);
-  }
-
-  @Bindable
-  public void setWorkspaceSelected(boolean workspaceSelected) {
-    boolean prevVal = this.workspaceSelected;
-
-    this.workspaceSelected = workspaceSelected;
-    this.firePropertyChange("workspaceSelected", prevVal, workspaceSelected);
   }
 
   @Bindable

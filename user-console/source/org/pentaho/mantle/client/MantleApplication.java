@@ -52,6 +52,7 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -164,7 +165,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
       RootPanel.get("pucMenuBar").add(XulMainMenubar.getInstance());
     }
 
-    RootPanel.get("pucPerspectives").add(new PerspectiveSwitcher());
+    RootPanel.get("pucPerspectives").add(PerspectiveSwitcher.getInstance());
     
     if ("true".equals(settings.get("show-main-toolbar"))) {
       RootPanel.get("pucToolBar").add(XulMainToolbar.getInstance());
@@ -174,8 +175,10 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     PluginOptionsHelper.buildEnabledOptionsList(settings);
 
     // show stuff we've created/configured
+    contentDeck.add(new Label());
+    contentDeck.showWidget(0);
     contentDeck.add(SolutionBrowserPanel.getInstance());
-    contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
+    
     contentDeck.setStyleName("applicationShell");
     
     // menubar=no,location=no,resizable=yes,scrollbars=no,status=no,width=1200,height=800

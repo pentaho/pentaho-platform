@@ -12,26 +12,20 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 Pentaho Corporation.  All rights reserved.
- *
- * Created Mar 25, 2008
- * @author Michael D'Amour
+ * Copyright 2011 Pentaho Corporation.  All rights reserved.
+ * 
  */
-package org.pentaho.mantle.client.objects;
+package org.pentaho.mantle.client.workspace;
 
-import java.io.Serializable;
-import java.util.Date;
+import com.google.gwt.core.client.JavaScriptObject;
 
-public class JobSchedule implements Serializable {
-  private static final long serialVersionUID = -4958765050443723116L;
-  public String name;
-  public String fullname;
-  public String triggerName;
-  public String triggerGroup;
-  public int triggerState;
-  public Date nextFireTime;
-  public Date previousFireTime;
-  public String jobName;
-  public String jobGroup;
-  public String jobDescription;
+public class JsJobParam extends JavaScriptObject {
+
+  // Overlay types always have protected, zero argument constructors.
+  protected JsJobParam() {
+  }
+
+  // JSNI methods to get job data.
+  public final native String getName() /*-{ return this.name; }-*/; //
+  public final native String getValue() /*-{ return this.value; }-*/; //
 }

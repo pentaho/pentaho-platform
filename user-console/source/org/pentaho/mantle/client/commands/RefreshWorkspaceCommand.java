@@ -16,7 +16,10 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.service.MantleServiceCache;
+import org.pentaho.mantle.client.workspace.WorkspacePanel;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class RefreshWorkspaceCommand extends AbstractCommand {
 
@@ -28,8 +31,15 @@ public class RefreshWorkspaceCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
-    solutionBrowserPerspective.getWorkspacePanel().refreshWorkspace();
+    MantleServiceCache.getService().isAdministrator(new AsyncCallback<Boolean>() {
+      public void onSuccess(Boolean result) {
+        WorkspacePanel.getInstance().refresh(result);
+      }
+
+      public void onFailure(Throwable caught) {
+        WorkspacePanel.getInstance().refresh(false);
+      }
+    });
   }
 
 }

@@ -18,7 +18,6 @@
 package org.pentaho.mantle.client.ui.toolbar;
 
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
-import org.pentaho.mantle.client.commands.ToggleWorkspaceCommand;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulToolbarbutton;
@@ -43,7 +42,6 @@ public class MainToolbarController extends AbstractXulEventHandler {
   private XulToolbarbutton saveAsBtn;
   private XulToolbarbutton newAdhocBtn;
   private XulToolbarbutton newAnalysisBtn;
-  private XulToolbarbutton workspaceBtn;
   private XulToolbarbutton showBrowserBtn;
   private XulToolbarbutton contentEditBtn;
 
@@ -60,7 +58,6 @@ public class MainToolbarController extends AbstractXulEventHandler {
     saveBtn = (XulToolbarbutton) document.getElementById("saveButton");
     saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton");
     newAnalysisBtn = (XulToolbarbutton) document.getElementById("newAnalysisButton");
-    workspaceBtn = (XulToolbarbutton) document.getElementById("workspaceButton");
     showBrowserBtn = (XulToolbarbutton) document.getElementById("showBrowserButton");
     contentEditBtn = (XulToolbarbutton) document.getElementById("editContentButton");
 
@@ -119,13 +116,6 @@ public class MainToolbarController extends AbstractXulEventHandler {
   }
 
   @Bindable
-  public void workspaceClicked() {
-    ToggleWorkspaceCommand toggleWorkspaceCommand = new ToggleWorkspaceCommand();
-    toggleWorkspaceCommand.execute();
-    model.setWorkspaceSelected(SolutionBrowserPanel.getInstance().isWorkspaceShowing());
-  }
-
-  @Bindable
   public void showBrowserClicked() {
     ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand();
     showBrowserCommand.execute();
@@ -135,12 +125,6 @@ public class MainToolbarController extends AbstractXulEventHandler {
   public void setShowBrowserSelected(boolean flag) {
     // called by the MainToolbarModel to change state.
     showBrowserBtn.setSelected(flag);
-  }
-
-  @Bindable
-  public void setWorkspaceSelected(boolean flag) {
-    // called by the MainToolbarModel to change state.
-    workspaceBtn.setSelected(flag);
   }
 
   @Bindable

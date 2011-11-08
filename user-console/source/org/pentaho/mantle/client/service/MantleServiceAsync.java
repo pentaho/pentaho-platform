@@ -20,7 +20,6 @@
 package org.pentaho.mantle.client.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +32,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface MantleServiceAsync {
   public void isAuthenticated(AsyncCallback<Boolean> callback);
   public void isAdministrator(AsyncCallback<Boolean> callback);
-  public void cancelBackgroundJob(String jobName, String jobGroup, AsyncCallback<Boolean> callback);
   public void deleteContentItem(String contentId, AsyncCallback<Boolean> callback);
 
   public void getSoftwareUpdatesDocument(AsyncCallback<String> callback);
@@ -46,16 +44,6 @@ public interface MantleServiceAsync {
   public void flushMondrianSchemaCache(AsyncCallback<Void> callback);
   public void purgeReportingDataCache(AsyncCallback<Void> callback);
 
-//  public void createCronJob(String solutionName, String path, String actionName, String cronExpression, AsyncCallback<Void> callback);
-  public void createCronJob(String solutionName, String path, String actionName, String triggerName, String triggerGroup, String description, String cronExpression, AsyncCallback<Void> callback);
-  public void createSimpleTriggerJob(String triggerName, String triggerGroup, String description, Date strStartDate, Date strEndDate, int repeatCount, int strRepeatInterval,
-      String solutionName, String path, String actionName, AsyncCallback<Void> callback);
-
-  public void suspendJob(String jobName, String jobGroup, AsyncCallback<Void> callback);
-  public void resumeJob(String jobName, String jobGroup, AsyncCallback<Void> callback);
-  public void deleteJob(String jobName, String jobGroup, AsyncCallback<Void> callback);
-  public void runJob(String jobName, String jobGroup, AsyncCallback<Void> callback);
-    
   // file api
   public void getAllUsers(AsyncCallback<ArrayList<String>> callback);
   public void getAllRoles(AsyncCallback<ArrayList<String>> callback);

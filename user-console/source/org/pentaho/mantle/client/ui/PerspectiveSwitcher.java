@@ -30,6 +30,7 @@ import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.menubar.XulMainMenubar;
 import org.pentaho.mantle.client.ui.toolbar.XulMainToolbar;
+import org.pentaho.mantle.client.workspace.WorkspacePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.util.ResourceBundleTranslator;
@@ -41,6 +42,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -59,7 +61,15 @@ public class PerspectiveSwitcher extends HorizontalPanel {
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
   private ArrayList<IPluginPerspective> perspectives;
 
-  public PerspectiveSwitcher() {
+  private IPluginPerspective activePerspective;
+
+  private static PerspectiveSwitcher instance = new PerspectiveSwitcher();
+
+  public static PerspectiveSwitcher getInstance() {
+    return instance;
+  }
+
+  private PerspectiveSwitcher() {
     getElement().setId("mantle-perspective-switcher");
     setStyleName("mantle-perspective-switcher");
     AsyncCallback<ArrayList<IPluginPerspective>> callback = new AsyncCallback<ArrayList<IPluginPerspective>>() {
@@ -189,8 +199,10 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     }
     return false;
   }
-  
+
   private void showPerspective(final ToggleButton source, final IPluginPerspective perspective) {
+
+    this.activePerspective = perspective;
 
     // before we show.. de-activate current perspective (based on shown widget)
     Widget w = MantleApplication.getInstance().getContentDeck().getWidget(MantleApplication.getInstance().getContentDeck().getVisibleWidget());
@@ -238,7 +250,7 @@ public class PerspectiveSwitcher extends HorizontalPanel {
             XulMainMenubar.getInstance().applyOverlay(overlay.getId());
           }
         }
-        if (!source.isDown() || !perspective.getId().equals("default.perspective")) {
+        if (source.isDown() && !perspective.getId().equals("default.perspective") && !perspective.getId().equals("workspace.perspective")) {
           hijackContentArea(perspective);
         }
       }
@@ -249,19 +261,34 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     if (!source.isDown()) {
       toggles.get(0).setDown(true);
       if (defaultPerspective.getId().equals("default.perspective")) {
-        MantleApplication.getInstance().getContentDeck()
-            .showWidget(MantleApplication.getInstance().getContentDeck().getWidgetIndex(SolutionBrowserPanel.getInstance()));
+        showDefaultPerspective();
         return;
       }
     }
 
     // if the selected perspective is "default.perspective"
     if (perspective.getId().equals("default.perspective")) {
-      MantleApplication.getInstance().getContentDeck()
-          .showWidget(MantleApplication.getInstance().getContentDeck().getWidgetIndex(SolutionBrowserPanel.getInstance()));
-      return;
+      showDefaultPerspective();
+    } else if (perspective.getId().equals("workspace.perspective")) {
+      showWorkspacePerspective();
     }
+  }
 
+  private void showDefaultPerspective() {
+    DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
+    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(SolutionBrowserPanel.getInstance()) == -1) {
+      contentDeck.add(SolutionBrowserPanel.getInstance());
+    }
+    // show stuff we've created/configured
+    contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
+  }
+
+  private void showWorkspacePerspective() {
+    DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
+    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(WorkspacePanel.getInstance()) == -1) {
+      contentDeck.add(WorkspacePanel.getInstance());
+    }
+    contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {
@@ -311,20 +338,25 @@ public class PerspectiveSwitcher extends HorizontalPanel {
       switcher.@org.pentaho.mantle.client.ui.PerspectiveSwitcher::setPerspective(Ljava/lang/String;)(perspectiveId);      
     }
   }-*/;
-  
+
   private JsArrayString getPerspectives() {
     JsArrayString stringArray = getJsArrayString();
-    for (IPluginPerspective perspective: perspectives) {
+    for (IPluginPerspective perspective : perspectives) {
       stringArray.push(perspective.getId());
     }
     return stringArray;
   }
-  
+
   private native JsArrayString getJsArrayString()
   /*-{
     return [];
   }-*/;
 
-  
-  
+  public IPluginPerspective getActivePerspective() {
+    return activePerspective;
+  }
+
+  public void setActivePerspective(IPluginPerspective activePerspective) {
+    this.activePerspective = activePerspective;
+  }
 }
