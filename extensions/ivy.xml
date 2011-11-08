@@ -381,13 +381,7 @@
     <!-- CM-241 -->
     <exclude org="cglib" module="cglib"/>
 
-    <override org="pentaho" module="mondrian" rev="${dependency.mondrian.revision}"/>
-
     <override org="junit" module="junit" rev="4.4"/>
     <override org="asm" module="asm" rev="3.1"/>
-
-    <!-- Fix to get the correct version of libbase during development -->
-    <override org="pentaho-library" module="libbase" rev="1.2-SNAPSHOT"/>
-
   </dependencies>
 </ivy-module>
