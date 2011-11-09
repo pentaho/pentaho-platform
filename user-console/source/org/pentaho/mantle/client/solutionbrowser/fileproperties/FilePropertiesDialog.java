@@ -30,7 +30,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class FilePropertiesDialog extends PromptDialogBox {
   public enum Tabs {
-    GENERAL, PERMISSION, GENERATED_CONTENT
+    GENERAL, PERMISSION, HISTORY
   }
 
   private PentahoTabPanel propertyTabs;
@@ -101,7 +101,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
       propertyTabs.selectTab(propertyTabs.getWidgetIndex(generalTab));
     } else if (tab == Tabs.PERMISSION && propertyTabs.getWidgetIndex(permissionsTab) > -1) {
       propertyTabs.selectTab(propertyTabs.getWidgetIndex(permissionsTab));
-    } else if (tab == Tabs.GENERATED_CONTENT && propertyTabs.getWidgetIndex(generatedContentTab) > -1) {
+    } else if (tab == Tabs.HISTORY && propertyTabs.getWidgetIndex(generatedContentTab) > -1) {
       propertyTabs.selectTab(propertyTabs.getWidgetIndex(generatedContentTab));
     }
   }

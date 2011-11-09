@@ -69,7 +69,7 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
   };
 
   FileCommand.COMMAND menuCommands[] = { COMMAND.NEWWINDOW, COMMAND.BACKGROUND, COMMAND.EDIT_ACTION, COMMAND.DELETE, null, COMMAND.SHARE, COMMAND.SCHEDULE_NEW,
-      null, COMMAND.HISTORY, COMMAND.PROPERTIES };
+      null, COMMAND.GENERATED_CONTENT, COMMAND.PROPERTIES };
 
   ToolbarComboButton miscComboBtn;
   ToolbarButton runBtn, editBtn;

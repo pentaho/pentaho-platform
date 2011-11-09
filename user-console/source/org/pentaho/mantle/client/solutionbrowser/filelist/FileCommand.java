@@ -65,8 +65,7 @@ public class FileCommand implements Command {
     CUT,
     GENERATED_CONTENT, 
     RESTORE, 
-    DELETEPERMANENT, 
-    HISTORY
+    DELETEPERMANENT
   }
 
   COMMAND mode = COMMAND.RUN;
@@ -136,7 +135,9 @@ public class FileCommand implements Command {
       List<FileItem> selectedItemsClone = new ArrayList<FileItem>(selectedItems);
       new CutFilesCommand(selectedItemsClone).execute();      
     } else if (mode == COMMAND.GENERATED_CONTENT) {
-      new ShowGeneratedContentCommand(selectedItem).execute();
+      FilePropertiesCommand historyCommand = new FilePropertiesCommand(fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get(0) : fileSummary);
+      historyCommand.setDefaultTab(Tabs.HISTORY);
+      historyCommand.execute();
     } else if (mode == COMMAND.RESTORE) {
       List<RepositoryFile> selectedItemsClone = new ArrayList<RepositoryFile>();
       for (FileItem fileItem : selectedItems) {
@@ -149,10 +150,6 @@ public class FileCommand implements Command {
         selectedItemsClone.add(fileItem.getRepositoryFile());
       }
       new DeletePermanentFileCommand(selectedItemsClone).execute();
-    } else if (mode == COMMAND.HISTORY) {
-      FilePropertiesCommand historyCommand = new FilePropertiesCommand(fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get(0) : fileSummary);
-      historyCommand.setDefaultTab(Tabs.GENERATED_CONTENT);
-      historyCommand.execute();
     }
   }
 
