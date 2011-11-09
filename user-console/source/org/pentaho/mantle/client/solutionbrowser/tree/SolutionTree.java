@@ -264,7 +264,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       selectFromList(parents);
     } else {
       for (int i = 0; i < getItemCount(); i++) {
-        ((FileTreeItem) getItem(i)).setState(true);
+        getItem(i).setState(true);
       }
     }
     WaitPopup.getInstance().setVisible(false);

@@ -16,13 +16,10 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog.Tabs;
-
 
 import com.google.gwt.user.client.Command;
 
@@ -42,9 +39,7 @@ public class FilePropertiesCommand implements Command {
   }
 
   public void execute() {
-    FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary,
-        PluginOptionsHelper.getEnabledOptions(fileSummary.getName()), SolutionBrowserPanel.getInstance()
-            .isAdministrator(), new PentahoTabPanel(), null, defaultTab);
+    FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab);
     dialog.showTab(defaultTab);
     dialog.center();
   }

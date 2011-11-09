@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -126,7 +127,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
     return path;
   }
-
+  
   /////////
   // DELETE
   @PUT
@@ -433,6 +434,31 @@ public class FileResource extends AbstractJaxRSResource {
       return null;
     }
   }
+  
+  @GET
+  @Path("{pathId : .+}/generatedcontent")
+  @Produces( { APPLICATION_XML, APPLICATION_JSON })
+  public List<RepositoryFileDto> doGetGeneratedContent(@PathParam("pathId") String pathId) {
+    RepositoryFileDto targetFile = doGetProperties(pathId);
+    List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
+    if (targetFile != null) {
+      String targetFileId = targetFile.getId();
+      SessionResource sessionResource = new SessionResource();
+      RepositoryFileDto workspaceFolder = repoWs.getFile(sessionResource.doGetCurrentUserDir());
+      List<RepositoryFileDto> children = repoWs.getChildren(workspaceFolder.getId());
+      for (RepositoryFileDto child : children) {
+        if (!child.isFolder()) {
+          Map<String, Serializable> fileMetadata = repository.getFileMetadata(child.getId());
+          String creatorId = (String)fileMetadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
+          if (creatorId != null && creatorId.equals(targetFileId)) {
+            content.add(child);
+          }
+        }
+      }
+    }
+    return content;
+  }
+  
   
   /////////
   // BROWSE

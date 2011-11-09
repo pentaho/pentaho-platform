@@ -81,7 +81,8 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       SEPARATOR, "cut", //$NON-NLS-1$
       "copy", //$NON-NLS-1$
       SEPARATOR, "exportRepositoryFiles", //$NON-NLS-1$ 
-      SEPARATOR, "propertiesEllipsis" //$NON-NLS-1$ 
+      SEPARATOR, "showHistoryEllipsis", //$NON-NLS-1$
+      "propertiesEllipsis" //$NON-NLS-1$ 
   };
 
   private static final String nonAdminMenuItems[] = { "open", //$NON-NLS-1$
@@ -96,7 +97,8 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       "scheduleEllipsis", //$NON-NLS-1$
       SEPARATOR, "copy", //$NON-NLS-1$
       "cut", //$NON-NLS-1$
-      SEPARATOR, "propertiesEllipsis" //$NON-NLS-1$
+      SEPARATOR, "showHistoryEllipsis", //$NON-NLS-1$
+      "propertiesEllipsis" //$NON-NLS-1$
   };
   
   private static final String trashMenuItems[] = { "restore", //$NON-NLS-1$
@@ -105,10 +107,10 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   };
 
   private static final FileCommand.COMMAND adminMenuCommands[] = { COMMAND.RUN, COMMAND.NEWWINDOW, COMMAND.BACKGROUND, COMMAND.EDIT, COMMAND.EDIT_ACTION, COMMAND.DELETE, null,
-      COMMAND.GENERATED_CONTENT, null, COMMAND.SHARE, COMMAND.SCHEDULE_NEW, null, COMMAND.CUT, COMMAND.COPY, null, COMMAND.EXPORT, null, COMMAND.PROPERTIES};
+      COMMAND.GENERATED_CONTENT, null, COMMAND.SHARE, COMMAND.SCHEDULE_NEW, null, COMMAND.CUT, COMMAND.COPY, null, COMMAND.EXPORT, null, COMMAND.GENERATED_CONTENT, COMMAND.PROPERTIES};
 
   private static final FileCommand.COMMAND nonAdminMenuCommands[] = { COMMAND.RUN, COMMAND.NEWWINDOW, COMMAND.BACKGROUND, COMMAND.EDIT, COMMAND.EDIT_ACTION, COMMAND.DELETE, null,
-      COMMAND.GENERATED_CONTENT, COMMAND.SHARE, COMMAND.SCHEDULE_NEW, null, COMMAND.COPY, COMMAND.CUT,  null, COMMAND.PROPERTIES};
+      COMMAND.GENERATED_CONTENT, COMMAND.SHARE, COMMAND.SCHEDULE_NEW, null, COMMAND.COPY, COMMAND.CUT,  null, COMMAND.GENERATED_CONTENT, COMMAND.PROPERTIES};
   
   private static final FileCommand.COMMAND trashMenuCommands[] = { COMMAND.RESTORE, COMMAND.DELETEPERMANENT, COMMAND.PROPERTIES};
 

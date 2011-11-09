@@ -24,7 +24,6 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import com.google.gwt.xml.client.Document;
 
 public interface IFileModifier {
-//  public void init(IFileSummary fileSummary, SolutionFileInfo fileInfo);
   public void init(RepositoryFile fileSummary, Document fileInfo);
   public void apply();
 }

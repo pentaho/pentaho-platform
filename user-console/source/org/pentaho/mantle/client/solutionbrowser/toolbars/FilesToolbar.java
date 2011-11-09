@@ -64,11 +64,12 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
       "delete", //$NON-NLS-1$
       SEPARATOR, "share", //$NON-NLS-1$
       "scheduleEllipsis", //$NON-NLS-1$
-      SEPARATOR, "propertiesEllipsis" //$NON-NLS-1$ 
+      SEPARATOR, "showHistoryEllipsis", //$NON-NLS-1$
+      "propertiesEllipsis" //$NON-NLS-1$ 
   };
 
   FileCommand.COMMAND menuCommands[] = { COMMAND.NEWWINDOW, COMMAND.BACKGROUND, COMMAND.EDIT_ACTION, COMMAND.DELETE, null, COMMAND.SHARE, COMMAND.SCHEDULE_NEW,
-      null, COMMAND.PROPERTIES };
+      null, COMMAND.HISTORY, COMMAND.PROPERTIES };
 
   ToolbarComboButton miscComboBtn;
   ToolbarButton runBtn, editBtn;

@@ -19,7 +19,6 @@ package org.pentaho.mantle.client.commands;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
@@ -36,8 +35,7 @@ public class ShareFileCommand implements Command {
     List<RepositoryFile> selectedList = sbp.getFilesListPanel().getRepositoryFiles();
     if (selectedList != null && selectedList.size() == 1) {
       RepositoryFile item = selectedList.get(0);
-    FilePropertiesDialog dialog = new FilePropertiesDialog(item, PluginOptionsHelper.getEnabledOptions(item.getName()), SolutionBrowserPanel
-        .getInstance().isAdministrator(), new MantleTabPanel(), null, FilePropertiesDialog.Tabs.PERMISSION);
+    FilePropertiesDialog dialog = new FilePropertiesDialog(item, new MantleTabPanel(), null, FilePropertiesDialog.Tabs.PERMISSION);
     dialog.showTab(FilePropertiesDialog.Tabs.PERMISSION);
     dialog.center();
   }

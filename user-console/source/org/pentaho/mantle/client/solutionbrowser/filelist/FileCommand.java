@@ -38,6 +38,7 @@ import org.pentaho.mantle.client.commands.ShowGeneratedContentCommand;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
+import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog.Tabs;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleHelper;
 
 import com.google.gwt.user.client.Command;
@@ -64,7 +65,8 @@ public class FileCommand implements Command {
     CUT,
     GENERATED_CONTENT, 
     RESTORE, 
-    DELETEPERMANENT
+    DELETEPERMANENT, 
+    HISTORY
   }
 
   COMMAND mode = COMMAND.RUN;
@@ -147,6 +149,10 @@ public class FileCommand implements Command {
         selectedItemsClone.add(fileItem.getRepositoryFile());
       }
       new DeletePermanentFileCommand(selectedItemsClone).execute();
+    } else if (mode == COMMAND.HISTORY) {
+      FilePropertiesCommand historyCommand = new FilePropertiesCommand(fileSummary == null ? fileSummaryProvider.getRepositoryFiles().get(0) : fileSummary);
+      historyCommand.setDefaultTab(Tabs.GENERATED_CONTENT);
+      historyCommand.execute();
     }
   }
 

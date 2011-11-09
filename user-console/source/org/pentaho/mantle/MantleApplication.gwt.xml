@@ -2,6 +2,8 @@
 	<!-- Inherit the core Web Toolkit stuff. -->
 	<inherits name='com.google.gwt.user.User'/>
 	<inherits name='com.google.gwt.xml.XML'/>
+	<inherits name='com.google.gwt.gen2.Gen2'/>
+	<inherits name='com.google.gwt.gen2.table.ScrollTable'/>
 	
 	<inherits name='org.pentaho.ui.Xul'/>
     <inherits name='org.pentaho.ui.xul.Gwt'/>

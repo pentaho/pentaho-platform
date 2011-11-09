@@ -24,36 +24,35 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.FileTypeEnabledOptions;
 
 import com.google.gwt.user.client.ui.Widget;
 
 public class FilePropertiesDialog extends PromptDialogBox {
   public enum Tabs {
-    GENERAL, PERMISSION, SUBSCRIBE
+    GENERAL, PERMISSION, GENERATED_CONTENT
   }
 
   private PentahoTabPanel propertyTabs;
   private GeneralPanel generalTab;
   private PermissionsPanel permissionsTab;
-  private SubscriptionsPanel subscriptionsTab;
+  private GeneratedContentPanel generatedContentTab;
 
-  public FilePropertiesDialog(RepositoryFile fileSummary, FileTypeEnabledOptions options, final boolean isAdministrator, final PentahoTabPanel propertyTabs,
-      final IDialogCallback callback, Tabs defaultTab) {
+  public FilePropertiesDialog(RepositoryFile fileSummary, final PentahoTabPanel propertyTabs, final IDialogCallback callback, Tabs defaultTab) {
     super(Messages.getString("properties"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     boolean isInTrash = fileSummary.getPath().contains("/.trash/pho:");
     setContent(propertyTabs);
 
     generalTab = new GeneralPanel(this, fileSummary);
+    if (!fileSummary.isFolder()) {
+      generatedContentTab = new GeneratedContentPanel(fileSummary);
+    }
     if (!isInTrash) {
       permissionsTab = new PermissionsPanel(fileSummary);
-      subscriptionsTab = new SubscriptionsPanel();
     }
 
     generalTab.getElement().setId("filePropertiesGeneralTab");
     if (!isInTrash) {
       permissionsTab.getElement().setId("filePropertiesPermissionsTab");
-      subscriptionsTab.getElement().setId("filePropertiesSubscriptionsTab");
     }
     okButton.getElement().setId("filePropertiesOKButton");
     cancelButton.getElement().setId("filePropertiesCancelButton");
@@ -75,9 +74,16 @@ public class FilePropertiesDialog extends PromptDialogBox {
     });
     this.propertyTabs = propertyTabs;
     propertyTabs.addTab(Messages.getString("general"), Messages.getString("general"), false, generalTab);
+    if (permissionsTab != null) {
+      propertyTabs.addTab(Messages.getString("share"), Messages.getString("share"), false, permissionsTab);
+    }
+    if (generatedContentTab != null) {
+      propertyTabs.addTab(Messages.getString("history"), Messages.getString("history"), false, generatedContentTab);
+    }
     getWidget().setHeight("100%"); //$NON-NLS-1$
     getWidget().setWidth("100%"); //$NON-NLS-1$
     setPixelSize(390, 420);
+    showTab(defaultTab);
   }
 
   private void applyPanel() {
@@ -89,80 +95,13 @@ public class FilePropertiesDialog extends PromptDialogBox {
     }
   }
 
-//  public void fetchFileInfoAndInitTabs() {
-//    final AsyncCallback<SolutionFileInfo> callback = new AsyncCallback<SolutionFileInfo>() {
-//
-//      public void onFailure(Throwable caught) {
-//        // we are already logged in, or something horrible happened
-//        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetFileProperties"), false, false, //$NON-NLS-1$ //$NON-NLS-2$
-//            true);
-//        dialogBox.center();
-//      }
-//
-//      public void onSuccess(SolutionFileInfo fileInfo) {
-//        if (isAdministrator && !fileInfo.isDirectory() && options != null && options.isCommandEnabled(COMMAND.SCHEDULE_NEW)) {
-//          propertyTabs.addTab(Messages.getString("advanced"), Messages.getString("advanced"), false, subscriptionsTab);
-//        }
-//        if (fileInfo.supportsAccessControls && fileInfo.canEffectiveUserManage) {
-//          propertyTabs.addTab(Messages.getString("share"), Messages.getString("share"), false, permissionsTab);
-//        }
-//        // init all tabs
-//        for (int i = 0; i < propertyTabs.getTabCount(); i++) {
-//          Widget w = propertyTabs.getTab(i).getContent();
-//          if (w instanceof IFileModifier) {
-//            ((IFileModifier) w).init(fileSummary, fileInfo);
-//          }
-//        }
-//        showTab(defaultTab);
-//      }
-//    };
-//    if ((fileSummary.getPath() == null || "".equals(fileSummary.getPath())) && (fileSummary.getSolution().equals(fileSummary.getName()))) {
-//      // no path, in this situation, we're probably looking at the solution
-//      // itself
-//      AbstractCommand getSolutionFileCmd = new AbstractCommand() {
-//
-//        private void getFileInfo() {
-//          MantleServiceCache.getService().getSolutionFileInfo(fileSummary.getSolution(), "", "", callback);
-//        }
-//
-//        protected void performOperation() {
-//          getFileInfo();
-//        }
-//
-//        protected void performOperation(boolean feedback) {
-//          getFileInfo();
-//        }
-//
-//      };
-//      getSolutionFileCmd.execute();
-//
-//    } else {
-//      AbstractCommand getSolutionFileCmd = new AbstractCommand() {
-//
-//        private void getFileInfo() {
-//          MantleServiceCache.getService().getSolutionFileInfo(fileSummary.getSolution(), fileSummary.getPath(), fileSummary.getName(), callback);
-//        }
-//
-//        protected void performOperation() {
-//          getFileInfo();
-//        }
-//
-//        protected void performOperation(boolean feedback) {
-//          getFileInfo();
-//        }
-//
-//     };
-//      getSolutionFileCmd.execute();
-//    }
-//  }
-
   public void showTab(Tabs tab) {
     if (tab == Tabs.GENERAL && propertyTabs.getWidgetIndex(generalTab) > -1) {
       propertyTabs.selectTab(propertyTabs.getWidgetIndex(generalTab));
     } else if (tab == Tabs.PERMISSION && propertyTabs.getWidgetIndex(permissionsTab) > -1) {
       propertyTabs.selectTab(propertyTabs.getWidgetIndex(permissionsTab));
-    } else if (tab == Tabs.SUBSCRIBE && propertyTabs.getWidgetIndex(subscriptionsTab) > -1) {
-      propertyTabs.selectTab(propertyTabs.getWidgetIndex(subscriptionsTab));
+    } else if (tab == Tabs.GENERATED_CONTENT && propertyTabs.getWidgetIndex(generatedContentTab) > -1) {
+      propertyTabs.selectTab(propertyTabs.getWidgetIndex(generatedContentTab));
     }
   }
 }
