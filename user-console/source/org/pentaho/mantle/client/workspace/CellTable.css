@@ -16,7 +16,7 @@
 @def selectionBorderWidth 2px;
 .cellTableWidget {
   background-color: white;
-  font-size: .8em;
+  font-size: .7em;
   border-bottom: 1px solid #6f7277;
 }
 
@@ -131,7 +131,6 @@ border: selectionBorderWidth solid #eee;
  * The keyboard selected cell is visible over selection.
  */
 .cellTableKeyboardSelectedCell {
-  border: selectionBorderWidth solid #d7dde8;
 }
 
 .cellTableLoading {

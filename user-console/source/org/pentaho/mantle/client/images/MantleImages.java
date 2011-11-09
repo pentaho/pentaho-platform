@@ -130,4 +130,15 @@ public interface MantleImages extends ClientBundle, Resources, HorizontalSplitPa
   ImageResource disclosurePanelOpen();
 
   ImageResource disclosurePanelClosed();
+  
+  // workspace icons
+  ImageResource datepicker16();
+  ImageResource refresh16();
+  ImageResource remove16();
+  ImageResource edit16();
+  ImageResource run16();
+  ImageResource stop16();
+  ImageResource start_scheduler16();
+  ImageResource stop_scheduler16();
+  
 }

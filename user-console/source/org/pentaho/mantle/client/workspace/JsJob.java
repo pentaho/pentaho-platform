@@ -46,6 +46,8 @@ public class JsJob extends JavaScriptObject {
   public final native JsJobTrigger getJobTrigger() /*-{ return this.jobTrigger; }-*/; //
   
   public final native String getState() /*-{ return this.state; }-*/; //
+
+  public final native void setState(String newState) /*-{ this.state = newState; }-*/; //
   
   public final String getJobParam(String name) {
     JsArray<JsJobParam> params = getJobParams();
