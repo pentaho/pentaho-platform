@@ -63,10 +63,10 @@ import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifier;
 
 /**
- * Represents a file node in the repository.  This api provides methods for discovering information
- * about repository files as well as CRUD operations
+ * Represents a file node in the repository. This api provides methods for discovering information about repository files as well as CRUD operations
+ * 
  * @author aaron
- *
+ * 
  */
 @Path("/scheduler")
 public class SchedulerResource extends AbstractJaxRSResource {
@@ -79,25 +79,26 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public SchedulerResource() {
   }
 
-  /////////
+  // ///////
   // CREATE
 
   @POST
   @Path("/job")
-  @Consumes( { APPLICATION_XML, APPLICATION_JSON })
+  @Consumes({ APPLICATION_XML, APPLICATION_JSON })
   @Produces("text/plain")
   public Response createJob(JobScheduleRequest scheduleRequest) throws IOException {
     final RepositoryFile file = repository.getFile(scheduleRequest.getInputFile());
     if (file == null) {
       return Response.status(NOT_FOUND).build();
     }
-    
-    Job job= null;
+
+    Job job = null;
     try {
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
       pentahoSession.getName();
       HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
-      String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName()) + "/workspace/" + FilenameUtils.getBaseName(scheduleRequest.getInputFile()) + ".*"; //$NON-NLS-1$ //$NON-NLS-2$
+      String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName())
+          + "/workspace/" + FilenameUtils.getBaseName(scheduleRequest.getInputFile()) + ".*"; //$NON-NLS-1$ //$NON-NLS-2$
       String actionId = FilenameUtils.getExtension(scheduleRequest.getInputFile()) + "." + "backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
       JobTrigger jobTrigger = scheduleRequest.getSimpleJobTrigger();
       if (scheduleRequest.getSimpleJobTrigger() != null) {
@@ -107,7 +108,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
         }
         jobTrigger = simpleJobTrigger;
       } else if (scheduleRequest.getComplexJobTrigger() != null) {
-        ComplexJobTriggerProxy proxyTrigger= scheduleRequest.getComplexJobTrigger();
+        ComplexJobTriggerProxy proxyTrigger = scheduleRequest.getComplexJobTrigger();
         ComplexJobTrigger complexJobTrigger = new ComplexJobTrigger();
         complexJobTrigger.setStartTime(proxyTrigger.getStartTime());
         complexJobTrigger.setEndTime(proxyTrigger.getEndTime());
@@ -134,7 +135,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
           for (int dayOfMonth : proxyTrigger.getDaysOfMonth()) {
             complexJobTrigger.addDayOfMonthRecurrence(dayOfMonth);
           }
-        }        
+        }
         for (int month : proxyTrigger.getMonthsOfYear()) {
           complexJobTrigger.addMonthlyRecurrence(month + 1);
         }
@@ -156,16 +157,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
           throw new IllegalArgumentException();
         }
       }
-      job = scheduler.createJob(Integer.toString(Math.abs(random.nextInt())), actionId, parameterMap, jobTrigger, new RepositoryFileStreamProvider(scheduleRequest.getInputFile(), outputFile));
+      job = scheduler.createJob(Integer.toString(Math.abs(random.nextInt())), actionId, parameterMap, jobTrigger, new RepositoryFileStreamProvider(
+          scheduleRequest.getInputFile(), outputFile));
     } catch (SchedulerException e) {
       return Response.serverError().entity(e.toString()).build();
     }
     return Response.ok(job.getJobId()).type(MediaType.TEXT_PLAIN).build();
   }
-  
+
   @GET
   @Path("/jobs")
-  @Produces( { APPLICATION_XML, APPLICATION_JSON })
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public List<Job> getJobs() {
     try {
       return scheduler.getJobs(new IJobFilter() {
@@ -180,17 +182,136 @@ public class SchedulerResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
+
+  @GET
+  @Path("/state")
+  @Produces("text/plain")
+  public Response getState() {
+    try {
+      return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @GET
+  @Path("/start")
+  @Produces("text/plain")
+  public Response start() {
+    try {
+      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+        scheduler.start();
+      }
+      return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @GET
+  @Path("/pause")
+  @Produces("text/plain")
+  public Response pause() {
+    try {
+      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+        scheduler.pause();
+      }
+      return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @GET
+  @Path("/shutdown")
+  @Produces("text/plain")
+  public Response shutdown() {
+    try {
+      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+        scheduler.shutdown();
+      }
+      return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @POST
+  @Path("/pauseJob")
+  @Produces("text/plain")
+  @Consumes({ APPLICATION_XML, APPLICATION_JSON })
+  public Response pauseJob(JobRequest jobRequest) {
+    try {
+      Job job = scheduler.getJob(jobRequest.getJobId());
+      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+        scheduler.pauseJob(jobRequest.getJobId());
+      } else {
+        if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
+          scheduler.pauseJob(jobRequest.getJobId());
+        }
+      }
+      // udpate job state
+      job = scheduler.getJob(jobRequest.getJobId());
+      return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @POST
+  @Path("/resumeJob")
+  @Produces("text/plain")
+  @Consumes({ APPLICATION_XML, APPLICATION_JSON })
+  public Response resumeJob(JobRequest jobRequest) {
+    try {
+      Job job = scheduler.getJob(jobRequest.getJobId());
+      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+        scheduler.resumeJob(jobRequest.getJobId());
+      } else {
+        if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
+          scheduler.resumeJob(jobRequest.getJobId());
+        }
+      }
+      // udpate job state
+      job = scheduler.getJob(jobRequest.getJobId());
+      return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @POST
+  @Path("/removeJob")
+  @Produces("text/plain")
+  @Consumes({ APPLICATION_XML, APPLICATION_JSON })
+  public Response removeJob(JobRequest jobRequest) {
+    try {
+      Job job = scheduler.getJob(jobRequest.getJobId());
+      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+        scheduler.removeJob(jobRequest.getJobId());
+        return Response.ok("REMOVED").type(MediaType.TEXT_PLAIN).build();
+      } else {
+        if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
+          scheduler.removeJob(jobRequest.getJobId());
+          return Response.ok("REMOVED").type(MediaType.TEXT_PLAIN).build();
+        }
+      }
+      return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   @GET
   @Path("/jobinfo")
-  @Produces( { APPLICATION_JSON })
+  @Produces({ APPLICATION_JSON })
   public JobScheduleRequest getJobInfo() {
     JobScheduleRequest jobRequest = new JobScheduleRequest();
     ComplexJobTriggerProxy proxyTrigger = new ComplexJobTriggerProxy();
-    proxyTrigger.setDaysOfMonth(new int[]{1, 2, 3});
-    proxyTrigger.setDaysOfWeek(new int[]{1, 2, 3});
-    proxyTrigger.setMonthsOfYear(new int[]{1, 2, 3});
-    proxyTrigger.setYears(new int[]{2012, 2013});
+    proxyTrigger.setDaysOfMonth(new int[] { 1, 2, 3 });
+    proxyTrigger.setDaysOfWeek(new int[] { 1, 2, 3 });
+    proxyTrigger.setMonthsOfYear(new int[] { 1, 2, 3 });
+    proxyTrigger.setYears(new int[] { 2012, 2013 });
     jobRequest.setComplexJobTrigger(proxyTrigger);
     jobRequest.setInputFile("aaaaa");
     jobRequest.setOutputFile("bbbbb");
