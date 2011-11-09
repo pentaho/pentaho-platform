@@ -62,10 +62,11 @@
       Overriden to force gwt javascript compilation
       ====================================================================-->
   <target name="assemble" depends="gwt-compile">
-    <copy todir="${stage.dir}">
+    <copy todir="${stage.dir}" includeemptydirs="false">
       <fileset dir="${gwt.output.dir}">
         <exclude name=".gwt-tmp/" />
         <exclude name="*-aux/" />
+        <exclude name="**/*.symbolMap" />
       </fileset>
     </copy>
   </target>
