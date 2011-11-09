@@ -50,8 +50,8 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     this.repositoryFilePath = repositoryFilePath;
 
     String name = repositoryFilePath;
-    if (repositoryFilePath.lastIndexOf("/") != -1) {
-      name = repositoryFilePath.substring(repositoryFilePath.lastIndexOf("/")+1);
+    if (repositoryFilePath.lastIndexOf(":") != -1) {
+      name = repositoryFilePath.substring(repositoryFilePath.lastIndexOf(":")+1);
     }
     
     this.add(new Label(name));
