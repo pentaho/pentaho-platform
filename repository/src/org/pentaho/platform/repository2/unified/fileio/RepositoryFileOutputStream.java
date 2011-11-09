@@ -40,6 +40,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
   protected boolean autoCreateDirStructure = false;
   protected boolean closed = false;
   protected boolean flushed = false;
+  protected ArrayList<IRepositoryFileOutputStreamListener> listeners = new ArrayList<IRepositoryFileOutputStreamListener>();
 
   public RepositoryFileOutputStream(String path, boolean autoCreateUniqueFileName, boolean autoCreateDirStructure) {
     this.path = path;
@@ -163,7 +164,10 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
           }
         }
         file = new RepositoryFile.Builder(FilenameUtils.getName(path)).versioned(true).build(); // Default versioned to true so that we're keeping history
-        repository.createFile(parentFolder.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
+        file = repository.createFile(parentFolder.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
+        for (IRepositoryFileOutputStreamListener listener : listeners) {
+          listener.fileCreated(path);
+        }
       } else if (file.isFolder()) {
           throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
       } else {
@@ -182,6 +186,9 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
           file = new RepositoryFile.Builder(newFileName).versioned(true).build(); // Default versioned to true so that we're keeping history
           file = repository.createFile(parentFolder.getId(), file, payload, "New File"); //$NON-NLS-1$
           path = file.getPath();
+          for (IRepositoryFileOutputStreamListener listener : listeners) {
+            listener.fileCreated(path);
+          }
         } else {
           repository.updateFile(file, payload, "New File"); //$NON-NLS-1$
         }
@@ -197,11 +204,24 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
     return path;
   }
 
+  public void setFilePath(String path) {
+    if (!path.equals(this.path)) {
+      this.path = path;
+      reset();
+      flushed = false;
+      closed = false;
+    }
+  }
+  
   public boolean getAutoCreateUniqueFileName() {
     return autoCreateUniqueFileName;
   }
 
   public boolean getAutoCreateDirStructure() {
     return autoCreateDirStructure;
+  }
+  
+  public void addListener(IRepositoryFileOutputStreamListener listener) {
+    listeners.add(listener);
   }
 }

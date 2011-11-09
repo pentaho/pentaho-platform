@@ -49,14 +49,14 @@ public class RepositoryFileOutputHandler implements IOutputHandler {
       if (requestedFileExtension == null) {
         if (currentExtension != null) {
           String tempFilePath = FilenameUtils.getFullPathNoEndSeparator(outputStream.getFilePath()) + "/" + FilenameUtils.getBaseName(outputStream.getFilePath());
-          outputStream = new RepositoryFileOutputStream(tempFilePath, outputStream.autoCreateUniqueFileName, outputStream.autoCreateDirStructure);
+          outputStream.setFilePath(tempFilePath);
           outputContentItem = new RepositoryFileContentItem(outputStream);
         } else {
           outputContentItem = new RepositoryFileContentItem(outputStream);
         }
       } else if (!requestedFileExtension.substring(1).equals(currentExtension.toLowerCase())){
         String tempFilePath = FilenameUtils.getFullPathNoEndSeparator(outputStream.getFilePath()) + "/" + FilenameUtils.getBaseName(outputStream.getFilePath()) + requestedFileExtension;
-        outputStream = new RepositoryFileOutputStream(tempFilePath, outputStream.autoCreateUniqueFileName, outputStream.autoCreateDirStructure);
+        outputStream.setFilePath(tempFilePath);
         outputContentItem = new RepositoryFileContentItem(outputStream);
       } else {
         outputContentItem = new RepositoryFileContentItem(outputStream);

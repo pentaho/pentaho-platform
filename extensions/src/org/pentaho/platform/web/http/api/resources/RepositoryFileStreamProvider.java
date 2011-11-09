@@ -3,21 +3,21 @@ package org.pentaho.platform.web.http.api.resources;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.io.Serializable;
+import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.action.IStreamingAction;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository2.unified.fileio.IRepositoryFileOutputStreamListener;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
-import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 
-public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamProvider {
+public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamProvider, IRepositoryFileOutputStreamListener {
 
   public String outputFilePath;
   public String inputFilePath;
@@ -81,9 +81,24 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
       }
     }
     
-    return new RepositoryFileOutputStream(tempOutputFilePath, true, true);
+    RepositoryFileOutputStream outputStream = new RepositoryFileOutputStream(tempOutputFilePath, true, true);
+    outputStream.addListener(this);
+    return outputStream;
   }
-
+  
+  public void fileCreated(String filePath) {
+    IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
+    RepositoryFile outputFile = repository.getFile(filePath);
+    if (outputFile != null) {
+      Map<String, Serializable> fileMetadata = repository.getFileMetadata(outputFile.getId());
+      RepositoryFile inputFile = repository.getFile(inputFilePath);
+      if (inputFile != null) {
+        fileMetadata.put(PentahoJcrConstants.PHO_CONTENTCREATOR, inputFile.getId());
+        repository.setFileMetadata(outputFile.getId(), fileMetadata);
+      }
+    }
+  }
+  
   public String getOutputFilePath() {
     return outputFilePath;
   }
