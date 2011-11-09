@@ -103,6 +103,12 @@ public interface IScheduler {
    * @param jobId the job to be resumed
    */
   public void resumeJob(String jobId) throws SchedulerException;
+
+  /**
+   * Fetches a Job by jobId
+   * @param jobId the job to be returned
+   */
+  public Job getJob(String jobId) throws SchedulerException;
   
   /**
    * Sets when a particular subject is allowed to schedule jobs.
