@@ -47,6 +47,7 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.JobTrigger;
@@ -54,6 +55,7 @@ import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
@@ -166,7 +168,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces( { APPLICATION_XML, APPLICATION_JSON })
   public List<Job> getJobs() {
     try {
-      return scheduler.getJobs(null);
+      return scheduler.getJobs(new IJobFilter() {
+        public boolean accept(Job job) {
+          if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+            return true;
+          }
+          return PentahoSessionHolder.getSession().getName().equals(job.getUserName());
+        }
+      });
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
