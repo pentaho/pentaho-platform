@@ -43,13 +43,18 @@ import com.google.gwt.xml.client.Document;
  */
 public class GeneratedContentPanel extends VerticalPanel implements IFileModifier {
 
-  private RepositoryFile repositoryFile;
+  private String repositoryFilePath;
   private FixedWidthGrid dataTable;
   
-  public GeneratedContentPanel(final RepositoryFile repositoryFile) {
-    this.repositoryFile = repositoryFile;
+  public GeneratedContentPanel(final String repositoryFilePath) {
+    this.repositoryFilePath = repositoryFilePath;
 
-    this.add(new Label(this.repositoryFile.getName()));
+    String name = repositoryFilePath;
+    if (repositoryFilePath.lastIndexOf("/") != -1) {
+      name = repositoryFilePath.substring(repositoryFilePath.lastIndexOf("/")+1);
+    }
+    
+    this.add(new Label(name));
     FixedWidthFlexTable headerTable = new FixedWidthFlexTable();
     headerTable.setHTML(0, 0, Messages.getString("filename")); //$NON-NLS-1$
     headerTable.setHTML(0, 1,  Messages.getString("executed")); //$NON-NLS-1$
@@ -61,7 +66,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     scrollTable.setSize("100%", "400px");  //$NON-NLS-1$//$NON-NLS-2$
     this.add(scrollTable);
 
-    init(this.repositoryFile, null);
+    init(this.repositoryFilePath, null);
   }
 
   /* (non-Javadoc)
@@ -70,7 +75,6 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
   @Override
   public void apply() {
     // TODO Auto-generated method stub
-
   }
 
   /* (non-Javadoc)
@@ -78,10 +82,14 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
    */
   @Override
   public void init(final RepositoryFile fileSummary, Document fileInfo) {
+    init(SolutionBrowserPanel.pathToId(fileSummary.getPath()), fileInfo);
+  }
+
+  private void init(final String fileSummaryPath, Document fileInfo) {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/generatedcontent"; //$NON-NLS-1$ //$NON-NLS-2$
+    String url = contextURL + "api/repo/files/" + fileSummaryPath + "/generatedcontent"; //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     try {
       builder.sendRequest(null, new RequestCallback() {
@@ -109,8 +117,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     } catch (RequestException e) {
       MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
       dialogBox.center();
-    }
-
+    }    
   }
-
+  
 }

@@ -24,6 +24,7 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
 import com.google.gwt.user.client.ui.Widget;
 
@@ -44,7 +45,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
 
     generalTab = new GeneralPanel(this, fileSummary);
     if (!fileSummary.isFolder()) {
-      generatedContentTab = new GeneratedContentPanel(fileSummary);
+      generatedContentTab = new GeneratedContentPanel(SolutionBrowserPanel.pathToId(fileSummary.getPath()));
     }
     if (!isInTrash) {
       permissionsTab = new PermissionsPanel(fileSummary);
