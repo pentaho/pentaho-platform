@@ -445,13 +445,15 @@ public class FileResource extends AbstractJaxRSResource {
       String targetFileId = targetFile.getId();
       SessionResource sessionResource = new SessionResource();
       RepositoryFileDto workspaceFolder = repoWs.getFile(sessionResource.doGetCurrentUserDir());
-      List<RepositoryFileDto> children = repoWs.getChildren(workspaceFolder.getId());
-      for (RepositoryFileDto child : children) {
-        if (!child.isFolder()) {
-          Map<String, Serializable> fileMetadata = repository.getFileMetadata(child.getId());
-          String creatorId = (String)fileMetadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
-          if (creatorId != null && creatorId.equals(targetFileId)) {
-            content.add(child);
+      if (workspaceFolder != null) {
+        List<RepositoryFileDto> children = repoWs.getChildren(workspaceFolder.getId());
+        for (RepositoryFileDto child : children) {
+          if (!child.isFolder()) {
+            Map<String, Serializable> fileMetadata = repository.getFileMetadata(child.getId());
+            String creatorId = (String)fileMetadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
+            if (creatorId != null && creatorId.equals(targetFileId)) {
+              content.add(child);
+            }
           }
         }
       }
