@@ -292,7 +292,7 @@ public class PerspectiveSwitcher extends HorizontalPanel {
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {
-
+    Window.alert("hijackContentArea: " + perspective.getId());
     // hijack content area (or simply find and select existing content)
     Frame frame = null;
     for (int i = 0; i < MantleApplication.getInstance().getContentDeck().getWidgetCount(); i++) {

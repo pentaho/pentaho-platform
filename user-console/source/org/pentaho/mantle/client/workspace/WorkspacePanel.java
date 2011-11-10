@@ -480,6 +480,7 @@ public class WorkspacePanel extends SimplePanel {
       }
     });
     bar.add(scheduleRemoveButton);
+    bar.addSpacer(10);
 
     tableAndPager.add(bar);
     tableAndPager.add(table);
