@@ -98,7 +98,8 @@ public String processTemplate(String template, final String title, final String 
     template = template.replaceAll("\\{background-alert\\}", session.getBackgroundExecutionAlert() ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     template = template.replaceAll("\\{header-content\\}", headerContent); //$NON-NLS-1$ //$NON-NLS-2$
     template = template.replaceAll("\\{body-tag\\}", ""); //$NON-NLS-1$ //$NON-NLS-2$
-    template = template.replaceAll("\\{isAdmin\\}", SecurityHelper.isPentahoAdministrator(session) ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    template = template.replaceAll("\\{isAdmin\\}", SecurityHelper.getInstance().isPentahoAdministrator(session) ?
+        "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     template = template.replaceAll("\\{repository-name\\}", repository.getRepositoryName() ); //$NON-NLS-1$
     template = template.replaceAll("\\{copyright\\}", Messages.getInstance().getString("UI.USER_COPYRIGHT")); //$NON-NLS-1$ //$NON-NLS-2$
 

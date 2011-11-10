@@ -172,7 +172,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     try {
       return scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
-          if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+          if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
             return true;
           }
           return PentahoSessionHolder.getSession().getName().equals(job.getUserName());
@@ -199,7 +199,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response start() {
     try {
-      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+      if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
         scheduler.start();
       }
       return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
@@ -213,7 +213,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response pause() {
     try {
-      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+      if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
         scheduler.pause();
       }
       return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
@@ -227,7 +227,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response shutdown() {
     try {
-      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+      if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
         scheduler.shutdown();
       }
       return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
@@ -243,7 +243,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response pauseJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+      if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
         scheduler.pauseJob(jobRequest.getJobId());
       } else {
         if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
@@ -265,7 +265,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response resumeJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+      if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
         scheduler.resumeJob(jobRequest.getJobId());
       } else {
         if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
@@ -287,7 +287,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response removeJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+      if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
         scheduler.removeJob(jobRequest.getJobId());
         return Response.ok("REMOVED").type(MediaType.TEXT_PLAIN).build();
       } else {

@@ -14,10 +14,9 @@
  */
 package org.pentaho.platform.repository2.unified.spring;
 
-import java.util.concurrent.Callable;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -27,7 +26,8 @@ import org.springframework.core.Ordered;
 import org.springframework.security.event.authentication.AbstractAuthenticationEvent;
 import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
 import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
-import org.springframework.util.Assert;
+
+import java.util.concurrent.Callable;
 
 /**
  * {@link OrderedAuthenticationListener} that invokes {@link IBackingRepositoryLifecycleManager#newTenant()} and
@@ -47,6 +47,9 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
 
   private int order = 200;
 
+  private IBackingRepositoryLifecycleManager lifecycleManager;
+  private ISecurityHelper securityHelper;
+
   // ~ Constructors ====================================================================================================
 
   public BackingRepositoryLifecycleManagerAuthenticationSuccessListener() {
@@ -58,22 +61,35 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
   public void onApplicationEvent(final ApplicationEvent event) {
     if (event instanceof AuthenticationSuccessEvent || event instanceof InteractiveAuthenticationSuccessEvent) {
       logger.debug("received AbstractAuthenticationEvent"); //$NON-NLS-1$
+      AbstractAuthenticationEvent aEvent = (AbstractAuthenticationEvent) event;
+
+      // Get the lifecycle manager for this event
+      final IBackingRepositoryLifecycleManager lifecycleManager = getLifecycleManager();
+
       try {
-        AbstractAuthenticationEvent aEvent = (AbstractAuthenticationEvent) event;
-        // run as user to populate SecurityContextHolder and PentahoSessionHolder since Spring Security events are fired
-        //   before SecurityContextHolder is set
-        SecurityHelper.runAsUser(aEvent.getAuthentication().getName(), new Callable<Void>() {
+        // The newTenant() call should be executed as the system (or more correctly the tenantAdmin)
+        SecurityHelper.getInstance().runAsSystem(new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            // by using PentahoSystem instead of dependency injection, this lookup is lazy, allowing PentahoSystem to get
-            // initialized before this class uses Jackrabbit (which uses PentahoSystem on login)
-            IBackingRepositoryLifecycleManager manager = PentahoSystem.get(IBackingRepositoryLifecycleManager.class);
-            Assert.state(manager != null);
-            manager.newTenant();
-            manager.newUser();
+            lifecycleManager.newTenant();
+            return null;
+          }
+        });
+      } catch (Exception e) {
+        logger.error(e.getLocalizedMessage(), e);
+      }
+
+      try {
+        // run as user to populate SecurityContextHolder and PentahoSessionHolder since Spring Security events are fired
+        //   before SecurityContextHolder is set
+        SecurityHelper.getInstance().runAsUser(aEvent.getAuthentication().getName(), new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            lifecycleManager.newUser();
             return null;  
           }
         });
+
       } catch (Exception e) {
         logger.error(e.getLocalizedMessage(), e);
       }
@@ -86,6 +102,16 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
 
   public void setOrder(final int order) {
     this.order = order;
+  }
+
+  public IBackingRepositoryLifecycleManager getLifecycleManager() {
+    // Check ... if we haven't been injected with a lifecycle manager, get one from PentahoSystem
+    return (null != lifecycleManager ? lifecycleManager : PentahoSystem.get(IBackingRepositoryLifecycleManager.class));
+  }
+
+  public void setLifecycleManager(final IBackingRepositoryLifecycleManager lifecycleManager) {
+    assert(null != lifecycleManager);
+    this.lifecycleManager = lifecycleManager;
   }
 
 }

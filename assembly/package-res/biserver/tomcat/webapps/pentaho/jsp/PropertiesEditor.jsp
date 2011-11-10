@@ -14,7 +14,6 @@
 	org.pentaho.platform.util.messages.LocaleHelper,
 	org.pentaho.platform.web.jsp.messages.Messages,
 	org.pentaho.platform.engine.core.system.PentahoSystem,
-	org.pentaho.platform.engine.security.SecurityHelper,
   org.pentaho.platform.engine.core.system.PentahoSessionHolder"
 %>
 <%--

@@ -165,7 +165,7 @@ public class MondrianCatalogHelperTest {
     catalogService.setDataSourcesConfig("file:" + destFile.getAbsolutePath());
     catalogService.setUseSchemaNameAsCatalogName(false);
     final MondrianCatalogHelper helper = (MondrianCatalogHelper)PentahoSystem.get(IMondrianCatalogService.class);
-    List<MondrianCatalog> list = SecurityHelper.runAsUser("suzy", new Callable<List<MondrianCatalog>>() {
+    List<MondrianCatalog> list = SecurityHelper.getInstance().runAsUser("suzy", new Callable<List<MondrianCatalog>>() {
       @Override
       public List<MondrianCatalog> call() throws Exception {
         return helper.listCatalogs(PentahoSessionHolder.getSession(), false);
@@ -179,7 +179,7 @@ public class MondrianCatalogHelperTest {
   @Test
   public void testGetCatalog() throws Exception {
     final MondrianCatalogHelper helper = (MondrianCatalogHelper)PentahoSystem.get(IMondrianCatalogService.class);;
-    MondrianCatalog mc = SecurityHelper.runAsUser("joe", new Callable<MondrianCatalog>() {
+    MondrianCatalog mc = SecurityHelper.getInstance().runAsUser("joe", new Callable<MondrianCatalog>() {
       @Override
       public MondrianCatalog call() throws Exception {
         return helper.getCatalog("SteelWheels3", PentahoSessionHolder.getSession());
@@ -190,7 +190,7 @@ public class MondrianCatalogHelperTest {
   
   @Test
   public void testRemoveCatalog() throws Exception {
-    SecurityHelper.runAsUser("joe", new Callable<Void>() {
+    SecurityHelper.getInstance().runAsUser("joe", new Callable<Void>() {
       @Override
       public Void call() throws Exception {
         IPentahoSession session = PentahoSessionHolder.getSession();
@@ -242,7 +242,7 @@ public class MondrianCatalogHelperTest {
   @Test
   public void testListCatalogs() throws Exception {
     final MondrianCatalogHelper helper = (MondrianCatalogHelper)PentahoSystem.get(IMondrianCatalogService.class);
-    List<MondrianCatalog> cats = SecurityHelper.runAsUser("joe", new Callable<List<MondrianCatalog>>() {
+    List<MondrianCatalog> cats = SecurityHelper.getInstance().runAsUser("joe", new Callable<List<MondrianCatalog>>() {
 
       @Override
       public List<MondrianCatalog> call() throws Exception {
@@ -256,7 +256,7 @@ public class MondrianCatalogHelperTest {
   @Test
   public void testJndiOnly() throws Exception {
     final MondrianCatalogHelper helper = (MondrianCatalogHelper)PentahoSystem.get(IMondrianCatalogService.class);
-    List<MondrianCatalog> cats = SecurityHelper.runAsUser("joe", new Callable<List<MondrianCatalog>>() {
+    List<MondrianCatalog> cats = SecurityHelper.getInstance().runAsUser("joe", new Callable<List<MondrianCatalog>>() {
 
       @Override
       public List<MondrianCatalog> call() throws Exception {
@@ -294,7 +294,7 @@ public class MondrianCatalogHelperTest {
     catalogService.setDataSourcesConfig("file:" + destFile.getAbsolutePath());
     catalogService.setUseSchemaNameAsCatalogName(false);
     
-    SecurityHelper.becomeUser("joe");
+    SecurityHelper.getInstance().becomeUser("joe");
     final ISolutionRepository repo = 
       PentahoSystem.get(ISolutionRepository.class);
     final MondrianCatalogHelper helper = 
@@ -354,7 +354,7 @@ public class MondrianCatalogHelperTest {
       effectivePermissions.toString());
     
     // Try to read it with Suzy's account
-    SecurityHelper.becomeUser("suzy");
+    SecurityHelper.getInstance().becomeUser("suzy");
     final MondrianCatalog suzyCatalog =
       helper.getCatalog(
         "testListRestrictedCatalogs-catalog",
@@ -368,7 +368,7 @@ public class MondrianCatalogHelperTest {
         helper.listCatalogs(PentahoSessionHolder.getSession(), false).size());
     
     // Now try with Tiffany's. It has to fail.
-    SecurityHelper.becomeUser("tiffany");
+    SecurityHelper.getInstance().becomeUser("tiffany");
     Assert.assertNotNull(
       helper.getCatalog(
         "testListRestrictedCatalogs-catalog",
@@ -380,7 +380,7 @@ public class MondrianCatalogHelperTest {
 
   @Test
   public void testAddCatalogNoOverwrite() throws Exception {
-    SecurityHelper.runAsUser("joe", new Callable<Void>() {
+    SecurityHelper.getInstance().runAsUser("joe", new Callable<Void>() {
       @Override
       public Void call() throws Exception {
         MondrianCatalogHelper helper = (MondrianCatalogHelper)PentahoSystem.get(IMondrianCatalogService.class);
@@ -407,7 +407,7 @@ public class MondrianCatalogHelperTest {
   
   @Test
   public void testAddCatalogOverwrite() throws Exception {
-    SecurityHelper.runAsUser("joe", new Callable<Void>() {
+    SecurityHelper.getInstance().runAsUser("joe", new Callable<Void>() {
       @Override
       public Void call() throws Exception {
     MondrianCatalogHelper helper = (MondrianCatalogHelper)PentahoSystem.get(IMondrianCatalogService.class);
@@ -440,7 +440,7 @@ public class MondrianCatalogHelperTest {
   
   @Test
   public void testAddCatalogLeadingSlash() throws Exception {
-    SecurityHelper.runAsUser("joe", new Callable<Void>() {
+    SecurityHelper.getInstance().runAsUser("joe", new Callable<Void>() {
       @Override
       public Void call() throws Exception {
     MondrianCatalogHelper helper = (MondrianCatalogHelper)PentahoSystem.get(IMondrianCatalogService.class);

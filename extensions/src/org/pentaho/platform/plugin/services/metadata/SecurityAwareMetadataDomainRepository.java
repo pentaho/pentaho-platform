@@ -54,7 +54,7 @@ public class SecurityAwareMetadataDomainRepository extends MetadataDomainReposit
     if (rls == null || rls.getType() == RowLevelSecurity.Type.NONE) {
       return null;
     }
-    Authentication auth = SecurityHelper.getAuthentication();
+    Authentication auth = SecurityHelper.getInstance().getAuthentication();
     if (auth == null) {
       logger.info(Messages.getInstance().getString("SecurityAwareCwmSchemaFactory.INFO_AUTH_NULL_CONTINUE")); //$NON-NLS-1$
       return "FALSE()"; //$NON-NLS-1$
@@ -75,9 +75,9 @@ public class SecurityAwareMetadataDomainRepository extends MetadataDomainReposit
     if (aclHolder != null) {
       MetadataAclHolder newHolder = new MetadataAclHolder(aclHolder);
       int mappedActionOperation = ACCESS_TYPE_MAP[accessType];
-      result = SecurityHelper.hasAccess(newHolder, mappedActionOperation, getSession());
+      result = SecurityHelper.getInstance().hasAccess(newHolder, mappedActionOperation, getSession());
     } else if (accessType == IMetadataDomainRepository.ACCESS_TYPE_SCHEMA_ADMIN) {
-      result = SecurityHelper.isPentahoAdministrator(getSession());
+      result = SecurityHelper.getInstance().isPentahoAdministrator(getSession());
     }
     return result;
   }

@@ -14,8 +14,13 @@
  */
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.util.Calendar;
-import java.util.Date;
+import org.apache.jackrabbit.api.jsr283.security.AccessControlPolicy;
+import org.apache.jackrabbit.api.jsr283.security.AccessControlPolicyIterator;
+import org.apache.jackrabbit.api.jsr283.security.Privilege;
+import org.apache.jackrabbit.core.SessionImpl;
+import org.springframework.extensions.jcr.JcrCallback;
+import org.springframework.extensions.jcr.JcrTemplate;
+import org.springframework.util.Assert;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
@@ -25,15 +30,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
-
-import org.apache.jackrabbit.api.jsr283.security.AccessControlPolicy;
-import org.apache.jackrabbit.api.jsr283.security.AccessControlPolicyIterator;
-import org.apache.jackrabbit.api.jsr283.security.Privilege;
-import org.apache.jackrabbit.core.SessionImpl;
-import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-import org.springframework.extensions.jcr.JcrCallback;
-import org.springframework.extensions.jcr.JcrTemplate;
-import org.springframework.util.Assert;
+import java.util.Calendar;
+import java.util.Date;
 
 public class SimpleJcrTestUtils {
 

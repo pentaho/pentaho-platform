@@ -562,7 +562,7 @@ public class QuartzScheduler implements IScheduler {
     IPentahoSession session = PentahoSessionHolder.getSession();
     if (session == null)
       return null;
-    Principal p = SecurityHelper.getAuthentication();
+    Principal p = SecurityHelper.getInstance().getAuthentication();
     return (p == null) ? null : p.getName();
   }
 

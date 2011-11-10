@@ -329,7 +329,7 @@ public class JaxWsSchedulerServiceTest {
   public static class TestQuartzScheduler extends QuartzScheduler {
     @Override
     protected String getCurrentUser() {
-      SecurityHelper.becomeUser(TEST_USER);
+      SecurityHelper.getInstance().becomeUser(TEST_USER);
       return super.getCurrentUser();
     }
   }

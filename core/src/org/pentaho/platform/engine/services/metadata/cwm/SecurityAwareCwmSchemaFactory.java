@@ -69,10 +69,10 @@ public class SecurityAwareCwmSchemaFactory extends PlatformCWMSchemaFactory impl
     if (aclHolder != null) {
       CWMAclHolder newHolder = new CWMAclHolder(aclHolder);
       int mappedActionOperation = SecurityAwareCwmSchemaFactory.AccessTypeMap[accessType];
-      return SecurityHelper.hasAccess(newHolder, mappedActionOperation, session);
+      return SecurityHelper.getInstance().hasAccess(newHolder, mappedActionOperation, session);
     } else {
       if (accessType == CwmSchemaFactoryInterface.ACCESS_TYPE_SCHEMA_ADMIN) {
-        return SecurityHelper.isPentahoAdministrator(session);
+        return SecurityHelper.getInstance().isPentahoAdministrator(session);
       }
     }
     return true;
@@ -84,7 +84,7 @@ public class SecurityAwareCwmSchemaFactory extends PlatformCWMSchemaFactory impl
     if (rls.getType() == RowLevelSecurity.Type.NONE) {
       return null;
     }
-    Authentication auth = SecurityHelper.getAuthentication();
+    Authentication auth = SecurityHelper.getInstance().getAuthentication();
     if (auth == null) {
       logger.info(Messages.getInstance().getString("SecurityAwareCwmSchemaFactory.INFO_AUTH_NULL_CONTINUE")); //$NON-NLS-1$
       return "FALSE()"; //$NON-NLS-1$

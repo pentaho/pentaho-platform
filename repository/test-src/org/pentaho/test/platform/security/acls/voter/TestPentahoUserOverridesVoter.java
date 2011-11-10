@@ -56,7 +56,7 @@ public class TestPentahoUserOverridesVoter extends BaseTest {
     
   }
   public void testVoter() throws Exception {
-    SecurityHelper.runAsUser("suzy", new Callable<Void>() {
+    SecurityHelper.getInstance().runAsUser("suzy", new Callable<Void>() {
 
       @Override
       public Void call() throws Exception {

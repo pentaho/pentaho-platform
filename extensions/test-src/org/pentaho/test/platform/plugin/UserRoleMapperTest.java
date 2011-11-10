@@ -99,7 +99,7 @@ public class UserRoleMapperTest {
   public void testReadRolesInSchema() throws Exception {
     final MondrianCatalogHelper helper = (MondrianCatalogHelper)PentahoSystem.get(IMondrianCatalogService.class);;
     Assert.assertNotNull(helper);
-    MondrianCatalog mc = SecurityHelper.runAsUser("joe", new Callable<MondrianCatalog>() {
+    MondrianCatalog mc = SecurityHelper.getInstance().runAsUser("joe", new Callable<MondrianCatalog>() {
       @Override
       public MondrianCatalog call() throws Exception {
         return helper.getCatalog("SteelWheelsRoles", PentahoSessionHolder.getSession());
@@ -118,10 +118,10 @@ public class UserRoleMapperTest {
   
   @Test
   public void testReadRolesInPlatform() throws Exception {
-    SecurityHelper.runAsUser("joe", new Callable<Void>() {
+    SecurityHelper.getInstance().runAsUser("joe", new Callable<Void>() {
       @Override
       public Void call() throws Exception {
-        Authentication auth = SecurityHelper.getAuthentication();
+        Authentication auth = SecurityHelper.getInstance().getAuthentication();
         Assert.assertNotNull(auth);
         GrantedAuthority[] gAuths = auth.getAuthorities();
         Assert.assertNotNull(gAuths);
@@ -140,7 +140,7 @@ public class UserRoleMapperTest {
     mapper.setSessionProperty("rolesAttribute");
 
     try {
-      String[] roles = SecurityHelper.runAsUser("joe", new Callable<String[]>() {
+      String[] roles = SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           IPentahoSession session = PentahoSessionHolder.getSession();
@@ -165,7 +165,7 @@ public class UserRoleMapperTest {
     mapper.setSessionProperty("rolesAttribute");
 
     try {
-      String[] roles = SecurityHelper.runAsUser("joe", new Callable<String[]>() {
+      String[] roles = SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
@@ -189,7 +189,7 @@ public class UserRoleMapperTest {
     mapper.setLookupMap(lookup);
 
     try {
-      String[] roles = SecurityHelper.runAsUser("joe", new Callable<String[]>() {
+      String[] roles = SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles"); 
@@ -214,7 +214,7 @@ public class UserRoleMapperTest {
 
     mapper.setFailOnEmptyRoleList(true);
     try {
-      SecurityHelper.runAsUser("joe", new Callable<String[]>() {
+      SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
@@ -228,7 +228,7 @@ public class UserRoleMapperTest {
     mapper.setFailOnEmptyRoleList(false);
     
     try {
-      String[] roles = SecurityHelper.runAsUser("joe", new Callable<String[]>() {
+      String[] roles = SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
@@ -244,7 +244,7 @@ public class UserRoleMapperTest {
   public void testMondrianOneToOneUserRoleListMapper() throws Exception {
     final IConnectionUserRoleMapper mapper = new MondrianOneToOneUserRoleListMapper();
     try {
-      String[] roles = SecurityHelper.runAsUser("simplebob", new Callable<String[]>() {
+      String[] roles = SecurityHelper.getInstance().runAsUser("simplebob", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
@@ -266,7 +266,7 @@ public class UserRoleMapperTest {
     final MondrianOneToOneUserRoleListMapper mapper = new MondrianOneToOneUserRoleListMapper();
     mapper.setFailOnEmptyRoleList(true);
     try {
-      SecurityHelper.runAsUser("joe", new Callable<String[]>() {
+      SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
@@ -278,7 +278,7 @@ public class UserRoleMapperTest {
     }
     mapper.setFailOnEmptyRoleList(false);
     try {
-      String[] roles = SecurityHelper.runAsUser("simplebob", new Callable<String[]>() {
+      String[] roles = SecurityHelper.getInstance().runAsUser("simplebob", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles"); 

@@ -84,7 +84,7 @@ public class SolutionRepositoryTest extends RepositoryTestCase {
     defaultAcls.put(new SimpleRole("dev"), new SimplePermissionMask(IPentahoAclEntry.PERM_EXECUTE_SUBSCRIBE)); //$NON-NLS-1$
     defaultAcls.put(new SimpleRole("Authenticated"), new SimplePermissionMask(IPentahoAclEntry.PERM_EXECUTE)); //$NON-NLS-1$
     
-    SecurityHelper.becomeUser("pat");
+    SecurityHelper.getInstance().becomeUser("pat");
     repository = getSolutionRepository(PentahoSessionHolder.getSession());
     file = (RepositoryFile) repository.getSolutionFile("samples", ISolutionRepository.ACTION_EXECUTE);
     publisher = new AclPublisher(defaultAcls);
@@ -136,7 +136,7 @@ public class SolutionRepositoryTest extends RepositoryTestCase {
 
   public void atestSetAclsForPat() throws Exception {
     // Mock up credentials for ACL Testing
-    SecurityHelper.runAsUser("pat", new Callable<Void>() {
+    SecurityHelper.getInstance().runAsUser("pat", new Callable<Void>() {
 
       @Override
       public Void call() throws Exception {

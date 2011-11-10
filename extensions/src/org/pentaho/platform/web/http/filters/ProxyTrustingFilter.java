@@ -192,7 +192,7 @@ public class ProxyTrustingFilter implements Filter {
             
             
             try {
-              SecurityHelper.runAsUser(name, new Callable<Void>() {
+              SecurityHelper.getInstance().runAsUser(name, new Callable<Void>() {
 
                 @Override
                 public Void call() throws Exception {

@@ -30,7 +30,7 @@ public class SimpleSession implements IPermissionRecipient {
   }
 
   public String getName() {
-    Principal principal = SecurityHelper.getAuthentication();
+    Principal principal = SecurityHelper.getInstance().getAuthentication();
     return null != principal ? principal.getName() : null;
   }
 

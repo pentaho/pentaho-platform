@@ -18,27 +18,19 @@
 package org.pentaho.test.platform.web.ui.servlet;
 
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.test.platform.engine.core.BaseTest;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.test.platform.engine.core.BaseTest;
-import org.pentaho.test.platform.web.doubles.PentahoSessionDouble;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
  * Superclass of tests for IMondrianCatalogService and MondrianCatalogPublisher instances.
@@ -89,7 +81,7 @@ public abstract class AbstractMondrianCatalogTestBase extends BaseTest {
   public void setUp() {
     super.setUp();
     setUpTempFile();
-    SecurityHelper.becomeUser("joe");
+    SecurityHelper.getInstance().becomeUser("joe");
   }
 
   /**

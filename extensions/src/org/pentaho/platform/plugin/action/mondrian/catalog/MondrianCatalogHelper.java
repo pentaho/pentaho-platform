@@ -237,7 +237,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     //  access to these schemas is controlled later via the hasAccess() method
     
     try {
-      SecurityHelper.runAsSystem(new Callable<Void>() {
+      SecurityHelper.getInstance().runAsSystem(new Callable<Void>() {
         @Override
         public Void call() throws Exception {
           loadCatalogsIntoCache(makeDataSources(), PentahoSessionHolder.getSession());

@@ -38,7 +38,7 @@ public class PentahoAllowAllAclVoter extends AbstractPentahoAclVoter {
 
   @Override
   public Authentication getAuthentication(final IPentahoSession session) {
-    return SecurityHelper.getAuthentication();
+    return SecurityHelper.getInstance().getAuthentication();
   }
 
   public AclEntry[] getEffectiveAcls(final IPentahoSession session, final IAclHolder holder) {

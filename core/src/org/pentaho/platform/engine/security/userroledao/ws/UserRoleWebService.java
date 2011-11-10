@@ -44,7 +44,7 @@ public class UserRoleWebService implements IUserRoleWebService {
   public UserRoleWebService() {}
 
   protected boolean isAdmin() {
-    return SecurityHelper.isPentahoAdministrator(PentahoSessionHolder.getSession());
+    return SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession());
   }
   
   protected IUserRoleDao getDao() throws UserRoleException {

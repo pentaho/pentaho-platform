@@ -8,7 +8,7 @@ import org.pentaho.platform.engine.security.userroledao.messages.Messages;
 
 /**
  * Same as {@link UserRoleWebService} except that it uses task permissions to determine administrator status instead of 
- * {@code SecurityHelper.isPentahoAdministrator}. 
+ * {@code ISecurityHelper.isPentahoAdministrator}.
  * 
  * @author Will Gorman (wgorman@pentaho.com)
  */

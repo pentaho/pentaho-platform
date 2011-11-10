@@ -109,7 +109,7 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
   }
 
   public boolean isAdministrator() {
-    return SecurityHelper.isPentahoAdministrator(getPentahoSession());
+    return SecurityHelper.getInstance().isPentahoAdministrator(getPentahoSession());
   }
 
   // @SuppressWarnings("rawtypes")

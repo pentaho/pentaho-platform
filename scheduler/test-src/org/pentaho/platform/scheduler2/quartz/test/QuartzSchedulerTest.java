@@ -71,7 +71,7 @@ public class QuartzSchedulerTest {
     mp.define(IUserRoleListService.class, StubUserRoleListService.class);
     mp.start();
 
-    SecurityHelper.becomeUser(TEST_USER);
+    SecurityHelper.getInstance().becomeUser(TEST_USER);
     jobParams = new HashMap<String, Serializable>();
   }
 
@@ -232,7 +232,7 @@ public class QuartzSchedulerTest {
 
     scheduler.createJob("testName", TestAction.class, new HashMap<String, Serializable>(), RUN_ONCE_IN_2_SECS);
 
-    SecurityHelper.becomeUser("Ima Wronguser");
+    SecurityHelper.getInstance().becomeUser("Ima Wronguser");
 
     sleep(3);
 
@@ -457,7 +457,7 @@ public class QuartzSchedulerTest {
     public void execute() throws Exception {
       System.out.println("execute called!"+ new Date());
       counter++;
-      Principal p = SecurityHelper.getAuthentication();
+      Principal p = SecurityHelper.getInstance().getAuthentication();
       executedAsUser = (p == null) ? null : p.getName();
     }
 
@@ -475,7 +475,7 @@ public class QuartzSchedulerTest {
     public void execute() throws Exception {
       System.out.println("execute called!"+ new Date());
       counter++;
-      Principal p = SecurityHelper.getAuthentication();
+      Principal p = SecurityHelper.getInstance().getAuthentication();
       executedAsUser = (p == null) ? null : p.getName();
     }
 
@@ -515,7 +515,7 @@ public class QuartzSchedulerTest {
     public void execute() throws Exception {
       System.out.println("execute called! "+ new Date());
       counter++;
-      Principal p = SecurityHelper.getAuthentication();
+      Principal p = SecurityHelper.getInstance().getAuthentication();
       executedAsUser = (p == null) ? null : p.getName();
 
       testParam1_public = getTestParam1();

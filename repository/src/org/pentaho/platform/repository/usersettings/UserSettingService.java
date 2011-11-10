@@ -172,7 +172,7 @@ public class UserSettingService implements IUserSettingService {
   }
 
   public void setGlobalUserSetting(String settingName, String settingValue) {
-    if (SecurityHelper.isPentahoAdministrator(session)) {
+    if (SecurityHelper.getInstance().isPentahoAdministrator(session)) {
       Session hibsession = HibernateUtil.getSession();
       try {
       HibernateUtil.beginTransaction();

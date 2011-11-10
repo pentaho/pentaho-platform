@@ -81,7 +81,7 @@ public class PentahoBasicAclVoter extends AbstractPentahoAclVoter implements IAc
   // or not.
   @Override
   public Authentication getAuthentication(final IPentahoSession session) {
-    return SecurityHelper.getAuthentication();
+    return SecurityHelper.getInstance().getAuthentication();
   }
 
   public boolean hasAccess(final IPentahoSession session, final IAclHolder holder, final int mask) {

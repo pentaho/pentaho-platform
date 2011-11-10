@@ -95,7 +95,7 @@ public abstract class MondrianAbstractPlatformUserRoleMapper implements IConnect
    */
   protected String[] getPlatformRolesFromSession(IPentahoSession session) {
     // Get the Spring Security authentication object
-    Authentication auth = SecurityHelper.getAuthentication();
+    Authentication auth = SecurityHelper.getInstance().getAuthentication();
     String[] rtn = null;
     // Get the authorities
     GrantedAuthority[] gAuths = auth.getAuthorities();

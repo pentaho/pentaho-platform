@@ -11,30 +11,12 @@
  */
 package org.pentaho.platform.repository.solution.dbbased;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IAclPublisher;
@@ -71,6 +53,23 @@ import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.StringUtil;
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author William Seyler
@@ -144,14 +143,14 @@ public class DbBasedSolutionRepository extends SolutionRepositoryBase implements
 
   public boolean hasAccess(final ISolutionFile aFile, final int actionOperation) {
     if (aFile instanceof IAclSolutionFile) {
-      return SecurityHelper.hasAccess((IAclSolutionFile) aFile, actionOperation, getSession());
+      return SecurityHelper.getInstance().hasAccess((IAclSolutionFile) aFile, actionOperation, getSession());
     } else {
       return true;
     }
   }
 
   protected boolean isPentahoAdministrator() {
-    return SecurityHelper.isPentahoAdministrator(getSession());
+    return SecurityHelper.getInstance().isPentahoAdministrator(getSession());
   }
 
   public Document getSolutionDocument(final String documentPath, final int actionOperation) {
@@ -506,7 +505,8 @@ public class DbBasedSolutionRepository extends SolutionRepositoryBase implements
       }
     }
     Boolean visability = null;
-    boolean hasAccess = SecurityHelper.hasAccess(directoryFile, ISolutionRepository.ACTION_EXECUTE, getSession());
+    boolean hasAccess = SecurityHelper.getInstance().hasAccess(directoryFile, ISolutionRepository.ACTION_EXECUTE,
+        getSession());
     if (!hasAccess) {
       visability = new Boolean(false);
     } else {
@@ -1192,7 +1192,7 @@ public class DbBasedSolutionRepository extends SolutionRepositoryBase implements
 
     node.addAttribute("aclModifyAcl", //$NON-NLS-1$
         Boolean.toString(entry.isPermitted(IPentahoAclEntry.PERM_UPDATE_PERMS)
-            || SecurityHelper.isPentahoAdministrator(getSession())));
+            || SecurityHelper.getInstance().isPentahoAdministrator(getSession())));
 
   }
 
@@ -1335,7 +1335,7 @@ public class DbBasedSolutionRepository extends SolutionRepositoryBase implements
       // entire ACL is replaced for new files
       SpringSecurityPermissionMgr permissionMgr = SpringSecurityPermissionMgr.instance();
       HibernateUtil.beginTransaction();
-      if (SecurityHelper.canHaveACLS(justPublishedFile)) {
+      if (SecurityHelper.getInstance().canHaveACLS(justPublishedFile)) {
         permissionMgr.setPermissions(getDefaultPublishAcl(), justPublishedFile);
       }
     }
@@ -1410,7 +1410,7 @@ public class DbBasedSolutionRepository extends SolutionRepositoryBase implements
 
   public void setPermissions(final ISolutionFile file, final Map<IPermissionRecipient, IPermissionMask> acl)
       throws PentahoAccessControlException {
-    if (!SecurityHelper.canHaveACLS(file)) {
+    if (!SecurityHelper.getInstance().canHaveACLS(file)) {
       throw new PentahoAccessControlException(Messages.getInstance().getString(
           "SolutionRepository.ACCESS_DENIED", file.getFullPath(), Integer.toString(ISolutionRepository.ACTION_SHARE))); //$NON-NLS-1$
     }
@@ -1428,7 +1428,7 @@ public class DbBasedSolutionRepository extends SolutionRepositoryBase implements
    * TODO mlowery If we had a READ_PERMS bit, then it would be enforced here. Instead, we use ACTION_EXECUTE.
    */
   public Map<IPermissionRecipient, IPermissionMask> getPermissions(final ISolutionFile file) {
-    if (!SecurityHelper.canHaveACLS(file)) {
+    if (!SecurityHelper.getInstance().canHaveACLS(file)) {
       return Collections.emptyMap();
     }
     if (hasAccess(file, ISolutionRepository.ACTION_EXECUTE)) {
@@ -1444,7 +1444,7 @@ public class DbBasedSolutionRepository extends SolutionRepositoryBase implements
    * If we had a READ_PERMS bit, then it would be enforced here. Instead, we use ACTION_EXECUTE.
    */
   public Map<IPermissionRecipient, IPermissionMask> getEffectivePermissions(final ISolutionFile file) {
-    if (!SecurityHelper.canHaveACLS(file)) {
+    if (!SecurityHelper.getInstance().canHaveACLS(file)) {
       return Collections.emptyMap();
     }
     if (hasAccess(file, ISolutionRepository.ACTION_EXECUTE)) {

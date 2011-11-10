@@ -130,7 +130,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
       private String generateInMemoryDatasourcesXml() {
     	  String datasourcesXml = null;
     	  try {
-    		  datasourcesXml = SecurityHelper.runAsSystem(new Callable<String>() {
+    		  datasourcesXml = SecurityHelper.getInstance().runAsSystem(new Callable<String>() {
     	        @Override
     	        public String call() throws Exception {
     	        	String result = null;

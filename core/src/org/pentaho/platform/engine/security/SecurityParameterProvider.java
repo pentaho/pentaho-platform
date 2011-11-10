@@ -198,7 +198,7 @@ public class SecurityParameterProvider implements IParameterProvider {
   }
 
   private Authentication getAuthentication() {
-    return SecurityHelper.getAuthentication();
+    return SecurityHelper.getInstance().getAuthentication();
   }
 
   protected String getPrincipalName() {
@@ -218,7 +218,8 @@ public class SecurityParameterProvider implements IParameterProvider {
   }
 
   protected String getPrincipalIsAdministrator() {
-    return SecurityHelper.isPentahoAdministrator(this.session) ? "true" : "false"; //$NON-NLS-1$ //$NON-NLS-2$
+    return SecurityHelper.getInstance().isPentahoAdministrator(this.session) ? "true" : "false"; //$NON-NLS-1$
+    // //$NON-NLS-2$
   }
 
   protected Object getPrincipalRoles() {

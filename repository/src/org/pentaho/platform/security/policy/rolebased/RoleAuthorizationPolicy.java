@@ -88,7 +88,7 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
   protected List<String> getRuntimeRoleNames() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     Assert.state(pentahoSession != null);
-    Authentication authentication = SecurityHelper.getAuthentication();
+    Authentication authentication = SecurityHelper.getInstance().getAuthentication();
     GrantedAuthority[] authorities = authentication.getAuthorities();
     List<String> runtimeRoles = new ArrayList<String>();
     for (int i = 0; i < authorities.length; i++) {

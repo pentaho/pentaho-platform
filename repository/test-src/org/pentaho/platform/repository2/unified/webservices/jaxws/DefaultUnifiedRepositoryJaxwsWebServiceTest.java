@@ -14,18 +14,7 @@
  */
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
-import static org.junit.Assert.assertEquals;
-
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Service;
-import javax.xml.ws.soap.SOAPBinding;
-
+import com.sun.xml.ws.developer.JAXWSProperties;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -40,7 +29,6 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.JackrabbitRepositoryTestBase;
 import org.springframework.beans.BeansException;
@@ -56,7 +44,16 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.sun.xml.ws.developer.JAXWSProperties;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.Service;
+import javax.xml.ws.soap.SOAPBinding;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * JUnit 4 test for web services.

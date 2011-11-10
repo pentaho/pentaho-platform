@@ -52,12 +52,12 @@ public class SolutionTreeUIComponent extends XmlComponent implements ISolutionFi
   }
 
   public boolean keepFile(final ISolutionFile solutionFile, final int actionOperation) {
-    return SecurityHelper.canHaveACLS(solutionFile);
+    return SecurityHelper.getInstance().canHaveACLS(solutionFile);
   }
 
   @Override
   public Document getXmlContent() {
-    if (SecurityHelper.isPentahoAdministrator(session)) {
+    if (SecurityHelper.getInstance().isPentahoAdministrator(session)) {
       try {
         ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, session);
         return repository.getSolutionTree(ISolutionRepository.ACTION_ADMIN, this);

@@ -68,7 +68,7 @@
 		intro = Messages.getInstance().getString( "UI.ERROR_0002_BAD_TEMPLATE_OBJECT" ); //$NON-NLS-1$
 	}
 
-	if( !SecurityHelper.isPentahoAdministrator(userSession) ) {
+	if( !SecurityHelper.getInstance().isPentahoAdministrator(userSession) ) {
 %>
 	<%= intro %>
 	<%= Messages.getInstance().getString( "UI.USER_PERMISSION_DENIED" ) %>

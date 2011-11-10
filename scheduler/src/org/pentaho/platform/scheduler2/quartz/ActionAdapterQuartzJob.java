@@ -150,9 +150,9 @@ public class ActionAdapterQuartzJob implements Job {
     if ( (actionUser == null) || (actionUser.equals("system session")) ) { //$NON-NLS-1$
       // For now, don't try to run quartz jobs as authenticated if the user
       // that created the job is a system user. See PPP-2350
-      SecurityHelper.runAsUnauthenticated(actionBeanRunner);
+      SecurityHelper.getInstance().runAsUnauthenticated(actionBeanRunner);
     } else {
-      SecurityHelper.runAsUser(actionUser, actionBeanRunner);
+      SecurityHelper.getInstance().runAsUser(actionUser, actionBeanRunner);
     }
     IScheduler scheduler = PentahoSystem.getObjectFactory().get(IScheduler.class, "IScheduler2", null);
     scheduler.fireJobCompleted(actionBean, actionUser, params, streamProvider);

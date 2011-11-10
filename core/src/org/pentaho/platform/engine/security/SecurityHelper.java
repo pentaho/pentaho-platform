@@ -28,6 +28,7 @@ import org.pentaho.platform.api.engine.IAclVoter;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.repository.ISolutionRepository;
@@ -42,7 +43,7 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
- * A utility class with several static methods that are used to
+ * A utility class with several methods that are used to
  * either bind the <tt>Authentication</tt> to the <tt>IPentahoSession</tt>, retrieve
  * the <tt>Authentication</tt> from the <tt>IPentahoSession</tt>, and other various helper
  * functions.
@@ -50,9 +51,28 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
  *
  */
 
-public class SecurityHelper {
+public class SecurityHelper implements ISecurityHelper {
 
   private static final Log logger = LogFactory.getLog(SecurityHelper.class);
+
+  /**
+   * The default instance of this singleton
+   */
+  private static final ISecurityHelper instance = new SecurityHelper();
+
+  /**
+   * Returns the one-and-only default instance
+   */
+  public static ISecurityHelper getInstance() {
+    return instance;
+  }
+
+  /**
+   * Default constructor - protected so that it may be only constructed by a sub-class since this is a singleton
+   */
+  protected SecurityHelper() {
+
+  }
 
   /**
    * Hi-jacks the system for the named user.
@@ -67,7 +87,8 @@ public class SecurityHelper {
    * 
    * @param principalName the user to become in the system
    */
-  public static void becomeUser(final String principalName) {
+  @Override
+  public void becomeUser(final String principalName) {
     becomeUser(principalName, null);
   }
   
@@ -76,10 +97,11 @@ public class SecurityHelper {
    * 
    * <p>This is for unit tests only.</p>
    */
-  public static void becomeUser(final String principalName, final IParameterProvider paramProvider) {
+  @Override
+  public void becomeUser(final String principalName, final IParameterProvider paramProvider) {
     UserSession session = new UserSession(principalName, null, false, paramProvider);
     session.setAuthenticated(principalName);
-    Authentication auth = SecurityHelper.createAuthentication(principalName);
+    Authentication auth = createAuthentication(principalName);
     PentahoSessionHolder.setSession(session);
     SecurityContextHolder.getContext().setAuthentication(auth);
     PentahoSystem.sessionStartup(PentahoSessionHolder.getSession(), paramProvider);
@@ -99,15 +121,17 @@ public class SecurityHelper {
    * @throws Exception
    * @see {@link Callable}
    */
-  public static <T> T runAsUser(final String principalName, final Callable<T> callable) throws Exception {
+  @Override
+  public <T> T runAsUser(final String principalName, final Callable<T> callable) throws Exception {
     return runAsUser(principalName, null, callable);
   }
   
-  public static <T> T runAsUser(final String principalName, final IParameterProvider paramProvider, final Callable<T> callable) throws Exception {
+  @Override
+  public <T> T runAsUser(final String principalName, final IParameterProvider paramProvider, final Callable<T> callable) throws Exception {
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
-      SecurityHelper.becomeUser(principalName);
+      becomeUser(principalName);
       return callable.call();
     } finally {
       IPentahoSession sessionToDestroy = PentahoSessionHolder.getSession();
@@ -137,7 +161,8 @@ public class SecurityHelper {
    * @throws Exception
    * @see {@link Callable}
    */
-  public static <T> T runAsUnauthenticated(final Callable<T> callable) throws Exception {
+  @Override
+  public <T> T runAsUnauthenticated(final Callable<T> callable) throws Exception {
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
@@ -156,7 +181,8 @@ public class SecurityHelper {
    * @param session The users IPentahoSession object
    * @return true if the user is considered a Pentaho administrator
    */
-  public static boolean isPentahoAdministrator(final IPentahoSession session) {
+  @Override
+  public boolean isPentahoAdministrator(final IPentahoSession session) {
     IAclVoter voter = PentahoSystem.get(IAclVoter.class, session);
     return voter.isPentahoAdministrator(session);
   }
@@ -168,7 +194,8 @@ public class SecurityHelper {
    * @param role The role to look for
    * @return true if the user is granted the specified role.
    */
-  public static boolean isGranted(final IPentahoSession session, final GrantedAuthority role) {
+  @Override
+  public boolean isGranted(final IPentahoSession session, final GrantedAuthority role) {
     IAclVoter voter = PentahoSystem.get(IAclVoter.class, session);
     return voter.isGranted(session, role);
   }
@@ -177,7 +204,8 @@ public class SecurityHelper {
    * @param aFile
    * @return a boolean that indicates if this file can have ACLS placed on it.
    */
-  public static boolean canHaveACLS(final ISolutionFile aFile) {
+  @Override
+  public boolean canHaveACLS(final ISolutionFile aFile) {
     if (aFile.isDirectory()) { // All Directories can have ACLS
       return true;
     }
@@ -186,7 +214,8 @@ public class SecurityHelper {
     return PentahoSystem.getACLFileExtensionList().contains(aFile.getExtension());
   }
 
-  public static boolean hasAccess(final IAclHolder aHolder, final int actionOperation, final IPentahoSession session) {
+  @Override
+  public boolean hasAccess(final IAclHolder aHolder, final int actionOperation, final IPentahoSession session) {
     IAclVoter voter = PentahoSystem.get(IAclVoter.class, session);
     int aclMask = -1;
 
@@ -225,7 +254,8 @@ public class SecurityHelper {
    * @param session
    * @return
    */
-  public static boolean hasAccess(final IAclSolutionFile aFile, final int actionOperation, final IPentahoSession session) {
+  @Override
+  public boolean hasAccess(final IAclSolutionFile aFile, final int actionOperation, final IPentahoSession session) {
     if (aFile == null) {
       return false;
     }
@@ -253,7 +283,7 @@ public class SecurityHelper {
       case ISolutionRepository.ACTION_ADMIN: {
         // aclMask = PentahoAclEntry.ADMINISTRATION;
         // break;
-        return SecurityHelper.isPentahoAdministrator(session);
+        return isPentahoAdministrator(session);
       }
       case ISolutionRepository.ACTION_SUBSCRIBE: {
         aclMask = IPentahoAclEntry.PERM_SUBSCRIBE;
@@ -290,7 +320,8 @@ public class SecurityHelper {
    * @param principalName the subject of this Authentication object
    * @return a Spring Authentication for the given user
    */
-  public static Authentication createAuthentication(String principalName) {
+  @Override
+  public Authentication createAuthentication(String principalName) {
     IUserRoleListService roleListService = PentahoSystem.get(IUserRoleListService.class);
     List<String> roles = roleListService.getRolesForUser(principalName);
     if (SecurityHelper.logger.isDebugEnabled()) {
@@ -307,7 +338,8 @@ public class SecurityHelper {
     return auth;
   }
   
-  public static Authentication getAuthentication() {
+  @Override
+  public Authentication getAuthentication() {
     return SecurityContextHolder.getContext().getAuthentication();
   }
   
@@ -317,14 +349,16 @@ public class SecurityHelper {
    * @param ignoredAllowAnonymous
    * @return
    */
-  public static Authentication getAuthentication(IPentahoSession ignoredSession, boolean ignoredAllowAnonymous) {
+  @Override
+  public Authentication getAuthentication(IPentahoSession ignoredSession, boolean ignoredAllowAnonymous) {
     return getAuthentication();
   }
   
   /**
    * Runs code as system with full privileges.
    */
-  public static <T> T runAsSystem(final Callable<T> callable) throws Exception {
+  @Override
+  public <T> T runAsSystem(final Callable<T> callable) throws Exception {
     // TODO Substitute the tennant admin user name using the pattern {0}_adminUser
     // final String name = MessageFormat.format("{0}_adminUser", TenantUtils.getTenantId());
     
