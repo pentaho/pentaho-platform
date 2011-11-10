@@ -50,7 +50,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
 
-public class PerspectiveSwitcher extends HorizontalPanel {
+public class PerspectiveManager extends HorizontalPanel {
 
   public static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
   public static final String SEPARATOR = "/"; //$NON-NLS-1$
@@ -63,13 +63,13 @@ public class PerspectiveSwitcher extends HorizontalPanel {
 
   private IPluginPerspective activePerspective;
 
-  private static PerspectiveSwitcher instance = new PerspectiveSwitcher();
+  private static PerspectiveManager instance = new PerspectiveManager();
 
-  public static PerspectiveSwitcher getInstance() {
+  public static PerspectiveManager getInstance() {
     return instance;
   }
 
-  private PerspectiveSwitcher() {
+  private PerspectiveManager() {
     getElement().setId("mantle-perspective-switcher");
     setStyleName("mantle-perspective-switcher");
     AsyncCallback<ArrayList<IPluginPerspective>> callback = new AsyncCallback<ArrayList<IPluginPerspective>>() {
@@ -328,13 +328,13 @@ public class PerspectiveSwitcher extends HorizontalPanel {
     }
   }-*/;
 
-  private native void registerFunctions(PerspectiveSwitcher switcher)
+  private native void registerFunctions(PerspectiveManager manager)
   /*-{
     $wnd.mantle_getPerspectives = function() {
-      return switcher.@org.pentaho.mantle.client.ui.PerspectiveSwitcher::getPerspectives()();      
+      return manager.@org.pentaho.mantle.client.ui.PerspectiveManager::getPerspectives()();      
     }
     $wnd.mantle_setPerspective = function(perspectiveId) {
-      switcher.@org.pentaho.mantle.client.ui.PerspectiveSwitcher::setPerspective(Ljava/lang/String;)(perspectiveId);      
+      manager.@org.pentaho.mantle.client.ui.PerspectiveManager::setPerspective(Ljava/lang/String;)(perspectiveId);      
     }
   }-*/;
 

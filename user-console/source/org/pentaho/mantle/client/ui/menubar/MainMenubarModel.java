@@ -29,8 +29,9 @@ import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-import org.pentaho.mantle.client.ui.PerspectiveSwitcher;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 import org.pentaho.ui.xul.stereotype.Bindable;
 
@@ -128,8 +129,19 @@ public class MainMenubarModel extends XulEventSourceAdapter implements SolutionB
   }
 
   @Bindable
+  public void toggleShowWorkspace() {
+    IPluginPerspective perspective = PerspectiveManager.getInstance().getActivePerspective();
+    boolean showing = perspective.getId().equalsIgnoreCase("workspace.perspective");
+    if (showing) {
+      PerspectiveManager.getInstance().setPerspective("default.perspective");
+    } else {
+      PerspectiveManager.getInstance().setPerspective("workspace.perspective");
+    }
+  }
+  
+  @Bindable
   public void refreshContent() {
-    if ("workspace.perspective".equals(PerspectiveSwitcher.getInstance().getActivePerspective().getId())){
+    if ("workspace.perspective".equals(PerspectiveManager.getInstance().getActivePerspective().getId())){
       Command cmd = new RefreshWorkspaceCommand();
       cmd.execute();
     } else {

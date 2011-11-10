@@ -19,12 +19,13 @@ package org.pentaho.mantle.client.ui.menubar;
 
 import java.util.Map;
 
-import org.pentaho.gwt.widgets.client.menuitem.CheckBoxMenuItem;
+import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.containers.XulMenubar;
@@ -44,6 +45,7 @@ public class MainMenubarController extends AbstractXulEventHandler {
   private XulMenuitem saveMenuItem;
   private XulMenuitem saveAsMenuItem;
   private XulMenuitem showBrowserMenuItem;
+  private XulMenuitem showWorkspaceMenuItem;
   private XulMenuitem useDescriptionsMenuItem;
   private XulMenuitem showHiddenFilesMenuItem;
 
@@ -64,6 +66,7 @@ public class MainMenubarController extends AbstractXulEventHandler {
     saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem");
     saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem");
     showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem");
+    showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem");
     useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem");
     showHiddenFilesMenuItem = (XulMenuitem) document.getElementById("showHiddenFilesMenuItem");
     languageMenu = (XulMenubar) document.getElementById("languagemenu");
@@ -94,7 +97,7 @@ public class MainMenubarController extends AbstractXulEventHandler {
 
           public void onSuccess(Map<String, String> strings) {
             for (String themeId : strings.keySet()) {
-              CheckBoxMenuItem themeMenuItem = new CheckBoxMenuItem(strings.get(themeId), new SwitchThemeCommand(themeId)); //$NON-NLS-1$
+              PentahoMenuItem themeMenuItem = new PentahoMenuItem(strings.get(themeId), new SwitchThemeCommand(themeId)); //$NON-NLS-1$
               themeMenuItem.getElement().setId(themeId + "_menu_item");
               themeMenuItem.setChecked(themeId.equals(activeTheme));
               ((MenuBar) themesMenu.getManagedObject()).addItem(themeMenuItem);
@@ -118,6 +121,10 @@ public class MainMenubarController extends AbstractXulEventHandler {
     bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled");
     bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled");
 
+    // init known values
+    ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(SolutionBrowserPanel.getInstance().isNavigatorShowing());
+    ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked("workspace.perspective".equals(PerspectiveManager.getInstance().getActivePerspective().getId()));
+    
     setupNativeHooks(this);
   }
 
@@ -203,22 +210,29 @@ public class MainMenubarController extends AbstractXulEventHandler {
 
   @Bindable
   public void showBrowserClicked() {
-    boolean checked = ((CheckBoxMenuItem) showBrowserMenuItem.getManagedObject()).isChecked();
-    ((CheckBoxMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(!checked);
+    boolean checked = ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).isChecked();
+    ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(!checked);
     model.toggleShowBrowser();
   }
 
   @Bindable
+  public void showWorkspaceClicked() {
+    boolean checked = ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).isChecked();
+    ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(!checked);
+    model.toggleShowWorkspace();
+  }
+
+  @Bindable
   public void useDescriptionsForTooltipsClicked() {
-    boolean checked = ((CheckBoxMenuItem) useDescriptionsMenuItem.getManagedObject()).isChecked();
-    ((CheckBoxMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(!checked);
+    boolean checked = ((PentahoMenuItem) useDescriptionsMenuItem.getManagedObject()).isChecked();
+    ((PentahoMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(!checked);
     model.toggleUseDescriptionsForTooltips();
   }
 
   @Bindable
   public void showHiddenFilesClicked() {
-    boolean checked = ((CheckBoxMenuItem) showHiddenFilesMenuItem.getManagedObject()).isChecked();
-    ((CheckBoxMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(!checked);
+    boolean checked = ((PentahoMenuItem) showHiddenFilesMenuItem.getManagedObject()).isChecked();
+    ((PentahoMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(!checked);
     SolutionBrowserPanel.getInstance().toggleShowHideFilesCommand.execute();
   }
 

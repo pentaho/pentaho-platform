@@ -160,18 +160,20 @@ public class JsJobTrigger extends JavaScriptObject {
         // MONTHLY: Day N of every month
         trigDesc = Messages.getString("day") + " " + daysOfMonth[0] + " " + Messages.getString("ofEveryMonth");
       } else if (isQualifiedDayOfWeekRecurrence()) {
-        // MONTHLY: The <qualifier> <dayOfWeek> of every month
+        // MONTHLY: The <qualifier> <dayOfWeek> of every month at <time>
         String qualifier = getDayOfWeekQualifier();
         String dayOfWeek = getQualifiedDayOfWeek();
         trigDesc = Messages.getString("the") + " " + WeekOfMonth.valueOf(qualifier) + " " + DayOfWeek.valueOf(dayOfWeek) + " "
             + Messages.getString("ofEveryMonth");
       } else if (getDayOfWeekRecurrences().length > 0) {
-        // WEEKLY: Every week on <day>..<day>
+        // WEEKLY: Every week on <day>..<day> at <time>
         trigDesc = Messages.getString("every") + " " + DayOfWeek.get(getDayOfWeekRecurrences()[0] - 1).toString().trim();
         for (int i = 1; i < getDayOfWeekRecurrences().length; i++) {
           trigDesc += ", " + DayOfWeek.get(getDayOfWeekRecurrences()[i] - 1).toString().trim();
         }
       }
+      DateTimeFormat timeFormat = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM);
+      trigDesc += " at " + timeFormat.format(getStartTime());
     } else if ("simpleJobTrigger".equals(getType())) {
       if (getRepeatCount() > 0) {
         trigDesc += Messages.getString("run") + " " + getRepeatCount() + " " + Messages.getString("times");

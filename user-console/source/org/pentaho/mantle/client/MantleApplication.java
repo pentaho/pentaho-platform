@@ -31,7 +31,7 @@ import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.ui.PerspectiveSwitcher;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.menubar.XulMainMenubar;
 import org.pentaho.mantle.client.ui.toolbar.XulMainToolbar;
 import org.pentaho.mantle.client.usersettings.IMantleSettingsListener;
@@ -165,7 +165,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
       RootPanel.get("pucMenuBar").add(XulMainMenubar.getInstance());
     }
 
-    RootPanel.get("pucPerspectives").add(PerspectiveSwitcher.getInstance());
+    RootPanel.get("pucPerspectives").add(PerspectiveManager.getInstance());
     
     if ("true".equals(settings.get("show-main-toolbar"))) {
       RootPanel.get("pucToolBar").add(XulMainToolbar.getInstance());

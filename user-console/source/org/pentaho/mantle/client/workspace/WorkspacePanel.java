@@ -4,12 +4,14 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.mantle.client.commands.RefreshWorkspaceCommand;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
+import org.pentaho.mantle.client.solutionbrowser.fileproperties.GeneratedContentPanel;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
@@ -36,7 +38,6 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
@@ -172,7 +173,12 @@ public class WorkspacePanel extends SimplePanel {
       public void onCellPreview(CellPreviewEvent<JsJob> event) {
         
         if (event.getColumn() == 0 && event.getNativeEvent().getType().contains("click")) {
-          Window.alert("Load execution history for: " + event.getValue().getResourceName() + " !");
+          PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
+          String resource = event.getValue().getResourceName();
+          resource = resource.replace("/", ":");
+          dialog.setContent(new GeneratedContentPanel(resource));
+          dialog.setSize("600px", "300px");
+          dialog.center();
         }
       }
     });
@@ -440,6 +446,11 @@ public class WorkspacePanel extends SimplePanel {
       }
     });
     bar.add(refresh);
+    
+    ToolbarButton filter = new ToolbarButton(new Image(MantleImages.images.filter16()));
+    filter.setEnabled(false);
+    bar.add(filter);
+    
     bar.addSpacer(20);
     controlScheduleButton.setCommand(new Command() {
       public void execute() {
@@ -509,7 +520,7 @@ public class WorkspacePanel extends SimplePanel {
         public void onResponseReceived(Request request, Response response) {
           job.setState(response.getText());
           table.redraw();
-          boolean isRunning = "RUNNING".equalsIgnoreCase(response.getText());
+          boolean isRunning = "NORMAL".equalsIgnoreCase(response.getText());
           controlScheduleButton.setToolTip(job.getState());
           if (isRunning) {
             controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
