@@ -68,51 +68,47 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
 
   private static String SEPARATOR = "separator"; //$NON-NLS-1$
 
-  private static final String adminMenuItems[] = { "open", //$NON-NLS-1$
-      "openInNewWindow", //$NON-NLS-1$
-      "runInBackground", //$NON-NLS-1$
-      "edit", //$NON-NLS-1$
-      // edit action is a advanced feature, hidden normally
-      "editAction", //$NON-NLS-1$
-      "delete", //$NON-NLS-1$
-      SEPARATOR, "showHistoryEllipsis", //$NON-NLS-1$
-      SEPARATOR, "share", //$NON-NLS-1$
-      "scheduleEllipsis", //$NON-NLS-1$
-      SEPARATOR, "cut", //$NON-NLS-1$
-      "copy", //$NON-NLS-1$
-      SEPARATOR, "exportRepositoryFiles", //$NON-NLS-1$ 
-      SEPARATOR,
-      "propertiesEllipsis" //$NON-NLS-1$ 
-  };
-
-  private static final String nonAdminMenuItems[] = { "open", //$NON-NLS-1$
-      "openInNewWindow", //$NON-NLS-1$
-      "runInBackground", //$NON-NLS-1$
-      "edit", //$NON-NLS-1$
-      // edit action is a advanced feature, hidden normally
-      "editAction", //$NON-NLS-1$
-      "delete", //$NON-NLS-1$
-      SEPARATOR, "showHistoryEllipsis", //$NON-NLS-1$
-      SEPARATOR, "share", //$NON-NLS-1$
-      "scheduleEllipsis", //$NON-NLS-1$
-      SEPARATOR, "copy", //$NON-NLS-1$
-      "cut", //$NON-NLS-1$
-      SEPARATOR,
-      "propertiesEllipsis" //$NON-NLS-1$
-  };
+  private static final MenuGlue adminMenuItems[] = { new MenuGlue("open", COMMAND.RUN), //$NON-NLS-1$
+    new MenuGlue("openInNewWindow", COMMAND.NEWWINDOW), //$NON-NLS-1$
+    new MenuGlue("runInBackground", COMMAND.BACKGROUND), //$NON-NLS-1$
+    new MenuGlue("edit", COMMAND.EDIT), //$NON-NLS-1$
+    new MenuGlue("editAction", COMMAND.EDIT_ACTION), //$NON-NLS-1$
+    new MenuGlue("delete", COMMAND.DELETE), //$NON-NLS-1$
+    new MenuGlue(SEPARATOR, null),
+    new MenuGlue("showHistoryEllipsis", COMMAND.GENERATED_CONTENT), //$NON-NLS-1$
+    new MenuGlue(SEPARATOR, null),
+    new MenuGlue("share", COMMAND.SHARE), //$NON-NLS-1$
+    new MenuGlue("scheduleEllipsis", COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
+    new MenuGlue(SEPARATOR, null),
+    new MenuGlue("cut", COMMAND.CUT), //$NON-NLS-1$
+    new MenuGlue("copy", COMMAND.COPY), //$NON-NLS-1$
+    new MenuGlue(SEPARATOR, null),
+    new MenuGlue("exportRepositoryFiles", COMMAND.EXPORT), //$NON-NLS-1$
+    new MenuGlue(SEPARATOR, null),
+    new MenuGlue("propertiesEllipsis", COMMAND.PROPERTIES) }; //$NON-NLS-1$
   
-  private static final String trashMenuItems[] = { "restore", //$NON-NLS-1$
-    "delete", //$NON-NLS-1$
-    "properties" //$NON-NLS-1$
-  };
-
-  private static final FileCommand.COMMAND adminMenuCommands[] = { COMMAND.RUN, COMMAND.NEWWINDOW, COMMAND.BACKGROUND, COMMAND.EDIT, COMMAND.EDIT_ACTION, COMMAND.DELETE, null,
-      COMMAND.GENERATED_CONTENT, null, COMMAND.SHARE, COMMAND.SCHEDULE_NEW, null, COMMAND.CUT, COMMAND.COPY, null, COMMAND.EXPORT, null, COMMAND.PROPERTIES};
-
-  private static final FileCommand.COMMAND nonAdminMenuCommands[] = { COMMAND.RUN, COMMAND.NEWWINDOW, COMMAND.BACKGROUND, COMMAND.EDIT, COMMAND.EDIT_ACTION, COMMAND.DELETE, null,
-      COMMAND.GENERATED_CONTENT, COMMAND.SHARE, COMMAND.SCHEDULE_NEW, null, COMMAND.COPY, COMMAND.CUT,  null, COMMAND.PROPERTIES};
+  private static final MenuGlue nonAdminMenuItems[] = { new MenuGlue("open", COMMAND.RUN), //$NON-NLS-1$
+    new MenuGlue("openInNewWindow", COMMAND.NEWWINDOW), //$NON-NLS-1$
+    new MenuGlue("runInBackground", COMMAND.BACKGROUND), //$NON-NLS-1$
+    new MenuGlue("edit", COMMAND.EDIT), //$NON-NLS-1$
+    new MenuGlue("editAction", COMMAND.EDIT_ACTION), //$NON-NLS-1$
+    new MenuGlue("delete", COMMAND.DELETE), //$NON-NLS-1$
+    new MenuGlue(SEPARATOR, null),
+    new MenuGlue("showHistoryEllipsis", COMMAND.GENERATED_CONTENT), //$NON-NLS-1$
+    new MenuGlue(SEPARATOR, null),
+    new MenuGlue("share", COMMAND.SHARE), //$NON-NLS-1$
+    new MenuGlue("scheduleEllipsis", COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
+    new MenuGlue(SEPARATOR, null),
+    new MenuGlue("cut", COMMAND.CUT), //$NON-NLS-1$
+    new MenuGlue("copy", COMMAND.COPY), //$NON-NLS-1$
+    new MenuGlue(SEPARATOR, null),
+    new MenuGlue("propertiesEllipsis", COMMAND.PROPERTIES) }; //$NON-NLS-1$
   
-  private static final FileCommand.COMMAND trashMenuCommands[] = { COMMAND.RESTORE, COMMAND.DELETEPERMANENT, COMMAND.PROPERTIES};
+  private static final MenuGlue trashMenuItems[] = { new MenuGlue("restore", COMMAND.RESTORE), //$NON-NLS-1$
+    new MenuGlue("delete", COMMAND.DELETEPERMANENT), //$NON-NLS-1$
+    new MenuGlue("properties", COMMAND.PROPERTIES), //$NON-NLS-1$
+    
+  };
 
   // by creating a single popupMenu, we're reducing total # of widgets used
   // and we can be sure to hide any existing ones by calling hide
@@ -278,18 +274,14 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     fireFileSelectionEvent();
     }
 
-    String menuItems[];
-    FileCommand.COMMAND menuCommands[];
+    MenuGlue menuItems[];
     if (isInTrash()) {
       menuItems = trashMenuItems;
-      menuCommands = trashMenuCommands;
     } else {
       if (SolutionBrowserPanel.getInstance().isAdministrator()) {
         menuItems = adminMenuItems;
-        menuCommands = adminMenuCommands;
       } else {
         menuItems = nonAdminMenuItems;
-        menuCommands = nonAdminMenuCommands;
       }
     }
 
@@ -298,16 +290,16 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     menuBar.setAutoOpen(true);
 
     for (int i = 0; i < menuItems.length; i++) {
-      if (!MantleApplication.showAdvancedFeatures && menuCommands[i] == COMMAND.EDIT_ACTION) {
+      if (!MantleApplication.showAdvancedFeatures && menuItems[i].getCommand() == COMMAND.EDIT_ACTION) {
         continue;
       }
 
-      if (menuItems[i].equals(SEPARATOR)) {
+      if (menuItems[i].getTitle().equals(SEPARATOR)) {
         menuBar.addSeparator();
-      } else if (options != null && options.isCommandEnabled(menuCommands[i])) {
-        menuBar.addItem(new MenuItem(Messages.getString(menuItems[i]), new FileCommand(menuCommands[i], popupMenu, getRepositoryFile())));
+      } else if (options != null && options.isCommandEnabled(menuItems[i].getCommand())) {
+        menuBar.addItem(new MenuItem(Messages.getString(menuItems[i].getTitle()), new FileCommand(menuItems[i].getCommand(), popupMenu, getRepositoryFile())));
       } else {
-        MenuItem item = new MenuItem(Messages.getString(menuItems[i]), (Command) null);
+        MenuItem item = new MenuItem(Messages.getString(menuItems[i].getTitle()), (Command) null);
         item.setStyleName("disabledMenuItem"); //$NON-NLS-1$
         menuBar.addItem(item);
       }
@@ -452,4 +444,26 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   public boolean isInTrash() {
     return repositoryFile.getPath().contains("/.trash/pho:");
   }
+  
 }
+
+final class MenuGlue {
+  private String title;
+  private FileCommand.COMMAND command;
+  
+  public MenuGlue(String title, COMMAND command) {
+    super();
+    this.title = title;
+    this.command = command;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public FileCommand.COMMAND getCommand() {
+    return command;
+  }
+
+}
+

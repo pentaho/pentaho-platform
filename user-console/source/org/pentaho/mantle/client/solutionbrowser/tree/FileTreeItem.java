@@ -32,6 +32,13 @@ public class FileTreeItem extends TreeItem {
     super(widget);
   }
 
+  /**
+   * @param string
+   */
+  public FileTreeItem(String string) {
+    super(string);
+  }
+
   public String getFileName() {
     return fileName;
   }

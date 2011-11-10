@@ -215,7 +215,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       selectedItem = getSelectedItem();
     }
     clear();
-    addItem(new TreeItem(Messages.getString("loadingEllipsis"))); //$NON-NLS-1$
+    addItem(new FileTreeItem(Messages.getString("loadingEllipsis"))); //$NON-NLS-1$
     WaitPopup.getInstance().setVisible(false);
   }
 
@@ -313,7 +313,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     }
   }
 
-  public TreeItem getTrashItem() {
+  public FileTreeItem getTrashItem() {
     return trashItem;
   }
   
