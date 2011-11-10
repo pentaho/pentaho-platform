@@ -68,7 +68,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
   private boolean useDescriptionsForTooltip = false;
   public RepositoryFileTree repositoryFileTree;
   public List<RepositoryFile> trashItems;
-  public TreeItem trashItem;
+  public FileTreeItem trashItem;
   
   public static final String ETC_FOLDER = "etc";//$NON-NLS-1$
   private TreeItem selectedItem = null;
@@ -203,6 +203,12 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     }
   }
 
+  protected void onLoad() {
+    super.onLoad();
+    fixLeafNodes();
+    DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px");  //$NON-NLS-1$//$NON-NLS-2$
+  }
+  
   public void beforeFetchRepositoryFileTree() {
     WaitPopup.getInstance().setVisible(true);
     if (getSelectedItem() != null) {
@@ -252,7 +258,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
         addItem(myRootItem);
       }
     }
-    fixLeafs();
+    fixLeafNodes();
     buildTrash();
     if (selectedItem != null) {
       ArrayList<TreeItem> parents = new ArrayList<TreeItem>();
@@ -273,7 +279,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
   /**
    * 
    */
-  private void fixLeafs() {
+  private void fixLeafNodes() {
     List<FileTreeItem> allNodes = getAllNodes();
     for (FileTreeItem treeItem : allNodes) {
       RepositoryFileTree userObject = (RepositoryFileTree)treeItem.getUserObject();
@@ -283,14 +289,14 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       }
     }
   }
-
+  
   private void buildTrash() {
-    trashItem = new TreeItem(new LeafItemWidget("Recycle Bin", "mantle/images/recycle_bin.png")); //$NON-NLS-1$ //$NON-NLS-2$
+    trashItem = new FileTreeItem(new LeafItemWidget("Recycle Bin", "mantle/images/recycle_bin.png")); //$NON-NLS-1$ //$NON-NLS-2$
     this.addItem(trashItem);
     DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px");  //$NON-NLS-1$//$NON-NLS-2$
   }
   
-  public ArrayList<FileTreeItem> getAllNodes() {
+  public List<FileTreeItem> getAllNodes() {
     ArrayList<FileTreeItem> nodeList = new ArrayList<FileTreeItem>();
     for (int i = 0; i < this.getItemCount(); i++) {
       nodeList.add((FileTreeItem) this.getItem(i));

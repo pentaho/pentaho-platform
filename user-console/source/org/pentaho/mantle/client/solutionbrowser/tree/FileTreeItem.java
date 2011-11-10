@@ -18,10 +18,19 @@ package org.pentaho.mantle.client.solutionbrowser.tree;
 
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.Widget;
 
 public class FileTreeItem extends TreeItem {
   public String fileName;
   public String url;
+
+  public FileTreeItem() {
+    super();
+  }
+  
+  public FileTreeItem(Widget widget) {
+    super(widget);
+  }
 
   public String getFileName() {
     return fileName;
