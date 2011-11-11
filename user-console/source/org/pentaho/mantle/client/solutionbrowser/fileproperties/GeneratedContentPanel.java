@@ -108,6 +108,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
               dataTable.setHTML(row, 0, repositoryFiles.get(row).getName());
               dataTable.setHTML(row, 1, repositoryFiles.get(row).getCreatedDate().toString());
             }
+            dataTable.sortColumn(1);
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             dialogBox.center();

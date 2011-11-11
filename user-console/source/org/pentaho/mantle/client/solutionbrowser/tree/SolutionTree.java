@@ -178,7 +178,8 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
           MenuItem pasteMenuItem = menuBar.addItem(new MenuItem(Messages.getString("paste"), new FolderCommand(FolderCommand.COMMAND.PASTE, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
           pasteMenuItem.setStyleName( SolutionBrowserPanel.getInstance().getClipboard().hasContent() ? "gwt-MenuItem" : "disabledMenuItem");  //$NON-NLS-1$//$NON-NLS-2$
           menuBar.addSeparator();
-          if (SolutionBrowserPanel.getInstance().isAdministrator()) {menuBar.addItem(new MenuItem(Messages.getString("exportRepositoryFiles"), new FolderCommand(FolderCommand.COMMAND.EXPORT, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
+          if (SolutionBrowserPanel.getInstance().isAdministrator()) {
+            menuBar.addItem(new MenuItem(Messages.getString("exportRepositoryFiles"), new FolderCommand(FolderCommand.COMMAND.EXPORT, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
             menuBar.addItem(new MenuItem(Messages.getString("importRepositoryFilesElipsis"), new FolderCommand(FolderCommand.COMMAND.IMPORT, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
             menuBar.addSeparator();
           }
@@ -205,8 +206,12 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
 
   protected void onLoad() {
     super.onLoad();
-    fixLeafNodes();
-    DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px");  //$NON-NLS-1$//$NON-NLS-2$
+    try {
+      fixLeafNodes();
+      DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px");  //$NON-NLS-1$//$NON-NLS-2$
+    } catch (NullPointerException e) {
+      // This is sometimes thrown because the dom does not yet contain the trash items or the leaf nodes.
+    }
   }
   
   public void beforeFetchRepositoryFileTree() {
