@@ -28,7 +28,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -42,7 +41,6 @@ import mondrian.olap.Util.PropertyList;
 import mondrian.rolap.agg.AggregationManager;
 import mondrian.xmla.DataSourcesConfig;
 import mondrian.xmla.DataSourcesConfig.Catalog;
-import mondrian.xmla.DataSourcesConfig.Catalogs;
 import mondrian.xmla.DataSourcesConfig.DataSource;
 import mondrian.xmla.DataSourcesConfig.DataSources;
 
@@ -56,7 +54,6 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
 import org.apache.commons.vfs.impl.DefaultFileSystemManager;
-import org.codehaus.janino.util.enumerator.EnumeratorSet;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -73,7 +70,6 @@ import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.util.XmlParseException;
@@ -85,8 +81,7 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
-import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceAdapter;
+import org.pentaho.platform.repository2.unified.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -509,66 +504,25 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         break;
       }
     }
+
     if (fileLocationCatalogTest != null && !definitionEquals(fileLocationCatalogTest.getDefinition(), catalog.getDefinition())) {
       throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS"), //$NON-NLS-1$ 
           Reason.XMLA_SCHEMA_NAME_EXISTS);
     }
     
-    DataSources dataSources = makeDataSources();
 
-    MondrianDataSource mDataSource = catalog.getDataSource();
-    DataSource ds = null;
-
-  // see if the ds already exists
-    for(int i = 0; i < dataSources.dataSources.length && ds == null; i++) {
-      DataSource currentDs = dataSources.dataSources[i];
-      if (mDataSource.getName().equals(currentDs.name)) {
-        ds = currentDs;
-      }
+    try {
+	    String mondrianSchema = (String) pentahoSession.getAttribute("MONDRIAN_SCHEMA_XML_CONTENT");
+	    InputStream schemaInputStream = IOUtils.toInputStream(mondrianSchema);
+	    MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper();
+	    helper.addSchema(schemaInputStream, catalog.getName(), catalog.getDataSourceInfo());
+    } catch(Exception e) {
+    	 throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+    	          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$ 
+    	          Reason.valueOf(e.getMessage()));
     }
     
-    if (ds == null) {
-      ds = new DataSource();
-      ds.authenticationMode = mDataSource.getAuthenticationMode();
-      ds.dataSourceInfo = mDataSource.getDataSourceInfo();
-      ds.description = mDataSource.getDescription();
-      ds.name = mDataSource.getName();
-      ds.providerName = mDataSource.getProviderName();
-      ds.providerType = mDataSource.getProviderType();
-      ds.url = mDataSource.getUrl();
-      dataSources.dataSources = (DataSource[])ArrayUtils.add(dataSources.dataSources, ds);
-    }
-  
-    Catalog cat = null;
-    
-    if (catalogExists(catalog, pentahoSession)) {
-      // find the catalog and overwrite
-      for (Catalog currentCat : ds.catalogs.catalogs) {
-        if (cleanseDataSourceInfo(catalog.getEffectiveDataSource().getDataSourceInfo()).equals(
-            cleanseDataSourceInfo(currentCat.dataSourceInfo)) 
-            && definitionEquals(catalog.getDefinition(), currentCat.definition)) {
-          cat = currentCat;
-        }
-      }
-    } else {
-      cat = new Catalog();
-      if (ds.catalogs == null) {
-        ds.catalogs = new Catalogs();
-      }
-      if (ds.catalogs.catalogs == null) {
-        ds.catalogs.catalogs = new Catalog[0];
-      }
-      ds.catalogs.catalogs = (Catalog[])ArrayUtils.add(ds.catalogs.catalogs, cat);
-    }
-    
-    cat.dataSourceInfo = catalog.getDataSourceInfo();
-    cat.definition = catalog.getDefinition();
-    cat.name = catalog.getName();
-
-    writeDataSources( dataSources );    
-    // if we got here then assume file write was successful; refresh from file
-
     if (MondrianCatalogHelper.logger.isDebugEnabled()) {
       MondrianCatalogHelper.logger.debug("refreshing from dataSourcesConfig (" + dataSourcesConfig + ")"); //$NON-NLS-1$ //$NON-NLS-2$
     }
