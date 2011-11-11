@@ -166,7 +166,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     }
 
     RootPanel.get("pucPerspectives").add(PerspectiveManager.getInstance());
-    
+
     if ("true".equals(settings.get("show-main-toolbar"))) {
       RootPanel.get("pucToolBar").add(XulMainToolbar.getInstance());
     }
@@ -178,13 +178,18 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     contentDeck.add(new Label());
     contentDeck.showWidget(0);
     contentDeck.add(SolutionBrowserPanel.getInstance());
-    
-    contentDeck.setStyleName("applicationShell");
-    
-    // menubar=no,location=no,resizable=yes,scrollbars=no,status=no,width=1200,height=800
-    RootPanel.get("pucContent").add(contentDeck);
-    RootPanel.get().add(WaitPopup.getInstance());
 
+    contentDeck.setStyleName("applicationShell");
+
+    // menubar=no,location=no,resizable=yes,scrollbars=no,status=no,width=1200,height=800
+    try {
+      RootPanel.get("pucContent").add(contentDeck);
+    } catch (Throwable t) {
+      // onLoad of something is causing problems
+    }
+
+    RootPanel.get().add(WaitPopup.getInstance());
+    
     // Add in the overlay panel
     overlayPanel.setVisible(false);
     overlayPanel.setHeight("100%");
@@ -213,7 +218,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
       public void onResponseReceived(Request arg0, Response response) {
         Boolean isAdministrator = Boolean.parseBoolean(response.getText());
         SolutionBrowserPanel.getInstance().setAdministrator(isAdministrator);
-        //menuBar.buildMenuBar(settings, isAdministrator);
+        // menuBar.buildMenuBar(settings, isAdministrator);
 
         int numStartupURLs = Integer.parseInt(settings.get("num-startup-urls")); //$NON-NLS-1$
         for (int i = 0; i < numStartupURLs; i++) {

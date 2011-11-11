@@ -3,6 +3,7 @@ package org.pentaho.mantle.client.workspace;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
@@ -46,19 +47,21 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
-import com.google.gwt.view.client.SingleSelectionModel;
 
 public class WorkspacePanel extends SimplePanel {
 
   private static WorkspacePanel instance = new WorkspacePanel();
 
   private ToolbarButton controlScheduleButton = new ToolbarButton(new Image(MantleImages.images.run16()));
+  private ToolbarButton triggerNowButton = new ToolbarButton(new Image(MantleImages.images.execute16()));
   private ToolbarButton scheduleRemoveButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
 
-  private JsJob selectedJob = null;
+  private Set<JsJob> selectedJobs = null;
 
   private CellTable<JsJob> table = new CellTable<JsJob>(20, (CellTableResources) GWT.create(CellTableResources.class));
   private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
@@ -85,6 +88,7 @@ public class WorkspacePanel extends SimplePanel {
 
   public void refresh(final boolean isAdmin) {
     controlScheduleButton.setEnabled(false);
+    triggerNowButton.setEnabled(false);
     scheduleRemoveButton.setEnabled(false);
 
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobs"; //$NON-NLS-1$
@@ -168,10 +172,11 @@ public class WorkspacePanel extends SimplePanel {
 
   private void createUI(boolean isAdmin) {
 
+    
     table.addCellPreviewHandler(new CellPreviewEvent.Handler<JsJob>() {
 
       public void onCellPreview(CellPreviewEvent<JsJob> event) {
-        
+
         if (event.getColumn() == 0 && event.getNativeEvent().getType().contains("click")) {
           PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
           String resource = event.getValue().getResourceName();
@@ -185,7 +190,12 @@ public class WorkspacePanel extends SimplePanel {
 
     table.setWidth("100%", true);
 
-    final SingleSelectionModel<JsJob> selectionModel = new SingleSelectionModel<JsJob>();
+    // final SingleSelectionModel<JsJob> selectionModel = new SingleSelectionModel<JsJob>();
+    final MultiSelectionModel<JsJob> selectionModel = new MultiSelectionModel<JsJob>(new ProvidesKey<JsJob>() {
+      public Object getKey(JsJob item) {
+        return item.getJobId();
+      }
+    });
     table.setSelectionModel(selectionModel);
     table.setEmptyTableWidget(new Label(Messages.getString("noSchedules")));
 
@@ -210,7 +220,8 @@ public class WorkspacePanel extends SimplePanel {
           val = val.substring(val.lastIndexOf("/") + 1);
         }
         return new SafeHtmlBuilder().appendHtmlConstant(
-            "<span style='cursor: hand; color: blue; text-decoration: underline' title='" + new SafeHtmlBuilder().appendEscaped(job.getResourceName()).toSafeHtml().asString() + "'>" + val + "</span>").toSafeHtml();
+            "<span style='cursor: hand; color: blue; text-decoration: underline' title='"
+                + new SafeHtmlBuilder().appendEscaped(job.getResourceName()).toSafeHtml().asString() + "'>" + val + "</span>").toSafeHtml();
       }
     };
     resourceColumn.setSortable(true);
@@ -395,15 +406,17 @@ public class WorkspacePanel extends SimplePanel {
     table.getSelectionModel().addSelectionChangeHandler(new Handler() {
       @SuppressWarnings("unchecked")
       public void onSelectionChange(SelectionChangeEvent event) {
-        selectedJob = ((SingleSelectionModel<JsJob>) table.getSelectionModel()).getSelectedObject();
-        if ("NORMAL".equalsIgnoreCase(selectedJob.getState())) {
+        selectedJobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
+        JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[]{});
+        if ("NORMAL".equalsIgnoreCase(jobs[0].getState())) {
           controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
         } else {
           controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
         }
-        controlScheduleButton.setEnabled(selectedJob != null);
-        controlScheduleButton.setToolTip(selectedJob.getState());
-        scheduleRemoveButton.setEnabled(selectedJob != null);
+        controlScheduleButton.setEnabled(jobs != null);
+        controlScheduleButton.setToolTip(jobs[0].getState());
+        scheduleRemoveButton.setEnabled(jobs != null);
+        triggerNowButton.setEnabled(jobs != null);
       }
     });
 
@@ -437,7 +450,7 @@ public class WorkspacePanel extends SimplePanel {
     bar.addSpacer(10);
     bar.add(new Label(Messages.getString("schedules")));
     bar.add(Toolbar.GLUE);
-
+    
     ToolbarButton refresh = new ToolbarButton(new Image(MantleImages.images.refresh()));
     refresh.setCommand(new Command() {
       public void execute() {
@@ -446,25 +459,36 @@ public class WorkspacePanel extends SimplePanel {
       }
     });
     bar.add(refresh);
-    
+
     ToolbarButton filter = new ToolbarButton(new Image(MantleImages.images.filter16()));
     filter.setEnabled(false);
     bar.add(filter);
-    
+
     bar.addSpacer(20);
+    triggerNowButton.setToolTip(Messages.getString("executeNow"));
+    triggerNowButton.setCommand(new Command() {
+      public void execute() {
+        if (selectedJobs != null) {
+          controlJobs(selectedJobs, "triggerNow", false);
+        }
+      }
+    });
+    bar.add(triggerNowButton);
     controlScheduleButton.setCommand(new Command() {
       public void execute() {
-        if (selectedJob != null) {
-          if ("NORMAL".equals(selectedJob.getState())) {
-            controlJob(selectedJob, "pauseJob", false);
+        if (selectedJobs != null) {
+          JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[]{});
+          if ("NORMAL".equals(jobs[0].getState())) {
+            controlJobs(selectedJobs, "pauseJob", false);
           } else {
-            controlJob(selectedJob, "resumeJob", false);
+            controlJobs(selectedJobs, "resumeJob", false);
           }
         }
       }
     });
     controlScheduleButton.setEnabled(false);
     scheduleRemoveButton.setEnabled(false);
+    triggerNowButton.setEnabled(false);
     bar.add(controlScheduleButton);
     bar.addSpacer(20);
 
@@ -485,8 +509,8 @@ public class WorkspacePanel extends SimplePanel {
 
     scheduleRemoveButton.setCommand(new Command() {
       public void execute() {
-        if (selectedJob != null) {
-          controlJob(selectedJob, "removeJob", true);
+        if (selectedJobs != null) {
+          controlJobs(selectedJobs, "removeJob", true);
         }
       }
     });
@@ -502,38 +526,40 @@ public class WorkspacePanel extends SimplePanel {
     getElement().getStyle().setBackgroundColor("white");
   }
 
-  private void controlJob(final JsJob job, String function, final boolean refreshData) {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
-    builder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+  private void controlJobs(final Set<JsJob> jobs, String function, final boolean refreshData) {
+    for (final JsJob job : jobs) {
+      final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
+      RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+      builder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
 
-    JSONObject startJobRequest = new JSONObject();
-    startJobRequest.put("jobId", new JSONString(job.getJobId())); //$NON-NLS-1$
-
-    try {
-      builder.sendRequest(startJobRequest.toString(), new RequestCallback() {
-
-        public void onError(Request request, Throwable exception) {
-          // showError(exception);
-        }
-
-        public void onResponseReceived(Request request, Response response) {
-          job.setState(response.getText());
-          table.redraw();
-          boolean isRunning = "NORMAL".equalsIgnoreCase(response.getText());
-          controlScheduleButton.setToolTip(job.getState());
-          if (isRunning) {
-            controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
-          } else {
-            controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
+      JSONObject startJobRequest = new JSONObject();
+      startJobRequest.put("jobId", new JSONString(job.getJobId())); //$NON-NLS-1$
+      
+      try {
+        builder.sendRequest(startJobRequest.toString(), new RequestCallback() {
+          
+          public void onError(Request request, Throwable exception) {
+            // showError(exception);
           }
-          if (refreshData) {
-            refresh(isAdmin);
+
+          public void onResponseReceived(Request request, Response response) {
+            job.setState(response.getText());
+            table.redraw();
+            boolean isRunning = "NORMAL".equalsIgnoreCase(response.getText());
+            controlScheduleButton.setToolTip(job.getState());
+            if (isRunning) {
+              controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
+            } else {
+              controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
+            }
+            if (refreshData) {
+              refresh(isAdmin);
+            }
           }
-        }
-      });
-    } catch (RequestException e) {
-      // showError(e);
+        });
+      } catch (RequestException e) {
+        // showError(e);
+      }
     }
   }
 

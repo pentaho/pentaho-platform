@@ -38,7 +38,8 @@ public class UserSettingsManager {
   }
 
   public void fireUserSettingsFetched() {
-    for (IUserSettingsListener listener : listeners) {
+    ArrayList<IUserSettingsListener> copy = new ArrayList<IUserSettingsListener>(listeners);
+    for (IUserSettingsListener listener : copy) {
       listener.onFetchUserSettings(settings);
     }
   }

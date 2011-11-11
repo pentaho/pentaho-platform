@@ -40,7 +40,8 @@ public class MantleSettingsManager {
   }
 
   public void fireMantleSettingsFetched() {
-    for (IMantleSettingsListener listener : listeners) {
+    ArrayList<IMantleSettingsListener> copy = new ArrayList<IMantleSettingsListener>(listeners);
+    for (IMantleSettingsListener listener : copy) {
       listener.onFetchMantleSettings(settings);
     }
   }
