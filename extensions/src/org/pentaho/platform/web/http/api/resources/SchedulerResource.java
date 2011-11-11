@@ -165,6 +165,28 @@ public class SchedulerResource extends AbstractJaxRSResource {
     return Response.ok(job.getJobId()).type(MediaType.TEXT_PLAIN).build();
   }
 
+  @POST
+  @Path("/triggerNow")
+  @Produces("text/plain")
+  @Consumes({ APPLICATION_XML, APPLICATION_JSON })
+  public Response triggerNow(JobRequest jobRequest) {
+    try {
+      Job job = scheduler.getJob(jobRequest.getJobId());
+      if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+        scheduler.triggerNow(jobRequest.getJobId());
+      } else {
+        if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
+          scheduler.triggerNow(jobRequest.getJobId());
+        }
+      }
+      // udpate job state
+      job = scheduler.getJob(jobRequest.getJobId());
+      return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  
   @GET
   @Path("/jobs")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
