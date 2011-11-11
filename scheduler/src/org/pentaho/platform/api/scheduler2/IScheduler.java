@@ -111,6 +111,12 @@ public interface IScheduler {
   public Job getJob(String jobId) throws SchedulerException;
   
   /**
+   * Triggers the given quartz job by jobId to be executed immediately
+   * @param jobId the job to be executed
+   */
+  public void triggerNow(String jobId) throws SchedulerException;
+  
+  /**
    * Sets when a particular subject is allowed to schedule jobs.
    * @param subject the subject to which the subject applies
    * @param window the window of time at which the scheduler is available
