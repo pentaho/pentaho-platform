@@ -27,6 +27,7 @@
       <list>
         <ref bean="defaultBackingRepositoryLifecycleManager" />
         <ref bean="pdiBackingRepositoryLifecycleManager" />
+        <!--ref bean="metadataRepositoryLifecycleManager" /--> <!-- Adding this now will break all the integration unit tests due to tenant admin issues -->
         <ref bean="mondrianBackingRepositoryLifecycleManager" />
       </list>
     </constructor-arg>

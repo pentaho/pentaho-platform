@@ -17,11 +17,24 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 
 public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
+  private FileSystemRepositoryFileDao repositoryFileDao;
 
-  private FileSystemRepositoryFileDao repositoryFileDao = new FileSystemRepositoryFileDao();
+  public FileSystemBackedUnifiedRepository(final String baseDir) {
+    this(new FileSystemRepositoryFileDao(baseDir));
+  }
 
-  private FileSystemFileAclDao repositoryFileAclDao = new FileSystemFileAclDao();
-  
+  public FileSystemBackedUnifiedRepository(final File baseDir) {
+    this(new FileSystemRepositoryFileDao(baseDir));
+  }
+
+  public FileSystemBackedUnifiedRepository() {
+    this(new FileSystemRepositoryFileDao());
+  }
+
+  public FileSystemBackedUnifiedRepository(final FileSystemRepositoryFileDao repositoryFileDao) {
+    this.repositoryFileDao = repositoryFileDao;
+  }
+
   public boolean canUnlockFile(Serializable fileId) {
     return repositoryFileDao.canUnlockFile(fileId);
   }
