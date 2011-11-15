@@ -163,6 +163,13 @@ public class JsJobTrigger extends JavaScriptObject {
         // MONTHLY: The <qualifier> <dayOfWeek> of every month at <time>
         String qualifier = getDayOfWeekQualifier();
         String dayOfWeek = getQualifiedDayOfWeek();
+
+        if ("THU".equalsIgnoreCase(dayOfWeek)) {
+          dayOfWeek = "THUR";
+        } else if ("TUE".equalsIgnoreCase(dayOfWeek)) {
+          dayOfWeek = "TUES";
+        }
+
         trigDesc = Messages.getString("the") + " " + WeekOfMonth.valueOf(qualifier) + " " + DayOfWeek.valueOf(dayOfWeek) + " "
             + Messages.getString("ofEveryMonth");
       } else if (getDayOfWeekRecurrences().length > 0) {

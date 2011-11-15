@@ -288,6 +288,8 @@ public class PerspectiveManager extends HorizontalPanel {
     DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
     if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(WorkspacePanel.getInstance()) == -1) {
       contentDeck.add(WorkspacePanel.getInstance());
+    } else {
+      WorkspacePanel.getInstance().refresh();
     }
     contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));
   }

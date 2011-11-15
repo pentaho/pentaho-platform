@@ -33,7 +33,7 @@
 
 .mantle-perspective-switcher {
 	background: black;
-	height: 26px;
+	height: 28px;
 }
 
 .puc-logo{
@@ -360,6 +360,11 @@ a:active, a:hover {
   width:100%; 
 }
 
+.workspace-resource-link {
+  color: #ef8033;
+  text-decoration: underline;
+  cursor: hand;
+}
 
 .workspacePanel {
 	background-color: #d4d6db;

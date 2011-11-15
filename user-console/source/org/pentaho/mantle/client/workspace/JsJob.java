@@ -60,6 +60,11 @@ public class JsJob extends JavaScriptObject {
     return null;
   }
   
+  public final boolean hasResourceName() {
+    String resource = getJobParam("ActionAdapterQuartzJob-StreamProvider");
+    return (resource != null && !"".equals(resource));
+  }  
+  
   public final String getFullResourceName() {
     String resource = getJobParam("ActionAdapterQuartzJob-StreamProvider");
     if (resource == null || "".equals(resource)) {

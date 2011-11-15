@@ -31,6 +31,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -58,6 +59,8 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 
 public class WorkspacePanel extends SimplePanel {
 
+  private static final int PAGE_SIZE = 25;
+
   private static WorkspacePanel instance = new WorkspacePanel();
 
   private ToolbarButton controlScheduleButton = new ToolbarButton(new Image(MantleImages.images.run16()));
@@ -68,8 +71,9 @@ public class WorkspacePanel extends SimplePanel {
   private Set<JsJob> selectedJobs = null;
   private ArrayList<IJobFilter> filters = new ArrayList<IJobFilter>();
 
-  private CellTable<JsJob> table = new CellTable<JsJob>(20, (CellTableResources) GWT.create(CellTableResources.class));
+  private CellTable<JsJob> table = new CellTable<JsJob>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
   private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
+  private SimplePager pager;
 
   private FilterDialog filterDialog;
   private IDialogCallback filterDialogCallback = new IDialogCallback() {
@@ -145,6 +149,10 @@ public class WorkspacePanel extends SimplePanel {
     return instance;
   }
 
+  public void refresh() {
+    refresh(isAdmin);
+  }
+
   public void refresh(final boolean isAdmin) {
     controlScheduleButton.setEnabled(false);
     triggerNowButton.setEnabled(false);
@@ -161,7 +169,6 @@ public class WorkspacePanel extends SimplePanel {
         }
 
         public void onResponseReceived(Request request, Response response) {
-
           if (response.getStatusCode() == Response.SC_OK) {
             allJobs = parseJson(JsonUtils.escapeJsonForEval(response.getText()));
             filterAndShowData();
@@ -189,6 +196,7 @@ public class WorkspacePanel extends SimplePanel {
     List<JsJob> list = dataProvider.getList();
     list.clear();
     list.addAll(filteredList);
+    pager.setVisible(filteredList.size() > PAGE_SIZE);
     table.redraw();
   }
 
@@ -243,11 +251,13 @@ public class WorkspacePanel extends SimplePanel {
 
   private void createUI(boolean isAdmin) {
 
+    table.getElement().setId("schedule-table");
+
     table.addCellPreviewHandler(new CellPreviewEvent.Handler<JsJob>() {
 
       public void onCellPreview(CellPreviewEvent<JsJob> event) {
 
-        if (event.getColumn() == 0 && event.getNativeEvent().getType().contains("click")) {
+        if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 0 && event.getValue().hasResourceName()) {
           PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
           String resource = event.getValue().getFullResourceName();
           resource = resource.replace("/", ":");
@@ -285,55 +295,85 @@ public class WorkspacePanel extends SimplePanel {
 
     Column<JsJob, SafeHtml> resourceColumn = new Column<JsJob, SafeHtml>(new SafeHtmlCell()) {
       public SafeHtml getValue(JsJob job) {
-        String val = job.getShortResourceName();
-        return new SafeHtmlBuilder().appendHtmlConstant(
-            "<span style='cursor: hand; color: blue; text-decoration: underline' title='"
-                + new SafeHtmlBuilder().appendEscaped(job.getFullResourceName()).toSafeHtml().asString() + "'>" + val + "</span>").toSafeHtml();
+        try {
+          if (!job.hasResourceName()) {
+            String val = job.getShortResourceName();
+            return new SafeHtmlBuilder().appendHtmlConstant(
+                "<span title='" + new SafeHtmlBuilder().appendEscaped(job.getFullResourceName()).toSafeHtml().asString() + "'>" + val + "</span>").toSafeHtml();
+          } else {
+            String val = job.getShortResourceName();
+            return new SafeHtmlBuilder().appendHtmlConstant(
+                "<span class='workspace-resource-link' title='" + new SafeHtmlBuilder().appendEscaped(job.getFullResourceName()).toSafeHtml().asString() + "'>"
+                    + val + "</span>").toSafeHtml();
+          }
+        } catch (Throwable t) {
+        }
+        return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
       }
     };
     resourceColumn.setSortable(true);
 
     TextColumn<JsJob> scheduleColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
-        return job.getJobTrigger().getDescription();
+        try {
+          return job.getJobTrigger().getDescription();
+        } catch (Throwable t) {
+        }
+        return "-";
       }
     };
     scheduleColumn.setSortable(false);
 
     TextColumn<JsJob> userNameColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
-        return job.getUserName();
+        try {
+          return job.getUserName();
+        } catch (Throwable t) {
+        }
+        return "-";
       }
     };
     userNameColumn.setSortable(true);
 
     TextColumn<JsJob> stateColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
-        return job.getState();
+        try {
+          return job.getState();
+        } catch (Throwable t) {
+        }
+        return "-";
       }
     };
     stateColumn.setSortable(true);
 
     TextColumn<JsJob> nextFireColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
-        Date date = job.getNextRun();
-        if (date == null) {
-          return "-";
+        try {
+          Date date = job.getNextRun();
+          if (date == null) {
+            return "-";
+          }
+          DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
+          return format.format(date);
+        } catch (Throwable t) {
         }
-        DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
-        return format.format(date);
+        return "-";
       }
     };
     nextFireColumn.setSortable(true);
 
     TextColumn<JsJob> lastFireColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
-        Date date = job.getLastRun();
-        if (date == null) {
-          return "-";
+        try {
+          Date date = job.getLastRun();
+          if (date == null) {
+            return "-";
+          }
+          DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
+          return format.format(date);
+        } catch (Throwable t) {
         }
-        DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
-        return format.format(date);
+        return "-";
       }
     };
     lastFireColumn.setSortable(true);
@@ -348,6 +388,15 @@ public class WorkspacePanel extends SimplePanel {
       table.addColumn(userNameColumn, Messages.getString("user"));
     }
     table.addColumn(stateColumn, Messages.getString("state"));
+
+    table.addColumnStyleName(0, "backgroundContentHeaderTableCell");
+    table.addColumnStyleName(1, "backgroundContentHeaderTableCell");
+    table.addColumnStyleName(2, "backgroundContentHeaderTableCell");
+    table.addColumnStyleName(3, "backgroundContentHeaderTableCell");
+    table.addColumnStyleName(4, "backgroundContentHeaderTableCell");
+    if (isAdmin) {
+      table.addColumnStyleName(5, "backgroundContentHeaderTableCell");
+    }
 
     table.setColumnWidth(resourceColumn, 260, Unit.PX);
     table.setColumnWidth(lastFireColumn, 150, Unit.PX);
@@ -482,7 +531,7 @@ public class WorkspacePanel extends SimplePanel {
     });
 
     SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
-    SimplePager pager = new SimplePager(TextLocation.CENTER, pagerResources, false, 0, true) {
+    pager = new SimplePager(TextLocation.CENTER, pagerResources, false, 0, true) {
       @Override
       public void setPageStart(int index) {
         if (getDisplay() != null) {
@@ -532,6 +581,7 @@ public class WorkspacePanel extends SimplePanel {
         filterDialog.center();
       }
     });
+    filterButton.setToolTip(Messages.getString("filterSchedules"));
     bar.add(filterButton);
 
     bar.addSpacer(20);
@@ -584,6 +634,7 @@ public class WorkspacePanel extends SimplePanel {
         }
       }
     });
+    scheduleRemoveButton.setToolTip(Messages.getString("remove"));
     bar.add(scheduleRemoveButton);
     bar.addSpacer(10);
 
@@ -676,7 +727,14 @@ public class WorkspacePanel extends SimplePanel {
 
   public interface CellTableResources extends Resources {
     public interface CellTableStyle extends CellTable.Style {
+
     };
+
+    @Override
+    public ImageResource cellTableSortAscending();
+
+    @Override
+    public ImageResource cellTableSortDescending();
 
     /**
      * The styles used in this widget.
