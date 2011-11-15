@@ -255,9 +255,27 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    * Same as implemented in <code>XmlaServlet</code> except takes advantage of Spring's Resource framework.
    */
   protected DataSourcesConfig.DataSources makeDataSources() {
-	IUnifiedRepository repository =  PentahoSystem.get(IUnifiedRepository.class);
-	String datasourcesXML = generateInMemoryDatasourcesXml(repository);
-    return parseDataSources(datasourcesXML);
+	  try{
+		  URL dataSourcesConfigUrl = null;
+		    
+		  if (dataSourcesConfig == null) { //$NON-NLS-1$
+			String datasourcesXML = generateInMemoryDatasourcesXml(PentahoSystem.get(IUnifiedRepository.class));
+		    return parseDataSources(datasourcesXML);
+		  } else if (dataSourcesConfig.startsWith("file:")) { //$NON-NLS-1$
+		    dataSourcesConfigUrl = new URL(dataSourcesConfig);//dataSourcesConfigResource.getURL();
+	  	    return (dataSourcesConfigUrl == null) ? null : parseDataSourcesUrl(dataSourcesConfigUrl);
+		  } else if (dataSourcesConfig.startsWith("classpath:")) { //$NON-NLS-1$
+		    dataSourcesConfigUrl = getClass().getResource(dataSourcesConfig.substring(10));
+		    return (dataSourcesConfigUrl == null) ? null : parseDataSourcesUrl(dataSourcesConfigUrl);
+		  } else {
+		    throw new MondrianCatalogServiceException("dataSourcesConfig is not a valid URL or does not exist", //$NON-NLS-1$
+		        Reason.GENERAL);
+		  }
+	  } catch (IOException e) {
+		  throw new MondrianCatalogServiceException(
+          Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0001_INVALID_DATASOURCE_CONFIG", dataSourcesConfig),  //$NON-NLS-1$
+          e, Reason.GENERAL);
+	  }
   }
   
   public String generateInMemoryDatasourcesXml(IUnifiedRepository unifiedRepository) {
