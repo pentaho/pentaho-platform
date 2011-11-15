@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:sec="http://www.springframework.org/schema/security"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                      http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.1.xsd
+                      http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+  <!-- Bean definitions in this file override bean definitions in repository.spring.xml. -->
+
+  <sec:authentication-provider>
+    <sec:user-service id="userDetailsService">
+      <sec:user password="password" name="joe" authorities="Authenticated, Admin" />
+      <sec:user password="password" name="suzy" authorities="Authenticated" />
+    </sec:user-service>
+  </sec:authentication-provider>
+
+  <sec:authentication-manager alias="authenticationManager" />
+  
+  <!-- 
+  To enable RMI in a unit test, put jackrabbit-jcr-rmi-1.5.0.jar in dev-lib and add to Eclipse classpath.
+  
+  
+  You have to acquire your remote repository using the JackrabbitClientAdapterFactory instead of the default 
+  ClientAdapterFactory. Otherwise the Jackrabbit API is not available on the client side.
+
+  In short you should do:
+  
+    LocalAdapterFactory aFactory = new JackrabbitClientAdapterFactory();
+    ClientRepositoryFactory rFactory = new ClientRepositoryFactory(aFactory);
+    Repository repo = rFactory.getRepository(rmiURL);
+
+  Then you can cast the NodeTypeManager you get from the workspace to a JackrabbitNodeTypeManager and can then register 
+  your node types.
+   -->
+  <!--bean id="rmiClientFactory" class="org.apache.jackrabbit.rmi.client.ClientRepositoryFactory">
+    <constructor-arg>
+      <bean class="org.apache.jackrabbit.rmi.jackrabbit.JackrabbitClientAdapterFactory" />
+    </constructor-arg>
+  </bean>
+
+  <bean id="jcrRepository" factory-bean="rmiClientFactory" factory-method="getRepository">
+    <constructor-arg value="rmi://localhost:1099/jackrabbit"/>
+  </bean-->
+
+</beans>
