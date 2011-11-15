@@ -115,6 +115,20 @@ PentahoSystem which is initialized after Spring
     <constructor-arg ref="IDatabaseDialectService" />
   </bean>
 
+  <bean id="mondrianDatasourceService" class="org.pentaho.platform.datasource.MondrianDatasourceService" scope="singleton" />
+  <bean id="jdbcDatasourceService" class="org.pentaho.platform.datasource.JDBCDatasourceService" scope="singleton" />
+  <bean id="metadataDatasourceService" class="org.pentaho.platform.datasource.MetadataDatasourceService" scope="singleton" />
+
+  <bean id="IGenericDatasourceServiceManager" class="org.pentaho.platform.datasource.DefaultDatasourceServiceManager" scope="singleton">
+    <constructor-arg>
+      <list>
+        <ref bean="mondrianDatasourceService" />
+        <ref bean="jdbcDatasourceService" />
+        <ref bean="metadataDatasourceService" />
+      </list>
+    </constructor-arg>
+  </bean>
+
 <!--  This mondrian user/role mapper assumes that roles from the platform also exist in mondrian -->
   
   <!--
