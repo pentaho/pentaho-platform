@@ -248,4 +248,41 @@ public class JsJobTrigger extends JavaScriptObject {
     }
     return trigDesc;
   }
+
+  public final String getScheduleType() {
+    if ("complexJobTrigger".equals(getType())) {
+      // need to digest the recurrences
+      int[] monthsOfYear = getMonthlyRecurrences();
+      int[] daysOfMonth = getDayOfMonthRecurrences();
+
+      // we are "YEARLY" if
+      // monthsOfYear, daysOfMonth OR
+      // monthsOfYear, qualifiedDayOfWeek
+      if (monthsOfYear.length > 0) {
+        return "YEARLY";
+      } else if (daysOfMonth.length > 0) {
+        // MONTHLY: Day N of every month
+        return "MONTHLY";
+      } else if (isQualifiedDayOfWeekRecurrence()) {
+        // MONTHLY: The <qualifier> <dayOfWeek> of every month at <time>
+        return "MONTHLY";
+      } else if (getDayOfWeekRecurrences().length > 0) {
+        // WEEKLY: Every week on <day>..<day> at <time>
+        return "WEEKLY";
+      }
+    } else if ("simpleJobTrigger".equals(getType())) {
+      if (getRepeatInterval() < 86400) {
+        return "HOURLY";
+      } else if (getRepeatInterval() < 604800) {
+        return "DAILY";
+      } else if (getRepeatInterval() == 604800) {
+        return "WEEKLY";
+      } else if (getRepeatInterval() > 604800) {
+      }
+    } else {
+      // cron trigger
+    }
+    return null;
+  }
+
 }

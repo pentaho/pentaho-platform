@@ -271,7 +271,8 @@ public class MainMenubarController extends AbstractXulEventHandler {
     }
   }-*/;
 
-  private native void executeMantleCall(String js)
+  @Bindable
+  public native void executeMantleCall(String js)
   /*-{
     try{
       $wnd.eval(js);

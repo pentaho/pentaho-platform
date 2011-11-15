@@ -1,13 +1,16 @@
 package org.pentaho.mantle.client.workspace;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.RefreshWorkspaceCommand;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
@@ -61,10 +64,66 @@ public class WorkspacePanel extends SimplePanel {
   private ToolbarButton triggerNowButton = new ToolbarButton(new Image(MantleImages.images.execute16()));
   private ToolbarButton scheduleRemoveButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
 
+  private JsArray<JsJob> allJobs;
   private Set<JsJob> selectedJobs = null;
+  private ArrayList<IJobFilter> filters = new ArrayList<IJobFilter>();
 
   private CellTable<JsJob> table = new CellTable<JsJob>(20, (CellTableResources) GWT.create(CellTableResources.class));
   private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
+
+  private FilterDialog filterDialog;
+  private IDialogCallback filterDialogCallback = new IDialogCallback() {
+    public void okPressed() {
+      filters.clear();
+      // create filters
+      if (filterDialog.getAfterDate() != null) {
+        filters.add(new IJobFilter() {
+          public boolean accept(JsJob job) {
+            return job.getNextRun().after(filterDialog.getAfterDate());
+          }
+        });
+      }
+      if (filterDialog.getBeforeDate() != null) {
+        filters.add(new IJobFilter() {
+          public boolean accept(JsJob job) {
+            return job.getNextRun().before(filterDialog.getBeforeDate());
+          }
+        });
+      }
+      if (!StringUtils.isEmpty(filterDialog.getResourceName())) {
+        filters.add(new IJobFilter() {
+          public boolean accept(JsJob job) {
+            return job.getShortResourceName().toLowerCase().contains(filterDialog.getResourceName().toLowerCase());
+          }
+        });
+      }
+      if (!StringUtils.isEmpty(filterDialog.getUserFilter()) && !filterDialog.getUserFilter().equals("ALL")) {
+        filters.add(new IJobFilter() {
+          public boolean accept(JsJob job) {
+            return job.getUserName().equalsIgnoreCase(filterDialog.getUserFilter());
+          }
+        });
+      }
+      if (!StringUtils.isEmpty(filterDialog.getStateFilter()) && !filterDialog.getStateFilter().equals("ALL")) {
+        filters.add(new IJobFilter() {
+          public boolean accept(JsJob job) {
+            return job.getState().toLowerCase().equalsIgnoreCase(filterDialog.getStateFilter());
+          }
+        });
+      }
+      if (!StringUtils.isEmpty(filterDialog.getTypeFilter()) && !filterDialog.getTypeFilter().equals("ALL")) {
+        filters.add(new IJobFilter() {
+          public boolean accept(JsJob job) {
+            return job.getJobTrigger().getScheduleType().equalsIgnoreCase(filterDialog.getTypeFilter());
+          }
+        });
+      }
+      filterAndShowData();
+    }
+
+    public void cancelPressed() {
+    }
+  };
 
   private boolean isAdmin = false;
 
@@ -104,13 +163,8 @@ public class WorkspacePanel extends SimplePanel {
         public void onResponseReceived(Request request, Response response) {
 
           if (response.getStatusCode() == Response.SC_OK) {
-            JsArray<JsJob> jobs = parseJson(JsonUtils.escapeJsonForEval(response.getText()));
-            List<JsJob> list = dataProvider.getList();
-            list.clear();
-            for (int i = 0; i < jobs.length(); i++) {
-              list.add(jobs.get(i));
-            }
-            table.redraw();
+            allJobs = parseJson(JsonUtils.escapeJsonForEval(response.getText()));
+            filterAndShowData();
           } else {
             // showServerError(response);
           }
@@ -119,6 +173,23 @@ public class WorkspacePanel extends SimplePanel {
     } catch (RequestException e) {
       // showError(e);
     }
+  }
+
+  private void filterAndShowData() {
+    ArrayList<JsJob> filteredList = new ArrayList<JsJob>();
+    for (int i = 0; i < allJobs.length(); i++) {
+      filteredList.add(allJobs.get(i));
+      // filter if needed
+      for (IJobFilter filter : filters) {
+        if (!filter.accept(allJobs.get(i))) {
+          filteredList.remove(allJobs.get(i));
+        }
+      }
+    }
+    List<JsJob> list = dataProvider.getList();
+    list.clear();
+    list.addAll(filteredList);
+    table.redraw();
   }
 
   private void updateControlSchedulerButtonState(final ToolbarButton controlSchedulerButton) {
@@ -172,14 +243,13 @@ public class WorkspacePanel extends SimplePanel {
 
   private void createUI(boolean isAdmin) {
 
-    
     table.addCellPreviewHandler(new CellPreviewEvent.Handler<JsJob>() {
 
       public void onCellPreview(CellPreviewEvent<JsJob> event) {
 
         if (event.getColumn() == 0 && event.getNativeEvent().getType().contains("click")) {
           PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
-          String resource = event.getValue().getResourceName();
+          String resource = event.getValue().getFullResourceName();
           resource = resource.replace("/", ":");
           dialog.setContent(new GeneratedContentPanel(resource));
           dialog.setSize("600px", "300px");
@@ -215,13 +285,10 @@ public class WorkspacePanel extends SimplePanel {
 
     Column<JsJob, SafeHtml> resourceColumn = new Column<JsJob, SafeHtml>(new SafeHtmlCell()) {
       public SafeHtml getValue(JsJob job) {
-        String val = job.getResourceName();
-        if (val.indexOf("/") != -1) {
-          val = val.substring(val.lastIndexOf("/") + 1);
-        }
+        String val = job.getShortResourceName();
         return new SafeHtmlBuilder().appendHtmlConstant(
             "<span style='cursor: hand; color: blue; text-decoration: underline' title='"
-                + new SafeHtmlBuilder().appendEscaped(job.getResourceName()).toSafeHtml().asString() + "'>" + val + "</span>").toSafeHtml();
+                + new SafeHtmlBuilder().appendEscaped(job.getFullResourceName()).toSafeHtml().asString() + "'>" + val + "</span>").toSafeHtml();
       }
     };
     resourceColumn.setSortable(true);
@@ -324,16 +391,10 @@ public class WorkspacePanel extends SimplePanel {
         }
 
         if (o1 != null) {
-          String r1 = o1.getResourceName();
-          if (r1.indexOf("/") != -1) {
-            r1 = r1.substring(r1.lastIndexOf("/") + 1);
-          }
+          String r1 = o1.getShortResourceName();
           String r2 = null;
           if (o2 != null) {
-            r2 = o2.getResourceName();
-            if (r2.indexOf("/") != -1) {
-              r2 = r2.substring(r2.lastIndexOf("/") + 1);
-            }
+            r2 = o2.getShortResourceName();
           }
 
           return (o2 != null) ? r1.compareTo(r2) : 1;
@@ -407,7 +468,7 @@ public class WorkspacePanel extends SimplePanel {
       @SuppressWarnings("unchecked")
       public void onSelectionChange(SelectionChangeEvent event) {
         selectedJobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
-        JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[]{});
+        JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
         if ("NORMAL".equalsIgnoreCase(jobs[0].getState())) {
           controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
         } else {
@@ -450,7 +511,7 @@ public class WorkspacePanel extends SimplePanel {
     bar.addSpacer(10);
     bar.add(new Label(Messages.getString("schedules")));
     bar.add(Toolbar.GLUE);
-    
+
     ToolbarButton refresh = new ToolbarButton(new Image(MantleImages.images.refresh()));
     refresh.setCommand(new Command() {
       public void execute() {
@@ -460,9 +521,18 @@ public class WorkspacePanel extends SimplePanel {
     });
     bar.add(refresh);
 
-    ToolbarButton filter = new ToolbarButton(new Image(MantleImages.images.filter16()));
-    filter.setEnabled(false);
-    bar.add(filter);
+    ToolbarButton filterButton = new ToolbarButton(new Image(MantleImages.images.filter16()));
+    filterButton.setCommand(new Command() {
+      public void execute() {
+        if (filterDialog == null) {
+          filterDialog = new FilterDialog(allJobs, filterDialogCallback);
+        } else {
+          filterDialog.initUI(allJobs);
+        }
+        filterDialog.center();
+      }
+    });
+    bar.add(filterButton);
 
     bar.addSpacer(20);
     triggerNowButton.setToolTip(Messages.getString("executeNow"));
@@ -477,7 +547,7 @@ public class WorkspacePanel extends SimplePanel {
     controlScheduleButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
-          JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[]{});
+          JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
           if ("NORMAL".equals(jobs[0].getState())) {
             controlJobs(selectedJobs, "pauseJob", false);
           } else {
@@ -534,10 +604,10 @@ public class WorkspacePanel extends SimplePanel {
 
       JSONObject startJobRequest = new JSONObject();
       startJobRequest.put("jobId", new JSONString(job.getJobId())); //$NON-NLS-1$
-      
+
       try {
         builder.sendRequest(startJobRequest.toString(), new RequestCallback() {
-          
+
           public void onError(Request request, Throwable exception) {
             // showError(exception);
           }

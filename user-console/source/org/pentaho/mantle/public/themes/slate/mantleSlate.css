@@ -513,6 +513,7 @@ a:active, a:hover {
   background-color: white;
   border-bottom: 1px solid black;
   border-right: 1px solid black;
+  z-index: 10000;
 }
 
 .gwt-SuggestBoxPopup .item {
@@ -522,7 +523,6 @@ a:active, a:hover {
 }
 
 .gwt-SuggestBoxPopup .item-selected {
-  color: white;
   background-color: #d0d0d0;
   border: 1px solid #d0d0d0;
   cursor: pointer;

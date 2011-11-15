@@ -128,6 +128,7 @@ public class PerspectiveManager extends HorizontalPanel {
           showPerspective((ToggleButton) event.getSource(), perspective);
         }
       });
+      tb.getElement().setId(perspective.getId());
       tb.setStyleName("mantle-perspective-toggle");
       tb.getElement().setAttribute("layoutPriority", "" + perspective.getLayoutPriority());
       toggles.add(tb);

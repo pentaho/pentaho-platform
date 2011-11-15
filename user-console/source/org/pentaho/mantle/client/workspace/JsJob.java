@@ -60,7 +60,7 @@ public class JsJob extends JavaScriptObject {
     return null;
   }
   
-  public final String getResourceName() {
+  public final String getFullResourceName() {
     String resource = getJobParam("ActionAdapterQuartzJob-StreamProvider");
     if (resource == null || "".equals(resource)) {
       return getJobName();
@@ -68,6 +68,14 @@ public class JsJob extends JavaScriptObject {
     resource = resource.substring(resource.indexOf("/"), resource.indexOf(":"));
     return resource;
   }
+  
+  public final String getShortResourceName() {
+    String resource = getFullResourceName();
+    if (resource.indexOf("/") != -1) {
+      resource = resource.substring(resource.lastIndexOf("/") + 1);
+    }
+    return resource;
+  }  
   
   public final Date getLastRun() {
     return formatDate(getNativeLastRun());
