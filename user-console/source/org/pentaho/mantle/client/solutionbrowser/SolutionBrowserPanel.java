@@ -46,6 +46,7 @@ import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.solutionbrowser.toolbars.BrowserToolbar;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTree;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 
@@ -433,6 +434,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   public void openFile(final RepositoryFile repositoryFile, final FileCommand.COMMAND mode) {
+    PerspectiveManager.getInstance().setPerspective("default.perspective");
     String fileNameWithPath = repositoryFile.getPath();
     if (mode == FileCommand.COMMAND.EDIT) {
       editFile();

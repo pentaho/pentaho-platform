@@ -156,7 +156,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
     SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, getSelectedTabIndex());
     
-    if (setFileInfoInFrame) {
+    if (setFileInfoInFrame && SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0) {
       setFileInfoInFrame(SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().get(0));
     }
 
