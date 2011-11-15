@@ -230,19 +230,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     }
     // By default, we will use the system to load all schemas into the cache.
     //  access to these schemas is controlled later via the hasAccess() method
-    
-    try {
-      SecurityHelper.getInstance().runAsSystem(new Callable<Void>() {
-        @Override
-        public Void call() throws Exception {
-          loadCatalogsIntoCache(makeDataSources(), PentahoSessionHolder.getSession());
-          return null;  
-        }
-      });
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-
+    loadCatalogsIntoCache(makeDataSources(), PentahoSessionHolder.getSession());
     AggregationManager.instance().getCacheControl(null, null).flushSchemaCache();
   }
   
@@ -267,27 +255,9 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    * Same as implemented in <code>XmlaServlet</code> except takes advantage of Spring's Resource framework.
    */
   protected DataSourcesConfig.DataSources makeDataSources() {
-	  try{
-		  URL dataSourcesConfigUrl = null;
-		    
-		  if (dataSourcesConfig == null) { //$NON-NLS-1$
-			String datasourcesXML = generateInMemoryDatasourcesXml(PentahoSystem.get(IUnifiedRepository.class));
-		    return parseDataSources(datasourcesXML);
-		  } else if (dataSourcesConfig.startsWith("file:")) { //$NON-NLS-1$
-		    dataSourcesConfigUrl = new URL(dataSourcesConfig);//dataSourcesConfigResource.getURL();
-	  	    return (dataSourcesConfigUrl == null) ? null : parseDataSourcesUrl(dataSourcesConfigUrl);
-		  } else if (dataSourcesConfig.startsWith("classpath:")) { //$NON-NLS-1$
-		    dataSourcesConfigUrl = getClass().getResource(dataSourcesConfig.substring(10));
-		    return (dataSourcesConfigUrl == null) ? null : parseDataSourcesUrl(dataSourcesConfigUrl);
-		  } else {
-		    throw new MondrianCatalogServiceException("dataSourcesConfig is not a valid URL or does not exist", //$NON-NLS-1$
-		        Reason.GENERAL);
-		  }
-	  } catch (IOException e) {
-		  throw new MondrianCatalogServiceException(
-          Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0001_INVALID_DATASOURCE_CONFIG", dataSourcesConfig),  //$NON-NLS-1$
-          e, Reason.GENERAL);
-	  }
+	IUnifiedRepository repository =  PentahoSystem.get(IUnifiedRepository.class);
+	String datasourcesXML = generateInMemoryDatasourcesXml(repository);
+    return parseDataSources(datasourcesXML);
   }
   
   public String generateInMemoryDatasourcesXml(IUnifiedRepository unifiedRepository) {
@@ -424,7 +394,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     return null;
   }
 
-
   protected Map<String, MondrianCatalog> makeCatalogMap(final List<MondrianCatalog> cats) {
     Map<String, MondrianCatalog> map = new HashMap<String, MondrianCatalog>();
     for (MondrianCatalog catalog : cats) {
@@ -529,6 +498,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     reInit(pentahoSession);
   }
 
+  @Deprecated
   protected void writeDataSources( DataSources dataSources ) {
   
 	    File dataSourcesFile;
@@ -944,58 +914,10 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       }
       throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0003_INSUFFICIENT_PERMISSION"), Reason.ACCESS_DENIED); //$NON-NLS-1$
     }
-
-    //
-    // only support the deletion of solution based catalogs
-    //
     
-    if (!catalog.getDefinition().startsWith("solution:")) {
-      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0016_REMOVE_SOLUTION_DEFS_ONLY", catalog.getDefinition())); //$NON-NLS-1$
-    }
-
-    String solutionPath = catalog.getDefinition().substring(9);
-    ISolutionRepository repo = PentahoSystem.get(ISolutionRepository.class,
-        pentahoSession);
-    if (repo == null) {
-      throw new IllegalStateException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0014_SOLUTION_REPOSITORY_REQUIRED")); //$NON-NLS-1$
-    }
-
-    //
-    // delete the .mondrian.xml file related to this catalog
-    //
-    
-    repo.removeSolutionFile(solutionPath);
-
-    //
-    // remove the catalog from the datasources.xml file
-    //
-    
-    DataSources dataSources = makeDataSources();
-
-    MondrianDataSource mDataSource = catalog.getDataSource();
-    DataSource ds = null;
-
-    for (int i = 0; i < dataSources.dataSources.length && ds == null; i++) {
-      DataSource currentDs = dataSources.dataSources[i];
-      if (mDataSource.getName().equals(currentDs.name)) {
-        ds = currentDs;
-      }
-    }
-
-    for (int i = 0; i < ds.catalogs.catalogs.length; i++) {
-      if (ds.catalogs.catalogs[i].name.equals(catalogName)) {
-        ds.catalogs.catalogs = (Catalog[]) ArrayUtils.remove(ds.catalogs.catalogs, i);
-        break;
-      }
-    }
-
-    writeDataSources(dataSources);
-    
-    // if we got here then assume file write was successful; refresh from file
-
-    if (MondrianCatalogHelper.logger.isDebugEnabled()) {
-      MondrianCatalogHelper.logger.debug("refreshing from dataSourcesConfig (" + dataSourcesConfig + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
+    IUnifiedRepository solutionRepository = PentahoSystem.get(IUnifiedRepository.class);
+    RepositoryFile deletingFile = solutionRepository.getFile(RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + catalog.getName());
+    solutionRepository.deleteFile(deletingFile.getId(), "");
     reInit(pentahoSession);
   }
 }
