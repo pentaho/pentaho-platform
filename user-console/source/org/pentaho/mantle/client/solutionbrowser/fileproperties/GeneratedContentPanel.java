@@ -17,12 +17,17 @@
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
 import java.util.List;
+import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.XMLToRepositoryFileTreeConverter;
+import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
+import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
+import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.gen2.table.client.FixedWidthFlexTable;
@@ -33,10 +38,12 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
-
 /**
  * @author wseyler
  *
@@ -49,12 +56,9 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
   public GeneratedContentPanel(final String repositoryFilePath) {
     this.repositoryFilePath = repositoryFilePath;
 
-    String name = repositoryFilePath;
-    if (repositoryFilePath.lastIndexOf(":") != -1) {
-      name = repositoryFilePath.substring(repositoryFilePath.lastIndexOf(":")+1);
-    }
-    
-    this.add(new Label(name));
+    Toolbar toolbar = new HistoryToolbar();
+    this.add(toolbar);
+
     FixedWidthFlexTable headerTable = new FixedWidthFlexTable();
     headerTable.setHTML(0, 0, Messages.getString("filename")); //$NON-NLS-1$
     headerTable.setHTML(0, 1,  Messages.getString("executed")); //$NON-NLS-1$
@@ -65,7 +69,8 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     ScrollTable scrollTable = new ScrollTable(dataTable, headerTable);
     scrollTable.setSize("100%", "400px");  //$NON-NLS-1$//$NON-NLS-2$
     this.add(scrollTable);
-
+    
+    this.sinkEvents(Event.ONDBLCLICK);
     init(this.repositoryFilePath, null);
   }
 
@@ -105,8 +110,8 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
 
             dataTable.resize(repositoryFiles.size(), 2);
             for (int row=0; row<repositoryFiles.size(); row++) {
-              dataTable.setHTML(row, 0, repositoryFiles.get(row).getName());
-              dataTable.setHTML(row, 1, repositoryFiles.get(row).getCreatedDate().toString());
+              dataTable.setWidget(row, 0, new FileAwaredLabel(repositoryFiles.get(row), 0));
+              dataTable.setWidget(row, 1, new FileAwaredLabel(repositoryFiles.get(row), 1));
             }
             dataTable.sortColumn(1);
           } else {
@@ -121,4 +126,112 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     }    
   }
   
+  public void onBrowserEvent(Event event) {
+    if (event.getTypeInt() == Event.ONDBLCLICK) {
+      new RunContentCommand().execute();
+    }
+  }
+  
+  private class FileAwaredLabel extends Label {
+    private RepositoryFile file;
+    
+    public FileAwaredLabel(RepositoryFile file, int column) {
+      super();
+      this.file = file;
+      switch (column) {
+        case 0:
+          this.setText(this.file.getName());
+          break;
+        case 1:
+          this.setText(this.file.getCreatedDate().toString());
+          break;
+      }
+    }
+
+    /**
+     * @return the file
+     */
+    public RepositoryFile getFile() {
+      return file;
+    }
+  }
+  
+  /**
+   * @author wseyler
+   *
+   */
+  public class HistoryToolbar extends Toolbar {
+    ToolbarButton refreshBtn, runBtn;
+
+    public HistoryToolbar() {
+      super();
+
+      // Formatting stuff
+      setHorizontalAlignment(ALIGN_RIGHT);
+      setStyleName("pentaho-titled-toolbar");
+      setHeight("29px"); //$NON-NLS-1$
+      setWidth("100%"); //$NON-NLS-1$
+
+      createMenus();
+    }
+
+    private void createMenus() {
+      addSpacer(5);
+      Label label = new Label(Messages.getString("history"));
+      label.setStyleName("pentaho-titled-toolbar-label");
+      add(label); //$NON-NLS-1$
+      add(GLUE);
+
+      Image runImage = new Image(MantleImages.images.run());
+      Image runDisabledImage = new Image(MantleImages.images.runDisabled());
+      runBtn = new ToolbarButton(runImage, runDisabledImage);
+      runBtn.setId("filesToolbarRun");
+      runBtn.setCommand(new RunContentCommand());
+      add(runBtn);
+
+      Image refreshImage = new Image();
+      refreshImage.setResource(MantleImages.images.refresh());
+      Image refreshDisabledImage = new Image();
+      refreshDisabledImage.setResource(MantleImages.images.runDisabled());
+      refreshBtn = new ToolbarButton(refreshImage, refreshDisabledImage);
+      refreshBtn.setCommand(new RefreshHistoryCommand());
+      refreshBtn.setToolTip(Messages.getString("refresh")); //$NON-NLS-1$
+      add(refreshBtn);
+    }
+  }
+  
+  /**
+   * @author wseyler
+   *
+   */
+  public class RefreshHistoryCommand implements Command {
+  
+    /* (non-Javadoc)
+     * @see com.google.gwt.user.client.Command#execute()
+     */
+    @Override
+    public void execute() {
+      GeneratedContentPanel.this.init(GeneratedContentPanel.this.repositoryFilePath, null);
+    } 
+  }
+  
+  /**
+   * @author wseyler
+   *
+   */
+  public class RunContentCommand implements Command {
+  
+    /* (non-Javadoc)
+     * @see com.google.gwt.user.client.Command#execute()
+     */
+    @Override
+    public void execute() {
+      Set<Integer> selectedRowIndices = dataTable.getSelectedRows();
+      for (Integer i : selectedRowIndices) {
+        RepositoryFile repoFile = ((FileAwaredLabel)dataTable.getWidget(i, 0)).getFile();
+        SolutionBrowserPanel.getInstance().openFile(repoFile, COMMAND.RUN);
+      }
+    } 
+  }
+
 }
