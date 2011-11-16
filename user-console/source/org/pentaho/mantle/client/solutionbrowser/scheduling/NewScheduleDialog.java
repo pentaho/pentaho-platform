@@ -20,7 +20,6 @@
 package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.ScheduleType;
@@ -30,12 +29,13 @@ import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
-import org.pentaho.gwt.widgets.client.wizards.panels.ISchedulingParametersListener;
+import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -48,7 +48,6 @@ import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.ui.HTML;
 
 /**
  * @author wseyler
@@ -172,7 +171,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     
     ScheduleType scheduleType = scheduleEditorWizardPanel.getScheduleType();
 
-    HashMap<String, String> schedulingParams = scheduleEditorWizardPanel.getParams();
+    JsArray<JsSchedulingParameter> schedulingParams = scheduleEditorWizardPanel.getParams();
     
     Date startDate = scheduleEditorWizardPanel.getStartDate();
     String startTime = scheduleEditorWizardPanel.getStartTime();
