@@ -19,15 +19,14 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryLifecycleManagerException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository2.unified.metadata.JcrMetadataInfo;
 
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.Callable;
@@ -43,18 +42,9 @@ public class MetadataRepositoryLifecycleManager implements IBackingRepositoryLif
    */
   private static final Log logger = LogFactory.getLog(MetadataRepositoryLifecycleManager.class);
 
-  /**
-   * The name of the folder in which Pentaho Metadata should be stored (appended to the proper path for
-   * each tenant) - the value is {@value}
-   */
-  private static final String METADATA_FOLDER_NAME = "metadata";
-
-  /**
-   * The name of the file use for mapping Pentaho Metadata {@code domain IDs} into the sub-folders that
-   * hold all the information for the Pentaho Metadata.
-   */
-  private static final String METADATA_MAPPING_FILE_NAME = "metadata-mappings.properties";
   private static final Messages MSG = Messages.getInstance();
+
+  protected JcrMetadataInfo jcrMetadataInfo = new JcrMetadataInfo();
 
   /**
    * The repository in which Pentaho Metadata will be stored.
@@ -118,8 +108,8 @@ public class MetadataRepositoryLifecycleManager implements IBackingRepositoryLif
     logger.debug("newTenant() - Checking the status of Pentaho Metadata for tenantId [" + tenantId + "]");
 
     // Get the metadata locations
-    final String metadataFolderPath = getMetadataFolderPath();
-    final String metadataMappingFilePath = getMetadataMappingFilePath();
+    final String metadataFolderPath = jcrMetadataInfo.getMetadataFolderPath();
+    final String metadataMappingFilePath = jcrMetadataInfo.getMetadataMappingFilePath();
     logger.debug("Using metadataFolderPath=[" + metadataFolderPath + "] and " +
         "metadataMappingFilePath=[" + metadataMappingFilePath + "]");
 
@@ -137,7 +127,7 @@ public class MetadataRepositoryLifecycleManager implements IBackingRepositoryLif
           RepositoryFile metadataFolder = repository.getFile(metadataFolderPath);
           if (null == metadataFolder) {
             logger.debug("The folder does not exist - we need to create it");
-            final String parentPath = getMetadataParentPath();
+            final String parentPath = jcrMetadataInfo.getMetadataParentPath();
             final RepositoryFile parentFolder = repository.getFile(parentPath);
             if (null == parentFolder) {
               final String errorMessage = MSG.getString(
@@ -147,7 +137,8 @@ public class MetadataRepositoryLifecycleManager implements IBackingRepositoryLif
             }
 
             logger.debug("Found the parent folder - now creating the metadata folder");
-            final RepositoryFile metadataFolderFile = new RepositoryFile.Builder(getMetadataFolderName()).folder(true).build();
+            final RepositoryFile metadataFolderFile = new RepositoryFile
+                .Builder(jcrMetadataInfo.getMetadataFolderName()).folder(true).build();
             metadataFolder = repository.createFolder(parentFolder.getId(), metadataFolderFile,
                 MSG.getString("MetadataRepositoryLifecycleManager.USER_0001_CREATE_METADATA_FOLDER_MESSAGE"));
             if (null == metadataFolder) {
@@ -163,7 +154,7 @@ public class MetadataRepositoryLifecycleManager implements IBackingRepositoryLif
           logger.debug("Creating a blank mappings file");
           repository.createFile(
               metadataFolder.getId(),
-              new RepositoryFile(getMetadataMappingFileName()),
+              new RepositoryFile(jcrMetadataInfo.getMetadataMappingFileName()),
               new SimpleRepositoryFileData(new ByteArrayInputStream(new byte[0]), "UTF-8", "text/plain"),
               MSG.getString("MetadataRepositoryLifecycleManager.USER_0002_CREATE_METADATA_FILE_MESSAGE")
           );
@@ -214,38 +205,10 @@ public class MetadataRepositoryLifecycleManager implements IBackingRepositoryLif
   }
 
   /**
-   * Returns the name of the metadata folder
+   * Set the JcrMetadataInfo to be used by this instance. By default, it will use {@link JcrMetadataInfo}
    */
-  protected String getMetadataFolderName() {
-    return METADATA_FOLDER_NAME;
+  public void setJcrMetadatInfo(final JcrMetadataInfo jcrMetadataInfo) {
+    assert(null != jcrMetadataInfo);
+    this.jcrMetadataInfo = jcrMetadataInfo;
   }
-
-  /**
-   * Returns the name of the metadata folder
-   */
-  protected String getMetadataMappingFileName() {
-    return METADATA_MAPPING_FILE_NAME;
-  }
-
-  /**
-   * Returns the path location in which the Pentaho Metadata folder will be created
-   */
-  protected String getMetadataParentPath() {
-    return ClientRepositoryPaths.getEtcFolderPath();
-  }
-
-  /**
-   * Generates the repository location for the Pentaho Metadata to be stored
-   */
-  protected String getMetadataFolderPath() {
-    return getMetadataParentPath() + RepositoryFile.SEPARATOR + METADATA_FOLDER_NAME;
-  }
-
-  /**
-   * Returns the full-path to the Pentaho Metadata mappings file
-   */
-  protected String getMetadataMappingFilePath() {
-    return getMetadataFolderPath() + RepositoryFile.SEPARATOR + getMetadataMappingFileName();
-  }
-
 }

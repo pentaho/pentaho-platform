@@ -18,11 +18,10 @@ package org.pentaho.platform.repository2.unified.lifecycle;
 
 import junit.framework.TestCase;
 import org.junit.Test;
-import org.pentaho.platform.api.engine.IAclVoter;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryLifecycleManagerException;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
+import org.pentaho.platform.repository2.unified.metadata.JcrMetadataInfo;
 import org.pentaho.test.platform.engine.security.MockSecurityHelper;
 
 import java.io.File;
@@ -32,6 +31,9 @@ import java.io.IOException;
  * Unit tests for the MetadataRepositoryLifecycleManager class
  */
 public class MetadataRepositoryLifecycleManagerTest extends TestCase {
+
+  public static final JcrMetadataInfo JCR_METADATA_INFO = new JcrMetadataInfo();
+
   @Test
   public void testNewTenantSuccess() throws IOException {
     // Create a standard repository with the /etc folder
@@ -47,7 +49,7 @@ public class MetadataRepositoryLifecycleManagerTest extends TestCase {
     mgr.newTenant("test");
 
     // Verify that the metadata folder and file exists
-    final RepositoryFile metadataFile = fsRepo.getFile(mgr.getMetadataMappingFilePath());
+    final RepositoryFile metadataFile = fsRepo.getFile(JCR_METADATA_INFO.getMetadataMappingFilePath());
     assertNotNull("The metadata mapping file should exist in the repository", metadataFile);
   }
 
@@ -65,9 +67,9 @@ public class MetadataRepositoryLifecycleManagerTest extends TestCase {
       fail("An exception should be thrown when the /etc folder doesn't exist");
     } catch (RepositoryLifecycleManagerException e) {
       System.err.println(e.getMessage());
-      assertTrue("Error message not generated property - is ["+e.getMessage()+"] - should contain ["+mgr
-          .getMetadataParentPath()+"]",
-          e.getMessage().contains(mgr.getMetadataParentPath())
+      assertTrue("Error message not generated property - is ["+e.getMessage()+"] - should contain ["
+          +JCR_METADATA_INFO.getMetadataParentPath()+"]",
+          e.getMessage().contains(JCR_METADATA_INFO.getMetadataParentPath())
       );
     }
   }

@@ -15,10 +15,7 @@
 package org.pentaho.platform.repository2.unified;
 
 import org.apache.commons.io.FileUtils;
-import org.pentaho.platform.api.engine.IAclHolder;
-import org.pentaho.platform.api.engine.IAclVoter;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -34,7 +31,6 @@ import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.acl.AclEntry;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.User;
@@ -106,9 +102,6 @@ public class JackrabbitRepositoryTestBase {
     MicroPlatform mp = new MicroPlatform();
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.define(IAuthorizationPolicy.class, DelegatingAuthorizationPolicy.class);
-
-    // Make sure we know the name of the admin role
-    mp.defineInstance(IAclVoter.class, new MockAclVoter());
 
     // Start the micro-platform
     mp.start();
@@ -212,10 +205,6 @@ public class JackrabbitRepositoryTestBase {
     login(username, tenantId, false);
   }
 
-  public IBackingRepositoryLifecycleManager getManager() {
-    return manager;
-  }
-
   /**
    * Allow PentahoSystem to create this class but it in turn delegates to the authorizationPolicy fetched from Spring's
    * ApplicationContext.
@@ -227,48 +216,6 @@ public class JackrabbitRepositoryTestBase {
 
     public boolean isAllowed(final String actionName) {
       return authorizationPolicy.isAllowed(actionName);
-    }
-  }
-
-  /**
-   * Mock AclVoter implementation which provides the name of the Admin role
-   */
-  public static class MockAclVoter implements IAclVoter {
-    private String admin;
-
-    public MockAclVoter() {
-      admin = "Admin";
-    }
-
-    public MockAclVoter(final String admin) {
-      this.admin = admin;
-    }
-
-    public boolean hasAccess(final IPentahoSession session, final IAclHolder holder, final int mask) {
-      return false;
-    }
-
-    public AclEntry[] getEffectiveAcls(final IPentahoSession session, final IAclHolder holder) {
-      return new AclEntry[0];
-    }
-
-    public boolean isPentahoAdministrator(final IPentahoSession session) {
-      return false;
-    }
-
-    public GrantedAuthority getAdminRole() {
-      return new GrantedAuthorityImpl(admin);
-    }
-
-    public void setAdminRole(final GrantedAuthority value) {
-    }
-
-    public boolean isGranted(final IPentahoSession session, final GrantedAuthority role) {
-      return false;
-    }
-
-    public IPentahoAclEntry getEffectiveAcl(final IPentahoSession session, final IAclHolder holder) {
-      return null;
     }
   }
 }

@@ -15,10 +15,7 @@
 package org.pentaho.platform.repository2.unified;
 
 import org.apache.commons.io.FileUtils;
-import org.pentaho.platform.api.engine.IAclHolder;
-import org.pentaho.platform.api.engine.IAclVoter;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -39,7 +36,6 @@ import org.springframework.extensions.jcr.SessionFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.acl.AclEntry;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.User;
@@ -66,9 +62,9 @@ public class JcrRepositoryModule implements MicroPlatform.RepositoryModule {
 
   public static final String USERNAME_GEORGE = "george";
 
-  public static final String TENANT_ID_ACME = "tenant0";
+  public static final String TENANT_ID_ACME = "acme";
 
-  public static final String TENANT_ID_DUFF = "tenant0";
+  public static final String TENANT_ID_DUFF = "duff";
 
   // ~ Instance fields =================================================================================================
 
@@ -140,9 +136,6 @@ public class JcrRepositoryModule implements MicroPlatform.RepositoryModule {
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.define(IAuthorizationPolicy.class, DelegatingAuthorizationPolicy.class);
     mp.defineInstance(IAuthorizationPolicy.class, beanFactory.getBean("authorizationPolicy"));
-
-    // Make sure we know the name of the admin role
-    mp.defineInstance(IAclVoter.class, new JackrabbitRepositoryTestBase.MockAclVoter());
   }
 
   @Override
