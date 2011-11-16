@@ -78,6 +78,9 @@ public class MainToolbarController extends AbstractXulEventHandler {
     $wnd.mantle_setToolbarButtonEnabled = function(id, enabled) { 
       controller.@org.pentaho.mantle.client.ui.toolbar.MainToolbarController::setToolbarButtonEnabled(Ljava/lang/String;Z)(id, enabled);      
     }
+    $wnd.mantle_doesToolbarButtonExist = function(id) { 
+      controller.@org.pentaho.mantle.client.ui.toolbar.MainToolbarController::doesToolbarButtonExist(Ljava/lang/String;)(id);      
+    }
   }-*/;
 
   public boolean isToolbarButtonEnabled(String id) {
@@ -90,6 +93,16 @@ public class MainToolbarController extends AbstractXulEventHandler {
     button.setDisabled(!enabled);
   }
 
+  public boolean doesToolbarButtonExist(String id) {
+    try {
+      XulToolbarbutton button = (XulToolbarbutton) document.getElementById(id);
+      return (button != null);
+    } catch (Throwable t){
+      return false;
+    }
+  }
+  
+  
   @Bindable
   public void setEditContentSelected(boolean selected) {
     contentEditBtn.setSelected(selected, false);

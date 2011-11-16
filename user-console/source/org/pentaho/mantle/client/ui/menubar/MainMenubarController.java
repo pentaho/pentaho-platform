@@ -136,6 +136,10 @@ public class MainMenubarController extends AbstractXulEventHandler {
     $wnd.mantle_setMenuItemEnabled = function(id, enabled) { 
       controller.@org.pentaho.mantle.client.ui.menubar.MainMenubarController::setMenuItemEnabled(Ljava/lang/String;Z)(id, enabled);      
     }
+    $wnd.mantle_doesMenuItemExist = function(id) { 
+      controller.@org.pentaho.mantle.client.ui.menubar.MainMenubarController::doesMenuItemExist(Ljava/lang/String;)(id);      
+    }
+    
   }-*/;
 
   public boolean isMenuItemEnabled(String id) {
@@ -148,6 +152,15 @@ public class MainMenubarController extends AbstractXulEventHandler {
     item.setDisabled(!enabled);
   }
 
+  public boolean doesMenuItemExist(String id) {
+    try {
+      XulMenuitem item = (XulMenuitem) document.getElementById(id);
+      return (item != null);
+    } catch (Throwable t){
+      return false;
+    }
+  }
+  
   @Bindable
   public void setPropertiesEnabled(boolean enable) {
     propertiesMenuItem.setDisabled(!enable);
