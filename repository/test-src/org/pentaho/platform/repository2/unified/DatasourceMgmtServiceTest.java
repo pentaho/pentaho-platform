@@ -198,6 +198,8 @@ public class DatasourceMgmtServiceTest {
     IDatabaseConnection databaseConnection = createDatabaseConnection(EXP_DBMETA_NAME);
     updateDatabaseConnection(databaseConnection);
     datasourceMgmtService.updateDatasourceByName(EXP_DBMETA_NAME, databaseConnection);
+    
+    context.assertIsSatisfied();
   }
 
   @Test(expected = DatasourceMgmtServiceException.class)
@@ -218,6 +220,8 @@ public class DatasourceMgmtServiceTest {
     IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
         new DatabaseDialectService());
     datasourceMgmtService.getDatasourceByName("not_here");
+    
+    context.assertIsSatisfied();
   }
 
   @Test
@@ -247,6 +251,8 @@ public class DatasourceMgmtServiceTest {
         new DatabaseDialectService());
     IDatabaseConnection conn = datasourceMgmtService.getDatasourceByName(EXP_DBMETA_NAME);
     assertEquals(EXP_HOST_NAME, conn.getHostname());
+    
+    context.assertIsSatisfied();
   }
 
   private IDatabaseConnection createDatabaseConnection(final String dbName) throws Exception {
