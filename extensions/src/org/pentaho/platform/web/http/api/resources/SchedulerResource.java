@@ -34,12 +34,14 @@ import java.util.List;
 import java.util.Random;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.io.FilenameUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -84,7 +86,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   @POST
   @Path("/job")
-  @Consumes({ APPLICATION_XML, APPLICATION_JSON })
+  @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces("text/plain")
   public Response createJob(JobScheduleRequest scheduleRequest) throws IOException {
     final RepositoryFile file = repository.getFile(scheduleRequest.getInputFile());
@@ -189,7 +191,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   
   @GET
   @Path("/jobs")
-  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
   public List<Job> getJobs() {
     try {
       return scheduler.getJobs(new IJobFilter() {
@@ -216,7 +218,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
-  @GET
+  @POST
   @Path("/start")
   @Produces("text/plain")
   public Response start() {
@@ -230,7 +232,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
-  @GET
+  @POST
   @Path("/pause")
   @Produces("text/plain")
   public Response pause() {
@@ -244,7 +246,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
-  @GET
+  @POST
   @Path("/shutdown")
   @Produces("text/plain")
   public Response shutdown() {
@@ -258,6 +260,26 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  @GET
+  @Path("/jobState")
+  @Produces("text/plain")
+  @Consumes({ APPLICATION_XML, APPLICATION_JSON })
+  public Response getJobState(JobRequest jobRequest) {
+    try {
+      Job job = scheduler.getJob(jobRequest.getJobId());
+      if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())) {
+        return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
+      } else {
+        if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
+          return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
+        }
+      }
+      return Response.status(Status.UNAUTHORIZED).type(MediaType.TEXT_PLAIN).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }  
+  
   @POST
   @Path("/pauseJob")
   @Produces("text/plain")
@@ -272,7 +294,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
           scheduler.pauseJob(jobRequest.getJobId());
         }
       }
-      // udpate job state
+      // update job state
       job = scheduler.getJob(jobRequest.getJobId());
       return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
     } catch (SchedulerException e) {
@@ -302,7 +324,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
-  @POST
+  @DELETE
   @Path("/removeJob")
   @Produces("text/plain")
   @Consumes({ APPLICATION_XML, APPLICATION_JSON })

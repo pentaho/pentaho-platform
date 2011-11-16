@@ -24,6 +24,7 @@ import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
@@ -227,7 +228,7 @@ public class WorkspacePanel extends SimplePanel {
 
   private void toggleSchedulerOnOff(final ToolbarButton controlSchedulerButton) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/state"; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
     try {
       builder.sendRequest(null, new RequestCallback() {
 
@@ -589,7 +590,7 @@ public class WorkspacePanel extends SimplePanel {
     triggerNowButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
-          controlJobs(selectedJobs, "triggerNow", false);
+          controlJobs(selectedJobs, "triggerNow", RequestBuilder.POST, false);
         }
       }
     });
@@ -599,9 +600,9 @@ public class WorkspacePanel extends SimplePanel {
         if (selectedJobs != null) {
           JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
           if ("NORMAL".equals(jobs[0].getState())) {
-            controlJobs(selectedJobs, "pauseJob", false);
+            controlJobs(selectedJobs, "pauseJob", RequestBuilder.POST, false);
           } else {
-            controlJobs(selectedJobs, "resumeJob", false);
+            controlJobs(selectedJobs, "resumeJob", RequestBuilder.POST, false);
           }
         }
       }
@@ -630,7 +631,7 @@ public class WorkspacePanel extends SimplePanel {
     scheduleRemoveButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
-          controlJobs(selectedJobs, "removeJob", true);
+          controlJobs(selectedJobs, "removeJob", RequestBuilder.DELETE, true);
         }
       }
     });
@@ -647,10 +648,10 @@ public class WorkspacePanel extends SimplePanel {
     getElement().getStyle().setBackgroundColor("white");
   }
 
-  private void controlJobs(final Set<JsJob> jobs, String function, final boolean refreshData) {
+  private void controlJobs(final Set<JsJob> jobs, String function, final Method method, final boolean refreshData) {
     for (final JsJob job : jobs) {
       final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
-      RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+      RequestBuilder builder = new RequestBuilder(method, url);
       builder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
 
       JSONObject startJobRequest = new JSONObject();
