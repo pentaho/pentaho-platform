@@ -137,7 +137,7 @@ public class MainMenubarController extends AbstractXulEventHandler {
       controller.@org.pentaho.mantle.client.ui.menubar.MainMenubarController::setMenuItemEnabled(Ljava/lang/String;Z)(id, enabled);      
     }
     $wnd.mantle_doesMenuItemExist = function(id) { 
-      controller.@org.pentaho.mantle.client.ui.menubar.MainMenubarController::doesMenuItemExist(Ljava/lang/String;)(id);      
+      return controller.@org.pentaho.mantle.client.ui.menubar.MainMenubarController::doesMenuItemExist(Ljava/lang/String;)(id);      
     }
     
   }-*/;

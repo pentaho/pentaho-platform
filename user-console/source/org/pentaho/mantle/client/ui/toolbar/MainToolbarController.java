@@ -79,7 +79,7 @@ public class MainToolbarController extends AbstractXulEventHandler {
       controller.@org.pentaho.mantle.client.ui.toolbar.MainToolbarController::setToolbarButtonEnabled(Ljava/lang/String;Z)(id, enabled);      
     }
     $wnd.mantle_doesToolbarButtonExist = function(id) { 
-      controller.@org.pentaho.mantle.client.ui.toolbar.MainToolbarController::doesToolbarButtonExist(Ljava/lang/String;)(id);      
+      return controller.@org.pentaho.mantle.client.ui.toolbar.MainToolbarController::doesToolbarButtonExist(Ljava/lang/String;)(id);      
     }
   }-*/;
 
