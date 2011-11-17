@@ -110,7 +110,10 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
       throw new DatasourceMgmtServiceException(Messages.getInstance()
           .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", name), ure);//$NON-NLS-1$
     }
-    return getDatasource(file);
+    if(file != null) {
+    	return getDatasource(file);
+    } 
+    return null;
   }
   
 
