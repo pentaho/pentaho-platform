@@ -16,6 +16,9 @@
 
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -33,12 +36,20 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.gen2.table.client.FixedWidthFlexTable;
 import com.google.gwt.gen2.table.client.FixedWidthGrid;
 import com.google.gwt.gen2.table.client.ScrollTable;
+import com.google.gwt.gen2.table.client.SortableGrid;
+import com.google.gwt.gen2.table.client.SortableGrid.ColumnSorter;
+import com.google.gwt.gen2.table.client.SortableGrid.ColumnSorterCallback;
+import com.google.gwt.gen2.table.client.TableModelHelper.ColumnSortList;
+import com.google.gwt.gen2.table.event.client.RowSelectionEvent;
+import com.google.gwt.gen2.table.event.client.RowSelectionHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -48,15 +59,17 @@ import com.google.gwt.xml.client.Document;
  * @author wseyler
  *
  */
-public class GeneratedContentPanel extends VerticalPanel implements IFileModifier {
+public class GeneratedContentPanel extends VerticalPanel implements IFileModifier, RowSelectionHandler {
 
   private String repositoryFilePath;
   private FixedWidthGrid dataTable;
+  protected HistoryToolbar toolbar;
   
   public GeneratedContentPanel(final String repositoryFilePath) {
     this.repositoryFilePath = repositoryFilePath;
 
-    Toolbar toolbar = new HistoryToolbar();
+    toolbar = new HistoryToolbar();
+    toolbar.getRunButton().setEnabled(false);
     this.add(toolbar);
 
     FixedWidthFlexTable headerTable = new FixedWidthFlexTable();
@@ -66,6 +79,8 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
 
     dataTable = new FixedWidthGrid();
     dataTable.setWidth("100%"); //$NON-NLS-1$
+    dataTable.setColumnSorter(new ContentSorter());
+    dataTable.addRowSelectionHandler(this);
     ScrollTable scrollTable = new ScrollTable(dataTable, headerTable);
     scrollTable.setSize("100%", "400px");  //$NON-NLS-1$//$NON-NLS-2$
     this.add(scrollTable);
@@ -107,13 +122,18 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
             List<RepositoryFile> repositoryFiles = XMLToRepositoryFileTreeConverter.getFileListFromXml(response.getText());
+            Collections.sort(repositoryFiles, new Comparator<RepositoryFile>() {
+              @Override
+              public int compare(RepositoryFile o1, RepositoryFile o2) {
+                return o2.getCreatedDate().compareTo(o1.getCreatedDate());
+              }
+            });         
 
             dataTable.resize(repositoryFiles.size(), 2);
             for (int row=0; row<repositoryFiles.size(); row++) {
-              dataTable.setWidget(row, 0, new FileAwaredLabel(repositoryFiles.get(row), 0));
-              dataTable.setWidget(row, 1, new FileAwaredLabel(repositoryFiles.get(row), 1));
+              dataTable.setWidget(row, 0, new FileAwareLabel(repositoryFiles.get(row), 0));
+              dataTable.setWidget(row, 1, new FileAwareLabel(repositoryFiles.get(row), 1));
             }
-            dataTable.sortColumn(1);
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             dialogBox.center();
@@ -129,30 +149,6 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
   public void onBrowserEvent(Event event) {
     if (event.getTypeInt() == Event.ONDBLCLICK) {
       new RunContentCommand().execute();
-    }
-  }
-  
-  private class FileAwaredLabel extends Label {
-    private RepositoryFile file;
-    
-    public FileAwaredLabel(RepositoryFile file, int column) {
-      super();
-      this.file = file;
-      switch (column) {
-        case 0:
-          this.setText(this.file.getName());
-          break;
-        case 1:
-          this.setText(this.file.getCreatedDate().toString());
-          break;
-      }
-    }
-
-    /**
-     * @return the file
-     */
-    public RepositoryFile getFile() {
-      return file;
     }
   }
   
@@ -198,8 +194,20 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
       refreshBtn.setToolTip(Messages.getString("refresh")); //$NON-NLS-1$
       add(refreshBtn);
     }
+    
+    public ToolbarButton getRunButton() {
+      return runBtn;
+    }
   }
   
+  /* (non-Javadoc)
+   * @see com.google.gwt.gen2.table.event.client.RowSelectionHandler#onRowSelection(com.google.gwt.gen2.table.event.client.RowSelectionEvent)
+   */
+  @Override
+  public void onRowSelection(RowSelectionEvent event) {
+    toolbar.getRunButton().setEnabled(event.getSelectedRows().size() > 0);
+  }
+
   /**
    * @author wseyler
    *
@@ -228,10 +236,97 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     public void execute() {
       Set<Integer> selectedRowIndices = dataTable.getSelectedRows();
       for (Integer i : selectedRowIndices) {
-        RepositoryFile repoFile = ((FileAwaredLabel)dataTable.getWidget(i, 0)).getFile();
+        RepositoryFile repoFile = ((FileAwareLabel)dataTable.getWidget(i, 0)).getFile();
         SolutionBrowserPanel.getInstance().openFile(repoFile, COMMAND.RUN);
       }
     } 
+  }
+
+  private class FileAwareLabel extends Label {
+    private RepositoryFile file;
+    
+    public FileAwareLabel(RepositoryFile file, int column) {
+      super();
+      this.file = file;
+      switch (column) {
+        case 0:
+          this.setText(this.file.getName());
+          break;
+        case 1:
+          this.setText(this.file.getCreatedDate().toString());
+          break;
+      }
+    }
+
+    /**
+     * @return the file
+     */
+    public RepositoryFile getFile() {
+      return file;
+    }
+  }
+  
+  public class ContentSorter extends ColumnSorter {
+
+    /* (non-Javadoc)
+     * @see com.google.gwt.gen2.table.client.SortableGrid.ColumnSorter#onSortColumn(com.google.gwt.gen2.table.client.SortableGrid, com.google.gwt.gen2.table.client.TableModelHelper.ColumnSortList, com.google.gwt.gen2.table.client.SortableGrid.ColumnSorterCallback)
+     */
+    @Override
+    public void onSortColumn(SortableGrid grid, ColumnSortList sortList, ColumnSorterCallback callback) {
+      int column = sortList.getPrimaryColumn();
+      boolean ascending = sortList.isPrimaryAscending();
+      int rowCount = grid.getRowCount();
+      List<FileAwareLabel> columnWidgets = new ArrayList<FileAwareLabel>(rowCount);
+      for (int row=0; row<rowCount; row++) {
+        columnWidgets.add((FileAwareLabel) grid.getWidget(row, column));
+      }
+      if (column == 1) {  // 1 is the date column
+        if (ascending) {
+          Collections.sort(columnWidgets, new Comparator<FileAwareLabel>() {
+            @Override
+            public int compare(FileAwareLabel o1, FileAwareLabel o2) {
+              return o1.getFile().getCreatedDate().compareTo(o2.getFile().getCreatedDate());
+            }
+          });         
+        } else {
+          Collections.sort(columnWidgets, new Comparator<FileAwareLabel>() {
+            @Override
+            public int compare(FileAwareLabel o1, FileAwareLabel o2) {
+              return o2.getFile().getCreatedDate().compareTo(o1.getFile().getCreatedDate());
+            }
+          });                  
+        }
+      } else {
+        if (ascending) {
+          Collections.sort(columnWidgets, new Comparator<FileAwareLabel>() {
+            @Override
+            public int compare(FileAwareLabel o1, FileAwareLabel o2) {
+              return o1.getText().compareTo(o2.getText());
+            }
+          });         
+        } else {
+          Collections.sort(columnWidgets, new Comparator<FileAwareLabel>() {
+            @Override
+            public int compare(FileAwareLabel o1, FileAwareLabel o2) {
+              return o2.getText().compareTo(o1.getText());
+            }
+          });                  
+        }
+      }
+      List<Element> tdElems = new ArrayList<Element>(rowCount);
+      for (FileAwareLabel lbl : columnWidgets) {
+        tdElems.add(DOM.getParent(lbl.getElement()));
+      }
+      
+      // Convert tdElems to trElems, reversing if needed
+      Element[] trElems = new Element[rowCount];
+      for (int i = 0; i < rowCount; i++) {
+        trElems[i] = DOM.getParent(tdElems.get(i));
+      }
+
+      // Use the callback to complete the sorting
+      callback.onSortingComplete(trElems);
+    }  
   }
 
 }

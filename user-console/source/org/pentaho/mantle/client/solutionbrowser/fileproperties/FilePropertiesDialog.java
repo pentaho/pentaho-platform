@@ -22,6 +22,7 @@ package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -74,12 +75,12 @@ public class FilePropertiesDialog extends PromptDialogBox {
       }
     });
     this.propertyTabs = propertyTabs;
-    propertyTabs.addTab(Messages.getString("general"), Messages.getString("general"), false, generalTab);
+    this.propertyTabs.addTab(Messages.getString("general"), Messages.getString("general"), false, generalTab);
     if (permissionsTab != null) {
-      propertyTabs.addTab(Messages.getString("share"), Messages.getString("share"), false, permissionsTab);
+      this.propertyTabs.addTab(Messages.getString("share"), Messages.getString("share"), false, permissionsTab);
     }
     if (generatedContentTab != null) {
-      propertyTabs.addTab(Messages.getString("history"), Messages.getString("history"), false, generatedContentTab);
+      this.propertyTabs.addTab(Messages.getString("history"), Messages.getString("history"), false, generatedContentTab);
     }
     getWidget().setHeight("100%"); //$NON-NLS-1$
     getWidget().setWidth("100%"); //$NON-NLS-1$
@@ -97,12 +98,27 @@ public class FilePropertiesDialog extends PromptDialogBox {
   }
 
   public void showTab(Tabs tab) {
-    if (tab == Tabs.GENERAL && propertyTabs.getWidgetIndex(generalTab) > -1) {
-      propertyTabs.selectTab(propertyTabs.getWidgetIndex(generalTab));
-    } else if (tab == Tabs.PERMISSION && propertyTabs.getWidgetIndex(permissionsTab) > -1) {
-      propertyTabs.selectTab(propertyTabs.getWidgetIndex(permissionsTab));
-    } else if (tab == Tabs.HISTORY && propertyTabs.getWidgetIndex(generatedContentTab) > -1) {
-      propertyTabs.selectTab(propertyTabs.getWidgetIndex(generatedContentTab));
+    for (int i=0; i<propertyTabs.getTabCount(); i++) {
+      PentahoTab pTab = propertyTabs.getTab(i);
+      switch(tab) {
+        case GENERAL:
+          if (pTab.getContent() == generalTab) {
+            propertyTabs.selectTab(pTab);
+          }
+          break;
+        case PERMISSION:
+          if (pTab.getContent() == permissionsTab) {
+            propertyTabs.selectTab(pTab);
+          }
+          break;
+        case HISTORY:
+          if (pTab.getContent() == generatedContentTab) {
+            propertyTabs.selectTab(pTab);
+          }
+          break;
+        default:
+          break;
+      }
     }
   }
 }
