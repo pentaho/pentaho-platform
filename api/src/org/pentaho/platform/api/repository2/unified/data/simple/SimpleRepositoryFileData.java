@@ -14,9 +14,14 @@
  */
 package org.pentaho.platform.api.repository2.unified.data.simple;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.util.Arrays;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 
 /**
@@ -86,6 +91,116 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
     } catch (IOException e) {
       return 0;
     }
+  }
+
+  @Override
+  @SuppressWarnings("nls")
+  public String toString() {
+    final int MAX_EXCERPT_LENGTH = 20;
+
+    StringBuilder buf = new StringBuilder();
+    buf.append("SimpleRepositoryFileData[");
+
+    if (stream.markSupported()) {
+      stream.mark(Integer.MAX_VALUE);
+      buf.append("stream excerpt=");
+      if (StringUtils.isNotBlank(encoding)) {
+        String text = null;
+        try {
+          text = toString(stream, encoding);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+        buf.append(head(text, MAX_EXCERPT_LENGTH));
+        buf.append(",");
+        buf.append("encoding=");
+        buf.append(encoding);
+      } else {
+        byte[] bytes = null;
+        try {
+          bytes = toByteArray(stream);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+        buf.append(head(bytes, MAX_EXCERPT_LENGTH));
+      }
+
+      try {
+        stream.reset();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      buf.append("stream=<unable to show>");
+    }
+    buf.append(",");
+    buf.append("mimeType=");
+    buf.append(mimeType);
+    buf.append("]");
+    return buf.toString();
+  }
+
+  /**
+   * Returns at most {@code count} characters from {@code str}.
+   */
+  @SuppressWarnings("nls")
+  private String head(final String str, final int count) {
+    if (str.length() > count) {
+      return str.substring(0, count) + "...";
+    } else {
+      return str;
+    }
+  }
+
+  /**
+   * Returns {@code String} representation of array consisting of at most {@code count} bytes from {@code bytes}.
+   */
+  @SuppressWarnings("nls")
+  private String head(final byte[] bytes, final int count) {
+    if (bytes.length > count) {
+      StringBuilder buf = new StringBuilder();
+      buf.append("[");
+      for (int i = 0; i < count; i++) {
+        if (i > 0) {
+          buf.append(", ");
+        }
+        buf.append(bytes[i]);
+      }
+      buf.append("...");
+      buf.append("]");
+      return buf.toString();
+    } else {
+      return Arrays.toString(bytes);
+    }
+  }
+
+  /*
+   * Copied from IOUtils.
+   */
+  private static String toString(final InputStream input, final String encoding) throws IOException {
+    final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+    StringWriter sw = new StringWriter();
+    InputStreamReader in = new InputStreamReader(input, encoding);
+    char[] buffer = new char[DEFAULT_BUFFER_SIZE];
+    int n = 0;
+    while (-1 != (n = in.read(buffer))) {
+      sw.write(buffer, 0, n);
+    }
+    return sw.toString();
+  }
+
+  /*
+   * Copied from IOUtils.
+   */
+  private static byte[] toByteArray(final InputStream input) throws IOException {
+    final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+    int n = 0;
+    while (-1 != (n = input.read(buffer))) {
+      output.write(buffer, 0, n);
+    }
+    return output.toByteArray();
   }
 
 }
