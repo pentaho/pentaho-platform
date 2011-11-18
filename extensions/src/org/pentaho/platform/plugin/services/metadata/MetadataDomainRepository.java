@@ -34,6 +34,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.di.repository.RepositoryObjectType;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.model.concept.IConcept;
@@ -44,6 +45,8 @@ import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.util.XmiParser;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
@@ -202,51 +205,21 @@ public class MetadataDomainRepository implements IMetadataDomainRepository {
         throw new DomainAlreadyExistsException(org.pentaho.metadata.messages.Messages.getErrorString("IMetadataDomainRepository.ERROR_0002_DOMAIN_OBJECT_EXISTS", domain.getId())); //$NON-NLS-1$
       }
   
-      // only allow editing vs. creation
-      if (!overwrite) {
-        throw new DomainAlreadyExistsException(org.pentaho.metadata.messages.Messages.getErrorString("IMetadataDomainRepository.ERROR_0002_DOMAIN_OBJECT_EXISTS", domain.getId())); //$NON-NLS-1$
-      }
-      
       IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class, null);
       
       InputStream inputStream = null;
-      OutputStream outputStream = null;
       XmiParser parser = new XmiParser();
       String xmi = parser.generateXmi(domain);
       try {
-        String xmiFilePath = FilenameUtils.concat(getMetadataRootFolder(), domain.getId());
-        RepositoryFile xmiFile = unifiedRepository.getFile(xmiFilePath);
+        RepositoryFile xmiFile = unifiedRepository.getFile(getMetadataRootFolder() + RepositoryFile.SEPARATOR + domain.getId());
         if (xmiFile == null) {
-          ArrayList<String> missingFolders = new ArrayList<String>();
-          String missingDirPath = FilenameUtils.getFullPathNoEndSeparator(xmiFilePath);
-          while (!missingDirPath.equals(getMetadataRootFolder())) {
-            RepositoryFile dir = unifiedRepository.getFile(missingDirPath);
-            if (dir == null) {
-              missingFolders.add(missingDirPath);
-              missingDirPath = FilenameUtils.getFullPathNoEndSeparator(missingDirPath);
-            } else {
-              break;
-            }   
+          RepositoryFile metadataRootFolder = unifiedRepository.getFile(getMetadataRootFolder());
+          if(metadataRootFolder != null) {
+            inputStream = new ByteArrayInputStream(xmi.getBytes(LocaleHelper.getSystemEncoding()));
+            RepositoryFile file = new RepositoryFile.Builder(domain.getId()).title(RepositoryFile.ROOT_LOCALE, domain.getId()).versioned(true).build();
+            file = unifiedRepository.createFile(metadataRootFolder.getId(), file, new SimpleRepositoryFileData(inputStream, LocaleHelper.getSystemEncoding(), "text/xml"), null);
           }
-          RepositoryFile parentFolder = null;
-          if (missingFolders.size() > 0) {
-            Collections.reverse(missingFolders);
-            parentFolder = unifiedRepository.getFile(FilenameUtils.getFullPathNoEndSeparator(missingFolders.get(0)));
-            for (String missingFolder : missingFolders) {
-              RepositoryFile folder = new RepositoryFile(FilenameUtils.getName(missingFolder));
-              parentFolder = unifiedRepository.createFolder(parentFolder, folder, null);
-            }
-          } else {
-            parentFolder = unifiedRepository.getFile(FilenameUtils.getFullPathNoEndSeparator(xmiFilePath));
-          }
-          xmiFile = new RepositoryFile(FilenameUtils.getName(domain.getId()));
-          xmiFile = unifiedRepository.createFile(parentFolder, xmiFile, null, null);
         }
-        
-        inputStream = new ByteArrayInputStream(xmi.getBytes(LocaleHelper.getSystemEncoding()));
-        outputStream = new RepositoryFileOutputStream(xmiFile);
-        IOUtils.copyLarge(inputStream, outputStream);
-        
         // adds the domain to the domains list
         domains.put(domain.getId(), domain);
         
@@ -256,9 +229,6 @@ public class MetadataDomainRepository implements IMetadataDomainRepository {
         try {
           if (inputStream != null) {
             inputStream.close();
-          }
-          if (outputStream != null) {
-            outputStream.close();
           }
         } catch (Exception ex) {
           // Do nothing
