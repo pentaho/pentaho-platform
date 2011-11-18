@@ -22,6 +22,7 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -61,6 +62,7 @@ public class JobScheduleRequest implements Serializable {
   CronJobTrigger cronJobTrigger;
   ComplexJobTriggerProxy complexJobTrigger;
   SimpleJobTrigger simpleJobTrigger;
+  ArrayList<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
   
   public String getInputFile() {
     return inputFile;
@@ -114,4 +116,19 @@ public class JobScheduleRequest implements Serializable {
     }
     this.simpleJobTrigger = jobTrigger;
   }
+
+  public ArrayList<JobScheduleParam> getJobParameters() {
+    return jobParameters;
+  }
+
+  public void setJobParameters(ArrayList<JobScheduleParam> jobParameters) {
+    if (jobParameters != this.jobParameters) {
+      this.jobParameters.clear();
+      if (jobParameters != null) {
+        this.jobParameters.addAll(jobParameters);
+      }
+    }
+  }
+  
+  
 }

@@ -27,6 +27,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -98,7 +99,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
     try {
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
       pentahoSession.getName();
-      HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
       String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName())
           + "/workspace/" + FilenameUtils.getBaseName(scheduleRequest.getInputFile()) + ".*"; //$NON-NLS-1$ //$NON-NLS-2$
       String actionId = FilenameUtils.getExtension(scheduleRequest.getInputFile()) + "." + "backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -158,6 +158,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
         } else {
           throw new IllegalArgumentException();
         }
+      }
+      HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
+      for (JobScheduleParam param : scheduleRequest.getJobParameters()) {
+        parameterMap.put(param.getName(), param.getValue());
       }
       job = scheduler.createJob(Integer.toString(Math.abs(random.nextInt())), actionId, parameterMap, jobTrigger, new RepositoryFileStreamProvider(
           scheduleRequest.getInputFile(), outputFile));
@@ -356,9 +360,16 @@ public class SchedulerResource extends AbstractJaxRSResource {
     proxyTrigger.setDaysOfWeek(new int[] { 1, 2, 3 });
     proxyTrigger.setMonthsOfYear(new int[] { 1, 2, 3 });
     proxyTrigger.setYears(new int[] { 2012, 2013 });
+    proxyTrigger.setStartTime(new Date());
     jobRequest.setComplexJobTrigger(proxyTrigger);
     jobRequest.setInputFile("aaaaa");
     jobRequest.setOutputFile("bbbbb");
+    ArrayList<JobScheduleParam> jobParams = new ArrayList<JobScheduleParam>();
+    jobParams.add(new JobScheduleParam("param1", "aString"));
+    jobParams.add(new JobScheduleParam("param2", 1));
+    jobParams.add(new JobScheduleParam("param3", true));
+    jobParams.add(new JobScheduleParam("param4", new Date()));
+    jobRequest.setJobParameters(jobParams);
     return jobRequest;
   }
 }
