@@ -33,6 +33,7 @@ public abstract class AbstractImportSource implements ImportSource {
   /**
    * Keys are extensions and values are MIME types.
    */
+  protected IUnifiedRepository unifiedRepository;
   protected Map<String, ImportSource> sourceTypes = new HashMap<String, ImportSource>();
   protected Map<String, String> mimeTypes = new HashMap<String, String>();
   protected List<ImportSource> dependentImportSources = new ArrayList<ImportSource>();
@@ -114,5 +115,8 @@ public abstract class AbstractImportSource implements ImportSource {
   public IRepositoryFileBundle getFile(String path) {
 	return null;
   }
-
+	
+  public void initialize(IUnifiedRepository unifidedRepository) {
+	  this.unifiedRepository = unifidedRepository;
+  }
 }
