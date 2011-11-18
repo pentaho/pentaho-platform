@@ -1,13 +1,17 @@
 package org.pentaho.platform.repository2.unified;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.isLikeFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.pathPropertyPair;
 
-import java.util.List;
-
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -19,7 +23,6 @@ import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.model.IDatabaseType;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -32,69 +35,19 @@ public class DatasourceMgmtServiceTest {
 
   // ~ Instance fields =================================================================================================
 
-  //  private MicroPlatform booter;
-
-  //  private IDatasourceMgmtService datasourceMgmtService;
-
   // ~ Static fields/initializers ======================================================================================
 
-  protected static final String DIR_CONNECTIONS = "connections";
+  private static final String EXP_DBMETA_NAME = "haha";
 
-  protected static final String EXP_DBMETA_NAME = "haha";
+  private static final String EXP_DBMETA_HOSTNAME = "acme";
 
-  protected static final String EXP_DBMETA_NAME_1 = "haha1";
+  private static final String EXP_DBMETA_PORT = "10521";
+  
+  private static final String EXP_UPDATED_DBMETA_NAME = "hahaUpdated";
 
-  protected static final String EXP_DBMETA_HOSTNAME = "acme";
-
-  protected static final String EXP_DBMETA_TYPE = "ORACLE";
-
-  protected static final int EXP_DBMETA_ACCESS = DatabaseMeta.TYPE_ACCESS_NATIVE;
-
-  protected static final String EXP_DBMETA_DBNAME = "lksjdf";
-
-  protected static final String EXP_DBMETA_PORT = "10521";
-
-  protected static final String EXP_DBMETA_USERNAME = "elaine";
-
-  protected static final String EXP_DBMETA_PASSWORD = "password";
-
-  protected static final String EXP_DBMETA_SERVERNAME = "serverName";
-
-  protected static final String EXP_UPDATED_DBMETA_NAME = "hahaUpdated";
-
-  protected static final String EXP_UPDATED_DBMETA_NAME_1 = "haha1Updated";
-
-  protected static final String EXP_UPDATED_DBMETA_HOSTNAME = "acmeUpdated";
-
-  protected static final String EXP_UPDATED_DBMETA_TYPE = "MYSQL";
-
-  protected static final int EXP_UPDATED_DBMETA_ACCESS = DatabaseMeta.TYPE_ACCESS_JNDI;
-
-  protected static final String EXP_UPDATED_DBMETA_DBNAME = "lksjdfUpdated";
-
-  protected static final String EXP_UPDATED_DBMETA_PORT = "10522";
-
-  protected static final String EXP_UPDATED_DBMETA_USERNAME = "elaineUpdated";
-
-  protected static final String EXP_UPDATED_DBMETA_PASSWORD = "passwordUpdated";
-
-  protected static final String EXP_UPDATED_DBMETA_SERVERNAME = "serverNameUpdated";
-
-  protected static final String EXP_DBMETA_DATA_TABLESPACE = "dataTablespace";
-
-  protected static final String EXP_DBMETA_INDEX_TABLESPACE = "indexTablespace";
-
-  private static final String EXP_DBMETA_ATTR1_VALUE = "LKJSDFKDSJKF";
-
-  private static final String EXP_DBMETA_ATTR1_KEY = "IOWUEIOUEWR";
-
-  private static final String EXP_DBMETA_ATTR2_KEY = "XDKDSDF";
-
-  private static final String EXP_DBMETA_ATTR2_VALUE = "POYIUPOUI";
-
-  //  private IDatabaseDialectService databaseDialectService;
-  //  
-  //  private DatabaseTypeHelper databaseTypeHelper;
+  private static final String EXP_UPDATED_DBMETA_HOSTNAME = "acmeUpdated";
+  
+  private static final String EXP_UPDATED_DBMETA_PORT = "10522";
 
   public DatasourceMgmtServiceTest() {
     super();
@@ -122,206 +75,135 @@ public class DatasourceMgmtServiceTest {
 
   @Test
   public void testCreateDatasource() throws Exception {
-    Mockery context = new Mockery();
-    final IUnifiedRepository repo = context.mock(IUnifiedRepository.class);
-    context.checking(new Expectations() {
-      {
-        final String PARENT_FOLDER_ID = "123";
-        // get parent folder
-        atMost(1).of(repo).getFile("/etc/pdi/databases");
-        will(returnValue(new RepositoryFile.Builder(PARENT_FOLDER_ID, "databases").folder(true).build()));
-
-        Matcher<RepositoryFile> m1 = Matchers.hasProperty("name", equal(EXP_DBMETA_NAME + ".kdb"));
-
-        oneOf(repo).createFile(with(equal(PARENT_FOLDER_ID)), with(Matchers.allOf(m1)),
-            with(any(NodeRepositoryFileData.class)), with(aNull(String.class)));
-      }
-    });
-
+    final String parentFolderId = "123";
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    // stub out get parent folder
+    doReturn(new RepositoryFile.Builder(parentFolderId, "databases").folder(true).build()).when(repo).getFile(
+        "/etc/pdi/databases");
     IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
         new DatabaseDialectService());
 
     IDatabaseConnection databaseConnection = createDatabaseConnection(EXP_DBMETA_NAME);
     datasourceMgmtService.createDatasource(databaseConnection);
 
-    context.assertIsSatisfied();
+    verify(repo).createFile(eq(parentFolderId),
+        argThat(isLikeFile(new RepositoryFile.Builder(EXP_DBMETA_NAME + ".kdb").build())),
+        argThat(hasData(pathPropertyPair("/databaseMeta/HOST_NAME", EXP_DBMETA_HOSTNAME))), anyString());
   }
 
-  @Test
-  public void testDeleteDatasourceWithName() throws Exception {
-    Mockery context = new Mockery();
-    final IUnifiedRepository repo = context.mock(IUnifiedRepository.class);
-    context.checking(new Expectations() {
-      {
-        final String PARENT_FOLDER_ID = "123";
-        // get parent folder
-        atMost(1).of(repo).getFile("/etc/pdi/databases");
-        will(returnValue(new RepositoryFile.Builder(PARENT_FOLDER_ID, "databases").folder(true).build()));
-        oneOf(repo).getFile("/etc/pdi/databases/" + EXP_DBMETA_NAME + ".kdb");
-        final String DB_FILE_ID = "456";
-        will(returnValue(new RepositoryFile.Builder(DB_FILE_ID, EXP_DBMETA_NAME + ".kdb").build()));
-        oneOf(repo).deleteFile(with(equal(DB_FILE_ID)), with(aNull(String.class)));
-      }
-    });
+    @Test
+    public void testDeleteDatasourceWithName() throws Exception {
+      final String fileId = "456";
+      final String databasesFolderPath = "/etc/pdi/databases";
+      final String dotKdb = ".kdb";
+      IUnifiedRepository repo = mock(IUnifiedRepository.class);
+      // stub out get parent folder
+      doReturn(new RepositoryFile.Builder("123", "databases").folder(true).build()).when(repo).getFile(
+          databasesFolderPath);
+      // stub out get file to delete
+      doReturn(new RepositoryFile.Builder(fileId, EXP_DBMETA_NAME + dotKdb).build()).when(repo).getFile(databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb);
+      IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
+          new DatabaseDialectService());
 
-    IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
-        new DatabaseDialectService());
-    datasourceMgmtService.deleteDatasourceByName(EXP_DBMETA_NAME);
+      datasourceMgmtService.deleteDatasourceByName(EXP_DBMETA_NAME);
+  
+      verify(repo).deleteFile(eq(fileId), anyString());
+    }
+  
+    @Test
+    public void testUpdateDatasourceWithName() throws Exception {
+      final String fileId = "456";
+      final String databasesFolderPath = "/etc/pdi/databases";
+      final String dotKdb = ".kdb";
+      IUnifiedRepository repo = mock(IUnifiedRepository.class);
+      // stub out get parent folder
+      doReturn(new RepositoryFile.Builder("123", "databases").folder(true).build()).when(repo).getFile(
+          databasesFolderPath);
+      // stub out get file to update
+      RepositoryFile f = new RepositoryFile.Builder(fileId, EXP_DBMETA_NAME + dotKdb).path(
+          databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb).build();
+      doReturn(f).when(repo).getFile(databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb);
+      // stub out update file which requires a file to be returned
+      doReturn(f).when(repo).updateFile(argThat(isLikeFile(f)), any(NodeRepositoryFileData.class), anyString());
+      IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
+          new DatabaseDialectService());
+  
+      IDatabaseConnection databaseConnection = createDatabaseConnection(EXP_DBMETA_NAME);
+      updateDatabaseConnection(databaseConnection);
+      datasourceMgmtService.updateDatasourceByName(EXP_DBMETA_NAME, databaseConnection);
+      
+      verify(repo).updateFile(argThat(isLikeFile(new RepositoryFile.Builder(EXP_DBMETA_NAME + ".kdb").build())),
+          argThat(hasData(pathPropertyPair("/databaseMeta/HOST_NAME", EXP_UPDATED_DBMETA_HOSTNAME))), anyString());
+    }
+  
+    @Test(expected = DatasourceMgmtServiceException.class)
+    public void testDatasourceNotFound() throws Exception {
+      final String datasourceName = "not_here";
+      final String dotKdb = ".kdb";
+      final String fileName = datasourceName + dotKdb;
+      final String databasesFolderPath = "/etc/pdi/databases";
+      IUnifiedRepository repo = mock(IUnifiedRepository.class);
+      // stub out get parent folder
+      doReturn(new RepositoryFile.Builder("123", "databases").folder(true).build()).when(repo).getFile(
+          databasesFolderPath);
+      // stub out get file not found
+      doReturn(null).when(repo).getFile(databasesFolderPath + RepositoryFile.SEPARATOR + fileName);
+      IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
+          new DatabaseDialectService());
+      
+      datasourceMgmtService.getDatasourceByName(datasourceName);
+    }
+  
+    @Test
+    public void testGetDatasources() throws Exception {
+      final String fileId = "456";
+      final String databasesFolderPath = "/etc/pdi/databases";
+      final String dotKdb = ".kdb";
+      IUnifiedRepository repo = mock(IUnifiedRepository.class);
+      // stub out get parent folder
+      doReturn(new RepositoryFile.Builder("123", "databases").folder(true).build()).when(repo).getFile(
+          databasesFolderPath);
+      // stub out get file to update
+      RepositoryFile f = new RepositoryFile.Builder(fileId, EXP_DBMETA_NAME + dotKdb).path(
+          databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb).build();
+      doReturn(f).when(repo).getFile(databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb);
+      
+      final String EXP_HOST_NAME = "hello";
+      DataNode rootNode = new DataNode("databaseMeta");
+      rootNode.setProperty("TYPE", "Hypersonic"); // required
+      rootNode.setProperty("HOST_NAME", EXP_HOST_NAME);
+      rootNode.addNode("attributes"); // required
+      doReturn(new NodeRepositoryFileData(rootNode)).when(repo).getDataForRead(eq(fileId), eq(NodeRepositoryFileData.class));
 
-    context.assertIsSatisfied();
-  }
-
-  @Test
-  public void testUpdateDatasourceWithName() throws Exception {
-    Mockery context = new Mockery();
-    final IUnifiedRepository repo = context.mock(IUnifiedRepository.class);
-    context.checking(new Expectations() {
-      {
-        final String PARENT_FOLDER_ID = "123";
-        // get parent folder
-        atMost(1).of(repo).getFile("/etc/pdi/databases");
-        will(returnValue(new RepositoryFile.Builder(PARENT_FOLDER_ID, "databases").folder(true).build()));
-        oneOf(repo).getFile("/etc/pdi/databases/" + EXP_DBMETA_NAME + ".kdb");
-        final RepositoryFile f = new RepositoryFile.Builder("456", EXP_DBMETA_NAME + ".kdb").path(
-            "/etc/pdi/databases/" + EXP_DBMETA_NAME + ".kdb").build();
-        will(returnValue(f));
-        oneOf(repo).updateFile(with(equal(f)), with(any(NodeRepositoryFileData.class)), with(aNull(String.class)));
-        will(returnValue(f));
-        oneOf(repo).moveFile(with(equal(f.getId())),
-            with(equal("/etc/pdi/databases/" + EXP_UPDATED_DBMETA_NAME + ".kdb")), with(aNull(String.class)));
-      }
-    });
-
-    IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
-        new DatabaseDialectService());
-
-    IDatabaseConnection databaseConnection = createDatabaseConnection(EXP_DBMETA_NAME);
-    updateDatabaseConnection(databaseConnection);
-    datasourceMgmtService.updateDatasourceByName(EXP_DBMETA_NAME, databaseConnection);
-    
-    context.assertIsSatisfied();
-  }
-
-  @Test(expected = DatasourceMgmtServiceException.class)
-  public void testRename() throws Exception {
-    Mockery context = new Mockery();
-    final IUnifiedRepository repo = context.mock(IUnifiedRepository.class);
-    context.checking(new Expectations() {
-      {
-        final String PARENT_FOLDER_ID = "123";
-        // get parent folder
-        atMost(1).of(repo).getFile("/etc/pdi/databases");
-        will(returnValue(new RepositoryFile.Builder(PARENT_FOLDER_ID, "databases").folder(true).build()));
-        oneOf(repo).getFile("/etc/pdi/databases/not_here.kdb");
-        will(returnValue(null));
-      }
-    });
-
-    IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
-        new DatabaseDialectService());
-    datasourceMgmtService.getDatasourceByName("not_here");
-    
-    context.assertIsSatisfied();
-  }
-
-  @Test
-  public void testGetDatasources() throws Exception {
-    final String EXP_HOST_NAME = "hello";
-    Mockery context = new Mockery();
-    final IUnifiedRepository repo = context.mock(IUnifiedRepository.class);
-    context.checking(new Expectations() {
-      {
-        final String PARENT_FOLDER_ID = "123";
-        // get parent folder
-        atMost(1).of(repo).getFile("/etc/pdi/databases");
-        will(returnValue(new RepositoryFile.Builder(PARENT_FOLDER_ID, "databases").folder(true).build()));
-        oneOf(repo).getFile("/etc/pdi/databases/haha.kdb");
-        will(returnValue(new RepositoryFile.Builder("456", EXP_DBMETA_NAME + ".kdb").path(
-            "/etc/pdi/databases/" + EXP_DBMETA_NAME + ".kdb").build()));
-        oneOf(repo).getDataForRead(with(equal("456")), with(equal(NodeRepositoryFileData.class)));
-        DataNode rootNode = new DataNode("databaseMeta");
-        rootNode.setProperty("TYPE", "Hypersonic");
-        rootNode.setProperty("HOST_NAME", EXP_HOST_NAME);
-        rootNode.addNode("attributes");
-        will(returnValue(new NodeRepositoryFileData(rootNode)));
-      }
-    });
-
-    IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
-        new DatabaseDialectService());
-    IDatabaseConnection conn = datasourceMgmtService.getDatasourceByName(EXP_DBMETA_NAME);
-    assertEquals(EXP_HOST_NAME, conn.getHostname());
-    
-    context.assertIsSatisfied();
-  }
+      IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
+          new DatabaseDialectService());
+      IDatabaseConnection conn = datasourceMgmtService.getDatasourceByName(EXP_DBMETA_NAME);
+      
+      assertEquals(EXP_HOST_NAME, conn.getHostname());
+    }
 
   private IDatabaseConnection createDatabaseConnection(final String dbName) throws Exception {
     IDatabaseConnection dbConnection = new DatabaseConnection();
     dbConnection.setName(dbName);
     dbConnection.setHostname(EXP_DBMETA_HOSTNAME);
-    dbConnection.setDatabaseType(new MockDatabaseType("Hypersonic"));
+    dbConnection.setDatabaseType(mockDatabaseType("Hypersonic"));
     dbConnection.setAccessType(DatabaseAccessType.NATIVE);
-    dbConnection.setDatabaseName(EXP_DBMETA_DBNAME);
     dbConnection.setDatabasePort(EXP_DBMETA_PORT);
-    dbConnection.setUsername(EXP_DBMETA_USERNAME);
-    dbConnection.setPassword(EXP_DBMETA_PASSWORD);
-    dbConnection.setInformixServername(EXP_DBMETA_SERVERNAME);
-    dbConnection.setDataTablespace(EXP_DBMETA_DATA_TABLESPACE);
-    dbConnection.setIndexTablespace(EXP_DBMETA_INDEX_TABLESPACE);
-    dbConnection.getAttributes().put(EXP_DBMETA_ATTR1_KEY, EXP_DBMETA_ATTR1_VALUE);
-    dbConnection.getAttributes().put(EXP_DBMETA_ATTR2_KEY, EXP_DBMETA_ATTR2_VALUE);
     return dbConnection;
   }
 
   private void updateDatabaseConnection(IDatabaseConnection dbConnection) throws Exception {
     dbConnection.setName(EXP_UPDATED_DBMETA_NAME);
     dbConnection.setHostname(EXP_UPDATED_DBMETA_HOSTNAME);
-    dbConnection.setDatabaseType(new MockDatabaseType("Generic database"));
+    dbConnection.setDatabaseType(mockDatabaseType("Generic database"));
     dbConnection.setAccessType(DatabaseAccessType.JNDI);
-    dbConnection.setDatabaseName(EXP_UPDATED_DBMETA_DBNAME);
     dbConnection.setDatabasePort(EXP_UPDATED_DBMETA_PORT);
-    dbConnection.setUsername(EXP_UPDATED_DBMETA_USERNAME);
-    dbConnection.setPassword(EXP_UPDATED_DBMETA_PASSWORD);
-    dbConnection.setInformixServername(EXP_UPDATED_DBMETA_SERVERNAME);
-    dbConnection.setDataTablespace(EXP_DBMETA_DATA_TABLESPACE);
-    dbConnection.setIndexTablespace(EXP_DBMETA_INDEX_TABLESPACE);
-    dbConnection.getAttributes().put(EXP_DBMETA_ATTR1_KEY, EXP_DBMETA_ATTR1_VALUE);
-    dbConnection.getAttributes().put(EXP_DBMETA_ATTR2_KEY, EXP_DBMETA_ATTR2_VALUE);
   }
 
-  private static class MockDatabaseType implements IDatabaseType {
-
-    private String shortName;
-
-    public MockDatabaseType(final String shortName) {
-      this.shortName = shortName;
-    }
-
-    @Override
-    public String getName() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getShortName() {
-      return shortName;
-    }
-
-    @Override
-    public List<DatabaseAccessType> getSupportedAccessTypes() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getDefaultDatabasePort() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getExtraOptionsHelpUrl() {
-      throw new UnsupportedOperationException();
-    }
-
+  private IDatabaseType mockDatabaseType(final String shortName) {
+    IDatabaseType dbType = mock(IDatabaseType.class);
+    doReturn(shortName).when(dbType).getShortName();
+    return dbType;
   }
-
+  
 }

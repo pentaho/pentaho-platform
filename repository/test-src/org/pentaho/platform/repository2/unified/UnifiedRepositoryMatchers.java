@@ -2,8 +2,10 @@ package org.pentaho.platform.repository2.unified;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -12,6 +14,10 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
+import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 
 /**
@@ -26,6 +32,147 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 @SuppressWarnings({ "nls" })
 public class UnifiedRepositoryMatchers {
 
+  private static class NodeRepositoryFileDataMatcher extends TypeSafeMatcher<NodeRepositoryFileData> {
+
+    private static final String shortName = "hasData";
+    
+    private PathPropertyPair[] pairs;
+    
+    public NodeRepositoryFileDataMatcher(PathPropertyPair... pairs) {
+      for (PathPropertyPair pair : pairs) {
+        checkPath(pair.getPath());
+      }
+      this.pairs = pairs;
+    }
+    
+    @Override
+    public boolean matchesSafely(final NodeRepositoryFileData data) {  
+      for (PathPropertyPair pair : pairs) {
+        DataProperty expectedProperty = pair.getProperty();
+        String[] pathSegments = pair.getPath().substring(1).split("/");
+        DataNode currentNode = data.getNode();
+        if (!currentNode.getName().equals(pathSegments[0])) {
+          return false;
+        }
+        for (int i = 1; i < pathSegments.length-1; i++) {
+          currentNode = currentNode.getNode(pathSegments[i]);
+        }
+        DataProperty actualProperty = currentNode.getProperty(pathSegments[pathSegments.length-1]);
+        if (!expectedProperty.equals(actualProperty)) {
+          return false;
+        }
+      }
+      return true;  
+    }
+
+    @Override
+    public void describeTo(final Description description) {
+      description.appendText(shortName);
+      description.appendText("(");
+      description.appendText("pathPropertyPairs=");
+      description.appendText(Arrays.toString(pairs));
+      description.appendText(")");
+    }
+    
+  }
+  
+  /**
+   * Throws {@code IllegalArgumentException} if path does not meet certain criteria.
+   * @param path path to check
+   */
+  private static void checkPath(final String path) {
+    if (path == null) {
+      throw new IllegalArgumentException("path cannot be null");
+    }
+    if (!path.startsWith("/")) {
+      throw new IllegalArgumentException("paths must start with a slash");
+    }
+    if (path.endsWith("/")) {
+      throw new IllegalArgumentException("paths must not end with a slash");
+    }
+    if (path.trim().equals("/")) {
+      throw new IllegalArgumentException("path must be path to property");
+    }
+  }
+  
+  /**
+   * Factory for {@link PathPropertyPair} instances.
+   */
+  public static PathPropertyPair pathPropertyPair(final String path, final String value) {
+    checkPath(path);
+    String[] pathSegments = path.split("/");
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.STRING));
+  }
+  
+  /**
+   * Factory for {@link PathPropertyPair} instances.
+   */
+  public static PathPropertyPair pathPropertyPair(final String path, final boolean value) {
+    checkPath(path);
+    String[] pathSegments = path.split("/");
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.BOOLEAN));
+  }
+  
+  /**
+   * Factory for {@link PathPropertyPair} instances.
+   */
+  public static PathPropertyPair pathPropertyPair(final String path, final long value) {
+    checkPath(path);
+    String[] pathSegments = path.split("/");
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.LONG));
+  }
+  
+  /**
+   * Factory for {@link PathPropertyPair} instances.
+   */
+  public static PathPropertyPair pathPropertyPair(final String path, final double value) {
+    checkPath(path);
+    String[] pathSegments = path.split("/");
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.DOUBLE));
+  }
+  
+  /**
+   * Factory for {@link PathPropertyPair} instances.
+   */
+  public static PathPropertyPair pathPropertyPair(final String path, final Date value) {
+    checkPath(path);
+    String[] pathSegments = path.split("/");
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.DATE));
+  }
+  
+  /**
+   * Factory for {@link PathPropertyPair} instances.
+   */
+  public static PathPropertyPair pathPropertyPair(final String path, final Serializable value) {
+    checkPath(path);
+    String[] pathSegments = path.split("/");
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.REF));
+  }
+  
+  /**
+   * A path and property pair.
+   */
+  private static class PathPropertyPair {
+
+    private String path;
+    
+    private DataProperty property;
+    
+    public PathPropertyPair(final String path, final DataProperty property) {
+      this.path = path;
+      this.property = property;
+    }
+
+    private String getPath() {
+      return path;
+    }
+
+    private DataProperty getProperty() {
+      return property;
+    }
+    
+  }
+  
   /**
    * Matcher for {@link SimpleRepositoryFileData}.
    */
@@ -272,6 +419,21 @@ public class UnifiedRepositoryMatchers {
    */
   public static <T> Matcher<RepositoryFile> isLikeFile(final RepositoryFile expectedFile) {
     return new SelectiveRepositoryFileMatcher(expectedFile);
+  }
+  
+  /**
+   * Factory for {@code NodeRepositoryFileData} matcher. Only attempts to match pairs given.
+   * 
+   * <p>Example:</p>
+   * <pre>
+   * assertThat(nodeRepositoryFileData, hasData(pathPropertyPair("/databaseMeta/HOST_NAME", "localhost")));
+   * </pre>
+   * 
+   * @param pairs path property pairs
+   * @return matcher
+   */
+  public static <T> Matcher<NodeRepositoryFileData> hasData(final PathPropertyPair... pairs) {
+    return new NodeRepositoryFileDataMatcher(pairs);
   }
 
 }
