@@ -152,7 +152,7 @@ public class UnifiedRepositoryMatchers {
   /**
    * A path and property pair.
    */
-  private static class PathPropertyPair {
+  public static class PathPropertyPair {
 
     private String path;
     

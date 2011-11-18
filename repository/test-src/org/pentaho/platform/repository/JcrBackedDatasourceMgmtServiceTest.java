@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.hasData;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.isLikeFile;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.pathPropertyPair;
+import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -136,7 +137,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
           argThat(hasData(pathPropertyPair("/databaseMeta/HOST_NAME", EXP_UPDATED_DBMETA_HOSTNAME))), anyString());
     }
   
-    @Test(expected = DatasourceMgmtServiceException.class)
+    @Test
     public void testDatasourceNotFound() throws Exception {
       final String datasourceName = "not_here";
       final String dotKdb = ".kdb";
@@ -151,7 +152,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
       IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
           new DatabaseDialectService());
       
-      datasourceMgmtService.getDatasourceByName(datasourceName);
+      Assert.assertNull(datasourceMgmtService.getDatasourceByName(datasourceName));
     }
   
     @Test
