@@ -14,6 +14,7 @@
  */
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -96,7 +97,7 @@ public class SimpleRepositoryFileDataDto {
       IOUtils.copy(in, fout);
       fout.close();
       foutClosed = true;
-      InputStream fin = FileUtils.openInputStream(tmpFile);
+      InputStream fin = new BufferedInputStream(FileUtils.openInputStream(tmpFile));
       return new SimpleRepositoryFileData(fin, simpleJaxWsData.encoding, simpleJaxWsData.mimeType);
     } catch (Exception e) {
       throw new RuntimeException(e);

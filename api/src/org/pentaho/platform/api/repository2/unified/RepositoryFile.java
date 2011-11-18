@@ -315,8 +315,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     }
 
     public Builder(final RepositoryFile other) {
-      this(other.id, other.name);
-      this.path(other.path).createdDate(other.createdDate).creatorId(other.creatorId).fileSize(other.fileSize).folder(other.folder).lastModificationDate(
+      this(other.name);
+      this.id(other.id).path(other.path).createdDate(other.createdDate).creatorId(other.creatorId).fileSize(other.fileSize).folder(other.folder).lastModificationDate(
           other.lastModifiedDate).versioned(other.versioned).hidden(other.hidden).versionId(other.versionId).locked(
           other.locked).lockDate(other.lockDate).lockOwner(other.lockOwner).lockMessage(other.lockMessage).owner(
           other.owner).title(other.title).description(other.description).titleMap(other.titleMap).descriptionMap(
@@ -378,6 +378,11 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     public Builder folder(final boolean folder) {
       this.folder = folder;
+      return this;
+    }
+    
+    public Builder id(final Serializable id) {
+      this.id = id;
       return this;
     }
 
