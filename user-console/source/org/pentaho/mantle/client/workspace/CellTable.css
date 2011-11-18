@@ -99,30 +99,30 @@
 }
 
 .cellTableHoveredRow {
-  background: #eee;
+  background: #cbefa3;
 }
 
 .cellTableHoveredRowCell {
-border: selectionBorderWidth solid #eee;
+border: selectionBorderWidth solid #cbefa3;
 }
 
 .cellTableKeyboardSelectedRow {
- background: #ffc;
+ background: #dbdbdb;
 }
 
 .cellTableKeyboardSelectedRowCell {
-  border: selectionBorderWidth solid #ffc;
+  border: selectionBorderWidth solid #dbdbdb;
 }
 
 .cellTableSelectedRow {
-  background: #628cd5;
-  color: white;
+  background: #dbdbdb;
+  color: black;
   height: auto;
   overflow: auto;
 }
 
 .cellTableSelectedRowCell {
-  border: selectionBorderWidth solid #628cd5;
+  border: selectionBorderWidth solid #dbdbdb;
 }
 
 /**

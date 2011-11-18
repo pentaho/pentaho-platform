@@ -369,6 +369,10 @@ a:active, a:hover {
   cursor: hand;
 }
 
+.noDataForScheduleTable {
+  background-color: white;
+}
+
 .workspacePanel {
 	background-color: #D3D3D3;
 }

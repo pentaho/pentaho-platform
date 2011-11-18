@@ -40,6 +40,7 @@ import com.google.gwt.user.cellview.client.CellTable.Resources;
 import com.google.gwt.user.cellview.client.CellTable.Style;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -228,7 +229,7 @@ public class WorkspacePanel extends SimplePanel {
 
   private void toggleSchedulerOnOff(final ToolbarButton controlSchedulerButton) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/state"; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     try {
       builder.sendRequest(null, new RequestCallback() {
 
@@ -278,8 +279,10 @@ public class WorkspacePanel extends SimplePanel {
       }
     });
     table.setSelectionModel(selectionModel);
-    table.setEmptyTableWidget(new Label(Messages.getString("noSchedules")));
-
+    Label noDataLabel = new Label(Messages.getString("noSchedules"));
+    noDataLabel.setStyleName("noDataForScheduleTable");
+    table.setEmptyTableWidget(noDataLabel);
+    
     TextColumn<JsJob> idColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
         return job.getJobId();
@@ -323,7 +326,7 @@ public class WorkspacePanel extends SimplePanel {
         return "-";
       }
     };
-    scheduleColumn.setSortable(false);
+    scheduleColumn.setSortable(true);
 
     TextColumn<JsJob> userNameColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
@@ -398,8 +401,8 @@ public class WorkspacePanel extends SimplePanel {
     if (isAdmin) {
       table.addColumnStyleName(5, "backgroundContentHeaderTableCell");
     }
-
-    table.setColumnWidth(resourceColumn, 260, Unit.PX);
+    
+    table.setColumnWidth(resourceColumn, 220, Unit.PX);
     table.setColumnWidth(lastFireColumn, 150, Unit.PX);
     table.setColumnWidth(nextFireColumn, 150, Unit.PX);
     table.setColumnWidth(userNameColumn, 150, Unit.PX);
@@ -452,6 +455,13 @@ public class WorkspacePanel extends SimplePanel {
         return -1;
       }
     });
+    columnSortHandler.setComparator(scheduleColumn, new Comparator<JsJob>() {
+      public int compare(JsJob o1, JsJob o2) {
+        String s1 = o1.getJobTrigger().getDescription();
+        String s2 = o2.getJobTrigger().getDescription();
+        return s1.compareTo(s2);
+      }
+    });    
     columnSortHandler.setComparator(userNameColumn, new Comparator<JsJob>() {
       public int compare(JsJob o1, JsJob o2) {
         if (o1 == o2) {
@@ -482,10 +492,18 @@ public class WorkspacePanel extends SimplePanel {
           return 0;
         }
 
-        if (o1 != null) {
-          return (o2 != null) ? o1.getNextRun().compareTo(o2.getNextRun()) : 1;
+        if (o1 == null || o1.getNextRun() == null) {
+          return -1;
         }
-        return -1;
+        if (o2 == null || o2.getNextRun() == null) {
+          return 1;
+        }
+
+        if (o1.getNextRun() == o2.getNextRun()) {
+          return 0;
+        }
+
+        return o1.getNextRun().compareTo(o2.getNextRun());
       }
     });
     columnSortHandler.setComparator(lastFireColumn, new Comparator<JsJob>() {
@@ -687,7 +705,7 @@ public class WorkspacePanel extends SimplePanel {
 
   private void controlScheduler(final ToolbarButton controlSchedulerButton, final String function) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
     try {
       builder.sendRequest(null, new RequestCallback() {
 
@@ -728,7 +746,6 @@ public class WorkspacePanel extends SimplePanel {
 
   public interface CellTableResources extends Resources {
     public interface CellTableStyle extends CellTable.Style {
-
     };
 
     @Override

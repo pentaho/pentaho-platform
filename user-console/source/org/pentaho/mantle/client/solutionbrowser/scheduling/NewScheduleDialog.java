@@ -243,10 +243,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         @Override
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == 200) {
-            MessageDialogBox dialogBox = new MessageDialogBox(
-                Messages.getString("info"), Messages.getString("actionSequenceScheduledSuccess"),  //$NON-NLS-1$ //$NON-NLS-2$
-                true, false, true);
-            dialogBox.center();
             setDone(true);
             NewScheduleDialog.this.hide();
           } else {

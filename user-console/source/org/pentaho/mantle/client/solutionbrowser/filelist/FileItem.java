@@ -33,6 +33,7 @@ import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.HasAllMouseHandlers;
 import com.google.gwt.event.dom.client.MouseDownEvent;
@@ -153,7 +154,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     } else if (name.endsWith(URL_SUFFIX)) {
       fileIcon.setResource(MantleImages.images.file_url());
     } else {
-      fileIcon.setResource(MantleImages.images.fileIcon());
+      fileIcon.setUrl(GWT.getModuleBaseURL() + "images/fileIcon.gif");
     }
     fileIcon.setWidth("16px"); //$NON-NLS-1$
     fileLabel.setWidth("100%"); //$NON-NLS-1$

@@ -102,6 +102,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private PickupDragController dragController;
   private List<String> executableFileExtensions = new ArrayList<String>();
   private SolutionBrowserClipboard clipboard = new SolutionBrowserClipboard();
+  
+  private Element vSplitter;
+  private Element hSplitter;
+  
   private Command ToggleLocalizedNamesCommand = new Command() {
     public void execute() {
       solutionTree.setShowLocalizedFileNames(!solutionTree.isShowLocalizedFileNames());
@@ -285,9 +289,23 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       break;
     }
 
+    case Event.ONMOUSEOUT: {
+      isMouseDown = false;
+      DOM.releaseCapture(getElement());
+      break;
+    }
+    
     case Event.ONMOUSEMOVE: {
       if (isMouseDown) {
-        String left = DOM.getElementById("pucHorizontalSplitter").getParentElement().getStyle().getLeft();
+        
+        if (hSplitter == null) {
+          hSplitter = DOM.getElementById("pucHorizontalSplitter");
+        }
+        if (vSplitter == null) {
+          vSplitter = DOM.getElementById("pucVerticalSplitter");
+        }
+        
+        String left = hSplitter.getParentElement().getStyle().getLeft();
         if (left.indexOf("px") != -1) {
           left = left.substring(0, left.indexOf("px"));
         }
@@ -297,14 +315,14 @@ public class SolutionBrowserPanel extends HorizontalPanel {
           solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
         }
         if (leftInt <= 50) {
-          Element vSplitter = DOM.getElementById("pucVerticalSplitter");
           if (vSplitter != null) {
             ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage("");
           }
         } else {
-          Element vSplitter = DOM.getElementById("pucVerticalSplitter");
           if (vSplitter != null) {
-            ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
+            if (!pucVerticalSplitterImg.equals(((Element) vSplitter.getChild(0)).getStyle().getBackgroundImage())) {
+              ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
+            }
           }
         }
       }
