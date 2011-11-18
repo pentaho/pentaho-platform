@@ -21,10 +21,10 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 
 /**
- * <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matchers {@code IUnifiedRepository}.
+ * <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matchers for {@code IUnifiedRepository}-related classes.
  * 
  * <p>
- * Hamcrest matchers can be used by JUnit's {@code assertThat}, JMock, EasyMock, and Mockito.
+ * Hamcrest matchers can be used by JUnit's {@code assertThat} and mock frameworks like Mockito.
  * </p>
  * 
  * @author mlowery
