@@ -356,12 +356,12 @@ public class JDBCDatasourceServiceTest extends TestCase {
       // TODO Auto-generated constructor stub
     }
 
-    @Override
+
     protected Serializable getDatabaseParentFolderId() {
       return repository.getRootDir().getAbsolutePath();
     }
 
-    @Override
+
     protected String getDatabaseParentFolderPath() {
       return "";
     }
