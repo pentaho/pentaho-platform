@@ -29,8 +29,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
  */
 public interface ImportSource {
 	 
-  void initialize(IUnifiedRepository repository);
-
   IRepositoryFileBundle getFile(final String path);
 
   Iterable<IRepositoryFileBundle> getFiles() throws IOException;

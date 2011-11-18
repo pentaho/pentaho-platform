@@ -14,6 +14,7 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,7 +66,7 @@ public class RepositoryFileBundle implements IRepositoryFileBundle, Serializable
   }
 
   public InputStream getInputStream() throws IOException {
-    return FileUtils.openInputStream(tmpFile);
+    return new BufferedInputStream(FileUtils.openInputStream(tmpFile));
   }
 
   public String getPath() {

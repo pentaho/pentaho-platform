@@ -44,8 +44,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 	public MondrianSchemaImportSource() {
 	}
 
-	public void initialize(IUnifiedRepository repository) {
-		super.initialize(repository);
+	public void initialize() {
 		for (IRepositoryFileBundle file : super.files) {
 			if (file.getFile().getName().equals("datasources.xml")) {
 				datasourcesXML = file;

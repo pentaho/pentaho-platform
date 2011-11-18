@@ -138,6 +138,10 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
       if (currentFile.isDirectory() && currentFile.getName().equals("system")) {
         return;
       }
+      // Weed out .svn folders
+      if (currentFile.isDirectory() && currentFile.getName().equals(".svn")) {
+        return;
+      }
       files.add(currentFile);
       if (currentFile.isDirectory()) {
         for (File child : currentFile.listFiles()) {

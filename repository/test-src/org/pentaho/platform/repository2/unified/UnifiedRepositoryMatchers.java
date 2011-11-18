@@ -14,6 +14,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
@@ -35,18 +36,18 @@ public class UnifiedRepositoryMatchers {
   private static class NodeRepositoryFileDataMatcher extends TypeSafeMatcher<NodeRepositoryFileData> {
 
     private static final String shortName = "hasData";
-    
+
     private PathPropertyPair[] pairs;
-    
+
     public NodeRepositoryFileDataMatcher(PathPropertyPair... pairs) {
       for (PathPropertyPair pair : pairs) {
         checkPath(pair.getPath());
       }
       this.pairs = pairs;
     }
-    
+
     @Override
-    public boolean matchesSafely(final NodeRepositoryFileData data) {  
+    public boolean matchesSafely(final NodeRepositoryFileData data) {
       for (PathPropertyPair pair : pairs) {
         DataProperty expectedProperty = pair.getProperty();
         String[] pathSegments = pair.getPath().substring(1).split("/");
@@ -54,15 +55,15 @@ public class UnifiedRepositoryMatchers {
         if (!currentNode.getName().equals(pathSegments[0])) {
           return false;
         }
-        for (int i = 1; i < pathSegments.length-1; i++) {
+        for (int i = 1; i < pathSegments.length - 1; i++) {
           currentNode = currentNode.getNode(pathSegments[i]);
         }
-        DataProperty actualProperty = currentNode.getProperty(pathSegments[pathSegments.length-1]);
+        DataProperty actualProperty = currentNode.getProperty(pathSegments[pathSegments.length - 1]);
         if (!expectedProperty.equals(actualProperty)) {
           return false;
         }
       }
-      return true;  
+      return true;
     }
 
     @Override
@@ -73,9 +74,9 @@ public class UnifiedRepositoryMatchers {
       description.appendText(Arrays.toString(pairs));
       description.appendText(")");
     }
-    
+
   }
-  
+
   /**
    * Throws {@code IllegalArgumentException} if path does not meet certain criteria.
    * @param path path to check
@@ -94,70 +95,76 @@ public class UnifiedRepositoryMatchers {
       throw new IllegalArgumentException("path must be path to property");
     }
   }
-  
+
   /**
    * Factory for {@link PathPropertyPair} instances.
    */
   public static PathPropertyPair pathPropertyPair(final String path, final String value) {
     checkPath(path);
     String[] pathSegments = path.split("/");
-    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.STRING));
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length - 1], value,
+        DataPropertyType.STRING));
   }
-  
+
   /**
    * Factory for {@link PathPropertyPair} instances.
    */
   public static PathPropertyPair pathPropertyPair(final String path, final boolean value) {
     checkPath(path);
     String[] pathSegments = path.split("/");
-    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.BOOLEAN));
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length - 1], value,
+        DataPropertyType.BOOLEAN));
   }
-  
+
   /**
    * Factory for {@link PathPropertyPair} instances.
    */
   public static PathPropertyPair pathPropertyPair(final String path, final long value) {
     checkPath(path);
     String[] pathSegments = path.split("/");
-    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.LONG));
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length - 1], value,
+        DataPropertyType.LONG));
   }
-  
+
   /**
    * Factory for {@link PathPropertyPair} instances.
    */
   public static PathPropertyPair pathPropertyPair(final String path, final double value) {
     checkPath(path);
     String[] pathSegments = path.split("/");
-    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.DOUBLE));
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length - 1], value,
+        DataPropertyType.DOUBLE));
   }
-  
+
   /**
    * Factory for {@link PathPropertyPair} instances.
    */
   public static PathPropertyPair pathPropertyPair(final String path, final Date value) {
     checkPath(path);
     String[] pathSegments = path.split("/");
-    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.DATE));
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length - 1], value,
+        DataPropertyType.DATE));
   }
-  
+
   /**
    * Factory for {@link PathPropertyPair} instances.
    */
   public static PathPropertyPair pathPropertyPair(final String path, final Serializable value) {
     checkPath(path);
     String[] pathSegments = path.split("/");
-    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length-1], value, DataPropertyType.REF));
+    return new PathPropertyPair(path, new DataProperty(pathSegments[pathSegments.length - 1], value,
+        DataPropertyType.REF));
   }
-  
+
   /**
    * A path and property pair.
    */
   public static class PathPropertyPair {
 
     private String path;
-    
+
     private DataProperty property;
-    
+
     public PathPropertyPair(final String path, final DataProperty property) {
       this.path = path;
       this.property = property;
@@ -170,16 +177,16 @@ public class UnifiedRepositoryMatchers {
     private DataProperty getProperty() {
       return property;
     }
-    
+
   }
-  
+
   /**
    * Matcher for {@link SimpleRepositoryFileData}.
    */
   private static class SimpleRepositoryFileDataMatcher extends TypeSafeMatcher<SimpleRepositoryFileData> {
 
     private static final String shortName = "hasData";
-    
+
     private String expectedMimeType;
 
     private String expectedEncoding;
@@ -219,13 +226,13 @@ public class UnifiedRepositoryMatchers {
 
     public void describeTo(final Description description) {
       final int MAX_EXCERPT_LENGTH = 10;
-      
+
       description.appendText(shortName);
       description.appendText("(");
-      
+
       if (StringUtils.isNotBlank(expectedEncoding)) {
         description.appendText("text=");
-      
+
         String text = null;
         try {
           text = new String(expectedBytes, expectedEncoding);
@@ -245,7 +252,7 @@ public class UnifiedRepositoryMatchers {
       description.appendText(expectedMimeType);
       description.appendText(")");
     }
-    
+
     /**
      * Returns at most {@code count} characters from {@code str}.
      */
@@ -279,35 +286,112 @@ public class UnifiedRepositoryMatchers {
     }
 
   }
-  
+
+  /**
+   * Matcher for {@link RepositoryFileAcl}.  Will only attempt to match non-null properties.
+   */
+  private static class SelectiveRepositoryFileAclMatcher extends TypeSafeMatcher<RepositoryFileAcl> {
+
+    private static final String shortName = "isLikeAcl";
+
+    private RepositoryFileAcl expectedAcl;
+
+    private boolean testAcesUsingEquals;
+
+    /**
+     * Creates an instance where {@code testAcesUsingEquals} is {@code false}. 
+     * @param expectedAcl
+     */
+    public SelectiveRepositoryFileAclMatcher(RepositoryFileAcl expectedAcl) {
+      this(expectedAcl, false);
+    }
+
+    /**
+     * @param expectedAcl expected ACL
+     * @param testAcesUsingEquals if {@code true}, use {@code acl.getAces().equals(expectedAcl.getAces())} else
+     *                            {@code acl.getAces().containsAll(expectedAcl.getAces())}
+     */
+    public SelectiveRepositoryFileAclMatcher(final RepositoryFileAcl expectedAcl, final boolean testAcesUsingEquals) {
+      super();
+      this.expectedAcl = expectedAcl;
+      this.testAcesUsingEquals = testAcesUsingEquals;
+    }
+
+    /*
+     * RepositoryFileAcl.getAces() never returns null. Also, isEntriesInheriting is always tested.
+     */
+    @Override
+    public boolean matchesSafely(final RepositoryFileAcl acl) {
+      return (expectedAcl.getId() != null ? expectedAcl.getId().equals(acl.getId()) : true)
+          && expectedAcl.isEntriesInheriting() == acl.isEntriesInheriting()
+          && (expectedAcl.getOwner() != null ? expectedAcl.getOwner().equals(acl.getOwner()) : true)
+          && (testAcesUsingEquals ? acl.getAces().equals(expectedAcl.getAces()) : acl.getAces().containsAll(
+              expectedAcl.getAces()));
+    }
+
+    @Override
+    public void describeTo(final Description description) {
+      boolean appended = false;
+      description.appendText(shortName);
+      description.appendText("(");
+      if (expectedAcl.getId() != null) {
+        description.appendText(appended ? "," : "");
+        description.appendText("id=");
+        description.appendText(expectedAcl.getId().toString());
+        appended = true;
+      }
+      if (expectedAcl.getOwner() != null) {
+        description.appendText(appended ? "," : "");
+        description.appendText("owner=");
+        description.appendText(expectedAcl.getOwner().toString());
+        appended = true;
+      }
+      description.appendText(appended ? "," : "");
+      description.appendText("isEntriesInheriting=");
+      description.appendText(String.valueOf(expectedAcl.isEntriesInheriting()));
+      appended = true;
+      if (expectedAcl.getAces() != null) {
+        description.appendText(appended ? "," : "");
+        description.appendText("aces=");
+        description.appendText(expectedAcl.getAces().toString());
+        appended = true;
+      }
+      description.appendText(")");
+    }
+
+  }
+
   /**
    * Matcher for {@link RepositoryFile}.  Will only attempt to match non-null properties.
    */
   private static class SelectiveRepositoryFileMatcher extends TypeSafeMatcher<RepositoryFile> {
 
     private static final String shortName = "isLikeFile";
-    
+
     private RepositoryFile expectedFile;
 
     public SelectiveRepositoryFileMatcher(final RepositoryFile expectedFile) {
       this.expectedFile = expectedFile;
     }
-    
+
     /*
      * If you add comparisons here, add them in describeTo as well.
      */
     @Override
     public boolean matchesSafely(final RepositoryFile file) {
-      return (expectedFile.getId() != null ? expectedFile.getId().equals(file.getId()) : true) &&
-          (expectedFile.getName() != null ? expectedFile.getName().equals(file.getName()) : true) &&
-          (expectedFile.getTitle() != null ? expectedFile.getTitle().equals(file.getTitle()) : true) &&
-          (expectedFile.getPath() != null ? expectedFile.getPath().equals(file.getPath()) : true) &&
-          (expectedFile.getCreatedDate() != null ? expectedFile.getCreatedDate().equals(file.getCreatedDate()) : true) &&
-          (expectedFile.getLastModifiedDate() != null ? expectedFile.getLastModifiedDate().equals(file.getLastModifiedDate()) : true) &&
-          (expectedFile.getVersionId() != null ? expectedFile.getVersionId().equals(file.getVersionId()) : true) &&
-          (expectedFile.getDeletedDate() != null ? expectedFile.getDeletedDate().equals(file.getDeletedDate()) : true);
+      return (expectedFile.getId() != null ? expectedFile.getId().equals(file.getId()) : true)
+          && (expectedFile.getName() != null ? expectedFile.getName().equals(file.getName()) : true)
+          && (expectedFile.getTitle() != null ? expectedFile.getTitle().equals(file.getTitle()) : true)
+          && (expectedFile.getPath() != null ? expectedFile.getPath().equals(file.getPath()) : true)
+          && (expectedFile.getCreatedDate() != null ? expectedFile.getCreatedDate().equals(file.getCreatedDate())
+              : true)
+          && (expectedFile.getLastModifiedDate() != null ? expectedFile.getLastModifiedDate().equals(
+              file.getLastModifiedDate()) : true)
+          && (expectedFile.getVersionId() != null ? expectedFile.getVersionId().equals(file.getVersionId()) : true)
+          && (expectedFile.getDeletedDate() != null ? expectedFile.getDeletedDate().equals(file.getDeletedDate())
+              : true);
     }
-    
+
     @Override
     public void describeTo(final Description description) {
       boolean appended = false;
@@ -367,7 +451,7 @@ public class UnifiedRepositoryMatchers {
   }
 
   /**
-   * Matcher for binary {@code SimpleRepositoryFileData}.
+   * Factory for binary {@code SimpleRepositoryFileData} matcher.
    * 
    * <p>Example:</p>
    * <pre>
@@ -383,7 +467,7 @@ public class UnifiedRepositoryMatchers {
   }
 
   /**
-   * Matcher for textual {@code SimpleRepositoryFileData}.
+   * Factory for textual {@code SimpleRepositoryFileData} matcher.
    * 
    * <p>Example:</p>
    * <pre>
@@ -405,9 +489,9 @@ public class UnifiedRepositoryMatchers {
     }
     return new SimpleRepositoryFileDataMatcher(expectedBytes, encoding, expectedMimeType);
   }
-  
+
   /**
-   * Matcher for {@code RepositoryFile}. Only attempts to match on non-null properties.
+   * Factory for {@code RepositoryFile} matcher. Only attempts to match on non-null properties.
    * 
    * <p>Example:</p>
    * <pre>
@@ -420,7 +504,42 @@ public class UnifiedRepositoryMatchers {
   public static <T> Matcher<RepositoryFile> isLikeFile(final RepositoryFile expectedFile) {
     return new SelectiveRepositoryFileMatcher(expectedFile);
   }
-  
+
+  /**
+   * Factory for {@code RepositoryFileAcl} matcher. Only attempts to match on non-null properties. 
+   * 
+   * <p>Example:</p>
+   * <pre>
+   * assertThat(repositoryFileAcl, isLikeAcl(new RepositoryFileAcl.Builder("joe", RepositoryFileSid.Type.USER)
+   *   .ace("suzy", RepositoryFileSid.Type.USER, RepositoryFilePermission.WRITE).build()), true);
+   * </pre>
+   * 
+   * @param expectedAcl expected ACL
+   * @param testAcesUsingEquals if {@code true}, use {@code acl.getAces().equals(expectedAcl.getAces())} else
+     *                            {@code acl.getAces().containsAll(expectedAcl.getAces())}
+   * @return
+   */
+  public static <T> Matcher<RepositoryFileAcl> isLikeAcl(final RepositoryFileAcl expectedAcl,
+      final boolean testAcesUsingEquals) {
+    return new SelectiveRepositoryFileAclMatcher(expectedAcl, testAcesUsingEquals);
+  }
+
+  /**
+   * Factory for {@code RepositoryFileAcl} matcher. Only attempts to match on non-null properties. Aces are tested using
+   * {@code containsAll(Collection)}.
+   * 
+   * <p>Example:</p>
+   * <pre>
+   * assertThat(repositoryFileAcl, isLikeAcl(new RepositoryFileAcl.Builder("joe", RepositoryFileSid.Type.USER).build()));
+   * </pre>
+   * 
+   * @param expectedAcl
+   * @return
+   */
+  public static <T> Matcher<RepositoryFileAcl> isLikeAcl(final RepositoryFileAcl expectedAcl) {
+    return new SelectiveRepositoryFileAclMatcher(expectedAcl);
+  }
+
   /**
    * Factory for {@code NodeRepositoryFileData} matcher. Only attempts to match pairs given.
    * 

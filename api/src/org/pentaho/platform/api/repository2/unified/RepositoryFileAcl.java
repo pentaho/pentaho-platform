@@ -124,6 +124,14 @@ public class RepositoryFileAcl implements Serializable {
 
     private boolean entriesInheriting = true;
 
+    /**
+     * Creates a {@code Builder} where the {@code owner} is a {@code RepositoryFileSid.Type.USER}.
+     * @param owner
+     */
+    public Builder(final String owner) {
+      this(new RepositoryFileSid(owner));
+    }
+    
     public Builder(final RepositoryFileSid owner) {
       this((Serializable) null, owner);
     }
