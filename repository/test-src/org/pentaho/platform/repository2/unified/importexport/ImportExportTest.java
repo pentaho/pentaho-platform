@@ -297,7 +297,7 @@ public class ImportExportTest {
     String path = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR; // for whatever reason code is adding extra slash
     doReturn(new RepositoryFile.Builder(publicFolderId, "public").folder(true).build()).when(repo).getFile(path);
     // stub requests for createFile
-    doReturn(new RepositoryFile.Builder("xyz", "").build()).when(repo).createFile(any(Serializable.class), any(RepositoryFile.class), any(IRepositoryFileData.class), anyString());
+    doReturn(new RepositoryFile.Builder("xyz", "blah").build()).when(repo).createFile(any(Serializable.class), any(RepositoryFile.class), any(IRepositoryFileData.class), anyString());
     
     File testZip = new File("test-src/org/pentaho/platform/repository2/unified/importexport/testdata/TestZipFile.zip");
     ZipInputStream zis = new ZipInputStream(new FileInputStream(testZip));
