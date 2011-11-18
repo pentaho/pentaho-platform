@@ -358,7 +358,8 @@ public class JDBCDatasourceServiceTest extends TestCase {
 
 
     protected Serializable getDatabaseParentFolderId() {
-      return repository.getRootDir().getAbsolutePath();
+    //  return repository.getRootDir().getAbsolutePath();
+      return null;
     }
 
 
