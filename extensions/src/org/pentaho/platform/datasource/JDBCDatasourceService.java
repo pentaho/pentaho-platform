@@ -8,6 +8,8 @@ import org.pentaho.platform.api.datasource.GenericDatasourceServiceException;
 import org.pentaho.platform.api.datasource.IGenericDatasource;
 import org.pentaho.platform.api.datasource.IGenericDatasourceInfo;
 import org.pentaho.platform.api.datasource.IGenericDatasourceService;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.DuplicateDatasourceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
@@ -18,13 +20,17 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
 
   public static final String TYPE = "JDBC";
   IDatasourceMgmtService datasourceMgmtService;
-  
-  public JDBCDatasourceService() {
-    datasourceMgmtService = PentahoSystem.get(IDatasourceMgmtService.class);
-  }
+  IAuthorizationPolicy policy;
+  ActionBasedSecurityService helper;
 
+  public JDBCDatasourceService(IDatasourceMgmtService datasourceMgmtService, IAuthorizationPolicy policy) {
+    this.datasourceMgmtService = datasourceMgmtService;
+    this.policy = policy;
+    helper = new ActionBasedSecurityService(policy);
+  }
   @Override
-  public void add(IGenericDatasource datasource) throws GenericDatasourceServiceException {
+  public void add(IGenericDatasource datasource) throws GenericDatasourceServiceException, PentahoAccessControlException {
+    helper.checkAdministratorAccess();
     try {
       if(datasource instanceof JDBCDatasource) {
         JDBCDatasource jdbcDatasource = (JDBCDatasource) datasource;
@@ -41,7 +47,8 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
   }
 
   @Override
-  public JDBCDatasource get(String id) {
+  public JDBCDatasource get(String id) throws GenericDatasourceServiceException, PentahoAccessControlException {
+    helper.checkAdministratorAccess();
     try {
       IDatabaseConnection databaseConnection = datasourceMgmtService.getDatasourceByName(id);
       return new JDBCDatasource(databaseConnection, databaseConnection.getName(), TYPE);
@@ -51,7 +58,8 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
   }
 
   @Override
-  public void remove(String id) throws GenericDatasourceServiceException {
+  public void remove(String id) throws GenericDatasourceServiceException, PentahoAccessControlException {
+    helper.checkAdministratorAccess();
     try {
       datasourceMgmtService.deleteDatasourceByName(id);
     } catch (NonExistingDatasourceException e) {
@@ -62,7 +70,8 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
   }
 
   @Override
-  public void edit(IGenericDatasource datasource) throws GenericDatasourceServiceException {
+  public void edit(IGenericDatasource datasource) throws GenericDatasourceServiceException, PentahoAccessControlException  {
+    helper.checkAdministratorAccess();
     try {
       if(datasource instanceof JDBCDatasource) {
         JDBCDatasource jdbcDatasource = (JDBCDatasource) datasource;
@@ -78,7 +87,8 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
   }
 
   @Override
-  public List<IGenericDatasource> getAll() {
+  public List<IGenericDatasource> getAll() throws PentahoAccessControlException  {
+    helper.checkAdministratorAccess();
     List<IGenericDatasource> jdbcDatasourceList = new ArrayList<IGenericDatasource>();
     try {
       for(IDatabaseConnection databaseConnection:datasourceMgmtService.getDatasources()) {
@@ -91,7 +101,8 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
   }
 
   @Override
-  public List<IGenericDatasourceInfo> getIds() {
+  public List<IGenericDatasourceInfo> getIds() throws PentahoAccessControlException  {
+    helper.checkAdministratorAccess();
     List<IGenericDatasourceInfo> datasourceInfoList = new ArrayList<IGenericDatasourceInfo>();
     try {
       for(IDatabaseConnection databaseConnection:datasourceMgmtService.getDatasources()) {

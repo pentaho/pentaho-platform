@@ -2,6 +2,8 @@ package org.pentaho.platform.api.datasource;
 
 import java.util.List;
 
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
+
 /**
  * Register, manage and provide basic listing functionality of platform datasources.  
  */
@@ -31,12 +33,12 @@ public interface IGenericDatasourceServiceManager {
    * Returns a list of datasource objects with a managed object wrapped inside
    * @return list of datasource
    */
-  public List<IGenericDatasource> getAll();
+  public List<IGenericDatasource> getAll() throws PentahoAccessControlException;
   
   /**
    * Returns a list of datasource id
    * @return list of datasource id
    */
-  public List<IGenericDatasourceInfo> getIds();
+  public List<IGenericDatasourceInfo> getIds() throws PentahoAccessControlException;
 
 }

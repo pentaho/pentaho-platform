@@ -1,4 +1,4 @@
-package org.pentaho.platform.repository2.unified;
+package org.pentaho.platform.repository;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -31,7 +31,7 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 
 @SuppressWarnings("nls")
-public class DatasourceMgmtServiceTest {
+public class JcrBackedDatasourceMgmtServiceTest {
 
   // ~ Instance fields =================================================================================================
 
@@ -49,7 +49,7 @@ public class DatasourceMgmtServiceTest {
   
   private static final String EXP_UPDATED_DBMETA_PORT = "10522";
 
-  public DatasourceMgmtServiceTest() {
+  public JcrBackedDatasourceMgmtServiceTest() {
     super();
   }
 

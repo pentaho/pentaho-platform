@@ -21,6 +21,7 @@ import org.pentaho.platform.api.datasource.IGenericDatasource;
 import org.pentaho.platform.api.datasource.IGenericDatasourceInfo;
 import org.pentaho.platform.api.datasource.IGenericDatasourceService;
 import org.pentaho.platform.api.datasource.IGenericDatasourceServiceManager;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.datasource.DefaultDatasourceServiceManager;
 import org.pentaho.platform.datasource.GenericDatasourceInfo;
 import org.pentaho.platform.datasource.JDBCDatasource;
@@ -112,6 +113,8 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
       metadataService.add(new MetadataDatasource(getTestDomain("MyTestDomain.xmi"), "MyTestDomain.xmi", MetadataDatasourceService.TYPE));
     } catch (GenericDatasourceServiceException e) {
       assertTrue(e != null);
+    } catch (PentahoAccessControlException e) {
+      assertTrue(e != null);
     }
 
     
@@ -120,10 +123,17 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
       mondrianService.add(new MondrianDatasource(getTestCatalog("MyTestDomain"), "MyTestDomain", MetadataDatasourceService.TYPE));
     } catch (GenericDatasourceServiceException e) {
       assertTrue(e != null);
+    } catch (PentahoAccessControlException e) {
+      assertTrue(e != null);
     }
 
     
-    List<IGenericDatasource> datasourceList = serviceManager.getAll();
+    List<IGenericDatasource> datasourceList = null;
+    try {
+      datasourceList = serviceManager.getAll();
+    } catch (PentahoAccessControlException e) {
+      assertTrue(e != null);
+    }
     assertEquals(datasourceList.size(), 3);
   }
   

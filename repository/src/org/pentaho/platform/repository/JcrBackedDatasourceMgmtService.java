@@ -1,4 +1,4 @@
-package org.pentaho.platform.repository2.unified;
+package org.pentaho.platform.repository;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,7 +19,6 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.repository2.unified.jcr.DatabaseHelper;
 
 public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
 

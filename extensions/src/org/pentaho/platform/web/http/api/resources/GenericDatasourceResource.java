@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 
 import org.pentaho.platform.api.datasource.IGenericDatasourceInfo;
 import org.pentaho.platform.api.datasource.IGenericDatasourceServiceManager;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.datasource.GenericDatasourceInfo;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -28,7 +29,7 @@ public class GenericDatasourceResource extends AbstractJaxRSResource {
   @GET
   @Path("/ids")
   @Produces( { APPLICATION_XML, APPLICATION_JSON })
-  public List<GenericDatasourceInfo> getDatasources() {
+  public List<GenericDatasourceInfo> getDatasources() throws PentahoAccessControlException {
     List<GenericDatasourceInfo> infoList = new ArrayList<GenericDatasourceInfo>();
     for(IGenericDatasourceInfo datasourceInfo:datasourceServiceManager.getIds()) {
       infoList.add(new GenericDatasourceInfo(datasourceInfo.getId(), datasourceInfo.getType())); 

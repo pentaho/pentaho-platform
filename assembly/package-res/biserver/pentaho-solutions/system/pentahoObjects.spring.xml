@@ -110,15 +110,25 @@ PentahoSystem which is initialized after Spring
 
   <bean id="IDatabaseDialectService" class="org.pentaho.database.service.DatabaseDialectService" scope="singleton" />
   
-  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService" scope="singleton">
+  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository.JcrBackedDatasourceMgmtService" scope="singleton">
     <constructor-arg ref="unifiedRepository" />
     <constructor-arg ref="IDatabaseDialectService" />
   </bean>
 
-  <bean id="mondrianDatasourceService" class="org.pentaho.platform.datasource.MondrianDatasourceService" scope="singleton" />
-  <bean id="jdbcDatasourceService" class="org.pentaho.platform.datasource.JDBCDatasourceService" scope="singleton" />
-  <bean id="metadataDatasourceService" class="org.pentaho.platform.datasource.MetadataDatasourceService" scope="singleton" />
-
+  <bean id="mondrianDatasourceService" class="org.pentaho.platform.datasource.MondrianDatasourceService" scope="singleton" >
+	<constructor-arg ref="IMondrianCatalogService" />
+	<constructor-arg ref="IMetadataDomainRepository" />			
+    <constructor-arg ref="authorizationPolicy" />
+  </bean>
+  
+  <bean id="jdbcDatasourceService" class="org.pentaho.platform.datasource.JDBCDatasourceService" scope="singleton" >
+	<constructor-arg ref="IDatasourceMgmtService" />
+	<constructor-arg ref="authorizationPolicy" />
+  </bean>
+  <bean id="metadataDatasourceService" class="org.pentaho.platform.datasource.MetadataDatasourceService" scope="singleton" >
+	<constructor-arg ref="IMetadataDomainRepository" />
+	<constructor-arg ref="authorizationPolicy" />
+  </bean>
   <bean id="IGenericDatasourceServiceManager" class="org.pentaho.platform.datasource.DefaultDatasourceServiceManager" scope="singleton">
     <constructor-arg>
       <list>

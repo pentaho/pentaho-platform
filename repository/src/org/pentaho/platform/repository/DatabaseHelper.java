@@ -1,4 +1,4 @@
-package org.pentaho.platform.repository2.unified.jcr;
+package org.pentaho.platform.repository;
 
 import java.io.Serializable;
 import java.util.Map;

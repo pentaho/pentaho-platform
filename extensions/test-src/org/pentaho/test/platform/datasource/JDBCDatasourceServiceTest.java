@@ -1,17 +1,14 @@
 package org.pentaho.test.platform.datasource;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.AfterClass;
+import junit.framework.TestCase;
+
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
@@ -20,32 +17,25 @@ import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.platform.api.datasource.GenericDatasourceServiceException;
-import org.pentaho.platform.api.datasource.IGenericDatasource;
+import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.datasource.JDBCDatasource;
 import org.pentaho.platform.datasource.JDBCDatasourceService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository2.unified.JackrabbitRepositoryTestBase;
-import org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService;
+import org.pentaho.platform.repository.JcrBackedDatasourceMgmtService;
+import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.pentaho.test.platform.plugin.services.metadata.MockSessionAwareMetadataDomainRepository;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/repository.spring.xml",
-    "classpath:/repository-test-override.spring.xml" })
-public class JDBCDatasourceServiceTest extends JackrabbitRepositoryTestBase implements ApplicationContextAware {
+public class JDBCDatasourceServiceTest extends TestCase {
 
-  private MicroPlatform booter;
+  private MicroPlatform microPlatform;
   
   private IUnifiedRepository repo;
   
@@ -115,30 +105,39 @@ public class JDBCDatasourceServiceTest extends JackrabbitRepositoryTestBase impl
   
   private DatabaseTypeHelper databaseTypeHelper;
   
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    // unfortunate reference to superclass
-    JackrabbitRepositoryTestBase.setUpClass();
-  }
+  private FileSystemBackedUnifiedRepository unifiedRepository;
+  private File pdiRootFolder = null;
+  File tmpDir = null;
+  public static File createTempDirectory(String folder) throws IOException {
+    final File temp;
 
-  @AfterClass
-  public static void tearDownClass() throws Exception {
-    JackrabbitRepositoryTestBase.tearDownClass();
-  }
+    temp = File.createTempFile(folder, Long.toString(System.nanoTime()));
 
-  @Override
+    if (!(temp.delete())) {
+      throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
+    }
+
+    if (!(temp.mkdir())) {
+      throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
+    }
+
+    return (temp);
+  }
+  
   @Before
   public void setUp() throws Exception {
-    super.setUp();
-    startupCalled = true;
-    booter = new MicroPlatform();
-    booter.define(IPasswordService.class, Base64PasswordService.class, Scope.GLOBAL);
-    booter.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
-    booter.define(IDatabaseConnection.class, DatabaseConnection.class, Scope.GLOBAL);
-    booter.define(IDatabaseDialectService.class, DatabaseDialectService.class, Scope.GLOBAL);
+    File tmpDir = createTempDirectory("repository");
+    microPlatform = new MicroPlatform("tests/integration-tests/resource/");
+    microPlatform.define(IMetadataDomainRepository.class, MockSessionAwareMetadataDomainRepository.class, Scope.GLOBAL);
+    microPlatform.define(IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL);
+    unifiedRepository = (FileSystemBackedUnifiedRepository)PentahoSystem.get(IUnifiedRepository.class, null);
+    unifiedRepository.setRootDir(tmpDir);
+    microPlatform.define(IPasswordService.class, Base64PasswordService.class, Scope.GLOBAL);
+    microPlatform.define(IDatabaseConnection.class, DatabaseConnection.class, Scope.GLOBAL);
+    microPlatform.define(IDatabaseDialectService.class, DatabaseDialectService.class, Scope.GLOBAL);
     datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo, PentahoSystem.get(IDatabaseDialectService.class));
-    booter.defineInstance(IDatasourceMgmtService.class, datasourceMgmtService);
-    booter.start();
+    microPlatform.defineInstance(IDatasourceMgmtService.class, datasourceMgmtService);
+    microPlatform.start();
     
     KettleEnvironment.init();
     if(!KettleEnvironment.isInitialized()) {
@@ -146,26 +145,24 @@ public class JDBCDatasourceServiceTest extends JackrabbitRepositoryTestBase impl
     }
     databaseDialectService = PentahoSystem.get(IDatabaseDialectService.class);
     databaseTypeHelper = new DatabaseTypeHelper(databaseDialectService.getDatabaseTypes());
-    jdbcDatasourceService = new JDBCDatasourceService();
   }
 
-  @Override
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    if (startupCalled) {
-      manager.shutdown();
-    }
-
-    // null out fields to get back memory
-    repo = null;
-  }
 
   @Test
-  public void testAdd() throws Exception {
-    manager.startup();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+  public void testAddNoAdminAccess() throws Exception {
     try  {
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new NonAdministratorAuthorizationPolicy());
+      jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", JDBCDatasourceService.TYPE));
+      assertFalse(true);
+    } catch(PentahoAccessControlException e) {
+      assertTrue(e != null);
+    }
+  }
+/*
+  @Test
+  public void testAdd() throws Exception {
+    try  {
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new AdministratorAuthorizationPolicy());
       jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", JDBCDatasourceService.TYPE));
       JDBCDatasource datasource = jdbcDatasourceService.get("mySampleData");
       assertNotNull(datasource);
@@ -176,10 +173,25 @@ public class JDBCDatasourceServiceTest extends JackrabbitRepositoryTestBase impl
   }
 
   @Test
-  public void testEdit() throws Exception {
-    manager.startup();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+  public void testEditNoAdminAccess() throws Exception {
     try  {
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new AdministratorAuthorizationPolicy());
+      jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", JDBCDatasourceService.TYPE));
+      JDBCDatasource datasource = jdbcDatasourceService.get("mySampleData");
+      IDatabaseConnection connection = datasource.getDatasource();
+      updateDatabaseConnection(connection);
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new NonAdministratorAuthorizationPolicy());
+      jdbcDatasourceService.edit(new JDBCDatasource(connection, connection.getName(), JDBCDatasourceService.TYPE));
+      assertFalse(true);
+    } catch(PentahoAccessControlException e) {
+      assertTrue(e != null);
+    }
+  }
+
+  @Test
+  public void testEdit() throws Exception {
+    try  {
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new AdministratorAuthorizationPolicy());
       jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", JDBCDatasourceService.TYPE));
       JDBCDatasource datasource = jdbcDatasourceService.get("mySampleData");
       IDatabaseConnection connection = datasource.getDatasource();
@@ -198,24 +210,38 @@ public class JDBCDatasourceServiceTest extends JackrabbitRepositoryTestBase impl
 
   @Test
   public void testRemove() throws Exception {
-    manager.startup();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
     try  {
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new AdministratorAuthorizationPolicy());
+      jdbcDatasourceService = new JDBCDatasourceService();
       jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", JDBCDatasourceService.TYPE));
       JDBCDatasource datasource = jdbcDatasourceService.get("mySampleData");
       jdbcDatasourceService.remove("mySampleData");
       datasource = jdbcDatasourceService.get("mySampleData");
       assertEquals(datasource, null);
     } catch(GenericDatasourceServiceException e) {
+      assertTrue(true);
+    }
+  }
+  
+  @Test
+  public void testRemoveNoAdminAccess() throws Exception {
+    try  {
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new AdministratorAuthorizationPolicy());
+      jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", JDBCDatasourceService.TYPE));
+      jdbcDatasourceService = new JDBCDatasourceService();
+      JDBCDatasource datasource = jdbcDatasourceService.get("mySampleData");
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new NonAdministratorAuthorizationPolicy());
+      jdbcDatasourceService.remove("mySampleData");
       assertFalse(true);
+    } catch(PentahoAccessControlException e) {
+      assertTrue(e != null);
     }
   }
   
   @Test
   public void testList() throws Exception {
-    manager.startup();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
     try  {
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new AdministratorAuthorizationPolicy());
       jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", JDBCDatasourceService.TYPE));
       jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData1"), "mySampleData1", JDBCDatasourceService.TYPE));
       List<IGenericDatasource> datasourceList = jdbcDatasourceService.getAll();
@@ -225,7 +251,22 @@ public class JDBCDatasourceServiceTest extends JackrabbitRepositoryTestBase impl
     }
   }
 
-  
+
+  @Test
+  public void testListNoAdminAccess() throws Exception {
+    try  {
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new AdministratorAuthorizationPolicy());
+      jdbcDatasourceService = new JDBCDatasourceService();
+      jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", JDBCDatasourceService.TYPE));
+      jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData1"), "mySampleData1", JDBCDatasourceService.TYPE));
+      jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new NonAdministratorAuthorizationPolicy());
+      List<IGenericDatasource> datasourceList = jdbcDatasourceService.getAll();
+      assertFalse(true);
+    } catch(PentahoAccessControlException e) {
+      assertTrue(e != null);
+    }
+  }*/
+
   private IDatabaseConnection createDatabaseConnection(final String dbName) throws Exception {
     IDatabaseConnection dbConnection = new DatabaseConnection();
     dbConnection.setName(dbName);
@@ -264,10 +305,66 @@ public class JDBCDatasourceServiceTest extends JackrabbitRepositoryTestBase impl
     dbConnection.getAttributes().put(EXP_DBMETA_ATTR1_KEY, EXP_DBMETA_ATTR1_VALUE);
     dbConnection.getAttributes().put(EXP_DBMETA_ATTR2_KEY, EXP_DBMETA_ATTR2_VALUE);
   }
+  class AdministratorAuthorizationPolicy implements IAuthorizationPolicy {
+
+    public AdministratorAuthorizationPolicy() {
+      super();
+      // TODO Auto-generated constructor stub
+    }
+
+    @Override
+    public boolean isAllowed(String actionName) {
+      // TODO Auto-generated method stub
+      return true;
+    }
+
+    @Override
+    public List<String> getAllowedActions(String actionNamespace) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+    
+  }
+
+  class NonAdministratorAuthorizationPolicy implements IAuthorizationPolicy {
+
+    public NonAdministratorAuthorizationPolicy() {
+      super();
+      // TODO Auto-generated constructor stub
+    }
+
+    @Override
+    public boolean isAllowed(String actionName) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    @Override
+    public List<String> getAllowedActions(String actionNamespace) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+    
+  }
   
-  @Override
-  public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-    super.setApplicationContext(applicationContext);
-    repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
+  class MockJcrBackedDatasourceMgmtService extends JcrBackedDatasourceMgmtService {
+    private FileSystemBackedUnifiedRepository repository;
+    public MockJcrBackedDatasourceMgmtService(IUnifiedRepository repository,
+        IDatabaseDialectService databaseDialectService) {
+      super(repository, databaseDialectService);
+      this.repository = (FileSystemBackedUnifiedRepository) repository;
+      // TODO Auto-generated constructor stub
+    }
+
+    @Override
+    protected Serializable getDatabaseParentFolderId() {
+      return repository.getRootDir().getAbsolutePath();
+    }
+
+    @Override
+    protected String getDatabaseParentFolderPath() {
+      return "";
+    }
+    
   }
 }
