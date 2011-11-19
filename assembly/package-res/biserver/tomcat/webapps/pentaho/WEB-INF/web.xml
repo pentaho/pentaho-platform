@@ -454,6 +454,11 @@
 	<!--   End BISERVER-3640 -->
 
 	<!-- ================================= merged servlets =================================== -->
+    <servlet>
+        <servlet-name>CacheExpirationService</servlet-name>
+        <servlet-class>org.pentaho.platform.web.servlet.CacheExpirationService</servlet-class>
+    </servlet>
+
 	<servlet>
 		<servlet-name>AdhocWebService</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.AdhocWebService</servlet-class>
@@ -871,7 +876,12 @@
 		<url-pattern>/AdhocWebService</url-pattern>
 	</servlet-mapping>
 
-	<servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CacheExpirationService</servlet-name>
+        <url-pattern>/CacheExpirationService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
 		<servlet-name>AnalysisViewService</servlet-name>
 		<url-pattern>/AnalysisViewService</url-pattern>
 	</servlet-mapping>

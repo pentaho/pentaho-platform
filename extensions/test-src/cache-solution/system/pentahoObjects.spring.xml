@@ -21,7 +21,8 @@ PentahoSystem which is initialized after Spring
   <bean id="IDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService" scope="prototype" />
   <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton" />
   
-    
+  <bean id="ICacheExpirationRegistry" class="org.pentaho.platform.plugin.services.cache.CacheExpirationRegistry" scope="singleton" />
+
     <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory, 
        not directly from the PentahoObjectFactory. -->
   <bean id="connection-SQL" class="org.pentaho.platform.plugin.services.connections.sql.SQLConnection" scope="prototype" />

@@ -189,5 +189,6 @@ PentahoSystem which is initialized after Spring
   <bean id="sqlGenerator" class="org.pentaho.metadata.query.impl.sql.SqlGenerator" scope="prototype" />
   <bean id="IThemeManager" class="org.pentaho.platform.web.html.themes.DefaultThemeManager" scope="singleton" />
 
+  <bean id="ICacheExpirationRegistry" class="org.pentaho.platform.plugin.services.cache.CacheExpirationRegistry" scope="singleton" />
 
 </beans>

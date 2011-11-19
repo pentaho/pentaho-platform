@@ -36,6 +36,7 @@ import org.dom4j.Element;
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
+import org.pentaho.platform.api.cache.ICacheExpirationRegistry;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISystemSettings;
@@ -135,6 +136,9 @@ public class CacheManager implements ICacheManager {
   private boolean cacheEnabled;
 
   private final Properties cacheProperties = new Properties();
+
+  private ICacheExpirationRegistry cacheExpirationRegistry;
+
   // ~ Constructors =========================================================
 
   /**
@@ -167,23 +171,26 @@ public class CacheManager implements ICacheManager {
         this.cacheEnabled = true;
       }
     }
+
     PentahoSystem.addLogoutListener(this);
   }
 
   protected void setupCacheProvider(Properties cacheProperties) {
     Object obj = PentahoSystem.createObject(cacheProviderClassName);
+    cacheExpirationRegistry = PentahoSystem.get(ICacheExpirationRegistry.class, null);
+
     if (null != obj) {
       if (obj instanceof CacheProvider) {
         this.cacheProvider = (CacheProvider) obj;
         cacheProvider.start(cacheProperties);
         regionCache = new HashMap<String, Cache>();
-        Cache cache = getCacheProvider().buildCache(SESSION, cacheProperties);
+        Cache cache = buildCache(SESSION, cacheProperties);
         if (cache == null) {
           CacheManager.logger.error(Messages.getInstance().getString("CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE")); //$NON-NLS-1$
         } else {
           regionCache.put(SESSION, cache);
         }
-        cache = getCacheProvider().buildCache(GLOBAL, cacheProperties);
+        cache = buildCache(GLOBAL, cacheProperties);
         if (cache == null) {
           CacheManager.logger.error(Messages.getInstance().getString("CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE")); //$NON-NLS-1$
         } else {
@@ -251,7 +258,7 @@ public class CacheManager implements ICacheManager {
     boolean returnValue = false;
     if (cacheEnabled) {
       if(!cacheEnabled(region)) {
-        Cache cache = getCacheProvider().buildCache(region, cacheProperties);
+        Cache cache = buildCache(region, cacheProperties);
         if (cache == null) {
           CacheManager.logger.error(Messages.getInstance().getString("CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE")); //$NON-NLS-1$
         } else {
@@ -271,7 +278,7 @@ public class CacheManager implements ICacheManager {
     boolean returnValue = false;
     if (cacheEnabled) {
       if(!cacheEnabled(region)) {
-        Cache cache = getCacheProvider().buildCache(region, null);
+        Cache cache = buildCache(region, null);
         if (cache == null) {
           CacheManager.logger.error(Messages.getInstance().getString("CacheManager.ERROR_0005_UNABLE_TO_BUILD_CACHE")); //$NON-NLS-1$
         } else {
@@ -292,7 +299,11 @@ public class CacheManager implements ICacheManager {
     if (cacheEnabled) {
       Cache cache = regionCache.get(region);
       if(cache != null) {
-        cache.clear();        
+        try {
+          cache.clear();
+        } catch (CacheException e) {
+          CacheManager.logger.error(Messages.getInstance().getString("CacheManager.ERROR_0006_CACHE_EXCEPTION", e.getLocalizedMessage())); //$NON-NLS-1$
+        }
       } else {
         CacheManager.logger.info(Messages.getInstance().getString("CacheManager.INFO_0001_CACHE_DOES_NOT_EXIST", region)); //$NON-NLS-1$
       }
@@ -480,4 +491,21 @@ public class CacheManager implements ICacheManager {
       throw new CacheException(Messages.getInstance().getErrorString("CacheManager.ERROR_0001_NOSESSION")); //$NON-NLS-1$
     }
   }
+
+  private LastModifiedCache buildCache(String key, Properties cacheProperties) {
+    if(getCacheProvider() != null) {
+      Cache cache = getCacheProvider().buildCache(key, cacheProperties);
+      LastModifiedCache lmCache = new LastModifiedCache(cache);
+      if(cacheExpirationRegistry != null) {
+        cacheExpirationRegistry.register(lmCache);
+      } else {
+        logger.warn(Messages.getInstance().getErrorString("CacheManager.WARN_0003_NO_CACHE_EXPIRATION_REGISTRY"));
+      }
+      return lmCache;
+    } else {
+      logger.error(Messages.getInstance().getErrorString("CacheManager.ERROR_0004_CACHE_PROVIDER_NOT_AVAILABLE"));
+      return null;
+    }
+  }
+
 }
