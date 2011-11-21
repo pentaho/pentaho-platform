@@ -341,6 +341,9 @@
     <dependency org="com.dumbster" name="dumbster" rev="1.6.0" conf="test->default"/>
 
     <dependency org="org.jmock" name="jmock-junit4" rev="2.5.1" conf="test->default"/>
+    <dependency org="org.hamcrest"          name="hamcrest-core"  rev="1.1"   conf="test->default"/>
+    <dependency org="org.hamcrest"          name="hamcrest-library"  rev="1.1"   conf="test->default"/>
+    <dependency org="org.mockito" name="mockito-all" rev="1.8.5" conf="test->default"/>
     <dependency org="pentaho" name="pentaho-platform-core-test" rev="${project.revision}" changing="true"
                 conf="test->default" transitive="false"/>
     <dependency org="pentaho" name="pentaho-platform-repository-test" rev="${project.revision}" changing="true"

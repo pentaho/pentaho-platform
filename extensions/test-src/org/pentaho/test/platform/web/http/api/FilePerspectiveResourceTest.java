@@ -1,6 +1,13 @@
 package org.pentaho.test.platform.web.http.api;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.isLikeFile;
 
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -19,14 +26,17 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IOutputHandler;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginProvider;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.solution.ContentGeneratorInfo;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
@@ -34,6 +44,7 @@ import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
 import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.plugin.services.pluginmgr.PlatformPlugin;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.tuckey.web.filters.urlrewrite.RequestProxy;
@@ -46,12 +57,8 @@ import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerF
 
 @SuppressWarnings("nls")
 public class FilePerspectiveResourceTest extends JerseyTest {
-  public static final String USERNAME_JOE = "joe";
-  public static final String TENANT_ID_ACME = "acme";
 
   private static MicroPlatform mp = new MicroPlatform("test-res/FileOutputResourceTest/");
-
-  private static MicroPlatform.RepositoryModule repo;
 
   private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
       "org.pentaho.platform.web.http.api.resources").contextPath("api").addFilter(PentahoRequestContextFilter.class,
@@ -69,23 +76,18 @@ public class FilePerspectiveResourceTest extends JerseyTest {
   public static void beforeClass() throws Exception {
     BasicConfigurator.configure();
     Logger.getLogger(RequestProxy.class).setLevel(Level.DEBUG);
-    repo = mp.getRepositoryModule();
-    repo.up();
   }
 
   @AfterClass
   public static void afterClass() {
-    repo.down();
   }
 
   @Before
   public void beforeTest() throws PlatformInitializationException {
-    repo.login(USERNAME_JOE, TENANT_ID_ACME);
   }
 
   @After
   public void afterTest() {
-    repo.logout();
   }
   
   protected void createTestFile(String path, String text) {
@@ -97,6 +99,16 @@ public class FilePerspectiveResourceTest extends JerseyTest {
 
   @Test
   public void testRenderThroughContentGenerator() throws PlatformInitializationException {
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    doReturn(new RepositoryFile.Builder("123", "public").folder(true).build()).when(repo).getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile f = new RepositoryFile.Builder("test.junit").build();
+    final String path = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "test.junit";
+    RepositoryFile fWithId = new RepositoryFile.Builder(f).id("456").path(path).build();
+    doReturn(fWithId).when(repo).getFile(path);
+    
+    
+    mp.defineInstance(IUnifiedRepository.class, repo);
+
     mp.define(IPluginProvider.class, JUnitContentGeneratorPluginProvider.class);
     PentahoSystem.get(IPluginManager.class).reload();
 
