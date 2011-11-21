@@ -1,77 +1,69 @@
 package org.pentaho.platform.plugin.service.metadata;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.isLikeFile;
+
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
+import org.junit.Test;
 import org.pentaho.metadata.model.Domain;
-import org.pentaho.metadata.model.LogicalModel;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.plugin.services.metadata.MetadataDomainRepository;
-import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
-public class MetadataDomainRepositoryTest extends TestCase {
+@SuppressWarnings("nls")
+public class MetadataDomainRepositoryTest {
 
-  private MicroPlatform microPlatform;
-  
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    File tmpDir = createTempDirectory();
-    File srcDir = new File("test-res/MetadataDomainRepositoryTest");
-    FileUtils.copyDirectory(srcDir, tmpDir);
-    microPlatform = new MicroPlatform("tests/integration-tests/resource/");
-    microPlatform.define(IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.GLOBAL);
-    FileSystemBackedUnifiedRepository unifiedRepository = (FileSystemBackedUnifiedRepository)PentahoSystem.get(IUnifiedRepository.class, null);
-    unifiedRepository.setRootDir(tmpDir);
-  }
+  @Test
+  public void testMetadataDomainRepository() throws Exception {
+    MicroPlatform microPlatform = new MicroPlatform();
 
-  public static File createTempDirectory() throws IOException {
-    final File temp;
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    final String metadataFolderPath = "/public/pentaho-solutions/metadata";
+    final String metadataFolderId = "abc";
+    doReturn(new RepositoryFile.Builder(metadataFolderId, "metadata").path(metadataFolderPath).folder(true).build())
+        .when(repo).getFile(metadataFolderPath);
+    final String path = metadataFolderPath + RepositoryFile.SEPARATOR + "steel-wheels.xmi";
+    final RepositoryFile steelWheelsXmiFile = new RepositoryFile.Builder("456", "steel-wheels.xmi").path(path).build();
+    doReturn(steelWheelsXmiFile).when(repo).getFile(path);
+    doReturn(
+        new SimpleRepositoryFileData(FileUtils.openInputStream(new File(
+            "test-res/MetadataDomainRepositoryTest/public/pentaho-solutions/metadata/steel-wheels.xmi")), "UTF-8",
+            "text/xml")).when(repo).getDataForRead("456", SimpleRepositoryFileData.class);
 
-    temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
+    doReturn(Arrays.asList(steelWheelsXmiFile)).when(repo).getChildren(metadataFolderId, "*.xmi");
 
-    if (!(temp.delete())) {
-      throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
-    }
+    microPlatform.defineInstance(IUnifiedRepository.class, repo);
 
-    if (!(temp.mkdir())) {
-      throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
-    }
-
-    return (temp);
-  }
-
-  @Override
-  protected void tearDown() throws Exception {
-  }
-  
-  public void testMetadataDomainRepository() throws Exception
-  {
     MetadataDomainRepository metaDomainRepository = new MetadataDomainRepository();
     Set<String> domainIds = metaDomainRepository.getDomainIds();
     assertTrue(domainIds.size() > 0);
-    
+
     Domain domain = metaDomainRepository.getDomain("steel-wheels.xmi");
     assertNotNull(domain);
     assertNotNull(domain.findLogicalModel("BV_ORDERS"));
-    
+
     metaDomainRepository.removeModel("steel-wheels.xmi", "BV_ORDERS");
     domain = metaDomainRepository.getDomain("steel-wheels.xmi");
     assertNotNull(domain);
     assertNull(domain.findLogicalModel("BV_ORDERS"));
-    
-    metaDomainRepository.reloadDomains();
-    domain = metaDomainRepository.getDomain("steel-wheels.xmi");
-    assertNotNull(domain);
-    assertNull(domain.findLogicalModel("BV_ORDERS"));
-  }
 
+    // verify
+    verify(repo).updateFile(argThat(isLikeFile(steelWheelsXmiFile)), any(IRepositoryFileData.class), anyString());
+
+  }
 }
