@@ -84,7 +84,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
     }
     getWidget().setHeight("100%"); //$NON-NLS-1$
     getWidget().setWidth("100%"); //$NON-NLS-1$
-    setPixelSize(390, 420);
+    setPixelSize(490, 420);
     showTab(defaultTab);
   }
 

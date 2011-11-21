@@ -25,6 +25,7 @@ import java.util.Set;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.XMLToRepositoryFileTreeConverter;
+import org.pentaho.gwt.widgets.client.table.BaseTableImages;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.mantle.client.images.MantleImages;
@@ -37,6 +38,7 @@ import com.google.gwt.gen2.table.client.FixedWidthFlexTable;
 import com.google.gwt.gen2.table.client.FixedWidthGrid;
 import com.google.gwt.gen2.table.client.ScrollTable;
 import com.google.gwt.gen2.table.client.SortableGrid;
+import com.google.gwt.gen2.table.client.AbstractScrollTable.ColumnResizePolicy;
 import com.google.gwt.gen2.table.client.SortableGrid.ColumnSorter;
 import com.google.gwt.gen2.table.client.SortableGrid.ColumnSorterCallback;
 import com.google.gwt.gen2.table.client.TableModelHelper.ColumnSortList;
@@ -81,7 +83,8 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     dataTable.setWidth("100%"); //$NON-NLS-1$
     dataTable.setColumnSorter(new ContentSorter());
     dataTable.addRowSelectionHandler(this);
-    ScrollTable scrollTable = new ScrollTable(dataTable, headerTable);
+    GeneratedContentTableImages images = GWT.create(GeneratedContentTableImages.class);
+    ScrollTable scrollTable = new ScrollTable(dataTable, headerTable, images);
     scrollTable.setSize("100%", "400px");  //$NON-NLS-1$//$NON-NLS-2$
     this.add(scrollTable);
     
