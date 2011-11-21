@@ -1,8 +1,9 @@
 package org.pentaho.test.platform.web.http.api;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.*;
 
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -94,13 +95,14 @@ public class FilePerspectiveResourceTest extends JerseyTest {
   @Test
   public void testRenderThroughContentGenerator() throws PlatformInitializationException {
     IUnifiedRepository repo = mock(IUnifiedRepository.class);
-    doReturn(new RepositoryFile.Builder("123", "public").folder(true).build()).when(repo).getFile(ClientRepositoryPaths.getPublicFolderPath());
-    RepositoryFile f = new RepositoryFile.Builder("test.junit").build();
-    final String path = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "test.junit";
+    final String publicFolderId = "123";
+    final String fileName = "test.junit";
+    doReturn(new RepositoryFile.Builder(publicFolderId, "public").folder(true).build()).when(repo).getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile f = new RepositoryFile.Builder(fileName).build();
+    final String path = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + fileName;
     RepositoryFile fWithId = new RepositoryFile.Builder(f).id("456").path(path).build();
-    doReturn(fWithId).when(repo).getFile(path);
-    
-    
+    // return null when the file does not exist and then non-null after file creation
+    when(repo.getFile(path)).thenReturn(null).thenReturn(fWithId);
     mp.defineInstance(IUnifiedRepository.class, repo);
 
     mp.define(IPluginProvider.class, JUnitContentGeneratorPluginProvider.class);
@@ -115,6 +117,9 @@ public class FilePerspectiveResourceTest extends JerseyTest {
     //get the output of the .junit file (should invoke the content generator)
     String textResponse = webResource.path("repos/:public:test.junit/myperspective").get(String.class);
     assertEquals("Content generator failed to provide correct output", "hello viewer content generator", textResponse);
+    
+    verify(repo).createFile(eq(publicFolderId), argThat(isLikeFile(new RepositoryFile.Builder(fileName).build())), 
+        argThat(hasData(text.getBytes(), "application/octet-stream")), anyString());
   }
 
   public static class JUnitContentGeneratorPluginProvider implements IPluginProvider {
