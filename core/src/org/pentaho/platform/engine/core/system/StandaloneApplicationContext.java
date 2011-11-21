@@ -86,7 +86,10 @@ public class StandaloneApplicationContext implements IApplicationContext {
     if ((session != null) && trackFile) {
       fileDeleter = (ITempFileDeleter)session.getAttribute(ITempFileDeleter.DELETER_SESSION_VARIABLE);
     }
-    final String newPrefix = new StringBuilder().append(prefix).append(session.getId().substring(0, 10)).append('-').toString();
+    int sessionIdLength = session.getId().length();
+    final String newPrefix = new StringBuilder().append(prefix)
+        .append(session.getId().substring(0, sessionIdLength > 10 ? 10 : sessionIdLength))
+        .append('-').toString();
     if (parentDir != null) {
       parentDir.mkdirs();
     }
