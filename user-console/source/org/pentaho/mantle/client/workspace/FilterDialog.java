@@ -26,9 +26,12 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox;
@@ -44,7 +47,7 @@ public class FilterDialog extends PromptDialogBox {
   private DateTimePicker beforeDateBox = new DateTimePicker(Layout.HORIZONTAL);
 
   private ListBox userListBox = new ListBox(false);
-  private ListBox scheduleStateList = new ListBox(false);
+  private ListBox scheduleStateListBox = new ListBox(false);
   private ListBox scheduleTypeListBox = new ListBox(false);
 
   public FilterDialog() {
@@ -58,6 +61,9 @@ public class FilterDialog extends PromptDialogBox {
     setCallback(callback);
   }
 
+  /**
+   * @param jobs
+   */
   public void initUI(JsArray<JsJob> jobs) {
     if (jobs != null) {
       for (int i = 0; i < jobs.length(); i++) {
@@ -65,21 +71,32 @@ public class FilterDialog extends PromptDialogBox {
       }
     }
 
-    resourceSuggestBox.setWidth("200px");
-    CaptionPanel resourceFilterPanel = new CaptionPanel(Messages.getString("scheduledResource"));
-    resourceFilterPanel.add(resourceSuggestBox);
+    resourceSuggestBox.setWidth("160px");
 
     // next execution filter
     CaptionPanel executionFilterCaptionPanel = new CaptionPanel(Messages.getString("executionTime"));
     FlexTable executionFilterPanel = new FlexTable();
-    executionFilterPanel.setWidget(0, 0, afterCheckBox);
-    executionFilterPanel.setWidget(0, 1, afterDateBox);
-    executionFilterPanel.setWidget(1, 0, beforeCheckBox);
-    executionFilterPanel.setWidget(1, 1, beforeDateBox);
+    executionFilterPanel.setWidget(0, 0, beforeCheckBox);
+    executionFilterPanel.setWidget(0, 1, beforeDateBox);
+    executionFilterPanel.setWidget(1, 0, afterCheckBox);
+    executionFilterPanel.setWidget(1, 1, afterDateBox);
     executionFilterCaptionPanel.add(executionFilterPanel);
 
+    afterCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      public void onValueChange(ValueChangeEvent<Boolean> event) {
+        afterDateBox.setEnabled(event.getValue());
+      }
+    });
+
+    beforeCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      public void onValueChange(ValueChangeEvent<Boolean> event) {
+        beforeDateBox.setEnabled(event.getValue());
+      }
+    });
+    beforeDateBox.setEnabled(beforeCheckBox.getValue());
+    afterDateBox.setEnabled(afterCheckBox.getValue());
+
     // user filter
-    CaptionPanel userFilterCaptionPanel = new CaptionPanel(Messages.getString("_user"));
     int selectedIndex = userListBox.getSelectedIndex();
     userListBox.clear();
     userListBox.addItem("ALL");
@@ -93,23 +110,20 @@ public class FilterDialog extends PromptDialogBox {
       userListBox.addItem(user);
     }
     userListBox.setSelectedIndex(selectedIndex);
-    userFilterCaptionPanel.add(userListBox);
 
     // state filter
-    scheduleStateList.setVisibleItemCount(1);
-    selectedIndex = scheduleStateList.getSelectedIndex();
-    scheduleStateList.clear();
+    scheduleStateListBox.setVisibleItemCount(1);
+    selectedIndex = scheduleStateListBox.getSelectedIndex();
+    scheduleStateListBox.clear();
     // NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
-    scheduleStateList.addItem("ALL");
-    scheduleStateList.addItem("NORMAL");
-    scheduleStateList.addItem("PAUSED");
-    scheduleStateList.addItem("COMPLETE");
-    scheduleStateList.addItem("ERROR");
-    scheduleStateList.addItem("BLOCKED");
-    scheduleStateList.addItem("UNKNOWN");
-    scheduleStateList.setSelectedIndex(selectedIndex);
-    CaptionPanel scheduleStatePanel = new CaptionPanel(Messages.getString("scheduleState"));
-    scheduleStatePanel.add(scheduleStateList);
+    scheduleStateListBox.addItem("ALL");
+    scheduleStateListBox.addItem("NORMAL");
+    scheduleStateListBox.addItem("PAUSED");
+    scheduleStateListBox.addItem("COMPLETE");
+    scheduleStateListBox.addItem("ERROR");
+    scheduleStateListBox.addItem("BLOCKED");
+    scheduleStateListBox.addItem("UNKNOWN");
+    scheduleStateListBox.setSelectedIndex(selectedIndex);
 
     // state filter
     scheduleTypeListBox.setVisibleItemCount(1);
@@ -122,16 +136,22 @@ public class FilterDialog extends PromptDialogBox {
     scheduleTypeListBox.addItem("MONTHLY");
     scheduleTypeListBox.addItem("YEARLY");
     scheduleTypeListBox.setSelectedIndex(selectedIndex);
-    CaptionPanel scheduleTypePanel = new CaptionPanel(Messages.getString("scheduleType"));
-    scheduleTypePanel.add(scheduleTypeListBox);
 
     FlexTable filterPanel = new FlexTable();
-    filterPanel.setWidget(0, 0, resourceFilterPanel);
-    filterPanel.setWidget(0, 1, executionFilterCaptionPanel);
-    filterPanel.getFlexCellFormatter().setRowSpan(0, 1, 2);
-    filterPanel.setWidget(1, 0, scheduleStatePanel);
-    filterPanel.setWidget(2, 0, userFilterCaptionPanel);
-    filterPanel.setWidget(3, 0, scheduleTypePanel);
+    filterPanel.setWidget(0, 0, new Label(Messages.getString("scheduledResource")));
+    filterPanel.setWidget(0, 1, new Label(Messages.getString("_user")));
+
+    filterPanel.setWidget(1, 0, resourceSuggestBox);
+    filterPanel.setWidget(1, 1, userListBox);
+
+    filterPanel.setWidget(2, 0, new Label(Messages.getString("scheduleState")));
+    filterPanel.setWidget(2, 1, new Label(Messages.getString("scheduleType")));
+
+    filterPanel.setWidget(3, 0, scheduleStateListBox);
+    filterPanel.setWidget(3, 1, scheduleTypeListBox);
+
+    filterPanel.setWidget(4, 0, executionFilterCaptionPanel);
+    filterPanel.getFlexCellFormatter().setColSpan(4, 0, 2);
 
     setContent(filterPanel);
   }
@@ -145,7 +165,7 @@ public class FilterDialog extends PromptDialogBox {
   }
 
   public String getStateFilter() {
-    return scheduleStateList.getItemText(scheduleStateList.getSelectedIndex());
+    return scheduleStateListBox.getItemText(scheduleStateListBox.getSelectedIndex());
   }
 
   public Date getBeforeDate() {
