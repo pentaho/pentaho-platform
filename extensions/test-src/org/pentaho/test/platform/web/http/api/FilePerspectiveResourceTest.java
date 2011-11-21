@@ -1,13 +1,8 @@
 package org.pentaho.test.platform.web.http.api;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.isLikeFile;
 
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -34,7 +29,6 @@ import org.pentaho.platform.api.engine.IPluginProvider;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.solution.ContentGeneratorInfo;
