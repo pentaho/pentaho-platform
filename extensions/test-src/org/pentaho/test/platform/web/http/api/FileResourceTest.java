@@ -5,11 +5,29 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.isLikeAcl;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.isLikeFile;
 import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
 import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponseIsZip;
 
+import java.io.ByteArrayInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
@@ -20,28 +38,33 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
 import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
 
 @SuppressWarnings("nls")
 public class FileResourceTest extends JerseyTest {
-  public static final String USERNAME_JOE = "joe";
-  public static final String TENANT_ID_ACME = "acme";
 
   private static MicroPlatform mp = new MicroPlatform();
-
-  private static MicroPlatform.RepositoryModule repo;
 
   private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder("org.pentaho.platform.web.http.api.resources").contextPath("api").build();
 
@@ -53,23 +76,20 @@ public class FileResourceTest extends JerseyTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    repo = mp.getRepositoryModule();
-    repo.up();
+    PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
   }
 
   @AfterClass
   public static void afterClass() {
-    repo.down();
+    PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL);
   }
 
   @Before
   public void beforeTest() {
-    repo.login(USERNAME_JOE, TENANT_ID_ACME);
   }
 
   @After
   public void afterTest() {
-    repo.logout();
   }
 
   protected void createTestFile(String pathId, String text) {
@@ -93,79 +113,177 @@ public class FileResourceTest extends JerseyTest {
 
   @Test
   public void testWriteBinaryFile() throws InterruptedException {
+    final String str = "some binary text";
+    
+    // stub IUnifiedRepository start
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    final String publicFolderId = "123";
+    final String fileName = "file.bin";
+    // stub getting /public folder
+    doReturn(new RepositoryFile.Builder(publicFolderId, "public").folder(true).build()).when(repo)
+      .getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile f = new RepositoryFile.Builder(fileName).build();
+    final String path = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + fileName;
+    final String fileId = "456";
+    RepositoryFile fWithId = new RepositoryFile.Builder(f).id(fileId).path(path).build();
+    // stub getting file; first return null (as if file does not exist), then return non-null (as if file exists)
+    when(repo.getFile(path)).thenReturn(null).thenReturn(fWithId);
+    // stub getting file data
+    SimpleRepositoryFileData data1 = new SimpleRepositoryFileData(new ByteArrayInputStream(str.getBytes()), null, 
+        APPLICATION_OCTET_STREAM);
+    doReturn(data1).when(repo).getDataForRead(fileId, SimpleRepositoryFileData.class);
+    // stub IUnifiedRepository end
+
+    // set object in PentahoSystem
+    mp.defineInstance(IUnifiedRepository.class, repo);
+    
     WebResource webResource = resource();
-    final byte[] blob = "some binary text".getBytes();
-    createTestFileBinary("public:file.bin", blob);
+    final byte[] blob = str.getBytes();
+    createTestFileBinary("public:" + fileName, blob);
 
     // the file might not actually be ready.. wait a second
-    Thread.sleep(10000);
+    //Thread.sleep(10000);
 
     ClientResponse response = webResource.path("repo/files/public:file.bin").accept(APPLICATION_OCTET_STREAM).get(ClientResponse.class);
     assertResponse(response, Status.OK, APPLICATION_OCTET_STREAM);
 
     byte[] data = response.getEntity(byte[].class);
-    assertEquals("contents of file incorrect/missing", "some binary text", new String(data));
+    assertEquals("contents of file incorrect/missing", str, new String(data));
+    
+    // verify IUnifiedRepository start
+    verify(repo).createFile(eq(publicFolderId), argThat(isLikeFile(new RepositoryFile.Builder(fileName).build())), argThat(hasData(blob, APPLICATION_OCTET_STREAM)), anyString());
+    // verify IUnifiedRepository end
   }
 
   @Test
-  public void testWriteTextFile() {
-    WebResource webResource = resource();
+  public void testWriteTextFile() throws Exception{
     final String text = "sometext";
-    createTestFile("public:file.txt", text);
+    
+    // stub IUnifiedRepository start
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    final String publicFolderId = "123";
+    final String fileName = "file.txt";
+    // stub getting /public folder
+    doReturn(new RepositoryFile.Builder(publicFolderId, "public").folder(true).build()).when(repo)
+      .getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile f = new RepositoryFile.Builder(fileName).build();
+    final String path = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + fileName;
+    final String fileId = "456";
+    RepositoryFile fWithId = new RepositoryFile.Builder(f).id(fileId).path(path).build();
+    // stub getting file; first return null (as if file does not exist), then return non-null (as if file exists)
+    when(repo.getFile(path)).thenReturn(null).thenReturn(fWithId);
+    // stub getting file data
+    SimpleRepositoryFileData data1 = new SimpleRepositoryFileData(new ByteArrayInputStream(text.getBytes("UTF-8")), "UTF-8", 
+        TEXT_PLAIN);
+    doReturn(data1).when(repo).getDataForRead(fileId, SimpleRepositoryFileData.class);
+    // stub IUnifiedRepository end
 
-    ClientResponse response = webResource.path("repo/files/public:file.txt").accept(TEXT_PLAIN).get(ClientResponse.class);
+    // set object in PentahoSystem
+    mp.defineInstance(IUnifiedRepository.class, repo);
+    
+    WebResource webResource = resource();
+    createTestFile("public:" + fileName, text);
+
+    ClientResponse response = webResource.path("repo/files/public:" + fileName).accept(TEXT_PLAIN).get(ClientResponse.class);
     assertResponse(response, Status.OK, TEXT_PLAIN);
     assertEquals("contents of file incorrect/missing", text, response.getEntity(String.class));
+    
+    // verify IUnifiedRepository start
+    verify(repo).createFile(eq(publicFolderId), argThat(isLikeFile(new RepositoryFile.Builder(fileName).build())), argThat(hasData(text.getBytes(), TEXT_PLAIN)), anyString());
+    // verify IUnifiedRepository end
   }
 
   @Test
-  public void testGetFileText() {
-    createTestFile("public:file.txt", "abcdefg");
+  public void testGetFileText() throws Exception {
+    final String text = "abcdefg";
+    
+    // stub IUnifiedRepository start
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    final String publicFolderId = "123";
+    final String fileName = "file.txt";
+    // stub getting /public folder
+    doReturn(new RepositoryFile.Builder(publicFolderId, "public").folder(true).build()).when(repo)
+      .getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile f = new RepositoryFile.Builder(fileName).build();
+    final String path = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + fileName;
+    final String fileId = "456";
+    RepositoryFile fWithId = new RepositoryFile.Builder(f).id(fileId).path(path).build();
+    // stub getting file; first return null (as if file does not exist), then return non-null (as if file exists)
+    when(repo.getFile(path)).thenReturn(null).thenReturn(fWithId);
+    // stub getting file data (3 calls to getDataForRead); can't reuse same data as stream needs to be reset
+    when(repo.getDataForRead(fileId, SimpleRepositoryFileData.class)).thenReturn(new SimpleRepositoryFileData(new ByteArrayInputStream(text.getBytes("UTF-8")), "UTF-8", 
+        TEXT_PLAIN)).thenReturn(new SimpleRepositoryFileData(new ByteArrayInputStream(text.getBytes("UTF-8")), "UTF-8", 
+        TEXT_PLAIN)).thenReturn(new SimpleRepositoryFileData(new ByteArrayInputStream(text.getBytes("UTF-8")), "UTF-8", 
+            TEXT_PLAIN));
+    // stub IUnifiedRepository end
+
+    // set object in PentahoSystem
+    mp.defineInstance(IUnifiedRepository.class, repo);
+    
+    createTestFile("public:" + fileName, "abcdefg");
     WebResource webResource = resource();
 
-    ClientResponse r1 = webResource.path("repo/files/public:file.txt").accept(TEXT_PLAIN).get(ClientResponse.class);
+    ClientResponse r1 = webResource.path("repo/files/public:" + fileName).accept(TEXT_PLAIN).get(ClientResponse.class);
     assertResponse(r1, Status.OK, MediaType.TEXT_PLAIN);
-    assertEquals("abcdefg", r1.getEntity(String.class));
-
+    assertEquals(text, r1.getEntity(String.class));
+    
     // check again but with no Accept header
-    ClientResponse r2 = webResource.path("repo/files/public:file.txt").get(ClientResponse.class);
+    ClientResponse r2 = webResource.path("repo/files/public:" + fileName).get(ClientResponse.class);
     assertResponse(r2, Status.OK, MediaType.TEXT_PLAIN);
-    assertEquals("abcdefg", r2.getEntity(String.class));
+    assertEquals(text, r2.getEntity(String.class));
 
     // check again but with */*
-    ClientResponse r3 = webResource.path("repo/files/public:file.txt").accept(TEXT_PLAIN).accept(MediaType.WILDCARD).get(ClientResponse.class);
+    ClientResponse r3 = webResource.path("repo/files/public:" + fileName).accept(TEXT_PLAIN).accept(MediaType.WILDCARD).get(ClientResponse.class);
     assertResponse(r3, Status.OK, MediaType.TEXT_PLAIN);
-    assertEquals("abcdefg", r3.getEntity(String.class));
+    assertEquals(text, r3.getEntity(String.class));
   }
 
   @Test
-  public void testCopyFiles() {
-    WebResource webResource = resource();
-    final String srcFolderPath = "public:folder1:folder2";
+  public void testCopyFiles() throws Exception {
+    final String srcFolderServerPath = "/public/folder1/folder2";
     final String destFolderPath = "public:folder3:folder4";
-    createTestFolder(srcFolderPath);
-    createTestFolder(destFolderPath);
-    String[] srcFileIdsArray = new String[4];
-    for (int i = 0; i < 4; i++) {
-      String filePath = srcFolderPath + ":file" + i + ".txt";
-      createTestFile(filePath, "abcdefghijklmnopqrstuvwxyz");
-      srcFileIdsArray[i] = webResource.path("repo/files/" + filePath + "/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class).getId();
-    }
-    String srcFiles = "";
-    for (int i = 0; i < srcFileIdsArray.length; i++) {
-      srcFiles += srcFileIdsArray[i] + ",";
-    }
-    srcFiles = srcFiles.substring(0, srcFiles.length() - 1);
+    final String destFolderServerPath = "/public/folder3/folder4";
+    final String fileId = "456";
+    final String fileName = "file.txt";
+    final String destFolderId = "789";
+    
+    // stub IUnifiedRepository start
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    doReturn(new RepositoryFile.Builder(destFolderId, "folder4").folder(true).build()).when(repo).getFile(destFolderServerPath);
+    final String srcFilePath = srcFolderServerPath + RepositoryFile.SEPARATOR + fileName;
+    final RepositoryFile srcFile = new RepositoryFile.Builder(fileId, fileName).path(srcFilePath).build();
+    doReturn(srcFile).when(repo).getFileById(fileId);
+    doReturn(new SimpleRepositoryFileData(new ByteArrayInputStream("hello".getBytes()), null, 
+        APPLICATION_OCTET_STREAM)).when(repo).getDataForRead(fileId, SimpleRepositoryFileData.class);
+    doReturn(new RepositoryFileAcl.Builder("joe").build()).when(repo).getAcl(fileId);
+    doReturn(null).when(repo).getFile(destFolderServerPath + RepositoryFile.SEPARATOR + fileName);
+    // stub IUnifiedRepository end
+    
+    // set object in PentahoSystem
+    mp.defineInstance(IUnifiedRepository.class, repo);
 
-    ClientResponse r = webResource.path("repo/files/" + destFolderPath + "/children").accept(TEXT_PLAIN).put(ClientResponse.class, srcFiles);
+    
+    
+    WebResource webResource = resource();
+    
+    ClientResponse r = webResource.path("repo/files/" + destFolderPath + "/children").accept(TEXT_PLAIN).put(ClientResponse.class, fileId);
     assertResponse(r, Status.OK);
 
-    RepositoryFileTreeDto tree = webResource.path("repo/files/" + destFolderPath + "/children").accept(APPLICATION_XML).get(RepositoryFileTreeDto.class);
-    assertEquals(tree.getChildren().size(), 4);
+    // verify IUnifiedRepository start
+    verify(repo).createFile(eq(destFolderId), argThat(isLikeFile(new RepositoryFile.Builder(fileName).build())), any(IRepositoryFileData.class), any(RepositoryFileAcl.class), anyString());
+    // verify IUnifiedRepository end
   }
 
   @Test
   public void testGetWhenFileDNE() {
+    // stub IUnifiedRepository start
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    doReturn(null).when(repo).getFile("/public/thisfiledoesnotexist.txt");
+    // stub IUnifiedRepository end
+    
+    // set object in PentahoSystem
+    mp.defineInstance(IUnifiedRepository.class, repo);
+    
     WebResource webResource = resource();
 
     ClientResponse r = webResource.path("repo/files/public:thisfiledoesnotexist.txt").accept(TEXT_PLAIN).get(ClientResponse.class);
@@ -174,7 +292,20 @@ public class FileResourceTest extends JerseyTest {
 
   @Test
   public void testBrowserDownload() {
-    createTestFile("public:file.txt", "abcdefg");
+    final String text = "abcdefg";
+    // stub IUnifiedRepository start
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    final String fileId = "456";
+    final String fileName = "file.txt";
+    final String path = "/public/" + fileName;
+    doReturn(new RepositoryFile.Builder(fileId, fileName).path(path).build()).when(repo).getFile(path);
+    when(repo.getDataForRead(fileId, SimpleRepositoryFileData.class)).thenReturn(new SimpleRepositoryFileData(
+        new ByteArrayInputStream(text.getBytes()), null, APPLICATION_OCTET_STREAM)).thenReturn(
+            new SimpleRepositoryFileData(new ByteArrayInputStream(text.getBytes()), null, APPLICATION_OCTET_STREAM));
+    // stub IUnifiedRepository end
+    
+    // set object in PentahoSystem
+    mp.defineInstance(IUnifiedRepository.class, repo);
 
     // test download of file
     WebResource webResource = resource();
@@ -190,7 +321,15 @@ public class FileResourceTest extends JerseyTest {
 
   @Test
   public void testGetDirChildren() {
-    createTestFile("public:file.txt", "abcdefg");
+    // stub IUnifiedRepository start
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    RepositoryFileTree tree = new RepositoryFileTree(new RepositoryFile.Builder("123", "public").build(), 
+        Arrays.asList(new RepositoryFileTree(new RepositoryFile.Builder("123", "public").build(), new ArrayList<RepositoryFileTree>(0))));
+    doReturn(tree).when(repo).getTree(eq(ClientRepositoryPaths.getPublicFolderPath()), anyInt(), anyString(), anyBoolean());
+    // stub IUnifiedRepository end
+    
+    // set object in PentahoSystem
+    mp.defineInstance(IUnifiedRepository.class, repo);
 
     WebResource webResource = resource();
     ClientResponse response = webResource.path("repo/files/public/children").accept(APPLICATION_XML).get(ClientResponse.class);
@@ -204,101 +343,103 @@ public class FileResourceTest extends JerseyTest {
 
   @Test
   public void testFileAcls() throws InterruptedException {
+    // stub IUnifiedRepository start
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    final String fileName = "aclFile.txt";
+    doReturn(new RepositoryFile.Builder("abc", fileName).build()).when(repo).getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + fileName);
+    doReturn(new RepositoryFileAcl.Builder("suzy").entriesInheriting(false).ace("suzy", RepositoryFileSid.Type.USER, RepositoryFilePermission.READ, RepositoryFilePermission.WRITE).build()).when(repo).getAcl("abc");
+    RepositoryFileAcl acl = new RepositoryFileAcl.Builder("suzy").entriesInheriting(false).ace("suzy", 
+        RepositoryFileSid.Type.USER, RepositoryFilePermission.READ_ACL).build();
+    doReturn(acl).when(repo).updateAcl(argThat(isLikeAcl(acl, true)));
+    // stub IUnifiedRepository end
+    
+    // set object in PentahoSystem
+    mp.defineInstance(IUnifiedRepository.class, repo);
+
     WebResource webResource = resource();
-    final String text = "sometext";
-    createTestFile("public:aclFile.txt", text);
-
     RepositoryFileAclDto fileAcls = webResource.path("repo/files/public:aclFile.txt/acl").accept(APPLICATION_XML).get(RepositoryFileAclDto.class);
-    fileAcls.setEntriesInheriting(false);
-
-    List<RepositoryFileAclAceDto> aces = new ArrayList<RepositoryFileAclAceDto>();
-    RepositoryFileAclAceDto ace = new RepositoryFileAclAceDto();
+    List<RepositoryFileAclAceDto> aces = fileAcls.getAces();
+    assertEquals(1, aces.size());
+    RepositoryFileAclAceDto ace = aces.get(0);
+    assertEquals("suzy", ace.getRecipient());
+    List<Integer> permissions = ace.getPermissions();
+    assertEquals(2, permissions.size());
+    Assert.assertTrue(permissions.contains(new Integer(0)) && permissions.contains(new Integer(1)));
+    
+    aces = new ArrayList<RepositoryFileAclAceDto>();
+    ace = new RepositoryFileAclAceDto();
     ace.setRecipient("suzy");
     ace.setRecipientType(0);
-    List<Integer> permissions = new ArrayList<Integer>();
-    permissions.add(0);
-    permissions.add(1);
+    permissions = new ArrayList<Integer>();
+    permissions.add(2);
     ace.setPermissions(permissions);
     aces.add(ace);
     fileAcls.setAces(aces);
 
     ClientResponse putResponse2 = webResource.path("repo/files/public:aclFile.txt/acl").type(APPLICATION_XML).put(ClientResponse.class, fileAcls);
     assertResponse(putResponse2, Status.OK);
-
-    fileAcls = null;
-    fileAcls = webResource.path("repo/files/public:aclFile.txt/acl").accept(APPLICATION_XML).get(RepositoryFileAclDto.class);
-    aces = fileAcls.getAces();
-    assertEquals(1, aces.size());
-    ace = aces.get(0);
-    assertEquals("suzy", ace.getRecipient());
-    permissions = ace.getPermissions();
-    assertEquals(2, permissions.size());
-    Assert.assertTrue(permissions.contains(new Integer(0)) && permissions.contains(new Integer(1)));
+    
   }
 
   @Test
   public void testDeleteFiles() {
-    createTestFile("public:file1.txt", "abcdefg");
-    createTestFile("public:file2.txt", "hijklmn");
+    String testFile1Id = "abc";
+    String testFile2Id = "def";
 
-    WebResource webResource = resource();
-    RepositoryFileDto testFile1 = webResource.path("repo/files/public:file1.txt/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class);
-    RepositoryFileDto testFile2 = webResource.path("repo/files/public:file2.txt/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class);
-
-    assertTrue(testFile1 != null);
-    assertTrue(testFile2 != null);
-
-    String testFile1Id = testFile1.getId();
-    String testFile2Id = testFile2.getId();
+    // stub IUnifiedRepository start
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    doReturn(Arrays.asList(new RepositoryFile.Builder(testFile1Id, "file1.txt").build(), new RepositoryFile.Builder(testFile2Id, "file2.txt").build())).when(repo).getDeletedFiles();
+    // stub IUnifiedRepository end
     
-    webResource.path("repo/files/delete").entity(testFile1Id + "," + testFile2Id).put();
-    testFile1 = null;
-    testFile2 = null;
-    try {
-      testFile1 = webResource.path("repo/files/public:file1.txt/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class);
-      testFile2 = webResource.path("repo/files/public:file2.txt/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class);
-    } catch (UniformInterfaceException UIE) {
-      assertEquals(UIE.getResponse().getStatus(), 204);
-    }
+    // set object in PentahoSystem
+    mp.defineInstance(IUnifiedRepository.class, repo);
 
-    assertTrue(testFile1 == null);
-    assertTrue(testFile2 == null);
+    
+    WebResource webResource = resource();
+    webResource.path("repo/files/delete").entity(testFile1Id + "," + testFile2Id).put();
 
     RepositoryFileDto[] deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
     assertEquals(2, deletedFiles.length);
     
     webResource.path("repo/files/deletepermanent").entity(testFile1Id).put();
-    
-    deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
-    assertEquals(1, deletedFiles.length);
-    
-    webResource.path("repo/files/restore").entity(testFile2Id).put();
 
-    deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
-    assertEquals(0, deletedFiles.length);
+    webResource.path("repo/files/restore").entity(testFile2Id).put();
     
-    testFile2 = null;
-    testFile2 = webResource.path("repo/files/public:file2.txt/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class);
-    assertTrue(testFile2 != null);
+    // verify IUnifiedRepository start
+    verify(repo).deleteFile(eq(testFile1Id), anyString());
+    verify(repo).deleteFile(eq(testFile1Id), eq(true), anyString());
+    verify(repo).undeleteFile(eq(testFile2Id), anyString());
+    // verify IUnifiedRepository end
   }
 
   @Test
   public void testFileCreator() {
-    createTestFile("public:file1.txt", "abcdefg");
-    createTestFile("public:file2.txt", "hijklmn");
-
+    // stub IUnifiedRepository start
+    IUnifiedRepository repo = mock(IUnifiedRepository.class);
+    doReturn(new RepositoryFile.Builder("456", "file1.txt").build()).when(repo).getFile("/public/file1.txt");
+    doReturn(new RepositoryFile.Builder("789", "file2.txt").build()).when(repo).getFile("/public/file2.txt");
+    doReturn(new HashMap<String, Serializable>()).when(repo).getFileMetadata("456");
+    // stub IUnifiedRepository end
+    
+    // set object in PentahoSystem
+    mp.defineInstance(IUnifiedRepository.class, repo);
+    
+    
     WebResource webResource = resource();
-    RepositoryFileDto creatorFile = webResource.path("repo/files/public:file2.txt/properties").accept(APPLICATION_XML).get(RepositoryFileDto.class);
-
-    assertTrue(creatorFile != null);
-
-    webResource.path("repo/files/public:file1.txt/creator").entity(creatorFile).put();
-    RepositoryFileDto creator = webResource.path("repo/files/public:file1.txt/creator").accept(APPLICATION_XML).get(RepositoryFileDto.class);
-    assertEquals(creatorFile.getId(), creator.getId());
+    RepositoryFileDto file2 = new RepositoryFileDto();
+    file2.setId("789");
+    webResource.path("repo/files/public:file1.txt/creator").entity(file2).put();
+    
+    // verify IUnifiedRepository start
+    Map<String, Serializable> metadata = new HashMap<String, Serializable>();
+    metadata.put("contentCreator", "789");
+    verify(repo).setFileMetadata(eq("456"), eq(metadata));
+    // verify IUnifiedRepository end
   }
 
   @Test
   public void testUserWorkspace() {
+    PentahoSessionHolder.setSession(new StandaloneSession("jerry"));
     WebResource webResource = resource();
     String userWorkspaceDir = webResource.path("session/userWorkspaceDir").accept(TEXT_PLAIN).get(String.class);
     assertTrue(userWorkspaceDir != null);
