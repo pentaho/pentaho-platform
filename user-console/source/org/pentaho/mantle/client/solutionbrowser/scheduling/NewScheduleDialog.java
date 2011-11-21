@@ -60,10 +60,10 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
   
   ScheduleEditorWizardPanel scheduleEditorWizardPanel;
-  
+
   String path; 
   Boolean done = false;
-
+ 
   
   public NewScheduleDialog(String path) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
@@ -170,9 +170,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     String scheduleJobUrl = contextURL + "api/scheduler/job"; //$NON-NLS-1$
     
     ScheduleType scheduleType = scheduleEditorWizardPanel.getScheduleType();
-
-    JsArray<JsSchedulingParameter> schedulingParams = scheduleEditorWizardPanel.getParams();
-    
+   
     Date startDate = scheduleEditorWizardPanel.getStartDate();
     String startTime = scheduleEditorWizardPanel.getStartTime();
     int startHour = getStartHour(startTime);
@@ -190,6 +188,12 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     JSONObject scheduleRequest = new JSONObject();
     scheduleRequest.put("inputFile", new JSONString(path)); //$NON-NLS-1$ //$NON-NLS-2$
     scheduleRequest.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
+    JsArray<JsSchedulingParameter> schedulingParams = scheduleEditorWizardPanel.getParams();
+    JSONArray params = new JSONArray();
+    for (int i = 0; i < schedulingParams.length(); i++) {
+      params.set(i, new JSONObject(schedulingParams.get(i)));
+    }
+    scheduleRequest.put("jobParameters", params); //$NON-NLS-1$
     
     if (scheduleType == ScheduleType.RUN_ONCE) { // Run once types 
       scheduleRequest.put("simpleJobTrigger", getJsonSimpleTrigger(0, 0, startDateTime, null)); //$NON-NLS-1$
