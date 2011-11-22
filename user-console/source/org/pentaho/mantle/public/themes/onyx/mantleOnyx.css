@@ -353,6 +353,11 @@ a:active, a:hover {
 .gwt-FileUpload {
 }
 
+.gwt-ScrollTable .dataTable td {
+  font-weight: normal;
+  font-size: .8em;
+}
+
 .gwt-Frame {
   border: none;
   overflow:visible; 

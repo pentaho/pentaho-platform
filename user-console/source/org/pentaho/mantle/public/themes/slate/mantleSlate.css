@@ -354,6 +354,11 @@ a:active, a:hover {
   border-bottom: 1px solid #000000;
 }
 
+.gwt-ScrollTable .dataTable td {
+  font-weight: normal;
+  font-size: .8em;
+}
+	
 .gwt-FileUpload {
 }
 
