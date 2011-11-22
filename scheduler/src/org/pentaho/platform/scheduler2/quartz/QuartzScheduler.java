@@ -416,6 +416,7 @@ public class QuartzScheduler implements IScheduler {
             Job job = new Job();
             JobDetail jobDetail = scheduler.getJobDetail(jobId, groupName);
             if (jobDetail != null) {
+              job.setUserName(jobDetail.getGroup());
               JobDataMap jobDataMap = jobDetail.getJobDataMap();
               if (jobDataMap != null) {
                 Map<String, Serializable> wrappedMap = jobDataMap.getWrappedMap();
@@ -471,7 +472,6 @@ public class QuartzScheduler implements IScheduler {
               break;
             }
 
-            job.setUserName(jobDetail.getGroup());
             job.setJobName(QuartzJobKey.parse(jobId).getJobName());
             job.setNextRun(trigger.getNextFireTime());
             job.setLastRun(trigger.getPreviousFireTime());
