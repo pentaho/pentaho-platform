@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.pentaho.platform.plugin.services.metadata.MetadataDomainRepository;
-
 public class LocaleTestUtil {
    
    /**

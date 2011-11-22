@@ -21,16 +21,15 @@ package org.pentaho.platform.plugin.boot;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.platform.api.data.IDatasourceService;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginProvider;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.IServiceManager;
 import org.pentaho.platform.api.engine.ISolutionEngine;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService;
@@ -42,7 +41,6 @@ import org.pentaho.platform.plugin.outputs.FileOutputHandler;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.connections.sql.SQLConnection;
 import org.pentaho.platform.plugin.services.connections.xquery.XQConnection;
-import org.pentaho.platform.plugin.services.metadata.MetadataDomainRepository;
 import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
@@ -50,6 +48,7 @@ import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvide
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
+import org.pentaho.platform.repository2.unified.metadata.PentahoMetadataDomainRepository;
 
 /**
  * This class is designed to help embedded deployments start the Pentaho system
@@ -132,7 +131,7 @@ public class PentahoBoot extends PentahoSystemBoot {
   public void enableMetadata() {
     IPentahoObjectFactory objectFactory = getFactory();
     if( objectFactory instanceof IPentahoDefinableObjectFactory ) {
-      define(IMetadataDomainRepository.class, MetadataDomainRepository.class, Scope.GLOBAL);
+      define(IMetadataDomainRepository.class, PentahoMetadataDomainRepository.class, Scope.GLOBAL);
     }
   }
   

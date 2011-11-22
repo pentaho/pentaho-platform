@@ -26,15 +26,15 @@ PentahoSystem which is initialized after Spring
   <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
   <bean id="IUITemplater" class="org.pentaho.platform.web.http.WebTemplateHelper" scope="singleton" />
   <!-- Concrete implementation of IMetadataDomainRepository -->
-  <bean id="IMetadataDomainRepositoryImpl" class="org.pentaho.platform.plugin.services.metadata.SecurityAwareMetadataDomainRepository" scope="singleton">
-	<property name="metadataRootFolder" value="${metadata.domains.dir}" />
+  <bean id="IMetadataDomainRepositoryImpl" class="org.pentaho.platform.repository2.unified.metadata.SecurityAwarePentahoMetadataDomainRepository" scope="singleton">
+    <constructor-arg><ref bean="unifiedRepository"/></constructor-arg>
   </bean>
   <!-- Wrap the concrete IMetadataDomainRepository implementation with one that caches domains per session -->  
   <bean id="IMetadataDomainRepository" class="org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomainRepository" scope="singleton">
     <constructor-arg><ref bean="IMetadataDomainRepositoryImpl"/></constructor-arg>
   </bean>
   <!--  Use this schema factory to disable PMD security -->
-  <!--  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.plugin.services.metadata.MetadataDomainRepository" scope="singleton"/>-->
+  <!--  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.repository2.unified.metadata.PentahoMetadataDomainRepository" scope="singleton"/>-->
   <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService" scope="session" />
   <bean id="file" class="org.pentaho.platform.plugin.outputs.FileOutputHandler" scope="session" />
   <bean id="contentrepo" class="org.pentaho.platform.repository2.unified.fileio.RepositoryContentOutputHandler" scope="session"/>

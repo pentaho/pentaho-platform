@@ -1,27 +1,17 @@
 package org.pentaho.test.platform.plugin.services.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.metadata.model.Domain;
-import org.pentaho.metadata.model.concept.types.LocaleType;
-import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
-import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
-import org.pentaho.platform.plugin.service.metadata.MetadataDomainRepositoryTestWrapper;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import java.io.File;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Purpose:  Tests the import of localization files that 

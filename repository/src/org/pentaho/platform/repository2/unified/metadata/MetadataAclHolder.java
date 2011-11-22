@@ -15,11 +15,7 @@
  * Copyright 2007 - 2008 Pentaho Corporation.  All rights reserved.
  *  
  */
-package org.pentaho.platform.plugin.services.metadata;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+package org.pentaho.platform.repository2.unified.metadata;
 
 import org.pentaho.metadata.model.concept.Concept;
 import org.pentaho.metadata.model.concept.IConcept;
@@ -29,6 +25,10 @@ import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
 import org.springframework.security.GrantedAuthorityImpl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class MetadataAclHolder implements IAclHolder {
 

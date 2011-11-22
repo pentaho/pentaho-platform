@@ -14,13 +14,6 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,9 +27,18 @@ import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.importexport.ImportSource.IRepositoryFileBundle;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * The workhouse that completes the import with the help of several collaborating objects.
- * 
+ *
  * @author mlowery
  */
 public class Importer {
@@ -44,12 +46,13 @@ public class Importer {
   // ~ Static fields/initializers ======================================================================================
 
   private static final Log logger = LogFactory.getLog(Importer.class);
-  private Set<String> executableTypes;
-  private IPluginManager pluginManager;
-  
+
   // ~ Instance fields =================================================================================================
 
   private IUnifiedRepository unifiedRepository;
+  private Set<String> executableTypes;
+  private IPluginManager pluginManager;
+  private List<ImportContentHandler> contentHandlers;
 
   /**
    * Converter map with keys being file extensions (without leading period).
@@ -65,17 +68,20 @@ public class Importer {
     this.unifiedRepository = unifiedRepository;
     this.converters = converters;
     try {
-    	pluginManager = PentahoSystem.get(IPluginManager.class, null);
-    } catch(Exception e) {
-    	logger.debug("Executing outside the BIPLATFORM");
+      pluginManager = PentahoSystem.get(IPluginManager.class, null);
+    } catch (Exception e) {
+      logger.debug("Executing outside the BIPLATFORM");
     }
+
+    contentHandlers = new ArrayList<ImportContentHandler>();
+    contentHandlers.add(new PentahoMetadataImportContentHandler());
   }
 
   // ~ Methods =========================================================================================================
   public void doImport(final ImportSource importSource, String destFolderPath, final String versionMessage) throws IOException {
     doImport(importSource, destFolderPath, versionMessage, true);
   }
-  
+
   public void doImport(final ImportSource importSource, String destFolderPath, final String versionMessage, final boolean overwrite) throws IOException {
     executableTypes = new HashSet<String>();
     if (pluginManager != null && pluginManager.getContentTypes() != null) {
@@ -95,10 +101,16 @@ public class Importer {
 
     logger.debug("all paths relative to " + destFolderPath);
 
+    for (final ImportContentHandler handler : contentHandlers) {
+      try {
+        handler.initialize(unifiedRepository, converters, destFolderPath, versionMessage);
+      } catch (InitializationException e) {
+        logger.error("Could not initialize handler [" + handler.getName() + "] : " + e.getLocalizedMessage());
+      }
+    }
+
     int totalFileCount = 0;
-
     int importedFileCount = 0;
-
     for (IRepositoryFileBundle bundle : importSource.getFiles()) {
       totalFileCount += 1;
       String bundlePath = bundle.getPath();
@@ -106,6 +118,26 @@ public class Importer {
       if (bundlePath.startsWith("/")) {
         bundlePath = bundlePath.substring(1);
       }
+
+      // Give the import content handlers a chance
+      ImportContentHandler.Result result = ImportContentHandler.Result.SKIPPED;
+      for (final ImportContentHandler handler : contentHandlers) {
+        try {
+          result = handler.performImport(bundle, overwrite);
+          if (ImportContentHandler.Result.SUCCESS == result) {
+            logger.debug("import content handler [" + handler.getName() + "] handled ["
+                + bundlePath + bundle.getFile().getName() + "]");
+            break;
+          }
+        } catch (ImportException e) {
+          logger.error("Import Content Handler [" + handler.getName() + "] had error : " + e.getLocalizedMessage());
+        }
+      }
+      if (ImportContentHandler.Result.SUCCESS == result) {
+        continue;
+      }
+
+      // By default, just copy it in
       String repoFilePath = destFolderPath + bundlePath + bundle.getFile().getName();
       RepositoryFile file = unifiedRepository.getFile(repoFilePath);
       String ext = getExtension(bundle.getFile().getName());
@@ -153,7 +185,7 @@ public class Importer {
           continue;
         }
         if (bundle.getMimeType() == null) {
-          logger.warn(Messages.getInstance().getString("Importer.WARN_0004_NO_MIME",bundlePath + bundle.getFile().getName())); //$NON-NLS-1$
+          logger.warn(Messages.getInstance().getString("Importer.WARN_0004_NO_MIME", bundlePath + bundle.getFile().getName())); //$NON-NLS-1$
           continue;
         }
         IRepositoryFileData data = null;
@@ -194,10 +226,10 @@ public class Importer {
   }
 
   /**
-   * Gets (possibly from cache) id of parent folder of file pointed to by childPath. 
+   * Gets (possibly from cache) id of parent folder of file pointed to by childPath.
    */
   private Serializable getParentId(final String destFolderPath, final String childPath,
-      Map<String, Serializable> parentIdCache) {
+                                   Map<String, Serializable> parentIdCache) {
     Assert.notNull(destFolderPath);
     Assert.notNull(childPath);
     Assert.notNull(parentIdCache);
@@ -217,7 +249,7 @@ public class Importer {
       if (parentPath.startsWith("/")) {
         parentPath = parentPath.substring(1);
       }
-      
+
       // get id of parent from parent path
       RepositoryFile parentFile = unifiedRepository.getFile(destFolderPath + parentPath);
       Assert.notNull(parentFile);

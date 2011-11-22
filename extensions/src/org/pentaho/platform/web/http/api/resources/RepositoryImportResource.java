@@ -21,20 +21,8 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipInputStream;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -42,14 +30,22 @@ import org.pentaho.platform.repository2.unified.importexport.Converter;
 import org.pentaho.platform.repository2.unified.importexport.ImportSource;
 import org.pentaho.platform.repository2.unified.importexport.Importer;
 import org.pentaho.platform.repository2.unified.importexport.StreamConverter;
-import org.pentaho.platform.repository2.unified.importexport.legacy.MondrianSchemaImportSource;
 import org.pentaho.platform.repository2.unified.importexport.legacy.SingleFileStreamImportSource;
 import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.web.http.messages.Messages;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipInputStream;
 
 @Path("/repo/files/import")
 public class RepositoryImportResource {
@@ -109,6 +105,8 @@ public class RepositoryImportResource {
     converters.put("xml", streamConverter); //$NON-NLS-1$
 
     Importer importer = new Importer(repository, converters);
+//    addContentHandlers(importer, repository);
+
     try {
       if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) { //$NON-NLS-1$
     	ImportSource src = new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8", new String[] {RepositoryFile.SEPARATOR + "system" + RepositoryFile.SEPARATOR, ".mondrian.xml", "datasources.xml"}); //$NON-NLS-1$
@@ -125,9 +123,22 @@ public class RepositoryImportResource {
       
     } catch (IOException e) {
       return Response.serverError().entity(e.toString()).build();
+//    } catch (InitializationException e) {
+//      e.printStackTrace();
     }
 
     return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).build(); //$NON-NLS-1$
   }
 
+//  private static void addContentHandlers(final Importer importer, final IUnifiedRepository repository) {
+//    // Add the Pentaho Metadata Import Content Handlers
+//    final PentahoMetadataImportContentHandler metadataHandler = new PentahoMetadataImportContentHandler();
+//    final IMetadataDomainRepository metadataDomainRepository = new PentahoMetadataDomainRepository(repository);
+//    metadataHandler.setDomainRepository(metadataDomainRepository);
+//    metadataHandler.setXmiParser(new XmiParser());
+//    importer.addImportContentHandler(100, metadataHandler);
+//
+//    // Add the default handler (it will go last) - it just copies files into the repository
+//    importer.addImportContentHandler(Integer.MAX_VALUE, new DefaultImportContentHandler());
+//  }
 }

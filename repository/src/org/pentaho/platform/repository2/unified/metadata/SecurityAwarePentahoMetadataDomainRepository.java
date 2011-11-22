@@ -15,39 +15,50 @@
  * Copyright 2007 - 2008 Pentaho Corporation.  All rights reserved.
  *  
  */
-package org.pentaho.platform.plugin.services.metadata;
+package org.pentaho.platform.repository2.unified.metadata;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.model.LogicalModel;
 import org.pentaho.metadata.model.concept.IConcept;
 import org.pentaho.metadata.model.concept.security.RowLevelSecurity;
-import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.util.RowLevelSecurityHelper;
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This is the platform implementation which implements security.
- * 
- * @author Will Gorman (wgorman@pentaho.com)
+ * NOTE: this class will be moved after integration testing
+ *
+ * @author David Kincade
  */
-public class SecurityAwareMetadataDomainRepository extends MetadataDomainRepository {
-  
-  public static final int[] ACCESS_TYPE_MAP = new int[] { IAclHolder.ACCESS_TYPE_READ, IAclHolder.ACCESS_TYPE_WRITE,
-    IAclHolder.ACCESS_TYPE_UPDATE, IAclHolder.ACCESS_TYPE_DELETE, IAclHolder.ACCESS_TYPE_ADMIN,
-    IAclHolder.ACCESS_TYPE_ADMIN };
-  
+public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadataDomainRepository {
+  private static final Log logger = LogFactory.getLog(SecurityAwarePentahoMetadataDomainRepository.class);
+  public static final int[] ACCESS_TYPE_MAP = new int[]{IAclHolder.ACCESS_TYPE_READ, IAclHolder.ACCESS_TYPE_WRITE,
+      IAclHolder.ACCESS_TYPE_UPDATE, IAclHolder.ACCESS_TYPE_DELETE, IAclHolder.ACCESS_TYPE_ADMIN,
+      IAclHolder.ACCESS_TYPE_ADMIN};
+
+  public SecurityAwarePentahoMetadataDomainRepository(final IUnifiedRepository repository) {
+    super(repository);
+  }
+
+  public SecurityAwarePentahoMetadataDomainRepository(final PentahoMetadataDomainRepositoryBackend backend) {
+    super(backend);
+  }
+
   public IPentahoSession getSession() {
     return PentahoSessionHolder.getSession();
   }
-  
+
   @Override
   public String generateRowLevelSecurityConstraint(LogicalModel model) {
     RowLevelSecurity rls = model.getRowLevelSecurity();
@@ -68,7 +79,7 @@ public class SecurityAwareMetadataDomainRepository extends MetadataDomainReposit
     RowLevelSecurityHelper helper = new RowLevelSecurityHelper();
     return helper.getOpenFormulaSecurityConstraint(rls, username, roles);
   }
-  
+
   @Override
   public boolean hasAccess(final int accessType, final IConcept aclHolder) {
     boolean result = true;
@@ -76,7 +87,7 @@ public class SecurityAwareMetadataDomainRepository extends MetadataDomainReposit
       MetadataAclHolder newHolder = new MetadataAclHolder(aclHolder);
       int mappedActionOperation = ACCESS_TYPE_MAP[accessType];
       result = SecurityHelper.getInstance().hasAccess(newHolder, mappedActionOperation, getSession());
-    } else if (accessType == IMetadataDomainRepository.ACCESS_TYPE_SCHEMA_ADMIN) {
+    } else if (accessType == ACCESS_TYPE_SCHEMA_ADMIN) {
       result = SecurityHelper.getInstance().isPentahoAdministrator(getSession());
     }
     return result;

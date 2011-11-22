@@ -14,16 +14,16 @@
  */
 package org.pentaho.platform.repository2.unified.fileio;
 
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.text.MessageFormat;
-
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 public class RepositoryFileInputStream extends InputStream {
 
@@ -36,10 +36,24 @@ public class RepositoryFileInputStream extends InputStream {
   protected SimpleRepositoryFileData fileData;
 
   public RepositoryFileInputStream(String path) throws FileNotFoundException {
+    this(path, PentahoSystem.get(IUnifiedRepository.class));
+  }
+
+  public RepositoryFileInputStream(RepositoryFile file) throws FileNotFoundException {
+    this(file, PentahoSystem.get(IUnifiedRepository.class));
+  }
+
+  public RepositoryFileInputStream(Serializable id) throws FileNotFoundException {
+    this(id, PentahoSystem.get(IUnifiedRepository.class));
+  }
+
+  public RepositoryFileInputStream(String path, IUnifiedRepository repository) throws FileNotFoundException {
     if (path == null) {
       throw new FileNotFoundException("Repository file path cannot be null");
     }
-    repository = PentahoSystem.get(IUnifiedRepository.class);
+    assert(null != repository);
+    this.repository = repository;
+
     this.file = repository.getFile(path);
     if (file == null) {
       throw new FileNotFoundException(MessageFormat.format("Repository file {0} not readable or does not exist", path));
@@ -49,19 +63,15 @@ public class RepositoryFileInputStream extends InputStream {
     }
   }
 
-  public RepositoryFileInputStream(RepositoryFile file) throws FileNotFoundException {
-    if (file == null) {
-      throw new FileNotFoundException("Repository file cannot be null");
-    }
-    if (file.isFolder()) {
-      throw new FileNotFoundException(MessageFormat.format("Repository file {0} is a directory", file.getPath()));
-    }
-    repository = PentahoSystem.get(IUnifiedRepository.class);
-    this.file = repository.getFile(file.getPath());
+  public RepositoryFileInputStream(RepositoryFile file, IUnifiedRepository repository) throws FileNotFoundException {
+    this((file == null ? null : file.getPath()), repository);
   }
 
-  public RepositoryFileInputStream(Serializable id) throws FileNotFoundException {
-    repository = PentahoSystem.get(IUnifiedRepository.class);
+  public RepositoryFileInputStream(Serializable id, IUnifiedRepository repository) throws FileNotFoundException {
+    assert(null != repository);
+    assert(null != id);
+
+    this.repository = repository;
     file = repository.getFileById(id);
     if (file == null) {
       throw new FileNotFoundException(MessageFormat.format(
@@ -97,4 +107,13 @@ public class RepositoryFileInputStream extends InputStream {
     }
 	  return fileData.getMimeType();
   }
+
+  public IUnifiedRepository getRepository() {
+    return repository;
+  }
+
+  public void setRepository(final IUnifiedRepository repository) {
+    this.repository = repository;
+  }
+
 }

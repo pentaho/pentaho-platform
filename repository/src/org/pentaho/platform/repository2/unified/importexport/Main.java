@@ -14,20 +14,7 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.sql.DataSource;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Service;
-import javax.xml.ws.soap.SOAPBinding;
-
+import com.sun.xml.ws.developer.JAXWSProperties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -44,7 +31,17 @@ import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedReposit
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.util.StringUtils;
 
-import com.sun.xml.ws.developer.JAXWSProperties;
+import javax.sql.DataSource;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Service;
+import javax.xml.ws.soap.SOAPBinding;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class Main {
 
@@ -99,43 +96,12 @@ public class Main {
       if (isImport(line)) {
         ImportSource importSource = getImportSource(line);
         IUnifiedRepository unifiedRepository = getUnifiedRepository(line);
-        Map<String, Converter> converters = new HashMap<String, Converter>();
-        StreamConverter streamConverter = new StreamConverter();
-        converters.put("prpt", streamConverter);
-        converters.put("mondrian.xml", streamConverter);
-        converters.put("kjb", streamConverter);
-        converters.put("ktr", streamConverter);
-        converters.put("report", streamConverter);
-        converters.put("rptdesign", streamConverter);
-        converters.put("svg", streamConverter);
-        converters.put("url", streamConverter);
-        converters.put("xaction", streamConverter);
-        converters.put("xanalyzer", streamConverter);
-        converters.put("xcdf", streamConverter);
-        converters.put("xdash", streamConverter);
-        converters.put("xreportspec", streamConverter);
-        converters.put("waqr.xaction", streamConverter);
-        converters.put("xwaqr", streamConverter);
-        converters.put("gif", streamConverter);
-        converters.put("css", streamConverter);
-        converters.put("html", streamConverter);
-        converters.put("htm", streamConverter);
-        converters.put("jpg", streamConverter);
-        converters.put("jpeg", streamConverter);
-        converters.put("js", streamConverter);
-        converters.put("cfg.xml", streamConverter);
-        converters.put("jrxml", streamConverter);
-        converters.put("png", streamConverter);
-        converters.put("properties", streamConverter);
-        converters.put("sql", streamConverter);
-        converters.put("xmi", streamConverter);
-        converters.put("xml", streamConverter);
-        
+        Map<String, Converter> converters = createConverters();
+
         Importer importer = new Importer(unifiedRepository, converters);
-        String versionMessage = null;
-        if (line.hasOption("comment")) {
-          versionMessage = line.getOptionValue("comment");
-        }
+        addContentHandlers(importer, unifiedRepository);
+
+        final String versionMessage = (line.hasOption("comment") ? line.getOptionValue("comment") : null);
         importer.doImport(importSource, line.getOptionValue("path"), versionMessage);
       } else if (isExport(line)) {
         IUnifiedRepository unifiedRepository = getUnifiedRepository(line);
@@ -146,10 +112,57 @@ public class Main {
       }
     } catch (ParseException e) {
       handleException(e);
-    } catch (IOException e) {
+    } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+  }
+
+  private static void addContentHandlers(final Importer importer, final IUnifiedRepository repository) {
+//    // Add the Pentaho Metadata Import Content Handlers
+//    final PentahoMetadataImportContentHandler metadataHandler = new PentahoMetadataImportContentHandler();
+//    final IMetadataDomainRepository metadataDomainRepository = new PentahoMetadataDomainRepository(repository);
+//    metadataHandler.setDomainRepository(metadataDomainRepository);
+//    metadataHandler.setXmiParser(new XmiParser());
+//    importer.addImportContentHandler(100, metadataHandler);
+//
+//    // Add the default handler (it will go last) - it just copies files into the repository
+//    importer.addImportContentHandler(Integer.MAX_VALUE, new DefaultImportContentHandler());
+  }
+
+  protected static Map<String, Converter> createConverters() {
+    Map<String, Converter> converters = new HashMap<String, Converter>();
+    StreamConverter streamConverter = new StreamConverter();
+    converters.put("prpt", streamConverter);
+    converters.put("mondrian.xml", streamConverter);
+    converters.put("kjb", streamConverter);
+    converters.put("ktr", streamConverter);
+    converters.put("report", streamConverter);
+    converters.put("rptdesign", streamConverter);
+    converters.put("svg", streamConverter);
+    converters.put("url", streamConverter);
+    converters.put("xaction", streamConverter);
+    converters.put("xanalyzer", streamConverter);
+    converters.put("xcdf", streamConverter);
+    converters.put("xdash", streamConverter);
+    converters.put("xreportspec", streamConverter);
+    converters.put("waqr.xaction", streamConverter);
+    converters.put("xwaqr", streamConverter);
+    converters.put("gif", streamConverter);
+    converters.put("css", streamConverter);
+    converters.put("html", streamConverter);
+    converters.put("htm", streamConverter);
+    converters.put("jpg", streamConverter);
+    converters.put("jpeg", streamConverter);
+    converters.put("js", streamConverter);
+    converters.put("cfg.xml", streamConverter);
+    converters.put("jrxml", streamConverter);
+    converters.put("png", streamConverter);
+    converters.put("properties", streamConverter);
+    converters.put("sql", streamConverter);
+    converters.put("xmi", streamConverter);
+    converters.put("xml", streamConverter);
+    return converters;
   }
 
   /**

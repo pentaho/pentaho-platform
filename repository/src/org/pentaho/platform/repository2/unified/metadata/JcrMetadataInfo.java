@@ -37,6 +37,11 @@ public class JcrMetadataInfo {
   protected static final String METADATA_MAPPING_FILE_NAME = "metadata-mappings.properties";
 
   /**
+   * The name of the file in each domain folder that will contain the metadata information
+   */
+  protected static final String METADATA_FILE_NAME = "metadata.xmi";
+
+  /**
    * Returns the name of the metadata folder
    */
   public String getMetadataFolderName() {
@@ -69,5 +74,9 @@ public class JcrMetadataInfo {
    */
   public String getMetadataMappingFilePath() {
     return getMetadataFolderPath() + RepositoryFile.SEPARATOR + getMetadataMappingFileName();
+  }
+
+  public String getMetadataFilename() {
+    return METADATA_FILE_NAME;
   }
 }
