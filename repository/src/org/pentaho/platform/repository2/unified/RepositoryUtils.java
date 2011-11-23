@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 
 /**
  * Utility methods that can be applied on any {@link }IUnifiedRepository}
@@ -58,6 +59,11 @@ public class RepositoryUtils {
    */
   public RepositoryFile getFolder(final String path, final boolean createIfNotExist, final boolean createParents,
                                   final String versionMessage) {
+    return getFolder(path, null, createIfNotExist, createParents, versionMessage);
+  }
+
+  public RepositoryFile getFolder(final String path, final RepositoryFileAcl acl, final boolean createIfNotExist,
+                        final boolean createParents, final String versionMessage) {
     RepositoryFile folder = repository.getFile(path);
     if (null == folder && createIfNotExist) {
       final String parentPath = getParentPath(path);
@@ -66,7 +72,11 @@ public class RepositoryUtils {
         if (null != parentFolder) {
           final String folderName = FilenameUtils.getName(path);
           folder = new RepositoryFile.Builder(folderName).path(path).folder(true).build();
-          folder = repository.createFolder(parentFolder.getId(), folder, versionMessage);
+          if (null != acl) {
+            folder = repository.createFolder(parentFolder.getId(), folder, acl, versionMessage);
+          } else {
+            folder = repository.createFolder(parentFolder.getId(), folder, versionMessage);
+          }
         }
       }
     }
@@ -114,4 +124,5 @@ public class RepositoryUtils {
     path = prefix + StringUtils.left(path, path.length() - 1);
     return path;
   }
+
 }

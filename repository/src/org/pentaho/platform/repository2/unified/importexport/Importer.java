@@ -24,6 +24,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile.Builder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.importexport.ImportSource.IRepositoryFileBundle;
 import org.springframework.util.Assert;
 
@@ -53,6 +54,7 @@ public class Importer {
   private Set<String> executableTypes;
   private IPluginManager pluginManager;
   private List<ImportContentHandler> contentHandlers;
+  private RepositoryUtils repositoryUtils;
 
   /**
    * Converter map with keys being file extensions (without leading period).
@@ -75,6 +77,8 @@ public class Importer {
 
     contentHandlers = new ArrayList<ImportContentHandler>();
     contentHandlers.add(new PentahoMetadataImportContentHandler());
+
+    repositoryUtils = new RepositoryUtils(unifiedRepository);
   }
 
   // ~ Methods =========================================================================================================
@@ -166,11 +170,11 @@ public class Importer {
       } else if (bundle.getFile().isFolder()) { // file doesn't exist so lets create it.
         logger.debug("creating folder " + bundlePath);
         if (bundle.getAcl() != null) {
+          repositoryUtils.getFolder(repoFilePath, bundle.getAcl(), true, true, versionMessage);
           unifiedRepository.createFolder(getParentId(destFolderPath, bundlePath, parentIdCache),
               bundle.getFile(), bundle.getAcl(), versionMessage);
         } else {
-          unifiedRepository.createFolder(getParentId(destFolderPath, bundlePath, parentIdCache),
-              bundle.getFile(), versionMessage);
+          repositoryUtils.getFolder(repoFilePath, true, true, versionMessage);
         }
         importedFileCount += 1;
       } else {
