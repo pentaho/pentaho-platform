@@ -100,10 +100,10 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
     for (int i = 0; i < depth; i++) {
       buf.append(SPACER);
     }
+    buf.append(file.getName());
     if (file.isFolder()) {
       buf.append(SLASH);
     }
-    buf.append(file.getName());
     buf.append(NL);
     if (children != null) {
       for (RepositoryFileTree subtree : children) {
@@ -112,4 +112,69 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
     }
     return buf.toString();
   }
+  
+  // ~ Inner classes ===================================================================================================
+
+  public static class Builder {
+    
+    private List<Builder> children;
+
+    private RepositoryFile file;
+
+    public Builder(final RepositoryFile file, final List<Builder> children) {
+      this.file = file;
+      this.children = children;
+    }
+    
+    /**
+     * Creates a builder with an empty list as children.
+     */
+    public Builder(final RepositoryFile file) {
+      this(file, new ArrayList<Builder>());
+    }
+
+    public Builder(final RepositoryFileTree other) {
+      this(other.file, toBuilderChildren(other.children));
+    }
+
+    public RepositoryFileTree build() {
+      return new RepositoryFileTree(file, toTreeChildren(children));
+    }
+
+    public Builder child(final Builder child) {
+      this.children.add(child);
+      return this;
+    }
+    
+    private static List<RepositoryFileTree> toTreeChildren(final List<Builder> children) {
+      List<RepositoryFileTree> converted = new ArrayList<RepositoryFileTree>(children.size());
+      for (Builder child : children) {
+        converted.add(child.build());
+      }
+      return converted;
+    }
+    
+    private static List<Builder> toBuilderChildren(final List<RepositoryFileTree> children) {
+      List<Builder> converted = new ArrayList<Builder>(children.size());
+      for (RepositoryFileTree child : children) {
+        converted.add(new Builder(child));
+      }
+      return converted;
+    }
+    
+    /*
+     * Allow code that is building the tree to see current children.
+     */
+    public List<Builder> getChildren() {
+      return Collections.unmodifiableList(children);
+    }
+    
+    /*
+     * Allow code that is building the tree to see file.
+     */
+    public RepositoryFile getFile() {
+      return file;
+    }
+  }
+
 }
