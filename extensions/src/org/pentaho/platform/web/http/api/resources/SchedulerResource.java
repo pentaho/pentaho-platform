@@ -84,7 +84,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   // ///////
   // CREATE
-
+  // should this be changed to a PUT?
   @POST
   @Path("/job")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
@@ -264,7 +264,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
-  @GET
+  @POST
   @Path("/jobState")
   @Produces("text/plain")
   @Consumes({ APPLICATION_XML, APPLICATION_JSON })
