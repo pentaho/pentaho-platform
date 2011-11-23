@@ -27,7 +27,6 @@
       <list>
         <ref bean="defaultBackingRepositoryLifecycleManager" />
         <ref bean="pdiBackingRepositoryLifecycleManager" />
-        <ref bean="metadataRepositoryLifecycleManager" />
         <ref bean="mondrianBackingRepositoryLifecycleManager" />
       </list>
     </constructor-arg>
