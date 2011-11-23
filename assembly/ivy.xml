@@ -27,7 +27,7 @@
     <!-- Misc -->
     <dependency org="org.owasp" name="ESAPI" rev="2.0_rc6" transitive="false" />
     <dependency org="org.apache.axis" name="axis" rev="1.4" />
-    <dependency org="batik" name="batik-bridge" rev="1.6" />
+    <dependency org="org.apache.xmlgraphics" name="batik-bridge" rev="1.7" />
     <dependency org="bsf" name="bsf" rev="2.4.0" transitive="false" />   <!-- we don't want bsf's commons_logging -->
     <dependency org="org.netbeans" name="mdrjdbc" rev="1.4.2" />
     <dependency org="org.beanshell" name="bsh" rev="1.3.0" />

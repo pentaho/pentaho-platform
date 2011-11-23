@@ -30,10 +30,18 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 import javax.print.PrintService;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.fop.apps.Driver;
+import org.apache.fop.apps.FOUserAgent;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
 import org.apache.fop.render.awt.AWTRenderer;
 import org.pentaho.actionsequence.dom.ActionInputConstant;
 import org.pentaho.actionsequence.dom.IActionOutput;
@@ -91,7 +99,7 @@ public class PrintComponent extends ComponentBase {
           && (printerAction.getReportOutput() == ActionInputConstant.NULL_INPUT)
           && (printerAction.getOutputPrinterName() == null)) {
         actionValidated = false;
-        error(Messages.getInstance().getErrorString("PrintComponent.ERROR_0001_NO_PRINT_FILE_DEFINED") + getActionName()); //$NON-NLS-1$        
+        error(Messages.getInstance().getErrorString("PrintComponent.ERROR_0001_NO_PRINT_FILE_DEFINED") + getActionName()); //$NON-NLS-1$
       }
     } else {
       actionValidated = false;
@@ -163,19 +171,37 @@ public class PrintComponent extends ComponentBase {
       return false;
     }
     try {
+
+
       // Set the input source for sending to the driver.
-      InputSource source = new InputSource(inStream);
+//      InputSource source = new InputSource(inStream);
       try {
-        Driver driver = new Driver(source, null);
-        PrinterJob pj = PrinterJob.getPrinterJob();
-        // Check to see if we're using the default printer or the user
-        // requested a different printer.
-        if (!(PrinterAction.DEFAULT_PRINTER.equals(printerName))) {
-          pj.setPrintService(getPrinterInternal(printerName, lastPrinter));
-        }
-        PrintRenderer renderer = new PrintRenderer(pj, copies);
-        driver.setRenderer(renderer);
-        driver.run();
+
+        FopFactory fopFactory = FopFactory.newInstance();
+        FOUserAgent userAgent = fopFactory.newFOUserAgent();
+        PrinterJob printerJob = PrinterJob.getPrinterJob();
+
+        //Set up our own PrintRenderer instance so we can supply a special PrinterJob instance.
+        PrintRenderer renderer = new PrintRenderer(printerJob,copies);
+        renderer.setUserAgent(userAgent);
+        userAgent.setRendererOverride(renderer);
+
+        // Construct fop with desired output format (here, it is set through the user agent)
+        Fop fop = fopFactory.newFop(userAgent);
+
+        // Setup JAXP using identity transformer
+        TransformerFactory factory = TransformerFactory.newInstance();
+        Transformer transformer = factory.newTransformer(); // identity transformer
+
+        // Setup input stream
+        Source src = new StreamSource(inStream);
+
+        // Resulting SAX events (the generated FO) must be piped through to FOP
+        Result res = new SAXResult(fop.getDefaultHandler());
+
+        // Start XSLT transformation and FOP processing
+        transformer.transform(src, res);
+
       } catch (Exception ex) {
         return false;
       }
@@ -286,7 +312,7 @@ public class PrintComponent extends ComponentBase {
     private PrinterJob printerJob;
 
     PrintRenderer(final PrinterJob printerJob, final int copies) {
-      super(null);
+      super();
 
       this.printerJob = printerJob;
       this.copies = copies;
@@ -308,17 +334,8 @@ public class PrintComponent extends ComponentBase {
     }
 
     @Override
-    public void stopRenderer(final OutputStream outputStream) throws IOException {
-      super.stopRenderer(outputStream);
-
-      if (endNumber == -1) {
-        endNumber = getPageCount();
-      }
-
-      ArrayList numbers = getInvalidPageNumbers();
-      for (int i = numbers.size() - 1; i > -1; i--) {
-        removePage(Integer.parseInt((String) numbers.get(i)));
-      }
+    public void stopRenderer() throws IOException {
+      super.stopRenderer();
 
       try {
         printerJob.print();
@@ -337,7 +354,7 @@ public class PrintComponent extends ComponentBase {
 
     private ArrayList getInvalidPageNumbers() {
       ArrayList vec = new ArrayList();
-      int max = getPageCount();
+      int max = this.getNumberOfPages();
       boolean isValid;
       for (int i = 0; i < max; i++) {
         isValid = true;

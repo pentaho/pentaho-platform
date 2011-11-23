@@ -33,17 +33,8 @@
     <dependency org="batik" name="batik-svggen" rev="1.6" transitive="false"/>
 
     <!--  runtime batik -->
-    <dependency org="batik" name="batik-css" rev="1.6"/>
-    <dependency org="batik" name="batik-ext" rev="1.6"/>
-    <dependency org="batik" name="batik-gui-util" rev="1.6"/>
-    <dependency org="batik" name="batik-gvt" rev="1.6"/>
-    <dependency org="batik" name="batik-parser" rev="1.6"/>
-    <dependency org="batik" name="batik-script" rev="1.6"/>
-    <dependency org="batik" name="batik-svg-dom" rev="1.6"/>
-    <dependency org="batik" name="batik-swing" rev="1.6"/>
-    <dependency org="batik" name="batik-util" rev="1.6"/>
-    <dependency org="batik" name="batik-xml" rev="1.6"/>
-    <dependency org="fop" name="fop" rev="0.20.5" transitive="false"/>
+    <dependency org="org.apache.xmlgraphics" name="fop" rev="0.94" transitive="false" />
+
     <!-- required by fop -->
     <dependency org="log4j" name="log4j" rev="1.2.16" transitive="false"/>
     <dependency org="org.springframework" name="spring" rev="2.5.6" transitive="false"/>
