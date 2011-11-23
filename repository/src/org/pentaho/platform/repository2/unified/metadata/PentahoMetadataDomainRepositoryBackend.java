@@ -72,28 +72,39 @@ class PentahoMetadataDomainRepositoryBackend {
    */
   public Map<String, RepositoryFile> loadDomainMappingFromRepository() throws Exception {
     logger.debug("loadDomainMappingFromRepository()");
-    final Map<String, RepositoryFile> mappings = loadMappingFile();
-    logger.debug("loadDomainMappingFromRepository() - returning map with element count " + mappings.size());
-    dumpMappings();
-    return mappings;
+    final Map<String, RepositoryFile> domainMappings = new TreeMap<String, RepositoryFile>();
+    final Properties mappingProperties = getMetadataMappingFile();
+    for (final String domainId : mappingProperties.stringPropertyNames()) {
+      final String xmiFileLocation = mappingProperties.getProperty(domainId);
+      final RepositoryFile xmiRepositoryFile = repository.getFile(xmiFileLocation);
+      domainMappings.put(domainId, xmiRepositoryFile);
+    }
+
+    logger.debug("loadDomainMappingFromRepository() - returning map with element count " + domainMappings.size());
+    return domainMappings;
   }
 
   /**
    * Loads a {@link Domain} from the repository
    *
    * @param domainId       the domain ID of the metadata file to be loaded
-   * @param repositoryFile the {@link RepositoryFile} which represents the metadata location
+   * @param xmiFile the {@link RepositoryFile} which represents the metadata location
    * @return the loaded metadata {@link Domain} object
    * @throws Exception indicates an error loading the metadata object
    */
-  public Domain loadDomain(final String domainId, final RepositoryFile repositoryFile) throws Exception {
-    final String methodCall = "loadDomain(\"" + domainId + "\", " + repositoryFile.toString() + ")...";
+  public Domain loadDomain(final String domainId, final RepositoryFile xmiFile) throws Exception {
+    final String methodCall = "loadDomain(\"" + domainId + "\", " + xmiFile.toString() + ")...";
     logger.debug(methodCall);
 
-    final Domain domain = loadDomainFromRepository(domainId, repositoryFile);
-    logger.debug(methodCall + " - returning Domain " + domain);
-    dumpMappings();
-    return domain;
+    final InputStream xmiInputStream = new RepositoryFileInputStream(xmiFile, repository);
+    try {
+      final Domain domain = getXmiParser().parseXmi(xmiInputStream);
+      domain.setId(domainId);
+      logger.debug(methodCall + " - returning Domain " + domain);
+      return domain;
+    } finally {
+      xmiInputStream.close();
+    }
   }
 
   /**
@@ -127,7 +138,6 @@ class PentahoMetadataDomainRepositoryBackend {
       logger.debug(methodCall + " - could not find the RepositoryFile location ... it must be gone already");
     }
     logger.debug(methodCall + " - done");
-    dumpMappings();
   }
 
   /**
@@ -143,6 +153,7 @@ class PentahoMetadataDomainRepositoryBackend {
 
     // Add the new metadata.xml file to the metadata repository
     final String domainPath = jcrMetadataInfo.getMetadataFolderPath() + RepositoryFile.SEPARATOR + domainId;
+    final String domainFile = domainPath + RepositoryFile.SEPARATOR + jcrMetadataInfo.getMetadataFilename();
     InputStream inputStream = null;
     try {
       logger.debug(methodCall + " - parsing the XMI file");
@@ -151,10 +162,16 @@ class PentahoMetadataDomainRepositoryBackend {
 
       // Create the file in the folder
       logger.debug(methodCall + " - creating the metadata file in the domain folder");
-      final String domainFile = domainPath + RepositoryFile.SEPARATOR + jcrMetadataInfo.getMetadataFilename();
       IRepositoryFileData repoFileData = new SimpleRepositoryFileData(inputStream, characterEncoding, mimeType);
-      final RepositoryFile metadataFile = repositoryUtils.getFile(domainFile, repoFileData, true,
-          true, "");
+
+      final RepositoryFile metadataFile = repositoryUtils.getFile(domainFile, null, false, false, null);
+      if (metadataFile == null) {
+        // This will create the file since it doesn't exist
+        repositoryUtils.getFile(domainFile, repoFileData, true, true, "");
+      } else {
+        repository.updateFile(metadataFile, repoFileData, "");
+      }
+
       logger.debug(methodCall + " - completed!");
     } finally {
       if (inputStream != null) {
@@ -165,10 +182,8 @@ class PentahoMetadataDomainRepositoryBackend {
     // Add the domain id to the mappings
     logger.debug(methodCall + " - rewriting the mapping file after adding domain and path " + domainPath);
     final Properties mappingProperties = getMetadataMappingFile();
-    mappingProperties.setProperty(domainId, domainPath);
+    mappingProperties.setProperty(domainId, domainFile);
     writeMappingPropertiesFiles(mappingProperties);
-
-    dumpMappings();
   }
 
   /**
@@ -216,17 +231,6 @@ class PentahoMetadataDomainRepositoryBackend {
     this.mimeType = mimeType;
   }
 
-  protected Domain loadDomainFromRepository(final String domainId, final RepositoryFile xmiFile) throws Exception {
-    final InputStream xmiInputStream = new RepositoryFileInputStream(xmiFile, repository);
-    try {
-      final Domain domain = getXmiParser().parseXmi(xmiInputStream);
-      domain.setId(domainId);
-      return domain;
-    } finally {
-      xmiInputStream.close();
-    }
-  }
-
   protected Properties getMetadataMappingFile() throws IOException, PentahoMetadataException {
     final RepositoryFile metadataMappingFile = getMappingPropertiesFile();
     final SimpleRepositoryFileData metadataMappingFileData =
@@ -264,37 +268,5 @@ class PentahoMetadataDomainRepositoryBackend {
 
   protected XmiParser getXmiParser() {
     return (null != xmiParser ? xmiParser : new XmiParser());
-  }
-
-  protected Map<String, RepositoryFile> loadMappingFile() throws IOException, PentahoMetadataException {
-    final Map<String, RepositoryFile> domainMappings = new TreeMap<String, RepositoryFile>();
-    final Properties mappingProperties = getMetadataMappingFile();
-    for (final String domainId : mappingProperties.stringPropertyNames()) {
-      final String xmiFileLocation = mappingProperties.getProperty(domainId);
-      final RepositoryFile xmiRepositoryFile = repository.getFile(xmiFileLocation);
-      domainMappings.put(domainId, xmiRepositoryFile);
-    }
-    return domainMappings;
-  }
-
-  protected void dumpMappings() {
-    if (logger.isTraceEnabled()) {
-      try {
-        final Map<String, RepositoryFile> mappings = loadMappingFile();
-        final StringBuffer s = new StringBuffer();
-        s.append("\n========== PentahoMetadataDomainRepositoryBackend - repository =============\n");
-        for (final String domainId : mappings.keySet()) {
-          s.append("\t").append(domainId).append("\t\t");
-          final RepositoryFile file = mappings.get(domainId);
-          s.append(file == null ? file : file.getPath()).append("\n");
-        }
-        s.append("============================================================================\n");
-        logger.trace(s.toString());
-      } catch (IOException e) {
-        logger.trace("EXCEPTION LOADING MAPPING FILE - ", e);
-      } catch (PentahoMetadataException e) {
-        logger.trace("EXCEPTION LOADING MAPPING FILE - ", e);
-      }
-    }
   }
 }

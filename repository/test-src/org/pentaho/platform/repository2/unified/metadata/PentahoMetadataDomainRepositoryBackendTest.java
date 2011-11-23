@@ -235,7 +235,38 @@ public class PentahoMetadataDomainRepositoryBackendTest extends TestCase {
     repository.createFolder("/etc/metadata");
     repository.getFileTable().put(METADATA_INFO.getMetadataMappingFilePath(), SAMPLE_PROPERTIES_FILE);
     assertEquals(3, repository.getFileTable().size());
-    backend.addDomainToRepository(new MockDomain("Test Domain #1"));
+    final String domainId = "Test Domain";
+    final MockDomain mockDomain = new MockDomain(domainId);
+    backend.addDomainToRepository(mockDomain);
     assertEquals(5, repository.getFileTable().size());
+
+    // Ensure the correct information is being stored in the mappings file
+    Properties properties = (Properties) repository.getFileTable().get(METADATA_INFO.getMetadataMappingFilePath());
+    final String loc = properties.getProperty(domainId);
+    assertNotNull(loc);
+    final String expectedPath = METADATA_INFO.getMetadataFolderPath() + "/"+domainId+"/"+METADATA_INFO.getMetadataFilename();
+    assertEquals(expectedPath, loc);
+
+    final Map<String, RepositoryFile> repositoryFileMap1 = backend.loadDomainMappingFromRepository();
+    assertNotNull(repositoryFileMap1);
+    assertNotNull(repositoryFileMap1.containsKey(domainId));
+    assertEquals(expectedPath, repositoryFileMap1.get(domainId).getPath());
+    final Domain domain1 = backend.loadDomain(domainId, repositoryFileMap1.get(domainId));
+
+    // Overwrite test
+    assertNotNull(domain1);
+    backend.setXmiParser(new AlteredMockXmiParser());
+    backend.addDomainToRepository(mockDomain);
+    final Map<String, RepositoryFile> repositoryFileMap2 = backend.loadDomainMappingFromRepository();
+    final Domain domain2 = backend.loadDomain(domainId, repositoryFileMap2.get(domainId));
+    assertEquals(domain1.getId(), domain2.getId());
+    assertNotSame(domain1, domain2);
+  }
+
+  private class AlteredMockXmiParser extends MockXmiParser {
+    @Override
+    public String generateXmi(final Domain domain) {
+      return super.generateXmi(domain)+super.generateXmi(domain);
+    }
   }
 }
