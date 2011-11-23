@@ -71,7 +71,10 @@ public class FilterDialog extends PromptDialogBox {
       }
     }
 
-    resourceSuggestBox.setWidth("160px");
+    resourceSuggestBox.setWidth("240px");
+    userListBox.setWidth("200px");
+    scheduleStateListBox.setWidth("200px");
+    scheduleTypeListBox.setWidth("200px");
 
     // next execution filter
     CaptionPanel executionFilterCaptionPanel = new CaptionPanel(Messages.getString("executionTime"));
@@ -139,19 +142,18 @@ public class FilterDialog extends PromptDialogBox {
 
     FlexTable filterPanel = new FlexTable();
     filterPanel.setWidget(0, 0, new Label(Messages.getString("scheduledResource")));
-    filterPanel.setWidget(0, 1, new Label(Messages.getString("_user")));
-
     filterPanel.setWidget(1, 0, resourceSuggestBox);
-    filterPanel.setWidget(1, 1, userListBox);
 
-    filterPanel.setWidget(2, 0, new Label(Messages.getString("scheduleState")));
-    filterPanel.setWidget(2, 1, new Label(Messages.getString("scheduleType")));
+    filterPanel.setWidget(2, 0, new Label(Messages.getString("_user")));
+    filterPanel.setWidget(3, 0, userListBox);
 
-    filterPanel.setWidget(3, 0, scheduleStateListBox);
-    filterPanel.setWidget(3, 1, scheduleTypeListBox);
+    filterPanel.setWidget(4, 0, new Label(Messages.getString("scheduleState")));
+    filterPanel.setWidget(5, 0, scheduleStateListBox);
+    
+    filterPanel.setWidget(6, 0, new Label(Messages.getString("scheduleType")));
+    filterPanel.setWidget(7, 0, scheduleTypeListBox);
 
-    filterPanel.setWidget(4, 0, executionFilterCaptionPanel);
-    filterPanel.getFlexCellFormatter().setColSpan(4, 0, 2);
+    filterPanel.setWidget(8, 0, executionFilterCaptionPanel);
 
     setContent(filterPanel);
   }
