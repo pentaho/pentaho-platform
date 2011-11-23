@@ -1,9 +1,15 @@
 package org.pentaho.test.platform.web.http.api;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
 
 import java.io.OutputStream;
 import java.util.Arrays;

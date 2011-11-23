@@ -22,12 +22,11 @@
     <property name="homeDir" value="file:/tmp/jackrabbit-test" />
   </bean>
   
-    <bean id="backingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DelegatingBackingRepositoryLifecycleManager">
+  <!-- override to keep only the required managers -->
+  <bean id="backingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DelegatingBackingRepositoryLifecycleManager">
     <constructor-arg>
       <list>
         <ref bean="defaultBackingRepositoryLifecycleManager" />
-        <ref bean="pdiBackingRepositoryLifecycleManager" />
-        <ref bean="mondrianBackingRepositoryLifecycleManager" />
       </list>
     </constructor-arg>
   </bean>

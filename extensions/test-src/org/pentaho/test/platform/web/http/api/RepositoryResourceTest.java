@@ -3,6 +3,10 @@ package org.pentaho.test.platform.web.http.api;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetTree;
 import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
 
 import java.io.File;
@@ -25,14 +29,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginProvider;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.repository.IContentItem;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.solution.ContentInfo;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -52,9 +57,9 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
@@ -62,12 +67,10 @@ import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerF
 
 @SuppressWarnings("nls")
 public class RepositoryResourceTest extends JerseyTest {
-  public static final String USERNAME_JOE = "joe";
-  public static final String TENANT_ID_ACME = "acme";
 
   private static MicroPlatform mp = new MicroPlatform("test-res/FileOutputResourceTest/");
-
-  private static MicroPlatform.RepositoryModule repo;
+  
+  private IUnifiedRepository repo;
 
   private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
   "org.pentaho.platform.web.http.api.resources").contextPath("api").addFilter(PentahoRequestContextFilter.class,
@@ -87,8 +90,6 @@ public class RepositoryResourceTest extends JerseyTest {
     Logger.getLogger(RepositoryResource.class).setLevel(Level.DEBUG);
 //    Logger.getLogger(RequestProxy.class).setLevel(Level.DEBUG);
     Logger.getLogger("MIME_TYPE").setLevel(Level.TRACE);
-    repo = mp.getRepositoryModule();
-    repo.up();
   }
 
   @AfterClass
@@ -97,7 +98,6 @@ public class RepositoryResourceTest extends JerseyTest {
 
   @Before
   public void beforeTest() throws PlatformInitializationException {
-    repo.login(USERNAME_JOE, TENANT_ID_ACME);
 
     mp.define(IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL);
     mp.defineInstance(IPluginResourceLoader.class, new PluginResourceLoader() {
@@ -108,16 +108,20 @@ public class RepositoryResourceTest extends JerseyTest {
     mp.define(IPluginProvider.class, TestPlugin.class, Scope.GLOBAL);
 
     PentahoSystem.get(IPluginManager.class).reload();
+    
+    repo = mock(IUnifiedRepository.class);
+    mp.defineInstance(IUnifiedRepository.class, repo);
   }
 
   @After
   public void afterTest() {
-    repo.logout();
   }
   
   @Test
-  public void testGetFileText() {
-    createTestFile("public:file.txt", "abcdefg");
+  public void testGetFileText() throws Exception {
+    stubGetFile(repo, "/public/file.txt");
+    stubGetData(repo, "/public/file.txt", "abcdefg");
+    
     WebResource webResource = resource();
     
     ClientResponse r1 = webResource.path("repos/:public:file.txt/content").accept(TEXT_PLAIN).get(
@@ -138,8 +142,9 @@ public class RepositoryResourceTest extends JerseyTest {
 
   @Test
   public void a1_HappyPath() {
+    stubGetFile(repo, "/public/test.xjunit");
+
     WebResource webResource = resource();
-    createTestFile("public:test.xjunit", "sometext");
 
     ClientResponse response = webResource.path("repos/:public:test.xjunit/public/file.txt").get(ClientResponse.class);
     assertResponse(response, ClientResponse.Status.OK, TEXT_PLAIN);
@@ -148,11 +153,13 @@ public class RepositoryResourceTest extends JerseyTest {
 
   @Test
   public void a2_HappyPath() {
+    stubGetFile(repo, "/public/test.xjunit");
+    stubGetFile(repo, "/public/test.css");
+    stubGetData(repo, "/public/test.css", "css content");
+    stubGetFile(repo, "/public/js/test.js");
+    stubGetData(repo, "/public/js/test.js", "js content");
+    
     WebResource webResource = resource();
-    createTestFile("public:test.xjunit", "sometext");
-    createTestFile("public:test.css", "css content");
-    createTestDir("repo/dirs/public:js");
-    createTestFile("public:js:test.js", "js content");
 
     //load the css
     ClientResponse response = webResource.path("repos/:public:test.xjunit/test.css").get(ClientResponse.class);
@@ -167,10 +174,11 @@ public class RepositoryResourceTest extends JerseyTest {
   
   @Test
   public void a3_dotUrl() {
-
-    WebResource webResource = resource();
     final String text = "URL=http://google.com";
-    createTestFile("public:test.url", text);
+    stubGetFile(repo, "/public/test.url");
+    stubGetData(repo, "/public/test.url", text);
+    
+    WebResource webResource = resource();
 
     String response = webResource.path("repos/:public:test.url/content").get(String.class);
     assertEquals("contents of file incorrect/missing", text, response);
@@ -181,10 +189,12 @@ public class RepositoryResourceTest extends JerseyTest {
 
   @Test
   public void a3_dotUrlRelativeUrl() {
-    WebResource webResource = resource();
     final String text = "URL=repo/files/public/children";
-    createTestFile("public:relUrlTest.url", text);
-
+    stubGetFile(repo, "/public/relUrlTest.url");
+    stubGetData(repo, "/public/relUrlTest.url", text);
+    stubGetTree(repo, "/public", "relUrlTest.url", "hello/file.txt", "hello/file2.txt", "hello2/");
+    WebResource webResource = resource();
+    
     String response = webResource.path("repos/:public:relUrlTest.url/content").get(String.class);
     assertEquals("contents of file incorrect/missing", text, response);
 
@@ -194,9 +204,9 @@ public class RepositoryResourceTest extends JerseyTest {
 
   @Test
   public void a3_HappyPath_GET() {
+    stubGetFile(repo, "/public/test.xjunit");
+    
     WebResource webResource = resource();
-
-    createTestFile("public:test.xjunit", "sometext");
 
     //get the output of the .xjunit file (should invoke the content generator)
     String textResponse = webResource.path("repos/:public:test.xjunit/viewer").get(String.class);
@@ -205,9 +215,9 @@ public class RepositoryResourceTest extends JerseyTest {
 
   @Test
   public void a3_HappyPath_POST() {
+    stubGetFile(repo, "/public/test.xjunit");
+    
     WebResource webResource = resource();
-
-    createTestFile("public:test.xjunit", "sometext");
 
     //get the output of the .junit file (should invoke the content generator)
     MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
@@ -222,9 +232,9 @@ public class RepositoryResourceTest extends JerseyTest {
   
   @Test
   public void a3_HappyPath_GET_withCommand() throws PlatformInitializationException {
-    WebResource webResource = resource();
+    stubGetFile(repo, "/public/test.xjunit");
     
-    createTestFile("public:test.xjunit", "sometext");
+    WebResource webResource = resource();
     
     String expectedResponse = "hello this is service content generator servicing command dosomething"; 
     String textResponse = webResource.path("repos/:public:test.xjunit/testservice/dosomething").queryParam("testParam",
@@ -246,9 +256,9 @@ public class RepositoryResourceTest extends JerseyTest {
   
   @Test
   public void a3_HappyPath_POST_withCommand() throws PlatformInitializationException {
-    WebResource webResource = resource();
+    stubGetFile(repo, "/public/test.xjunit");
     
-    createTestFile("public:test.xjunit", "sometext");
+    WebResource webResource = resource();
     
     MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
     formData.add("testParam", "testParamValue");
@@ -293,9 +303,9 @@ public class RepositoryResourceTest extends JerseyTest {
 
   @Test
   public void b3_HappyPath_GET() throws PlatformInitializationException {
-    WebResource webResource = resource();
+    stubGetFile(repo, "/public/test.xjunit");
 
-    createTestFile("public:test.xjunit", "sometext");
+    WebResource webResource = resource();
 
     //get the output of the .xjunit file (should invoke the content generator)
     String textResponse = webResource.path("repos/xjunit/viewer").get(String.class);
@@ -304,9 +314,9 @@ public class RepositoryResourceTest extends JerseyTest {
   
   @Test
   public void b3_HappyPath_GET_withMimeType() throws PlatformInitializationException {
-    WebResource webResource = resource();
+    stubGetFile(repo, "/public/test.xjunit");
     
-    createTestFile("public:test.xjunit", "sometext", "application/pdf");
+    WebResource webResource = resource();
     
     //get the output of the .xjunit file (should invoke the content generator)
     ClientResponse response = webResource.path("repos/xjunit/report").accept("application/pdf").get(ClientResponse.class);
@@ -483,21 +493,4 @@ public class RepositoryResourceTest extends JerseyTest {
     }
   }
 
-  protected void createTestDir(String path) {
-    WebResource webResource = resource();
-    ClientResponse postResponse = webResource.path(path).put(ClientResponse.class);
-    assertEquals(ClientResponse.Status.OK, postResponse.getClientResponseStatus());
-  }
-
-  protected void createTestFile(String path, String text) {
-    WebResource webResource = resource();
-    ClientResponse postResponse = webResource.path("repo/files/"+path).type(MediaType.TEXT_PLAIN).put(ClientResponse.class, text);
-    assertEquals(ClientResponse.Status.OK, postResponse.getClientResponseStatus());
-  }
-  
-  protected void createTestFile(String path, String text, String mediaType) {
-    WebResource webResource = resource();
-    ClientResponse postResponse = webResource.path("repo/files/"+path).type(mediaType).put(ClientResponse.class, text);
-    assertEquals(ClientResponse.Status.OK, postResponse.getClientResponseStatus());
-  }
 }

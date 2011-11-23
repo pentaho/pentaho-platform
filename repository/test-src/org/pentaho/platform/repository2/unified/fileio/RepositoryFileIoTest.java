@@ -6,8 +6,8 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.hasData;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.isLikeFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

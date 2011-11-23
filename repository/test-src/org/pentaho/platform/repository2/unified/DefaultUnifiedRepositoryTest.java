@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.jackrabbit.api.jsr283.security.Privilege;
 import org.junit.After;
@@ -42,6 +44,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -59,12 +64,27 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.sample.SampleRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.extensions.jcr.JcrTemplate;
+import org.springframework.extensions.jcr.SessionFactory;
+import org.springframework.security.AccessDeniedException;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -85,14 +105,71 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = { "classpath:/repository.spring.xml",
     "classpath:/repository-test-override.spring.xml" })
 @SuppressWarnings("nls")
-public class DefaultUnifiedRepositoryTest extends JackrabbitRepositoryTestBase implements ApplicationContextAware {
+public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   // ~ Static fields/initializers ======================================================================================
 
+  private static final String NAMESPACE_REPOSITORY = "org.pentaho.repository";
+
+  private static final String NAMESPACE_SECURITY = "org.pentaho.security";
+
+  private static final String NAMESPACE_PENTAHO = "org.pentaho";
+
+  private static final String NAMESPACE_DOESNOTEXIST = "doesnotexist";
+
+  private static final String RUNTIME_ROLE_ACME_ADMIN = "acme_Admin";
+
+  private static final String RUNTIME_ROLE_ACME_AUTHENTICATED = "acme_Authenticated";
+
+  private static final String LOGICAL_ROLE_SECURITY_ADMINISTRATOR = "org.pentaho.di.securityAdministrator";
+
+  private static final String LOGICAL_ROLE_CREATOR = "org.pentaho.di.creator";
+
+  private static final String LOGICAL_ROLE_READER = "org.pentaho.di.reader";
+
+  private static final String ACTION_READ = "org.pentaho.repository.read";
+
+  private static final String ACTION_CREATE = "org.pentaho.repository.create";
+
+  private static final String ACTION_ADMINISTER_SECURITY = "org.pentaho.security.administerSecurity";
+  
+  private final String USERNAME_SUZY = "suzy";
+
+  private final String USERNAME_TIFFANY = "tiffany";
+
+  private final String USERNAME_PAT = "pat";
+
+  private final String USERNAME_JOE = "joe";
+
+  private final String USERNAME_GEORGE = "george";
+
+  private final String TENANT_ID_ACME = "acme";
+
+  private final String TENANT_ID_DUFF = "duff";
+  
   // ~ Instance fields =================================================================================================
 
   private IUnifiedRepository repo;
 
   private boolean startupCalled;
+
+  private String repositoryAdminUsername;
+
+  private String tenantAdminAuthorityNamePattern;
+
+  private String tenantAuthenticatedAuthorityNamePattern;
+
+  /**
+   * Used for state verification and test cleanup.
+   */
+  private JcrTemplate testJcrTemplate;
+
+  private IBackingRepositoryLifecycleManager manager;
+
+  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
+
+  private IAuthorizationPolicy authorizationPolicy;
+  
+  private MicroPlatform mp;
 
   // ~ Constructors ==================================================================================================== 
 
@@ -104,32 +181,57 @@ public class DefaultUnifiedRepositoryTest extends JackrabbitRepositoryTestBase i
 
   @BeforeClass
   public static void setUpClass() throws Exception {
-    // unfortunate reference to superclass
-    JackrabbitRepositoryTestBase.setUpClass();
+    // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
+    // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
+    FileUtils.deleteDirectory(new File("/tmp/jackrabbit-test"));
+    PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
   }
 
   @AfterClass
   public static void tearDownClass() throws Exception {
-    JackrabbitRepositoryTestBase.tearDownClass();
+    PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL);
   }
 
-  @Override
   @Before
   public void setUp() throws Exception {
-    super.setUp();
+    mp = new MicroPlatform();
+    // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
+
+    // Start the micro-platform
+//    mp.start();
+    logout();
     startupCalled = true;
   }
 
-  @Override
   @After
   public void tearDown() throws Exception {
-    super.tearDown();
+    clearRoleBindings();
+    // null out fields to get back memory
+    authorizationPolicy = null;
+    loginAsRepositoryAdmin();
+    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
+    logout();
+    repositoryAdminUsername = null;
+    tenantAdminAuthorityNamePattern = null;
+    tenantAuthenticatedAuthorityNamePattern = null;
+    roleBindingDao = null;
+    authorizationPolicy = null;
+    testJcrTemplate = null;
     if (startupCalled) {
       manager.shutdown();
     }
 
     // null out fields to get back memory
     repo = null;
+  }
+  
+  protected void clearRoleBindings() throws Exception {
+    loginAsRepositoryAdmin();
+    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath(TENANT_ID_ACME)
+        + ".authz");
+    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath(TENANT_ID_DUFF)
+        + ".authz");
   }
 
   @Test(expected = IllegalStateException.class)
@@ -254,36 +356,6 @@ public class DefaultUnifiedRepositoryTest extends JackrabbitRepositoryTestBase i
         Privilege.JCR_READ));
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantEtcFolderPath(),
         Privilege.JCR_READ_ACCESS_CONTROL));
-
-    // tenant etc/pdi folder
-    final String pdiPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "pdi";
-    assertFalse(repo.getAcl(repo.getFile(pdiPath).getId()).isEntriesInheriting());
-    assertLocalAclEmpty(repo.getFile(pdiPath));
-    assertEquals(repositoryAdminSid, repo.getFile(pdiPath).getOwner());
-
-    // tenant etc/databases folder
-    final String databasesPath = pdiPath + RepositoryFile.SEPARATOR + "databases";
-    assertTrue(repo.getAcl(repo.getFile(databasesPath).getId()).isEntriesInheriting());
-    assertLocalAclEmpty(repo.getFile(databasesPath));
-    assertEquals(repositoryAdminSid, repo.getFile(databasesPath).getOwner());
-
-    // tenant etc/slaveServers folder
-    final String slaveServersPath = pdiPath + RepositoryFile.SEPARATOR + "slaveServers";
-    assertTrue(repo.getAcl(repo.getFile(slaveServersPath).getId()).isEntriesInheriting());
-    assertLocalAclEmpty(repo.getFile(slaveServersPath));
-    assertEquals(repositoryAdminSid, repo.getFile(slaveServersPath).getOwner());
-
-    // tenant etc/clusterSchemas folder
-    final String clusterSchemasPath = pdiPath + RepositoryFile.SEPARATOR + "clusterSchemas";
-    assertTrue(repo.getAcl(repo.getFile(clusterSchemasPath).getId()).isEntriesInheriting());
-    assertLocalAclEmpty(repo.getFile(clusterSchemasPath));
-    assertEquals(repositoryAdminSid, repo.getFile(clusterSchemasPath).getOwner());
-
-    // tenant etc/partitionSchemas folder
-    final String partitionSchemasPath = pdiPath + RepositoryFile.SEPARATOR + "partitionSchemas";
-    assertTrue(repo.getAcl(repo.getFile(partitionSchemasPath).getId()).isEntriesInheriting());
-    assertLocalAclEmpty(repo.getFile(partitionSchemasPath));
-    assertEquals(repositoryAdminSid, repo.getFile(partitionSchemasPath).getOwner());
 
     // suzy home folder
     assertFalse(repo.getAcl(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)).getId())
@@ -1785,14 +1857,14 @@ public class DefaultUnifiedRepositoryTest extends JackrabbitRepositoryTestBase i
     assertFalse(root.getChildren().isEmpty());
     assertNull(root.getChildren().get(0).getChildren());
 
-    root = repo.getTree(ClientRepositoryPaths.getRootFolderPath(), -1, null, true);
+    root = repo.getTree(ClientRepositoryPaths.getHomeFolderPath(), -1, null, true);
     assertNotNull(root.getFile());
     assertNotNull(root.getChildren());
     assertFalse(root.getChildren().isEmpty());
-    assertFalse(root.getChildren().get(0).getChildren().isEmpty());
+    assertTrue(root.getChildren().get(0).getChildren().isEmpty());
 
-    root = repo.getTree(ClientRepositoryPaths.getEtcFolderPath() + "/pdi", -1, "*Schema*", true);
-    assertEquals(2, root.getChildren().size());
+    root = repo.getTree(ClientRepositoryPaths.getHomeFolderPath(), -1, "*uz*", true);
+    assertEquals(1, root.getChildren().size());
   }
 
   @Test
@@ -2018,6 +2090,128 @@ public class DefaultUnifiedRepositoryTest extends JackrabbitRepositoryTestBase i
     assertEquals(newFile2.getVersionId(), summary.getId());
     assertEquals(createMsg, summary.getMessage());
   }
+  
+  @Test(expected = AccessDeniedException.class)
+  public void testRoleAuthorizationPolicyAdministerSecurityAccessDenied() throws Exception {
+    manager.startup();
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+    roleBindingDao.setRoleBindings("acme_Authenticated", Arrays.asList(new String[] { LOGICAL_ROLE_READER }));
+  }
+  
+  @Test
+  public void testRoleAuthorizationPolicyNoBoundLogicalRoles() throws Exception {
+    manager.startup();
+    login(USERNAME_JOE, TENANT_ID_ACME);
+    assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR }), roleBindingDao.getBoundLogicalRoleNames(Arrays.asList(new String[] { "acme_Authenticated", "acme_ceo" })));
+  }
+
+  @Test
+  public void testRoleAuthorizationPolicyGetAllowedActions() throws Exception {
+    manager.startup();
+    // login with suzy (in tenant acme)
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+
+    // test with null namespace
+    List<String> allowedActions = authorizationPolicy.getAllowedActions(null);
+
+    assertEquals(2, allowedActions.size());
+    assertTrue(allowedActions.contains(ACTION_READ));
+    assertTrue(allowedActions.contains(ACTION_CREATE));
+
+    // test with explicit namespace
+    allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_REPOSITORY);
+    assertEquals(2, allowedActions.size());
+    assertTrue(allowedActions.contains(ACTION_READ));
+    assertTrue(allowedActions.contains(ACTION_CREATE));
+
+    // test with bogus namespace
+    allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_DOESNOTEXIST);
+    assertEquals(0, allowedActions.size());
+
+    // login with pat (in tenant duff); pat is granted "Authenticated" so he is allowed
+    login(USERNAME_PAT, TENANT_ID_DUFF);
+    allowedActions = authorizationPolicy.getAllowedActions(null);
+    assertTrue(allowedActions.contains(ACTION_READ));
+    assertTrue(allowedActions.contains(ACTION_CREATE));
+
+    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_REPOSITORY);
+    assertEquals(2, allowedActions.size());
+    assertTrue(allowedActions.contains(ACTION_READ));
+    assertTrue(allowedActions.contains(ACTION_CREATE));
+    allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_SECURITY);
+    assertEquals(1, allowedActions.size());
+    assertTrue(allowedActions.contains(ACTION_ADMINISTER_SECURITY));
+
+    allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_PENTAHO);
+    assertEquals(3, allowedActions.size());
+  }
+
+  @Test
+  public void testRoleAuthorizationPolicyIsAllowed() throws Exception {
+    manager.startup();
+    // login with user that is allowed to "administer security"
+    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    assertTrue(authorizationPolicy.isAllowed(ACTION_READ));
+    assertTrue(authorizationPolicy.isAllowed(ACTION_CREATE));
+    assertTrue(authorizationPolicy.isAllowed(ACTION_ADMINISTER_SECURITY));
+
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+    assertTrue(authorizationPolicy.isAllowed(ACTION_READ));
+    assertTrue(authorizationPolicy.isAllowed(ACTION_CREATE));
+    assertFalse(authorizationPolicy.isAllowed(ACTION_ADMINISTER_SECURITY));
+
+    login(USERNAME_PAT, TENANT_ID_DUFF);
+    assertTrue(authorizationPolicy.isAllowed(ACTION_READ));
+    assertTrue(authorizationPolicy.isAllowed(ACTION_CREATE));
+    assertFalse(authorizationPolicy.isAllowed(ACTION_ADMINISTER_SECURITY));
+  }
+
+  @Test
+  public void testRoleAuthorizationPolicyRemoveImmutableBinding() throws Exception {
+    manager.startup();
+    // login with user that is allowed to "administer security"
+    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    try {
+      roleBindingDao.setRoleBindings(RUNTIME_ROLE_ACME_ADMIN, Arrays.asList(new String[] { LOGICAL_ROLE_READER,
+          LOGICAL_ROLE_CREATOR }));
+      fail();
+    } catch (Exception e) {
+
+    }
+  }
+
+  @Test
+  public void testRoleAuthorizationPolicyGetRoleBindingStruct() throws Exception {
+    manager.startup();
+    // login with user that is allowed to "administer security"
+    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    RoleBindingStruct struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
+    assertNotNull(struct);
+    assertNotNull(struct.bindingMap);
+    assertEquals(4, struct.bindingMap.size());
+    assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR,
+        LOGICAL_ROLE_SECURITY_ADMINISTRATOR }), struct.bindingMap.get(RUNTIME_ROLE_ACME_ADMIN));
+    assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR }), struct.bindingMap
+        .get(RUNTIME_ROLE_ACME_AUTHENTICATED));
+    roleBindingDao.setRoleBindings("whatever", Arrays.asList(new String[] { "org.pentaho.p1.reader" }));
+
+    struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
+    assertEquals(5, struct.bindingMap.size());
+    assertEquals(Arrays.asList(new String[] { "org.pentaho.p1.reader" }), struct.bindingMap.get("whatever"));
+
+    assertNotNull(struct.logicalRoleNameMap);
+    assertEquals(3, struct.logicalRoleNameMap.size());
+    assertEquals("Create Content", struct.logicalRoleNameMap.get(LOGICAL_ROLE_CREATOR));
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void testRoleAuthorizationPolicyGetRoleBindingStructAccessDenied() throws Exception {
+    manager.startup();
+    // login with user that is not allowed to "administer security"
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+    roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
+  }
 
   private RepositoryFile createSampleFile(final String parentFolderPath, final String fileName,
       final String sampleString, final boolean sampleBoolean, final int sampleInteger, boolean versioned)
@@ -2061,16 +2255,76 @@ public class DefaultUnifiedRepositoryTest extends JackrabbitRepositoryTestBase i
     assertTrue(acl.getAces().size() == 0);
   }
 
-  private Serializable getNodeId(final String absPath) throws Exception {
-    return SimpleJcrTestUtils.getNodeId(testJcrTemplate, absPath);
-  }
-
   private void setUpRoleBindings() {
   }
 
-  @Override
   public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-    super.setApplicationContext(applicationContext);
+    manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");
+    SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean("jcrSessionFactory");
+    testJcrTemplate = new JcrTemplate(jcrSessionFactory);
+    testJcrTemplate.setAllowCreate(true);
+    testJcrTemplate.setExposeNativeSession(true);
+    repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
+    tenantAuthenticatedAuthorityNamePattern = (String) applicationContext
+        .getBean("tenantAuthenticatedAuthorityNamePattern");
+    tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    roleBindingDao = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
+        .getBean("roleAuthorizationPolicyRoleBindingDao");
+    authorizationPolicy = (IAuthorizationPolicy) applicationContext
+        .getBean("authorizationPolicy");
     repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
   }
+
+  /**
+   * Logs in with given username.
+   *
+   * @param username username of user
+   * @param tenantId tenant to which this user belongs
+   * @tenantAdmin true to add the tenant admin authority to the user's roles
+   */
+  protected void login(final String username, final String tenantId, final boolean tenantAdmin) {
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(username);
+    pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenantId);
+    final String password = "password";
+
+    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
+    authList.add(new GrantedAuthorityImpl(MessageFormat.format(tenantAuthenticatedAuthorityNamePattern, tenantId)));
+    if (tenantAdmin) {
+      authList.add(new GrantedAuthorityImpl(MessageFormat.format(tenantAdminAuthorityNamePattern, tenantId)));
+    }
+    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
+    UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
+    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(auth);
+
+    manager.newTenant();
+    manager.newUser();
+  }
+
+  protected void loginAsRepositoryAdmin() {
+    StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
+    pentahoSession.setAuthenticated(repositoryAdminUsername);
+    final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[0];
+    final String password = "ignored";
+    UserDetails repositoryAdminUserDetails = new User(repositoryAdminUsername, password, true, true, true, true,
+        repositoryAdminAuthorities);
+    Authentication repositoryAdminAuthentication = new UsernamePasswordAuthenticationToken(repositoryAdminUserDetails,
+        password, repositoryAdminAuthorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
+  }
+
+  protected void logout() {
+    PentahoSessionHolder.removeSession();
+    SecurityContextHolder.getContext().setAuthentication(null);
+  }
+
+  protected void login(final String username, final String tenantId) {
+    login(username, tenantId, false);
+  }
+
 }

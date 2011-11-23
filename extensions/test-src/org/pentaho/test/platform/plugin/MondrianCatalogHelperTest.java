@@ -18,6 +18,25 @@
 
 package org.pentaho.test.platform.plugin;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeFileObject;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeIdObject;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.pathPropertyPair;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubCreateFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubCreateFolder;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetChildren;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFileDoesNotExist;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFolder;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
@@ -29,20 +48,20 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.database.service.IDatabaseDialectService;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.util.IPasswordService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.SystemSettings;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
@@ -50,20 +69,13 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianDataSource;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import org.pentaho.platform.plugin.services.cache.CacheManager;
-import org.pentaho.platform.repository2.unified.JackrabbitRepositoryTestBase;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.plugin.UserRoleMapperTest.TestUserRoleListService;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/repository.spring-ext.xml", "classpath:/repository-test-override.spring-ext.xml" })
 @SuppressWarnings("nls")
-public class MondrianCatalogHelperTest extends JackrabbitRepositoryTestBase implements ApplicationContextAware {
+public class MondrianCatalogHelperTest {
 
 	// ~ Instance fields
 	// =================================================================================================
@@ -72,33 +84,20 @@ public class MondrianCatalogHelperTest extends JackrabbitRepositoryTestBase impl
 
 	private IUnifiedRepository repo;
 
-	private boolean startupCalled;
-
-	public MondrianCatalogHelperTest() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		// unfortunate reference to superclass
-		JackrabbitRepositoryTestBase.setUpClass();
 	}
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
-		JackrabbitRepositoryTestBase.tearDownClass();
 	}
 
-	@Override
 	@Before
 	public void setUp() throws Exception {
-		super.setUp();
-		startupCalled = true;
-
+    repo = mock(IUnifiedRepository.class);
+	  
 		booter = new MicroPlatform("test-src/solution");
 		booter.define(IPasswordService.class, Base64PasswordService.class, Scope.GLOBAL);
-		booter.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
 		booter.define(IDatabaseConnection.class, DatabaseConnection.class, Scope.GLOBAL);
 		booter.define(IDatabaseDialectService.class, DatabaseDialectService.class, Scope.GLOBAL);
 		booter.define(IMondrianCatalogService.class, MondrianCatalogHelper.class, Scope.GLOBAL);
@@ -113,29 +112,22 @@ public class MondrianCatalogHelperTest extends JackrabbitRepositoryTestBase impl
 		cacheMgr.clearRegionCache(MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION);
 	}
 
-	@Override
 	@After
 	public void tearDown() throws Exception {
-		super.tearDown();
-		if (startupCalled) {
-			manager.shutdown();
-		}
-		// null out fields to get back memory
-		repo = null;
-	}
-
-	@Override
-	public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-		super.setApplicationContext(applicationContext);
-		repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
 	}
 
 	@Test
 	public void testAddCatalog() throws Exception {
-		manager.startup();
-		login(USERNAME_JOE, TENANT_ID_ACME, true);
-
-		IPentahoSession session = PentahoSessionHolder.getSession();
+	  final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
+	  stubGetFolder(repo, mondrianFolderPath);
+    stubGetChildren(repo, mondrianFolderPath); // return no children
+    final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SteelWheels";
+	  stubGetFileDoesNotExist(repo, steelWheelsFolderPath);
+	  stubCreateFolder(repo, steelWheelsFolderPath);
+	  final String metadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
+	  stubCreateFile(repo, metadataPath);
+	  
+		IPentahoSession session = new StandaloneSession("joe");
 		MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
 
 		MondrianSchema schema = new MondrianSchema("SteelWheels", null);
@@ -146,33 +138,47 @@ public class MondrianCatalogHelperTest extends JackrabbitRepositoryTestBase impl
 		session.setAttribute("MONDRIAN_SCHEMA_XML_CONTENT", mondrianSchema);
 		helper.addCatalog(cat, false, session);
 
-		MondrianCatalog catalog = helper.getCatalog("mondrian:/SteelWheels", session);
-		Assert.assertNotNull(catalog);
+		verify(repo).createFile(eq(makeIdObject(steelWheelsFolderPath)), argThat(isLikeFile(makeFileObject(metadataPath))), 
+		    argThat(hasData(pathPropertyPair("/catalog/definition", "mondrian:/" + cat.getName()), 
+		        pathPropertyPair("/catalog/datasourceInfo", cat.getDataSourceInfo()))), anyString());
+
+    verify(repo).createFile(eq(makeIdObject(steelWheelsFolderPath)), argThat(isLikeFile(makeFileObject(steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml"))), 
+        any(IRepositoryFileData.class), anyString());
 	}
 
 	@Test
 	public void testListCatalog() throws Exception {
-		manager.startup();
-		login(USERNAME_JOE, TENANT_ID_ACME, true);
+    File file1 = new File("test-src/solution/test/charts/steelwheels.mondrian.xml");
+    String mondrianSchema1 = IOUtils.toString(new FileInputStream(file1));
+    File file2 = new File("test-src/solution/samples/reporting/SampleData.mondrian.xml");
+    String mondrianSchema2 = IOUtils.toString(new FileInputStream(file2));
+	  
+	  final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
+    stubGetFolder(repo, mondrianFolderPath);
+    stubGetChildren(repo, mondrianFolderPath, "SampleData/", "SteelWheels/"); // return two child folders
 
-		IPentahoSession session = PentahoSessionHolder.getSession();
+    final String sampleDataFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SampleData";
+    final String sampleDataMetadataPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "metadata";
+    final String sampleDataSchemaPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
+    stubGetFile(repo, sampleDataMetadataPath);
+    stubGetData(repo, sampleDataMetadataPath, "catalog", 
+        pathPropertyPair("/catalog/definition", "mondrian:/SampleData"), 
+        pathPropertyPair("/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData;"));
+    stubGetFile(repo, sampleDataSchemaPath);
+    stubGetData(repo, sampleDataSchemaPath, mondrianSchema2);
+    
+    final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SteelWheels";
+    final String steelWheelsMetadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
+    final String steelWheelsSchemaPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
+    stubGetFile(repo, steelWheelsMetadataPath);
+    stubGetData(repo, steelWheelsMetadataPath, "catalog", 
+        pathPropertyPair("/catalog/definition", "mondrian:/SteelWheels"), 
+        pathPropertyPair("/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;"));
+    stubGetFile(repo, steelWheelsSchemaPath);
+    stubGetData(repo, steelWheelsSchemaPath, mondrianSchema1);
+  	    
+	  IPentahoSession session = new StandaloneSession("joe");
 		MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
-
-		MondrianSchema schema1 = new MondrianSchema("SteelWheels", null);
-		MondrianDataSource ds1 = new MondrianDataSource("SteelWheels", "", "", "Provider=mondrian;DataSource=SampleData;", "", "", "", null);
-		MondrianCatalog cat1 = new MondrianCatalog("SteelWheels", "Provider=mondrian;DataSource=SampleData;", "solution:test/charts/steelwheels.mondrian.xml", ds1, schema1);
-		File file1 = new File("test-src/solution/test/charts/steelwheels.mondrian.xml");
-		String mondrianSchema1 = IOUtils.toString(new FileInputStream(file1));
-		session.setAttribute("MONDRIAN_SCHEMA_XML_CONTENT", mondrianSchema1);
-		helper.addCatalog(cat1, false, session);
-
-		MondrianSchema schema2 = new MondrianSchema("SampleData", null);
-		MondrianDataSource ds2 = new MondrianDataSource("SampleData", "", "", "Provider=mondrian;DataSource=SampleData;", "", "", "", null);
-		MondrianCatalog cat2 = new MondrianCatalog("SampleData", "Provider=mondrian;DataSource=SampleData;", "solution:samples/reporting/SampleData.mondrian.xml", ds2, schema2);
-		File file2 = new File("test-src/solution/samples/reporting/SampleData.mondrian.xml");
-		String mondrianSchema2 = IOUtils.toString(new FileInputStream(file2));
-		session.setAttribute("MONDRIAN_SCHEMA_XML_CONTENT", mondrianSchema2);
-		helper.addCatalog(cat2, false, session);
 
 		List<MondrianCatalog> cats = helper.listCatalogs(session, false);
 		Assert.assertEquals(2, cats.size());
@@ -180,26 +186,30 @@ public class MondrianCatalogHelperTest extends JackrabbitRepositoryTestBase impl
 
 	@Test
 	public void testRemoveCatalog() throws Exception {
-
-		manager.startup();
-		login(USERNAME_JOE, TENANT_ID_ACME, true);
-
-		IPentahoSession session = PentahoSessionHolder.getSession();
+	  File file1 = new File("test-src/solution/test/charts/steelwheels.mondrian.xml");
+    String mondrianSchema1 = IOUtils.toString(new FileInputStream(file1));
+	  
+	  final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
+	  stubGetFolder(repo, mondrianFolderPath);
+	  stubGetChildren(repo, mondrianFolderPath, "SteelWheels/");
+	  
+	  final String steelWheelsFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SteelWheels";
+    final String steelWheelsMetadataPath = steelWheelsFolderPath+ RepositoryFile.SEPARATOR + "metadata";
+    final String steelWheelsSchemaPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml";
+    stubGetFile(repo, steelWheelsMetadataPath);
+    stubGetData(repo, steelWheelsMetadataPath, "catalog", 
+        pathPropertyPair("/catalog/definition", "mondrian:/SteelWheels"), 
+        pathPropertyPair("/catalog/datasourceInfo", "Provider=mondrian;DataSource=SteelWheels;"));
+    stubGetFile(repo, steelWheelsSchemaPath);
+    stubGetData(repo, steelWheelsSchemaPath, mondrianSchema1);
+    
+    stubGetFolder(repo, steelWheelsFolderPath);
+	  
+	  IPentahoSession session = new StandaloneSession("joe");
 		MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
 
-		MondrianSchema schema = new MondrianSchema("SteelWheels", null);
-		MondrianDataSource ds = new MondrianDataSource("SteelWheels", "", "", "Provider=mondrian;DataSource=SampleData;", "", "", "", null);
-		MondrianCatalog cat = new MondrianCatalog("SteelWheels", "Provider=mondrian;DataSource=SampleData;", "solution:test/charts/steelwheels.mondrian.xml", ds, schema);
-		File file = new File("test-src/solution/test/charts/steelwheels.mondrian.xml");
-		String mondrianSchema = IOUtils.toString(new FileInputStream(file));
-		session.setAttribute("MONDRIAN_SCHEMA_XML_CONTENT", mondrianSchema);
-		helper.addCatalog(cat, false, session);
-
-		MondrianCatalog catalog = helper.getCatalog("mondrian:/SteelWheels", session);
-		Assert.assertNotNull(catalog);
-
 		helper.removeCatalog("mondrian:/SteelWheels", session);
-		List<MondrianCatalog> cats = helper.listCatalogs(session, false);
-		Assert.assertEquals(0, cats.size());
+		
+		verify(repo).deleteFile(eq(makeIdObject(steelWheelsFolderPath)), anyString());
 	}
 }

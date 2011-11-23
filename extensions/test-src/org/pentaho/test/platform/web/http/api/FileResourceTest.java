@@ -15,11 +15,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.hasData;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.isLikeAcl;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryMatchers.isLikeFile;
 import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
 import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponseIsZip;
+
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
