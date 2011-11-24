@@ -173,14 +173,15 @@ public class ImportExportTest {
     Importer importer = new Importer(repo, converters);
     final String publicFolderId = "123";
     // stub request for /public
-    String path = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR; // for whatever reason code is adding extra slash
+    String path = ClientRepositoryPaths.getPublicFolderPath();
     doReturn(new RepositoryFile.Builder(publicFolderId, "public").folder(true).build()).when(repo).getFile(path);
-    path = path + "pentaho-solutions";
+    doReturn(new RepositoryFile.Builder(publicFolderId, "public").folder(true).build()).when(repo).getFile(path + RepositoryFile.SEPARATOR); // for whatever reason code is adding extra slash
+    path = path + RepositoryFile.SEPARATOR +  "pentaho-solutions";
     // need to return null the first time (when the folder doesn't exist) and non-null the second time (when it does exist)
-    when(repo.getFile(path)).thenReturn(null).thenReturn(new RepositoryFile.Builder("789", "pentaho-solutions").folder(true).build());
+    when(repo.getFile(path)).thenReturn(null).thenReturn(null).thenReturn(new RepositoryFile.Builder("789", "pentaho-solutions").folder(true).build());
     path = path + RepositoryFile.SEPARATOR + "getting-started";
     // need to return null the first time (when the folder doesn't exist) and non-null the second time (when it does exist)
-    when(repo.getFile(path)).thenReturn(null).thenReturn(new RepositoryFile.Builder("abc", "getting-started").folder(true).build());
+    when(repo.getFile(path)).thenReturn(null).thenReturn(null).thenReturn(new RepositoryFile.Builder("abc", "getting-started").folder(true).build());
     doReturn(new RepositoryFile.Builder("456", "HelloWorld.xaction").build()).when(repo).createFile(any(Serializable.class), any(RepositoryFile.class), any(IRepositoryFileData.class), anyString());
     final String helloWorldXactionPath = "test-src/org/pentaho/platform/repository2/unified/importexport/testdata/pentaho-solutions/getting-started/HelloWorld.xaction";
     
