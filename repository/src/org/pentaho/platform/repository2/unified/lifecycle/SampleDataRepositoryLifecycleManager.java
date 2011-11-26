@@ -53,14 +53,12 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
   @Override
   public void newTenant(String tenantId) {
     try {
-      datasourceMgmtService.getDatasourceByName(DBMETA_DBNAME);
-    } catch (DatasourceMgmtServiceException dmse) {
-      try {
-        datasourceMgmtService.createDatasource(createDatabaseconnection());
-      } catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+      IDatabaseConnection databaseConnection = datasourceMgmtService.getDatasourceByName(DBMETA_DBNAME);
+      if(databaseConnection == null) {
+        createDatasource();
       }
+    } catch (DatasourceMgmtServiceException dmse) {
+      createDatasource();
     }
   }
 
@@ -103,4 +101,12 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
     return databaseConnection;
   }
 
+  private void createDatasource() {
+    try {
+      datasourceMgmtService.createDatasource(createDatabaseconnection());
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
 }
