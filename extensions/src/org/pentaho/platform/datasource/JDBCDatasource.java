@@ -8,8 +8,8 @@ public class JDBCDatasource extends GenericDatasourceInfo implements IGenericDat
   private static final long serialVersionUID = 1L;
   private IDatabaseConnection datasource;
   
-  public JDBCDatasource(IDatabaseConnection datasource, String id, String type) {
-    super(id, type);
+  public JDBCDatasource(IDatabaseConnection datasource, String name, String id, String type) {
+    super(name, id, type);
     this.datasource = datasource;
   }
   @Override

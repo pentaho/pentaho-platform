@@ -8,8 +8,8 @@ public class MetadataDatasource extends GenericDatasourceInfo implements IGeneri
   private static final long serialVersionUID = 1L;
   private Domain datasource;
 
-  public MetadataDatasource(Domain datasource, String id, String type) {
-    super(id, type);
+  public MetadataDatasource(Domain datasource, String name, String id, String type) {
+    super(name, id, type);
     this.datasource = datasource;
   }
   @Override

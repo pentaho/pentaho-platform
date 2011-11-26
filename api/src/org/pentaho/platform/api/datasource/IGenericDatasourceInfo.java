@@ -8,6 +8,19 @@ import java.io.Serializable;
  *
  */
 public interface IGenericDatasourceInfo extends Serializable{
+  /**
+   * Returns a datasource name
+   * @return name
+   */
+  public String getName();
+  
+  /**
+   * Stores a datasource name
+   * @param name
+   */
+  
+  public void setName(String name);
+  
 
   /**
    * Returns a datasource id

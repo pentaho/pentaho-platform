@@ -32,7 +32,7 @@ public class GenericDatasourceResource extends AbstractJaxRSResource {
   public List<GenericDatasourceInfo> getDatasources() throws PentahoAccessControlException {
     List<GenericDatasourceInfo> infoList = new ArrayList<GenericDatasourceInfo>();
     for(IGenericDatasourceInfo datasourceInfo:datasourceServiceManager.getIds()) {
-      infoList.add(new GenericDatasourceInfo(datasourceInfo.getId(), datasourceInfo.getType())); 
+      infoList.add(new GenericDatasourceInfo(datasourceInfo.getName(), datasourceInfo.getId(), datasourceInfo.getType())); 
     }
     return infoList;
   }

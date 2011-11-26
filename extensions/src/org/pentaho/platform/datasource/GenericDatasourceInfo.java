@@ -25,6 +25,8 @@ public class GenericDatasourceInfo implements IGenericDatasourceInfo {
    */
   private static final long serialVersionUID = 1L;
 
+  String name;
+  
   String id;
 
   String type;
@@ -34,11 +36,17 @@ public class GenericDatasourceInfo implements IGenericDatasourceInfo {
     // TODO Auto-generated constructor stub
   }
 
-  public GenericDatasourceInfo(String id, String type) {
+  public GenericDatasourceInfo(String name, String id, String type) {
     super();
+    this.name = name;
     this.id = id;
     this.type = type;
   }
+  @Override
+  public String getName() {
+    return name;
+  }
+  
   
   @Override
   public String getId() {
@@ -53,18 +61,21 @@ public class GenericDatasourceInfo implements IGenericDatasourceInfo {
   @SuppressWarnings("nls")
   @Override
   public String toString() {
-    return "GenericDatasourceInfo [id=" + id + ", type=" + type + "]";
+    return "GenericDatasourceInfo [name=" + name + "id=" + id + ", type=" + type + "]";
   }
 
   @Override
   public void setId(String id) {
     this.id = id;
-    
   }
 
   @Override
   public void setType(String type) {
     this.type = type;
-    
   }
+  @Override
+  public void setName(String name) {
+    this.name = name;
+  }
+
 }

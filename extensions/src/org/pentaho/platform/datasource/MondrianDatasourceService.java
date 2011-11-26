@@ -45,7 +45,7 @@ public class MondrianDatasourceService implements IGenericDatasourceService{
   public MondrianDatasource get(String id) throws GenericDatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     MondrianCatalog mondrianCatalog = mondrianCatalogService.getCatalog(id, PentahoSessionHolder.getSession());
-    return new MondrianDatasource(mondrianCatalog, mondrianCatalog.getName(), TYPE);
+    return new MondrianDatasource(mondrianCatalog, mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE);
   }
 
   @Override
@@ -70,7 +70,7 @@ public class MondrianDatasourceService implements IGenericDatasourceService{
     helper.checkAdministratorAccess();
     List<IGenericDatasource> mondrianDatasourceList = new ArrayList<IGenericDatasource>();
     for(MondrianCatalog mondrianCatalog: mondrianCatalogService.listCatalogs(PentahoSessionHolder.getSession(), true)) {
-      mondrianDatasourceList.add(new MondrianDatasource(mondrianCatalog, mondrianCatalog.getName(), TYPE));
+      mondrianDatasourceList.add(new MondrianDatasource(mondrianCatalog,mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE));
     }
     return mondrianDatasourceList;
   }
@@ -83,7 +83,7 @@ public class MondrianDatasourceService implements IGenericDatasourceService{
       String domainId = mondrianCatalog.getName() + METADATA_EXT;
       Domain domain = metadataDomainRepository.getDomain(domainId);
       if(domain == null) {
-        datasourceInfoList.add(new GenericDatasourceInfo(mondrianCatalog.getName(), TYPE));
+        datasourceInfoList.add(new GenericDatasourceInfo(mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE));
       }
     }
     return datasourceInfoList;

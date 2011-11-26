@@ -51,7 +51,7 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
     helper.checkAdministratorAccess();
     try {
       IDatabaseConnection databaseConnection = datasourceMgmtService.getDatasourceByName(id);
-      return new JDBCDatasource(databaseConnection, databaseConnection.getName(), TYPE);
+      return new JDBCDatasource(databaseConnection, databaseConnection.getName(), databaseConnection.getName(), TYPE);
     } catch (DatasourceMgmtServiceException e) {
       return null;
     }
@@ -92,7 +92,7 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
     List<IGenericDatasource> jdbcDatasourceList = new ArrayList<IGenericDatasource>();
     try {
       for(IDatabaseConnection databaseConnection:datasourceMgmtService.getDatasources()) {
-        jdbcDatasourceList.add(new JDBCDatasource(databaseConnection, databaseConnection.getName(), TYPE));
+        jdbcDatasourceList.add(new JDBCDatasource(databaseConnection, databaseConnection.getName(), databaseConnection.getName(), TYPE));
       }
       return jdbcDatasourceList;
     } catch (DatasourceMgmtServiceException e) {
@@ -106,7 +106,7 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
     List<IGenericDatasourceInfo> datasourceInfoList = new ArrayList<IGenericDatasourceInfo>();
     try {
       for(IDatabaseConnection databaseConnection:datasourceMgmtService.getDatasources()) {
-        datasourceInfoList.add(new GenericDatasourceInfo(databaseConnection.getName(), TYPE));
+        datasourceInfoList.add(new GenericDatasourceInfo(databaseConnection.getName(), databaseConnection.getName(), TYPE));
       }
       return datasourceInfoList;
     } catch (DatasourceMgmtServiceException e) {

@@ -16,6 +16,7 @@ import org.pentaho.platform.api.datasource.IGenericDatasourceService;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
 public class MetadataDatasourceService implements IGenericDatasourceService{
   IMetadataDomainRepository metadataDomainRepository;
@@ -53,7 +54,7 @@ public class MetadataDatasourceService implements IGenericDatasourceService{
     helper.checkAdministratorAccess();
     Domain domain = metadataDomainRepository.getDomain(id);
     if(domain != null) {
-      return new MetadataDatasource(domain, domain.getId(), TYPE);      
+      return new MetadataDatasource(domain, domain.getId(), domain.getId(), TYPE);      
     } else {
       return null;
     }
@@ -107,7 +108,7 @@ public class MetadataDatasourceService implements IGenericDatasourceService{
     for(String id:metadataDomainRepository.getDomainIds()) {
       try {
         if(isMetadataDatasource(id)) {
-          datasourceInfoList.add(new GenericDatasourceInfo(id, TYPE));
+          datasourceInfoList.add(new GenericDatasourceInfo(id, id, TYPE));
         }
       } catch (GenericDatasourceServiceException e) {
         // TODO Auto-generated catch block

@@ -9,8 +9,8 @@ public class MondrianDatasource extends GenericDatasourceInfo implements IGeneri
   private MondrianCatalog datasource;;
   
   
-  public MondrianDatasource(MondrianCatalog datasource, String id, String type) {
-    super(id, type);
+  public MondrianDatasource(MondrianCatalog datasource, String name, String id, String type) {
+    super(name, id, type);
     this.datasource = datasource;
   }
   @Override
