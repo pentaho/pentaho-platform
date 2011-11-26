@@ -17,6 +17,7 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogServi
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 
 public class MondrianDatasourceService implements IGenericDatasourceService{
+  public static final String METADATA_EXT = ".xmi";
   public static final String TYPE = "Analysis";
   IMondrianCatalogService mondrianCatalogService;
   IMetadataDomainRepository metadataDomainRepository;
@@ -79,7 +80,8 @@ public class MondrianDatasourceService implements IGenericDatasourceService{
     helper.checkAdministratorAccess();
     List<IGenericDatasourceInfo> datasourceInfoList = new ArrayList<IGenericDatasourceInfo>();
     for(MondrianCatalog mondrianCatalog: mondrianCatalogService.listCatalogs(PentahoSessionHolder.getSession(), true)) {
-      Domain domain = metadataDomainRepository.getDomain(mondrianCatalog.getName());
+      String domainId = mondrianCatalog.getName() + METADATA_EXT;
+      Domain domain = metadataDomainRepository.getDomain(domainId);
       if(domain == null) {
         datasourceInfoList.add(new GenericDatasourceInfo(mondrianCatalog.getName(), TYPE));
       }
