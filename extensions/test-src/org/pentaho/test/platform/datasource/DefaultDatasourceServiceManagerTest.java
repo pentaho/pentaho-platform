@@ -100,7 +100,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     
     IGenericDatasourceService jdbcService = serviceManager.getService(JDBCDatasourceService.TYPE);
     try {
-      jdbcService.add(new JDBCDatasource(createDatabaseConnection("SampleData"), "SampleData", JDBCDatasourceService.TYPE));
+      jdbcService.add(new JDBCDatasource(createDatabaseConnection("SampleData"), "SampleData", "SampleData", JDBCDatasourceService.TYPE));
     } catch (GenericDatasourceServiceException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -110,7 +110,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
 
     IGenericDatasourceService metadataService = serviceManager.getService(MetadataDatasourceService.TYPE);
     try {
-      metadataService.add(new MetadataDatasource(getTestDomain("MyTestDomain.xmi"), "MyTestDomain.xmi", MetadataDatasourceService.TYPE));
+      metadataService.add(new MetadataDatasource(getTestDomain("MyTestDomain.xmi"), "MyTestDomain", "MyTestDomain.xmi", MetadataDatasourceService.TYPE));
     } catch (GenericDatasourceServiceException e) {
       assertTrue(e != null);
     } catch (PentahoAccessControlException e) {
@@ -120,7 +120,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     
     IGenericDatasourceService mondrianService =  serviceManager.getService(MondrianDatasourceService.TYPE);
     try {
-      mondrianService.add(new MondrianDatasource(getTestCatalog("MyTestDomain"), "MyTestDomain", MetadataDatasourceService.TYPE));
+      mondrianService.add(new MondrianDatasource(getTestCatalog("MyTestDomain"), "MyTestDomain", "MyTestDomain", MetadataDatasourceService.TYPE));
     } catch (GenericDatasourceServiceException e) {
       assertTrue(e != null);
     } catch (PentahoAccessControlException e) {
@@ -180,7 +180,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     public List<IGenericDatasourceInfo> getIds() {
       List<IGenericDatasourceInfo> datasourceInfoIds = new ArrayList<IGenericDatasourceInfo>();
       for(IGenericDatasource datasource:mondrianDatasourceList) {
-        datasourceInfoIds.add(new GenericDatasourceInfo(datasource.getId(), datasource.getType()));
+        datasourceInfoIds.add(new GenericDatasourceInfo(datasource.getId(),datasource.getId(), datasource.getType()));
       }
       return datasourceInfoIds;
     }
@@ -232,7 +232,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     public List<IGenericDatasourceInfo> getIds() {
       List<IGenericDatasourceInfo> datasourceInfoIds = new ArrayList<IGenericDatasourceInfo>();
       for(IGenericDatasource datasource:jdbcDatasourceList) {
-        datasourceInfoIds.add(new GenericDatasourceInfo(datasource.getId(), datasource.getType()));
+        datasourceInfoIds.add(new GenericDatasourceInfo(datasource.getId(), datasource.getId(), datasource.getType()));
       }
       return datasourceInfoIds;
     }
@@ -286,7 +286,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     public List<IGenericDatasourceInfo> getIds() {
       List<IGenericDatasourceInfo> datasourceInfoIds = new ArrayList<IGenericDatasourceInfo>();
       for(IGenericDatasource datasource:metadataDatasourceList) {
-        datasourceInfoIds.add(new GenericDatasourceInfo(datasource.getId(), datasource.getType()));
+        datasourceInfoIds.add(new GenericDatasourceInfo(datasource.getId(), datasource.getId(), datasource.getType()));
       }
       return datasourceInfoIds;
     }
