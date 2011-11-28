@@ -281,7 +281,7 @@ public class WorkspacePanel extends SimplePanel {
     Label noDataLabel = new Label(Messages.getString("noSchedules"));
     noDataLabel.setStyleName("noDataForScheduleTable");
     table.setEmptyTableWidget(noDataLabel);
-    
+
     TextColumn<JsJob> idColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob job) {
         return job.getJobId();
@@ -400,7 +400,7 @@ public class WorkspacePanel extends SimplePanel {
     if (isAdmin) {
       table.addColumnStyleName(5, "backgroundContentHeaderTableCell");
     }
-    
+
     table.setColumnWidth(resourceColumn, 220, Unit.PX);
     table.setColumnWidth(lastFireColumn, 150, Unit.PX);
     table.setColumnWidth(nextFireColumn, 150, Unit.PX);
@@ -460,7 +460,7 @@ public class WorkspacePanel extends SimplePanel {
         String s2 = o2.getJobTrigger().getDescription();
         return s1.compareTo(s2);
       }
-    });    
+    });
     columnSortHandler.setComparator(userNameColumn, new Comparator<JsJob>() {
       public int compare(JsJob o1, JsJob o2) {
         if (o1 == o2) {
@@ -648,7 +648,20 @@ public class WorkspacePanel extends SimplePanel {
     scheduleRemoveButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
-          controlJobs(selectedJobs, "removeJob", RequestBuilder.DELETE, true);
+          final PromptDialogBox prompt = new PromptDialogBox(Messages.getString("warning"), Messages.getString("yes"), Messages.getString("no"), false, true);
+          prompt.setContent(new Label(Messages.getString("deleteConfirmSchedles", "" + selectedJobs.size())));
+
+          prompt.setCallback(new IDialogCallback() {
+            public void okPressed() {
+              controlJobs(selectedJobs, "removeJob", RequestBuilder.DELETE, true);
+              prompt.hide();
+            }
+
+            public void cancelPressed() {
+              prompt.hide();
+            }
+          });
+          prompt.center();
         }
       }
     });
