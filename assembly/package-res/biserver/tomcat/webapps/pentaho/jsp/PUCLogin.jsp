@@ -350,6 +350,7 @@ function doLogin() {
     jQuery.ajax({
         type: "POST",
         url: "j_spring_security_check",
+		dataType: "text",
         data: $("#login").serialize(),
 
         error:function (xhr, ajaxOptions, thrownError){
