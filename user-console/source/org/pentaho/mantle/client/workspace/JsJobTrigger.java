@@ -25,6 +25,7 @@ import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
@@ -34,16 +35,40 @@ public class JsJobTrigger extends JavaScriptObject {
   protected JsJobTrigger() {
   }
 
+  public static JsJobTrigger instance() {
+    return (JsJobTrigger)JavaScriptObject.createObject();
+  }
+  
   // JSNI methods to get job type.
   public final native String getType() /*-{ return this['@type']; }-*/; //
+  
+  public final native void setType(String type) /*-{
+    this['@type'] = type;
+  }-*/;
 
   public final native int getRepeatCount() /*-{ return this.repeatCount; }-*/; //
 
+  public final native void setRepeatCount(int count) /*-{
+    this.repeatCount = count;
+  }-*/;
+  
   public final native int getRepeatInterval() /*-{ return this.repeatInterval; }-*/; //
 
+  public final native void setRepeatInterval(int interval) /*-{
+    this.repeatInterval = interval;
+  }-*/;
+  
   private final native String getNativeStartTime() /*-{ return this.startTime; }-*/; //
 
+  public final native void setNativeStartTime(String iso8601TimeString) /*-{
+    this.startTime = iso8601TimeString;
+  }-*/;
+  
   private final native String getNativeEndTime() /*-{ return this.endTime; }-*/; //
+
+  public final native void setNativeEndTime(String iso8601TimeString) /*-{
+    this.endTime = iso8601TimeString;
+  }-*/;
 
   public final Date getStartTime() {
     return JsJob.formatDate(getNativeStartTime());
@@ -58,16 +83,49 @@ public class JsJobTrigger extends JavaScriptObject {
     return this.secondRecurrences.recurrenceList.values; 
   }-*/;
 
+  public final native void setSecondRecurrences(JsArrayInteger seconds)
+  /*-{ 
+    if (!('secondRecurrences' in this) || !this.secondRecurrences) {
+      this.secondRecurrences = {};
+    }
+    if (!('recurrenceList' in this.secondRecurrences) || !this.secondRecurrences.recurrenceList) {
+      this.secondRecurrences.recurrenceList = {};
+    }
+    this.secondRecurrences.recurrenceList.values = seconds; 
+  }-*/;
+
   public final native int[] getMinuteRecurrences()
   /*-{ 
     return this.minuteRecurrences.recurrenceList.values; 
   }-*/;
 
+  public final native void setMinuteRecurrences(JsArrayInteger minutes)
+  /*-{ 
+    if (!('minuteRecurrences' in this) || !this.minuteRecurrences) {
+      this.minuteRecurrences = {};
+    }
+    if (!('recurrenceList' in this.minuteRecurrences) || !this.minuteRecurrences.recurrenceList) {
+      this.minuteRecurrences.recurrenceList = {};
+    }
+    this.minuteRecurrences.recurrenceList.values = minutes; 
+  }-*/;
+  
   public final native int[] getHourRecurrences()
   /*-{ 
     return this.hourlyRecurrences.recurrenceList.values; 
   }-*/;
 
+  public final native void setHourRecurrences(JsArrayInteger hours)
+  /*-{ 
+    if (!('hourRecurrences' in this) || !this.hourRecurrences) {
+      this.hourRecurrences = {};
+    }
+    if (!('recurrenceList' in this.hourRecurrences) || !this.hourRecurrences.recurrenceList) {
+      this.hourRecurrences.recurrenceList = {};
+    }
+    this.hourRecurrences.recurrenceList.values = hours; 
+  }-*/;
+  
   public final native int[] getDayOfWeekRecurrences()
   /*-{ 
     var arr = [];
@@ -81,6 +139,17 @@ public class JsJobTrigger extends JavaScriptObject {
     return arr;
   }-*/;
 
+  public final native void setDayOfWeekRecurrences(JsArrayInteger days)
+  /*-{ 
+    if (!('dayOfWeekRecurrences' in this) || !this.dayOfWeekRecurrences) {
+      this.dayOfWeekRecurrences = {};
+    }
+    if (!('recurrenceList' in this.dayOfWeekRecurrences) || !this.dayOfWeekRecurrences.recurrenceList) {
+      this.dayOfWeekRecurrences.recurrenceList = {};
+    }
+    this.dayOfWeekRecurrences.recurrenceList.values = days; 
+  }-*/;
+  
   public final native boolean isQualifiedDayOfWeekRecurrence()
   /*-{ 
     return this.dayOfWeekRecurrences != null && this.dayOfWeekRecurrences.qualifiedDayOfWeek != null; 
@@ -91,11 +160,33 @@ public class JsJobTrigger extends JavaScriptObject {
     return this.dayOfWeekRecurrences.qualifiedDayOfWeek.qualifier; 
   }-*/;
 
+  public final native void setDayOfWeekQualifier(String qualifier)
+  /*-{ 
+    if (!('dayOfWeekRecurrences' in this) || !this.dayOfWeekRecurrences) {
+      this.dayOfWeekRecurrences = {};
+    }
+    if (!('qualifiedDayOfWeek' in this.dayOfWeekRecurrences) || !this.dayOfWeekRecurrences.qualifiedDayOfWeek) {
+      this.dayOfWeekRecurrences.qualifiedDayOfWeek = {};
+    }
+    this.dayOfWeekRecurrences.qualifiedDayOfWeek.qualifier = qualifier; 
+  }-*/;
+  
   public final native String getQualifiedDayOfWeek()
   /*-{ 
     return this.dayOfWeekRecurrences.qualifiedDayOfWeek.dayOfWeek; 
   }-*/;
 
+  public final native void setQualifiedDayOfWeek(String dayOfWeek)
+  /*-{ 
+    if (!('dayOfWeekRecurrences' in this) || !this.dayOfWeekRecurrences) {
+      this.dayOfWeekRecurrences = {};
+    }
+    if (!('qualifiedDayOfWeek' in this.dayOfWeekRecurrences) || !this.dayOfWeekRecurrences.qualifiedDayOfWeek) {
+      this.dayOfWeekRecurrences.qualifiedDayOfWeek = {};
+    }
+    this.dayOfWeekRecurrences.qualifiedDayOfWeek.dayOfWeek = dayOfWeek; 
+  }-*/;
+  
   public final native int[] getDayOfMonthRecurrences()
   /*-{ 
     var arr = [];
@@ -109,6 +200,17 @@ public class JsJobTrigger extends JavaScriptObject {
     return arr;
   }-*/;
 
+  public final native void setDayOfMonthRecurrences(JsArrayInteger days)
+  /*-{ 
+    if (!('dayOfMonthRecurrences' in this) || !this.dayOfMonthRecurrences) {
+      this.dayOfMonthRecurrences = {};
+    }
+    if (!('recurrenceList' in this.dayOfMonthRecurrences) || !this.dayOfMonthRecurrences.recurrenceList) {
+      this.dayOfMonthRecurrences.recurrenceList = {};
+    }
+    this.dayOfMonthRecurrences.recurrenceList.values = days; 
+  }-*/;
+  
   public final native int[] getMonthlyRecurrences()
   /*-{ 
     var arr = [];
@@ -122,6 +224,17 @@ public class JsJobTrigger extends JavaScriptObject {
     return arr;
   }-*/;
 
+  public final native void setMonthlyRecurrences(JsArrayInteger months)
+  /*-{ 
+    if (!('monthlyRecurrences' in this) || !this.monthlyRecurrences) {
+      this.monthlyRecurrences = {};
+    }
+    if (!('recurrenceList' in this.monthlyRecurrences) || !this.monthlyRecurrences.recurrenceList) {
+      this.monthlyRecurrences.recurrenceList = {};
+    }
+    this.monthlyRecurrences.recurrenceList.values = months; 
+  }-*/;
+
   public final native int[] getYearlyRecurrences()
   /*-{ 
   var arr = [];
@@ -133,6 +246,17 @@ public class JsJobTrigger extends JavaScriptObject {
     }
   }
   return arr;
+  }-*/;
+
+  public final native void setYearlyRecurrences(JsArrayInteger years)
+  /*-{ 
+    if (!('yearlyRecurrences' in this) || !this.yearlyRecurrences) {
+      this.yearlyRecurrences = {};
+    }
+    if (!('recurrenceList' in this.yearlyRecurrences) || !this.yearlyRecurrences.recurrenceList) {
+      this.yearlyRecurrences.recurrenceList = {};
+    }
+    this.yearlyRecurrences.recurrenceList.values = years; 
   }-*/;
 
   public final String getDescription() {

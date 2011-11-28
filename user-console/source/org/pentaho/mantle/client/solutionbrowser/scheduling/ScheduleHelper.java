@@ -10,11 +10,13 @@ import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -36,35 +38,14 @@ public class ScheduleHelper {
     final AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 
       public void onSuccess(Boolean result) {
-        // if we are still authenticated, perform the action, otherwise present login
-        AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
-
-          public void onFailure(Throwable caught) {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetFileProperties"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-            dialogBox.center();
-          }
-
-          public void onSuccess(Boolean subscribable) {
-
-            if (subscribable) {
-              NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath);
-              dialog.center();
-            } else {
-              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("info"), //$NON-NLS-1$
-                  Messages.getString("noSchedulePermission"), false, false, true); //$NON-NLS-1$
-              dialogBox.center();
-            }
-          }
-        };
-        MantleServiceCache.getService().hasAccess(fileNameWithPath, "", 3, callback);
-
+        final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath);
+        dialog.center();
       }
 
       public void onFailure(Throwable caught) {
         MantleLoginDialog.performLogin(new AsyncCallback<Boolean>() {
 
           public void onFailure(Throwable caught) {
-
           }
 
           public void onSuccess(Boolean result) {
@@ -88,22 +69,21 @@ public class ScheduleHelper {
 
         if (SolutionBrowserPanel.getInstance().getExecutableFileExtensions().contains(extension)) {
           showScheduleDialog(repositoryFile.getPath());
-              } else {
-                  final MessageDialogBox dialogBox = new MessageDialogBox(
-              Messages.getString("open"), Messages.getString("scheduleInvalidFileType", repositoryFile.getPath()), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+        } else {
+            final MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("open"), Messages.getString("scheduleInvalidFileType", repositoryFile.getPath()), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
 
-                  dialogBox.setCallback(new IDialogCallback() {
-                    public void cancelPressed() {
-                    }
+            dialogBox.setCallback(new IDialogCallback() {
+              public void cancelPressed() {
+              }
 
-                    public void okPressed() {
-                      dialogBox.hide();
-                    }
-                  });
+              public void okPressed() {
+                dialogBox.hide();
+              }
+            });
 
-                  dialogBox.center();
-                  return;
-                }
+            dialogBox.center();
+            return;
+        }
         
       }
 

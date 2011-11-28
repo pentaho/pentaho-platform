@@ -23,24 +23,21 @@ import java.util.Date;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.ScheduleType;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
-import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.workspace.JsJobTrigger;
+import org.pentaho.mantle.login.client.MantleLoginDialog;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONArray;
@@ -48,6 +45,7 @@ import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * @author wseyler
@@ -58,23 +56,23 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   String moduleBaseURL = GWT.getModuleBaseURL();
   String moduleName = GWT.getModuleName();
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+  String filePath;
   
   ScheduleEditorWizardPanel scheduleEditorWizardPanel;
+  ScheduleParamsDialog scheduleParamsDialog;
 
-  String path; 
   Boolean done = false;
- 
   
-  public NewScheduleDialog(String path) {
+
+  public NewScheduleDialog(String filePath) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
-    scheduleEditorWizardPanel = new ScheduleEditorWizardPanel(path);
-    this.path = path;    
+    this.filePath = filePath;
+    scheduleEditorWizardPanel = new ScheduleEditorWizardPanel();
     IWizardPanel[] wizardPanels = {scheduleEditorWizardPanel};
     this.setWizardPanels(wizardPanels);
-    setPixelSize(800, 465);
-    String urlPath = path.replaceAll("/", ":"); //$NON-NLS-1$  //$NON-NLS-2$
-    setParametersUrl("api/repos/" + urlPath + "/parameterUi"); //$NON-NLS-1$ //$NON-NLS-2$
-  }
+    setPixelSize(475, 465);
+    finishButton.setText(Messages.getString("nextStep"));
+   }
 
   @SuppressWarnings("deprecation")
   protected JSONObject getJsonSimpleTrigger(int repeatCount, int interval, Date startDate, Date endDate) {
@@ -161,16 +159,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
   
-  /* (non-Javadoc)
-   * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#finish()
-   */
-  @SuppressWarnings("deprecation")
-  @Override
-  protected boolean onFinish() {
-    String scheduleJobUrl = contextURL + "api/scheduler/job"; //$NON-NLS-1$
-    
+  public JSONObject getSchedule() {
     ScheduleType scheduleType = scheduleEditorWizardPanel.getScheduleType();
-   
+    
     Date startDate = scheduleEditorWizardPanel.getStartDate();
     String startTime = scheduleEditorWizardPanel.getStartTime();
     int startHour = getStartHour(startTime);
@@ -185,18 +176,10 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     Integer dayOfMonth = scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedDayOfMonth();
     WeekOfMonth weekOfMonth = scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedWeekOfMonth();
     
-    JSONObject scheduleRequest = new JSONObject();
-    scheduleRequest.put("inputFile", new JSONString(path)); //$NON-NLS-1$ //$NON-NLS-2$
-    scheduleRequest.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
-    JsArray<JsSchedulingParameter> schedulingParams = scheduleEditorWizardPanel.getParams();
-    JSONArray params = new JSONArray();
-    for (int i = 0; i < schedulingParams.length(); i++) {
-      params.set(i, new JSONObject(schedulingParams.get(i)));
-    }
-    scheduleRequest.put("jobParameters", params); //$NON-NLS-1$
+    JSONObject schedule = new JSONObject();
     
     if (scheduleType == ScheduleType.RUN_ONCE) { // Run once types 
-      scheduleRequest.put("simpleJobTrigger", getJsonSimpleTrigger(0, 0, startDateTime, null)); //$NON-NLS-1$
+      schedule.put("simpleJobTrigger", getJsonSimpleTrigger(0, 0, startDateTime, null)); //$NON-NLS-1$
     } else if ((scheduleType == ScheduleType.SECONDS) 
         || (scheduleType == ScheduleType.MINUTES) 
         || (scheduleType == ScheduleType.HOURS)) {
@@ -205,7 +188,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         repeatInterval = Integer.parseInt(scheduleEditorWizardPanel.getRepeatInterval());
       } catch (Exception e) {
       }
-      scheduleRequest.put("simpleJobTrigger", getJsonSimpleTrigger(-1, repeatInterval, startDateTime, endDate)); //$NON-NLS-1$
+      schedule.put("simpleJobTrigger", getJsonSimpleTrigger(-1, repeatInterval, startDateTime, endDate)); //$NON-NLS-1$
     } else if (scheduleType == ScheduleType.DAILY) {
       if (scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().isEveryNDays()) {
         int repeatInterval = 0;
@@ -213,61 +196,249 @@ public class NewScheduleDialog extends AbstractWizardDialog {
           repeatInterval = Integer.parseInt(scheduleEditorWizardPanel.getRepeatInterval());
         } catch (Exception e) {
         }
-        scheduleRequest.put("simpleJobTrigger", getJsonSimpleTrigger(-1, repeatInterval, startDateTime, endDate)); //$NON-NLS-1$
+        schedule.put("simpleJobTrigger", getJsonSimpleTrigger(-1, repeatInterval, startDateTime, endDate)); //$NON-NLS-1$
       } else {
-        scheduleRequest.put("complexJobTrigger", getJsonComplexTrigger(null, null, scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedDaysOfWeek(), startDateTime, endDate));//$NON-NLS-1$
+        schedule.put("complexJobTrigger", getJsonComplexTrigger(null, null, scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedDaysOfWeek(), startDateTime, endDate));//$NON-NLS-1$
       }      
     } else if (scheduleType == ScheduleType.CRON) { // Cron jobs 
-      scheduleRequest.put("cronJobTrigger", getJsonCronTrigger(scheduleEditorWizardPanel.getScheduleEditor().getCronString(), startDateTime, endDate));//$NON-NLS-1$
+      schedule.put("cronJobTrigger", getJsonCronTrigger(scheduleEditorWizardPanel.getScheduleEditor().getCronString(), startDateTime, endDate));//$NON-NLS-1$
     } else if ((scheduleType == ScheduleType.WEEKLY) && (daysOfWeek.size() > 0)) {
-      scheduleRequest.put("complexJobTrigger", getJsonComplexTrigger(null, null, scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedDaysOfWeek(), startDateTime, endDate));//$NON-NLS-1$
+      schedule.put("complexJobTrigger", getJsonComplexTrigger(null, null, scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedDaysOfWeek(), startDateTime, endDate));//$NON-NLS-1$
     } else if ((scheduleType == ScheduleType.MONTHLY) || ((scheduleType == ScheduleType.YEARLY) && (monthOfYear != null))) {
       if (dayOfMonth != null) {
         // MONTHLY
-        scheduleRequest.put("complexJobTrigger", getJsonComplexTrigger(monthOfYear, dayOfMonth, startDateTime, endDate));//$NON-NLS-1$
+        schedule.put("complexJobTrigger", getJsonComplexTrigger(monthOfYear, dayOfMonth, startDateTime, endDate));//$NON-NLS-1$
       } else if ((daysOfWeek.size() > 0) && (weekOfMonth != null)) {
         // YEARLY
-        scheduleRequest.put("complexJobTrigger", getJsonComplexTrigger(monthOfYear, weekOfMonth, daysOfWeek, startDateTime, endDate));//$NON-NLS-1$
+        schedule.put("complexJobTrigger", getJsonComplexTrigger(monthOfYear, weekOfMonth, daysOfWeek, startDateTime, endDate));//$NON-NLS-1$
       }
     }
+    schedule.put("inputFile", new JSONString(filePath)); //$NON-NLS-1$ //$NON-NLS-2$
+    schedule.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
+    return schedule;
+  }
+  
+  public JsJobTrigger getJsJobTrigger() {
+    JsJobTrigger jsJobTrigger = JsJobTrigger.instance();
+    
+    ScheduleType scheduleType = scheduleEditorWizardPanel.getScheduleType();
+    Date startDate = scheduleEditorWizardPanel.getStartDate();
+    String startTime = scheduleEditorWizardPanel.getStartTime();
+    int startHour = getStartHour(startTime);
+    int startMin = getStartMin(startTime);
+    int startYear = startDate.getYear();
+    int startMonth = startDate.getMonth();
+    int startDay = startDate.getDate();
+    Date startDateTime = new Date(startYear, startMonth, startDay, startHour, startMin );
+    MonthOfYear monthOfYear = scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedMonth();
+    Integer dayOfMonth = scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedDayOfMonth();
+    WeekOfMonth weekOfMonth = scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedWeekOfMonth();
+    
+    Date endDate = scheduleEditorWizardPanel.getEndDate();
 
-    RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, scheduleJobUrl);
-    scheduleFileRequestBuilder.setHeader("Content-Type", "application/json");  //$NON-NLS-1$//$NON-NLS-2$
+    List<DayOfWeek> daysOfWeek = scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedDaysOfWeek();
 
-    try {
-      scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
-
-        @Override
-        public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
-          dialogBox.center();
-          setDone(false);
+    if (scheduleType == ScheduleType.RUN_ONCE) { // Run once types 
+      jsJobTrigger.setType("simpleJobTrigger");
+      jsJobTrigger.setRepeatInterval(0);
+      jsJobTrigger.setRepeatCount(0);
+    } else if ((scheduleType == ScheduleType.SECONDS) 
+        || (scheduleType == ScheduleType.MINUTES) 
+        || (scheduleType == ScheduleType.HOURS)) {
+      int repeatInterval = 0;
+      try { // Simple Trigger Types   
+        repeatInterval = Integer.parseInt(scheduleEditorWizardPanel.getRepeatInterval());
+      } catch (Exception e) {
+      }
+      jsJobTrigger.setType("simpleJobTrigger");
+      jsJobTrigger.setRepeatInterval(repeatInterval);
+      jsJobTrigger.setRepeatCount(-1);
+    } else if (scheduleType == ScheduleType.DAILY) {
+      if (scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().isEveryNDays()) {
+        int repeatInterval = 0;
+        try { // Simple Trigger Types   
+          repeatInterval = Integer.parseInt(scheduleEditorWizardPanel.getRepeatInterval());
+        } catch (Exception e) {
         }
-
-        @Override
-        public void onResponseReceived(Request request, Response response) {
-          if (response.getStatusCode() == 200) {
-            setDone(true);
-            NewScheduleDialog.this.hide();
-          } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRun"), //$NON-NLS-1$ //$NON-NLS-2$
-                false, false, true);
-            dialogBox.center();
-            setDone(false);
-          }                
+        jsJobTrigger.setType("simpleJobTrigger"); 
+        jsJobTrigger.setRepeatInterval(repeatInterval);
+        jsJobTrigger.setRepeatCount(-1);
+        jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
+        if (endDate != null) {
+          jsJobTrigger.setNativeEndTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate));
         }
+      } else {
+        JsArrayInteger jsDaysOfWeek = (JsArrayInteger)JavaScriptObject.createArray();
+        int i = 0;
+        for (DayOfWeek dayOfWeek : daysOfWeek) {
+          jsDaysOfWeek.set(i++, dayOfWeek.ordinal() + 1);
+        }
+        JsArrayInteger hours = (JsArrayInteger)JavaScriptObject.createArray();
+        hours.set(0, startHour);
+        JsArrayInteger minutes = (JsArrayInteger)JavaScriptObject.createArray();
+        hours.set(0, startMin);
+        JsArrayInteger seconds = (JsArrayInteger)JavaScriptObject.createArray();
+        hours.set(0, 0);
         
-      });
-    } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRun"), //$NON-NLS-1$ //$NON-NLS-2$
-          false, false, true);
-      dialogBox.center();
-      setDone(false);
+        
+        jsJobTrigger.setType("complexJobTrigger");
+        jsJobTrigger.setDayOfWeekRecurrences(jsDaysOfWeek);
+        jsJobTrigger.setHourRecurrences(hours);
+        jsJobTrigger.setMinuteRecurrences(minutes);
+        jsJobTrigger.setSecondRecurrences(seconds);
+        jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
+        if (endDate != null) {
+          jsJobTrigger.setNativeEndTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate));
+        }
+      }      
+    } else if (scheduleType == ScheduleType.CRON) { // Cron jobs 
+      jsJobTrigger.setType("cronJobTrigger"); 
+    } else if ((scheduleType == ScheduleType.WEEKLY) && (daysOfWeek.size() > 0)) {
+      JsArrayInteger jsDaysOfWeek = (JsArrayInteger)JavaScriptObject.createArray();
+      int i = 0;
+      for (DayOfWeek dayOfWeek : daysOfWeek) {
+        jsDaysOfWeek.set(i++, dayOfWeek.ordinal() + 1);
+      }
+      JsArrayInteger hours = (JsArrayInteger)JavaScriptObject.createArray();
+      hours.set(0, startHour);
+      JsArrayInteger minutes = (JsArrayInteger)JavaScriptObject.createArray();
+      hours.set(0, startMin);
+      JsArrayInteger seconds = (JsArrayInteger)JavaScriptObject.createArray();
+      hours.set(0, 0);
+           
+      jsJobTrigger.setType("complexJobTrigger");
+      jsJobTrigger.setDayOfWeekRecurrences(jsDaysOfWeek);
+      jsJobTrigger.setHourRecurrences(hours);
+      jsJobTrigger.setMinuteRecurrences(minutes);
+      jsJobTrigger.setSecondRecurrences(seconds);
+      jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
+      if (endDate != null) {
+        jsJobTrigger.setNativeEndTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate));
+      }
+    } else if ((scheduleType == ScheduleType.MONTHLY) || ((scheduleType == ScheduleType.YEARLY) && (monthOfYear != null))) {
+      jsJobTrigger.setType("complexJobTrigger"); 
+      if (dayOfMonth != null) {
+        JsArrayInteger jsDaysOfMonth = (JsArrayInteger)JavaScriptObject.createArray();
+        jsDaysOfMonth.set(0, dayOfMonth);
+
+        JsArrayInteger hours = (JsArrayInteger)JavaScriptObject.createArray();
+        hours.set(0, startHour);
+        JsArrayInteger minutes = (JsArrayInteger)JavaScriptObject.createArray();
+        hours.set(0, startMin);
+        JsArrayInteger seconds = (JsArrayInteger)JavaScriptObject.createArray();
+        hours.set(0, 0);
+        
+
+        jsJobTrigger.setType("complexJobTrigger");
+        if (monthOfYear != null) {
+          JsArrayInteger jsMonthsOfYear = (JsArrayInteger)JavaScriptObject.createArray();
+          jsMonthsOfYear.set(0, monthOfYear.ordinal() + 1);
+          jsJobTrigger.setMonthlyRecurrences(jsMonthsOfYear);
+        }
+        jsJobTrigger.setDayOfMonthRecurrences(jsDaysOfMonth);
+        jsJobTrigger.setHourRecurrences(hours);
+        jsJobTrigger.setMinuteRecurrences(minutes);
+        jsJobTrigger.setSecondRecurrences(seconds);
+        jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
+        if (endDate != null) {
+          jsJobTrigger.setNativeEndTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate));
+        }
+      } else if ((daysOfWeek.size() > 0) && (weekOfMonth != null)) {
+        JsArrayInteger jsDaysOfWeek = (JsArrayInteger)JavaScriptObject.createArray();
+        int i = 0;
+        for (DayOfWeek dayOfWeek : daysOfWeek) {
+          jsDaysOfWeek.set(i++, dayOfWeek.ordinal() + 1);
+        }
+
+        JsArrayInteger hours = (JsArrayInteger)JavaScriptObject.createArray();
+        hours.set(0, startHour);
+        JsArrayInteger minutes = (JsArrayInteger)JavaScriptObject.createArray();
+        hours.set(0, startMin);
+        JsArrayInteger seconds = (JsArrayInteger)JavaScriptObject.createArray();
+        hours.set(0, 0);
+        
+        jsJobTrigger.setType("complexJobTrigger");
+        if (monthOfYear != null) {
+          JsArrayInteger jsMonthsOfYear = (JsArrayInteger)JavaScriptObject.createArray();
+          jsMonthsOfYear.set(0, monthOfYear.ordinal() + 1);
+          jsJobTrigger.setMonthlyRecurrences(jsMonthsOfYear);
+        }
+        jsJobTrigger.setDayOfWeekRecurrences(jsDaysOfWeek);
+        jsJobTrigger.setHourRecurrences(hours);
+        jsJobTrigger.setMinuteRecurrences(minutes);
+        jsJobTrigger.setSecondRecurrences(seconds);
+        jsJobTrigger.setQualifiedDayOfWeek(weekOfMonth.toString());
+        jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
+        if (endDate != null) {
+          jsJobTrigger.setNativeEndTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate));
+        }
+      }
     }
-      
-    return getDone();
+    return jsJobTrigger;
   }
 
+  /* (non-Javadoc)
+   * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#finish()
+   */
+  @SuppressWarnings("deprecation")
+  @Override
+  protected boolean onFinish() {
+            
+    hide();
+    showScheduleParamsDialog();
+    return true;
+  }
+
+  private void showScheduleParamsDialog() {
+    final AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+
+      public void onSuccess(Boolean result) {
+        if (scheduleParamsDialog == null) {
+          scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this) {
+
+            protected boolean showBack(int index) {
+              // TODO Auto-generated method stub
+              return true;
+            }
+
+            protected boolean showFinish(int index) {
+              // TODO Auto-generated method stub
+              return true;
+            }
+
+            protected boolean showNext(int index) {
+              // TODO Auto-generated method stub
+              return false;
+            }
+
+            protected boolean enableBack(int index) {
+              // TODO Auto-generated method stub
+              return true;
+            }
+            
+          };
+        }       
+        JsJobTrigger trigger = getJsJobTrigger();
+        scheduleParamsDialog.setScheduleDescription(trigger.getDescription());
+        scheduleParamsDialog.center();
+      }
+
+      public void onFailure(Throwable caught) {
+        MantleLoginDialog.performLogin(new AsyncCallback<Boolean>() {
+
+          public void onFailure(Throwable caught) {
+          }
+
+          public void onSuccess(Boolean result) {
+            showScheduleParamsDialog();
+          }
+
+        });
+      }
+    };
+    MantleServiceCache.getService().isAuthenticated(callback);
+  }
+  
   /**
    * @param startTime
    * @return
@@ -329,13 +500,23 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     scheduleEditorWizardPanel.setFocus();
   }
 
-  public void setParametersUrl(String url) {
-    scheduleEditorWizardPanel.setParametersUrl(url);
+  protected boolean enableNext(int index) {
+    return true;
   }
 
+  protected boolean showBack(int index) {
+    return false;
+  }
 
-  public void parametersValidated(boolean validated) {
+  protected boolean showFinish(int index) {
     // TODO Auto-generated method stub
-    
+    return true;
   }
+
+  protected boolean showNext(int index) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+  
+  
 }
