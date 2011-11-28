@@ -363,11 +363,11 @@ public class NewScheduleDialog extends AbstractWizardDialog {
           jsMonthsOfYear.set(0, monthOfYear.ordinal() + 1);
           jsJobTrigger.setMonthlyRecurrences(jsMonthsOfYear);
         }
-        jsJobTrigger.setDayOfWeekRecurrences(jsDaysOfWeek);
         jsJobTrigger.setHourRecurrences(hours);
         jsJobTrigger.setMinuteRecurrences(minutes);
         jsJobTrigger.setSecondRecurrences(seconds);
-        jsJobTrigger.setQualifiedDayOfWeek(weekOfMonth.toString());
+        jsJobTrigger.setQualifiedDayOfWeek(daysOfWeek.get(0).name());
+        jsJobTrigger.setDayOfWeekQualifier(weekOfMonth.name());
         jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
         if (endDate != null) {
           jsJobTrigger.setNativeEndTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate));
