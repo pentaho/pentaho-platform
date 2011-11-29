@@ -491,8 +491,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         break;
       }
     }
-
-    if (fileLocationCatalogTest != null && !definitionEquals(fileLocationCatalogTest.getDefinition(), catalog.getDefinition())) {
+    
+    if (fileLocationCatalogTest != null && !definitionEquals(fileLocationCatalogTest.getDefinition(), "mondrian:/" + catalog.getName())) {
       throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS"), //$NON-NLS-1$ 
           Reason.XMLA_SCHEMA_NAME_EXISTS);
