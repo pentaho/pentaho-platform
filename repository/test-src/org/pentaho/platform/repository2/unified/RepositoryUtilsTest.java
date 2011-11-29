@@ -18,20 +18,42 @@
  */
 package org.pentaho.platform.repository2.unified;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
-
-import java.io.ByteArrayInputStream;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
  * Class Description
  * User: dkincade
  */
-public class RepositoryUtilsTest extends TestCase {
+@SuppressWarnings("nls")
+public class RepositoryUtilsTest {
 
+  @BeforeClass
+  public static void setUpClass() {
+    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("joe", null, new GrantedAuthority[0]));
+  }
+  
+  @AfterClass
+  public static void tearDownClass() {
+    SecurityContextHolder.clearContext();
+  }
+  
+  @Test
   public void testCreationError() throws Exception {
     try {
       new RepositoryUtils(null);
@@ -45,22 +67,16 @@ public class RepositoryUtilsTest extends TestCase {
     final MockUnifiedRepository repository = new MockUnifiedRepository();
     final RepositoryUtils repositoryUtils = new RepositoryUtils(repository);
 
-    assertNull(repositoryUtils.getFolder("/one/two/three", false, false, null));
-    assertNull(repositoryUtils.getFolder("/one/two/three", true, false, null));
-    assertNull(repositoryUtils.getFolder("/one/two/three", false, true, null));
-    assertNull(repositoryUtils.getFolder("/one/two/three", true, true, null)); // shouldn't create the root
-
-    repository.createFolder("/");
-    RepositoryFile test = repositoryUtils.getFolder("/one/two/three", true, true, null);
+    RepositoryFile test = repositoryUtils.getFolder("/public/one/two/three", true, true, null);
     assertNotNull(test);
     assertEquals("The folder name is invalid", "three", test.getName());
-    assertEquals("The path is invalid", "/one/two/three", test.getPath());
+    assertEquals("The path is invalid", "/public/one/two/three", test.getPath());
     assertTrue("The folder should be defined as a folder", test.isFolder());
 
     // Make sure it created the parents
-    RepositoryFile one = repositoryUtils.getFolder("/one", false, false, null);
+    RepositoryFile one = repositoryUtils.getFolder("/public/one", false, false, null);
     assertNotNull(one);
-    RepositoryFile two = repositoryUtils.getFolder("/one/two", false, false, null);
+    RepositoryFile two = repositoryUtils.getFolder("/public/one/two", false, false, null);
     assertNotNull(two);
   }
 
@@ -69,34 +85,28 @@ public class RepositoryUtilsTest extends TestCase {
     final MockUnifiedRepository repository = new MockUnifiedRepository();
     final RepositoryUtils repositoryUtils = new RepositoryUtils(repository);
 
-    assertNull(repositoryUtils.getFile("/one/two/three.prpt", null, false, false, null));
-    assertNull(repositoryUtils.getFile("/one/two/three.prpt", null, true, false, null));
-    assertNull(repositoryUtils.getFile("/one/two/three.prpt", null, false, true, null));
-    assertNull(repositoryUtils.getFile("/one/two/three.prpt", null, true, true, null)); // shouldn't create the root
-
-    repository.createFolder("/");
     final SimpleRepositoryFileData data = new SimpleRepositoryFileData(
         new ByteArrayInputStream("Test".getBytes()), "UTF-8", "text/plain");
-    RepositoryFile test = repositoryUtils.getFile("/one/two/three.prpt", data, true, true, null);
+    RepositoryFile test = repositoryUtils.getFile("/public/one/two/three.prpt", data, true, true, null);
     assertNotNull(test);
     assertEquals("The filename is invalid", "three.prpt", test.getName());
-    assertEquals("The path is invalid", "/one/two/three.prpt", test.getPath());
+    assertEquals("The path is invalid", "/public/one/two/three.prpt", test.getPath());
     assertFalse("The file should not be defined as a folder", test.isFolder());
 
     // Make sure it created the parents
-    RepositoryFile one = repositoryUtils.getFolder("/one", false, false, null);
+    RepositoryFile one = repositoryUtils.getFolder("/public/one", false, false, null);
     assertNotNull(one);
-    RepositoryFile two = repositoryUtils.getFolder("/one/two", false, false, null);
+    RepositoryFile two = repositoryUtils.getFolder("/public/one/two", false, false, null);
     assertNotNull(two);
   }
 
   @Test
   public void testGetParentPath() throws Exception {
-    assertEquals("/one/two/three", RepositoryUtils.getParentPath("/one/two/three/four"));
-    assertEquals("one/two/three", RepositoryUtils.getParentPath("one/two/three/four"));
-    assertEquals("/one/two/three", RepositoryUtils.getParentPath("/one/two/three/"));
-    assertEquals("/one", RepositoryUtils.getParentPath("/one/two"));
-    assertEquals("/", RepositoryUtils.getParentPath("/one"));
+    assertEquals("/public/one/two/three", RepositoryUtils.getParentPath("/public/one/two/three/four"));
+    assertEquals("/publicone/two/three", RepositoryUtils.getParentPath("/publicone/two/three/four"));
+    assertEquals("/public/one/two/three", RepositoryUtils.getParentPath("/public/one/two/three/"));
+    assertEquals("/public/one", RepositoryUtils.getParentPath("/public/one/two"));
+    assertEquals("/public", RepositoryUtils.getParentPath("/public/one"));
     assertEquals("", RepositoryUtils.getParentPath("one"));
     assertEquals(null, RepositoryUtils.getParentPath("/"));
   }

@@ -18,18 +18,41 @@
  */
 package org.pentaho.platform.repository2.unified.metadata;
 
-import junit.framework.TestCase;
-import org.pentaho.metadata.model.Domain;
-import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ_ACL;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE_ACL;
 
+import java.io.ByteArrayInputStream;
 import java.util.Properties;
 import java.util.Set;
+
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.pentaho.metadata.model.Domain;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
  * Class Description
  * User: dkincade
  */
-public class PentahoMetadataDomainRepositoryTest extends TestCase {
+@SuppressWarnings("nls")
+public class PentahoMetadataDomainRepositoryTest {
   protected static final JcrMetadataInfo METADATA_INFO = new JcrMetadataInfo();
   private static final String DEFAULT_DOMAIN_NAME = "Default";
   private static final String COMPLEX_DOMAIN_NAME = "Sample (!@#$%^&*_-[]{};:'\",.<>?`~)";
@@ -39,13 +62,27 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   private MockUnifiedRepository repository;
   private Properties samplePropertiesFile;
 
+  @Before
   public void setUp() throws Exception {
     samplePropertiesFile = new Properties();
 
     repository = new MockUnifiedRepository();
-    repository.createFolder(METADATA_INFO.getMetadataParentPath());
-    repository.createFolder(METADATA_INFO.getMetadataFolderPath());
-    repository.getFileTable().put(METADATA_INFO.getMetadataMappingFilePath(), samplePropertiesFile);
+    
+    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(MockUnifiedRepository.root().getName(), null, new GrantedAuthority[0]));
+    try {
+    RepositoryFile etcFolder = repository.createFolder(repository.getFile(RepositoryFile.SEPARATOR).getId(), new RepositoryFile.Builder(ClientRepositoryPaths.getEtcFolderName()).folder(true).build(), 
+        new RepositoryFileAcl.Builder(MockUnifiedRepository.root()).ace(MockUnifiedRepository.everyone(), 
+            READ, READ_ACL, WRITE, WRITE_ACL).build(), null);
+    RepositoryFile metadataFolder = repository.createFolder(etcFolder.getId(), new RepositoryFile.Builder(METADATA_INFO.getMetadataFolderName()).folder(true).build(), null);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    samplePropertiesFile.store(out, null);
+    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    repository.createFile(metadataFolder.getId(), new RepositoryFile.Builder(METADATA_INFO.getMetadataMappingFileName()).build(), 
+        new SimpleRepositoryFileData(in, "ISO8859_1", "text/plain"), null);
+    } finally {
+      SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("joe", null, new GrantedAuthority[0]));
+    }
+
 
     backend = new PentahoMetadataDomainRepositoryBackend(repository);
     backend.setXmiParser(new MockXmiParser());
@@ -55,6 +92,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     mdr = new PentahoMetadataDomainRepository(backend);
   }
 
+  @After
   public void tearDown() throws Exception {
     mdr = null;
     backend = null;
@@ -62,6 +100,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     samplePropertiesFile = null;
   }
 
+  @Test
   public void testGetDomainIds() throws Exception {
     final Set<String> domainIds = mdr.getDomainIds();
     assertNotNull(domainIds);
@@ -69,7 +108,8 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertTrue(domainIds.contains("Default"));
     assertTrue(domainIds.contains(COMPLEX_DOMAIN_NAME));
   }
-
+  
+  @Test
   public void testGetDomain() throws Exception {
     try {
       mdr.getDomain(null);
@@ -92,6 +132,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertEquals(domainIdJustAdded, domainJustAdded.getId());
   }
 
+  @Test
   public void testReloadDomains() throws Exception {
     final int before = mdr.getLoadedDomainCount();
     mdr.reloadDomains();
@@ -103,6 +144,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assert (0 == after);
   }
 
+  @Test
   public void testFlushDomains() throws Exception {
     mdr.reloadDomains();
     final int before = mdr.getLoadedDomainCount();
@@ -112,6 +154,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertTrue("After flushDomains(), there should be 0 domains loaded, but there are " + after, 0 == after);
   }
 
+  @Test
   public void testStoreDomain() throws Exception {
     // Exceptions
     try {
@@ -156,6 +199,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     }
   }
 
+  @Test
   public void testRemoveDomain() throws Exception {
     // Exceptions
     try {
@@ -189,6 +233,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertEquals(0, mdr.getDomainIds().size());
   }
 
+  @Test
   public void testRemoveModel() throws Exception {
 
   }
