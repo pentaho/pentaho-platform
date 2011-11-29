@@ -214,11 +214,12 @@ public class WorkspacePanel extends SimplePanel {
         public void onResponseReceived(Request request, Response response) {
           boolean isRunning = "RUNNING".equalsIgnoreCase(response.getText());
           if (isRunning) {
+            controlSchedulerButton.setToolTip(Messages.getString("stop"));
             controlSchedulerButton.setImage(new Image(MantleImages.images.stop_scheduler16()));
           } else {
+            controlSchedulerButton.setToolTip(Messages.getString("start"));
             controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
           }
-          controlSchedulerButton.setToolTip(response.getText());
         }
       });
     } catch (RequestException e) {
@@ -727,10 +728,11 @@ public class WorkspacePanel extends SimplePanel {
 
         public void onResponseReceived(Request request, Response response) {
           boolean isRunning = "RUNNING".equalsIgnoreCase(response.getText());
-          controlSchedulerButton.setToolTip(response.getText());
           if (isRunning) {
+            controlSchedulerButton.setToolTip(Messages.getString("stop"));
             controlSchedulerButton.setImage(new Image(MantleImages.images.stop_scheduler16()));
           } else {
+            controlSchedulerButton.setToolTip(Messages.getString("start"));
             controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
           }
         }
