@@ -885,6 +885,11 @@ public class UnifiedRepositoryTestUtils {
       return property;
     }
 
+    @Override
+    public String toString() {
+      return "PathPropertyPair [path=" + path + ", property=" + property + "]";
+    }
+
   }
 
 }
