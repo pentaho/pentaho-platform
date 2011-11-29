@@ -52,7 +52,9 @@ import org.springframework.util.Assert;
  * </ul>
  * 
  * @author mlowery
+ * @deprecated Implement IBackingRepositoryLifecycleManager instead
  */
+@Deprecated
 public abstract class AbstractBackingRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
 
   // ~ Static fields/initializers ======================================================================================

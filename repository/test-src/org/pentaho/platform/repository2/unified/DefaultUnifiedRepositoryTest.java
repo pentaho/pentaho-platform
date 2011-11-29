@@ -366,6 +366,36 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(),
         Privilege.JCR_ALL));
 
+    // tenant etc/pdi folder
+    final String pdiPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "pdi";
+    assertFalse(repo.getAcl(repo.getFile(pdiPath).getId()).isEntriesInheriting());
+    assertLocalAclEmpty(repo.getFile(pdiPath));
+    assertEquals(repositoryAdminSid, repo.getFile(pdiPath).getOwner());
+
+    // tenant etc/databases folder
+    final String databasesPath = pdiPath + RepositoryFile.SEPARATOR + "databases";
+    assertTrue(repo.getAcl(repo.getFile(databasesPath).getId()).isEntriesInheriting());
+    assertLocalAclEmpty(repo.getFile(databasesPath));
+    assertEquals(repositoryAdminSid, repo.getFile(databasesPath).getOwner());
+
+    // tenant etc/slaveServers folder
+    final String slaveServersPath = pdiPath + RepositoryFile.SEPARATOR + "slaveServers";
+    assertTrue(repo.getAcl(repo.getFile(slaveServersPath).getId()).isEntriesInheriting());
+    assertLocalAclEmpty(repo.getFile(slaveServersPath));
+    assertEquals(repositoryAdminSid, repo.getFile(slaveServersPath).getOwner());
+
+    // tenant etc/clusterSchemas folder
+    final String clusterSchemasPath = pdiPath + RepositoryFile.SEPARATOR + "clusterSchemas";
+    assertTrue(repo.getAcl(repo.getFile(clusterSchemasPath).getId()).isEntriesInheriting());
+    assertLocalAclEmpty(repo.getFile(clusterSchemasPath));
+    assertEquals(repositoryAdminSid, repo.getFile(clusterSchemasPath).getOwner());
+
+    // tenant etc/partitionSchemas folder
+    final String partitionSchemasPath = pdiPath + RepositoryFile.SEPARATOR + "partitionSchemas";
+    assertTrue(repo.getAcl(repo.getFile(partitionSchemasPath).getId()).isEntriesInheriting());
+    assertLocalAclEmpty(repo.getFile(partitionSchemasPath));
+    assertEquals(repositoryAdminSid, repo.getFile(partitionSchemasPath).getOwner());
+    
     login(USERNAME_JOE, TENANT_ID_ACME, true);
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(
         TENANT_ID_ACME, USERNAME_SUZY), Privilege.JCR_WRITE));

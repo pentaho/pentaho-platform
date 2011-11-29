@@ -27,6 +27,7 @@
     <constructor-arg>
       <list>
         <ref bean="defaultBackingRepositoryLifecycleManager" />
+        <ref bean="pdiBackingRepositoryLifecycleManager" />
       </list>
     </constructor-arg>
   </bean>

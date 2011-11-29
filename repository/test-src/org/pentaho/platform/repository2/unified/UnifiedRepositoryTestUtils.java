@@ -37,6 +37,8 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 import org.pentaho.platform.util.web.MimeHelper;
 
 /**
+ * Consider using {@code MockUnifiedRepository} instead.
+ * <p>
  * Test utilities for {@code IUnifiedRepository}. Assists with two phases of mocking: stubbing and verification. Uses
  * the <a href="http://code.google.com/p/mockito/">Mockito</a> mocking framework.
  * 
