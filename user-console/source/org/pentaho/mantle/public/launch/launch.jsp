@@ -93,7 +93,6 @@ body{
   actionToCmdMap['launch_manage_datasources'] = 'manageDatasources()'
   
 <% 
-  boolean isCE = true;
   boolean hasAnalyzer = false;
   boolean hasIteractiveReporting = false;
   boolean hasDashboards = false;
@@ -114,14 +113,14 @@ body{
         String overlay = sb.toString();
         
         String actionName = null;
-        int id = overlay.indexOf("id=\""); //$NON-NLS-1$
+        int id = overlay.indexOf("id=\"launch_"); //$NON-NLS-1$
         if (id >= 0) {
           actionName = overlay.substring(id + 4, overlay.indexOf("\"", id + 4)); //$NON-NLS-1$
         }
         if (actionName != null) {	  
           int startCommand = overlay.indexOf("command=\""); //$NON-NLS-1$
           int endCommand = overlay.indexOf("\"", startCommand + 9); //$NON-NLS-1$
-          String actionCommand = overlay.substring(startCommand + 9, endCommand);
+          String actionCommand = overlay.substring(startCommand + 9, endCommand);		  
 		  %>
 		  actionToCmdMap['<%=actionName%>'] = "<%= actionCommand%>";
 		  <%
@@ -131,8 +130,6 @@ body{
   	hasAnalyzer = pluginManager.getRegisteredPlugins().contains("analyzer");
   	hasIteractiveReporting = pluginManager.getRegisteredPlugins().contains("pentaho-interactive-reporting");
   	hasDashboards = pluginManager.getRegisteredPlugins().contains("dashboards");
-
-  	isCE = !hasAnalyzer && !hasIteractiveReporting && !hasDashboards;
   }
 %>
 
@@ -191,62 +188,30 @@ function checkDA(){
 <body style="height:auto; background:transparent;" onload="checkDA();customizeThemeStyling();">
 <div id="wrapper">
   <div class="pentaho-launcher-panel-shadowed pentaho-launcher-shine" id="outterWrapper">
-    <% 
-    if (isCE) {
-    %>
     <table id="proMenuTable" width="100%" border="0" cellspacing="0" cellpadding="0">
       <tr>
-       	<td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch_new_WAQR()"><img src="images/new_report.png" border="0"></a></td>
-       	<td valign="bottom" width="3" class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="11"></td>
-       	<td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch('launch_new_analysis', window.top.openAnalysis)"><img src="images/new_analysis.png" border="0"></a></td>
-      </tr>
-      <tr>
-        <td align="center" class="smallButton"><button class="pentaho-button" id="button0" onClick="launch('launch_new_report', window.top.openWAQR)">New Report</button></td>
-        <td class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="4"></td>
-        <td align="center" class="smallButton"><button class="pentaho-button" id="button0" onClick="launch('launch_new_analysis', window.top.openAnalysis)">New Analysis</button></td>
-      </tr>
-	</table>
-    <%
-    } else {
-    %>
-    <table id="proMenuTable" width="100%" border="0" cellspacing="0" cellpadding="0">
-      <tr>
-	<% if (hasIteractiveReporting) { %>
        	<td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch('launch_new_report', window.top.openWAQR)"><img src="images/new_report.png" border="0"></a></td>
-        <% } %>
         <% if (hasAnalyzer) { %>
-		<% if (hasIteractiveReporting) { %>
         	<td valign="bottom" width="3" class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="11"></td>
-		<% } %>
-       	<td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch('launch_new_analysis', window.top.openAnalysis)"><img src="images/new_analysis.png" border="0"></a></td>
+			<td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch('launch_new_analysis', window.top.openAnalysis)"><img src="images/new_analysis.png" border="0"></a></td>
         <% } %>
-	<% if (hasDashboards) { %>
-		<% if (hasIteractiveReporting || hasAnalyzer) { %>
-		       	<td valign="bottom" width="3" class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="11"></td>
+		<% if (hasDashboards) { %>
+	       	<td valign="bottom" width="3" class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="11"></td>
+			<td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch_newDashboard()"><img src="images/new_dash.png" border="0"></a></td>
 		<% } %>
-        <td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch_newDashboard()"><img src="images/new_dash.png" border="0"></a></td>
-	<% } %>
       </tr>
       <tr>
-        <% if (hasIteractiveReporting) { %>
         <td align="center" class="smallButton"><button class="pentaho-button" onClick="launch('launch_new_report', window.top.openWAQR)">New Report</button></td>
-        <% } %>
         <% if (hasAnalyzer) { %>
-		<% if (hasIteractiveReporting) { %>
-		        <td class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="4"></td>
-		<% } %>
-        <td align="center" class="smallButton"><button class="pentaho-button" onClick="launch('launch_new_analysis', window.top.openAnalysis)">New Analysis</button></td>
+			<td class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="4"></td>
+			<td align="center" class="smallButton"><button class="pentaho-button" onClick="launch('launch_new_analysis', window.top.openAnalysis)">New Analysis</button></td>
         <% } %>
-	<% if (hasDashboards) { %>
-                <% if (hasIteractiveReporting || hasAnalyzer) { %>
-        		<td class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="4"></td>
-		<% } %>
+		<% if (hasDashboards) { %>
+       		<td class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="4"></td>
 	        <td align="center" class="smallButton"><button class="pentaho-button" onClick="launch_newDashboard()">New Dashboard</button></td>
-	<% } %>
+		<% } %>
       </tr>
-	 </table><%
-     }
-	 %>
+	 </table>
 	 <table id="datasourcePanel" style="display:none" width="684" border="0" cellspacing="0" cellpadding="0">
       <tr>
         <td colspan="3"><img src="../themes/onyx/images/seperator_horz.png" width="684" height="3"></td>
