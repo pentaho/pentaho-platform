@@ -168,6 +168,11 @@ public class RepositoryFileAcl implements Serializable {
       this.entriesInheriting = entriesInheriting;
       return this;
     }
+    
+    public Builder id(final Serializable id) {
+      this.id = id;
+      return this;
+    }
 
     public Builder owner(final RepositoryFileSid owner) {
       this.owner = owner;

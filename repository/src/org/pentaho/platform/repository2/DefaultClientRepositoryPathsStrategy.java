@@ -69,4 +69,8 @@ public class DefaultClientRepositoryPathsStrategy implements IClientRepositoryPa
     return RepositoryFile.SEPARATOR + FOLDER_ETC;
   }
 
+  public String getEtcFolderName() {
+    return FOLDER_ETC;  
+  }
+
 }

@@ -78,6 +78,10 @@ public class ClientRepositoryPaths {
   public static String getEtcFolderPath() {
     return strategy.getEtcFolderPath();
   }
+  
+  public static String getEtcFolderName() {
+    return strategy.getEtcFolderName();
+  }
 
   private static void initialize() {
     if ((strategyName == null) || "".equals(strategyName)) { //$NON-NLS-1$
@@ -121,6 +125,8 @@ public class ClientRepositoryPaths {
     String getRootFolderPath();
     
     String getEtcFolderPath();
+    
+    String getEtcFolderName();
   }
 
 }

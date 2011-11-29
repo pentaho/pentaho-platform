@@ -168,8 +168,26 @@ public class DataNode {
 
   @Override
   public String toString() {
-    return "DataNode [id=" + id + ", name=" + name + ", childNodes=" + childNodes + ", nodeNameToNodeMap="  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        + nodeNameToNodeMap + ", propNameToPropMap=" + propNameToPropMap + "]";  //$NON-NLS-1$//$NON-NLS-2$
+    return toString(0);
+  }
+  
+  protected String toString(final int depth) {
+    final String SPACER = "  "; //$NON-NLS-1$
+    final String NL = "\n"; //$NON-NLS-1$
+    final String SLASH = "/"; //$NON-NLS-1$
+    StringBuilder buf = new StringBuilder();
+    for (int i = 0; i < depth; i++) {
+      buf.append(SPACER);
+    }
+    buf.append(getName());
+    // slash to denote node as opposed to property
+    buf.append(SLASH + " "); //$NON-NLS-1$
+    buf.append(propNameToPropMap);
+    buf.append(NL);    
+    for (DataNode child : childNodes) {
+      buf.append(child.toString(depth + 1));
+    }
+    return buf.toString();
   }
 
 }

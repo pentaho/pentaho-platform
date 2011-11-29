@@ -302,7 +302,6 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     private Date deletedDate;
 
     public Builder(final String name) {
-      assertHasText(name);
       this.name = name;
       this.clearTitleMap();
     }
@@ -383,6 +382,11 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     
     public Builder id(final Serializable id) {
       this.id = id;
+      return this;
+    }
+    
+    public Builder name(final String name) {
+      this.name = name;
       return this;
     }
 

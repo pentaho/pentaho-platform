@@ -89,7 +89,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- * JUnit 4 test. Not actually a unit test as it tests the {@link DefaultUnifiedRepository} fully configured behind 
+ * Integration test. Tests {@link DefaultUnifiedRepository} and {@link IAuthorizationPolicy} fully configured behind 
  * Spring Security's method security and Spring's transaction interceptor.
  * 
  * <p>
