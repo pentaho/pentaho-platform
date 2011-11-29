@@ -73,6 +73,7 @@ public abstract class AbstractImportSource implements ImportSource {
     mimeTypes.put("waqr.xreportspec", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("waqr.xml", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("xwaqr", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
+    mimeTypes.put("cda", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put(null, null);
   }
   

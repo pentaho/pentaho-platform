@@ -103,6 +103,7 @@ public class RepositoryImportResource {
     converters.put("sql", streamConverter); //$NON-NLS-1$
     converters.put("xmi", streamConverter); //$NON-NLS-1$
     converters.put("xml", streamConverter); //$NON-NLS-1$
+    converters.put("cda", streamConverter); //$NON-NLS-1$
 
     Importer importer = new Importer(repository, converters);
 //    addContentHandlers(importer, repository);
