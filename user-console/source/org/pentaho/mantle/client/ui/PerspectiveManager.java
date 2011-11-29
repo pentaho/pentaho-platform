@@ -360,5 +360,6 @@ public class PerspectiveManager extends HorizontalPanel {
 
   public void setActivePerspective(IPluginPerspective activePerspective) {
     this.activePerspective = activePerspective;
+    setPerspective(activePerspective.getId());
   }
 }

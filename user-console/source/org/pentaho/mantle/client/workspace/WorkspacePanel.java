@@ -67,6 +67,8 @@ public class WorkspacePanel extends SimplePanel {
   private ToolbarButton controlScheduleButton = new ToolbarButton(new Image(MantleImages.images.run16()));
   private ToolbarButton triggerNowButton = new ToolbarButton(new Image(MantleImages.images.execute16()));
   private ToolbarButton scheduleRemoveButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
+  private ToolbarButton filterButton = new ToolbarButton(new Image(MantleImages.images.filter16()));
+  private ToolbarButton filterRemoveButton = new ToolbarButton(new Image(MantleImages.images.filterRemove16()));
 
   private JsArray<JsJob> allJobs;
   private Set<JsJob> selectedJobs = null;
@@ -122,6 +124,13 @@ public class WorkspacePanel extends SimplePanel {
             return job.getJobTrigger().getScheduleType().equalsIgnoreCase(filterDialog.getTypeFilter());
           }
         });
+      }
+      if (filters.size() > 0) {
+        filterButton.setImage(new Image(MantleImages.images.filterActive16()));
+        filterRemoveButton.setEnabled(true);
+      } else {
+        filterButton.setImage(new Image(MantleImages.images.filter16()));
+        filterRemoveButton.setEnabled(false);
       }
       filterAndShowData();
     }
@@ -214,10 +223,10 @@ public class WorkspacePanel extends SimplePanel {
         public void onResponseReceived(Request request, Response response) {
           boolean isRunning = "RUNNING".equalsIgnoreCase(response.getText());
           if (isRunning) {
-            controlSchedulerButton.setToolTip(Messages.getString("stop"));
+            controlSchedulerButton.setToolTip(Messages.getString("stopScheduler"));
             controlSchedulerButton.setImage(new Image(MantleImages.images.stop_scheduler16()));
           } else {
-            controlSchedulerButton.setToolTip(Messages.getString("start"));
+            controlSchedulerButton.setToolTip(Messages.getString("startScheduler"));
             controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
           }
         }
@@ -543,7 +552,9 @@ public class WorkspacePanel extends SimplePanel {
           controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
         }
         controlScheduleButton.setEnabled(jobs != null);
-        controlScheduleButton.setToolTip(jobs[0].getState());
+
+        boolean isRunning = "NORMAL".equalsIgnoreCase(jobs[0].getState());
+        controlScheduleButton.setToolTip(isRunning ? Messages.getString("stop") : Messages.getString("start"));
         scheduleRemoveButton.setEnabled(jobs != null);
         triggerNowButton.setEnabled(jobs != null);
       }
@@ -589,7 +600,6 @@ public class WorkspacePanel extends SimplePanel {
     });
     bar.add(refresh);
 
-    ToolbarButton filterButton = new ToolbarButton(new Image(MantleImages.images.filter16()));
     filterButton.setCommand(new Command() {
       public void execute() {
         if (filterDialog == null) {
@@ -602,6 +612,19 @@ public class WorkspacePanel extends SimplePanel {
     });
     filterButton.setToolTip(Messages.getString("filterSchedules"));
     bar.add(filterButton);
+    
+    filterRemoveButton.setCommand(new Command() {
+      public void execute() {
+        filterDialog = null;
+        filters.clear();
+        filterAndShowData();
+        filterRemoveButton.setEnabled(false);
+        filterButton.setImage(new Image(MantleImages.images.filter16()));
+      }
+    });
+    filterRemoveButton.setToolTip(Messages.getString("removeFilters"));
+    filterRemoveButton.setEnabled(filters.size() > 0);
+    bar.add(filterRemoveButton);
 
     bar.addSpacer(20);
     triggerNowButton.setToolTip(Messages.getString("executeNow"));
@@ -699,10 +722,11 @@ public class WorkspacePanel extends SimplePanel {
             job.setState(response.getText());
             table.redraw();
             boolean isRunning = "NORMAL".equalsIgnoreCase(response.getText());
-            controlScheduleButton.setToolTip(job.getState());
             if (isRunning) {
+              controlScheduleButton.setToolTip(Messages.getString("stop"));
               controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
             } else {
+              controlScheduleButton.setToolTip(Messages.getString("start"));
               controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
             }
             if (refreshData) {
@@ -729,10 +753,10 @@ public class WorkspacePanel extends SimplePanel {
         public void onResponseReceived(Request request, Response response) {
           boolean isRunning = "RUNNING".equalsIgnoreCase(response.getText());
           if (isRunning) {
-            controlSchedulerButton.setToolTip(Messages.getString("stop"));
+            controlSchedulerButton.setToolTip(Messages.getString("stopScheduler"));
             controlSchedulerButton.setImage(new Image(MantleImages.images.stop_scheduler16()));
           } else {
-            controlSchedulerButton.setToolTip(Messages.getString("start"));
+            controlSchedulerButton.setToolTip(Messages.getString("startScheduler"));
             controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
           }
         }
