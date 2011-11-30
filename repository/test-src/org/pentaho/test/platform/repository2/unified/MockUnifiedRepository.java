@@ -69,9 +69,10 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 
 /**
- * Mock implementation of the {@link IUnifiedRepository} for unit testing. Please edit / add as needed</p>
- *
- * Currently, this implementation just creates a memory version of a repository filesystem that does not support much
+ * Mock implementation of the {@link IUnifiedRepository} for unit testing.
+ * 
+ * @author dkincade
+ * @author mlowery
  */
 @SuppressWarnings("nls")
 public class MockUnifiedRepository implements IUnifiedRepository {
