@@ -39,7 +39,7 @@ public interface IDatasourceService {
    * Adds a new datasource to the platform repository
    * @param datasource
    * @param overwrite if true then it will overwrite the datasource if it exists
-   * @throws GenericDatasourceServiceException
+   * @throws DatasourceServiceException
    */
   public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException;
   
