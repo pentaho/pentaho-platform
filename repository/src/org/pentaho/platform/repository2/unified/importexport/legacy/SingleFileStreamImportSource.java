@@ -17,6 +17,11 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
+import org.apache.commons.io.IOUtils;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,11 +30,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
 
 /**
  * @author wseyler
@@ -69,7 +69,7 @@ public class SingleFileStreamImportSource extends AbstractImportSource {
 
     String extension = fileName.substring(fileName.indexOf('.') + 1);
     String repoPath = "/";
-    repoPath = FilenameUtils.separatorsToUnix(repoPath);
+    repoPath = RepositoryFilenameUtils.separatorsToRepository(repoPath);
     RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, repoPath, outFile, charSet, mimeTypes.get(extension.toLowerCase()));
     
     return repoFileBundle;

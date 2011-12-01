@@ -17,6 +17,12 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
+import org.apache.commons.io.IOUtils;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.unified.importexport.ImportSource;
+import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,12 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository2.unified.importexport.ImportSource;
-import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
 
 /**
  * @author wseyler
@@ -73,7 +73,7 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
       ZipEntry entry = zipInputStream.getNextEntry();
       File tempFile = null;
       while (entry != null) {
-        String entryName = FilenameUtils.separatorsToUnix(entry.getName());
+        String entryName = RepositoryFilenameUtils.separatorsToRepository(entry.getName());
         String extension = "";
        
         boolean includeFile = true;

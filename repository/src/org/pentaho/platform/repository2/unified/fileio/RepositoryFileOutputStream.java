@@ -14,12 +14,12 @@
  */
 package org.pentaho.platform.repository2.unified.fileio;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.web.MimeHelper;
 
 import java.io.ByteArrayInputStream;
@@ -157,7 +157,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
     ByteArrayInputStream bis = new ByteArrayInputStream(toByteArray());
 
     //make an effort to determine the correct mime type, default to application/octet-stream
-    String ext = FilenameUtils.getExtension(path);
+    String ext = RepositoryFilenameUtils.getExtension(path);
     String mimeType = "application/octet-stream"; //$NON-NLS-1$
     if (ext != null) {
       String tempMimeType = MimeHelper.getMimeTypeFromExtension("." + ext); //$NON-NLS-1$
@@ -172,15 +172,15 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
     if (!flushed) {
       RepositoryFile file = repository.getFile(path);
       RepositoryFile parentFolder = getParent(path);
-      String baseFileName = FilenameUtils.getBaseName(path);
-      String extension = FilenameUtils.getExtension(path);
+      String baseFileName = RepositoryFilenameUtils.getBaseName(path);
+      String extension = RepositoryFilenameUtils.getExtension(path);
       if (file == null) {
         if (autoCreateDirStructure) {
           ArrayList<String> foldersToCreate = new ArrayList<String>();
-          String parentPath = FilenameUtils.getFullPathNoEndSeparator(path);
+          String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(path);
           while ((parentPath != null) && (parentPath.length() > 0) && (repository.getFile(parentPath) == null)) {
-            foldersToCreate.add(FilenameUtils.getName(parentPath));
-            parentPath = FilenameUtils.getFullPathNoEndSeparator(parentPath);
+            foldersToCreate.add(RepositoryFilenameUtils.getName(parentPath));
+            parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(parentPath);
           }
           Collections.reverse(foldersToCreate);
           parentFolder = ((parentPath != null) && (parentPath.length() > 0)) ? repository.getFile(parentPath) : repository.getFile("/");
@@ -195,7 +195,8 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
             throw new FileNotFoundException();
           }
         }
-        file = new RepositoryFile.Builder(FilenameUtils.getName(path)).versioned(true).build(); // Default versioned to true so that we're keeping history
+        file = new RepositoryFile.Builder(RepositoryFilenameUtils.getName(path)).versioned(true).build(); // Default
+        // versioned to true so that we're keeping history
         file = repository.createFile(parentFolder.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
         for (IRepositoryFileOutputStreamListener listener : listeners) {
           listener.fileCreated(path);

@@ -16,7 +16,6 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +23,7 @@ import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.util.XmiParser;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.metadata.PentahoMetadataDomainRepository;
 
 import java.util.Map;
@@ -87,9 +87,9 @@ public class PentahoMetadataImportContentHandler extends BaseImportContentHandle
     }
 
     // See if it is an xmi file
-    final String bundlePathName = FilenameUtils.concat(bundle.getPath(), bundle.getFile().getName());
+    final String bundlePathName = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getFile().getName());
     logger.debug("Checking bundle with path [" + bundlePathName + "]");
-    final String extension = FilenameUtils.getExtension(bundlePathName);
+    final String extension = RepositoryFilenameUtils.getExtension(bundlePathName);
     if (!StringUtils.equals("xmi", extension)) {
       // We need to skip it
       logger.debug("\tskipping bundle with extension [" + extension + "]");
@@ -144,7 +144,7 @@ public class PentahoMetadataImportContentHandler extends BaseImportContentHandle
   }
 
   protected String computeDomainId(final String bundlePathName) {
-    return FilenameUtils.getBaseName(bundlePathName);
+    return RepositoryFilenameUtils.getBaseName(bundlePathName);
   }
 
 }

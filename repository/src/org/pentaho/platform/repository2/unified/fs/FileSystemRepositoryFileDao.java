@@ -1,7 +1,6 @@
 package org.pentaho.platform.repository2.unified.fs;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -12,6 +11,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 
 import java.io.ByteArrayOutputStream;
@@ -68,7 +68,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
 
   public RepositoryFile createFile(Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
                                    RepositoryFileAcl acl, String versionMessage) {
-    String fileNameWithPath = FilenameUtils.concat(parentFolderId.toString(), file.getName());
+    String fileNameWithPath = RepositoryFilenameUtils.concat(parentFolderId.toString(), file.getName());
     FileOutputStream fos = null;
     try {
       File f = new File(fileNameWithPath);
@@ -184,7 +184,8 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   public RepositoryFile getFile(String relPath) {
-    String physicalFileLocation = relPath.equals("/") ? rootDir.getAbsolutePath() : FilenameUtils.concat(rootDir.getAbsolutePath(), relPath.substring(FilenameUtils.getPrefixLength(relPath)));
+    String physicalFileLocation = relPath.equals("/") ? rootDir.getAbsolutePath() : RepositoryFilenameUtils.concat
+        (rootDir.getAbsolutePath(), relPath.substring(RepositoryFilenameUtils.getPrefixLength(relPath)));
     return internalGetFile(new File(physicalFileLocation));
   }
 

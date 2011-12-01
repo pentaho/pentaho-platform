@@ -21,37 +21,6 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.WILDCARD;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,11 +33,38 @@ import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 @Path("/repos")
 public class RepositoryResource extends AbstractJaxRSResource {
@@ -487,7 +483,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
     rsc("Is [{0}] a relative path to a repository file, relative to [{1}]?", relPath, filePath); //$NON-NLS-1$
 
     FileResource fileResource = new FileResource(httpServletResponse);
-    String path = FilenameUtils.separatorsToUnix(FilenameUtils.concat(filePath, "../" + relPath)); //$NON-NLS-1$
+    String path = RepositoryFilenameUtils.separatorsToRepository(RepositoryFilenameUtils.concat(filePath, "../" + relPath)); //$NON-NLS-1$
     Response response = fileResource.doGetFileOrDir(path.replace('/', ':').substring(1));
     if (response.getStatus() != Status.NOT_FOUND.getStatusCode()) {
       rsc(MessageFormat.format("Yep, [{0}] is a repository file", path)); //$NON-NLS-1$

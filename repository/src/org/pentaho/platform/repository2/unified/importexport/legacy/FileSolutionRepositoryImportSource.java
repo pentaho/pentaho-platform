@@ -16,17 +16,16 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
+import org.springframework.util.Assert;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.io.FilenameUtils;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository2.unified.importexport.ImportSource;
-import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
-import org.springframework.util.Assert;
 
 /**
  * @author wseyler
@@ -73,7 +72,7 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
       repoPath = parentFilePath.substring(sourceParentFilePath.length()) + File.separator;
     }
 
-    repoPath = FilenameUtils.separatorsToUnix(repoPath);
+    repoPath = RepositoryFilenameUtils.separatorsToRepository(repoPath);
     RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, repoPath, file, charSet,
         mimeTypes.get(extension.toLowerCase()));
 

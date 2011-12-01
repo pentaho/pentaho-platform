@@ -16,7 +16,6 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -24,6 +23,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.util.Assert;
 
@@ -93,9 +93,9 @@ public class DefaultImportContentHandler implements ImportContentHandler {
     this.converters = converters;
 
     // Make sure we're working with unix type paths
-    this.destFolderPath = FilenameUtils.separatorsToUnix(destinationFolderPath);
-    if (!this.destFolderPath.endsWith("/")) {
-      this.destFolderPath += "/";
+    this.destFolderPath = RepositoryFilenameUtils.separatorsToRepository(destinationFolderPath);
+    if (!this.destFolderPath.endsWith(RepositoryFile.SEPARATOR)) {
+      this.destFolderPath += RepositoryFile.SEPARATOR;
     }
 
     this.versionMessage = versionMessage;
@@ -167,7 +167,7 @@ public class DefaultImportContentHandler implements ImportContentHandler {
     logger.debug("copying file to repository: " + bundlePathName);
 
     // Compute the file extension
-    final String ext = getExtension(bundle.getFile().getName());
+    final String ext = RepositoryFilenameUtils.getExtension(bundle.getFile().getName());
     if (ext == null) {
       // ... a file without an extension ... skip
       logger.warn(messages.getString("DefaultImportContentHandler.WARN_0001_NO_EXT", bundlePathName)); //$NON-NLS-1$
@@ -229,22 +229,13 @@ public class DefaultImportContentHandler implements ImportContentHandler {
 
   protected String computeBundlePath(final ImportSource.IRepositoryFileBundle bundle) {
     String bundlePath = bundle.getPath();
-    bundlePath = FilenameUtils.separatorsToUnix(bundlePath);
-    if (bundlePath.startsWith("/")) {
+    bundlePath = RepositoryFilenameUtils.separatorsToRepository(bundlePath);
+    if (bundlePath.startsWith(RepositoryFile.SEPARATOR)) {
       bundlePath = bundlePath.substring(1);
     }
     return bundlePath;
   }
 
-
-  private String getExtension(final String name) {
-    int lastDot = name.lastIndexOf('.');
-    if (lastDot > -1) {
-      return name.substring(lastDot + 1).toLowerCase();
-    } else {
-      return null;
-    }
-  }
 
   /**
    * Gets (possibly from cache) id of parent folder of file pointed to by childPath.

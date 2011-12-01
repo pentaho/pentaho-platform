@@ -18,14 +18,6 @@
  */
 package org.pentaho.platform.repository2.unified;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.ByteArrayInputStream;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,6 +27,14 @@ import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+
+import java.io.ByteArrayInputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Class Description
@@ -98,16 +98,5 @@ public class RepositoryUtilsTest {
     assertNotNull(one);
     RepositoryFile two = repositoryUtils.getFolder("/public/one/two", false, false, null);
     assertNotNull(two);
-  }
-
-  @Test
-  public void testGetParentPath() throws Exception {
-    assertEquals("/public/one/two/three", RepositoryUtils.getParentPath("/public/one/two/three/four"));
-    assertEquals("/publicone/two/three", RepositoryUtils.getParentPath("/publicone/two/three/four"));
-    assertEquals("/public/one/two/three", RepositoryUtils.getParentPath("/public/one/two/three/"));
-    assertEquals("/public/one", RepositoryUtils.getParentPath("/public/one/two"));
-    assertEquals("/public", RepositoryUtils.getParentPath("/public/one"));
-    assertEquals("", RepositoryUtils.getParentPath("one"));
-    assertEquals(null, RepositoryUtils.getParentPath("/"));
   }
 }

@@ -19,7 +19,6 @@
 package org.pentaho.platform.repository2.unified.importexport;
 
 import junit.framework.TestCase;
-import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
@@ -37,6 +36,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -427,7 +427,7 @@ public class PentahoMetadataImportContentHandlerTest extends TestCase {
 
     public void setPath(final String path) {
       this.path = path;
-      this.filename = FilenameUtils.getName(path);
+      this.filename = RepositoryFilenameUtils.getName(path);
     }
 
     public String getCharset() {

@@ -16,21 +16,20 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Ezequiel Cuellar
@@ -84,7 +83,8 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 			if (datasourceInfo != null) {
 				processImportingSchema(file, datasourceInfo);
 			} else {
-				file.setPath(this.mainRepositoryLocation + RepositoryFile.SEPARATOR + FilenameUtils.separatorsToUnix(file.getPath()));
+				file.setPath(this.mainRepositoryLocation + RepositoryFile.SEPARATOR +
+            RepositoryFilenameUtils.separatorsToRepository(file.getPath()));
 				importingFiles.add(file);
 			}
 		}
@@ -114,7 +114,7 @@ public class MondrianSchemaImportSource extends AbstractImportSource {
 		String datasourceInfo = null;
 		if (datasourcesXML != null) {
 			String fullFileName = file.getPath() + file.getFile().getName();
-			fullFileName = FilenameUtils.separatorsToUnix(fullFileName);
+			fullFileName = RepositoryFilenameUtils.separatorsToRepository(fullFileName);
 			NodeList mondrianDefinitions = getElementsByTagName(datasourcesXML, "Definition");
 			for (int i = 0; i < mondrianDefinitions.getLength(); i++) {
 				Node mondrianDefinition = mondrianDefinitions.item(i);

@@ -14,7 +14,6 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -23,6 +22,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile.Builder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.importexport.ImportSource.IRepositoryFileBundle;
@@ -94,7 +94,8 @@ public class Importer {
     executableTypes.add("xaction"); // Add non-plugin types //$NON-NLS-1$
     executableTypes.add("url"); //$NON-NLS-1$
 
-    destFolderPath = FilenameUtils.separatorsToUnix(destFolderPath);  // Make sure we're working with unix type paths
+    destFolderPath = RepositoryFilenameUtils.separatorsToRepository(destFolderPath);  // Make sure we're working with unix
+    // type paths
     if (!destFolderPath.endsWith("/")) {
       destFolderPath += "/";
     }
@@ -118,7 +119,7 @@ public class Importer {
     for (IRepositoryFileBundle bundle : importSource.getFiles()) {
       totalFileCount += 1;
       String bundlePath = bundle.getPath();
-      bundlePath = FilenameUtils.separatorsToUnix(bundlePath);
+      bundlePath = RepositoryFilenameUtils.separatorsToRepository(bundlePath);
       if (bundlePath.startsWith("/")) {
         bundlePath = bundlePath.substring(1);
       }
@@ -144,7 +145,7 @@ public class Importer {
       // By default, just copy it in
       String repoFilePath = destFolderPath + bundlePath + bundle.getFile().getName();
       RepositoryFile file = unifiedRepository.getFile(repoFilePath);
-      String ext = getExtension(bundle.getFile().getName());
+      String ext = RepositoryFilenameUtils.getExtension(bundle.getFile().getName());
       if (file != null) { // We're updating not creating
         if (!overwrite) { // If we're not allowed to overwrite then just continue
           continue;
@@ -154,7 +155,6 @@ public class Importer {
         }
         IRepositoryFileData data = null;
         try {
-          ext = getExtension(bundle.getFile().getName());
           if (ext == null) {
             logger.warn(Messages.getInstance().getString("Importer.WARN_0001_NO_EXT", bundlePath)); //$NON-NLS-1$
             continue;
@@ -178,7 +178,6 @@ public class Importer {
         }
         importedFileCount += 1;
       } else {
-        ext = getExtension(bundle.getFile().getName());
         if (ext == null) {
           logger.warn(Messages.getInstance().getString("Importer.WARN_0001_NO_EXT", bundlePath) + bundle.getFile().getName()); //$NON-NLS-1$
           continue;
@@ -260,15 +259,5 @@ public class Importer {
       parentIdCache.put(normalizedChildPath, parentFile.getId());
     }
     return parentIdCache.get(normalizedChildPath);
-  }
-
-  private String getExtension(final String name) {
-    Assert.notNull(name);
-    int lastDot = name.lastIndexOf('.');
-    if (lastDot > -1) {
-      return name.substring(lastDot + 1).toLowerCase();
-    } else {
-      return null;
-    }
   }
 }

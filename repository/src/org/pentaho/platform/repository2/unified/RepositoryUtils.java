@@ -16,12 +16,11 @@
  */
 package org.pentaho.platform.repository2.unified;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 /**
  * Utility methods that can be applied on any {@link }IUnifiedRepository}
@@ -66,11 +65,11 @@ public class RepositoryUtils {
                         final boolean createParents, final String versionMessage) {
     RepositoryFile folder = repository.getFile(path);
     if (null == folder && createIfNotExist) {
-      final String parentPath = getParentPath(path);
-      if (null != parentPath) {
+      final String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(path);
+      if (!RepositoryFile.SEPARATOR.equals(parentPath)) {
         final RepositoryFile parentFolder = getFolder(parentPath, createParents, createParents, versionMessage);
         if (null != parentFolder) {
-          final String folderName = FilenameUtils.getName(path);
+          final String folderName = RepositoryFilenameUtils.getName(path);
           folder = new RepositoryFile.Builder(folderName).path(path).folder(true).build();
           if (null != acl) {
             folder = repository.createFolder(parentFolder.getId(), folder, acl, versionMessage);
@@ -100,29 +99,14 @@ public class RepositoryUtils {
     // Get the requested folder
     RepositoryFile file = repository.getFile(path);
     if (null == file && createIfNotExist) {
-      final String parentFolderName = getParentPath(path);
+      final String parentFolderName = RepositoryFilenameUtils.getFullPathNoEndSeparator(path);
       final RepositoryFile parentFolder = getFolder(parentFolderName, createParents, createParents, versionMessage);
       if (null != parentFolder) {
-        final String fileName = FilenameUtils.getName(path);
+        final String fileName = RepositoryFilenameUtils.getName(path);
         file = new RepositoryFile.Builder(fileName).folder(false).build();
         file = repository.createFile(parentFolder.getId(), file, data, versionMessage);
       }
     }
     return file;
   }
-
-  /**
-   * Due to a bug in {@code FilenameUtils.getPathNoEndSeparator()}, we will have to do this a little differently
-   */
-  protected static String getParentPath(String path) {
-    final String prefix = FilenameUtils.getPrefix(path);
-    if (StringUtils.equals(path, prefix)) {
-      // We are at the root
-      return null;
-    }
-    path = FilenameUtils.getPath(path);
-    path = prefix + StringUtils.left(path, path.length() - 1);
-    return path;
-  }
-
 }

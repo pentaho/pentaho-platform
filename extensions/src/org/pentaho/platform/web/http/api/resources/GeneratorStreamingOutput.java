@@ -21,20 +21,6 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +34,7 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.MimeHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
@@ -56,6 +43,18 @@ import org.pentaho.platform.web.http.HttpOutputHandler;
 import org.pentaho.platform.web.http.api.resources.GeneratorStreamingOutputProvider.MimeTypeCallback;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GeneratorStreamingOutput {
 
@@ -140,7 +139,7 @@ public class GeneratorStreamingOutput {
 
   public void write(OutputStream output, MimeTypeCallback callback) throws IOException {
     if (file != null) {
-      fileType = FilenameUtils.getExtension(file.getName());
+      fileType = RepositoryFilenameUtils.getExtension(file.getName());
     }
 
     try {

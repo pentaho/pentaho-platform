@@ -21,30 +21,6 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
-import org.apache.commons.io.FilenameUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -59,11 +35,34 @@ import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifier;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
  * Represents a file node in the repository. This api provides methods for discovering information about repository files as well as CRUD operations
@@ -100,8 +99,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
       pentahoSession.getName();
       String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName())
-          + "/workspace/" + FilenameUtils.getBaseName(scheduleRequest.getInputFile()) + ".*"; //$NON-NLS-1$ //$NON-NLS-2$
-      String actionId = FilenameUtils.getExtension(scheduleRequest.getInputFile()) + "." + "backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
+          + "/workspace/" + RepositoryFilenameUtils.getBaseName(scheduleRequest.getInputFile()) + ".*"; //$NON-NLS-1$ // //$NON-NLS-2$
+      String actionId = RepositoryFilenameUtils.getExtension(scheduleRequest.getInputFile()) + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
       JobTrigger jobTrigger = scheduleRequest.getSimpleJobTrigger();
       if (scheduleRequest.getSimpleJobTrigger() != null) {
         SimpleJobTrigger simpleJobTrigger = scheduleRequest.getSimpleJobTrigger();

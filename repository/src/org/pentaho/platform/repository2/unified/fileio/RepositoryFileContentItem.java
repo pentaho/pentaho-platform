@@ -1,18 +1,18 @@
 package org.pentaho.platform.repository2.unified.fileio;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import org.apache.commons.io.FilenameUtils;
 import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.repository.ContentException;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.web.MimeHelper;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class RepositoryFileContentItem implements IContentItem {
 
@@ -46,7 +46,7 @@ public class RepositoryFileContentItem implements IContentItem {
       }
       
       public String getName() {
-        return FilenameUtils.getName(getPath());
+        return RepositoryFilenameUtils.getName(getPath());
       }
       
       public InputStream getInputStream() throws IOException {
@@ -84,7 +84,7 @@ public class RepositoryFileContentItem implements IContentItem {
   }
 
   public String getMimeType() {
-    return MimeHelper.getMimeTypeFromExtension("." + FilenameUtils.getExtension(getPath()));
+    return MimeHelper.getMimeTypeFromExtension("." + RepositoryFilenameUtils.getExtension(getPath()));
   }
 
   public OutputStream getOutputStream(String arg0) throws IOException {
@@ -101,14 +101,16 @@ public class RepositoryFileContentItem implements IContentItem {
       throw new IllegalArgumentException("Unknown mime type");
     }
     String requestedFileExtension = MimeHelper.getExtension(mimeType);
-    String currentExtension = FilenameUtils.getExtension(outputStream.getFilePath());
+    String currentExtension = RepositoryFilenameUtils.getExtension(outputStream.getFilePath());
     if (requestedFileExtension == null) {
       if (currentExtension != null) {
-        String tempFilePath = FilenameUtils.getFullPathNoEndSeparator(outputStream.getFilePath()) + "/" + FilenameUtils.getBaseName(outputStream.getFilePath());
+        String tempFilePath = RepositoryFilenameUtils.getFullPathNoEndSeparator(outputStream.getFilePath()) + "/" +
+            RepositoryFilenameUtils.getBaseName(outputStream.getFilePath());
         outputStream.setFilePath(tempFilePath);
       }
     } else if (!requestedFileExtension.substring(1).equals(currentExtension.toLowerCase())){
-      String tempFilePath = FilenameUtils.getFullPathNoEndSeparator(outputStream.getFilePath()) + "/" + FilenameUtils.getBaseName(outputStream.getFilePath()) + requestedFileExtension;
+      String tempFilePath = RepositoryFilenameUtils.getFullPathNoEndSeparator(outputStream.getFilePath()) + "/" +
+          RepositoryFilenameUtils.getBaseName(outputStream.getFilePath()) + requestedFileExtension;
       outputStream.setFilePath(tempFilePath);
     }
   }
