@@ -138,6 +138,8 @@
     parent="abstractBackingRepositoryLifecycleManager" />
   <bean id="pdiBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.PdiBackingRepositoryLifecycleManager"
     parent="abstractBackingRepositoryLifecycleManager" />
+  <bean id="metadataRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.MetadataRepositoryLifecycleManager"
+    parent="abstractBackingRepositoryLifecycleManager" />
   <bean id="sampleDataRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.SampleDataRepositoryLifecycleManager" >
     <constructor-arg ref="IDatasourceMgmtService" />
     <constructor-arg ref="IDatabaseDialectService" />    
@@ -150,6 +152,7 @@
         <ref bean="defaultBackingRepositoryLifecycleManager" />
         <ref bean="pdiBackingRepositoryLifecycleManager" />
         <ref bean="sampleDataRepositoryLifecycleManager" />
+        <ref bean="metadataRepositoryLifecycleManager" />
         <ref bean="mondrianBackingRepositoryLifecycleManager" />
       </list>
     </constructor-arg>
