@@ -21,25 +21,25 @@
 package org.pentaho.platform.datasource;
 
 import org.pentaho.database.model.IDatabaseConnection;
-import org.pentaho.platform.api.datasource.IGenericDatasource;
+import org.pentaho.platform.api.datasource.IDatasource;
+import org.pentaho.platform.api.datasource.IDatasourceInfo;
 
-public class JDBCDatasource extends GenericDatasourceInfo implements IGenericDatasource{
+public class JDBCDatasource implements IDatasource{
 
   private static final long serialVersionUID = 1L;
   private IDatabaseConnection datasource;
+  private IDatasourceInfo datasourceInfo;
   
-  public JDBCDatasource(IDatabaseConnection datasource, String name, String id, String type) {
-    super(name, id, type);
+  public JDBCDatasource(IDatabaseConnection datasource, IDatasourceInfo datasourceInfo) {
     this.datasource = datasource;
+    this.datasourceInfo = datasourceInfo;
   }
   @Override
   public IDatabaseConnection getDatasource() {
     return this.datasource;
   }
   @Override
-  public void setDatasource(Object datasource) {
-    if(datasource instanceof IDatabaseConnection) {
-      this.datasource = (IDatabaseConnection)datasource;      
-    }
+  public IDatasourceInfo getDatasourceInfo() {
+    return datasourceInfo;
   }
 }

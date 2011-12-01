@@ -37,7 +37,7 @@ import javax.sql.DataSource;
 import org.pentaho.commons.connection.ILimitableConnection;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PentahoSystemException;
@@ -189,7 +189,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
     // bump();
     // myCtr = connectionCtr;
     try {
-      IDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDatasourceService.class ,null);
+      IDBDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDBDatasourceService.class ,null);
       DataSource dataSource = datasourceService.getDataSource(jndiName);      
       if (dataSource != null) {
         nativeConnection = captureConnection(dataSource.getConnection());
@@ -210,7 +210,7 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
       close();  // do not allow connection to be used as it might not be enhanced
       // clear datasource cache
       try {
-      IDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDatasourceService.class ,null);
+      IDBDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDBDatasourceService.class ,null);
       datasourceService.clearDataSource(jndiName);
       } catch(ObjectFactoryException objface) {
     	  logger.error(Messages.getInstance().getErrorString("ConnectFactory.ERROR_0002_UNABLE_TO_FACTORY_OBJECT=Unable to factory object", jndiName), e); //$NON-NLS-1$

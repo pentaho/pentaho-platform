@@ -21,7 +21,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.pentaho.platform.api.data.DatasourceServiceException;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.BaseDatasourceService;
 
 /**
@@ -43,7 +43,7 @@ public class MockDataSourceService extends BaseDatasourceService {
    * @return A new {@link MockDataSource}.
    */
   @Override
-  public DataSource getDataSource(String dsName) throws DatasourceServiceException {
+  public DataSource getDataSource(String dsName) throws DBDatasourceServiceException {
     return new MockDataSource();
   }
 

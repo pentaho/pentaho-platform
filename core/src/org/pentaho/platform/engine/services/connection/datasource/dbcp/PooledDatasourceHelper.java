@@ -34,8 +34,8 @@ import org.pentaho.database.IDatabaseDialect;
 import org.pentaho.database.dialect.GenericDatabaseDialect;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
-import org.pentaho.platform.api.data.DatasourceServiceException;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -44,7 +44,7 @@ import org.pentaho.platform.util.logging.Logger;
 
 public class PooledDatasourceHelper {
 
-  public static PoolingDataSource setupPooledDataSource(IDatabaseConnection databaseConnection) throws DatasourceServiceException{
+  public static PoolingDataSource setupPooledDataSource(IDatabaseConnection databaseConnection) throws DBDatasourceServiceException{
     PoolingDataSource poolingDataSource = null;
     String driverClass = null;
     String url = null;
@@ -86,29 +86,29 @@ public class PooledDatasourceHelper {
 
 	    Map<String, String> attributes = databaseConnection.getAttributes();
 	    
-	    if(attributes.containsKey(IDatasourceService.MAX_ACTIVE_KEY)) {
-	      maxActiveConnection = Integer.parseInt(attributes.get(IDatasourceService.MAX_ACTIVE_KEY));
+	    if(attributes.containsKey(IDBDatasourceService.MAX_ACTIVE_KEY)) {
+	      maxActiveConnection = Integer.parseInt(attributes.get(IDBDatasourceService.MAX_ACTIVE_KEY));
 	    } else  {
 	      if(!StringUtil.isEmpty(maxActConn)) {
 	         maxActiveConnection = Integer.parseInt(maxActConn);
 	      }
 	    }
-      if(attributes.containsKey(IDatasourceService.MAX_IDLE_KEY)) {
-        numIdleConnection = Integer.parseInt(attributes.get(IDatasourceService.MAX_IDLE_KEY));
+      if(attributes.containsKey(IDBDatasourceService.MAX_IDLE_KEY)) {
+        numIdleConnection = Integer.parseInt(attributes.get(IDBDatasourceService.MAX_IDLE_KEY));
       } else  {
         if(!StringUtil.isEmpty(numIdleConn)) {
           numIdleConnection = Integer.parseInt(numIdleConn);
         }
       }
-      if(attributes.containsKey(IDatasourceService.MAX_WAIT_KEY)) {
-        waitTime = Integer.parseInt(attributes.get(IDatasourceService.MAX_WAIT_KEY));
+      if(attributes.containsKey(IDBDatasourceService.MAX_WAIT_KEY)) {
+        waitTime = Integer.parseInt(attributes.get(IDBDatasourceService.MAX_WAIT_KEY));
       } else  {
         if(!StringUtil.isEmpty(wait)) {
           waitTime = Long.parseLong(wait);
         }
       }
-      if(attributes.containsKey(IDatasourceService.QUERY_KEY)) {
-        validQuery = attributes.get(IDatasourceService.QUERY_KEY);
+      if(attributes.containsKey(IDBDatasourceService.QUERY_KEY)) {
+        validQuery = attributes.get(IDBDatasourceService.QUERY_KEY);
       }
       if(!StringUtil.isEmpty(whenExhaustedAction)) {
         whenExhaustedActionType = Byte.parseByte(whenExhaustedAction);
@@ -168,10 +168,10 @@ public class PooledDatasourceHelper {
 	    poolingDataSource.setPool(pool);
 
 	    // store the pool, so we can get to it later
-      cacheManager.putInRegionCache(IDatasourceService.JDBC_POOL, databaseConnection.getName(), pool);
+      cacheManager.putInRegionCache(IDBDatasourceService.JDBC_POOL, databaseConnection.getName(), pool);
 	    return (poolingDataSource);
 	  } catch(Exception e) {
-	      throw new DatasourceServiceException(e);
+	      throw new DBDatasourceServiceException(e);
 	  }
   }
   
@@ -192,20 +192,20 @@ public class PooledDatasourceHelper {
     basicDatasource.setUsername(databaseConnection.getUsername());
     basicDatasource.setPassword(databaseConnection.getPassword());
     Map<String, String> attributes = databaseConnection.getAttributes();
-    if(attributes.containsKey(IDatasourceService.MAX_ACTIVE_KEY)) {
-      String value = attributes.get(IDatasourceService.MAX_ACTIVE_KEY);
+    if(attributes.containsKey(IDBDatasourceService.MAX_ACTIVE_KEY)) {
+      String value = attributes.get(IDBDatasourceService.MAX_ACTIVE_KEY);
       basicDatasource.setMaxActive(Integer.parseInt(value));  
     }
-    if(attributes.containsKey(IDatasourceService.MAX_WAIT_KEY)) {
-      String value = attributes.get(IDatasourceService.MAX_WAIT_KEY);
+    if(attributes.containsKey(IDBDatasourceService.MAX_WAIT_KEY)) {
+      String value = attributes.get(IDBDatasourceService.MAX_WAIT_KEY);
       basicDatasource.setMaxWait(Integer.parseInt(value));  
     }
-    if(attributes.containsKey(IDatasourceService.MAX_IDLE_KEY)) {
-      String value = attributes.get(IDatasourceService.MAX_IDLE_KEY);
+    if(attributes.containsKey(IDBDatasourceService.MAX_IDLE_KEY)) {
+      String value = attributes.get(IDBDatasourceService.MAX_IDLE_KEY);
       basicDatasource.setMaxIdle(Integer.parseInt(value));  
     }
-    if(attributes.containsKey(IDatasourceService.QUERY_KEY)) {
-      basicDatasource.setValidationQuery(attributes.get(IDatasourceService.QUERY_KEY));  
+    if(attributes.containsKey(IDBDatasourceService.QUERY_KEY)) {
+      basicDatasource.setValidationQuery(attributes.get(IDBDatasourceService.QUERY_KEY));  
     } 
     return basicDatasource;
   }

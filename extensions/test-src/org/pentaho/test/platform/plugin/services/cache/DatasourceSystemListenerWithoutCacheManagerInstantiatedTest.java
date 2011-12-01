@@ -22,7 +22,7 @@ import java.io.File;
 //import java.util.List;
 //
 //import org.apache.commons.dbcp.PoolingDataSource;
-//import org.pentaho.platform.api.data.IDatasourceService;
+//import org.pentaho.platform.api.data.IDBDatasourceService;
 //import org.pentaho.platform.api.engine.ICacheManager;
 //import org.pentaho.platform.engine.core.system.PentahoSystem;
 //import org.pentaho.platform.engine.core.system.SimpleMapCacheManager;
@@ -60,11 +60,11 @@ public class DatasourceSystemListenerWithoutCacheManagerInstantiatedTest extends
 //      List datasourceList = null;
 //      List poolsList = null;
 //      if(cachingAvailable) {
-//        datasourceList = cacheManager.getAllValuesFromRegionCache(IDatasourceService.JDBC_DATASOURCE);
-//        poolsList = cacheManager.getAllValuesFromRegionCache(IDatasourceService.JDBC_POOL);
+//        datasourceList = cacheManager.getAllValuesFromRegionCache(IDBDatasourceService.JDBC_DATASOURCE);
+//        poolsList = cacheManager.getAllValuesFromRegionCache(IDBDatasourceService.JDBC_POOL);
 //      } else {
-//        datasourceList = simpleMapCacheManager.getAllValuesFromRegionCache(IDatasourceService.JDBC_DATASOURCE);
-//        poolsList = simpleMapCacheManager.getAllValuesFromRegionCache(IDatasourceService.JDBC_POOL);
+//        datasourceList = simpleMapCacheManager.getAllValuesFromRegionCache(IDBDatasourceService.JDBC_DATASOURCE);
+//        poolsList = simpleMapCacheManager.getAllValuesFromRegionCache(IDBDatasourceService.JDBC_POOL);
 //      }
 //      assertNotNull(datasourceList);
 //      assertNotNull(poolsList);
@@ -72,11 +72,11 @@ public class DatasourceSystemListenerWithoutCacheManagerInstantiatedTest extends
 //      assertTrue("Size is not zero", poolsList.size() > 0);      
 //      listener.shutdown();
 //      if(cachingAvailable) {
-//        datasourceList = cacheManager.getAllValuesFromRegionCache(IDatasourceService.JDBC_DATASOURCE);
-//        poolsList = cacheManager.getAllValuesFromRegionCache(IDatasourceService.JDBC_POOL);
+//        datasourceList = cacheManager.getAllValuesFromRegionCache(IDBDatasourceService.JDBC_DATASOURCE);
+//        poolsList = cacheManager.getAllValuesFromRegionCache(IDBDatasourceService.JDBC_POOL);
 //      } else {
-//        datasourceList = simpleMapCacheManager.getAllValuesFromRegionCache(IDatasourceService.JDBC_DATASOURCE);
-//        poolsList = simpleMapCacheManager.getAllValuesFromRegionCache(IDatasourceService.JDBC_POOL);
+//        datasourceList = simpleMapCacheManager.getAllValuesFromRegionCache(IDBDatasourceService.JDBC_DATASOURCE);
+//        poolsList = simpleMapCacheManager.getAllValuesFromRegionCache(IDBDatasourceService.JDBC_POOL);
 //      }
 //      assertSame(0, datasourceList.size());
 //      assertSame(0, poolsList.size());

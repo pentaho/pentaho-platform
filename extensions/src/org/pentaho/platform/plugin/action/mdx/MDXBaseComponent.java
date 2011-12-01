@@ -33,7 +33,7 @@ import org.pentaho.actionsequence.dom.actions.MdxQueryAction;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.data.IDataComponent;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -450,7 +450,7 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
             connectStr = jdbcStr + "; Catalog=" + catalog; //$NON-NLS-1$
           } else if (jndiStr != null) {
 
-            IDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDatasourceService.class ,null);
+            IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDBDatasourceService.class ,null);
             if (datasourceService.getDataSource(jndiStr) == null) {
               error(Messages.getInstance().getErrorString("MDXBaseComponent.ERROR_0005_INVALID_CONNECTION")); //$NON-NLS-1$
               return null;

@@ -24,6 +24,7 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.util.IPasswordService;
+import org.pentaho.platform.datasource.DatasourceInfo;
 import org.pentaho.platform.datasource.JDBCDatasource;
 import org.pentaho.platform.datasource.JDBCDatasourceService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -152,7 +153,7 @@ public class JDBCDatasourceServiceTest extends TestCase {
   public void testAddNoAdminAccess() throws Exception {
     try  {
       jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new NonAdministratorAuthorizationPolicy());
-      jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", "mySampleData", JDBCDatasourceService.TYPE));
+      jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), new DatasourceInfo("mySampleData", "mySampleData", JDBCDatasourceService.TYPE)), false);
       assertFalse(true);
     } catch(PentahoAccessControlException e) {
       assertTrue(e != null);
@@ -244,7 +245,7 @@ public class JDBCDatasourceServiceTest extends TestCase {
       jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new AdministratorAuthorizationPolicy());
       jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", JDBCDatasourceService.TYPE));
       jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData1"), "mySampleData1", JDBCDatasourceService.TYPE));
-      List<IGenericDatasource> datasourceList = jdbcDatasourceService.getAll();
+      List<IDatasource> datasourceList = jdbcDatasourceService.getAll();
       assertEquals(datasourceList.size(), 2);
     } catch(GenericDatasourceServiceException e) {
       assertFalse(true);
@@ -260,7 +261,7 @@ public class JDBCDatasourceServiceTest extends TestCase {
       jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), "mySampleData", JDBCDatasourceService.TYPE));
       jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData1"), "mySampleData1", JDBCDatasourceService.TYPE));
       jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new NonAdministratorAuthorizationPolicy());
-      List<IGenericDatasource> datasourceList = jdbcDatasourceService.getAll();
+      List<IDatasource> datasourceList = jdbcDatasourceService.getAll();
       assertFalse(true);
     } catch(PentahoAccessControlException e) {
       assertTrue(e != null);

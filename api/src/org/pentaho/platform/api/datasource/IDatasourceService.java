@@ -27,7 +27,7 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
  * This is a wrapper service which provides a basic a CRUD operations 
  * for a datasource service
  */
-public interface IGenericDatasourceService {
+public interface IDatasourceService {
   
   /**
    * Returns the datsource type
@@ -36,42 +36,45 @@ public interface IGenericDatasourceService {
   public String getType();
   
   /**
-   * Add a new datasource to the platform repository
+   * Adds a new datasource to the platform repository
    * @param datasource
+   * @param overwrite if true then it will overwrite the datasource if it exists
    * @throws GenericDatasourceServiceException
    */
-  public void add(IGenericDatasource datasource) throws GenericDatasourceServiceException, PentahoAccessControlException;
+  public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException;
   
   /**
    * Returns a datasource object with a managed object wrapped inside
    * @param id
    * @return datasource object
    */
-  public IGenericDatasource get(String id) throws GenericDatasourceServiceException, PentahoAccessControlException;
+  public IDatasource get(String id) throws DatasourceServiceException, PentahoAccessControlException;
   
   /**
    * Removes a selected datasource from the platform repository
    * @param id
-   * @throws GenericDatasourceServiceException
+   * @throws DatasourceServiceException
    */
-  public void remove(String id)throws GenericDatasourceServiceException, PentahoAccessControlException;
+  public void remove(String id)throws DatasourceServiceException, PentahoAccessControlException;
 
   /**
-   * Edits a selected datasource in a platform repository
+   * Updates a selected datasource in a platform repository
    * @param datasource
-   * @throws GenericDatasourceServiceException
+   * @throws DatasourceServiceException
    */
-  public void edit(IGenericDatasource datasource)throws GenericDatasourceServiceException, PentahoAccessControlException;
-  
+  public void update(IDatasource datasource)throws DatasourceServiceException, PentahoAccessControlException;
+    
   /**
-   * Returns all datasources of a particular type
-   * @return list of datasource
+   * Checks whether a datasource exists with a given id
+   * @param id
+   * @return true if the datasourc exists with the id provided
+   * @throws PentahoAccessControlException
    */
-  public List<IGenericDatasource> getAll() throws PentahoAccessControlException;
+  public boolean exists(String id) throws PentahoAccessControlException;
   
   /**
    * Returns all datasource ids for a particular type
    * @return list of datasource ids
    */
-  public List<IGenericDatasourceInfo> getIds() throws PentahoAccessControlException;
+  public List<IDatasourceInfo> getIds() throws PentahoAccessControlException;
 }

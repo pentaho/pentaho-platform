@@ -25,8 +25,8 @@ import javax.sql.DataSource;
 
 import org.apache.commons.pool.ObjectPool;
 import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.platform.api.data.DatasourceServiceException;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
@@ -43,21 +43,21 @@ public class PooledDatasourceSystemListener implements IPentahoSystemListener {
       ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
       Logger.debug(this, "PooledDatasourceSystemListener: called for startup"); //$NON-NLS-1$
       /*IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.get(IDatasourceMgmtService.class,session);
-      if(!cacheManager.cacheEnabled(IDatasourceService.JDBC_POOL)) {
-        cacheManager.addCacheRegion(IDatasourceService.JDBC_POOL);
+      if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_POOL)) {
+        cacheManager.addCacheRegion(IDBDatasourceService.JDBC_POOL);
       }
-      if(!cacheManager.cacheEnabled(IDatasourceService.JDBC_DATASOURCE)) {
-        cacheManager.addCacheRegion(IDatasourceService.JDBC_DATASOURCE);
+      if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_DATASOURCE)) {
+        cacheManager.addCacheRegion(IDBDatasourceService.JDBC_DATASOURCE);
       }
       List<DatabaseMeta> datasources = datasourceMgmtSvc.getDatasources();
       for (DatabaseMeta datasource : datasources) {
         try {
           Logger.debug(this, "  Setting up pooled Data Source - " + datasource); //$NON-NLS-1$
           final DataSource ds = PooledDatasourceHelper.setupPooledDataSource(datasource);
-          Logger.debug(this, "(storing DataSource under key \"" + IDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$
+          Logger.debug(this, "(storing DataSource under key \"" + IDBDatasourceService.JDBC_DATASOURCE //$NON-NLS-1$
               + datasource.getName() + "\")"); //$NON-NLS-1$
-          cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE, datasource.getName(), ds);
-        } catch (DatasourceServiceException dse) {
+          cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE, datasource.getName(), ds);
+        } catch (DBDatasourceServiceException dse) {
           // Skip this datasource pooling
           Logger.error(this, Messages.getInstance().getErrorString("PooledDatasourceSystemListener.ERROR_0003_UNABLE_TO_POOL_DATASOURCE",datasource.getName(), dse.getMessage())); //$NON-NLS-1$
           continue;
@@ -76,7 +76,7 @@ public class PooledDatasourceSystemListener implements IPentahoSystemListener {
     ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
     // Extracting pools from the cache  
     List<ObjectPool> objectPools = null;
-    objectPools = (List<ObjectPool>)cacheManager.getAllValuesFromRegionCache(IDatasourceService.JDBC_POOL);
+    objectPools = (List<ObjectPool>)cacheManager.getAllValuesFromRegionCache(IDBDatasourceService.JDBC_POOL);
 
     Logger.debug(this, "PooledDatasourceSystemListener: called for shutdown"); //$NON-NLS-1$
     // Clearing all pools
@@ -92,8 +92,8 @@ public class PooledDatasourceSystemListener implements IPentahoSystemListener {
       Logger.error(this, "Failed to clear connection pool: " + ignored.getMessage(), ignored); //$NON-NLS-1$
     }
     // Cleaning cache for pools and datasources
-    cacheManager.removeRegionCache(IDatasourceService.JDBC_POOL);      
-    cacheManager.removeRegionCache(IDatasourceService.JDBC_DATASOURCE);      
+    cacheManager.removeRegionCache(IDBDatasourceService.JDBC_POOL);      
+    cacheManager.removeRegionCache(IDBDatasourceService.JDBC_DATASOURCE);      
     
     Logger.debug(this, "PooledDatasourceSystemListener: completed shutdown"); //$NON-NLS-1$
     return;

@@ -22,7 +22,7 @@ PentahoSystem which is initialized after Spring
   <bean id="IConditionalExecution" class="org.pentaho.platform.plugin.condition.javascript.ConditionalExecution" scope="prototype" />
   <bean id="IScheduler" class="org.pentaho.platform.scheduler.QuartzScheduler" scope="singleton" />
   <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.SimpleRuntimeRepository" scope="session" />
-  <bean id="IDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService" scope="prototype" />
+  <bean id="IDBDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService" scope="prototype" />
   <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton" />
     <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository2.unified.JcrBackedDatasourceMgmtService" scope="prototype" />
   <bean id="IAclPublisher" class="org.pentaho.platform.engine.security.acls.AclPublisher" scope="singleton" />

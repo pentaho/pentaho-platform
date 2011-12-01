@@ -19,22 +19,25 @@
  */
 package org.pentaho.platform.api.datasource;
 
+import java.io.Serializable;
+
 /**
  * Contains a managed object for a particular datasource tyoe
  * 
  *
  */
-public interface IGenericDatasource extends IGenericDatasourceInfo{
+public interface IDatasource extends Serializable{
 
   /**
+   * Returns the contained datasource info
+   * @return datasource info
+   */
+  public IDatasourceInfo getDatasourceInfo();
+ 
+  /**
    * Returns the managed datasource
-   * @return
+   * @return managed datasource object
    */
   public Object getDatasource();
 
-  /**
-   * Stores the managed datasource
-   * @param datasource
-   */
-  public void setDatasource(Object datasource);
 }

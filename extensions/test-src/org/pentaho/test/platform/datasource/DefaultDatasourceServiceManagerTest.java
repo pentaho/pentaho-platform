@@ -16,14 +16,14 @@ import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.metadata.model.Domain;
-import org.pentaho.platform.api.datasource.GenericDatasourceServiceException;
-import org.pentaho.platform.api.datasource.IGenericDatasource;
-import org.pentaho.platform.api.datasource.IGenericDatasourceInfo;
-import org.pentaho.platform.api.datasource.IGenericDatasourceService;
-import org.pentaho.platform.api.datasource.IGenericDatasourceServiceManager;
+import org.pentaho.platform.api.datasource.DatasourceServiceException;
+import org.pentaho.platform.api.datasource.IDatasource;
+import org.pentaho.platform.api.datasource.IDatasourceInfo;
+import org.pentaho.platform.api.datasource.IDatasourceService;
+import org.pentaho.platform.api.datasource.IDatasourceServiceManager;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.datasource.DatasourceInfo;
 import org.pentaho.platform.datasource.DefaultDatasourceServiceManager;
-import org.pentaho.platform.datasource.GenericDatasourceInfo;
 import org.pentaho.platform.datasource.JDBCDatasource;
 import org.pentaho.platform.datasource.JDBCDatasourceService;
 import org.pentaho.platform.datasource.MetadataDatasource;
@@ -93,68 +93,59 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
   @Test
   public void testList() {
     
-    IGenericDatasourceServiceManager serviceManager = new DefaultDatasourceServiceManager();
+    IDatasourceServiceManager serviceManager = new DefaultDatasourceServiceManager();
     serviceManager.registerService(new MockMondrianDatasourceService());
     serviceManager.registerService(new MockMetadataDatasourceService());
     serviceManager.registerService(new MockJDBCDatasourceService());
     
-    IGenericDatasourceService jdbcService = serviceManager.getService(JDBCDatasourceService.TYPE);
+    IDatasourceService jdbcService = serviceManager.getService(JDBCDatasourceService.TYPE);
     try {
-      jdbcService.add(new JDBCDatasource(createDatabaseConnection("SampleData"), "SampleData", "SampleData", JDBCDatasourceService.TYPE));
-    } catch (GenericDatasourceServiceException e) {
+      jdbcService.add(new JDBCDatasource(createDatabaseConnection("SampleData"), new DatasourceInfo("SampleData", "SampleData", JDBCDatasourceService.TYPE)), false);
+    } catch (DatasourceServiceException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (Exception e) {
       assertTrue(e != null);
     }
 
-    IGenericDatasourceService metadataService = serviceManager.getService(MetadataDatasourceService.TYPE);
+    IDatasourceService metadataService = serviceManager.getService(MetadataDatasourceService.TYPE);
     try {
-      metadataService.add(new MetadataDatasource(getTestDomain("MyTestDomain.xmi"), "MyTestDomain", "MyTestDomain.xmi", MetadataDatasourceService.TYPE));
-    } catch (GenericDatasourceServiceException e) {
+      metadataService.add(new MetadataDatasource(getTestDomain("MyTestDomain.xmi"), new DatasourceInfo("MyTestDomain", "MyTestDomain.xmi", MetadataDatasourceService.TYPE)), false);
+    } catch (DatasourceServiceException e) {
       assertTrue(e != null);
     } catch (PentahoAccessControlException e) {
       assertTrue(e != null);
     }
 
     
-    IGenericDatasourceService mondrianService =  serviceManager.getService(MondrianDatasourceService.TYPE);
+    IDatasourceService mondrianService =  serviceManager.getService(MondrianDatasourceService.TYPE);
     try {
-      mondrianService.add(new MondrianDatasource(getTestCatalog("MyTestDomain"), "MyTestDomain", "MyTestDomain", MetadataDatasourceService.TYPE));
-    } catch (GenericDatasourceServiceException e) {
+      mondrianService.add(new MondrianDatasource(getTestCatalog("MyTestDomain"), new DatasourceInfo("MyTestDomain", "MyTestDomain", MetadataDatasourceService.TYPE)), false);
+    } catch (DatasourceServiceException e) {
       assertTrue(e != null);
     } catch (PentahoAccessControlException e) {
       assertTrue(e != null);
     }
-
-    
-    List<IGenericDatasource> datasourceList = null;
-    try {
-      datasourceList = serviceManager.getAll();
-    } catch (PentahoAccessControlException e) {
-      assertTrue(e != null);
-    }
-    assertEquals(datasourceList.size(), 3);
   }
   
-  class MockMondrianDatasourceService implements IGenericDatasourceService {
+  class MockMondrianDatasourceService implements IDatasourceService {
 
-    List<IGenericDatasource> mondrianDatasourceList = new ArrayList<IGenericDatasource>();
+    List<IDatasource> mondrianDatasourceList = new ArrayList<IDatasource>();
     @Override
-    public void add(IGenericDatasource datasource) throws GenericDatasourceServiceException {
+    public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException {
       mondrianDatasourceList.add(datasource);
     }
 
     @Override
-    public void edit(IGenericDatasource arg0) throws GenericDatasourceServiceException {
+    public void update(IDatasource arg0) throws DatasourceServiceException {
       // TODO Auto-generated method stub
       
     }
 
     @Override
-    public IGenericDatasource get(String id) {
-      for(IGenericDatasource mondrianDatasource:mondrianDatasourceList) {
-        if(id.equals(mondrianDatasource.getId())) {
+    public IDatasource get(String id) {
+      for(IDatasource mondrianDatasource:mondrianDatasourceList) {
+        if(id.equals(mondrianDatasource.getDatasourceInfo().getId())) {
           return mondrianDatasource;
         }
       }
@@ -167,45 +158,45 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     }
 
     @Override
-    public List<IGenericDatasource> getAll() {
-      return mondrianDatasourceList;
-    }
-
-    @Override
-    public void remove(String arg0) throws GenericDatasourceServiceException {
+    public void remove(String arg0) throws DatasourceServiceException {
       
     }
 
     @Override
-    public List<IGenericDatasourceInfo> getIds() {
-      List<IGenericDatasourceInfo> datasourceInfoIds = new ArrayList<IGenericDatasourceInfo>();
-      for(IGenericDatasource datasource:mondrianDatasourceList) {
-        datasourceInfoIds.add(new GenericDatasourceInfo(datasource.getId(),datasource.getId(), datasource.getType()));
+    public List<IDatasourceInfo> getIds() {
+      List<IDatasourceInfo> datasourceInfoIds = new ArrayList<IDatasourceInfo>();
+      for(IDatasource datasource:mondrianDatasourceList) {
+        datasourceInfoIds.add(new DatasourceInfo(datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getType()));
       }
       return datasourceInfoIds;
+    }
+
+    @Override
+    public boolean exists(String id) throws PentahoAccessControlException {
+      return false;
     }
     
   }
   
-  class MockJDBCDatasourceService implements  IGenericDatasourceService {
+  class MockJDBCDatasourceService implements  IDatasourceService {
 
-    List<IGenericDatasource> jdbcDatasourceList = new ArrayList<IGenericDatasource>();
+    List<IDatasource> jdbcDatasourceList = new ArrayList<IDatasource>();
     
     @Override
-    public void add(IGenericDatasource datasource) throws GenericDatasourceServiceException {
+    public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException {
       jdbcDatasourceList.add(datasource);
     }
 
     @Override
-    public void edit(IGenericDatasource arg0) throws GenericDatasourceServiceException {
+    public void update(IDatasource arg0) throws DatasourceServiceException {
       // TODO Auto-generated method stub
       
     }
 
     @Override
-    public IGenericDatasource get(String id) {
-      for(IGenericDatasource jdbcDatasource:jdbcDatasourceList) {
-        if(id.equals(jdbcDatasource.getId())) {
+    public IDatasource get(String id) {
+      for(IDatasource jdbcDatasource:jdbcDatasourceList) {
+        if(id.equals(jdbcDatasource.getDatasourceInfo().getId())) {
           return jdbcDatasource;
         }
       }
@@ -218,47 +209,48 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     }
 
     @Override
-    public List<IGenericDatasource> getAll() {
-      return jdbcDatasourceList;
-    }
-
-    @Override
-    public void remove(String arg0) throws GenericDatasourceServiceException {
+    public void remove(String arg0) throws DatasourceServiceException {
       // TODO Auto-generated method stub
       
     }
 
     @Override
-    public List<IGenericDatasourceInfo> getIds() {
-      List<IGenericDatasourceInfo> datasourceInfoIds = new ArrayList<IGenericDatasourceInfo>();
-      for(IGenericDatasource datasource:jdbcDatasourceList) {
-        datasourceInfoIds.add(new GenericDatasourceInfo(datasource.getId(), datasource.getId(), datasource.getType()));
+    public List<IDatasourceInfo> getIds() {
+      List<IDatasourceInfo> datasourceInfoIds = new ArrayList<IDatasourceInfo>();
+      for(IDatasource datasource:jdbcDatasourceList) {
+        datasourceInfoIds.add(new DatasourceInfo(datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getType()));
       }
       return datasourceInfoIds;
+    }
+
+    @Override
+    public boolean exists(String id) throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      return false;
     }
     
   }
   
-  class MockMetadataDatasourceService implements  IGenericDatasourceService{
+  class MockMetadataDatasourceService implements  IDatasourceService{
 
-    List<IGenericDatasource> metadataDatasourceList = new ArrayList<IGenericDatasource>();
+    List<IDatasource> metadataDatasourceList = new ArrayList<IDatasource>();
     
     @Override
-    public void add(IGenericDatasource datasource) throws GenericDatasourceServiceException {
+    public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException {
       metadataDatasourceList.add(datasource);
       
     }
 
     @Override
-    public void edit(IGenericDatasource arg0) throws GenericDatasourceServiceException {
+    public void update(IDatasource arg0) throws DatasourceServiceException {
       // TODO Auto-generated method stub
       
     }
 
     @Override
-    public IGenericDatasource get(String id) {
-      for(IGenericDatasource metadataDatasource:metadataDatasourceList) {
-        if(id.equals(metadataDatasource.getId())) {
+    public IDatasource get(String id) {
+      for(IDatasource metadataDatasource:metadataDatasourceList) {
+        if(id.equals(metadataDatasource.getDatasourceInfo().getId())) {
           return metadataDatasource;
         }
       }
@@ -270,25 +262,25 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
       return MetadataDatasourceService.TYPE;
     }
 
-
     @Override
-    public List<IGenericDatasource> getAll() {
-      return metadataDatasourceList;
-    }
-
-    @Override
-    public void remove(String arg0) throws GenericDatasourceServiceException {
+    public void remove(String arg0) throws DatasourceServiceException {
       // TODO Auto-generated method stub
       
     }
 
     @Override
-    public List<IGenericDatasourceInfo> getIds() {
-      List<IGenericDatasourceInfo> datasourceInfoIds = new ArrayList<IGenericDatasourceInfo>();
-      for(IGenericDatasource datasource:metadataDatasourceList) {
-        datasourceInfoIds.add(new GenericDatasourceInfo(datasource.getId(), datasource.getId(), datasource.getType()));
+    public List<IDatasourceInfo> getIds() {
+      List<IDatasourceInfo> datasourceInfoIds = new ArrayList<IDatasourceInfo>();
+      for(IDatasource datasource:metadataDatasourceList) {
+        datasourceInfoIds.add(new DatasourceInfo(datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getType()));
       }
       return datasourceInfoIds;
+    }
+
+    @Override
+    public boolean exists(String id) throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      return false;
     }
     
   }

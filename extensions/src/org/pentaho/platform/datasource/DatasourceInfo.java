@@ -22,10 +22,10 @@ package org.pentaho.platform.datasource;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.pentaho.platform.api.datasource.IGenericDatasourceInfo;
+import org.pentaho.platform.api.datasource.IDatasourceInfo;
 
 @XmlRootElement
-public class GenericDatasourceInfo implements IGenericDatasourceInfo {
+public class DatasourceInfo implements IDatasourceInfo {
   /**
    * 
    */
@@ -37,12 +37,12 @@ public class GenericDatasourceInfo implements IGenericDatasourceInfo {
 
   String type;
 
-  public GenericDatasourceInfo() {
+  public DatasourceInfo() {
     super();
     // TODO Auto-generated constructor stub
   }
 
-  public GenericDatasourceInfo(String name, String id, String type) {
+  public DatasourceInfo(String name, String id, String type) {
     super();
     this.name = name;
     this.id = id;
@@ -70,16 +70,14 @@ public class GenericDatasourceInfo implements IGenericDatasourceInfo {
     return "GenericDatasourceInfo [name=" + name + "id=" + id + ", type=" + type + "]";
   }
 
-  @Override
   public void setId(String id) {
     this.id = id;
   }
 
-  @Override
   public void setType(String type) {
     this.type = type;
   }
-  @Override
+
   public void setName(String name) {
     this.name = name;
   }

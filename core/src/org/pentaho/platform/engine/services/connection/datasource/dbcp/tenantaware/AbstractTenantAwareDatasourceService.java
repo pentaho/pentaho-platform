@@ -24,7 +24,7 @@ import java.text.MessageFormat;
 
 import javax.sql.DataSource;
 
-import org.pentaho.platform.api.data.DatasourceServiceException;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.springframework.beans.factory.InitializingBean;
@@ -59,16 +59,16 @@ public abstract class AbstractTenantAwareDatasourceService extends PooledOrJndiD
   public void afterPropertiesSet() throws Exception {
     // Check to see if the format is valid - must have a {0} and {1} in it.
     if (  (this.datasourceNameFormat.indexOf("{0}")<0 ) || (this.datasourceNameFormat.indexOf("{1}")<0 ) ) {
-      throw new DatasourceServiceException(Messages.getInstance().getErrorString("TenantAwareDatasourceService.ERROR_0001_NAME_FORMAT_ILLEGAL"));
+      throw new DBDatasourceServiceException(Messages.getInstance().getErrorString("TenantAwareDatasourceService.ERROR_0001_NAME_FORMAT_ILLEGAL"));
     }
   }
 
   @Override
-  public DataSource getDataSource(String dsName) throws DatasourceServiceException {
+  public DataSource getDataSource(String dsName) throws DBDatasourceServiceException {
     String tenantId = getTenantId();
     if (tenantId == null) { // If tenant ID is null, what should it do?
       if (isRequireTenantId()) {
-        throw new DatasourceServiceException(Messages.getInstance().getErrorString("TenantAwareDatasourceService.ERROR_0002_TENANT_ID_REQUIRED"));
+        throw new DBDatasourceServiceException(Messages.getInstance().getErrorString("TenantAwareDatasourceService.ERROR_0002_TENANT_ID_REQUIRED"));
       }
       return super.getDataSource(dsName); // If no tenant ID found and it's not required, get originally requested datasource 
     } else { 

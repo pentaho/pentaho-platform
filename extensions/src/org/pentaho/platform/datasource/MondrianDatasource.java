@@ -20,27 +20,26 @@
  */
 package org.pentaho.platform.datasource;
 
-import org.pentaho.platform.api.datasource.IGenericDatasource;
+import org.pentaho.platform.api.datasource.IDatasource;
+import org.pentaho.platform.api.datasource.IDatasourceInfo;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 
-public class MondrianDatasource extends GenericDatasourceInfo implements IGenericDatasource{
+public class MondrianDatasource implements IDatasource{
 
   private static final long serialVersionUID = 1L;
-  private MondrianCatalog datasource;;
+  private MondrianCatalog datasource;
+  private IDatasourceInfo datasourceInfo;
   
-  
-  public MondrianDatasource(MondrianCatalog datasource, String name, String id, String type) {
-    super(name, id, type);
+  public MondrianDatasource(MondrianCatalog datasource, IDatasourceInfo datasourceInfo) {
     this.datasource = datasource;
+    this.datasourceInfo = datasourceInfo;
   }
   @Override
   public MondrianCatalog getDatasource() {
     return this.datasource;
   }
   @Override
-  public void setDatasource(Object datasource) {
-    if(datasource instanceof MondrianCatalog) {
-      this.datasource = (MondrianCatalog)datasource;      
-    }
+  public IDatasourceInfo getDatasourceInfo() {
+    return datasourceInfo;
   }
 }

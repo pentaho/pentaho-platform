@@ -33,8 +33,8 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.data.DatasourceServiceException;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.ISolutionRepository;
@@ -156,11 +156,11 @@ public class MondrianCatalogPublisher extends RepositoryFilePublisher {
     // Note: we use the unbound JNDI name here, the PentahoXmlaServlet and PivotViewComponent resolve the JNDI name
 
     try {
-      IDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDatasourceService.class ,null);    	
+      IDBDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDBDatasourceService.class ,null);    	
       datasourceService.getDataSource(jndiName);
     } catch (ObjectFactoryException objface) {
       	MondrianCatalogPublisher.logger.error(Messages.getInstance().getErrorString("MondrianCatalogPublisher.ERROR_0006_UNABLE_TO_FACTORY_OBJECT", jndiName), objface); //$NON-NLS-1$      	
-    } catch (DatasourceServiceException dse) {
+    } catch (DBDatasourceServiceException dse) {
       MondrianCatalogPublisher.logger.error(Messages.getInstance().getErrorString("MondrianCatalogPublisher.ERROR_0001_JNDI_NAMING_ERROR", jndiName), dse); //$NON-NLS-1$
       resp.getWriter().println(FILE_ADD_DATASOURCE_PROBLEM);
       return;

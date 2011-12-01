@@ -24,8 +24,8 @@ import javax.sql.DataSource;
 
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.platform.api.data.DatasourceServiceException;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
@@ -38,7 +38,7 @@ public class PooledDatasourceService extends BaseDatasourceService {
   public PooledDatasourceService() {
 	}
 
-	DataSource retrieve(String datasource) throws DatasourceServiceException {
+	DataSource retrieve(String datasource) throws DBDatasourceServiceException {
 		DataSource ds = null;
 		try {
       IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.get(IDatasourceMgmtService.class,PentahoSessionHolder.getSession());
@@ -46,11 +46,11 @@ public class PooledDatasourceService extends BaseDatasourceService {
 			if(datasource != null) {
 	      ds = PooledDatasourceHelper.setupPooledDataSource(databaseConnection);
 			} else  {
-			  throw new DatasourceServiceException(Messages.getInstance().getErrorString("PooledDatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE")); //$NON-NLS-1$
+			  throw new DBDatasourceServiceException(Messages.getInstance().getErrorString("PooledDatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE")); //$NON-NLS-1$
 			}
-			cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE, datasource, ds);
+			cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE, datasource, ds);
 		} catch (DatasourceMgmtServiceException daoe) {
-		  throw new DatasourceServiceException(Messages.getInstance().getErrorString("PooledDatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE"),daoe); //$NON-NLS-1$
+		  throw new DBDatasourceServiceException(Messages.getInstance().getErrorString("PooledDatasourceService.ERROR_0002_UNABLE_TO_GET_DATASOURCE"),daoe); //$NON-NLS-1$
 		}
 		return ds;
 	}
@@ -61,7 +61,7 @@ public class PooledDatasourceService extends BaseDatasourceService {
 	 *
 	 */
 	public void clearCache() {
-		cacheManager.removeRegionCache(IDatasourceService.JDBC_DATASOURCE);
+		cacheManager.removeRegionCache(IDBDatasourceService.JDBC_DATASOURCE);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class PooledDatasourceService extends BaseDatasourceService {
 	 *
 	 */
 	public void clearDataSource(String dsName) {
-		cacheManager.removeFromRegionCache(IDatasourceService.JDBC_DATASOURCE, dsName);
+		cacheManager.removeFromRegionCache(IDBDatasourceService.JDBC_DATASOURCE, dsName);
 	}
 
 	/**
@@ -85,11 +85,11 @@ public class PooledDatasourceService extends BaseDatasourceService {
 	 * @throws NamingException
 	 */
 	public DataSource getDataSource(String dsName)
-			throws DatasourceServiceException {
+			throws DBDatasourceServiceException {
 		DataSource dataSource = null;
 		if (cacheManager != null) {
 			Object foundDs = cacheManager.getFromRegionCache(
-					IDatasourceService.JDBC_DATASOURCE, dsName);
+					IDBDatasourceService.JDBC_DATASOURCE, dsName);
 			if (foundDs != null) {
 				dataSource = (DataSource) foundDs;
 			} else {
@@ -108,9 +108,9 @@ public class PooledDatasourceService extends BaseDatasourceService {
    * @param dsName
    *            The Datasource name (like SampleData)
    * @return The bound DS name if it is bound in JNDI (like "jdbc/SampleData")
-   * @throws DatasourceServiceException
+   * @throws DBDatasourceServiceException
    */
-  public String getDSBoundName(final String dsName) throws DatasourceServiceException {
+  public String getDSBoundName(final String dsName) throws DBDatasourceServiceException {
     return dsName;
   }
 

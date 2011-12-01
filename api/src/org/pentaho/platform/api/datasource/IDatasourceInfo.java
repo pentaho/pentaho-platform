@@ -19,42 +19,29 @@
  */
 package org.pentaho.platform.api.datasource;
 
-import org.pentaho.platform.api.util.PentahoCheckedChainedException;
+import java.io.Serializable;
 
-public class GenericDatasourceServiceException extends PentahoCheckedChainedException {
+/**
+ * Basic information about a datasource object
+ * 
+ *
+ */
+public interface IDatasourceInfo extends Serializable{
+  /**
+   * Returns a datasource name
+   * @return name
+   */
+  public String getName();
+  
+  /**
+   * Returns a datasource id
+   * @return id
+   */
+  public String getId();
 
   /**
-  * 
-  */
- private static final long serialVersionUID = -6089798664483298023L;
-
- /**
-  * 
-  */
- public GenericDatasourceServiceException() {
-   super();
- }
-
- /**
-  * @param message
-  */
- public GenericDatasourceServiceException(String message) {
-   super(message);
- }
-
- /**
-  * @param message
-  * @param reas
-  */
- public GenericDatasourceServiceException(String message, Throwable reas) {
-   super(message, reas);
- }
-
- /**
-  * @param reas
-  */
- public GenericDatasourceServiceException(Throwable reas) {
-   super(reas);
- }
-
+   * Returns a datasource type
+   * @return type
+   */
+  public String getType();
 }

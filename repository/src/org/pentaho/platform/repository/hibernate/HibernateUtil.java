@@ -44,7 +44,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.exception.ConstraintViolationException;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoSystemEntryPoint;
 import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
@@ -157,8 +157,8 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
       }
       String dsName = HibernateUtil.configuration.getProperty("connection.datasource"); //$NON-NLS-1$
       if ((dsName != null) && dsName.toUpperCase().endsWith("HIBERNATE")) { //$NON-NLS-1$
-    	  // IDatasourceService datasourceService =  (IDatasourceService) PentahoSystem.getObjectFactory().getObject("IDatasourceService",null);     //$NON-NLS-1$
-        IDatasourceService datasourceService = getDatasourceService(); 
+    	  // IDBDatasourceService datasourceService =  (IDBDatasourceService) PentahoSystem.getObjectFactory().getObject("IDBDatasourceService",null);     //$NON-NLS-1$
+        IDBDatasourceService datasourceService = getDatasourceService(); 
         String actualDSName = datasourceService.getDSBoundName("Hibernate"); //$NON-NLS-1$
         HibernateUtil.configuration.setProperty("hibernate.connection.datasource", actualDSName); //$NON-NLS-1$
       }
@@ -209,7 +209,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
     }
   }
   
-  private static IDatasourceService getDatasourceService( ) throws ObjectFactoryException {
+  private static IDBDatasourceService getDatasourceService( ) throws ObjectFactoryException {
     //
     // Our new datasource stuff is provided for running queries and acquiring data. It is
     // NOT there for the inner workings of the platform. So, the Hibernate datasource should ALWAYS
@@ -224,7 +224,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
     if (!useNewDatasourceService) {
       return new JndiDatasourceService();
     } else {
-      IDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDatasourceService.class, null);
+      IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDBDatasourceService.class, null);
       return datasourceService;
     }
   }

@@ -37,7 +37,7 @@ import mondrian.olap.Role;
 
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
@@ -220,7 +220,7 @@ public class MDXConnection implements IPentahoLoggingConnection {
       mapPlatformRolesToMondrianRoles(properties);
       
       if (dataSourceName != null) {
-        IDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDatasourceService.class ,null);
+        IDBDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDBDatasourceService.class ,null);
         DataSource dataSourceImpl = datasourceService.getDataSource(dataSourceName);      
         if (dataSourceImpl != null) {
           properties.remove(RolapConnectionProperties.DataSource.name());

@@ -26,7 +26,7 @@ PentahoSystem which is initialized after Spring
   <bean id="connection-XML" class="org.pentaho.platform.plugin.services.connections.xquery.XQConnection" scope="prototype" />
   <bean id="connection-HQL" class="org.pentaho.platform.plugin.services.connections.hql.HQLConnection" scope="prototype" />
 
-  <bean id="IDatasourceService" class="org.pentaho.platform.engine.services.MockDataSourceService" scope="singleton">
+  <bean id="IDBDatasourceService" class="org.pentaho.platform.engine.services.MockDataSourceService" scope="singleton">
   	<constructor-arg value="true"/>
   </bean>
 </beans>

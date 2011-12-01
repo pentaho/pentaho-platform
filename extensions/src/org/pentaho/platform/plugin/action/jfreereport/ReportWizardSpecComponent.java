@@ -38,7 +38,7 @@ import org.pentaho.jfreereport.castormodel.reportspec.ReportSpec;
 import org.pentaho.jfreereport.wizard.utility.CastorUtility;
 import org.pentaho.jfreereport.wizard.utility.report.ReportGenerationUtility;
 import org.pentaho.jfreereport.wizard.utility.report.ReportParameterUtility;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
@@ -188,7 +188,7 @@ public class ReportWizardSpecComponent extends JFreeReportComponent {
     if (reportSpec.getIsMDX()) {
       // did this ever work??
       String connectStr = ""; //$NON-NLS-1$
-      IDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDatasourceService.class ,null);
+      IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDBDatasourceService.class ,null);
       String dsName = datasourceService.getDSBoundName(jndiName);
       if (dsName != null) {
         connectStr = "dataSource=" + dsName + "; Catalog=mondrian"; //$NON-NLS-1$ //$NON-NLS-2$

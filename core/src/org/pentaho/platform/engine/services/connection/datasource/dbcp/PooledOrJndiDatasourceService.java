@@ -23,8 +23,8 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.pentaho.database.model.IDatabaseConnection;
-import org.pentaho.platform.api.data.DatasourceServiceException;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -36,7 +36,7 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
   public PooledOrJndiDatasourceService() {
 	}
 
-	DataSource retrieve(String datasource) throws DatasourceServiceException {
+	DataSource retrieve(String datasource) throws DBDatasourceServiceException {
 		DataSource ds = null;
 		try {
       IDatasourceMgmtService datasourceMgmtSvc = (IDatasourceMgmtService) PentahoSystem.get(IDatasourceMgmtService.class,PentahoSessionHolder.getSession());
@@ -50,14 +50,14 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
 			}
 			// if the resulting datasource is not null then store it in the cache
 			if(ds != null) {
-			  cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE, datasource, ds);  
+			  cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE, datasource, ds);  
 			}
 		} catch (DatasourceMgmtServiceException daoe) {
       try {
         return getJndiDataSource(datasource);  
       }
-      catch(DatasourceServiceException dse) {
-        throw new DatasourceServiceException(Messages.getInstance().getErrorString("PooledOrJndiDatasourceService.ERROR_0003_UNABLE_TO_GET_JNDI_DATASOURCE") ,dse);         //$NON-NLS-1$
+      catch(DBDatasourceServiceException dse) {
+        throw new DBDatasourceServiceException(Messages.getInstance().getErrorString("PooledOrJndiDatasourceService.ERROR_0003_UNABLE_TO_GET_JNDI_DATASOURCE") ,dse);         //$NON-NLS-1$
       }
 		}
 		return ds;
@@ -69,7 +69,7 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
 	 *
 	 */
 	public void clearCache() {
-		cacheManager.removeRegionCache(IDatasourceService.JDBC_DATASOURCE);
+		cacheManager.removeRegionCache(IDBDatasourceService.JDBC_DATASOURCE);
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
 	 *
 	 */
 	public void clearDataSource(String dsName) {
-		cacheManager.removeFromRegionCache(IDatasourceService.JDBC_DATASOURCE, dsName);
+		cacheManager.removeFromRegionCache(IDBDatasourceService.JDBC_DATASOURCE, dsName);
 	}
 
 	/**
@@ -93,14 +93,14 @@ public class PooledOrJndiDatasourceService extends BaseDatasourceService {
 	 * @throws NamingException
 	 */
 	public DataSource getDataSource(String dsName)
-			throws DatasourceServiceException {
+			throws DBDatasourceServiceException {
 		DataSource dataSource = null;
 		if (cacheManager != null) {
-      if(!cacheManager.cacheEnabled(IDatasourceService.JDBC_DATASOURCE)) {
-        cacheManager.addCacheRegion(IDatasourceService.JDBC_DATASOURCE);
+      if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_DATASOURCE)) {
+        cacheManager.addCacheRegion(IDBDatasourceService.JDBC_DATASOURCE);
       } 
 			Object foundDs = cacheManager.getFromRegionCache(
-					IDatasourceService.JDBC_DATASOURCE, dsName);
+					IDBDatasourceService.JDBC_DATASOURCE, dsName);
 			if (foundDs != null) {
 				dataSource = (DataSource) foundDs;
 			} else {

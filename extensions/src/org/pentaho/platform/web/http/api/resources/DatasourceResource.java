@@ -31,29 +31,29 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import org.pentaho.platform.api.datasource.IGenericDatasourceInfo;
-import org.pentaho.platform.api.datasource.IGenericDatasourceServiceManager;
+import org.pentaho.platform.api.datasource.IDatasourceInfo;
+import org.pentaho.platform.api.datasource.IDatasourceServiceManager;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.datasource.GenericDatasourceInfo;
+import org.pentaho.platform.datasource.DatasourceInfo;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 @Path("/datasourcemgr/datasource")
-public class GenericDatasourceResource extends AbstractJaxRSResource {
+public class DatasourceResource extends AbstractJaxRSResource {
 
-  protected IGenericDatasourceServiceManager datasourceServiceManager;
+  protected IDatasourceServiceManager datasourceServiceManager;
   
-  public GenericDatasourceResource() {
+  public DatasourceResource() {
     super();
-    datasourceServiceManager = PentahoSystem.get(IGenericDatasourceServiceManager.class, PentahoSessionHolder.getSession());
+    datasourceServiceManager = PentahoSystem.get(IDatasourceServiceManager.class, PentahoSessionHolder.getSession());
   }
 
   @GET
   @Path("/ids")
   @Produces( { APPLICATION_XML, APPLICATION_JSON })
-  public List<GenericDatasourceInfo> getDatasources() throws PentahoAccessControlException {
-    List<GenericDatasourceInfo> infoList = new ArrayList<GenericDatasourceInfo>();
-    for(IGenericDatasourceInfo datasourceInfo:datasourceServiceManager.getIds()) {
-      infoList.add(new GenericDatasourceInfo(datasourceInfo.getName(), datasourceInfo.getId(), datasourceInfo.getType())); 
+  public List<DatasourceInfo> getDatasources() throws PentahoAccessControlException {
+    List<DatasourceInfo> infoList = new ArrayList<DatasourceInfo>();
+    for(IDatasourceInfo datasourceInfo:datasourceServiceManager.getIds()) {
+      infoList.add(new DatasourceInfo(datasourceInfo.getName(), datasourceInfo.getId(), datasourceInfo.getType())); 
     }
     return infoList;
   }

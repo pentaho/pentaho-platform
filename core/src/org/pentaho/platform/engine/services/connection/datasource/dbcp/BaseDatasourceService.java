@@ -23,12 +23,12 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.pentaho.platform.api.data.DatasourceServiceException;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-public abstract class BaseDatasourceService implements IDatasourceService {
+public abstract class BaseDatasourceService implements IDBDatasourceService {
   ICacheManager cacheManager;
   
   public BaseDatasourceService() {
@@ -42,7 +42,7 @@ public abstract class BaseDatasourceService implements IDatasourceService {
    *
    */
   public void clearCache() {
-      cacheManager.removeRegionCache(IDatasourceService.JDBC_DATASOURCE);
+      cacheManager.removeRegionCache(IDBDatasourceService.JDBC_DATASOURCE);
   }
 
   /**
@@ -51,15 +51,15 @@ public abstract class BaseDatasourceService implements IDatasourceService {
    *
    */
   public void clearDataSource(String dsName) {
-     cacheManager.removeFromRegionCache(IDatasourceService.JDBC_DATASOURCE, dsName);
+     cacheManager.removeFromRegionCache(IDBDatasourceService.JDBC_DATASOURCE, dsName);
   }
   
-  protected DataSource getJndiDataSource(final String dsName) throws DatasourceServiceException {
+  protected DataSource getJndiDataSource(final String dsName) throws DBDatasourceServiceException {
     Object foundDs = null;
-      if(!cacheManager.cacheEnabled(IDatasourceService.JDBC_DATASOURCE)) {
-        cacheManager.addCacheRegion(IDatasourceService.JDBC_DATASOURCE);
+      if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_DATASOURCE)) {
+        cacheManager.addCacheRegion(IDBDatasourceService.JDBC_DATASOURCE);
       }      
-      foundDs = cacheManager.getFromRegionCache(IDatasourceService.JDBC_DATASOURCE,dsName);
+      foundDs = cacheManager.getFromRegionCache(IDBDatasourceService.JDBC_DATASOURCE,dsName);
     if (foundDs != null) {
       return (DataSource) foundDs;
     }
@@ -73,7 +73,7 @@ public abstract class BaseDatasourceService implements IDatasourceService {
         lkup = ctx.lookup(dsName);
         if (lkup != null) {
           rtn = (DataSource) lkup;
-          cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE,dsName, rtn);  
+          cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE,dsName, rtn);  
           return rtn;
         }
       } catch (NamingException ignored) {
@@ -84,7 +84,7 @@ public abstract class BaseDatasourceService implements IDatasourceService {
         lkup = ctx.lookup("java:" + dsName); //$NON-NLS-1$
         if (lkup != null) {
           rtn = (DataSource) lkup;
-          cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE,dsName, rtn);
+          cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE,dsName, rtn);
           return rtn;
         }
       } catch (NamingException ignored) {
@@ -94,7 +94,7 @@ public abstract class BaseDatasourceService implements IDatasourceService {
         lkup = ctx.lookup("java:comp/env/jdbc/" + dsName); //$NON-NLS-1$
         if (lkup != null) {
           rtn = (DataSource) lkup;
-          cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE,dsName, rtn);
+          cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE,dsName, rtn);
           return rtn;
         }
       } catch (NamingException ignored) {
@@ -104,17 +104,17 @@ public abstract class BaseDatasourceService implements IDatasourceService {
         lkup = ctx.lookup("jdbc/" + dsName); //$NON-NLS-1$
         if (lkup != null) {
           rtn = (DataSource) lkup;
-          cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE,dsName, rtn);
+          cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE,dsName, rtn);
           return rtn;
         }
       } catch (NamingException ignored) {
       }
       if (firstNe != null) {
-        throw new DatasourceServiceException(firstNe);
+        throw new DBDatasourceServiceException(firstNe);
       }
-      throw new DatasourceServiceException(dsName);
+      throw new DBDatasourceServiceException(dsName);
     } catch (NamingException ne) {
-      throw new DatasourceServiceException(ne);
+      throw new DBDatasourceServiceException(ne);
     }
   }
   
@@ -127,9 +127,9 @@ public abstract class BaseDatasourceService implements IDatasourceService {
    * @param dsName
    *            The Datasource name (like SampleData)
    * @return The bound DS name if it is bound in JNDI (like "jdbc/SampleData")
-   * @throws DatasourceServiceException
+   * @throws DBDatasourceServiceException
    */
-  public String getDSBoundName(final String dsName) throws DatasourceServiceException {
+  public String getDSBoundName(final String dsName) throws DBDatasourceServiceException {
     try {
       InitialContext ctx = new InitialContext();
       Object lkup = null;
@@ -172,11 +172,11 @@ public abstract class BaseDatasourceService implements IDatasourceService {
       } catch (NamingException ignored) {
       }
       if (firstNe != null) {
-        throw new DatasourceServiceException(firstNe);
+        throw new DBDatasourceServiceException(firstNe);
       }
-      throw new DatasourceServiceException(dsName);
+      throw new DBDatasourceServiceException(dsName);
     } catch (NamingException ne) {
-      throw new DatasourceServiceException(ne);
+      throw new DBDatasourceServiceException(ne);
     }
   }
 

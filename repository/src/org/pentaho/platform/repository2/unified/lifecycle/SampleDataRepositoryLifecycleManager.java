@@ -5,7 +5,7 @@ import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
@@ -90,13 +90,13 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
     databaseConnection.setDatabasePort(settings.getSystemSetting("sampledata-datasource/port", DBMETA_PORT)); //$NON-NLS-1$
     databaseConnection.setUsername(settings.getSystemSetting("sampledata-datasource/username", DBMETA_USERNAME)); //$NON-NLS-1$
     databaseConnection.setPassword(settings.getSystemSetting("sampledata-datasource/password", DBMETA_PASSWORD)); //$NON-NLS-1$
-    databaseConnection.getAttributes().put(IDatasourceService.MAX_ACTIVE_KEY, 
+    databaseConnection.getAttributes().put(IDBDatasourceService.MAX_ACTIVE_KEY, 
         settings.getSystemSetting("sampledata-datasource/max-active", DBMETA_ATTR_MAX_ACTIVE_VALUE)); //$NON-NLS-1$
-    databaseConnection.getAttributes().put(IDatasourceService.MAX_IDLE_KEY,
+    databaseConnection.getAttributes().put(IDBDatasourceService.MAX_IDLE_KEY,
         settings.getSystemSetting("sampledata-datasource/max-idle", DBMETA_ATTR_MAX_IDLE_VALUE)); //$NON-NLS-1$
-    databaseConnection.getAttributes().put(IDatasourceService.MAX_WAIT_KEY,
+    databaseConnection.getAttributes().put(IDBDatasourceService.MAX_WAIT_KEY,
         settings.getSystemSetting("sampledata-datasource/max-wait", DBMETA_ATTR_MAX_WAIT_VALUE)); //$NON-NLS-1$
-    databaseConnection.getAttributes().put(IDatasourceService.QUERY_KEY, 
+    databaseConnection.getAttributes().put(IDBDatasourceService.QUERY_KEY, 
         settings.getSystemSetting("sampledata-datasource/query", DBMETA_ATTR_QUERY_VALUE)); //$NON-NLS-1$
     return databaseConnection;
   }

@@ -30,7 +30,7 @@ import java.util.concurrent.Callable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -74,7 +74,7 @@ public class UserRoleMapperTest {
     microPlatform.define(IMondrianCatalogService.class, MondrianCatalogHelper.class, Scope.GLOBAL);
     microPlatform.define("connection-SQL", SQLConnection.class);
     microPlatform.define("connection-MDX", MDXConnection.class);
-    microPlatform.define(IDatasourceService.class, JndiDatasourceService.class, Scope.GLOBAL);
+    microPlatform.define(IDBDatasourceService.class, JndiDatasourceService.class, Scope.GLOBAL);
     microPlatform.define(IUserRoleListService.class, TestUserRoleListService.class, Scope.GLOBAL);
     FileSystemBackedUnifiedRepository repo = (FileSystemBackedUnifiedRepository)PentahoSystem.get(IUnifiedRepository.class);
     repo.setRootDir(new File("test-src/solution"));

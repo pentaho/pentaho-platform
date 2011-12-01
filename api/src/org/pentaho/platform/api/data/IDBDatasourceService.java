@@ -28,10 +28,10 @@ import javax.sql.DataSource;
  * @author Ramaiz Mansoor (rmansoor@pentaho.org)
  *
  */
-public interface IDatasourceService {
+public interface IDBDatasourceService {
    public static final String JDBC_POOL = "JDBC_POOL" ; //$NON-NLS-1$
    public static final String JDBC_DATASOURCE = "DataSource" ; //$NON-NLS-1$
-   public static final String IDATASOURCE_SERVICE = "IDatasourceService" ; //$NON-NLS-1$
+   public static final String IDBDATASOURCE_SERVICE = "IDBDatasourceService" ; //$NON-NLS-1$
    public static final String MAX_ACTIVE_KEY = "POOLING_maxActive";
    public static final String MAX_IDLE_KEY = "POOLING_maxIdle";
    public static final String MAX_WAIT_KEY = "POOLING_maxWait";
@@ -59,7 +59,7 @@ public interface IDatasourceService {
    * @return DataSource if there is one bound in JNDI
    * @throws NamingException
    */
-  public DataSource getDataSource(String dsName) throws DatasourceServiceException;
+  public DataSource getDataSource(String dsName) throws DBDatasourceServiceException;
 
   /**
    * Since JNDI is supported different ways in different app servers, it's
@@ -71,7 +71,7 @@ public interface IDatasourceService {
    * @return The bound DS name if it is bound in JNDI (like "jdbc/SampleData")
    * @throws NamingException
    */
-  public String getDSBoundName(String dsName) throws DatasourceServiceException;
+  public String getDSBoundName(String dsName) throws DBDatasourceServiceException;
 
   /**
    * Since JNDI is supported different ways in different app servers, it's

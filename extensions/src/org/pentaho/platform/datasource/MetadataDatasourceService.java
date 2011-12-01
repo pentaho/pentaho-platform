@@ -29,16 +29,14 @@ import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
-import org.pentaho.platform.api.datasource.GenericDatasourceServiceException;
-import org.pentaho.platform.api.datasource.IGenericDatasource;
-import org.pentaho.platform.api.datasource.IGenericDatasourceInfo;
-import org.pentaho.platform.api.datasource.IGenericDatasourceService;
+import org.pentaho.platform.api.datasource.DatasourceServiceException;
+import org.pentaho.platform.api.datasource.IDatasource;
+import org.pentaho.platform.api.datasource.IDatasourceInfo;
+import org.pentaho.platform.api.datasource.IDatasourceService;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.util.messages.LocaleHelper;
 
-public class MetadataDatasourceService implements IGenericDatasourceService{
+public class MetadataDatasourceService implements IDatasourceService{
   IMetadataDomainRepository metadataDomainRepository;
   IAuthorizationPolicy policy;
   ActionBasedSecurityService helper;
@@ -50,31 +48,31 @@ public class MetadataDatasourceService implements IGenericDatasourceService{
     helper = new ActionBasedSecurityService(policy);
   }
   @Override
-  public void add(IGenericDatasource datasource) throws GenericDatasourceServiceException, PentahoAccessControlException  {
+  public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     try {
       if(datasource instanceof MetadataDatasource) {
         MetadataDatasource metadataDatasource = (MetadataDatasource) datasource;
-        metadataDomainRepository.storeDomain(metadataDatasource.getDatasource(), false);
+        metadataDomainRepository.storeDomain(metadataDatasource.getDatasource(), overwrite);
       } else {
-        throw new GenericDatasourceServiceException("Object is not of type MetadataDatasource");
+        throw new DatasourceServiceException("Object is not of type MetadataDatasource");
       }
 
     } catch (DomainIdNullException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     } catch (DomainAlreadyExistsException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     } catch (DomainStorageException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     }
   }
 
   @Override
-  public MetadataDatasource get(String id) throws GenericDatasourceServiceException, PentahoAccessControlException  {
+  public MetadataDatasource get(String id) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     Domain domain = metadataDomainRepository.getDomain(id);
     if(domain != null) {
-      return new MetadataDatasource(domain, domain.getId(), domain.getId(), TYPE);      
+      return new MetadataDatasource(domain, new DatasourceInfo(domain.getId(), domain.getId(), TYPE));      
     } else {
       return null;
     }
@@ -82,55 +80,40 @@ public class MetadataDatasourceService implements IGenericDatasourceService{
   }
 
   @Override
-  public void remove(String id) throws GenericDatasourceServiceException, PentahoAccessControlException  {
+  public void remove(String id) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     metadataDomainRepository.removeDomain(id);
   }
 
   @Override
-  public void edit(IGenericDatasource datasource) throws GenericDatasourceServiceException, PentahoAccessControlException  {
+  public void update(IDatasource datasource) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     try {
       if(datasource instanceof MetadataDatasource) {
         MetadataDatasource metadataDatasource = (MetadataDatasource) datasource;
         metadataDomainRepository.storeDomain(metadataDatasource.getDatasource(), true);
       } else {
-        throw new GenericDatasourceServiceException("Object is not of type MetadataDatasource");
+        throw new DatasourceServiceException("Object is not of type MetadataDatasource");
       }
     } catch (DomainIdNullException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     } catch (DomainAlreadyExistsException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     } catch (DomainStorageException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     }
   }
 
   @Override
-  public List<IGenericDatasource> getAll() throws PentahoAccessControlException  {
+  public List<IDatasourceInfo> getIds() throws PentahoAccessControlException  {
     helper.checkAdministratorAccess();
-    List<IGenericDatasource> metadataDatasourceList = new ArrayList<IGenericDatasource>();
-    for(String id:metadataDomainRepository.getDomainIds()) {
-      try {
-        metadataDatasourceList.add(get(id));
-      } catch (GenericDatasourceServiceException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
-    return metadataDatasourceList;
-  }
-
-  @Override
-  public List<IGenericDatasourceInfo> getIds() throws PentahoAccessControlException  {
-    helper.checkAdministratorAccess();
-    List<IGenericDatasourceInfo> datasourceInfoList = new ArrayList<IGenericDatasourceInfo>();
+    List<IDatasourceInfo> datasourceInfoList = new ArrayList<IDatasourceInfo>();
     for(String id:metadataDomainRepository.getDomainIds()) {
       try {
         if(isMetadataDatasource(id)) {
-          datasourceInfoList.add(new GenericDatasourceInfo(id, id, TYPE));
+          datasourceInfoList.add(new DatasourceInfo(id, id, TYPE));
         }
-      } catch (GenericDatasourceServiceException e) {
+      } catch (DatasourceServiceException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
@@ -143,7 +126,7 @@ public class MetadataDatasourceService implements IGenericDatasourceService{
     return TYPE;
   }
 
-  private boolean isMetadataDatasource(String id) throws GenericDatasourceServiceException{
+  private boolean isMetadataDatasource(String id) throws DatasourceServiceException{
     MetadataDatasource metadataDatasource = null;
     try {
       metadataDatasource = get(id);
@@ -159,7 +142,17 @@ public class MetadataDatasourceService implements IGenericDatasourceService{
       if(property == null) {
         return true;    
       } 
+    } else {
+      return true;
     }
     return false;
+  }
+  @Override
+  public boolean exists(String id) throws PentahoAccessControlException {
+    try {
+      return get(id) != null;
+    } catch (DatasourceServiceException e) {
+        return false;
+    }
   }
 }

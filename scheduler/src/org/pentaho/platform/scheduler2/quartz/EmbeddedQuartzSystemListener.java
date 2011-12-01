@@ -32,8 +32,8 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.data.DatasourceServiceException;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -90,7 +90,7 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
       } else {
         String dsName = quartzProps.getProperty("org.quartz.dataSource.myDS.jndiURL"); //$NON-NLS-1$
         if (dsName != null) {
-          IDatasourceService datasourceService = getQuartzDatasourceService(session);
+          IDBDatasourceService datasourceService = getQuartzDatasourceService(session);
           String boundDsName = datasourceService.getDSBoundName(dsName);
           
           if (boundDsName != null) {
@@ -119,7 +119,7 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
       logger.error(Messages.getInstance().getErrorString(
           "EmbeddedQuartzSystemListener.ERROR_0005_UNABLE_TO_INSTANTIATE_OBJECT",EmbeddedQuartzSystemListener.class.getName()), objface); //$NON-NLS-1$
       result = false;
-    } catch (DatasourceServiceException dse) {
+    } catch (DBDatasourceServiceException dse) {
       logger.error(Messages.getInstance().getErrorString(
           "EmbeddedQuartzSystemListener.ERROR_0006_UNABLE_TO_GET_DATASOURCE",EmbeddedQuartzSystemListener.class.getName()), dse); //$NON-NLS-1$
       result = false;
@@ -169,7 +169,7 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
     return quartzIsConfigured;
   }
 
-  private IDatasourceService getQuartzDatasourceService(IPentahoSession session) throws ObjectFactoryException {
+  private IDBDatasourceService getQuartzDatasourceService(IPentahoSession session) throws ObjectFactoryException {
     //
     // Our new datasource stuff is provided for running queries and acquiring data. It is
     // NOT there for the inner workings of the platform. So, the Quartz datasource should ALWAYS
@@ -184,7 +184,7 @@ public class EmbeddedQuartzSystemListener implements IPentahoSystemListener {
     if (!useNewDatasourceService) {
       return new JndiDatasourceService();
     } else {
-      IDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDatasourceService.class, session);
+      IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDBDatasourceService.class, session);
       return datasourceService;
     }
   }

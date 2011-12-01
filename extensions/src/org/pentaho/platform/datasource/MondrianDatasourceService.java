@@ -25,18 +25,17 @@ import java.util.List;
 
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
-import org.pentaho.platform.api.datasource.GenericDatasourceServiceException;
-import org.pentaho.platform.api.datasource.IGenericDatasource;
-import org.pentaho.platform.api.datasource.IGenericDatasourceInfo;
-import org.pentaho.platform.api.datasource.IGenericDatasourceService;
+import org.pentaho.platform.api.datasource.DatasourceServiceException;
+import org.pentaho.platform.api.datasource.IDatasource;
+import org.pentaho.platform.api.datasource.IDatasourceInfo;
+import org.pentaho.platform.api.datasource.IDatasourceService;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 
-public class MondrianDatasourceService implements IGenericDatasourceService{
+public class MondrianDatasourceService implements IDatasourceService{
   public static final String METADATA_EXT = ".xmi";
   public static final String TYPE = "Analysis";
   IMondrianCatalogService mondrianCatalogService;
@@ -51,59 +50,49 @@ public class MondrianDatasourceService implements IGenericDatasourceService{
     helper = new ActionBasedSecurityService(policy);
   }
   @Override
-  public void add(IGenericDatasource datasource) throws GenericDatasourceServiceException, PentahoAccessControlException  {
+  public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     if(datasource instanceof MondrianDatasource) {
       MondrianDatasource mondrianDatasource = (MondrianDatasource) datasource;
-      mondrianCatalogService.addCatalog(mondrianDatasource.getDatasource(), false, PentahoSessionHolder.getSession());      
+      mondrianCatalogService.addCatalog(mondrianDatasource.getDatasource(), overwrite, PentahoSessionHolder.getSession());      
     } else {
-      throw new GenericDatasourceServiceException("Object is not of type MondrianDatasource");
+      throw new DatasourceServiceException("Object is not of type MondrianDatasource");
     }
   }
 
   @Override
-  public MondrianDatasource get(String id) throws GenericDatasourceServiceException, PentahoAccessControlException  {
+  public MondrianDatasource get(String id) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     MondrianCatalog mondrianCatalog = mondrianCatalogService.getCatalog(id, PentahoSessionHolder.getSession());
-    return new MondrianDatasource(mondrianCatalog, mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE);
+    return new MondrianDatasource(mondrianCatalog, new DatasourceInfo(mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE));
   }
 
   @Override
-  public void remove(String id) throws GenericDatasourceServiceException, PentahoAccessControlException  {
+  public void remove(String id) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     mondrianCatalogService.removeCatalog(id, PentahoSessionHolder.getSession());
   }
 
   @Override
-  public void edit(IGenericDatasource datasource) throws GenericDatasourceServiceException, PentahoAccessControlException  {
+  public void update(IDatasource datasource) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     if(datasource instanceof MondrianDatasource) {
       MondrianDatasource mondrianDatasource = (MondrianDatasource) datasource;
       mondrianCatalogService.addCatalog(mondrianDatasource.getDatasource(), true, PentahoSessionHolder.getSession());
     } else {
-      throw new GenericDatasourceServiceException("Object is not of type MondrianDatasource");
+      throw new DatasourceServiceException("Object is not of type MondrianDatasource");
     }
   }
 
   @Override
-  public List<IGenericDatasource> getAll() throws PentahoAccessControlException  {
+  public List<IDatasourceInfo> getIds() throws PentahoAccessControlException  {
     helper.checkAdministratorAccess();
-    List<IGenericDatasource> mondrianDatasourceList = new ArrayList<IGenericDatasource>();
-    for(MondrianCatalog mondrianCatalog: mondrianCatalogService.listCatalogs(PentahoSessionHolder.getSession(), true)) {
-      mondrianDatasourceList.add(new MondrianDatasource(mondrianCatalog,mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE));
-    }
-    return mondrianDatasourceList;
-  }
-
-  @Override
-  public List<IGenericDatasourceInfo> getIds() throws PentahoAccessControlException  {
-    helper.checkAdministratorAccess();
-    List<IGenericDatasourceInfo> datasourceInfoList = new ArrayList<IGenericDatasourceInfo>();
+    List<IDatasourceInfo> datasourceInfoList = new ArrayList<IDatasourceInfo>();
     for(MondrianCatalog mondrianCatalog: mondrianCatalogService.listCatalogs(PentahoSessionHolder.getSession(), true)) {
       String domainId = mondrianCatalog.getName() + METADATA_EXT;
       Domain domain = metadataDomainRepository.getDomain(domainId);
       if(domain == null) {
-        datasourceInfoList.add(new GenericDatasourceInfo(mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE));
+        datasourceInfoList.add(new DatasourceInfo(mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE));
       }
     }
     return datasourceInfoList;
@@ -112,5 +101,13 @@ public class MondrianDatasourceService implements IGenericDatasourceService{
   @Override
   public String getType() {
     return TYPE;
+  }
+  @Override
+  public boolean exists(String id) throws PentahoAccessControlException {
+    try {
+      return get(id) != null;
+    } catch (DatasourceServiceException e) {
+      return false;
+    }
   }
 }

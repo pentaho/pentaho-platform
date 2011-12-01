@@ -29,7 +29,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -96,7 +96,7 @@ public class AuditConnection {
 
     if (!initialized) {
       try {
-        IDatasourceService datasourceService = getDatasourceService(); 
+        IDBDatasourceService datasourceService = getDBDatasourceService(); 
         auditDs = datasourceService.getDataSource(AuditConnection.AUDIT_JNDI);
         if (auditDs != null) {
           AuditConnection.logger.debug(Messages.getInstance().getString(
@@ -134,7 +134,7 @@ public class AuditConnection {
   }
 
   
-  private IDatasourceService getDatasourceService() throws ObjectFactoryException {
+  private IDBDatasourceService getDBDatasourceService() throws ObjectFactoryException {
     //
     // Our new datasource stuff is provided for running queries and acquiring data. It is
     // NOT there for the inner workings of the platform. So, the Hibernate datasource should ALWAYS
@@ -149,7 +149,7 @@ public class AuditConnection {
     if (!useNewDatasourceService) {
       return new JndiDatasourceService();
     } else {
-      IDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDatasourceService.class, null);
+      IDBDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDBDatasourceService.class, null);
       return datasourceService;
     }
   }

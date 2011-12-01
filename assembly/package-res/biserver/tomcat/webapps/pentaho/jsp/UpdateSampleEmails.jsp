@@ -8,7 +8,7 @@
 	java.sql.ResultSet,
 	java.sql.DriverManager,
 	java.sql.PreparedStatement,
-	org.pentaho.platform.api.data.IDatasourceService,
+	org.pentaho.platform.api.data.IDBDatasourceService,
     org.pentaho.platform.engine.core.system.PentahoSystem,
     org.pentaho.platform.api.engine.IPentahoSession,
     org.pentaho.platform.web.jsp.messages.Messages,
@@ -66,7 +66,7 @@
         return; 
       }
       try {
-        IDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDatasourceService.class, null);
+        IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDBDatasourceService.class, null);
         sampleDataDS = datasourceService.getDataSource(SampleDataJndiName);
         if (sampleDataDS != null) {
           initialized = true;

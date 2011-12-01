@@ -25,62 +25,47 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.pentaho.platform.api.datasource.IGenericDatasource;
-import org.pentaho.platform.api.datasource.IGenericDatasourceInfo;
-import org.pentaho.platform.api.datasource.IGenericDatasourceService;
-import org.pentaho.platform.api.datasource.IGenericDatasourceServiceManager;
+import org.pentaho.platform.api.datasource.IDatasourceInfo;
+import org.pentaho.platform.api.datasource.IDatasourceService;
+import org.pentaho.platform.api.datasource.IDatasourceServiceManager;
 
-public class DefaultDatasourceServiceManager implements IGenericDatasourceServiceManager{
+public class DefaultDatasourceServiceManager implements IDatasourceServiceManager{
 
-  Map<String, IGenericDatasourceService> serviceMap = new HashMap<String, IGenericDatasourceService>();
+  Map<String, IDatasourceService> serviceMap = new HashMap<String, IDatasourceService>();
   
   public DefaultDatasourceServiceManager() {
     
   }
   
-  public DefaultDatasourceServiceManager(List<IGenericDatasourceService> services) {
-    for(IGenericDatasourceService  service:services) {
+  public DefaultDatasourceServiceManager(List<IDatasourceService> services) {
+    for(IDatasourceService  service:services) {
       registerService(service);
     }
   }
   @Override
-  public void registerService(IGenericDatasourceService service) {
+  public void registerService(IDatasourceService service) {
     serviceMap.put(service.getType(), service);
   }
 
   @Override
-  public IGenericDatasourceService getService(String serviceType) {
+  public IDatasourceService getService(String serviceType) {
     return serviceMap.get(serviceType);
   }
 
   @Override
-  public List<IGenericDatasource> getAll() {
-    List<IGenericDatasource> genericDatasourceList = new ArrayList<IGenericDatasource>();
-    for(IGenericDatasourceService service:serviceMap.values()) {
+  public List<IDatasourceInfo> getIds() {
+    List<IDatasourceInfo> datasourceList = new ArrayList<IDatasourceInfo>();
+    for(IDatasourceService service:serviceMap.values()) {
       try {
-        genericDatasourceList.addAll(service.getAll());
-      } catch(Throwable th) {
-        continue;
-      }
-    }
-
-    return genericDatasourceList;
-  }
-
-  @Override
-  public List<IGenericDatasourceInfo> getIds() {
-    List<IGenericDatasourceInfo> genericDatasourceList = new ArrayList<IGenericDatasourceInfo>();
-    for(IGenericDatasourceService service:serviceMap.values()) {
-      try {
-        List<IGenericDatasourceInfo> infoList = service.getIds();
+        List<IDatasourceInfo> infoList = service.getIds();
         if(infoList != null && infoList.size() > 0) {
-          genericDatasourceList.addAll(service.getIds());
+          datasourceList.addAll(service.getIds());
         }
       } catch(Throwable th) {
         continue;
       }
     }
-    return genericDatasourceList;
+    return datasourceList;
   }
 
   @Override

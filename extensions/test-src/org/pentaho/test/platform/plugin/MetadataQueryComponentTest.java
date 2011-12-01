@@ -25,7 +25,7 @@ import org.pentaho.metadata.model.concept.types.LocalizedString;
 import org.pentaho.metadata.model.concept.types.TargetTableType;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.repository.InMemoryMetadataDomainRepository;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -53,8 +53,8 @@ public class MetadataQueryComponentTest {
     FileSystemBackedUnifiedRepository repos = (FileSystemBackedUnifiedRepository)PentahoSystem.get(IUnifiedRepository.class);
     repos.setRootDir(new File("test-src/solution"));
     
-    // TODO: need to define the IDatasourceService.class
-    microPlatform.define(IDatasourceService.class, JndiDatasourceService.class, Scope.GLOBAL);
+    // TODO: need to define the IDBDatasourceService.class
+    microPlatform.define(IDBDatasourceService.class, JndiDatasourceService.class, Scope.GLOBAL);
     try {
       KettleEnvironment.init(false);
       IMetadataDomainRepository repo = PentahoSystem.get(IMetadataDomainRepository.class, null);

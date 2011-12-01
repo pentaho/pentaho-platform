@@ -14,47 +14,47 @@
  *
  * Copyright 2005 - 2008 Pentaho Corporation.  All rights reserved.
  *
- * Created Jul 7th, 2008 
- * @author rmansoor
+ * @created Nov 12, 2011 
+ * @author Ramaiz Mansoor
  */
-package org.pentaho.platform.api.data;
+package org.pentaho.platform.api.datasource;
 
 import org.pentaho.platform.api.util.PentahoCheckedChainedException;
 
 public class DatasourceServiceException extends PentahoCheckedChainedException {
 
-   /**
-   * 
-   */
-  private static final long serialVersionUID = -6089798664483298023L;
-
   /**
-   * 
-   */
-  public DatasourceServiceException() {
-    super();
-  }
+  * 
+  */
+ private static final long serialVersionUID = -6089798664483298023L;
 
-  /**
-   * @param message
-   */
-  public DatasourceServiceException(String message) {
-    super(message);
-  }
+ /**
+  * 
+  */
+ public DatasourceServiceException() {
+   super();
+ }
 
-  /**
-   * @param message
-   * @param reas
-   */
-  public DatasourceServiceException(String message, Throwable reas) {
-    super(message, reas);
-  }
+ /**
+  * @param message
+  */
+ public DatasourceServiceException(String message) {
+   super(message);
+ }
 
-  /**
-   * @param reas
-   */
-  public DatasourceServiceException(Throwable reas) {
-    super(reas);
-  }
+ /**
+  * @param message
+  * @param reas
+  */
+ public DatasourceServiceException(String message, Throwable reas) {
+   super(message, reas);
+ }
+
+ /**
+  * @param reas
+  */
+ public DatasourceServiceException(Throwable reas) {
+   super(reas);
+ }
 
 }

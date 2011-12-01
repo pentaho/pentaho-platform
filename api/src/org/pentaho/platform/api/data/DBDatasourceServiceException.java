@@ -14,55 +14,47 @@
  *
  * Copyright 2005 - 2008 Pentaho Corporation.  All rights reserved.
  *
- * @created Nov 12, 2011 
- * @author Ramaiz Mansoor
+ * Created Jul 7th, 2008 
+ * @author rmansoor
  */
-package org.pentaho.platform.api.datasource;
+package org.pentaho.platform.api.data;
 
-import java.io.Serializable;
+import org.pentaho.platform.api.util.PentahoCheckedChainedException;
 
-/**
- * Basic information about a datasource object
- * 
- *
- */
-public interface IGenericDatasourceInfo extends Serializable{
-  /**
-   * Returns a datasource name
-   * @return name
+public class DBDatasourceServiceException extends PentahoCheckedChainedException {
+
+   /**
+   * 
    */
-  public String getName();
-  
-  /**
-   * Stores a datasource name
-   * @param name
-   */
-  
-  public void setName(String name);
-  
+  private static final long serialVersionUID = -6089798664483298023L;
 
   /**
-   * Returns a datasource id
-   * @return id
+   * 
    */
-  public String getId();
+  public DBDatasourceServiceException() {
+    super();
+  }
 
   /**
-   * Returns a datasource type
-   * @return type
+   * @param message
    */
-  public String getType();
+  public DBDatasourceServiceException(String message) {
+    super(message);
+  }
 
   /**
-   * Stores a datasource id
-   * @param id
+   * @param message
+   * @param reas
    */
-  public void setId(String id);
-  
+  public DBDatasourceServiceException(String message, Throwable reas) {
+    super(message, reas);
+  }
+
   /**
-   * Stored a datasource type
-   * @param type
+   * @param reas
    */
-  public void setType(String type);
+  public DBDatasourceServiceException(Throwable reas) {
+    super(reas);
+  }
 
 }

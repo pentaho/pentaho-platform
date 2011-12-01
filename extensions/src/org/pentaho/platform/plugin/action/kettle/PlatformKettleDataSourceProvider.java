@@ -24,8 +24,8 @@ import javax.sql.DataSource;
 import org.pentaho.di.core.database.DataSourceNamingException;
 import org.pentaho.di.core.database.DataSourceProviderFactory;
 import org.pentaho.di.core.database.DataSourceProviderInterface;
-import org.pentaho.platform.api.data.DatasourceServiceException;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 public class PlatformKettleDataSourceProvider implements DataSourceProviderInterface {
@@ -45,11 +45,11 @@ public class PlatformKettleDataSourceProvider implements DataSourceProviderInter
   }
   
   public DataSource getNamedDataSource(String dataSourceName) throws DataSourceNamingException {
-    IDatasourceService datasourceService =  (IDatasourceService) PentahoSystem.get(IDatasourceService.class, null);  
+    IDBDatasourceService datasourceService =  (IDBDatasourceService) PentahoSystem.get(IDBDatasourceService.class, null);  
     if (datasourceService != null) {
       try {
         return datasourceService.getDataSource(dataSourceName);
-      } catch (DatasourceServiceException ex) {
+      } catch (DBDatasourceServiceException ex) {
         throw new DataSourceNamingException(ex);
       }
     }

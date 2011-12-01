@@ -24,19 +24,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.pentaho.database.model.IDatabaseConnection;
-import org.pentaho.platform.api.datasource.GenericDatasourceServiceException;
-import org.pentaho.platform.api.datasource.IGenericDatasource;
-import org.pentaho.platform.api.datasource.IGenericDatasourceInfo;
-import org.pentaho.platform.api.datasource.IGenericDatasourceService;
+import org.pentaho.platform.api.datasource.DatasourceServiceException;
+import org.pentaho.platform.api.datasource.IDatasource;
+import org.pentaho.platform.api.datasource.IDatasourceInfo;
+import org.pentaho.platform.api.datasource.IDatasourceService;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.DuplicateDatasourceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository.datasource.NonExistingDatasourceException;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-public class JDBCDatasourceService implements IGenericDatasourceService{
+public class JDBCDatasourceService implements IDatasourceService{
 
   public static final String TYPE = "JDBC";
   IDatasourceMgmtService datasourceMgmtService;
@@ -49,84 +48,73 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
     helper = new ActionBasedSecurityService(policy);
   }
   @Override
-  public void add(IGenericDatasource datasource) throws GenericDatasourceServiceException, PentahoAccessControlException {
+  public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException {
     helper.checkAdministratorAccess();
     try {
       if(datasource instanceof JDBCDatasource) {
         JDBCDatasource jdbcDatasource = (JDBCDatasource) datasource;
         datasourceMgmtService.createDatasource(jdbcDatasource.getDatasource());        
       } else {
-        throw new GenericDatasourceServiceException("Object is not of type JDBCDatasource");
+        throw new DatasourceServiceException("Object is not of type JDBCDatasource");
       }
 
     } catch (DuplicateDatasourceException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     } catch (DatasourceMgmtServiceException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     }
   }
 
   @Override
-  public JDBCDatasource get(String id) throws GenericDatasourceServiceException, PentahoAccessControlException {
+  public JDBCDatasource get(String id) throws DatasourceServiceException, PentahoAccessControlException {
     helper.checkAdministratorAccess();
     try {
       IDatabaseConnection databaseConnection = datasourceMgmtService.getDatasourceByName(id);
-      return new JDBCDatasource(databaseConnection, databaseConnection.getName(), databaseConnection.getName(), TYPE);
+      return new JDBCDatasource(databaseConnection, new DatasourceInfo(databaseConnection.getName(), databaseConnection.getName(), TYPE));
     } catch (DatasourceMgmtServiceException e) {
-      return null;
+      throw new DatasourceServiceException(e);
     }
   }
 
   @Override
-  public void remove(String id) throws GenericDatasourceServiceException, PentahoAccessControlException {
+  public void remove(String id) throws DatasourceServiceException, PentahoAccessControlException {
     helper.checkAdministratorAccess();
     try {
       datasourceMgmtService.deleteDatasourceByName(id);
     } catch (NonExistingDatasourceException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     } catch (DatasourceMgmtServiceException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     }
   }
 
   @Override
-  public void edit(IGenericDatasource datasource) throws GenericDatasourceServiceException, PentahoAccessControlException  {
+  public void update(IDatasource datasource) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     try {
       if(datasource instanceof JDBCDatasource) {
         JDBCDatasource jdbcDatasource = (JDBCDatasource) datasource;
-        datasourceMgmtService.updateDatasourceByName(jdbcDatasource.getId(), jdbcDatasource.getDatasource());
+        IDatasourceInfo datasourceInfo = jdbcDatasource.getDatasourceInfo();
+        if(datasourceInfo != null) {
+          datasourceMgmtService.updateDatasourceByName(datasourceInfo.getId(), jdbcDatasource.getDatasource());          
+        } else throw new DatasourceServiceException("datasource id is null");
       } else {
-        throw new GenericDatasourceServiceException("Object is not of type JDBCDatasource");
+        throw new DatasourceServiceException("Object is not of type JDBCDatasource");
       }
     } catch (NonExistingDatasourceException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     } catch (DatasourceMgmtServiceException e) {
-      throw new GenericDatasourceServiceException(e);
+      throw new DatasourceServiceException(e);
     }
   }
 
   @Override
-  public List<IGenericDatasource> getAll() throws PentahoAccessControlException  {
+  public List<IDatasourceInfo> getIds() throws PentahoAccessControlException  {
     helper.checkAdministratorAccess();
-    List<IGenericDatasource> jdbcDatasourceList = new ArrayList<IGenericDatasource>();
+    List<IDatasourceInfo> datasourceInfoList = new ArrayList<IDatasourceInfo>();
     try {
       for(IDatabaseConnection databaseConnection:datasourceMgmtService.getDatasources()) {
-        jdbcDatasourceList.add(new JDBCDatasource(databaseConnection, databaseConnection.getName(), databaseConnection.getName(), TYPE));
-      }
-      return jdbcDatasourceList;
-    } catch (DatasourceMgmtServiceException e) {
-      return null;
-    }
-  }
-
-  @Override
-  public List<IGenericDatasourceInfo> getIds() throws PentahoAccessControlException  {
-    helper.checkAdministratorAccess();
-    List<IGenericDatasourceInfo> datasourceInfoList = new ArrayList<IGenericDatasourceInfo>();
-    try {
-      for(IDatabaseConnection databaseConnection:datasourceMgmtService.getDatasources()) {
-        datasourceInfoList.add(new GenericDatasourceInfo(databaseConnection.getName(), databaseConnection.getName(), TYPE));
+        datasourceInfoList.add(new DatasourceInfo(databaseConnection.getName(), databaseConnection.getName(), TYPE));
       }
       return datasourceInfoList;
     } catch (DatasourceMgmtServiceException e) {
@@ -136,6 +124,14 @@ public class JDBCDatasourceService implements IGenericDatasourceService{
   @Override
   public String getType() {
     return TYPE;
+  }
+  @Override
+  public boolean exists(String id) throws PentahoAccessControlException {
+    try {
+      return get(id) != null;
+    } catch (DatasourceServiceException e) {
+       return false;
+    }
   }
 
 }

@@ -11,7 +11,7 @@
     org.pentaho.platform.util.StringUtil,
   org.pentaho.platform.util.web.SimpleUrlFactory,
   org.pentaho.platform.util.messages.LocaleHelper,
-    org.pentaho.platform.api.data.IDatasourceService,
+    org.pentaho.platform.api.data.IDBDatasourceService,
     org.pentaho.platform.api.engine.IPentahoSession,
     org.pentaho.platform.api.engine.ISolutionEngine,
     org.pentaho.platform.api.engine.IRuntimeContext,
@@ -28,7 +28,7 @@
  	org.pentaho.commons.connection.IPentahoConnection,
  	org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection,
 	org.pentaho.commons.connection.IPentahoResultSet,
-	org.pentaho.platform.api.data.IDatasourceService,
+	org.pentaho.platform.api.data.IDBDatasourceService,
 	org.pentaho.platform.api.engine.IConnectionUserRoleMapper,
 	org.pentaho.platform.engine.core.system.IPentahoLoggingConnection,
 	org.pentaho.platform.engine.core.system.PentahoSessionHolder,
@@ -703,7 +703,7 @@
   }
  
   if( query != null ) { 
-    IDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDatasourceService.class, null);
+    IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDBDatasourceService.class, null);
     DataSource currDataSource = null; 
     try {
       currDataSource = datasourceService.getDataSource(dataSource);

@@ -44,7 +44,7 @@ import org.pentaho.actionsequence.dom.ActionInputConstant;
 import org.pentaho.actionsequence.dom.ActionSequenceDocument;
 import org.pentaho.actionsequence.dom.IActionSequenceDocument;
 import org.pentaho.actionsequence.dom.actions.PivotViewAction;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -263,7 +263,7 @@ public class AnalysisViewService extends ServletBase {
         // by default, this datasource should be unbound.  we still support fully qualified JNDI names
         // specified in the datasources.xml
    	    try {
-    	IDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDatasourceService.class ,null);
+    	IDBDatasourceService datasourceService =  PentahoSystem.getObjectFactory().get(IDBDatasourceService.class ,null);
         jndi = datasourceService.getDSUnboundName(datasource.getJndi());    	
         } catch (ObjectFactoryException objface) {
 		      Logger.error("AnalysisViewService",Messages.getInstance().getErrorString("AnalysisViewService.ERROR_0001_UNABLE_TO_FACTORY_OBJECT", jndi), objface); //$NON-NLS-1$ //$NON-NLS-2$

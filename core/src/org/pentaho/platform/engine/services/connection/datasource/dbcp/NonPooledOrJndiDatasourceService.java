@@ -23,10 +23,8 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.pentaho.database.model.IDatabaseConnection;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.platform.api.data.DatasourceServiceException;
-import org.pentaho.platform.api.data.IDatasourceService;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.data.DBDatasourceServiceException;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -45,13 +43,13 @@ public class NonPooledOrJndiDatasourceService extends BaseDatasourceService {
    * @return DataSource if there is one bound in JNDI
    * @throws NamingException
    */
-  public DataSource getDataSource(String dsName) throws DatasourceServiceException {
+  public DataSource getDataSource(String dsName) throws DBDatasourceServiceException {
     DataSource dataSource = null;
     Object foundDs = null;
-    if(!cacheManager.cacheEnabled(IDatasourceService.JDBC_DATASOURCE)) {
-        cacheManager.addCacheRegion(IDatasourceService.JDBC_DATASOURCE);
+    if(!cacheManager.cacheEnabled(IDBDatasourceService.JDBC_DATASOURCE)) {
+        cacheManager.addCacheRegion(IDBDatasourceService.JDBC_DATASOURCE);
       }
-      foundDs = cacheManager.getFromRegionCache(IDatasourceService.JDBC_DATASOURCE,dsName);
+      foundDs = cacheManager.getFromRegionCache(IDBDatasourceService.JDBC_DATASOURCE,dsName);
     if (foundDs != null) {
       return (DataSource) foundDs;
     }
@@ -61,7 +59,7 @@ public class NonPooledOrJndiDatasourceService extends BaseDatasourceService {
       // Look in the database for the datasource
       if(databaseConnection != null) {
         dataSource = PooledDatasourceHelper.convert(databaseConnection);
-        cacheManager.putInRegionCache(IDatasourceService.JDBC_DATASOURCE,dsName, (DataSource) dataSource);  
+        cacheManager.putInRegionCache(IDBDatasourceService.JDBC_DATASOURCE,dsName, (DataSource) dataSource);  
       } else {
         // Database does not have the datasource, look in jndi now
         dataSource = getJndiDataSource(dsName);
@@ -70,8 +68,8 @@ public class NonPooledOrJndiDatasourceService extends BaseDatasourceService {
       try {
         return getJndiDataSource(dsName);  
       }
-      catch(DatasourceServiceException dse) {
-       throw new DatasourceServiceException(Messages.getInstance().getErrorString("NonPooledOrJndiDatasourceService.ERROR_0003_UNABLE_TO_GET_JNDI_DATASOURCE") ,dse);  //$NON-NLS-1$
+      catch(DBDatasourceServiceException dse) {
+       throw new DBDatasourceServiceException(Messages.getInstance().getErrorString("NonPooledOrJndiDatasourceService.ERROR_0003_UNABLE_TO_GET_JNDI_DATASOURCE") ,dse);  //$NON-NLS-1$
       }
 
     }

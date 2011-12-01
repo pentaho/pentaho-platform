@@ -65,5 +65,5 @@
   <bean class="org.pentaho.platform.web.http.api.resources.SystemRolesResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SystemAllResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.GeneratorStreamingOutputProvider" scope="singleton"/>
-  <bean class="org.pentaho.platform.web.http.api.resources.GenericDatasourceResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.DatasourceResource" scope="request"/>
 </beans>

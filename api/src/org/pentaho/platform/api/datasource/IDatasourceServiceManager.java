@@ -27,20 +27,20 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
  * Register, manage and provide basic listing functionality of platform datasources.  
  */
 
-public interface IGenericDatasourceServiceManager {
+public interface IDatasourceServiceManager {
 
   /**
    * This method registera a datasource service to the platform 
    * @param service
    */
-  public void registerService(IGenericDatasourceService service);
+  public void registerService(IDatasourceService service);
 
   /**
    * Returns an instance of a service for a given datasource type
    * @param serviceType
    * @return datasource service
    */
-  public IGenericDatasourceService getService(String datasourceType);
+  public IDatasourceService getService(String datasourceType);
 
   /**
    * Returns all the datasource types that are registered with the service manager
@@ -49,15 +49,9 @@ public interface IGenericDatasourceServiceManager {
   public List<String> getTypes();
   
   /**
-   * Returns a list of datasource objects with a managed object wrapped inside
-   * @return list of datasource
-   */
-  public List<IGenericDatasource> getAll() throws PentahoAccessControlException;
-  
-  /**
    * Returns a list of datasource id
    * @return list of datasource id
    */
-  public List<IGenericDatasourceInfo> getIds() throws PentahoAccessControlException;
+  public List<IDatasourceInfo> getIds() throws PentahoAccessControlException;
 
 }

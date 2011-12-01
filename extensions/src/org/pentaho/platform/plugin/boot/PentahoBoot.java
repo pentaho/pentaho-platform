@@ -19,7 +19,7 @@
 package org.pentaho.platform.plugin.boot;
 
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
-import org.pentaho.platform.api.data.IDatasourceService;
+import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -120,7 +120,7 @@ public class PentahoBoot extends PentahoSystemBoot {
   public void enablePooledDatasources() {
     IPentahoObjectFactory objectFactory = getFactory();
     if( objectFactory instanceof IPentahoDefinableObjectFactory ) {
-      define(IDatasourceService.class, PooledOrJndiDatasourceService.class, Scope.LOCAL );
+      define(IDBDatasourceService.class, PooledOrJndiDatasourceService.class, Scope.LOCAL );
     }
     addLifecycleListener( new PooledDatasourceSystemListener() );
   }

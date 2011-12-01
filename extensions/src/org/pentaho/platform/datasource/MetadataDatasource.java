@@ -21,29 +21,26 @@
 package org.pentaho.platform.datasource;
 
 import org.pentaho.metadata.model.Domain;
-import org.pentaho.platform.api.datasource.IGenericDatasource;
+import org.pentaho.platform.api.datasource.IDatasource;
+import org.pentaho.platform.api.datasource.IDatasourceInfo;
 
-public class MetadataDatasource extends GenericDatasourceInfo implements IGenericDatasource{
+public class MetadataDatasource implements IDatasource{
 
   private static final long serialVersionUID = 1L;
   private Domain datasource;
+  private IDatasourceInfo datasourceInfo;
 
-  public MetadataDatasource(Domain datasource, String name, String id, String type) {
-    super(name, id, type);
+  public MetadataDatasource(Domain datasource, IDatasourceInfo datasourceInfo) {
     this.datasource = datasource;
+    this.datasourceInfo = datasourceInfo;
   }
   @Override
   public Domain getDatasource() {
     return this.datasource;
   }
-
   @Override
-  public void setDatasource(Object datasource) {
-    if(datasource instanceof Domain) {
-      this.datasource = (Domain)datasource;      
-    }
+  public IDatasourceInfo getDatasourceInfo() {
+    return datasourceInfo;
   }
-
-
 
 }
