@@ -26,9 +26,11 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.containers.XulMenubar;
+import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.binding.GwtBindingFactory;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
@@ -139,6 +141,13 @@ public class MainMenubarController extends AbstractXulEventHandler {
     $wnd.mantle_doesMenuItemExist = function(id) { 
       return controller.@org.pentaho.mantle.client.ui.menubar.MainMenubarController::doesMenuItemExist(Ljava/lang/String;)(id);      
     }
+    $wnd.mantle_loadOverlay = function(id) { 
+      controller.@org.pentaho.mantle.client.ui.menubar.MainMenubarController::loadOverlay(Ljava/lang/String;)(id);      
+    }
+    $wnd.mantle_removeOverlay = function(id) { 
+      controller.@org.pentaho.mantle.client.ui.menubar.MainMenubarController::removeOverlay(Ljava/lang/String;)(id);      
+    }
+    
     
   }-*/;
 
@@ -313,4 +322,28 @@ public class MainMenubarController extends AbstractXulEventHandler {
     this.model = model;
   }
 
+  public void loadOverlay(String id) {
+    // TODO We need to convert ths to use the common interface method, 
+    // once they become available
+    GwtXulDomContainer container = (GwtXulDomContainer) getXulDomContainer();  
+    try {
+      container.loadOverlay(id);
+    } catch (XulException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+  
+  public void removeOverlay(String id) {
+    // TODO We need to convert ths to use the common interface method, 
+    // once they become available
+    GwtXulDomContainer container = (GwtXulDomContainer) getXulDomContainer();  
+    try {
+      container.removeOverlay(id);
+    } catch (XulException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+  }
 }
