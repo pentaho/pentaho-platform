@@ -153,7 +153,7 @@ public class JDBCDatasourceServiceTest extends TestCase {
   public void testAddNoAdminAccess() throws Exception {
     try  {
       jdbcDatasourceService = new JDBCDatasourceService(new MockJcrBackedDatasourceMgmtService(unifiedRepository, databaseDialectService), new NonAdministratorAuthorizationPolicy());
-      jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), new DatasourceInfo("mySampleData", "mySampleData", JDBCDatasourceService.TYPE)), false);
+      jdbcDatasourceService.add(new JDBCDatasource(createDatabaseConnection("mySampleData"), new DatasourceInfo("mySampleData", "mySampleData", JDBCDatasourceService.TYPE, true, true, false, false)), false);
       assertFalse(true);
     } catch(PentahoAccessControlException e) {
       assertTrue(e != null);

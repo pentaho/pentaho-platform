@@ -77,4 +77,32 @@ public interface IDatasourceService {
    * @return list of datasource ids
    */
   public List<IDatasourceInfo> getIds() throws PentahoAccessControlException;
+  
+  /**
+   * Register a new UI for the datasource
+   * @param newUI
+   * @throws PentahoAccessControlException
+   */
+  public void registerNewUI(String newUI) throws PentahoAccessControlException;
+  
+  /**
+   * Register
+   * @param editUI
+   * @throws PentahoAccessControlException
+   */
+  public void registerEditUI(String editUI) throws PentahoAccessControlException;
+  
+  /**
+   * 
+   * @return
+   * @throws PentahoAccessControlException
+   */
+  public String getNewUI() throws PentahoAccessControlException;
+  
+  /**
+   * 
+   * @return
+   * @throws PentahoAccessControlException
+   */
+  public String getEditUI() throws PentahoAccessControlException;
 }

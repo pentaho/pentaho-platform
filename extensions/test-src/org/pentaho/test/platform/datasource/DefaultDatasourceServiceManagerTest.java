@@ -100,7 +100,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     
     IDatasourceService jdbcService = serviceManager.getService(JDBCDatasourceService.TYPE);
     try {
-      jdbcService.add(new JDBCDatasource(createDatabaseConnection("SampleData"), new DatasourceInfo("SampleData", "SampleData", JDBCDatasourceService.TYPE)), false);
+      jdbcService.add(new JDBCDatasource(createDatabaseConnection("SampleData"), new DatasourceInfo("SampleData", "SampleData", JDBCDatasourceService.TYPE, false, true, false, false)), false);
     } catch (DatasourceServiceException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -110,7 +110,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
 
     IDatasourceService metadataService = serviceManager.getService(MetadataDatasourceService.TYPE);
     try {
-      metadataService.add(new MetadataDatasource(getTestDomain("MyTestDomain.xmi"), new DatasourceInfo("MyTestDomain", "MyTestDomain.xmi", MetadataDatasourceService.TYPE)), false);
+      metadataService.add(new MetadataDatasource(getTestDomain("MyTestDomain.xmi"), new DatasourceInfo("MyTestDomain", "MyTestDomain.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
     } catch (DatasourceServiceException e) {
       assertTrue(e != null);
     } catch (PentahoAccessControlException e) {
@@ -120,7 +120,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     
     IDatasourceService mondrianService =  serviceManager.getService(MondrianDatasourceService.TYPE);
     try {
-      mondrianService.add(new MondrianDatasource(getTestCatalog("MyTestDomain"), new DatasourceInfo("MyTestDomain", "MyTestDomain", MetadataDatasourceService.TYPE)), false);
+      mondrianService.add(new MondrianDatasource(getTestCatalog("MyTestDomain"), new DatasourceInfo("MyTestDomain", "MyTestDomain", MetadataDatasourceService.TYPE, false, true, true, true)), false);
     } catch (DatasourceServiceException e) {
       assertTrue(e != null);
     } catch (PentahoAccessControlException e) {
@@ -166,7 +166,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     public List<IDatasourceInfo> getIds() {
       List<IDatasourceInfo> datasourceInfoIds = new ArrayList<IDatasourceInfo>();
       for(IDatasource datasource:mondrianDatasourceList) {
-        datasourceInfoIds.add(new DatasourceInfo(datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getType()));
+        datasourceInfoIds.add(new DatasourceInfo(datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getType(), false, true, true, true));
       }
       return datasourceInfoIds;
     }
@@ -174,6 +174,30 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     @Override
     public boolean exists(String id) throws PentahoAccessControlException {
       return false;
+    }
+
+    @Override
+    public void registerNewUI(String newUI) throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void registerEditUI(String editUI) throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public String getNewUI() throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String getEditUI() throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      return null;
     }
     
   }
@@ -218,7 +242,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     public List<IDatasourceInfo> getIds() {
       List<IDatasourceInfo> datasourceInfoIds = new ArrayList<IDatasourceInfo>();
       for(IDatasource datasource:jdbcDatasourceList) {
-        datasourceInfoIds.add(new DatasourceInfo(datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getType()));
+        datasourceInfoIds.add(new DatasourceInfo(datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getType(), true, true, false, false));
       }
       return datasourceInfoIds;
     }
@@ -227,6 +251,30 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     public boolean exists(String id) throws PentahoAccessControlException {
       // TODO Auto-generated method stub
       return false;
+    }
+
+    @Override
+    public void registerNewUI(String newUI) throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void registerEditUI(String editUI) throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public String getNewUI() throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String getEditUI() throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      return null;
     }
     
   }
@@ -272,7 +320,7 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     public List<IDatasourceInfo> getIds() {
       List<IDatasourceInfo> datasourceInfoIds = new ArrayList<IDatasourceInfo>();
       for(IDatasource datasource:metadataDatasourceList) {
-        datasourceInfoIds.add(new DatasourceInfo(datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getType()));
+        datasourceInfoIds.add(new DatasourceInfo(datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getId(), datasource.getDatasourceInfo().getType(), false, true, true, true));
       }
       return datasourceInfoIds;
     }
@@ -281,6 +329,30 @@ public class DefaultDatasourceServiceManagerTest extends TestCase{
     public boolean exists(String id) throws PentahoAccessControlException {
       // TODO Auto-generated method stub
       return false;
+    }
+
+    @Override
+    public void registerNewUI(String newUI) throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void registerEditUI(String editUI) throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public String getNewUI() throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String getEditUI() throws PentahoAccessControlException {
+      // TODO Auto-generated method stub
+      return null;
     }
     
   }

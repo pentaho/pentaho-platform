@@ -42,12 +42,24 @@ public class MondrianDatasourceService implements IDatasourceService{
   IMetadataDomainRepository metadataDomainRepository;
   IAuthorizationPolicy policy;
   ActionBasedSecurityService helper;
+  boolean editable;
+  boolean removable;
+  boolean importable;
+  boolean exportable;
+  String defaultNewUI = "";
+  String defaultEditUI = "";
+  String newUI;
+  String editUI;
   
   public MondrianDatasourceService(IMondrianCatalogService mondrianCatalogService, IMetadataDomainRepository metadataDomainRepository, IAuthorizationPolicy policy) {
     this.mondrianCatalogService = mondrianCatalogService;
     this.metadataDomainRepository = metadataDomainRepository;
     this.policy = policy;
     helper = new ActionBasedSecurityService(policy);
+    this.editable = false;
+    this.removable = true;
+    this.importable = true;
+    this.exportable = true;
   }
   @Override
   public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException  {
@@ -64,7 +76,7 @@ public class MondrianDatasourceService implements IDatasourceService{
   public MondrianDatasource get(String id) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     MondrianCatalog mondrianCatalog = mondrianCatalogService.getCatalog(id, PentahoSessionHolder.getSession());
-    return new MondrianDatasource(mondrianCatalog, new DatasourceInfo(mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE));
+    return new MondrianDatasource(mondrianCatalog, new DatasourceInfo(mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE, editable, removable, importable, exportable));
   }
 
   @Override
@@ -92,7 +104,7 @@ public class MondrianDatasourceService implements IDatasourceService{
       String domainId = mondrianCatalog.getName() + METADATA_EXT;
       Domain domain = metadataDomainRepository.getDomain(domainId);
       if(domain == null) {
-        datasourceInfoList.add(new DatasourceInfo(mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE));
+        datasourceInfoList.add(new DatasourceInfo(mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE, editable, removable, importable, exportable));
       }
     }
     return datasourceInfoList;
@@ -108,6 +120,31 @@ public class MondrianDatasourceService implements IDatasourceService{
       return get(id) != null;
     } catch (DatasourceServiceException e) {
       return false;
+    }
+  }
+
+  @Override
+  public void registerNewUI(String newUI) throws PentahoAccessControlException {
+    this.newUI = newUI;    
+  }
+  @Override
+  public void registerEditUI(String editUI) throws PentahoAccessControlException {
+    this.editUI = editUI;
+  }
+  @Override
+  public String getNewUI() throws PentahoAccessControlException {
+    if(newUI == null) {
+      return defaultNewUI;
+    } else {
+      return newUI;
+    }
+  }
+  @Override
+  public String getEditUI() throws PentahoAccessControlException {
+    if(newUI == null) {
+      return defaultNewUI;
+    } else {
+      return newUI;
     }
   }
 }

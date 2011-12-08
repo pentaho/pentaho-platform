@@ -36,17 +36,30 @@ public class DatasourceInfo implements IDatasourceInfo {
   String id;
 
   String type;
+  
+  boolean editable;
+  
+  boolean removable;
+  
+  boolean importable;
+  
+  boolean exportable;
+  
 
   public DatasourceInfo() {
     super();
     // TODO Auto-generated constructor stub
   }
 
-  public DatasourceInfo(String name, String id, String type) {
+  public DatasourceInfo(String name, String id, String type, boolean editable, boolean removable, boolean importable, boolean exportable) {
     super();
     this.name = name;
     this.id = id;
     this.type = type;
+    this.editable = editable;
+    this.removable = removable;
+    this.importable = importable;
+    this.exportable = exportable;
   }
   @Override
   public String getName() {
@@ -67,7 +80,7 @@ public class DatasourceInfo implements IDatasourceInfo {
   @SuppressWarnings("nls")
   @Override
   public String toString() {
-    return "GenericDatasourceInfo [name=" + name + "id=" + id + ", type=" + type + "]";
+    return "DatasourceInfo [name=" + name + "id=" + id + ", type=" + type + "editable" + editable + "removable" + removable + "importable" + importable + "exportable" + exportable + "]";
   }
 
   public void setId(String id) {
@@ -82,4 +95,40 @@ public class DatasourceInfo implements IDatasourceInfo {
     this.name = name;
   }
 
+  @Override
+  public boolean isEditable() {
+    return this.editable;
+  }
+
+  @Override
+  public boolean isRemovable() {
+    return this.removable ;
+  }
+
+  @Override
+  public boolean isImportable() {
+    return this.importable;
+  }
+
+  @Override
+  public boolean isExportable() {
+    return this.exportable;
+  }
+
+  public void setEditable(boolean editable) {
+    this.editable = editable;
+  }
+
+  public void setRemovable(boolean removable) {
+    this.removable = removable;
+  }
+
+  public void setImportable(boolean importable) {
+    this.importable = importable;
+  }
+
+
+  public void setExportable(boolean exportable) {
+    this.exportable = exportable;
+  }
 }

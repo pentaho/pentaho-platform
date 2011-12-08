@@ -41,11 +41,23 @@ public class JDBCDatasourceService implements IDatasourceService{
   IDatasourceMgmtService datasourceMgmtService;
   IAuthorizationPolicy policy;
   ActionBasedSecurityService helper;
+  boolean editable;
+  boolean removable;
+  boolean importable;
+  boolean exportable;
+  String defaultNewUI = "$wnd.pho.showDatabaseDialog()";
+  String defaultEditUI = "";
+  String newUI;
+  String editUI;
 
   public JDBCDatasourceService(IDatasourceMgmtService datasourceMgmtService, IAuthorizationPolicy policy) {
     this.datasourceMgmtService = datasourceMgmtService;
     this.policy = policy;
     helper = new ActionBasedSecurityService(policy);
+    this.editable = true;
+    this.removable = true;
+    this.importable = false;
+    this.exportable = false;
   }
   @Override
   public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException {
@@ -70,7 +82,8 @@ public class JDBCDatasourceService implements IDatasourceService{
     helper.checkAdministratorAccess();
     try {
       IDatabaseConnection databaseConnection = datasourceMgmtService.getDatasourceByName(id);
-      return new JDBCDatasource(databaseConnection, new DatasourceInfo(databaseConnection.getName(), databaseConnection.getName(), TYPE));
+      return new JDBCDatasource(databaseConnection, new DatasourceInfo(databaseConnection.getName(), databaseConnection.getName()
+          , TYPE, editable, removable, importable, exportable));
     } catch (DatasourceMgmtServiceException e) {
       throw new DatasourceServiceException(e);
     }
@@ -114,7 +127,7 @@ public class JDBCDatasourceService implements IDatasourceService{
     List<IDatasourceInfo> datasourceInfoList = new ArrayList<IDatasourceInfo>();
     try {
       for(IDatabaseConnection databaseConnection:datasourceMgmtService.getDatasources()) {
-        datasourceInfoList.add(new DatasourceInfo(databaseConnection.getName(), databaseConnection.getName(), TYPE));
+        datasourceInfoList.add(new DatasourceInfo(databaseConnection.getName(), databaseConnection.getName(), TYPE, editable, removable, importable, exportable));
       }
       return datasourceInfoList;
     } catch (DatasourceMgmtServiceException e) {
@@ -134,4 +147,28 @@ public class JDBCDatasourceService implements IDatasourceService{
     }
   }
 
+  @Override
+  public void registerNewUI(String newUI) throws PentahoAccessControlException {
+    this.newUI = newUI;    
+  }
+  @Override
+  public void registerEditUI(String editUI) throws PentahoAccessControlException {
+    this.editUI = editUI;
+  }
+  @Override
+  public String getNewUI() throws PentahoAccessControlException {
+    if(newUI == null) {
+      return defaultNewUI;
+    } else {
+      return newUI;
+    }
+  }
+  @Override
+  public String getEditUI() throws PentahoAccessControlException {
+    if(newUI == null) {
+      return defaultNewUI;
+    } else {
+      return newUI;
+    }
+  }
 }

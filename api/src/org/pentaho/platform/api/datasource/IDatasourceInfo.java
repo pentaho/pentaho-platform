@@ -44,4 +44,28 @@ public interface IDatasourceInfo extends Serializable{
    * @return type
    */
   public String getType();
+  
+  /**
+   * Returns whether a datasource is editable
+   * @return editable or not
+   */
+  public boolean isEditable();
+  
+  /**
+   * Returns whether a datasource can be removed
+   * @return removable or not
+   */
+  public boolean isRemovable();
+  
+  /**
+   * Returns whether a datasource can be imported or not
+   * @return importable or not
+   */
+  public boolean isImportable();
+  
+  /**
+   * Returns whether a datasource can be exported or not
+   * @return exportable or not
+   */
+  public boolean isExportable();
 }

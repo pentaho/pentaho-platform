@@ -41,11 +41,23 @@ public class MetadataDatasourceService implements IDatasourceService{
   IAuthorizationPolicy policy;
   ActionBasedSecurityService helper;
   public static final String TYPE = "Metadata";
+  boolean editable;
+  boolean removable;
+  boolean importable;
+  boolean exportable;
+  String defaultNewUI = "";
+  String defaultEditUI = "";
+  String newUI;
+  String editUI;
 
   public  MetadataDatasourceService(IMetadataDomainRepository metadataDomainRepository, IAuthorizationPolicy policy) {
     this.metadataDomainRepository = metadataDomainRepository; 
     this.policy = policy;
     helper = new ActionBasedSecurityService(policy);
+    this.editable = false;
+    this.removable = true;
+    this.importable = true;
+    this.exportable = true;
   }
   @Override
   public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException  {
@@ -72,7 +84,7 @@ public class MetadataDatasourceService implements IDatasourceService{
     helper.checkAdministratorAccess();
     Domain domain = metadataDomainRepository.getDomain(id);
     if(domain != null) {
-      return new MetadataDatasource(domain, new DatasourceInfo(domain.getId(), domain.getId(), TYPE));      
+      return new MetadataDatasource(domain, new DatasourceInfo(domain.getId(), domain.getId(), TYPE, editable, removable, importable, exportable));      
     } else {
       return null;
     }
@@ -111,7 +123,7 @@ public class MetadataDatasourceService implements IDatasourceService{
     for(String id:metadataDomainRepository.getDomainIds()) {
       try {
         if(isMetadataDatasource(id)) {
-          datasourceInfoList.add(new DatasourceInfo(id, id, TYPE));
+          datasourceInfoList.add(new DatasourceInfo(id, id, TYPE, editable, removable, importable, exportable));
         }
       } catch (DatasourceServiceException e) {
         // TODO Auto-generated catch block
@@ -153,6 +165,31 @@ public class MetadataDatasourceService implements IDatasourceService{
       return get(id) != null;
     } catch (DatasourceServiceException e) {
         return false;
+    }
+  }
+
+  @Override
+  public void registerNewUI(String newUI) throws PentahoAccessControlException {
+    this.newUI = newUI;    
+  }
+  @Override
+  public void registerEditUI(String editUI) throws PentahoAccessControlException {
+    this.editUI = editUI;
+  }
+  @Override
+  public String getNewUI() throws PentahoAccessControlException {
+    if(newUI == null) {
+      return defaultNewUI;
+    } else {
+      return newUI;
+    }
+  }
+  @Override
+  public String getEditUI() throws PentahoAccessControlException {
+    if(newUI == null) {
+      return defaultNewUI;
+    } else {
+      return newUI;
     }
   }
 }

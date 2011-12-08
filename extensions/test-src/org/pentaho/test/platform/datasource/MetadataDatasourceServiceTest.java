@@ -65,7 +65,7 @@ MetadataDatasourceService service;
   public void testAdd() throws Exception {
     try {
       service = new  MetadataDatasourceService(new MockSessionAwareMetadataDomainRepository(), new AdministratorAuthorizationPolicy());
-      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE)), false);
+      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
       MetadataDatasource datasource = service.get("myTestDomain.xmi");
       assertNotNull(datasource);
       service.remove("myTestDomain.xmi");
@@ -75,7 +75,7 @@ MetadataDatasourceService service;
     
     try {
       service = new  MetadataDatasourceService(new MockSessionAwareMetadataDomainRepository(), new NonAdministratorAuthorizationPolicy());
-      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE)), false);
+      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
       assertFalse(true);
     } catch(PentahoAccessControlException e) {
       assertTrue(true);
@@ -87,25 +87,25 @@ MetadataDatasourceService service;
   public void testEdit() throws Exception {
     try {
       service = new  MetadataDatasourceService(new MockSessionAwareMetadataDomainRepository(), new AdministratorAuthorizationPolicy());
-      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE)), false);
+      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
       MetadataDatasource datasource = service.get("myTestDomain.xmi");
       assertNotNull(datasource);
       Domain domain = datasource.getDatasource();
       updateTestDomain(domain);
-      service.update(new MetadataDatasource(domain, new DatasourceInfo(domain.getId(), domain.getId(), MetadataDatasourceService.TYPE)));
+      service.update(new MetadataDatasource(domain, new DatasourceInfo(domain.getId(), domain.getId(), MetadataDatasourceService.TYPE, false, true, true, true)));
       service.remove("myTestDomain.xmi");
     } catch(DatasourceServiceException e) {
       assertFalse(true);
     }
     
     try {
-      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE)), false);
+      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
       MetadataDatasource datasource = service.get("myTestDomain.xmi");
       assertNotNull(datasource);
       Domain domain = datasource.getDatasource();
       updateTestDomain(domain);
       service = new  MetadataDatasourceService(new MockSessionAwareMetadataDomainRepository(), new NonAdministratorAuthorizationPolicy());
-      service.update(new MetadataDatasource(domain, new DatasourceInfo(domain.getId(), domain.getId(), MetadataDatasourceService.TYPE)));
+      service.update(new MetadataDatasource(domain, new DatasourceInfo(domain.getId(), domain.getId(), MetadataDatasourceService.TYPE, false, true, true, true)));
       assertFalse(true);
     } catch(PentahoAccessControlException e) {
       service = new  MetadataDatasourceService(new MockSessionAwareMetadataDomainRepository(), new AdministratorAuthorizationPolicy());
@@ -120,7 +120,7 @@ MetadataDatasourceService service;
   public void testRemove() throws Exception {
     try {
       service = new  MetadataDatasourceService(new MockSessionAwareMetadataDomainRepository(), new AdministratorAuthorizationPolicy());
-      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE)), false);
+      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
       MetadataDatasource datasource = service.get("myTestDomain.xmi");
       assertNotNull(datasource);
       service.remove("myTestDomain.xmi");
@@ -131,7 +131,7 @@ MetadataDatasourceService service;
     }
     
     try {
-      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE)), false);
+      service.add(new MetadataDatasource(getTestDomain("myTestDomain.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
       MetadataDatasource datasource = service.get("myTestDomain.xmi");
       assertNotNull(datasource);
       service = new  MetadataDatasourceService(new MockSessionAwareMetadataDomainRepository(), new NonAdministratorAuthorizationPolicy());
@@ -146,9 +146,9 @@ MetadataDatasourceService service;
   public void testList() throws Exception {
     try {
     service = new  MetadataDatasourceService(new MockSessionAwareMetadataDomainRepository(), new AdministratorAuthorizationPolicy());
-    service.add(new MetadataDatasource(getTestDomain("myTestDomain1.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain1.xmi", MetadataDatasourceService.TYPE)), false);
-    service.add(new MetadataDatasource(getTestDomain("myTestDomain2.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain2.xmi", MetadataDatasourceService.TYPE)), false);
-    service.add(new MetadataDatasource(getTestDomain("myTestDomain3.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain3.xmi", MetadataDatasourceService.TYPE)), false);
+    service.add(new MetadataDatasource(getTestDomain("myTestDomain1.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain1.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
+    service.add(new MetadataDatasource(getTestDomain("myTestDomain2.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain2.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
+    service.add(new MetadataDatasource(getTestDomain("myTestDomain3.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain3.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
     List<IDatasourceInfo> domainList = service.getIds();
     assertNotNull(domainList);
     assertEquals(domainList.size(), 3);
@@ -160,9 +160,9 @@ MetadataDatasourceService service;
         service.remove("myTestDomain1.xmi");
         service.remove("myTestDomain2.xmi");
         service.remove("myTestDomain3.xmi");
-        service.add(new MetadataDatasource(getTestDomain("myTestDomain1.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain1.xmi", MetadataDatasourceService.TYPE)), false);
-        service.add(new MetadataDatasource(getTestDomain("myTestDomain2.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain2.xmi", MetadataDatasourceService.TYPE)), false);
-        service.add(new MetadataDatasource(getTestDomain("myTestDomain3.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain3.xmi", MetadataDatasourceService.TYPE)), false);
+        service.add(new MetadataDatasource(getTestDomain("myTestDomain1.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain1.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
+        service.add(new MetadataDatasource(getTestDomain("myTestDomain2.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain2.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
+        service.add(new MetadataDatasource(getTestDomain("myTestDomain3.xmi"), new DatasourceInfo("myTestDomain", "myTestDomain3.xmi", MetadataDatasourceService.TYPE, false, true, true, true)), false);
         service = new  MetadataDatasourceService(new MockSessionAwareMetadataDomainRepository(), new NonAdministratorAuthorizationPolicy());
       } catch(PentahoAccessControlException e) {
         assertTrue(true);
