@@ -53,19 +53,4 @@ public interface IDatasourceServiceManager {
    * @return list of datasource id
    */
   public List<IDatasourceInfo> getIds() throws PentahoAccessControlException;
-  
-  /**
-   * Returns a javascript string to launch a create user interface of a datasource type
-   * @param datasourceType
-   * @return javascript string
-   */
-  public String getNewUI(String datasourceType);
-  
-  /**
-   * Returns a javascript string to launch a edit user interface of a datasource type
-   * @param datasourceType
-   * @param datasourceName
-   * @return javascript string
-   */
-  public String getEditUI(String datasourceType, String datasourceName);
 }
