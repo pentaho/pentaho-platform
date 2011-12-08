@@ -76,7 +76,9 @@ public class RepositoryFileTreeManager {
       fetchRepositoryFileTree(null, depth, filter, showHidden);
     }
   }
-  public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback, final boolean forceReload, Integer depth, String filter, Boolean showHidden) {
+
+  public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback, final boolean forceReload, Integer depth, String filter,
+      Boolean showHidden) {
     if (forceReload || fileTree == null) {
       fetchRepositoryFileTree(callback, depth, filter, showHidden);
     } else {
@@ -85,26 +87,26 @@ public class RepositoryFileTreeManager {
   }
 
   private native String getFullyQualifiedURL()/*-{
-  return $wnd.FULL_QUALIFIED_URL;
-  }-*/;
-  
-  public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback,  Integer depth,  String filter,  Boolean showHidden) {
+                                              return $wnd.FULL_QUALIFIED_URL;
+                                              }-*/;
+
+  public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback, Integer depth, String filter, Boolean showHidden) {
     // notify listeners that we are about to talk to the server (in case there's anything they want to do
     // such as busy cursor or tree loading indicators)
     beforeFetchRepositoryFileTree();
     RequestBuilder builder = null;
     String url = getFullyQualifiedURL() + "api/repo/files/:/children?"; //$NON-NLS-1$
-    if(depth == null) {
+    if (depth == null) {
       depth = -1;
     }
-    if(filter == null) {
+    if (filter == null) {
       filter = "*"; //$NON-NLS-1$
     }
-    if(showHidden == null) {
+    if (showHidden == null) {
       showHidden = Boolean.FALSE;
     }
-    url = url + "depth=" + depth + "&filter=" + filter + "&showHidden=" + showHidden;  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    builder = new RequestBuilder(RequestBuilder.GET, url); 
+    url = url + "depth=" + depth + "&filter=" + filter + "&showHidden=" + showHidden; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    builder = new RequestBuilder(RequestBuilder.GET, url);
 
     RequestCallback innerCallback = new RequestCallback() {
 
@@ -119,7 +121,7 @@ public class RepositoryFileTreeManager {
           String deletedFilesUrl = getFullyQualifiedURL() + "api/repo/files/deleted";
           RequestBuilder deletedFilesRequestBuilder = new RequestBuilder(RequestBuilder.GET, deletedFilesUrl);
           try {
-            deletedFilesRequestBuilder.sendRequest(null, new RequestCallback(){
+            deletedFilesRequestBuilder.sendRequest(null, new RequestCallback() {
 
               public void onError(Request request, Throwable exception) {
                 fireRepositoryFileTreeFetched();
@@ -128,15 +130,14 @@ public class RepositoryFileTreeManager {
 
               public void onResponseReceived(Request delRequest, Response delResponse) {
                 if (delResponse.getStatusCode() == Response.SC_OK) {
-                  String xmlData = delResponse.getText();
-                  trashItems = converter.getTrashFiles(delResponse.getText());
+                  trashItems = XMLToRepositoryFileTreeConverter.getTrashFiles(delResponse.getText());
                   fireRepositoryFileTreeFetched();
                 } else {
                   fireRepositoryFileTreeFetched();
                   Window.alert("Unable to retrieve trash.");
                 }
               }
-              
+
             });
           } catch (Exception e) {
             fireRepositoryFileTreeFetched();
@@ -144,9 +145,13 @@ public class RepositoryFileTreeManager {
           }
           if (callback != null) {
             callback.onSuccess(fileTree);
-          }        
+          }
         } else {
-          Window.alert("Solution Repository not found.");
+          fileTree = new RepositoryFileTree();
+          RepositoryFile errorFile = new RepositoryFile();
+          errorFile.setFolder(true);
+          errorFile.setName("!ERROR!");
+          fileTree.setFile(errorFile);
         }
       }
 
