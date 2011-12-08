@@ -134,14 +134,12 @@ public class RepositoryFileTreeManager {
                   fireRepositoryFileTreeFetched();
                 } else {
                   fireRepositoryFileTreeFetched();
-                  Window.alert("Unable to retrieve trash.");
                 }
               }
 
             });
           } catch (Exception e) {
             fireRepositoryFileTreeFetched();
-            Window.alert("Unable to retrieve trash.");
           }
           if (callback != null) {
             callback.onSuccess(fileTree);
