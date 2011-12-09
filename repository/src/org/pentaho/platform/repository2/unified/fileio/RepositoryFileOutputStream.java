@@ -178,7 +178,9 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
         if (autoCreateDirStructure) {
           ArrayList<String> foldersToCreate = new ArrayList<String>();
           String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(path);
-          while ((parentPath != null) && (parentPath.length() > 0) && (repository.getFile(parentPath) == null)) {
+          // Make sure the parent path isn't the root
+          while ((parentPath != null) && (parentPath.length() > 0 && !path.equals(parentPath))
+              && (repository.getFile(parentPath) == null)) {
             foldersToCreate.add(RepositoryFilenameUtils.getName(parentPath));
             parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(parentPath);
           }
