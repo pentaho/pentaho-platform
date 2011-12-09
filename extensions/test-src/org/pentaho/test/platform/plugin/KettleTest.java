@@ -69,6 +69,9 @@ public class KettleTest extends BaseTest {
     assertNotNull(outputHandler);
     StandaloneSession session = new StandaloneSession(Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_SESSION")); //$NON-NLS-1$
     assertNotNull(session);
+
+    fail("The following line will hang the system - it needs to be fixed! - DMK");
+
     IRuntimeContext context = run(
         "/test/etl/SampleTransformationInvalid.xaction", null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
@@ -87,6 +90,9 @@ public class KettleTest extends BaseTest {
     assertNotNull(outputHandler);
     StandaloneSession session = new StandaloneSession(Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_SESSION")); //$NON-NLS-1$
     assertNotNull(session);
+
+    fail("The following line will hang the system - it needs to be fixed! - DMK");
+
     IRuntimeContext context = run(
         "/test/etl/SampleTransformationMissingKTR.xaction", null, false, parameterProvider, outputHandler, session); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(

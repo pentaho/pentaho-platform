@@ -50,9 +50,8 @@ public class BootTest extends TestCase {
       Map parameters = new HashMap();
       parameters.put( "output-type" , outputType );
       
-      // run the report
-      // TODO - Re-enable the following line when the test no longer hangs!
-//      SolutionHelper.execute( "test report", session, "boot/report.xaction", parameters, outputStream);
+      fail("The following line will hang the system - fix this!");
+      SolutionHelper.execute( "test report", session, "boot/report.xaction", parameters, outputStream);
       
     } catch ( FileNotFoundException e ) {
       e.printStackTrace();

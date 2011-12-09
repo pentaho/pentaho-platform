@@ -55,6 +55,7 @@ public class PivotViewComponentTest extends BaseTest {
   public void testQueryWithoutTitle() {
     startTest();
     info("Expected: Successful test of query1"); //$NON-NLS-1$
+    fail("The following line will cause a hang! FIX IT!!!!");
     IRuntimeContext context = run("/test/analysis/query_without_title.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus()); //$NON-NLS-1$
@@ -67,6 +68,7 @@ public class PivotViewComponentTest extends BaseTest {
   public void testQueryWithoutMode() {
     startTest();
     info("Expected: Successful test of query1"); //$NON-NLS-1$
+    fail("The following line will cause a hang! FIX IT!!!!");
     IRuntimeContext context = run("/test/analysis/query_without_mode.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus()); //$NON-NLS-1$
@@ -79,6 +81,7 @@ public class PivotViewComponentTest extends BaseTest {
   public void testQueryWithoutMdx() {
     startTest();
     info("Expected: Successful test of query1"); //$NON-NLS-1$
+    fail("The following line will cause a hang! FIX IT!!!!");
     IRuntimeContext context = run("/test/analysis/query_without_mdx.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus()); //$NON-NLS-1$
@@ -91,6 +94,7 @@ public class PivotViewComponentTest extends BaseTest {
   public void testQueryWithoutModel() {
     startTest();
     info("Expected: Successful test of query1"); //$NON-NLS-1$
+    fail("The following line will cause a hang! FIX IT!!!!");
     IRuntimeContext context = run("/test/analysis/query_without_model.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus()); //$NON-NLS-1$
@@ -103,6 +107,7 @@ public class PivotViewComponentTest extends BaseTest {
   public void testQueryWithoutOption() {
     startTest();
     info("Expected: Successful test of query1"); //$NON-NLS-1$
+    fail("The following line will cause a hang! FIX IT!!!!");
     IRuntimeContext context = run("/test/analysis/query_without_options.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus()); //$NON-NLS-1$
@@ -115,6 +120,7 @@ public class PivotViewComponentTest extends BaseTest {
   public void testQueryWithoutUrl() {
     startTest();
     info("Expected: Successful test of query1"); //$NON-NLS-1$
+    fail("The following line will cause a hang! FIX IT!!!!");
     IRuntimeContext context = run("/test/analysis/query_without_url.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus()); //$NON-NLS-1$
@@ -127,7 +133,8 @@ public class PivotViewComponentTest extends BaseTest {
   public void testQueryWithoutConnection() {
     startTest();
     info("Expected: Successful test of query1"); //$NON-NLS-1$
-    IRuntimeContext context = run("/test/analysis/query_without_connection.xaction"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    fail("The following line will cause a hang! - FIX IT!");
+    IRuntimeContext context = run("/test/analysis/query_without_connection.xaction"); //$NON-NLS-1$ 
     assertEquals(
         Messages.getInstance().getString("BaseTest.USER_RUNNING_ACTION_SEQUENCE"), IRuntimeContext.RUNTIME_CONTEXT_VALIDATE_FAIL, context.getStatus()); //$NON-NLS-1$
 
