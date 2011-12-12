@@ -43,6 +43,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
+import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository.SpringSecurityCurrentUserProvider;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -66,7 +67,7 @@ public class PentahoMetadataDomainRepositoryTest {
   public void setUp() throws Exception {
     samplePropertiesFile = new Properties();
 
-    repository = new MockUnifiedRepository();
+    repository = new MockUnifiedRepository(new SpringSecurityCurrentUserProvider());
     
     SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(MockUnifiedRepository.root().getName(), null, new GrantedAuthority[0]));
     try {

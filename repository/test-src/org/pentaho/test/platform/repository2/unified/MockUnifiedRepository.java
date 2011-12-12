@@ -97,13 +97,9 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   // ~ Constructors ====================================================================================================
 
-  public MockUnifiedRepository() {
+  public MockUnifiedRepository(final ICurrentUserProvider currentUserProvider) {
     super();
     init();
-  }
-
-  public MockUnifiedRepository(final ICurrentUserProvider currentUserProvider) {
-    this();
     this.currentUserProvider = currentUserProvider;
   }
 
@@ -1187,7 +1183,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     public List<String> getRoles();
   }
 
-  private class SpringSecurityCurrentUserProvider implements ICurrentUserProvider {
+  public static class SpringSecurityCurrentUserProvider implements ICurrentUserProvider {
 
     @Override
     public String getUser() {

@@ -18,23 +18,24 @@
  */
 package org.pentaho.platform.repository2.unified;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
+import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository.SpringSecurityCurrentUserProvider;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
-import java.io.ByteArrayInputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Class Description
@@ -64,7 +65,7 @@ public class RepositoryUtilsTest {
 
   @Test
   public void testGetFolder() throws Exception {
-    final MockUnifiedRepository repository = new MockUnifiedRepository();
+    final MockUnifiedRepository repository = new MockUnifiedRepository(new SpringSecurityCurrentUserProvider());
     final RepositoryUtils repositoryUtils = new RepositoryUtils(repository);
 
     RepositoryFile test = repositoryUtils.getFolder("/public/one/two/three", true, true, null);
@@ -82,7 +83,7 @@ public class RepositoryUtilsTest {
 
   @Test
   public void testGetFile() throws Exception {
-    final MockUnifiedRepository repository = new MockUnifiedRepository();
+    final MockUnifiedRepository repository = new MockUnifiedRepository(new SpringSecurityCurrentUserProvider());
     final RepositoryUtils repositoryUtils = new RepositoryUtils(repository);
 
     final SimpleRepositoryFileData data = new SimpleRepositoryFileData(
