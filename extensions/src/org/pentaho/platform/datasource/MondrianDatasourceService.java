@@ -46,7 +46,7 @@ public class MondrianDatasourceService implements IDatasourceService{
   boolean removable;
   boolean importable;
   boolean exportable;
-  String defaultNewUI = "";
+  String defaultNewUI = "$wnd.pho.showAnalysisImportDialog()";
   String defaultEditUI = "";
   String newUI;
   String editUI;

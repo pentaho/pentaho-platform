@@ -45,7 +45,7 @@ public class MetadataDatasourceService implements IDatasourceService{
   boolean removable;
   boolean importable;
   boolean exportable;
-  String defaultNewUI = "";
+  String defaultNewUI = "$wnd.pho.showMetadataImportDialog()";
   String defaultEditUI = "";
   String newUI;
   String editUI;
