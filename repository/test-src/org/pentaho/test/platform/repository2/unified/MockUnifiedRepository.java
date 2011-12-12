@@ -97,6 +97,11 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   // ~ Constructors ====================================================================================================
 
+  /**
+   * Creates a mock.
+   * 
+   * @param currentUserProvider create your own or use {@link SpringSecurityCurrentUserProvider}.
+   */
   public MockUnifiedRepository(final ICurrentUserProvider currentUserProvider) {
     super();
     init();
