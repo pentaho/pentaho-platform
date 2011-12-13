@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+
+# Setting executable permissions
+chmod +x /etc/init.d/[[[linuxPackage.name]]]
+chmod +x /opt/pentaho/[[[linuxPackage.name]]]/*.sh
+
+# Creating the pentaho user (only if needed)
+USER=`eval "id -u -n pentaho 2>/dev/null || :"`
+if [ ! "Xpentaho" = "X$USER" ]
+then
+	/usr/sbin/groupadd pentaho >/dev/null 2>&1 || :
+	/usr/sbin/useradd -g pentaho -d /opt/pentaho pentaho >/dev/null 2>&1 || :
+fi
+
+# Modifying owner
+chown -R pentaho:pentaho /opt/pentaho
+chown pentaho:pentaho /var/run/pentaho
+chown root:root /etc/init.d/[[[linuxPackage.name]]]
+
+# Create symbolic links for runlevels for default instance
+if ! update-rc.d [[[linuxPackage.name]]] defaults; then
+  chkconfig --add [[[linuxPackage.name]]]
+fi
+
+find /opt/pentaho/[[[linuxPackage.name]]] -name "*.sh" -exec chmod 0755 {} \;
+
+# Start the default instance 
+/etc/init.d/[[[linuxPackage.name]]] start

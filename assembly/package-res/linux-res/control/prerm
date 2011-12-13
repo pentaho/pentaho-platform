@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+echo Shutting down [[[linuxPackage.longName]]]
+/etc/init.d/[[[linuxPackage.name]]] stop
+
+# Remove init script links
+if ! update-rc.d -f [[[linuxPackage.name]]] remove; then
+  chkconfig --del [[[linuxPackage.name]]]
+fi 
+
+# Remove files/dirs that will not be removed by apt
+rm -rf /opt/pentaho/[[[linuxPackage.name]]]/tomcat/logs/*
+rm -rf /opt/pentaho/[[[linuxPackage.name]]]/data/hsqldb/*
+rm -rf /opt/pentaho/[[[linuxPackage.name]]]/tomcat/work/*
+rm -rf /opt/pentaho/[[[linuxPackage.name]]]/tomcat/temp/*
+rm -rf /opt/pentaho/[[[linuxPackage.name]]]/tomcat/conf/Catalina
