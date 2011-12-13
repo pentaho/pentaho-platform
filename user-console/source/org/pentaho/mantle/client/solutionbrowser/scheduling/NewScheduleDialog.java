@@ -62,7 +62,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   ScheduleParamsDialog scheduleParamsDialog;
 
   Boolean done = false;
-  
 
   public NewScheduleDialog(String filePath) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
@@ -242,6 +241,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       jsJobTrigger.setType("simpleJobTrigger");
       jsJobTrigger.setRepeatInterval(0);
       jsJobTrigger.setRepeatCount(0);
+      jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
     } else if ((scheduleType == ScheduleType.SECONDS) 
         || (scheduleType == ScheduleType.MINUTES) 
         || (scheduleType == ScheduleType.HOURS)) {
@@ -253,6 +253,10 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       jsJobTrigger.setType("simpleJobTrigger");
       jsJobTrigger.setRepeatInterval(repeatInterval);
       jsJobTrigger.setRepeatCount(-1);
+      jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
+      if (endDate != null) {
+        jsJobTrigger.setNativeEndTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate));
+      }
     } else if (scheduleType == ScheduleType.DAILY) {
       if (scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().isEveryNDays()) {
         int repeatInterval = 0;

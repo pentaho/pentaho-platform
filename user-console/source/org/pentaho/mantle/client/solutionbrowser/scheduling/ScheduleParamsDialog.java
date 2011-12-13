@@ -66,6 +66,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     setPixelSize(800, 465);
     String urlPath = parentDialog.filePath.replaceAll("/", ":"); //$NON-NLS-1$  //$NON-NLS-2$
     setParametersUrl("api/repos/" + urlPath + "/parameterUi"); //$NON-NLS-1$ //$NON-NLS-2$
+    wizardDeckPanel.setHeight("100%"); //$NON-NLS-1$
   }
 
   void setScheduleDescription(String description) {
