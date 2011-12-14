@@ -22,14 +22,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.ui.menubar.XulMainMenubar;
-import org.pentaho.mantle.client.ui.toolbar.XulMainToolbar;
+import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.mantle.client.workspace.WorkspacePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
@@ -136,11 +134,8 @@ public class PerspectiveManager extends HorizontalPanel {
       loadResourceBundle(tb, perspective);
     }
 
-    // register all toolbar overlays with XulMainToolbar
-    XulMainToolbar.getInstance().loadOverlays(overlays);
-
-    // register all menubar overlays with XulMainMenubar
-    XulMainMenubar.getInstance().loadOverlays(overlays);
+    // register overlays with XulMainToolbar
+    MantleXul.getInstance().addOverlays(overlays);
 
     String historyTokenPerspectiveId = History.getToken();
     boolean loadedFromHistory = setPerspective(historyTokenPerspectiveId);
@@ -222,40 +217,34 @@ public class PerspectiveManager extends HorizontalPanel {
       }
     }
 
-    // remove all existing perspective overlays
-    XulMainToolbar.getInstance().reset(new ICallback<Void>() {
-      public void onHandle(Void nothing) {
-        // apply current overlay or default if none selected
-        if (source.isDown() && perspective.getOverlays() != null) {
-          for (XulOverlay overlay : perspective.getOverlays()) {
-            XulMainToolbar.getInstance().applyOverlay(overlay.getId());
-          }
-        } else if (!source.isDown() && defaultPerspective.getOverlays() != null) {
-          // apply default perspective overlay
-          for (XulOverlay overlay : defaultPerspective.getOverlays()) {
-            XulMainToolbar.getInstance().applyOverlay(overlay.getId());
-          }
+    // remove all non-sticky perspective overlays
+    for (IPluginPerspective p : perspectives) {
+      for (XulOverlay o : p.getOverlays()) {
+        if (!o.getId().startsWith("startup") && !o.getId().startsWith("sticky")) {
+          MantleXul.getInstance().removeOverlay(o.getId());
         }
       }
-    });
-    XulMainMenubar.getInstance().reset(new ICallback<Void>() {
-      public void onHandle(Void nothing) {
-        // apply current overlay or default if none selected
-        if (source.isDown() && perspective.getOverlays() != null) {
-          for (XulOverlay overlay : perspective.getOverlays()) {
-            XulMainMenubar.getInstance().applyOverlay(overlay.getId());
-          }
-        } else if (!source.isDown() && defaultPerspective.getOverlays() != null) {
-          // apply default perspective overlay
-          for (XulOverlay overlay : defaultPerspective.getOverlays()) {
-            XulMainMenubar.getInstance().applyOverlay(overlay.getId());
-          }
-        }
-        if (source.isDown() && !perspective.getId().equals("default.perspective") && !perspective.getId().equals("workspace.perspective")) {
-          hijackContentArea(perspective);
+    }
+
+    // apply current overlay or default if none selected
+    if (source.isDown() && perspective.getOverlays() != null) {
+      for (XulOverlay overlay : perspective.getOverlays()) {
+        if (!overlay.getId().startsWith("startup") && !overlay.getId().startsWith("sticky")) {
+          MantleXul.getInstance().applyOverlay(overlay.getId());
         }
       }
-    });
+    } else if (!source.isDown() && defaultPerspective.getOverlays() != null) {
+      // apply default perspective overlay
+      for (XulOverlay overlay : defaultPerspective.getOverlays()) {
+        if (!overlay.getId().startsWith("startup") && !overlay.getId().startsWith("sticky")) {
+          MantleXul.getInstance().applyOverlay(overlay.getId());
+        }
+      }
+    }
+
+    if (source.isDown() && !perspective.getId().equals("default.perspective") && !perspective.getId().equals("workspace.perspective")) {
+      hijackContentArea(perspective);
+    }
 
     // see if we need to show the default perspective
     // if source is not down then no perspectives are selected, select the first one
@@ -272,6 +261,8 @@ public class PerspectiveManager extends HorizontalPanel {
       showDefaultPerspective();
     } else if (perspective.getId().equals("workspace.perspective")) {
       showWorkspacePerspective();
+    } else if (perspective.getId().equals("admin.perspective")) {
+      showAdminPerspective();
     }
   }
 
@@ -292,6 +283,14 @@ public class PerspectiveManager extends HorizontalPanel {
       WorkspacePanel.getInstance().refresh();
     }
     contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));
+  }
+
+  private void showAdminPerspective() {
+    DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
+    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getAdminPerspective()) == -1) {
+      contentDeck.add(MantleXul.getInstance().getAdminPerspective());
+    }
+    contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getAdminPerspective()));
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {

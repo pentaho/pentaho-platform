@@ -32,8 +32,7 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
-import org.pentaho.mantle.client.ui.menubar.XulMainMenubar;
-import org.pentaho.mantle.client.ui.toolbar.XulMainToolbar;
+import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.mantle.client.usersettings.IMantleSettingsListener;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
@@ -162,13 +161,13 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   public void onFetchMantleSettings(final HashMap<String, String> settings) {
     mantleRevisionOverride = settings.get("user-console-revision");
     if ("true".equals(settings.get("show-menu-bar"))) {
-      RootPanel.get("pucMenuBar").add(XulMainMenubar.getInstance());
+      RootPanel.get("pucMenuBar").add(MantleXul.getInstance().getMenubar());
     }
 
     RootPanel.get("pucPerspectives").add(PerspectiveManager.getInstance());
 
     if ("true".equals(settings.get("show-main-toolbar"))) {
-      RootPanel.get("pucToolBar").add(XulMainToolbar.getInstance());
+      RootPanel.get("pucToolBar").add(MantleXul.getInstance().getToolbar());
     }
 
     // update supported file types

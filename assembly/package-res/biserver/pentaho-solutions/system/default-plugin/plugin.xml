@@ -8,7 +8,10 @@
 	<perspective id="default.perspective" title="${BI.Browser}" layout-priority="-1" resourcebundle="content/default-plugin/resources/messages/messages">
 	</perspective>
 
-	<perspective id="workspace.perspective" title="${workspace}" layout-priority="0" resourcebundle="content/default-plugin/resources/messages/messages">
+	<perspective id="admin.perspective" title="${admin}" layout-priority="10" required-security-action="org.pentaho.security.administerSecurity" layout-priority="0" resourcebundle="content/default-plugin/resources/messages/messages">
+	</perspective>
+
+	<perspective id="workspace.perspective" title="${workspace}" layout-priority="20" resourcebundle="content/default-plugin/resources/messages/messages">
 	</perspective>
     
     <overlays>
