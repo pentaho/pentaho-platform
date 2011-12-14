@@ -398,29 +398,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
       public void onSuccess(Boolean result) {
         if (scheduleParamsDialog == null) {
-          scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this) {
-
-            protected boolean showBack(int index) {
-              // TODO Auto-generated method stub
-              return true;
-            }
-
-            protected boolean showFinish(int index) {
-              // TODO Auto-generated method stub
-              return true;
-            }
-
-            protected boolean showNext(int index) {
-              // TODO Auto-generated method stub
-              return false;
-            }
-
-            protected boolean enableBack(int index) {
-              // TODO Auto-generated method stub
-              return true;
-            }
-            
-          };
+          scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this);
         }       
         JsJobTrigger trigger = getJsJobTrigger();
         scheduleParamsDialog.setScheduleDescription(trigger.getDescription());

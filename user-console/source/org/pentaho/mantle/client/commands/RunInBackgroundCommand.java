@@ -18,11 +18,10 @@ package org.pentaho.mantle.client.commands;
 
 import java.util.Date;
 
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleParamsDialog;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -36,8 +35,6 @@ import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class RunInBackgroundCommand extends AbstractCommand {
   String moduleBaseURL = GWT.getModuleBaseURL();
@@ -73,67 +70,69 @@ public class RunInBackgroundCommand extends AbstractCommand {
   }
   
   protected void performOperation(boolean feedback) {
-    // delete file
-    VerticalPanel vp = new VerticalPanel();
-    vp.add(new Label(Messages.getString("confirmRunInBackground"))); //$NON-NLS-1$
-    final PromptDialogBox confirmBackgroundSchedule = new PromptDialogBox(
-        Messages.getString("runInBackground"), Messages.getString("yes"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-    final IDialogCallback callback = new IDialogCallback() {
-
-      public void cancelPressed() {
-        confirmBackgroundSchedule.hide();
-      }
-
-      public void okPressed() {
-        String scheduleJobUrl = contextURL + "api/scheduler/job"; //$NON-NLS-1$
-        JSONObject trigger = new JSONObject();
-        trigger.put("repeatInterval", new JSONNumber(0)); //$NON-NLS-1$
-        trigger.put("repeatCount", new JSONNumber(0)); //$NON-NLS-1$
-        trigger.put("startTime", JSONNull.getInstance()); //$NON-NLS-1$
-        trigger.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$
         
-        JSONObject scheduleRequest = new JSONObject();
-        scheduleRequest.put("inputFile", new JSONString(repositoryFile.getPath())); //$NON-NLS-1$ //$NON-NLS-2$
-        scheduleRequest.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
-        scheduleRequest.put("simpleJobTrigger", getJsonSimpleTrigger(0, 0, null, null)); //$NON-NLS-1$
+    String filePath = repositoryFile.getPath();
+    String urlPath = filePath.replaceAll("/", ":");
+    RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath + "/parameterizable");    
+    scheduleFileRequestBuilder.setHeader("accept", "text/plain");    
+    try {
+      scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
 
-        RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, scheduleJobUrl);
-        scheduleFileRequestBuilder.setHeader("Content-Type", "application/json");  //$NON-NLS-1$//$NON-NLS-2$
-        try {
-          scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
+       public void onError(Request request, Throwable exception) {
+         MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+         dialogBox.center();
+        }
 
-            @Override
-            public void onError(Request request, Throwable exception) {
-              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRun"), //$NON-NLS-1$ //$NON-NLS-2$
-              false, false, true);
-              dialogBox.center();
-            }
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
+            JSONObject scheduleRequest = new JSONObject();
+            scheduleRequest.put("inputFile", new JSONString(repositoryFile.getPath())); //$NON-NLS-1$ //$NON-NLS-2$
+            scheduleRequest.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
+            scheduleRequest.put("simpleJobTrigger", getJsonSimpleTrigger(0, 0, null, null)); //$NON-NLS-1$
+            if (Boolean.parseBoolean(response.getText())) {
+              ScheduleParamsDialog dialog = new ScheduleParamsDialog(repositoryFile.getPath(), scheduleRequest);
+              dialog.center();
+            } else {
+              RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
+              scheduleFileRequestBuilder.setHeader("Content-Type", "application/json");  //$NON-NLS-1$//$NON-NLS-2$
 
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              if (response.getStatusCode() == 200) {
-                new RefreshRepositoryCommand().execute(false);
-              } else {
+              try {
+                scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
+
+                  @Override
+                  public void onError(Request request, Throwable exception) {
+                    MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+                    dialogBox.center();
+                  }
+
+                  @Override
+                  public void onResponseReceived(Request request, Response response) {
+                    if (response.getStatusCode() == 200) {
+                    } else {
+                      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRun"), //$NON-NLS-1$ //$NON-NLS-2$
+                          false, false, true);
+                      dialogBox.center();
+                    }                
+                  }
+                  
+                });
+              } catch (RequestException e) {
                 MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRun"), //$NON-NLS-1$ //$NON-NLS-2$
                     false, false, true);
                 dialogBox.center();
-              }                
+              }
             }
-            
-          });
-        } catch (RequestException e) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRun"), //$NON-NLS-1$ //$NON-NLS-2$
-              false, false, true);
-          dialogBox.center();
+          } else {
+            MessageDialogBox dialogBox = new MessageDialogBox(
+                Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true);   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            dialogBox.center();    
+          }
         }
-      }
-    };
-    if (!feedback) {
-      callback.okPressed();
-    } else {
-      confirmBackgroundSchedule.setCallback(callback);
-      confirmBackgroundSchedule.center();
+        
+      });
+    } catch (RequestException e) {
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), false, false, true); //$NON-NLS-1$
+      dialogBox.center();
     }
   }
 

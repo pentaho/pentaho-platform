@@ -50,6 +50,8 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   
   ScheduleParamsWizardPanel scheduleParamsWizardPanel;
   NewScheduleDialog parentDialog;
+  String filePath;
+  JSONObject jobSchedule;
 
   Boolean done = false;
  
@@ -57,15 +59,28 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   public ScheduleParamsDialog(NewScheduleDialog parentDialog) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     this.parentDialog = parentDialog;
-    scheduleParamsWizardPanel = new ScheduleParamsWizardPanel(parentDialog.filePath);
+    this.filePath = parentDialog.filePath;
+    this.jobSchedule = parentDialog.getSchedule();
+    initDialog();
+  }
+
+  public ScheduleParamsDialog(String filePath, JSONObject schedule) {
+    super(Messages.getString("runInBackground"), null, false, true); //$NON-NLS-1$
+    this.filePath = filePath;
+    this.jobSchedule = schedule;
+    initDialog();
+ }
+  
+  private void initDialog() {
+    scheduleParamsWizardPanel = new ScheduleParamsWizardPanel(filePath);
     IWizardPanel[] wizardPanels = {scheduleParamsWizardPanel};
     this.setWizardPanels(wizardPanels);
     setPixelSize(800, 465);
-    String urlPath = parentDialog.filePath.replaceAll("/", ":"); //$NON-NLS-1$  //$NON-NLS-2$
+    String urlPath = filePath.replaceAll("/", ":"); //$NON-NLS-1$  //$NON-NLS-2$
     setParametersUrl("api/repos/" + urlPath + "/parameterUi"); //$NON-NLS-1$ //$NON-NLS-2$
     wizardDeckPanel.setHeight("100%"); //$NON-NLS-1$
-  }
-
+   }
+  
   void setScheduleDescription(String description) {
     scheduleParamsWizardPanel.setScheduleDescription(description);
   }
@@ -84,7 +99,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onFinish() {
-    JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(parentDialog.getSchedule().toString());
+    JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(jobSchedule.toString());
     scheduleRequest.put("jobParameters", getScheduleParams()); //$NON-NLS-1$    
 
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
@@ -161,10 +176,29 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     scheduleParamsWizardPanel.setParametersUrl(url);
   }
 
+  @Override
   protected boolean onPrevious(IWizardPanel previousPanel, IWizardPanel currentPanel) {
     return true;
 
   }
 
+  @Override
+  protected boolean showBack(int index) {
+    return parentDialog != null;
+  }
 
+  @Override
+  protected boolean showFinish(int index) {
+    return true;
+  }
+
+  @Override
+  protected boolean showNext(int index) {
+    return false;
+  }
+
+  @Override
+  protected boolean enableBack(int index) {
+    return true;
+  }
 }
