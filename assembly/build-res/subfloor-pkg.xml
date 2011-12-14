@@ -213,7 +213,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             value="all"
             description="One of i386, amd64, or all." />
 
-  <property name="deb.maintainer"><![CDATA[buildguy <buildguy@pentaho.com>]]></property>
+ <property name="deb.maintainer" value="buildguy &lt;buildguy@pentaho.com&gt;" />
     
   <property name="deb.desc" value="${impl.title}" />
   
