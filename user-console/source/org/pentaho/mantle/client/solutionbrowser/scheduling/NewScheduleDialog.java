@@ -158,6 +158,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
   
+  @SuppressWarnings("deprecation")
   public JSONObject getSchedule() {
     ScheduleType scheduleType = scheduleEditorWizardPanel.getScheduleType();
     
@@ -217,6 +218,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return schedule;
   }
   
+  @SuppressWarnings("deprecation")
   public JsJobTrigger getJsJobTrigger() {
     JsJobTrigger jsJobTrigger = JsJobTrigger.instance();
     
