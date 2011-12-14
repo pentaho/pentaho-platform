@@ -118,17 +118,19 @@ PentahoSystem which is initialized after Spring
   <bean id="mondrianDatasourceService" class="org.pentaho.platform.datasource.MondrianDatasourceService" scope="singleton" >
 	<constructor-arg ref="IMondrianCatalogService" />
 	<constructor-arg ref="IMetadataDomainRepository" />			
-    <constructor-arg ref="authorizationPolicy" />
+    	<constructor-arg ref="authorizationPolicy" />
   </bean>
   
   <bean id="jdbcDatasourceService" class="org.pentaho.platform.datasource.JDBCDatasourceService" scope="singleton" >
 	<constructor-arg ref="IDatasourceMgmtService" />
 	<constructor-arg ref="authorizationPolicy" />
+	<constructor-arg ref="IDatabaseDialectService" />
   </bean>
   <bean id="metadataDatasourceService" class="org.pentaho.platform.datasource.MetadataDatasourceService" scope="singleton" >
 	<constructor-arg ref="IMetadataDomainRepository" />
 	<constructor-arg ref="authorizationPolicy" />
   </bean>
+  
   <bean id="IDatasourceServiceManager" class="org.pentaho.platform.datasource.DefaultDatasourceServiceManager" scope="singleton">
     <constructor-arg>
       <list>

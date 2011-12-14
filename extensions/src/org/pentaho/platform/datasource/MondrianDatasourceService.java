@@ -20,9 +20,19 @@
  */
 package org.pentaho.platform.datasource;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+
+import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.platform.api.datasource.DatasourceServiceException;
@@ -34,6 +44,7 @@ import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException;
 
 public class MondrianDatasourceService implements IDatasourceService{
   public static final String METADATA_EXT = ".xmi";
@@ -62,21 +73,26 @@ public class MondrianDatasourceService implements IDatasourceService{
     this.exportable = true;
   }
   @Override
-  public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException  {
+  public void add(String datasourceXml, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
-    if(datasource instanceof MondrianDatasource) {
-      MondrianDatasource mondrianDatasource = (MondrianDatasource) datasource;
-      mondrianCatalogService.addCatalog(mondrianDatasource.getDatasource(), overwrite, PentahoSessionHolder.getSession());      
-    } else {
-      throw new DatasourceServiceException("Object is not of type MondrianDatasource");
-    }
+      try {
+        mondrianCatalogService.addCatalog(convertToMondrianCatalog(datasourceXml), overwrite, PentahoSessionHolder.getSession());
+      } catch (MondrianCatalogServiceException e) {
+        throw new DatasourceServiceException(e);
+      } catch (JAXBException e) {
+        throw new DatasourceServiceException(e);
+      }      
   }
 
   @Override
-  public MondrianDatasource get(String id) throws DatasourceServiceException, PentahoAccessControlException  {
+  public String get(String id) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     MondrianCatalog mondrianCatalog = mondrianCatalogService.getCatalog(id, PentahoSessionHolder.getSession());
-    return new MondrianDatasource(mondrianCatalog, new DatasourceInfo(mondrianCatalog.getName(), mondrianCatalog.getName(), TYPE, editable, removable, importable, exportable));
+    try {
+      return convertFromMondrianCatalog(mondrianCatalog);
+    } catch (JAXBException e) {
+      throw new DatasourceServiceException(e);
+    }
   }
 
   @Override
@@ -86,14 +102,15 @@ public class MondrianDatasourceService implements IDatasourceService{
   }
 
   @Override
-  public void update(IDatasource datasource) throws DatasourceServiceException, PentahoAccessControlException  {
+  public void update(String datasourceXml) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
-    if(datasource instanceof MondrianDatasource) {
-      MondrianDatasource mondrianDatasource = (MondrianDatasource) datasource;
-      mondrianCatalogService.addCatalog(mondrianDatasource.getDatasource(), true, PentahoSessionHolder.getSession());
-    } else {
-      throw new DatasourceServiceException("Object is not of type MondrianDatasource");
-    }
+      try {
+        mondrianCatalogService.addCatalog(convertToMondrianCatalog(datasourceXml), true, PentahoSessionHolder.getSession());
+      } catch (MondrianCatalogServiceException e) {
+        throw new DatasourceServiceException(e);
+      } catch (JAXBException e) {
+        throw new DatasourceServiceException(e);
+      }
   }
 
   @Override
@@ -146,5 +163,34 @@ public class MondrianDatasourceService implements IDatasourceService{
     } else {
       return newUI;
     }
+  }
+  
+  private MondrianCatalog convertToMondrianCatalog(String datasourceXml) throws JAXBException{
+    JAXBContext context = JAXBContext.newInstance(MondrianCatalog.class);
+    Unmarshaller unmarshaller = context.createUnmarshaller();
+    return (MondrianCatalog) unmarshaller.unmarshal(new StringReader(datasourceXml));
+  }
+  
+
+  private String convertFromMondrianCatalog(MondrianCatalog mondrianCatalog) throws JAXBException {
+    OutputStream outputStream = new OutputStream()
+    {
+        private StringBuilder string = new StringBuilder();
+        @Override
+        public void write(int b) throws IOException {
+            this.string.append((char) b );
+        }
+
+        //Netbeans IDE automatically overrides this toString()
+        public String toString(){
+            return this.string.toString();
+        }
+    };
+
+    JAXBContext context = JAXBContext.newInstance(MondrianCatalog.class);
+    Marshaller m = context.createMarshaller();
+    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    m.marshal(mondrianCatalog, outputStream);
+    return outputStream.toString();
   }
 }

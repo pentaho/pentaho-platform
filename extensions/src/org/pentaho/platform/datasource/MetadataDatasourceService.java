@@ -20,8 +20,16 @@
  */
 package org.pentaho.platform.datasource;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
@@ -60,31 +68,31 @@ public class MetadataDatasourceService implements IDatasourceService{
     this.exportable = true;
   }
   @Override
-  public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException  {
+  public void add(String datasourceXml, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     try {
-      if(datasource instanceof MetadataDatasource) {
-        MetadataDatasource metadataDatasource = (MetadataDatasource) datasource;
-        metadataDomainRepository.storeDomain(metadataDatasource.getDatasource(), overwrite);
-      } else {
-        throw new DatasourceServiceException("Object is not of type MetadataDatasource");
-      }
-
+        metadataDomainRepository.storeDomain(convertToDomain(datasourceXml), overwrite);
     } catch (DomainIdNullException e) {
       throw new DatasourceServiceException(e);
     } catch (DomainAlreadyExistsException e) {
       throw new DatasourceServiceException(e);
     } catch (DomainStorageException e) {
       throw new DatasourceServiceException(e);
+    } catch (JAXBException e) {
+      throw new DatasourceServiceException(e);
     }
   }
 
   @Override
-  public MetadataDatasource get(String id) throws DatasourceServiceException, PentahoAccessControlException  {
+  public String get(String id) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     Domain domain = metadataDomainRepository.getDomain(id);
     if(domain != null) {
-      return new MetadataDatasource(domain, new DatasourceInfo(domain.getId(), domain.getId(), TYPE, editable, removable, importable, exportable));      
+      try {
+        return convertFromDomain(domain);
+      } catch (JAXBException e) {
+        throw new DatasourceServiceException(e);
+      }      
     } else {
       return null;
     }
@@ -98,20 +106,17 @@ public class MetadataDatasourceService implements IDatasourceService{
   }
 
   @Override
-  public void update(IDatasource datasource) throws DatasourceServiceException, PentahoAccessControlException  {
+  public void update(String datasourceXml) throws DatasourceServiceException, PentahoAccessControlException  {
     helper.checkAdministratorAccess();
     try {
-      if(datasource instanceof MetadataDatasource) {
-        MetadataDatasource metadataDatasource = (MetadataDatasource) datasource;
-        metadataDomainRepository.storeDomain(metadataDatasource.getDatasource(), true);
-      } else {
-        throw new DatasourceServiceException("Object is not of type MetadataDatasource");
-      }
+        metadataDomainRepository.storeDomain(convertToDomain(datasourceXml), true);
     } catch (DomainIdNullException e) {
       throw new DatasourceServiceException(e);
     } catch (DomainAlreadyExistsException e) {
       throw new DatasourceServiceException(e);
     } catch (DomainStorageException e) {
+      throw new DatasourceServiceException(e);
+    } catch (JAXBException e) {
       throw new DatasourceServiceException(e);
     }
   }
@@ -128,6 +133,9 @@ public class MetadataDatasourceService implements IDatasourceService{
       } catch (DatasourceServiceException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
+      } catch (JAXBException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       }
     }
     return datasourceInfoList;
@@ -138,15 +146,15 @@ public class MetadataDatasourceService implements IDatasourceService{
     return TYPE;
   }
 
-  private boolean isMetadataDatasource(String id) throws DatasourceServiceException{
-    MetadataDatasource metadataDatasource = null;
+  private boolean isMetadataDatasource(String id) throws DatasourceServiceException, JAXBException{
+    String datasourceXml = null;
     try {
-      metadataDatasource = get(id);
+      datasourceXml = get(id);
     } catch (PentahoAccessControlException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    Domain domain = metadataDatasource.getDatasource();
+    Domain domain = convertToDomain(datasourceXml);
     List<LogicalModel> logicalModelList = domain.getLogicalModels();
     if(logicalModelList != null && logicalModelList.size() >= 1) {
       LogicalModel logicalModel = logicalModelList.get(0);
@@ -191,5 +199,34 @@ public class MetadataDatasourceService implements IDatasourceService{
     } else {
       return newUI;
     }
+  }
+  
+  private Domain convertToDomain(String datasourceXml) throws JAXBException{
+    JAXBContext context = JAXBContext.newInstance(Domain.class);
+    Unmarshaller unmarshaller = context.createUnmarshaller();
+    return (Domain) unmarshaller.unmarshal(new StringReader(datasourceXml));
+  }
+  
+
+  private String convertFromDomain(Domain domain) throws JAXBException {
+    OutputStream outputStream = new OutputStream()
+    {
+        private StringBuilder string = new StringBuilder();
+        @Override
+        public void write(int b) throws IOException {
+            this.string.append((char) b );
+        }
+
+        //Netbeans IDE automatically overrides this toString()
+        public String toString(){
+            return this.string.toString();
+        }
+    };
+
+    JAXBContext context = JAXBContext.newInstance(Domain.class);
+    Marshaller m = context.createMarshaller();
+    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    m.marshal(domain, outputStream);
+    return outputStream.toString();
   }
 }

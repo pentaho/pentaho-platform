@@ -38,6 +38,6 @@ public interface IDatasource extends Serializable{
    * Returns the managed datasource
    * @return managed datasource object
    */
-  public Object getDatasource();
+  public String getDatasource();
 
 }

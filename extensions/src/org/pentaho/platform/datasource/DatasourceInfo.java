@@ -50,6 +50,12 @@ public class DatasourceInfo implements IDatasourceInfo {
     super();
     // TODO Auto-generated constructor stub
   }
+  public DatasourceInfo(String name, String id, String type) {
+    super();
+    this.name = name;
+    this.id = id;
+    this.type = type;
+  }
 
   public DatasourceInfo(String name, String id, String type, boolean editable, boolean removable, boolean importable, boolean exportable) {
     super();

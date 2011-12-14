@@ -37,18 +37,18 @@ public interface IDatasourceService {
   
   /**
    * Adds a new datasource to the platform repository
-   * @param datasource
+   * @param datasourceXml
    * @param overwrite if true then it will overwrite the datasource if it exists
    * @throws DatasourceServiceException
    */
-  public void add(IDatasource datasource, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException;
+  public void add(String datasourceXml, boolean overwrite) throws DatasourceServiceException, PentahoAccessControlException;
   
   /**
-   * Returns a datasource object with a managed object wrapped inside
+   * Returns a xml representation  of a datasource managed object 
    * @param id
    * @return datasource object
    */
-  public IDatasource get(String id) throws DatasourceServiceException, PentahoAccessControlException;
+  public String get(String id) throws DatasourceServiceException, PentahoAccessControlException;
   
   /**
    * Removes a selected datasource from the platform repository
@@ -59,10 +59,10 @@ public interface IDatasourceService {
 
   /**
    * Updates a selected datasource in a platform repository
-   * @param datasource
+   * @param datasource xml
    * @throws DatasourceServiceException
    */
-  public void update(IDatasource datasource)throws DatasourceServiceException, PentahoAccessControlException;
+  public void update(String datasourceXml)throws DatasourceServiceException, PentahoAccessControlException;
     
   /**
    * Checks whether a datasource exists with a given id
