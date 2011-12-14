@@ -27,6 +27,7 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,6 +37,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,12 +56,20 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IContentGenerator;
+import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
+import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
@@ -71,6 +81,7 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.web.http.messages.Messages;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 /**
  * Represents a file node in the repository.  This api provides methods for discovering information
@@ -320,6 +331,46 @@ public class FileResource extends AbstractJaxRSResource {
     return response;
   }
 
+  @GET
+  @Path("{pathId : .+}/parameterizable")
+  @Produces(TEXT_PLAIN)
+  //have to accept anything for browsers to work
+  public String doIsParameterizable(@PathParam("pathId") String pathId) throws FileNotFoundException {
+    boolean hasParameterUi = false;
+    RepositoryFile repositoryFile = repository.getFile(FileResource.idToPath(pathId));
+    if (repositoryFile != null) {
+      try {
+        hasParameterUi = (PentahoSystem.get(IPluginManager.class).getContentGenerator(repositoryFile.getName().substring(repositoryFile.getName().indexOf('.') + 1), "parameterUi") != null);
+      } catch (NoSuchBeanDefinitionException e) {
+        // Do nothing.
+      }
+    }    
+     boolean hasParameters = false;
+     try {
+      IContentGenerator parameterContentGenerator = PentahoSystem.get(IPluginManager.class).getContentGenerator(
+          repositoryFile.getName().substring(repositoryFile.getName().indexOf('.') + 1), "parameter");
+      if (parameterContentGenerator != null) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        parameterContentGenerator.setOutputHandler(new SimpleOutputHandler(outputStream, false));
+        parameterContentGenerator.setMessagesList(new ArrayList<String>());
+        Map<String, IParameterProvider> parameterProviders = new HashMap<String, IParameterProvider>();
+        SimpleParameterProvider parameterProvider = new SimpleParameterProvider();
+        parameterProvider.setParameter("path", repositoryFile.getPath());
+        parameterProviders.put(IParameterProvider.SCOPE_REQUEST, parameterProvider);
+        parameterContentGenerator.setParameterProviders(parameterProviders);
+        parameterContentGenerator.setSession(PentahoSessionHolder.getSession());
+        parameterContentGenerator.createContent();
+        if (outputStream.size() > 0) {
+          Document document = DocumentHelper.parseText(outputStream.toString());
+          hasParameters = document.selectNodes("/parameters/parameter").size() > 0;
+        }
+      }
+    } catch (Exception e) {
+      // TODO: handle exception
+    }
+    return Boolean.toString(hasParameterUi && hasParameters);
+  }
+  
   /**
    * Compatibility endpoint for browsers since you can't specify Accepts headers in browsers
    * @throws FileNotFoundException
