@@ -1,11 +1,5 @@
 package org.pentaho.platform.repository2.unified.fs;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -16,7 +10,13 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 
-public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
+import java.io.File;
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+
+public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   private FileSystemRepositoryFileDao repositoryFileDao;
 
   public FileSystemBackedUnifiedRepository(final String baseDir) {
@@ -40,12 +40,12 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
   }
 
   public RepositoryFile createFile(Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
-      String versionMessage) {
+                                   String versionMessage) {
     return repositoryFileDao.createFile(parentFolderId, file, data, createDefaultAcl(), versionMessage);
   }
 
   public RepositoryFile createFile(Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
-      RepositoryFileAcl acl, String versionMessage) {
+                                   RepositoryFileAcl acl, String versionMessage) {
     return repositoryFileDao.createFile(parentFolderId, file, data, acl, versionMessage);
   }
 
@@ -54,18 +54,18 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
   }
 
   public RepositoryFile createFolder(Serializable parentFolderId, RepositoryFile file, RepositoryFileAcl acl,
-      String versionMessage) {
+                                     String versionMessage) {
     return repositoryFileDao.createFolder(parentFolderId, file, acl, versionMessage);
   }
 
   public void deleteFile(Serializable fileId, boolean permanent, String versionMessage) {
     repositoryFileDao.deleteFile(fileId, versionMessage);
-    
+
   }
 
   public void deleteFile(Serializable fileId, String versionMessage) {
     repositoryFileDao.deleteFile(fileId, versionMessage);
-    
+
   }
 
   public void deleteFileAtVersion(Serializable fileId, Serializable versionId) {
@@ -73,7 +73,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
   }
 
   public RepositoryFileAcl getAcl(Serializable fileId) {
-   throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException();
   }
 
   public List<RepositoryFile> getChildren(Serializable folderId) {
@@ -85,21 +85,21 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
   }
 
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute(Serializable fileId, Serializable versionId,
-      Class<T> dataClass) {
-    return  repositoryFileDao.getData(fileId, versionId, dataClass);
+                                                                      Class<T> dataClass) {
+    return repositoryFileDao.getData(fileId, versionId, dataClass);
   }
 
   public <T extends IRepositoryFileData> T getDataAtVersionForRead(Serializable fileId, Serializable versionId,
-      Class<T> dataClass) {
-    return  repositoryFileDao.getData(fileId, versionId, dataClass);
+                                                                   Class<T> dataClass) {
+    return repositoryFileDao.getData(fileId, versionId, dataClass);
   }
 
   public <T extends IRepositoryFileData> T getDataForExecute(Serializable fileId, Class<T> dataClass) {
-    return  repositoryFileDao.getData(fileId, null, dataClass);
+    return repositoryFileDao.getData(fileId, null, dataClass);
   }
 
   public <T extends IRepositoryFileData> T getDataForRead(Serializable fileId, Class<T> dataClass) {
-    return  repositoryFileDao.getData(fileId, null, dataClass);
+    return repositoryFileDao.getData(fileId, null, dataClass);
   }
 
   public List<RepositoryFile> getDeletedFiles(Serializable folderId) {
@@ -156,7 +156,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
   public VersionSummary getVersionSummary(Serializable fileId, Serializable versionId) {
     return repositoryFileDao.getVersionSummary(fileId, versionId);
   }
-  
+
   public void setRootDir(File rootDir) {
     repositoryFileDao.setRootDir(rootDir);
   }
@@ -212,13 +212,13 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
   public List<VersionSummary> getVersionSummaryInBatch(List<RepositoryFile> files) {
     throw new UnsupportedOperationException();
   }
-  
+
   public void setFileMetadata(final Serializable fileId, Map<String, Serializable> metadataMap) {
-    throw new UnsupportedOperationException();
+    repositoryFileDao.setFileMetadata(fileId, metadataMap);
   }
-  
+
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
-    throw new UnsupportedOperationException();
+    return repositoryFileDao.getFileMetadata(fileId);
   }
 
   public void copyFile(Serializable fileId, String destAbsPath, String versionMessage) {
@@ -232,6 +232,6 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository{
   public List<RepositoryFile> getDeletedFiles(String origParentFolderPath) {
     throw new UnsupportedOperationException();
   }
-  
-  
+
+
 }

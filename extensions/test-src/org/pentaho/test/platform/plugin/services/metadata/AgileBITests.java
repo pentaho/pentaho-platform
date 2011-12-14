@@ -10,98 +10,97 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import java.io.File;
 
 /**
- * Purpose:  Tests the import of localization files that 
- *           exist in the solution folders' /resources/metadata
- *           folder for each XMI file that is located there.
- *           
- *           If the xmi file is named mymodel.xmi, then the
- *           locale files named mymodel_"local_code".properties 
- *           will be loaded into the domain created by the load 
- *           of mymodel.xmi.
- *    
+ * Purpose:  Tests the import of localization files that
+ * exist in the solution folders' /resources/metadata
+ * folder for each XMI file that is located there.
+ * <p/>
+ * If the xmi file is named mymodel.xmi, then the
+ * locale files named mymodel_"local_code".properties
+ * will be loaded into the domain created by the load
+ * of mymodel.xmi.
+ * <p/>
  * For each test a file named "mymodel.xmi" is created in this
- * folder.  The individual tests may call the methods 
- * 
- *      PentahoMetadataDomainRepository.getLocaleFromPropertyfilename()
- *      PentahoMetadataDomainRepository.getLocalePropertyFilenames()
- *      
+ * folder.  The individual tests may call the methods
+ * <p/>
+ * PentahoMetadataDomainRepositoryTest.getLocaleFromPropertyfilename()
+ * PentahoMetadataDomainRepositoryTest.getLocalePropertyFilenames()
+ * <p/>
  * The determines which method is to be tested and the criteria of the test.
  * Each test method's javadoc contains the goal of the test.
- *  
+ *
  * @author sflatley
  */
-public class AgileBITests  {
-     
-   //  Solution path and file name
-   private String SOLUTION_FOLDER_NAME = "mysolution";
-   private String RESOURCE_FOLDER_NAME = "resources";
-   private String METADATA_FOLDER_NAME = "metadata";
-   private String SOLUTION_PATH;
-   private String METADATA_PATH;
-   
-   //  LocalTestUtil
-   LocaleTestUtil localeTestUtil = null;
-   
-   /**
-    * Creates the files system that mimicks a BI Server solution.
-    * Also creates a LocaleTestUtility that is used to create the
-    * files needed for the tests.
-    * 
-    * A MicroPlatform is also created as it is needed for filtering the
-    * property files that may exist in the metadata folder.
-    * 
-    * @throws Exception
-    */
-   @Before
-   public void init() throws Exception {
-      
-      //  create the solution folder
-      SOLUTION_PATH = System.getProperty("java.io.tmpdir") + "/" + SOLUTION_FOLDER_NAME;
-      METADATA_PATH = RESOURCE_FOLDER_NAME + "/" +METADATA_FOLDER_NAME;
-      
-      File solutionFolder = new File(SOLUTION_PATH);
-      if (!solutionFolder.exists()) {
-         if (!solutionFolder.mkdir()) {
-            throw new Exception("Unable to create " + SOLUTION_PATH);
-         }
+public class AgileBITests {
+
+  //  Solution path and file name
+  private String SOLUTION_FOLDER_NAME = "mysolution";
+  private String RESOURCE_FOLDER_NAME = "resources";
+  private String METADATA_FOLDER_NAME = "metadata";
+  private String SOLUTION_PATH;
+  private String METADATA_PATH;
+
+  //  LocalTestUtil
+  LocaleTestUtil localeTestUtil = null;
+
+  /**
+   * Creates the files system that mimicks a BI Server solution.
+   * Also creates a LocaleTestUtility that is used to create the
+   * files needed for the tests.
+   * <p/>
+   * A MicroPlatform is also created as it is needed for filtering the
+   * property files that may exist in the metadata folder.
+   *
+   * @throws Exception
+   */
+  @Before
+  public void init() throws Exception {
+
+    //  create the solution folder
+    SOLUTION_PATH = System.getProperty("java.io.tmpdir") + "/" + SOLUTION_FOLDER_NAME;
+    METADATA_PATH = RESOURCE_FOLDER_NAME + "/" + METADATA_FOLDER_NAME;
+
+    File solutionFolder = new File(SOLUTION_PATH);
+    if (!solutionFolder.exists()) {
+      if (!solutionFolder.mkdir()) {
+        throw new Exception("Unable to create " + SOLUTION_PATH);
       }
-      
-      //  Create the resource folder
-      String resourcePath = SOLUTION_PATH + "/" + RESOURCE_FOLDER_NAME;
-      File resourceFolder = new File(resourcePath);
-      if (!resourceFolder.exists()) {
-         if (!resourceFolder.mkdir()) {
-            throw new Exception("Unable to create " + resourcePath);
-         }
+    }
+
+    //  Create the resource folder
+    String resourcePath = SOLUTION_PATH + "/" + RESOURCE_FOLDER_NAME;
+    File resourceFolder = new File(resourcePath);
+    if (!resourceFolder.exists()) {
+      if (!resourceFolder.mkdir()) {
+        throw new Exception("Unable to create " + resourcePath);
       }
-      
-      //  Create the resource metadata folder
-      String metadataPath = SOLUTION_PATH + "/" +  RESOURCE_FOLDER_NAME + "/" + METADATA_FOLDER_NAME;
-      File metadataFolder = new File(metadataPath);
-      if (!metadataFolder.exists()) {
-         if (!metadataFolder.mkdir()) {
-            throw new Exception("Unable to create " + metadataPath);
-         }
+    }
+
+    //  Create the resource metadata folder
+    String metadataPath = SOLUTION_PATH + "/" + RESOURCE_FOLDER_NAME + "/" + METADATA_FOLDER_NAME;
+    File metadataFolder = new File(metadataPath);
+    if (!metadataFolder.exists()) {
+      if (!metadataFolder.mkdir()) {
+        throw new Exception("Unable to create " + metadataPath);
       }
-     
-      localeTestUtil = new LocaleTestUtil();
-      
-      MicroPlatform mp = new MicroPlatform(SOLUTION_PATH);
-      try {
-         mp.define(ISolutionRepository.class, FileBasedSolutionRepository.class, Scope.GLOBAL);
-         mp.start();
-      }
-      catch (PlatformInitializationException pie) {
-         pie.printStackTrace();
-      }
-   }
-   
-   /**
-    * Test MetadataDomainRepository.getLocaleFromPropertyfilename() to ensure that
-    * the locale portion is being parsed out of the filename correctly.
-    * 
-    * @throws Exception
-    */
+    }
+
+    localeTestUtil = new LocaleTestUtil();
+
+    MicroPlatform mp = new MicroPlatform(SOLUTION_PATH);
+    try {
+      mp.define(ISolutionRepository.class, FileBasedSolutionRepository.class, Scope.GLOBAL);
+      mp.start();
+    } catch (PlatformInitializationException pie) {
+      pie.printStackTrace();
+    }
+  }
+
+  /**
+   * Test MetadataDomainRepository.getLocaleFromPropertyfilename() to ensure that
+   * the locale portion is being parsed out of the filename correctly.
+   *
+   * @throws Exception
+   */
 //   @Test
 //   public void testLocalePropertyFilenameParsing() throws Exception {
 //      
@@ -121,11 +120,11 @@ public class AgileBITests  {
 //         throw new Exception("Could not create the properties file.");
 //      }      
 //   }
-   
-   /**
-    * Tests MetadataDomainRepository.getLocalePropertyFilenames()
-    * where one xmi resource and no property file exists in the metadata folder.
-    */
+
+  /**
+   * Tests MetadataDomainRepository.getLocalePropertyFilenames()
+   * where one xmi resource and no property file exists in the metadata folder.
+   */
 //   @Test
 //   public void testNoLocaleFileDiscovery() {
 //      
@@ -160,11 +159,11 @@ public class AgileBITests  {
 //      }
 //   }
 
-   /**
-    * Tests MetadataDomainRepository.getLocalePropertyFilenames()
-    * when one xmi resource is in the meta data folder with one
-    * property file.
-    */
+  /**
+   * Tests MetadataDomainRepository.getLocalePropertyFilenames()
+   * when one xmi resource is in the meta data folder with one
+   * property file.
+   */
 //   @Test
 //   public void testOneLocaleFileDiscovery() {
 //
@@ -202,12 +201,12 @@ public class AgileBITests  {
 //         if (xmiResource !=null) { xmiResource.delete(); }
 //      }
 //   }
-   
-   /**
-    *  Tests MetadataDomainRepository.getLocalePropertyFilenames()
-    *  when one xmi file and several property file exists 
-    *  in the metadata folder.
-    */
+
+  /**
+   *  Tests MetadataDomainRepository.getLocalePropertyFilenames()
+   *  when one xmi file and several property file exists
+   *  in the metadata folder.
+   */
 //   @Test
 //   public void testLegacyDomainMultiLocaleFileDiscovery() {
 //

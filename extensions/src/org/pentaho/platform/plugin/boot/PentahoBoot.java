@@ -46,21 +46,21 @@ import org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
 import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
+import org.pentaho.platform.repository.pmd.CachingPentahoMetadataDomainRepository;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
-import org.pentaho.platform.repository2.unified.metadata.PentahoMetadataDomainRepository;
 
 /**
  * This class is designed to help embedded deployments start the Pentaho system
- * @author jamesdixon
  *
+ * @author jamesdixon
  */
 public class PentahoBoot extends PentahoSystemBoot {
 
-  public PentahoBoot( ) {
+  public PentahoBoot() {
     super();
   }
-  
+
   /**
    * Sets up the defaults:
    * - File-based repository
@@ -72,74 +72,74 @@ public class PentahoBoot extends PentahoSystemBoot {
   protected void configure(String solutionPath, String baseUrl, IPentahoDefinableObjectFactory factory) {
     super.configure(null, null, null);
     IPentahoObjectFactory objectFactory = getFactory();
-    if( objectFactory instanceof IPentahoDefinableObjectFactory ) {
-      define( ISolutionEngine.class, SolutionEngine.class, Scope.LOCAL );
-      define( ISolutionRepository.class, FileBasedSolutionRepository.class, Scope.SESSION );
-      define( IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.SESSION );
-      define( "connection-XML", XQConnection.class, Scope.LOCAL ); //$NON-NLS-1$
-      define( "connection-SQL", SQLConnection.class, Scope.LOCAL ); //$NON-NLS-1$
-      define( "file", FileOutputHandler.class, Scope.LOCAL ); //$NON-NLS-1$
+    if (objectFactory instanceof IPentahoDefinableObjectFactory) {
+      define(ISolutionEngine.class, SolutionEngine.class, Scope.LOCAL);
+      define(ISolutionRepository.class, FileBasedSolutionRepository.class, Scope.SESSION);
+      define(IUnifiedRepository.class, FileSystemBackedUnifiedRepository.class, Scope.SESSION);
+      define("connection-XML", XQConnection.class, Scope.LOCAL); //$NON-NLS-1$
+      define("connection-SQL", SQLConnection.class, Scope.LOCAL); //$NON-NLS-1$
+      define("file", FileOutputHandler.class, Scope.LOCAL); //$NON-NLS-1$
     }
   }
-  
+
   /**
    * Enables the components necessary to create reports
    */
   public void enableReporting() {
-    addLifecycleListener( new JFreeReportSystemListener() );
+    addLifecycleListener(new JFreeReportSystemListener());
   }
-  
+
   /**
    * Enables the components necessary to create reports
    */
   public void enableOlap() {
     IPentahoObjectFactory objectFactory = getFactory();
-    if( objectFactory instanceof IPentahoDefinableObjectFactory ) {
-      define( "connection-MDX", MDXConnection.class.getName(), Scope.LOCAL ); //$NON-NLS-1$
+    if (objectFactory instanceof IPentahoDefinableObjectFactory) {
+      define("connection-MDX", MDXConnection.class.getName(), Scope.LOCAL); //$NON-NLS-1$
     }
-    addLifecycleListener( new MondrianSystemListener() );
+    addLifecycleListener(new MondrianSystemListener());
   }
 
   /**
    * Enables the plugin manager
    */
   public void enablePluginManager() {
-    if( getFactory() instanceof IPentahoDefinableObjectFactory ) {
-      define(IPluginProvider.class, SystemPathXmlPluginProvider.class, Scope.GLOBAL );
-      define(IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL );
-      define(IServiceManager.class, DefaultServiceManager.class, Scope.GLOBAL );
-      define(IPluginResourceLoader.class, PluginResourceLoader.class, Scope.GLOBAL );
+    if (getFactory() instanceof IPentahoDefinableObjectFactory) {
+      define(IPluginProvider.class, SystemPathXmlPluginProvider.class, Scope.GLOBAL);
+      define(IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL);
+      define(IServiceManager.class, DefaultServiceManager.class, Scope.GLOBAL);
+      define(IPluginResourceLoader.class, PluginResourceLoader.class, Scope.GLOBAL);
     }
-    addLifecycleListener( new PluginAdapter() );
-    
+    addLifecycleListener(new PluginAdapter());
+
   }
-  
+
   /**
    * Enables the pooled datasources
    */
   public void enablePooledDatasources() {
     IPentahoObjectFactory objectFactory = getFactory();
-    if( objectFactory instanceof IPentahoDefinableObjectFactory ) {
-      define(IDBDatasourceService.class, PooledOrJndiDatasourceService.class, Scope.LOCAL );
+    if (objectFactory instanceof IPentahoDefinableObjectFactory) {
+      define(IDBDatasourceService.class, PooledOrJndiDatasourceService.class, Scope.LOCAL);
     }
-    addLifecycleListener( new PooledDatasourceSystemListener() );
+    addLifecycleListener(new PooledDatasourceSystemListener());
   }
-  
+
   /**
    * Enables the metadata services
    */
   public void enableMetadata() {
     IPentahoObjectFactory objectFactory = getFactory();
-    if( objectFactory instanceof IPentahoDefinableObjectFactory ) {
-      define(IMetadataDomainRepository.class, PentahoMetadataDomainRepository.class, Scope.GLOBAL);
+    if (objectFactory instanceof IPentahoDefinableObjectFactory) {
+      define(IMetadataDomainRepository.class, CachingPentahoMetadataDomainRepository.class, Scope.GLOBAL);
     }
   }
-  
+
   /**
    * Enables the components necessary to create reports
    */
   public void enableDataIntegration() {
-    addLifecycleListener( new KettleSystemListener() );
+    addLifecycleListener(new KettleSystemListener());
   }
-  
+
 }

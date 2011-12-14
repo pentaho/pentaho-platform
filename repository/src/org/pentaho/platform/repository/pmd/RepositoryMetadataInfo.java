@@ -14,69 +14,53 @@
  *
  * Copyright 2011 Pentaho Corporation. All rights reserved.
  */
-package org.pentaho.platform.repository2.unified.metadata;
+package org.pentaho.platform.repository.pmd;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 
 /**
- * Contains information about how and where metadata information is stored in the JCR repository
- * User: dkincade
+ * Contains information about how and where metadata information is stored in the {@code }IUnifiedRepository}
+ *
+ * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class JcrMetadataInfo {
+public class RepositoryMetadataInfo {
   /**
    * The name of the folder in which Pentaho Metadata should be stored (appended to the proper path for
    * each tenant) - the value is {@value}
    */
-  protected static final String METADATA_FOLDER_NAME = "metadata";
+  private static final String METADATA_FOLDER_NAME = "metadata";
 
   /**
-   * The name of the file use for mapping Pentaho Metadata {@code domain IDs} into the sub-folders that
-   * hold all the information for the Pentaho Metadata.
+   * The file extension to be used with Pentaho Metadata Files
    */
-  protected static final String METADATA_MAPPING_FILE_NAME = "metadata-mappings.properties";
-
-  /**
-   * The name of the file in each domain folder that will contain the metadata information
-   */
-  protected static final String METADATA_FILE_NAME = "metadata.xmi";
+  private static final String FILE_EXTENSION = ".xmi";
 
   /**
    * Returns the name of the metadata folder
    */
-  public String getMetadataFolderName() {
+  public static String getMetadataFolderName() {
     return METADATA_FOLDER_NAME;
-  }
-
-  /**
-   * Returns the name of the metadata folder
-   */
-  public String getMetadataMappingFileName() {
-    return METADATA_MAPPING_FILE_NAME;
   }
 
   /**
    * Returns the path location in which the Pentaho Metadata folder will be created
    */
-  public String getMetadataParentPath() {
+  public static String getMetadataParentPath() {
     return ClientRepositoryPaths.getEtcFolderPath();
   }
 
   /**
    * Generates the repository location for the Pentaho Metadata to be stored
    */
-  public String getMetadataFolderPath() {
-    return getMetadataParentPath() + RepositoryFile.SEPARATOR + METADATA_FOLDER_NAME;
+  public static String getMetadataFolderPath() {
+    return getMetadataParentPath() + RepositoryFile.SEPARATOR + getMetadataFolderName();
   }
 
   /**
-   * Returns the full-path to the Pentaho Metadata mappings file
+   * Returns the file extension to be used with Pentaho Metadata files
    */
-  public String getMetadataMappingFilePath() {
-    return getMetadataFolderPath() + RepositoryFile.SEPARATOR + getMetadataMappingFileName();
-  }
-
-  public String getMetadataFilename() {
-    return METADATA_FILE_NAME;
+  public static String getFileExtension() {
+    return FILE_EXTENSION;
   }
 }

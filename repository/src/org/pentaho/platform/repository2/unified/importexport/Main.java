@@ -121,7 +121,7 @@ public class Main {
   private static void addContentHandlers(final Importer importer, final IUnifiedRepository repository) {
 //    // Add the Pentaho Metadata Import Content Handlers
 //    final PentahoMetadataImportContentHandler metadataHandler = new PentahoMetadataImportContentHandler();
-//    final IMetadataDomainRepository metadataDomainRepository = new PentahoMetadataDomainRepository(repository);
+//    final IMetadataDomainRepository metadataDomainRepository = new PentahoMetadataDomainRepositoryTest(repository);
 //    metadataHandler.setDomainRepository(metadataDomainRepository);
 //    metadataHandler.setXmiParser(new XmiParser());
 //    importer.addImportContentHandler(100, metadataHandler);
@@ -167,7 +167,7 @@ public class Main {
 
   /**
    * Why does this return a web service? Going directly to the IUnifiedRepository requires the following:
-   * 
+   * <p/>
    * <ul>
    * <li>PentahoSessionHolder setup including password and tenant ID. (The server doesn't even process passwords today--
    * it assumes that Spring Security processed it. This would require code changes.)</li>
@@ -256,7 +256,7 @@ public class Main {
   private static boolean isImport(final CommandLine line) {
     return line.hasOption("import");
   }
-  
+
   private static boolean isExport(final CommandLine line) {
     return line.hasOption("export");
   }
@@ -318,7 +318,7 @@ public class Main {
             + "--type=legacy-db --charset=UTF-8 --path=/public -Elegacy-db-driver=com.mysql.jdbc.Driver "
             + "-Elegacy-db-url=jdbc:mysql://localhost/hibernate -Elegacy-db-username=hibuser "
             + "-Elegacy-db-password=password -Elegacy-db-charset=ISO-8859-1\n\n"
-            + "Example arguments for File System import:\n" 
+            + "Example arguments for File System import:\n"
             + "--import --url=http://localhost:8080/pentaho --username=joe\n"
             + "--password=password --type=file-system --charset=UTF-8 --path=/public\n"
             + "--file-path=/Users/wseyler/Desktop/steel-wheels\n");

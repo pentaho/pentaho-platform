@@ -24,7 +24,7 @@ import org.pentaho.metadata.repository.IMetadataDomainRepository;
 import org.pentaho.metadata.util.XmiParser;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.unified.metadata.PentahoMetadataDomainRepository;
+import org.pentaho.platform.repository.pmd.PentahoMetadataDomainRepository;
 
 import java.util.Map;
 
@@ -99,7 +99,7 @@ public class PentahoMetadataImportContentHandler extends BaseImportContentHandle
     try {
       // Compute the domain ID from the path name
       final String domainId = computeDomainId(bundlePathName);
-      logger.debug("Computed domainID to be ["+domainId+"]");
+      logger.debug("Computed domainID to be [" + domainId + "]");
 
       // Load the XMI file into a Domain object
       logger.debug("Loading Pentaho Metadata bundle with path [" + bundlePathName + "]");
@@ -111,7 +111,7 @@ public class PentahoMetadataImportContentHandler extends BaseImportContentHandle
     } catch (Exception e) {
       final String errorMessage =
           messages.getErrorString("PentahoMetadataImportContentHandler.ERROR_0001_FAILED_IMPORTING_PENTAHO_METADATA",
-           bundlePathName, e.getLocalizedMessage());
+              bundlePathName, e.getLocalizedMessage());
       logger.error(errorMessage);
       throw new ImportException(errorMessage, e);
     }

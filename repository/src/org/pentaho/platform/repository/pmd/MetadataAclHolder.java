@@ -15,7 +15,7 @@
  * Copyright 2007 - 2008 Pentaho Corporation.  All rights reserved.
  *  
  */
-package org.pentaho.platform.repository2.unified.metadata;
+package org.pentaho.platform.repository.pmd;
 
 import org.pentaho.metadata.model.concept.Concept;
 import org.pentaho.metadata.model.concept.IConcept;
@@ -36,7 +36,7 @@ public class MetadataAclHolder implements IAclHolder {
 
   public MetadataAclHolder(final IConcept aclHolder) {
     try {
-      Security sec = (Security)aclHolder.getProperty(Concept.SECURITY_PROPERTY);
+      Security sec = (Security) aclHolder.getProperty(Concept.SECURITY_PROPERTY);
       if (sec != null) {
         Map<SecurityOwner, Integer> securityMap = sec.getOwnerAclMap();
         SecurityOwner secOwn = null;

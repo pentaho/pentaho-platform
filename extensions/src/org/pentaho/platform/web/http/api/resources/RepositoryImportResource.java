@@ -57,21 +57,20 @@ public class RepositoryImportResource {
     repository = PentahoSystem.get(IUnifiedRepository.class);
     repoWs = new DefaultUnifiedRepositoryWebService();
   }
-  
+
   /**
    * @param uploadDir: JCR Directory to which the zip structure or single file will be uploaded to.
-   * @param fileIS: Input stream for the file.
-   * @param fileInfo: Info about he file (
+   * @param fileIS:    Input stream for the file.
+   * @param fileInfo:  Info about he file (
    * @return http ok response of everythng went well... some other error otherwise
-   *
-   * This REST method takes multipart form data and imports it to a JCR repository.
-   *
+   *         <p/>
+   *         This REST method takes multipart form data and imports it to a JCR repository.
    */
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.TEXT_HTML)
   public Response doPostImport(@FormDataParam("importDir") String uploadDir,
-      @FormDataParam("fileUpload") InputStream fileIS, @FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
+                               @FormDataParam("fileUpload") InputStream fileIS, @FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
     Map<String, Converter> converters = new HashMap<String, Converter>();
     StreamConverter streamConverter = new StreamConverter();
     converters.put("prpt", streamConverter); //$NON-NLS-1$
@@ -110,18 +109,18 @@ public class RepositoryImportResource {
 
     try {
       if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) { //$NON-NLS-1$
-    	ImportSource src = new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8", new String[] {RepositoryFile.SEPARATOR + "system" + RepositoryFile.SEPARATOR, ".mondrian.xml", "datasources.xml"}); //$NON-NLS-1$
+        ImportSource src = new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8", new String[]{RepositoryFile.SEPARATOR + "system" + RepositoryFile.SEPARATOR, ".mondrian.xml", "datasources.xml"}); //$NON-NLS-1$
         importer.doImport(src, uploadDir, null);
-        for(ImportSource dependentImportSource : src.getDependentImportSources()) {
-        	dependentImportSource.initialize(repository);
-        	dependentImportSource.setOwnerName(uploadDir);
-        	importer.doImport(dependentImportSource, RepositoryFile.SEPARATOR, null);
+        for (ImportSource dependentImportSource : src.getDependentImportSources()) {
+          dependentImportSource.initialize(repository);
+          dependentImportSource.setOwnerName(uploadDir);
+          importer.doImport(dependentImportSource, RepositoryFile.SEPARATOR, null);
         }
       } else {
-    	ImportSource src = new SingleFileStreamImportSource(fileIS, fileInfo.getFileName(), "UTF-8"); //$NON-NLS-1$
+        ImportSource src = new SingleFileStreamImportSource(fileIS, fileInfo.getFileName(), "UTF-8"); //$NON-NLS-1$
         importer.doImport(src, uploadDir, null);
       }
-      
+
     } catch (IOException e) {
       return Response.serverError().entity(e.toString()).build();
 //    } catch (InitializationException e) {
@@ -134,7 +133,7 @@ public class RepositoryImportResource {
 //  private static void addContentHandlers(final Importer importer, final IUnifiedRepository repository) {
 //    // Add the Pentaho Metadata Import Content Handlers
 //    final PentahoMetadataImportContentHandler metadataHandler = new PentahoMetadataImportContentHandler();
-//    final IMetadataDomainRepository metadataDomainRepository = new PentahoMetadataDomainRepository(repository);
+//    final IMetadataDomainRepository metadataDomainRepository = new PentahoMetadataDomainRepositoryTest(repository);
 //    metadataHandler.setDomainRepository(metadataDomainRepository);
 //    metadataHandler.setXmiParser(new XmiParser());
 //    importer.addImportContentHandler(100, metadataHandler);

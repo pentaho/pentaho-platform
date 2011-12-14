@@ -15,7 +15,7 @@
  * Copyright 2007 - 2008 Pentaho Corporation.  All rights reserved.
  *  
  */
-package org.pentaho.platform.repository2.unified.metadata;
+package org.pentaho.platform.repository.pmd;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,10 +49,6 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
 
   public SecurityAwarePentahoMetadataDomainRepository(final IUnifiedRepository repository) {
     super(repository);
-  }
-
-  public SecurityAwarePentahoMetadataDomainRepository(final PentahoMetadataDomainRepositoryBackend backend) {
-    super(backend);
   }
 
   public IPentahoSession getSession() {

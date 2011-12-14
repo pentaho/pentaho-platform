@@ -1,6 +1,7 @@
 package org.pentaho.platform.repository2.unified.fs;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -10,20 +11,25 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,22 +76,25 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
                                    RepositoryFileAcl acl, String versionMessage) {
     String fileNameWithPath = RepositoryFilenameUtils.concat(parentFolderId.toString(), file.getName());
     FileOutputStream fos = null;
+    File f = new File(fileNameWithPath);
+
     try {
-      File f = new File(fileNameWithPath);
       f.createNewFile();
       fos = new FileOutputStream(f);
       if (data instanceof SimpleRepositoryFileData) {
         fos.write(inputStreamToBytes(((SimpleRepositoryFileData) data).getStream()));
+      } else if (data instanceof NodeRepositoryFileData) {
+        fos.write(inputStreamToBytes(new ByteArrayInputStream(((NodeRepositoryFileData) data).getNode().toString().getBytes())));
       }
-
     } catch (FileNotFoundException e) {
-      throw new UnifiedRepositoryException();
+      throw new UnifiedRepositoryException("Error writing file [" + fileNameWithPath + "]", e);
     } catch (IOException e) {
-      throw new UnifiedRepositoryException();
+      throw new UnifiedRepositoryException("Error writing file [" + fileNameWithPath + "]", e);
     } finally {
       IOUtils.closeQuietly(fos);
     }
-    return file;
+
+    return internalGetFile(f);
   }
 
   public RepositoryFile createFolder(Serializable parentFolderId, RepositoryFile file, RepositoryFileAcl acl,
@@ -94,7 +103,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       String folderNameWithPath = parentFolderId + "/" + file.getName();
       File newFolder = new File(folderNameWithPath);
       newFolder.mkdir();
-      final RepositoryFile repositoryFolder= internalGetFile(newFolder);
+      final RepositoryFile repositoryFolder = internalGetFile(newFolder);
       return repositoryFolder;
     } catch (Throwable th) {
       throw new UnifiedRepositoryException();
@@ -255,6 +264,8 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       fos = new FileOutputStream(f, false);
       if (data instanceof SimpleRepositoryFileData) {
         fos.write(inputStreamToBytes(((SimpleRepositoryFileData) data).getStream()));
+      } else if (data instanceof NodeRepositoryFileData) {
+        fos.write(inputStreamToBytes(new ByteArrayInputStream(((NodeRepositoryFileData) data).getNode().toString().getBytes())));
       }
     } catch (FileNotFoundException e) {
       throw new UnifiedRepositoryException();
@@ -264,7 +275,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       IOUtils.closeQuietly(fos);
     }
 
-    return createFile(file.getPath(), file, data, createDefaultAcl(), null);
+    return getFile(file.getPath());
   }
 
   protected RepositoryFileAcl createDefaultAcl() {
@@ -280,11 +291,65 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   public void setFileMetadata(final Serializable fileId, Map<String, Serializable> metadataMap) {
-    throw new UnsupportedOperationException("This operation is not support by this repository");
+    final File targetFile = new File(fileId.toString());
+    if (targetFile.exists()) {
+      FileOutputStream fos = null;
+      try {
+        final File metadataDir = new File(targetFile.getParent() + File.separatorChar + ".metadata");
+        if (!metadataDir.exists()) {
+          metadataDir.mkdir();
+        }
+        final File metadataFile = new File(metadataDir, targetFile.getName());
+        if (!metadataFile.exists()) {
+          metadataFile.createNewFile();
+        }
+
+        final StringBuilder data = new StringBuilder();
+        for (String key : metadataMap.keySet()) {
+          data.append(key).append('=');
+          if (metadataMap.get(key) != null) {
+            data.append(metadataMap.get(key).toString());
+          }
+          data.append('\n');
+        }
+        fos = new FileOutputStream(metadataFile);
+        fos.write(data.toString().getBytes());
+      } catch (FileNotFoundException e) {
+        throw new UnifiedRepositoryException("Error writing file metadata [" + fileId + "]", e);
+      } catch (IOException e) {
+        throw new UnifiedRepositoryException("Error writing file metadata [" + fileId + "]", e);
+      } finally {
+        IOUtils.closeQuietly(fos);
+      }
+    }
   }
 
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
-    throw new UnsupportedOperationException("This operation is not support by this repository");
+    final String metadataFilename = FilenameUtils.concat(FilenameUtils.concat(
+        FilenameUtils.getFullPathNoEndSeparator(fileId.toString()), ".metadata"),
+        FilenameUtils.getName(fileId.toString()));
+    final Map<String, Serializable> metadata = new HashMap<String, Serializable>();
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new FileReader(metadataFilename));
+      String data = reader.readLine();
+      while (data != null) {
+        final int pos = data.indexOf('=');
+        if (pos > 0) {
+          final String key = data.substring(0, pos);
+          final String value = (data.length() > pos ? data.substring(pos + 1) : null);
+          metadata.put(key, value);
+        }
+        data = reader.readLine();
+      }
+    } catch (FileNotFoundException e) {
+      // Do nothing ... metadata empty
+    } catch (IOException e) {
+      throw new UnifiedRepositoryException("Error reading metadata [" + fileId + "]", e);
+    } finally {
+      IOUtils.closeQuietly(reader);
+    }
+    return metadata;
   }
 
   public void copyFile(Serializable fileId, String destAbsPath, String versionMessage) {

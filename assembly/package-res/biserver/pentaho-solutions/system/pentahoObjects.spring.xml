@@ -13,40 +13,51 @@ default-lazy-init is set to true since some of these object make calls into
 PentahoSystem which is initialized after Spring
  -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
-  default-lazy-init="true">
-  
-  <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype" />
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+       default-lazy-init="true">
+
+  <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype"/>
   <!-- Uncomment the following line to use a filesystem-based repository. Note: does not support ACLs.  -->
   <!--  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository" scope="session" />-->
   <!-- Uncomment the following line to use a filesystem/db-based repository with meta information stored in a db  -->
-  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.dbbased.DbBasedSolutionRepository" scope="session" />
+  <bean id="ISolutionRepository" class="org.pentaho.platform.repository.solution.dbbased.DbBasedSolutionRepository"
+        scope="session"/>
   <!-- runtime repositories are not used in the current implmentation of the BI platform -->
   <!-- <bean id="IRuntimeRepository" class="org.pentaho.platform.repository.runtime.RuntimeRepository" scope="session" /> -->
-  <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton" />
-  <bean id="IUITemplater" class="org.pentaho.platform.web.http.WebTemplateHelper" scope="singleton" />
+  <bean id="IAuditEntry" class="org.pentaho.platform.engine.services.audit.AuditFileEntry" scope="singleton"/>
+  <bean id="IUITemplater" class="org.pentaho.platform.web.http.WebTemplateHelper" scope="singleton"/>
   <!-- Concrete implementation of IMetadataDomainRepository -->
-  <bean id="IMetadataDomainRepositoryImpl" class="org.pentaho.platform.repository2.unified.metadata.SecurityAwarePentahoMetadataDomainRepository" scope="singleton">
-    <constructor-arg><ref bean="unifiedRepository"/></constructor-arg>
+  <bean id="IMetadataDomainRepositoryImpl"
+        class="org.pentaho.platform.repository.pmd.SecurityAwarePentahoMetadataDomainRepository" scope="singleton">
+    <constructor-arg>
+      <ref bean="unifiedRepository"/>
+    </constructor-arg>
   </bean>
-  <!-- Wrap the concrete IMetadataDomainRepository implementation with one that caches domains per session -->  
-  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomainRepository" scope="singleton">
-    <constructor-arg><ref bean="IMetadataDomainRepositoryImpl"/></constructor-arg>
+  <!-- Wrap the concrete IMetadataDomainRepository implementation with one that caches domains per session -->
+  <bean id="IMetadataDomainRepository"
+        class="org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomainRepository" scope="singleton">
+    <constructor-arg>
+      <ref bean="IMetadataDomainRepositoryImpl"/>
+    </constructor-arg>
   </bean>
   <!--  Use this schema factory to disable PMD security -->
-  <!--  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.repository2.unified.metadata.PentahoMetadataDomainRepository" scope="singleton"/>-->
-  <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService" scope="session" />
-  <bean id="file" class="org.pentaho.platform.plugin.outputs.FileOutputHandler" scope="session" />
-  <bean id="contentrepo" class="org.pentaho.platform.repository2.unified.fileio.RepositoryContentOutputHandler" scope="session"/>
-  <bean id="vfs-ftp" class="org.pentaho.platform.plugin.outputs.ApacheVFSOutputHandler" scope="session" />
-  <bean id="IAclPublisher" class="org.pentaho.platform.engine.security.acls.AclPublisher" scope="singleton" />
-  <bean id="IAclVoter" class="org.pentaho.platform.engine.security.acls.voter.PentahoBasicAclVoter" scope="singleton" />
-  <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton" />
-  <bean id="ICacheManager" class="org.pentaho.platform.plugin.services.cache.CacheManager" scope="singleton" />
+  <!--  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.repository.pmd.CachingPentahoMetadataDomainRepository" scope="singleton"/>-->
+  <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService"
+        scope="session"/>
+  <bean id="file" class="org.pentaho.platform.plugin.outputs.FileOutputHandler" scope="session"/>
+  <bean id="contentrepo" class="org.pentaho.platform.repository2.unified.fileio.RepositoryContentOutputHandler"
+        scope="session"/>
+  <bean id="vfs-ftp" class="org.pentaho.platform.plugin.outputs.ApacheVFSOutputHandler" scope="session"/>
+  <bean id="IAclPublisher" class="org.pentaho.platform.engine.security.acls.AclPublisher" scope="singleton"/>
+  <bean id="IAclVoter" class="org.pentaho.platform.engine.security.acls.voter.PentahoBasicAclVoter" scope="singleton"/>
+  <bean id="IVersionHelper" class="org.pentaho.platform.util.VersionHelper" scope="singleton"/>
+  <bean id="ICacheManager" class="org.pentaho.platform.plugin.services.cache.CacheManager" scope="singleton"/>
   <bean id="IScheduler2" class="org.pentaho.platform.scheduler2.quartz.QuartzScheduler" scope="singleton"/>
-  <bean id="IConditionalExecution" class="org.pentaho.platform.plugin.condition.javascript.ConditionalExecution" scope="prototype" />
-  <bean id="IMessageFormatter" class="org.pentaho.platform.engine.services.MessageFormatter" scope="singleton" />
-  <bean id="INavigationComponent" class="org.pentaho.platform.uifoundation.component.xml.NavigationComponent" scope="prototype" />
+  <bean id="IConditionalExecution" class="org.pentaho.platform.plugin.condition.javascript.ConditionalExecution"
+        scope="prototype"/>
+  <bean id="IMessageFormatter" class="org.pentaho.platform.engine.services.MessageFormatter" scope="singleton"/>
+  <bean id="INavigationComponent" class="org.pentaho.platform.uifoundation.component.xml.NavigationComponent"
+        scope="prototype"/>
   <!--
     IDBDatasourceService - options are: 
     org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService
@@ -55,94 +66,116 @@ PentahoSystem which is initialized after Spring
     org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService  (Default option)
   -->
-  <bean id="IDBDatasourceService" class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService" scope="singleton" />
-  <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton" />
-  <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider" scope="singleton" />
-  
-  <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager" scope="singleton" />
-  <bean id="IPluginResourceLoader" class="org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader" scope="singleton" />
-  <bean id="IPluginPerspectiveManager" class="org.pentaho.platform.plugin.services.pluginmgr.perspective.DefaultPluginPerspectiveManager" scope="singleton" />
-  <bean id="IServiceManager" class="org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager" scope="singleton">
-    <property name="serviceTypeManagers"><list>
+  <bean id="IDBDatasourceService"
+        class="org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledOrJndiDatasourceService"
+        scope="singleton"/>
+  <bean id="IPasswordService" class="org.pentaho.platform.util.Base64PasswordService" scope="singleton"/>
+  <bean id="IPluginProvider" class="org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider"
+        scope="singleton"/>
+
+  <bean id="IPluginManager" class="org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager"
+        scope="singleton"/>
+  <bean id="IPluginResourceLoader" class="org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader"
+        scope="singleton"/>
+  <bean id="IPluginPerspectiveManager"
+        class="org.pentaho.platform.plugin.services.pluginmgr.perspective.DefaultPluginPerspectiveManager"
+        scope="singleton"/>
+  <bean id="IServiceManager" class="org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager"
+        scope="singleton">
+    <property name="serviceTypeManagers">
+      <list>
         <ref bean="gwtServiceManager"/>
         <ref bean="axisServiceManager"/>
-      </list></property>
+      </list>
+    </property>
   </bean>
-  <bean id="ITempFileDeleter" class="org.pentaho.platform.web.http.session.SessionTempFileDeleter" scope="prototype" />
-  <bean id="gwtServiceManager" class="org.pentaho.platform.plugin.services.pluginmgr.servicemgr.GwtRpcServiceManager" scope="singleton"/>
-  <bean id="axisServiceManager" class="org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceManager" scope="singleton"/>
-  
-  <bean id="IChartBeansGenerator" class="org.pentaho.platform.plugin.action.chartbeans.DefaultChartBeansGenerator" scope="singleton" />
-  
+  <bean id="ITempFileDeleter" class="org.pentaho.platform.web.http.session.SessionTempFileDeleter" scope="prototype"/>
+  <bean id="gwtServiceManager" class="org.pentaho.platform.plugin.services.pluginmgr.servicemgr.GwtRpcServiceManager"
+        scope="singleton"/>
+  <bean id="axisServiceManager" class="org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceManager"
+        scope="singleton"/>
+
+  <bean id="IChartBeansGenerator" class="org.pentaho.platform.plugin.action.chartbeans.DefaultChartBeansGenerator"
+        scope="singleton"/>
+
   <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory, 
-       not directly from the PentahoObjectFactory. -->
-  <bean id="connection-SQL" class="org.pentaho.platform.plugin.services.connections.sql.SQLConnection" scope="prototype" >
-          <property name="fallBackToNonscrollableOnError" value="true" />
+not directly from the PentahoObjectFactory. -->
+  <bean id="connection-SQL" class="org.pentaho.platform.plugin.services.connections.sql.SQLConnection"
+        scope="prototype">
+    <property name="fallBackToNonscrollableOnError" value="true"/>
   </bean>
-  <bean id="connection-MDX" class="org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection" scope="prototype" >
-  	      <property name="useExtendedColumnNames" value="true" />
+  <bean id="connection-MDX" class="org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection"
+        scope="prototype">
+    <property name="useExtendedColumnNames" value="true"/>
   </bean>
-  <bean id="connection-XML" class="org.pentaho.platform.plugin.services.connections.xquery.XQConnection" scope="prototype" />
-  <bean id="connection-HQL" class="org.pentaho.platform.plugin.services.connections.hql.HQLConnection" scope="prototype" />
+  <bean id="connection-XML" class="org.pentaho.platform.plugin.services.connections.xquery.XQConnection"
+        scope="prototype"/>
+  <bean id="connection-HQL" class="org.pentaho.platform.plugin.services.connections.hql.HQLConnection"
+        scope="prototype"/>
 
   <!-- actual bean defined in repository.spring.xml; aliased here -->
   <alias name="unifiedRepository" alias="IUnifiedRepository"/>
-  
+
   <!-- actual bean defined in repository.spring.xml; aliased here -->
   <alias name="backingRepositoryLifecycleManager" alias="IBackingRepositoryLifecycleManager"/>
-  
+
   <!-- actual bean defined in repository.spring.xml; aliased here -->
   <alias name="authorizationPolicy" alias="IAuthorizationPolicy"/>
 
   <!-- actual bean defined in repository.spring.xml; aliased here -->
   <alias name="roleAuthorizationPolicyRoleBindingDao" alias="IRoleAuthorizationPolicyRoleBindingDao"/>
-  
+
   <!-- actual bean defined in applicationContext-pentaho-security-*.xml; aliased here -->
   <alias name="userRoleListService" alias="IUserRoleListService"/>
-  
+
   <!-- actual bean defined in applicationContext-spring-security.xml; aliased here -->
   <alias name="authenticationManager" alias="AuthenticationManager"/>
-  
-  <!-- actual bean defined in applicationContext-spring-security-*.xml; aliased here --> 
-  <alias name="userDetailsService" alias="UserDetailsService"/> 
 
-  <bean id="IMondrianCatalogService" class="org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper" scope="singleton" />
+  <!-- actual bean defined in applicationContext-spring-security-*.xml; aliased here -->
+  <alias name="userDetailsService" alias="UserDetailsService"/>
 
-  <bean id="IDatabaseDialectService" class="org.pentaho.database.service.DatabaseDialectService" scope="singleton" />
-  
-  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository.JcrBackedDatasourceMgmtService" scope="singleton">
-    <constructor-arg ref="unifiedRepository" />
-    <constructor-arg ref="IDatabaseDialectService" />
+  <bean id="IMondrianCatalogService" class="org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper"
+        scope="singleton"/>
+
+  <bean id="IDatabaseDialectService" class="org.pentaho.database.service.DatabaseDialectService" scope="singleton"/>
+
+  <bean id="IDatasourceMgmtService" class="org.pentaho.platform.repository.JcrBackedDatasourceMgmtService"
+        scope="singleton">
+    <constructor-arg ref="unifiedRepository"/>
+    <constructor-arg ref="IDatabaseDialectService"/>
   </bean>
 
-  <bean id="mondrianDatasourceService" class="org.pentaho.platform.datasource.MondrianDatasourceService" scope="singleton" >
-	<constructor-arg ref="IMondrianCatalogService" />
-	<constructor-arg ref="IMetadataDomainRepository" />			
-    	<constructor-arg ref="authorizationPolicy" />
+  <bean id="mondrianDatasourceService" class="org.pentaho.platform.datasource.MondrianDatasourceService"
+        scope="singleton">
+    <constructor-arg ref="IMondrianCatalogService"/>
+    <constructor-arg ref="IMetadataDomainRepository"/>
+    <constructor-arg ref="authorizationPolicy"/>
   </bean>
-  
-  <bean id="jdbcDatasourceService" class="org.pentaho.platform.datasource.JDBCDatasourceService" scope="singleton" >
-	<constructor-arg ref="IDatasourceMgmtService" />
-	<constructor-arg ref="authorizationPolicy" />
-	<constructor-arg ref="IDatabaseDialectService" />
+
+  <bean id="jdbcDatasourceService" class="org.pentaho.platform.datasource.JDBCDatasourceService" scope="singleton">
+    <constructor-arg ref="IDatasourceMgmtService"/>
+    <constructor-arg ref="authorizationPolicy"/>
+    <constructor-arg ref="IDatabaseDialectService"/>
   </bean>
-  <bean id="metadataDatasourceService" class="org.pentaho.platform.datasource.MetadataDatasourceService" scope="singleton" >
-	<constructor-arg ref="IMetadataDomainRepository" />
-	<constructor-arg ref="authorizationPolicy" />
+  <bean id="metadataDatasourceService" class="org.pentaho.platform.datasource.MetadataDatasourceService"
+        scope="singleton">
+    <constructor-arg ref="IMetadataDomainRepository"/>
+    <constructor-arg ref="authorizationPolicy"/>
   </bean>
-  
-  <bean id="IDatasourceServiceManager" class="org.pentaho.platform.datasource.DefaultDatasourceServiceManager" scope="singleton">
+
+  <bean id="IDatasourceServiceManager" class="org.pentaho.platform.datasource.DefaultDatasourceServiceManager"
+        scope="singleton">
     <constructor-arg>
       <list>
-        <ref bean="mondrianDatasourceService" />
-        <ref bean="jdbcDatasourceService" />
-        <ref bean="metadataDatasourceService" />
+        <ref bean="mondrianDatasourceService"/>
+        <ref bean="jdbcDatasourceService"/>
+        <ref bean="metadataDatasourceService"/>
       </list>
     </constructor-arg>
   </bean>
 
-<!--  This mondrian user/role mapper assumes that roles from the platform also exist in mondrian -->
-  
+  <!--  This mondrian user/role mapper assumes that roles from the platform also exist in mondrian -->
+
   <!--
   Disabled by default in 3.5.2. In trunk, this should be enabled. 
   
@@ -151,27 +184,27 @@ PentahoSystem which is initialized after Spring
         class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianOneToOneUserRoleListMapper" 
         scope="singleton" />
   -->
-  
+
   <!--  
-  
-  This sample mapper assumes that a translator is needed (in the form of a Map) to map a platform role to a mondrian role
-  
-  Note- Key = platform role, value = mondrian role
-  
-  <bean id="Mondrian-UserRoleMapper" 
-        name="Mondrian-SampleLookupMap-UserRoleMapper" 
-        class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianLookupMapUserRoleListMapper" 
-        scope="singleton">
-    <property name="lookupMap">
-    	<map>
-    		<entry key="ceo" value="M_CEO" />
-    		<entry key="cto" value="M_CTO" />
-    		<entry key="dev" value="M_DEV" />
-    	</map>
-    </property>
-  </bean>
-   -->
-  
+
+ This sample mapper assumes that a translator is needed (in the form of a Map) to map a platform role to a mondrian role
+
+ Note- Key = platform role, value = mondrian role
+
+ <bean id="Mondrian-UserRoleMapper"
+       name="Mondrian-SampleLookupMap-UserRoleMapper"
+       class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianLookupMapUserRoleListMapper"
+       scope="singleton">
+   <property name="lookupMap">
+     <map>
+       <entry key="ceo" value="M_CEO" />
+       <entry key="cto" value="M_CTO" />
+       <entry key="dev" value="M_DEV" />
+     </map>
+   </property>
+ </bean>
+  -->
+
   <!--  
   This sample mapper assumes that every user has their mondrian roles in their session under then named session variable
   
@@ -179,18 +212,22 @@ PentahoSystem which is initialized after Spring
         name="Mondrian-SampleUserSession-UserRoleMapper" 
         class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianUserSessionUserRoleListMapper" 
         scope="singleton">
-  	<property name="sessionProperty" value="MondrianUserRoles" />
+    <property name="sessionProperty" value="MondrianUserRoles" />
   </bean>
   
   -->
-  <bean id="ReportCache" class="org.pentaho.reporting.platform.plugin.cache.NullReportCache" scope="singleton" />
-  <bean id="PentahoNameGenerator" class="org.pentaho.reporting.platform.plugin.repository.TempDirectoryNameGenerator" scope="prototype" />
-  <bean id="MondrianConnectionProvider" class="org.pentaho.reporting.platform.plugin.connection.PentahoMondrianConnectionProvider" scope="singleton" />
-    
-  <bean id="metadataqueryexec-SQL" class="org.pentaho.platform.plugin.services.connections.metadata.sql.SqlMetadataQueryExec" scope="prototype" />
-  <bean id="sqlGenerator" class="org.pentaho.metadata.query.impl.sql.SqlGenerator" scope="prototype" />
-  <bean id="IThemeManager" class="org.pentaho.platform.web.html.themes.DefaultThemeManager" scope="singleton" />
+  <bean id="ReportCache" class="org.pentaho.reporting.platform.plugin.cache.NullReportCache" scope="singleton"/>
+  <bean id="PentahoNameGenerator" class="org.pentaho.reporting.platform.plugin.repository.TempDirectoryNameGenerator"
+        scope="prototype"/>
+  <bean id="MondrianConnectionProvider"
+        class="org.pentaho.reporting.platform.plugin.connection.PentahoMondrianConnectionProvider" scope="singleton"/>
 
-  <bean id="ICacheExpirationRegistry" class="org.pentaho.platform.plugin.services.cache.CacheExpirationRegistry" scope="singleton" />
+  <bean id="metadataqueryexec-SQL"
+        class="org.pentaho.platform.plugin.services.connections.metadata.sql.SqlMetadataQueryExec" scope="prototype"/>
+  <bean id="sqlGenerator" class="org.pentaho.metadata.query.impl.sql.SqlGenerator" scope="prototype"/>
+  <bean id="IThemeManager" class="org.pentaho.platform.web.html.themes.DefaultThemeManager" scope="singleton"/>
+
+  <bean id="ICacheExpirationRegistry" class="org.pentaho.platform.plugin.services.cache.CacheExpirationRegistry"
+        scope="singleton"/>
 
 </beans>

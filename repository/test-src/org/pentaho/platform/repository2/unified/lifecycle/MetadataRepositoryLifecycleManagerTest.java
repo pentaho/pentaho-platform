@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.repository.pmd.MetadataRepositoryLifecycleManager;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -116,7 +117,7 @@ public class MetadataRepositoryLifecycleManagerTest extends TestCase {
   }
 
   private void createFolder(final String folderName) {
-    final String [] folders = StringUtils.split(folderName, '/');
+    final String[] folders = StringUtils.split(folderName, '/');
     File currentDir = tempDir;
     for (final String newFolder : folders) {
       currentDir = new File(currentDir, newFolder);
