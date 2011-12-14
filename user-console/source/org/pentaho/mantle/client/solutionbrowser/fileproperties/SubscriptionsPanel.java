@@ -19,19 +19,13 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
-import java.util.ArrayList;
-
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
-import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.IFileSummary;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -48,8 +42,6 @@ import com.google.gwt.xml.client.Document;
  * 
  */
 public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
-  private boolean dirty = false;
-  private boolean wasEnabled = false;
   private CheckBox enableSubscriptions = new CheckBox(Messages.getString("enableSubscription")); //$NON-NLS-1$
 
   private ListBox availableLB = new ListBox(true);
@@ -60,11 +52,8 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
   private Button moveAllRightBtn = new Button();
   private Button moveAllLeftBtn = new Button();
 
-  private IFileSummary fileSummary = null;
-
   public SubscriptionsPanel() {
     layout();
-    dirty = false;
 
     moveRightBtn.setStylePrimaryName("pentaho-button");
     moveLeftBtn.setStylePrimaryName("pentaho-button");
@@ -85,7 +74,6 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
     this.setSize("100%", "100%"); //$NON-NLS-1$//$NON-NLS-2$
     enableSubscriptions.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
-        dirty = true;
         updateControls();
       }
     });
@@ -187,7 +175,6 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
   }
 
   protected void moveItems(ListBox srcLB, ListBox destLB, boolean moveAll) {
-    dirty = true;
     int itemCount = srcLB.getItemCount();
     int srcSelectionIndex = srcLB.getSelectedIndex();
 
@@ -246,10 +233,7 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
    * org.pentaho.mantle.client.objects.SolutionFileInfo)
    */
   public void init(IFileSummary fileSummary, SolutionFileInfo fileInfo) {
-    this.fileSummary = fileSummary;
-
     updateState();
-    wasEnabled = enableSubscriptions.getValue();
   }
 
   protected void updateControls() {

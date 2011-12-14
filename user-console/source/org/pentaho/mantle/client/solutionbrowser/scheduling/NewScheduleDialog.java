@@ -384,10 +384,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   /* (non-Javadoc)
    * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#finish()
    */
-  @SuppressWarnings("deprecation")
   @Override
   protected boolean onFinish() {
-            
     hide();
     showScheduleParamsDialog();
     return true;

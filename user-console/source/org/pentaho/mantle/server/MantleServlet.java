@@ -74,7 +74,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
   private static final long serialVersionUID = 119274827408056040L;
 
   protected static final Log logger = LogFactory.getLog(MantleServlet.class);
-  private static final String DESC_SEPERATOR = " : "; //$NON-NLS-1$
 
   protected void onBeforeRequestDeserialized(String serializedRequest) {
     PentahoSystem.systemEntryPoint();

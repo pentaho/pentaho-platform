@@ -23,7 +23,6 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
-import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleParamsWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
@@ -36,10 +35,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
 
 /**
  * @author wseyler
@@ -85,7 +82,6 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   /* (non-Javadoc)
    * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#finish()
    */
-  @SuppressWarnings("deprecation")
   @Override
   protected boolean onFinish() {
     JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(parentDialog.getSchedule().toString());

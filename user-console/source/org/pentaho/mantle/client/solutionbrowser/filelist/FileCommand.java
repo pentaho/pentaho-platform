@@ -34,7 +34,6 @@ import org.pentaho.mantle.client.commands.NewFolderCommand;
 import org.pentaho.mantle.client.commands.RestoreFileCommand;
 import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
-import org.pentaho.mantle.client.commands.ShowGeneratedContentCommand;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
