@@ -74,5 +74,6 @@ public interface IMondrianCatalogService {
    * @param pentahoSession
    */
   public void reInit(IPentahoSession pentahoSession) throws MondrianCatalogServiceException;
-    
+  
+  public void importSchema(String analysisFile, String databaseConnection);
 }

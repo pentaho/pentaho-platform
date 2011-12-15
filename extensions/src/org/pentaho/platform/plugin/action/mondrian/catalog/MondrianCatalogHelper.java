@@ -18,6 +18,7 @@
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -33,6 +34,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import mondrian.i18n.LocalizingDynamicSchemaProcessor;
 import mondrian.olap.MondrianDef;
@@ -81,10 +85,13 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
+import org.pentaho.platform.repository2.unified.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.repository2.unified.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 
 /**
@@ -514,6 +521,36 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       MondrianCatalogHelper.logger.debug("refreshing from dataSourcesConfig (" + dataSourcesConfig + ")"); //$NON-NLS-1$ //$NON-NLS-2$
     }
     reInit(pentahoSession);
+  }
+  
+  public void importSchema(String analysisFile, String databaseConnection) {
+	  		
+	  try {
+		  String datasourceInfo = "Provider=mondrian;DataSource=" + databaseConnection;
+		  
+		  String TMP_FILE_PATH = File.separatorChar + "system" + File.separatorChar + File.separatorChar + "tmp" + File.separatorChar;
+		  String sysTmpDir = PentahoSystem.getApplicationContext().getSolutionPath(TMP_FILE_PATH);
+	 	  File mondrianFile = new File(sysTmpDir + File.separatorChar + analysisFile);
+
+	 	  FileInputStream parsingInputStream = new FileInputStream(mondrianFile);
+	 	  DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		  DocumentBuilder builder = factory.newDocumentBuilder();
+		  org.w3c.dom.Document document = builder.parse(parsingInputStream);
+		  NodeList schemas = document.getElementsByTagName("Schema");
+		  Node schema = schemas.item(0);
+		  Node name = schema.getAttributes().getNamedItem("name");
+		  String catalogName = name.getTextContent();
+		  parsingInputStream.close();
+		  
+	 	  FileInputStream schemaInputStream = new FileInputStream(mondrianFile);
+	  
+   	      MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper();
+		  helper.addSchema(schemaInputStream, catalogName, datasourceInfo);
+	    } catch(Exception e) {
+	    	 throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+	    	          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$ 
+	    	          Reason.valueOf(e.getMessage()));
+	    }
   }
 
   @Deprecated
