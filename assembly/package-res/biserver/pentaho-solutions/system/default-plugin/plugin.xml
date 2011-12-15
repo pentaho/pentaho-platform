@@ -1,35 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin title="BI Server default plugin" xmlns:pen="http://www.pentaho.org/2008/xul">
+<plugin title="BI Server default plugin">
 
-    <content-generator id="ws-services" type="ws-services" title="Web services discovery page" class="org.pentaho.platform.plugin.services.webservices.content.StyledHtmlAxisServiceLister"/>
-    <content-generator id="ws-run" type="ws-run" title="Web services execution" class="org.pentaho.platform.plugin.services.webservices.content.AxisServiceExecutor"/>
-    <content-generator id="ws-wsdl" type="ws-wsdl" title="Web services execution" class="org.pentaho.platform.plugin.services.webservices.content.AxisServiceWsdlGenerator"/>
+  <content-generator id="ws-services" type="ws-services" title="Web services discovery page"
+                     class="org.pentaho.platform.plugin.services.webservices.content.StyledHtmlAxisServiceLister"/>
+  <content-generator id="ws-run" type="ws-run" title="Web services execution"
+                     class="org.pentaho.platform.plugin.services.webservices.content.AxisServiceExecutor"/>
+  <content-generator id="ws-wsdl" type="ws-wsdl" title="Web services execution"
+                     class="org.pentaho.platform.plugin.services.webservices.content.AxisServiceWsdlGenerator"/>
 
-	<perspective id="default.perspective" title="${BI.Browser}" layout-priority="-1" resourcebundle="content/default-plugin/resources/messages/messages">
-	</perspective>
+  <perspective id="default.perspective" title="${BI.Browser}" layout-priority="-1"
+               resourcebundle="content/default-plugin/resources/messages/messages">
+  </perspective>
 
-	<perspective id="admin.perspective" title="${admin}" layout-priority="10" required-security-action="org.pentaho.security.administerSecurity" layout-priority="0" resourcebundle="content/default-plugin/resources/messages/messages">
-	</perspective>
+  <perspective id="admin.perspective" title="${admin}" layout-priority="10"
+               required-security-action="org.pentaho.security.administerSecurity"
+               resourcebundle="content/default-plugin/resources/messages/messages">
+  </perspective>
 
-	<perspective id="workspace.perspective" title="${workspace}" layout-priority="20" resourcebundle="content/default-plugin/resources/messages/messages">
-	</perspective>
-    
-    <overlays>
-    	<overlay id="startup.jpivot" resourcebundle="content/default-plugin/resources/messages/messages">
-			<menubar id="newmenu">
-				<menuitem id="jpivotMenuItem" label="${analysisView}" command="mainMenubarHandler.executeMantleCommand('AnalysisViewCommand')" />		
-			</menubar>
-		</overlay>    		
-    </overlays>  
-    
-    <external-resources>
-        <file context="global">js/themes.js</file>
-      <file context="global">content/common-ui/resources/themes/jquery.js</file>
-    </external-resources>
-    
-   <static-paths>
-     <static-path url="/default-plugin/resources" localFolder="resources"/>
-   </static-paths>
+  <perspective id="workspace.perspective" title="${workspace}" layout-priority="20"
+               resourcebundle="content/default-plugin/resources/messages/messages">
+  </perspective>
+
+  <overlays>
+    <overlay id="startup.jpivot" resourcebundle="content/default-plugin/resources/messages/messages">
+      <menubar id="newmenu">
+        <menuitem id="jpivotMenuItem" label="${analysisView}"
+                  command="mainMenubarHandler.executeMantleCommand('AnalysisViewCommand')"/>
+      </menubar>
+    </overlay>
+  </overlays>
+
+  <external-resources>
+    <file context="global">js/themes.js</file>
+    <file context="global">content/common-ui/resources/themes/jquery.js</file>
+  </external-resources>
+
+  <static-paths>
+    <static-path url="/default-plugin/resources" localFolder="resources"/>
+  </static-paths>
 
 
 </plugin>
