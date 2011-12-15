@@ -120,8 +120,12 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
           if (response.getStatusCode() == 200) {
             setDone(true);
             ScheduleParamsDialog.this.hide();
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("schedule"), Messages.getString("fileScheduled", filePath.substring(filePath.lastIndexOf("/") + 1)), //$NON-NLS-1$ //$NON-NLS-2$
+                false, false, true);
+            dialogBox.center();
+
           } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRun"), //$NON-NLS-1$ //$NON-NLS-2$
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
                 false, false, true);
             dialogBox.center();
             setDone(false);
@@ -130,7 +134,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
         
       });
     } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRun"), //$NON-NLS-1$ //$NON-NLS-2$
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
           false, false, true);
       dialogBox.center();
       setDone(false);

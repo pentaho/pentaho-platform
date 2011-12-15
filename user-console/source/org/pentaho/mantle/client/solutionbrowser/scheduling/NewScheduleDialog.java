@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.ScheduleType;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
@@ -38,12 +39,18 @@ import org.pentaho.mantle.login.client.MantleLoginDialog;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayInteger;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -62,15 +69,19 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   ScheduleParamsDialog scheduleParamsDialog;
 
   Boolean done = false;
+  boolean hasParams;
 
-  public NewScheduleDialog(String filePath) {
+  public NewScheduleDialog(String filePath, boolean hasParams) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
+    this.hasParams = hasParams;
     this.filePath = filePath;
     scheduleEditorWizardPanel = new ScheduleEditorWizardPanel();
     IWizardPanel[] wizardPanels = {scheduleEditorWizardPanel};
     this.setWizardPanels(wizardPanels);
     setPixelSize(475, 465);
-    finishButton.setText(Messages.getString("nextStep"));
+    if (hasParams) {
+      finishButton.setText(Messages.getString("nextStep"));
+    }
    }
 
   @SuppressWarnings("deprecation")
@@ -388,8 +399,51 @@ public class NewScheduleDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onFinish() {
-    hide();
-    showScheduleParamsDialog();
+    if (hasParams) {
+      hide();
+      showScheduleParamsDialog();
+    } else {
+      JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(getSchedule().toString());
+
+      RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
+      scheduleFileRequestBuilder.setHeader("Content-Type", "application/json");  //$NON-NLS-1$//$NON-NLS-2$
+
+      try {
+        scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
+
+          @Override
+          public void onError(Request request, Throwable exception) {
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+            dialogBox.center();
+            setDone(false);
+          }
+
+          @Override
+          public void onResponseReceived(Request request, Response response) {
+            if (response.getStatusCode() == 200) {
+              setDone(true);
+              NewScheduleDialog.this.hide();
+              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("schedule"), Messages.getString("fileScheduled", filePath.substring(filePath.lastIndexOf("/") + 1)), //$NON-NLS-1$ //$NON-NLS-2$
+                  false, false, true);
+              dialogBox.center();
+
+            } else {
+              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
+                  false, false, true);
+              dialogBox.center();
+              setDone(false);
+            }                
+          }
+          
+        });
+      } catch (RequestException e) {
+        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
+            false, false, true);
+        dialogBox.center();
+        setDone(false);
+      }
+      setDone(true);
+    }
     return true;
   }
 

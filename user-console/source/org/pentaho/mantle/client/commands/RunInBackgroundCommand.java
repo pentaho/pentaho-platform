@@ -108,8 +108,11 @@ public class RunInBackgroundCommand extends AbstractCommand {
                   @Override
                   public void onResponseReceived(Request request, Response response) {
                     if (response.getStatusCode() == 200) {
+                      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("runInBackground"), Messages.getString("backgroundExecutionStarted", repositoryFile.getName()), //$NON-NLS-1$ //$NON-NLS-2$
+                          false, false, true);
+                      dialogBox.center();
                     } else {
-                      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRun"), //$NON-NLS-1$ //$NON-NLS-2$
+                      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
                           false, false, true);
                       dialogBox.center();
                     }                
@@ -117,7 +120,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
                   
                 });
               } catch (RequestException e) {
-                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotRun"), //$NON-NLS-1$ //$NON-NLS-2$
+                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
                     false, false, true);
                 dialogBox.center();
               }

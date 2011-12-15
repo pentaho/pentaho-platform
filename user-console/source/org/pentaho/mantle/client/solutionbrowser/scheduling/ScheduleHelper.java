@@ -36,8 +36,36 @@ public class ScheduleHelper {
     final AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 
       public void onSuccess(Boolean result) {
-        final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath);
-        dialog.center();
+        String moduleBaseURL = GWT.getModuleBaseURL();
+        String moduleName = GWT.getModuleName();
+        String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+        String urlPath = fileNameWithPath.replaceAll("/", ":");
+        RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath + "/parameterizable");    
+        scheduleFileRequestBuilder.setHeader("accept", "text/plain");    
+        try {
+          scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
+
+           public void onError(Request request, Throwable exception) {
+             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+             dialogBox.center();
+            }
+
+            public void onResponseReceived(Request request, Response response) {
+              if (response.getStatusCode() == Response.SC_OK) {
+                final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, Boolean.parseBoolean(response.getText()));
+                dialog.center();
+              } else {
+                MessageDialogBox dialogBox = new MessageDialogBox(
+                    Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true);   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                dialogBox.center();    
+              }
+            }
+            
+          });
+        } catch (RequestException e) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+        }
       }
 
       public void onFailure(Throwable caught) {
