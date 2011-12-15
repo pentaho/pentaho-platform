@@ -488,7 +488,10 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     }
 
     {
-      // Delete a model that doesn't exist
+      // Delete a model that does exist
+      // NOTE: if caching is enabled, the original STEEL_WHEELS is cached and is the one that will be modified ...
+      //    ... so we need to flush the cache to prevent that from happening
+      domainRepository.flushDomains();
       domainRepository.removeModel(STEEL_WHEELS, validModelName);
       final Domain test = domainRepository.getDomain(STEEL_WHEELS);
       assertNotNull(test);
