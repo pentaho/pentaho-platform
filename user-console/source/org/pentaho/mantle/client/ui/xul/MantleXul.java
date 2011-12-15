@@ -195,7 +195,9 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
 
   public void removeOverlay(String id) {
     try {
-      container.removeOverlay(id);
+      if (container != null) {
+        container.removeOverlay(id);
+      }
     } catch (XulException e) {
     }
   }
