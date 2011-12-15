@@ -33,6 +33,7 @@ import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.engine.services.solution.ActionSequenceCompatibilityFormatter;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.beans.ActionHarness;
 import org.quartz.Job;
@@ -133,7 +134,7 @@ public class ActionAdapterQuartzJob implements Job {
         if (streamProvider != null) {
           actionParams.put("inputStream", streamProvider.getInputStream());
         }
-        actionHarness.setValues(actionParams);
+        actionHarness.setValues(actionParams, new ActionSequenceCompatibilityFormatter());
         if (streamProvider != null) {
           actionParams.clear();
           if (actionBean instanceof IStreamingAction) {

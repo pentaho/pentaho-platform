@@ -157,6 +157,33 @@ public class BeanUtil {
    * @see ValueSetErrorCallback
    * @see PropertyNameFormatter
    */
+  public void setValue(String propertyName, Object value, PropertyNameFormatter... formatters) throws Exception {
+    setValue(propertyName, value, defaultCallback, formatters);
+  }
+  
+  /**
+   * Set a bean property with a given value, allowing the caller to respond to various error states
+   * that may be encountered during the attempt to set the value on the bean.  This method also allows
+   * the caller to specify formatters that will modify the property name to match what the bean
+   * expects as the true name of the property.  This can be helpful when you are trying to map
+   * parameters from a source that follows a convention that is not Java Bean spec compliant.
+   * @param propertyName  the bean property to set
+   * @param value  the value to set on the bean.  If value is an instance of {@link ValueGenerator},
+   * then the value will be derived by calling {@link ValueGenerator#getValue(String)}.  Note: if value
+   * is <code>null</code>, we consciously bypass the set operation altogether since it leads to 
+   * indeterminate behavior, i.e. it may fail or succeed.
+   * @param callback  a structure that alerts the caller of any error states and enables the caller 
+   * to fail, log, proceed, etc 
+   * @param formatters  a list of objects that can be used to modify the given property name 
+   * prior to performing any operations on the bean itself.  This new formatted property name will
+   * be used to identify the bean property. 
+   * bean lookup and value setting
+   * 
+   * @throws Exception when something goes wrong (controlled by the callback object)
+   * @see ValueGenerator
+   * @see ValueSetErrorCallback
+   * @see PropertyNameFormatter
+   */
   public void setValue(String propertyName, Object value, ValueSetErrorCallback callback,
       PropertyNameFormatter... formatters) throws Exception {
     if (logger.isTraceEnabled()) {
@@ -172,6 +199,7 @@ public class BeanUtil {
       return;
     }
     
+    String origPropertyName = propertyName;
     for (PropertyNameFormatter formatter : formatters) {
       propertyName = formatter.format(propertyName);
     }
@@ -202,7 +230,7 @@ public class BeanUtil {
         callback.failedToSetValue(bean, propertyName, val, propertyType, e);
       }
     } else {
-      callback.propertyNotWritable(bean, propertyName);
+      callback.propertyNotWritable(bean, origPropertyName);
     }
   }
 
@@ -222,6 +250,12 @@ public class BeanUtil {
   public void setValues(Map<String, Object> propValueMap, ValueSetErrorCallback callback) throws Exception {
     for (Map.Entry<String, Object> entry : propValueMap.entrySet()) {
       setValue(entry.getKey(), entry.getValue(), callback);
+    }
+  }
+
+  public void setValues(Map<String, Object> propValueMap, PropertyNameFormatter... formatters) throws Exception {
+    for (Map.Entry<String, Object> entry : propValueMap.entrySet()) {
+      setValue(entry.getKey(), entry.getValue(), formatters);
     }
   }
 
