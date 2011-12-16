@@ -22,14 +22,15 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.repository.pmd.PentahoMetadataDomainRepository;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.importexport.legacy.DbSolutionRepositoryImportSource;
 import org.pentaho.platform.repository2.unified.importexport.legacy.FileSolutionRepositoryImportSource;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedRepositoryJaxwsWebService;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedRepositoryToWebServiceAdapter;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import javax.xml.namespace.QName;
@@ -61,8 +62,10 @@ public class Main {
         .withArgName("password").create("p"));
     options.addOption(OptionBuilder.withLongOpt("url").withDescription(
         "url of repository (e.g. http://localhost:8080/pentaho)").hasArg().withArgName("url").create("a"));
-    options.addOption(OptionBuilder.withLongOpt("type").withDescription("external system type (e.g. legacy-db or file-system)")
-        .hasArg().withArgName("type").create("x"));
+    options.addOption(OptionBuilder.withLongOpt("source")
+        .withDescription("external system type (e.g. legacy-db, file-system)")
+        .hasArg().withArgName("source").create("x"));
+    options.addOption("type", true, "The type of content being imported\nfiles (default), metadata");
     options.addOption(OptionBuilder.withLongOpt("file-path").withDescription("Path to directory of files").hasArg()
         .withArgName("file-path").create("f"));
     options.addOption(OptionBuilder.withLongOpt("charset").withDescription(
@@ -76,6 +79,13 @@ public class Main {
         "repository path to which to add imported files (e.g. /public) (import only)").hasArg().withArgName("path")
         .create("f"));
 
+    // options for metadata import
+    options.addOption("domain", "domain", true,
+        "The Pentaho Metadata Domain ID for this import item (--import --source=metadata)");
+    options.addOption("locale", "locale", true,
+        "The locale of the properties file being imported (overrides locale computed from filename, " +
+            "--import --source=metadata only)");
+
     // external
     options.addOption(OptionBuilder.withArgName("property=value").hasArgs(2).withValueSeparator().withDescription(
         "name value pairs used by external systems").create("E"));
@@ -83,51 +93,56 @@ public class Main {
   }
 
   public static void main(final String[] args) {
-    // create the command line parser
-    CommandLineParser parser = new PosixParser();
-
-    CommandLine line = null;
     try {
       // parse the command line arguments
-      line = parser.parse(options, args);
+      final CommandLineParser parser = new PosixParser();
+      final CommandLine line = parser.parse(options, args);
 
-      checkArgs(line);
+      if (line.hasOption("help")) {
 
-      if (isImport(line)) {
-        ImportSource importSource = getImportSource(line);
+        printHelp();
+
+      } else if (line.hasOption("import")) {
+
+        final ImportSource importSource = getImportSource(line);
+        final IUnifiedRepository unifiedRepository = getUnifiedRepository(line);
+        final String comment = getOptionValue(line, "comment", false, true);
+        final Importer importer = getImporter(line, unifiedRepository);
+        importer.doImport(importSource, comment, true);
+
+      } else if (line.hasOption("export")) {
+
         IUnifiedRepository unifiedRepository = getUnifiedRepository(line);
-        Map<String, Converter> converters = createConverters();
-
-        Importer importer = new Importer(unifiedRepository, converters);
-        addContentHandlers(importer, unifiedRepository);
-
-        final String versionMessage = (line.hasOption("comment") ? line.getOptionValue("comment") : null);
-        importer.doImport(importSource, line.getOptionValue("path"), versionMessage);
-      } else if (isExport(line)) {
-        IUnifiedRepository unifiedRepository = getUnifiedRepository(line);
-        Exporter exporter = new Exporter(unifiedRepository, line.getOptionValue("path"), line.getOptionValue("file-path"));
+        final String path = line.getOptionValue("path");
+        final String filePath = line.getOptionValue("file-path");
+        Exporter exporter = new Exporter(unifiedRepository, path, filePath);
         exporter.doExport();
+
       } else {
-        throw new UnsupportedOperationException("not implemented");
+        throw new ParseException("exactly one of --import or --export is required");
       }
     } catch (ParseException e) {
       handleException(e);
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
 
-  private static void addContentHandlers(final Importer importer, final IUnifiedRepository repository) {
-//    // Add the Pentaho Metadata Import Content Handlers
-//    final PentahoMetadataImportContentHandler metadataHandler = new PentahoMetadataImportContentHandler();
-//    final IMetadataDomainRepository metadataDomainRepository = new PentahoMetadataDomainRepositoryTest(repository);
-//    metadataHandler.setDomainRepository(metadataDomainRepository);
-//    metadataHandler.setXmiParser(new XmiParser());
-//    importer.addImportContentHandler(100, metadataHandler);
-//
-//    // Add the default handler (it will go last) - it just copies files into the repository
-//    importer.addImportContentHandler(Integer.MAX_VALUE, new DefaultImportContentHandler());
+  private static Importer getImporter(final CommandLine line, final IUnifiedRepository repository) throws ParseException {
+    Importer importer = null;
+    final String importType = getOptionValue(line, "type", "files");
+    if (StringUtils.equals(importType, "files")) {
+      final String path = getOptionValue(line, "path", true, false);
+      importer = new FileImporter(repository, path, createConverters());
+    } else if (StringUtils.equals(importType, "metadata")) {
+      importer = new MetadataImporter(repository, new PentahoMetadataDomainRepository(repository));
+    } else {
+      throw new ParseException("Unknown type: " + importType);
+    }
+    return importer;
+  }
+
+  private static void addContentHandlers(final FileImporter fileImporter, final IUnifiedRepository repository) {
   }
 
   protected static Map<String, Converter> createConverters() {
@@ -209,103 +224,69 @@ public class Main {
   }
 
   private static ImportSource getImportSource(final CommandLine line) throws ParseException {
-    String type = line.getOptionValue("type");
-    if ("legacy-db".equals(type.trim())) {
+    final String source = getOptionValue(line, "source", true, false);
+
+    if (StringUtils.equals(source, "legacy-db")) {
       Properties props = line.getOptionProperties("E");
-      String driver = props.getProperty("legacy-db-driver");
-      if (!StringUtils.hasLength(driver)) {
-        throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG",
-            "-E" + "legacy-db-driver"));
-      }
-      String url = props.getProperty("legacy-db-url");
-      if (!StringUtils.hasLength(url)) {
-        throw new ParseException(Messages.getInstance()
-            .getString("Main.ERROR_0001_MISSING_ARG", "-E" + "legacy-db-url"));
-      }
-      String username = props.getProperty("legacy-db-username");
-      if (!StringUtils.hasLength(username)) {
-        throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG",
-            "-E" + "legacy-db-username"));
-      }
-      String password = props.getProperty("legacy-db-password");
-      // empty string is ok here
-      if (password == null) {
-        throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG",
-            "-E" + "legacy-db-password"));
-      }
-      String charset = props.getProperty("legacy-db-charset");
-      if (!StringUtils.hasLength(charset)) {
-        throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG",
-            "-E" + "legacy-db-charset"));
-      }
+      String driver = getProperty(props, "legacy-db-driver", "-E", true, false);
+      String url = getProperty(props, "legacy-db-url", "-E", true, false);
+      String username = getProperty(props, "legacy-db-username", "-E", true, false);
+      String password = getProperty(props, "legacy-db-password", "-E", true, true);
+      String charset = getProperty(props, "legacy-db-charset", "-E", true, true);
       DataSource dataSource = new DriverManagerDataSource(driver, url, username, password);
 
       ImportSource importSource = new DbSolutionRepositoryImportSource(dataSource, charset);
       importSource.setRequiredCharset(line.getOptionValue("charset"));
       importSource.setOwnerName(line.getOptionValue("username"));
       return importSource;
-    } else if ("file-system".equals(type.trim())) {
-      File file = new File(line.getOptionValue("file-path"));
-      ImportSource importSource = new FileSolutionRepositoryImportSource(file, line.getOptionValue("charset"));
-      importSource.setOwnerName(line.getOptionValue("username"));
+    }
+
+    if (StringUtils.equals(source, "file-system")) {
+      final String filePath = getOptionValue(line, "file-path", true, false);
+      final String username = getOptionValue(line, "username", true, false);
+      final String charset = getOptionValue(line, "charset", true, false);
+
+      File file = new File(filePath);
+      ImportSource importSource = new FileSolutionRepositoryImportSource(file, charset);
+      importSource.setOwnerName(username);
       return importSource;
     }
-    throw new ParseException("unknown type");
+
+    // Source is not understood
+    throw new ParseException("unknown source: " + source);
   }
 
-  private static boolean isImport(final CommandLine line) {
-    return line.hasOption("import");
+  private static String getProperty(final Properties props, final String key, final String prefix,
+                                    final boolean required, final boolean emptyOk) throws ParseException {
+    final String value = StringUtils.trim(props.getProperty(key));
+    if (required && value == null) {
+      throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", prefix + key));
+    } else if (!emptyOk && StringUtils.isEmpty(value)) {
+      throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", prefix + key));
+    }
+    return value.trim();
   }
 
-  private static boolean isExport(final CommandLine line) {
-    return line.hasOption("export");
+  private static String getOptionValue(final CommandLine line, final String option,
+                                       final boolean required, final boolean emptyOk) throws ParseException {
+    final String value = StringUtils.trim(line.getOptionValue(option));
+    if (required && StringUtils.isEmpty(value)) {
+      throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", option));
+    }
+    if (!emptyOk && StringUtils.isEmpty(value)) {
+      throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", option));
+    }
+    return value;
   }
 
-  private static void checkArgs(final CommandLine line) throws ParseException {
-
-    if (line.hasOption("help")) {
-      printHelp();
-    }
-
-    // either import or export but not both
-    if ((line.hasOption("import") && line.hasOption("export"))
-        || (!line.hasOption("import") && !line.hasOption("export"))) {
-      throw new ParseException("exactly one of --import or --export is required");
-    }
-
-    // options that are always required
-    if (!(line.hasOption("username"))) {
-      throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", "username"));
-    }
-    if (!(line.hasOption("password"))) {
-      throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", "password"));
-    }
-    if (!(line.hasOption("url"))) {
-      throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", "url"));
-    }
-    if (!(line.hasOption("type"))) {
-      throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", "type"));
-    }
-    if (!(line.hasOption("charset"))) {
-      throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", "charset"));
-    }
-    if (!(line.hasOption("path"))) {
-      throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", "path"));
-    }
-
-    // is it known type?
-    String type = line.getOptionValue("type");
-    if ("legacy-db".equals(type.trim()) || "file-system".equals(type.trim())) {
-      return;
-    }
-    throw new ParseException("unknown type {0}");
-
+  private static String getOptionValue(final CommandLine line, final String option, final String defaultValue) {
+    final String value = StringUtils.trim(line.getOptionValue(option));
+    return (!StringUtils.isEmpty(value) ? value : defaultValue);
   }
 
   private static void handleException(final ParseException e) {
     System.err.println(e.getLocalizedMessage());
     printHelp();
-    System.exit(1);
   }
 
   private static void printHelp() {
@@ -320,8 +301,12 @@ public class Main {
             + "-Elegacy-db-password=password -Elegacy-db-charset=ISO-8859-1\n\n"
             + "Example arguments for File System import:\n"
             + "--import --url=http://localhost:8080/pentaho --username=joe\n"
-            + "--password=password --type=file-system --charset=UTF-8 --path=/public\n"
-            + "--file-path=/Users/wseyler/Desktop/steel-wheels\n");
+            + "--password=password --source=file-system --type=files --charset=UTF-8 --path=/public\n"
+            + "--file-path=/Users/wseyler/Desktop/steel-wheels\n\n"
+            + "Example arguments for Metadata import:\n"
+            + "--import --url=http://localhost:8080/pentaho --username=joe\n"
+            + "--password=password --source=file-system --type=metadata --charset=UTF-8\n"
+            + "--file-path=./pentaho-solutions/metadata\n");
   }
 
 }

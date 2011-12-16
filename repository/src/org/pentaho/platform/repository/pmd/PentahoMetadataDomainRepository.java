@@ -56,7 +56,8 @@ import java.util.Set;
  *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class PentahoMetadataDomainRepository implements IMetadataDomainRepository {
+public class PentahoMetadataDomainRepository implements IMetadataDomainRepository,
+    IPentahoMetadataDomainRepositoryImporter, IPentahoMetadataDomainRepositoryExporter {
   private static final Log logger = LogFactory.getLog(PentahoMetadataDomainRepository.class);
 
   private static final String DOMAIN_ID = "domain-id";
@@ -136,6 +137,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    * @param domainId
    * @param overwrite
    */
+  @Override
   public void storeDomain(final InputStream inputStream, final String domainId, final boolean overwrite)
       throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
     logger.debug("storeDomain(inputStream, " + domainId + ", " + overwrite + ")");
@@ -350,22 +352,24 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
    * @param locale     the locale for which this properties file will be added
    * @param properties the properties to be added
    */
-  public void addLocalizationFile(final String domainId, final String locale, final Properties properties) {
+  public void addLocalizationFile(final String domainId, final String locale, final Properties properties) throws DomainStorageException {
     // This is safe since ByteArray streams don't have to be closed
     if (null != properties) {
       try {
         final OutputStream out = new ByteArrayOutputStream();
         properties.store(out, null);
-        addLocalizationFile(domainId, locale, new ByteArrayInputStream(out.toString().getBytes()));
+        addLocalizationFile(domainId, locale, new ByteArrayInputStream(out.toString().getBytes()), true);
       } catch (IOException e) {
-        throw new UnifiedRepositoryException(
+        throw new DomainStorageException(
             messages.getErrorString("PentahoDomainMetadataRepository.ERROR_0008_ERROR_IN_REPOSITORY",
                 e.getLocalizedMessage()), e);
       }
     }
   }
 
-  public void addLocalizationFile(final String domainId, final String locale, final InputStream inputStream) {
+  @Override
+  public void addLocalizationFile(final String domainId, final String locale, final InputStream inputStream,
+                                  final boolean overwrite) throws DomainStorageException {
     logger.debug("addLocalizationFile(" + domainId + ", " + locale + ", inputStream)");
     if (null != inputStream) {
       if (StringUtils.isEmpty(domainId) || StringUtils.isEmpty(locale)) {
@@ -376,7 +380,13 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       // This invalidates any cached information
       flushDomains();
 
+      // Check for duplicates
       final String filename = computeRepositorySafeName(domainId) + '_' + locale + ".properties";
+      if (!overwrite && !repository.getChildren(getMetadataDir().getId(), filename).isEmpty()) {
+        throw new DomainStorageException(
+            messages.getErrorString("PentahoDomainMetadataRepository.ERROR_0009_PROPERTIES_ALREADY_EXISTS", filename), null);
+      }
+
       final RepositoryFile bundleFile = repository.createFile(getMetadataDir().getId(),
           new RepositoryFile.Builder(filename).build(),
           new SimpleRepositoryFileData(inputStream, ENCODING, MIME_TYPE), null);

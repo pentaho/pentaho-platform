@@ -34,7 +34,9 @@ import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -245,7 +247,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   public void testLocalizationFiles() throws Exception {
     // Add some invalid localization files
     try {
-      domainRepository.addLocalizationFile(null, null, EMPTY_INPUT_STREAM);
+      domainRepository.addLocalizationFile(null, null, EMPTY_INPUT_STREAM, true);
       fail("Invalid parameters should throw exception");
     } catch (IllegalArgumentException success) {
     }
@@ -257,7 +259,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     }
 
     try {
-      domainRepository.addLocalizationFile("", null, EMPTY_INPUT_STREAM);
+      domainRepository.addLocalizationFile("", null, EMPTY_INPUT_STREAM, true);
       fail("Invalid parameters should throw exception");
     } catch (IllegalArgumentException success) {
     }
@@ -269,7 +271,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     }
 
     try {
-      domainRepository.addLocalizationFile("valid", null, EMPTY_INPUT_STREAM);
+      domainRepository.addLocalizationFile("valid", null, EMPTY_INPUT_STREAM, true);
       fail("Invalid parameters should throw exception");
     } catch (IllegalArgumentException success) {
     }
@@ -281,22 +283,22 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     }
 
     try {
-      domainRepository.addLocalizationFile("valid", "", EMPTY_INPUT_STREAM);
+      domainRepository.addLocalizationFile("valid", "", EMPTY_INPUT_STREAM, true);
       fail("Invalid parameters should throw exception");
     } catch (IllegalArgumentException success) {
     }
 
     // A null properties/input stream should not throw an exception - just do nothing
     domainRepository.addLocalizationFile(null, null, (Properties) null);
-    domainRepository.addLocalizationFile(null, null, (InputStream) null);
+    domainRepository.addLocalizationFile(null, null, (InputStream) null, true);
     domainRepository.addLocalizationFile("", null, (Properties) null);
-    domainRepository.addLocalizationFile("", null, (InputStream) null);
+    domainRepository.addLocalizationFile("", null, (InputStream) null, true);
     domainRepository.addLocalizationFile("valid", null, (Properties) null);
-    domainRepository.addLocalizationFile("valid", null, (InputStream) null);
+    domainRepository.addLocalizationFile("valid", null, (InputStream) null, true);
     domainRepository.addLocalizationFile("valid", "", (Properties) null);
-    domainRepository.addLocalizationFile("valid", "", (InputStream) null);
+    domainRepository.addLocalizationFile("valid", "", (InputStream) null, true);
     domainRepository.addLocalizationFile("valid", "valid", (Properties) null);
-    domainRepository.addLocalizationFile("valid", "valid", (InputStream) null);
+    domainRepository.addLocalizationFile("valid", "valid", (InputStream) null, true);
 
 
     // Create a domain that starts with "steel-wheels" to try to mess up any of the following tests
@@ -306,8 +308,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     // Get the current number of files
     final RepositoryFile folder = domainRepository.getMetadataDir();
-    final int originalFileCount = repository.getChildren(folder.getId()).size();
-    int fileCount = originalFileCount;
+    int fileCount = repository.getChildren(folder.getId()).size();
 
     // Start using a real XmiParser with real data
     domainRepository.setXmiParser(new XmiParser());
@@ -337,8 +338,17 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       assertEquals(defaultDescription, hrModel.getDescription("pl"));
     }
 
-    domainRepository.addLocalizationFile(STEEL_WHEELS, "ru", newProperties);
+    domainRepository.addLocalizationFile(STEEL_WHEELS, "ru", toInputStream(newProperties), false);
     assertEquals(++fileCount, repository.getChildren(folder.getId()).size());
+
+    // Veryify the overwrite flag on the stream import
+    try {
+      domainRepository.addLocalizationFile(STEEL_WHEELS, "ru", toInputStream(newProperties), false);
+      fail("Should throw a DomainStorageException");
+    } catch (DomainStorageException success) {
+      assertEquals(fileCount, repository.getChildren(folder.getId()).size());
+    }
+
     domainRepository.addLocalizationFile(STEEL_WHEELS, "pl", newProperties);
     assertEquals(++fileCount, repository.getChildren(folder.getId()).size());
     {
@@ -355,7 +365,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     final String newTestDescription = "new " + testDescription;
     newProperties.setProperty(descriptionKey, newTestDescription);
-    domainRepository.addLocalizationFile(STEEL_WHEELS, "ru", newProperties);
+    domainRepository.addLocalizationFile(STEEL_WHEELS, "ru", toInputStream(newProperties), true);
     assertEquals(fileCount, repository.getChildren(folder.getId()).size());
     {
       final Domain steelWheelsTest = domainRepository.getDomain(STEEL_WHEELS);
@@ -369,7 +379,6 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       assertEquals(testDescription, hrModel.getDescription("pl"));
     }
 
-    // This changes the default????
     domainRepository.addLocalizationFile(STEEL_WHEELS, "en_US", newProperties);
     assertEquals(++fileCount, repository.getChildren(folder.getId()).size());
     {
@@ -540,6 +549,17 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertEquals("/etc/metadata/With.Dot.s.xmi", domainRepository.computeDomainFilename("With.Dot.s"));
     assertEquals("/etc/metadata/ABC123abc\u00a9.xmi", domainRepository.computeDomainFilename("ABC123abc\u00a9"));
     assertEquals("/etc/metadata/ABC_123_xyz.xmi", domainRepository.computeDomainFilename("ABC/123:xyz"));
+  }
+
+  private InputStream toInputStream(final Properties newProperties) {
+    try {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      newProperties.store(out, null);
+      return new ByteArrayInputStream(out.toByteArray());
+    } catch (IOException e) {
+      fail();
+    }
+    return null;
   }
 
   /**

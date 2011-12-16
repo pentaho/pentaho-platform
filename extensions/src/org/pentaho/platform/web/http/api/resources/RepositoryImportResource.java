@@ -27,8 +27,8 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.importexport.Converter;
+import org.pentaho.platform.repository2.unified.importexport.FileImporter;
 import org.pentaho.platform.repository2.unified.importexport.ImportSource;
-import org.pentaho.platform.repository2.unified.importexport.Importer;
 import org.pentaho.platform.repository2.unified.importexport.StreamConverter;
 import org.pentaho.platform.repository2.unified.importexport.legacy.SingleFileStreamImportSource;
 import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
@@ -104,21 +104,22 @@ public class RepositoryImportResource {
     converters.put("xml", streamConverter); //$NON-NLS-1$
     converters.put("cda", streamConverter); //$NON-NLS-1$
 
-    Importer importer = new Importer(repository, converters);
-//    addContentHandlers(importer, repository);
+    FileImporter fileImporter = new FileImporter(repository, uploadDir, converters);
+//    addContentHandlers(fileImporter, repository);
 
     try {
       if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) { //$NON-NLS-1$
         ImportSource src = new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8", new String[]{RepositoryFile.SEPARATOR + "system" + RepositoryFile.SEPARATOR, ".mondrian.xml", "datasources.xml"}); //$NON-NLS-1$
-        importer.doImport(src, uploadDir, null);
+        fileImporter.doImport(src, null, true);
         for (ImportSource dependentImportSource : src.getDependentImportSources()) {
           dependentImportSource.initialize(repository);
           dependentImportSource.setOwnerName(uploadDir);
-          importer.doImport(dependentImportSource, RepositoryFile.SEPARATOR, null);
+          FileImporter rootFileImporter = new FileImporter(repository, RepositoryFile.SEPARATOR, converters);
+          rootFileImporter.doImport(dependentImportSource, null, true);
         }
       } else {
         ImportSource src = new SingleFileStreamImportSource(fileIS, fileInfo.getFileName(), "UTF-8"); //$NON-NLS-1$
-        importer.doImport(src, uploadDir, null);
+        fileImporter.doImport(src, null, true);
       }
 
     } catch (IOException e) {
@@ -129,16 +130,4 @@ public class RepositoryImportResource {
 
     return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).build(); //$NON-NLS-1$
   }
-
-//  private static void addContentHandlers(final Importer importer, final IUnifiedRepository repository) {
-//    // Add the Pentaho Metadata Import Content Handlers
-//    final PentahoMetadataImportContentHandler metadataHandler = new PentahoMetadataImportContentHandler();
-//    final IMetadataDomainRepository metadataDomainRepository = new PentahoMetadataDomainRepositoryTest(repository);
-//    metadataHandler.setDomainRepository(metadataDomainRepository);
-//    metadataHandler.setXmiParser(new XmiParser());
-//    importer.addImportContentHandler(100, metadataHandler);
-//
-//    // Add the default handler (it will go last) - it just copies files into the repository
-//    importer.addImportContentHandler(Integer.MAX_VALUE, new DefaultImportContentHandler());
-//  }
 }

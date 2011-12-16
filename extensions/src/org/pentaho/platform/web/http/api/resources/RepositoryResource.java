@@ -75,19 +75,19 @@ public class RepositoryResource extends AbstractJaxRSResource {
   public static final String GENERATED_CONTENT_PERSPECTIVE = "generatedContent"; //$NON-NLS-1$
 
   protected IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
-  
+
   @GET
   @Path("{pathId : .+}/content")
-  @Produces( { WILDCARD })
+  @Produces({WILDCARD})
   public Response doGetFileOrDir(@PathParam("pathId") String pathId) throws FileNotFoundException {
     FileResource fileResource = new FileResource(httpServletResponse);
     return fileResource.doGetFileOrDir(pathId);
   }
 
-  
+
   @GET
   @Path("{pathId : .+}/default")
-  @Produces( { WILDCARD })
+  @Produces({WILDCARD})
   public Response doExecuteDefault(@PathParam("pathId") String pathId) throws FileNotFoundException, MalformedURLException, URISyntaxException {
     String perspective = null;
     StringBuffer buffer = null;
@@ -102,31 +102,31 @@ public class RepositoryResource extends AbstractJaxRSResource {
         break;
       }
     }
-    if(perspective == null) {
+    if (perspective == null) {
       perspective = GENERATED_CONTENT_PERSPECTIVE;
     }
-    
+
     buffer = httpServletRequest.getRequestURL();
     String queryString = httpServletRequest.getQueryString();
     url = buffer.substring(0, buffer.lastIndexOf("/") + 1) + perspective + //$NON-NLS-1$
-      ((queryString != null && queryString.length() > 0) ? "?" + httpServletRequest.getQueryString(): ""); //$NON-NLS-1$ //$NON-NLS-2$
-    return Response.seeOther((new URL(url)).toURI()).build();      
+        ((queryString != null && queryString.length() > 0) ? "?" + httpServletRequest.getQueryString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
+    return Response.seeOther((new URL(url)).toURI()).build();
   }
-  
+
   /**
-   * Services a HTTP form POST request for a resource identified by the compound key 
+   * Services a HTTP form POST request for a resource identified by the compound key
    * <code>contextId</code>, and <code>resourceId</code>
-   * <p>
+   * <p/>
    * <code>contextId</code> may be one of:<p>
    * A. repository file id (colon-delimited path), e.g. <code>:public:steel-wheels:sales.prpt</code></br>
    * B. repository file extension, e.g. <code>prpt</code><br>
    * C. plugin id</li>
-   * <p>
+   * <p/>
    * <code>resourceId</code> may be one of:<p>
    * 1. static file residing in a publicly visible plugin folder</br>
    * 2. repository file id (colon-delimited path), e.g. <code>:public:steel-wheels:sales.prpt</code></br>
    * 3. content generator id</br>
-   * <p>
+   * <p/>
    * The resolution order is as follows, the first to find the resource wins:
    * <ol>
    * <li>A1</li>
@@ -137,19 +137,19 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * <li>C1</li>
    * <li>C3</li>
    * </ol>
-   * 
-   * @param contextId identifies the context in which the resource should be retrieved
+   *
+   * @param contextId  identifies the context in which the resource should be retrieved
    * @param resourceId identifies a resource to be retrieved
    * @param formParams any arguments needed to render the resource
-   * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation 
-   * <b>after</b> it it is returned to the caller
-   **/
+   * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation
+   *         <b>after</b> it it is returned to the caller
+   */
   @Path("/{contextId}/{resourceId : .+}")
   @POST
   @Consumes(APPLICATION_FORM_URLENCODED)
-  @Produces( { WILDCARD })
+  @Produces({WILDCARD})
   public Response doFormPost(@PathParam("contextId") String contextId, @PathParam("resourceId") String resourceId,
-      final MultivaluedMap<String, String> formParams) throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
+                             final MultivaluedMap<String, String> formParams) throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
 
     httpServletRequest = JerseyUtil.correctPostRequest(formParams, httpServletRequest);
 
@@ -163,19 +163,19 @@ public class RepositoryResource extends AbstractJaxRSResource {
   }
 
   /**
-   * Services a HTTP GET request for a resource identified by the compound key <code>contextId</code>, and <code>resourceId</code>.  
+   * Services a HTTP GET request for a resource identified by the compound key <code>contextId</code>, and <code>resourceId</code>.
    * Any HTTP request params are pulled from the GET request and used in rendering the resource.
-   * <p>
+   * <p/>
    * <code>contextId</code> may be one of:<p>
    * A. repository file id (colon-delimited path), e.g. <code>:public:steel-wheels:sales.prpt</code></br>
    * B. repository file extension, e.g. <code>prpt</code><br>
    * C. plugin id</li>
-   * <p>
+   * <p/>
    * <code>resourceId</code> may be one of:<p>
    * 1. static file residing in a publicly visible plugin folder</br>
    * 2. repository file id (colon-delimited path), e.g. <code>:public:steel-wheels:sales.prpt</code></br>
    * 3. content generator id</br>
-   * <p>
+   * <p/>
    * The resolution order is as follows, the first to find the resource wins:
    * <ol>
    * <li>A1</li>
@@ -186,15 +186,15 @@ public class RepositoryResource extends AbstractJaxRSResource {
    * <li>C1</li>
    * <li>C3</li>
    * </ol>
-   * 
-   * @param contextId identifies the context in which the resource should be retrieved
+   *
+   * @param contextId  identifies the context in which the resource should be retrieved
    * @param resourceId identifies a resource to be retrieved
-   * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation 
-   * <b>after</b> it it is returned to the caller
-   **/
+   * @return a JAX-RS {@link Response}, in many cases, this will trigger a streaming operation
+   *         <b>after</b> it it is returned to the caller
+   */
   @Path("/{contextId}/{resourceId : .+}")
   @GET
-  @Produces( { WILDCARD })
+  @Produces({WILDCARD})
   public Response doGet(@PathParam("contextId") String contextId, @PathParam("resourceId") String resourceId)
       throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
 
@@ -209,7 +209,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   @Path("/executableTypes")
   @GET
-  @Produces( { APPLICATION_XML, APPLICATION_JSON })
+  @Produces({APPLICATION_XML, APPLICATION_JSON})
   public Response getExecutableTypes() {
     ArrayList<ExecutableFileTypeDto> executableTypes = new ArrayList<ExecutableFileTypeDto>();
     for (String contentType : pluginManager.getContentTypes()) {
@@ -226,10 +226,10 @@ public class RepositoryResource extends AbstractJaxRSResource {
     };
     return Response.ok(entity).build();
   }
-  
+
   protected Response doService(String contextId, String resourceId)
       throws ObjectFactoryException, PluginBeanException, IOException, URISyntaxException {
-    
+
     ctxt("Is [{0}] a repository file id?", contextId); //$NON-NLS-1$
     if (contextId.startsWith(":")) { //$NON-NLS-1$
       //
@@ -241,14 +241,14 @@ public class RepositoryResource extends AbstractJaxRSResource {
         logger.error(MessageFormat.format("Repository file [{0}] not found", contextId));
         return Response.serverError().build();
       }
-      
+
       Response response = null;
 
       ctxt("Yep, [{0}] is a repository file id", contextId); //$NON-NLS-1$
-      String ext = file.getName().substring(file.getName().lastIndexOf('.')).substring(1);
+      final String ext = RepositoryFilenameUtils.getExtension(file.getName());
       String pluginId = pluginManager.getPluginIdForType(ext);
       if (pluginId == null) {
-        
+
         // A.3.a (faux content generator for .url files)
         response = getUrlResponse(file, resourceId);
         if (response != null) {
@@ -438,11 +438,11 @@ public class RepositoryResource extends AbstractJaxRSResource {
     }
 
   }
-  
+
   protected Response getUrlResponse(RepositoryFile file, String resourceId) throws MalformedURLException, URISyntaxException {
     String ext = file.getName().substring(file.getName().indexOf('.') + 1);
-    if (! (ext.equals("url") && resourceId.equals("generatedContent")) ) return null; //$NON-NLS-1$ //$NON-NLS-2$
-    
+    if (!(ext.equals("url") && resourceId.equals("generatedContent"))) return null; //$NON-NLS-1$ //$NON-NLS-2$
+
     String url = extractUrl(file);
     if (!url.trim().startsWith("http")) { //$NON-NLS-1$
       //if path is relative, prepend FQSURL
@@ -504,7 +504,7 @@ public class RepositoryResource extends AbstractJaxRSResource {
   private void debug(String msg, Object... args) {
     logger.debug(MessageFormat.format(msg, args));
   }
-  
+
   protected String extractUrl(RepositoryFile file) {
 
     SimpleRepositoryFileData data = null;
