@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.commands.AbstractCommand;
@@ -41,7 +40,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
@@ -100,13 +98,14 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
     controller.setModel(new MantleModel(this));
 
     // Get the toolbar from the XUL doc
-    Toolbar bar = (Toolbar) container.getDocumentRoot().getElementById("mainToolbar").getManagedObject(); //$NON-NLS-1$
-    bar.setStylePrimaryName("pentaho-shine pentaho-background"); //$NON-NLS-1$
+    Widget bar = (Widget) container.getDocumentRoot().getElementById("mainToolbarWrapper").getManagedObject(); //$NON-NLS-1$
+    Widget xultoolbar = (Widget) container.getDocumentRoot().getElementById("mainToolbar").getManagedObject(); //$NON-NLS-1$
+    xultoolbar.setStylePrimaryName("pentaho-shine pentaho-background"); //$NON-NLS-1$
     toolbar.setStylePrimaryName("mainToolbar-Wrapper");
     toolbar.setWidget(bar);
 
     // Get the menubar from the XUL doc
-    MenuBar menu = (MenuBar) container.getDocumentRoot().getElementById("mainMenubar").getManagedObject(); //$NON-NLS-1$
+    Widget menu = (Widget) container.getDocumentRoot().getElementById("mainMenubar").getManagedObject(); //$NON-NLS-1$
     menubar.setWidget(menu);
 
     // get the admin perspective from the XUL doc
@@ -177,12 +176,20 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
       }
     }
   }
-
-  public void applyOverlay(String id) {
-    try {
-      container.loadOverlay(id);
-    } catch (XulException e) {
-    }
+  
+  public void applyOverlay(final String id) {
+    Timer t = new Timer() {
+      public void run() {
+        try {
+          if (container != null) {
+            cancel();
+            container.loadOverlay(id);
+          }
+        } catch (XulException e) {
+        }
+      }
+    };
+    t.scheduleRepeating(250);
   }
 
   public void removeOverlays(Set<String> overlayIds) {
@@ -193,13 +200,19 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
     }
   }
 
-  public void removeOverlay(String id) {
-    try {
-      if (container != null) {
-        container.removeOverlay(id);
+  public void removeOverlay(final String id) {
+    Timer t = new Timer() {
+      public void run() {
+        try {
+          if (container != null) {
+            cancel();
+            container.removeOverlay(id);
+          }
+        } catch (XulException e) {
+        }
       }
-    } catch (XulException e) {
-    }
+    };
+    t.scheduleRepeating(250);
   }
 
   public void overlayRemoved() {

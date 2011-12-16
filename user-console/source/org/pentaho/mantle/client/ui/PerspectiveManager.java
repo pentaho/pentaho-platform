@@ -197,9 +197,6 @@ public class PerspectiveManager extends HorizontalPanel {
   }
 
   private void showPerspective(final ToggleButton source, final IPluginPerspective perspective) {
-
-    this.activePerspective = perspective;
-
     // before we show.. de-activate current perspective (based on shown widget)
     Widget w = MantleApplication.getInstance().getContentDeck().getWidget(MantleApplication.getInstance().getContentDeck().getVisibleWidget());
     if (w instanceof Frame && !perspective.getId().equals(w.getElement().getId())) {
@@ -217,14 +214,17 @@ public class PerspectiveManager extends HorizontalPanel {
       }
     }
 
-    // remove all non-sticky perspective overlays
-    for (IPluginPerspective p : perspectives) {
-      for (XulOverlay o : p.getOverlays()) {
+    // remove current perspective overlay
+    if (activePerspective != null) {
+      for (XulOverlay o : activePerspective.getOverlays()) {
         if (!o.getId().startsWith("startup") && !o.getId().startsWith("sticky")) {
           MantleXul.getInstance().removeOverlay(o.getId());
         }
       }
     }
+
+    // now it's safe to set active
+    this.activePerspective = perspective;
 
     // apply current overlay or default if none selected
     if (source.isDown() && perspective.getOverlays() != null) {

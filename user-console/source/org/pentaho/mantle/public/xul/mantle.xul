@@ -57,27 +57,25 @@
 			<menubarseparator id="aboutSeparator"/>
 			<menuitem id="aboutMenuItem" label="${about}" command="mantleXulHandler.executeMantleCommand('AboutCommand')" />		
 		</menubar>		
-		
 	</menubar>
   
-  <toolbar id="mainToolbar">
-    <toolbarspacer width="10"/>
-    <toolbarbutton id="openButton" image="images/open_32.png" onclick="mantleXulHandler.openClicked()" tooltiptext="${openEllipsis}"/>
-    <toolbarspacer width="20"/>
-    <toolbarbutton id="dummyPluginContentButton" pen:visible="false"/>
-    <toolbarspacer width="20"/>
-    <toolbarbutton id="editContentButton" image="images/editContent_32.png" disabledimage="images/editContent_32_disabled.png"  onclick="mantleXulHandler.editContentClicked()" tooltiptext="${editContent}" disabled="true" type="toggle" pen:visible="true"/>
-    <toolbarspacer id="editButtonSpacer" width="20" pen:visible="true"/>
-    <toolbarbutton id="saveButton" image="images/save_32.png" disabledimage="images/save_32_disabled.png" onclick="mantleXulHandler.saveClicked()" tooltiptext="${save}" disabled="true"/>
-    <toolbarbutton id="saveAsButton" image="images/saveAs_32.png" disabledimage="images/saveAs_32_disabled.png"  onclick="mantleXulHandler.saveAsClicked()" tooltiptext="${saveAs}" disabled="true"/>
-    <toolbarspacer width="20"/>
-    <toolbarbutton id="showBrowserButton" image="images/browser_show_32.png" downimage="images/browser_hide_32.png" type="toggle" onclick="mantleXulHandler.showBrowserClicked()" tooltiptext="${toggleSolutionBrowser}"/>
-  </toolbar>  
-  
-  
+  <window id="mainToolbarWrapper">
+  	<toolbar id="mainToolbar">
+    	<toolbarspacer width="10"/>
+    	<toolbarbutton id="openButton" image="images/open_32.png" onclick="mantleXulHandler.openClicked()" tooltiptext="${openEllipsis}"/>
+    	<toolbarspacer width="20"/>
+    	<toolbarbutton id="dummyPluginContentButton" pen:visible="false"/>
+    	<toolbarspacer width="20"/>
+    	<toolbarbutton id="editContentButton" image="images/editContent_32.png" disabledimage="images/editContent_32_disabled.png"  onclick="mantleXulHandler.editContentClicked()" tooltiptext="${editContent}" disabled="true" type="toggle" pen:visible="true"/>
+    	<toolbarspacer id="editButtonSpacer" width="20" pen:visible="true"/>
+    	<toolbarbutton id="saveButton" image="images/save_32.png" disabledimage="images/save_32_disabled.png" onclick="mantleXulHandler.saveClicked()" tooltiptext="${save}" disabled="true"/>
+    	<toolbarbutton id="saveAsButton" image="images/saveAs_32.png" disabledimage="images/saveAs_32_disabled.png"  onclick="mantleXulHandler.saveAsClicked()" tooltiptext="${saveAs}" disabled="true"/>
+    	<toolbarspacer width="20"/>
+    	<toolbarbutton id="showBrowserButton" image="images/browser_show_32.png" downimage="images/browser_hide_32.png" type="toggle" onclick="mantleXulHandler.showBrowserClicked()" tooltiptext="${toggleSolutionBrowser}"/>
+  	</toolbar>  
+  </window>
   
 	<hbox id="adminPerspective" flex="1">
-    
 		<tree id="adminCatTree" editable="true" seltype="single" enableColumnDrag="false" width="150">
 	
 		<treecols id="adminTreeCol">
@@ -129,19 +127,6 @@
 		<vbox id="adminContentPanel" flex="2" backgroundColor="#ffffff">
       		<label value="Admin Perspective Content"/>
 		</vbox>  
-	
 	</hbox>  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
 </window>
