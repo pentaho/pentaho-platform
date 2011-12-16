@@ -523,7 +523,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     reInit(pentahoSession);
   }
   
-  public void importSchema(String analysisFile, String databaseConnection) {
+  public void importSchema(String analysisFile, String databaseConnection, String parameters) {
 	  		
 	  try {
 		  String datasourceInfo = "Provider=mondrian;DataSource=" + databaseConnection;
