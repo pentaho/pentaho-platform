@@ -296,7 +296,7 @@ public class Main {
             + "-Elegacy-db-username=value\n" + "-Elegacy-db-password=value\n " + "-Elegacy-db-charset=value\n\n"
             + "Example arguments for legacy-db:\n"
             + "--import --url=http://localhost:8080/pentaho --username=joe --password=password "
-            + "--type=legacy-db --charset=UTF-8 --path=/public -Elegacy-db-driver=com.mysql.jdbc.Driver "
+            + "--source=legacy-db --charset=UTF-8 --path=/public -Elegacy-db-driver=com.mysql.jdbc.Driver "
             + "-Elegacy-db-url=jdbc:mysql://localhost/hibernate -Elegacy-db-username=hibuser "
             + "-Elegacy-db-password=password -Elegacy-db-charset=ISO-8859-1\n\n"
             + "Example arguments for File System import:\n"
