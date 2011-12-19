@@ -22,6 +22,10 @@ import junit.framework.TestCase;
 import org.pentaho.platform.repository2.unified.importexport.ImportSource;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Class Description
@@ -34,7 +38,6 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
       final File tempFile = File.createTempFile("junit", "tmp");
       final FileSolutionRepositoryImportSource importSource
           = new FileSolutionRepositoryImportSource(tempFile, "sample.xaction", "UTF-8");
-      importSource.initialize();
       assertEquals(1, importSource.getCount());
       final Iterable<ImportSource.IRepositoryFileBundle> files = importSource.getFiles();
       assertNotNull(files);
@@ -51,14 +54,76 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
       assertTrue("Make sure your current directory is the repository project", sourceFile.exists());
       FileSolutionRepositoryImportSource importSource
           = new FileSolutionRepositoryImportSource(sourceFile, "UTF-8");
-      importSource.initialize();
       assertEquals(11, importSource.getCount());
     }
 
   }
 
   public void testGetFiles() throws Exception {
+    {
+      final File invalidFile = createTempFile("tmp");
+      assertTrue(invalidFile.delete());
+      final FileSolutionRepositoryImportSource importSource = new FileSolutionRepositoryImportSource(invalidFile, "UTF-8");
+      assertEquals(0, importSource.getCount());
+      final Iterable<ImportSource.IRepositoryFileBundle> files = importSource.getFiles();
+      assertNotNull(files);
+      assertFalse(files.iterator().hasNext());
+    }
 
+    {
+      final File validFile = createTempFile("xaction");
+      final FileSolutionRepositoryImportSource importSource = new FileSolutionRepositoryImportSource(validFile, "UTF-8");
+      assertEquals(1, importSource.getCount());
+      assertNotNull(importSource.getFiles());
+      final Iterator<ImportSource.IRepositoryFileBundle> iterator = importSource.getFiles().iterator();
+      assertNotNull(iterator);
+      final ImportSource.IRepositoryFileBundle file = iterator.next();
+      assertNotNull(file);
+
+      // Make sure remove works
+      iterator.remove();
+      assertEquals(0, importSource.getCount());
+
+      assertFalse(iterator.hasNext());
+    }
+
+    {
+      final Set<String> foldersFound = new HashSet<String>();
+      final Set<String> filesFound = new HashSet<String>();
+
+      final File sourceFile = new File("./test-src/org/pentaho/platform/repository2/unified/importexport/testdata");
+      assertTrue("Make sure your current directory is the repository project", sourceFile.exists());
+      FileSolutionRepositoryImportSource importSource = new FileSolutionRepositoryImportSource(sourceFile, "UTF-8");
+      assertEquals(11, importSource.getCount());
+      final Iterable<ImportSource.IRepositoryFileBundle> files = importSource.getFiles();
+      assertNotNull(files);
+      for (Iterator<ImportSource.IRepositoryFileBundle> it = files.iterator(); it.hasNext(); ) {
+        final ImportSource.IRepositoryFileBundle bundle = it.next();
+        assertNotNull(bundle);
+        assertNotNull(bundle.getFile());
+        if (bundle.getFile().isFolder()) {
+          foldersFound.add(bundle.getFile().getName());
+        } else {
+          filesFound.add(bundle.getFile().getName());
+        }
+      }
+
+      assertEquals(8, filesFound.size());
+      assertTrue(filesFound.contains("Empty.zip"));
+      assertTrue(filesFound.contains("Success.zip"));
+      assertTrue(filesFound.contains("TestZipFile.zip"));
+      assertTrue(filesFound.contains("pentaho-solutions.zip"));
+      assertTrue(filesFound.contains("Example1.xaction"));
+      assertTrue(filesFound.contains("Example2.xaction"));
+      assertTrue(filesFound.contains("Example3.xaction"));
+      assertTrue(filesFound.contains("HelloWorld.xaction"));
+
+      assertEquals(3, foldersFound.size());
+      assertTrue(foldersFound.contains("testdata"));
+      assertTrue(foldersFound.contains("pentaho-solutions"));
+      assertTrue(foldersFound.contains("getting-started"));
+
+    }
   }
 
   public void testCreate() throws Exception {
@@ -112,5 +177,16 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
     }
 
     new FileSolutionRepositoryImportSource(tempFile, "UTF-8");
+  }
+
+  private static File createTempFile(final String extension) throws IOException {
+    return File.createTempFile("FileSolutionRepositoryImportSourceTest-", extension == null ? "" : "." + extension);
+  }
+
+  private static File createTempDir() throws IOException {
+    final File dir = File.createTempFile("FileSolutionRepositoryImportSourceTest-", "");
+    assertTrue(dir.delete());
+    assertTrue(dir.mkdir());
+    return dir;
   }
 }

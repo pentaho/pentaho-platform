@@ -80,14 +80,4 @@ public abstract class AbstractImportSource implements ImportSource {
   protected String getMimeType(final String extension) {
     return mimeTypes.get(extension);
   }
-
-
-  /**
-   * Default initializer (does nothing)
-   *
-   * @throws Exception indicates an error initializing this ImportSource
-   */
-  @Override
-  public void initialize() throws Exception {
-  }
 }

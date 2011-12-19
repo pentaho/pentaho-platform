@@ -29,6 +29,7 @@ import org.pentaho.platform.repository2.unified.importexport.Converter;
 import org.pentaho.platform.repository2.unified.importexport.DefaultImportHandler;
 import org.pentaho.platform.repository2.unified.importexport.ImportException;
 import org.pentaho.platform.repository2.unified.importexport.ImportProcessor;
+import org.pentaho.platform.repository2.unified.importexport.InitializationException;
 import org.pentaho.platform.repository2.unified.importexport.MetadataImportHandler;
 import org.pentaho.platform.repository2.unified.importexport.MondrianImportHandler;
 import org.pentaho.platform.repository2.unified.importexport.SimpleImportProcessor;
@@ -121,6 +122,8 @@ public class RepositoryImportResource {
       }
       importProcessor.performImport();
     } catch (ImportException e) {
+      return Response.serverError().entity(e.toString()).build();
+    } catch (InitializationException e) {
       return Response.serverError().entity(e.toString()).build();
     } catch (IOException e) {
       return Response.serverError().entity(e.toString()).build();

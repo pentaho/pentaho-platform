@@ -63,7 +63,6 @@ public class ZipSolutionRepositoryImportSourceTest extends TestCase {
       try {
         zis = getZipInputStream("../testdata/Success.zip");
         final ZipSolutionRepositoryImportSource importSource = new ZipSolutionRepositoryImportSource(zis, "UTF-8");
-        importSource.initialize();
         assertEquals(7, importSource.getCount());
       } finally {
         IOUtils.closeQuietly(zis);
@@ -75,7 +74,6 @@ public class ZipSolutionRepositoryImportSourceTest extends TestCase {
       try {
         zis = getZipInputStream("../testdata/Empty.zip");
         final ZipSolutionRepositoryImportSource importSource = new ZipSolutionRepositoryImportSource(zis, "UTF-8");
-        importSource.initialize();
         assertEquals(0, importSource.getCount());
       } finally {
         IOUtils.closeQuietly(zis);

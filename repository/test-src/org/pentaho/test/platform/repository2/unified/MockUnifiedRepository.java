@@ -37,6 +37,7 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPrope
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.repository.UnmodifiableRepository;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
@@ -663,6 +664,15 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
     FileRecord r = idManager.getFileById(fileId);
     return r.getMetadata();
+  }
+
+  /**
+   * Returns an implementation of this repository which will throw an exception if a call to any of the modifying
+   * methods occurs
+   */
+  @Override
+  public IUnifiedRepository unmodifiable() {
+    return new UnmodifiableRepository(this);
   }
 
   // ~ Helper classes ==================================================================================================

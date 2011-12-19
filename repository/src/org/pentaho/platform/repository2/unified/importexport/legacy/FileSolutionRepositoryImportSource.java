@@ -50,16 +50,8 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
     this.sourceFile = sourceFile;
     this.filename = filename;
     this.charSet = charSet;
-  }
 
-  /**
-   * builds the list of files
-   *
-   * @throws Exception indicates an error initializing this ImportSource
-   */
-  @Override
-  public void initialize() throws Exception {
-    addFileToList(sourceFile);
+    addFileToList(sourceFile, false);
     log.debug("File list built - size=" + files.size());
   }
 
@@ -78,15 +70,21 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
     return files.size();
   }
 
-  protected void addFileToList(final File currentFile) {
+  protected void addFileToList(final File currentFile, final boolean extractFilename) {
     // Weed out .svn folders
-    if (currentFile == null || (currentFile.isDirectory() && currentFile.getName().equals(".svn"))) {
+    if (currentFile == null || !currentFile.exists() ||
+        (currentFile.isDirectory() && currentFile.getName().equals(".svn"))) {
       return;
     }
+
+    // Extract the filename from the file object
+    final String filename = (extractFilename ? currentFile.getName() : this.filename);
+
+    // Add the file to the list (and get more if it is a folder)
     files.add(getFile(currentFile, filename));
     if (currentFile.isDirectory()) {
       for (File child : currentFile.listFiles()) {
-        addFileToList(child);
+        addFileToList(child, true);
       }
     }
   }

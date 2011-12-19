@@ -22,8 +22,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
-import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
-import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
+import org.pentaho.platform.repository.UnmodifiableRepository;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
@@ -33,9 +32,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Default implementation of {@link IUnifiedRepository}. Delegates to {@link IRepositoryFileDao} and 
+ * Default implementation of {@link IUnifiedRepository}. Delegates to {@link IRepositoryFileDao} and
  * {@link IRepositoryFileAclDao}.
- * 
+ *
  * @author mlowery
  */
 public class DefaultUnifiedRepository implements IUnifiedRepository {
@@ -117,7 +116,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-      final IRepositoryFileData data, final String versionMessage) {
+                                   final IRepositoryFileData data, final String versionMessage) {
     return createFile(parentFolderId, file, data, repositoryFileAclDao.createDefaultAcl(), versionMessage);
   }
 
@@ -125,7 +124,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
-      final String versionMessage) {
+                                     final String versionMessage) {
     return createFolder(parentFolderId, file, repositoryFileAclDao.createDefaultAcl(), versionMessage);
   }
 
@@ -133,7 +132,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-      final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
+                                   final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
     Assert.hasText(file.getName());
@@ -148,7 +147,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
-      final RepositoryFileAcl acl, final String versionMessage) {
+                                     final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.notNull(acl);
     Assert.isTrue(file.isFolder());
@@ -160,17 +159,17 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
 
   /**
    * {@inheritDoc}
-   * 
+   * <p/>
    * <p>
    * Delegates to {@link #getStreamForRead(RepositoryFile)} but assumes that some external system (e.g. Spring Security)
    * is protecting this method with different authorization rules than {@link #getStreamForRead(RepositoryFile)}.
    * </p>
-   * 
+   * <p/>
    * <p>
    * In a direct contradiction of the previous paragraph, this implementation is not currently protected by Spring
    * Security.
    * </p>
-   * 
+   *
    * @see #getDataForRead(RepositoryFile, Class)
    */
   public <T extends IRepositoryFileData> T getDataForExecute(final Serializable fileId, final Class<T> dataClass) {
@@ -181,7 +180,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute(final Serializable fileId,
-      final Serializable versionId, final Class<T> dataClass) {
+                                                                      final Serializable versionId, final Class<T> dataClass) {
     return getDataAtVersionForRead(fileId, versionId, dataClass);
   }
 
@@ -196,7 +195,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public <T extends IRepositoryFileData> T getDataAtVersionForRead(final Serializable fileId,
-      final Serializable versionId, final Class<T> dataClass) {
+                                                                   final Serializable versionId, final Class<T> dataClass) {
     Assert.notNull(fileId);
     return repositoryFileDao.getData(fileId, versionId, dataClass);
   }
@@ -242,7 +241,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData data,
-      final String versionMessage) {
+                                   final String versionMessage) {
     Assert.notNull(file);
     Assert.notNull(data);
 
@@ -386,7 +385,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.hasText(destAbsPath);
     repositoryFileDao.moveFile(fileId, destAbsPath, versionMessage);
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -420,9 +419,9 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.hasText(path);
     return repositoryFileDao.getTree(path, depth, filter, showHidden);
   }
-  
+
   private RepositoryFile internalCreateFile(final Serializable parentFolderId, final RepositoryFile file,
-      final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
+                                            final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.notNull(data);
     Assert.notNull(acl);
@@ -430,14 +429,14 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   }
 
   private RepositoryFile internalCreateFolder(final Serializable parentFolderId, final RepositoryFile file,
-      final RepositoryFileAcl acl, final String versionMessage) {
+                                              final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.notNull(acl);
     return repositoryFileDao.createFolder(parentFolderId, file, acl, versionMessage);
   }
 
   private RepositoryFile internalUpdateFile(final RepositoryFile file, final IRepositoryFileData data,
-      final String versionMessage) {
+                                            final String versionMessage) {
     Assert.notNull(file);
     Assert.notNull(data);
     return repositoryFileDao.updateFile(file, data, versionMessage);
@@ -452,9 +451,20 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.notNull(fileId);
     repositoryFileDao.setFileMetadata(fileId, metadataMap);
   }
-  
+
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     Assert.notNull(fileId);
     return repositoryFileDao.getFileMetadata(fileId);
+  }
+
+  /**
+   * Returns an instance of this repository which will throw an exception if a method that would modify the
+   * contents of the repository is called.
+   *
+   * @return A wrapped instance of this repository which can not be modified
+   */
+  @Override
+  public IUnifiedRepository unmodifiable() {
+    return new UnmodifiableRepository(this);
   }
 }

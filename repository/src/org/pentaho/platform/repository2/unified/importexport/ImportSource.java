@@ -28,13 +28,6 @@ import java.io.InputStream;
 public interface ImportSource {
 
   /**
-   * Initializes the ImportSource
-   *
-   * @throws Exception indicates an error initializing this ImportSource
-   */
-  public void initialize() throws Exception;
-
-  /**
    * Returns the set of files available by this Import Source.</p>
    * NOTE: the Iterable object <b>MUST</b> support the {@code Iterator.remove()} method as the
    * consumer of this information will be iterating over the data and will remove items that they process

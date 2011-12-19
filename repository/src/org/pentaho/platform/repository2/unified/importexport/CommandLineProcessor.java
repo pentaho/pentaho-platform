@@ -100,6 +100,7 @@ public class CommandLineProcessor {
 
         case IMPORT:
           commandLineProcessor.performImport();
+          break;
 
         case EXPORT:
           commandLineProcessor.performExport();
@@ -156,7 +157,7 @@ public class CommandLineProcessor {
     return requestType;
   }
 
-  protected void performImport() throws ParseException, ImportException {
+  protected void performImport() throws Exception, ImportException {
     final ImportProcessor importProcessor = getImportProcessor();
     importProcessor.setImportSource(createImportSource());
     addImportHandlers(importProcessor);
@@ -182,27 +183,25 @@ public class CommandLineProcessor {
   /**
    * Creates an instance of an {@link ImportSource} based off the command line options
    */
-  protected ImportSource createImportSource() throws ParseException {
+  protected ImportSource createImportSource() throws ParseException, InitializationException {
     final String source = getOptionValue("source", true, false);
     final String requiredCharset = getOptionValue("charset", true, false);
     if (StringUtils.equals(source, "legacy-db")) {
-      String driver = getOptionValue("legacy-db-driver", true, false);
-      String url = getOptionValue("legacy-db-url", true, false);
-      String dbUsername = getOptionValue("legacy-db-username", true, false);
-      String dbPassword = getOptionValue("legacy-db-password", true, true);
-      String charset = getOptionValue("legacy-db-charset", true, true);
-      DataSource dataSource = new DriverManagerDataSource(driver, url, dbUsername, dbPassword);
+      final String driver = getOptionValue("legacy-db-driver", true, false);
+      final String url = getOptionValue("legacy-db-url", true, false);
+      final String dbUsername = getOptionValue("legacy-db-username", true, false);
+      final String dbPassword = getOptionValue("legacy-db-password", true, true);
+      final String charset = getOptionValue("legacy-db-charset", true, true);
+      final DataSource dataSource = new DriverManagerDataSource(driver, url, dbUsername, dbPassword);
 
       final String username = getOptionValue("username", true, false);
-      ImportSource importSource = new DbSolutionRepositoryImportSource(dataSource, charset, requiredCharset, username);
-      return importSource;
+      return new DbSolutionRepositoryImportSource(dataSource, charset, requiredCharset, username);
     }
 
     if (StringUtils.equals(source, "file-system")) {
       final String filePath = getOptionValue("file-path", true, false);
-      File file = new File(filePath);
-      ImportSource importSource = new FileSolutionRepositoryImportSource(file, requiredCharset);
-      return importSource;
+      final File file = new File(filePath);
+      return new FileSolutionRepositoryImportSource(file, requiredCharset);
     }
 
     // Source is not understood

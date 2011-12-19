@@ -23,12 +23,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
+import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -38,26 +38,13 @@ import java.util.zip.ZipInputStream;
  */
 public class MetadataImportHandlerTest extends TestCase {
   private IUnifiedRepository repository;
-  private File tempDir;
 
   @Override
   protected void setUp() throws Exception {
-    super.setUp();
-
-    // Create a temp directory for use by the FileSystem repository
-    tempDir = File.createTempFile("MetadataImportHandlerTest-", "");
-    assertTrue(tempDir.delete());
-    assertTrue(tempDir.mkdir());
-    repository = new FileSystemBackedUnifiedRepository(tempDir);
-
-    // Create the /etc and /etc/public folders
-    repository.createFolder(repository.getFile("/").getId(),
-        new RepositoryFile.Builder("etc").folder(true).build(), "initialization");
-    final RepositoryFile publicFolder
-        = repository.createFolder(repository.getFile("/").getId(),
-        new RepositoryFile.Builder("public").folder(true).build(), "initialization");
-    repository.createFolder(publicFolder.getId(),
-        new RepositoryFile.Builder("user").folder(true).build(), "initialization");
+    // Define a repository for testing
+    repository = new MockUnifiedRepository(new MockUserProvider());
+    repository.createFolder(repository.getFile("/etc").getId(),
+        new RepositoryFile.Builder("metadata").folder(true).build(), "initialization");
   }
 
 
@@ -90,7 +77,6 @@ public class MetadataImportHandlerTest extends TestCase {
       // Use the test ZIP file and the ZipSolutionRepositoryImportSource
       zis = getZipInputStream("testdata/pentaho-solutions.zip");
       final ZipSolutionRepositoryImportSource importSource = new ZipSolutionRepositoryImportSource(zis, "UTF-8");
-      importSource.initialize();
       assertEquals("The test should start with exactly 65 files", 65, importSource.getCount());
 
       final MetadataImportHandler handler = new MetadataImportHandler(repository);
@@ -114,5 +100,20 @@ public class MetadataImportHandlerTest extends TestCase {
     final InputStream inputStream = this.getClass().getResourceAsStream(path);
     assertNotNull(inputStream);
     return new ZipInputStream(inputStream);
+  }
+
+  /**
+   *
+   */
+  private class MockUserProvider implements MockUnifiedRepository.ICurrentUserProvider {
+    @Override
+    public String getUser() {
+      return MockUnifiedRepository.root().getName();
+    }
+
+    @Override
+    public List<String> getRoles() {
+      return new ArrayList<String>();
+    }
   }
 }

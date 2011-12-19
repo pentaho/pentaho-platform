@@ -20,6 +20,8 @@ package org.pentaho.platform.repository2.unified.importexport.legacy;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository2.unified.importexport.InitializationException;
 import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
 import org.springframework.util.Assert;
 
@@ -45,51 +47,59 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
    * @param zipInputStream
    * @param charSet
    */
-  public ZipSolutionRepositoryImportSource(final ZipInputStream zipInputStream, final String charSet) {
+  public ZipSolutionRepositoryImportSource(final ZipInputStream zipInputStream, final String charSet)
+      throws InitializationException {
     Assert.notNull(zipInputStream);
     Assert.hasText(charSet);
     this.zipInputStream = zipInputStream;
     this.charSet = charSet;
     this.files = new ArrayList<IRepositoryFileBundle>();
+
+    initialize();
   }
 
   /**
    * Initializes the ImportSource - it will read the zip input stream and create the list of files
    */
-  @Override
-  public void initialize() throws IOException {
-    ZipEntry entry = zipInputStream.getNextEntry();
-    while (entry != null) {
-      final String entryName = RepositoryFilenameUtils.separatorsToRepository(entry.getName());
-      final String extension = RepositoryFilenameUtils.getExtension(entryName);
-      File tempFile = null;
-      boolean isDir = entry.getSize() == 0;
-      if (!isDir) {
-        tempFile = File.createTempFile("zip", null);
-        tempFile.deleteOnExit();
-        FileOutputStream fos = new FileOutputStream(tempFile);
-        if (WAQRFilesMigrationHelper.isOldXWAQRFile(entryName)) {
-          WAQRFilesMigrationHelper.convertToNewXWAQR(zipInputStream, fos);
-        } else if (WAQRFilesMigrationHelper.isOldXreportSpecFile(entryName)) {
-          WAQRFilesMigrationHelper.convertToNewXreportSpec(zipInputStream, fos);
-        } else {
-          IOUtils.copy(zipInputStream, fos);
+  protected void initialize() throws InitializationException {
+    try {
+      ZipEntry entry = zipInputStream.getNextEntry();
+      while (entry != null) {
+        final String entryName = RepositoryFilenameUtils.separatorsToRepository(entry.getName());
+        final String extension = RepositoryFilenameUtils.getExtension(entryName);
+        File tempFile = null;
+        boolean isDir = entry.getSize() == 0;
+        if (!isDir) {
+          tempFile = File.createTempFile("zip", null);
+          tempFile.deleteOnExit();
+          FileOutputStream fos = new FileOutputStream(tempFile);
+          if (WAQRFilesMigrationHelper.isOldXWAQRFile(entryName)) {
+            WAQRFilesMigrationHelper.convertToNewXWAQR(zipInputStream, fos);
+          } else if (WAQRFilesMigrationHelper.isOldXreportSpecFile(entryName)) {
+            WAQRFilesMigrationHelper.convertToNewXreportSpec(zipInputStream, fos);
+          } else {
+            IOUtils.copy(zipInputStream, fos);
+          }
+
+          fos.close();
         }
+        File file = new File(entryName);
+        RepositoryFile repoFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(file.getName()))
+            .folder(isDir).hidden(WAQRFilesMigrationHelper.hideFileCheck(file.getName())).build();
 
-        fos.close();
+        String parentDir = new File(entryName).getParent() == null ? "/" : new File(entryName).getParent() + "/";
+        RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, parentDir,
+            tempFile, charSet, getMimeType(extension.toLowerCase()));
+        files.add(repoFileBundle);
+        zipInputStream.closeEntry();
+        entry = zipInputStream.getNextEntry();
       }
-      File file = new File(entryName);
-      RepositoryFile repoFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(file.getName()))
-          .folder(isDir).hidden(WAQRFilesMigrationHelper.hideFileCheck(file.getName())).build();
-
-      String parentDir = new File(entryName).getParent() == null ? "/" : new File(entryName).getParent() + "/";
-      RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, parentDir,
-          tempFile, charSet, getMimeType(extension.toLowerCase()));
-      files.add(repoFileBundle);
-      zipInputStream.closeEntry();
-      entry = zipInputStream.getNextEntry();
+      zipInputStream.close();
+    } catch (IOException exception) {
+      // TODO I18N
+      final String errorMessage = Messages.getInstance().getErrorString("", exception.getLocalizedMessage());
+      throw new InitializationException(errorMessage, exception);
     }
-    zipInputStream.close();
   }
 
   /* (non-Javadoc)
