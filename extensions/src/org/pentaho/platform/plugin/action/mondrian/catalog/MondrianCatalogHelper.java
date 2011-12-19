@@ -527,6 +527,9 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 	  		
 	  try {
 		  String datasourceInfo = "Provider=mondrian;DataSource=" + databaseConnection;
+		  if(!StringUtils.isEmpty(parameters)) {
+			  datasourceInfo = parameters;
+		  }
 		  
 		  String TMP_FILE_PATH = File.separatorChar + "system" + File.separatorChar + File.separatorChar + "tmp" + File.separatorChar;
 		  String sysTmpDir = PentahoSystem.getApplicationContext().getSolutionPath(TMP_FILE_PATH);
