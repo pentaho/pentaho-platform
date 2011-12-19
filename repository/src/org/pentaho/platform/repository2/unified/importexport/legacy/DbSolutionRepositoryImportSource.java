@@ -14,6 +14,21 @@
  */
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.repository2.unified.importexport.ImportSource;
+import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.util.Assert;
+
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,34 +47,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import javax.sql.DataSource;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.repository2.unified.importexport.ImportSource;
-import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.util.Assert;
 
 /**
  * An {@link ImportSource} that connects to the legacy database-based solution repository.
- * 
+ * <p/>
  * This implementation works in the following way:
- * 
+ * <p/>
  * <ol>
  * <li>Fetch all (joined) rows in a single query.</li>
  * <li>Process the result set, creating files, ACLs, and possibly temporary files containing the files' data.</li>
@@ -67,9 +64,9 @@ import org.springframework.util.Assert;
  * <li>Close the result set.</li>
  * <li>Iterate over the batches, one at a time.</li>
  * </ol>
- * 
+ * <p/>
  * This implementation saves memory at the expense of disk space.
- * 
+ *
  * @author mlowery
  */
 public class DbSolutionRepositoryImportSource extends AbstractImportSource {
@@ -81,30 +78,36 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
   // ~ Instance fields =================================================================================================
 
   private String srcCharset;
-
   private String requiredCharset;
-
-  private JdbcTemplate jdbcTemplate;
-
   private String ownerName;
+  private JdbcTemplate jdbcTemplate;
 
   // ~ Constructors ====================================================================================================
 
-  public DbSolutionRepositoryImportSource(final DataSource dataSource, final String srcCharset) {
+  public DbSolutionRepositoryImportSource(final DataSource dataSource, final String srcCharset,
+                                          final String requiredCharset, final String ownerName) {
     super();
     Assert.notNull(dataSource);
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     Assert.hasLength(srcCharset);
     this.srcCharset = srcCharset;
+    this.requiredCharset = requiredCharset;
+    this.ownerName = ownerName;
   }
 
   // ~ Methods =========================================================================================================
 
-  public IRepositoryFileBundle getFile(final String path) {
-    Assert.hasLength(requiredCharset);
-    throw new UnsupportedOperationException();
+  /**
+   * The set is created dynamically - so we can't know this
+   */
+  @Override
+  public int getCount() {
+    return -1;
   }
 
+  /**
+   * @return
+   */
   public Iterable<IRepositoryFileBundle> getFiles() {
     Assert.hasLength(requiredCharset);
     return new Iterable<IRepositoryFileBundle>() {
@@ -114,26 +117,26 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
     };
   }
 
+  /**
+   * DESCRIPTION NEEDED
+   */
   private class RepositoryFileBundleIterator implements Iterator<IRepositoryFileBundle> {
 
-    public static final String GET_FILES_QUERY = "SELECT f.FILE_ID, f.fileName, f.fullPath, f.data, f.directory, f.lastModified, "
-        + "a.ACL_MASK, a.RECIP_TYPE, a.RECIPIENT "
-        + "FROM PRO_FILES f LEFT OUTER JOIN PRO_ACLS_LIST a "
-        + "ON f.FILE_ID = a.ACL_ID " + "ORDER BY f.fullPath, a.ACL_POSITION ";
+    public static final String GET_FILES_QUERY =
+        "SELECT f.FILE_ID, f.fileName, f.fullPath, f.data, f.directory, f.lastModified, "
+            + "a.ACL_MASK, a.RECIP_TYPE, a.RECIPIENT "
+            + "FROM PRO_FILES f LEFT OUTER JOIN PRO_ACLS_LIST a "
+            + "ON f.FILE_ID = a.ACL_ID " + "ORDER BY f.fullPath, a.ACL_POSITION ";
 
     //    public static final String GET_FILE_QUERY = "SELECT f.fileName, f.fullPath, f.data, f.directory, f.lastModified "
     //        + "FROM PRO_FILES f " + "WHERE f.fullPath = ?";
 
-    private int i = BATCH_SIZE; // this initial value forces fetch
-
-    private int actualBatchSize = BATCH_SIZE; // this initial value forces fetch
-
-    private int batchNumber;
-
-    private List<IRepositoryFileBundle> batch;
-
     private static final int BATCH_SIZE = 100;
 
+    private int i = BATCH_SIZE; // this initial value forces fetch
+    private int actualBatchSize = BATCH_SIZE; // this initial value forces fetch
+    private int batchNumber;
+    private List<IRepositoryFileBundle> batch;
     private List<File> serializedBatches;
 
     public RepositoryFileBundleIterator() {
@@ -173,70 +176,29 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
       }
     }
 
+    /**
+     *
+     */
     private class DbsrRowCallbackHandler implements RowCallbackHandler {
+      private String lastId;
+      private RepositoryFile currentFile;
+      private RepositoryFileAcl.Builder currentAclBuilder;
+      private File currentTmpFile;
+      private String currentPath;
+      private String currentMimeType;
+      private String currentCharset;
+      private final List<IRepositoryFileBundle> currentBatch = new ArrayList<IRepositoryFileBundle>(BATCH_SIZE);
+      private final List<File> serializedBatches = new ArrayList<File>();
+      private final List<String> binaryFileTypes = new ArrayList<String>(Arrays.asList(new String[]{"gif", "jpg", "png", "prpt"}));
 
       @SuppressWarnings("nls")
       public DbsrRowCallbackHandler() {
-        mimeTypes.put("prpt", "application/zip");
-        mimeTypes.put("mondrian.xml", "text/xml");
-        mimeTypes.put("gif", "image/gif");
-        mimeTypes.put("css", "text/css");
-        mimeTypes.put("html", "text/html");
-        mimeTypes.put("htm", "text/html");
-        mimeTypes.put("jpg", "image/jpeg");
-        mimeTypes.put("jpeg", "image/jpeg");
-        mimeTypes.put("js", "text/javascript");
-        mimeTypes.put("cfg.xml", "text/xml");
-        mimeTypes.put("jrxml", "text/xml");
-        mimeTypes.put("kjb", "text/xml");
-        mimeTypes.put("ktr", "text/xml");
-        mimeTypes.put("png", "image/png");
-        mimeTypes.put("properties", "text/plain");
-        mimeTypes.put("report", "text/xml");
-        mimeTypes.put("rptdesign", "text/xml");
-        mimeTypes.put("svg", "image/svg+xml");
-        mimeTypes.put("url", "application/internet-shortcut");
-        mimeTypes.put("sql", "text/plain");
-        mimeTypes.put("xaction", "text/xml");
-        mimeTypes.put("xanalyzer", "text/xml");
-        mimeTypes.put("xcdf", "text/xml");
-        mimeTypes.put("xdash", "text/xml");
-        mimeTypes.put("xmi", "text/xml");
-        mimeTypes.put("xml", "text/xml");
-        mimeTypes.put("xreportspec", "text/xml");
-        mimeTypes.put("waqr.xaction", "text/xml");
-        mimeTypes.put("xwaqr", "text/xml");
-        mimeTypes.put(null, null);
       }
-      
-      private String lastId;
 
-      private RepositoryFile currentFile;
-
-      private RepositoryFileAcl.Builder currentAclBuilder;
-
-      private List<IRepositoryFileBundle> currentBatch = new ArrayList<IRepositoryFileBundle>(BATCH_SIZE);
-
-      private File currentTmpFile;
-
-      private String currentPath;
-      
-      private String currentMimeType;
-      
-      private String currentCharset;
-
-      private List<File> serializedBatches = new ArrayList<File>();
-
-      /**
-       * Keys are extensions and values are MIME types.
-       */
-      private Map<String, String> mimeTypes = new HashMap<String, String>();
-      
       /**
        * List is manually sorted!
        */
       @SuppressWarnings("nls")
-      private List<String> binaryFileTypes = new ArrayList<String>(Arrays.asList(new String[] { "gif", "jpg", "png", "prpt" }));
 
       public void processRow(final ResultSet rs) throws SQLException {
         final String id = rs.getString(1);
@@ -265,12 +227,12 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
           Date lastModificationDate = null;
           int lastModificationDateColumnType = rs.getMetaData().getColumnType(6);
           if (lastModificationDateColumnType == Types.DATE) {
-            lastModificationDate = rs.getDate(6);  
+            lastModificationDate = rs.getDate(6);
           } else {
             lastModificationDate = new Date(rs.getLong(6));
           }
           currentFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(name))
-            .hidden(WAQRFilesMigrationHelper.hideFileCheck(name)).folder(folder).lastModificationDate(lastModificationDate)
+              .hidden(WAQRFilesMigrationHelper.hideFileCheck(name)).folder(folder).lastModificationDate(lastModificationDate)
               .build();
           // currentTmpFile holds contents (i.e. data) of currentFile
           currentTmpFile = null;
@@ -283,7 +245,7 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
               throw new RuntimeException(e);
             }
             currentCharset = isBinary(name) ? null : requiredCharset;
-            currentMimeType = mimeTypes.get(getExtension(name));
+            currentMimeType = getMimeType(getExtension(name));
           }
 
           if (hasAcl(rs)) {
@@ -366,12 +328,12 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
           if ((mask & 32) == 32) { // UPDATE_PERMISSIONS
             perms.add(RepositoryFilePermission.WRITE_ACL);
           }
-          if(perms.isEmpty()) {
+          if (perms.isEmpty()) {
             return EnumSet.noneOf(RepositoryFilePermission.class);
           } else {
-          return EnumSet.copyOf(perms);
+            return EnumSet.copyOf(perms);
+          }
         }
-      }
       }
 
       private File getTmpFile(final String name, final InputStream in) throws IOException {
@@ -389,10 +351,10 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
         } else {
           logger.debug(name + " is binary");
           FileOutputStream out = new FileOutputStream(tmp);
-          if(WAQRFilesMigrationHelper.isOldXWAQRFile(name)) {
-            WAQRFilesMigrationHelper.convertToNewXWAQR(in, out) ;
+          if (WAQRFilesMigrationHelper.isOldXWAQRFile(name)) {
+            WAQRFilesMigrationHelper.convertToNewXWAQR(in, out);
           } else if (WAQRFilesMigrationHelper.isOldXreportSpecFile(name)) {
-            WAQRFilesMigrationHelper.convertToNewXreportSpec(in, out) ;
+            WAQRFilesMigrationHelper.convertToNewXreportSpec(in, out);
           }
           IOUtils.copy(in, out);
           IOUtils.closeQuietly(in);
@@ -419,21 +381,6 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
           return null;
         }
       }
-
     }
-
   }
-
-  public void setRequiredCharset(final String requiredCharset) {
-    this.requiredCharset = requiredCharset;
-  }
-
-  public String getRequiredCharset() {
-    return requiredCharset;
-  }
-
-  public void setOwnerName(final String ownerName) {
-    this.ownerName = ownerName;
-  }
-
 }

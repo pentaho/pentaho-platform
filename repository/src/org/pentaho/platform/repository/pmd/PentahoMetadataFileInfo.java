@@ -28,10 +28,16 @@ public class PentahoMetadataFileInfo {
   public enum FileType {XMI, PROPERTIES, UNKNOWN}
 
   private FileType fileType;
+  private String path;
   private String filename;
   private String basename;
   private String extension;
   private String locale;
+  private String domainId;
+
+  public String getPath() {
+    return path;
+  }
 
   public FileType getFileType() {
     return fileType;
@@ -53,7 +59,12 @@ public class PentahoMetadataFileInfo {
     return locale;
   }
 
+  public String getDomainId() {
+    return domainId;
+  }
+
   public PentahoMetadataFileInfo(final String path) {
+    this.path = path;
     this.basename = FilenameUtils.getBaseName(path);
     this.extension = FilenameUtils.getExtension(path);
     this.fileType = (StringUtils.equals(extension, "xmi") ? FileType.XMI
@@ -61,6 +72,17 @@ public class PentahoMetadataFileInfo {
 
     this.locale = computeLocale();
     this.filename = (locale == null ? basename : basename.substring(0, basename.length() - locale.length() - 1));
+    this.domainId = computeDomainId(path);
+  }
+
+  private String computeDomainId(final String path) {
+    if (fileType == FileType.XMI || fileType == FileType.PROPERTIES) {
+      if (StringUtils.equals(filename, "metadata")) {
+        return FilenameUtils.getBaseName(FilenameUtils.getFullPathNoEndSeparator(path));
+      }
+      return filename;
+    }
+    return null;
   }
 
   protected String computeLocale() {

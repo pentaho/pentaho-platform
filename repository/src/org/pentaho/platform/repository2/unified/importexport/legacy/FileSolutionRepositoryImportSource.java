@@ -16,6 +16,8 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
@@ -24,154 +26,90 @@ import org.springframework.util.Assert;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  * @author wseyler
- *
  */
 public class FileSolutionRepositoryImportSource extends AbstractImportSource {
+  private static final Log log = LogFactory.getLog(FileSolutionRepositoryImportSource.class);
 
   private File sourceFile;
-
   private String charSet;
-
-  private String ownerName;
-
-  private boolean recursive;
+  private String filename;
+  private final List<IRepositoryFileBundle> files = new ArrayList<IRepositoryFileBundle>();
 
   public FileSolutionRepositoryImportSource(final File sourceFile, final String charSet) {
-    super();
+    this(sourceFile, sourceFile.getName(), charSet);
+  }
+
+  public FileSolutionRepositoryImportSource(final File sourceFile, final String filename, final String charSet) {
     Assert.notNull(sourceFile);
-    recursive = sourceFile.isDirectory();
+    Assert.hasText(filename);
+    Assert.hasText(charSet);
     this.sourceFile = sourceFile;
-    Assert.notNull(charSet);
+    this.filename = filename;
     this.charSet = charSet;
   }
 
-  /* (non-Javadoc)
-   * @see org.pentaho.platform.repository2.unified.importexport.ImportSource#getFile(java.lang.String)
+  /**
+   * builds the list of files
+   *
+   * @throws Exception indicates an error initializing this ImportSource
    */
-  public IRepositoryFileBundle getFile(final String path) {
-    File file = new File(path);
-    file = file.getAbsoluteFile();
-    if(WAQRFilesMigrationHelper.isOldXWAQRFile(file.getName())) {
-      WAQRFilesMigrationHelper.convertToNewXWAQR(file) ;
-    } else if (WAQRFilesMigrationHelper.isOldXreportSpecFile(file.getName())) {
-      WAQRFilesMigrationHelper.convertToNewXreportSpec(file) ;
-    }
-    RepositoryFile repoFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(file.getName()))
-        .folder(file.isDirectory()).hidden(WAQRFilesMigrationHelper.hideFileCheck(file.getName())).lastModificationDate(new Date(file.lastModified())).build();
-
-    String extension = file.getName().substring(file.getName().lastIndexOf('.') + 1);
-    String repoPath = "";
-    if (recursive) {
-      String parentFilePath = file.getParentFile().getAbsolutePath();
-      String sourceParentFilePath = sourceFile.getParentFile().getAbsolutePath();
-      repoPath = parentFilePath.substring(sourceParentFilePath.length()) + File.separator;
-    }
-
-    repoPath = RepositoryFilenameUtils.separatorsToRepository(repoPath);
-    RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, repoPath, file, charSet,
-        mimeTypes.get(extension.toLowerCase()));
-
-    return repoFileBundle;
+  @Override
+  public void initialize() throws Exception {
+    addFileToList(sourceFile);
+    log.debug("File list built - size=" + files.size());
   }
 
   /* (non-Javadoc)
-   * @see org.pentaho.platform.repository2.unified.importexport.ImportSource#getFiles()
-   */
+  * @see org.pentaho.platform.repository2.unified.importexport.ImportSource#getFiles()
+  */
   public Iterable<IRepositoryFileBundle> getFiles() {
-    return new Iterable<IRepositoryFileBundle>() {
-      @SuppressWarnings("synthetic-access")
-      public Iterator<IRepositoryFileBundle> iterator() {
-        return new RepositoryFileBundleIterator(sourceFile);
-      }
-    };
+    return files;
   }
 
-  /* (non-Javadoc)
-   * @see org.pentaho.platform.repository2.unified.importexport.ImportSource#getRequiredCharset()
+  /**
+   * Returns the number of files to process (or -1 if that is not known)
    */
-  public String getRequiredCharset() {
-    // TODO Auto-generated method stub
-    return null;
+  @Override
+  public int getCount() {
+    return files.size();
   }
 
-  /* (non-Javadoc)
-   * @see org.pentaho.platform.repository2.unified.importexport.ImportSource#setOwnerName(java.lang.String)
-   */
-  public void setOwnerName(String ownerName) {
-    this.ownerName = ownerName;
-  }
-
-  /* (non-Javadoc)
-   * @see org.pentaho.platform.repository2.unified.importexport.ImportSource#setRequiredCharset(java.lang.String)
-   */
-  public void setRequiredCharset(String charset) {
-    // TODO Auto-generated method stub
-
-  }
-
-  private class RepositoryFileBundleIterator implements Iterator<IRepositoryFileBundle> {
-
-    private File baseFile;
-
-    Iterator<File> iter;
-
-    List<File> files = new ArrayList<File>();
-
-    public RepositoryFileBundleIterator(File baseFile) {
-      super();
-      this.baseFile = baseFile;
-      buildFileList(baseFile);
-      iter = files.listIterator();
+  protected void addFileToList(final File currentFile) {
+    // Weed out .svn folders
+    if (currentFile == null || (currentFile.isDirectory() && currentFile.getName().equals(".svn"))) {
+      return;
     }
-
-    /**
-     * 
-     */
-    private void buildFileList(File currentFile) {
-      // Weed out the system folder
-      if (currentFile.isDirectory() && currentFile.getName().equals("system")) {
-        return;
-      }
-      // Weed out .svn folders
-      if (currentFile.isDirectory() && currentFile.getName().equals(".svn")) {
-        return;
-      }
-      files.add(currentFile);
-      if (currentFile.isDirectory()) {
-        for (File child : currentFile.listFiles()) {
-          buildFileList(child);
-        }
+    files.add(getFile(currentFile, filename));
+    if (currentFile.isDirectory()) {
+      for (File child : currentFile.listFiles()) {
+        addFileToList(child);
       }
     }
-
-    /* (non-Javadoc)
-     * @see java.util.Iterator#hasNext()
-     */
-    public boolean hasNext() {
-      return iter.hasNext();
-    }
-
-    /* (non-Javadoc)
-     * @see java.util.Iterator#next()
-     */
-    public IRepositoryFileBundle next() {
-      File nextFile = iter.next();
-      return FileSolutionRepositoryImportSource.this.getFile(nextFile.getAbsolutePath());
-    }
-
-    /* (non-Javadoc)
-     * @see java.util.Iterator#remove()
-     */
-    public void remove() {
-      iter.remove();
-    }
-
   }
 
+  protected IRepositoryFileBundle getFile(final File currentFile, final String filename) {
+    if (WAQRFilesMigrationHelper.isOldXWAQRFile(filename)) {
+      WAQRFilesMigrationHelper.convertToNewXWAQR(currentFile);
+    } else if (WAQRFilesMigrationHelper.isOldXreportSpecFile(filename)) {
+      WAQRFilesMigrationHelper.convertToNewXreportSpec(currentFile);
+    }
 
+    final RepositoryFile repoFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(filename))
+        .folder(currentFile.isDirectory()).hidden(WAQRFilesMigrationHelper.hideFileCheck(filename))
+        .lastModificationDate(new Date(currentFile.lastModified())).build();
+
+    final String extension = RepositoryFilenameUtils.getExtension(filename);
+    String repoPath = "";
+    if (currentFile.isDirectory()) {
+      final String parentFilePath = currentFile.getParentFile().getAbsolutePath();
+      final String sourceParentFilePath = sourceFile.getParentFile().getAbsolutePath();
+      repoPath = RepositoryFilenameUtils.getFullPath(filename);
+    }
+
+    return new RepositoryFileBundle(repoFile, null, repoPath, currentFile, charSet, getMimeType(extension.toLowerCase()));
+  }
 }

@@ -87,5 +87,27 @@ public class PentahoMetadataFileInfoTest extends TestCase {
       assertEquals("Invalid extension computed for path [" + path + "]", testData[EXTENSION], fileInfo.getExtension());
       assertEquals("Invalid locale computed for path [" + path + "]", testData[LOCALE], fileInfo.getLocale());
     }
+
+    {
+      final PentahoMetadataFileInfo fileInfo = new PentahoMetadataFileInfo("/solution/system/admin/resources/metadata/steel-wheels.xmi");
+      assertEquals("steel-wheels", fileInfo.getDomainId());
+    }
+
+    {
+      final PentahoMetadataFileInfo fileInfo = new PentahoMetadataFileInfo("/solution/steel-wheels/metadata.xmi");
+      assertEquals("steel-wheels", fileInfo.getDomainId());
+    }
+
+    {
+      final PentahoMetadataFileInfo fileInfo = new PentahoMetadataFileInfo("/solution/system/admin/resources/metadata/steel-wheels_it_IT.properties");
+      assertEquals("steel-wheels", fileInfo.getDomainId());
+      assertEquals("it_IT", fileInfo.getLocale());
+    }
+
+    {
+      final PentahoMetadataFileInfo fileInfo = new PentahoMetadataFileInfo("/solution/steel-wheels/metadata_it_IT.properties");
+      assertEquals("steel-wheels", fileInfo.getDomainId());
+      assertEquals("it_IT", fileInfo.getLocale());
+    }
   }
 }

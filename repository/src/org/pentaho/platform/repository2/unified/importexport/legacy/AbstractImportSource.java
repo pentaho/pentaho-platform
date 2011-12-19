@@ -17,31 +17,19 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.repository2.unified.importexport.ImportSource;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author wseyler
- *
  */
 public abstract class AbstractImportSource implements ImportSource {
-  /**
-   * Keys are extensions and values are MIME types.
-   */
-  protected IUnifiedRepository unifiedRepository;
-  protected Map<String, ImportSource> sourceTypes = new HashMap<String, ImportSource>();
-  protected Map<String, String> mimeTypes = new HashMap<String, String>();
-  protected List<ImportSource> dependentImportSources = new ArrayList<ImportSource>();
-  protected List<IRepositoryFileBundle> files = new ArrayList<IRepositoryFileBundle>();  
-  
-  public AbstractImportSource() {
-    super();
-    
+  private static final Map<String, String> mimeTypes = new HashMap<String, String>();
+
+  static {
+    // Keys are extensions and values are MIME types.
     mimeTypes.put("prpt", "application/zip"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("mondrian.xml", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("gif", "image/gif"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -74,50 +62,32 @@ public abstract class AbstractImportSource implements ImportSource {
     mimeTypes.put("waqr.xml", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("xwaqr", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("cda", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
+    mimeTypes.put("xls", "application/vnd.ms-excel"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put(null, null);
   }
-  
-  public void addFile(IRepositoryFileBundle file) {
-  }
-  
-  public List<ImportSource> getDependentImportSources() {
-	  return dependentImportSources;
-  }
-  
-  protected ImportSource resolveDependentImportSource(String key) {
-	  if(sourceTypes.isEmpty()) {
-		  initializeSourceTypes();
-	  }
-	  ImportSource importSource = sourceTypes.get(key);
-	  if(importSource != null) {
-		  if(!dependentImportSources.contains(importSource)) {
-			  dependentImportSources.add(importSource);
-		  }
-	  }
-	  return importSource;
-  }
-  
-  private void initializeSourceTypes() {
-	  MondrianSchemaImportSource importSource = new MondrianSchemaImportSource();
-	  sourceTypes.put(".mondrian.xml", importSource);
-	  sourceTypes.put("datasources.xml", importSource);
-  }
-  
-  public String getRequiredCharset() {
-	return null;
+
+  /**
+   * Default constructor (does nothing)
+   */
+  public AbstractImportSource() {
   }
 
-  public void setOwnerName(String ownerName) {
+  /**
+   * Returns the mime-type for the given file extension
+   *
+   * @return the mime-type for the given file extension, or {@code null} if none is defined
+   */
+  protected String getMimeType(final String extension) {
+    return mimeTypes.get(extension);
   }
 
-  public void setRequiredCharset(String charset) {
-  }
-	
-  public IRepositoryFileBundle getFile(String path) {
-	return null;
-  }
-	
-  public void initialize(IUnifiedRepository unifidedRepository) {
-	  this.unifiedRepository = unifidedRepository;
+
+  /**
+   * Default initializer (does nothing)
+   *
+   * @throws Exception indicates an error initializing this ImportSource
+   */
+  @Override
+  public void initialize() throws Exception {
   }
 }

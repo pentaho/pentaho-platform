@@ -22,7 +22,6 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
 import org.pentaho.platform.repository2.unified.importexport.StreamConverter;
 
@@ -34,10 +33,13 @@ public class MondrianCatalogRepositoryHelper {
 
   private final static String ETC_MONDRIAN_JCR_FOLDER = RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian";
 
-  private IUnifiedRepository unifiedRepository;
+  private IUnifiedRepository repository;
 
-  public MondrianCatalogRepositoryHelper() {
-    this.unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
+  public MondrianCatalogRepositoryHelper(final IUnifiedRepository repository) {
+    if (repository == null) {
+      throw new IllegalArgumentException();
+    }
+    this.repository = repository;
   }
 
   public void addSchema(InputStream mondrianFile, String catalogName, String datasourceInfo) throws Exception {
@@ -51,12 +53,12 @@ public class MondrianCatalogRepositoryHelper {
     RepositoryFile repoFile = new RepositoryFile.Builder("schema.xml").build();
     RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR, tempFile, "UTF-8", "text/xml");
 
-    RepositoryFile schema = unifiedRepository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR + "schema.xml");
+    RepositoryFile schema = repository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR + "schema.xml");
     IRepositoryFileData data = new StreamConverter().convert(repoFileBundle.getInputStream(), repoFileBundle.getCharset(), repoFileBundle.getMimeType());
     if (schema == null) {
-      unifiedRepository.createFile(catalog.getId(), repoFileBundle.getFile(), data, null);
+      repository.createFile(catalog.getId(), repoFileBundle.getFile(), data, null);
     } else {
-      unifiedRepository.updateFile(schema, data, null);
+      repository.updateFile(schema, data, null);
     }
   }
 
@@ -71,10 +73,10 @@ public class MondrianCatalogRepositoryHelper {
        * catalog name from datasources.xml
        */
 
-    RepositoryFile etcMondrian = unifiedRepository.getFile(ETC_MONDRIAN_JCR_FOLDER);
-    RepositoryFile catalog = unifiedRepository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName);
+    RepositoryFile etcMondrian = repository.getFile(ETC_MONDRIAN_JCR_FOLDER);
+    RepositoryFile catalog = repository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName);
     if (catalog == null) {
-      catalog = unifiedRepository.createFolder(etcMondrian.getId(), new RepositoryFile.Builder(catalogName).folder(true).build(), "");
+      catalog = repository.createFolder(etcMondrian.getId(), new RepositoryFile.Builder(catalogName).folder(true).build(), "");
     }
     createDatasourceMetadata(catalog, datasourceInfo);
     return catalog;
@@ -86,7 +88,7 @@ public class MondrianCatalogRepositoryHelper {
   private void createDatasourceMetadata(RepositoryFile catalog, String datasourceInfo) {
 
     final String path = ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalog.getName() + RepositoryFile.SEPARATOR + "metadata";
-    RepositoryFile metadata = unifiedRepository.getFile(path);
+    RepositoryFile metadata = repository.getFile(path);
 
     String definition = "mondrian:/" + catalog.getName();
     DataNode node = new DataNode("catalog");
@@ -95,9 +97,9 @@ public class MondrianCatalogRepositoryHelper {
     NodeRepositoryFileData data = new NodeRepositoryFileData(node);
 
     if (metadata == null) {
-      unifiedRepository.createFile(catalog.getId(), new RepositoryFile.Builder("metadata").build(), data, null);
+      repository.createFile(catalog.getId(), new RepositoryFile.Builder("metadata").build(), data, null);
     } else {
-      unifiedRepository.updateFile(metadata, data, null);
+      repository.updateFile(metadata, data, null);
     }
   }
 

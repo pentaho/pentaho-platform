@@ -24,15 +24,17 @@ package org.pentaho.platform.web.http.api.resources;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.importexport.Converter;
-import org.pentaho.platform.repository2.unified.importexport.FileImporter;
-import org.pentaho.platform.repository2.unified.importexport.ImportSource;
+import org.pentaho.platform.repository2.unified.importexport.DefaultImportHandler;
+import org.pentaho.platform.repository2.unified.importexport.ImportException;
+import org.pentaho.platform.repository2.unified.importexport.ImportProcessor;
+import org.pentaho.platform.repository2.unified.importexport.MetadataImportHandler;
+import org.pentaho.platform.repository2.unified.importexport.MondrianImportHandler;
+import org.pentaho.platform.repository2.unified.importexport.SimpleImportProcessor;
 import org.pentaho.platform.repository2.unified.importexport.StreamConverter;
-import org.pentaho.platform.repository2.unified.importexport.legacy.SingleFileStreamImportSource;
+import org.pentaho.platform.repository2.unified.importexport.legacy.FileSolutionRepositoryImportSource;
 import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
-import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.web.http.messages.Messages;
 
 import javax.ws.rs.Consumes;
@@ -41,6 +43,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -50,27 +53,26 @@ import java.util.zip.ZipInputStream;
 @Path("/repo/files/import")
 public class RepositoryImportResource {
 
-  protected IUnifiedRepository repository;
-  protected DefaultUnifiedRepositoryWebService repoWs;
+  private IUnifiedRepository repository;
 
   public RepositoryImportResource() {
     repository = PentahoSystem.get(IUnifiedRepository.class);
-    repoWs = new DefaultUnifiedRepositoryWebService();
   }
 
   /**
    * @param uploadDir: JCR Directory to which the zip structure or single file will be uploaded to.
    * @param fileIS:    Input stream for the file.
    * @param fileInfo:  Info about he file (
-   * @return http ok response of everythng went well... some other error otherwise
+   * @return http ok response of everything went well... some other error otherwise
    *         <p/>
-   *         This REST method takes multipart form data and imports it to a JCR repository.
+   *         This REST method takes multi-part form data and imports it to a JCR repository.
    */
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.TEXT_HTML)
   public Response doPostImport(@FormDataParam("importDir") String uploadDir,
-                               @FormDataParam("fileUpload") InputStream fileIS, @FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
+                               @FormDataParam("fileUpload") InputStream fileIS,
+                               @FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
     Map<String, Converter> converters = new HashMap<String, Converter>();
     StreamConverter streamConverter = new StreamConverter();
     converters.put("prpt", streamConverter); //$NON-NLS-1$
@@ -104,30 +106,26 @@ public class RepositoryImportResource {
     converters.put("xml", streamConverter); //$NON-NLS-1$
     converters.put("cda", streamConverter); //$NON-NLS-1$
 
-    FileImporter fileImporter = new FileImporter(repository, uploadDir, converters);
-//    addContentHandlers(fileImporter, repository);
-
     try {
-      if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) { //$NON-NLS-1$
-        ImportSource src = new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8", new String[]{RepositoryFile.SEPARATOR + "system" + RepositoryFile.SEPARATOR, ".mondrian.xml", "datasources.xml"}); //$NON-NLS-1$
-        fileImporter.doImport(src, null, true);
-        for (ImportSource dependentImportSource : src.getDependentImportSources()) {
-          dependentImportSource.initialize(repository);
-          dependentImportSource.setOwnerName(uploadDir);
-          FileImporter rootFileImporter = new FileImporter(repository, RepositoryFile.SEPARATOR, converters);
-          rootFileImporter.doImport(dependentImportSource, null, true);
-        }
+      final ImportProcessor importProcessor = new SimpleImportProcessor(uploadDir, null);
+      // TODO - create a SolutionRepositoryImportHandler which delegates to these three automatically
+      importProcessor.addImportHandler(new MondrianImportHandler(repository));
+      importProcessor.addImportHandler(new MetadataImportHandler(repository));
+      importProcessor.addImportHandler(new DefaultImportHandler(repository));
+      if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) {
+        importProcessor.setImportSource(new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8"));
       } else {
-        ImportSource src = new SingleFileStreamImportSource(fileIS, fileInfo.getFileName(), "UTF-8"); //$NON-NLS-1$
-        fileImporter.doImport(src, null, true);
+        final File outFile = File.createTempFile("import", null);
+        outFile.deleteOnExit();
+        importProcessor.setImportSource(new FileSolutionRepositoryImportSource(outFile, fileInfo.getFileName(), "UTF-8"));
       }
-
+      importProcessor.performImport();
+    } catch (ImportException e) {
+      return Response.serverError().entity(e.toString()).build();
     } catch (IOException e) {
       return Response.serverError().entity(e.toString()).build();
-//    } catch (InitializationException e) {
-//      e.printStackTrace();
     }
 
-    return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).build(); //$NON-NLS-1$
+    return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).build();
   }
 }

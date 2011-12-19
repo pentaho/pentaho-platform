@@ -268,9 +268,9 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
         fos.write(inputStreamToBytes(new ByteArrayInputStream(((NodeRepositoryFileData) data).getNode().toString().getBytes())));
       }
     } catch (FileNotFoundException e) {
-      throw new UnifiedRepositoryException();
+      throw new UnifiedRepositoryException(e);
     } catch (IOException e) {
-      throw new UnifiedRepositoryException();
+      throw new UnifiedRepositoryException(e);
     } finally {
       IOUtils.closeQuietly(fos);
     }
