@@ -508,17 +508,13 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     reInit(pentahoSession);
   }
 
-  public void importSchema(String analysisFile, String databaseConnection, String parameters) {
+  public void importSchema(File mondrianFile, String databaseConnection, String parameters) {
 
     try {
       String datasourceInfo = "Provider=mondrian;DataSource=" + databaseConnection;
       if (!StringUtils.isEmpty(parameters)) {
         datasourceInfo = parameters;
       }
-
-      String TMP_FILE_PATH = File.separatorChar + "system" + File.separatorChar + File.separatorChar + "tmp" + File.separatorChar;
-      String sysTmpDir = PentahoSystem.getApplicationContext().getSolutionPath(TMP_FILE_PATH);
-      File mondrianFile = new File(sysTmpDir + File.separatorChar + analysisFile);
 
       FileInputStream parsingInputStream = new FileInputStream(mondrianFile);
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

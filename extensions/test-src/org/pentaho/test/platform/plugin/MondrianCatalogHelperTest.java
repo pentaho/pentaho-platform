@@ -52,6 +52,7 @@ import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.database.service.IDatabaseDialectService;
+import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -73,6 +74,12 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.plugin.UserRoleMapperTest.TestUserRoleListService;
+
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 @SuppressWarnings("nls")
 public class MondrianCatalogHelperTest {
@@ -145,6 +152,34 @@ public class MondrianCatalogHelperTest {
     verify(repo).createFile(eq(makeIdObject(steelWheelsFolderPath)), argThat(isLikeFile(makeFileObject(steelWheelsFolderPath + RepositoryFile.SEPARATOR + "schema.xml"))), 
         any(IRepositoryFileData.class), anyString());
 	}
+	
+	
+	@Test
+	public void testImportSchema() throws Exception {
+
+		String TMP_FILE_PATH = File.separatorChar + "test" + File.separatorChar + "analysis" + File.separatorChar;
+		String uploadDir = PentahoSystem.getApplicationContext().getSolutionPath(TMP_FILE_PATH);
+		File mondrianFile = new File(uploadDir + File.separatorChar + "SampleData.mondrian.xml");
+
+		final String mondrianFolderPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "mondrian";
+		final String sampleDataFolderPath = mondrianFolderPath + RepositoryFile.SEPARATOR + "SampleData";
+		final String metadataPath = sampleDataFolderPath + RepositoryFile.SEPARATOR + "metadata";
+
+		stubGetFolder(repo, mondrianFolderPath);
+		stubGetChildren(repo, mondrianFolderPath); // return no children
+
+		stubGetFileDoesNotExist(repo, sampleDataFolderPath);
+		stubCreateFolder(repo, sampleDataFolderPath);
+
+		stubCreateFile(repo, metadataPath);
+
+		MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
+		helper.importSchema(mondrianFile, "SampleData", "");
+
+		verify(repo).createFile(eq(makeIdObject(sampleDataFolderPath)), argThat(isLikeFile(makeFileObject(metadataPath))), argThat(hasData(pathPropertyPair("/catalog/definition", "mondrian:/" + "SampleData"), pathPropertyPair("/catalog/datasourceInfo", "Provider=mondrian;DataSource=SampleData"))), anyString());
+		verify(repo).createFile(eq(makeIdObject(sampleDataFolderPath)), argThat(isLikeFile(makeFileObject(sampleDataFolderPath + RepositoryFile.SEPARATOR + "schema.xml"))), any(IRepositoryFileData.class), anyString());
+	}
+	
 
 	@Test
 	public void testListCatalog() throws Exception {
