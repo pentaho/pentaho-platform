@@ -17,6 +17,7 @@
 */
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
+import java.io.File;
 import java.util.List;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -75,5 +76,5 @@ public interface IMondrianCatalogService {
    */
   public void reInit(IPentahoSession pentahoSession) throws MondrianCatalogServiceException;
   
-  public void importSchema(String analysisFile, String databaseConnection, String parameters);
+  public void importSchema(File analysisFile, String databaseConnection, String parameters);
 }
