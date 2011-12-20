@@ -530,6 +530,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
       MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper(PentahoSystem.get(IUnifiedRepository.class));
       helper.addSchema(schemaInputStream, catalogName, datasourceInfo);
+      reInit(PentahoSessionHolder.getSession());
     } catch (Exception e) {
       throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
