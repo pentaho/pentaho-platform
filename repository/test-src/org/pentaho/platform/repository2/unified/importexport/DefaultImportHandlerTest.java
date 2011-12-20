@@ -47,6 +47,7 @@ import java.util.zip.ZipInputStream;
  */
 public class DefaultImportHandlerTest extends TestCase {
   private static Log log = LogFactory.getLog(DefaultImportHandlerTest.class);
+  private static final int FINAL_COUNT = 22;
 
   private IUnifiedRepository repository;
 
@@ -61,7 +62,7 @@ public class DefaultImportHandlerTest extends TestCase {
     new RepositoryUtils(repository).getFolder("/home/user", true, true, null);
   }
 
-  private static final File createTempDir() throws IOException {
+  private static File createTempDir() throws IOException {
     final File tempDir = File.createTempFile("DefaultImportHandlerTest-", "");
     assertTrue(tempDir.delete());
     assertTrue(tempDir.mkdir());
@@ -121,7 +122,7 @@ public class DefaultImportHandlerTest extends TestCase {
 
       // The import handler should skip any file (or directory) with 'system' or 'admin' in first 2 path locations
       // and files without extensions, mime-types, and converters
-      assertEquals("The test should have ended without processing 20 files", 20, importSource.getCount());
+      assertEquals("The test should have ended without processing " + FINAL_COUNT + " files", FINAL_COUNT, importSource.getCount());
 
       assertNull(repository.getFile("/pentaho-solutions/system/metadata/README.txt"));
       final RepositoryFile urlFile = repository.getFile("/home/user/pentaho-solutions/bi-developers/charts/chartsamplesdashboard.url");
@@ -144,6 +145,11 @@ public class DefaultImportHandlerTest extends TestCase {
       // Since we don't have access to the plugins, a .prpt file will not be known as an executable type and therefore hidden
       // TODO: the filesystem repository dao doesn't support hidden / not hidden - fix and uncomment the following test
 //      assertTrue(prptWithSpaces.isHidden());
+
+      // Ensure the system and admin folders don't show up
+      assertNull(repository.getFile("/home/user/pentaho-solutions/admin"));
+      assertNull(repository.getFile("/home/user/pentaho-solutions/system"));
+
     } finally {
       IOUtils.closeQuietly(zis);
     }
@@ -161,7 +167,7 @@ public class DefaultImportHandlerTest extends TestCase {
 
       // The import handler should skip any file (or directory) with 'system' or 'admin' in first 2 path locations
       // and files without extensions, mime-types, and converters
-      assertEquals("The test should have ended without processing 20 files", 20, importSource.getCount());
+      assertEquals("The test should have ended without processing " + FINAL_COUNT + " files", FINAL_COUNT, importSource.getCount());
     } finally {
       IOUtils.closeQuietly(zis);
     }
@@ -179,7 +185,7 @@ public class DefaultImportHandlerTest extends TestCase {
 
       // The import handler should skip any file (or directory) with 'system' or 'admin' in first 2 path locations
       // and files without extensions, mime-types, and converters
-      assertEquals("The test should have ended without processing 20 files", 20, importSource.getCount());
+      assertEquals("The test should have ended without processing " + FINAL_COUNT + " files", FINAL_COUNT, importSource.getCount());
     } finally {
       IOUtils.closeQuietly(zis);
     }

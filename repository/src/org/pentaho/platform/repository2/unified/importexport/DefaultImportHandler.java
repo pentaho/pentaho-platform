@@ -25,6 +25,7 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.messages.Messages;
@@ -144,22 +145,31 @@ public class DefaultImportHandler implements ImportHandler {
 
       // We should ignore anything in the "system" or "admin" folders
       final String bundlePath = computeBundlePath(bundle);
-      if (isSystemPath(bundlePath)) {
-        log.trace("Skipping " + bundlePath + " since it is in admin / system folders");
-        continue;
-      }
       final String bundlePathName = RepositoryFilenameUtils.concat(bundlePath, bundle.getFile().getName());
       final String repositoryFilePath = RepositoryFilenameUtils.concat(destinationPath, bundlePathName);
+      log.trace("Processing [" + bundlePathName + "]");
+
+      // Make sure we don't try to do anything with the "admin" or "system" folders
+      if (isSystemPath(bundlePathName)) {
+        log.trace("Skipping [" + bundlePathName + "] since it is in admin / system folders");
+        continue;
+      }
 
       // See if the destination already exists in the repository
       final RepositoryFile file = repository.getFile(repositoryFilePath);
       if (file != null) {
+        if (file.isFolder() != bundle.getFile().isFolder()) {
+          log.warn("Entry already exists in the repository - but it is a " + (file.isFolder() ? "folder" : "file")
+              + " and the entry to be imported is a " + (bundle.getFile().isFolder() ? "folder" : "file"));
+        }
+
         if (!overwrite) {
-          log.trace("File already exists in repository and overwrite is false - skip");
+          log.trace("File already exists in repository and overwrite is false - skipping");
         } else if (file.isFolder()) {
-          log.trace("File is a folder that already exists - skip");
+          log.trace("Folder already exists - skip");
         } else {
           // It is a file we can overwrite...
+          log.trace("Updating...");
           copyFileToRepository(bundle, destinationPath, bundlePath, bundlePathName, file, comment);
         }
         // We handled this file (even if by doing nothing)
@@ -169,7 +179,7 @@ public class DefaultImportHandler implements ImportHandler {
 
       // The file doesn't exist - if it is a folder then this is easy
       if (bundle.getFile().isFolder()) {
-        log.trace("creating folder " + bundlePath);
+        log.trace("Creating folder [" + bundlePath + "]");
         if (bundle.getAcl() != null) {
           repository.createFolder(getParentId(destinationPath, bundlePath), bundle.getFile(), bundle.getAcl(), comment);
         } else {
@@ -266,7 +276,12 @@ public class DefaultImportHandler implements ImportHandler {
     log.trace("\tsetting hidden=" + hidden + " for file with extension " + ext.toLowerCase());
     final RepositoryFile file = new RepositoryFile.Builder(bundle.getFile()).hidden(hidden).build();
     final Serializable parentId = getParentId(destinationPath, bundlePath);
-    return repository.createFile(parentId, file, data, bundle.getAcl(), comment);
+    final RepositoryFileAcl acl = bundle.getAcl();
+    if (null == acl) {
+      return repository.createFile(parentId, file, data, comment);
+    } else {
+      return repository.createFile(parentId, file, data, acl, comment);
+    }
   }
 
   /**
