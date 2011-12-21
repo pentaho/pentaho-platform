@@ -540,7 +540,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       
     } catch (SAXParseException e) {
         throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
-          "MondrianCatalogHelper.ERROR_0013_FAILED_TO_LOAD_SCHEMA", mondrianFile.getName()));
+          "MondrianCatalogHelper.ERROR_0018_IMPORT_SCHEMA_ERROR"));
     } catch (Exception e) {
     	throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
     	          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
