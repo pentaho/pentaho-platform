@@ -1,3 +1,19 @@
+#adminCatTree .gwt-Label {
+	color: white;
+	cursor: pointer;
+	cursor: hand;	
+}
+
+#adminCatTree .gwt-TreeItem-selected .gwt-Label {
+    color: white;
+	cursor: pointer;
+	cursor: hand;
+}
+
+#adminCatTree .tree-item-custom-widget-selected {
+	background-color: #FE700F;
+}
+
 .mantle-perspective-toggle {
 	background: black;
 	color: white;

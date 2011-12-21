@@ -19,6 +19,7 @@ package org.pentaho.mantle.client.ui.xul;
 
 import java.util.HashMap;
 
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.OpenDocCommand;
 import org.pentaho.mantle.client.commands.OpenFileCommand;
@@ -40,6 +41,8 @@ import org.pentaho.ui.xul.stereotype.Bindable;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MantleModel extends XulEventSourceAdapter implements SolutionBrowserListener {
@@ -150,6 +153,34 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     }
   }
 
+  @Bindable
+  public void loadAdminContent(final String url) {
+    final String id = url;
+    // hijack content area (or simply find and select existing content)
+    Frame frame = null;
+    for (int i = 0; i <MantleXul.getInstance().getAdminContentDeck().getWidgetCount(); i++) {
+      Widget w = MantleXul.getInstance().getAdminContentDeck().getWidget(i);
+      if (w instanceof Frame && id.equals(w.getElement().getId())) {
+        frame = (Frame) w;
+      }
+    }
+    if (frame == null) {
+      frame = new Frame(url);
+      frame.getElement().setId(id);
+      MantleXul.getInstance().getAdminContentDeck().add(frame);
+    }
+    MantleXul.getInstance().getAdminContentDeck().showWidget(MantleXul.getInstance().getAdminContentDeck().getWidgetIndex(frame));
+  }
+  
+  @Bindable
+  public void loadSecurityPanel() {
+    DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
+    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getSecurityPanel()) == -1) {
+      contentDeck.add(MantleXul.getInstance().getSecurityPanel());
+    }
+    contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getSecurityPanel()));
+  }
+  
   @Bindable
   public void refreshContent() {
     if ("workspace.perspective".equals(PerspectiveManager.getInstance().getActivePerspective().getId())) {

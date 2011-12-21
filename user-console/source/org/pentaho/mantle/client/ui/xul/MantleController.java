@@ -282,6 +282,16 @@ public class MantleController extends AbstractXulEventHandler {
   }-*/;
 
   @Bindable
+  public void loadAdminContent(final String url) {
+    model.loadAdminContent(url);
+  }
+  
+  @Bindable
+  public void loadSecurityPanel() {
+    model.loadSecurityPanel();
+  }
+  
+  @Bindable
   public void executeMantleCommand(String cmd) {
     String js = "executeCommand('" + cmd + "')";
     executeMantleCall(js);

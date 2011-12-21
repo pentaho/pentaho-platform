@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
+import org.pentaho.mantle.client.admin.SecurityPanel;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
@@ -43,6 +44,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -61,7 +63,9 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   private SimplePanel toolbar = new SimplePanel();
   private SimplePanel menubar = new SimplePanel();
   private SimplePanel adminPerspective = new SimplePanel();
-
+  private DeckPanel adminContentDeck = new DeckPanel();
+  private SecurityPanel securityPanel = new SecurityPanel();
+  
   private MantleXul() {
     AsyncXulLoader.loadXulFromUrl(GWT.getModuleBaseURL() + "xul/mantle.xul", GWT.getModuleBaseURL() + "messages/mantleMessages", this);
     SolutionBrowserPanel.getInstance().addSolutionBrowserListener(this);
@@ -117,6 +121,9 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
     admin.setStyleName("pentaho-rounded-panel");
     adminPerspective.setWidget(admin);
 
+    Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
+    adminContentPanel.add(adminContentDeck);
+
     fetchPluginOverlays();
   }
 
@@ -129,27 +136,34 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
           GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
           SimplePanel managedTree = (SimplePanel) adminCatTree.getManagedObject();
           adminCatTree.getTree().removeStyleName("gwt-Tree");
-          
+
           managedTree.getParent().getElement().getStyle().setBackgroundColor("#555555");
           managedTree.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
           managedTree.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
           managedTree.getParent().getElement().getStyle().setBorderColor("#333333");
-          
+
           managedTree.getWidget().getElement().getStyle().clearBackgroundColor();
 
-          Panel adminContentPanel = (Panel)container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
-          adminContentPanel.getParent().getElement().getStyle().setBackgroundColor("#aaaaaa");
+          Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
+          adminContentPanel.setWidth("100%");
+          adminContentPanel.getParent().getElement().getStyle().setBackgroundColor("#bbbbbb");
           adminContentPanel.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
           adminContentPanel.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
           adminContentPanel.getParent().getElement().getStyle().setBorderColor("#333333");
-          
-          
         }
       }
     };
     t.scheduleRepeating(250);
   }
 
+  public DeckPanel getAdminContentDeck() {
+    return adminContentDeck;
+  }
+  
+  public Widget getSecurityPanel() {
+    return securityPanel;
+  }
+  
   public Widget getToolbar() {
     return toolbar;
   }

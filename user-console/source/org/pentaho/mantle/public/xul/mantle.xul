@@ -84,7 +84,7 @@
   
 		<treechildren id="main_treechildren">
 		
-	    	<treeitem container="true" command="mantleXulHandler.executeMantleCommand('PentahoHomeCommand')">
+	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('http://www.pentaho.com')">
 	  			<treerow>
 	    			<treecell label="Home" />
 		  		</treerow>	    
@@ -107,7 +107,7 @@
 	    			<treecell label="Security" />
 		  		</treerow>	    
 			  <treechildren>
-			    <treeitem>
+			    <treeitem command="mantleXulHandler.loadSecurityPanel()">
 	    		  <treerow>
 					<treecell label="ABS" />
 		  		  </treerow>
@@ -115,7 +115,7 @@
 			  </treechildren>
 			</treeitem>
 			
-	    	<treeitem container="true">
+	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('http://wiki.pentaho.com/display/COM/Community+Wiki+Home')">
 	  			<treerow>
 	    			<treecell label="Help" />
 		  		</treerow>	    
@@ -124,8 +124,7 @@
 		</treechildren>  
 		</tree>
 
-		<vbox id="adminContentPanel" flex="2" backgroundColor="#ffffff">
-      		<label value="Admin Perspective Content"/>
+		<vbox id="adminContentPanel" flex="2">
 		</vbox>  
 	</hbox>  
   
