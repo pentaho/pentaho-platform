@@ -12,13 +12,17 @@
                resourcebundle="content/default-plugin/resources/messages/messages">
   </perspective>
 
-  <perspective id="admin.perspective" title="${admin}" layout-priority="10"
-               required-security-action="org.pentaho.security.administerSecurity"
+  <perspective id="workspace.perspective" title="${workspace}" layout-priority="10"
                resourcebundle="content/default-plugin/resources/messages/messages">
   </perspective>
 
-  <perspective id="workspace.perspective" title="${workspace}" layout-priority="20"
+  <perspective id="admin.perspective" title="${admin}" layout-priority="20"
+               required-security-action="org.pentaho.security.administerSecurity"
                resourcebundle="content/default-plugin/resources/messages/messages">
+    <overlay id="admin.perspective.overlay" resourcebundle="content/default-plugin/resources/messages/messages">
+	  <toolbar id="mainToolbar" removeelement="true">
+	  </toolbar>
+	</overlay>
   </perspective>
 
   <overlays>
