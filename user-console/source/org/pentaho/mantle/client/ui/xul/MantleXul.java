@@ -33,13 +33,17 @@ import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.GwtXulRunner;
+import org.pentaho.ui.xul.gwt.tags.GwtTree;
 import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.BorderStyle;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
@@ -110,9 +114,40 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
 
     // get the admin perspective from the XUL doc
     Widget admin = (Widget) container.getDocumentRoot().getElementById("adminPerspective").getManagedObject(); //$NON-NLS-1$
+    admin.setStyleName("pentaho-rounded-panel");
     adminPerspective.setWidget(admin);
 
     fetchPluginOverlays();
+  }
+
+  public void customizeAdminStyle() {
+    Timer t = new Timer() {
+      public void run() {
+        if (container != null) {
+          cancel();
+          // call this method when Elements are added to DOM
+          GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
+          SimplePanel managedTree = (SimplePanel) adminCatTree.getManagedObject();
+          adminCatTree.getTree().removeStyleName("gwt-Tree");
+          
+          managedTree.getParent().getElement().getStyle().setBackgroundColor("#555555");
+          managedTree.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
+          managedTree.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
+          managedTree.getParent().getElement().getStyle().setBorderColor("#333333");
+          
+          managedTree.getWidget().getElement().getStyle().clearBackgroundColor();
+
+          Panel adminContentPanel = (Panel)container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
+          adminContentPanel.getParent().getElement().getStyle().setBackgroundColor("#aaaaaa");
+          adminContentPanel.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
+          adminContentPanel.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
+          adminContentPanel.getParent().getElement().getStyle().setBorderColor("#333333");
+          
+          
+        }
+      }
+    };
+    t.scheduleRepeating(250);
   }
 
   public Widget getToolbar() {
@@ -176,7 +211,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
       }
     }
   }
-  
+
   public void applyOverlay(final String id) {
     Timer t = new Timer() {
       public void run() {

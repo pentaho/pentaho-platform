@@ -84,7 +84,7 @@
   
 		<treechildren id="main_treechildren">
 		
-	    	<treeitem container="true">
+	    	<treeitem container="true" command="mantleXulHandler.executeMantleCommand('PentahoHomeCommand')">
 	  			<treerow>
 	    			<treecell label="Home" />
 		  		</treerow>	    
