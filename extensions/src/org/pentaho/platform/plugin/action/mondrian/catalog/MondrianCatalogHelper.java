@@ -65,6 +65,7 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -516,25 +517,34 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         datasourceInfo = parameters;
       }
 
+      //Note: Mondrian parameters could be validated here and throw subsequent exception if they do not conform to spec.
+      
       FileInputStream parsingInputStream = new FileInputStream(mondrianFile);
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       DocumentBuilder builder = factory.newDocumentBuilder();
       org.w3c.dom.Document document = builder.parse(parsingInputStream);
       NodeList schemas = document.getElementsByTagName("Schema");
       Node schema = schemas.item(0);
+      if(schema == null) {
+    	  throw new SAXParseException("", null); // Generic schema error message will be provided at catch statement.
+      }
       Node name = schema.getAttributes().getNamedItem("name");
       String catalogName = name.getTextContent();
       parsingInputStream.close();
 
       FileInputStream schemaInputStream = new FileInputStream(mondrianFile);
-
       MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper(PentahoSystem.get(IUnifiedRepository.class));
       helper.addSchema(schemaInputStream, catalogName, datasourceInfo);
+
       reInit(PentahoSessionHolder.getSession());
+      
+    } catch (SAXParseException e) {
+        throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0013_FAILED_TO_LOAD_SCHEMA", mondrianFile.getName()));
     } catch (Exception e) {
-      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
-          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
-          Reason.valueOf(e.getMessage()));
+    	throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+    	          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
+    	          Reason.valueOf(e.getMessage()));
     }
   }
 
