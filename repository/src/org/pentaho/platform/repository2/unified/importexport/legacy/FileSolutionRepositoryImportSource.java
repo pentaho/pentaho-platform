@@ -38,6 +38,7 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
   private String charSet;
   private String filename;
   private final List<IRepositoryFileBundle> files = new ArrayList<IRepositoryFileBundle>();
+  private boolean recursive;
 
   public FileSolutionRepositoryImportSource(final File sourceFile, final String charSet) {
     this(sourceFile, sourceFile.getName(), charSet);
@@ -50,6 +51,7 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
     this.sourceFile = sourceFile;
     this.filename = filename;
     this.charSet = charSet;
+    this.recursive = sourceFile.isDirectory();
 
     addFileToList(sourceFile, false);
     log.debug("File list built - size=" + files.size());
@@ -102,10 +104,10 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
 
     final String extension = RepositoryFilenameUtils.getExtension(filename);
     String repoPath = "";
-    if (currentFile.isDirectory()) {
+    if (recursive) {
       final String parentFilePath = currentFile.getParentFile().getAbsolutePath();
       final String sourceParentFilePath = sourceFile.getParentFile().getAbsolutePath();
-      repoPath = RepositoryFilenameUtils.getFullPath(filename);
+      repoPath = parentFilePath.substring(sourceParentFilePath.length());
     }
 
     return new RepositoryFileBundle(repoFile, null, repoPath, currentFile, charSet, getMimeType(extension.toLowerCase()));

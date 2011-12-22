@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.metadata.model.Domain;
 import org.pentaho.metadata.model.LogicalModel;
+import org.pentaho.metadata.model.concept.types.LocaleType;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
@@ -32,16 +33,14 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
+import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -71,12 +70,14 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   }
 
   public void setUp() throws Exception {
-    File tempDir = File.createTempFile("test", "");
-    tempDir.delete();
-    tempDir.mkdir();
-    System.err.println("tempDir = " + tempDir.getAbsolutePath());
-    repository = new FileSystemBackedUnifiedRepository(tempDir);
-    new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null);
+//    File tempDir = File.createTempFile("test", "");
+//    tempDir.delete();
+//    tempDir.mkdir();
+//    System.err.println("tempDir = " + tempDir.getAbsolutePath());
+//    repository = new FileSystemBackedUnifiedRepository(tempDir);
+//    new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null);
+    repository = new MockUnifiedRepository(new MockUserProvider());
+    assertNotNull(new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null));
 
     final MockXmiParser xmiParser = new MockXmiParser();
     domainRepository = createDomainRepository(repository, null, xmiParser, null);
@@ -202,10 +203,6 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     assertTrue(folder.isFolder());
     assertEquals(1, repository.getChildren(folder.getId()).size());
 
-    final Map<String, Serializable> fileMetadata =
-        repository.getFileMetadata(repository.getFile(domainRepository.computeDomainFilename(SAMPLE_DOMAIN_ID)).getId());
-    assertNotNull(fileMetadata);
-
     final Domain steelWheelsDomain = loadDomain(STEEL_WHEELS, "./steel-wheels.xmi");
     domainRepository.storeDomain(steelWheelsDomain, true);
     assertEquals(2, repository.getChildren(folder.getId()).size());
@@ -313,6 +310,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     // Start using a real XmiParser with real data
     domainRepository.setXmiParser(new XmiParser());
     final Domain steelWheels = loadDomain(STEEL_WHEELS, "./steel-wheels.xmi");
+    final int originalLocaleCount = steelWheels.getLocales().size();
 
     domainRepository.storeDomain(steelWheels, true);
     assertEquals(++fileCount, repository.getChildren(folder.getId()).size());
@@ -340,6 +338,17 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 
     domainRepository.addLocalizationFile(STEEL_WHEELS, "ru", toInputStream(newProperties), false);
     assertEquals(++fileCount, repository.getChildren(folder.getId()).size());
+
+    {
+      // Verify that the locale was loaded
+      final Domain steelWheelsTest = domainRepository.getDomain(STEEL_WHEELS);
+      final List<LocaleType> locales = steelWheelsTest.getLocales();
+      assertNotNull(locales);
+      assertEquals(originalLocaleCount + 1, locales.size());
+      assertEquals("en_US", locales.get(0).getCode());
+      assertEquals("es", locales.get(1).getCode());
+      assertEquals("ru", locales.get(2).getCode());
+    }
 
     // Veryify the overwrite flag on the stream import
     try {
@@ -535,20 +544,40 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     domainRepository.hasAccess(0, null);
   }
 
-  public void testComputeRepositorySafeName() throws Exception {
-    assertEquals("sample", domainRepository.computeRepositorySafeName("sample"));
-    assertEquals("With Space", domainRepository.computeRepositorySafeName("With Space"));
-    assertEquals("With.Dot.s", domainRepository.computeRepositorySafeName("With.Dot.s"));
-    assertEquals("ABC123abc\u00a9", domainRepository.computeRepositorySafeName("ABC123abc\u00a9"));
-    assertEquals("ABC_123_xyz", domainRepository.computeRepositorySafeName("ABC/123:xyz"));
+  public void testToString() throws Exception {
+    // Neither case should throw an exception
+    domainRepository.toString(null);
+    domainRepository.toString(new RepositoryFile.Builder("").build());
+    domainRepository.toString(repository.getFile("/etc/metadata"));
   }
 
-  public void testComputeDomainFilename() throws Exception {
-    assertEquals("/etc/metadata/sample.xmi", domainRepository.computeDomainFilename("sample"));
-    assertEquals("/etc/metadata/With Space.xmi", domainRepository.computeDomainFilename("With Space"));
-    assertEquals("/etc/metadata/With.Dot.s.xmi", domainRepository.computeDomainFilename("With.Dot.s"));
-    assertEquals("/etc/metadata/ABC123abc\u00a9.xmi", domainRepository.computeDomainFilename("ABC123abc\u00a9"));
-    assertEquals("/etc/metadata/ABC_123_xyz.xmi", domainRepository.computeDomainFilename("ABC/123:xyz"));
+  public void testLoadLocaleStrings() throws Exception {
+    // Add a domain with no external locale information
+    domainRepository.setXmiParser(new XmiParser());
+    final Domain steelWheels = loadDomain(STEEL_WHEELS, "./steel-wheels.xmi");
+    domainRepository.storeDomain(steelWheels, true);
+
+    final int initialLocaleSize = steelWheels.getLocaleCodes().length;
+    assertEquals(initialLocaleSize, steelWheels.getLocales().size());
+    domainRepository.loadLocaleStrings(STEEL_WHEELS, steelWheels);
+    assertEquals(initialLocaleSize, steelWheels.getLocaleCodes().length);
+    assertEquals(initialLocaleSize, steelWheels.getLocales().size());
+
+    final Properties newLocale = new Properties();
+    newLocale.put("[LogicalModel-BV_HUMAN_RESOURCES].[description]", "New Description in Italian");
+    domainRepository.addLocalizationFile(STEEL_WHEELS, "it_IT", newLocale);
+
+    domainRepository.loadLocaleStrings(STEEL_WHEELS, steelWheels);
+    final int newLocaleSize = initialLocaleSize + 1;
+    assertEquals(newLocaleSize, steelWheels.getLocales().size());
+    domainRepository.loadLocaleStrings(STEEL_WHEELS, steelWheels);
+    assertEquals(newLocaleSize, steelWheels.getLocaleCodes().length);
+    assertEquals(newLocaleSize, steelWheels.getLocales().size());
+  }
+
+  public void testSetXmiParser() throws Exception {
+    domainRepository.setXmiParser(null);
+    domainRepository.setXmiParser(new XmiParser());
   }
 
   private InputStream toInputStream(final Properties newProperties) {
@@ -568,10 +597,12 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   private class MockDomain extends Domain {
     private String id;
     private List<LogicalModel> logicalModels;
+    private List<LocaleType> locals;
 
     public MockDomain(final String id) {
       this.id = id;
       logicalModels = new ArrayList<LogicalModel>();
+      locals = new ArrayList<LocaleType>();
     }
 
     public String getId() {
@@ -645,5 +676,18 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     domain.setId(domainId);
     IOUtils.closeQuietly(in);
     return domain;
+  }
+
+  /**
+   *
+   */
+  private class MockUserProvider implements MockUnifiedRepository.ICurrentUserProvider {
+    public String getUser() {
+      return MockUnifiedRepository.root().getName();
+    }
+
+    public List<String> getRoles() {
+      return new ArrayList<String>();
+    }
   }
 }

@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.repository.pmd.RepositoryMetadataInfo;
 import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
@@ -86,11 +87,12 @@ public class MetadataImportHandlerTest extends TestCase {
       assertEquals("The test should have ended without processing 60 files", 60, importSource.getCount());
 
       // Make sure the metadata was processed correctly
-      assertNotNull(repository.getFile("/etc/metadata/steel-wheels.xmi"));
-      assertNotNull(repository.getFile("/etc/metadata/steel-wheels_ru.properties"));
-      assertNotNull(repository.getFile("/etc/metadata/steel-wheels_it_IT.properties"));
-      assertNotNull(repository.getFile("/etc/metadata/metadata-test.xmi"));
-      assertNotNull(repository.getFile("/etc/metadata/metadata-test_ru.properties"));
+      final RepositoryFile etcMetadata = repository.getFile(RepositoryMetadataInfo.getMetadataFolderPath());
+      assertNotNull(etcMetadata);
+      assertTrue(etcMetadata.isFolder());
+      final List<RepositoryFile> children = repository.getChildren(etcMetadata.getId());
+      assertNotNull(children);
+      assertEquals(5, children.size());
     } finally {
       IOUtils.closeQuietly(zis);
     }

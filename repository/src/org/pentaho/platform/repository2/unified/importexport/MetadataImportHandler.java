@@ -24,11 +24,12 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository.pmd.IPentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.repository.pmd.PentahoMetadataDomainRepository;
-import org.pentaho.platform.repository.pmd.PentahoMetadataFileInfo;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class Description
@@ -71,48 +72,49 @@ public class MetadataImportHandler implements ImportHandler {
   @Override
   public void doImport(final Iterable<ImportSource.IRepositoryFileBundle> importFileSet, final String destinationPath,
                        final String comment, final boolean overwrite) throws ImportException {
+    log.debug("MetadataImportHandler.doImport()");
     if (null == importFileSet) {
       throw new IllegalArgumentException();
     }
 
     // Create a list of processed metadata files to save
-    final Map<String, String> processedDomains = new HashMap<String, String>();
-    boolean potentialMissedLocaleFiles = false;
+    final Set<String> processedDomains = new HashSet<String>();
+    final Map<ImportSource.IRepositoryFileBundle, PentahoMetadataFileInfo> potentialMissedLocaleFiles
+        = new HashMap<ImportSource.IRepositoryFileBundle, PentahoMetadataFileInfo>();
 
     // Find the metadata files
     for (Iterator iterator = importFileSet.iterator(); iterator.hasNext(); ) {
       final ImportSource.IRepositoryFileBundle file = (ImportSource.IRepositoryFileBundle) iterator.next();
       final String name = file.getFile().getName();
-      final String extension = RepositoryFilenameUtils.getExtension(name);
       final String fullFilename = RepositoryFilenameUtils.concat(file.getPath(), name);
-      if (StringUtils.equals("xmi", extension)) {
-        final String domainId = processMetadataFile(file, fullFilename, overwrite);
-        if (!StringUtils.isEmpty(domainId)) {
-          processedDomains.put(domainId, fullFilename);
-          iterator.remove();
-        }
-      } else if (StringUtils.equals("properties", extension)) {
-        final PentahoMetadataFileInfo info = new PentahoMetadataFileInfo(fullFilename);
-        if (info.getLocale() != null && processedDomains.containsKey(info.getDomainId())) {
+      final PentahoMetadataFileInfo info = new PentahoMetadataFileInfo(fullFilename);
+      if (info.getFileType() == PentahoMetadataFileInfo.FileType.XMI) {
+        log.trace("\t[" + fullFilename + "] = " + info.toString());
+        log.trace("\tprocessing as a Pentaho Metadata Domain File");
+        processMetadataFile(file, fullFilename, overwrite);
+        processedDomains.add(info.getDomainId());
+        iterator.remove();
+      } else if (info.getFileType() == PentahoMetadataFileInfo.FileType.PROPERTIES) {
+        if (processedDomains.contains(info.getDomainId())) {
+          log.trace("\t[" + fullFilename + "] = " + info.toString());
+          log.trace("\tprocessing as a Pentaho Metadata Sidecar Locale file - domain already imported");
           processLocaleFile(file, info, overwrite);
           iterator.remove();
         } else {
-          potentialMissedLocaleFiles = potentialMissedLocaleFiles || (info.getLocale() != null);
-
+          log.trace("\t[" + fullFilename + "] = " + info.toString());
+          log.trace("\tprocessing as a Pentaho Metadata Sidecar Locale file - domain not found yet");
+          potentialMissedLocaleFiles.put(file, info);
         }
       }
     }
 
     // If there are potentially missed locale files, we need to make a 2nd pass
-    if (potentialMissedLocaleFiles) {
+    if (!potentialMissedLocaleFiles.isEmpty()) {
       for (Iterator iterator = importFileSet.iterator(); iterator.hasNext(); ) {
         final ImportSource.IRepositoryFileBundle file = (ImportSource.IRepositoryFileBundle) iterator.next();
-        final String name = file.getFile().getName();
-        final String extension = RepositoryFilenameUtils.getExtension(name);
-        if (StringUtils.equals("properties", extension)) {
-          final String fullFilename = RepositoryFilenameUtils.concat(file.getPath(), name);
-          final PentahoMetadataFileInfo info = new PentahoMetadataFileInfo(fullFilename);
-          if (info.getLocale() != null && processedDomains.containsKey(info.getDomainId())) {
+        final PentahoMetadataFileInfo info = potentialMissedLocaleFiles.get(file);
+        if (info != null) {
+          if (processedDomains.contains(info.getDomainId())) {
             processLocaleFile(file, info, overwrite);
             iterator.remove();
           }

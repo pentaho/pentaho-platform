@@ -23,9 +23,9 @@ import org.pentaho.platform.repository2.unified.importexport.ImportSource;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Class Description
@@ -88,8 +88,8 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
     }
 
     {
-      final Set<String> foldersFound = new HashSet<String>();
-      final Set<String> filesFound = new HashSet<String>();
+      final Map<String, ImportSource.IRepositoryFileBundle> foldersFound = new HashMap<String, ImportSource.IRepositoryFileBundle>();
+      final Map<String, ImportSource.IRepositoryFileBundle> filesFound = new HashMap<String, ImportSource.IRepositoryFileBundle>();
 
       final File sourceFile = new File("./test-src/org/pentaho/platform/repository2/unified/importexport/testdata");
       assertTrue("Make sure your current directory is the repository project", sourceFile.exists());
@@ -102,27 +102,30 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
         assertNotNull(bundle);
         assertNotNull(bundle.getFile());
         if (bundle.getFile().isFolder()) {
-          foldersFound.add(bundle.getFile().getName());
+          foldersFound.put(bundle.getFile().getName(), bundle);
         } else {
-          filesFound.add(bundle.getFile().getName());
+          filesFound.put(bundle.getFile().getName(), bundle);
         }
       }
 
       assertEquals(8, filesFound.size());
-      assertTrue(filesFound.contains("Empty.zip"));
-      assertTrue(filesFound.contains("Success.zip"));
-      assertTrue(filesFound.contains("TestZipFile.zip"));
-      assertTrue(filesFound.contains("pentaho-solutions.zip"));
-      assertTrue(filesFound.contains("Example1.xaction"));
-      assertTrue(filesFound.contains("Example2.xaction"));
-      assertTrue(filesFound.contains("Example3.xaction"));
-      assertTrue(filesFound.contains("HelloWorld.xaction"));
+      assertNotNull(filesFound.get("Empty.zip"));
+      assertNotNull(filesFound.get("Success.zip"));
+      assertNotNull(filesFound.get("TestZipFile.zip"));
+      assertNotNull(filesFound.get("pentaho-solutions.zip"));
+      assertNotNull(filesFound.get("Example1.xaction"));
+      assertNotNull(filesFound.get("Example2.xaction"));
+      assertNotNull(filesFound.get("Example3.xaction"));
+      assertNotNull(filesFound.get("HelloWorld.xaction"));
+
+      assertEquals("/testdata/pentaho-solutions/getting-started", filesFound.get("HelloWorld.xaction").getPath());
 
       assertEquals(3, foldersFound.size());
-      assertTrue(foldersFound.contains("testdata"));
-      assertTrue(foldersFound.contains("pentaho-solutions"));
-      assertTrue(foldersFound.contains("getting-started"));
+      assertNotNull(foldersFound.get("testdata"));
+      assertNotNull(foldersFound.get("pentaho-solutions"));
+      assertNotNull(foldersFound.get("getting-started"));
 
+      assertEquals("/testdata/pentaho-solutions", foldersFound.get("getting-started").getPath());
     }
   }
 

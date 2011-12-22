@@ -100,6 +100,50 @@ public class RepositoryFilenameUtils {
     return FilenameUtils.normalize(filename, true);
   }
 
+
+  /**
+   * Normalizes a path, removing double and single dot path steps.
+   * <p/>
+   * This method normalizes a path to a standard format.
+   * <p/>
+   * A trailing slash will be retained.
+   * A double slash will be merged to a single slash (but UNC names are handled).
+   * A single dot path segment will be removed.
+   * A double dot will cause that path segment and the one before to be removed.
+   * If the double dot has no parent path segment to work with, <code>null</code>
+   * is returned.
+   * <p/>
+   * The output will be the same on both Unix and Windows except
+   * for the separator character.
+   * <pre>
+   * /foo//               -->   /foo/
+   * /foo/./              -->   /foo/
+   * /foo/../bar          -->   /bar
+   * /foo/../bar/         -->   /bar/
+   * /foo/../bar/../baz   -->   /baz
+   * //foo//./bar         -->   /foo/bar
+   * /../                 -->   null
+   * ../foo               -->   null
+   * foo/bar/..           -->   foo/
+   * foo/../../bar        -->   null
+   * foo/../bar           -->   bar
+   * </pre>
+   *
+   * @param filename     the filename to normalize, null returns null
+   * @param leadingSlash will ensue there is a leading slash on the result if {@code true}
+   * @return the normalized filename, or null if invalid
+   */
+  public static String normalize(final String filename, final boolean leadingSlash) {
+    String normalizedFilename = null;
+    if (filename != null) {
+      normalizedFilename = normalize(filename.trim());
+      if (leadingSlash && normalizedFilename != null && normalizedFilename.indexOf(RepositoryFile.SEPARATOR) != 0) {
+        normalizedFilename = RepositoryFile.SEPARATOR + normalizedFilename;
+      }
+    }
+    return normalizedFilename;
+  }
+
   //-----------------------------------------------------------------------
 
   /**
