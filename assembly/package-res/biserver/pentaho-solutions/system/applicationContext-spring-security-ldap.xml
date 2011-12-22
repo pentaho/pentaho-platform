@@ -82,4 +82,9 @@
     <property name="defaultRole" ref="defaultRole" />
   </bean>
 
+  <bean id="propertyPlaceholderConfigurerSecurityLdap" 
+    class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location" value="applicationContext-security-ldap.properties" />
+  </bean>
+
 </beans>
