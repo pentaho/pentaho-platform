@@ -23,7 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository.pmd.RepositoryMetadataInfo;
+import org.pentaho.platform.repository.pmd.PentahoMetadataDomainRepositoryInfo;
 import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
@@ -87,7 +87,7 @@ public class MetadataImportHandlerTest extends TestCase {
       assertEquals("The test should have ended without processing 60 files", 60, importSource.getCount());
 
       // Make sure the metadata was processed correctly
-      final RepositoryFile etcMetadata = repository.getFile(RepositoryMetadataInfo.getMetadataFolderPath());
+      final RepositoryFile etcMetadata = repository.getFile(PentahoMetadataDomainRepositoryInfo.getMetadataFolderPath());
       assertNotNull(etcMetadata);
       assertTrue(etcMetadata.isFolder());
       final List<RepositoryFile> children = repository.getChildren(etcMetadata.getId());

@@ -21,7 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

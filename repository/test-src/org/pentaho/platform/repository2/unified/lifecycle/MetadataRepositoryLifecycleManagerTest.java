@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository.pmd.MetadataRepositoryLifecycleManager;
+import org.pentaho.platform.repository.pmd.PentahoMetadataRepositoryLifecycleManager;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -46,7 +46,7 @@ public class MetadataRepositoryLifecycleManagerTest extends TestCase {
   public static final String SINGLE_TENANT_AUTHENTICATED_AUTHORITY_NAME = "Authenticated";
   private static final String TEST_TENANT_ID = "Pentaho";
 
-  private MetadataRepositoryLifecycleManager lifecycleManager;
+  private PentahoMetadataRepositoryLifecycleManager lifecycleManager;
   private File tempDir;
 
   @Override
@@ -61,7 +61,7 @@ public class MetadataRepositoryLifecycleManagerTest extends TestCase {
     final IRepositoryFileDao contentDao = new FileSystemRepositoryFileDao(tempDir);
     final IRepositoryFileAclDao repositoryFileAclDao = new FileSystemFileAclDao();
     final TransactionTemplate txnTemplate = new MockTransactionTemplate();
-    lifecycleManager = new MetadataRepositoryLifecycleManager(contentDao, repositoryFileAclDao, txnTemplate,
+    lifecycleManager = new PentahoMetadataRepositoryLifecycleManager(contentDao, repositoryFileAclDao, txnTemplate,
         REPOSITORY_ADMIN_USERNAME, TENANT_AUTHENTICATED_AUTHORITY_NAME_PATTERN,
         SINGLE_TENANT_AUTHENTICATED_AUTHORITY_NAME);
     lifecycleManager.startup();

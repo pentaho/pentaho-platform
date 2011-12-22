@@ -19,7 +19,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -47,7 +47,7 @@ import java.util.Set;
 
 /**
  * CRUD operations against JCR. Note that there is no access control in this class (implicit or explicit).
- * 
+ *
  * @author mlowery
  */
 public class JcrRepositoryFileDao implements IRepositoryFileDao {
@@ -75,9 +75,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   // ~ Constructors ====================================================================================================
 
   public JcrRepositoryFileDao(final JcrTemplate jcrTemplate,
-      final List<ITransformer<IRepositoryFileData>> transformers, final IOwnerLookupHelper ownerLookupHelper,
-      final ILockHelper lockHelper, final IDeleteHelper deleteHelper, final IPathConversionHelper pathConversionHelper,
-      final IEscapeHelper escapeHelper, final IRepositoryFileAclDao aclDao) {
+                              final List<ITransformer<IRepositoryFileData>> transformers, final IOwnerLookupHelper ownerLookupHelper,
+                              final ILockHelper lockHelper, final IDeleteHelper deleteHelper, final IPathConversionHelper pathConversionHelper,
+                              final IEscapeHelper escapeHelper, final IRepositoryFileAclDao aclDao) {
     super();
     Assert.notNull(jcrTemplate);
     Assert.notNull(transformers);
@@ -94,32 +94,32 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   // ~ Methods =========================================================================================================
 
   private RepositoryFile internalCreateFolder(final Session session, final Serializable parentFolderId, final RepositoryFile folder,
-      final RepositoryFileAcl acl, final String versionMessage) throws RepositoryException {
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
-        JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
-        Node folderNode = JcrRepositoryFileUtils.createFolderNode(session, pentahoJcrConstants, parentFolderId, folder);
-        // we must create the acl during checkout
-        aclDao.createAcl(folderNode.getUUID(), acl);
-        session.save();
-        if (folder.isVersioned()) {
-          JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, folderNode,
-              versionMessage);
-        }
-        JcrRepositoryFileUtils
-            .checkinNearestVersionableFileIfNecessary(
-                session,
-                pentahoJcrConstants,
-                parentFolderId,
-                Messages
-                    .getInstance()
-                    .getString(
-                        "JcrRepositoryFileDao.USER_0001_VER_COMMENT_ADD_FOLDER", folder.getName(), (parentFolderId == null ? "root" : parentFolderId.toString()))); //$NON-NLS-1$ //$NON-NLS-2$
-        return JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, ownerLookupHelper,
-            pathConversionHelper, folderNode);
+                                              final RepositoryFileAcl acl, final String versionMessage) throws RepositoryException {
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+    JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
+    Node folderNode = JcrRepositoryFileUtils.createFolderNode(session, pentahoJcrConstants, parentFolderId, folder);
+    // we must create the acl during checkout
+    aclDao.createAcl(folderNode.getUUID(), acl);
+    session.save();
+    if (folder.isVersioned()) {
+      JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, folderNode,
+          versionMessage);
+    }
+    JcrRepositoryFileUtils
+        .checkinNearestVersionableFileIfNecessary(
+            session,
+            pentahoJcrConstants,
+            parentFolderId,
+            Messages
+                .getInstance()
+                .getString(
+                    "JcrRepositoryFileDao.USER_0001_VER_COMMENT_ADD_FOLDER", folder.getName(), (parentFolderId == null ? "root" : parentFolderId.toString()))); //$NON-NLS-1$ //$NON-NLS-2$
+    return JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, ownerLookupHelper,
+        pathConversionHelper, folderNode);
   }
 
   private RepositoryFile internalCreateFile(final Serializable parentFolderId, final RepositoryFile file,
-      final IRepositoryFileData content, final RepositoryFileAcl acl, final String versionMessage) {
+                                            final IRepositoryFileData content, final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.hasText(file.getName());
     Assert.isTrue(!file.isFolder());
@@ -154,7 +154,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   }
 
   private RepositoryFile internalUpdateFile(final RepositoryFile file, final IRepositoryFileData content,
-      final String versionMessage) {
+                                            final String versionMessage) {
     Assert.notNull(file);
     Assert.hasText(file.getName());
     Assert.isTrue(!file.isFolder());
@@ -178,7 +178,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   }
 
   protected ITransformer<IRepositoryFileData> findTransformerForRead(final String contentType,
-      final Class<? extends IRepositoryFileData> clazz) {
+                                                                     final Class<? extends IRepositoryFileData> clazz) {
     for (ITransformer<IRepositoryFileData> transformer : transformers) {
       if (transformer.canRead(contentType, clazz)) {
         return transformer;
@@ -202,7 +202,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    * {@inheritDoc}
    */
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-      final IRepositoryFileData content, final RepositoryFileAcl acl, final String versionMessage) {
+                                   final IRepositoryFileData content, final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
     return internalCreateFile(parentFolderId, file, content, acl, versionMessage);
@@ -212,7 +212,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    * {@inheritDoc}
    */
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile folder,
-      final RepositoryFileAcl acl, final String versionMessage) {
+                                     final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(folder);
     Assert.hasText(folder.getName());
     Assert.isTrue(!folder.getName().contains(RepositoryFile.SEPARATOR));
@@ -259,8 +259,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     Assert.isTrue(relPath.startsWith(RepositoryFile.SEPARATOR));
     return (RepositoryFile) jcrTemplate.execute(new JcrCallback() {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
-    String absPath = pathConversionHelper.relToAbs(relPath);
-    return internalGetFile(session, absPath, false);
+        String absPath = pathConversionHelper.relToAbs(relPath);
+        return internalGetFile(session, absPath, false);
       }
     });
   }
@@ -273,7 +273,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     Assert.isTrue(absPath.startsWith(RepositoryFile.SEPARATOR));
     return (RepositoryFile) jcrTemplate.execute(new JcrCallback() {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
-    return internalGetFile(session, absPath, false);
+        return internalGetFile(session, absPath, false);
       }
     });
   }
@@ -286,26 +286,26 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     Assert.isTrue(relPath.startsWith(RepositoryFile.SEPARATOR));
     return (RepositoryFile) jcrTemplate.execute(new JcrCallback() {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
-    String absPath = pathConversionHelper.relToAbs(relPath);
-    return internalGetFile(session, absPath, loadMaps);
-    }
-  });
+        String absPath = pathConversionHelper.relToAbs(relPath);
+        return internalGetFile(session, absPath, loadMaps);
+      }
+    });
   }
 
   private RepositoryFile internalGetFile(final Session session, final String absPath, final boolean loadMaps) throws RepositoryException {
 
-        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
-        Item fileNode;
-        try {
-          fileNode = session.getItem(absPath);
-          // items are nodes or properties; this must be a node
-          Assert.isTrue(fileNode.isNode());
-        } catch (PathNotFoundException e) {
-          fileNode = null;
-        }
-        return fileNode != null ? JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, ownerLookupHelper,
-            pathConversionHelper, (Node) fileNode, loadMaps) : null;
-   
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+    Item fileNode;
+    try {
+      fileNode = session.getItem(absPath);
+      // items are nodes or properties; this must be a node
+      Assert.isTrue(fileNode.isNode());
+    } catch (PathNotFoundException e) {
+      fileNode = null;
+    }
+    return fileNode != null ? JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, ownerLookupHelper,
+        pathConversionHelper, (Node) fileNode, loadMaps) : null;
+
   }
 
   /**
@@ -313,7 +313,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    */
   @SuppressWarnings("unchecked")
   public <T extends IRepositoryFileData> T getData(final Serializable fileId, final Serializable versionId,
-      final Class<T> contentClass) {
+                                                   final Class<T> contentClass) {
     Assert.notNull(fileId);
     return (T) jcrTemplate.execute(new JcrCallback() {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
@@ -351,7 +351,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
    * {@inheritDoc}
    */
   public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData content,
-      final String versionMessage) {
+                                   final String versionMessage) {
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
     return internalUpdateFile(file, content, versionMessage);
@@ -488,7 +488,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   /**
    * {@inheritDoc}
-   * 
+   * <p/>
    * <p>
    * No checkout needed as .trash is not versioned.
    * </p>
@@ -543,7 +543,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       }
     });
   }
-  
+
   private void internalCopyOrMove(final Serializable fileId, final String destRelPath, final String versionMessage, final boolean copy) {
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
@@ -601,12 +601,12 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         }
         if (!copy) {
           JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants,
-            srcParentFolderId);
+              srcParentFolderId);
         }
         JcrRepositoryFileUtils.checkoutNearestVersionableNodeIfNecessary(session, pentahoJcrConstants,
             destParentFolderNode);
         String finalSrcAbsPath = srcFileNode.getPath();
-        String finalDestAbsPath = appendFileName ? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName() : cleanDestAbsPath; 
+        String finalDestAbsPath = appendFileName ? cleanDestAbsPath + RepositoryFile.SEPARATOR + srcFileNode.getName() : cleanDestAbsPath;
         if (copy) {
           session.getWorkspace().copy(finalSrcAbsPath, finalDestAbsPath);
         } else {
@@ -617,13 +617,13 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         // if it's a move within the same folder, then the next checkin is unnecessary
         if (!copy && !destParentFolderNode.getUUID().equals(srcParentFolderId.toString())) {
           JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants,
-            srcParentFolderId, versionMessage);
+              srcParentFolderId, versionMessage);
         }
         return null;
       }
     });
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -637,7 +637,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   public void copyFile(final Serializable fileId, final String destRelPath, final String versionMessage) {
     internalCopyOrMove(fileId, destRelPath, versionMessage, true);
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -685,7 +685,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     });
   }
 
- /**
+  /**
    * {@inheritDoc}
    */
 
@@ -733,7 +733,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   }
 
   protected RepositoryFile getReferrerFile(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Property referrerProperty) throws RepositoryException {
+                                           final Property referrerProperty) throws RepositoryException {
     Node currentNode = referrerProperty.getParent();
     while (!currentNode.isNodeType(pentahoJcrConstants.getPHO_NT_PENTAHOHIERARCHYNODE())) {
       currentNode = currentNode.getParent();
@@ -747,7 +747,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           currentNode);
     }
   }
-  
+
   public void setFileMetadata(final Serializable fileId, final Map<String, Serializable> metadataMap) {
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
@@ -757,13 +757,13 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       }
     });
   }
-  
+
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     Assert.notNull(fileId);
     return (Map<String, Serializable>) jcrTemplate.execute(new JcrCallback() {
       public Object doInJcr(Session session) throws IOException, RepositoryException {
         return JcrRepositoryFileUtils.getFileMetadata(session, fileId);
-      }     
+      }
     });
   }
 }

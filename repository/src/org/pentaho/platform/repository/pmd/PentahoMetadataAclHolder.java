@@ -30,11 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class MetadataAclHolder implements IAclHolder {
+public class PentahoMetadataAclHolder implements IAclHolder {
 
-  List<IPentahoAclEntry> accessControls = new ArrayList<IPentahoAclEntry>();
+  private List<IPentahoAclEntry> accessControls = new ArrayList<IPentahoAclEntry>();
 
-  public MetadataAclHolder(final IConcept aclHolder) {
+  public PentahoMetadataAclHolder(final IConcept aclHolder) {
     try {
       Security sec = (Security) aclHolder.getProperty(Concept.SECURITY_PROPERTY);
       if (sec != null) {

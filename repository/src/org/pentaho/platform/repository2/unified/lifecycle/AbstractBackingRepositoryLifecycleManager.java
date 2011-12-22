@@ -14,11 +14,6 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.EnumSet;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -30,16 +25,21 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.TenantUtils;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Contains some common functionality.
- * 
+ * <p/>
  * <ul>
  * <li>Runs as the repository admin.</li>
  * <li>Uses {@code repositoryFileDao} and {@code repositoryFileAclDao} directly for the following reasons:
@@ -50,7 +50,7 @@ import org.springframework.util.Assert;
  * <li>As a consequence of above, uses programmatic transactions (because Spring's transaction proxy is also bypassed.
  * In addition, this keeps the amount of declarative transaction XML to a minimum.</li>
  * </ul>
- * 
+ *
  * @author mlowery
  * @deprecated Implement IBackingRepositoryLifecycleManager instead
  */
@@ -94,9 +94,9 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
   // ~ Constructors ====================================================================================================
 
   public AbstractBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
-      final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-      final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
-      final String singleTenantAuthenticatedAuthorityName) {
+                                                   final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
+                                                   final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
+                                                   final String singleTenantAuthenticatedAuthorityName) {
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
     Assert.notNull(txnTemplate);
@@ -148,7 +148,7 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
   protected abstract void doStartup();
 
   /**
-   * Throws an {@code IllegalStateException} if not started up.  Should be called from all public methods (except 
+   * Throws an {@code IllegalStateException} if not started up.  Should be called from all public methods (except
    * {@link #startup()}).
    */
   private void assertStartedUp() {
@@ -162,7 +162,7 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
   }
 
   protected RepositoryFile internalCreateFolder(final Serializable parentFolderId, final RepositoryFile file,
-      final boolean inheritAces, final RepositoryFileSid ownerSid, final String versionMessage) {
+                                                final boolean inheritAces, final RepositoryFileSid ownerSid, final String versionMessage) {
     Assert.notNull(file);
 
     return repositoryFileDao.createFolder(parentFolderId, file, makeAcl(inheritAces, ownerSid), versionMessage);
@@ -179,7 +179,7 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
   }
 
   protected void internalAddPermission(final Serializable fileId, final RepositoryFileSid recipient,
-      final EnumSet<RepositoryFilePermission> permissions) {
+                                       final EnumSet<RepositoryFilePermission> permissions) {
     Assert.notNull(fileId);
     Assert.notNull(recipient);
     Assert.notNull(permissions);

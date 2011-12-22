@@ -39,7 +39,7 @@ class PentahoMetadataFileInfo {
 
   private static final Pattern[] xmiPatterns = new Pattern[]{
       // Created by data access
-      Pattern.compile(".*/([^/]+/resources/metadata/[^/]+)\\.xmi$"),
+      Pattern.compile(".*/([^/]+/resources/metadata/[^/]+\\.xmi)$"),
 
       // Stored in solution repository
       Pattern.compile(".*/([^/]+)/metadata.xmi$"),
@@ -49,12 +49,16 @@ class PentahoMetadataFileInfo {
   private static final String LANG_CC = LANG + "_[A-Z]{2}";
   private static final String LANG_CC_EXT = LANG_CC + "_[^/]+";
 
-  private static final Pattern[] propertyBundlePatterns = new Pattern[]{
+  private static final String PROPERTY_BUNDLE_DOMAIN_POSTFIX = ".xmi";
+
+  private static final Pattern[] propertyBundlePatternsWithPostfix = new Pattern[]{
       // Created by data access
-      Pattern.compile(".*/([^/]+/resources/metadata/[^/]+)_(" + LANG + ").properties$"),
+      Pattern.compile(".*/([^/]+/resources/metadata/[^/]+)_(" + LANG + ")\\.properties$"),
       Pattern.compile(".*/([^/]+/resources/metadata/[^/]+)_(" + LANG_CC + ")\\.properties$"),
       Pattern.compile(".*/([^/]+/resources/metadata/[^/]+)_(" + LANG_CC_EXT + ")\\.properties$"),
+  };
 
+  private static final Pattern[] propertyBundlePatternsNoPostfix = new Pattern[]{
       // Store in solution repository
       Pattern.compile(".*/([^/]+)/metadata_(" + LANG + ").properties$"),
       Pattern.compile(".*/([^/]+)/metadata_(" + LANG_CC + ").properties$"),
@@ -94,14 +98,25 @@ class PentahoMetadataFileInfo {
           if (xmiMatcher.matches()) {
             log.trace("MATCH: [" + internalPath + "] by [" + xmiPattern.pattern() + "] - group(s)=[" + xmiMatcher.group(1) + "]");
             initialize(FileType.XMI, xmiMatcher.group(1), null);
+            break;
           }
         }
       } else if (StringUtils.equals(fileExtension, "properties")) {
-        for (final Pattern propertyBundlePattern : propertyBundlePatterns) {
+        for (final Pattern propertyBundlePattern : propertyBundlePatternsNoPostfix) {
           final Matcher propertyBundleMatcher = propertyBundlePattern.matcher(internalPath);
           if (propertyBundleMatcher.matches()) {
             log.trace("MATCH: [" + internalPath + "] by [" + propertyBundleMatcher.pattern() + "] - group(s)=[" + propertyBundleMatcher.group(1) + " : " + propertyBundleMatcher.group(2) + "]");
             initialize(FileType.PROPERTIES, propertyBundleMatcher.group(1), propertyBundleMatcher.group(2));
+            break;
+          }
+        }
+        for (final Pattern propertyBundlePattern : propertyBundlePatternsWithPostfix) {
+          final Matcher propertyBundleMatcher = propertyBundlePattern.matcher(internalPath);
+          if (propertyBundleMatcher.matches()) {
+            log.trace("MATCH: [" + internalPath + "] by [" + propertyBundleMatcher.pattern() + "] - group(s)=[" + propertyBundleMatcher.group(1) + " : " + propertyBundleMatcher.group(2) + "]");
+            initialize(FileType.PROPERTIES, propertyBundleMatcher.group(1) + PROPERTY_BUNDLE_DOMAIN_POSTFIX,
+                propertyBundleMatcher.group(2));
+            break;
           }
         }
       }

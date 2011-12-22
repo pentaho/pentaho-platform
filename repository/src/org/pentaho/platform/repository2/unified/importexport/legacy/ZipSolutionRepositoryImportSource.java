@@ -20,7 +20,7 @@ package org.pentaho.platform.repository2.unified.importexport.legacy;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.importexport.InitializationException;
 import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
 import org.springframework.util.Assert;

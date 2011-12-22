@@ -80,7 +80,7 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
   public boolean hasAccess(final int accessType, final IConcept aclHolder) {
     boolean result = true;
     if (aclHolder != null) {
-      MetadataAclHolder newHolder = new MetadataAclHolder(aclHolder);
+      PentahoMetadataAclHolder newHolder = new PentahoMetadataAclHolder(aclHolder);
       int mappedActionOperation = ACCESS_TYPE_MAP[accessType];
       result = SecurityHelper.getInstance().hasAccess(newHolder, mappedActionOperation, getSession());
     } else if (accessType == ACCESS_TYPE_SCHEMA_ADMIN) {

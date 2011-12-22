@@ -14,19 +14,6 @@
  */
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.jsr283.security.AccessControlEntry;
@@ -45,7 +32,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
@@ -55,17 +42,29 @@ import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
 
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import java.io.IOException;
+import java.io.Serializable;
+import java.security.Principal;
+import java.security.acl.Group;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
 /**
  * Jackrabbit-based implementation of {@link IRepositoryFileAclDao}.
- * 
+ * <p/>
  * <p>
- * All mutating public methods require checkout and checkin calls since the act of simply calling 
- * {@code AccessControlManager.getApplicablePolicies()} (as is done in 
- * {@link #toAcl(SessionImpl, Serializable, boolean)}) will query that the node is allowed to have the "access 
- * controlled" mixin type added. If the node is checked in, this query will return false. See Jackrabbit's 
+ * All mutating public methods require checkout and checkin calls since the act of simply calling
+ * {@code AccessControlManager.getApplicablePolicies()} (as is done in
+ * {@link #toAcl(SessionImpl, Serializable, boolean)}) will query that the node is allowed to have the "access
+ * controlled" mixin type added. If the node is checked in, this query will return false. See Jackrabbit's
  * {@code ItemValidator.hasCondition()}.
  * </p>
- * 
+ *
  * @author mlowery
  */
 public class JackrabbitRepositoryFileAclDao implements IRepositoryFileAclDao {
@@ -164,13 +163,13 @@ public class JackrabbitRepositoryFileAclDao implements IRepositoryFileAclDao {
     Assert.state(pentahoSession != null);
     return pentahoSession.getName();
   }
-  
+
   public RepositoryFileAcl createDefaultAcl() {
     return new RepositoryFileAcl.Builder(new RepositoryFileSid(getUsername())).entriesInheriting(true).build();
   }
 
   private RepositoryFileAcl toAcl(final SessionImpl jrSession, final PentahoJcrConstants pentahoJcrConstants,
-      final Serializable id) throws RepositoryException {
+                                  final Serializable id) throws RepositoryException {
 
     Node node = jrSession.getNodeByUUID(id.toString());
     if (node == null) {
@@ -244,14 +243,14 @@ public class JackrabbitRepositoryFileAclDao implements IRepositoryFileAclDao {
    */
   public static interface IPermissionConversionHelper {
     Privilege[] pentahoPermissionsToJackrabbitPrivileges(final SessionImpl jrSession,
-        final EnumSet<RepositoryFilePermission> permission) throws RepositoryException;
+                                                         final EnumSet<RepositoryFilePermission> permission) throws RepositoryException;
 
     EnumSet<RepositoryFilePermission> jackrabbitPrivilegesToPentahoPermissions(final SessionImpl jrSession,
-        final Privilege[] privileges) throws RepositoryException;
+                                                                               final Privilege[] privileges) throws RepositoryException;
   }
 
   public void addAce(final Serializable id, final RepositoryFileSid recipient,
-      final EnumSet<RepositoryFilePermission> permission) {
+                     final EnumSet<RepositoryFilePermission> permission) {
     Assert.notNull(id);
     Assert.notNull(recipient);
     Assert.notNull(permission);
@@ -265,7 +264,7 @@ public class JackrabbitRepositoryFileAclDao implements IRepositoryFileAclDao {
 
   /**
    * <p>
-   * In Jackrabbit 1.6 (and maybe 2.0), objects already have an AccessControlPolicy of type AccessControlList. It is 
+   * In Jackrabbit 1.6 (and maybe 2.0), objects already have an AccessControlPolicy of type AccessControlList. It is
    * empty by default with implicit read access for everyone.
    * </p>
    */

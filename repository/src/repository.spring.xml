@@ -143,7 +143,7 @@
         class="org.pentaho.platform.repository2.unified.lifecycle.PdiBackingRepositoryLifecycleManager"
         parent="abstractBackingRepositoryLifecycleManager"/>
   <bean id="metadataRepositoryLifecycleManager"
-        class="org.pentaho.platform.repository.pmd.MetadataRepositoryLifecycleManager"
+        class="org.pentaho.platform.repository.pmd.PentahoMetadataRepositoryLifecycleManager"
         parent="abstractBackingRepositoryLifecycleManager"/>
   <bean id="sampleDataRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.SampleDataRepositoryLifecycleManager">

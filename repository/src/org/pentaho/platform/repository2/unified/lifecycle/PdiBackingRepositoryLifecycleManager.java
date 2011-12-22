@@ -14,14 +14,12 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.util.EnumSet;
-
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -30,10 +28,11 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
+import java.util.EnumSet;
+
 /**
  * Initializes folders used by Pentaho Data Integration.
- * 
- * 
+ *
  * @author mlowery
  */
 public class PdiBackingRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager {
@@ -55,9 +54,9 @@ public class PdiBackingRepositoryLifecycleManager extends AbstractBackingReposit
   private static final String FOLDER_DATABASES = "databases"; //$NON-NLS-1$
 
   public PdiBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
-      final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-      final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
-      final String singleTenantAuthenticatedAuthorityName) {
+                                              final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
+                                              final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
+                                              final String singleTenantAuthenticatedAuthorityName) {
     super(contentDao, repositoryFileAclDao, txnTemplate, repositoryAdminUsername,
         tenantAuthenticatedAuthorityNamePattern, singleTenantAuthenticatedAuthorityName);
   }
@@ -93,7 +92,7 @@ public class PdiBackingRepositoryLifecycleManager extends AbstractBackingReposit
             // pdi folder
             RepositoryFile tenantEtcPdiFolder = internalCreateFolder(tenantEtcFolder.getId(),
                 new RepositoryFile.Builder(FOLDER_PDI).folder(true).build(), false, repositoryAdminUserSid, Messages
-                    .getInstance().getString("PdiRepositoryLifecycleManager.USER_0001_VER_COMMENT_PDI")); //$NON-NLS-1$
+                .getInstance().getString("PdiRepositoryLifecycleManager.USER_0001_VER_COMMENT_PDI")); //$NON-NLS-1$
             // databases folder
             internalCreateFolder(tenantEtcPdiFolder.getId(), new RepositoryFile.Builder(FOLDER_DATABASES).folder(true)
                 .build(), true, repositoryAdminUserSid, Messages.getInstance().getString(
@@ -119,7 +118,7 @@ public class PdiBackingRepositoryLifecycleManager extends AbstractBackingReposit
   }
 
   protected void addTenantAuthenticatedPermissions(final RepositoryFile folder,
-      final RepositoryFileSid tenantAuthenticatedAuthoritySid) {
+                                                   final RepositoryFileSid tenantAuthenticatedAuthoritySid) {
     internalAddPermission(folder.getId(), tenantAuthenticatedAuthoritySid, EnumSet.of(RepositoryFilePermission.READ,
         RepositoryFilePermission.READ_ACL, RepositoryFilePermission.WRITE, RepositoryFilePermission.WRITE_ACL));
   }

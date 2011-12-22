@@ -14,15 +14,13 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.util.EnumSet;
-
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -31,16 +29,18 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
+import java.util.EnumSet;
+
 /**
  * Default {@link IBackingRepositoryLifecycleManager} implementation.
- * 
+ * <p/>
  * <p>
  * <strong>
- * Note: You must be careful when changing, overriding, or substituting this class. The configuration of 
+ * Note: You must be careful when changing, overriding, or substituting this class. The configuration of
  * {@code DefaultPentahoJackrabbitAccessControlHelper} depends on the behavior of this class.
  * </strong>
  * </p>
- * 
+ *
  * @author mlowery
  */
 public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager {
@@ -52,9 +52,9 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
   // ~ Constructors ====================================================================================================
 
   public DefaultBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
-      final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-      final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
-      final String singleTenantAuthenticatedAuthorityName) {
+                                                  final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
+                                                  final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
+                                                  final String singleTenantAuthenticatedAuthorityName) {
     super(contentDao, repositoryFileAclDao, txnTemplate, repositoryAdminUsername,
         tenantAuthenticatedAuthorityNamePattern, singleTenantAuthenticatedAuthorityName);
   }
@@ -139,7 +139,7 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
             RepositoryFile tenantPublicFolder = internalCreateFolder(tenantRootFolder.getId(),
                 new RepositoryFile.Builder(ServerRepositoryPaths.getTenantPublicFolderName()).folder(true).build(),
                 false, repositoryAdminUserSid, Messages.getInstance().getString(
-                    "DefaultRepositoryLifecycleManager.USER_0003_TENANT_PUBLIC")); //$NON-NLS-1$
+                "DefaultRepositoryLifecycleManager.USER_0003_TENANT_PUBLIC")); //$NON-NLS-1$
             internalAddPermission(tenantPublicFolder.getId(), new RepositoryFileSid(tenantAuthenticatedAuthorityName,
                 RepositoryFileSid.Type.ROLE), EnumSet.of(RepositoryFilePermission.READ,
                 RepositoryFilePermission.READ_ACL, RepositoryFilePermission.WRITE, RepositoryFilePermission.WRITE_ACL));
@@ -150,7 +150,7 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
             RepositoryFile tenantHomeFolder = internalCreateFolder(tenantRootFolder.getId(),
                 new RepositoryFile.Builder(ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).build(),
                 false, repositoryAdminUserSid, Messages.getInstance().getString(
-                    "DefaultRepositoryLifecycleManager.USER_0004_TENANT_HOME")); //$NON-NLS-1$
+                "DefaultRepositoryLifecycleManager.USER_0004_TENANT_HOME")); //$NON-NLS-1$
             internalAddPermission(tenantHomeFolder.getId(), new RepositoryFileSid(tenantAuthenticatedAuthorityName,
                 RepositoryFileSid.Type.ROLE), EnumSet.of(RepositoryFilePermission.READ,
                 RepositoryFilePermission.READ_ACL));

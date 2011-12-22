@@ -27,7 +27,7 @@ import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDenie
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.repository.UnmodifiableRepository;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository.messages.Messages;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.util.Assert;
 

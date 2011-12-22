@@ -28,7 +28,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository.messages.Messages;
 import org.springframework.util.Assert;
 
 import java.io.IOException;

@@ -128,6 +128,7 @@ public class CachingPentahoMetadataDomainRepository extends PentahoMetadataDomai
    */
   @Override
   public void flushDomains() {
+    super.flushDomains();
     cache.clear();
   }
 }

@@ -18,7 +18,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -33,16 +33,16 @@ import org.springframework.util.Assert;
  *
  * @author dkincade
  */
-public class MetadataRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager {
+public class PentahoMetadataRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager {
 
   private static final String FOLDER_METADATA = "metadata"; //$NON-NLS-1$
 
-  public MetadataRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
-                                            final IRepositoryFileAclDao repositoryFileAclDao,
-                                            final TransactionTemplate txnTemplate,
-                                            final String repositoryAdminUsername,
-                                            final String tenantAuthenticatedAuthorityNamePattern,
-                                            final String singleTenantAuthenticatedAuthorityName) {
+  public PentahoMetadataRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
+                                                   final IRepositoryFileAclDao repositoryFileAclDao,
+                                                   final TransactionTemplate txnTemplate,
+                                                   final String repositoryAdminUsername,
+                                                   final String tenantAuthenticatedAuthorityNamePattern,
+                                                   final String singleTenantAuthenticatedAuthorityName) {
     super(contentDao, repositoryFileAclDao, txnTemplate, repositoryAdminUsername,
         tenantAuthenticatedAuthorityNamePattern, singleTenantAuthenticatedAuthorityName);
   }
@@ -63,7 +63,7 @@ public class MetadataRepositoryLifecycleManager extends AbstractBackingRepositor
             // create the metadata folder
             internalCreateFolder(tenantEtcFolder.getId(),
                 new RepositoryFile.Builder(FOLDER_METADATA).folder(true).build(), false, repositoryAdminUserSid,
-                Messages.getInstance().getString("MetadataRepositoryLifecycleManager.USER_0001_VER_COMMENT_METADATA"));
+                Messages.getInstance().getString("PentahoMetadataRepositoryLifecycleManager.USER_0001_VER_COMMENT_METADATA"));
           }
         }
       });

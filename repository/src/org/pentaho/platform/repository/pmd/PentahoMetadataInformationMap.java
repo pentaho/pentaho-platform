@@ -35,8 +35,8 @@ import java.util.Set;
  *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-class MetadataInformationMap {
-  private static final Log log = LogFactory.getLog(MetadataInformationMap.class);
+class PentahoMetadataInformationMap {
+  private static final Log log = LogFactory.getLog(PentahoMetadataInformationMap.class);
 
   private Map<String, Map<String, RepositoryFile>> mapping = new HashMap<String, Map<String, RepositoryFile>>();
   private static final String DOMAIN_ID_KEY = "domain-id";

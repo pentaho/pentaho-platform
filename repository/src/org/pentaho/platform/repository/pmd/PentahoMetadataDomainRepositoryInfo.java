@@ -24,7 +24,7 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
  *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class RepositoryMetadataInfo {
+public class PentahoMetadataDomainRepositoryInfo {
   /**
    * The name of the folder in which Pentaho Metadata should be stored (appended to the proper path for
    * each tenant) - the value is {@value}

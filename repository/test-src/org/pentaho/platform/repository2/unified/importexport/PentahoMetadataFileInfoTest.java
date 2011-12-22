@@ -19,6 +19,7 @@
 package org.pentaho.platform.repository2.unified.importexport;
 
 import junit.framework.TestCase;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Class Description
@@ -54,12 +55,18 @@ public class PentahoMetadataFileInfoTest extends TestCase {
       new String[]{"/pentaho-solutions/steel-wheels/metadata.xmi", "steel-wheels"},
       new String[]{"\\pentaho-solutions\\steel-wheels\\metadata.xmi", "steel-wheels"},
 
-      new String[]{"admin/resources/metadata/Sample Metadata_Name.xmi", "admin/resources/metadata/Sample Metadata_Name"},
-      new String[]{"/admin/resources/metadata/Sample Metadata_Name.xmi", "admin/resources/metadata/Sample Metadata_Name"},
-      new String[]{"with space/resources/metadata/Sample Metadata_Name.xmi", "with space/resources/metadata/Sample Metadata_Name"},
-      new String[]{"/with space/resources/metadata/Sample Metadata_Name.xmi", "with space/resources/metadata/Sample Metadata_Name"},
-      new String[]{"/one/two/resources/metadata/Sample Metadata_Name.xmi", "two/resources/metadata/Sample Metadata_Name"},
-      new String[]{"one/two/resources/metadata/Sample Metadata_Name.xmi", "two/resources/metadata/Sample Metadata_Name"},
+      new String[]{"admin/resources/metadata/Sample Metadata_Name.xmi",
+          "admin/resources/metadata/Sample Metadata_Name.xmi"},
+      new String[]{"/admin/resources/metadata/Sample Metadata_Name.xmi",
+          "admin/resources/metadata/Sample Metadata_Name.xmi"},
+      new String[]{"with space/resources/metadata/Sample Metadata_Name.xmi",
+          "with space/resources/metadata/Sample Metadata_Name.xmi"},
+      new String[]{"/with space/resources/metadata/Sample Metadata_Name.xmi",
+          "with space/resources/metadata/Sample Metadata_Name.xmi"},
+      new String[]{"/one/two/resources/metadata/Sample Metadata_Name.xmi",
+          "two/resources/metadata/Sample Metadata_Name.xmi"},
+      new String[]{"one/two/resources/metadata/Sample Metadata_Name.xmi",
+          "two/resources/metadata/Sample Metadata_Name.xmi"},
   };
 
   private static String[][] LOCALE_DATA = new String[][]{
@@ -69,12 +76,18 @@ public class PentahoMetadataFileInfoTest extends TestCase {
       new String[]{"/pentaho-solutions/steel-wheels/metadata_en_US.properties", "steel-wheels", "en_US"},
       new String[]{"\\pentaho-solutions\\steel-wheels\\metadata_en_US.properties", "steel-wheels", "en_US"},
 
-      new String[]{"admin/resources/metadata/Sample Metadata_Name_en_US.properties", "admin/resources/metadata/Sample Metadata_Name", "en_US"},
-      new String[]{"/admin/resources/metadata/Sample Metadata_Name_en_US.properties", "admin/resources/metadata/Sample Metadata_Name", "en_US"},
-      new String[]{"with space/resources/metadata/Sample Metadata_Name_en_US.properties", "with space/resources/metadata/Sample Metadata_Name", "en_US"},
-      new String[]{"/with space/resources/metadata/Sample Metadata_Name_en_US.properties", "with space/resources/metadata/Sample Metadata_Name", "en_US"},
-      new String[]{"/one/two/resources/metadata/Sample Metadata_Name_en_US.properties", "two/resources/metadata/Sample Metadata_Name", "en_US"},
-      new String[]{"one/two/resources/metadata/Sample Metadata_Name_en_US.properties", "two/resources/metadata/Sample Metadata_Name", "en_US"},
+      new String[]{"admin/resources/metadata/Sample Metadata_Name_en_US.properties",
+          "admin/resources/metadata/Sample Metadata_Name.xmi", "en_US"},
+      new String[]{"/admin/resources/metadata/Sample Metadata_Name_en_US.properties",
+          "admin/resources/metadata/Sample Metadata_Name.xmi", "en_US"},
+      new String[]{"with space/resources/metadata/Sample Metadata_Name_en_US.properties",
+          "with space/resources/metadata/Sample Metadata_Name.xmi", "en_US"},
+      new String[]{"/with space/resources/metadata/Sample Metadata_Name_en_US.properties",
+          "with space/resources/metadata/Sample Metadata_Name.xmi", "en_US"},
+      new String[]{"/one/two/resources/metadata/Sample Metadata_Name_en_US.properties",
+          "two/resources/metadata/Sample Metadata_Name.xmi", "en_US"},
+      new String[]{"one/two/resources/metadata/Sample Metadata_Name_en_US.properties",
+          "two/resources/metadata/Sample Metadata_Name.xmi", "en_US"},
   };
 
   public void testParsing() throws Exception {
@@ -90,6 +103,7 @@ public class PentahoMetadataFileInfoTest extends TestCase {
       assertEquals("Invalid filetype computed for path [" + testData + "]", UNKNOWN, fileInfo.getFileType());
       assertNull(fileInfo.getDomainId());
       assertNull(fileInfo.getLocale());
+      assertTrue(!StringUtils.isEmpty(fileInfo.toString()));
     }
 
     // Test metadata xmi files
@@ -99,6 +113,7 @@ public class PentahoMetadataFileInfoTest extends TestCase {
       assertEquals("Invalid filetype computed for path [" + path + "]", XMI, fileInfo.getFileType());
       assertEquals("Invalid domain id computed for path [" + path + "]", testData[DOMAIN], fileInfo.getDomainId());
       assertNull(fileInfo.getLocale());
+      assertTrue(!StringUtils.isEmpty(fileInfo.toString()));
     }
 
     // Test metadata property bundle files
@@ -108,6 +123,7 @@ public class PentahoMetadataFileInfoTest extends TestCase {
       assertEquals("Invalid filetype computed for path [" + path + "]", PROPERTIES, fileInfo.getFileType());
       assertEquals("Invalid domain id computed for path [" + path + "]", testData[DOMAIN], fileInfo.getDomainId());
       assertEquals("Invalid locale computed for path [" + path + "]", testData[LOCALE], fileInfo.getLocale());
+      assertTrue(!StringUtils.isEmpty(fileInfo.toString()));
     }
   }
 }

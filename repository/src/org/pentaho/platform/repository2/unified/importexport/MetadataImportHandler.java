@@ -133,8 +133,8 @@ public class MetadataImportHandler implements ImportHandler {
    */
   protected String processMetadataFile(final ImportSource.IRepositoryFileBundle bundle, final String filename,
                                        final boolean overwrite) throws ImportException {
+    final PentahoMetadataFileInfo info = new PentahoMetadataFileInfo(filename);
     try {
-      final PentahoMetadataFileInfo info = new PentahoMetadataFileInfo(filename);
       log.debug("Importing [" + info.getPath() + "] as metadata - [domain=" + info.getDomainId() + "]");
       if (!StringUtils.isEmpty(info.getDomainId())) {
         log.debug("importing [" + filename + "] as metadata [domain=" + info.getDomainId() + " : overwrite=" + overwrite + "]");
@@ -142,8 +142,9 @@ public class MetadataImportHandler implements ImportHandler {
       }
       return info.getDomainId();
     } catch (Exception e) {
-      final String errorMessage = messages.getErrorString("", e.getLocalizedMessage()); // TODO I18N
-      log.error(errorMessage);
+      final String errorMessage = messages.getErrorString("MetadataImportHandler.ERROR_0001_IMPORTING_METADATA",
+          info.getPath(), info.getDomainId(), e.getLocalizedMessage());
+      log.error(errorMessage, e);
     }
     return null;
   }
@@ -153,8 +154,9 @@ public class MetadataImportHandler implements ImportHandler {
       log.debug("Importing [" + info.getPath() + "] as properties - [domain=" + info.getDomainId() + " : locale=" + info.getLocale() + "]");
       getMetadataImporter().addLocalizationFile(info.getDomainId(), info.getLocale(), file.getInputStream(), overwrite);
     } catch (Exception e) {
-      final String errorMessage = messages.getErrorString("", e.getLocalizedMessage()); // TODO I18N
-      log.error(errorMessage);
+      final String errorMessage = messages.getErrorString("MetadataImportHandler.ERROR_0002_IMPORTING_LOCALE_FILE",
+          info.getPath(), info.getDomainId(), info.getLocale(), e.getLocalizedMessage());
+      log.error(errorMessage, e);
     }
   }
 
