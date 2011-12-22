@@ -218,7 +218,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
           final FileItem fileLabel = new FileItem(file,this, PluginOptionsHelper.getEnabledOptions(file.getName()), toolbar.getSupportsACLs(), icon);
           // BISERVER-2317: Request for more IDs for Mantle UI elements
           // set element id as the filename
-          fileLabel.getElement().setId("file-" + file.getId());//$NON-NLS-1$
+          fileLabel.getElement().setId(file.getPath());//$NON-NLS-1$
           fileLabel.addFileSelectionChangedListener(toolbar);
           fileLabel.setWidth("100%"); //$NON-NLS-1$
           try{

@@ -214,11 +214,16 @@ public class PerspectiveManager extends HorizontalPanel {
       }
     }
 
-    // remove current perspective overlay
+    // remove current perspective overlays
     if (activePerspective != null) {
       for (XulOverlay o : activePerspective.getOverlays()) {
         if (!o.getId().startsWith("startup") && !o.getId().startsWith("sticky")) {
           MantleXul.getInstance().removeOverlay(o.getId());
+        }
+      }
+      for (XulOverlay overlay : MantleXul.getInstance().getOverlays()) {
+        if (overlay.getId().startsWith(activePerspective.getId() + ".overlay.")) {
+          MantleXul.getInstance().removeOverlay(overlay.getId());
         }
       }
     }
@@ -228,8 +233,15 @@ public class PerspectiveManager extends HorizontalPanel {
 
     // apply current overlay or default if none selected
     if (source.isDown() && perspective.getOverlays() != null) {
+      // handle PERSPECTIVE overlays
       for (XulOverlay overlay : perspective.getOverlays()) {
         if (!overlay.getId().startsWith("startup") && !overlay.getId().startsWith("sticky")) {
+          MantleXul.getInstance().applyOverlay(overlay.getId());
+        }
+      }
+      // handle PLUGIN overlays
+      for (XulOverlay overlay : MantleXul.getInstance().getOverlays()) {
+        if (overlay.getId().startsWith(perspective.getId() + ".overlay.")) {
           MantleXul.getInstance().applyOverlay(overlay.getId());
         }
       }
@@ -240,9 +252,15 @@ public class PerspectiveManager extends HorizontalPanel {
           MantleXul.getInstance().applyOverlay(overlay.getId());
         }
       }
+      for (XulOverlay overlay : MantleXul.getInstance().getOverlays()) {
+        if (overlay.getId().startsWith(defaultPerspective.getId() + ".overlay.")) {
+          MantleXul.getInstance().applyOverlay(overlay.getId());
+        }
+      }
     }
 
-    if (source.isDown() && !perspective.getId().equals("default.perspective") && !perspective.getId().equals("workspace.perspective")) {
+    if (source.isDown() && !perspective.getId().equals("default.perspective") && !perspective.getId().equals("workspace.perspective")
+        && !perspective.getId().equals("admin.perspective")) {
       hijackContentArea(perspective);
     }
 

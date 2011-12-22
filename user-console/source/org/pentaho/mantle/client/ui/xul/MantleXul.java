@@ -65,7 +65,10 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   private SimplePanel adminPerspective = new SimplePanel();
   private DeckPanel adminContentDeck = new DeckPanel();
   private SecurityPanel securityPanel = new SecurityPanel();
-  
+  private boolean adminCustomized = false;
+
+  private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
+
   private MantleXul() {
     AsyncXulLoader.loadXulFromUrl(GWT.getModuleBaseURL() + "xul/mantle.xul", GWT.getModuleBaseURL() + "messages/mantleMessages", this);
     SolutionBrowserPanel.getInstance().addSolutionBrowserListener(this);
@@ -128,42 +131,45 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   }
 
   public void customizeAdminStyle() {
-    Timer t = new Timer() {
-      public void run() {
-        if (container != null) {
-          cancel();
-          // call this method when Elements are added to DOM
-          GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
-          SimplePanel managedTree = (SimplePanel) adminCatTree.getManagedObject();
-          adminCatTree.getTree().removeStyleName("gwt-Tree");
+    if (!adminCustomized) {
+      adminCustomized = true;
+      Timer t = new Timer() {
+        public void run() {
+          if (container != null) {
+            cancel();
+            // call this method when Elements are added to DOM
+            GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
+            SimplePanel managedTree = (SimplePanel) adminCatTree.getManagedObject();
+            adminCatTree.getTree().removeStyleName("gwt-Tree");
+                                                                    
+            managedTree.getParent().getElement().getStyle().setBackgroundColor("#555555");
+            managedTree.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
+            managedTree.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
+            managedTree.getParent().getElement().getStyle().setBorderColor("#333333");
 
-          managedTree.getParent().getElement().getStyle().setBackgroundColor("#555555");
-          managedTree.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
-          managedTree.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
-          managedTree.getParent().getElement().getStyle().setBorderColor("#333333");
+            managedTree.getWidget().getElement().getStyle().clearBackgroundColor();
 
-          managedTree.getWidget().getElement().getStyle().clearBackgroundColor();
-
-          Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
-          adminContentPanel.setWidth("100%");
-          adminContentPanel.getParent().getElement().getStyle().setBackgroundColor("#bbbbbb");
-          adminContentPanel.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
-          adminContentPanel.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
-          adminContentPanel.getParent().getElement().getStyle().setBorderColor("#333333");
+            Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
+            adminContentPanel.setWidth("100%");
+            adminContentPanel.getParent().getElement().getStyle().setBackgroundColor("#bbbbbb");
+            adminContentPanel.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
+            adminContentPanel.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
+            adminContentPanel.getParent().getElement().getStyle().setBorderColor("#333333");
+          }
         }
-      }
-    };
-    t.scheduleRepeating(250);
+      };
+      t.scheduleRepeating(250);
+    }
   }
 
   public DeckPanel getAdminContentDeck() {
     return adminContentDeck;
   }
-  
+
   public Widget getSecurityPanel() {
     return securityPanel;
   }
-  
+
   public Widget getToolbar() {
     return toolbar;
   }
@@ -202,6 +208,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   }
 
   public void addOverlays(List<XulOverlay> overlays) {
+    this.overlays.addAll(overlays);
     // all overlays are added, however, only startup/sticky are applied immediately "applyOnStart"
     for (final XulOverlay overlay : overlays) {
       final boolean applyOnStart = overlay.getId().startsWith("startup") || overlay.getId().startsWith("sticky");
@@ -267,6 +274,10 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   public void overlayRemoved() {
   }
 
+  public ArrayList<XulOverlay> getOverlays() {
+    return overlays;
+  }
+  
   private void loadBundle(final Document doc, final boolean applyOnStart, final String bundleUri) {
     String folder = ""; //$NON-NLS-1$
     String baseName = bundleUri;

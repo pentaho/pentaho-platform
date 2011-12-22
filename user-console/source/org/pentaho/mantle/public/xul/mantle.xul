@@ -82,7 +82,7 @@
 			<treecol id="adminCol" label="Name" flex="2" editable="false" />
 		</treecols>  
   
-		<treechildren id="main_treechildren">
+		<treechildren id="adminCatTreeChildren">
 		
 	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('http://www.pentaho.com')">
 	  			<treerow>

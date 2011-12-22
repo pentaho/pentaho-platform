@@ -241,7 +241,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       rootItem = new FileTreeItem();
       rootItem.setText(rootRepositoryFile.getPath()); 
       rootItem.setTitle(rootRepositoryFile.getPath()); 
-      rootItem.getElement().setId(rootRepositoryFile.getId());
+      rootItem.getElement().setId(rootRepositoryFile.getPath());
       // added so we can traverse the true names
       rootItem.setFileName("/"); //$NON-NLS-1$
       addItem(rootItem);
@@ -430,7 +430,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
         String localizedName = file.getTitle();
         String description = file.getDescription();
         FileTreeItem childTreeItem = new FileTreeItem();
-        childTreeItem.getElement().setAttribute("id", file.getId());//$NON-NLS-1$
+        childTreeItem.getElement().setAttribute("id", file.getPath());//$NON-NLS-1$
         childTreeItem.setUserObject(treeItem);
         ElementUtils.killAllTextSelection(childTreeItem.getElement());
         childTreeItem.setURL(fileName); 

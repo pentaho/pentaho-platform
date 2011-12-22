@@ -37,6 +37,7 @@ public class FileTreeItem extends TreeItem {
    */
   public FileTreeItem(String string) {
     super(string);
+    getElement().setId(string);
   }
 
   public String getFileName() {
