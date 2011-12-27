@@ -9,4 +9,6 @@ Pentaho "internal" folder. Like an nt:folder except that nodes of this node type
 <pho_nt='http://www.pentaho.org/jcr/nt/1.0'>
 <pho_mix='http://www.pentaho.org/jcr/mix/1.0'>
 
-[pho_nt:pentahoInternalFolder] > nt:unstructured, mix:referenceable
+[pho_nt:pentahoInternalFolder] > nt:base, mix:referenceable
+  // do not allow same name siblings (indicated by absence of keyword 'multiple')
+  + * (nt:base) = nt:unstructured ignore
