@@ -485,7 +485,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
      * @param refNum reference number generated on server for this exception
      * @return converted exception
      */
-    RuntimeException convertException(final Exception exception, final String activityMessage, final String refNum);
+    UnifiedRepositoryException convertException(final Exception exception, final String activityMessage, final String refNum);
     
   }
 

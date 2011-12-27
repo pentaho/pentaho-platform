@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryReferentialIntegrityException;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.ExceptionLoggingDecorator.ExceptionConverter;
@@ -12,7 +13,7 @@ import org.pentaho.platform.repository2.unified.ExceptionLoggingDecorator.Except
 public class ReferentialIntegrityExceptionConverter implements ExceptionConverter {
 
   @Override
-  public RuntimeException convertException(final Exception exception, final String activityMessage, final String refNum) {
+  public UnifiedRepositoryException convertException(final Exception exception, final String activityMessage, final String refNum) {
     RepositoryFileDaoReferentialIntegrityException re = (RepositoryFileDaoReferentialIntegrityException) exception;
     return new UnifiedRepositoryReferentialIntegrityException(
         Messages
