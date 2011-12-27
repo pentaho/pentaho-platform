@@ -12,9 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  */
-package org.pentaho.platform.repository2.unified;
-
-import java.util.Set;
+package org.pentaho.platform.repository2.unified.exception;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 

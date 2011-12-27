@@ -13,15 +13,15 @@ public class UnifiedRepositoryAccessDeniedException extends UnifiedRepositoryExc
     super();
   }
 
-  public UnifiedRepositoryAccessDeniedException(String message, Throwable cause) {
+  public UnifiedRepositoryAccessDeniedException(final String message, final Throwable cause) {
     super(message, cause);
   }
 
-  public UnifiedRepositoryAccessDeniedException(String message) {
+  public UnifiedRepositoryAccessDeniedException(final String message) {
     super(message);
   }
 
-  public UnifiedRepositoryAccessDeniedException(Throwable cause) {
+  public UnifiedRepositoryAccessDeniedException(final Throwable cause) {
     super(cause);
   }
 
