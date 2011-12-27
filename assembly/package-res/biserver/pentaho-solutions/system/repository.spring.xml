@@ -76,17 +76,11 @@
         <entry key="org.springframework.security.AccessDeniedException">
           <bean class="org.pentaho.platform.repository2.unified.exception.AccessDeniedExceptionConverter" />
         </entry>
-        <entry key="javax.jcr.lock.LockException">
-          <bean class="org.pentaho.platform.repository2.unified.exception.LockExceptionConverter" />
-        </entry>
         <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoFileExistsException">
           <bean class="org.pentaho.platform.repository2.unified.exception.FileExistsExceptionConverter" />
         </entry>
         <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoReferentialIntegrityException">
           <bean class="org.pentaho.platform.repository2.unified.exception.ReferentialIntegrityExceptionConverter" />
-        </entry>
-        <entry key="org.springframework.transaction.TransactionSystemException">
-          <bean class="org.pentaho.platform.repository2.unified.exception.TransactionExceptionConverter" />
         </entry>
       </util:map>
     </constructor-arg>
