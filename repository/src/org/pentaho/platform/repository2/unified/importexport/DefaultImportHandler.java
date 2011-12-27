@@ -16,6 +16,14 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.collections.map.UnmodifiableMap;
 import org.apache.commons.collections.set.UnmodifiableSet;
 import org.apache.commons.lang.StringUtils;
@@ -30,14 +38,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.springframework.util.Assert;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Class Description
@@ -139,21 +139,21 @@ public class DefaultImportHandler implements ImportHandler {
       throw new IllegalArgumentException();
     }
 
+    // Ensure the destination path is valid
+    Assert.notNull(getParentId(RepositoryFilenameUtils.normalize(destinationPath + RepositoryFile.SEPARATOR)));
+
     // Iterate through the file set
     for (Iterator iterator = importFileSet.iterator(); iterator.hasNext(); ) {
       final ImportSource.IRepositoryFileBundle bundle = (ImportSource.IRepositoryFileBundle) iterator.next();
 
-      // We should ignore anything in the "system" or "admin" folders
-      final String bundlePath = computeBundlePath(bundle);
-      final String bundlePathName = RepositoryFilenameUtils.concat(bundlePath, bundle.getFile().getName());
-      final String repositoryFilePath = RepositoryFilenameUtils.concat(destinationPath, bundlePathName);
-      log.trace("Processing [" + bundlePathName + "]");
-
-      // Make sure we don't try to do anything with the "admin" or "system" folders
+      // Make sure we don't try to do anything in a system-defined folder
+      final String bundlePathName = RepositoryFilenameUtils.concat(computeBundlePath(bundle), bundle.getFile().getName());
       if (isSystemPath(bundlePathName)) {
         log.trace("Skipping [" + bundlePathName + "] since it is in admin / system folders");
         continue;
       }
+      final String repositoryFilePath = RepositoryFilenameUtils.concat(destinationPath, bundlePathName);
+      log.trace("Processing [" + bundlePathName + "]");
 
       // See if the destination already exists in the repository
       final RepositoryFile file = repository.getFile(repositoryFilePath);
@@ -170,7 +170,7 @@ public class DefaultImportHandler implements ImportHandler {
         } else {
           // It is a file we can overwrite...
           log.trace("Updating...");
-          copyFileToRepository(bundle, destinationPath, bundlePath, bundlePathName, file, comment);
+          copyFileToRepository(bundle, bundlePathName, repositoryFilePath, file, comment);
         }
         // We handled this file (even if by doing nothing)
         iterator.remove();
@@ -179,16 +179,17 @@ public class DefaultImportHandler implements ImportHandler {
 
       // The file doesn't exist - if it is a folder then this is easy
       if (bundle.getFile().isFolder()) {
-        log.trace("Creating folder [" + bundlePath + "]");
+        log.trace("Creating folder [" + bundlePathName + "]");
+        final Serializable parentId = getParentId(repositoryFilePath);
         if (bundle.getAcl() != null) {
-          repository.createFolder(getParentId(destinationPath, bundlePath), bundle.getFile(), bundle.getAcl(), comment);
+          repository.createFolder(parentId, bundle.getFile(), bundle.getAcl(), comment);
         } else {
-          repository.createFolder(getParentId(destinationPath, bundlePath), bundle.getFile(), comment);
+          repository.createFolder(parentId, bundle.getFile(), comment);
         }
         iterator.remove();
       } else {
         // It is a file ...
-        if (copyFileToRepository(bundle, destinationPath, bundlePath, bundlePathName, null, comment)) {
+        if (copyFileToRepository(bundle, bundlePathName, repositoryFilePath, null, comment)) {
           iterator.remove();
         }
       }
@@ -217,9 +218,9 @@ public class DefaultImportHandler implements ImportHandler {
    * @param file
    * @param comment
    */
-  protected boolean copyFileToRepository(final ImportSource.IRepositoryFileBundle bundle, final String destinationPath,
-                                         final String bundlePath, final String bundlePathName,
-                                         final RepositoryFile file, final String comment) {
+  protected boolean copyFileToRepository(final ImportSource.IRepositoryFileBundle bundle, final String bundlePathName,
+                                         final String repositoryPath, final RepositoryFile file,
+                                         final String comment) {
     // Compute the file extension
     final String name = bundle.getFile().getName();
     final String ext = RepositoryFilenameUtils.getExtension(name);
@@ -247,7 +248,9 @@ public class DefaultImportHandler implements ImportHandler {
       log.trace("copying file to repository: " + bundlePathName);
       IRepositoryFileData data = converter.convert(bundle.getInputStream(), bundle.getCharset(), mimeType);
       if (null == file) {
-        createFile(bundle, destinationPath, bundlePath, ext, data, comment);
+        final boolean hidden = !executableTypes.contains(ext.toLowerCase());
+        log.trace("\tsetting hidden=" + hidden + " for file with extension " + ext.toLowerCase());
+        createFile(bundle, repositoryPath, hidden, data, comment);
       } else {
         repository.updateFile(file, data, comment);
       }
@@ -269,13 +272,9 @@ public class DefaultImportHandler implements ImportHandler {
    * @param comment
    */
   protected RepositoryFile createFile(final ImportSource.IRepositoryFileBundle bundle, final String destinationPath,
-                                      final String bundlePath, final String ext,
-                                      final IRepositoryFileData data, final String comment) {
-
-    final boolean hidden = !executableTypes.contains(ext.toLowerCase());
-    log.trace("\tsetting hidden=" + hidden + " for file with extension " + ext.toLowerCase());
+                                      final boolean hidden, final IRepositoryFileData data, final String comment) {
     final RepositoryFile file = new RepositoryFile.Builder(bundle.getFile()).hidden(hidden).build();
-    final Serializable parentId = getParentId(destinationPath, bundlePath);
+    final Serializable parentId = getParentId(destinationPath);
     final RepositoryFileAcl acl = bundle.getAcl();
     if (null == acl) {
       return repository.createFile(parentId, file, data, comment);
@@ -300,35 +299,25 @@ public class DefaultImportHandler implements ImportHandler {
   }
 
   /**
-   * Gets (possibly from cache) id of parent folder of file pointed to by childPath.
+   * Returns the Id of the parent folder of the file path provided
+   *
+   * @param repositoryPath
+   * @return
    */
-  protected Serializable getParentId(final String destFolderPath, final String childPath) {
-    Assert.notNull(destFolderPath);
-    Assert.notNull(childPath);
+  protected Serializable getParentId(final String repositoryPath) {
+    Assert.notNull(repositoryPath);
     Assert.notNull(parentIdCache);
-    String normalizedChildPath = childPath;
-    if (!childPath.startsWith(RepositoryFile.SEPARATOR)) {
-      normalizedChildPath = RepositoryFile.SEPARATOR + childPath;
-    }
-    if (!parentIdCache.containsKey(normalizedChildPath)) {
-      // get path to parent from child path
-      String parentPath;
-      int lastSlash = normalizedChildPath.lastIndexOf('/');
-      if (lastSlash > 0) {
-        parentPath = normalizedChildPath.substring(0, lastSlash);
-      } else {
-        parentPath = "";
-      }
-      if (parentPath.startsWith("/")) {
-        parentPath = parentPath.substring(1);
-      }
 
-      // get id of parent from parent path
-      RepositoryFile parentFile = repository.getFile(RepositoryFilenameUtils.concat(destFolderPath, parentPath));
+    final String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(repositoryPath);
+    Serializable parentFileId = parentIdCache.get(parentPath);
+    if (parentFileId == null) {
+      final RepositoryFile parentFile = repository.getFile(parentPath);
       Assert.notNull(parentFile);
-      parentIdCache.put(normalizedChildPath, parentFile.getId());
+      parentFileId = parentFile.getId();
+      Assert.notNull(parentFileId);
+      parentIdCache.put(parentPath, parentFileId);
     }
-    return parentIdCache.get(normalizedChildPath);
+    return parentFileId;
   }
 
   protected void determineExecutableTypes() {

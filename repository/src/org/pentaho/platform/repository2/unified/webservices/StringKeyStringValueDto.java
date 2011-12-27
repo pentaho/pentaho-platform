@@ -18,12 +18,15 @@ import java.io.Serializable;
 
 public class StringKeyStringValueDto implements Serializable {
   String key;
-
   String value;
 
   public StringKeyStringValueDto() {
     super();
-    // TODO Auto-generated constructor stub
+  }
+
+  public StringKeyStringValueDto(final String key, final String value) {
+    this.key = key;
+    this.value = value;
   }
 
   public String getValue() {

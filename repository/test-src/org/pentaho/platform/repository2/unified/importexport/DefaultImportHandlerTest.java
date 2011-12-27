@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,9 +35,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
+import org.pentaho.test.platform.repository2.unified.EmptyUnifiedRepository;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 import org.pentaho.test.platform.repository2.unified.UnmodifiableRepository;
 
@@ -126,6 +129,35 @@ public class DefaultImportHandlerTest extends TestCase {
       // and files without extensions, mime-types, and converters
       assertEquals("The test should have ended without processing " + FINAL_COUNT + " files", FINAL_COUNT, importSource.getCount());
 
+      // Make sure it created the correct tree structure
+      assertTrue(repository.getFile("/home/user/pentaho-solutions").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/bi-developers").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/bi-developers/analysis").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/bi-developers/cdf-samples").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/bi-developers/cdf-samples/10-cdf").isFolder());
+      assertTrue(repository.getFile(
+          "/home/user/pentaho-solutions/bi-developers/cdf-samples/30-documentation").isFolder());
+      assertTrue(repository.getFile(
+          "/home/user/pentaho-solutions/bi-developers/cdf-samples/30-documentation/30-component_reference").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/bi-developers/cdf-samples/30-documentation/30-component_reference/10-core").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/bi-developers/cdf-samples/30-documentation/30" +
+          "-component_reference/10-core/31-TimePlotComponent").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/bi-developers/charts").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/bi-developers/datasources").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/bi-developers/reporting").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/bi-developers/reporting/steel-wheels-reports")
+          .isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/metadata-test").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/steel-wheels").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/steel-wheels/analysis").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/steel-wheels/reports").isFolder());
+      assertTrue(repository.getFile("/home/user/pentaho-solutions/test").isFolder());
+
+      // Make sure it didn't also flatten the structure
+      assertNull(repository.getFile("/home/user/bi-developers"));
+      assertNull(repository.getFile("/home/user/steel-wheels"));
+      assertNull(repository.getFile("/home/user/test"));
+
       assertNull(repository.getFile("/pentaho-solutions/system/metadata/README.txt"));
       final RepositoryFile urlFile = repository.getFile("/home/user/pentaho-solutions/bi-developers/charts/chartsamplesdashboard.url");
       assertNotNull(urlFile);
@@ -174,7 +206,6 @@ public class DefaultImportHandlerTest extends TestCase {
       IOUtils.closeQuietly(zis);
     }
 
-
     // Re-import with overwrite TRUE
     zis = null;
     try {
@@ -191,7 +222,38 @@ public class DefaultImportHandlerTest extends TestCase {
     } finally {
       IOUtils.closeQuietly(zis);
     }
+  }
 
+  public void testGetParentId() throws Exception {
+    final SimpleMockRepository repo = new SimpleMockRepository();
+    final DefaultImportHandler handler = new DefaultImportHandler(repo);
+    {
+      final Serializable parentId = handler.getParentId("/public/pentaho-solutions");
+      assertNotNull(parentId);
+      assertEquals("/public", (String) parentId);
+      assertTrue(repo.getCreated());
+      repo.reset();
+    }
+    {
+      final Serializable parentId = handler.getParentId("/public/pentaho-solutions");
+      assertNotNull(parentId);
+      assertEquals("/public", (String) parentId);
+      assertFalse(repo.getCreated());
+      repo.reset();
+    }
+    {
+      final Serializable parentId = handler.getParentId("/public/pentaho-solutions/");
+      assertNotNull(parentId);
+      assertEquals("/public/pentaho-solutions", (String) parentId);
+      repo.reset();
+    }
+    {
+      final Serializable parentId = handler.getParentId("/public/pentaho-solutions/bi-developers");
+      assertNotNull(parentId);
+      assertEquals("/public/pentaho-solutions", (String) parentId);
+      assertFalse(repo.getCreated());
+      repo.reset();
+    }
   }
 
   private ZipInputStream getZipInputStream(final String path) {
@@ -212,6 +274,38 @@ public class DefaultImportHandlerTest extends TestCase {
     @Override
     public List<String> getRoles() {
       return new ArrayList<String>();
+    }
+  }
+
+  /**
+   * Simple mock IUnifiedRepository implementation that will be used to test directory search and creation. The
+   * getFile() method will always return a file with the id() the same as the normalized path. It has 2 boolean flags
+   * that indicate if the getFile() method was called and if the getFile() was called on a file for the 1st time.
+   */
+  private class SimpleMockRepository extends EmptyUnifiedRepository {
+    private boolean created = false;
+    private final Map<String, RepositoryFile> map = new HashMap<String, RepositoryFile>();
+
+    public void reset() {
+      created = false;
+    }
+
+    public boolean getCreated() {
+      return created;
+    }
+
+    public RepositoryFile getFile(String path) {
+      path = RepositoryFilenameUtils.normalize(path, true);
+      RepositoryFile file = map.get(path);
+      if (file == null) {
+        created = true;
+        final String filename = RepositoryFilenameUtils.getName(path);
+        file = new RepositoryFile.Builder(filename).id(path).path(path).build();
+        map.put(path, file);
+      } else {
+        throw new IllegalStateException("This indicates the caching in getParentId() has failed!");
+      }
+      return file;
     }
   }
 }

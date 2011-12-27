@@ -17,6 +17,7 @@ package org.pentaho.platform.repository2.unified.webservices.jaxws;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +40,10 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAda
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeAdapter;
+import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.repository2.unified.webservices.VersionSummaryAdapter;
 import org.pentaho.platform.repository2.unified.webservices.VersionSummaryDto;
+import org.springframework.util.Assert;
 
 /**
  * Converts calls to {@link IUnifiedRepository} into {@link IUnifiedRepositoryWebService}. This is how client code
@@ -354,11 +357,22 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   }
 
   public void setFileMetadata(final Serializable fileId, Map<String, Serializable> metadataMap) {
-//    repoWebService.setFileMetadata(fileId, (FileMetadataMap) metadataMap);
+    Assert.notNull(fileId);
+    Assert.notNull(metadataMap);
+    List<StringKeyStringValueDto> fileMetadataMap = new ArrayList<StringKeyStringValueDto>(metadataMap.size());
+    for (final String key : metadataMap.keySet()) {
+      fileMetadataMap.add(new StringKeyStringValueDto(key, metadataMap.get(key).toString()));
+    }
+    repoWebService.setFileMetadata(fileId.toString(), fileMetadataMap);
   }
 
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
-//    return repoWebService.getFileMetadata(fileId);
-    return null;
+    final List<StringKeyStringValueDto> fileMetadata = repoWebService.getFileMetadata(fileId.toString());
+    Assert.notNull(fileMetadata);
+    final Map<String, Serializable> repoFileMetadata = new HashMap<String, Serializable>(fileMetadata.size());
+    for (StringKeyStringValueDto entry : fileMetadata) {
+      repoFileMetadata.put(entry.getKey(), entry.getValue());
+    }
+    return repoFileMetadata;
   }
 }

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.jws.WebService;
 
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -32,7 +31,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 /**
  * Implementation of {@link IUnifiedRepositoryWebService} that delegates to an {@link IUnifiedRepository} instance.
- * 
+ *
  * @author mlowery
  */
 @WebService(endpointInterface = "org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService", serviceName = "unifiedRepository", portName = "unifiedRepositoryPort", targetNamespace = "http://www.pentaho.org/ws/1.0")
@@ -135,7 +134,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileDto createFolderWithAcl(String parentFolderId, RepositoryFileDto file, RepositoryFileAclDto acl,
-      String versionMessage) {
+                                               String versionMessage) {
     RepositoryFile newFile = repo.createFolder(parentFolderId, repositoryFileAdapter.unmarshal(file),
         repositoryFileAclAdapter.unmarshal(acl), versionMessage);
     return newFile != null ? repositoryFileAdapter.marshal(newFile) : null;
@@ -172,7 +171,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   public void moveFile(String fileId, String destAbsPath, String versionMessage) {
     repo.moveFile(fileId, destAbsPath, versionMessage);
   }
-  
+
   public void copyFile(String fileId, String destAbsPath, String versionMessage) {
     repo.copyFile(fileId, destAbsPath, versionMessage);
   }
@@ -186,13 +185,13 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileDto createFile(String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data,
-      String versionMessage) {
+                                      String versionMessage) {
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
         nodeRepositoryFileDataAdapter.unmarshal(data), versionMessage));
   }
 
   public RepositoryFileDto createFileWithAcl(String parentFolderId, RepositoryFileDto file,
-      NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, String versionMessage) {
+                                             NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, String versionMessage) {
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
         nodeRepositoryFileDataAdapter.unmarshal(data), repositoryFileAclAdapter.unmarshal(acl), versionMessage));
   }
@@ -265,23 +264,29 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   public List<RepositoryFileDto> getReferrers(String fileId) {
     List<RepositoryFileDto> fileList = new ArrayList<RepositoryFileDto>();
-    
-    for( RepositoryFile file : repo.getReferrers(fileId)) {
+
+    for (RepositoryFile file : repo.getReferrers(fileId)) {
       fileList.add(repositoryFileAdapter.marshal(file));
     }
     return fileList;
   }
-  
-//  public void setFileMetadata(final Serializable fileId, FileMetadataMap fileMetadataMap) {
-//    Map<String, Serializable> metadataMap = new HashMap<String, Serializable>();
-//    metadataMap.putAll(fileMetadataMap);
-//    repo.setFileMetadata(fileId, metadataMap);
-//  }
-//  
-//  public FileMetadataMap getFileMetadata(final Serializable fileId) {
-//    Map<String, Serializable> metadataMap = repo.getFileMetadata(fileId);
-//    FileMetadataMap fileMetadataMap = new FileMetadataMap();
-//    fileMetadataMap.putAll(metadataMap);
-//    return fileMetadataMap;
-//  }
+
+  @Override
+  public void setFileMetadata(final String fileId, final List<StringKeyStringValueDto> fileMetadataMap) {
+    Map<String, Serializable> metadataMap = new HashMap<String, Serializable>(fileMetadataMap.size());
+    for (final StringKeyStringValueDto dto : fileMetadataMap) {
+      metadataMap.put(dto.getKey(), dto.getValue());
+    }
+    repo.setFileMetadata(fileId, metadataMap);
+  }
+
+  @Override
+  public List<StringKeyStringValueDto> getFileMetadata(final String fileId) {
+    final Map<String, Serializable> metadataMap = repo.getFileMetadata(fileId);
+    final List<StringKeyStringValueDto> fileMetadataMap = new ArrayList<StringKeyStringValueDto>(metadataMap.size());
+    for (final String key : metadataMap.keySet()) {
+      fileMetadataMap.add(new StringKeyStringValueDto(key, metadataMap.get(key).toString()));
+    }
+    return fileMetadataMap;
+  }
 }
