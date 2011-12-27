@@ -16,7 +16,12 @@
  *  
  * @author dkincade
  */
-package org.pentaho.platform.repository;
+package org.pentaho.test.platform.repository2.unified;
+
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -27,11 +32,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A wrapper around a repository that will throw an exception if a call is made to any method which
@@ -588,17 +588,6 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   @Override
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     return repository.getFileMetadata(fileId);
-  }
-
-  /**
-   * Returns an instance of this repository which will throw an exception if a method that would modify the
-   * contents of the repository is called.
-   *
-   * @return A wrapped instance of this repository which can not be modified
-   */
-  @Override
-  public IUnifiedRepository unmodifiable() {
-    return this;
   }
 
   /**

@@ -1,5 +1,11 @@
 package org.pentaho.platform.repository2.unified.fs;
 
+import java.io.File;
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -9,13 +15,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
-import org.pentaho.platform.repository.UnmodifiableRepository;
-
-import java.io.File;
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
 
 public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   private FileSystemRepositoryFileDao repositoryFileDao;
@@ -220,17 +219,6 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
 
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     return repositoryFileDao.getFileMetadata(fileId);
-  }
-
-  /**
-   * Returns an instance of this repository which will throw an exception if a method that would modify the
-   * contents of the repository is called.
-   *
-   * @return A wrapped instance of this repository which can not be modified
-   */
-  @Override
-  public IUnifiedRepository unmodifiable() {
-    return new UnmodifiableRepository(this);
   }
 
   public void copyFile(Serializable fileId, String destAbsPath, String versionMessage) {

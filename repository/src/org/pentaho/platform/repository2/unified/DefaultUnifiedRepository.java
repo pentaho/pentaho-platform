@@ -14,6 +14,12 @@
  */
 package org.pentaho.platform.repository2.unified;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -22,14 +28,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
-import org.pentaho.platform.repository.UnmodifiableRepository;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Default implementation of {@link IUnifiedRepository}. Delegates to {@link IRepositoryFileDao} and
@@ -455,16 +454,5 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     Assert.notNull(fileId);
     return repositoryFileDao.getFileMetadata(fileId);
-  }
-
-  /**
-   * Returns an instance of this repository which will throw an exception if a method that would modify the
-   * contents of the repository is called.
-   *
-   * @return A wrapped instance of this repository which can not be modified
-   */
-  @Override
-  public IUnifiedRepository unmodifiable() {
-    return new UnmodifiableRepository(this);
   }
 }

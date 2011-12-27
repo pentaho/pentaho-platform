@@ -437,13 +437,4 @@ public interface IUnifiedRepository {
    * @return Map<String, Serializable> of all the metadata for this file
    */
   Map<String, Serializable> getFileMetadata(final Serializable fileId);
-
-  /**
-   * Returns an instance of this repository which will throw an exception if a method that would modify the
-   * contents of the repository is called.
-   *
-   * @return A wrapped instance of this repository which can not be modified
-   */
-  IUnifiedRepository unmodifiable();
-
 }

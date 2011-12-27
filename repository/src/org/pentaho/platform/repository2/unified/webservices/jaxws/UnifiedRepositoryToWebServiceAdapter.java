@@ -14,6 +14,12 @@
  */
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -35,12 +41,6 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeAdapter;
 import org.pentaho.platform.repository2.unified.webservices.VersionSummaryAdapter;
 import org.pentaho.platform.repository2.unified.webservices.VersionSummaryDto;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Converts calls to {@link IUnifiedRepository} into {@link IUnifiedRepositoryWebService}. This is how client code
@@ -361,16 +361,4 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
 //    return repoWebService.getFileMetadata(fileId);
     return null;
   }
-
-  /**
-   * Returns an instance of this repository which will throw an exception if a method that would modify the
-   * contents of the repository is called.
-   *
-   * @return A wrapped instance of this repository which can not be modified
-   */
-  @Override
-  public IUnifiedRepository unmodifiable() {
-    throw new UnsupportedOperationException();
-  }
-
 }

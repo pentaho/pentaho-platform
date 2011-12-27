@@ -18,7 +18,16 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
-import junit.framework.TestCase;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipInputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -29,16 +38,9 @@ import org.pentaho.platform.repository2.unified.RepositoryUtils;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
+import org.pentaho.test.platform.repository2.unified.UnmodifiableRepository;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipInputStream;
+import junit.framework.TestCase;
 
 /**
  * Class Description
@@ -162,7 +164,7 @@ public class DefaultImportHandlerTest extends TestCase {
       final ZipSolutionRepositoryImportSource importSource = new ZipSolutionRepositoryImportSource(zis, "UTF-8");
       assertEquals("The test should start with exactly 65 files", 65, importSource.getCount());
 
-      final DefaultImportHandler handler = new DefaultImportHandler(repository.unmodifiable());
+      final DefaultImportHandler handler = new DefaultImportHandler(new UnmodifiableRepository(repository));
       handler.doImport(importSource.getFiles(), "/home/user", "import comment", false);
 
       // The import handler should skip any file (or directory) with 'system' or 'admin' in first 2 path locations

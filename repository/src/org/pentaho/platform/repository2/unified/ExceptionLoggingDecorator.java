@@ -34,14 +34,13 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
-import org.pentaho.platform.repository.UnmodifiableRepository;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.util.Assert;
 
 /**
  * Decorates another {@code IUnifiedRepository} instance and logs exceptions if they occur. Also, a new non-chained
  * exception is thrown.  (The root cause will not leave this class.)
- * 
+ *
  * @author mlowery
  */
 public class ExceptionLoggingDecorator implements IUnifiedRepository {
@@ -53,7 +52,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   // ~ Instance fields =================================================================================================
 
   private final IUnifiedRepository delegatee;
-  
+
   private final Map<String, ExceptionConverter> exceptionConverterMap;
 
   // ~ Constructors ====================================================================================================
@@ -76,7 +75,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-      final IRepositoryFileData data, final String versionMessage) {
+                                   final IRepositoryFileData data, final String versionMessage) {
     return callLogThrow(new Callable<RepositoryFile>() {
       public RepositoryFile call() throws Exception {
         return delegatee.createFile(parentFolderId, file, data, versionMessage);
@@ -85,7 +84,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
-      final String versionMessage) {
+                                     final String versionMessage) {
     return callLogThrow(new Callable<RepositoryFile>() {
       public RepositoryFile call() throws Exception {
         return delegatee.createFolder(parentFolderId, file, versionMessage);
@@ -145,7 +144,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute(final Serializable fileId,
-      final Serializable versionId, final Class<T> dataClass) {
+                                                                      final Serializable versionId, final Class<T> dataClass) {
     return callLogThrow(new Callable<T>() {
       public T call() throws Exception {
         return delegatee.getDataAtVersionForExecute(fileId, versionId, dataClass);
@@ -154,7 +153,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   public <T extends IRepositoryFileData> T getDataAtVersionForRead(final Serializable fileId,
-      final Serializable versionId, final Class<T> dataClass) {
+                                                                   final Serializable versionId, final Class<T> dataClass) {
     return callLogThrow(new Callable<T>() {
       public T call() throws Exception {
         return delegatee.getDataAtVersionForRead(fileId, versionId, dataClass);
@@ -291,9 +290,9 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
       }
     }, Messages.getInstance().getString("ExceptionLoggingDecorator.getVersionSummary", fileId, versionId)); //$NON-NLS-1$
   }
-  
+
   public List<VersionSummary> getVersionSummaryInBatch(final List<RepositoryFile> files) {
-    return callLogThrow(new Callable<List<VersionSummary>> () {
+    return callLogThrow(new Callable<List<VersionSummary>>() {
       public List<VersionSummary> call() throws Exception {
         return delegatee.getVersionSummaryInBatch(files);
       }
@@ -334,7 +333,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
       }
     }, Messages.getInstance().getString("ExceptionLoggingDecorator.copyFile", fileId, destAbsPath)); //$NON-NLS-1$
   }
-  
+
   public void restoreFileAtVersion(final Serializable fileId, final Serializable versionId, final String versionMessage) {
     callLogThrow(new Callable<Void>() {
       public Void call() throws Exception {
@@ -371,7 +370,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData data,
-      final String versionMessage) {
+                                   final String versionMessage) {
     return callLogThrow(new Callable<RepositoryFile>() {
       public RepositoryFile call() throws Exception {
         return delegatee.updateFile(file, data, versionMessage);
@@ -388,7 +387,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-      final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
+                                   final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     return callLogThrow(new Callable<RepositoryFile>() {
       public RepositoryFile call() throws Exception {
         return delegatee.createFile(parentFolderId, file, data, acl, versionMessage);
@@ -397,7 +396,7 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
-      final RepositoryFileAcl acl, final String versionMessage) {
+                                     final RepositoryFileAcl acl, final String versionMessage) {
     return callLogThrow(new Callable<RepositoryFile>() {
       public RepositoryFile call() throws Exception {
         return delegatee.createFolder(parentFolderId, file, acl, versionMessage);
@@ -406,12 +405,12 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
   }
 
   /**
-   * Calls the Callable and returns the value it returns. If an exception occurs, it is logged and a new non-chained 
+   * Calls the Callable and returns the value it returns. If an exception occurs, it is logged and a new non-chained
    * exception is thrown.
-   * 
-   * @param <T> return type
+   *
+   * @param <T>      return type
    * @param callable code to call
-   * @param message verbose description of operation
+   * @param message  verbose description of operation
    * @return return value of Callable
    */
   private <T> T callLogThrow(final Callable<T> callable, final String message) {
@@ -423,22 +422,22 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
       if (logger.isErrorEnabled()) {
         logger.error(Messages.getInstance().getString("ExceptionLoggingDecorator.referenceNumber", refNum), e); //$NON-NLS-1$
       }
-      
+
 
       // list all exceptions in stack
       @SuppressWarnings("unchecked")
       List<Throwable> throwablesInStack = ExceptionUtils.getThrowableList(e);
       // reverse them so most specific exception (root cause) comes first
       Collections.reverse(throwablesInStack);
-      
+
       for (Throwable t : throwablesInStack) {
         String className = t.getClass().getName();
         if (exceptionConverterMap.containsKey(className)) {
           throw exceptionConverterMap.get(className).convertException((Exception) t, message, refNum);
         }
-        
+
       }
-      
+
       // no converter; throw general exception
       throw new UnifiedRepositoryException(Messages.getInstance().getString(
           "ExceptionLoggingDecorator.generalException", message, refNum)); //$NON-NLS-1$
@@ -463,15 +462,15 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
       }
     }, Messages.getInstance().getString("ExceptionLoggingDecorator.setFileMetadata", fileId, metadataMap)); //$NON-NLS-1$
   }
-  
+
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     return callLogThrow(new Callable<Map<String, Serializable>>() {
       public Map<String, Serializable> call() throws Exception {
         return delegatee.getFileMetadata(fileId);
-      }   
+      }
     }, Messages.getInstance().getString("ExceptionLoggingDecorator.getFileMetadata", fileId)); //$NON-NLS-1$
   }
-  
+
   /**
    * Converts an exception before throwing to callers.
    */
@@ -479,24 +478,13 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
 
     /**
      * Converts the exception.
-     * 
-     * @param exception exception
+     *
+     * @param exception       exception
      * @param activityMessage message describing activity in progress when exception occurred
-     * @param refNum reference number generated on server for this exception
+     * @param refNum          reference number generated on server for this exception
      * @return converted exception
      */
     UnifiedRepositoryException convertException(final Exception exception, final String activityMessage, final String refNum);
-    
-  }
 
-  /**
-   * Returns an instance of this repository which will throw an exception if a method that would modify the
-   * contents of the repository is called.
-   *
-   * @return A wrapped instance of this repository which can not be modified
-   */
-  @Override
-  public IUnifiedRepository unmodifiable() {
-    return new UnmodifiableRepository(this);
   }
 }
