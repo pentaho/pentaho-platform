@@ -55,7 +55,7 @@ import org.springframework.util.Assert;
 public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository {
 
   private List<Character> cachedReservedChars;
-  
+
   private IUnifiedRepositoryJaxwsWebService repoWebService;
 
   private RepositoryFileAdapter repositoryFileAdapter = new RepositoryFileAdapter();
@@ -75,6 +75,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     this.repoWebService = repoWebService;
   }
 
+  @Override
   public RepositoryFile createFile(Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
                                    String versionMessage) {
     if (data instanceof NodeRepositoryFileData) {
@@ -91,28 +92,34 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     }
   }
 
+  @Override
   public RepositoryFile createFolder(Serializable parentFolderId, RepositoryFile file, String versionMessage) {
     return repositoryFileAdapter.unmarshal(repoWebService.createFolder(parentFolderId != null ? parentFolderId
         .toString() : null, repositoryFileAdapter.marshal(file), versionMessage));
   }
 
+  @Override
   public void deleteFile(Serializable fileId, boolean permanent, String versionMessage) {
     repoWebService.deleteFileWithPermanentFlag(fileId != null ? fileId.toString() : null, permanent, versionMessage);
   }
 
+  @Override
   public void deleteFile(Serializable fileId, String versionMessage) {
     repoWebService.deleteFile(fileId != null ? fileId.toString() : null, versionMessage);
   }
 
+  @Override
   public void deleteFileAtVersion(Serializable fileId, Serializable versionId) {
     repoWebService.deleteFileAtVersion(fileId != null ? fileId.toString() : null,
         versionId.toString() != null ? versionId.toString() : null);
   }
 
+  @Override
   public RepositoryFileAcl getAcl(Serializable fileId) {
     return repositoryFileAclAdapter.unmarshal(repoWebService.getAcl(fileId != null ? fileId.toString() : null));
   }
 
+  @Override
   public List<RepositoryFile> getChildren(Serializable folderId) {
     return unmarshalFiles(repoWebService.getChildren(folderId.toString() != null ? folderId.toString() : null));
   }
@@ -125,25 +132,30 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     return files;
   }
 
+  @Override
   public List<RepositoryFile> getChildren(Serializable folderId, String filter) {
     return unmarshalFiles(repoWebService.getChildrenWithFilter(
         folderId.toString() != null ? folderId.toString() : null, filter));
   }
 
+  @Override
   public <T extends IRepositoryFileData> T getDataForExecute(Serializable fileId, Class<T> dataClass) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch(
       final List<RepositoryFile> files, Class<T> dataClass) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute(Serializable fileId, Serializable versionId,
                                                                       Class<T> dataClass) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <T extends IRepositoryFileData> T getDataForRead(Serializable fileId, Class<T> dataClass) {
     if (dataClass.equals(NodeRepositoryFileData.class)) {
@@ -158,6 +170,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     }
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <T extends IRepositoryFileData> java.util.List<T> getDataForReadInBatch(final List<RepositoryFile> files, final Class<T> dataClass) {
     List<RepositoryFileDto> fileDtos = new ArrayList<RepositoryFileDto>(files.size());
@@ -183,6 +196,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     }
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <T extends IRepositoryFileData> T getDataAtVersionForRead(Serializable fileId, Serializable versionId,
                                                                    Class<T> dataClass) {
@@ -198,18 +212,22 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     }
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles(final String origParentFolderPath) {
     return unmarshalFiles(repoWebService.getDeletedFilesInFolder(origParentFolderPath));
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles(final String origParentFolderPath, String filter) {
     return unmarshalFiles(repoWebService.getDeletedFilesInFolderWithFilter(origParentFolderPath, filter));
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles() {
     return unmarshalFiles(repoWebService.getDeletedFiles());
   }
 
+  @Override
   public List<RepositoryFileAce> getEffectiveAces(Serializable fileId) {
     return unmarshalAces(repoWebService.getEffectiveAces(fileId != null ? fileId.toString() : null));
   }
@@ -222,33 +240,40 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     return aces;
   }
 
+  @Override
   public List<RepositoryFileAce> getEffectiveAces(Serializable fileId, boolean forceEntriesInheriting) {
     return unmarshalAces(repoWebService.getEffectiveAcesWithForceFlag(fileId != null ? fileId.toString() : null,
         forceEntriesInheriting));
   }
 
+  @Override
   public RepositoryFile getFile(String path) {
     path = path.replaceAll(";", "/");
     return repositoryFileAdapter.unmarshal(repoWebService.getFile(path));
   }
 
+  @Override
   public RepositoryFile getFile(String path, boolean loadLocaleMaps) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public RepositoryFile getFileAtVersion(Serializable fileId, Serializable versionId) {
     return repositoryFileAdapter.unmarshal(repoWebService.getFileAtVersion(fileId != null ? fileId.toString() : null,
         versionId != null ? versionId.toString() : null));
   }
 
+  @Override
   public RepositoryFile getFileById(Serializable fileId) {
     return repositoryFileAdapter.unmarshal(repoWebService.getFileById(fileId != null ? fileId.toString() : null));
   }
 
+  @Override
   public RepositoryFile getFileById(Serializable fileId, boolean loadLocaleMaps) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public List<VersionSummary> getVersionSummaries(Serializable fileId) {
     return unmarshalVersionSummaries(repoWebService.getVersionSummaries(fileId != null ? fileId.toString() : null));
   }
@@ -261,11 +286,13 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     return versionSummaries;
   }
 
+  @Override
   public VersionSummary getVersionSummary(Serializable fileId, Serializable versionId) {
     return versionSummaryAdapter.unmarshal(repoWebService.getVersionSummary(fileId != null ? fileId.toString() : null,
         versionId != null ? versionId.toString() : null));
   }
 
+  @Override
   public List<VersionSummary> getVersionSummaryInBatch(final List<RepositoryFile> files) {
     List<RepositoryFileDto> fileDtos = new ArrayList<RepositoryFileDto>(files.size());
     for (RepositoryFile file : files) {
@@ -274,34 +301,42 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     return unmarshalVersionSummaries(repoWebService.getVersionSummaryInBatch(fileDtos));
   }
 
+  @Override
   public boolean hasAccess(String path, EnumSet<RepositoryFilePermission> permissions) {
     return repoWebService.hasAccess(path, RepositoryFileAclAceAdapter.toIntPerms(permissions));
   }
 
+  @Override
   public void lockFile(Serializable fileId, String message) {
     repoWebService.lockFile(fileId != null ? fileId.toString() : null, message);
   }
 
+  @Override
   public void moveFile(Serializable fileId, String destAbsPath, String versionMessage) {
     repoWebService.moveFile(fileId != null ? fileId.toString() : null, destAbsPath, versionMessage);
   }
 
+  @Override
   public void copyFile(Serializable fileId, String destAbsPath, String versionMessage) {
     repoWebService.copyFile(fileId != null ? fileId.toString() : null, destAbsPath, versionMessage);
   }
 
+  @Override
   public void undeleteFile(Serializable fileId, String versionMessage) {
     repoWebService.undeleteFile(fileId != null ? fileId.toString() : null, versionMessage);
   }
 
+  @Override
   public void unlockFile(Serializable fileId) {
     repoWebService.unlockFile(fileId != null ? fileId.toString() : null);
   }
 
+  @Override
   public RepositoryFileAcl updateAcl(RepositoryFileAcl acl) {
     return repositoryFileAclAdapter.unmarshal(repoWebService.updateAcl(repositoryFileAclAdapter.marshal(acl)));
   }
 
+  @Override
   public RepositoryFile updateFile(RepositoryFile file, IRepositoryFileData data, String versionMessage) {
     if (data instanceof NodeRepositoryFileData) {
       return repositoryFileAdapter.unmarshal(repoWebService.updateFile(repositoryFileAdapter.marshal(file),
@@ -315,18 +350,22 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     }
   }
 
+  @Override
   public void restoreFileAtVersion(Serializable fileId, Serializable versionId, String versionMessage) {
     repoWebService.restoreFileAtVersion(fileId.toString(), versionId.toString(), versionMessage);
   }
 
+  @Override
   public boolean canUnlockFile(final Serializable fileId) {
     return repoWebService.canUnlockFile(fileId.toString());
   }
 
+  @Override
   public RepositoryFileTree getTree(final String path, final int depth, final String filter, final boolean showHidden) {
     return repositoryFileTreeAdapter.unmarshal(repoWebService.getTree(path, depth, filter, showHidden));
   }
 
+  @Override
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
                                    final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     if (data instanceof NodeRepositoryFileData) {
@@ -343,6 +382,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     }
   }
 
+  @Override
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
                                      final RepositoryFileAcl acl, final String versionMessage) {
     return repositoryFileAdapter
@@ -350,6 +390,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
             repositoryFileAdapter.marshal(file), repositoryFileAclAdapter.marshal(acl), versionMessage));
   }
 
+  @Override
   public List<RepositoryFile> getReferrers(Serializable fileId) {
     List<RepositoryFile> fileList = new ArrayList<RepositoryFile>();
 
@@ -359,6 +400,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     return fileList;
   }
 
+  @Override
   public void setFileMetadata(final Serializable fileId, Map<String, Serializable> metadataMap) {
     Assert.notNull(fileId);
     Assert.notNull(metadataMap);
@@ -369,6 +411,7 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     repoWebService.setFileMetadata(fileId.toString(), fileMetadataMap);
   }
 
+  @Override
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     final List<StringKeyStringValueDto> fileMetadata = repoWebService.getFileMetadata(fileId.toString());
     Assert.notNull(fileMetadata);

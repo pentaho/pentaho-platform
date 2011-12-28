@@ -16,7 +16,6 @@ package org.pentaho.platform.repository2.unified.webservices;
 
 import java.util.ArrayList;
 import java.util.Map;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -24,7 +23,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 
 /**
  * Converts {@code RepositoryFile} into JAXB-safe object and vice-versa.
- * 
+ *
  * @author mlowery
  */
 public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, RepositoryFile> {
@@ -70,18 +69,14 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     if (v.getTitleMap() != null) {
       f.titleMapEntries = new ArrayList<StringKeyStringValueDto>();
       for (Map.Entry<String, String> entry : v.getTitleMap().entrySet()) {
-        StringKeyStringValueDto entryDto = new StringKeyStringValueDto();
-        entryDto.key = entry.getKey();
-        entryDto.value = entry.getValue();
+        StringKeyStringValueDto entryDto = new StringKeyStringValueDto(entry.getKey(), entry.getValue());
         f.titleMapEntries.add(entryDto);
       }
     }
     if (v.getDescriptionMap() != null) {
       f.descriptionMapEntries = new ArrayList<StringKeyStringValueDto>();
       for (Map.Entry<String, String> entry : v.getDescriptionMap().entrySet()) {
-        StringKeyStringValueDto entryDto = new StringKeyStringValueDto();
-        entryDto.key = entry.getKey();
-        entryDto.value = entry.getValue();
+        StringKeyStringValueDto entryDto = new StringKeyStringValueDto(entry.getKey(), entry.getValue());
         f.descriptionMapEntries.add(entryDto);
       }
     }
@@ -112,13 +107,13 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
 
     if (v.titleMapEntries != null) {
       for (StringKeyStringValueDto entryDto : v.titleMapEntries) {
-        builder.title(entryDto.key, entryDto.value);
+        builder.title(entryDto.getKey(), entryDto.getValue());
       }
     }
 
     if (v.descriptionMapEntries != null) {
       for (StringKeyStringValueDto entryDto : v.descriptionMapEntries) {
-        builder.description(entryDto.key, entryDto.value);
+        builder.description(entryDto.getKey(), entryDto.getValue());
       }
     }
 

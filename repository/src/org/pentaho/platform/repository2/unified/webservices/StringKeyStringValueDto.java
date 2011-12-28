@@ -16,9 +16,11 @@ package org.pentaho.platform.repository2.unified.webservices;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
+
 public class StringKeyStringValueDto implements Serializable {
-  String key;
-  String value;
+  private String key;
+  private String value;
 
   public StringKeyStringValueDto() {
     super();
@@ -49,5 +51,17 @@ public class StringKeyStringValueDto implements Serializable {
   @Override
   public String toString() {
     return "StringKeyStringValueDto [key=" + key + ", value=" + value + "]";
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    return (obj != null && obj instanceof StringKeyStringValueDto
+        && StringUtils.equals(key, ((StringKeyStringValueDto) obj).getKey())
+        && StringUtils.equals(value, ((StringKeyStringValueDto) obj).getValue()));
+  }
+
+  @Override
+  public int hashCode() {
+    return (key == null ? 1 : key.hashCode()) * (value == null ? -1 : value.hashCode());
   }
 }
