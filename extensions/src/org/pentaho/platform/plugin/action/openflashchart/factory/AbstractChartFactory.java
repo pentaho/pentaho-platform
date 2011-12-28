@@ -356,16 +356,15 @@ public abstract class AbstractChartFactory implements IChartFactory {
       
       if (chunksize > 0) {
         stepforchart = new Integer(chunksize);
-      }
-      
-      // If actual min is positive, don't go below ZERO
-      if (domainMin.intValue() >= 0 && domainMin.intValue() - chunksize < 0) {
-        domainMin = 0;
-      } else {
-        domainMin = domainMin.intValue() - chunksize;
-      }
-      domainMax = domainMin.intValue() + (chunksize * (steps + 2));
 
+        // If actual min is positive, don't go below ZERO
+        if (domainMin.intValue() >= 0 && domainMin.intValue() - chunksize < 0) {
+          domainMin = 0;
+        } else {
+          domainMin = domainMin.intValue() - chunksize;
+        }
+        domainMax = domainMin.intValue() + (chunksize * (steps + 2));
+      }
       temp = chartNode.selectSingleNode(DOMAIN_MINIMUM_NODE_LOC);
       if (getValue(temp) != null) {
         domainMin = new Integer(getValue(temp)).intValue();
@@ -564,19 +563,20 @@ public abstract class AbstractChartFactory implements IChartFactory {
     int chunksize = diff / steps;
 
     Integer stepforchart = null;
-    if (chunksize > 0)
+    if (chunksize > 0) {
       stepforchart = new Integer(chunksize);
 
-    // Readjust mins/maxs only if they weren't specified
-    if (!minDefined) {
-      // If actual min is positive, don't go below ZERO
-      if (rangeMin >= 0 && rangeMin - chunksize < 0)
-        rangeMin = 0;
-      else
-        rangeMin = rangeMin - chunksize;
-    }
-    if (!maxDefined) {
-      rangeMax = rangeMin + (chunksize * (steps + 2));
+      // Read just mins/maxs only if they weren't specified
+      if (!minDefined) {
+        // If actual min is positive, don't go below ZERO
+        if (rangeMin >= 0 && rangeMin - chunksize < 0)
+          rangeMin = 0;
+        else
+          rangeMin = rangeMin - chunksize;
+      }
+      if (!maxDefined) {
+        rangeMax = rangeMin + (chunksize * (steps + 2));
+      }
     }
 
     if (HORIZONTAL_ORIENTATION.equals(orientation)) {
