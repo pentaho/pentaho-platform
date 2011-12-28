@@ -23,6 +23,10 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.Test;
 
 /**
  * Test class for the {@link RepositoryFilenameUtils} class
@@ -886,5 +890,50 @@ public class RepositoryFilenameUtilsTest extends TestCase {
     assertMatch("log.log.abc", "*log?abc", true);
     assertMatch("log.log.abc.log.abc", "*log?abc", true);
     assertMatch("log.log.abc.log.abc.d", "*log?abc?d", true);
+  }
+  
+  @Test
+  public void testEscape() {
+    List<Character> emptyList = Collections.emptyList();
+    
+    // null name
+    try {
+      RepositoryFilenameUtils.escape(null, emptyList);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // passed
+    }
+    
+    // empty list
+    assertEquals("hello", RepositoryFilenameUtils.escape("hello", emptyList));
+    
+    // nothing to escape
+    assertEquals("hello", RepositoryFilenameUtils.escape("hello", Arrays.asList(new Character[] { '/' })));
+    
+    // something to escape
+    assertEquals("h%65llo", RepositoryFilenameUtils.escape("hello", Arrays.asList(new Character[] { 'e' })));
+
+    // % in name
+    assertEquals("hel%25lo", RepositoryFilenameUtils.escape("hel%lo", emptyList));
+  }
+
+  @Test
+  public void testUnescape() {
+    // null name
+    try {
+      RepositoryFilenameUtils.unescape(null);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // passed
+    }
+    
+    // nothing to unescape
+    assertEquals("hello", RepositoryFilenameUtils.unescape("hello"));
+    
+    // something to unescape
+    assertEquals("hello", RepositoryFilenameUtils.unescape("h%65llo"));
+
+    // % in name
+    assertEquals("hel%lo", RepositoryFilenameUtils.unescape("hel%25lo"));
   }
 }
