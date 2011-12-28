@@ -11,6 +11,10 @@ import static org.mockito.Mockito.verify;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.pathPropertyPair;
+
+import java.util.Collections;
+import java.util.List;
+
 import junit.framework.Assert;
 
 import org.junit.After;
@@ -48,6 +52,8 @@ public class JcrBackedDatasourceMgmtServiceTest {
   private static final String EXP_UPDATED_DBMETA_HOSTNAME = "acmeUpdated";
   
   private static final String EXP_UPDATED_DBMETA_PORT = "10522";
+  
+  private static final List<Character> reservedChars = Collections.emptyList();
 
   public JcrBackedDatasourceMgmtServiceTest() {
     super();
@@ -80,6 +86,8 @@ public class JcrBackedDatasourceMgmtServiceTest {
     // stub out get parent folder
     doReturn(new RepositoryFile.Builder(parentFolderId, "databases").folder(true).build()).when(repo).getFile(
         "/etc/pdi/databases");
+    doReturn(reservedChars).when(repo).getReservedChars();
+    
     IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
         new DatabaseDialectService());
 
@@ -100,6 +108,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
       // stub out get parent folder
       doReturn(new RepositoryFile.Builder("123", "databases").folder(true).build()).when(repo).getFile(
           databasesFolderPath);
+      doReturn(reservedChars).when(repo).getReservedChars();
       // stub out get file to delete
       doReturn(new RepositoryFile.Builder(fileId, EXP_DBMETA_NAME + dotKdb).build()).when(repo).getFile(databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb);
       IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
@@ -119,6 +128,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
       // stub out get parent folder
       doReturn(new RepositoryFile.Builder("123", "databases").folder(true).build()).when(repo).getFile(
           databasesFolderPath);
+      doReturn(reservedChars).when(repo).getReservedChars();
       // stub out get file to update
       RepositoryFile f = new RepositoryFile.Builder(fileId, EXP_DBMETA_NAME + dotKdb).path(
           databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb).build();
@@ -146,6 +156,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
       // stub out get parent folder
       doReturn(new RepositoryFile.Builder("123", "databases").folder(true).build()).when(repo).getFile(
           databasesFolderPath);
+      doReturn(reservedChars).when(repo).getReservedChars();
       // stub out get file not found
       doReturn(null).when(repo).getFile(databasesFolderPath + RepositoryFile.SEPARATOR + fileName);
       IDatasourceMgmtService datasourceMgmtService = new JcrBackedDatasourceMgmtService(repo,
@@ -163,6 +174,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
       // stub out get parent folder
       doReturn(new RepositoryFile.Builder("123", "databases").folder(true).build()).when(repo).getFile(
           databasesFolderPath);
+      doReturn(reservedChars).when(repo).getReservedChars();
       // stub out get file to update
       RepositoryFile f = new RepositoryFile.Builder(fileId, EXP_DBMETA_NAME + dotKdb).path(
           databasesFolderPath + RepositoryFile.SEPARATOR + EXP_DBMETA_NAME + dotKdb).build();

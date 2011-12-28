@@ -618,7 +618,7 @@ public class RepositoryFilenameUtils {
    * @return escaped name
    */
   public static String escape(final String name, final List<Character> reservedChars) {
-    if (name == null) {
+    if (name == null || reservedChars == null) {
       throw new IllegalArgumentException();
     }
     List<Character> mergedReservedChars = new ArrayList<Character>(reservedChars);

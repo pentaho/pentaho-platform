@@ -904,6 +904,14 @@ public class RepositoryFilenameUtilsTest extends TestCase {
       // passed
     }
     
+    // null reservedChars
+    try {
+      RepositoryFilenameUtils.escape("hello", null);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // passed
+    }
+    
     // empty list
     assertEquals("hello", RepositoryFilenameUtils.escape("hello", emptyList));
     

@@ -40,6 +40,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
   public JcrBackedDatasourceMgmtService(IUnifiedRepository repository, IDatabaseDialectService databaseDialectService) {
     super();
     this.repository = repository;
+    cachedReservedChars = repository.getReservedChars();
     databaseHelper = new DatabaseHelper(databaseDialectService);
   }
   
