@@ -766,4 +766,14 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       }
     });
   }
+
+  
+  /**
+   * See section 4.6 "Path Syntax" of JCR 1.0 spec. Note that this list is only characters that can never appear in a
+   * "simplename". It does not include '.' because, while "." and ".." are illegal, any other string containing '.' is 
+   * legal. It is up to this implementation to prohibit permutations of legal characters.
+   */
+  public List<Character> getReservedChars() {
+    return Arrays.asList(new Character[] { '%', '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' });
+  }
 }

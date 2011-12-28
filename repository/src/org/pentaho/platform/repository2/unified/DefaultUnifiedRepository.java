@@ -455,4 +455,8 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.notNull(fileId);
     return repositoryFileDao.getFileMetadata(fileId);
   }
+
+  public List<Character> getReservedChars() {
+    return repositoryFileDao.getReservedChars();
+  }
 }

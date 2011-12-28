@@ -93,5 +93,7 @@ public interface IRepositoryFileDao {
 
   void setFileMetadata(final Serializable fileId, Map<String, Serializable> metadataMap);
   
-  public Map<String, Serializable> getFileMetadata(final Serializable fileId);
+  Map<String, Serializable> getFileMetadata(final Serializable fileId);
+  
+  List<Character> getReservedChars();
 }

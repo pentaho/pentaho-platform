@@ -437,4 +437,19 @@ public interface IUnifiedRepository {
    * @return Map<String, Serializable> of all the metadata for this file
    */
   Map<String, Serializable> getFileMetadata(final Serializable fileId);
+  
+  /**
+   * Returns a list of characters which cannot be used in file/folder names. These characters must be escaped using
+   * percent-encoding. Callers may safely cache this value. Note that it is the responsibility of the implementation to
+   * guard against illegal permutations of non-reserved characters.
+   * 
+   * <blockquote>
+   * A percent-encoded octet is encoded as a character triplet, consisting of the percent character "%" followed by the 
+   * two hexadecimal digits representing that octet's numeric value. For example, "%20" is the percent-encoding for the 
+   * binary octet "00100000" (ABNF: %x20), which in US-ASCII corresponds to the space character (SP).
+   * </blockquote>
+   * 
+   * @return list of reserved characters
+   */
+  List<Character> getReservedChars();
 }

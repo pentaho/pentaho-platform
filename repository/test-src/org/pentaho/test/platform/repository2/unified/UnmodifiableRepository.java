@@ -595,4 +595,9 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    */
   private class UnmodifiableRepositoryException extends RuntimeException {
   }
+
+  @Override
+  public List<Character> getReservedChars() {
+    return repository.getReservedChars();
+  }
 }

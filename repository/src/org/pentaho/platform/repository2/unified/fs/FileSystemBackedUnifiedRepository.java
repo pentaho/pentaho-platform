@@ -233,5 +233,10 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public List<Character> getReservedChars() {
+    throw new UnsupportedOperationException();
+  }
+
 
 }

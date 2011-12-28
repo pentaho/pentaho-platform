@@ -112,4 +112,6 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
   void setFileMetadata(final String fileId, final List<StringKeyStringValueDto> fileMetadataMap);
 
   List<StringKeyStringValueDto> getFileMetadata(final String fileId);
+  
+  List<Character> getReservedChars();
 }

@@ -244,4 +244,11 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     return null;
   }
+
+  @Override
+  public List<Character> getReservedChars() {
+    throw new UnsupportedOperationException();
+  }
+
+
 }

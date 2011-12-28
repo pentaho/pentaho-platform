@@ -289,4 +289,9 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     }
     return fileMetadataMap;
   }
+
+  @Override
+  public List<Character> getReservedChars() {
+    return repo.getReservedChars();
+  }
 }

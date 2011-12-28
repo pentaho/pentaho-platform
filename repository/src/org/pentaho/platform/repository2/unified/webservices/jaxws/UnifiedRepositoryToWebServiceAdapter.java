@@ -16,6 +16,7 @@ package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +54,8 @@ import org.springframework.util.Assert;
  */
 public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository {
 
+  private List<Character> cachedReservedChars;
+  
   private IUnifiedRepositoryJaxwsWebService repoWebService;
 
   private RepositoryFileAdapter repositoryFileAdapter = new RepositoryFileAdapter();
@@ -374,5 +377,14 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
       repoFileMetadata.put(entry.getKey(), entry.getValue());
     }
     return repoFileMetadata;
+  }
+
+  @Override
+  public List<Character> getReservedChars() {
+    // no need for synchronization here as value to be written will always be the same
+    if (cachedReservedChars == null) {
+      cachedReservedChars = Collections.unmodifiableList(repoWebService.getReservedChars());
+    }
+    return cachedReservedChars;
   }
 }

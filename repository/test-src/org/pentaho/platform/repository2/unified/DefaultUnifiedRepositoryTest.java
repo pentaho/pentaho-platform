@@ -2121,6 +2121,11 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(createMsg, summary.getMessage());
   }
   
+  @Test
+  public void testGetReservedChars() throws Exception {
+    assertFalse(repo.getReservedChars().isEmpty());
+  }
+  
   @Test(expected = AccessDeniedException.class)
   public void testRoleAuthorizationPolicyAdministerSecurityAccessDenied() throws Exception {
     manager.startup();

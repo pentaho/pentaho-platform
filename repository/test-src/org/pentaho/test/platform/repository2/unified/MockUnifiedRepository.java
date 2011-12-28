@@ -1219,6 +1219,11 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   }
 
+  @Override
+  public List<Character> getReservedChars() {
+    return Collections.emptyList();
+  }
+
 //  public static void main(final String[] args) throws Exception {
 //    MockUnifiedRepository repo = new MockUnifiedRepository();
 //    t(repo.getFile("/").getId() != null);

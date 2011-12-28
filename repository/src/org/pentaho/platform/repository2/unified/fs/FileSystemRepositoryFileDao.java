@@ -359,4 +359,9 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public List<RepositoryFile> getDeletedFiles(String origParentFolderPath, String filter) {
     throw new UnsupportedOperationException("This operation is not support by this repository");
   }
+
+  @Override
+  public List<Character> getReservedChars() {
+    throw new UnsupportedOperationException();
+  }
 }

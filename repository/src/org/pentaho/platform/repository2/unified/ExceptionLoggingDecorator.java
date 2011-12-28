@@ -471,6 +471,14 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     }, Messages.getInstance().getString("ExceptionLoggingDecorator.getFileMetadata", fileId)); //$NON-NLS-1$
   }
 
+  public List<Character> getReservedChars() {
+    return callLogThrow(new Callable<List<Character>>() {
+      public List<Character> call() throws Exception {
+        return delegatee.getReservedChars();
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.getReservedChars")); //$NON-NLS-1$
+  }
+  
   /**
    * Converts an exception before throwing to callers.
    */
@@ -487,4 +495,5 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     UnifiedRepositoryException convertException(final Exception exception, final String activityMessage, final String refNum);
 
   }
+
 }

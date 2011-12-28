@@ -203,6 +203,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest {
         eq(NodeRepositoryFileData.class));
     doReturn(Arrays.asList(v, v)).when(_repo2).getVersionSummaryInBatch(anyListOf(RepositoryFile.class));
     doReturn(v).when(_repo2).getVersionSummary(any(Serializable.class), any(Serializable.class));
+    doReturn(Arrays.asList(new Character[] { '/' })).when(_repo2).getReservedChars();
   }
 
   @Test
@@ -346,6 +347,9 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest {
     System.out.println("getVersionSummaryInBatch");
     List<VersionSummary> vResult = repo.getVersionSummaryInBatch(Arrays.asList(file1, simpleFile));
     assertEquals(2, result.size());
+    
+    System.out.println("getReservedChars");
+    assertFalse(repo.getReservedChars().isEmpty());
   }
 
   private NodeRepositoryFileData makeNodeRepositoryFileData1() {
