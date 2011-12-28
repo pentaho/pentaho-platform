@@ -611,7 +611,7 @@ public class RepositoryFilenameUtils {
   
   /**
    * Performs percent-encoding (as specified in {@code IUnifiedRepository}) on given {@code name}, only encoding the 
-   * characters given in {@code reservedChars}.
+   * characters given in {@code reservedChars}. Assumes only ASCII characters in reservedChars.
    * 
    * @param name name to escape
    * @param reservedChars chars within name to escape
@@ -641,7 +641,7 @@ public class RepositoryFilenameUtils {
 
   /**
    * Reverts modifications of {@link #escape(String)} such that for all {@code String}s {@code t}, 
-   * {@code t.equals(unescape(escape(t)))}.
+   * {@code t.equals(unescape(escape(t)))}. Assumes only ASCII characters have been escaped.
    * 
    * @param name name to unescape
    * @return unescaped name

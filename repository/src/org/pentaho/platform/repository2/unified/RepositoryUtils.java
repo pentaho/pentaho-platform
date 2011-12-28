@@ -16,7 +16,6 @@
  */
 package org.pentaho.platform.repository2.unified;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -115,86 +114,6 @@ public class RepositoryUtils {
     }
     return file;
   }
-
-  /**
-   * Generates a repository-safe name by translating any non-repository safe characters to underscores {@code '_'}
-   *
-   * @param name the name to make repository-safe
-   * @return the updated name
-   */
-  public static String generateRepositorySafeName(final String name) {
-    String result = null;
-    if (null != name && !name.isEmpty()) {
-      StringBuilder str = new StringBuilder(name);
-      for (int pos = 0; pos < str.length(); ++pos) {
-        final char c = str.charAt(pos);
-        if (c != ' ' && !isValidRepoNonspace(c)) {
-          str.setCharAt(pos, '_');
-        }
-      }
-
-      if (str.charAt(0) == ' ') {
-        str.setCharAt(0, 'a');
-      }
-      if (str.charAt(str.length() - 1) == ' ') {
-        str.setCharAt(str.length() - 1, 'a');
-      }
-
-      result = str.toString();
-
-      if (".".equals(result)) {
-        result = "a";
-      } else if ("..".equals(result)) {
-        result = "aa";
-      }
-    }
-    if (logger.isDebugEnabled()) {
-      logger.debug("generateRepositorySafeName(" + name + ") = [" + result + "]");
-    }
-    return result;
-  }
-
-  /**
-   * Determines if the specified name is valid for use in the repository
-   * (per {@link http://www.day.com/specs/jcr/1.0/4.6_Path_Syntax.html})
-   *
-   * @param name the name to validate
-   * @return {@code true} if the name is valid, {@code false} otherwise
-   */
-  public static boolean isValidName(final String name) {
-    boolean valid = false;
-    if (null != name && !name.isEmpty()) {
-      final char firstChar = name.charAt(0);
-      final char lastChar = name.charAt(name.length() - 1);
-      if (name.length() <= 2) {
-        valid = (isValidRepoNonspace(firstChar) && isValidRepoNonspace(lastChar)
-            && !(firstChar == '.' && lastChar == '.'));
-      } else {
-        if (isValidRepoNonspace(firstChar) && isValidRepoNonspace(lastChar)) {
-          valid = isValidRepoString(name.substring(1, name.length() - 2));
-        }
-      }
-    }
-    if (logger.isDebugEnabled()) {
-      logger.debug("isValidName(" + name + ") = " + valid);
-    }
-    return valid;
-  }
-
-  /**
-   * Determines if the specified character is a valid non-space character for the repository
-   */
-  private static boolean isValidRepoNonspace(final char c) {
-    return (!Character.isWhitespace(c) && isValidRepoString(String.valueOf(c)));
-  }
-
-  /**
-   * Determines if the specified string contains all characters that are valid for repository names
-   */
-  private static boolean isValidRepoString(final String str) {
-    return !StringUtils.containsAny(str, "/:[]*\\'\"|");
-  }
-
 
   /**
    * Save the data to a file at the specified path. It will create the file it is doesn't exist (if

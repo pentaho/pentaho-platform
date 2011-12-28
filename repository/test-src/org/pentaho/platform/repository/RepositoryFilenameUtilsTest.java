@@ -915,6 +915,10 @@ public class RepositoryFilenameUtilsTest extends TestCase {
 
     // % in name
     assertEquals("hel%25lo", RepositoryFilenameUtils.escape("hel%lo", emptyList));
+    
+    // ignore non-ascii
+    assertEquals("helloン",  RepositoryFilenameUtils.escape("helloン", emptyList));
+    
   }
 
   @Test
@@ -935,5 +939,9 @@ public class RepositoryFilenameUtilsTest extends TestCase {
 
     // % in name
     assertEquals("hel%lo", RepositoryFilenameUtils.unescape("hel%25lo"));
+    
+    // ignore non-ascii
+    assertEquals("helloン",  RepositoryFilenameUtils.unescape("helloン"));
+    
   }
 }

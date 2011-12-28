@@ -24,6 +24,8 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
 
   private IUnifiedRepository repository;
   
+  private List<Character> cachedReservedChars;
+  
   private Serializable cachedDatabaseParentFolderId;
   
   private static final String FOLDER_PDI = "pdi"; //$NON-NLS-1$
@@ -43,6 +45,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
   
   public void init(IPentahoSession session) {
     repository = PentahoSystem.get(IUnifiedRepository.class, session);
+    cachedReservedChars = repository.getReservedChars();
   }
 
   public void createDatasource(IDatabaseConnection databaseConnection) throws DuplicateDatasourceException,
@@ -51,8 +54,8 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
       //IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession());
       //databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
 
-      RepositoryFile file = new RepositoryFile.Builder(databaseHelper.checkAndSanitize(databaseConnection.getName() 
-          + RepositoryObjectType.DATABASE.getExtension())).title(RepositoryFile.ROOT_LOCALE, databaseConnection.getName()).versioned(true).build();
+      RepositoryFile file = new RepositoryFile.Builder(RepositoryFilenameUtils.escape(databaseConnection.getName() 
+          + RepositoryObjectType.DATABASE.getExtension(), cachedReservedChars)).title(RepositoryFile.ROOT_LOCALE, databaseConnection.getName()).versioned(true).build();
       file = repository.createFile(getDatabaseParentFolderId(), file, new NodeRepositoryFileData(databaseHelper.databaseConnectionToDataNode(databaseConnection)), null);
     //}  catch(PasswordServiceException pse) {
     //  throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
@@ -264,8 +267,8 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
   }
 
   private String getPath(final String name) {
-    String sanitizedName = databaseHelper.checkAndSanitize(name);
-    return getDatabaseParentFolderPath() + RepositoryFile.SEPARATOR + sanitizedName
+    String escapedName = RepositoryFilenameUtils.escape(name, cachedReservedChars);
+    return getDatabaseParentFolderPath() + RepositoryFile.SEPARATOR + escapedName
             + RepositoryObjectType.DATABASE.getExtension();
  }
 
@@ -276,14 +279,14 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     StringBuilder buf = new StringBuilder(file.getPath().length());
     buf.append(getParentPath(file.getPath()));
     buf.append(RepositoryFile.SEPARATOR);
-    buf.append(databaseHelper.checkAndSanitize(databaseConnection.getName()));
+    buf.append(RepositoryFilenameUtils.escape(databaseConnection.getName(), cachedReservedChars));
     buf.append(RepositoryObjectType.DATABASE.getExtension());
     repository.moveFile(file.getId(), buf.toString(), null);
   }
 
   private boolean isRenamed(final IDatabaseConnection databaseConnection, final RepositoryFile file) {
     String filename = databaseConnection.getName()+ RepositoryObjectType.DATABASE.getExtension();
-    if (!file.getName().equals(databaseHelper.checkAndSanitize(filename))) {
+    if (!file.getName().equals(RepositoryFilenameUtils.escape(filename, cachedReservedChars))) {
       return true;
     }
     return false;

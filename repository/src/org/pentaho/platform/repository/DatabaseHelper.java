@@ -110,29 +110,4 @@ public class DatabaseHelper {
     }
   }
   
-  /**
-   * Performs one-way conversion on incoming String to produce a syntactically valid JCR path (section 4.6 Path Syntax). 
-   */
-  public String checkAndSanitize(final String in) {
-    if (in == null) {
-      throw new IllegalArgumentException();
-    }
-    String extension = null;
-    if (in.endsWith(RepositoryObjectType.DATABASE.getExtension())) {
-      extension = RepositoryObjectType.DATABASE.getExtension();
-    }
-    String out = in;
-    if (extension != null) {
-      out = out.substring(0, out.length()-extension.length());
-    }
-    if (out.contains("/") || out.equals("..") || out.equals(".") || StringUtils.isBlank(out)) {
-      throw new IllegalArgumentException();
-    }
-    out = out.replaceAll("[/:\\[\\]\\*'\"\\|\\s\\.]", "_");  //$NON-NLS-1$//$NON-NLS-2$
-    if (extension != null) {
-      return out + extension;
-    } else {
-      return out;
-    }
-  }
 }
