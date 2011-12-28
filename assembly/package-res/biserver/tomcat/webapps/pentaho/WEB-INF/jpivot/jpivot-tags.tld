@@ -84,7 +84,7 @@
 <tag>
 <name>clickable</name>
 <tag-class>com.tonbeller.jpivot.table.navi.ClickableMemberTag</tag-class>
-<body-content>EMPTY</body-content>
+<body-content>empty</body-content>
 <description>
       Makes all members of a dimension or level clickable (i.e. generates an anchor).
       The generated URL contains the unique name of the member.

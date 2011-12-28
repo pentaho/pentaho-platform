@@ -22,7 +22,7 @@
 <tag>
 <name>catedit</name>
 <tag-class>com.tonbeller.wcf.catedit.CategoryEditorTag</tag-class>
-<body-content>EMPTY</body-content>
+<body-content>empty</body-content>
 <description>Creates a categoy editor component. This component does not produce visible output directly, it must be rendered via the WCF render tag.</description>
 <attribute>
 <name>id</name>
@@ -104,7 +104,7 @@
 <tag>
 <name>connect</name>
 <tag-class>com.tonbeller.wcf.form.ConnectFormTag</tag-class>
-<body-content>EMPTY</body-content>
+<body-content>empty</body-content>
 <description>Deprecated. Use "validate" attribute of WCF components instead, which is
     more natural and will be sufficient most of the time. Connects different WCF Components. This makes the buttons
     of one form act on another form too. If a tree and a form are connected for example,
@@ -455,7 +455,7 @@
 <tag>
 <name>include</name>
 <tag-class>com.tonbeller.wcf.utils.IncludeTag</tag-class>
-<body-content>EMPTY</body-content>
+<body-content>empty</body-content>
 <description>
       Includes a JSP page if a certain HTTP parameter is present.
       The name of the file is prefix + paremeter + suffix. 
@@ -1433,7 +1433,7 @@
 <tag>
 <name>token</name>
 <tag-class>com.tonbeller.wcf.token.TokenTag</tag-class>
-<body-content>EMPTY</body-content>
+<body-content>empty</body-content>
 <description>
       Creates a hidden field to synchronize the page flow. Should be used
       together with the TokenFilter
@@ -1498,7 +1498,7 @@
 <tag>
 <name>tree</name>
 <tag-class>com.tonbeller.wcf.tree.TreeComponentTag</tag-class>
-<body-content>EMPTY</body-content>
+<body-content>empty</body-content>
 <description>Creates a tree component. This component does not produce visible output directly, it must be rendered via the WCF render tag.</description>
 <attribute>
 <name>id</name>
