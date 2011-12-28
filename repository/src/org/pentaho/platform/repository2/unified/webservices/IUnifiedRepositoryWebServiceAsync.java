@@ -15,9 +15,6 @@
 package org.pentaho.platform.repository2.unified.webservices;
 
 
-
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface IUnifiedRepositoryWebServiceAsync {
@@ -29,7 +26,7 @@ public interface IUnifiedRepositoryWebServiceAsync {
   void getDataAsNodeForRead(java.lang.String fileId, AsyncCallback<NodeRepositoryFileDataDto> callback);
 
   void getDataAsNodeForReadInBatch(final java.util.List<RepositoryFileDto> files, AsyncCallback<java.util.List<NodeRepositoryFileDataDto>> callback);
-  
+
   void createFile(java.lang.String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data, java.lang.String versionMessage, AsyncCallback<RepositoryFileDto> callback);
 
   void createFileWithAcl(java.lang.String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, java.lang.String versionMessage, AsyncCallback<RepositoryFileDto> callback);
@@ -59,7 +56,7 @@ public interface IUnifiedRepositoryWebServiceAsync {
   void getDeletedFiles(AsyncCallback<java.util.List<RepositoryFileDto>> callback);
 
   void moveFile(java.lang.String fileId, java.lang.String destAbsPath, java.lang.String versionMessage, AsyncCallback<Void> callback);
-  
+
   void copyFile(java.lang.String fileId, java.lang.String destAbsPath, java.lang.String versionMessage, AsyncCallback<Void> callback);
 
   void lockFile(java.lang.String fileId, java.lang.String message, AsyncCallback<Void> callback);
@@ -83,7 +80,7 @@ public interface IUnifiedRepositoryWebServiceAsync {
   void getVersionSummary(java.lang.String fileId, java.lang.String versionId, AsyncCallback<VersionSummaryDto> callback);
 
   void getVersionSummaryInBatch(final java.util.List<RepositoryFileDto> files, AsyncCallback<java.util.List<VersionSummaryDto>> callback);
-  
+
   void getVersionSummaries(java.lang.String fileId, AsyncCallback<java.util.List<VersionSummaryDto>> callback);
 
   void getFileAtVersion(java.lang.String fileId, java.lang.String versionId, AsyncCallback<RepositoryFileDto> callback);
@@ -93,4 +90,8 @@ public interface IUnifiedRepositoryWebServiceAsync {
   void canUnlockFile(java.lang.String fileId, AsyncCallback<Boolean> callback);
 
   void getReferrers(java.lang.String fileId, AsyncCallback<java.util.List<RepositoryFileDto>> fileList);
+
+  void getFileMetadata(java.lang.String fileId, AsyncCallback<java.util.List<StringKeyStringValueDto>> fileMetadataMap);
+
+  void setFileMetadata(java.lang.String fileId, java.util.List<StringKeyStringValueDto> fileMetadataMap, AsyncCallback<java.lang.Void> arg3);
 }
