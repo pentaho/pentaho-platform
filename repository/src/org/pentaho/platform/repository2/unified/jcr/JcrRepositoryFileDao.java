@@ -14,6 +14,24 @@
  */
 package org.pentaho.platform.repository2.unified.jcr;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.jcr.Item;
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.lock.Lock;
+
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -27,23 +45,6 @@ import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import javax.jcr.Item;
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.lock.Lock;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * CRUD operations against JCR. Note that there is no access control in this class (implicit or explicit).
@@ -68,16 +69,14 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   private IPathConversionHelper pathConversionHelper;
 
-  private IEscapeHelper escapeHelper;
-
   private IRepositoryFileAclDao aclDao;
-
+  
   // ~ Constructors ====================================================================================================
 
   public JcrRepositoryFileDao(final JcrTemplate jcrTemplate,
                               final List<ITransformer<IRepositoryFileData>> transformers, final IOwnerLookupHelper ownerLookupHelper,
                               final ILockHelper lockHelper, final IDeleteHelper deleteHelper, final IPathConversionHelper pathConversionHelper,
-                              final IEscapeHelper escapeHelper, final IRepositoryFileAclDao aclDao) {
+                              final IRepositoryFileAclDao aclDao) {
     super();
     Assert.notNull(jcrTemplate);
     Assert.notNull(transformers);
@@ -87,7 +86,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     this.ownerLookupHelper = ownerLookupHelper;
     this.deleteHelper = deleteHelper;
     this.pathConversionHelper = pathConversionHelper;
-    this.escapeHelper = escapeHelper;
     this.aclDao = aclDao;
   }
 
@@ -121,7 +119,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   private RepositoryFile internalCreateFile(final Serializable parentFolderId, final RepositoryFile file,
                                             final IRepositoryFileData content, final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
-    Assert.hasText(file.getName());
     Assert.isTrue(!file.isFolder());
     Assert.notNull(content);
 
@@ -129,7 +126,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
-        Node fileNode = JcrRepositoryFileUtils.createFileNode(session, pentahoJcrConstants, escapeHelper,
+        Node fileNode = JcrRepositoryFileUtils.createFileNode(session, pentahoJcrConstants, 
             parentFolderId, file, content, findTransformerForWrite(content.getClass()));
         // we must create the acl during checkout
         aclDao.createAcl(fileNode.getUUID(), acl);
@@ -156,7 +153,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   private RepositoryFile internalUpdateFile(final RepositoryFile file, final IRepositoryFileData content,
                                             final String versionMessage) {
     Assert.notNull(file);
-    Assert.hasText(file.getName());
     Assert.isTrue(!file.isFolder());
     Assert.notNull(content);
 
@@ -165,7 +161,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         lockHelper.addLockTokenToSessionIfNecessary(session, pentahoJcrConstants, file.getId());
         JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, file.getId());
-        JcrRepositoryFileUtils.updateFileNode(session, pentahoJcrConstants, escapeHelper, file, content,
+        JcrRepositoryFileUtils.updateFileNode(session, pentahoJcrConstants, file, content,
             findTransformerForWrite(content.getClass()));
         session.save();
         JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, file.getId(),
@@ -214,8 +210,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile folder,
                                      final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(folder);
-    Assert.hasText(folder.getName());
-    Assert.isTrue(!folder.getName().contains(RepositoryFile.SEPARATOR));
     Assert.isTrue(folder.isFolder());
 
     return (RepositoryFile) jcrTemplate.execute(new JcrCallback() {
@@ -321,7 +315,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         return JcrRepositoryFileUtils.getContent(
             session,
             pentahoJcrConstants,
-            escapeHelper,
             fileId,
             versionId,
             findTransformerForRead(
@@ -412,16 +405,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
             pathConversionHelper, fileId, versionId);
       }
     });
-  }
-
-  public void setLockTokenHelper(final ILockHelper lockTokenHelper) {
-    Assert.notNull(lockTokenHelper);
-    this.lockHelper = lockTokenHelper;
-  }
-
-  public void setOwnerLookupHelper(final IOwnerLookupHelper ownerLookupHelper) {
-    Assert.notNull(ownerLookupHelper);
-    this.ownerLookupHelper = ownerLookupHelper;
   }
 
   /**
@@ -591,6 +574,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
           Assert.isTrue(lastSlashIndex > 1,
               Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0003_ILLEGAL_DEST_PATH")); //$NON-NLS-1$
           String absPathToDestParentFolder = cleanDestAbsPath.substring(0, lastSlashIndex);
+          JcrRepositoryFileUtils.checkName(cleanDestAbsPath.substring(lastSlashIndex + 1));
           try {
             destParentFolderNode = (Node) session.getItem(absPathToDestParentFolder);
           } catch (PathNotFoundException e1) {
@@ -758,6 +742,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     });
   }
 
+  @SuppressWarnings("unchecked")
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     Assert.notNull(fileId);
     return (Map<String, Serializable>) jcrTemplate.execute(new JcrCallback() {
@@ -767,13 +752,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     });
   }
 
-  
-  /**
-   * See section 4.6 "Path Syntax" of JCR 1.0 spec. Note that this list is only characters that can never appear in a
-   * "simplename". It does not include '.' because, while "." and ".." are illegal, any other string containing '.' is 
-   * legal. It is up to this implementation to prohibit permutations of legal characters.
-   */
   public List<Character> getReservedChars() {
-    return Arrays.asList(new Character[] { '%', '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' });
+    return JcrRepositoryFileUtils.getReservedChars();
   }
+
 }

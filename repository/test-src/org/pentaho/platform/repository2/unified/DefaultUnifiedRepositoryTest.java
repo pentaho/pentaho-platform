@@ -57,6 +57,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryMalformedNameException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
@@ -66,6 +67,7 @@ import org.pentaho.platform.api.repository2.unified.data.sample.SampleRepository
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
@@ -667,8 +669,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     newChild1.setProperty("erere3", 9856684583L);
     newChild1.setProperty("tttss4", "843skdfj33ksaljdfj");
     newChild1.setProperty("urei2", new DataNodeRef(sampleFile.getId()));
-    DataNode newChild2 = node.addNode("pppq/qqs2");
-    newChild2.setProperty("ttt:ss4", "843skdfj33ksaljdfj");
+    DataNode newChild2 = node.addNode(RepositoryFilenameUtils.escape("pppq/qqs2", repo.getReservedChars()));
+    newChild2.setProperty(RepositoryFilenameUtils.escape("ttt:ss4", repo.getReservedChars()), "843skdfj33ksaljdfj");
 
     NodeRepositoryFileData data = new NodeRepositoryFileData(node);
     RepositoryFile newFile = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(expectedName).build(),
@@ -713,11 +715,11 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     }
     assertEquals(6, actualPropCount);
 
-    assertTrue(foundNode.hasNode("pppq/qqs2"));
-    DataNode foundChild2 = foundNode.getNode("pppq/qqs2");
+    assertTrue(foundNode.hasNode(RepositoryFilenameUtils.escape("pppq/qqs2", repo.getReservedChars())));
+    DataNode foundChild2 = foundNode.getNode(RepositoryFilenameUtils.escape("pppq/qqs2", repo.getReservedChars()));
     assertNotNull(foundChild2.getId());
     assertEquals(newChild2.getName(), foundChild2.getName());
-    assertEquals(newChild2.getProperty("ttt:ss4"), foundChild2.getProperty("ttt:ss4"));
+    assertEquals(newChild2.getProperty(RepositoryFilenameUtils.escape("ttt:ss4", repo.getReservedChars())), foundChild2.getProperty(RepositoryFilenameUtils.escape("ttt:ss4", repo.getReservedChars())));
     actualPropCount = 0;
     for (DataProperty prop : foundChild2.getProperties()) {
       actualPropCount++;
@@ -734,6 +736,41 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       }
     }
   }
+  
+  @Test
+  public void testCheckName() throws Exception {
+    manager.startup();
+    setUpRoleBindings();
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+    IRepositoryFileData data = new SimpleRepositoryFileData(new ByteArrayInputStream(new byte[0]), null, "application/octet-stream");
+    NodeRepositoryFileData badNodeData = new NodeRepositoryFileData(new DataNode("a/b"));
+    DataNode node = new DataNode("hello");
+    node.setProperty("hello:world", "whatever");
+    NodeRepositoryFileData badNodeData2 = new NodeRepositoryFileData(node);
+    
+    final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    RepositoryFile parentFolder = repo.getFile(parentFolderPath);
+    try { repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("a/b").folder(true).build(), null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("a:b").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(".").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("..").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("/").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("a[0]").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("a*b").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(" hello").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello ").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("\t\t\t").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(" ").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("\"hello\"").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("'hello'").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("he||o").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello").build(), badNodeData, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello").build(), badNodeData2, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("%hello%").build(), data, null);
+    repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello world").build(), data, null);
+    repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello\\world").build(), data, null);
+  } 
 
   @Test(expected = UnifiedRepositoryException.class)
   public void testCreateFileUnrecognizedContentType() throws Exception {

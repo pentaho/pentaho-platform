@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.jcr.Item;
 import javax.jcr.ItemNotFoundException;
@@ -35,7 +36,6 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.Value;
 import javax.jcr.lock.Lock;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
@@ -48,6 +48,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -57,6 +58,32 @@ import org.springframework.util.StringUtils;
  * @author mlowery
  */
 public class JcrRepositoryFileUtils {
+
+  /**
+   * See section 4.6 "Path Syntax" of JCR 1.0 spec. Note that this list is only characters that can never appear in a
+   * "simplename". It does not include '.' because, while "." and ".." are illegal, any other string containing '.' is 
+   * legal. It is up to this implementation to prohibit permutations of legal characters.
+   */  
+  private static final List<Character> reservedChars = Collections.unmodifiableList(Arrays.asList(
+      new Character[] { '/', ':', '[', ']', '*', '\'', '"', '|', '\t', '\r', '\n' }));
+  
+  private static final Pattern containsReservedCharsPattern = makePattern();
+  
+  private static Pattern makePattern() {
+    // escape all reserved characters as they may have special meaning to regex engine
+    StringBuilder buf = new StringBuilder();
+    buf.append(".*"); //$NON-NLS-1$
+    buf.append("["); //$NON-NLS-1$
+    for (Character ch : reservedChars) {
+      buf.append("\\"); //$NON-NLS-1$
+      buf.append(ch);
+    }
+    buf.append("]"); //$NON-NLS-1$
+    buf.append("+"); //$NON-NLS-1$
+    buf.append(".*"); //$NON-NLS-1$
+    return Pattern.compile(buf.toString());
+  }
+
   public static RepositoryFile getFileById(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IOwnerLookupHelper ownerLookupHelper, final IPathConversionHelper pathConversionHelper,
       final Serializable fileId) throws RepositoryException {
@@ -319,6 +346,7 @@ public class JcrRepositoryFileUtils {
 
   public static Node createFolderNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable parentFolderId, final RepositoryFile folder) throws RepositoryException {
+    checkName(folder.getName());
     Node parentFolderNode;
     if (parentFolderId != null) {
       parentFolderNode = session.getNodeByUUID(parentFolderId.toString());
@@ -341,10 +369,11 @@ public class JcrRepositoryFileUtils {
   }
 
   public static Node createFileNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final Serializable parentFolderId, final RepositoryFile file,
+      final Serializable parentFolderId, final RepositoryFile file,
       final IRepositoryFileData content, final ITransformer<IRepositoryFileData> transformer)
       throws RepositoryException {
 
+    checkName(file.getName());
     Node parentFolderNode;
     if (parentFolderId != null) {
       parentFolderNode = session.getNodeByUUID(parentFolderId.toString());
@@ -380,7 +409,7 @@ public class JcrRepositoryFileUtils {
       fileNode.addMixin(pentahoJcrConstants.getPHO_MIX_VERSIONABLE());
     }
 
-    transformer.createContentNode(session, pentahoJcrConstants, escapeHelper, content, fileNode);
+    transformer.createContentNode(session, pentahoJcrConstants, content, fileNode);
     return fileNode;
   }
 
@@ -397,7 +426,7 @@ public class JcrRepositoryFileUtils {
   }
 
   public static Node updateFileNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final RepositoryFile file, final IRepositoryFileData content,
+      final RepositoryFile file, final IRepositoryFileData content,
       final ITransformer<IRepositoryFileData> transformer) throws RepositoryException {
 
     Node fileNode = session.getNodeByUUID(file.getId().toString());
@@ -440,12 +469,12 @@ public class JcrRepositoryFileUtils {
       }
       setMetadataItemForFile(session, PentahoJcrConstants.PHO_CONTENTCREATOR, file.getCreatorId(), metadataNode);
     }
-    transformer.updateContentNode(session, pentahoJcrConstants, escapeHelper, content, fileNode);
+    transformer.updateContentNode(session, pentahoJcrConstants, content, fileNode);
     return fileNode;
   }
 
   public static IRepositoryFileData getContent(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final Serializable fileId, final Serializable versionId,
+      final Serializable fileId, final Serializable versionId,
       final ITransformer<IRepositoryFileData> transformer) throws RepositoryException {
     Node fileNode = session.getNodeByUUID(fileId.toString());
     if (isVersioned(session, pentahoJcrConstants, fileNode)) {
@@ -459,7 +488,7 @@ public class JcrRepositoryFileUtils {
     }
     Assert.isTrue(!isPentahoFolder(pentahoJcrConstants, fileNode));
 
-    return transformer.fromContentNode(session, pentahoJcrConstants, escapeHelper, fileNode);
+    return transformer.fromContentNode(session, pentahoJcrConstants, fileNode);
   }
 
   public static List<RepositoryFile> getChildren(final Session session, final PentahoJcrConstants pentahoJcrConstants,
@@ -851,6 +880,7 @@ public class JcrRepositoryFileUtils {
 
   private static void setMetadataItemForFile(final Session session, final String metadataKey,
       final Serializable metadataObj, final Node metadataNode) throws ItemNotFoundException, RepositoryException {
+    checkName(metadataKey);
     Assert.notNull(metadataNode);
     String prefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS);
     Assert.hasText(prefix);
@@ -908,5 +938,22 @@ public class JcrRepositoryFileUtils {
     }
 
     return values;
+  }
+  
+  public static List<Character> getReservedChars() {
+    return reservedChars;
+  }
+  
+  /**
+   * Checks for presence of reserved chars as well as illegal permutations of legal chars.
+   */
+  public static void checkName(final String name) {
+    if (!StringUtils.hasLength(name) || // not null, not empty, and not all whitespace
+        !name.trim().equals(name) || // no leading or trailing whitespace
+        containsReservedCharsPattern.matcher(name).matches() || // no reserved characters
+        ".".equals(name) || // no . //$NON-NLS-1$
+        "..".equals(name)) { // no .. //$NON-NLS-1$
+      throw new RepositoryFileDaoMalformedNameException(name);
+    }
   }
 }

@@ -89,6 +89,9 @@
         <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoReferentialIntegrityException">
           <bean class="org.pentaho.platform.repository2.unified.exception.ReferentialIntegrityExceptionConverter" />
         </entry>
+        <entry key="org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException">
+          <bean class="org.pentaho.platform.repository2.unified.exception.MalformedNameExceptionConverter" />
+        </entry>
       </util:map>
     </constructor-arg>
   </bean>
@@ -292,7 +295,6 @@
       </bean>
     </constructor-arg>
     <constructor-arg ref="pathConversionHelper"/>
-    <constructor-arg ref="escapeHelper"/>
     <constructor-arg ref="repositoryFileAclDao"/>
   </bean>
 
@@ -307,8 +309,6 @@
   <bean id="ownerLookupHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultOwnerLookupHelper"/>
 
   <bean id="pathConversionHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultPathConversionHelper"/>
-
-  <bean id="escapeHelper" class="org.pentaho.platform.repository2.unified.jcr.jackrabbit.DefaultEscapeHelper"/>
 
   <bean
       class="org.pentaho.platform.repository2.unified.spring.BackingRepositoryLifecycleManagerAuthenticationSuccessListener"/>

@@ -134,7 +134,6 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
                                    final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
-    Assert.hasText(file.getName());
     Assert.notNull(data);
     Assert.notNull(acl);
     // external callers never allowed to create files at repo root
@@ -150,7 +149,6 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.notNull(file);
     Assert.notNull(acl);
     Assert.isTrue(file.isFolder());
-    Assert.hasText(file.getName());
     // external callers never allowed to create folders at repo root
     Assert.notNull(parentFolderId);
     return internalCreateFolder(parentFolderId, file, acl, versionMessage);

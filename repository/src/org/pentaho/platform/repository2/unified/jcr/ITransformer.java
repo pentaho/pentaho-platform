@@ -66,7 +66,7 @@ public interface ITransformer<T extends IRepositoryFileData> {
    * @throws RepositoryException if anything goes wrong
    */
   T fromContentNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final Node fileNode) throws RepositoryException;
+      final Node fileNode) throws RepositoryException;
 
   /**
    * Creates a JCR node subtree representing the given {@code content}.
@@ -80,7 +80,7 @@ public interface ITransformer<T extends IRepositoryFileData> {
    * @throws RepositoryException if anything goes wrong
    */
   void createContentNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final T data, final Node fileNode) throws RepositoryException;
+      final T data, final Node fileNode) throws RepositoryException;
 
   /**
    * Updates a JCR node subtree representing the given {@code content}.
@@ -94,6 +94,6 @@ public interface ITransformer<T extends IRepositoryFileData> {
    * @throws RepositoryException if anything goes wrong
    */
   void updateContentNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final T data, final Node fileNode) throws RepositoryException;
+      final T data, final Node fileNode) throws RepositoryException;
 
 }

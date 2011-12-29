@@ -20,7 +20,6 @@ import javax.jcr.Session;
 
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.sample.SampleRepositoryFileData;
-import org.pentaho.platform.repository2.unified.jcr.IEscapeHelper;
 import org.pentaho.platform.repository2.unified.jcr.ITransformer;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 
@@ -71,7 +70,7 @@ public class SampleRepositoryFileDataTransformer implements ITransformer<SampleR
    * {@inheritDoc}
    */
   public void createContentNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final SampleRepositoryFileData data, final Node fileNode)
+      final SampleRepositoryFileData data, final Node fileNode)
       throws RepositoryException {
     Node unstructuredNode = fileNode.addNode(pentahoJcrConstants.getJCR_CONTENT(),
         pentahoJcrConstants.getNT_UNSTRUCTURED());
@@ -84,7 +83,7 @@ public class SampleRepositoryFileDataTransformer implements ITransformer<SampleR
    * {@inheritDoc}
    */
   public SampleRepositoryFileData fromContentNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final Node fileNode) throws RepositoryException {
+      final Node fileNode) throws RepositoryException {
     Node unstructuredNode = fileNode.getNode(pentahoJcrConstants.getJCR_CONTENT());
     String sampleString = unstructuredNode.getProperty(PROPERTY_NAME_SAMPLE_STRING).getString();
     boolean sampleBoolean = unstructuredNode.getProperty(PROPERTY_NAME_SAMPLE_BOOLEAN).getBoolean();
@@ -96,7 +95,7 @@ public class SampleRepositoryFileDataTransformer implements ITransformer<SampleR
    * {@inheritDoc}
    */
   public void updateContentNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final SampleRepositoryFileData data, final Node fileNode)
+      final SampleRepositoryFileData data, final Node fileNode)
       throws RepositoryException {
     Node unstructuredNode = fileNode.getNode(pentahoJcrConstants.getJCR_CONTENT());
     unstructuredNode.setProperty(PROPERTY_NAME_SAMPLE_STRING, data.getSampleString());

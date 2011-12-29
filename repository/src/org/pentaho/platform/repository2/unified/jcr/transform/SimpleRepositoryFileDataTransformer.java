@@ -23,7 +23,6 @@ import javax.jcr.Session;
 
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.repository2.unified.jcr.IEscapeHelper;
 import org.pentaho.platform.repository2.unified.jcr.ITransformer;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.springframework.util.StringUtils;
@@ -74,7 +73,7 @@ public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleR
    * {@inheritDoc}
    */
   public void createContentNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final SimpleRepositoryFileData data, final Node fileNode)
+      final SimpleRepositoryFileData data, final Node fileNode)
       throws RepositoryException {
 
     Node resourceNode = fileNode.addNode(pentahoJcrConstants.getJCR_CONTENT(), pentahoJcrConstants.getNT_RESOURCE());
@@ -94,7 +93,7 @@ public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleR
    * {@inheritDoc}
    */
   public SimpleRepositoryFileData fromContentNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final Node fileNode) throws RepositoryException {
+      final Node fileNode) throws RepositoryException {
     String encoding = null;
     Node resourceNode = fileNode.getNode(pentahoJcrConstants.getJCR_CONTENT());
     if (resourceNode.hasProperty(pentahoJcrConstants.getJCR_ENCODING())) {
@@ -109,7 +108,7 @@ public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleR
    * {@inheritDoc}
    */
   public void updateContentNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final IEscapeHelper escapeHelper, final SimpleRepositoryFileData data, final Node fileNode)
+      final SimpleRepositoryFileData data, final Node fileNode)
       throws RepositoryException {
     Node resourceNode = fileNode.getNode(pentahoJcrConstants.getJCR_CONTENT());
 

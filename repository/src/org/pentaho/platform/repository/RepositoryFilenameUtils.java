@@ -58,6 +58,21 @@ import java.util.List;
  */
 public class RepositoryFilenameUtils {
   private static final char SEPARATOR = RepositoryFile.SEPARATOR.charAt(0);
+  
+  private static final Character DEFAULT_ESCAPE_CHAR = '%';
+  
+  private static final String ESCAPE_CHAR_SYSTEM_PROPERTY = "pentaho.repository.client.escapeChar"; //$NON-NLS-1$
+  
+  private static Character escapeChar;
+  
+  static {
+    String escapeCharStr = System.getProperty(ESCAPE_CHAR_SYSTEM_PROPERTY);
+    if (escapeCharStr != null && escapeCharStr.trim().length() != 1) {
+      escapeChar = new Character(escapeCharStr.charAt(0));
+    } else {
+      escapeChar = DEFAULT_ESCAPE_CHAR;
+    }
+  }
 
   /**
    * Instances should NOT be constructed in standard programming.
@@ -621,15 +636,16 @@ public class RepositoryFilenameUtils {
     if (name == null || reservedChars == null) {
       throw new IllegalArgumentException();
     }
-    List<Character> mergedReservedChars = new ArrayList<Character>(reservedChars);
-    if (!mergedReservedChars.contains('%')) {
-      mergedReservedChars.add('%'); // have to have this one
+    if (reservedChars.contains(escapeChar)) { // we can't use % as escape char if it is illegal
+      throw new IllegalArgumentException();
     }
+    List<Character> mergedReservedChars = new ArrayList<Character>(reservedChars);
+    mergedReservedChars.add(escapeChar); // have to have this one
     StringBuilder buffer = new StringBuilder(name.length() * 2);
     for (int i = 0; i < name.length(); i++) {
       char ch = name.charAt(i);
       if (mergedReservedChars.contains(ch)) {
-        buffer.append('%');
+        buffer.append(escapeChar);
         buffer.append(Character.toUpperCase(Character.forDigit(ch / 16, 16)));
         buffer.append(Character.toUpperCase(Character.forDigit(ch % 16, 16)));
       } else {
@@ -652,7 +668,7 @@ public class RepositoryFilenameUtils {
     }
     StringBuilder buffer = new StringBuilder(name.length());
     String str = name;
-    int i = str.indexOf('%');
+    int i = str.indexOf(escapeChar);
     while (i > -1 && i + 2 < str.length()) {
       buffer.append(str.toCharArray(), 0, i);
       int a = Character.digit(str.charAt(i + 1), 16);
@@ -661,10 +677,10 @@ public class RepositoryFilenameUtils {
         buffer.append((char) (a * 16 + b));
         str = str.substring(i + 3);
       } else {
-        buffer.append('%');
+        buffer.append(escapeChar);
         str = str.substring(i + 1);
       }
-      i = str.indexOf('%');
+      i = str.indexOf(escapeChar);
     }
     buffer.append(str);
     return buffer.toString();
