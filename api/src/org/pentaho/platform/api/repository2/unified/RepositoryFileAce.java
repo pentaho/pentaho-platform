@@ -3,10 +3,18 @@ package org.pentaho.platform.api.repository2.unified;
 import java.io.Serializable;
 import java.util.EnumSet;
 
+/**
+ * Immutable access control entry (ACE).
+ * 
+ * @author mlowery
+ */
 public class RepositoryFileAce implements Serializable {
-  private RepositoryFileSid recipient;
+    
+  private static final long serialVersionUID = 6916656647947322578L;
 
-  private EnumSet<RepositoryFilePermission> permissions;
+  private final RepositoryFileSid recipient;
+
+  private final EnumSet<RepositoryFilePermission> permissions;
 
   public RepositoryFileAce(final RepositoryFileSid recipient, final RepositoryFilePermission first,
       final RepositoryFilePermission... rest) {
@@ -15,16 +23,24 @@ public class RepositoryFileAce implements Serializable {
 
   public RepositoryFileAce(final RepositoryFileSid recipient, final EnumSet<RepositoryFilePermission> permissions) {
     super();
+    notNull(recipient);
+    notNull(permissions);
     this.recipient = recipient;
-    this.permissions = permissions;
+    this.permissions = EnumSet.copyOf(permissions);
   }
 
+  private void notNull(final Object obj) {
+    if (obj == null) {
+      throw new IllegalArgumentException();
+    }
+  }
+  
   public RepositoryFileSid getSid() {
     return recipient;
   }
 
   public EnumSet<RepositoryFilePermission> getPermissions() {
-    return permissions;
+    return EnumSet.copyOf(permissions);
   }
 
   @Override

@@ -10,10 +10,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * Immutable repository file. Use the {@link Builder} to create instances.
  * 
- * <p>
- * This class should use only GWT-emulated types.
- * </p>
- * 
  * @author mlowery
  */
 public class RepositoryFile implements Comparable<RepositoryFile>, Serializable {
@@ -32,118 +28,141 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
   // ~ Instance fields =================================================================================================
 
-  private String name;
+  private final String name;
 
-  private Serializable id;
-
-  /**
-   * Read-only.
-   */
-  private Date createdDate;
-
-  private String creatorId;
+  private final Serializable id;
 
   /**
    * Read-only.
    */
-  private Date lastModifiedDate;
+  private final Date createdDate;
 
-  private boolean folder;
+  private final String creatorId;
 
   /**
    * Read-only.
    */
-  private String path;
+  private final Date lastModifiedDate;
 
-  private boolean hidden;
+  private final boolean folder;
 
-  private boolean versioned;
+  /**
+   * Read-only.
+   */
+  private final String path;
 
-  private long fileSize;
+  private final boolean hidden;
+
+  private final boolean versioned;
+
+  private final long fileSize;
 
   /**
    * The version name or number. Read-only.
    */
-  private Serializable versionId;
+  private final Serializable versionId;
 
   /**
    * Locked status. Read-only.
    */
-  private boolean locked;
+  private final boolean locked;
 
   /**
    * Username of the owner of the lock. Read-only. {@code null} if file not locked.
    */
-  private String lockOwner;
+  private final String lockOwner;
 
   /**
    * Message left by the owner when he locked the file. Read-only. {@code null} if file not locked.
    */
-  private String lockMessage;
+  private final String lockMessage;
 
   /**
    * The date that this lock was created. Read-only. {@code null} if file not locked.
    */
-  private Date lockDate;
+  private final Date lockDate;
 
   /**
    * The owner of this file. Usually plays a role in access control. Read-only.
    */
-  private RepositoryFileSid owner;
+  private final RepositoryFileSid owner;
 
   /**
    * A title for the file for the current locale. If locale not available, the file's name is returned. Read-only.
    */
-  private String title;
+  private final String title;
 
   /**
    * A description of the file for the current locale. Read-only.
    */
-  private String description;
+  private final String description;
 
   /**
    * A map for titles. Keys are locale strings and values are titles. Write-only. {@code null} value means that no 
    * title will be created or updated.
    */
-  private Map<String, String> titleMap;
+  private final Map<String, String> titleMap;
 
   /**
    * A map for descriptions. Keys are locale strings and values are descriptions. Write-only. {@code null} value means 
    * that no description will be created or updated.
    */
-  private Map<String, String> descriptionMap;
+  private final Map<String, String> descriptionMap;
 
   /**
    * The locale string with which locale-sensitive fields (like title) are populated. Used in {@link #equals(Object)} 
    * calculation to guarantee caching works correctly. Read-only.
    */
-  private String locale;
+  private final String locale;
 
   /**
    * The original folder path where the file resided before it was deleted. If this file has been deleted (but not 
    * permanently deleted), then this field will be non-null. Read-only.
    */
-  private String originalParentFolderPath;
+  private final String originalParentFolderPath;
 
   /**
    * The date this file was deleted. If this file has been deleted (but not permanently deleted), then this field will 
    * be non-null. Read-only.
    */
-  private Date deletedDate;
+  private final Date deletedDate;
 
   // ~ Constructors ===================================================================================================
 
-  public RepositoryFile(final String name) {
+  /*
+   * This assumes all Serializables are immutable (because they are not defensively copied).
+   */
+  public RepositoryFile(Serializable id, String name, boolean folder, boolean hidden, boolean versioned,
+      Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
+      String lockMessage, Date lockDate, RepositoryFileSid owner, String locale, String title,
+      Map<String, String> titleMap, String description, Map<String, String> descriptionMap,
+      String originalParentFolderPath, Date deletedDate, long fileSize, String creatorId) {
     super();
-    this.name = name;
-  }
-
-  public RepositoryFile(final Serializable id, final String name) {
-    super();
-    this.name = name;
     this.id = id;
+    this.name = name;
+    this.folder = folder;
+    this.hidden = hidden;
+    this.versioned = versioned;
+    this.versionId = versionId;
+    this.path = path;
+    this.createdDate = createdDate != null ? new Date(createdDate.getTime()) : null;
+    this.lastModifiedDate = lastModifiedDate != null ? new Date(lastModifiedDate.getTime()) : null;
+    this.locked = locked;
+    this.lockOwner = lockOwner;
+    this.lockMessage = lockMessage;
+    this.lockDate = lockDate != null ? new Date(lockDate.getTime()) : null;
+    this.owner = owner;
+    this.locale = locale;
+    this.title = title;
+    this.titleMap = titleMap != null ? new HashMap<String, String>(titleMap) : null;
+    this.description = description;
+    this.descriptionMap = descriptionMap != null ? new HashMap<String, String>(descriptionMap) : null;
+    this.originalParentFolderPath = originalParentFolderPath;
+    this.deletedDate = deletedDate != null ? new Date(deletedDate.getTime()) : null;
+    this.fileSize = fileSize;
+    this.creatorId = creatorId;
   }
-
+  
   // ~ Methods =========================================================================================================
 
   public String getName() {
@@ -244,12 +263,11 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   }
 
   public Date getDeletedDate() {
-    return deletedDate;
+    return deletedDate != null ? new Date(deletedDate.getTime()) : null;
   }
 
   @Override
   public String toString() {
-    // TODO mlowery remove this to be GWT-compatible
     return ToStringBuilder.reflectionToString(this);
   }
 
@@ -307,7 +325,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     }
 
     public Builder(final Serializable id, final String name) {
-      assertNotNull(id);
+      notNull(id);
       this.name = name;
       this.id = id;
       this.clearTitleMap();
@@ -324,45 +342,25 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     }
 
     public RepositoryFile build() {
-      RepositoryFile result = new RepositoryFile(id, name);
-      result.createdDate = this.createdDate;
-      result.creatorId = this.creatorId;
-      result.lastModifiedDate = this.lastModifiedDate;
-      result.folder = this.folder;
-      result.fileSize = this.fileSize;
-      result.path = this.path;
-      result.hidden = this.hidden;
-      result.versioned = this.versioned;
-      result.versionId = this.versionId;
-      result.locked = this.locked;
-      result.lockOwner = this.lockOwner;
-      result.lockMessage = this.lockMessage;
-      result.lockDate = this.lockDate;
-      result.owner = this.owner;
-      result.title = this.title;
-      result.description = this.description;
-      result.titleMap = this.titleMap;
-      result.descriptionMap = this.descriptionMap;
-      result.locale = this.locale;
-      result.originalParentFolderPath = this.originalParentFolderPath;
-      result.deletedDate = this.deletedDate;
-      return result;
+      return new RepositoryFile(id, name, this.folder, this.hidden, this.versioned, this.versionId, this.path,
+          this.createdDate, this.lastModifiedDate, this.locked, this.lockOwner, this.lockMessage, this.lockDate,
+          this.owner, this.locale, this.title, this.titleMap, this.description, this.descriptionMap,
+          this.originalParentFolderPath, this.deletedDate, this.fileSize, this.creatorId);
     }
 
-    public Builder createdDate(final Date createdDate) {
-      // defensive copy
-      this.createdDate = (createdDate != null ? new Date(createdDate.getTime()) : null);
+    public Builder createdDate(final Date createdDate1) {
+      this.createdDate = createdDate1;
       return this;
     }
 
-    public Builder creatorId(final String creatorId) {
-      this.creatorId = creatorId;
+    public Builder creatorId(final String creatorId1) {
+      this.creatorId = creatorId1;
       return this;
     }
 
-    public Builder lastModificationDate(final Date lastModifiedDate) {
+    public Builder lastModificationDate(final Date lastModifiedDate1) {
       // defensive copy
-      this.lastModifiedDate = (lastModifiedDate != null ? new Date(lastModifiedDate.getTime()) : null);
+      this.lastModifiedDate = lastModifiedDate1;
       return this;
     }
 
@@ -370,95 +368,94 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
      * @param length
      * @return
      */
-    public Builder fileSize(long fileSize) {
-      this.fileSize = fileSize;
+    public Builder fileSize(long fileSize1) {
+      this.fileSize = fileSize1;
       return this;
     }
 
-    public Builder folder(final boolean folder) {
-      this.folder = folder;
+    public Builder folder(final boolean folder1) {
+      this.folder = folder1;
       return this;
     }
     
-    public Builder id(final Serializable id) {
-      this.id = id;
+    public Builder id(final Serializable id1) {
+      this.id = id1;
       return this;
     }
     
-    public Builder name(final String name) {
-      this.name = name;
+    public Builder name(final String name1) {
+      this.name = name1;
       return this;
     }
 
-    public Builder path(final String path) {
-      this.path = path;
+    public Builder path(final String path1) {
+      this.path = path1;
       return this;
     }
 
-    public Builder hidden(final boolean hidden) {
-      this.hidden = hidden;
+    public Builder hidden(final boolean hidden1) {
+      this.hidden = hidden1;
       return this;
     }
 
-    public Builder versioned(final boolean versioned) {
-      this.versioned = versioned;
+    public Builder versioned(final boolean versioned1) {
+      this.versioned = versioned1;
       return this;
     }
 
-    public Builder versionId(final Serializable versionId) {
-      this.versionId = versionId;
+    public Builder versionId(final Serializable versionId1) {
+      this.versionId = versionId1;
       return this;
     }
 
-    public Builder locked(final boolean locked) {
-      this.locked = locked;
+    public Builder locked(final boolean locked1) {
+      this.locked = locked1;
       return this;
     }
 
-    public Builder lockOwner(final String lockOwner) {
-      this.lockOwner = lockOwner;
+    public Builder lockOwner(final String lockOwner1) {
+      this.lockOwner = lockOwner1;
       return this;
     }
 
-    public Builder lockMessage(final String lockMessage) {
-      this.lockMessage = lockMessage;
+    public Builder lockMessage(final String lockMessage1) {
+      this.lockMessage = lockMessage1;
       return this;
     }
 
-    public Builder lockDate(final Date lockDate) {
+    public Builder lockDate(final Date lockDate1) {
       // defensive copy
-      this.lockDate = (lockDate != null ? new Date(lockDate.getTime()) : null);
+      this.lockDate = lockDate1;
       return this;
     }
 
-    public Builder owner(final RepositoryFileSid owner) {
-      this.owner = owner;
+    public Builder owner(final RepositoryFileSid owner1) {
+      this.owner = owner1;
       return this;
     }
 
-    public Builder originalParentFolderPath(final String originalParentFolderPath) {
-      this.originalParentFolderPath = originalParentFolderPath;
+    public Builder originalParentFolderPath(final String originalParentFolderPath1) {
+      this.originalParentFolderPath = originalParentFolderPath1;
       return this;
     }
 
-    public Builder deletedDate(final Date deletedDate) {
-      this.deletedDate = (deletedDate != null ? new Date(deletedDate.getTime()) : null);
+    public Builder deletedDate(final Date deletedDate1) {
+      this.deletedDate = deletedDate1;
       return this;
     }
 
-    public Builder title(final String title) {
-      this.title = title;
+    public Builder title(final String title1) {
+      this.title = title1;
       return this;
     }
 
-    public Builder description(final String description) {
-      this.description = description;
+    public Builder description(final String description1) {
+      this.description = description1;
       return this;
     }
 
-    public Builder titleMap(final Map<String, String> titleMap) {
-      // defensive copy
-      this.titleMap = (titleMap != null ? new HashMap<String, String>(titleMap) : null);
+    public Builder titleMap(final Map<String, String> titleMap1) {
+      this.titleMap = titleMap1;
       return this;
     }
 
@@ -469,9 +466,9 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       return this;
     }
 
-    public Builder title(final String localeString, final String title) {
+    public Builder title(final String localeString, final String title1) {
       initTitleMap();
-      this.titleMap.put(localeString, title);
+      this.titleMap.put(localeString, title1);
       return this;
     }
 
@@ -482,9 +479,9 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       }
     }
 
-    public Builder descriptionMap(final Map<String, String> descriptionMap) {
+    public Builder descriptionMap(final Map<String, String> descriptionMap1) {
       // defensive copy
-      this.descriptionMap = (descriptionMap != null ? new HashMap<String, String>(descriptionMap) : descriptionMap);
+      this.descriptionMap = descriptionMap1;
       return this;
     }
 
@@ -495,9 +492,9 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       return this;
     }
 
-    public Builder description(final String localeString, final String description) {
+    public Builder description(final String localeString, final String description1) {
       initDescriptionMap();
-      this.descriptionMap.put(localeString, description);
+      this.descriptionMap.put(localeString, description1);
       return this;
     }
 
@@ -507,33 +504,12 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       }
     }
 
-    public Builder locale(final String locale) {
-      this.locale = locale;
+    public Builder locale(final String locale1) {
+      this.locale = locale1;
       return this;
     }
 
-    /**
-     * Implemented here to maintain GWT-compatibility.
-     */
-    protected void assertHasText(final String in) {
-      if (in == null || in.length() == 0 || in.trim().length() == 0) {
-        throw new IllegalArgumentException();
-      }
-    }
-
-    /**
-     * Implemented here to maintain GWT-compatibility.
-     */
-    protected void assertTrue(final boolean expression) {
-      if (!expression) {
-        throw new IllegalArgumentException();
-      }
-    }
-
-    /**
-     * Implemented here to maintain GWT-compatibility.
-     */
-    private void assertNotNull(final Object in) {
+    private void notNull(final Object in) {
       if (in == null) {
         throw new IllegalArgumentException();
       }

@@ -15,48 +15,50 @@ public class VersionSummary implements Serializable {
 
   // ~ Static fields/initializers ======================================================================================
 
+  private static final long serialVersionUID = -6452375912236787125L;
+  
   // ~ Instance fields =================================================================================================
 
   /**
    * The message the author left when he created this version.
    */
-  private String message;
+  private final String message;
 
   /**
    * Date of creation for this version.
    */
-  private Date date;
+  private final Date date;
 
   /**
    * Username of the author of this version.
    */
-  private String author;
+  private final String author;
 
   /**
    * The ID of this version, such as a version number like 1.3.
    */
-  private Serializable id;
+  private final Serializable id;
 
   /**
    * The ID of the node that is versioned.
    */
-  private Serializable versionedFileId;
+  private final Serializable versionedFileId;
 
   /**
    * List of labels applied to this version (never {@code null}).
    */
-  private List<String> labels;
+  private final List<String> labels;
 
   // ~ Constructors ====================================================================================================
 
   public VersionSummary(final Serializable id, final Serializable versionedFileId, final Date date,
       final String author, final String message, final List<String> labels) {
     super();
-    assertNotNull(id);
-    assertNotNull(versionedFileId);
-    assertNotNull(date);
-    assertHasText(author);
-    assertNotNull(labels);
+    notNull(id);
+    notNull(versionedFileId);
+    notNull(date);
+    hasText(author);
+    notNull(labels);
     this.id = id;
     this.versionedFileId = versionedFileId;
     this.date = new Date(date.getTime());
@@ -87,26 +89,20 @@ public class VersionSummary implements Serializable {
     return versionedFileId;
   }
 
-  /**
-   * Implemented here to maintain GWT-compatibility.
-   */
-  protected void assertHasText(final String in) {
+  protected void hasText(final String in) {
     if (in == null || in.length() == 0 || in.trim().length() == 0) {
       throw new IllegalArgumentException();
     }
   }
 
-  /**
-   * Implemented here to maintain GWT-compatibility.
-   */
-  private void assertNotNull(final Object in) {
+  private void notNull(final Object in) {
     if (in == null) {
       throw new IllegalArgumentException();
     }
   }
 
   public List<String> getLabels() {
-    return labels;
+    return Collections.unmodifiableList(labels);
   }
 
   @Override

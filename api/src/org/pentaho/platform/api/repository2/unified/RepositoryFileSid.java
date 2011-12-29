@@ -17,9 +17,9 @@ public class RepositoryFileSid implements Serializable {
 
   // ~ Instance fields =================================================================================================
 
-  private String name;
+  private final String name;
 
-  private RepositoryFileSid.Type type;
+  private final RepositoryFileSid.Type type;
 
   // ~ Constructors ====================================================================================================
 
@@ -32,12 +32,20 @@ public class RepositoryFileSid implements Serializable {
 
   public RepositoryFileSid(final String name, final RepositoryFileSid.Type type) {
     super();
+    notNull(name);
+    notNull(type);
     this.name = name;
     this.type = type;
   }
 
   // ~ Methods =========================================================================================================
 
+  private void notNull(final Object obj) {
+    if (obj == null) {
+      throw new IllegalArgumentException();
+    }
+  }
+  
   public String getName() {
     return name;
   }

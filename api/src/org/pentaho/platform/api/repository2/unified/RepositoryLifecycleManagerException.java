@@ -20,6 +20,9 @@ package org.pentaho.platform.api.repository2.unified;
  * Exception thrown from a {@link IBackingRepositoryLifecycleManager} method that fails
  */
 public class RepositoryLifecycleManagerException extends RuntimeException {
+    
+  private static final long serialVersionUID = -8568973306515692541L;
+
   public RepositoryLifecycleManagerException() {
     super();
   }

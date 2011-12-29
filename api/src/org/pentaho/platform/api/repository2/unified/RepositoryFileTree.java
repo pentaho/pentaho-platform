@@ -23,14 +23,17 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
 
   // ~ Instance fields =================================================================================================
 
-  private RepositoryFile file;
+  private static final long serialVersionUID = 6282939978216638770L;
 
-  private List<RepositoryFileTree> children;
+  private final RepositoryFile file;
+
+  private final List<RepositoryFileTree> children;
 
   // ~ Constructors ====================================================================================================
 
   public RepositoryFileTree(final RepositoryFile file, final List<RepositoryFileTree> children) {
     super();
+    notNull(file);
     this.file = file;
     // defensive copy
     this.children = children != null ? new ArrayList<RepositoryFileTree>(children) : null;
@@ -38,6 +41,12 @@ public class RepositoryFileTree implements Comparable<RepositoryFileTree>, Seria
 
   // ~ Methods =========================================================================================================
 
+  private void notNull(final Object obj) {
+    if (obj == null) {
+      throw new IllegalArgumentException();
+    }
+  }
+  
   public RepositoryFile getFile() {
     return file;
   }

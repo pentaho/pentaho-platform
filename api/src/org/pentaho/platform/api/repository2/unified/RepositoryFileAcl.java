@@ -7,12 +7,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 /**
- * Immutable repository file access control list (ACL). Use the {@link Builder} to create instances.
- * 
- * <p>
- * Same abstraction as {@code org.springframework.security.acls.Acl} except it contains no logic and is 
- * GWT-compatible.
- * </p>
+ * Immutable access control list (ACL). Use the {@link Builder} to create instances.
  * 
  * @author mlowery
  */
@@ -24,33 +19,35 @@ public class RepositoryFileAcl implements Serializable {
 
   // ~ Instance fields =================================================================================================
 
-  private List<RepositoryFileAce> aces = new ArrayList<RepositoryFileAce>();
+  private final List<RepositoryFileAce> aces;
 
-  private Serializable id;
+  private final Serializable id;
 
-  private RepositoryFileSid owner;
+  private final RepositoryFileSid owner;
 
-  private boolean entriesInheriting = true;
+  private final boolean entriesInheriting;
 
   // ~ Constructors ====================================================================================================
 
-  public RepositoryFileAcl(final Serializable id, final RepositoryFileSid owner) {
+  public RepositoryFileAcl(Serializable id, RepositoryFileSid owner, boolean entriesInheriting,
+      List<RepositoryFileAce> aces) {
     super();
+    notNull(owner);
+    notNull(aces);
     this.id = id;
     this.owner = owner;
-  }
-
-  /**
-   * This constructor is only valid on createFile and createFolder calls since the repository must know what file to 
-   * associate this ACL with (which is implied as it is supplied on the create call).
-   */
-  public RepositoryFileAcl(final RepositoryFileSid owner) {
-    super();
-    this.owner = owner;
+    this.entriesInheriting = entriesInheriting;
+    this.aces = new ArrayList<RepositoryFileAce>(aces);
   }
 
   // ~ Methods =========================================================================================================
 
+  private void notNull(final Object obj) {
+    if (obj == null) {
+      throw new IllegalArgumentException();
+    }
+  }
+  
   public List<RepositoryFileAce> getAces() {
     return Collections.unmodifiableList(aces);
   }
@@ -158,29 +155,26 @@ public class RepositoryFileAcl implements Serializable {
     }
 
     public RepositoryFileAcl build() {
-      RepositoryFileAcl result = new RepositoryFileAcl(id, owner);
-      result.aces = this.aces;
-      result.entriesInheriting = this.entriesInheriting;
-      return result;
+      return new RepositoryFileAcl(id, owner, this.entriesInheriting, this.aces);
     }
 
-    public Builder entriesInheriting(final boolean entriesInheriting) {
-      this.entriesInheriting = entriesInheriting;
+    public Builder entriesInheriting(final boolean entriesInheriting1) {
+      this.entriesInheriting = entriesInheriting1;
       return this;
     }
     
-    public Builder id(final Serializable id) {
-      this.id = id;
+    public Builder id(final Serializable id1) {
+      this.id = id1;
       return this;
     }
 
-    public Builder owner(final RepositoryFileSid owner) {
-      this.owner = owner;
+    public Builder owner(final RepositoryFileSid owner1) {
+      this.owner = owner1;
       return this;
     }
 
-    public Builder ace(final RepositoryFileAce ace) {
-      this.aces.add(ace);
+    public Builder ace(final RepositoryFileAce ace1) {
+      this.aces.add(ace1);
       return this;
     }
 
