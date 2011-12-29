@@ -14,84 +14,87 @@
  */
 package org.pentaho.platform.repository2.unified.webservices;
 
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface IUnifiedRepositoryWebServiceAsync {
 
-  void getFile(java.lang.String path, AsyncCallback<RepositoryFileDto> callback);
+  void canUnlockFile(String fileId, AsyncCallback<Boolean> arg2);
 
-  void getFileById(java.lang.String fileId, AsyncCallback<RepositoryFileDto> callback);
+  void copyFile(String string, String destAbsPath, String versionMessage, AsyncCallback<Void> arg4);
 
-  void getDataAsNodeForRead(java.lang.String fileId, AsyncCallback<NodeRepositoryFileDataDto> callback);
+  void createFile(String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data, String versionMessage, AsyncCallback<RepositoryFileDto> arg5);
 
-  void getDataAsNodeForReadInBatch(final java.util.List<RepositoryFileDto> files, AsyncCallback<java.util.List<NodeRepositoryFileDataDto>> callback);
+  void createFileWithAcl(String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, String versionMessage, AsyncCallback<RepositoryFileDto> arg6);
 
-  void createFile(java.lang.String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data, java.lang.String versionMessage, AsyncCallback<RepositoryFileDto> callback);
+  void createFolder(String parentFolderId, RepositoryFileDto file, String versionMessage, AsyncCallback<RepositoryFileDto> arg4);
 
-  void createFileWithAcl(java.lang.String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, java.lang.String versionMessage, AsyncCallback<RepositoryFileDto> callback);
+  void createFolderWithAcl(String parentFolderId, RepositoryFileDto file, RepositoryFileAclDto acl, String versionMessage, AsyncCallback<RepositoryFileDto> arg5);
 
-  void createFolder(java.lang.String parentFolderId, RepositoryFileDto file, java.lang.String versionMessage, AsyncCallback<RepositoryFileDto> callback);
+  void deleteFile(String fileId, String versionMessage, AsyncCallback<Void> arg3);
 
-  void createFolderWithAcl(java.lang.String parentFolderId, RepositoryFileDto file, RepositoryFileAclDto acl, java.lang.String versionMessage, AsyncCallback<RepositoryFileDto> callback);
+  void deleteFileAtVersion(String fileId, String versionId, AsyncCallback<Void> arg3);
 
-  void getChildren(java.lang.String folderId, AsyncCallback<java.util.List<RepositoryFileDto>> callback);
+  void deleteFileWithPermanentFlag(String fileId, boolean permanent, String versionMessage, AsyncCallback<Void> arg4);
 
-  void getChildrenWithFilter(java.lang.String folderId, java.lang.String filter, AsyncCallback<java.util.List<RepositoryFileDto>> callback);
+  void getAcl(String fileId, AsyncCallback<RepositoryFileAclDto> arg2);
 
-  void updateFile(RepositoryFileDto file, NodeRepositoryFileDataDto data, java.lang.String versionMessage, AsyncCallback<RepositoryFileDto> callback);
+  void getChildren(String folderId, AsyncCallback<List<RepositoryFileDto>> arg2);
 
-  void deleteFileWithPermanentFlag(java.lang.String fileId, boolean permanent, java.lang.String versionMessage, AsyncCallback<Void> callback);
+  void getChildrenWithFilter(String folderId, String filter, AsyncCallback<List<RepositoryFileDto>> arg3);
 
-  void deleteFile(java.lang.String fileId, java.lang.String versionMessage, AsyncCallback<Void> callback);
+  void getDataAsNodeForRead(String fileId, AsyncCallback<NodeRepositoryFileDataDto> arg2);
 
-  void deleteFileAtVersion(java.lang.String fileId, java.lang.String versionId, AsyncCallback<Void> callback);
+  void getDataAsNodeForReadAtVersion(String fileId, String versionId, AsyncCallback<NodeRepositoryFileDataDto> arg3);
 
-  void undeleteFile(java.lang.String fileId, java.lang.String versionMessage, AsyncCallback<Void> callback);
+  void getDataAsNodeForReadInBatch(List<RepositoryFileDto> files, AsyncCallback<List<NodeRepositoryFileDataDto>> arg2);
 
-  void getDeletedFilesInFolder(java.lang.String folderPath, AsyncCallback<java.util.List<RepositoryFileDto>> callback);
+  void getDeletedFiles(AsyncCallback<List<RepositoryFileDto>> arg1);
 
-  void getDeletedFilesInFolderWithFilter(java.lang.String folderPath, java.lang.String filter, AsyncCallback<java.util.List<RepositoryFileDto>> callback);
+  void getDeletedFilesInFolder(String folderPath, AsyncCallback<List<RepositoryFileDto>> arg2);
 
-  void getDeletedFiles(AsyncCallback<java.util.List<RepositoryFileDto>> callback);
+  void getDeletedFilesInFolderWithFilter(String folderPath, String filter, AsyncCallback<List<RepositoryFileDto>> arg3);
 
-  void moveFile(java.lang.String fileId, java.lang.String destAbsPath, java.lang.String versionMessage, AsyncCallback<Void> callback);
+  void getEffectiveAces(String fileId, AsyncCallback<List<RepositoryFileAclAceDto>> arg2);
 
-  void copyFile(java.lang.String fileId, java.lang.String destAbsPath, java.lang.String versionMessage, AsyncCallback<Void> callback);
+  void getEffectiveAcesWithForceFlag(String fileId, boolean forceEntriesInheriting, AsyncCallback<List<RepositoryFileAclAceDto>> arg3);
 
-  void lockFile(java.lang.String fileId, java.lang.String message, AsyncCallback<Void> callback);
+  void getFile(String path, AsyncCallback<RepositoryFileDto> arg2);
 
-  void unlockFile(java.lang.String fileId, AsyncCallback<Void> callback);
+  void getFileAtVersion(String fileId, String versionId, AsyncCallback<RepositoryFileDto> arg3);
 
-  void getTree(java.lang.String path, int depth, java.lang.String filter, boolean showHidden, AsyncCallback<RepositoryFileTreeDto> callback);
+  void getFileById(String fileId, AsyncCallback<RepositoryFileDto> arg2);
 
-  void getAcl(java.lang.String fileId, AsyncCallback<RepositoryFileAclDto> callback);
+  void getFileMetadata(String fileId, AsyncCallback<List<StringKeyStringValueDto>> arg2);
 
-  void updateAcl(RepositoryFileAclDto acl, AsyncCallback<RepositoryFileAclDto> callback);
+  void getReferrers(String fileId, AsyncCallback<List<RepositoryFileDto>> arg2);
 
-  void hasAccess(java.lang.String path, java.util.List<java.lang.Integer> permissions, AsyncCallback<Boolean> callback);
+  void getReservedChars(AsyncCallback<List<Character>> arg1);
 
-  void getEffectiveAces(java.lang.String fileId, AsyncCallback<java.util.List<RepositoryFileAclAceDto>> callback);
+  void getTree(String path, int depth, String filter, boolean showHidden, AsyncCallback<RepositoryFileTreeDto> arg5);
 
-  void getEffectiveAcesWithForceFlag(java.lang.String fileId, boolean forceEntriesInheriting, AsyncCallback<java.util.List<RepositoryFileAclAceDto>> callback);
+  void getVersionSummaries(String fileId, AsyncCallback<List<VersionSummaryDto>> arg2);
 
-  void getDataAsNodeForReadAtVersion(java.lang.String fileId, java.lang.String versionId, AsyncCallback<NodeRepositoryFileDataDto> callback);
+  void getVersionSummary(String fileId, String versionId, AsyncCallback<VersionSummaryDto> arg3);
 
-  void getVersionSummary(java.lang.String fileId, java.lang.String versionId, AsyncCallback<VersionSummaryDto> callback);
+  void getVersionSummaryInBatch(List<RepositoryFileDto> files, AsyncCallback<List<VersionSummaryDto>> arg2);
 
-  void getVersionSummaryInBatch(final java.util.List<RepositoryFileDto> files, AsyncCallback<java.util.List<VersionSummaryDto>> callback);
+  void hasAccess(String path, List<Integer> permissions, AsyncCallback<Boolean> arg3);
 
-  void getVersionSummaries(java.lang.String fileId, AsyncCallback<java.util.List<VersionSummaryDto>> callback);
+  void lockFile(String fileId, String message, AsyncCallback<Void> arg3);
 
-  void getFileAtVersion(java.lang.String fileId, java.lang.String versionId, AsyncCallback<RepositoryFileDto> callback);
+  void moveFile(String fileId, String destAbsPath, String versionMessage, AsyncCallback<Void> arg4);
 
-  void restoreFileAtVersion(java.lang.String fileId, java.lang.String versionId, java.lang.String versionMessage, AsyncCallback<Void> callback);
+  void restoreFileAtVersion(String fileId, String versionId, String versionMessage, AsyncCallback<Void> arg4);
 
-  void canUnlockFile(java.lang.String fileId, AsyncCallback<Boolean> callback);
+  void setFileMetadata(String fileId, List<StringKeyStringValueDto> fileMetadataMap, AsyncCallback<Void> arg3);
 
-  void getReferrers(java.lang.String fileId, AsyncCallback<java.util.List<RepositoryFileDto>> fileList);
+  void undeleteFile(String fileId, String versionMessage, AsyncCallback<Void> arg3);
 
-  void getFileMetadata(java.lang.String fileId, AsyncCallback<java.util.List<StringKeyStringValueDto>> fileMetadataMap);
+  void unlockFile(String fileId, AsyncCallback<Void> arg2);
 
-  void setFileMetadata(java.lang.String fileId, java.util.List<StringKeyStringValueDto> fileMetadataMap, AsyncCallback<java.lang.Void> arg3);
+  void updateAcl(RepositoryFileAclDto acl, AsyncCallback<RepositoryFileAclDto> arg2);
+
+  void updateFile(RepositoryFileDto file, NodeRepositoryFileDataDto data, String versionMessage, AsyncCallback<RepositoryFileDto> arg4);
 }
