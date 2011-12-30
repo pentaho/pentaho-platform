@@ -16,6 +16,12 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -23,20 +29,15 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
 import org.springframework.util.Assert;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 /**
  * @author wseyler
  */
 public class FileSolutionRepositoryImportSource extends AbstractImportSource {
   private static final Log log = LogFactory.getLog(FileSolutionRepositoryImportSource.class);
 
-  private File sourceFile;
   private String charSet;
   private String filename;
+  private final String sourceParentFilePath;
   private final List<IRepositoryFileBundle> files = new ArrayList<IRepositoryFileBundle>();
   private boolean recursive;
 
@@ -48,10 +49,10 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
     Assert.notNull(sourceFile);
     Assert.hasText(filename);
     Assert.hasText(charSet);
-    this.sourceFile = sourceFile;
     this.filename = filename;
     this.charSet = charSet;
     this.recursive = sourceFile.isDirectory();
+    this.sourceParentFilePath = sourceFile.getAbsoluteFile().getPath();
 
     addFileToList(sourceFile, false);
     log.debug("File list built - size=" + files.size());
@@ -98,18 +99,25 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
       WAQRFilesMigrationHelper.convertToNewXreportSpec(currentFile);
     }
 
-    final RepositoryFile repoFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(filename))
-        .folder(currentFile.isDirectory()).hidden(WAQRFilesMigrationHelper.hideFileCheck(filename))
-        .lastModificationDate(new Date(currentFile.lastModified())).build();
+    final String name = WAQRFilesMigrationHelper.convertToNewExtension(filename);
+    final boolean directory = currentFile.isDirectory();
+    final boolean hidden = WAQRFilesMigrationHelper.hideFileCheck(filename);
+    final Date lastModifiedDate = new Date(currentFile.lastModified());
+    final RepositoryFile repoFile = new RepositoryFile.Builder(name)
+        .folder(directory).hidden(hidden)
+        .lastModificationDate(lastModifiedDate).build();
 
+    final String repoPath = getRepositoryPath(currentFile);
     final String extension = RepositoryFilenameUtils.getExtension(filename);
-    String repoPath = "";
-    if (recursive) {
-      final String parentFilePath = currentFile.getParentFile().getAbsolutePath();
-      final String sourceParentFilePath = sourceFile.getParentFile().getAbsolutePath();
-      repoPath = parentFilePath.substring(sourceParentFilePath.length());
-    }
-
     return new RepositoryFileBundle(repoFile, null, repoPath, currentFile, charSet, getMimeType(extension.toLowerCase()));
+  }
+
+  protected String getRepositoryPath(final File currentFile) {
+    String repositoryPath = "";
+    if (recursive) {
+      final String parentFilePath = currentFile.getAbsoluteFile().getParent();
+      repositoryPath = StringUtils.substring(parentFilePath, sourceParentFilePath.length());
+    }
+    return repositoryPath;
   }
 }

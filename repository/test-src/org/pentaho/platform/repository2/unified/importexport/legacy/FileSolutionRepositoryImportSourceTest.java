@@ -18,14 +18,15 @@
  */
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
-import junit.framework.TestCase;
-import org.pentaho.platform.repository2.unified.importexport.ImportSource;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.pentaho.platform.repository2.unified.importexport.ImportSource;
+
+import junit.framework.TestCase;
 
 /**
  * Class Description
@@ -50,13 +51,12 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
     }
 
     {
-      final File sourceFile = new File("./test-src/org/pentaho/platform/repository2/unified/importexport/testdata");
+      final File sourceFile = new File("./testdata");
       assertTrue("Make sure your current directory is the repository project", sourceFile.exists());
       FileSolutionRepositoryImportSource importSource
           = new FileSolutionRepositoryImportSource(sourceFile, "UTF-8");
       assertEquals(11, importSource.getCount());
     }
-
   }
 
   public void testGetFiles() throws Exception {
@@ -88,45 +88,54 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
     }
 
     {
-      final Map<String, ImportSource.IRepositoryFileBundle> foldersFound = new HashMap<String, ImportSource.IRepositoryFileBundle>();
-      final Map<String, ImportSource.IRepositoryFileBundle> filesFound = new HashMap<String, ImportSource.IRepositoryFileBundle>();
-
-      final File sourceFile = new File("./test-src/org/pentaho/platform/repository2/unified/importexport/testdata");
-      assertTrue("Make sure your current directory is the repository project", sourceFile.exists());
-      FileSolutionRepositoryImportSource importSource = new FileSolutionRepositoryImportSource(sourceFile, "UTF-8");
-      assertEquals(11, importSource.getCount());
-      final Iterable<ImportSource.IRepositoryFileBundle> files = importSource.getFiles();
-      assertNotNull(files);
-      for (Iterator<ImportSource.IRepositoryFileBundle> it = files.iterator(); it.hasNext(); ) {
-        final ImportSource.IRepositoryFileBundle bundle = it.next();
-        assertNotNull(bundle);
-        assertNotNull(bundle.getFile());
-        if (bundle.getFile().isFolder()) {
-          foldersFound.put(bundle.getFile().getName(), bundle);
-        } else {
-          filesFound.put(bundle.getFile().getName(), bundle);
-        }
-      }
-
-      assertEquals(8, filesFound.size());
-      assertNotNull(filesFound.get("Empty.zip"));
-      assertNotNull(filesFound.get("Success.zip"));
-      assertNotNull(filesFound.get("TestZipFile.zip"));
-      assertNotNull(filesFound.get("pentaho-solutions.zip"));
-      assertNotNull(filesFound.get("Example1.xaction"));
-      assertNotNull(filesFound.get("Example2.xaction"));
-      assertNotNull(filesFound.get("Example3.xaction"));
-      assertNotNull(filesFound.get("HelloWorld.xaction"));
-
-      assertEquals("/testdata/pentaho-solutions/getting-started", filesFound.get("HelloWorld.xaction").getPath());
-
-      assertEquals(3, foldersFound.size());
-      assertNotNull(foldersFound.get("testdata"));
-      assertNotNull(foldersFound.get("pentaho-solutions"));
-      assertNotNull(foldersFound.get("getting-started"));
-
-      assertEquals("/testdata/pentaho-solutions", foldersFound.get("getting-started").getPath());
+      validateImportSource(new File("./testdata"));
+      validateImportSource(new File("./testdata/"));
+      validateImportSource(new File("testdata"));
+      validateImportSource(new File("testdata/"));
+      validateImportSource(new File("testdata").getAbsoluteFile());
     }
+  }
+
+  private void validateImportSource(final File sourceFile) {
+    final Map<String, ImportSource.IRepositoryFileBundle> foldersFound = new HashMap<String, ImportSource.IRepositoryFileBundle>();
+    final Map<String, ImportSource.IRepositoryFileBundle> filesFound = new HashMap<String, ImportSource.IRepositoryFileBundle>();
+    assertTrue("Make sure your current directory is the repository project", sourceFile.exists());
+    FileSolutionRepositoryImportSource importSource = new FileSolutionRepositoryImportSource(sourceFile, "UTF-8");
+    assertEquals(11, importSource.getCount());
+    final Iterable<ImportSource.IRepositoryFileBundle> files = importSource.getFiles();
+    assertNotNull(files);
+    for (Iterator<ImportSource.IRepositoryFileBundle> it = files.iterator(); it.hasNext(); ) {
+      final ImportSource.IRepositoryFileBundle bundle = it.next();
+      assertNotNull(bundle);
+      assertNotNull(bundle.getFile());
+      if (bundle.getFile().isFolder()) {
+        foldersFound.put(bundle.getFile().getName(), bundle);
+      } else {
+        filesFound.put(bundle.getFile().getName(), bundle);
+      }
+    }
+
+    assertEquals(8, filesFound.size());
+    assertNotNull(filesFound.get("Empty.zip"));
+    assertNotNull(filesFound.get("Success.zip"));
+    assertNotNull(filesFound.get("TestZipFile.zip"));
+    assertNotNull(filesFound.get("pentaho-solutions.zip"));
+    assertNotNull(filesFound.get("Example1.xaction"));
+    assertNotNull(filesFound.get("Example2.xaction"));
+    assertNotNull(filesFound.get("Example3.xaction"));
+    assertNotNull(filesFound.get("HelloWorld.xaction"));
+
+    assertEquals("", filesFound.get("TestZipFile.zip").getPath());
+    assertEquals("TestZipFile.zip", filesFound.get("TestZipFile.zip").getFile().getName());
+    assertEquals("/pentaho-solutions/getting-started", filesFound.get("HelloWorld.xaction").getPath());
+    assertEquals("HelloWorld.xaction", filesFound.get("HelloWorld.xaction").getFile().getName());
+
+    assertEquals(3, foldersFound.size());
+    assertNotNull(foldersFound.get("testdata"));
+    assertNotNull(foldersFound.get("pentaho-solutions"));
+    assertNotNull(foldersFound.get("getting-started"));
+
+    assertEquals("/pentaho-solutions", foldersFound.get("getting-started").getPath());
   }
 
   public void testCreate() throws Exception {
