@@ -54,7 +54,7 @@ import org.springframework.util.Assert;
  */
 public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository {
 
-  private List<Character> cachedReservedChars;
+  private volatile List<Character> cachedReservedChars; // make sure threads see up-to-date value
 
   private IUnifiedRepositoryJaxwsWebService repoWebService;
 

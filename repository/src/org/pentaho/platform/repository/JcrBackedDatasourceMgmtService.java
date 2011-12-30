@@ -24,7 +24,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
 
   private IUnifiedRepository repository;
   
-  private List<Character> cachedReservedChars;
+  private volatile List<Character> cachedReservedChars; // make sure threads see up-to-date value
   
   private Serializable cachedDatabaseParentFolderId;
   
