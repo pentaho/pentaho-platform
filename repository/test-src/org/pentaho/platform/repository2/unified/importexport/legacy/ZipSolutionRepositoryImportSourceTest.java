@@ -18,12 +18,14 @@
  */
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
-import junit.framework.TestCase;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.zip.ZipInputStream;
+
 import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.zip.ZipInputStream;
+import junit.framework.TestCase;
 
 /**
  * Class Description
@@ -61,7 +63,7 @@ public class ZipSolutionRepositoryImportSourceTest extends TestCase {
     {
       ZipInputStream zis = null;
       try {
-        zis = getZipInputStream("../testdata/Success.zip");
+        zis = getZipInputStream("testdata/Success.zip");
         final ZipSolutionRepositoryImportSource importSource = new ZipSolutionRepositoryImportSource(zis, "UTF-8");
         assertEquals(7, importSource.getCount());
       } finally {
@@ -72,7 +74,7 @@ public class ZipSolutionRepositoryImportSourceTest extends TestCase {
     {
       ZipInputStream zis = null;
       try {
-        zis = getZipInputStream("../testdata/Empty.zip");
+        zis = getZipInputStream("testdata/Empty.zip");
         final ZipSolutionRepositoryImportSource importSource = new ZipSolutionRepositoryImportSource(zis, "UTF-8");
         assertEquals(0, importSource.getCount());
       } finally {
@@ -89,9 +91,7 @@ public class ZipSolutionRepositoryImportSourceTest extends TestCase {
 
   }
 
-  private ZipInputStream getZipInputStream(final String path) {
-    final InputStream inputStream = this.getClass().getResourceAsStream(path);
-    assertNotNull(inputStream);
-    return new ZipInputStream(inputStream);
+  private ZipInputStream getZipInputStream(final String path) throws FileNotFoundException {
+    return new ZipInputStream(new FileInputStream(path));
   }
 }

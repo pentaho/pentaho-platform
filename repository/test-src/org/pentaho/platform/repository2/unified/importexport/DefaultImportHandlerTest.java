@@ -19,8 +19,9 @@
 package org.pentaho.platform.repository2.unified.importexport;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -256,10 +257,8 @@ public class DefaultImportHandlerTest extends TestCase {
     }
   }
 
-  private ZipInputStream getZipInputStream(final String path) {
-    final InputStream inputStream = this.getClass().getResourceAsStream(path);
-    assertNotNull(inputStream);
-    return new ZipInputStream(inputStream);
+  private ZipInputStream getZipInputStream(final String path) throws FileNotFoundException {
+    return new ZipInputStream(new FileInputStream(path));
   }
 
   /**

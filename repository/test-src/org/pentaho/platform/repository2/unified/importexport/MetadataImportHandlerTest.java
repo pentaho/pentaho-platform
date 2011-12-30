@@ -18,7 +18,12 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
-import junit.framework.TestCase;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipInputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -27,10 +32,7 @@ import org.pentaho.platform.repository.pmd.PentahoMetadataDomainRepositoryInfo;
 import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.ZipInputStream;
+import junit.framework.TestCase;
 
 /**
  * Class Description
@@ -98,10 +100,8 @@ public class MetadataImportHandlerTest extends TestCase {
     }
   }
 
-  private ZipInputStream getZipInputStream(final String path) {
-    final InputStream inputStream = this.getClass().getResourceAsStream(path);
-    assertNotNull(inputStream);
-    return new ZipInputStream(inputStream);
+  private ZipInputStream getZipInputStream(final String path) throws FileNotFoundException {
+    return new ZipInputStream(new FileInputStream(path));
   }
 
   /**
