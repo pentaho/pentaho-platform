@@ -576,5 +576,4 @@ public class FileResource extends AbstractJaxRSResource {
     }
     return null;
   }
-
 }
