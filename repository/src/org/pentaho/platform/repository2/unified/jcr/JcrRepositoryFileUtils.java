@@ -111,8 +111,9 @@ public class JcrRepositoryFileUtils {
   }
 
   /*
-   * In order to mitigate file corruption, please load properties in order of importance. (ID and name are the most
-   * important.) In particular, versionId has been known to fail due to corruption; for this reason, it should be last.
+   * In order to mitigate file corruption, please load properties in order of importance. (ID and name are two of the 
+   * most important.) In particular, versionId has been known to fail due to corruption; for this reason, it should be 
+   * last.
    */
   public static RepositoryFile nodeToFile(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IOwnerLookupHelper ownerLookupHelper, final IPathConversionHelper pathConversionHelper, final Node node,
@@ -151,14 +152,13 @@ public class JcrRepositoryFileUtils {
 
       id = getNodeId(session, pentahoJcrConstants, node);
 
+      path = pathConversionHelper.absToRel((getAbsolutePath(session, pentahoJcrConstants, node)));
       // if the rel path is / then name the folder empty string instead of its true name (this hides the tenant name)
       name = RepositoryFile.SEPARATOR.equals(path) ? "" : getNodeName(session, pentahoJcrConstants, node); //$NON-NLS-1$
 
       if (isPentahoFolder(pentahoJcrConstants, node)) {
         folder = true;
       }
-
-      path = pathConversionHelper.absToRel((getAbsolutePath(session, pentahoJcrConstants, node)));
   
       if (isPentahoHierarchyNode(session, pentahoJcrConstants, node)) {
         if (node.hasNode(pentahoJcrConstants.getPHO_TITLE())) {
