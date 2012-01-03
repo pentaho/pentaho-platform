@@ -185,7 +185,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   public static void setUpClass() throws Exception {
     // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
     // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
-    FileUtils.deleteDirectory(new File("/tmp/jackrabbit-test-DIS42"));
+    FileUtils.deleteDirectory(new File("/tmp/jackrabbit-test-TRUNK"));
     PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
   }
 
