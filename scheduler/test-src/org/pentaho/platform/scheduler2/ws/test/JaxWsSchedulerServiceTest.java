@@ -101,7 +101,7 @@ public class JaxWsSchedulerServiceTest {
     RUN_ONCE_IN_2_SECS.setStartTime(new Date(System.currentTimeMillis() + 2000L));
     
     RUN_ONCE_IN_3_SECS = JobTrigger.ONCE_NOW;
-    RUN_ONCE_IN_2_SECS.setStartTime(new Date(System.currentTimeMillis() + 2000L));
+    RUN_ONCE_IN_3_SECS.setStartTime(new Date(System.currentTimeMillis() + 2000L));
   }
 
   @After
