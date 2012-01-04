@@ -237,7 +237,7 @@ public class JcrRepositoryFileUtils {
                 Messages
                     .getInstance()
                     .getString(
-                        "JcrRepositoryFileUtils.ERROR_0002_PARTIAL_FILE_ERROR", getAbsolutePath(session, pentahoJcrConstants, node)), e); //$NON-NLS-1$
+                        "JcrRepositoryFileUtils.ERROR_0002_PARTIAL_FILE_ERROR", id, getAbsolutePath(session, pentahoJcrConstants, node)), e); //$NON-NLS-1$
       }
     }
     
