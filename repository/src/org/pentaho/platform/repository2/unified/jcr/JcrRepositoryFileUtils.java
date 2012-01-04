@@ -50,7 +50,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -110,11 +109,6 @@ public class JcrRepositoryFileUtils {
     return file;
   }
 
-  /*
-   * In order to mitigate file corruption, please load properties in order of importance. (ID and name are two of the 
-   * most important.) In particular, versionId has been known to fail due to corruption; for this reason, it should be 
-   * last.
-   */
   public static RepositoryFile nodeToFile(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final IOwnerLookupHelper ownerLookupHelper, final IPathConversionHelper pathConversionHelper, final Node node,
       final boolean loadMaps) throws RepositoryException {
@@ -147,100 +141,87 @@ public class JcrRepositoryFileUtils {
     Map<String, String> descriptionMap = null;
 
     String locale = null;
+
+    id = getNodeId(session, pentahoJcrConstants, node);
     
-    try {
-
-      id = getNodeId(session, pentahoJcrConstants, node);
-
-      path = pathConversionHelper.absToRel((getAbsolutePath(session, pentahoJcrConstants, node)));
-      // if the rel path is / then name the folder empty string instead of its true name (this hides the tenant name)
-      name = RepositoryFile.SEPARATOR.equals(path) ? "" : getNodeName(session, pentahoJcrConstants, node); //$NON-NLS-1$
-
-      if (isPentahoFolder(pentahoJcrConstants, node)) {
-        folder = true;
-      }
-  
-      if (isPentahoHierarchyNode(session, pentahoJcrConstants, node)) {
-        if (node.hasNode(pentahoJcrConstants.getPHO_TITLE())) {
-          title = getLocalizedString(session, pentahoJcrConstants, node.getNode(pentahoJcrConstants.getPHO_TITLE()));
-        }
-        if (node.hasNode(pentahoJcrConstants.getPHO_DESCRIPTION())) {
-          description = getLocalizedString(session, pentahoJcrConstants,
-              node.getNode(pentahoJcrConstants.getPHO_DESCRIPTION()));
-        }
-  
-        if (loadMaps) {
-          if (node.hasNode(pentahoJcrConstants.getPHO_TITLE())) {
-            titleMap = getLocalizedStringMap(session, pentahoJcrConstants,
-                node.getNode(pentahoJcrConstants.getPHO_TITLE()));
-          }
-          if (node.hasNode(pentahoJcrConstants.getPHO_DESCRIPTION())) {
-            descriptionMap = getLocalizedStringMap(session, pentahoJcrConstants,
-                node.getNode(pentahoJcrConstants.getPHO_DESCRIPTION()));
-          }
-        }
-      }
-  
-      locale = getLocale().toString();
-  
-      Map<String, Serializable> metadata = getFileMetadata(session, id);
-      creatorId = (String) metadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
-      if (node.hasProperty(pentahoJcrConstants.getPHO_HIDDEN())) {
-        hidden = node.getProperty(pentahoJcrConstants.getPHO_HIDDEN()).getBoolean();
-      }
-      
-      if (node.hasProperty(pentahoJcrConstants.getPHO_FILESIZE())) {
-        fileSize = node.getProperty(pentahoJcrConstants.getPHO_FILESIZE()).getLong();
-      }
-
-      // jcr:created nodes have OnParentVersion values of INITIALIZE
-      if (node.hasProperty(pentahoJcrConstants.getJCR_CREATED())) {
-        Calendar tmpCal = node.getProperty(pentahoJcrConstants.getJCR_CREATED()).getDate();
-        if (tmpCal != null) {
-          created = tmpCal.getTime();
-        }
-      }
-      
-      if (isPentahoFile(pentahoJcrConstants, node)) {
-        // pho:lastModified nodes have OnParentVersion values of IGNORE; i.e. they don't exist in frozen nodes
-        if (!node.isNodeType(pentahoJcrConstants.getNT_FROZENNODE())) {
-          Calendar tmpCal = node.getProperty(pentahoJcrConstants.getPHO_LASTMODIFIED()).getDate();
-          if (tmpCal != null) {
-            lastModified = tmpCal.getTime();
-          }
-        }
-      }
-  
-      locked = isLocked(pentahoJcrConstants, node);
-      if (locked) {
-        Lock lock = node.getLock();
-        lockOwner = lock.getLockOwner();
-        lockDate = node.getProperty(pentahoJcrConstants.getPHO_LOCKDATE()).getDate().getTime();
-        if (node.hasProperty(pentahoJcrConstants.getPHO_LOCKMESSAGE())) {
-          lockMessage = node.getProperty(pentahoJcrConstants.getPHO_LOCKMESSAGE()).getString();
-        }
-      }
-  
-      owner = getRepositoryFileSid(session, pentahoJcrConstants, ownerLookupHelper, node);
-
-      versioned = isVersioned(session, pentahoJcrConstants, node);
-      if (versioned) {
-        versionId = getVersionId(pentahoJcrConstants, node);
-      }
-      
-    } catch (Exception e) {
-      // catch block here to recover from repository corruption; log the file in error and make best effort to return as 
-      //   much about file as possible
-      if (logger.isErrorEnabled()) {
-        logger
-            .error(
-                Messages
-                    .getInstance()
-                    .getString(
-                        "JcrRepositoryFileUtils.ERROR_0002_PARTIAL_FILE_ERROR", id, getAbsolutePath(session, pentahoJcrConstants, node)), e); //$NON-NLS-1$
-      }
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("reading file with id '%s' and path '%s'", id, node.getPath()));
     }
     
+    path = pathConversionHelper.absToRel((getAbsolutePath(session, pentahoJcrConstants, node)));
+    // if the rel path is / then name the folder empty string instead of its true name (this hides the tenant name)
+    name = RepositoryFile.SEPARATOR.equals(path) ? "" : getNodeName(session, pentahoJcrConstants, node); //$NON-NLS-1$
+
+    if (isPentahoFolder(pentahoJcrConstants, node)) {
+      folder = true;
+    }
+
+    // jcr:created nodes have OnParentVersion values of INITIALIZE
+    if (node.hasProperty(pentahoJcrConstants.getJCR_CREATED())) {
+      Calendar tmpCal = node.getProperty(pentahoJcrConstants.getJCR_CREATED()).getDate();
+      if (tmpCal != null) {
+        created = tmpCal.getTime();
+      }
+    }
+
+    Map<String, Serializable> metadata = getFileMetadata(session, id);
+    creatorId = (String) metadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
+    if (node.hasProperty(pentahoJcrConstants.getPHO_HIDDEN())) {
+      hidden = node.getProperty(pentahoJcrConstants.getPHO_HIDDEN()).getBoolean();
+    }
+    if (node.hasProperty(pentahoJcrConstants.getPHO_FILESIZE())) {
+      fileSize = node.getProperty(pentahoJcrConstants.getPHO_FILESIZE()).getLong();
+    }
+    if (isPentahoFile(pentahoJcrConstants, node)) {
+      // pho:lastModified nodes have OnParentVersion values of IGNORE; i.e. they don't exist in frozen nodes
+      if (!node.isNodeType(pentahoJcrConstants.getNT_FROZENNODE())) {
+        Calendar tmpCal = node.getProperty(pentahoJcrConstants.getPHO_LASTMODIFIED()).getDate();
+        if (tmpCal != null) {
+          lastModified = tmpCal.getTime();
+        }
+      }
+    }
+
+    if (isPentahoHierarchyNode(session, pentahoJcrConstants, node)) {
+      if (node.hasNode(pentahoJcrConstants.getPHO_TITLE())) {
+        title = getLocalizedString(session, pentahoJcrConstants, node.getNode(pentahoJcrConstants.getPHO_TITLE()));
+      }
+      if (node.hasNode(pentahoJcrConstants.getPHO_DESCRIPTION())) {
+        description = getLocalizedString(session, pentahoJcrConstants,
+            node.getNode(pentahoJcrConstants.getPHO_DESCRIPTION()));
+      }
+
+      if (loadMaps) {
+        if (node.hasNode(pentahoJcrConstants.getPHO_TITLE())) {
+          titleMap = getLocalizedStringMap(session, pentahoJcrConstants,
+              node.getNode(pentahoJcrConstants.getPHO_TITLE()));
+        }
+        if (node.hasNode(pentahoJcrConstants.getPHO_DESCRIPTION())) {
+          descriptionMap = getLocalizedStringMap(session, pentahoJcrConstants,
+              node.getNode(pentahoJcrConstants.getPHO_DESCRIPTION()));
+        }
+      }
+    }
+
+    locale = getLocale().toString();
+
+    versioned = isVersioned(session, pentahoJcrConstants, node);
+    if (versioned) {
+      versionId = getVersionId(pentahoJcrConstants, node);
+    }
+
+    locked = isLocked(pentahoJcrConstants, node);
+    if (locked) {
+      Lock lock = node.getLock();
+      lockOwner = lock.getLockOwner();
+      lockDate = node.getProperty(pentahoJcrConstants.getPHO_LOCKDATE()).getDate().getTime();
+      if (node.hasProperty(pentahoJcrConstants.getPHO_LOCKMESSAGE())) {
+        lockMessage = node.getProperty(pentahoJcrConstants.getPHO_LOCKMESSAGE()).getString();
+      }
+    }
+
+    owner = getRepositoryFileSid(session, pentahoJcrConstants, ownerLookupHelper, node);
+
     RepositoryFile file = new RepositoryFile.Builder(id, name).createdDate(created).creatorId(creatorId)
         .lastModificationDate(lastModified).folder(folder).versioned(versioned).path(path).versionId(versionId)
         .fileSize(fileSize).locked(locked).lockDate(lockDate).hidden(hidden).lockMessage(lockMessage)
