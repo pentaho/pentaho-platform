@@ -367,6 +367,21 @@ a:active, a:hover {
 }
 
 .gwt-FileUpload {
+  position: absolute; 
+  font-size: 45px;
+  right: 0px; 
+  top: 0px;
+  opacity: 0; 
+
+  filter: alpha(opacity=0); 
+  -ms-filter: alpha(opacity=0); 
+  -khtml-opacity: 0; 
+  -moz-opacity: 0;
+}
+
+.gwt_file_upload_hidden_div {
+  position: relative; 
+  overflow: hidden;
 }
 
 .gwt-ScrollTable .dataTable td {
