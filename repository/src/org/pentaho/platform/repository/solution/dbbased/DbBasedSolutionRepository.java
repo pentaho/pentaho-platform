@@ -886,19 +886,21 @@ public class DbBasedSolutionRepository extends SolutionRepositoryBase implements
   private void recurseCheckUpdatedFiles(final RepositoryUpdateHelper updateHelper, final File solutionFile)
       throws IOException {
     File[] files = solutionFile.listFiles();
-    for (File aFile : files) {
-      if (aFile.isDirectory()) {
-        String directoryName = aFile.getName();
-        if (!SolutionReposHelper.ignoreDirectory(directoryName)) {
-          updateHelper.recordFolder(aFile);
-          recurseCheckUpdatedFiles(updateHelper, aFile);
+    if (files != null) {
+      for (File aFile : files) {
+        if (aFile.isDirectory()) {
+          String directoryName = aFile.getName();
+          if (!SolutionReposHelper.ignoreDirectory(directoryName)) {
+            updateHelper.recordFolder(aFile);
+            recurseCheckUpdatedFiles(updateHelper, aFile);
+          }
+        } else {
+          if (!SolutionReposHelper.ignoreFile(aFile.getName())) {
+            updateHelper.recordFile(aFile);
+          }
         }
-      } else {
-        if (!SolutionReposHelper.ignoreFile(aFile.getName())) {
-          updateHelper.recordFile(aFile);
-        }
-      }
-    } // End For
+      } // End For
+    }
   }
 
   /**
