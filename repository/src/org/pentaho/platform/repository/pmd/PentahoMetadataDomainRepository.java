@@ -221,6 +221,20 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     }
   }
 
+  /*
+   * retrieves the data streams for the metadata referenced by domainId.  This could be a single .xmi file
+   * or an .xmi file and multiple .properties files.
+   */
+  public Map<String, InputStream> getDomainFilesData(final String domainId) {
+    Map<String, InputStream> values = new HashMap<String, InputStream>();
+    Set<RepositoryFile> metadataFiles = metadataMapping.getFiles(domainId);
+    for(RepositoryFile repoFile : metadataFiles) {
+      SimpleRepositoryFileData dataForRead = repository.getDataForRead(repoFile.getName(), SimpleRepositoryFileData.class);
+      values.put(repoFile.getName(), dataForRead.getStream());
+    }
+    return values;
+  }
+  
   /**
    * retrieve a domain from the repo.  This does lazy loading of the repo, so it calls reloadDomains()
    * if not already loaded.

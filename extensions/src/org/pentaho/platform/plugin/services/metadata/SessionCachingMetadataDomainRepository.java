@@ -1,5 +1,7 @@
 package org.pentaho.platform.plugin.services.metadata;
 
+import java.io.InputStream;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -16,6 +18,7 @@ import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.pmd.IPentahoMetadataDomainRepositoryExporter;
 
 /**
  * This is the platform implementation which provides session-based caching for an existing {@link
@@ -23,7 +26,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
  *
  * @author Jordan Ganoff (jganoff@pentaho.com)
  */
-public class SessionCachingMetadataDomainRepository implements IMetadataDomainRepository, ILogoutListener {
+public class SessionCachingMetadataDomainRepository implements IMetadataDomainRepository, IPentahoMetadataDomainRepositoryExporter, ILogoutListener {
 
   private static final Log logger = LogFactory.getLog(SessionCachingMetadataDomainRepository.class);
 
@@ -266,5 +269,13 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   @Override
   public void onLogout(final IPentahoSession session) {
     flushDomains(session);
+  }
+  
+  public Map<String, InputStream> getDomainFilesData(final String domainId) {
+    if (delegate instanceof IPentahoMetadataDomainRepositoryExporter) {
+      return ((IPentahoMetadataDomainRepositoryExporter)delegate).getDomainFilesData(domainId);
+    } else {
+      throw new UnsupportedOperationException("Exporting is not supported by this Metadata Domain Repository");
+    }
   }
 }
