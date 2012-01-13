@@ -232,7 +232,7 @@
           depends="third-party.download-check">
 
     <!-- copy the files to the stage dir -->
-    <copy todir="${stage.dir}/third-party-tools/wkhtmltoimage">
+    <copy todir="${stage.dir.server}/third-party-tools/wkhtmltoimage">
       <fileset dir="${wkhtmltoimage.dir}">
       </fileset>
     </copy>
