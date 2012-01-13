@@ -99,12 +99,12 @@
 		</Dimension>
 		<Measure name="Quantity" column="QUANTITYORDERED" formatString="#,###" aggregator="sum">
       <Annotations>
-        <Annotation name="AnalyzerBusinessGroup">Numbers</Annotation>
+        <Annotation name="AnalyzerBusinessGroup">Measures</Annotation>
       </Annotations>
 		</Measure>
 		<Measure name="Sales" column="TOTALPRICE" formatString="#,###" aggregator="sum">
       <Annotations>
-        <Annotation name="AnalyzerBusinessGroup">Numbers</Annotation>
+        <Annotation name="AnalyzerBusinessGroup">Measures</Annotation>
       </Annotations>
 		</Measure>
 	</Cube>
