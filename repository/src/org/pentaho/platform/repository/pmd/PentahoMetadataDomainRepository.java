@@ -34,6 +34,7 @@ import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.RepositoryUtils;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -229,8 +230,13 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
     Map<String, InputStream> values = new HashMap<String, InputStream>();
     Set<RepositoryFile> metadataFiles = metadataMapping.getFiles(domainId);
     for(RepositoryFile repoFile : metadataFiles) {
-      SimpleRepositoryFileData dataForRead = repository.getDataForRead(repoFile.getName(), SimpleRepositoryFileData.class);
-      values.put(repoFile.getName(), dataForRead.getStream());
+      RepositoryFileInputStream is;
+      try {
+        is = new RepositoryFileInputStream(repoFile);
+      } catch (Exception e) {
+        return null;  // This pretty much ensures an exception will be thrown later and passed to the client
+      }
+      values.put(repoFile.getName(), is);
     }
     return values;
   }

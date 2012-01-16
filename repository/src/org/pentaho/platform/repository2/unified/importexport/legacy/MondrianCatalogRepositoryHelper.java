@@ -16,18 +16,21 @@
 
 package org.pentaho.platform.repository2.unified.importexport.legacy;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.importexport.RepositoryFileBundle;
 import org.pentaho.platform.repository2.unified.importexport.StreamConverter;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 
 public class MondrianCatalogRepositoryHelper {
 
@@ -62,6 +65,21 @@ public class MondrianCatalogRepositoryHelper {
     }
   }
 
+  public Map<String, InputStream> getModrianSchemaFiles(String catalogName) {
+    Map<String, InputStream> values = new HashMap<String, InputStream>();
+    RepositoryFile catalogFolder = repository.getFile(ETC_MONDRIAN_JCR_FOLDER + RepositoryFile.SEPARATOR + catalogName);
+    for (RepositoryFile repoFile : repository.getChildren(catalogFolder.getId())) {
+      RepositoryFileInputStream is;
+      try {
+        is = new RepositoryFileInputStream(repoFile);
+      } catch (Exception e) {
+        return null;  // This pretty much ensures an exception will be thrown later and passed to the client
+      }
+      values.put(repoFile.getName(), is);
+    }
+    return values;
+  }
+  
   /*
     * Creates "/etc/mondrian/<catalog>"
     */
