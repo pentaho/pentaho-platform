@@ -107,11 +107,16 @@
 	    			<treecell label="Security" />
 		  		</treerow>	    
 			  <treechildren>
-			    <treeitem command="mantleXulHandler.loadSecurityPanel()">
-	    		  <treerow>
-					<treecell label="ABS" />
-		  		  </treerow>
+			    	<treeitem command="mantleXulHandler.loadSecurityPanel()">
+	    		  		<treerow>
+						<treecell label="ABS" />
+		  			</treerow>
 		  		</treeitem>
+	    			<treeitem command="mantleXulHandler.loadAdminContent('http://localhost:8080/pentaho/api/repos/biServerAdmin/resources/securityConfig.html')">
+	  				<treerow>
+	    					<treecell label="LDAP" />
+		  			</treerow>	    
+				</treeitem>
 			  </treechildren>
 			</treeitem>
 			
