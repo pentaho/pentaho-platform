@@ -71,6 +71,9 @@ public class MondrianCatalogRepositoryHelper {
     for (RepositoryFile repoFile : repository.getChildren(catalogFolder.getId())) {
       RepositoryFileInputStream is;
       try {
+        if (repoFile.getName().equals("metadata")) {
+          continue;
+        }
         is = new RepositoryFileInputStream(repoFile);
       } catch (Exception e) {
         return null;  // This pretty much ensures an exception will be thrown later and passed to the client
