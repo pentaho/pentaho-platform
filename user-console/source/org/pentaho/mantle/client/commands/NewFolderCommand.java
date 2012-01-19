@@ -33,6 +33,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.http.client.URL;
 
 public class NewFolderCommand extends AbstractCommand {
 
@@ -71,7 +72,7 @@ public class NewFolderCommand extends AbstractCommand {
       }
 
       public void okPressed() {
-        String createDirUrl = contextURL + "api/repo/dirs/" + SolutionBrowserPanel.pathToId(parentFolder.getPath() + "/" + folderNameTextBox.getText()); //$NON-NLS-1$
+        String createDirUrl = contextURL + "api/repo/dirs/" + SolutionBrowserPanel.pathToId(parentFolder.getPath() + "/" + URL.encodeComponent(folderNameTextBox.getText())); //$NON-NLS-1$
         RequestBuilder createDirRequestBuilder = new RequestBuilder(RequestBuilder.PUT, createDirUrl);
 
         try {
