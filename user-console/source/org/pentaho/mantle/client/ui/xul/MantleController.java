@@ -17,9 +17,16 @@
  */
 package org.pentaho.mantle.client.ui.xul;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
+import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.admin.ISysAdminPanel;
+import org.pentaho.mantle.client.admin.JsSysAdminPanel;
+import org.pentaho.mantle.client.admin.SecurityPanel;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
@@ -40,8 +47,10 @@ import org.pentaho.ui.xul.stereotype.Bindable;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.Widget;
 
 public class MantleController extends AbstractXulEventHandler {
 
@@ -66,6 +75,8 @@ public class MantleController extends AbstractXulEventHandler {
   private XulMenubar languageMenu;
   private XulMenubar themesMenu;
   private XulMenubar toolsMenu;
+  
+  HashMap<String, ISysAdminPanel> sysAdminPanelsMap = new HashMap<String, ISysAdminPanel>();
 
   public MantleController(MantleModel model) {
     this.model = model;
@@ -181,8 +192,15 @@ public class MantleController extends AbstractXulEventHandler {
     $wnd.mantle_removeOverlay = function(id) { 
       controller.@org.pentaho.mantle.client.ui.xul.MantleController::removeOverlay(Ljava/lang/String;)(id);      
     }    
+    $wnd.mantle_registerSysAdminPanel = function(sysAdminPanel) { 
+      controller.@org.pentaho.mantle.client.ui.xul.MantleController::registerSysAdminPanel(Lorg/pentaho/mantle/client/admin/JsSysAdminPanel;)(sysAdminPanel);      
+    } 
   }-*/;
 
+  public void registerSysAdminPanel(JsSysAdminPanel sysAdminPanel) {
+    sysAdminPanelsMap.put(sysAdminPanel.getId(), sysAdminPanel);
+  }
+  
   public boolean isToolbarButtonEnabled(String id) {
     XulToolbarbutton button = (XulToolbarbutton) document.getElementById(id);
     return !button.isDisabled();
@@ -281,14 +299,56 @@ public class MantleController extends AbstractXulEventHandler {
     }
   }-*/;
 
+  private boolean passivateActivateSecurityPanels(final String idOfSecurityPanelToBeActivated) {
+    Widget widget = null;
+    int visiblePanelIndex = MantleXul.getInstance().getAdminContentDeck().getVisibleWidget();
+    if (visiblePanelIndex >= 0) {
+      String visiblePanelId = MantleXul.getInstance().getAdminContentDeck().getWidget(visiblePanelIndex).getElement().getId();
+      if ((visiblePanelId != null) && !visiblePanelId.equals(idOfSecurityPanelToBeActivated)) {
+        ISysAdminPanel sysAdminPanel = sysAdminPanelsMap.get(visiblePanelId);
+        if (sysAdminPanel != null) {
+          if (!sysAdminPanel.passivate()) {
+            return false;
+          }
+        }
+      } else {
+        return false;
+      }
+    }
+    
+    for (int i = 0; i <MantleXul.getInstance().getAdminContentDeck().getWidgetCount(); i++) {
+      Widget w = MantleXul.getInstance().getAdminContentDeck().getWidget(i);
+      if (idOfSecurityPanelToBeActivated.equals(w.getElement().getId())) {
+        widget = w;
+      }
+    }
+        
+    if (widget != null) {
+      ISysAdminPanel sysAdminPanel = sysAdminPanelsMap.get(idOfSecurityPanelToBeActivated);
+      if (sysAdminPanel != null) {
+        sysAdminPanel.activate();
+      }
+    }
+    return true;
+  }
+  
   @Bindable
-  public void loadAdminContent(final String url) {
-    model.loadAdminContent(url);
+  public void loadAdminContent(final String securityPanelId, final String url) {
+    if (passivateActivateSecurityPanels(securityPanelId)) {
+      model.loadAdminContent(securityPanelId, url);
+    }
   }
   
   @Bindable
   public void loadSecurityPanel() {
-    model.loadSecurityPanel();
+    String securityPanelId = ((SecurityPanel)MantleXul.getInstance().getSecurityPanel()).getId();
+    if (!sysAdminPanelsMap.containsKey(securityPanelId)) {
+      sysAdminPanelsMap.put(securityPanelId, (SecurityPanel)MantleXul.getInstance().getSecurityPanel());
+    }
+    if (passivateActivateSecurityPanels(securityPanelId)) {
+      model.loadSecurityPanel();
+      MantleXul.getInstance().getSecurityPanel().getElement().setId(((SecurityPanel)MantleXul.getInstance().getSecurityPanel()).getId());
+    }
   }
   
   @Bindable

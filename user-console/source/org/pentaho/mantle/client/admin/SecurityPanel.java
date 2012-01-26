@@ -9,12 +9,9 @@ import java.util.Map;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.scheduling.NewScheduleDialog;
-import org.pentaho.mantle.client.workspace.JsJob;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -31,20 +28,20 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueChangeHandler<Boolean>, ClickHandler {
+public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueChangeHandler<Boolean>, ClickHandler, ISysAdminPanel {
 
   class LogicalRoleInfo {
     String roleName;
@@ -340,6 +337,17 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
     if (event.getSource() == saveButton) {
       saveSecuritySettings();
     }
+  }
+
+  public void activate() {
+  }
+
+  public String getId() {
+    return "actionBasedSecurityAdminPanel";
+  }
+
+  public boolean passivate() {
+    return true;
   }
 
 }

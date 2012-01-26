@@ -29,8 +29,8 @@ import org.pentaho.mantle.client.commands.SaveCommand;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
@@ -154,19 +154,18 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   }
 
   @Bindable
-  public void loadAdminContent(final String url) {
-    final String id = url;
+  public void loadAdminContent(final String securityPanelId, final String url) {
     // hijack content area (or simply find and select existing content)
     Frame frame = null;
     for (int i = 0; i <MantleXul.getInstance().getAdminContentDeck().getWidgetCount(); i++) {
       Widget w = MantleXul.getInstance().getAdminContentDeck().getWidget(i);
-      if (w instanceof Frame && id.equals(w.getElement().getId())) {
+      if (w instanceof Frame && securityPanelId.equals(w.getElement().getId())) {
         frame = (Frame) w;
       }
     }
     if (frame == null) {
       frame = new Frame(url);
-      frame.getElement().setId(id);
+      frame.getElement().setId(securityPanelId);
       MantleXul.getInstance().getAdminContentDeck().add(frame);
     }
     MantleXul.getInstance().getAdminContentDeck().showWidget(MantleXul.getInstance().getAdminContentDeck().getWidgetIndex(frame));

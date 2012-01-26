@@ -84,7 +84,7 @@
   
 		<treechildren id="adminCatTreeChildren">
 		
-	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('http://www.pentaho.com')">
+	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('adminHomePanel', 'http://www.pentaho.com')">
 	  			<treerow>
 	    			<treecell label="Home" />
 		  		</treerow>	    
@@ -112,7 +112,7 @@
 						<treecell label="ABS" />
 		  			</treerow>
 		  		</treeitem>
-	    			<treeitem command="mantleXulHandler.loadAdminContent('http://localhost:8080/pentaho/api/repos/biServerAdmin/resources/securityConfig.html')">
+	    			<treeitem command="mantleXulHandler.loadAdminContent('ldapSecurityAdminPanel', 'http://localhost:8080/pentaho/api/repos/biServerAdmin/resources/securityConfig.html')">
 	  				<treerow>
 	    					<treecell label="LDAP" />
 		  			</treerow>	    
@@ -120,7 +120,7 @@
 			  </treechildren>
 			</treeitem>
 			
-	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('http://wiki.pentaho.com/display/COM/Community+Wiki+Home')">
+	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('adminHelpPanel', 'http://wiki.pentaho.com/display/COM/Community+Wiki+Home')">
 	  			<treerow>
 	    			<treecell label="Help" />
 		  		</treerow>	    
