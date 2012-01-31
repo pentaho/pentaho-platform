@@ -394,7 +394,7 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
           callback.onSuccess(true);
         }
       });
-      dialog.show();
+      dialog.center();
     } else {
       callback.onSuccess(true);
     }
