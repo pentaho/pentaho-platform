@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.pentaho.gwt.widgets.client.dialogs.IThreeButtonDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
@@ -28,7 +30,7 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -96,8 +98,10 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
     securityPanel.getFlexCellFormatter().setVerticalAlignment(2, 0, HasVerticalAlignment.ALIGN_TOP);
     
     setWidget(securityPanel);
+    
     initializeAvailUserRoles();
     initializeLogicalRoleMappings();
+
   }
 
   private ListBox createRolesListBox() {
@@ -159,13 +163,14 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {           
             JsLogicalRoleMap logicalRoleMap = (JsLogicalRoleMap)parseRoleMappings(JsonUtils.escapeJsonForEval(response.getText()));
-            ArrayList<String> roleNames = new ArrayList<String>(); 
-            for (int i = 0; i < logicalRoleMap.getLogicalRoles().length(); i++) {
-              
-              CheckBox permCB = new CheckBox(logicalRoleMap.getLogicalRoles().get(i).getLocalizedName());         
-              permCB.addValueChangeHandler(SecurityPanel.this);
-              permissionPanel.add(permCB);
-              logicalRoles.put(logicalRoleMap.getLogicalRoles().get(i).getLocalizedName(), new LogicalRoleInfo(logicalRoleMap.getLogicalRoles().get(i).getRoleName(), permCB) );
+            if (logicalRoles.size() == 0) {
+              for (int i = 0; i < logicalRoleMap.getLogicalRoles().length(); i++) {
+                
+                CheckBox permCB = new CheckBox(logicalRoleMap.getLogicalRoles().get(i).getLocalizedName());         
+                permCB.addValueChangeHandler(SecurityPanel.this);
+                permissionPanel.add(permCB);
+                logicalRoles.put(logicalRoleMap.getLogicalRoles().get(i).getLocalizedName(), new LogicalRoleInfo(logicalRoleMap.getLogicalRoles().get(i).getRoleName(), permCB) );
+              }
             }
             for (int j = 0; j < logicalRoleMap.getRoleAssignments().length(); j++) {
               String roleName = logicalRoleMap.getRoleAssignments().get(j).getRoleName();
@@ -269,7 +274,7 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
     return obj;
   }-*/;
   
-  private void saveSecuritySettings() {
+  private void saveSecuritySettings(final AsyncCallback<Boolean> callback) {
     JSONObject jsNewRoleAssignments = new JSONObject();
     JSONArray jsLogicalRoleAssignments = new JSONArray();
     int x = 0;
@@ -285,36 +290,34 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
       jsLogicalRoleAssignments.set(x++, jsRoleAssignment);
     }   
     jsNewRoleAssignments.put("logicalRoleAssignments", jsLogicalRoleAssignments);    
-    RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.PUT, contextURL + "api/userrole/roleAssignments");
-    scheduleFileRequestBuilder.setHeader("Content-Type", "application/json");  //$NON-NLS-1$//$NON-NLS-2$
+    RequestBuilder saveSettingRequestBuilder = new RequestBuilder(RequestBuilder.PUT, contextURL + "api/userrole/roleAssignments");
+    saveSettingRequestBuilder.setHeader("Content-Type", "application/json");  //$NON-NLS-1$//$NON-NLS-2$
+    WaitPopup.getInstance().setVisible(true);
     try {
-      scheduleFileRequestBuilder.sendRequest(jsNewRoleAssignments.toString(), new RequestCallback() {
+      saveSettingRequestBuilder.sendRequest(jsNewRoleAssignments.toString(), new RequestCallback() {
 
         @Override
         public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
-          dialogBox.center();
+          WaitPopup.getInstance().setVisible(false);
+          callback.onFailure(exception);
         }
 
         @Override
         public void onResponseReceived(Request request, Response response) {
+          WaitPopup.getInstance().setVisible(false);
           if (response.getStatusCode() == 200) {
-            MessageDialogBox dialogBox = new MessageDialogBox("ABS", "Role Mappings Saved", //$NON-NLS-1$ //$NON-NLS-2$
-                false, false, true);
-            dialogBox.center();
-
+            masterRoleMap.putAll(newRoleAssignments);
+            newRoleAssignments.clear();
+            callback.onSuccess(true);
           } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
-                false, false, true);
-            dialogBox.center();
+            callback.onSuccess(false);
           }                
         }
         
       });
     } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
-          false, false, true);
-      dialogBox.center();
+      WaitPopup.getInstance().setVisible(false);
+      callback.onFailure(e);
     }
   }
   
@@ -335,19 +338,66 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
   
   public void onClick(ClickEvent event) {
     if (event.getSource() == saveButton) {
-      saveSecuritySettings();
+      saveSecuritySettings(new AsyncCallback<Boolean>() {
+
+        public void onFailure(Throwable caught) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), caught.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+        }
+
+        public void onSuccess(Boolean result) {
+          if (result) {
+            MessageDialogBox dialogBox = new MessageDialogBox("ABS", "Role Mappings Saved", //$NON-NLS-1$ //$NON-NLS-2$
+                false, false, true);
+            dialogBox.center();
+          } else {
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), "Unable to save changes. Check server log for errors.", //$NON-NLS-1$ //$NON-NLS-2$
+                false, false, true);
+            dialogBox.center();
+          }
+        }
+      });
     }
   }
 
   public void activate() {
+    masterRoleMap.clear();
+    newRoleAssignments.clear();
+    rolesListBox.clear();
+    userRoles.clear();
+    for (LogicalRoleInfo logicalRoleInfo : logicalRoles.values()) {
+      logicalRoleInfo.checkBox.setValue(false);
+    }
+    initializeAvailUserRoles();
+    initializeLogicalRoleMappings();
   }
 
   public String getId() {
     return "actionBasedSecurityAdminPanel";
   }
 
-  public boolean passivate() {
-    return true;
+  
+  public void passivate(final AsyncCallback<Boolean> callback) {
+    if (newRoleAssignments.size() > 0) {
+      MessageDialogBox dialog = new MessageDialogBox("ABS", "Save changes? Choosing \"No\" will result is the loss of changes made.", false, true, true, "Yes", "No", "Cancel");
+      dialog.setCallback(new IThreeButtonDialogCallback() {
+        
+        public void okPressed() {
+          saveSecuritySettings(callback);
+        }
+        
+        public void cancelPressed() {
+          callback.onSuccess(false);
+        }
+        
+        public void notOkPressed() {
+          callback.onSuccess(true);
+        }
+      });
+      dialog.show();
+    } else {
+      callback.onSuccess(true);
+    }
   }
 
 }
