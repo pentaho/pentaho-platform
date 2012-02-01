@@ -21,6 +21,7 @@ import org.pentaho.gwt.widgets.client.filechooser.FileChooserDialog;
 import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
@@ -54,6 +55,7 @@ public class OpenFileCommand extends AbstractCommand {
       public void onSuccess(RepositoryFileTree tree) {
         // TODO Uncomment the line below and delete the line after that once gwtwidets have been branched
         final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.OPEN, lastPath, tree, false, true);
+        dialog.setSubmitOnEnter(MantleApplication.submitOnEnter);
         dialog.addFileChooserListener(new FileChooserListener() {
 
           public void dialogCanceled(){

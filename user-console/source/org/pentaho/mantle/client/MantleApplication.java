@@ -62,6 +62,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   public static boolean showAdvancedFeatures = false;
 
   public static String mantleRevisionOverride = null;
+  public static boolean submitOnEnter = true;
 
   private CommandExec commandExec = GWT.create(CommandExec.class);
 
@@ -198,6 +199,9 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     RootPanel.get().add(overlayPanel, 0, 0);
 
     showAdvancedFeatures = "true".equals(settings.get("show-advanced-features")); //$NON-NLS-1$ //$NON-NLS-2$
+
+    String submitOnEnterSetting = settings.get("submit-on-enter-key");
+    submitOnEnter = submitOnEnterSetting == null ? true : Boolean.parseBoolean(submitOnEnterSetting);
 
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();

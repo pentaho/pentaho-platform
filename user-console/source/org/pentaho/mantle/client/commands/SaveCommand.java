@@ -24,6 +24,7 @@ import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
@@ -68,6 +69,7 @@ public class SaveCommand extends AbstractCommand {
       public void onSuccess(RepositoryFileTree tree) {
         if (isSaveAs || name == null) {
           final FileChooserDialog dialog = new FileChooserDialog(FileChooserMode.SAVE, "", tree, false, true, Messages.getString("save"), Messages.getString("save")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          dialog.setSubmitOnEnter(MantleApplication.submitOnEnter);
           if (isSaveAs) {
             dialog.setTitle(Messages.getString("saveAs")); //$NON-NLS-1$
             dialog.setText(Messages.getString("saveAs")); //$NON-NLS-1$

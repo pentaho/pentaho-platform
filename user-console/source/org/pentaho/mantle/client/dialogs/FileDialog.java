@@ -26,6 +26,7 @@ import org.pentaho.gwt.widgets.client.filechooser.FileChooserListener;
 import org.pentaho.gwt.widgets.client.filechooser.FileFilter;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
+import org.pentaho.mantle.client.MantleApplication;
 
 /*
  * Convenience class for showing FileChooserDialog while maintaining a last browsed location.
@@ -64,6 +65,7 @@ public class FileDialog {
       }
 
     };
+    dialog.setSubmitOnEnter(MantleApplication.submitOnEnter);
     dialog.addFileChooserListener(new FileChooserListener() {
 
       public void fileSelected(RepositoryFile file, String filePath, String fileName, String title) {
