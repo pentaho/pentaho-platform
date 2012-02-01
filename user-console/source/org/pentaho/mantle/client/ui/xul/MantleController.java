@@ -222,23 +222,18 @@ public class MantleController extends AbstractXulEventHandler {
   
   public void activateWaitingSecurityPanel(boolean activate) {
     if (activate && (adminPanelAwaitingActivation != null)) {
-      String securityPanelId = ((SecurityPanel)MantleXul.getInstance().getSecurityPanel()).getId();
-      Widget widget = null;
       for (int i = 0; i <MantleXul.getInstance().getAdminContentDeck().getWidgetCount(); i++) {
         Widget w = MantleXul.getInstance().getAdminContentDeck().getWidget(i);
-        if (securityPanelId.equals(w.getElement().getId())) {
-          widget = w;
+        if (adminPanelAwaitingActivation.id.equals(w.getElement().getId())) {
+          ISysAdminPanel sysAdminPanel = sysAdminPanelsMap.get(adminPanelAwaitingActivation.id);
+          if (sysAdminPanel != null) {
+            sysAdminPanel.activate();
+          }
+          break;
         }
       }
           
-      if (widget != null) {
-        ISysAdminPanel sysAdminPanel = sysAdminPanelsMap.get(securityPanelId);
-        if (sysAdminPanel != null) {
-          sysAdminPanel.activate();
-        }
-      }
-      
-      if (securityPanelId.equals(adminPanelAwaitingActivation.id)) {
+      if (((SecurityPanel)MantleXul.getInstance().getSecurityPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
         model.loadSecurityPanel();
         MantleXul.getInstance().getSecurityPanel().getElement().setId(((SecurityPanel)MantleXul.getInstance().getSecurityPanel()).getId());
       } else {
