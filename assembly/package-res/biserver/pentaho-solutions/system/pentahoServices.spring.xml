@@ -56,6 +56,9 @@
   <bean id="ws-gwt-unifiedRepository"
         class="org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService"/>
 
+  <!-- Jersey JAXB Context Resolver (fixes 1-element array) -->
+  <bean class="org.pentaho.platform.web.http.api.resources.JAXBContextResolver"/> 
+
   <!-- JAX-RS beans -->
   <bean class="org.pentaho.platform.web.http.api.resources.RootResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.DirectoryResource" scope="request"/>
