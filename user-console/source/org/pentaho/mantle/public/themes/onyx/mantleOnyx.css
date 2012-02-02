@@ -388,11 +388,6 @@ a:active, a:hover {
   overflow: hidden;
 }
 
-.gwt-ScrollTable .dataTable td {
-  font-weight: normal;
-  font-size: .8em;
-}
-
 .gwt-Frame {
   border: none;
   overflow:visible; 
