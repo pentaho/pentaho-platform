@@ -178,8 +178,9 @@
 }
 
 .mantle-default-tab-background {
-	background-color: white;
+	background-color: transparent;
 }
+
 
 .mainToolbar {
   background-image: url(../../toolbar_bg.png);
