@@ -23,6 +23,7 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Timer;
 
 public class AnalysisViewCommand extends AbstractCommand {
@@ -49,8 +50,12 @@ public class AnalysisViewCommand extends AbstractCommand {
           @Override
           public void run() {
             String actionName = System.currentTimeMillis() + ".analysisview.xaction"; //$NON-NLS-1$
-            String newAnalysisViewURL = "AnalysisViewService?component=createNewView&name=" + actionName + "&descr=" + actionName + "&actionName=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                + actionName + "&textfield=&schema=" + analysisDialog.getSchema() + "&cube=" + analysisDialog.getCube() + "&solution=system&actionPath=tmp"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            String newAnalysisViewURL = "AnalysisViewService?component=createNewView&name=" + //$NON-NLS-1$ 
+              URL.encodeComponent(actionName) + "&descr=" + //$NON-NLS-1$
+              URL.encodeComponent(actionName) + "&actionName=" + //$NON-NLS-1$ 
+              URL.encodeComponent(actionName) + "&textfield=&schema=" + //$NON-NLS-1$
+              URL.encodeComponent(analysisDialog.getSchema()) + "&cube=" + //$NON-NLS-1$
+              URL.encodeComponent(analysisDialog.getCube()) + "&solution=system&actionPath=tmp"; //$NON-NLS-1$ 
             navigatorPerspective.getContentTabPanel().showNewURLTab(
                 Messages.getString("newAnalysisView"), Messages.getString("newAnalysisView"), newAnalysisViewURL, false); //$NON-NLS-1$ //$NON-NLS-2$
 
