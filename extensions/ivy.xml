@@ -27,6 +27,9 @@
     <dependency org="commons-lang" name="commons-lang" rev="2.4" transitive="false"/>
     <dependency org="commons-vfs" name="commons-vfs" rev="1.0" transitive="false"/>
 
+    <dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"/>
+    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"/>
+
     <!--  compile time batik -->
     <dependency org="batik" name="batik-awt-util" rev="1.6" transitive="false"/>
     <dependency org="batik" name="batik-dom" rev="1.6" transitive="false"/>
@@ -76,14 +79,14 @@
 
 
     <!-- Hibernate and dependencies -->
-    <dependency org="org.hibernate" name="hibernate" rev="3.2.6.ga" transitive="false"/>
+    <dependency org="org.hibernate" name="hibernate" rev="3.6.9" transitive="false"/>
     <dependency org="antlr" name="antlr" rev="2.7.6" transitive="false"/>
     <dependency org="asm" name="asm" rev="1.5.3" transitive="false"/>
     <dependency org="asm" name="asm-attrs" rev="1.5.3" transitive="false"/>
-    <dependency org="javax.transaction" name="jta" rev="1.0.1B" transitive="false"/>
+    <dependency org="javax.transaction" name="jta" rev="1.1" transitive="false"/>
     <dependency org="net.sf.ehcache" name="ehcache" rev="1.2.3" transitive="false"/>
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="2.0.1" transitive="false"/>
-    <dependency org="cglib" name="cglib-nodep" rev="2.1_3" transitive="false"/>
+    <dependency org="cglib" name="cglib-nodep" rev="2.2" transitive="false"/>
 
     <dependency org="org.apache.axis2" name="axis2-adb" rev="1.4.1" transitive="false"/>
     <dependency org="org.apache.axis2" name="axis2-codegen" rev="1.4.1" transitive="false"/>
@@ -200,7 +203,8 @@
     <dependency org="feed4j" name="feed4j" rev="1.0" conf="default->default" transitive="false"/>
     <dependency org="net.sourceforge.nekohtml" name="nekohtml" rev="0.9.5" conf="default->default" transitive="false"/>
     <dependency org="janino" name="janino" rev="2.5.16" conf="default->default" transitive="false"/>
-    <dependency org="javassist" name="javassist" rev="3.4.GA" conf="default->default" transitive="false"/>
+    <!-- java assist version 3.12.GA for hibernate 3.6.9 -->
+    <dependency org="javassist" name="javassist" rev="3.12.GA" conf="default->default" transitive="false"/>
     <dependency org="org.scannotation" name="scannotation" rev="1.0.2" conf="default->default" transitive="false"/>
     <dependency org="org.syslog4j" name="syslog4j" rev="0.9.34" conf="default->default" transitive="false"/>
     <dependency org="ldapjdk" name="ldapjdk" rev="20000524" conf="default->default" transitive="false"/>
@@ -349,7 +353,6 @@
                 transitive="false" conf="test->default"/>
     <dependency org="org.apache.directory.server" name="apacheds-core" rev="1.0.2" conf="test->default"/>
     <dependency org="org.apache.directory.server" name="apacheds-server-jndi" rev="1.0.2" conf="test->default"/>
-    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.8" conf="test->default"/>
     <!-- end security test dependencies -->
 
     <dependency org="com.sun.jersey.jersey-test-framework" name="jersey-test-framework-core" rev="1.5"
