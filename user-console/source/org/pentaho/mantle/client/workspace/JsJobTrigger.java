@@ -128,15 +128,7 @@ public class JsJobTrigger extends JavaScriptObject {
   
   public final native int[] getDayOfWeekRecurrences()
   /*-{ 
-    var arr = [];
-    if (this.dayOfWeekRecurrences != null && this.dayOfWeekRecurrences.recurrenceList != null) {
-      if (this.dayOfWeekRecurrences.recurrenceList.values.constructor.toString().indexOf("Array") == -1) {
-        arr.push(this.dayOfWeekRecurrences.recurrenceList.values);
-      } else {
-        arr = this.dayOfWeekRecurrences.recurrenceList.values; 
-      }
-    }
-    return arr;
+    return this.dayOfWeekRecurrences.recurrenceList.values; 
   }-*/;
 
   public final native void setDayOfWeekRecurrences(JsArrayInteger days)
@@ -189,15 +181,7 @@ public class JsJobTrigger extends JavaScriptObject {
   
   public final native int[] getDayOfMonthRecurrences()
   /*-{ 
-    var arr = [];
-    if (this.dayOfMonthRecurrences != null && this.dayOfMonthRecurrences.recurrenceList != null) {
-      if (this.dayOfMonthRecurrences.recurrenceList.values.constructor.toString().indexOf("Array") == -1) {
-        arr.push(this.dayOfMonthRecurrences.recurrenceList.values);
-      } else {
-        arr = this.dayOfMonthRecurrences.recurrenceList.values; 
-      }
-    }
-    return arr;
+    return this.dayOfMonthRecurrences.recurrenceList.values; 
   }-*/;
 
   public final native void setDayOfMonthRecurrences(JsArrayInteger days)
@@ -213,15 +197,7 @@ public class JsJobTrigger extends JavaScriptObject {
   
   public final native int[] getMonthlyRecurrences()
   /*-{ 
-    var arr = [];
-    if (this.monthlyRecurrences != null && this.monthlyRecurrences.recurrenceList != null) {
-      if (this.monthlyRecurrences.recurrenceList.values.constructor.toString().indexOf("Array") == -1) {
-        arr.push(this.monthlyRecurrences.recurrenceList.values);
-      } else {
-        arr = this.monthlyRecurrences.recurrenceList.values; 
-      }
-    }
-    return arr;
+    return this.monthlyRecurrences.recurrenceList.values; 
   }-*/;
 
   public final native void setMonthlyRecurrences(JsArrayInteger months)
@@ -237,15 +213,7 @@ public class JsJobTrigger extends JavaScriptObject {
 
   public final native int[] getYearlyRecurrences()
   /*-{ 
-  var arr = [];
-  if (this.yearlyRecurrences != null && this.yearlyRecurrences.recurrenceList != null) {
-    if (this.yearlyRecurrences.recurrenceList.values.constructor.toString().indexOf("Array") == -1) {
-      arr.push(this.yearlyRecurrences.recurrenceList.values);
-    } else {
-      arr = this.yearlyRecurrences.recurrenceList.values; 
-    }
-  }
-  return arr;
+    return this.yearlyRecurrences.recurrenceList.values; 
   }-*/;
 
   public final native void setYearlyRecurrences(JsArrayInteger years)

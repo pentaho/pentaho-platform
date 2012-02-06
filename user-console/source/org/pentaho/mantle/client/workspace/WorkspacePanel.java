@@ -769,17 +769,7 @@ public class WorkspacePanel extends SimplePanel {
   private final native JsArray<JsJob> parseJson(String json)
   /*-{
     var obj = eval('(' + json + ')');
-    var arr = [];
-    if (obj == null) {
-      return arr;
-    }
-    if (obj.job.constructor.toString().indexOf("Array") == -1) {
-      arr.push(obj.job);
-    } else {
-      arr = obj.job; 
-    }
-    return arr;
-    //return obj.job;
+    return obj.job;
   }-*/;
 
   public interface CellTableResources extends Resources {
