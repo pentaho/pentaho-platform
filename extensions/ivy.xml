@@ -203,8 +203,8 @@
     <dependency org="feed4j" name="feed4j" rev="1.0" conf="default->default" transitive="false"/>
     <dependency org="net.sourceforge.nekohtml" name="nekohtml" rev="0.9.5" conf="default->default" transitive="false"/>
     <dependency org="janino" name="janino" rev="2.5.16" conf="default->default" transitive="false"/>
-    <!-- java assist version 3.12.GA for hibernate 3.6.9 -->
-    <dependency org="javassist" name="javassist" rev="3.12.GA" conf="default->default" transitive="false"/>
+    <!-- java assist version 3.12.1.GA for hibernate 3.6.9 -->
+    <dependency org="javassist" name="javassist" rev="3.12.1.GA" conf="default->default" transitive="false"/>
     <dependency org="org.scannotation" name="scannotation" rev="1.0.2" conf="default->default" transitive="false"/>
     <dependency org="org.syslog4j" name="syslog4j" rev="0.9.34" conf="default->default" transitive="false"/>
     <dependency org="ldapjdk" name="ldapjdk" rev="20000524" conf="default->default" transitive="false"/>
