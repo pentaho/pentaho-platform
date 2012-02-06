@@ -35,6 +35,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.usertype.UserType;
 import org.hibernate.util.EqualsHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.hibernate.HibernateUtil;
 import org.pentaho.platform.repository.messages.Messages;
 
 public class EmptyStringUserType implements UserType {
@@ -114,7 +115,7 @@ public class EmptyStringUserType implements UserType {
       EmptyStringUserType.log.debug(Messages.getInstance().getString("EMPTYSTRTYPE.DEBUG_NULL_SAFE_SET")); //$NON-NLS-1$
     }
     Hibernate.STRING.nullSafeSet(arg0, (arg1 != null) ? ((((String) arg1).length() > 0) ? arg1
-        : EmptyStringUserType.PENTAHOEMPTY) : arg1, arg2);
+        : EmptyStringUserType.PENTAHOEMPTY) : arg1, arg2, null);
   }
 
   /*
