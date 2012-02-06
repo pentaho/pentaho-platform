@@ -88,7 +88,7 @@ public class MondrianCatalogHelperTest {
 	// =================================================================================================
 
 	private MicroPlatform booter;
-
+	private ICacheManager cacheMgr;
 	private IUnifiedRepository repo;
 
 	@BeforeClass
@@ -115,12 +115,13 @@ public class MondrianCatalogHelperTest {
 		booter.start();
 
 		// Clear up the cache
-		final ICacheManager cacheMgr = PentahoSystem.getCacheManager(null);
+		cacheMgr = PentahoSystem.getCacheManager(null);
 		cacheMgr.clearRegionCache(MondrianCatalogHelper.MONDRIAN_CATALOG_CACHE_REGION);
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		cacheMgr.cacheStop();
 	}
 
 	@Test
