@@ -34,7 +34,7 @@
 		<dependency org="org.springframework.security" name="spring-security-core" rev="2.0.5.RELEASE" transitive="false"/>
         <dependency org="org.springframework.ldap" name="spring-ldap-core" rev="1.3.0.RELEASE" transitive="false" />
 		<!-- Hibernate and dependencies -->
-    	<dependency org="org.hibernate" name="hibernate" rev="3.6.9">
+    	<dependency org="org.hibernate" name="hibernate-core" rev="3.6.9.Final">
       		<!--
         		include these jars, needed for unit tests. child projects may choose to exclude these, if deploying to an app
         		server, etc. <exclude org="net.sf.ehcache" name="ehcache" /> <exclude org="asm" name="asm" /> <exclude org="asm"
