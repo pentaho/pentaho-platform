@@ -61,9 +61,12 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.sun.jersey.test.framework.AppDescriptor;
 import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
+import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
 import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
+import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
 
 @SuppressWarnings("nls")
 public class RepositoryResourceTest extends JerseyTest {
@@ -77,11 +80,19 @@ public class RepositoryResourceTest extends JerseyTest {
   "pentahoRequestContextFilter").build();
 
   public RepositoryResourceTest() throws Exception {
-    super(webAppDescriptor);
-    this.setTestContainerFactory(new GrizzlyTestContainerFactory());
     mp.setFullyQualifiedServerUrl(getBaseURI() + webAppDescriptor.getContextPath() + "/");
   }
 
+  @Override
+  protected AppDescriptor configure() {
+	return webAppDescriptor;
+  }
+
+  @Override
+  protected TestContainerFactory getTestContainerFactory() {
+    return new GrizzlyWebTestContainerFactory();
+  }
+  
   @BeforeClass
   public static void beforeClass() throws Exception {
 //    BasicConfigurator.configure();
