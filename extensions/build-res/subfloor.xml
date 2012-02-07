@@ -1626,7 +1626,7 @@ TYPICAL TARGET SEQUENCE
 
       <formatter type="xml" />
       <test name="${testcase}" todir="${testreports.xml.dir}" if="testcase" />
-      <batchtest todir="${testreports.xml.dir}" unless="testcase">
+      <batchtest fork="true" todir="${testreports.xml.dir}" unless="testcase">
         <fileset dir="${testsrc.dir}" casesensitive="yes">
           <include name="**/*Test.java" />
         </fileset>
