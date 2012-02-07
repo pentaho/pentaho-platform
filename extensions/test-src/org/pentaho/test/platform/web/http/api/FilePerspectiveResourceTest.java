@@ -8,8 +8,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
 
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -52,9 +52,12 @@ import org.tuckey.web.filters.urlrewrite.RequestProxy;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.test.framework.AppDescriptor;
 import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
+import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
 import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
+import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
 
 @SuppressWarnings("nls")
 public class FilePerspectiveResourceTest extends JerseyTest {
@@ -66,13 +69,22 @@ public class FilePerspectiveResourceTest extends JerseyTest {
       "pentahoRequestContextFilter").build();
 
   public FilePerspectiveResourceTest() throws Exception {
-    super(webAppDescriptor);
     this.setTestContainerFactory(new GrizzlyTestContainerFactory());
     mp.setFullyQualifiedServerUrl(getBaseURI() + webAppDescriptor.getContextPath() + "/");
     mp.define(IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL);
     mp.define(IPluginResourceLoader.class, PluginResourceLoader.class, Scope.GLOBAL);
   }
 
+  @Override
+  protected AppDescriptor configure() {
+    return webAppDescriptor;
+  }
+  
+  @Override
+  protected TestContainerFactory getTestContainerFactory() {
+    return new GrizzlyWebTestContainerFactory();
+  }
+  
   @BeforeClass
   public static void beforeClass() throws Exception {
     BasicConfigurator.configure();
