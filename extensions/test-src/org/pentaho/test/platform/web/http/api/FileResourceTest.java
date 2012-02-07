@@ -15,10 +15,11 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeAcl;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
 import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
 import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponseIsZip;
-
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
@@ -56,9 +57,12 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.test.framework.AppDescriptor;
 import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
+import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
 import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
+import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
 
 @SuppressWarnings("nls")
 public class FileResourceTest extends JerseyTest {
@@ -68,11 +72,19 @@ public class FileResourceTest extends JerseyTest {
   private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder("org.pentaho.platform.web.http.api.resources").contextPath("api").build();
 
   public FileResourceTest() throws Exception {
-    super(webAppDescriptor);
+    super();
     this.setTestContainerFactory(new GrizzlyTestContainerFactory());
     mp.setFullyQualifiedServerUrl(getBaseURI() + webAppDescriptor.getContextPath() + "/");
   }
 
+  protected AppDescriptor configure() {
+    return webAppDescriptor;
+  }
+  
+  protected TestContainerFactory getTestContainerFactory() {
+    return new GrizzlyWebTestContainerFactory();
+  }
+	
   @BeforeClass
   public static void beforeClass() throws Exception {
     PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
