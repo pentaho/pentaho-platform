@@ -81,6 +81,7 @@
 
     <!-- Hibernate and dependencies -->
     <dependency org="org.hibernate" name="hibernate-core" rev="3.6.9.Final" transitive="false"/>
+    <dependency org="org.hibernate" name="hibernate-c3p0" rev="3.6.9.Final" transitive="false"/>
     <dependency org="antlr" name="antlr" rev="2.7.6" transitive="false"/>
     <dependency org="asm" name="asm" rev="1.5.3" transitive="false"/>
     <dependency org="asm" name="asm-attrs" rev="1.5.3" transitive="false"/>
