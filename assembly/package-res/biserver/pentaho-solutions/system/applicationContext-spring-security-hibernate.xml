@@ -80,7 +80,7 @@
         <prop key="hibernate.connection.password">${jdbc.password}</prop>
         <prop key="hibernate.dialect">${hibernate.dialect}</prop>
         <prop key="hibernate.hbm2ddl.auto">update</prop>
-        <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+        <prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</prop>
         <prop key="hibernate.generate_statistics">true</prop>
         <prop key="hibernate.cache.use_query_cache">true</prop>
         <prop key="hibernate.show_sql">false</prop>
