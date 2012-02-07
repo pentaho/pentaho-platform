@@ -49,12 +49,14 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.client.PublisherUtil;
 import org.pentaho.platform.util.messages.LocaleHelper;
+import org.pentaho.platform.web.servlet.messages.Messages;
 
 public class RepositoryFilePublisher extends ServletBase {
 
   private static final long serialVersionUID = 9019152264205996418L;
 
   private static final Log logger = LogFactory.getLog(RepositoryFilePublisher.class);
+  private static final long DEFAULT_MAX_FILE_SIZE = 10000000;
 
   /**
    * Provides utility methods for publishing solution files to the pentaho server.
@@ -114,7 +116,16 @@ public class RepositoryFilePublisher extends ServletBase {
   protected List<FileItem> getFileItems(final HttpServletRequest request) throws FileUploadException {
     ServletFileUpload fu = new ServletFileUpload(new DiskFileItemFactory());
     // If file size exceeds, a FileUploadException will be thrown
-    fu.setSizeMax(10000000);
+    // fu.setSizeMax(10000000);
+    
+    long sizeLimit = DEFAULT_MAX_FILE_SIZE;
+    String maxFileSizeString = PentahoSystem.getSystemSetting("file-upload-defaults/max-file-limit", String.valueOf(DEFAULT_MAX_FILE_SIZE)); //$NON-NLS-1$
+    try {
+       sizeLimit = Long.parseLong(maxFileSizeString);
+    } catch (Exception mostlyIgnored) {
+      logger.error(Messages.getInstance().getErrorString("RepositoryFilePublisher.ERROR_0001_INVALID_MAX_FILE_SIZE")); //$NON-NLS-1$
+    }
+    fu.setSizeMax(sizeLimit);
     return fu.parseRequest(request);
   }
 
