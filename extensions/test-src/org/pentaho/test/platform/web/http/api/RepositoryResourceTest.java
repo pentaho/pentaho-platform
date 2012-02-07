@@ -65,7 +65,6 @@ import com.sun.jersey.test.framework.AppDescriptor;
 import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
 import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
-import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
 import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
 
 @SuppressWarnings("nls")
@@ -332,7 +331,7 @@ public class RepositoryResourceTest extends JerseyTest {
     //get the output of the .xjunit file (should invoke the content generator)
     ClientResponse response = webResource.path("repos/xjunit/report").accept("application/pdf").get(ClientResponse.class);
 
-    assertResponse(response, ClientResponse.Status.OK, "application/pdf;charset=UTF-8");
+    assertResponse(response, ClientResponse.Status.OK, "application/pdf; charset=UTF-8");
   }
   
   @Test
