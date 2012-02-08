@@ -108,6 +108,7 @@
     <exclude org="com.google.gwt"  module="gwt-user" />
     <exclude org="com.google.gwt"  module="gwt-dev" />
     <exclude org="commons-logging" module="commons-logging-api" />
+    <exclude org="javax.validation" module="validation-api" />
     <!-- remove ehcache artifact and keep ehcache-core artifact -->
     <exclude org="net.sf.ehcache"  module="ehcache" />
     <!-- CM-241 -->
