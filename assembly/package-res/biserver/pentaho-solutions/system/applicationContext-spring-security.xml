@@ -28,6 +28,7 @@
 		<property name="providers">
 			<list>
 				<ref bean="authenticationProvider" />
+				<ref bean="superAuthenticationProvider" />
 				<ref local="anonymousAuthenticationProvider" />
 			</list>
 		</property>

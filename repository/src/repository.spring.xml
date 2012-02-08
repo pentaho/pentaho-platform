@@ -137,6 +137,10 @@
     <constructor-arg value="Admin"/>
   </bean>
 
+  <bean id="superAdminAuthorityName" class="java.lang.String">
+    <constructor-arg value="Super"/>
+  </bean>
+
   <!-- Used in code that doesn't use Spring's transaction interception. -->
   <!-- The code sets the propagation behavior to PROPAGATION_REQUIRES_NEW. -->
   <bean id="jcrTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
@@ -392,6 +396,13 @@
     </entry>
     <!-- for single tenant mode -->
     <entry key-ref="singleTenantAdminAuthorityName">
+      <util:list>
+        <value>org.pentaho.di.reader</value>
+        <value>org.pentaho.di.creator</value>
+        <value>org.pentaho.di.securityAdministrator</value>
+      </util:list>
+    </entry>
+    <entry key-ref="superAdminAuthorityName">
       <util:list>
         <value>org.pentaho.di.reader</value>
         <value>org.pentaho.di.creator</value>
