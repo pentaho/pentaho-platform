@@ -5,11 +5,10 @@
 <hibernate-configuration>
   <session-factory>
   
-  	<property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
+  	<property name="cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</property>
 
     <property name="hibernate.generate_statistics">true</property>
     <property name="hibernate.cache.use_query_cache">true</property>
-    <property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
 
     <!--  Oracle 10g Configuration -->
     <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>

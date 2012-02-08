@@ -28,7 +28,7 @@
 	-->
 
         <cache-provider>
-          <class>org.hibernate.cache.EhCacheProvider</class>
+          <class>net.sf.ehcache.hibernate.SingletonEhCacheProvider</class>
           <region>pentahoCache</region>
           <!--
           Uncomment this block to specify some parameters for your cache provider. EHCache has no parameters 
