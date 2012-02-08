@@ -41,14 +41,14 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 
+import org.apache.commons.lang.exception.NestableRuntimeException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.exception.NestableRuntimeException;
 import org.pentaho.platform.api.engine.IContentListener;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.output.BufferedContentItem;
-import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.engine.services.outputhandler.BaseOutputHandler;
+import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
