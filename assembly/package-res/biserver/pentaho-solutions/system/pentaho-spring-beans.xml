@@ -9,13 +9,14 @@
   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location" value="biserver.properties" />
   </bean>
-
+  
   <import resource="pentahoSystemConfig.xml" />
   <import resource="adminPlugins.xml" />
   <import resource="systemListeners.xml" />
   <import resource="sessionStartupActions.xml" />
   <import resource="repository.spring.xml" />
   <import resource="applicationContext-spring-security.xml" />
+  <import resource="applicationContext-spring-security-superuser.xml" />
   <import resource="applicationContext-common-authorization.xml" />
   <import resource="applicationContext-spring-security-hibernate.xml" />
   <import resource="applicationContext-pentaho-security-hibernate.xml" />
