@@ -109,6 +109,8 @@
     <exclude org="com.google.gwt"  module="gwt-dev" />
     <exclude org="commons-logging" module="commons-logging-api" />
     <exclude org="javax.validation" module="validation-api" />
+    <!-- since we depend on reporting 3.8, we can't fix this until 4.5 platform is out the door -->
+    <exclude org="org.hibernate" module="hibernate" />
     <!-- remove ehcache artifact and keep ehcache-core artifact -->
     <exclude org="net.sf.ehcache"  module="ehcache" />
     <!-- CM-241 -->
