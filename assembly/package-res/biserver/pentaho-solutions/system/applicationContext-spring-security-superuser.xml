@@ -22,13 +22,13 @@
 		class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
 		<property name="userMap">
 			<value>
-				<![CDATA[pentahosuper=password,Super,Admin,Authenticated]]>
+				<![CDATA[pentahosuper=5f4dcc3b5aa765d61d8327deb882cf99,Super,Admin,Authenticated]]>
 			</value>
 		</property>
 	</bean>
 
 
 	<bean id="superPasswordEncoder"
-		class="org.springframework.security.providers.encoding.PlaintextPasswordEncoder" />
+		class="org.springframework.security.providers.encoding.Md5PasswordEncoder" />
 
 </beans>
