@@ -24,7 +24,9 @@ package org.pentaho.platform.web.http.api.resources;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.repository2.unified.importexport.Converter;
 import org.pentaho.platform.repository2.unified.importexport.DefaultImportHandler;
 import org.pentaho.platform.repository2.unified.importexport.ImportException;
@@ -121,6 +123,10 @@ public class RepositoryImportResource {
         importProcessor.setImportSource(new FileSolutionRepositoryImportSource(outFile, fileInfo.getFileName(), "UTF-8"));
       }
       importProcessor.performImport();
+      
+      // Flush the Mondrian cache to show imported datasources. 
+      IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(IMondrianCatalogService.class, "IMondrianCatalogService", PentahoSessionHolder.getSession());
+      mondrianCatalogService.reInit(PentahoSessionHolder.getSession());
     } catch (ImportException e) {
       return Response.serverError().entity(e.toString()).build();
     } catch (InitializationException e) {

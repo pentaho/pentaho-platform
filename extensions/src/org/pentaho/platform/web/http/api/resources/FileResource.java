@@ -282,6 +282,9 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces({WILDCARD})
   public Response doGetFileOrDir(@PathParam("pathId") String pathId) throws FileNotFoundException {
     String path = idToPath(pathId);
+    if(path.startsWith("/etc")) {
+    	return Response.status(Status.FORBIDDEN).build();
+    }
     RepositoryFile repoFile = repository.getFile(path);
     if (repoFile == null) {
       //file does not exist or is not readable but we can't tell at this point
