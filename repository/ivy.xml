@@ -34,7 +34,19 @@
 		<dependency org="javax.mail"             name="mail"               rev="1.4.1"   transitive="false"/>
 		<dependency org="log4j"                  name="log4j"              rev="1.2.16"  transitive="false"/>
 		<dependency org="cglib"                  name="cglib-nodep"        rev="2.2"   transitive="false"/>
+		
+		
+    	<!-- jersey -->
+    	<dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.11"/>
+    	<dependency org="com.sun.jersey.contribs" name="jersey-apache-client" rev="1.11" transitive="false"/>
+    	<dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.11" transitive="false"/>
 
+    	<dependency org="com.sun.jersey" name="jersey-core" rev="1.11" transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-json" rev="1.11" transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-client" rev="1.11" transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-server" rev="1.11" transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-servlet" rev="1.11" transitive="false"/>
+		
 		<!-- metro -->
 		<dependency org="metro" name="metro-webservices-api" rev="2.0" transitive="false"/>
 		<dependency org="metro" name="metro-webservices-rt"  rev="2.0" transitive="false"/>

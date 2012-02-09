@@ -216,8 +216,13 @@ public class CommandLineProcessor {
   protected void addImportHandlers(final ImportProcessor importProcessor) throws ParseException {
     // TODO - Need a way to either (a) have all ImportProcessors use the same set or (b) use spring to initialize this
     final IUnifiedRepository repository = getRepository();
-    importProcessor.addImportHandler(new MondrianImportHandler(repository));
-    importProcessor.addImportHandler(new MetadataImportHandler(repository));
+    
+    String username = getOptionValue("username", true, false);
+    String password = getOptionValue("password", true, false);
+    String url = getOptionValue("url", true, false);
+    
+    importProcessor.addImportHandler(new MondrianImportHandler(username, password, url));
+    importProcessor.addImportHandler(new MetadataImportHandler(username, password, url));
     importProcessor.addImportHandler(new DefaultImportHandler(repository));
   }
 

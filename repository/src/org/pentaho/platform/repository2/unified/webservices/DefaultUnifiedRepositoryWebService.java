@@ -28,6 +28,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.springframework.util.Assert;
 
 /**
  * Implementation of {@link IUnifiedRepositoryWebService} that delegates to an {@link IUnifiedRepository} instance.
@@ -186,12 +188,14 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   public RepositoryFileDto createFile(String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data,
                                       String versionMessage) {
+	  validateAgainstEtc(parentFolderId);
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
         nodeRepositoryFileDataAdapter.unmarshal(data), versionMessage));
   }
 
   public RepositoryFileDto createFileWithAcl(String parentFolderId, RepositoryFileDto file,
                                              NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, String versionMessage) {
+	  validateAgainstEtc(parentFolderId);
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
         nodeRepositoryFileDataAdapter.unmarshal(data), repositoryFileAclAdapter.unmarshal(acl), versionMessage));
   }
@@ -293,5 +297,13 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   @Override
   public List<Character> getReservedChars() {
     return repo.getReservedChars();
+  }
+  
+  protected void validateAgainstEtc(String parentFolderId) {
+	  RepositoryFile etcFolder = repo.getFile("/etc");
+	  if(etcFolder != null) {
+		  String etcFolderId = etcFolder.getId().toString();
+		  Assert.isTrue(!etcFolderId.equals(parentFolderId), "This service is not allowed to access the ETC folder in JCR.");
+	  }
   }
 }

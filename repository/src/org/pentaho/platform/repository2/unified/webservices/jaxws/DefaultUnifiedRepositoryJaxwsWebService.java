@@ -45,12 +45,14 @@ public class DefaultUnifiedRepositoryJaxwsWebService extends DefaultUnifiedRepos
 
   public RepositoryFileDto createBinaryFileWithAcl(final String parentFolderId, final RepositoryFileDto file,
       final SimpleRepositoryFileDataDto simpleJaxWsData, final RepositoryFileAclDto acl, final String versionMessage) {
+	  validateAgainstEtc(parentFolderId);
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
         SimpleRepositoryFileDataDto.convert(simpleJaxWsData), repositoryFileAclAdapter.unmarshal(acl), versionMessage));
   }
 
   public RepositoryFileDto createBinaryFile(final String parentFolderId, final RepositoryFileDto file,
       final SimpleRepositoryFileDataDto simpleJaxWsData, final String versionMessage) {
+	  validateAgainstEtc(parentFolderId);
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
         SimpleRepositoryFileDataDto.convert(simpleJaxWsData), versionMessage));
   }

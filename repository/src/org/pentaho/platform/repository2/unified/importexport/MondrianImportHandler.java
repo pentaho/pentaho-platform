@@ -16,6 +16,15 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,11 +36,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 /**
  * Handles the importing of Mondrian datasource information
@@ -41,14 +51,23 @@ import java.util.List;
 public class MondrianImportHandler implements ImportHandler {
   private static final Log log = LogFactory.getLog(MondrianImportHandler.class);
   private static final Messages messages = Messages.getInstance();
-
-  private final IUnifiedRepository repository;
+  private IUnifiedRepository repository;
+  private String url, username, password;
 
   public MondrianImportHandler(final IUnifiedRepository repository) {
     if (null == repository) {
       throw new IllegalArgumentException();
     }
     this.repository = repository;
+  }
+  
+  public MondrianImportHandler(String username, String password, String url) {
+	if (null == username || null == password || null == url) {
+		throw new IllegalArgumentException();
+	} 
+	this.username = username;
+	this.password = password;
+	this.url = url;
   }
 
   /**
@@ -123,8 +142,12 @@ public class MondrianImportHandler implements ImportHandler {
     Node name = schema.getAttributes().getNamedItem("name");
     String catalogName = name.getTextContent();
 
-    MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper(repository);
-    helper.addSchema(mondrianFile.getInputStream(), catalogName, datasourceInfo);
+    if(repository != null) {
+    	MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper(repository);
+    	helper.addSchema(mondrianFile.getInputStream(), catalogName, datasourceInfo);
+    } else {
+    	addSchema(mondrianFile.getInputStream(), catalogName, datasourceInfo);
+    }
   }
 
 
@@ -169,5 +192,21 @@ public class MondrianImportHandler implements ImportHandler {
     final DocumentBuilder builder = factory.newDocumentBuilder();
     final Document document = builder.parse(documentSource.getInputStream());
     return document.getElementsByTagName(tagName);
+  }
+  
+  private void addSchema(InputStream mondrianFile, String catalogName, String datasourceInfo) throws Exception {
+	  
+	  ClientConfig clientConfig = new DefaultClientConfig(); 
+      Client client = Client.create(clientConfig); 
+      client.addFilter(new HTTPBasicAuthFilter(this.username, this.password)); 
+
+      String storeDomainUrl = this.url + "/plugin/data-access/api/mondrian/addSchema?catalogName=" + catalogName + "&datasourceInfo=" + datasourceInfo;
+      WebResource resource = client.resource(storeDomainUrl); 
+      ClientResponse response = resource.put(ClientResponse.class, mondrianFile);
+
+      int status = response.getStatus();
+      if (status != HttpStatus.SC_OK) {
+    	  throw new Exception("Error Importing Mondrian Schema");
+      }
   }
 }

@@ -16,6 +16,14 @@
  */
 package org.pentaho.platform.repository2.unified.importexport;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,11 +33,12 @@ import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository.pmd.IPentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.repository.pmd.PentahoMetadataDomainRepository;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 /**
  * Class Description
@@ -42,12 +51,22 @@ public class MetadataImportHandler implements ImportHandler {
 
   private IUnifiedRepository repository;
   private IPentahoMetadataDomainRepositoryImporter metadataImporter;
+  private String url, username, password;
 
   public MetadataImportHandler(final IUnifiedRepository repository) {
     if (null == repository) {
       throw new IllegalArgumentException();
     }
     this.repository = repository;
+  }
+  
+  public MetadataImportHandler(String username, String password, String url) {
+	if (null == username || null == password || null == url) {
+		throw new IllegalArgumentException();
+	} 
+	this.username = username;
+	this.password = password;
+	this.url = url;
   }
 
   protected IPentahoMetadataDomainRepositoryImporter getMetadataImporter() {
@@ -138,7 +157,11 @@ public class MetadataImportHandler implements ImportHandler {
       log.debug("Importing [" + info.getPath() + "] as metadata - [domain=" + info.getDomainId() + "]");
       if (!StringUtils.isEmpty(info.getDomainId())) {
         log.debug("importing [" + filename + "] as metadata [domain=" + info.getDomainId() + " : overwrite=" + overwrite + "]");
-        getMetadataImporter().storeDomain(bundle.getInputStream(), info.getDomainId(), overwrite);
+        if(this.repository != null) {
+        	getMetadataImporter().storeDomain(bundle.getInputStream(), info.getDomainId(), overwrite);
+        } else {
+        	storeDomain(bundle.getInputStream(), info.getDomainId());
+        }
       }
       return info.getDomainId();
     } catch (Exception e) {
@@ -152,7 +175,11 @@ public class MetadataImportHandler implements ImportHandler {
   private void processLocaleFile(final ImportSource.IRepositoryFileBundle file, final PentahoMetadataFileInfo info, final boolean overwrite) {
     try {
       log.debug("Importing [" + info.getPath() + "] as properties - [domain=" + info.getDomainId() + " : locale=" + info.getLocale() + "]");
-      getMetadataImporter().addLocalizationFile(info.getDomainId(), info.getLocale(), file.getInputStream(), overwrite);
+      if(this.repository != null) {
+        getMetadataImporter().addLocalizationFile(info.getDomainId(), info.getLocale(), file.getInputStream(), overwrite);
+      } else {
+    	addLocalizationFile(info.getDomainId(), info.getLocale(), file.getInputStream());
+      }
     } catch (Exception e) {
       final String errorMessage = messages.getErrorString("MetadataImportHandler.ERROR_0002_IMPORTING_LOCALE_FILE",
           info.getPath(), info.getDomainId(), info.getLocale(), e.getLocalizedMessage());
@@ -166,5 +193,37 @@ public class MetadataImportHandler implements ImportHandler {
   @Override
   public String getName() {
     return "PentahoMetadataImportHandler";
+  }
+  
+  private void storeDomain(InputStream metadataFile, String domainId) throws Exception {
+	  
+	  ClientConfig clientConfig = new DefaultClientConfig(); 
+      Client client = Client.create(clientConfig); 
+      client.addFilter(new HTTPBasicAuthFilter(this.username, this.password)); 
+
+      String storeDomainUrl = this.url + "/plugin/data-access/api/metadata/storeDomain?domainId=" + domainId;
+      WebResource resource = client.resource(storeDomainUrl); 
+      ClientResponse response = resource.put(ClientResponse.class, metadataFile);
+
+      int status = response.getStatus();
+      if (status != HttpStatus.SC_OK) {
+    	  throw new Exception(messages.getErrorString("MetadataImportHandler.ERROR_0001_IMPORTING_METADATA"));
+      }
+  }
+  
+  private void addLocalizationFile(String domainId, String locale, InputStream propertiesFile) throws Exception {
+	  
+	  ClientConfig clientConfig = new DefaultClientConfig(); 
+      Client client = Client.create(clientConfig); 
+      client.addFilter(new HTTPBasicAuthFilter(this.username, this.password)); 
+
+      String storeDomainUrl = this.url + "/plugin/data-access/api/metadata/addLocalizationFile?domainId=" + domainId + "&locale=" + locale;
+      WebResource resource = client.resource(storeDomainUrl); 
+      ClientResponse response = resource.put(ClientResponse.class, propertiesFile);
+
+      int status = response.getStatus();
+      if (status != HttpStatus.SC_OK) {
+    	  throw new Exception(messages.getErrorString("MetadataImportHandler.ERROR_0002_IMPORTING_LOCALE_FILE"));
+      }
   }
 }
