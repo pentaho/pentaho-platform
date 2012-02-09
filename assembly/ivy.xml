@@ -86,6 +86,7 @@
     	<artifact name="common-ui" type="zip" />
     </dependency>
     
+    <dependency org="pentaho" name="pentaho-pdi-platform-plugin-package" rev="${dependency.pentaho-pdi-plugin.revision}" changing="true" transitive="false" conf="plugin->default"/>
     <dependency org="pentaho" name="waqr-plugin-package" rev="${dependency.waqr-plugin.revision}" changing="true" transitive="false" conf="plugin->default"/>
 
     <dependency org="pentaho" name="pentaho-cdf" rev="${dependency.pentaho-cdf-plugin.revision}" changing="true" transitive="false" conf="plugin->default">
