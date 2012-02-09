@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -2261,7 +2262,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     RoleBindingStruct struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
     assertNotNull(struct);
     assertNotNull(struct.bindingMap);
-    assertEquals(4, struct.bindingMap.size());
+    assertEquals(5, struct.bindingMap.size());
     assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR,
         LOGICAL_ROLE_SECURITY_ADMINISTRATOR }), struct.bindingMap.get(RUNTIME_ROLE_ACME_ADMIN));
     assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR }), struct.bindingMap
@@ -2269,7 +2270,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     roleBindingDao.setRoleBindings("whatever", Arrays.asList(new String[] { "org.pentaho.p1.reader" }));
 
     struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
-    assertEquals(5, struct.bindingMap.size());
+    assertEquals(6, struct.bindingMap.size());
     assertEquals(Arrays.asList(new String[] { "org.pentaho.p1.reader" }), struct.bindingMap.get("whatever"));
 
     assertNotNull(struct.logicalRoleNameMap);
