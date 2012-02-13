@@ -114,6 +114,21 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   public RepositoryFileTreeDto getTree(final String path, final int depth, final String filter, final boolean showHidden) {
     RepositoryFileTree tree = repo.getTree(path, depth, filter, showHidden);
+    
+    boolean isAdmin = false;
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    if(session != null) {
+    	isAdmin = SecurityHelper.getInstance().isPentahoAdministrator(session);
+    }
+    
+    List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
+    for(RepositoryFileTree file : tree.getChildren()) {
+    	if(!isAdmin && file.getFile().getName().equals("etc")) {
+    		continue;
+    	}
+    	files.add(file);
+    }
+    tree = new RepositoryFileTree(tree.getFile(), files);
     return tree != null ? repositoryFileTreeAdapter.marshal(tree) : null;
   }
 
