@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.jws.WebService;
 
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
@@ -101,9 +102,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileDto getFile(String path) {
-	if(!validateEtcReadAccess(path)) {
-		return null;
-	}
+	validateEtcReadAccess(path);
     RepositoryFile file = repo.getFile(path);
     return file != null ? repositoryFileAdapter.marshal(file) : null;
   }
@@ -313,11 +312,13 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 	  }
   }
   
-  protected boolean validateEtcReadAccess(String path) {
-	  boolean isAdmin = SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession());
-	  if(!isAdmin && path.startsWith("/etc")) {
-		  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
+  protected void validateEtcReadAccess(String path) {
+	  IPentahoSession session = PentahoSessionHolder.getSession();
+	  if(session != null) {
+		  boolean isAdmin = SecurityHelper.getInstance().isPentahoAdministrator(session);
+		  if(!isAdmin && path.startsWith("/etc")) {
+			  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
+		  }
 	  }
-	  return isAdmin;
   }
 }
