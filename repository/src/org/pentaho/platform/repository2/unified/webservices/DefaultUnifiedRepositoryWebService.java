@@ -316,7 +316,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   protected boolean validateEtcReadAccess(String path) {
 	  boolean isAdmin = SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession());
 	  if(path.startsWith("/etc")) {
-		  throw new RuntimeException("This service is not allowed to access the ETC folder in JCR.");
+		  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
 	  }
 	  return isAdmin;
   }
