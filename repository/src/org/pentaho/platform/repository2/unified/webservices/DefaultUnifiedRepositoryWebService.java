@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.jws.WebService;
 
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -27,9 +28,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.springframework.util.Assert;
+import org.pentaho.platform.engine.security.SecurityHelper;
 
 /**
  * Implementation of {@link IUnifiedRepositoryWebService} that delegates to an {@link IUnifiedRepository} instance.
@@ -100,6 +101,9 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileDto getFile(String path) {
+	if(!validateEtcReadAccess(path)) {
+		return null;
+	}
     RepositoryFile file = repo.getFile(path);
     return file != null ? repositoryFileAdapter.marshal(file) : null;
   }
@@ -188,14 +192,14 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   public RepositoryFileDto createFile(String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data,
                                       String versionMessage) {
-	  validateAgainstEtc(parentFolderId);
+	  validateEtcWriteAccess(parentFolderId);
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
         nodeRepositoryFileDataAdapter.unmarshal(data), versionMessage));
   }
 
   public RepositoryFileDto createFileWithAcl(String parentFolderId, RepositoryFileDto file,
                                              NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, String versionMessage) {
-	  validateAgainstEtc(parentFolderId);
+	  validateEtcWriteAccess(parentFolderId);
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
         nodeRepositoryFileDataAdapter.unmarshal(data), repositoryFileAclAdapter.unmarshal(acl), versionMessage));
   }
@@ -299,11 +303,21 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return repo.getReservedChars();
   }
   
-  protected void validateAgainstEtc(String parentFolderId) {
+  protected void validateEtcWriteAccess(String parentFolderId) {
 	  RepositoryFile etcFolder = repo.getFile("/etc");
 	  if(etcFolder != null) {
 		  String etcFolderId = etcFolder.getId().toString();
-		  Assert.isTrue(!etcFolderId.equals(parentFolderId), "This service is not allowed to access the ETC folder in JCR.");
+		  if(etcFolderId.equals(parentFolderId)) {
+			  throw new RuntimeException("This service is not allowed to access the ETC folder in JCR.");
+		  }
 	  }
+  }
+  
+  protected boolean validateEtcReadAccess(String path) {
+	  boolean isAdmin = SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession());
+	  if(path.startsWith("/etc")) {
+		  throw new RuntimeException("This service is not allowed to access the ETC folder in JCR.");
+	  }
+	  return isAdmin;
   }
 }
