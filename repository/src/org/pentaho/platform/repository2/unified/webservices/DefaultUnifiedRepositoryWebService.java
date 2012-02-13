@@ -120,7 +120,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     if(session != null) {
     	isAdmin = SecurityHelper.getInstance().isPentahoAdministrator(session);
     }
-    
+    // Filter etc folder from results if user is non admin.
     List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
     for(RepositoryFileTree file : tree.getChildren()) {
     	if(!isAdmin && file.getFile().getName().equals("etc")) {
