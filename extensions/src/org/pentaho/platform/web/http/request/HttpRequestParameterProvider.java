@@ -24,7 +24,6 @@ package org.pentaho.platform.web.http.request;
 
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;

@@ -20,21 +20,13 @@ package org.pentaho.test.platform.web;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.ServletException;
 
 import org.pentaho.platform.engine.core.system.PathBasedSystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.SystemSettings;
-import org.pentaho.platform.web.servlet.ViewAction;
 import org.pentaho.test.platform.engine.core.BaseTestCase;
-
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpServletResponse;
-import com.mockrunner.mock.web.MockHttpSession;
-import com.mockrunner.mock.web.MockServletConfig;
-import com.mockrunner.mock.web.MockServletContext;
 
 /**
  * Tests for <code>org.pentaho.platform.web.servlet.ViewAction</code>.

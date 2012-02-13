@@ -1,6 +1,11 @@
 package org.pentaho.platform.web.servlet;
 
-import org.apache.commons.lang.StringUtils;
+import java.io.IOException;
+import java.io.OutputStream;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
@@ -10,15 +15,7 @@ import org.pentaho.platform.api.ui.ModuleThemeInfo;
 import org.pentaho.platform.api.ui.Theme;
 import org.pentaho.platform.api.ui.ThemeResource;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Set;
 
 /**
  * Writes out the current Theme Tree out as Javascript. The current system and active module theme information is turned

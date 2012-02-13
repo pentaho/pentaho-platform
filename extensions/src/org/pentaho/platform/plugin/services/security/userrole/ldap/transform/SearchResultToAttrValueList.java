@@ -19,7 +19,6 @@ package org.pentaho.platform.plugin.services.security.userrole.ldap.transform;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;

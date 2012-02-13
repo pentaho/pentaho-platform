@@ -25,7 +25,6 @@ package org.pentaho.platform.web.http.context;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Properties;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;

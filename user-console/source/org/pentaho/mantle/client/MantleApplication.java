@@ -39,7 +39,6 @@ import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
 import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.Request;

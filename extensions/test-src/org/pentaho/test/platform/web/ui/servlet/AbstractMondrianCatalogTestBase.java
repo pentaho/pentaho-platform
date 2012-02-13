@@ -18,19 +18,19 @@
 package org.pentaho.test.platform.web.ui.servlet;
 
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.test.platform.engine.core.BaseTest;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.test.platform.engine.core.BaseTest;
 
 /**
  * Superclass of tests for IMondrianCatalogService and MondrianCatalogPublisher instances.

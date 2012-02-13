@@ -1,9 +1,9 @@
 package org.pentaho.platform.api.engine;
 
+import java.util.concurrent.Callable;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-
-import java.util.concurrent.Callable;
 
 /**
  * Interface for a utility class with several methods that are used to

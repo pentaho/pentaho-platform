@@ -22,10 +22,10 @@ package org.pentaho.platform.util;
 
 import java.util.ResourceBundle;
 
+import org.pentaho.platform.util.messages.MessageUtil;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
-import org.pentaho.platform.util.messages.MessageUtil;
 
 public class MessageUtilTest extends TestCase {
 

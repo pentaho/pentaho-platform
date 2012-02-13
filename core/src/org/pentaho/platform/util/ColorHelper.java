@@ -19,7 +19,7 @@
  */
 package org.pentaho.platform.util;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Map;
 import java.util.TreeMap;
 

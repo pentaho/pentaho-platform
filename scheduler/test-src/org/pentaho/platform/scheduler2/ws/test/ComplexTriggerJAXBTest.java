@@ -18,10 +18,7 @@
 package org.pentaho.platform.scheduler2.ws.test;
 
 import java.util.List;
-
 import javax.xml.bind.JAXBException;
-
-import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +28,8 @@ import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.RecurrenceList;
 import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
+
+import junit.framework.Assert;
 
 @SuppressWarnings("nls")
 public class ComplexTriggerJAXBTest {

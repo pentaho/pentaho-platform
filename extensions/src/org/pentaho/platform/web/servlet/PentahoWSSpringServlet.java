@@ -20,7 +20,6 @@ package org.pentaho.platform.web.servlet;
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -35,7 +34,6 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
-
 import com.sun.xml.ws.transport.http.servlet.ServletAdapterList;
 import com.sun.xml.ws.transport.http.servlet.SpringBinding;
 import com.sun.xml.ws.transport.http.servlet.WSServletDelegate;

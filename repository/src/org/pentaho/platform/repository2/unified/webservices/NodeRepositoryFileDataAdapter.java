@@ -17,7 +17,6 @@ package org.pentaho.platform.repository2.unified.webservices;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;

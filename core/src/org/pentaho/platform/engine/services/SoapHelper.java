@@ -22,9 +22,7 @@
 
 package org.pentaho.platform.engine.services;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +37,6 @@ import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.repository.IContentItem;
-import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 

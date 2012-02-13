@@ -17,11 +17,10 @@
  */
 package org.pentaho.platform.util;
 
-import junit.framework.TestCase;
-
 import org.pentaho.platform.api.util.IPasswordService;
 import org.pentaho.platform.api.util.PasswordServiceException;
-import org.pentaho.platform.util.Base64PasswordService;
+
+import junit.framework.TestCase;
 
 public class PasswordServiceTest extends TestCase {
 

@@ -1,5 +1,11 @@
 package org.pentaho.platform.web.http.api.resources;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.Map;
+
 import org.pentaho.platform.api.action.IStreamingAction;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -10,12 +16,6 @@ import org.pentaho.platform.repository2.unified.fileio.IRepositoryFileOutputStre
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.util.Map;
 
 public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamProvider, IRepositoryFileOutputStreamListener {
 

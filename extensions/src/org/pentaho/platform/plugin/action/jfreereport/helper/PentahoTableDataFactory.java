@@ -20,7 +20,6 @@ package org.pentaho.platform.plugin.action.jfreereport.helper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import javax.swing.table.TableModel;
 
 import org.pentaho.commons.connection.IPentahoResultSet;

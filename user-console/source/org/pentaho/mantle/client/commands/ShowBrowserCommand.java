@@ -20,7 +20,6 @@ import org.pentaho.mantle.client.service.EmptyCallback;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
-
 import com.google.gwt.user.client.Command;
 
 public class ShowBrowserCommand implements Command {

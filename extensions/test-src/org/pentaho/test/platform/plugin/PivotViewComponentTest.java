@@ -17,13 +17,13 @@
 */
 package org.pentaho.test.platform.plugin;
 
+import java.util.Map;
+
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.test.platform.engine.core.BaseTest;
-
-import java.util.Map;
 
 @SuppressWarnings("nls")
 public class PivotViewComponentTest extends BaseTest {

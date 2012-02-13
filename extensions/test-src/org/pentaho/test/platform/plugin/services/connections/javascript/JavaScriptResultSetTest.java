@@ -18,21 +18,12 @@
 package org.pentaho.test.platform.plugin.services.connections.javascript;
 
 
-
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Node;
-import org.pentaho.commons.connection.IPentahoMetaData;
 import org.pentaho.commons.connection.memory.MemoryMetaData;
 import org.pentaho.commons.connection.memory.MemoryResultSet;
-import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.plugin.services.connections.javascript.JavaScriptResultSet;
-import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings({"all"})

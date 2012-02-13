@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
+<ivy-module version="2.0">
     <info organisation="${ivy.artifact.group}" module="${package.id}" revision="${project.revision}" />
     
     <configurations>

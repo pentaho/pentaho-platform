@@ -21,7 +21,6 @@ package org.pentaho.test.platform.web;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.ServletException;
 
 import org.dom4j.Document;
@@ -31,7 +30,6 @@ import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.web.servlet.HttpWebService;
 import org.pentaho.test.platform.engine.core.BaseTestCase;
-
 import com.mockrunner.mock.web.MockHttpServletRequest;
 import com.mockrunner.mock.web.MockHttpServletResponse;
 import com.mockrunner.mock.web.MockHttpSession;

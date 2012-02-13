@@ -24,7 +24,6 @@ import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;

@@ -17,22 +17,6 @@
 */
 package org.pentaho.platform.engine.security.userroledao.hibernate;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRoleAssignmentPersisted;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRoleAssignmentRemoved;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRolePersisted;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRoleRemoved;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertUserPersisted;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertUserRemoved;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.createTestRole;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.createTestUser;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.generateAndExecuteDdl;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.getConnection;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.getSessionFactory;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.CREATE;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.DROP;
-
 import java.sql.Connection;
 import java.util.List;
 
@@ -44,6 +28,22 @@ import org.pentaho.platform.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.engine.security.userroledao.PentahoRole;
 import org.pentaho.platform.engine.security.userroledao.PentahoUser;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.CREATE;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.DROP;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRoleAssignmentPersisted;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRoleAssignmentRemoved;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRolePersisted;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRoleRemoved;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertUserPersisted;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertUserRemoved;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.createTestRole;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.createTestUser;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.generateAndExecuteDdl;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.getConnection;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.getSessionFactory;
 
 /**
  * Unit test for {@link HibernateUserRoleDao}.

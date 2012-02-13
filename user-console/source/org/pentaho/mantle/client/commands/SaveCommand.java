@@ -31,7 +31,6 @@ import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
-
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;

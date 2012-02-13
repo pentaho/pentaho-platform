@@ -1,7 +1,6 @@
 package org.pentaho.platform.engine.security.userrole.ws;
 
 import java.util.List;
-
 import javax.jws.WebService;
 
 import org.pentaho.platform.api.engine.IUserRoleListService;

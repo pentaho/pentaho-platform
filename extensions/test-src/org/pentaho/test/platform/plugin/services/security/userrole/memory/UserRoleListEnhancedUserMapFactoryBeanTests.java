@@ -17,16 +17,14 @@
 */
 package org.pentaho.test.platform.plugin.services.security.userrole.memory;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.plugin.services.security.userrole.memory.UserRoleListEnhancedUserMap;
 import org.pentaho.platform.plugin.services.security.userrole.memory.UserRoleListEnhancedUserMapFactoryBean;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.util.Assert;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class UserRoleListEnhancedUserMapFactoryBeanTests extends
 		AbstractUserMapFactoryBeanTestBase {

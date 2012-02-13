@@ -18,7 +18,6 @@
 package org.pentaho.platform.scheduler2.ws;
 
 import java.util.Map;
-
 import javax.jws.WebService;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 

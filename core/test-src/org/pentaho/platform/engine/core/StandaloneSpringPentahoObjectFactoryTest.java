@@ -19,16 +19,14 @@ package org.pentaho.platform.engine.core;
 
 import java.io.File;
 
-import junit.framework.TestCase;
-
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings({"all"})
 public class StandaloneSpringPentahoObjectFactoryTest extends TestCase {

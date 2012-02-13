@@ -18,7 +18,6 @@ import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.sql.DataSource;
 
 import org.pentaho.platform.api.data.DBDatasourceServiceException;

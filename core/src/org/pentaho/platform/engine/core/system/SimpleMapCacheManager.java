@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 /**
  * 
  * 
@@ -178,7 +177,8 @@ public class SimpleMapCacheManager implements ICacheManager {
       }
     }
     return list;
-  }
+  }
+
    
   private void removeFromMap(String id) {
     if (simpleMap != null) {

@@ -18,10 +18,10 @@
 
 package org.pentaho.platform.engine.security;
 
+import org.pentaho.platform.engine.security.messages.Messages;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
-import org.pentaho.platform.engine.security.messages.Messages;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
 
 /**

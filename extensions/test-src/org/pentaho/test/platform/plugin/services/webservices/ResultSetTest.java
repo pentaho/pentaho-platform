@@ -17,12 +17,12 @@
 */
 package org.pentaho.test.platform.plugin.services.webservices;
 
-import org.pentaho.commons.connection.memory.MemoryMetaData;
-import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.commons.connection.marshal.MarshallableColumnNames;
 import org.pentaho.commons.connection.marshal.MarshallableColumnTypes;
 import org.pentaho.commons.connection.marshal.MarshallableResultSet;
 import org.pentaho.commons.connection.marshal.MarshallableRow;
+import org.pentaho.commons.connection.memory.MemoryMetaData;
+import org.pentaho.commons.connection.memory.MemoryResultSet;
 
 import junit.framework.TestCase;
 

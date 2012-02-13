@@ -18,7 +18,6 @@ package org.pentaho.mantle.client.commands;
 
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.workspace.WorkspacePanel;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class RefreshWorkspaceCommand extends AbstractCommand {

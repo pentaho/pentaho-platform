@@ -32,7 +32,6 @@ import org.pentaho.mantle.client.workspace.WorkspacePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.util.ResourceBundleTranslator;
-
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

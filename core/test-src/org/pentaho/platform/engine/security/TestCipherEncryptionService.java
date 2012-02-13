@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
 import org.pentaho.platform.util.UUIDUtil;
 
 public class TestCipherEncryptionService {

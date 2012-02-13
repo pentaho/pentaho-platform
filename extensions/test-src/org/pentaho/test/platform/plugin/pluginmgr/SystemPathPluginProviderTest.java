@@ -17,11 +17,6 @@
  */
 package org.pentaho.test.platform.plugin.pluginmgr;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -46,6 +41,11 @@ import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvide
 import org.pentaho.platform.plugin.services.pluginmgr.perspective.DefaultPluginPerspectiveManager;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("nls")
 public class SystemPathPluginProviderTest {

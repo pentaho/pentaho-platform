@@ -27,7 +27,6 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.utils.i18n.PropertiesUtil;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.login.client.messages.Messages;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;

@@ -20,7 +20,6 @@
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-
 import com.google.gwt.xml.client.Document;
 
 public interface IFileModifier {

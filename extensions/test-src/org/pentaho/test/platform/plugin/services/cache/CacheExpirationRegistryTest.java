@@ -1,11 +1,11 @@
 package org.pentaho.test.platform.plugin.services.cache;
 
+import java.util.Date;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.cache.ILastModifiedCacheItem;
 import org.pentaho.platform.plugin.services.cache.CacheExpirationRegistry;
-
-import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
 

@@ -26,7 +26,6 @@ import java.util.Map;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.ui.xul.XulOverlay;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface MantleServiceAsync {

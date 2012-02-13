@@ -1,9 +1,5 @@
 package org.pentaho.test.platform.plugin.pluginmgr;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 
 import org.junit.Before;
@@ -15,6 +11,10 @@ import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.GwtRpcServiceMa
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.IServiceTypeManager;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.ServiceConfig;
 import org.pentaho.test.platform.engine.core.EchoServiceBean;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("nls")
 public class DefaultServiceManagerTest {

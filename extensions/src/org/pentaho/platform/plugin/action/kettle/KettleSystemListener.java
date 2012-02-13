@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.pentaho.di.cluster.SlaveServer;

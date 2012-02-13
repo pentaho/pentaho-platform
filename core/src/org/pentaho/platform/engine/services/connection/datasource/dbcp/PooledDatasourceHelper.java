@@ -20,7 +20,6 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
 import java.util.Map;
-
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;

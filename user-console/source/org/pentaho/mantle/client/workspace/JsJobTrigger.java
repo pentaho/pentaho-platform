@@ -23,7 +23,6 @@ import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
 import org.pentaho.mantle.client.messages.Messages;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.i18n.client.DateTimeFormat;

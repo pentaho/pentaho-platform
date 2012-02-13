@@ -14,6 +14,18 @@
  */
 package org.pentaho.platform.repository2.unified.jcr.jackrabbit;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.security.Principal;
+import java.security.acl.Group;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.jsr283.security.AccessControlEntry;
@@ -41,18 +53,6 @@ import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSe
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
-
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import java.io.IOException;
-import java.io.Serializable;
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
 
 /**
  * Jackrabbit-based implementation of {@link IRepositoryFileAclDao}.

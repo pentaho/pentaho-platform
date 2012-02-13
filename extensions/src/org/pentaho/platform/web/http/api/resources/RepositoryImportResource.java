@@ -21,37 +21,26 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
-import org.pentaho.platform.repository2.unified.importexport.Converter;
-import org.pentaho.platform.repository2.unified.importexport.DefaultImportHandler;
-import org.pentaho.platform.repository2.unified.importexport.ImportException;
-import org.pentaho.platform.repository2.unified.importexport.ImportProcessor;
-import org.pentaho.platform.repository2.unified.importexport.InitializationException;
-import org.pentaho.platform.repository2.unified.importexport.MetadataImportHandler;
-import org.pentaho.platform.repository2.unified.importexport.MondrianImportHandler;
-import org.pentaho.platform.repository2.unified.importexport.SimpleImportProcessor;
-import org.pentaho.platform.repository2.unified.importexport.StreamConverter;
-import org.pentaho.platform.repository2.unified.importexport.legacy.FileSolutionRepositoryImportSource;
-import org.pentaho.platform.repository2.unified.importexport.legacy.ZipSolutionRepositoryImportSource;
-import org.pentaho.platform.web.http.messages.Messages;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.web.http.messages.Messages;
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
 
 @Path("/repo/files/import")
 public class RepositoryImportResource {
@@ -76,8 +65,8 @@ public class RepositoryImportResource {
   public Response doPostImport(@FormDataParam("importDir") String uploadDir,
                                @FormDataParam("fileUpload") InputStream fileIS,
                                @FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
-    Map<String, Converter> converters = new HashMap<String, Converter>();
-    StreamConverter streamConverter = new StreamConverter();
+    Map<String, org.pentaho.platform.plugin.services.importexport.Converter> converters = new HashMap<String, org.pentaho.platform.plugin.services.importexport.Converter>();
+    org.pentaho.platform.plugin.services.importexport.StreamConverter streamConverter = new org.pentaho.platform.plugin.services.importexport.StreamConverter();
     converters.put("prpt", streamConverter); //$NON-NLS-1$
     converters.put("mondrian.xml", streamConverter); //$NON-NLS-1$
     converters.put("kjb", streamConverter); //$NON-NLS-1$
@@ -110,26 +99,26 @@ public class RepositoryImportResource {
     converters.put("cda", streamConverter); //$NON-NLS-1$
 
     try {
-      final ImportProcessor importProcessor = new SimpleImportProcessor(uploadDir, null);
+      final org.pentaho.platform.plugin.services.importexport.ImportProcessor importProcessor = new org.pentaho.platform.plugin.services.importexport.SimpleImportProcessor(uploadDir, null);
       // TODO - create a SolutionRepositoryImportHandler which delegates to these three automatically
-      importProcessor.addImportHandler(new MondrianImportHandler(repository));
-      importProcessor.addImportHandler(new MetadataImportHandler(repository));
-      importProcessor.addImportHandler(new DefaultImportHandler(repository));
+      importProcessor.addImportHandler(new org.pentaho.platform.plugin.services.importexport.MondrianImportHandler(repository));
+      importProcessor.addImportHandler(new org.pentaho.platform.plugin.services.importexport.MetadataImportHandler(repository));
+      importProcessor.addImportHandler(new org.pentaho.platform.plugin.services.importexport.DefaultImportHandler(repository));
       if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) {
-        importProcessor.setImportSource(new ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8"));
+        importProcessor.setImportSource(new org.pentaho.platform.plugin.services.importexport.legacy.ZipSolutionRepositoryImportSource(new ZipInputStream(fileIS), "UTF-8"));
       } else {
         final File outFile = File.createTempFile("import", null);
         outFile.deleteOnExit();
-        importProcessor.setImportSource(new FileSolutionRepositoryImportSource(outFile, fileInfo.getFileName(), "UTF-8"));
+        importProcessor.setImportSource(new org.pentaho.platform.plugin.services.importexport.legacy.FileSolutionRepositoryImportSource(outFile, fileInfo.getFileName(), "UTF-8"));
       }
       importProcessor.performImport();
       
       // Flush the Mondrian cache to show imported datasources. 
       IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(IMondrianCatalogService.class, "IMondrianCatalogService", PentahoSessionHolder.getSession());
       mondrianCatalogService.reInit(PentahoSessionHolder.getSession());
-    } catch (ImportException e) {
+    } catch (org.pentaho.platform.plugin.services.importexport.ImportException e) {
       return Response.serverError().entity(e.toString()).build();
-    } catch (InitializationException e) {
+    } catch (org.pentaho.platform.plugin.services.importexport.InitializationException e) {
       return Response.serverError().entity(e.toString()).build();
     } catch (IOException e) {
       return Response.serverError().entity(e.toString()).build();

@@ -23,13 +23,13 @@ package org.pentaho.platform.engine.core;
 import java.io.File;
 import java.util.Locale;
 
-import junit.framework.TestCase;
-
 import org.pentaho.platform.api.util.ITempFileDeleter;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.StandaloneTempFileDeleter;
 import org.pentaho.platform.util.UUIDUtil;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
 public class StandaloneSessionTest extends TestCase {

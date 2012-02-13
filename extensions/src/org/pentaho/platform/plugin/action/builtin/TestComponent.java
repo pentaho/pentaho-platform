@@ -34,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;

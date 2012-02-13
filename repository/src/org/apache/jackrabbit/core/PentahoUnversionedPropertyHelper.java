@@ -1,7 +1,6 @@
 package org.apache.jackrabbit.core;
 
 import java.util.Calendar;
-
 import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;

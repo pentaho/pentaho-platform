@@ -15,7 +15,6 @@
 package org.pentaho.platform.repository2.unified.jcr.transform;
 
 import java.util.Calendar;
-
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;

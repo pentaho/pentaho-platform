@@ -17,15 +17,6 @@
 */
 package org.pentaho.platform.engine.security.userroledao.hibernate.sample;
 
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRoleAssignmentPersisted;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRolePersisted;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertUserPersisted;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.generateAndExecuteDdl;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.getConnection;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.getSessionFactory;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.CREATE;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.DROP;
-
 import java.sql.Connection;
 
 import org.hibernate.SessionFactory;
@@ -33,6 +24,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.engine.security.userroledao.hibernate.HibernateUserRoleDao;
+
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.CREATE;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.DROP;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRoleAssignmentPersisted;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRolePersisted;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertUserPersisted;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.generateAndExecuteDdl;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.getConnection;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.getSessionFactory;
 
 /**
  * Unit test for {@link SampleUsersAndRolesInitHandler}.

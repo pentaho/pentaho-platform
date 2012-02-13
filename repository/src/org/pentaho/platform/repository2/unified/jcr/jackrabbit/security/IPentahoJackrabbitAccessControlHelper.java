@@ -16,7 +16,6 @@ package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
 import java.util.List;
 import java.util.Map;
-
 import javax.jcr.RepositoryException;
 
 import org.apache.jackrabbit.core.NodeImpl;

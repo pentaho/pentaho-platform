@@ -18,6 +18,9 @@
 package org.pentaho.test.platform.plugin.services.cache;
 
 import java.io.File;
+
+import org.pentaho.test.platform.engine.core.BaseTest;
+
 //import java.sql.Connection;
 //import java.util.List;
 //
@@ -28,7 +31,6 @@ import java.io.File;
 //import org.pentaho.platform.engine.core.system.SimpleMapCacheManager;
 //import org.pentaho.platform.engine.core.system.StandaloneSession;
 //import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener;
-import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings("nls")
 public class DatasourceSystemListenerWithoutCacheEnabledTest extends BaseTest {

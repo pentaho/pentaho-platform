@@ -20,7 +20,6 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog.Tabs;
-
 import com.google.gwt.user.client.Command;
 
 public class FilePropertiesCommand implements Command {

@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,7 +65,6 @@ import org.pentaho.platform.util.VersionInfo;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 import org.pentaho.ui.xul.XulOverlay;
-
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class MantleServlet extends RemoteServiceServlet implements MantleService {

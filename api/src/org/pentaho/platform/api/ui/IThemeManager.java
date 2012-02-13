@@ -1,8 +1,6 @@
 package org.pentaho.platform.api.ui;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Class responsible for collecting information about all available system module local

@@ -19,9 +19,10 @@ package org.pentaho.test.platform.plugin.webservice;
 
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.platform.plugin.action.xml.webservice.WebServiceLookupRule;
+import org.pentaho.test.platform.engine.core.BaseTest;
+
 //import org.pentaho.platform.api.engine.IRuntimeContext;
 //import org.pentaho.platform.repository.messages.Messages;
-import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings("nls")
 public class WebServiceLookupRuleTest extends BaseTest {

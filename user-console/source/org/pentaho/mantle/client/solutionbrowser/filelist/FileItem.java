@@ -32,7 +32,6 @@ import org.pentaho.mantle.client.solutionbrowser.IFileSummary;
 import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.HasAllMouseHandlers;

@@ -29,7 +29,6 @@ import org.pentaho.mantle.client.commands.ImportFileCommand;
 import org.pentaho.mantle.client.commands.NewFolderCommand;
 import org.pentaho.mantle.client.commands.PasteFilesCommand;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
-
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TreeItem;

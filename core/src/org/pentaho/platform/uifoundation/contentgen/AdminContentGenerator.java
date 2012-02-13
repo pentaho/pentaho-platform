@@ -20,7 +20,6 @@ package org.pentaho.platform.uifoundation.contentgen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;

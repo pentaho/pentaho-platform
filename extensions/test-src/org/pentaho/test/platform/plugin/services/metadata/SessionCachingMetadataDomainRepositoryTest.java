@@ -1,7 +1,5 @@
 package org.pentaho.test.platform.plugin.services.metadata;
 
-import static org.pentaho.test.platform.plugin.services.metadata.MockSessionAwareMetadataDomainRepository.TEST_LOCALE;
-
 import java.io.File;
 import java.util.Set;
 
@@ -18,6 +16,8 @@ import org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomai
 import org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomainRepository.CacheKey;
 import org.pentaho.test.platform.engine.core.BaseTest;
 import org.pentaho.test.platform.engine.core.SimpleObjectFactory;
+
+import static org.pentaho.test.platform.plugin.services.metadata.MockSessionAwareMetadataDomainRepository.TEST_LOCALE;
 
 public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
 

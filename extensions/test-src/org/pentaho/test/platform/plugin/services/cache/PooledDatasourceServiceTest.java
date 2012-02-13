@@ -18,12 +18,11 @@
 package org.pentaho.test.platform.plugin.services.cache;
 
 import java.sql.Connection;
-
 import javax.sql.DataSource;
 
-import junit.framework.TestCase;
-
 import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
 public class PooledDatasourceServiceTest extends TestCase {

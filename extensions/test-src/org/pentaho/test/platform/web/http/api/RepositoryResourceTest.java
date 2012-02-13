@@ -1,19 +1,9 @@
 package org.pentaho.test.platform.web.http.api;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetData;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFile;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetTree;
-import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
-
 import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -55,7 +45,6 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.GenericType;
@@ -66,6 +55,15 @@ import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
 import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
 import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetTree;
+import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
 
 @SuppressWarnings("nls")
 public class RepositoryResourceTest extends JerseyTest {

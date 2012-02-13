@@ -17,7 +17,6 @@
 */
 package org.pentaho.test.platform.plugin.services.webservices;
 
-import static org.junit.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +39,9 @@ import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceM
 import org.pentaho.platform.plugin.services.webservices.content.AxisServiceWsdlGenerator;
 import org.pentaho.platform.plugin.services.webservices.messages.Messages;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class WsdlPageTest {
 

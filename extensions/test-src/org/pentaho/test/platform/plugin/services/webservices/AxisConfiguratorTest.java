@@ -17,13 +17,13 @@
 */
 package org.pentaho.test.platform.plugin.services.webservices;
 
-import static org.junit.Assert.assertNotNull;
-
 import org.apache.axis2.engine.AxisConfiguration;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.AxisWebServiceManager;
+
+import static org.junit.Assert.assertNotNull;
 
 
 public class AxisConfiguratorTest {

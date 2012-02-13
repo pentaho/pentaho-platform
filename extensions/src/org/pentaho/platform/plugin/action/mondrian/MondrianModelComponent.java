@@ -21,9 +21,10 @@
 
 package org.pentaho.platform.plugin.action.mondrian;
 
-import mondrian.olap.*;
-import mondrian.rolap.RolapConnectionProperties;
-import mondrian.util.Pair;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,10 +43,18 @@ import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.connections.sql.SQLConnection;
 import org.pentaho.platform.util.logging.Logger;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import mondrian.olap.AxisOrdinal;
+import mondrian.olap.Connection;
+import mondrian.olap.Cube;
+import mondrian.olap.Dimension;
+import mondrian.olap.Hierarchy;
+import mondrian.olap.Member;
+import mondrian.olap.MondrianException;
+import mondrian.olap.Query;
+import mondrian.olap.Schema;
+import mondrian.olap.Util;
+import mondrian.rolap.RolapConnectionProperties;
+import mondrian.util.Pair;
 
 /**
  * @author James Dixon

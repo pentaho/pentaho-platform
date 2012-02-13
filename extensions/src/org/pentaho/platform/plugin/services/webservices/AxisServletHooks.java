@@ -18,7 +18,6 @@
 package org.pentaho.platform.plugin.services.webservices;
 
 import java.io.IOException;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

@@ -26,13 +26,14 @@ import java.util.Properties;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IPentahoSession;
-//import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
+import org.pentaho.test.platform.engine.core.BaseTest;
+
+//import org.pentaho.platform.api.engine.IRuntimeContext;
 //import org.pentaho.platform.plugin.services.messages.Messages;
 //import org.pentaho.platform.util.xml.dom4j.DataGrid;
-import org.pentaho.test.platform.engine.core.BaseTest;
 
 /**
  * @author wseyler

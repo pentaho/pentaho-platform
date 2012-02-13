@@ -14,23 +14,6 @@
  */
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeAcl;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
-
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.net.URL;
@@ -40,7 +23,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
-
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
@@ -68,8 +50,24 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPrope
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-
 import com.sun.xml.ws.developer.JAXWSProperties;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeAcl;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
 
 /**
  * Tests marshalling, unmarshalling, and {@code UnifiedRepositoryToWebServiceAdapter}. Do not test unified repository

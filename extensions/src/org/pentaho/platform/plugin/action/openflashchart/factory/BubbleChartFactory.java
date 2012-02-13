@@ -20,11 +20,11 @@ import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 
-import ofc4j.model.elements.Element;
-import ofc4j.model.elements.ScatterChart;
-
 import org.dom4j.Node;
 import org.pentaho.platform.plugin.action.messages.Messages;
+
+import ofc4j.model.elements.Element;
+import ofc4j.model.elements.ScatterChart;
 
 public class BubbleChartFactory extends AbstractChartFactory {
 

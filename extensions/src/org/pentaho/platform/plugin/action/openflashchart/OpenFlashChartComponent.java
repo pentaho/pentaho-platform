@@ -24,7 +24,6 @@ import org.dom4j.Document;
 import org.dom4j.Node;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
-import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;

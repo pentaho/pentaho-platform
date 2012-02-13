@@ -25,7 +25,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.context.SecurityContextHolder;
-
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class MantleLoginServlet extends RemoteServiceServlet implements MantleLoginService {

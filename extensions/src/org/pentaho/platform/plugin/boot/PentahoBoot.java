@@ -46,7 +46,6 @@ import org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
 import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
-import org.pentaho.platform.repository.pmd.CachingPentahoMetadataDomainRepository;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 
@@ -131,7 +130,7 @@ public class PentahoBoot extends PentahoSystemBoot {
   public void enableMetadata() {
     IPentahoObjectFactory objectFactory = getFactory();
     if (objectFactory instanceof IPentahoDefinableObjectFactory) {
-      define(IMetadataDomainRepository.class, CachingPentahoMetadataDomainRepository.class, Scope.GLOBAL);
+      define(IMetadataDomainRepository.class, org.pentaho.platform.plugin.services.metadata.CachingPentahoMetadataDomainRepository.class, Scope.GLOBAL);
     }
   }
 

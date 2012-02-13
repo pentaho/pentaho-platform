@@ -19,7 +19,6 @@ package org.pentaho.mantle.client.commands;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-
 import com.google.gwt.user.client.ui.Frame;
 
 public class UrlCommand extends AbstractCommand {

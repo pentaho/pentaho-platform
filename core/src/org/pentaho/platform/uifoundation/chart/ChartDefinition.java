@@ -21,9 +21,7 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Paint;
+import java.awt.*;
 import java.util.List;
 
 import org.jfree.ui.RectangleEdge;

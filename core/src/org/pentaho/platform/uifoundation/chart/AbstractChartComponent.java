@@ -40,7 +40,6 @@ import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
-import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.uifoundation.component.xml.XmlComponent;

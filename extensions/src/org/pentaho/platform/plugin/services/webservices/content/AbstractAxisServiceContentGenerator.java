@@ -18,7 +18,6 @@
 package org.pentaho.platform.plugin.services.webservices.content;
 
 import java.io.OutputStream;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 

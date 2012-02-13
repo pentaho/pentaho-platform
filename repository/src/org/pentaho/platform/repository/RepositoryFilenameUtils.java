@@ -16,13 +16,13 @@
  */
 package org.pentaho.platform.repository;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOCase;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOCase;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 /**
  * General filename and filepath manipulation utilities for the Pentaho Repository. NOTE: these methods will work

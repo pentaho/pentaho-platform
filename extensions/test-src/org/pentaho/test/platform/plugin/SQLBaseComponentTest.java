@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.pentaho.actionsequence.dom.actions.SqlQueryAction;
 import org.pentaho.platform.plugin.action.sql.SQLBaseComponent;
 import org.pentaho.platform.plugin.services.connections.sql.SQLConnection;
-
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockPreparedStatement;
 import com.mockrunner.mock.jdbc.MockResultSet;

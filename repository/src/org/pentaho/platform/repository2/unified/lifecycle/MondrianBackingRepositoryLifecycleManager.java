@@ -14,6 +14,8 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
+import java.util.EnumSet;
+
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
@@ -27,8 +29,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
-
-import java.util.EnumSet;
 
 /**
  * Initializes folders used by Pentaho Mondrian.

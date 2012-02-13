@@ -18,8 +18,12 @@
 package org.pentaho.test.platform.web;
 
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpSession;
+import java.io.File;
+import java.util.Enumeration;
+import java.util.Locale;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionEvent;
+
 import org.apache.commons.logging.Log;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -27,12 +31,8 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.UserSession;
 import org.pentaho.platform.web.http.session.PentahoHttpSessionListener;
 import org.pentaho.test.platform.engine.core.BaseTest;
-
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import java.io.File;
-import java.util.Enumeration;
-import java.util.Locale;
+import com.mockrunner.mock.web.MockHttpServletRequest;
+import com.mockrunner.mock.web.MockHttpSession;
 
 public class SessionTest extends BaseTest {
   private static final String SOLUTION_PATH = "test-src/web-solution";

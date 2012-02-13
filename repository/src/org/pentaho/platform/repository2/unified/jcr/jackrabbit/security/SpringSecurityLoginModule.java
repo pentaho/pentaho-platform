@@ -17,7 +17,6 @@ package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.util.Map;
-
 import javax.jcr.Credentials;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;

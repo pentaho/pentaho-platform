@@ -17,19 +17,15 @@
 */
 package org.pentaho.platform.plugin.action.chartbeans;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.IOUtils;
@@ -47,8 +43,8 @@ import org.pentaho.chart.model.util.ChartSerializer.ChartSerializationFormat;
 import org.pentaho.chart.plugin.ChartDataOverflowException;
 import org.pentaho.chart.plugin.ChartProcessingException;
 import org.pentaho.chart.plugin.NoChartDataException;
-import org.pentaho.chart.plugin.api.PersistenceException;
 import org.pentaho.chart.plugin.api.IOutput.OutputTypes;
+import org.pentaho.chart.plugin.api.PersistenceException;
 import org.pentaho.chart.plugin.jfreechart.JFreeChartPlugin;
 import org.pentaho.chart.plugin.openflashchart.OpenFlashChartPlugin;
 import org.pentaho.commons.connection.IPentahoResultSet;

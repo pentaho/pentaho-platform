@@ -33,7 +33,6 @@ import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
-import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;

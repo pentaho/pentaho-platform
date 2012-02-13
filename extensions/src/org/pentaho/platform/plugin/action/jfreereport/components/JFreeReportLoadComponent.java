@@ -18,7 +18,6 @@
 package org.pentaho.platform.plugin.action.jfreereport.components;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -36,7 +35,6 @@ import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.jfreereport.AbstractJFreeReportComponent;
-import org.pentaho.platform.plugin.action.jfreereport.helper.PentahoResourceData;
 import org.pentaho.platform.plugin.action.jfreereport.helper.PentahoResourceLoader;
 import org.pentaho.platform.plugin.action.jfreereport.helper.ReportUtils;
 import org.pentaho.platform.plugin.action.messages.Messages;

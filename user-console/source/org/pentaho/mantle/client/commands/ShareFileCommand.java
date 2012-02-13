@@ -22,7 +22,6 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
-
 import com.google.gwt.user.client.Command;
 
 public class ShareFileCommand implements Command {

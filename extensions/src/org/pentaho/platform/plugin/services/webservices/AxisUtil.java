@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-
 import javax.wsdl.Definition;
 import javax.wsdl.xml.WSDLReader;
 
@@ -38,12 +37,9 @@ import org.apache.axis2.engine.MessageReceiver;
 import org.apache.axis2.util.Loader;
 import org.apache.axis2.wsdl.WSDLConstants;
 import org.apache.ws.java2wsdl.Java2WSDLBuilder;
-import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IServiceConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.messages.Messages;
 import org.xml.sax.InputSource;
-
 import com.ibm.wsdl.factory.WSDLFactoryImpl;
 
 public class AxisUtil {

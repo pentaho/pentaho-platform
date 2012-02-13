@@ -17,14 +17,25 @@
 */
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
-import mondrian.i18n.LocalizingDynamicSchemaProcessor;
-import mondrian.olap.MondrianDef;
-import mondrian.olap.Util;
-import mondrian.olap.Util.PropertyList;
-import mondrian.rolap.agg.AggregationManager;
-import mondrian.xmla.DataSourcesConfig;
-import mondrian.xmla.DataSourcesConfig.DataSource;
-import mondrian.xmla.DataSourcesConfig.DataSources;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.commons.collections.list.SetUniqueList;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -59,7 +70,6 @@ import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
-import org.pentaho.platform.repository2.unified.importexport.legacy.MondrianCatalogRepositoryHelper;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -67,24 +77,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXParseException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import mondrian.i18n.LocalizingDynamicSchemaProcessor;
+import mondrian.olap.MondrianDef;
+import mondrian.olap.Util;
+import mondrian.olap.Util.PropertyList;
+import mondrian.rolap.agg.AggregationManager;
+import mondrian.xmla.DataSourcesConfig;
+import mondrian.xmla.DataSourcesConfig.DataSource;
+import mondrian.xmla.DataSourcesConfig.DataSources;
 
 
 /**
@@ -495,7 +495,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     try {
       String mondrianSchema = (String) pentahoSession.getAttribute("MONDRIAN_SCHEMA_XML_CONTENT");
       InputStream schemaInputStream = IOUtils.toInputStream(mondrianSchema);
-      MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper(PentahoSystem.get(IUnifiedRepository.class));
+      org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper = new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(PentahoSystem.get(IUnifiedRepository.class));
       helper.addSchema(schemaInputStream, catalog.getName(), catalog.getDataSourceInfo());
     } catch (Exception e) {
       throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
@@ -533,7 +533,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       parsingInputStream.close();
 
       FileInputStream schemaInputStream = new FileInputStream(mondrianFile);
-      MondrianCatalogRepositoryHelper helper = new MondrianCatalogRepositoryHelper(PentahoSystem.get(IUnifiedRepository.class));
+      org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper = new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(PentahoSystem.get(IUnifiedRepository.class));
       helper.addSchema(schemaInputStream, catalogName, datasourceInfo);
 
       reInit(PentahoSessionHolder.getSession());

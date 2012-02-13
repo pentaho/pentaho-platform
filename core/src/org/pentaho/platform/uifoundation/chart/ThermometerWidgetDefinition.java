@@ -22,7 +22,7 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Font;
+import java.awt.*;
 
 public class ThermometerWidgetDefinition extends WidgetDefinition {
 

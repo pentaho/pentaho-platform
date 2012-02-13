@@ -25,7 +25,6 @@ import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;

@@ -21,7 +21,6 @@
 package org.pentaho.platform.engine.services.connection.datasource.dbcp.tenantaware;
 
 import java.text.MessageFormat;
-
 import javax.sql.DataSource;
 
 import org.pentaho.platform.api.data.DBDatasourceServiceException;

@@ -49,7 +49,6 @@ import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
-
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;

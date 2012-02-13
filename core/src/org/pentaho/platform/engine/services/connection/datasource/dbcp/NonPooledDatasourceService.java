@@ -23,10 +23,8 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.pentaho.database.model.IDatabaseConnection;
-import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;

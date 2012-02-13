@@ -24,7 +24,6 @@ package org.pentaho.platform.web.http.session;
 
 import java.util.Iterator;
 import java.util.Locale;
-
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.iterators.EnumerationIterator;

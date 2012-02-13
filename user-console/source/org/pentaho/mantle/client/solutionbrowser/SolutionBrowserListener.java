@@ -17,7 +17,6 @@
 package org.pentaho.mantle.client.solutionbrowser;
 
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-
 import com.google.gwt.user.client.ui.Widget;
 
 public interface SolutionBrowserListener {

@@ -20,10 +20,6 @@
  */
 package org.pentaho.platform.api.engine;
 
-import org.pentaho.platform.api.engine.IApplicationContext;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
-import org.pentaho.platform.api.engine.ISystemSettings;
-
 public interface IPentahoSystem {
 
   public int getLoggingLevel();

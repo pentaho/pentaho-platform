@@ -17,6 +17,12 @@
 */
 package org.pentaho.platform.web.html.themes;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,12 +31,12 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
-import org.pentaho.platform.api.ui.*;
+import org.pentaho.platform.api.ui.IThemeResolver;
+import org.pentaho.platform.api.ui.ModuleThemeInfo;
+import org.pentaho.platform.api.ui.Theme;
+import org.pentaho.platform.api.ui.ThemeResource;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.LocaleHelper;
-
-import java.io.InputStream;
-import java.util.*;
 
 /**
  * Theme resolver for platform plugins. 

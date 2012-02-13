@@ -1,7 +1,6 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import java.util.ArrayList;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement

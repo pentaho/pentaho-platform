@@ -19,16 +19,12 @@
 package org.pentaho.test.platform;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
 import org.dom4j.Document;
 import org.dom4j.Node;
-import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.engine.IActionSequence;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IPentahoSession;

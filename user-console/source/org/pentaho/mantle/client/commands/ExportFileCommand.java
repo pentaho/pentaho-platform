@@ -18,7 +18,6 @@ package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 

@@ -17,8 +17,7 @@
 */
 package org.pentaho.platform.plugin.action.jfreereport.outputs;
 
-import java.awt.Dialog;
-import java.awt.Frame;
+import java.awt.*;
 
 import org.jfree.ui.RefineryUtilities;
 import org.pentaho.platform.plugin.action.jfreereport.AbstractJFreeReportComponent;

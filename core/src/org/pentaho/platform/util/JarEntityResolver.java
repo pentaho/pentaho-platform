@@ -22,7 +22,6 @@ package org.pentaho.platform.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 

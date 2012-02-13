@@ -17,7 +17,6 @@
  */
 package org.pentaho.platform.plugin.action.pentahometadata;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -26,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.metadata.model.IMetadataQueryExec;
-import org.pentaho.metadata.query.impl.sql.SqlGenerator;
 import org.pentaho.metadata.query.model.Parameter;
 import org.pentaho.metadata.query.model.Query;
 import org.pentaho.metadata.query.model.util.QueryXmlHelper;

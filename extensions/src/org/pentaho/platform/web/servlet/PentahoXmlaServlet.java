@@ -22,15 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-
-import mondrian.server.DynamicContentFinder;
-import mondrian.spi.CatalogLocator;
-import mondrian.spi.impl.ServletContextCatalogLocator;
-import mondrian.xmla.XmlaHandler.ConnectionFactory;
-import mondrian.xmla.impl.DynamicDatasourceXmlaServlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,6 +51,12 @@ import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsF
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
 import org.xml.sax.EntityResolver;
+
+import mondrian.server.DynamicContentFinder;
+import mondrian.spi.CatalogLocator;
+import mondrian.spi.impl.ServletContextCatalogLocator;
+import mondrian.xmla.XmlaHandler.ConnectionFactory;
+import mondrian.xmla.impl.DynamicDatasourceXmlaServlet;
 
 /**
  * Filters out <code>DataSource</code> elements that are not XMLA-related.

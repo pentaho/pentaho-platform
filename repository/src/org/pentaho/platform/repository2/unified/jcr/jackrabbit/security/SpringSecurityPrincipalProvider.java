@@ -19,7 +19,6 @@ import java.security.acl.Group;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.jcr.Session;
 
 import org.apache.commons.collections.map.LRUMap;

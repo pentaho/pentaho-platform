@@ -1,5 +1,7 @@
 package org.pentaho.test.platform.plugin.services.metadata;
 
+import java.io.File;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,8 +10,6 @@ import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
-
-import java.io.File;
 
 import static org.junit.Assert.assertTrue;
 

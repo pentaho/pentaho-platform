@@ -20,8 +20,6 @@
 */
 package org.pentaho.test.platform.plugin.chartbeans;
 
-import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
@@ -30,6 +28,8 @@ import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.plugin.action.chartbeans.ChartBeansSystemListener;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.engine.core.XmlSimpleSystemSettings;
+
+import junit.framework.Assert;
 
 @SuppressWarnings("nls")
 public class ChartBeansSystemListenerTest {

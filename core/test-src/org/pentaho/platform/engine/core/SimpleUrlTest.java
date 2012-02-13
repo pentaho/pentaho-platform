@@ -21,11 +21,11 @@
 
 package org.pentaho.platform.engine.core;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.pentaho.platform.util.web.SimpleUrl;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 public class SimpleUrlTest extends TestCase {
 

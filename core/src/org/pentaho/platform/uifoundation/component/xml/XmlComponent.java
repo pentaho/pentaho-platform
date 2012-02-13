@@ -23,7 +23,6 @@
 package org.pentaho.platform.uifoundation.component.xml;
 
 import java.util.List;
-
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;

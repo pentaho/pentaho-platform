@@ -25,7 +25,6 @@ package org.pentaho.platform.web.servlet;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.pentaho.platform.api.engine.IOutputHandler;

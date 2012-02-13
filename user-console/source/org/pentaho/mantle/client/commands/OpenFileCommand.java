@@ -25,7 +25,6 @@ import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class OpenFileCommand extends AbstractCommand {

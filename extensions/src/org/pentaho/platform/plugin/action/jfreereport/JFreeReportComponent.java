@@ -17,9 +17,7 @@
  */
 package org.pentaho.platform.plugin.action.jfreereport;
 
-import java.awt.Dialog;
-import java.awt.Frame;
-import java.awt.GraphicsEnvironment;
+import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,7 +30,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.activation.DataSource;
 import javax.print.DocFlavor;
 import javax.print.PrintException;

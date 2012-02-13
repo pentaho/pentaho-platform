@@ -31,7 +31,6 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper
 import org.pentaho.platform.web.servlet.MondrianCatalogPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
 import com.mockrunner.mock.web.MockHttpSession;
 
 public class MondrianCatalogPublisherTests extends AbstractMondrianCatalogTestBase {

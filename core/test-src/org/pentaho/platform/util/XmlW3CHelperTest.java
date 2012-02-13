@@ -24,10 +24,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
-import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
 
 public class XmlW3CHelperTest extends TestCase {
 

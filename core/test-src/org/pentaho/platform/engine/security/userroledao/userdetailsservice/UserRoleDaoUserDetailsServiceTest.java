@@ -17,8 +17,6 @@
 */
 package org.pentaho.platform.engine.security.userroledao.userdetailsservice;
 
-import static org.junit.Assert.assertTrue;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -33,6 +31,8 @@ import org.pentaho.platform.engine.security.userroledao.PentahoRole;
 import org.pentaho.platform.engine.security.userroledao.PentahoUser;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for {@link UserRoleDaoUserDetailsService}.

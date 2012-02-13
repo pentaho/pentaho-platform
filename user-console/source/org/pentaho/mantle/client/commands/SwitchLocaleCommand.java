@@ -17,7 +17,6 @@
 package org.pentaho.mantle.client.commands;
 
 import org.pentaho.mantle.client.service.MantleServiceCache;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 

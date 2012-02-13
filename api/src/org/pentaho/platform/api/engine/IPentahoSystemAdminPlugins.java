@@ -23,8 +23,6 @@ package org.pentaho.platform.api.engine;
 import java.util.List;
 
 import org.dom4j.Document;
-import org.pentaho.platform.api.engine.IPentahoPublisher;
-import org.pentaho.platform.api.engine.IPentahoSession;
 
 public interface IPentahoSystemAdminPlugins {
 

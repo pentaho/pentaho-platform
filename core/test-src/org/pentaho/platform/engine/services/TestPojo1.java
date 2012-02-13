@@ -24,8 +24,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-//import org.pentaho.platform.api.engine.IConfiguredPojo;
 import org.pentaho.platform.api.engine.IPentahoSession;
+
+//import org.pentaho.platform.api.engine.IConfiguredPojo;
 //import org.pentaho.platform.api.engine.ISimplePojoComponent;
 
 public class TestPojo1 {

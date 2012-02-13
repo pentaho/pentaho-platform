@@ -25,7 +25,6 @@ import java.util.List;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.commands.RestoreFileCommand;
 import org.pentaho.mantle.client.messages.Messages;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.NumberFormat;

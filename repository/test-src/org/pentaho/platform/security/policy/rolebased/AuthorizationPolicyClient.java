@@ -14,12 +14,9 @@
  */
 package org.pentaho.platform.security.policy.rolebased;
 
-import static org.junit.Assert.assertEquals;
-
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
@@ -29,6 +26,8 @@ import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.security.policy.rolebased.ws.IAuthorizationPolicyWebService;
 import org.pentaho.platform.security.policy.rolebased.ws.IRoleAuthorizationPolicyRoleBindingDaoWebService;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * To run this, put Metro JARs in your classpath.

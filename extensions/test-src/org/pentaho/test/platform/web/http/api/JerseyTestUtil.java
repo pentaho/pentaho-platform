@@ -1,13 +1,13 @@
 package org.pentaho.test.platform.web.http.api;
 
-import static junit.framework.Assert.assertEquals;
-
 import java.io.IOException;
 import java.util.zip.ZipInputStream;
 
+import com.sun.jersey.api.client.ClientResponse;
+
 import junit.framework.AssertionFailedError;
 
-import com.sun.jersey.api.client.ClientResponse;
+import static junit.framework.Assert.assertEquals;
 
 @SuppressWarnings("nls")
 public class JerseyTestUtil {

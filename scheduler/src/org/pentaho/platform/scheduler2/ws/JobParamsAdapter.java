@@ -19,7 +19,6 @@ package org.pentaho.platform.scheduler2.ws;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.apache.commons.logging.Log;

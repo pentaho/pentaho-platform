@@ -21,10 +21,7 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Paint;
+import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;

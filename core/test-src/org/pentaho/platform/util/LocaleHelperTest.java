@@ -24,10 +24,10 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import org.pentaho.platform.util.messages.LocaleHelper;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
-import org.pentaho.platform.util.messages.LocaleHelper;
 
 public class LocaleHelperTest extends TestCase {
 

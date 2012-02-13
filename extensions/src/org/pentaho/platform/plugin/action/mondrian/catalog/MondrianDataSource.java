@@ -23,11 +23,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import mondrian.olap.Util;
 import mondrian.olap.Util.PropertyList;
 import mondrian.util.Pair;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Simplification of XMLA-specific DataSourcesConfig.DataSource. Should be immutable.

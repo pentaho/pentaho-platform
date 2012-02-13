@@ -19,7 +19,6 @@ package org.pentaho.platform.plugin.services.webservices.content;
 
 import java.io.OutputStream;
 import java.util.Enumeration;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

@@ -18,8 +18,6 @@
  */
 package org.pentaho.platform.repository;
 
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
+
+import junit.framework.TestCase;
 
 /**
  * Test class for the {@link RepositoryFilenameUtils} class

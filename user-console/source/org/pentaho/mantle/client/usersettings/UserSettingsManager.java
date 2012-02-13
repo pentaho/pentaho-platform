@@ -6,7 +6,6 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class UserSettingsManager {

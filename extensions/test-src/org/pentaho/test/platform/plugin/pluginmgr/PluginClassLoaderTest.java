@@ -17,13 +17,6 @@
  */
 package org.pentaho.test.platform.plugin.pluginmgr;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +27,13 @@ import java.util.Enumeration;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("nls")
 public class PluginClassLoaderTest {

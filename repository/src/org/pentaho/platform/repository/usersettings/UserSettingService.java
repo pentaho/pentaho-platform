@@ -26,8 +26,8 @@ import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.hibernate.HibernateUtil;
-import org.pentaho.platform.repository.usersettings.pojo.UserSetting;
 import org.pentaho.platform.repository.messages.Messages;
+import org.pentaho.platform.repository.usersettings.pojo.UserSetting;
 
 public class UserSettingService implements IUserSettingService {
 

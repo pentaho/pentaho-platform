@@ -20,7 +20,6 @@ package org.pentaho.platform.engine.security;
  */
 
 import java.security.spec.AlgorithmParameterSpec;
-
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;

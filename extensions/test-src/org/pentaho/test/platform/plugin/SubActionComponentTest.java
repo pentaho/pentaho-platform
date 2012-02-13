@@ -22,14 +22,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-//import org.pentaho.commons.connection.IPentahoConnection;
-//import org.pentaho.commons.connection.IPentahoResultSet;
-//import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+//import org.pentaho.commons.connection.IPentahoConnection;
+//import org.pentaho.commons.connection.IPentahoResultSet;
+//import org.pentaho.platform.api.data.IPreparedComponent;
 
 @SuppressWarnings("nls")
 public class SubActionComponentTest extends BaseTest {

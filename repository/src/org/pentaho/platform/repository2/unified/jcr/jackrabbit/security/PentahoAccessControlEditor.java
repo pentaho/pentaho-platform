@@ -16,7 +16,6 @@ package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
 import java.security.Principal;
 import java.security.acl.Group;
-
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;

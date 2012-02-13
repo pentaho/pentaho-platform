@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
-import org.pentaho.ui.xul.IMenuCustomization;
 import org.pentaho.ui.xul.XulOverlay;
 import org.springframework.beans.factory.ListableBeanFactory;
 

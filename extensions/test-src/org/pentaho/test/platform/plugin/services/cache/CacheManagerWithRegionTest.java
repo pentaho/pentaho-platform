@@ -20,8 +20,6 @@ package org.pentaho.test.platform.plugin.services.cache;
 import java.io.File;
 import java.math.BigDecimal;
 
-import junit.framework.Assert;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -29,6 +27,8 @@ import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+import junit.framework.Assert;
 
 @SuppressWarnings("nls")
 public class CacheManagerWithRegionTest extends BaseTest {

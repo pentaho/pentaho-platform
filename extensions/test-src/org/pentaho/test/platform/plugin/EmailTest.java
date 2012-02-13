@@ -25,7 +25,6 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.test.platform.engine.core.BaseTestCase;
-
 import com.dumbster.smtp.SimpleSmtpServer;
 
 @SuppressWarnings("nls")

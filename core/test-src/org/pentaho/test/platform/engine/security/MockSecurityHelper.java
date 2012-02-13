@@ -16,6 +16,9 @@
  */
 package org.pentaho.test.platform.engine.security;
 
+import java.util.Stack;
+import java.util.concurrent.Callable;
+
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IAclSolutionFile;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -24,9 +27,6 @@ import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-
-import java.util.Stack;
-import java.util.concurrent.Callable;
 
 /**
  * Mock class to assist with unit testing. Please add to this class as needed.

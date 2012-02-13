@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
@@ -29,7 +28,6 @@ import org.apache.jackrabbit.core.security.authorization.PrivilegeRegistry;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.JackrabbitRepositoryFileAclDao.IPermissionConversionHelper;
 import org.springframework.util.Assert;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 

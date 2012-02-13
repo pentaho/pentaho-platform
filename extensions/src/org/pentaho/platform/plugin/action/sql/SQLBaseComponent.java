@@ -39,7 +39,6 @@ import org.pentaho.commons.connection.IPentahoMetaData;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.PentahoDataTransmuter;
 import org.pentaho.commons.connection.memory.MemoryMetaData;
-import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.platform.api.data.IDataComponent;
 import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IParameterResolver;

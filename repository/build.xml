@@ -7,8 +7,8 @@
   
   See common_build.xml for more details
 ============================================================================-->
-<project name="Repository" basedir="." default="default" 
-	xmlns:ivy="antlib:org.apache.ivy.ant" >
+<project name="Repository" basedir="." default="default"
+    >
 	
 	<description>
 	  This build file is used to create the Repository library for the BI Platform.

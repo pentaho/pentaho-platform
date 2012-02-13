@@ -42,7 +42,6 @@ import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
-
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;

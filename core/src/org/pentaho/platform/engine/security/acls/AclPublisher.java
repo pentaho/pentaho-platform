@@ -32,10 +32,10 @@ import org.pentaho.platform.api.engine.IPermissionMask;
 import org.pentaho.platform.api.engine.IPermissionRecipient;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.SpringSecurityPermissionMgr;
 import org.pentaho.platform.engine.security.SimplePermissionMask;
 import org.pentaho.platform.engine.security.SimpleRole;
 import org.pentaho.platform.engine.security.SimpleUser;
+import org.pentaho.platform.engine.security.SpringSecurityPermissionMgr;
 import org.pentaho.platform.engine.security.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 

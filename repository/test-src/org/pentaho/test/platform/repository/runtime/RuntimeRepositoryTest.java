@@ -23,7 +23,6 @@
 package org.pentaho.test.platform.repository.runtime;
 
 import java.io.File;
-//import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,15 +31,17 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.pentaho.platform.api.repository.IRuntimeRepository;
 import org.pentaho.platform.repository.hibernate.HibernateUtil;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository.runtime.RuntimeElement;
 import org.pentaho.platform.repository.runtime.RuntimeRepository;
 import org.pentaho.test.platform.repository.RepositoryTestCase;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+//import java.io.OutputStream;
 
 @SuppressWarnings("nls")
 public class RuntimeRepositoryTest extends RepositoryTestCase {

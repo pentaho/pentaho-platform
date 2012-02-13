@@ -22,14 +22,14 @@ package org.pentaho.platform.plugin.services.connections.mondrian;
 
 import java.util.List;
 
+import org.pentaho.commons.connection.AbstractPentahoMetaData;
+import org.pentaho.commons.connection.IMultiDimensionalMetaData;
+import org.pentaho.commons.connection.MetaDataUtil;
+
 import mondrian.olap.Axis;
 import mondrian.olap.Hierarchy;
 import mondrian.olap.Member;
 import mondrian.olap.Result;
-
-import org.pentaho.commons.connection.AbstractPentahoMetaData;
-import org.pentaho.commons.connection.IMultiDimensionalMetaData;
-import org.pentaho.commons.connection.MetaDataUtil;
 
 /**
  * @author wseyler

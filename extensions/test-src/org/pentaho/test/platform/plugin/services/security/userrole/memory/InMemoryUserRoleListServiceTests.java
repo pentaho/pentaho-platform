@@ -18,10 +18,6 @@
 package org.pentaho.test.platform.plugin.services.security.userrole.memory;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,11 +30,14 @@ import org.pentaho.platform.engine.security.DefaultUsernameComparator;
 import org.pentaho.platform.plugin.services.security.userrole.memory.InMemoryUserRoleListService;
 import org.pentaho.platform.plugin.services.security.userrole.memory.UserRoleListEnhancedUserMap;
 import org.pentaho.platform.plugin.services.security.userrole.memory.UserRoleListEnhancedUserMapEditor;
-import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.memory.InMemoryDaoImpl;
 import org.springframework.security.userdetails.memory.UserMap;
 import org.springframework.security.userdetails.memory.UserMapEditor;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("nls")
 public class InMemoryUserRoleListServiceTests {

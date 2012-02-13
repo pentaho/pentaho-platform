@@ -18,7 +18,6 @@
  */
 package org.pentaho.platform.engine.services.solution;
 
-import java.io.File;
 import java.io.InputStream;
 
 import org.dom4j.Document;

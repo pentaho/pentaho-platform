@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Credentials;
 import javax.jcr.NoSuchWorkspaceException;

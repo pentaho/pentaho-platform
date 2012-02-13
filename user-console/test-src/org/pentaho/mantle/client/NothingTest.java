@@ -17,10 +17,10 @@
  */
 package org.pentaho.mantle.client;
 
+import org.pentaho.mantle.client.objects.UserPermission;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
-import org.pentaho.mantle.client.objects.UserPermission;
 
 public class NothingTest extends TestCase {
 

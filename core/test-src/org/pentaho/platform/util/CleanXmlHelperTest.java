@@ -19,11 +19,11 @@ package org.pentaho.platform.util;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 public class CleanXmlHelperTest extends TestCase {
 

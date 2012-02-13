@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import org.pentaho.mantle.client.commands.AddDatasourceCommand;
 import org.pentaho.mantle.client.commands.AnalysisViewCommand;
 import org.pentaho.mantle.client.commands.ManageDatasourcesCommand;
 import org.pentaho.mantle.client.commands.UrlCommand;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
-
+import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 

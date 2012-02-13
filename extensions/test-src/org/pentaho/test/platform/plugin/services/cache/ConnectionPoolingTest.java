@@ -18,14 +18,15 @@
 package org.pentaho.test.platform.plugin.services.cache;
 
 import java.io.File;
+
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener;
+import org.pentaho.test.platform.engine.core.BaseTest;
+
 //import java.sql.Connection;
 //
 //import javax.sql.DataSource;
-
-import org.pentaho.platform.engine.core.system.StandaloneSession;
 //import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService;
-import org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceSystemListener;
-import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings("nls")
 public class ConnectionPoolingTest extends BaseTest {

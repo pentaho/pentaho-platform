@@ -26,12 +26,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
@@ -43,6 +39,9 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.XmlHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 @SuppressWarnings({"all"})
 public class XmlHelperTest extends TestCase {

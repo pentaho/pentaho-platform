@@ -66,7 +66,6 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
-import org.pentaho.platform.repository2.unified.importexport.Exporter;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
@@ -312,7 +311,7 @@ public class FileResource extends AbstractJaxRSResource {
     StreamingOutput streamingOutput = null;
     try {
       if (repoFile.isFolder()) {
-        Exporter exporter = new Exporter(repository);
+        org.pentaho.platform.plugin.services.importexport.Exporter exporter = new org.pentaho.platform.plugin.services.importexport.Exporter(repository);
         exporter.setRepoPath(path);
         File zipFile = exporter.doExportAsZip();
         is = new FileInputStream(zipFile);

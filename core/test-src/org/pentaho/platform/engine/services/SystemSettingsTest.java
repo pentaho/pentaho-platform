@@ -27,9 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
@@ -40,6 +37,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
 public class SystemSettingsTest extends TestCase {

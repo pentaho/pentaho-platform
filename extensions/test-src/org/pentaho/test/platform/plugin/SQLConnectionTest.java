@@ -18,14 +18,16 @@
 package org.pentaho.test.platform.plugin;
 
 import java.io.File;
+
+import org.pentaho.test.platform.engine.core.BaseTest;
+import org.pentaho.test.platform.engine.core.BaseTestCase;
+
 //import java.io.OutputStream;
 //
 //import org.pentaho.platform.api.engine.IRuntimeContext;
 //import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 //import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 //import org.pentaho.platform.plugin.services.messages.Messages;
-import org.pentaho.test.platform.engine.core.BaseTest;
-import org.pentaho.test.platform.engine.core.BaseTestCase;
 
 @SuppressWarnings("nls")
 public class SQLConnectionTest extends BaseTestCase {

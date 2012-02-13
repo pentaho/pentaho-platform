@@ -35,7 +35,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.usertype.UserType;
 import org.hibernate.util.EqualsHelper;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository.hibernate.HibernateUtil;
 import org.pentaho.platform.repository.messages.Messages;
 
 public class EmptyStringUserType implements UserType {

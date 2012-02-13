@@ -22,7 +22,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.sql.DataSource;
 
 import org.pentaho.platform.api.engine.IUserRoleListService;

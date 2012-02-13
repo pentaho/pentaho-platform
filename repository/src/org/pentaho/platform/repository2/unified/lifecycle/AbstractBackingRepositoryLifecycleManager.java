@@ -14,6 +14,11 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -31,11 +36,6 @@ import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.EnumSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Contains some common functionality.

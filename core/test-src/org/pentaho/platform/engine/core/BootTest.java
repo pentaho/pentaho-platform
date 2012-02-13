@@ -1,29 +1,22 @@
 package org.pentaho.platform.engine.core;
 
-import static org.junit.Assert.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
 
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
 import org.pentaho.platform.api.engine.ISessionStartupAction;
 import org.pentaho.platform.api.engine.ISolutionEngine;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.SystemSettings;
 import org.pentaho.platform.engine.core.system.boot.PentahoSystemBoot;
-import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings( { "all" })
 public class BootTest {

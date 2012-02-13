@@ -17,8 +17,6 @@
 */
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +29,8 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the <code>UnionizingLdapAuthoritiesPopulator</code> class.

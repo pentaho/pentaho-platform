@@ -17,7 +17,7 @@
  */
 package org.pentaho.platform.plugin.action.jfreereport.outputs;
 
-import java.awt.GraphicsEnvironment;
+import java.awt.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

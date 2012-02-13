@@ -20,18 +20,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 
-import junit.framework.TestCase;
-
-import org.pentaho.platform.api.engine.IRuntimeContext;
-import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.output.BufferedContentItem;
 import org.pentaho.platform.engine.core.output.MultiContentItem;
 import org.pentaho.platform.engine.core.output.MultiOutputStream;
 import org.pentaho.platform.engine.core.output.SimpleContentItem;
-import org.pentaho.platform.util.web.SimpleUrlFactory;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings({"all"})
 public class OutputTest extends TestCase {

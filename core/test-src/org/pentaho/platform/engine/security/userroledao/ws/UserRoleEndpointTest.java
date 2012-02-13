@@ -1,7 +1,6 @@
 package org.pentaho.platform.engine.security.userroledao.ws;
 
 import java.net.URL;
-
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;

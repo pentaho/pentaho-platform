@@ -7,7 +7,7 @@
 
   See common_build.xml for more details
 ============================================================================-->
-<project name="Pentaho Mantle" basedir="." default="jar" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="Pentaho Mantle" basedir="." default="jar">
 
   <description>
 	  This build file is used to create the Pentaho Commons Action Sequence DOM

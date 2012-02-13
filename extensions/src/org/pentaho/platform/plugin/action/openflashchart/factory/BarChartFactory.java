@@ -19,19 +19,19 @@ package org.pentaho.platform.plugin.action.openflashchart.factory;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dom4j.Node;
+
 import ofc4j.model.Tooltip;
 import ofc4j.model.axis.Axis;
 import ofc4j.model.elements.BarChart;
+import ofc4j.model.elements.BarChart.Style;
 import ofc4j.model.elements.Element;
 import ofc4j.model.elements.HorizontalBarChart;
 import ofc4j.model.elements.SketchBarChart;
 import ofc4j.model.elements.StackedBarChart;
-import ofc4j.model.elements.BarChart.Style;
 import ofc4j.model.elements.StackedBarChart.Stack;
 import ofc4j.model.elements.StackedBarChart.StackKey;
 import ofc4j.model.elements.StackedBarChart.StackValue;
-
-import org.dom4j.Node;
 
 public class BarChartFactory extends AbstractChartFactory {
 

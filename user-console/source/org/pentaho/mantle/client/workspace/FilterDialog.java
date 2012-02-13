@@ -24,7 +24,6 @@ import org.pentaho.gwt.widgets.client.controls.DateTimePicker.Layout;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;

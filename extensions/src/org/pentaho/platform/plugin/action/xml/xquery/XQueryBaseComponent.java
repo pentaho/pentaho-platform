@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import net.sf.saxon.trans.XPathException;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.Document;
@@ -61,6 +59,8 @@ import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.engine.services.solution.StandardSettings;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.services.connections.xquery.XQConnection;
+
+import net.sf.saxon.trans.XPathException;
 
 /**
  * XQueryBaseComponent provides a mechanism to run xqueries within the Pentaho BI Platform.

@@ -17,8 +17,6 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -26,6 +24,8 @@ import javax.ws.rs.Produces;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 /**
  * @author wseyler

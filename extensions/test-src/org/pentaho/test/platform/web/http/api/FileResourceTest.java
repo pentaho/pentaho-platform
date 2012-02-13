@@ -1,26 +1,5 @@
 package org.pentaho.test.platform.web.http.api;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeAcl;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
-import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
-import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponseIsZip;
-
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,10 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.ws.rs.core.MediaType;
-
-import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -53,7 +29,6 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAce
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
-
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
@@ -63,6 +38,29 @@ import com.sun.jersey.test.framework.WebAppDescriptor;
 import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
 import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
 import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
+
+import junit.framework.Assert;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeAcl;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
+import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
+import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponseIsZip;
 
 @SuppressWarnings("nls")
 public class FileResourceTest extends JerseyTest {

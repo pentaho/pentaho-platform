@@ -1,9 +1,5 @@
 package org.pentaho.platform.engine.core;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -12,6 +8,10 @@ import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 @SuppressWarnings("nls")
 public class PentahoSessionHolderTest {

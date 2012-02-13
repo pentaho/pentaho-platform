@@ -19,17 +19,11 @@
  */
 package org.pentaho.platform.engine.services.connection.datasource.dbcp;
 
-import java.util.List;
-
-import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
-import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 
 public class NonPooledDatasourceSystemListener implements IPentahoSystemListener {

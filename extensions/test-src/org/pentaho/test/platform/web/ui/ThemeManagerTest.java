@@ -14,7 +14,6 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.test.platform.engine.core.BaseTest;
-
 import com.mockrunner.mock.web.MockServletContext;
 
 /**

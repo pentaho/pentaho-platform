@@ -22,10 +22,10 @@ package org.pentaho.platform.util;
 
 import java.io.InputStream;
 
+import org.pentaho.commons.connection.InputStreamDataSource;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
-import org.pentaho.commons.connection.InputStreamDataSource;
 
 public class InputStreamDataSourceTest extends TestCase {
 

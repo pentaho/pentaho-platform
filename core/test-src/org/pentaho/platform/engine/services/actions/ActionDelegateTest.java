@@ -1,13 +1,5 @@
 package org.pentaho.platform.engine.services.actions;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,25 +21,33 @@ import org.pentaho.platform.api.action.IStreamingAction;
 import org.pentaho.platform.api.engine.ActionSequenceException;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IOutputHandler;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.PluginBeanException;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.repository.ContentException;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+import org.pentaho.platform.engine.services.ServiceTestHelper;
 import org.pentaho.platform.engine.services.outputhandler.BaseOutputHandler;
 import org.pentaho.platform.engine.services.solution.ActionDelegate;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.engine.core.PluginManagerAdapter;
-import org.pentaho.platform.engine.services.ServiceTestHelper;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * This JUnit test verifies the proper functioning of IActions as surrogate components.

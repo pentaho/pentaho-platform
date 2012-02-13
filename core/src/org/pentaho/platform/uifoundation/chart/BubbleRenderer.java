@@ -18,7 +18,7 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 

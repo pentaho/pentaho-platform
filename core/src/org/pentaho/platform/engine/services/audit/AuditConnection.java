@@ -24,7 +24,6 @@ package org.pentaho.platform.engine.services.audit;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;

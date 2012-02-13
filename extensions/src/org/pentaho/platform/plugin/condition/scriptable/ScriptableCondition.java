@@ -23,7 +23,6 @@ package org.pentaho.platform.plugin.condition.scriptable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;

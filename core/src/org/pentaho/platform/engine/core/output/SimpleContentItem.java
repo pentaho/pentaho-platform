@@ -25,9 +25,6 @@ package org.pentaho.platform.engine.core.output;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.util.Date;
-import java.util.List;
 
 import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.repository.ContentException;

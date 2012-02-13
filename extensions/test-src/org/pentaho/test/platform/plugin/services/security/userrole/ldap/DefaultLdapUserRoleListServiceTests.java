@@ -18,13 +18,10 @@
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
 
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.naming.directory.SearchControls;
 
 import org.apache.commons.collections.Transformer;
@@ -32,7 +29,6 @@ import org.apache.commons.collections.functors.ChainedTransformer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
-//import org.pentaho.platform.engine.core.audit.NullAuditEntry;
 import org.pentaho.platform.engine.security.DefaultRoleComparator;
 import org.pentaho.platform.engine.security.DefaultUsernameComparator;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserRoleListService;
@@ -51,6 +47,10 @@ import org.springframework.security.ldap.LdapUserSearch;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsService;
+
+import static org.junit.Assert.assertTrue;
+
+//import org.pentaho.platform.engine.core.audit.NullAuditEntry;
 
 /**
  * Tests for the <code>DefaultLdapUserRoleListService</code> class. The ways

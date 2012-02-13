@@ -18,7 +18,6 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import java.util.ArrayList;
-
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;

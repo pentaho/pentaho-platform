@@ -3,7 +3,6 @@ package org.pentaho.mantle.client.solutionbrowser;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
-
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.DOM;

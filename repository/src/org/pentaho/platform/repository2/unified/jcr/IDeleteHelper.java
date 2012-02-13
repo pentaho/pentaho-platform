@@ -16,7 +16,6 @@ package org.pentaho.platform.repository2.unified.jcr;
 
 import java.io.Serializable;
 import java.util.List;
-
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 

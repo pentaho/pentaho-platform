@@ -25,8 +25,6 @@ import org.apache.commons.vfs.FileSystemConfigBuilder;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemOptions;
 import org.apache.commons.vfs.provider.FileProvider;
-import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.engine.services.solution.SolutionReposHelper;
 
 public class SolutionRepositoryVfs implements FileProvider {
 

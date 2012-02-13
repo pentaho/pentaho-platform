@@ -20,7 +20,6 @@ package org.pentaho.platform.scheduler2.recur;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;

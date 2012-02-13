@@ -17,8 +17,6 @@
 */
 package org.pentaho.platform.engine.security.userroledao.userrolelistservice;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +38,8 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for {@link UserRoleDaoUserRoleListService}.

@@ -19,7 +19,6 @@ package org.pentaho.platform.web.http;
 
 import java.io.File;
 import java.io.IOException;
-
 import javax.servlet.ServletContext;
 
 import org.apache.commons.lang.StringUtils;

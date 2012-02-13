@@ -17,19 +17,10 @@
 */
 package org.pentaho.platform.engine.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.pentaho.platform.api.engine.IActionParameter;
-import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IRuntimeContext;
-import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.solution.CustomSettingsParameterProvider;
 import org.pentaho.platform.engine.core.solution.SystemSettingsParameterProvider;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.test.platform.engine.core.BaseTest;
 
 @SuppressWarnings({"all"})

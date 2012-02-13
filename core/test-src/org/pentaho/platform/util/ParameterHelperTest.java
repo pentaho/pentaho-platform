@@ -28,8 +28,6 @@ import java.util.Locale;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.pentaho.platform.util.ParameterHelper;
-
 public class ParameterHelperTest extends TestCase {
 
   public void testUtil() {

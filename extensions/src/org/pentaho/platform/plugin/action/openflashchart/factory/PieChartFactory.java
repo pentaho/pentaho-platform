@@ -16,10 +16,10 @@
  */
 package org.pentaho.platform.plugin.action.openflashchart.factory;
 
+import org.dom4j.Node;
+
 import ofc4j.model.elements.Element;
 import ofc4j.model.elements.PieChart;
-
-import org.dom4j.Node;
 
 public class PieChartFactory extends AbstractChartFactory {
 

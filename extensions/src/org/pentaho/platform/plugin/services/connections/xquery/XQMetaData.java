@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.pentaho.commons.connection.AbstractPentahoMetaData;
+
 import net.sf.saxon.om.Axis;
 import net.sf.saxon.om.AxisIterator;
 import net.sf.saxon.tinytree.TinyNodeImpl;
 import net.sf.saxon.type.Type;
-
-import org.pentaho.commons.connection.AbstractPentahoMetaData;
 
 /**
  * @author wseyler

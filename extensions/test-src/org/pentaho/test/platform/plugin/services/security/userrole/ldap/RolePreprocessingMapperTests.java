@@ -10,8 +10,6 @@
  */
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Set;
 
@@ -22,6 +20,8 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.userdetails.UserDetails;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for <code>RolePreprocessingMapper</code>. Essentially mimics the steps taken by

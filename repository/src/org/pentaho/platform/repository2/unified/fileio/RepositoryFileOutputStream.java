@@ -14,14 +14,6 @@
  */
 package org.pentaho.platform.repository2.unified.fileio;
 
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.util.web.MimeHelper;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -30,6 +22,14 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.util.web.MimeHelper;
 
 public class RepositoryFileOutputStream extends ByteArrayOutputStream {
 

@@ -28,7 +28,7 @@ PentahoSystem which is initialized after Spring
   <bean id="IUITemplater" class="org.pentaho.platform.web.http.WebTemplateHelper" scope="singleton"/>
   <!-- Concrete implementation of IMetadataDomainRepository -->
   <bean id="IMetadataDomainRepositoryImpl"
-        class="org.pentaho.platform.repository.pmd.SecurityAwarePentahoMetadataDomainRepository" scope="singleton">
+        class="org.pentaho.platform.plugin.services.metadata.SecurityAwarePentahoMetadataDomainRepository" scope="singleton">
     <constructor-arg>
       <ref bean="unifiedRepository"/>
     </constructor-arg>
@@ -41,7 +41,7 @@ PentahoSystem which is initialized after Spring
     </constructor-arg>
   </bean>
   <!--  Use this schema factory to disable PMD security -->
-  <!--  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.repository.pmd.CachingPentahoMetadataDomainRepository" scope="singleton"/>-->
+  <!--  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.plugin.services.metadata.CachingPentahoMetadataDomainRepository" scope="singleton"/>-->
   <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService"
         scope="session"/>
   <bean id="file" class="org.pentaho.platform.plugin.outputs.FileOutputHandler" scope="session"/>

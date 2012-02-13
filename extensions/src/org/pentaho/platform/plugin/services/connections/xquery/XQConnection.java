@@ -25,17 +25,17 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Properties;
 
-import net.sf.saxon.Configuration;
-import net.sf.saxon.query.DynamicQueryContext;
-import net.sf.saxon.query.StaticQueryContext;
-import net.sf.saxon.query.XQueryExpression;
-import net.sf.saxon.trans.XPathException;
-
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.engine.core.system.IPentahoLoggingConnection;
 import org.pentaho.platform.plugin.services.messages.Messages;
+
+import net.sf.saxon.Configuration;
+import net.sf.saxon.query.DynamicQueryContext;
+import net.sf.saxon.query.StaticQueryContext;
+import net.sf.saxon.query.XQueryExpression;
+import net.sf.saxon.trans.XPathException;
 
 /**
  * @author wseyler

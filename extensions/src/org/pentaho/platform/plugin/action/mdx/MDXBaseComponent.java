@@ -21,7 +21,6 @@
 
 package org.pentaho.platform.plugin.action.mdx;
 
-import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,8 +31,8 @@ import org.pentaho.actionsequence.dom.actions.MdxConnectionAction;
 import org.pentaho.actionsequence.dom.actions.MdxQueryAction;
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
-import org.pentaho.platform.api.data.IDataComponent;
 import org.pentaho.platform.api.data.IDBDatasourceService;
+import org.pentaho.platform.api.data.IDataComponent;
 import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.engine.core.system.PentahoSystem;

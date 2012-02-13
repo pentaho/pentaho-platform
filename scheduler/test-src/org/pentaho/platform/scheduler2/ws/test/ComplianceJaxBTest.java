@@ -19,21 +19,20 @@ package org.pentaho.platform.scheduler2.ws.test;
 
 import java.util.Date;
 import java.util.HashMap;
-
 import javax.xml.bind.JAXBException;
-
-import junit.framework.Assert;
 
 import org.junit.Test;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.scheduler2.ws.JaxBSafeMap;
+import org.pentaho.platform.scheduler2.ws.JaxBSafeMap.JaxBSafeEntry;
 import org.pentaho.platform.scheduler2.ws.JobAdapter;
 import org.pentaho.platform.scheduler2.ws.ListParamValue;
 import org.pentaho.platform.scheduler2.ws.MapParamValue;
 import org.pentaho.platform.scheduler2.ws.ParamValue;
 import org.pentaho.platform.scheduler2.ws.StringParamValue;
-import org.pentaho.platform.scheduler2.ws.JaxBSafeMap.JaxBSafeEntry;
+
+import junit.framework.Assert;
 
 @SuppressWarnings("nls")
 public class ComplianceJaxBTest {

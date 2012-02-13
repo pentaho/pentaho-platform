@@ -23,8 +23,6 @@ package org.pentaho.platform.api.engine;
 import java.util.List;
 import java.util.Map;
 
-import org.pentaho.platform.api.engine.IApplicationContext;
-
 public interface IPentahoSystemInitializer {
 
   public boolean init(final IApplicationContext pApplicationContext, final Map listenerMap);

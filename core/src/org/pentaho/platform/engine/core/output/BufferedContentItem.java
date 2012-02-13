@@ -21,8 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import org.pentaho.commons.connection.IPentahoStreamSource;
-import org.pentaho.commons.connection.SimpleStreamSource;
 import org.pentaho.platform.api.engine.IContentListener;
 
 public class BufferedContentItem extends SimpleContentItem {

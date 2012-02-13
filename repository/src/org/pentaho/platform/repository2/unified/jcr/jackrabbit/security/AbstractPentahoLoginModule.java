@@ -18,7 +18,6 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import javax.jcr.Credentials;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;

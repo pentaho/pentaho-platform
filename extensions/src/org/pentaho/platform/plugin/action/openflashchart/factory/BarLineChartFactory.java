@@ -19,14 +19,14 @@ package org.pentaho.platform.plugin.action.openflashchart.factory;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.dom4j.Node;
+import org.pentaho.commons.connection.IPentahoResultSet;
+
 import ofc4j.model.axis.Axis;
 import ofc4j.model.axis.YAxis;
 import ofc4j.model.elements.Element;
 import ofc4j.model.elements.LineChart;
-
-import org.apache.commons.logging.Log;
-import org.dom4j.Node;
-import org.pentaho.commons.connection.IPentahoResultSet;
  
 public class BarLineChartFactory extends BarChartFactory {
   

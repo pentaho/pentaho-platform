@@ -22,10 +22,6 @@ package org.pentaho.platform.api.engine;
 
 import java.util.List;
 
-import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISessionStartupAction;
-
 public interface IPentahoSystemStartupActions {
 
   public void sessionStartup(final IPentahoSession session);

@@ -19,7 +19,6 @@ package org.pentaho.mantle.client.commands;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
-
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;

@@ -25,8 +25,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -39,6 +37,8 @@ import org.pentaho.commons.util.repository.type.PropertiesBase;
 import org.pentaho.commons.util.repository.type.TypesOfFileableObjects;
 import org.pentaho.platform.util.client.BiPlatformRepositoryClient;
 import org.pentaho.platform.util.client.BiPlatformRepositoryClientNavigationService;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings({"all"})
 public class BiPlatformRepositoryClientTest extends TestCase {

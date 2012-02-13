@@ -23,8 +23,6 @@ package org.pentaho.platform.util;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.pentaho.platform.util.VersionHelper;
-
 public class VersionHelperTest extends TestCase {
 
   public void testVersionHelper() {

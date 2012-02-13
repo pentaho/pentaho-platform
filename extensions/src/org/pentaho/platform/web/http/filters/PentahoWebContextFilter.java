@@ -20,13 +20,18 @@ package org.pentaho.platform.web.http.filters;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.engine.*;
+import org.pentaho.platform.api.engine.IPentahoRequestContext;
+import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 

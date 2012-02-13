@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.DateFormat;
-//import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,7 +37,6 @@ import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.memory.MemoryMetaData;
 import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.platform.api.engine.AuditException;
-//import org.pentaho.platform.api.engine.IActionParameter;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.InvalidParameterException;
@@ -58,6 +56,9 @@ import org.pentaho.platform.repository.SimpleRuntimeRepository;
 import org.pentaho.platform.util.FileHelper;
 import org.pentaho.platform.util.JVMParameterProvider;
 import org.pentaho.test.platform.engine.core.BaseTest;
+
+//import java.text.SimpleDateFormat;
+//import org.pentaho.platform.api.engine.IActionParameter;
 
 @SuppressWarnings("nls")
 public class MultipleComponentTest extends BaseTest {

@@ -25,7 +25,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import javax.activation.DataSource;
 
 import org.apache.commons.logging.Log;

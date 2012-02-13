@@ -22,7 +22,6 @@ import org.pentaho.mantle.client.dialogs.AnalysisViewDialog;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Timer;
 

@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.jcr.Session;
 
 import org.apache.jackrabbit.api.security.principal.PrincipalIterator;

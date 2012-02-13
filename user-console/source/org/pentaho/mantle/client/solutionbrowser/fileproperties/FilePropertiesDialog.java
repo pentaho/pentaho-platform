@@ -26,7 +26,6 @@ import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-
 import com.google.gwt.user.client.ui.Widget;
 
 public class FilePropertiesDialog extends PromptDialogBox {

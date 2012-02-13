@@ -16,10 +16,10 @@
  */
 package org.pentaho.platform.util;
 
+import org.pentaho.platform.api.engine.PentahoSystemException;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
-import org.pentaho.platform.api.engine.PentahoSystemException;
 
 public class PentahoSystemExceptionTest extends TestCase {
 

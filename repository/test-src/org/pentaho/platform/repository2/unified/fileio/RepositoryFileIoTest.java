@@ -1,14 +1,5 @@
 package org.pentaho.platform.repository2.unified.fileio;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -20,6 +11,15 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
 
 @SuppressWarnings({ "nls" })
 public class RepositoryFileIoTest {

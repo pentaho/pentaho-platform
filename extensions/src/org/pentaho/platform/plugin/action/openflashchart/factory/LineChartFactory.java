@@ -16,9 +16,9 @@
  */
 package org.pentaho.platform.plugin.action.openflashchart.factory;
 
-import ofc4j.model.elements.LineChart;
-
 import org.dom4j.Node;
+
+import ofc4j.model.elements.LineChart;
 
 public class LineChartFactory extends AbstractChartFactory {
 

@@ -17,8 +17,6 @@
 */
 package org.pentaho.platform.engine.security.userroledao.hibernate;
 
-import static org.junit.Assert.assertTrue;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,6 +27,8 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.connection.ConnectionProviderFactory;
 import org.hibernate.dialect.Dialect;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Methods to support testing. Contains methods that use only JDBC for test verification.

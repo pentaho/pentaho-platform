@@ -25,7 +25,6 @@ package org.pentaho.platform.plugin.outputs;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.StringTokenizer;
-
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Repository;

@@ -17,14 +17,14 @@
  */
 package org.pentaho.platform.scheduler2.quartz.test;
 
-import static junit.framework.Assert.assertEquals;
-
 import org.junit.Test;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.scheduler2.quartz.QuartzJobKey;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+
+import static junit.framework.Assert.assertEquals;
 
 @SuppressWarnings("nls")
 public class QuartzJobKeyTest {

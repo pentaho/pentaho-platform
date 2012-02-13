@@ -23,7 +23,6 @@
 package org.pentaho.platform.web.http.session;
 
 import java.io.Serializable;
-
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 

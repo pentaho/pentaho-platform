@@ -17,9 +17,6 @@
 */
 package org.pentaho.platform.engine.security.userroledao.hibernate;
 
-import static org.junit.Assert.assertTrue;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.CREATE;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -28,6 +25,9 @@ import org.hsqldb.Types;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.CREATE;
 
 /**
  * Tests that DDL generation by Hibernate is as expected. It generates the DDL by reading the hbm.xml file.

@@ -24,16 +24,7 @@ package org.pentaho.platform.plugin.services.connections.mondrian;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
-
 import javax.sql.DataSource;
-
-import mondrian.olap.Connection;
-import mondrian.olap.DriverManager;
-import mondrian.olap.Query;
-import mondrian.olap.Result;
-import mondrian.olap.Util;
-import mondrian.rolap.RolapConnectionProperties;
-import mondrian.olap.Role;
 
 import org.pentaho.commons.connection.IPentahoConnection;
 import org.pentaho.commons.connection.IPentahoResultSet;
@@ -47,6 +38,14 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
+
+import mondrian.olap.Connection;
+import mondrian.olap.DriverManager;
+import mondrian.olap.Query;
+import mondrian.olap.Result;
+import mondrian.olap.Role;
+import mondrian.olap.Util;
+import mondrian.rolap.RolapConnectionProperties;
 
 /**
  * @author wseyler

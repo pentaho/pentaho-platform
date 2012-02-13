@@ -27,8 +27,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.Properties;
 
-import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISolutionEngine;
@@ -36,6 +34,8 @@ import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+
+import junit.framework.TestCase;
 
 public class GenericPentahoTest extends TestCase {
   private static final String SOLUTION_PATH = "solution.path"; //$NON-NLS-1$

@@ -6,7 +6,6 @@ import java.util.List;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.gwt.widgets.client.filechooser.XMLToRepositoryFileTreeConverter;
-
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;

@@ -6,10 +6,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test-src" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/test-res" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/res" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="api" exported="" />
+    <orderEntry type="module" module-name="core" exported="" />
     <orderEntry type="module-library">
       <library name="repository/lib">
         <CLASSES>

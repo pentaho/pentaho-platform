@@ -21,13 +21,10 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Paint;
-import java.text.SimpleDateFormat;
+import java.awt.*;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;

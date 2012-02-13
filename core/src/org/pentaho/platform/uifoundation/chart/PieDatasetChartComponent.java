@@ -22,7 +22,6 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -44,12 +43,10 @@ import org.jfree.chart.imagemap.ImageMapUtilities;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.pentaho.commons.connection.IPentahoResultSet;
-import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.uifoundation.messages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;

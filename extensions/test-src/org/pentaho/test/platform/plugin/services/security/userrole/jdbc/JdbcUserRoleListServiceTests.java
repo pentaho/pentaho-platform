@@ -17,14 +17,14 @@
 */
 package org.pentaho.test.platform.plugin.services.security.userrole.jdbc;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 
 import org.junit.Test;
 import org.pentaho.platform.plugin.services.security.userrole.jdbc.JdbcUserRoleListService;
 import org.springframework.security.PopulatedDatabase;
 import org.springframework.security.userdetails.jdbc.JdbcDaoImpl;
+
+import static org.junit.Assert.assertTrue;
 
 public class JdbcUserRoleListServiceTests {
 

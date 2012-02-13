@@ -22,7 +22,7 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.Font;
+import java.awt.*;
 
 import org.jfree.data.general.DefaultValueDataset;
 

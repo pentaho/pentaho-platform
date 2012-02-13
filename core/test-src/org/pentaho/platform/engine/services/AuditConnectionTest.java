@@ -23,7 +23,6 @@ package org.pentaho.platform.engine.services;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
 import org.pentaho.platform.engine.core.system.PentahoSystem;

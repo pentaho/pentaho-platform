@@ -22,11 +22,6 @@ package org.pentaho.platform.api.engine;
 
 import java.util.List;
 
-import org.pentaho.platform.api.engine.ILogoutListener;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.api.engine.PentahoSystemException;
-
 public interface IPentahoSystemListeners {
 
   public void notifySystemListenersOfStartup() throws PentahoSystemException;

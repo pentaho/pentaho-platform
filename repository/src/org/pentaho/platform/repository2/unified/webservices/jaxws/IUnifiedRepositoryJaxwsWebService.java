@@ -1,7 +1,6 @@
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
 import java.util.List;
-
 import javax.jws.WebService;
 
 import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebService;

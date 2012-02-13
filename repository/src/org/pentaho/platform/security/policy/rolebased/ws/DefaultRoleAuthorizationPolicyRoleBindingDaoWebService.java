@@ -15,7 +15,6 @@
 package org.pentaho.platform.security.policy.rolebased.ws;
 
 import java.util.List;
-
 import javax.jws.WebService;
 
 import org.pentaho.platform.engine.core.system.PentahoSystem;

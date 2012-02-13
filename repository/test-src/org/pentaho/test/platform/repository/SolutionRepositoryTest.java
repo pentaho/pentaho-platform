@@ -22,8 +22,9 @@
 package org.pentaho.test.platform.repository;
 
 import java.io.File;
-//import java.io.OutputStream;
 import java.util.Properties;
+
+//import java.io.OutputStream;
 
 //import org.pentaho.platform.api.repository.ISolutionRepository;
 //import org.pentaho.platform.engine.core.system.PentahoSystem;

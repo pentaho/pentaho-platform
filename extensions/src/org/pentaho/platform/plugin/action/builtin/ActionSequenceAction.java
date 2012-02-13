@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.pentaho.platform.api.action.ISessionAwareAction;
 import org.pentaho.platform.api.action.IStreamProcessingAction;
 import org.pentaho.platform.api.action.IStreamingAction;
 import org.pentaho.platform.api.action.IVarArgsAction;
@@ -14,7 +13,6 @@ import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IMessageFormatter;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;

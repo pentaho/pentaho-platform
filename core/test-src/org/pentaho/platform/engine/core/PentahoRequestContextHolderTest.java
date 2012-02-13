@@ -16,10 +16,6 @@
  */
 package org.pentaho.platform.engine.core;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -27,6 +23,10 @@ import org.jmock.Mockery;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 @SuppressWarnings("nls")
 public class PentahoRequestContextHolderTest {

@@ -4,13 +4,11 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
-import org.pentaho.di.repository.RepositoryObjectType;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 

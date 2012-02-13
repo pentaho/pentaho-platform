@@ -20,7 +20,6 @@ package org.pentaho.platform.api.scheduler2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
-
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlElementWrapper;

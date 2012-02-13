@@ -18,25 +18,6 @@
 
 package org.pentaho.test.platform.plugin;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeFileObject;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeIdObject;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.pathPropertyPair;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubCreateFile;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubCreateFolder;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetChildren;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetData;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFile;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFileDoesNotExist;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFolder;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
@@ -52,7 +33,6 @@ import org.pentaho.database.model.DatabaseConnection;
 import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.database.service.IDatabaseDialectService;
-import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -75,11 +55,24 @@ import org.pentaho.platform.util.Base64PasswordService;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.plugin.UserRoleMapperTest.TestUserRoleListService;
 
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeFileObject;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.makeIdObject;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.pathPropertyPair;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubCreateFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubCreateFolder;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetChildren;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetData;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFile;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFileDoesNotExist;
+import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.stubGetFolder;
 
 @SuppressWarnings("nls")
 public class MondrianCatalogHelperTest {

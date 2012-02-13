@@ -17,7 +17,6 @@
 */
 package org.pentaho.platform.plugin.action.jfreereport.helper;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import org.pentaho.actionsequence.dom.IActionResource;

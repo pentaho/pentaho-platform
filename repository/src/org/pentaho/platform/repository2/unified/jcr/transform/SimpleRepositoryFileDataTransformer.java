@@ -16,7 +16,6 @@ package org.pentaho.platform.repository2.unified.jcr.transform;
 
 import java.io.InputStream;
 import java.util.Calendar;
-
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;

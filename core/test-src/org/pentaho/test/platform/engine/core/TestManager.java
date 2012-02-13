@@ -30,12 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestListener;
-import junit.framework.TestResult;
-import junit.framework.TestSuite;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -47,6 +41,12 @@ import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoBase;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
+import junit.framework.TestListener;
+import junit.framework.TestResult;
+import junit.framework.TestSuite;
 
 public class TestManager extends PentahoBase {
 

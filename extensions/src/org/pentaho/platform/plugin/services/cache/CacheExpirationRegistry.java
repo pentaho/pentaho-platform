@@ -1,9 +1,13 @@
 package org.pentaho.platform.plugin.services.cache;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.pentaho.platform.api.cache.ICacheExpirationRegistry;
 import org.pentaho.platform.api.cache.ILastModifiedCacheItem;
-
-import java.util.*;
 
 /**
  * User: rfellows

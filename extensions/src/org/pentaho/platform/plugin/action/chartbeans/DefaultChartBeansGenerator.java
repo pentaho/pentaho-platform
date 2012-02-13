@@ -15,13 +15,6 @@
 
 package org.pentaho.platform.plugin.action.chartbeans;
 
-import static org.pentaho.actionsequence.dom.IActionSequenceDocument.CONTENT_TYPE;
-import static org.pentaho.actionsequence.dom.IActionSequenceDocument.INTEGER_TYPE;
-import static org.pentaho.actionsequence.dom.IActionSequenceDocument.REQUEST_INPUT_SOURCE;
-import static org.pentaho.actionsequence.dom.IActionSequenceDocument.RESPONSE_OUTPUT_DESTINATION;
-import static org.pentaho.actionsequence.dom.IActionSequenceDocument.RESULTSET_TYPE;
-import static org.pentaho.actionsequence.dom.IActionSequenceDocument.STRING_TYPE;
-
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -67,6 +60,13 @@ import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.plugin.action.pentahometadata.ActionDefinitionEncoder;
 import org.pentaho.platform.util.UUIDUtil;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
+
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.CONTENT_TYPE;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.INTEGER_TYPE;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.REQUEST_INPUT_SOURCE;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.RESPONSE_OUTPUT_DESTINATION;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.RESULTSET_TYPE;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.STRING_TYPE;
 
 
 public class DefaultChartBeansGenerator implements IChartBeansGenerator {

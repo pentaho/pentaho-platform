@@ -22,14 +22,7 @@
 
 package org.pentaho.platform.uifoundation.chart;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Image;
-import java.awt.Paint;
-import java.awt.Stroke;
-import java.awt.TexturePaint;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -44,7 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
-
 import javax.imageio.ImageIO;
 
 import org.apache.batik.dom.GenericDOMImplementation;

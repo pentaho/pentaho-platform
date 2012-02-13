@@ -29,8 +29,8 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.pentaho.platform.config.i18n.Messages;
+import org.springframework.security.providers.encoding.PasswordEncoder;
 
 /**
  * By default, this class will initialize itself from <code>resource/config/console.xml</code> (relative to the current

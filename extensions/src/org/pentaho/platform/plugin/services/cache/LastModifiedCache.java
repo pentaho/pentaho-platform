@@ -1,11 +1,11 @@
 package org.pentaho.platform.plugin.services.cache;
 
+import java.util.Date;
+import java.util.Map;
+
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.pentaho.platform.api.cache.ILastModifiedCacheItem;
-
-import java.util.Date;
-import java.util.Map;
 
 /**
  * User: rfellows

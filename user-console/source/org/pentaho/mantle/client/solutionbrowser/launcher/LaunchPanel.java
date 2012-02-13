@@ -20,12 +20,11 @@ import org.pentaho.mantle.client.commands.AddDatasourceCommand;
 import org.pentaho.mantle.client.commands.ManageContentCommand;
 import org.pentaho.mantle.client.commands.ManageDatasourcesCommand;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
-
+import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
-import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 
 public class LaunchPanel extends Frame {
   Image launchAnalysisViewImage;

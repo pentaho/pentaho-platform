@@ -23,7 +23,6 @@
 package org.pentaho.platform.uifoundation.component.xml;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +30,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
-import org.pentaho.platform.api.engine.IActionSequenceResource;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.ui.UIException;
 import org.pentaho.platform.engine.core.solution.ActionInfo;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.SolutionURIResolver;
 import org.pentaho.platform.engine.services.actionsequence.ActionSequenceResource;
 import org.pentaho.platform.uifoundation.messages.Messages;

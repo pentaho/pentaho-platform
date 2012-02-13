@@ -34,7 +34,6 @@ import org.pentaho.platform.api.engine.PluginBeanDefinition;
 import org.pentaho.platform.api.engine.PluginLifecycleException;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
-import org.pentaho.ui.xul.IMenuCustomization;
 import org.pentaho.ui.xul.XulOverlay;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 

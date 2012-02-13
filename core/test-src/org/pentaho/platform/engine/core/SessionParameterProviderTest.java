@@ -21,18 +21,10 @@
  */
 package org.pentaho.platform.engine.core;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
 
 import junit.framework.TestCase;
-
-import org.pentaho.commons.connection.memory.MemoryResultSet;
-import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
-import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
 
 @SuppressWarnings({"all"})
 public class SessionParameterProviderTest extends TestCase {

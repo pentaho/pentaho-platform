@@ -14,28 +14,18 @@
  */
 package org.pentaho.platform.repository2.unified.spring;
 
-import junit.framework.TestCase;
-import org.pentaho.platform.api.engine.IAclHolder;
-import org.pentaho.platform.api.engine.IAclSolutionFile;
-import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ISecurityHelper;
-import org.pentaho.platform.api.engine.ISolutionFile;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.test.platform.MethodTrackingData;
 import org.pentaho.test.platform.engine.security.MockSecurityHelper;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.concurrent.Callable;
+import junit.framework.TestCase;
 
 /**
  * Test cases for the {@link BackingRepositoryLifecycleManagerAuthenticationSuccessListener}

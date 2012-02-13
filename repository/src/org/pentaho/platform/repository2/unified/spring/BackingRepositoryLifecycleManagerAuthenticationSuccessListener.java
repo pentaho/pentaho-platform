@@ -14,6 +14,8 @@
  */
 package org.pentaho.platform.repository2.unified.spring;
 
+import java.util.concurrent.Callable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.ISecurityHelper;
@@ -26,8 +28,6 @@ import org.springframework.core.Ordered;
 import org.springframework.security.event.authentication.AbstractAuthenticationEvent;
 import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
 import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
-
-import java.util.concurrent.Callable;
 
 /**
  * {@link OrderedAuthenticationListener} that invokes {@link IBackingRepositoryLifecycleManager#newTenant()} and

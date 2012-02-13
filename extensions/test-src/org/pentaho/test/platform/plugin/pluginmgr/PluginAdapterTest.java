@@ -17,10 +17,6 @@
  */
 package org.pentaho.test.platform.plugin.pluginmgr;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.ILogger;
@@ -36,12 +32,16 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.services.solution.SolutionEngine;
 import org.pentaho.platform.plugin.services.messages.Messages;
-import org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter;
 import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
+import org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter;
 import org.pentaho.platform.plugin.services.pluginmgr.SystemPathXmlPluginProvider;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.DefaultServiceManager;
 import org.pentaho.platform.repository.solution.filebased.FileBasedSolutionRepository;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("nls")
 public class PluginAdapterTest {

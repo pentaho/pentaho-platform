@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.jcr.Credentials;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.Repository;

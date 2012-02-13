@@ -1,6 +1,13 @@
 package org.pentaho.test.platform.plugin;
 
-import junit.framework.TestCase;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -11,13 +18,7 @@ import org.pentaho.platform.engine.services.solution.SolutionHelper;
 import org.pentaho.platform.plugin.boot.PentahoBoot;
 import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedRepository;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
+import junit.framework.TestCase;
 
 @SuppressWarnings({"all"})
 public class BootTest extends TestCase {

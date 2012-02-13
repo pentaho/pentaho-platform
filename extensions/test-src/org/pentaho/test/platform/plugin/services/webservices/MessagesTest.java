@@ -18,9 +18,9 @@
 package org.pentaho.test.platform.plugin.services.webservices;
 
 
-import junit.framework.TestCase;
-
 import org.pentaho.platform.plugin.services.webservices.messages.Messages;
+
+import junit.framework.TestCase;
 
 
 public class MessagesTest extends TestCase {

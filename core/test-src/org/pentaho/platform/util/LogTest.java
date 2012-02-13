@@ -20,12 +20,12 @@
  */
 package org.pentaho.platform.util;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.logging.SimpleLogger;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 public class LogTest extends TestCase {
 

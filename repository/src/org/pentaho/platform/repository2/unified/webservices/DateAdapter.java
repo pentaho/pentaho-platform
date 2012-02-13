@@ -1,8 +1,6 @@
 package org.pentaho.platform.repository2.unified.webservices;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.apache.commons.logging.Log;

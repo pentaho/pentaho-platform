@@ -28,6 +28,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.OrderedMap;
+import org.apache.commons.collections.map.ListOrderedMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pentaho.commons.connection.IPeekable;
+import org.pentaho.commons.connection.IPentahoMetaData;
+import org.pentaho.commons.connection.IPentahoResultSet;
+import org.pentaho.commons.connection.memory.MemoryMetaData;
+import org.pentaho.commons.connection.memory.MemoryResultSet;
+
 import net.sf.saxon.om.Axis;
 import net.sf.saxon.om.AxisIterator;
 import net.sf.saxon.om.Item;
@@ -38,16 +48,6 @@ import net.sf.saxon.tinytree.TinyNodeImpl;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.type.Type;
 import net.sf.saxon.value.Value;
-
-import org.apache.commons.collections.OrderedMap;
-import org.apache.commons.collections.map.ListOrderedMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.pentaho.commons.connection.IPeekable;
-import org.pentaho.commons.connection.IPentahoMetaData;
-import org.pentaho.commons.connection.IPentahoResultSet;
-import org.pentaho.commons.connection.memory.MemoryMetaData;
-import org.pentaho.commons.connection.memory.MemoryResultSet;
 
 /**
  * @author wseyler

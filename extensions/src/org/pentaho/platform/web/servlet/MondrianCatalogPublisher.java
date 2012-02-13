@@ -21,12 +21,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import mondrian.xmla.DataSourcesConfig.DataSource;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -48,6 +45,8 @@ import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianDataSource;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianSchema;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.servlet.messages.Messages;
+
+import mondrian.xmla.DataSourcesConfig.DataSource;
 
 public class MondrianCatalogPublisher extends RepositoryFilePublisher {
 

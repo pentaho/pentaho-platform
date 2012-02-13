@@ -60,7 +60,6 @@ import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.engine.PentahoSystemException;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
-import org.pentaho.platform.engine.core.solution.ActionInfo;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.util.logging.Logger;

@@ -20,7 +20,6 @@ package org.pentaho.platform.scheduler2.ws;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.jws.WebService;
 
 import org.apache.commons.logging.Log;

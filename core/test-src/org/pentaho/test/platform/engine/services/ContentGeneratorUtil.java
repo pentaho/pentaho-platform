@@ -31,7 +31,6 @@ import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 
 public class ContentGeneratorUtil {

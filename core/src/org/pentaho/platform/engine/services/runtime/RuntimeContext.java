@@ -88,7 +88,6 @@ import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository.IRuntimeElement;
 import org.pentaho.platform.api.repository.IRuntimeRepository;
 import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;

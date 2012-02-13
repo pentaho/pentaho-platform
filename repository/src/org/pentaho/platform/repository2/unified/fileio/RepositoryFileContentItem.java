@@ -1,5 +1,10 @@
 package org.pentaho.platform.repository2.unified.fileio;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.pentaho.commons.connection.IPentahoStreamSource;
 import org.pentaho.platform.api.repository.ContentException;
 import org.pentaho.platform.api.repository.IContentItem;
@@ -8,11 +13,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.web.MimeHelper;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 public class RepositoryFileContentItem implements IContentItem {
 

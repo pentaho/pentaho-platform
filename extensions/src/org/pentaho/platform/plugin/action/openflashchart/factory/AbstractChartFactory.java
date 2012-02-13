@@ -19,22 +19,21 @@ package org.pentaho.platform.plugin.action.openflashchart.factory;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import ofc4j.model.Chart;
-import ofc4j.model.Text;
-import ofc4j.model.axis.Axis;
-import ofc4j.model.axis.Label;
-import ofc4j.model.axis.Label.Rotation;
-import ofc4j.model.axis.XAxis;
-import ofc4j.model.axis.YAxis;
-import ofc4j.model.elements.Element;
- 
 import org.apache.commons.logging.Log;
 import org.dom4j.Node;
 import org.pentaho.commons.connection.IPentahoDataTypes;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.PentahoDataTransmuter;
-import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
+import org.pentaho.platform.plugin.action.messages.Messages;
+
+import ofc4j.model.Chart;
+import ofc4j.model.Text;
+import ofc4j.model.axis.Axis;
+import ofc4j.model.axis.Label.Rotation;
+import ofc4j.model.axis.XAxis;
+import ofc4j.model.axis.YAxis;
+import ofc4j.model.elements.Element;
 
 public abstract class AbstractChartFactory implements IChartFactory {
 

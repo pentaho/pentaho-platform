@@ -20,10 +20,6 @@
  */
 package org.pentaho.platform.api.engine;
 
-import org.pentaho.platform.api.engine.IContentOutputHandler;
-import org.pentaho.platform.api.engine.ILogger;
-import org.pentaho.platform.api.engine.IPentahoSession;
-
 public interface IPentahoSystemHelper {
 
   public IContentOutputHandler getOutputDestinationFromContentRef(final String contentTag,

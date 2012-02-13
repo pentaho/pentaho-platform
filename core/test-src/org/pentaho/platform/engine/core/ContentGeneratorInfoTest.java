@@ -20,10 +20,10 @@
  */
 package org.pentaho.platform.engine.core;
 
-import junit.framework.TestCase;
-
 import org.pentaho.platform.engine.core.solution.ContentGeneratorInfo;
 import org.pentaho.platform.engine.core.solution.FileInfo;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings({"all"})
 public class ContentGeneratorInfoTest extends TestCase {

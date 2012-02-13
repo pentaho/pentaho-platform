@@ -20,28 +20,17 @@ package org.pentaho.platform.engine.core;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
-import junit.framework.TestCase;
-
-import org.pentaho.commons.connection.memory.MemoryResultSet;
-import org.pentaho.platform.api.engine.IContentOutputHandler;
 import org.pentaho.platform.api.engine.IOutputHandler;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.engine.core.output.BufferedContentItem;
 import org.pentaho.platform.engine.core.output.SimpleContentItem;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
-import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneObjectFactory;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings({"all"})
 public class SimpleOutputHandlerTest extends TestCase {

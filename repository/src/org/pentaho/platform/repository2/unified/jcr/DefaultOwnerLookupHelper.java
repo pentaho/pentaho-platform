@@ -16,7 +16,6 @@ package org.pentaho.platform.repository2.unified.jcr;
 
 import java.security.Principal;
 import java.security.acl.Group;
-
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;

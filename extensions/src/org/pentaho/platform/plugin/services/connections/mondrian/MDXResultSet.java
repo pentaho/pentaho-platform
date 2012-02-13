@@ -21,15 +21,15 @@
 
 package org.pentaho.platform.plugin.services.connections.mondrian;
 
-import mondrian.olap.Connection;
-import mondrian.olap.Result;
-
 import org.pentaho.commons.connection.IMultiDimensionalResultSet;
 import org.pentaho.commons.connection.IPeekable;
 import org.pentaho.commons.connection.IPentahoMetaData;
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.commons.connection.memory.MemoryMetaData;
 import org.pentaho.commons.connection.memory.MemoryResultSet;
+
+import mondrian.olap.Connection;
+import mondrian.olap.Result;
 
 /**
  * @author wseyler

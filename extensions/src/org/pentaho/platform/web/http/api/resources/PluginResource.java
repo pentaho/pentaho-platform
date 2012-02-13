@@ -21,8 +21,6 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
-import static javax.ws.rs.core.MediaType.WILDCARD;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -40,8 +37,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -52,6 +49,8 @@ import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.web.MimeHelper;
 import org.pentaho.platform.web.http.messages.Messages;
+
+import static javax.ws.rs.core.MediaType.WILDCARD;
 
 /**
  * Represents the public files available in a plugin.

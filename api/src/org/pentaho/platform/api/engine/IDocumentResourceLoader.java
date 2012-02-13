@@ -17,7 +17,6 @@
 package org.pentaho.platform.api.engine;
 
 import java.io.InputStream;
-
 import javax.xml.transform.URIResolver;
 
 import org.xml.sax.EntityResolver;

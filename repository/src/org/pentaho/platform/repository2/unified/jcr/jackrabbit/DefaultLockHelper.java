@@ -17,7 +17,6 @@ package org.pentaho.platform.repository2.unified.jcr.jackrabbit;
 import java.io.Serializable;
 import java.security.AccessControlException;
 import java.util.Calendar;
-
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;

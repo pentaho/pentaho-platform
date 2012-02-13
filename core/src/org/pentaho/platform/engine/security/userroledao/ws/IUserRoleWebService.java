@@ -17,7 +17,6 @@
 package org.pentaho.platform.engine.security.userroledao.ws;
 
 import java.util.List;
-
 import javax.jws.WebService;
 
 /**

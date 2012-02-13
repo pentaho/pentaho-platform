@@ -23,15 +23,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
+import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.scheduler2.ws.JaxBSafeMap.JaxBSafeEntry;
 
 /**

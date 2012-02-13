@@ -1,7 +1,6 @@
 package org.pentaho.mantle.client.solutionbrowser.tree;
 
 import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
-
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;

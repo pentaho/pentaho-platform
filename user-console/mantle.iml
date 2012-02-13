@@ -6,33 +6,22 @@
       <src_folder value="file://$MODULE_DIR$/source" expected_position="0" />
     </src_description>
   </component>
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
     <output url="file://$MODULE_DIR$/war/WEB-INF/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/source" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test-src" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
-    <orderEntry type="module" module-name="bi-platform-api" />
-    <orderEntry type="module" module-name="bi-platform-engine-core" />
-    <orderEntry type="module" module-name="bi-platform-plugin-services" />
-    <orderEntry type="module" module-name="bi-platform-repository" />
-    <orderEntry type="module" module-name="pentaho-gwt-widgets TRUNK" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/war/WEB-INF/lib" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="file://$MODULE_DIR$/war/WEB-INF/lib" />
-        </SOURCES>
-        <jarDirectory url="file://$MODULE_DIR$/war/WEB-INF/lib" recursive="false" />
-        <jarDirectory url="file://$MODULE_DIR$/war/WEB-INF/lib" recursive="false" type="SOURCES" />
-      </library>
-    </orderEntry>
+    <orderEntry type="module" module-name="api" exported="" />
+    <orderEntry type="module" module-name="core" exported="" />
+    <orderEntry type="module" module-name="extensions" exported="" />
+    <orderEntry type="module" module-name="repository" exported="" />
+    <orderEntry type="module" module-name="scheduler" exported="" />
     <orderEntry type="module-library">
       <library name="mantle/dev-lib">
         <CLASSES>
@@ -40,11 +29,16 @@
           <root url="file://$MODULE_DIR$/dev-lib" />
           <root url="file://$MODULE_DIR$/codegen-lib" />
           <root url="file://$MODULE_DIR$/dev-lib" />
+          <root url="file://$MODULE_DIR$/war/WEB-INF/lib" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/war/WEB-INF/lib" />
+        </SOURCES>
         <jarDirectory url="file://$MODULE_DIR$/codegen-lib" recursive="false" />
         <jarDirectory url="file://$MODULE_DIR$/dev-lib" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/war/WEB-INF/lib" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/war/WEB-INF/lib" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">

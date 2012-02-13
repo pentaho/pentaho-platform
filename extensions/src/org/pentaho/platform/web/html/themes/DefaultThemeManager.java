@@ -17,14 +17,21 @@
 */
 package org.pentaho.platform.web.html.themes;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.ICacheManager;
-import org.pentaho.platform.api.ui.*;
+import org.pentaho.platform.api.ui.IThemeManager;
+import org.pentaho.platform.api.ui.IThemeResolver;
+import org.pentaho.platform.api.ui.ModuleThemeInfo;
+import org.pentaho.platform.api.ui.Theme;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-
-import java.text.MessageFormat;
-import java.util.*;
 
 /**
  * Default IThemeResolver implementation. DefaultThemeManager collects information about available

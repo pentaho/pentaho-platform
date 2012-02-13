@@ -1,16 +1,14 @@
 package org.pentaho.platform.web.http.security;
 
-import static org.junit.Assert.assertEquals;
-
 import java.security.Principal;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import com.mockrunner.mock.web.MockHttpServletRequest;
+
+import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("nls")
 public class UsernameSubstringPreAuthenticatedProcessingFilterTest {

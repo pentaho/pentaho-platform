@@ -14,6 +14,12 @@
  */
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
+import java.io.IOException;
+import java.security.AccessControlException;
+import javax.jcr.AccessDeniedException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.repository.messages.Messages;
@@ -21,12 +27,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.extensions.jcr.SessionFactoryUtils;
-
-import javax.jcr.AccessDeniedException;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import java.io.IOException;
-import java.security.AccessControlException;
 
 /**
  * Copy of superclass' execute with better exception conversions.

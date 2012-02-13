@@ -24,7 +24,6 @@ import java.util.Stack;
 
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.IFrameElement;

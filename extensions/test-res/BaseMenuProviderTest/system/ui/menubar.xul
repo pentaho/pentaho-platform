@@ -7,8 +7,8 @@
   </menubar>
 
   <menubar id="menu" orient="vertical"
-  xmlns="http://www.pentaho.org/there.is.only.xul"
-   xmlns:HTML="http://www.w3.org/Profiles/XHTML-transitional">
+           xmlns="http://www.pentaho.org/there.is.only.xul"
+      >
    
     <menu id="file-menu" label="{file}">
       <menupopup id="file-submenu">

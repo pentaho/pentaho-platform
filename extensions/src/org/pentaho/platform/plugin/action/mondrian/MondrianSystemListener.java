@@ -25,14 +25,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import mondrian.olap.MondrianProperties;
-
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.logging.Logger;
+
+import mondrian.olap.MondrianProperties;
 
 public class MondrianSystemListener implements IPentahoSystemListener {
 

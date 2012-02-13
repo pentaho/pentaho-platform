@@ -27,7 +27,6 @@ import org.pentaho.mantle.client.objects.SimpleMessageException;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.ui.xul.XulOverlay;
-
 import com.google.gwt.user.client.rpc.RemoteService;
 
 public interface MantleService extends RemoteService {

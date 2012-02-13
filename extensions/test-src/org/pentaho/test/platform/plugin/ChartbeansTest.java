@@ -1,8 +1,5 @@
 package org.pentaho.test.platform.plugin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -14,9 +11,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoUrlFactory;
 import org.pentaho.platform.api.engine.ISolutionEngine;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -30,6 +27,8 @@ import org.pentaho.platform.repository2.unified.fs.FileSystemBackedUnifiedReposi
 import org.pentaho.platform.uifoundation.component.ActionComponent;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import static org.junit.Assert.assertTrue;
 
 /* This test required SampleData to be running
  * 
