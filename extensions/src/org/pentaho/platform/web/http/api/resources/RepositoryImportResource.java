@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -34,11 +35,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.web.http.messages.Messages;
+
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
@@ -99,6 +104,7 @@ public class RepositoryImportResource {
     converters.put("cda", streamConverter); //$NON-NLS-1$
 
     try {
+      validateAccess();	
       final org.pentaho.platform.plugin.services.importexport.ImportProcessor importProcessor = new org.pentaho.platform.plugin.services.importexport.SimpleImportProcessor(uploadDir, null);
       // TODO - create a SolutionRepositoryImportHandler which delegates to these three automatically
       importProcessor.addImportHandler(new org.pentaho.platform.plugin.services.importexport.MondrianImportHandler(repository));
@@ -122,8 +128,20 @@ public class RepositoryImportResource {
       return Response.serverError().entity(e.toString()).build();
     } catch (IOException e) {
       return Response.serverError().entity(e.toString()).build();
+    } catch (PentahoAccessControlException e) {
+      return Response.serverError().entity(e.toString()).build();
     }
 
     return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).build();
   }
+  
+  private void validateAccess() throws PentahoAccessControlException {
+	  IPentahoSession session = PentahoSessionHolder.getSession();
+	  if(session != null) {
+		  boolean isAdmin = SecurityHelper.getInstance().isPentahoAdministrator(session);
+		  if(!isAdmin) {
+			  throw new PentahoAccessControlException("Access Denied");
+		  }
+	  }
+  }  
 }
