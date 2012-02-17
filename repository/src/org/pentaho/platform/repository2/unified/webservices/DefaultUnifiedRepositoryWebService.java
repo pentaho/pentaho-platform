@@ -120,14 +120,12 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     // Filter etc folder from results if user is non admin.
     List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
     IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-    if(policy != null) {
-	    boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY);
-	    for(RepositoryFileTree file : tree.getChildren()) {
-	    	if(!isAdmin && file.getFile().getName().equals("etc")) {
-	    		continue;
-	    	}
-	    	files.add(file);
-	    }
+    boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY);
+    for(RepositoryFileTree file : tree.getChildren()) {
+    	if(!isAdmin && file.getFile().getName().equals("etc")) {
+    		continue;
+    	}
+    	files.add(file);
     }
     tree = new RepositoryFileTree(tree.getFile(), files);
     return tree != null ? repositoryFileTreeAdapter.marshal(tree) : null;
@@ -330,11 +328,9 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   
   protected void validateEtcReadAccess(String path) {
 	  IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-	  if(policy != null) {
-		  boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY);
-		  if(!isAdmin && path.startsWith("/etc")) {
-			  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
-		  }
+	  boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY);
+	  if(!isAdmin && path.startsWith("/etc")) {
+		  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
 	  }
   }
 }
