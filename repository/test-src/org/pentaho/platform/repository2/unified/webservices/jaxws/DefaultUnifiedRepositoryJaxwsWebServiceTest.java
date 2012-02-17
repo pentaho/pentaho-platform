@@ -14,44 +14,6 @@
  */
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
-import java.io.ByteArrayInputStream;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Endpoint;
-import javax.xml.ws.Service;
-import javax.xml.ws.soap.SOAPBinding;
-
-import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile.Builder;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
-import org.pentaho.platform.api.repository2.unified.VersionSummary;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
-import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import com.sun.xml.ws.developer.JAXWSProperties;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -69,6 +31,72 @@ import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtil
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeAcl;
 import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.Serializable;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.Service;
+import javax.xml.ws.soap.SOAPBinding;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
+import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile.Builder;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.VersionSummary;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.extensions.jcr.JcrTemplate;
+import org.springframework.extensions.jcr.SessionFactory;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.sun.xml.ws.developer.JAXWSProperties;
+
 /**
  * Tests marshalling, unmarshalling, and {@code UnifiedRepositoryToWebServiceAdapter}. Do not test unified repository
  * logic in this class; just make sure args serialize back and forth correctly and that the adapter is translating to 
@@ -76,8 +104,13 @@ import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtil
  * 
  * @author mlowery
  */
+
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/repository.spring.xml", "classpath:/repository-test-override.spring.xml" })
 @SuppressWarnings("nls")
-public class DefaultUnifiedRepositoryJaxwsWebServiceTest {
+
+public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationContextAware {
   // ~ Static fields/initializers ======================================================================================
 
   // ~ Instance fields =================================================================================================
@@ -93,6 +126,25 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest {
    * Client-side IUnifiedRepository.
    */
   private IUnifiedRepository repo;
+  
+  private IAuthorizationPolicy authorizationPolicy;
+  
+  private MicroPlatform mp;
+  
+  private JcrTemplate testJcrTemplate;
+  
+  private IBackingRepositoryLifecycleManager manager;
+  
+  private String tenantAuthenticatedAuthorityNamePattern;
+  
+  private String tenantAdminAuthorityNamePattern;
+  
+  private String repositoryAdminUsername;
+  
+  private static final String ENC = "UTF-8";
+
+  private static final String MIME_PLAIN = "text/plain";
+  
 
   // ~ Constructors ==================================================================================================== 
 
@@ -104,10 +156,14 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest {
 
   @BeforeClass
   public static void setUpClass() throws Exception {
+	FileUtils.deleteDirectory(new File("/tmp/jackrabbit-test-TRUNK"));
+	PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
+	SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_GLOBAL);
   }
 
   @AfterClass
   public static void tearDownClass() throws Exception {
+	PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL);	  
   }
 
   @Before
@@ -134,16 +190,29 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest {
     binding.setMTOMEnabled(true);
 
     repo = new UnifiedRepositoryToWebServiceAdapter(repoWebService);
-
+    
+	mp = new MicroPlatform();
+	// used by DefaultPentahoJackrabbitAccessControlHelper
+	mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
+	logout();
   }
 
   @After
   public void tearDown() throws Exception {
+	clearRoleBindings();
+	// null out fields to get back memory
+	authorizationPolicy = null;
+	loginAsRepositoryAdmin();
+	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
+	logout();
+	repositoryAdminUsername = null;
+	tenantAdminAuthorityNamePattern = null;
+	tenantAuthenticatedAuthorityNamePattern = null;
+	authorizationPolicy = null;
+	testJcrTemplate = null;
+	manager.shutdown();
+	logout();  
   }
-
-  private static final String ENC = "UTF-8";
-
-  private static final String MIME_PLAIN = "text/plain";
 
   private void setUpMock(IUnifiedRepository _repo2) throws Exception {
     String path = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
@@ -206,6 +275,9 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest {
 
   @Test
   public void testEverything() throws Exception {
+	manager.startup();
+	login("suzy", "duff", true);  
+	  
     System.out.println("getFile");
     RepositoryFile f = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
     assertNotNull(f.getId());
@@ -361,5 +433,62 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest {
   private SimpleRepositoryFileData makeSimpleData(final String text) throws Exception {
     return new SimpleRepositoryFileData(new ByteArrayInputStream(text.getBytes(ENC)), ENC, MIME_PLAIN);
   }
+  
+  public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
+	authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
+	manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");
+	tenantAuthenticatedAuthorityNamePattern = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
+	tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+	repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
+	
+	SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean("jcrSessionFactory");
+	testJcrTemplate = new JcrTemplate(jcrSessionFactory);
+	testJcrTemplate.setAllowCreate(true);
+	testJcrTemplate.setExposeNativeSession(true);
+  }  
+  
+  protected void login(final String username, final String tenantId, final boolean tenantAdmin) {
+	StandaloneSession pentahoSession = new StandaloneSession(username);
+	pentahoSession.setAuthenticated(username);
+	pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenantId);
+	final String password = "password";
 
+	List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
+	authList.add(new GrantedAuthorityImpl(MessageFormat.format(tenantAuthenticatedAuthorityNamePattern, tenantId)));
+	if (tenantAdmin) {
+		authList.add(new GrantedAuthorityImpl(MessageFormat.format(tenantAdminAuthorityNamePattern, tenantId)));
+	}
+	GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
+	UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
+	Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
+	PentahoSessionHolder.setSession(pentahoSession);
+	// this line necessary for Spring Security's MethodSecurityInterceptor
+	SecurityContextHolder.getContext().setAuthentication(auth);
+
+	manager.newTenant();
+	manager.newUser();
+  }  
+  
+  protected void logout() {
+	PentahoSessionHolder.removeSession();
+	SecurityContextHolder.getContext().setAuthentication(null);
+  }
+	
+  protected void clearRoleBindings() throws Exception {
+	loginAsRepositoryAdmin();
+	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath("duff") + ".authz");
+	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath("duff") + ".authz");
+  }  
+  
+  protected void loginAsRepositoryAdmin() {
+	StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
+	pentahoSession.setAuthenticated(repositoryAdminUsername);
+	final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[0];
+	final String password = "ignored";
+	UserDetails repositoryAdminUserDetails = new User(repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities);
+	Authentication repositoryAdminAuthentication = new UsernamePasswordAuthenticationToken(repositoryAdminUserDetails, password, repositoryAdminAuthorities);
+	PentahoSessionHolder.setSession(pentahoSession);
+	// this line necessary for Spring Security's MethodSecurityInterceptor
+	SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
+  }  
 }

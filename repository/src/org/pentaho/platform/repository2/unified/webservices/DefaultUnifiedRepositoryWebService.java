@@ -19,18 +19,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.jws.WebService;
 
-import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.SecurityHelper;
 
 /**
  * Implementation of {@link IUnifiedRepositoryWebService} that delegates to an {@link IUnifiedRepository} instance.
@@ -53,6 +52,10 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   protected RepositoryFileAclAceAdapter repositoryFileAclAceAdapter = new RepositoryFileAclAceAdapter();
 
   protected VersionSummaryAdapter versionSummaryAdapter = new VersionSummaryAdapter();
+  
+  private final String ACTION_READ = "org.pentaho.repository.read"; 
+  private final String ACTION_CREATE = "org.pentaho.repository.create";
+  private final String ACTION_ADMINISTER_SECURITY = "org.pentaho.security.administerSecurity";
 
   // ~ Constructors ====================================================================================================
 
@@ -113,14 +116,11 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   public RepositoryFileTreeDto getTree(final String path, final int depth, final String filter, final boolean showHidden) {
     RepositoryFileTree tree = repo.getTree(path, depth, filter, showHidden);
-    
-    boolean isAdmin = false;
-    IPentahoSession session = PentahoSessionHolder.getSession();
-    if(session != null) {
-    	isAdmin = SecurityHelper.getInstance().isPentahoAdministrator(session);
-    }
+
     // Filter etc folder from results if user is non admin.
     List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
+    IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
+    boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY);
     for(RepositoryFileTree file : tree.getChildren()) {
     	if(!isAdmin && file.getFile().getName().equals("etc")) {
     		continue;
@@ -327,12 +327,10 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
   
   protected void validateEtcReadAccess(String path) {
-	  IPentahoSession session = PentahoSessionHolder.getSession();
-	  if(session != null) {
-		  boolean isAdmin = SecurityHelper.getInstance().isPentahoAdministrator(session);
-		  if(!isAdmin && path.startsWith("/etc")) {
-			  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
-		  }
+	  IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
+	  boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY);
+	  if(!isAdmin && path.startsWith("/etc")) {
+		  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
 	  }
   }
 }
