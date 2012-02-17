@@ -328,9 +328,11 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   
   protected void validateEtcReadAccess(String path) {
 	  IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-	  boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY);
-	  if(!isAdmin && path.startsWith("/etc")) {
-		  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
+	  if(policy != null) {
+		  boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY);
+		  if(!isAdmin && path.startsWith("/etc")) {
+			  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
+		  }
 	  }
   }
 }
