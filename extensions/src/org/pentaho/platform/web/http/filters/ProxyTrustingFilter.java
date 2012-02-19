@@ -18,10 +18,11 @@
 package org.pentaho.platform.web.http.filters;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.concurrent.Callable;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -117,6 +118,7 @@ public class ProxyTrustingFilter implements Filter {
   private boolean checkHeader = true;
   private String requestParameterName;
   private String headerName;
+  private Map<String, Pattern> ipPatterns = new HashMap<String, Pattern>();
 
   private static final Log logger = LogFactory.getLog(ProxyTrustingFilter.class);
 
@@ -168,6 +170,21 @@ public class ProxyTrustingFilter implements Filter {
     if (trustedIpAddrs != null) {
       for (String element : trustedIpAddrs) {
         if (element.equals(addr)) {
+          return (true);
+        }
+        // Reuse an pattern for this element
+        Pattern pat = ipPatterns.get(element);
+        if(pat == null){
+          // first one created, put it in the map for re-use
+          try{
+            pat = Pattern.compile(element);
+            ipPatterns.put(element, pat);
+          } catch(PatternSyntaxException ignored){
+            continue;
+      }
+    }
+        Matcher matcher = pat.matcher(addr);
+        if(matcher.find()){
           return (true);
         }
       }

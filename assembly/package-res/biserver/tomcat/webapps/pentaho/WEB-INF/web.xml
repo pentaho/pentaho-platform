@@ -133,7 +133,7 @@
 		<filter-class>org.pentaho.platform.web.http.filters.ProxyTrustingFilter</filter-class>
 		<init-param>
 			<param-name>TrustedIpAddrs</param-name>
-			<param-value>127.0.0.1</param-value>
+			<param-value>127.0.0.1,0\:0\:0\:0\:0\:0\:0\:1(%.+)*$</param-value>
 			<description>Comma separated list of IP addresses of a trusted hosts.</description>
 		</init-param>
 	</filter>
