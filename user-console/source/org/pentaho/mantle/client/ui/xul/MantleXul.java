@@ -37,6 +37,7 @@ import org.pentaho.ui.xul.gwt.GwtXulRunner;
 import org.pentaho.ui.xul.gwt.tags.GwtTree;
 import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.BorderStyle;
 import com.google.gwt.dom.client.Style.Unit;
@@ -130,35 +131,32 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   }
 
   public void customizeAdminStyle() {
-    if (!adminCustomized) {
-      adminCustomized = true;
-      Timer t = new Timer() {
-        public void run() {
-          if (container != null) {
-            cancel();
-            // call this method when Elements are added to DOM
-            GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
-            SimplePanel managedTree = (SimplePanel) adminCatTree.getManagedObject();
-            adminCatTree.getTree().removeStyleName("gwt-Tree");
-                                                                    
-            managedTree.getParent().getElement().getStyle().setBackgroundColor("#555555");
-            managedTree.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
-            managedTree.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
-            managedTree.getParent().getElement().getStyle().setBorderColor("#333333");
+    Timer t = new Timer() {
+      public void run() {
+        if (container != null) {
+          cancel();
+          // call this method when Elements are added to DOM
+          GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
+          SimplePanel managedTree = (SimplePanel) adminCatTree.getManagedObject();
+          adminCatTree.getTree().removeStyleName("gwt-Tree");
 
-            managedTree.getWidget().getElement().getStyle().clearBackgroundColor();
+          managedTree.getParent().getElement().getStyle().setBackgroundColor("#555555");
+          managedTree.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
+          managedTree.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
+          managedTree.getParent().getElement().getStyle().setBorderColor("#333333");
 
-            Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
-            adminContentPanel.setWidth("100%");
-            adminContentPanel.getParent().getElement().getStyle().setBackgroundColor("#bbbbbb");
-            adminContentPanel.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
-            adminContentPanel.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
-            adminContentPanel.getParent().getElement().getStyle().setBorderColor("#333333");
-          }
+          managedTree.getWidget().getElement().getStyle().clearBackgroundColor();
+
+          Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
+          adminContentPanel.setWidth("100%");
+          adminContentPanel.getParent().getElement().getStyle().setBackgroundColor("#bbbbbb");
+          adminContentPanel.getParent().getElement().getStyle().setBorderWidth(1, Unit.PX);
+          adminContentPanel.getParent().getElement().getStyle().setBorderStyle(BorderStyle.SOLID);
+          adminContentPanel.getParent().getElement().getStyle().setBorderColor("#333333");
         }
-      };
-      t.scheduleRepeating(250);
-    }
+      }
+    };
+    t.scheduleRepeating(250);
   }
 
   public DeckPanel getAdminContentDeck() {
@@ -276,7 +274,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   public ArrayList<XulOverlay> getOverlays() {
     return overlays;
   }
-  
+
   private void loadBundle(final Document doc, final boolean applyOnStart, final String bundleUri) {
     String folder = ""; //$NON-NLS-1$
     String baseName = bundleUri;
