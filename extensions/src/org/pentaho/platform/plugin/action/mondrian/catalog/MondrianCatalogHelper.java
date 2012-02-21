@@ -539,10 +539,10 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       reInit(PentahoSessionHolder.getSession());
       
     } catch (SAXParseException e) {
-        throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+        throw new MondrianCatalogServiceException(Messages.getInstance().getString(
           "MondrianCatalogHelper.ERROR_0018_IMPORT_SCHEMA_ERROR"));
     } catch (Exception e) {
-    	throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+    	throw new MondrianCatalogServiceException(Messages.getInstance().getString(
     	          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
     	          Reason.valueOf(e.getMessage()));
     }
