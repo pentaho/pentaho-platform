@@ -32,9 +32,9 @@
     <dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.6.1"/>
 
     <!--  compile time batik -->
-    <dependency org="batik" name="batik-awt-util" rev="1.6" transitive="false"/>
-    <dependency org="batik" name="batik-dom" rev="1.6" transitive="false"/>
-    <dependency org="batik" name="batik-svggen" rev="1.6" transitive="false"/>
+    <dependency org="org.apache.xmlgraphics" name="batik-awt-util" rev="1.7" transitive="false"/>
+    <dependency org="org.apache.xmlgraphics" name="batik-dom" rev="1.7" transitive="false"/>
+    <dependency org="org.apache.xmlgraphics" name="batik-svggen" rev="1.7" transitive="false"/>
 
     <!--  runtime batik -->
     <dependency org="org.apache.xmlgraphics" name="fop" rev="0.94" transitive="false" />
@@ -43,7 +43,7 @@
     <dependency org="log4j" name="log4j" rev="1.2.16" transitive="false"/>
     <dependency org="org.springframework" name="spring" rev="2.5.6" transitive="false"/>
 
-    <dependency org="jfree" name="jcommon" rev="1.0.14"/>
+    <dependency org="jfree" name="jcommon" rev="1.0.16"/>
     <dependency org="jfree" name="jfreechart" rev="${dependency.jfreechart.revision}">
       <exclude org="jfree" name="jcommon"/>
     </dependency>
@@ -63,7 +63,7 @@
 
     <!--  external lib/xml dependencies -->
     <dependency org="jaxen" name="jaxen" rev="1.1" transitive="false"/>
-    <dependency org="xerces" name="xercesImpl" rev="2.8.1">
+    <dependency org="xerces" name="xercesImpl" rev="2.9.1">
       <exclude org="xml-apis" name="xml-apis"/>
     </dependency>
     <dependency org="xml-apis" name="xml-apis" rev="1.0.b2"/>
@@ -83,7 +83,7 @@
     <dependency org="org.hibernate" name="hibernate-core" rev="3.6.9.Final" transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-c3p0" rev="3.6.9.Final" transitive="false"/>
     <dependency org="antlr" name="antlr" rev="2.7.6" transitive="false"/>
-    <dependency org="asm" name="asm" rev="1.5.3" transitive="false"/>
+    <dependency org="asm" name="asm" rev="3.1" transitive="false"/>
     <dependency org="asm" name="asm-attrs" rev="1.5.3" transitive="false"/>
     <dependency org="javax.transaction" name="jta" rev="1.1" transitive="false"/>
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="2.5.1" transitive="false"/>
