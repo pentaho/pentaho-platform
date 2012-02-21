@@ -51,7 +51,9 @@ public class DatabaseHelper {
     DataNode rootNode = new DataNode(NODE_ROOT);
 
     // Then the basic db information
-    rootNode.setProperty(PROP_TYPE, databaseConnection.getDatabaseType().getShortName());
+    if(databaseConnection.getDatabaseType() != null) {
+      rootNode.setProperty(PROP_TYPE, databaseConnection.getDatabaseType().getShortName());      
+    }
     rootNode.setProperty(PROP_CONTYPE, databaseConnection.getAccessType().getName());
     rootNode.setProperty(PROP_HOST_NAME, databaseConnection.getHostname());
     rootNode.setProperty(PROP_DATABASE_NAME, databaseConnection.getDatabaseName());
@@ -68,17 +70,19 @@ public class DatabaseHelper {
   Map<String, String> attributes = databaseConnection.getAttributes();
   Set<String> keys = attributes.keySet();
   for(String key:keys) {
-    String value = attributes.get(key);
-    attrNode.setProperty(key, value);
+      String value = attributes.get(key);
+      attrNode.setProperty(key, value);
   }
     return rootNode;
   }
   
   public IDatabaseConnection dataNodeToDatabaseConnection(final Serializable id, final String name, final DataNode rootNode) {
     IDatabaseConnection databaseConnection = new DatabaseConnection();
-    databaseConnection.setDatabaseType(databaseTypeHelper.getDatabaseTypeByShortName(getString(rootNode, PROP_TYPE)));
+    String databaseType  = getString(rootNode, PROP_TYPE);
+    databaseConnection.setDatabaseType(databaseType != null ? databaseTypeHelper.getDatabaseTypeByShortName(databaseType) : null);
     databaseConnection.setName(name);
-    databaseConnection.setAccessType(DatabaseAccessType.getAccessTypeByName(getString(rootNode, PROP_CONTYPE)));
+    String accessType = getString(rootNode, PROP_CONTYPE);
+    databaseConnection.setAccessType(accessType != null ? DatabaseAccessType.getAccessTypeByName(accessType): null);
     databaseConnection.setHostname(getString(rootNode, PROP_HOST_NAME));
     databaseConnection.setDatabaseName(getString(rootNode, PROP_DATABASE_NAME));
     databaseConnection.setDatabasePort(getString(rootNode, PROP_PORT));
