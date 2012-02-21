@@ -270,6 +270,7 @@ CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 \A/webservices/rolebindingdao\?wsdl.*\Z=Anonymous,Authenticated
 \A/webservices/scheduler\?wsdl.*\Z=Anonymous,Authenticated
 \A/webservices/repositorysync\?wsdl.*\Z=Anonymous,Authenticated
+\A/webservices/datasourcemgmtservice\?wsdl.*\Z=Anonymous,Authenticated
 \A/webservices/.*\Z=Authenticated
 \A/api/.*\Z=Authenticated
       ]]>

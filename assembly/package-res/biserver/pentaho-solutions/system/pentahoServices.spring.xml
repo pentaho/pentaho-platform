@@ -17,7 +17,11 @@
           impl="org.pentaho.platform.repository2.unified.webservices.jaxws.DefaultUnifiedRepositoryJaxwsWebService"/>
     </wss:service>
   </wss:binding>
-
+  <wss:binding url="/webservices/datasourceMgmtService">
+    <wss:service>
+      <ws:service impl="org.pentaho.platform.repository.webservices.DefaultDatasourceMgmtWebService" />
+    </wss:service>  
+  </wss:binding>
   <wss:binding url="/webservices/userRoleService">
     <wss:service>
       <ws:service
