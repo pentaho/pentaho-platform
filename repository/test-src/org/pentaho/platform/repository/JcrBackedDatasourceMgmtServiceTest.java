@@ -116,7 +116,7 @@ public class JcrBackedDatasourceMgmtServiceTest {
 
       datasourceMgmtService.deleteDatasourceByName(EXP_DBMETA_NAME);
   
-      verify(repo).deleteFile(eq(fileId), anyString());
+      verify(repo).deleteFile(eq(fileId), eq(true), anyString());
     }
   
     @Test

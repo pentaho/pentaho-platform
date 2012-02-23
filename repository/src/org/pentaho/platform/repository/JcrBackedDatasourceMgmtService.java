@@ -218,7 +218,11 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
   public String updateDatasourceByName(String name, IDatabaseConnection databaseConnection) throws NonExistingDatasourceException, DatasourceMgmtServiceException {
     RepositoryFile file = null;
     try {
-      file = repository.getFileById(databaseConnection.getId());
+      if(databaseConnection.getId() != null) {
+        file = repository.getFileById(databaseConnection.getId());        
+      } else {
+        file = repository.getFile(getPath(name));
+      }
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
           "DatasourceMgmtService.ERROR_0003_UNABLE_TO_UPDATE_DATASOURCE", databaseConnection.getName(), ure.getLocalizedMessage()), ure ); //$NON-NLS-1$
