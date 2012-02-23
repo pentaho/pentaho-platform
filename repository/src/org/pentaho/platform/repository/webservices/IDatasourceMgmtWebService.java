@@ -4,10 +4,11 @@ import java.util.List;
 
 import javax.jws.WebService;
 
+
 @WebService
 public interface IDatasourceMgmtWebService {
 
-  public void createDatasource(DatabaseConnectionDto databaseConnection);
+  public String createDatasource(DatabaseConnectionDto databaseConnection);
 
   public void deleteDatasourceByName(String name) ;
 
@@ -15,6 +16,14 @@ public interface IDatasourceMgmtWebService {
 
   public List<DatabaseConnectionDto> getDatasources();
   
-  public void updateDatasourceByName(String name, DatabaseConnectionDto databaseConnection);
+  public String updateDatasourceByName(String name, DatabaseConnectionDto databaseConnection);
+  
+  public void deleteDatasourceById(String id);
+
+  public DatabaseConnectionDto getDatasourceById(String id);
+
+  public List<String> getDatasourceIds();
+
+  public String updateDatasourceById(String id, DatabaseConnectionDto databaseConnection);
 
 }

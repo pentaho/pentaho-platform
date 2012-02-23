@@ -81,6 +81,9 @@ public class DatabaseHelper {
     String databaseType  = getString(rootNode, PROP_TYPE);
     databaseConnection.setDatabaseType(databaseType != null ? databaseTypeHelper.getDatabaseTypeByShortName(databaseType) : null);
     databaseConnection.setName(name);
+    if(id != null) {
+      databaseConnection.setId(id.toString());      
+    }
     String accessType = getString(rootNode, PROP_CONTYPE);
     databaseConnection.setAccessType(accessType != null ? DatabaseAccessType.getAccessTypeByName(accessType): null);
     databaseConnection.setHostname(getString(rootNode, PROP_HOST_NAME));

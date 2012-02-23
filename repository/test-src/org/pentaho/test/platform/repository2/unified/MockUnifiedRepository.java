@@ -423,6 +423,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     parentFolder.orphan(r.getFile().getName());
     if (!permanent) {
       deleteManager.trash(parentFolder.getPath(), r);
+    } else {
+      idManager.deregister(fileId);
     }
   }
 
@@ -856,6 +858,13 @@ public class MockUnifiedRepository implements IUnifiedRepository {
         process(child);
       }
       return node;
+    }
+    
+    /**
+     * Removes file from this manager. Returns FileRecord mapped to fileId (null if no such fileId).
+     */
+    public FileRecord deregister(final Serializable fileId) {
+      return idMap.remove(fileId);
     }
 
   }

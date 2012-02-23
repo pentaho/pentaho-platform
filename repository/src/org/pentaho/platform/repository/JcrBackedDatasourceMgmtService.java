@@ -49,7 +49,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     cachedReservedChars = repository.getReservedChars();
   }
 
-  public void createDatasource(IDatabaseConnection databaseConnection) throws DuplicateDatasourceException,
+  public String createDatasource(IDatabaseConnection databaseConnection) throws DuplicateDatasourceException,
       DatasourceMgmtServiceException {
     try {
       //IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession());
@@ -58,12 +58,17 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
       RepositoryFile file = new RepositoryFile.Builder(RepositoryFilenameUtils.escape(databaseConnection.getName() 
           + RepositoryObjectType.DATABASE.getExtension(), cachedReservedChars)).title(RepositoryFile.ROOT_LOCALE, databaseConnection.getName()).versioned(true).build();
       file = repository.createFile(getDatabaseParentFolderId(), file, new NodeRepositoryFileData(databaseHelper.databaseConnectionToDataNode(databaseConnection)), null);
+      if(file != null && file.getId() != null) {
+        return file.getId().toString();
+      } else {
+        return null;
+      }
     //}  catch(PasswordServiceException pse) {
     //  throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
     //      "DatasourceMgmtService.ERROR_0007_UNABLE_TO_ENCRYPT_PASSWORD"), pse );//$NON-NLS-1$
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
-          "DatasourceMgmtService.ERROR_0001_UNABLE_TO_CREATE_DATASOURCE",databaseConnection.getName()), ure );//$NON-NLS-1$
+          "DatasourceMgmtService.ERROR_0001_UNABLE_TO_CREATE_DATASOURCE",databaseConnection.getName(), ure.getLocalizedMessage()), ure );//$NON-NLS-1$
     }
     
   }
@@ -74,34 +79,35 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
       fileToDelete = repository.getFile(getPath(name));
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",fileToDelete.getName()), ure);//$NON-NLS-1$
+          .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",fileToDelete.getName(), ure.getLocalizedMessage()), ure);//$NON-NLS-1$
     }
     deleteDatasource(fileToDelete);
   }
 
-/* public void deleteDatasourceById(Serializable id) throws NonExistingDatasourceException,
+ public void deleteDatasourceById(String id) throws NonExistingDatasourceException,
       DatasourceMgmtServiceException {
     RepositoryFile fileToDelete = null;
     try {
       fileToDelete = repository.getFileById(id);
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",fileToDelete.getName()), ure);      //$NON-NLS-1$
+          .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",fileToDelete.getName(), ure.getLocalizedMessage()), ure);      //$NON-NLS-1$
     }
     deleteDatasource(fileToDelete);
-  }*/
+  }
 
   private void deleteDatasource(RepositoryFile file) throws DatasourceMgmtServiceException {
     try {
       if(file != null) {
-        repository.deleteFile(file.getId(), null);
+        // Permanently Deletes the File
+        repository.deleteFile(file.getId(), true, null);
       } else {
         throw new DatasourceMgmtServiceException(Messages.getInstance()
-            .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE")); //$NON-NLS-1$       
+            .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE", "", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$       
       }
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",file.getName()), ure);//$NON-NLS-1$
+          .getErrorString("DatasourceMgmtService.ERROR_0002_UNABLE_TO_DELETE_DATASOURCE",file.getName(), ure.getLocalizedMessage()), ure);//$NON-NLS-1$
     }
   }
 
@@ -111,7 +117,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
       file = repository.getFile(getPath(name));
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", name), ure);//$NON-NLS-1$
+          .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", name, ure.getLocalizedMessage()), ure);//$NON-NLS-1$
     }
     if(file != null) {
     	return getDatasource(file);
@@ -120,7 +126,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
   }
   
 
- /* public IDatabaseConnection getDatasourceById(Serializable id) throws DatasourceMgmtServiceException {
+  public IDatabaseConnection getDatasourceById(String id) throws DatasourceMgmtServiceException {
     RepositoryFile file = null;
     try {
       file = repository.getFileById(id);
@@ -128,9 +134,12 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
       throw new DatasourceMgmtServiceException(Messages.getInstance()
           .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", file.getName()), ure);//$NON-NLS-1$
     }
-    return getDatasource(file);
+    if(file != null) {
+      return getDatasource(file);
+    } 
+    return null;    
   }
-*/
+
   private IDatabaseConnection getDatasource(RepositoryFile file) throws DatasourceMgmtServiceException {
     try {
       if(file != null) {
@@ -141,14 +150,14 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
         return databaseConnection;
       } else {
         throw new DatasourceMgmtServiceException(Messages.getInstance()
-            .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE"));//$NON-NLS-1$
+            .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", "", ""));//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       }
     //} catch(PasswordServiceException pse) {
     //  throw new DatasourceMgmtServiceException(Messages.getInstance()
     //      .getErrorString("DatasourceMgmtService.ERROR_0008_UNABLE_TO_DECRYPT_PASSWORD"), pse );//$NON-NLS-1$
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance()
-          .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", file.getName()), ure);//$NON-NLS-1$
+          .getErrorString("DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", file.getName(), ure.getLocalizedMessage()), ure);//$NON-NLS-1$
     }
   }
   
@@ -171,72 +180,74 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
     //      .getErrorString("DatasourceMgmtService.ERROR_0008_UNABLE_TO_DECRYPT_PASSWORD"), pse );//$NON-NLS-1$
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
-          "DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", ""), ure );//$NON-NLS-1$ //$NON-NLS-2$
+          "DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", "", ure.getLocalizedMessage()), ure );//$NON-NLS-1$ //$NON-NLS-2$
     }
   }
   
- /*
-  public List<Serializable> getDatasourceIds() throws DatasourceMgmtServiceException {
+ 
+  public List<String> getDatasourceIds() throws DatasourceMgmtServiceException {
     try {
-      List<Serializable> datasourceList = new ArrayList<Serializable>();
+      List<String> datasourceList = new ArrayList<String>();
       List<RepositoryFile> repositoryFiles = getRepositoryFiles();
       if(repositoryFiles != null) {
         for(RepositoryFile file:repositoryFiles) {
-          datasourceList.add(file.getId());
+          datasourceList.add(file.getId().toString());
         }
       }
       return datasourceList;
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
-          "DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", ""), ure );//$NON-NLS-1$ //$NON-NLS-2$
+          "DatasourceMgmtService.ERROR_0004_UNABLE_TO_RETRIEVE_DATASOURCE", "", ure.getLocalizedMessage()), ure );//$NON-NLS-1$ //$NON-NLS-2$
     }
   }
 
 
-  public void updateDatasourceById(Serializable id, IDatabaseConnection databaseConnection) throws NonExistingDatasourceException,
+  public String updateDatasourceById(String id, IDatabaseConnection databaseConnection) throws NonExistingDatasourceException,
       DatasourceMgmtServiceException {
     RepositoryFile file = null;
     try {
       file = repository.getFileById(id);
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
-          "DatasourceMgmtService.ERROR_0003_UNABLE_TO_UPDATE_DATASOURCE", databaseConnection.getName()), ure ); //$NON-NLS-1$
+          "DatasourceMgmtService.ERROR_0003_UNABLE_TO_UPDATE_DATASOURCE", databaseConnection.getName(), ure.getLocalizedMessage()), ure ); //$NON-NLS-1$
     }
-    updateDatasource(file, databaseConnection);
+    return updateDatasource(file, databaseConnection);
   }
-*/
 
-  public void updateDatasourceByName(String name, IDatabaseConnection databaseConnection) throws NonExistingDatasourceException, DatasourceMgmtServiceException {
+
+  public String updateDatasourceByName(String name, IDatabaseConnection databaseConnection) throws NonExistingDatasourceException, DatasourceMgmtServiceException {
     RepositoryFile file = null;
     try {
-      file = repository.getFile(getPath(name));
+      file = repository.getFileById(databaseConnection.getId());
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
-          "DatasourceMgmtService.ERROR_0003_UNABLE_TO_UPDATE_DATASOURCE", databaseConnection.getName()), ure ); //$NON-NLS-1$
+          "DatasourceMgmtService.ERROR_0003_UNABLE_TO_UPDATE_DATASOURCE", databaseConnection.getName(), ure.getLocalizedMessage()), ure ); //$NON-NLS-1$
     }
-    updateDatasource(file, databaseConnection);
+    return updateDatasource(file, databaseConnection);
   }
 
-  private void updateDatasource(RepositoryFile file, IDatabaseConnection databaseConnection) throws NonExistingDatasourceException, DatasourceMgmtServiceException {
+  private String  updateDatasource(RepositoryFile file, IDatabaseConnection databaseConnection) throws NonExistingDatasourceException, DatasourceMgmtServiceException {
     try {
       //IPasswordService passwordService = PentahoSystem.get(IPasswordService.class, PentahoSessionHolder.getSession()); 
       // Store the new encrypted password in the datasource object
       //databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
 
       if(file != null) {
-        file = new RepositoryFile.Builder(file).title(RepositoryFile.ROOT_LOCALE, file.getName()).build();
+        file = new RepositoryFile.Builder(file).title(RepositoryFile.ROOT_LOCALE, databaseConnection.getName()).build();
         file = repository.updateFile(file, new NodeRepositoryFileData(databaseHelper.databaseConnectionToDataNode(databaseConnection)),null);
         renameIfNecessary(databaseConnection, file);
+        return file.getId().toString();
       } else {
         throw new NonExistingDatasourceException(Messages.getInstance().getErrorString(
             "DatasourceMgmtService.ERROR_0006_DATASOURCE_DOES_NOT_EXIST", databaseConnection.getName()) );//$NON-NLS-1$
       }
+
     //} catch(PasswordServiceException pse) {
     //  throw new DatasourceMgmtServiceException(Messages.getInstance()
     //      .getErrorString("DatasourceMgmtService.ERROR_0007_UNABLE_TO_ENCRYPT_PASSWORD"), pse );//$NON-NLS-1$
     } catch (UnifiedRepositoryException ure) {
       throw new DatasourceMgmtServiceException(Messages.getInstance().getErrorString(
-          "DatasourceMgmtService.ERROR_0003_UNABLE_TO_UPDATE_DATASOURCE", databaseConnection.getName()), ure ); //$NON-NLS-1$
+          "DatasourceMgmtService.ERROR_0003_UNABLE_TO_UPDATE_DATASOURCE", databaseConnection.getName(), ure.getLocalizedMessage()), ure ); //$NON-NLS-1$
     }
   }
   private String getDatabaseParentFolderPath() {

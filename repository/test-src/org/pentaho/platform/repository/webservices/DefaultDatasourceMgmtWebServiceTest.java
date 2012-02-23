@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
+import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.model.IDatabaseType;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
@@ -63,25 +64,49 @@ public class DefaultDatasourceMgmtWebServiceTest  extends TestCase {
   @Test
   public void testEverything() throws Exception {
     DatabaseConnection databaseConnection = createDatabaseConnection("testDatabase");
-    datasourceMgmtWebService.createDatasource(dbConnectionAdapter.marshal(databaseConnection));
+    String id = datasourceMgmtWebService.createDatasource(dbConnectionAdapter.marshal(databaseConnection));
+    assertNotNull(id);
     DatabaseConnectionDto databaseConnectionDto = datasourceMgmtWebService.getDatasourceByName("testDatabase");
     assertNotNull(databaseConnectionDto);
     assertEquals(EXP_DBMETA_HOSTNAME, databaseConnectionDto.getHostname());
-    DatabaseConnection databaseConnection1 = createDatabaseConnection("testDatabase1");
-    datasourceMgmtWebService.createDatasource(dbConnectionAdapter.marshal(databaseConnection1));
-    DatabaseConnectionDto databaseConnectionDto1 = datasourceMgmtWebService.getDatasourceByName("testDatabase1");
+    DatabaseConnectionDto databaseConnectionDto1 = datasourceMgmtWebService.getDatasourceById(id);
     assertNotNull(databaseConnectionDto1);
     assertEquals(EXP_DBMETA_HOSTNAME, databaseConnectionDto1.getHostname());
+    DatabaseConnection databaseConnection1 = createDatabaseConnection("testDatabase1");
+    String id1 = datasourceMgmtWebService.createDatasource(dbConnectionAdapter.marshal(databaseConnection1));
+    assertNotNull(id1);
+    DatabaseConnectionDto databaseConnectionDto2 = datasourceMgmtWebService.getDatasourceByName("testDatabase1");
+    assertNotNull(databaseConnectionDto2);
+    assertEquals(EXP_DBMETA_HOSTNAME, databaseConnectionDto2.getHostname());
+    DatabaseConnectionDto databaseConnectionDto3 = datasourceMgmtWebService.getDatasourceById(id1);
+    assertNotNull(databaseConnectionDto3);
+    assertEquals(EXP_DBMETA_HOSTNAME, databaseConnectionDto3.getHostname());
     List<DatabaseConnectionDto> databaseConnectionDtos = datasourceMgmtWebService.getDatasources();
     assertEquals(2, databaseConnectionDtos.size());
+    List<String> ids = datasourceMgmtWebService.getDatasourceIds();
+    assertEquals(2, ids.size());
+    databaseConnection =  dbConnectionAdapter.unmarshal(databaseConnectionDto);
     updateDatabaseConnection(databaseConnection);
-    datasourceMgmtWebService.updateDatasourceByName("testDatabase", dbConnectionAdapter.marshal(databaseConnection));
+    String id2 = datasourceMgmtWebService.updateDatasourceByName("testDatabase", dbConnectionAdapter.marshal(databaseConnection));
+    assertNotNull(id2);
     DatabaseConnectionDto updatedDatabaseConnectionDto = datasourceMgmtWebService.getDatasourceByName("testDatabase");
     assertNotNull(updatedDatabaseConnectionDto);
-    assertEquals(EXP_UPDATED_DBMETA_HOSTNAME, databaseConnection.getHostname());
+    assertEquals(EXP_UPDATED_DBMETA_HOSTNAME, updatedDatabaseConnectionDto.getHostname());
+    databaseConnection1 =  dbConnectionAdapter.unmarshal(databaseConnectionDto2);
+    updateDatabaseConnection(databaseConnection1);
+    String id3 = datasourceMgmtWebService.updateDatasourceById(id1, dbConnectionAdapter.marshal(databaseConnection1));
+    assertNotNull(id3);
+    DatabaseConnectionDto updatedDatabaseConnectionDto1 = datasourceMgmtWebService.getDatasourceById(id3);
+    assertNotNull(updatedDatabaseConnectionDto1);
+    assertEquals(EXP_UPDATED_DBMETA_HOSTNAME, updatedDatabaseConnectionDto1.getHostname());
     datasourceMgmtWebService.deleteDatasourceByName("testDatabase");
     DatabaseConnectionDto deletedDatabaseConnectionDto = datasourceMgmtWebService.getDatasourceByName("testDatabase");
     assertNull(deletedDatabaseConnectionDto);
+    datasourceMgmtWebService.deleteDatasourceById(id3);
+    DatabaseConnectionDto deletedDatabaseConnectionDto2 = datasourceMgmtWebService.getDatasourceById(id3);
+    assertNull(deletedDatabaseConnectionDto2);
+    ids = datasourceMgmtWebService.getDatasourceIds();
+    assertEquals(0, ids.size());    
   }
   
   private DatabaseConnection createDatabaseConnection(final String dbName) throws Exception {

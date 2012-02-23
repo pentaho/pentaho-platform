@@ -34,9 +34,9 @@ public class DefaultDatasourceMgmtWebService implements IDatasourceMgmtWebServic
   }
 
   @Override
-  public void createDatasource(DatabaseConnectionDto dbConnDto){
+  public String createDatasource(DatabaseConnectionDto dbConnDto){
     try {
-      datasourceMgmtService.createDatasource(databaseConnectionAdapter.unmarshal(dbConnDto));
+      return datasourceMgmtService.createDatasource(databaseConnectionAdapter.unmarshal(dbConnDto));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -80,11 +80,47 @@ public class DefaultDatasourceMgmtWebService implements IDatasourceMgmtWebServic
   }
 
   @Override
-  public void updateDatasourceByName(String name, DatabaseConnectionDto databaseConnectionDto) {
+  public String updateDatasourceByName(String name, DatabaseConnectionDto databaseConnectionDto) {
     try {
-      datasourceMgmtService.updateDatasourceByName(name, databaseConnectionAdapter.unmarshal(databaseConnectionDto));
+      return datasourceMgmtService.updateDatasourceByName(name, databaseConnectionAdapter.unmarshal(databaseConnectionDto));
     } catch (Exception e) {
       throw new RuntimeException(e);      
+    }
+  }
+
+  @Override
+  public void deleteDatasourceById(String id) {
+    try {
+      datasourceMgmtService.deleteDatasourceById(id);
+    } catch (Exception e) {
+      throw new RuntimeException(e); 
+    }
+  }
+
+  @Override
+  public DatabaseConnectionDto getDatasourceById(String id) {
+    try {
+      return databaseConnectionAdapter.marshal((DatabaseConnection) datasourceMgmtService.getDatasourceById(id));
+    } catch (Exception e) {
+      throw new RuntimeException(e); 
+    }
+  }
+
+  @Override
+  public List<String> getDatasourceIds() {
+    try {
+      return datasourceMgmtService.getDatasourceIds();
+    } catch (DatasourceMgmtServiceException e) {
+      throw new RuntimeException(e); 
+    }
+  }
+
+  @Override
+  public String updateDatasourceById(String id, DatabaseConnectionDto databaseConnection) {
+    try {
+      return datasourceMgmtService.updateDatasourceById(id, databaseConnectionAdapter.unmarshal(databaseConnection));
+    } catch (Exception e) {
+      throw new RuntimeException(e); 
     }
   }
 

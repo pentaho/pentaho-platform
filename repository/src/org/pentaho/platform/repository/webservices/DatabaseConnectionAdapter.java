@@ -13,6 +13,7 @@ public class DatabaseConnectionAdapter extends XmlAdapter<DatabaseConnectionDto,
   public DatabaseConnectionDto marshal(DatabaseConnection dbConn) throws Exception {
     if(dbConn != null) {
     DatabaseConnectionDto dbConnDto = new DatabaseConnectionDto();
+    dbConnDto.setId(dbConn.getId());
     dbConnDto.setAccessType(dbConn.getAccessType());
     dbConnDto.setAccessTypeValue(dbConn.getAccessTypeValue());
     dbConnDto.setChanged(dbConn.getChanged());
@@ -53,6 +54,7 @@ public class DatabaseConnectionAdapter extends XmlAdapter<DatabaseConnectionDto,
       IDatabaseDialectService databaseDialectService = new DatabaseDialectService();
       DatabaseTypeHelper databaseTypeHelper = new DatabaseTypeHelper(databaseDialectService.getDatabaseTypes());
       DatabaseConnection dbConn = new DatabaseConnection();
+      dbConn.setId(dbConnDto.getId());
       dbConn.setAccessType(dbConnDto.getAccessType());
       dbConn.setAccessTypeValue(dbConnDto.getAccessTypeValue());
       dbConn.setChanged(dbConnDto.getChanged());

@@ -25,12 +25,11 @@ public class DatasourceMgmtToWebServiceAdapter implements IDatasourceMgmtService
   }
 
   @Override
-  public void createDatasource(IDatabaseConnection databaseConnection) {
+  public String createDatasource(IDatabaseConnection databaseConnection) {
     try {
-      datasourceMgmtWebService.createDatasource(databaseConnectionAdapter.marshal((DatabaseConnection)databaseConnection));
+      return datasourceMgmtWebService.createDatasource(databaseConnectionAdapter.marshal((DatabaseConnection)databaseConnection));
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
@@ -44,8 +43,7 @@ public class DatasourceMgmtToWebServiceAdapter implements IDatasourceMgmtService
     try {
       return databaseConnectionAdapter.unmarshal(datasourceMgmtWebService.getDatasourceByName(name));
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      return null;
+      throw new RuntimeException(e);
     }
   }
 
@@ -56,8 +54,7 @@ public class DatasourceMgmtToWebServiceAdapter implements IDatasourceMgmtService
       try {
         databaseConnections.add(databaseConnectionAdapter.unmarshal(databaseConnection));
       } catch (Exception e) {
-        // TODO Auto-generated catch block
-        return null;
+        throw new RuntimeException(e);
       }
     }
     return databaseConnections;
@@ -65,12 +62,40 @@ public class DatasourceMgmtToWebServiceAdapter implements IDatasourceMgmtService
   }
 
   @Override
-  public void updateDatasourceByName(String name, IDatabaseConnection databaseConnection){
+  public String  updateDatasourceByName(String name, IDatabaseConnection databaseConnection){
     try {
-      datasourceMgmtWebService.updateDatasourceByName(name, databaseConnectionAdapter.marshal((DatabaseConnection)databaseConnection));
+      return datasourceMgmtWebService.updateDatasourceByName(name, databaseConnectionAdapter.marshal((DatabaseConnection)databaseConnection));
     } catch (Exception e) {
-      // TODO Auto-generated catch block
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public void deleteDatasourceById(String id) {
+    datasourceMgmtWebService.deleteDatasourceById(id);
+  }
+
+  @Override
+  public IDatabaseConnection getDatasourceById(String id) {
+    try {
+      return databaseConnectionAdapter.unmarshal(datasourceMgmtWebService.getDatasourceById(id));
+    } catch (Exception e) {
       e.printStackTrace();
+      return null;
+    }
+  }
+
+  @Override
+  public List<String> getDatasourceIds() {
+    return datasourceMgmtWebService.getDatasourceIds();
+  }
+
+  @Override
+  public String  updateDatasourceById(String id, IDatabaseConnection databaseConnection) {
+    try {
+      return datasourceMgmtWebService.updateDatasourceById(id, databaseConnectionAdapter.marshal((DatabaseConnection)databaseConnection));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
   }
 
