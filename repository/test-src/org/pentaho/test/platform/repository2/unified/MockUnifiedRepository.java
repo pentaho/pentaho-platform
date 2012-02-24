@@ -417,15 +417,21 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   public void deleteFile(final Serializable fileId, final boolean permanent, final String versionMessage) {
     FileRecord r = idManager.getFileById(fileId);
     FileRecord parentFolder = r.getParent();
-    if (!hasAccess(parentFolder.getFile().getId(), EnumSet.of(WRITE))) {
-      throw new AccessDeniedException("access denied");
-    }
-    parentFolder.orphan(r.getFile().getName());
+    orphanFile(fileId);
     if (!permanent) {
       deleteManager.trash(parentFolder.getPath(), r);
     } else {
       idManager.deregister(fileId);
     }
+  }
+  
+  private void orphanFile(final Serializable fileId) {
+    FileRecord r = idManager.getFileById(fileId);
+    FileRecord parentFolder = r.getParent();
+    if (!hasAccess(parentFolder.getFile().getId(), EnumSet.of(WRITE))) {
+      throw new AccessDeniedException("access denied");
+    }
+    parentFolder.orphan(r.getFile().getName());
   }
 
   public void deleteFile(final Serializable fileId, final String versionMessage) {
@@ -468,7 +474,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
     dest.addChild(newChild);
     if (move) {
-      deleteFile(fileId, true, null);
+      orphanFile(fileId);
     }
   }
 
