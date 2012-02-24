@@ -17,12 +17,16 @@
 */
 package org.pentaho.platform.engine.security.userroledao.hibernate.sample;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.pentaho.platform.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.engine.security.userroledao.PentahoRole;
 import org.pentaho.platform.engine.security.userroledao.PentahoUser;
 import org.pentaho.platform.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.engine.security.userroledao.hibernate.HibernateUserRoleDao.InitHandler;
 import org.pentaho.platform.engine.security.userroledao.messages.Messages;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
@@ -55,9 +59,9 @@ public class SampleUsersAndRolesInitHandler extends HibernateDaoSupport implemen
   public void handleInit() {
 
     try {
-      boolean noUsers = userRoleDao.getUsers().isEmpty();
+      boolean hasUsers = hasUsers();
 
-      if (noUsers) {
+      if (!hasUsers) {
         PentahoRole adminRole = new PentahoRole("Admin", "Super User"); //$NON-NLS-1$ //$NON-NLS-2$
         PentahoRole ceo = new PentahoRole("ceo", "Chief Executive Officer"); //$NON-NLS-1$ //$NON-NLS-2$
         PentahoRole cto = new PentahoRole("cto", "Chief Technology Officer"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -96,7 +100,17 @@ public class SampleUsersAndRolesInitHandler extends HibernateDaoSupport implemen
       // log error and simply return
       logger.error(Messages.getInstance().getString("SampleUsersAndRolesInitHandler.ERROR_0001_COULD_NOT_INSERT_SAMPLES"), e); //$NON-NLS-1$
     }
-
+  }
+  
+  protected boolean hasUsers() {
+    Long count = (Long) getHibernateTemplate().execute(
+        new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException {
+            Query query = session.createQuery("select count(*) from PentahoUser"); //$NON-NLS-1$
+            return query.iterate().next();
+          }
+        });
+    return count.longValue() > 0;
   }
 
   public void setUserRoleDao(final IUserRoleDao userRoleDao) {
