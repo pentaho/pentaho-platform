@@ -17,22 +17,9 @@
 */
 package org.pentaho.platform.engine.security.userroledao.hibernate;
 
-import java.sql.Connection;
-import java.util.List;
-
-import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.pentaho.platform.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.engine.security.userroledao.IPentahoUser;
-import org.pentaho.platform.engine.security.userroledao.PentahoRole;
-import org.pentaho.platform.engine.security.userroledao.PentahoUser;
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.CREATE;
-import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.DROP;
+import static org.junit.Assert.assertFalse;
 import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRoleAssignmentPersisted;
 import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRoleAssignmentRemoved;
 import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.assertRolePersisted;
@@ -44,7 +31,20 @@ import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUti
 import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.generateAndExecuteDdl;
 import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.getConnection;
 import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.getSessionFactory;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.CREATE;
+import static org.pentaho.platform.engine.security.userroledao.hibernate.TestUtil.DdlType.DROP;
 
+import java.sql.Connection;
+import java.util.List;
+
+import org.hibernate.SessionFactory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.pentaho.platform.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.engine.security.userroledao.PentahoRole;
+import org.pentaho.platform.engine.security.userroledao.PentahoUser;
 /**
  * Unit test for {@link HibernateUserRoleDao}.
  * 
@@ -132,6 +132,7 @@ public class HibernateUserRoleDaoTest {
     IPentahoUser user = dao.getUser(JOE);
 
     assertNotNull(user);
+    assertFalse(user.getRoles().isEmpty());
   }
 
   @Test
@@ -144,6 +145,11 @@ public class HibernateUserRoleDaoTest {
     List<IPentahoUser> users = dao.getUsers();
 
     assertTrue(users != null && users.size() == 2);
+    
+    for (IPentahoUser user : users) {
+      assertFalse(user.getRoles().isEmpty());
+    }
+
   }
 
   @Test
@@ -219,20 +225,28 @@ public class HibernateUserRoleDaoTest {
   @Test
   public void testGetRole() throws Exception {
     createTestRole(connection, ADMIN, null);
+    createTestUser(connection, JOE, PASSWORD, true, null, ADMIN);
 
     IPentahoRole role = dao.getRole(ADMIN);
 
     assertNotNull(role);
+    assertFalse(role.getUsers().isEmpty());
   }
 
   @Test
   public void testGetRoles() throws Exception {
     createTestRole(connection, ADMIN, null);
     createTestRole(connection, CTO, null);
+    createTestUser(connection, JOE, PASSWORD, true, null, ADMIN);
+    createTestUser(connection, SUZY, PASSWORD, true, null, CTO);
 
     List<IPentahoRole> roles = dao.getRoles();
 
     assertTrue(roles != null && roles.size() == 2);
+    
+    for (IPentahoRole role : roles) {
+      assertFalse(role.getUsers().isEmpty());
+    }
   }
 
   @Test
@@ -242,6 +256,8 @@ public class HibernateUserRoleDaoTest {
     createTestUser(connection, JOE, PASSWORD, true, null, ADMIN);
     createTestUser(connection, SUZY, PASSWORD, true, null, CTO);
 
+    assertRoleAssignmentPersisted(connection, JOE, ADMIN);
+    
     // get role, add suzy as a member of role, remove joe as a member of role, and update role
     IPentahoRole adminRole = dao.getRole(ADMIN);
     PentahoUser suzyTransient = new PentahoUser(SUZY);

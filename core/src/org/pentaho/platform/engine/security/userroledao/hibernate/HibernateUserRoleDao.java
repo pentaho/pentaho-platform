@@ -17,6 +17,7 @@
 */
 package org.pentaho.platform.engine.security.userroledao.hibernate;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.pentaho.platform.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.engine.security.userroledao.PentahoRole;
 import org.pentaho.platform.engine.security.userroledao.PentahoUser;
+import org.pentaho.platform.engine.security.userroledao.PentahoUserRoleMapping;
 import org.pentaho.platform.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.engine.security.userroledao.messages.Messages;
 import org.springframework.dao.DataAccessException;
@@ -156,9 +158,7 @@ public class HibernateUserRoleDao extends HibernateDaoSupport implements IUserRo
   }
 
   /**
-   * This method is more complex because this is the inverse end of a bidirectional many-to-many relationship. See 
-   * Hibernate documentation section 6.3.2. Bidirectional associations. Basically, this means that the users set of this
-   * role must be managed manually.
+   * This method is more complex because it must manage this role's users manually.
    */
   public void createRole(IPentahoRole roleToCreate) throws AlreadyExistsException, UncategorizedUserRoleDaoException {
     Assert.notNull(roleToCreate, Messages.getInstance().getString("HibernateUserRoleDao.ERROR_0005_ROLE_CANNOT_BE_NULL")); //$NON-NLS-1$
@@ -177,16 +177,13 @@ public class HibernateUserRoleDao extends HibernateDaoSupport implements IUserRo
     }
 
     // manually manage users set
-
     for (IPentahoUser user : roleToCreate.getUsers()) {
       addUser(roleToCreate, user.getUsername());
     }
   }
 
   /**
-   * This method is more complex because this is the inverse end of a bidirectional many-to-many relationship. See 
-   * Hibernate documentation section 6.3.2. Bidirectional associations. Basically, this means that the users set of this
-   * role must be managed manually.
+   * This method is more complex because it must manage this role's users manually.
    */
   public void deleteRole(IPentahoRole roleToDelete) throws NotFoundException, UncategorizedUserRoleDaoException {
     Assert.notNull(roleToDelete, Messages.getInstance().getString("HibernateUserRoleDao.ERROR_0005_ROLE_CANNOT_BE_NULL")); //$NON-NLS-1$
@@ -212,21 +209,24 @@ public class HibernateUserRoleDao extends HibernateDaoSupport implements IUserRo
     }
   }
 
+  /**
+   * This method is more complex because it must manage this role's users manually.
+   */
   public IPentahoRole getRole(String name) throws UncategorizedUserRoleDaoException {
     Assert.hasLength(name, Messages.getInstance().getString("HibernateUserRoleDao.ERROR_0006_ROLE_NAME_CANNOT_BE_BLANK")); //$NON-NLS-1$
 
     try {
-      return (PentahoRole) getHibernateTemplate().get(PentahoRole.class, name);
-    } catch (DataAccessException e) {
-      throw new UncategorizedUserRoleDaoException(Messages.getInstance()
-          .getString("HibernateUserRoleDao.ERROR_0004_DATA_ACCESS_EXCEPTION"), e); //$NON-NLS-1$
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  public List<IPentahoRole> getRoles() throws UncategorizedUserRoleDaoException {
-    try {
-      return getHibernateTemplate().find(getAllRolesQuery());
+      IPentahoRole role = (PentahoRole) getHibernateTemplate().get(PentahoRole.class, name);
+    
+      if (role == null) {
+        return null;
+      }
+    
+      List<IPentahoUser> users = getUsersForRole(role.getName());
+      for (IPentahoUser user : users) {
+        role.addUser(user);
+      }
+      return role;
     } catch (DataAccessException e) {
       throw new UncategorizedUserRoleDaoException(Messages.getInstance()
           .getString("HibernateUserRoleDao.ERROR_0004_DATA_ACCESS_EXCEPTION"), e); //$NON-NLS-1$
@@ -234,9 +234,42 @@ public class HibernateUserRoleDao extends HibernateDaoSupport implements IUserRo
   }
 
   /**
-   * This method is more complex because this is the inverse end of a bidirectional many-to-many relationship. See 
-   * Hibernate documentation section 6.3.2. Bidirectional associations. Basically, this means that the users set of this
-   * role must be managed manually.
+   * This method is more complex because it must manage this role's users manually.
+   */
+  @SuppressWarnings("unchecked")
+  public List<IPentahoRole> getRoles() throws UncategorizedUserRoleDaoException {
+    try {
+      List<IPentahoRole> roles = getHibernateTemplate().find(getAllRolesQuery());
+      for (IPentahoRole role : roles) {
+        List<IPentahoUser> users = getUsersForRole(role.getName());
+        for (IPentahoUser user : users) {
+          role.addUser(user);
+        }
+      }
+      return roles;
+    } catch (DataAccessException e) {
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance()
+          .getString("HibernateUserRoleDao.ERROR_0004_DATA_ACCESS_EXCEPTION"), e); //$NON-NLS-1$
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  protected List<IPentahoUser> getUsersForRole(String role) throws UncategorizedUserRoleDaoException {
+  try {
+    List<IPentahoUser> users = new ArrayList<IPentahoUser>();
+    List<PentahoUserRoleMapping> mappings = getHibernateTemplate().find("from PentahoUserRoleMapping as m where m.id.role = ?", role); //$NON-NLS-1$
+    for (PentahoUserRoleMapping mapping : mappings) {
+      users.add(getUser(mapping.getId().getUser()));
+    }
+    return users;
+    } catch (DataAccessException e) {
+      throw new UncategorizedUserRoleDaoException(Messages.getInstance()
+          .getString("HibernateUserRoleDao.ERROR_0004_DATA_ACCESS_EXCEPTION"), e); //$NON-NLS-1$
+    }
+  }
+
+  /**
+   * This method is more complex because it must manage this role's users manually.
    */
   @SuppressWarnings("unchecked")
   public void updateRole(IPentahoRole roleToUpdate) throws NotFoundException, UncategorizedUserRoleDaoException {
@@ -246,20 +279,21 @@ public class HibernateUserRoleDao extends HibernateDaoSupport implements IUserRo
 
     IPentahoRole originalRole = getRole(roleToUpdate.getName());
 
+    if (originalRole == null) {
+      throw new NotFoundException(roleToUpdate.getName());
+    }
+    
     // make a copy of originalRole's users since the merge call below will change the users
     Set<IPentahoUser> originalRoleUsers = new HashSet<IPentahoUser>(originalRole.getUsers());
 
-    if (originalRole != null) {
-      try {
-        getHibernateTemplate().update(getHibernateTemplate().merge(roleToUpdate));
-      } catch (DataAccessException e) {
+
+    try {
+      getHibernateTemplate().update(getHibernateTemplate().merge(roleToUpdate));
+    } catch (DataAccessException e) {
         throw new UncategorizedUserRoleDaoException(Messages.getInstance()
             .getString("HibernateUserRoleDao.ERROR_0004_DATA_ACCESS_EXCEPTION"), e); //$NON-NLS-1$
-      }
-    } else {
-      throw new NotFoundException(roleToUpdate.getName());
     }
-
+ 
     // manually manage users set
 
     // use relative complement (aka set-theoretic difference, aka subtraction) to get the users to add and users to 
@@ -280,8 +314,7 @@ public class HibernateUserRoleDao extends HibernateDaoSupport implements IUserRo
   }
 
   /**
-   * This method is necessary because this is the inverse end of a bidirectional many-to-many relationship. See 
-   * Hibernate documentation section 6.3.2. Bidirectional associations.
+   * Manually update role's users.
    */
   protected void addUser(IPentahoRole roleToUpdate, String username) throws NotFoundException,
       UncategorizedUserRoleDaoException {
@@ -300,8 +333,7 @@ public class HibernateUserRoleDao extends HibernateDaoSupport implements IUserRo
   }
 
   /**
-   * This method is necessary because this is the inverse end of a bidirectional many-to-many relationship. See 
-   * Hibernate documentation section 6.3.2. Bidirectional associations.
+   * Manually update role's users.
    */
   protected void removeUser(IPentahoRole roleToUpdate, String username) throws NotFoundException,
       UncategorizedUserRoleDaoException {
@@ -342,8 +374,6 @@ public class HibernateUserRoleDao extends HibernateDaoSupport implements IUserRo
   public void setInitHandler(InitHandler initHandler) {
     this.initHandler = initHandler;
   }
-
-  
   
   /**
    * Generic interface to allow extensibility without tight coupling. Example use: insert sample users and roles into

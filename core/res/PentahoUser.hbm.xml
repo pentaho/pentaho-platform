@@ -7,6 +7,7 @@
   -->
 
   <class name="PentahoUser" table="USERS">
+    <cache usage="read-write" />
     <id access="field" name="username" column="USERNAME" type="string" length="50">
       <generator class="assigned" />
     </id>

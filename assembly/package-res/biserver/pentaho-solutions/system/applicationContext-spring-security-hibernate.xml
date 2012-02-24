@@ -70,6 +70,7 @@
       <list>
         <value>PentahoUser.hbm.xml</value>
         <value>PentahoRole.hbm.xml</value>
+        <value>PentahoUserRoleMapping.hbm.xml</value>
       </list>
     </property>
     <property name="hibernateProperties">

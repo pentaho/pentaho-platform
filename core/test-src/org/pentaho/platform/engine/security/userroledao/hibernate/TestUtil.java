@@ -45,7 +45,7 @@ public class TestUtil {
 
   static {
     cfg = new Configuration()
-        .addResource("PentahoUser.hbm.xml").addResource("PentahoRole.hbm.xml").setProperty(Environment.DIALECT, //$NON-NLS-1$ //$NON-NLS-2$
+        .addResource("PentahoUser.hbm.xml").addResource("PentahoRole.hbm.xml").addResource("PentahoUserRoleMapping.hbm.xml").setProperty(Environment.DIALECT, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             "org.hibernate.dialect.HSQLDialect").setProperty(Environment.DRIVER, "org.hsqldb.jdbcDriver") //$NON-NLS-1$ //$NON-NLS-2$
         .setProperty(Environment.URL, "jdbc:hsqldb:mem:test").setProperty(Environment.SHOW_SQL, "true").setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
   }

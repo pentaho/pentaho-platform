@@ -5,12 +5,12 @@
     Depends on Hibernate configuration with hibernate.hbm2ddl.auto=update.
   -->
   
-  <class name="PentahoRole" table="AUTHORITIES">
+  <class name="PentahoUserRoleMapping" table="GRANTED_AUTHORITIES">
     <cache usage="read-write" />
-    <id access="field" name="name" column="AUTHORITY" type="string" length="50">
-      <generator class="assigned" />
-    </id>
-    <property name="description" column="DESCRIPTION" type="string" length="100" not-null="false" />
+    <composite-id name="id" class="PentahoUserRoleMapping$Id">
+      <key-property name="user" column="USERNAME" type="string" length="50" />
+      <key-property name="role" column="AUTHORITY" type="string" length="50" />
+    </composite-id>
   </class>
 
 </hibernate-mapping>
