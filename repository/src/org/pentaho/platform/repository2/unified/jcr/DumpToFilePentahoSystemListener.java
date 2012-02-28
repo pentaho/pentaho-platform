@@ -41,10 +41,18 @@ import org.springframework.transaction.support.TransactionTemplate;
  *   class="org.pentaho.platform.repository2.unified.jcr.DumpToFilePentahoSystemListener" /&gt;
  * </pre>
  * 
- * Then (2) add the following system property on the command line:
+ * Then (2) add one of the following system properties on the command line:
  * 
  * <pre>
  * -Dpentaho.repository.dumpToFile=/tmp/repodump
+ * </pre>
+ * or
+ * <pre>
+ * -Dpentaho.repository.dumpToFile.systemView=/tmp/repodump
+ * </pre>
+ * or
+ * <pre>
+ * -Dpentaho.repository.dumpToFile.documentView=/tmp/repodump
  * </pre>
  * 
  * <p>
