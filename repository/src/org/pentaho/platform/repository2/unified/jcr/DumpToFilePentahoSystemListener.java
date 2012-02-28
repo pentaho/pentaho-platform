@@ -3,11 +3,18 @@ package org.pentaho.platform.repository2.unified.jcr;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
+import javax.jcr.util.TraversingItemVisitor;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -53,8 +60,24 @@ public class DumpToFilePentahoSystemListener implements IPentahoSystemListener {
 
   private static final Log logger = LogFactory.getLog(DumpToFilePentahoSystemListener.class);
 
+  /**
+   * Exports the repository using a custom TraversingItemVisitor. (It is human-readable output that is not meant to be 
+   * parsed.)
+   */
   public static final String PROP_DUMP_TO_FILE = "pentaho.repository.dumpToFile"; //$NON-NLS-1$
+  
+  /**
+   * Exports the repository using System View.
+   */
+  public static final String PROP_DUMP_TO_FILE_SYSTEM_VIEW = "pentaho.repository.dumpToFile.systemView"; //$NON-NLS-1$
+  
+  /**
+   * Exports the repository using Document View.
+   */  
+  public static final String PROP_DUMP_TO_FILE_DOCUMENT_VIEW = "pentaho.repository.dumpToFile.documentView"; //$NON-NLS-1$
 
+  private enum Mode { CUSTOM, SYS, DOC };
+  
   // ~ Instance fields =================================================================================================
 
   // ~ Constructors ====================================================================================================
@@ -64,6 +87,16 @@ public class DumpToFilePentahoSystemListener implements IPentahoSystemListener {
   @Override
   public boolean startup(IPentahoSession pentahoSession) {
     String filename = System.getProperty(PROP_DUMP_TO_FILE);
+    Mode tmpMode = Mode.CUSTOM;
+    if (filename == null) {
+      filename = System.getProperty(PROP_DUMP_TO_FILE_SYSTEM_VIEW);
+      tmpMode = Mode.SYS;
+    }
+    if (filename == null) {
+      filename = System.getProperty(PROP_DUMP_TO_FILE_DOCUMENT_VIEW);
+      tmpMode = Mode.DOC;
+    }
+    final Mode mode = tmpMode;
     if (filename != null) {
       final JcrTemplate jcrTemplate = PentahoSystem.get(JcrTemplate.class, "jcrTemplate", pentahoSession); //$NON-NLS-1$
       TransactionTemplate txnTemplate = PentahoSystem.get(TransactionTemplate.class,
@@ -94,11 +127,27 @@ public class DumpToFilePentahoSystemListener implements IPentahoSystemListener {
           public void doInTransactionWithoutResult(final TransactionStatus status) {
             jcrTemplate.execute(new JcrCallback() {
               public Object doInJcr(final Session session) throws RepositoryException, IOException {
-                final boolean SKIP_BINARY = false;
-                final boolean NO_RECURSE = false;
-                out.putNextEntry(new ZipEntry("repository.xml")); //$NON-NLS-1$
-                session.exportSystemView("/", out, SKIP_BINARY, NO_RECURSE); //$NON-NLS-1$
-                return null;
+                switch (mode) {
+                  case SYS: {
+                    final boolean SKIP_BINARY = false;
+                    final boolean NO_RECURSE = false;
+                    out.putNextEntry(new ZipEntry("repository.xml")); //$NON-NLS-1$
+                    session.exportSystemView("/", out, SKIP_BINARY, NO_RECURSE); //$NON-NLS-1$
+                    return null;
+                  }
+                  case DOC: {
+                    final boolean SKIP_BINARY = false;
+                    final boolean NO_RECURSE = false;
+                    out.putNextEntry(new ZipEntry("repository.xml")); //$NON-NLS-1$
+                    session.exportDocumentView("/", out, SKIP_BINARY, NO_RECURSE); //$NON-NLS-1$
+                    return null;
+                  }
+                  default: {
+                    out.putNextEntry(new ZipEntry("repository.txt")); //$NON-NLS-1$
+                    session.getRootNode().accept(new DumpToFileTraversingItemVisitor(out));
+                    return null;
+                  }
+                }
               }
             });
           }
@@ -122,5 +171,93 @@ public class DumpToFilePentahoSystemListener implements IPentahoSystemListener {
   @Override
   public void shutdown() {
   }
+  
+  public static class DumpToFileTraversingItemVisitor extends TraversingItemVisitor {
+    
+    private OutputStream out;
+    
+    public DumpToFileTraversingItemVisitor(final OutputStream out) {
+     this.out = out; 
+    }
+    
+    private static final String INDENT = "  "; //$NON-NLS-1$
+    
+    private static final String ENCODING = "UTF-8"; //$NON-NLS-1$
+    
+    private static final String NL = System.getProperty("line.separator"); //$NON-NLS-1$
+    
+    @Override
+    protected void entering(final Property property, final int level) throws RepositoryException {
+      StringBuilder buf = new StringBuilder();
+      for (int i = 0; i < level; i++) {
+        buf.append(INDENT);
+      }
+      propertyToString(property, buf);
+      try {
+        IOUtils.write(buf, out, ENCODING);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    protected void propertyToString(final Property property, final StringBuilder buf) throws RepositoryException {
+      buf.append("@"); //$NON-NLS-1$
+      buf.append(property.getName());
+      buf.append("="); //$NON-NLS-1$
+      try {
+        Value value = property.getValue();
+        valueToString(value, buf);
+      } catch (ValueFormatException e) {
+        // multi-valued
+        Value[] values = property.getValues();
+        buf.append("["); //$NON-NLS-1$
+        for (int i = 0; i < values.length; i++) {
+          if (i > 0) {
+            buf.append(","); //$NON-NLS-1$
+          }
+          valueToString(values[i], buf);
+        }
+        buf.append("]"); //$NON-NLS-1$
+      }
+      buf.append(NL);
+    }
+    protected void valueToString(final Value value, final StringBuilder buf) throws RepositoryException {
+      buf.append(value.getString());
+      buf.append(" ("); //$NON-NLS-1$
+      buf.append(PropertyType.nameFromValue(value.getType()));
+      buf.append(")"); //$NON-NLS-1$
+    }
+
+    @Override
+    protected void entering(final Node node, final int level) throws RepositoryException {
+      StringBuilder buf = new StringBuilder();
+      for (int i = 0; i < level; i++) {
+        buf.append(INDENT);
+      }
+      nodeToString(node, buf);
+      try {
+        IOUtils.write(buf, out, ENCODING);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    protected void nodeToString(final Node node, final StringBuilder buf) throws RepositoryException {
+      buf.append(node.getName());
+      buf.append("/"); //$NON-NLS-1$
+      buf.append(NL);
+    }
+
+    @Override
+    protected void leaving(final Property property, final int level) throws RepositoryException {
+
+    }
+
+    @Override
+    protected void leaving(final Node node, final int level) throws RepositoryException {
+
+    }
+
+  }
+
 
 }
