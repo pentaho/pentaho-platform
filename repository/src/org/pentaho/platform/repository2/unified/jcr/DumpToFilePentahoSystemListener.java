@@ -32,17 +32,17 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Creates an XML export of the JCR to the file given in a system property called pentaho.repository.dumpToFile.
+ * Creates an export of the JCR in various formats.
  * 
- * To use (1) add the following to the end of {@code systemListeners.xml}:
- * 
+ * <p>To use:</p>
+ * <ol>
+ * <li>Add the following to the end of {@code systemListeners.xml}:
  * <pre>
  * &lt;bean id="dumpToFilePentahoSystemListener" 
  *   class="org.pentaho.platform.repository2.unified.jcr.DumpToFilePentahoSystemListener" /&gt;
  * </pre>
- * 
- * Then (2) add one of the following system properties on the command line:
- * 
+ * </li>
+ * <li>Add one of the following system properties on the command line:
  * <pre>
  * -Dpentaho.repository.dumpToFile=/tmp/repodump
  * </pre>
@@ -54,6 +54,8 @@ import org.springframework.transaction.support.TransactionTemplate;
  * <pre>
  * -Dpentaho.repository.dumpToFile.documentView=/tmp/repodump
  * </pre>
+ * </li>
+ * </ol>
  * 
  * <p>
  * Uses PentahoSystem instead of Spring injection since its collaborators are not yet instantiated when this class is
