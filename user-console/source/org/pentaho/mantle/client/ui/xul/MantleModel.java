@@ -180,6 +180,15 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   }
   
   @Bindable
+  public void loadUsersAndGroupsPnael() {
+    DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
+    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getUsersAndGroupsPanel()) == -1) {
+      contentDeck.add(MantleXul.getInstance().getUsersAndGroupsPanel());
+    }
+    contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getUsersAndGroupsPanel()));
+  }
+  
+  @Bindable
   public void refreshContent() {
     if ("workspace.perspective".equals(PerspectiveManager.getInstance().getActivePerspective().getId())) {
       Command cmd = new RefreshWorkspaceCommand();

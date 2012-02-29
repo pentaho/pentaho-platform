@@ -24,6 +24,7 @@ import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.admin.JsSysAdminPanel;
 import org.pentaho.mantle.client.admin.SecurityPanel;
+import org.pentaho.mantle.client.admin.UsersAndGroupsPanel;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
@@ -40,6 +41,7 @@ import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.binding.GwtBindingFactory;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -227,10 +229,13 @@ public class MantleController extends AbstractXulEventHandler {
           break;
         }
       }
-          
+      
       if (((SecurityPanel)MantleXul.getInstance().getSecurityPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
         model.loadSecurityPanel();
         MantleXul.getInstance().getSecurityPanel().getElement().setId(((SecurityPanel)MantleXul.getInstance().getSecurityPanel()).getId());
+      } else if (((UsersAndGroupsPanel)MantleXul.getInstance().getUsersAndGroupsPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
+        model.loadUsersAndGroupsPnael();
+        MantleXul.getInstance().getUsersAndGroupsPanel().getElement().setId(((UsersAndGroupsPanel)MantleXul.getInstance().getUsersAndGroupsPanel()).getId());
       } else {
         model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
       }
@@ -378,6 +383,15 @@ public class MantleController extends AbstractXulEventHandler {
       sysAdminPanelsMap.put(securityPanelId, (SecurityPanel)MantleXul.getInstance().getSecurityPanel());
     }
     loadAdminContent(securityPanelId, null);
+  }
+  
+  @Bindable
+  public void loadUsersAndGroupsPanel() {
+    String usersAndGroupsPanelId = ((UsersAndGroupsPanel)MantleXul.getInstance().getUsersAndGroupsPanel()).getId();
+    if (!sysAdminPanelsMap.containsKey(usersAndGroupsPanelId)) {
+      sysAdminPanelsMap.put(usersAndGroupsPanelId, (UsersAndGroupsPanel)MantleXul.getInstance().getUsersAndGroupsPanel());
+    }
+    loadAdminContent(usersAndGroupsPanelId, null);
   }
   
   @Bindable
