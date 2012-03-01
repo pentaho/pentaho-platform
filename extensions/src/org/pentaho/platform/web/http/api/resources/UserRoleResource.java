@@ -64,7 +64,6 @@ public class UserRoleResource extends AbstractJaxRSResource {
   @Consumes( { APPLICATION_XML, APPLICATION_JSON })
   @Path("/roleAssignments")
   public Response setLogicalRoles(LogicalRoleAssignments roleAssignments) {
-    int x = 1;
     for (LogicalRoleAssignment roleAssignment : roleAssignments.getLogicalRoleAssignments()) {
       roleBindingDao.setRoleBindings(roleAssignment.getRoleName(), roleAssignment.getLogicalRoles());
     }
