@@ -21,11 +21,13 @@
 package org.pentaho.mantle.client.admin;
 
 import org.pentaho.gwt.widgets.client.buttons.ImageButton;
-import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -35,6 +37,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -48,8 +51,12 @@ import com.google.gwt.xml.client.XMLParser;
 public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 
 	private String moduleBaseURL = GWT.getModuleBaseURL();
-	private CustomListBox rolesListBox;
-	private CustomListBox usersListBox;
+	private ListBox rolesListBox;
+	private ListBox usersListBox;
+	private ListBox selectedRolesListBox;
+	private ListBox selectedMembersListBox;
+	private ListBox availableMembersListBox;
+	private ListBox availableRolesListBox;
 
 	public UserRolesAdminPanel() {
 		FlexTable mainPanel = new FlexTable();
@@ -92,11 +99,12 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		labelAndButtonsPanel.add(hSpacer);
 		labelAndButtonsPanel.add(new ImageButton(moduleBaseURL + "images/Remove.png", "", ""));
 
-		usersListBox = new CustomListBox();
+		usersListBox = new ListBox();
 		availablePanel.add(usersListBox);
-		usersListBox.setVisibleRowCount(20);
+		usersListBox.setVisibleItemCount(20);
 		usersListBox.setWidth("200px");
 		usersListBox.setHeight("432px");
+		usersListBox.addChangeHandler(new UsersListChangeListener());
 
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
@@ -132,9 +140,9 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		VerticalPanel availableRolesPanel = new VerticalPanel();
 		groupsPanel.add(availableRolesPanel);
 		availableRolesPanel.add(new Label(Messages.getString("available") + ":"));
-		CustomListBox availableRolesListBox = new CustomListBox();
+		availableRolesListBox = new ListBox();
 		availableRolesPanel.add(availableRolesListBox);
-		availableRolesListBox.setVisibleRowCount(20);
+		availableRolesListBox.setVisibleItemCount(20);
 		availableRolesListBox.setWidth("200px");
 		availableRolesListBox.setHeight("285px");
 
@@ -170,9 +178,9 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		VerticalPanel selectedRolesPanel = new VerticalPanel();
 		groupsPanel.add(selectedRolesPanel);
 		selectedRolesPanel.add(new Label(Messages.getString("selected") + ":"));
-		CustomListBox selectedRolesListBox = new CustomListBox();
+		selectedRolesListBox = new ListBox();
 		selectedRolesPanel.add(selectedRolesListBox);
-		selectedRolesListBox.setVisibleRowCount(20);
+		selectedRolesListBox.setVisibleItemCount(20);
 		selectedRolesListBox.setWidth("200px");
 		selectedRolesListBox.setHeight("285px");
 
@@ -204,11 +212,12 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		labelAndButtonsPanel.add(hSpacer);
 		labelAndButtonsPanel.add(new ImageButton(moduleBaseURL + "images/Remove.png", "", ""));
 
-		rolesListBox = new CustomListBox();
+		rolesListBox = new ListBox();
 		availablePanel.add(rolesListBox);
-		rolesListBox.setVisibleRowCount(20);
+		rolesListBox.setVisibleItemCount(20);
 		rolesListBox.setWidth("200px");
 		rolesListBox.setHeight("432px");
+		rolesListBox.addChangeHandler(new RolesListChangeListener());
 
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
@@ -240,9 +249,9 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		VerticalPanel availableMembersPanel = new VerticalPanel();
 		groupsPanel.add(availableMembersPanel);
 		availableMembersPanel.add(new Label(Messages.getString("available") + ":"));
-		CustomListBox availableMembersListBox = new CustomListBox();
+		availableMembersListBox = new ListBox();
 		availableMembersPanel.add(availableMembersListBox);
-		availableMembersListBox.setVisibleRowCount(20);
+		availableMembersListBox.setVisibleItemCount(20);
 		availableMembersListBox.setWidth("200px");
 		availableMembersListBox.setHeight("328px");
 
@@ -278,9 +287,9 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		VerticalPanel selectedMembersPanel = new VerticalPanel();
 		groupsPanel.add(selectedMembersPanel);
 		selectedMembersPanel.add(new Label(Messages.getString("selected") + ":"));
-		CustomListBox selectedMembersListBox = new CustomListBox();
+		selectedMembersListBox = new ListBox();
 		selectedMembersPanel.add(selectedMembersListBox);
-		selectedMembersListBox.setVisibleRowCount(20);
+		selectedMembersListBox.setVisibleItemCount(20);
 		selectedMembersListBox.setWidth("200px");
 		selectedMembersListBox.setHeight("328px");
 
@@ -288,8 +297,6 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 	}
 
 	public void activate() {
-		usersListBox.clear();
-		rolesListBox.clear();
 		initializeAvailableUsers();
 		initializeAvailableRoles();
 	}
@@ -313,6 +320,7 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 				}
 
 				public void onResponseReceived(Request request, Response response) {
+					usersListBox.clear();
 					String txt = response.getText();
 					Document doc = XMLParser.parse(txt);
 					NodeList users = doc.getElementsByTagName("user");
@@ -338,6 +346,7 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 				}
 
 				public void onResponseReceived(Request request, Response response) {
+					rolesListBox.clear();
 					String txt = response.getText();
 					Document doc = XMLParser.parse(txt);
 					NodeList roles = doc.getElementsByTagName("role");
@@ -349,6 +358,106 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 				}
 			});
 		} catch (RequestException e) {
+		}
+	}
+
+	private void getRolesForUser(String user) {
+		final String url = GWT.getHostPageBaseURL() + "api/userrole/getRolesForUser?user=" + user;
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+		executableTypesRequestBuilder.setHeader("accept", "application/xml");
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					selectedRolesListBox.clear();
+					String txt = response.getText();
+					Document doc = XMLParser.parse(txt);
+					NodeList roles = doc.getElementsByTagName("role");
+					for (int i = 0; i < roles.getLength(); i++) {
+						Node roleNode = roles.item(i);
+						String role = roleNode.getFirstChild().getNodeValue();
+						selectedRolesListBox.addItem(role);
+					}
+
+					// availableRolesListBox = rolesListBox - selectedRolesListBox
+					availableRolesListBox.clear();
+					for (int i = 0; i < rolesListBox.getItemCount(); i++) {
+						String role = rolesListBox.getValue(i);
+						boolean isSelected = false;
+						for (int j = 0; j < selectedRolesListBox.getItemCount(); j++) {
+							if (selectedRolesListBox.getValue(j).equals(role)) {
+								isSelected = true;
+							}
+						}
+						if(!isSelected) {
+							availableRolesListBox.addItem(role);
+						}
+					}
+				}
+			});
+		} catch (RequestException e) {
+		}
+	}
+
+	private void getUsersInRole(String role) {
+		final String url = GWT.getHostPageBaseURL() + "api/userrole/getUsersInRole?role=" + role;
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+		executableTypesRequestBuilder.setHeader("accept", "application/xml");
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					selectedMembersListBox.clear();
+					String txt = response.getText();
+					Document doc = XMLParser.parse(txt);
+					NodeList users = doc.getElementsByTagName("user");
+					for (int i = 0; i < users.getLength(); i++) {
+						Node userNode = users.item(i);
+						String user = userNode.getFirstChild().getNodeValue();
+						selectedMembersListBox.addItem(user);
+					}
+
+					// availableMembersListBox = usersListBox - selectedMembersListBox
+					availableMembersListBox.clear();
+					for (int i = 0; i < usersListBox.getItemCount(); i++) {
+						String user = usersListBox.getValue(i);
+						boolean isSelected = false;
+						for (int j = 0; j < selectedMembersListBox.getItemCount(); j++) {
+							if (selectedMembersListBox.getValue(j).equals(user)) {
+								isSelected = true;
+							}
+						}
+						if(!isSelected) {
+							availableMembersListBox.addItem(user);
+						}
+					}
+				}
+			});
+		} catch (RequestException e) {
+		}
+	}
+
+	class UsersListChangeListener implements ChangeHandler {
+		public void onChange(ChangeEvent evt) {
+			String user = usersListBox.getValue(usersListBox.getSelectedIndex());
+			if (!StringUtils.isEmpty(user)) {
+				getRolesForUser(user);
+			}
+		}
+	}
+
+	class RolesListChangeListener implements ChangeHandler {
+		public void onChange(ChangeEvent evt) {
+			String role = rolesListBox.getValue(rolesListBox.getSelectedIndex());
+			if (!StringUtils.isEmpty(role)) {
+				getUsersInRole(role);
+			}
 		}
 	}
 }
