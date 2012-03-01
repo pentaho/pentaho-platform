@@ -180,12 +180,12 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   }
   
   @Bindable
-  public void loadUsersAndGroupsPnael() {
+  public void loadUserRolesAdminPanel() {
     DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
-    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getUsersAndGroupsPanel()) == -1) {
-      contentDeck.add(MantleXul.getInstance().getUsersAndGroupsPanel());
+    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getUserRolesAdminPanel()) == -1) {
+      contentDeck.add(MantleXul.getInstance().getUserRolesAdminPanel());
     }
-    contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getUsersAndGroupsPanel()));
+    contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getUserRolesAdminPanel()));
   }
   
   @Bindable

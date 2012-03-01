@@ -112,7 +112,7 @@
 						<treecell label="ABS" />
 		  			</treerow>
 		  		</treeitem>
-			   	<treeitem command="mantleXulHandler.loadUsersAndGroupsPanel()">
+			   	<treeitem command="mantleXulHandler.loadUserRolesAdminPanel()">
 	    		 	<treerow>
 						<treecell label="Users/Groups" />
 		  			</treerow>

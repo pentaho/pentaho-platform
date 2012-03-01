@@ -36,13 +36,13 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class UsersAndGroupsPanel extends SimplePanel implements ISysAdminPanel {
+public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 
 	private String moduleBaseURL = GWT.getModuleBaseURL();
 	private String moduleName = GWT.getModuleName();
 	private String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
-	public UsersAndGroupsPanel() {
+	public UserRolesAdminPanel() {
 		FlexTable mainPanel = new FlexTable();
 
 		mainPanel.setWidget(0, 0, new Label(Messages.getString("users") + "/" + Messages.getString("roles")));
@@ -282,7 +282,7 @@ public class UsersAndGroupsPanel extends SimplePanel implements ISysAdminPanel {
 	}
 
 	public String getId() {
-		return "actionBasedUsersAndGroupsPanel";
+		return "userRolesAdminPanel";
 	}
 
 	public void passivate(final AsyncCallback<Boolean> callback) {
