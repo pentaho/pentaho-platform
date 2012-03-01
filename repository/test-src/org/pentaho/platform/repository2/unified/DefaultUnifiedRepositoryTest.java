@@ -208,7 +208,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @After
   public void tearDown() throws Exception {
-    clearRoleBindings();
     // null out fields to get back memory
     authorizationPolicy = null;
     loginAsRepositoryAdmin();
@@ -228,14 +227,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     repo = null;
   }
   
-  protected void clearRoleBindings() throws Exception {
-    loginAsRepositoryAdmin();
-    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath(TENANT_ID_ACME)
-        + ".authz");
-    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath(TENANT_ID_DUFF)
-        + ".authz");
-  }
-
   @Test(expected = IllegalStateException.class)
   public void testNotStartedUp() throws Exception {
     startupCalled = false;
@@ -2221,24 +2212,31 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   
   @Test
   public void testRoleAuthorizationPolicyTenants() throws Exception {
-    manager.startup();
-    // login with suzy (in tenant acme)
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-    assertEquals(2, authorizationPolicy.getAllowedActions(null).size());
+    List<String> origLogicalRoles = roleBindingDao.getBoundLogicalRoleNames(Arrays.asList(new String[] {"acme_Authenticated"}));
+    try {
+      manager.startup();
+      // login with suzy (in tenant acme)
+      login(USERNAME_SUZY, TENANT_ID_ACME);
+      assertEquals(2, authorizationPolicy.getAllowedActions(null).size());
 
-    // login with joe (in tenant acme)
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
-    roleBindingDao.setRoleBindings(RUNTIME_ROLE_ACME_AUTHENTICATED, Arrays.asList(new String[] { LOGICAL_ROLE_READER,
-        LOGICAL_ROLE_CREATOR, LOGICAL_ROLE_SECURITY_ADMINISTRATOR }));
-    assertEquals(3, authorizationPolicy.getAllowedActions(null).size());
-    
-    // login with pat (in tenant duff)
-    login(USERNAME_PAT, TENANT_ID_DUFF);
-    assertEquals(2, authorizationPolicy.getAllowedActions(null).size());
+      // login with joe (in tenant acme)
+      login(USERNAME_JOE, TENANT_ID_ACME, true);
+      roleBindingDao.setRoleBindings(RUNTIME_ROLE_ACME_AUTHENTICATED, Arrays.asList(new String[] { LOGICAL_ROLE_READER,
+          LOGICAL_ROLE_CREATOR, LOGICAL_ROLE_SECURITY_ADMINISTRATOR }));
+      assertEquals(3, authorizationPolicy.getAllowedActions(null).size());
+      
+      // login with pat (in tenant duff)
+      login(USERNAME_PAT, TENANT_ID_DUFF);
+      assertEquals(2, authorizationPolicy.getAllowedActions(null).size());
 
-    // login with suzy again (in tenant acme); expect additional action for suzy
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-    assertEquals(3, authorizationPolicy.getAllowedActions(null).size());
+      // login with suzy again (in tenant acme); expect additional action for suzy
+      login(USERNAME_SUZY, TENANT_ID_ACME);
+      assertEquals(3, authorizationPolicy.getAllowedActions(null).size());
+    } finally {
+      login(USERNAME_JOE, TENANT_ID_ACME, true);
+      // must do it this way in order to reset the cache
+      roleBindingDao.setRoleBindings(RUNTIME_ROLE_ACME_AUTHENTICATED, origLogicalRoles);
+    }
   }
 
   @Test
@@ -2275,30 +2273,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     }
   }
 
-  @Test
-  public void testRoleAuthorizationPolicyGetRoleBindingStruct() throws Exception {
-    manager.startup();
-    // login with user that is allowed to "administer security"
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
-    RoleBindingStruct struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
-    assertNotNull(struct);
-    assertNotNull(struct.bindingMap);
-    assertEquals(5, struct.bindingMap.size());
-    assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR,
-        LOGICAL_ROLE_SECURITY_ADMINISTRATOR }), struct.bindingMap.get(RUNTIME_ROLE_ACME_ADMIN));
-    assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR }), struct.bindingMap
-        .get(RUNTIME_ROLE_ACME_AUTHENTICATED));
-    roleBindingDao.setRoleBindings("whatever", Arrays.asList(new String[] { "org.pentaho.p1.reader" }));
-
-    struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
-    assertEquals(6, struct.bindingMap.size());
-    assertEquals(Arrays.asList(new String[] { "org.pentaho.p1.reader" }), struct.bindingMap.get("whatever"));
-
-    assertNotNull(struct.logicalRoleNameMap);
-    assertEquals(3, struct.logicalRoleNameMap.size());
-    assertEquals("Create Content", struct.logicalRoleNameMap.get(LOGICAL_ROLE_CREATOR));
-  }
-
   @Test(expected = AccessDeniedException.class)
   public void testRoleAuthorizationPolicyGetRoleBindingStructAccessDenied() throws Exception {
     manager.startup();
@@ -2307,6 +2281,41 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
   }
 
+  /**
+   * Please keep this test the last of the testRoleAuthorizationPolicy* since it adds a binding that cannot be deleted,
+   * only set to no associated logical roles.
+   */
+  @Test
+  public void testRoleAuthorizationPolicyGetRoleBindingStruct() throws Exception {
+    List<String> origLogicalRoles = roleBindingDao.getBoundLogicalRoleNames(Arrays.asList(new String[] {"acme_Authenticated"}));
+    try {
+      manager.startup();
+      // login with user that is allowed to "administer security"
+      login(USERNAME_JOE, TENANT_ID_ACME, true);
+      RoleBindingStruct struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
+      assertNotNull(struct);
+      assertNotNull(struct.bindingMap);
+      assertEquals(5, struct.bindingMap.size());
+      assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR,
+          LOGICAL_ROLE_SECURITY_ADMINISTRATOR }), struct.bindingMap.get(RUNTIME_ROLE_ACME_ADMIN));
+      assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR }), struct.bindingMap
+          .get(RUNTIME_ROLE_ACME_AUTHENTICATED));
+      roleBindingDao.setRoleBindings("whatever", Arrays.asList(new String[] { "org.pentaho.p1.reader" }));
+
+      struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
+      assertEquals(6, struct.bindingMap.size());
+      assertEquals(Arrays.asList(new String[] { "org.pentaho.p1.reader" }), struct.bindingMap.get("whatever"));
+
+      assertNotNull(struct.logicalRoleNameMap);
+      assertEquals(3, struct.logicalRoleNameMap.size());
+      assertEquals("Create Content", struct.logicalRoleNameMap.get(LOGICAL_ROLE_CREATOR));
+    } finally {
+      login(USERNAME_JOE, TENANT_ID_ACME, true);
+      // must do it this way in order to reset the cache
+      roleBindingDao.setRoleBindings("whatever", origLogicalRoles);
+    }
+  }
+  
   private RepositoryFile createSampleFile(final String parentFolderPath, final String fileName,
       final String sampleString, final boolean sampleBoolean, final int sampleInteger, boolean versioned)
       throws Exception {
