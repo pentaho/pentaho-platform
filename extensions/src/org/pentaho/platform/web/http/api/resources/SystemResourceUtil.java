@@ -80,6 +80,46 @@ public class SystemResourceUtil {
   }
 
   /**
+   * Returns XML for list of Roles for a given User.
+   */
+  public static Document getRolesForUser(String user)
+      throws ServletException, IOException {
+    IUserRoleListService service = PentahoSystem.get(IUserRoleListService.class);
+    Element rootElement = new DefaultElement("roles"); //$NON-NLS-1$
+    Document doc = DocumentHelper.createDocument(rootElement);
+    if (service != null) {
+      List<String> roles = service.getRolesForUser(user);
+      for (Iterator<String> rolesIterator = roles.iterator(); rolesIterator.hasNext();) {
+        String roleName = rolesIterator.next().toString();
+        if ((null != roleName) && (roleName.length() > 0)) {
+          rootElement.addElement("role").setText(roleName); //$NON-NLS-1$
+        }
+      }
+    }
+    return doc;
+  }
+  
+  /**
+   * Returns XML for list of Users for a given Role.
+   */
+  public static Document getUsersInRole(String role)
+	      throws ServletException, IOException {
+	IUserRoleListService service = PentahoSystem.get(IUserRoleListService.class);
+	Element rootElement = new DefaultElement("users"); //$NON-NLS-1$
+	Document doc = DocumentHelper.createDocument(rootElement);
+	if (service != null) {
+	  List<String> users = service.getUsersInRole(role);
+	  for (Iterator<String> usersIterator = users.iterator(); usersIterator.hasNext();) {
+	    String username = usersIterator.next().toString();
+	    if ((null != username) && (username.length() > 0)) {
+	      rootElement.addElement("user").setText(username); //$NON-NLS-1$
+	    }
+	  }
+	}
+	return doc;
+  }
+  
+  /**
    * Returns XML for list of Permission.
    */
   @SuppressWarnings("unchecked")

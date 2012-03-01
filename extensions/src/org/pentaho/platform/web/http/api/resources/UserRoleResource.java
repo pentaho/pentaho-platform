@@ -69,4 +69,26 @@ public class UserRoleResource extends AbstractJaxRSResource {
     }
     return Response.ok().build();
   }
+
+  @GET
+  @Path("/getRolesForUser")
+  @Produces({MediaType.APPLICATION_XML})
+  public Response getRolesForUser(@QueryParam("user") String user)  throws Exception {
+	  try {
+          return Response.ok(SystemResourceUtil.getRolesForUser(user).asXML()).type(MediaType.APPLICATION_XML).build();
+      } catch (Throwable t) {
+         throw new WebApplicationException(t);
+      }
+  }
+
+  @GET
+  @Path("/getUsersInRole")
+  @Produces({MediaType.APPLICATION_XML})
+  public Response getUsersInRole(@QueryParam("role") String role)  throws Exception {
+      try {
+          return Response.ok(SystemResourceUtil.getUsersInRole(role).asXML()).type(MediaType.APPLICATION_XML).build();
+      } catch (Throwable t) {
+         throw new WebApplicationException(t);
+      }
+  }
 }
