@@ -26,6 +26,11 @@ import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -35,16 +40,19 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 
 public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 
 	private String moduleBaseURL = GWT.getModuleBaseURL();
-	private String moduleName = GWT.getModuleName();
-	private String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+	private CustomListBox rolesListBox;
+	private CustomListBox usersListBox;
 
 	public UserRolesAdminPanel() {
 		FlexTable mainPanel = new FlexTable();
-
 		mainPanel.setWidget(0, 0, new Label(Messages.getString("users") + "/" + Messages.getString("roles")));
 
 		PentahoTabPanel mainTabPanel = new PentahoTabPanel();
@@ -53,8 +61,10 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		mainTabPanel.addTab(Messages.getString("users"), "", false, createUsersPanel());
 		mainTabPanel.addTab(Messages.getString("roles"), "", false, createRolesPanel());
 		mainPanel.setWidget(1, 0, mainTabPanel);
-
 		setWidget(mainPanel);
+
+		initializeAvailableUsers();
+		initializeAvailableRoles();
 	}
 
 	private Widget createUsersPanel() {
@@ -82,7 +92,7 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		labelAndButtonsPanel.add(hSpacer);
 		labelAndButtonsPanel.add(new ImageButton(moduleBaseURL + "images/Remove.png", "", ""));
 
-		CustomListBox usersListBox = new CustomListBox();
+		usersListBox = new CustomListBox();
 		availablePanel.add(usersListBox);
 		usersListBox.setVisibleRowCount(20);
 		usersListBox.setWidth("200px");
@@ -194,7 +204,7 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		labelAndButtonsPanel.add(hSpacer);
 		labelAndButtonsPanel.add(new ImageButton(moduleBaseURL + "images/Remove.png", "", ""));
 
-		CustomListBox rolesListBox = new CustomListBox();
+		rolesListBox = new CustomListBox();
 		availablePanel.add(rolesListBox);
 		rolesListBox.setVisibleRowCount(20);
 		rolesListBox.setWidth("200px");
@@ -278,7 +288,10 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 	}
 
 	public void activate() {
-
+		usersListBox.clear();
+		rolesListBox.clear();
+		initializeAvailableUsers();
+		initializeAvailableRoles();
 	}
 
 	public String getId() {
@@ -287,5 +300,55 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 
 	public void passivate(final AsyncCallback<Boolean> callback) {
 		callback.onSuccess(true);
+	}
+
+	private void initializeAvailableUsers() {
+		final String url = GWT.getHostPageBaseURL() + "api/users";
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+		executableTypesRequestBuilder.setHeader("accept", "application/xml");
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					String txt = response.getText();
+					Document doc = XMLParser.parse(txt);
+					NodeList users = doc.getElementsByTagName("user");
+					for (int i = 0; i < users.getLength(); i++) {
+						Node userNode = users.item(i);
+						String user = userNode.getFirstChild().getNodeValue();
+						usersListBox.addItem(user);
+					}
+				}
+			});
+		} catch (RequestException e) {
+		}
+	}
+
+	private void initializeAvailableRoles() {
+		final String url = GWT.getHostPageBaseURL() + "api/roles";
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+		executableTypesRequestBuilder.setHeader("accept", "application/xml");
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					String txt = response.getText();
+					Document doc = XMLParser.parse(txt);
+					NodeList roles = doc.getElementsByTagName("role");
+					for (int i = 0; i < roles.getLength(); i++) {
+						Node roleNode = roles.item(i);
+						String role = roleNode.getFirstChild().getNodeValue();
+						rolesListBox.addItem(role);
+					}
+				}
+			});
+		} catch (RequestException e) {
+		}
 	}
 }
