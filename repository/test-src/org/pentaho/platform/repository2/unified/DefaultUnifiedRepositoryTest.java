@@ -2218,6 +2218,28 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_PENTAHO);
     assertEquals(3, allowedActions.size());
   }
+  
+  @Test
+  public void testRoleAuthorizationPolicyTenants() throws Exception {
+    manager.startup();
+    // login with suzy (in tenant acme)
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+    assertEquals(2, authorizationPolicy.getAllowedActions(null).size());
+
+    // login with joe (in tenant acme)
+    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    roleBindingDao.setRoleBindings(RUNTIME_ROLE_ACME_AUTHENTICATED, Arrays.asList(new String[] { LOGICAL_ROLE_READER,
+        LOGICAL_ROLE_CREATOR, LOGICAL_ROLE_SECURITY_ADMINISTRATOR }));
+    assertEquals(3, authorizationPolicy.getAllowedActions(null).size());
+    
+    // login with pat (in tenant duff)
+    login(USERNAME_PAT, TENANT_ID_DUFF);
+    assertEquals(2, authorizationPolicy.getAllowedActions(null).size());
+
+    // login with suzy again (in tenant acme); expect additional action for suzy
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+    assertEquals(3, authorizationPolicy.getAllowedActions(null).size());
+  }
 
   @Test
   public void testRoleAuthorizationPolicyIsAllowed() throws Exception {
