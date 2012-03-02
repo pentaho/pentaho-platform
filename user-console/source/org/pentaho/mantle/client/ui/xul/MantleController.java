@@ -25,6 +25,7 @@ import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.admin.JsSysAdminPanel;
 import org.pentaho.mantle.client.admin.SecurityPanel;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanel;
+import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
@@ -233,9 +234,9 @@ public class MantleController extends AbstractXulEventHandler {
       if (((SecurityPanel)MantleXul.getInstance().getSecurityPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
         model.loadSecurityPanel();
         MantleXul.getInstance().getSecurityPanel().getElement().setId(((SecurityPanel)MantleXul.getInstance().getSecurityPanel()).getId());
-      } else if (((UserRolesAdminPanel)MantleXul.getInstance().getUserRolesAdminPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
+      } else if (((UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
         model.loadUserRolesAdminPanel();
-        MantleXul.getInstance().getUserRolesAdminPanel().getElement().setId(((UserRolesAdminPanel)MantleXul.getInstance().getUserRolesAdminPanel()).getId());
+        MantleXul.getInstance().getUserRolesAdminPanel().getElement().setId(((UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel()).getId());
       } else {
         model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
       }
@@ -387,9 +388,9 @@ public class MantleController extends AbstractXulEventHandler {
   
   @Bindable
   public void loadUserRolesAdminPanel() {
-    String usersAndGroupsPanelId = ((UserRolesAdminPanel)MantleXul.getInstance().getUserRolesAdminPanel()).getId();
+    String usersAndGroupsPanelId = ((UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel()).getId();
     if (!sysAdminPanelsMap.containsKey(usersAndGroupsPanelId)) {
-      sysAdminPanelsMap.put(usersAndGroupsPanelId, (UserRolesAdminPanel)MantleXul.getInstance().getUserRolesAdminPanel());
+      sysAdminPanelsMap.put(usersAndGroupsPanelId, (UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel());
     }
     loadAdminContent(usersAndGroupsPanelId, null);
   }
