@@ -57,6 +57,9 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 	private ListBox selectedMembersListBox;
 	private ListBox availableMembersListBox;
 	private ListBox availableRolesListBox;
+	private PasswordTextBox userPasswordTextBox;
+	private TextBox roleNameTextBox;
+	private TextBox userNameTextBox;
 
 	public UserRolesAdminPanel() {
 		FlexTable mainPanel = new FlexTable();
@@ -117,11 +120,12 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		detailsPanel.add(hSpacer);
 
 		detailsPanel.add(new Label(Messages.getString("name") + ":"));
-		TextBox userNameTextBox = new TextBox();
+		userNameTextBox = new TextBox();
+		userNameTextBox.setEnabled(false);
 		detailsPanel.add(userNameTextBox);
 
 		detailsPanel.add(new Label(Messages.getString("password") + ":"));
-		PasswordTextBox userPasswordTextBox = new PasswordTextBox();
+		userPasswordTextBox = new PasswordTextBox();
 		detailsPanel.add(userPasswordTextBox);
 
 		hSpacer = new SimplePanel();
@@ -230,7 +234,8 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 		detailsPanel.add(hSpacer);
 
 		detailsPanel.add(new Label(Messages.getString("name") + ":"));
-		TextBox roleNameTextBox = new TextBox();
+		roleNameTextBox = new TextBox();
+		roleNameTextBox.setEnabled(false);
 		detailsPanel.add(roleNameTextBox);
 
 		hSpacer = new SimplePanel();
@@ -448,6 +453,7 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 			String user = usersListBox.getValue(usersListBox.getSelectedIndex());
 			if (!StringUtils.isEmpty(user)) {
 				getRolesForUser(user);
+				userNameTextBox.setText(user);
 			}
 		}
 	}
@@ -457,6 +463,7 @@ public class UserRolesAdminPanel extends SimplePanel implements ISysAdminPanel {
 			String role = rolesListBox.getValue(rolesListBox.getSelectedIndex());
 			if (!StringUtils.isEmpty(role)) {
 				getUsersInRole(role);
+				roleNameTextBox.setText(role);
 			}
 		}
 	}
