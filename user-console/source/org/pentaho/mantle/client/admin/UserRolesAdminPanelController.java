@@ -32,6 +32,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Node;
@@ -47,6 +48,12 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		rolesListBox.addChangeHandler(new RolesListChangeListener());
 		addRoleButton.addClickHandler(new AddRoleListener());
 		removeRoleButton.addClickHandler(new RemoveRoleListener());
+		addAllRolesButton.addClickHandler(new AddAllRolesListener());
+		removeAllRolesButton.addClickHandler(new RemoveAllRolesListener());
+		addUserButton.addClickHandler(new AddUserListener());
+		removeUserButton.addClickHandler(new RemoveUserListener());
+		addAllUsersButton.addClickHandler(new AddAllUsersListener());
+		removeAllUsersButton.addClickHandler(new RemoveAllUsersListener());
 
 		initializeAvailableUsers();
 		initializeAvailableRoles();
@@ -189,10 +196,9 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		} catch (RequestException e) {
 		}
 	}
-
-	private void assignRoleToUser(final String userName, final String roleName) {
-		final String url = GWT.getHostPageBaseURL() + "api/userrole/assignRoleToUser?userName=" + userName + "&roleName=" + roleName;
-		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, url);
+	
+	private void modifyUserRoles(final String userName, String serviceUrl) {
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
@@ -206,22 +212,21 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		}
 	}
 	
-	private void removeRoleFromUser(final String userName, final String roleName) {
-		final String url = GWT.getHostPageBaseURL() + "api/userrole/removeRoleFromUser?userName=" + userName + "&roleName=" + roleName;
-		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, url);
+	private void modifyRoleUsers(final String roleName, String serviceUrl) {
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-					getRolesForUser(userName);
+					getUsersInRole(roleName);
 				}
 			});
 		} catch (RequestException e) {
 		}
-	}
-
+	}	
+	
 	// -- ISysAdminPanel implementation.
 
 	public void activate() {
@@ -261,13 +266,69 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 	class AddRoleListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
-			assignRoleToUser(userNameTextBox.getText(), availableRolesListBox.getValue(availableRolesListBox.getSelectedIndex()));
+			String userName = userNameTextBox.getText();
+			String roleName = availableRolesListBox.getValue(availableRolesListBox.getSelectedIndex());
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/assignRoleToUser?userName=" + userName + "&roleName=" + roleName;
+			modifyUserRoles(userName, serviceUrl);
 		}
 	}
 	
 	class RemoveRoleListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
-			removeRoleFromUser(userNameTextBox.getText(), selectedRolesListBox.getValue(selectedRolesListBox.getSelectedIndex()));
+			String userName = userNameTextBox.getText();
+			String roleName = selectedRolesListBox.getValue(selectedRolesListBox.getSelectedIndex());
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/removeRoleFromUser?userName=" + userName + "&roleName=" + roleName;
+			modifyUserRoles(userName, serviceUrl);
 		}
 	}
+	
+	class AddAllRolesListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			String userName = userNameTextBox.getText();
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/assignAllRolesToUser?userName=" + userName;
+			modifyUserRoles(userName, serviceUrl);
+		}
+	}
+	
+	class RemoveAllRolesListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			String userName = userNameTextBox.getText();
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/removeAllRolesFromUser?userName=" + userName;
+			modifyUserRoles(userName, serviceUrl);
+		}
+	}
+	
+	class AddUserListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			String roleName = roleNameTextBox.getText();
+			String userName = availableMembersListBox.getValue(availableMembersListBox.getSelectedIndex());
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/assignUserToRole?userName=" + userName + "&roleName=" + roleName;
+			modifyRoleUsers(roleName, serviceUrl);
+		}
+	}
+	
+	class RemoveUserListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			String roleName = roleNameTextBox.getText();
+			String userName = selectedMembersListBox.getValue(selectedMembersListBox.getSelectedIndex());
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/removeUserFromRole?userName=" + userName + "&roleName=" + roleName;
+			modifyRoleUsers(roleName, serviceUrl);
+		}
+	}
+	
+	class AddAllUsersListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			String roleName = roleNameTextBox.getText();
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/assignAllUsersToRole?roleName=" + roleName;
+			modifyRoleUsers(roleName, serviceUrl);
+		}
+	}
+	
+	class RemoveAllUsersListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			String roleName = roleNameTextBox.getText();
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/removeAllUsersFromRole?roleName=" + roleName;
+			modifyRoleUsers(roleName, serviceUrl);
+		}
+	}	
 }
