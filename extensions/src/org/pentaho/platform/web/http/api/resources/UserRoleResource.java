@@ -120,4 +120,92 @@ public class UserRoleResource extends AbstractJaxRSResource {
 		roleDao.updateUser(user);
 		return Response.ok().build();
 	}
+	
+	@PUT
+	@Path("/assignAllRolesToUser")
+	@Consumes({ WILDCARD })
+	public Response assignAllRolesToUser(@QueryParam("userName") String userName) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
+		IPentahoUser user = roleDao.getUser(userName);
+		List<String> roleNames = userRoleListService.getAllRoles();
+		for(String roleName : roleNames) {
+			IPentahoRole role = roleDao.getRole(roleName);
+			user.addRole(role);
+		}
+		roleDao.updateUser(user);
+		return Response.ok().build();
+	}
+	
+	@PUT
+	@Path("/removeAllRolesFromUser")
+	@Consumes({ WILDCARD })
+	public Response removeAllRolesFromUser(@QueryParam("userName") String userName) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
+		IPentahoUser user = roleDao.getUser(userName);
+		List<String> roleNames = userRoleListService.getAllRoles();
+		for(String roleName : roleNames) {
+			IPentahoRole role = roleDao.getRole(roleName);
+			user.removeRole(role);
+		}
+		roleDao.updateUser(user);
+		return Response.ok().build();
+	}
+
+	@PUT
+	@Path("/assignUserToRole")
+	@Consumes({ WILDCARD })
+	public Response assignUserToRole(@QueryParam("userName") String userName, @QueryParam("roleName") String roleName) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+		IPentahoRole role = roleDao.getRole(roleName);
+		IPentahoUser user = roleDao.getUser(userName);
+		role.addUser(user);
+		roleDao.updateRole(role);
+		return Response.ok().build();
+	}
+
+	@PUT
+	@Path("/removeUserFromRole")
+	@Consumes({ WILDCARD })
+	public Response removeUserFromRole(@QueryParam("userName") String userName, @QueryParam("roleName") String roleName) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+		IPentahoRole role = roleDao.getRole(roleName);
+		IPentahoUser user = roleDao.getUser(userName);
+		role.removeUser(user);
+		roleDao.updateRole(role);
+		return Response.ok().build();
+	}
+	
+	@PUT
+	@Path("/assignAllUsersToRole")
+	@Consumes({ WILDCARD })
+	public Response assignAllUsersToRole(@QueryParam("roleName") String roleName) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
+		IPentahoRole role = roleDao.getRole(roleName);
+		List<String> userNames = userRoleListService.getAllUsers();
+		for(String userName : userNames) {
+			IPentahoUser user = roleDao.getUser(userName);
+			role.addUser(user);
+		}
+		roleDao.updateRole(role);
+		return Response.ok().build();
+	}
+	
+	@PUT
+	@Path("/removeAllUsersFromRole")
+	@Consumes({ WILDCARD })
+	public Response removeAllUsersFromRole(@QueryParam("roleName") String roleName) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
+		IPentahoRole role = roleDao.getRole(roleName);
+		List<String> userNames = userRoleListService.getAllUsers();
+		for(String userName : userNames) {
+			IPentahoUser user = roleDao.getUser(userName);
+			role.removeUser(user);
+		}
+		roleDao.updateRole(role);
+		return Response.ok().build();
+	}
 }
