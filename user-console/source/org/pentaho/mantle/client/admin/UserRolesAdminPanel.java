@@ -100,7 +100,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		deleteUserButton = new ImageButton(moduleBaseURL + "images/Remove.png", "", ""); 
 		labelAndButtonsPanel.add(deleteUserButton);
 
-		usersListBox = new ListBox();
+		usersListBox = new ListBox(true);
 		availablePanel.add(usersListBox);
 		usersListBox.setVisibleItemCount(20);
 		usersListBox.setWidth("200px");
@@ -220,7 +220,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		deleteRoleButton = new ImageButton(moduleBaseURL + "images/Remove.png", "", "");
 		labelAndButtonsPanel.add(deleteRoleButton);
 
-		rolesListBox = new ListBox();
+		rolesListBox = new ListBox(true);
 		availablePanel.add(rolesListBox);
 		rolesListBox.setVisibleItemCount(20);
 		rolesListBox.setWidth("200px");
