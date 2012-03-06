@@ -6,6 +6,7 @@ import static javax.ws.rs.core.MediaType.WILDCARD;
 
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -228,6 +229,36 @@ public class UserRoleResource extends AbstractJaxRSResource {
 		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
 		PentahoRole role = new PentahoRole(roleName);
 		roleDao.createRole(role);
+		return Response.ok().build();
+	}
+	
+	@PUT
+	@Path("/deleteRoles")
+	@Consumes({ WILDCARD })
+	public Response deleteRole(@QueryParam("roles") String roles) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+		StringTokenizer tokenizer = new StringTokenizer(roles, "|");
+		while(tokenizer.hasMoreTokens()) {
+			IPentahoRole role = roleDao.getRole(tokenizer.nextToken());
+			if(role != null) {
+				roleDao.deleteRole(role);
+			}
+		}
+		return Response.ok().build();
+	}
+	
+	@PUT
+	@Path("/deleteUsers")
+	@Consumes({ WILDCARD })
+	public Response deleteUser(@QueryParam("users") String users) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+		StringTokenizer tokenizer = new StringTokenizer(users, "|");
+		while(tokenizer.hasMoreTokens()) {
+			IPentahoUser user = roleDao.getUser(tokenizer.nextToken());
+			if(user != null) {
+				roleDao.deleteUser(user);
+			}
+		}
 		return Response.ok().build();
 	}
 }
