@@ -23,6 +23,8 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.engine.security.userroledao.PentahoRole;
+import org.pentaho.platform.engine.security.userroledao.PentahoUser;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 
@@ -206,6 +208,26 @@ public class UserRoleResource extends AbstractJaxRSResource {
 			role.removeUser(user);
 		}
 		roleDao.updateRole(role);
+		return Response.ok().build();
+	}
+	
+	@PUT
+	@Path("/createUser")
+	@Consumes({ WILDCARD })
+	public Response createUser(@QueryParam("userName") String userName, @QueryParam("password") String password) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+		PentahoUser user = new PentahoUser(userName, password, "", true);
+		roleDao.createUser(user);
+		return Response.ok().build();
+	}
+	
+	@PUT
+	@Path("/createRole")
+	@Consumes({ WILDCARD })
+	public Response createRole(@QueryParam("roleName") String roleName) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+		PentahoRole role = new PentahoRole(roleName);
+		roleDao.createRole(role);
 		return Response.ok().build();
 	}
 }
