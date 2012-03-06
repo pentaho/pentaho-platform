@@ -32,8 +32,10 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.PasswordTextBox;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -54,9 +56,54 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		removeUserButton.addClickHandler(new RemoveUserListener());
 		addAllUsersButton.addClickHandler(new AddAllUsersListener());
 		removeAllUsersButton.addClickHandler(new RemoveAllUsersListener());
+		newUserButton.addClickHandler(new NewUserListener());
+		deleteUserButton.addClickHandler(new DeleteUserListener());
+		newRoleButton.addClickHandler(new NewRoleListener());
+		deleteRoleButton.addClickHandler(new DeleteRoleListener());
 
 		initializeAvailableUsers();
 		initializeAvailableRoles();
+	}
+	
+	public void saveUser(String name, String password) {
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/createUser?userName=" + name + "&password=" + password;
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					userNameTextBox.setText("");
+					userPasswordTextBox.setText("");
+					availableRolesListBox.clear();
+					selectedRolesListBox.clear();
+					initializeAvailableUsers();
+				}
+			});
+		} catch (RequestException e) {
+		}
+		
+	}
+	
+	public void saveRole(String name) {
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/createRole?roleName=" + name;		
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					roleNameTextBox.setText("");
+					availableMembersListBox.clear();
+					selectedMembersListBox.clear();
+					initializeAvailableRoles();
+				}
+			});
+		} catch (RequestException e) {
+		}
+		
 	}
 
 	// -- Remote Calls.
@@ -239,6 +286,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}
 
 	public void passivate(final AsyncCallback<Boolean> callback) {
+		userPasswordTextBox.setText("");
+		roleNameTextBox.setText("");
+		userNameTextBox.setText("");
+		rolesListBox.clear();
+		usersListBox.clear();
+		selectedRolesListBox.clear();
+		selectedMembersListBox.clear();
+		availableMembersListBox.clear();
+		availableRolesListBox.clear();
 		callback.onSuccess(true);
 	}
 
@@ -250,6 +306,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			if (!StringUtils.isEmpty(user)) {
 				getRolesForUser(user);
 				userNameTextBox.setText(user);
+				userPasswordTextBox.setText("password");
 			}
 		}
 	}
@@ -331,4 +388,28 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			modifyRoleUsers(roleName, serviceUrl);
 		}
 	}	
+	
+	class NewRoleListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			RoleDialog roleDialog = new RoleDialog(UserRolesAdminPanelController.this);
+			roleDialog.show();
+		}
+	}
+	
+	class DeleteRoleListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+		}
+	}
+	
+	class NewUserListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			UserDialog userDialog = new UserDialog(UserRolesAdminPanelController.this);
+			userDialog.show();
+		}
+	}
+	
+	class DeleteUserListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+		}
+	}
 }

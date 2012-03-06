@@ -38,15 +38,15 @@ import com.google.gwt.user.client.ui.Widget;
 public class UserRolesAdminPanel extends SimplePanel {
 
 	private String moduleBaseURL = GWT.getModuleBaseURL();
+	protected PasswordTextBox userPasswordTextBox;
+	protected TextBox roleNameTextBox;
+	protected TextBox userNameTextBox;
 	protected ListBox rolesListBox;
 	protected ListBox usersListBox;
 	protected ListBox selectedRolesListBox;
 	protected ListBox selectedMembersListBox;
 	protected ListBox availableMembersListBox;
 	protected ListBox availableRolesListBox;
-	protected PasswordTextBox userPasswordTextBox;
-	protected TextBox roleNameTextBox;
-	protected TextBox userNameTextBox;
 	protected ImageButton addUserButton;
 	protected ImageButton removeUserButton;
 	protected ImageButton addAllUsersButton;
@@ -55,6 +55,10 @@ public class UserRolesAdminPanel extends SimplePanel {
 	protected ImageButton removeRoleButton;
 	protected ImageButton addAllRolesButton;
 	protected ImageButton removeAllRolesButton;
+	protected ImageButton newRoleButton;
+	protected ImageButton deleteRoleButton;
+	protected ImageButton newUserButton;
+	protected ImageButton deleteUserButton;
 
 	public UserRolesAdminPanel() {
 		FlexTable mainPanel = new FlexTable();
@@ -88,11 +92,13 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("103px");
 		labelAndButtonsPanel.add(hSpacer);
-		labelAndButtonsPanel.add(new ImageButton(moduleBaseURL + "images/Add.png", "", ""));
+		newUserButton = new ImageButton(moduleBaseURL + "images/Add.png", "", "");
+		labelAndButtonsPanel.add(newUserButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("7px");
 		labelAndButtonsPanel.add(hSpacer);
-		labelAndButtonsPanel.add(new ImageButton(moduleBaseURL + "images/Remove.png", "", ""));
+		deleteUserButton = new ImageButton(moduleBaseURL + "images/Remove.png", "", ""); 
+		labelAndButtonsPanel.add(deleteUserButton);
 
 		usersListBox = new ListBox();
 		availablePanel.add(usersListBox);
@@ -117,6 +123,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 
 		detailsPanel.add(new Label(Messages.getString("password") + ":"));
 		userPasswordTextBox = new PasswordTextBox();
+		userPasswordTextBox.setEnabled(false);
 		detailsPanel.add(userPasswordTextBox);
 
 		hSpacer = new SimplePanel();
@@ -205,11 +212,13 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("103px");
 		labelAndButtonsPanel.add(hSpacer);
-		labelAndButtonsPanel.add(new ImageButton(moduleBaseURL + "images/Add.png", "", ""));
+		newRoleButton = new ImageButton(moduleBaseURL + "images/Add.png", "", "");
+		labelAndButtonsPanel.add(newRoleButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("7px");
 		labelAndButtonsPanel.add(hSpacer);
-		labelAndButtonsPanel.add(new ImageButton(moduleBaseURL + "images/Remove.png", "", ""));
+		deleteRoleButton = new ImageButton(moduleBaseURL + "images/Remove.png", "", "");
+		labelAndButtonsPanel.add(deleteRoleButton);
 
 		rolesListBox = new ListBox();
 		availablePanel.add(rolesListBox);
