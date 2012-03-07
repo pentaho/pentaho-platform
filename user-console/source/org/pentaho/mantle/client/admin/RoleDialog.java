@@ -26,6 +26,8 @@ import org.pentaho.ui.xul.gwt.tags.GwtDialog;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -36,7 +38,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class RoleDialog extends GwtDialog {
 
-	private TextBox roleName;
+	private TextBox roleNameTextBox;
 	private UserRolesAdminPanelController controller;
 	private Button acceptBtn = new Button(Messages.getString("ok"));
 	private Button cancelBtn = new Button(Messages.getString("cancel"));
@@ -47,7 +49,11 @@ public class RoleDialog extends GwtDialog {
 		getButtonPanel();
 		setTitle(Messages.getString("newRole"));
 
-		roleName = new TextBox();
+		acceptBtn.setEnabled(false);
+
+		roleNameTextBox = new TextBox();
+		TextBoxValueChangeHandler textBoxChangeHandler = new TextBoxValueChangeHandler();
+		roleNameTextBox.addKeyUpHandler(textBoxChangeHandler);
 
 		acceptBtn.setStylePrimaryName("pentaho-button");
 		acceptBtn.addClickHandler(new AcceptListener());
@@ -75,7 +81,7 @@ public class RoleDialog extends GwtDialog {
 		VerticalPanel vp = new VerticalPanel();
 		Label nameLabel = new Label(Messages.getString("name") + ":");
 		vp.add(nameLabel);
-		vp.add(roleName);
+		vp.add(roleNameTextBox);
 
 		hp.add(vp);
 		return hp;
@@ -83,17 +89,23 @@ public class RoleDialog extends GwtDialog {
 
 	class AcceptListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
-			String name = roleName.getText();
-			if (!StringUtils.isEmpty(name)) {
-				controller.saveRole(name);
-				hide();
-			}
+			String name = roleNameTextBox.getText();
+			controller.saveRole(name);
+			hide();
 		}
 	}
 
 	class CancelListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			hide();
+		}
+	}
+
+	class TextBoxValueChangeHandler implements KeyUpHandler {
+		public void onKeyUp(KeyUpEvent evt) {
+			String name = roleNameTextBox.getText();
+			boolean isEnabled = !StringUtils.isEmpty(name);
+			acceptBtn.setEnabled(isEnabled);
 		}
 	}
 }
