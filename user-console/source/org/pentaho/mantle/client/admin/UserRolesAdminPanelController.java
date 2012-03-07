@@ -369,6 +369,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		selectedMembersListBox.clear();
 		availableMembersListBox.clear();
 		availableRolesListBox.clear();
+		editPasswordButton.setEnabled(false);
 		callback.onSuccess(true);
 	}
 
