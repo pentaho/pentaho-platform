@@ -28,6 +28,7 @@ import org.pentaho.platform.engine.security.userroledao.PentahoRole;
 import org.pentaho.platform.engine.security.userroledao.PentahoUser;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
+import org.springframework.security.providers.encoding.PasswordEncoder;
 
 @Path("/userrole/")
 public class UserRoleResource extends AbstractJaxRSResource {
@@ -258,6 +259,20 @@ public class UserRoleResource extends AbstractJaxRSResource {
 			if(user != null) {
 				roleDao.deleteUser(user);
 			}
+		}
+		return Response.ok().build();
+	}
+	
+	@PUT
+	@Path("/updatePassword")
+	@Consumes({ WILDCARD })
+	public Response updatePassword(@QueryParam("userName") String userName, @QueryParam("newPassword") String newPassword) {
+		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+        PasswordEncoder encoder = PentahoSystem.get(PasswordEncoder.class, "passwordEncoder", PentahoSessionHolder.getSession());
+		IPentahoUser user = roleDao.getUser(userName);
+		if(user != null) {
+			user.setPassword(encoder.encodePassword(newPassword, null));
+			roleDao.updateUser(user);
 		}
 		return Response.ok().build();
 	}
