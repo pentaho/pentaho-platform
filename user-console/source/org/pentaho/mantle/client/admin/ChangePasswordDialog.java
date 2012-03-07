@@ -26,6 +26,8 @@ import org.pentaho.ui.xul.gwt.tags.GwtDialog;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -48,8 +50,13 @@ public class ChangePasswordDialog extends GwtDialog {
 		getButtonPanel();
 		setTitle(Messages.getString("changePassword"));
 
+		acceptBtn.setEnabled(false);
 		newPasswordTextBox = new PasswordTextBox();
 		reTypePasswordTextBox = new PasswordTextBox();
+
+		TextBoxValueChangeHandler textBoxChangeHandler = new TextBoxValueChangeHandler();
+		newPasswordTextBox.addKeyUpHandler(textBoxChangeHandler);
+		reTypePasswordTextBox.addKeyUpHandler(textBoxChangeHandler);
 
 		acceptBtn.setStylePrimaryName("pentaho-button");
 		acceptBtn.addClickHandler(new AcceptListener());
@@ -90,17 +97,23 @@ public class ChangePasswordDialog extends GwtDialog {
 	class AcceptListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			String newPassword = newPasswordTextBox.getText();
-			String reTypePassword = reTypePasswordTextBox.getText();
-			if (!StringUtils.isEmpty(newPassword) && newPassword.equals(reTypePassword)) {
-				controller.updatePassword(newPassword);
-				hide();
-			}
+			controller.updatePassword(newPassword);
+			hide();
 		}
 	}
 
 	class CancelListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			hide();
+		}
+	}
+
+	class TextBoxValueChangeHandler implements KeyUpHandler {
+		public void onKeyUp(KeyUpEvent evt) {
+			String password = newPasswordTextBox.getText();
+			String reTypePassword = reTypePasswordTextBox.getText();
+			boolean isEnabled = !StringUtils.isEmpty(password) && password.equals(reTypePassword);
+			acceptBtn.setEnabled(isEnabled);
 		}
 	}
 }

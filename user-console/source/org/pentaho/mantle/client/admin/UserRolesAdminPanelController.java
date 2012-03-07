@@ -80,6 +80,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					userPasswordTextBox.setText("");
 					availableRolesListBox.clear();
 					selectedRolesListBox.clear();
+					editPasswordButton.setEnabled(false);
 					initializeAvailableUsers();
 				}
 			});
@@ -154,6 +155,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					userPasswordTextBox.setText("");
 					availableRolesListBox.clear();
 					selectedRolesListBox.clear();
+					editPasswordButton.setEnabled(false);
 					initializeAvailableUsers();
 				}
 			});
@@ -379,6 +381,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				getRolesForUser(user);
 				userNameTextBox.setText(user);
 				userPasswordTextBox.setText("fakepassword");
+				editPasswordButton.setEnabled(true);
 			}
 		}
 	}

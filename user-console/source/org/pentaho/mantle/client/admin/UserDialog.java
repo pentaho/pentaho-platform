@@ -26,6 +26,8 @@ import org.pentaho.ui.xul.gwt.tags.GwtDialog;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -40,17 +42,25 @@ public class UserDialog extends GwtDialog {
 	private UserRolesAdminPanelController controller;
 	private TextBox nameTextBox;
 	private PasswordTextBox passwordTextBox;
+	private PasswordTextBox reTypePasswordTextBox;
 	private Button acceptBtn = new Button(Messages.getString("ok"));
 	private Button cancelBtn = new Button(Messages.getString("cancel"));
 
 	public UserDialog(UserRolesAdminPanelController controller) {
 		setWidth(270);
-		setHeight(180);
+		setHeight(210);
 		getButtonPanel();
 		setTitle(Messages.getString("newUser"));
 
+		acceptBtn.setEnabled(false);
 		nameTextBox = new TextBox();
 		passwordTextBox = new PasswordTextBox();
+		reTypePasswordTextBox = new PasswordTextBox();
+
+		TextBoxValueChangeHandler textBoxChangeHandler = new TextBoxValueChangeHandler();
+		nameTextBox.addKeyUpHandler(textBoxChangeHandler);
+		passwordTextBox.addKeyUpHandler(textBoxChangeHandler);
+		reTypePasswordTextBox.addKeyUpHandler(textBoxChangeHandler);
 
 		acceptBtn.setStylePrimaryName("pentaho-button");
 		acceptBtn.addClickHandler(new AcceptListener());
@@ -84,6 +94,10 @@ public class UserDialog extends GwtDialog {
 		vp.add(passwordLabel);
 		vp.add(passwordTextBox);
 
+		Label reTypePasswordLabel = new Label(Messages.getString("retypePassword") + ":");
+		vp.add(reTypePasswordLabel);
+		vp.add(reTypePasswordTextBox);
+
 		hp.add(vp);
 		return hp;
 	}
@@ -92,16 +106,24 @@ public class UserDialog extends GwtDialog {
 		public void onClick(ClickEvent event) {
 			String name = nameTextBox.getText();
 			String password = passwordTextBox.getText();
-			if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(password)) {
-				controller.saveUser(name, password);
-				hide();
-			}
+			controller.saveUser(name, password);
+			hide();
 		}
 	}
 
 	class CancelListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			hide();
+		}
+	}
+
+	class TextBoxValueChangeHandler implements KeyUpHandler {
+		public void onKeyUp(KeyUpEvent evt) {
+			String name = nameTextBox.getText();
+			String password = passwordTextBox.getText();
+			String reTypePassword = reTypePasswordTextBox.getText();
+			boolean isEnabled = !StringUtils.isEmpty(name) && !StringUtils.isEmpty(password) && password.equals(reTypePassword);
+			acceptBtn.setEnabled(isEnabled);
 		}
 	}
 }

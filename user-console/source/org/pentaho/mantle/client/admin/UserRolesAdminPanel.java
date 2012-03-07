@@ -143,6 +143,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		passwordPanel.add(hSpacer);
 	    editPasswordButton = new Button(Messages.getString("edit") + "...");
 	    editPasswordButton.setStylePrimaryName("pentaho-button");
+	    editPasswordButton.setEnabled(false);
 		passwordPanel.add(editPasswordButton);
 		detailsPanel.add(passwordPanel);
 
