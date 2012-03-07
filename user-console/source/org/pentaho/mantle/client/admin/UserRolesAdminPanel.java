@@ -25,6 +25,7 @@ import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -59,6 +60,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 	protected ImageButton deleteRoleButton;
 	protected ImageButton newUserButton;
 	protected ImageButton deleteUserButton;
+	protected Button editPasswordButton;
 
 	public UserRolesAdminPanel() {
 		FlexTable mainPanel = new FlexTable();
@@ -117,14 +119,32 @@ public class UserRolesAdminPanel extends SimplePanel {
 		detailsPanel.add(hSpacer);
 
 		detailsPanel.add(new Label(Messages.getString("name") + ":"));
+		
+		HorizontalPanel namePanel = new HorizontalPanel();
 		userNameTextBox = new TextBox();
+		userNameTextBox.setWidth("250px");
 		userNameTextBox.setEnabled(false);
-		detailsPanel.add(userNameTextBox);
+		namePanel.add(userNameTextBox);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("10px");
+		namePanel.add(hSpacer);
+		namePanel.add(new Label(Messages.getString("userNameNonEditLabel")));
+		detailsPanel.add(namePanel);
 
 		detailsPanel.add(new Label(Messages.getString("password") + ":"));
+		
 		userPasswordTextBox = new PasswordTextBox();
 		userPasswordTextBox.setEnabled(false);
-		detailsPanel.add(userPasswordTextBox);
+		userPasswordTextBox.setWidth("200px");
+		HorizontalPanel passwordPanel = new HorizontalPanel();
+		passwordPanel.add(userPasswordTextBox);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("10px");
+		passwordPanel.add(hSpacer);
+	    editPasswordButton = new Button(Messages.getString("edit") + "...");
+	    editPasswordButton.setStylePrimaryName("pentaho-button");
+		passwordPanel.add(editPasswordButton);
+		detailsPanel.add(passwordPanel);
 
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
@@ -237,10 +257,18 @@ public class UserRolesAdminPanel extends SimplePanel {
 		detailsPanel.add(hSpacer);
 
 		detailsPanel.add(new Label(Messages.getString("name") + ":"));
+		
+		HorizontalPanel namePanel = new HorizontalPanel();
 		roleNameTextBox = new TextBox();
+		roleNameTextBox.setWidth("250px");
 		roleNameTextBox.setEnabled(false);
-		detailsPanel.add(roleNameTextBox);
-
+		namePanel.add(roleNameTextBox);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("10px");
+		namePanel.add(hSpacer);
+		namePanel.add(new Label(Messages.getString("roleNameNonEditLabel")));
+		detailsPanel.add(namePanel);
+		
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
 		detailsPanel.add(hSpacer);

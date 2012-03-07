@@ -61,6 +61,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		deleteUserButton.addClickHandler(new DeleteUserListener());
 		newRoleButton.addClickHandler(new NewRoleListener());
 		deleteRoleButton.addClickHandler(new DeleteRoleListener());
+		editPasswordButton.addClickHandler(new EditPasswordListener());
 
 		initializeAvailableUsers();
 		initializeAvailableRoles();
@@ -106,14 +107,14 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}
 
 	public void deleteRoles() {
-		
+
 		String selectedRoles = "";
-		for(int i= 0; i < rolesListBox.getItemCount(); i++) {
-			if(rolesListBox.isItemSelected(i)) {
+		for (int i = 0; i < rolesListBox.getItemCount(); i++) {
+			if (rolesListBox.isItemSelected(i)) {
 				selectedRoles = selectedRoles + rolesListBox.getValue(i) + "|";
 			}
 		}
-		
+
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/deleteRoles?roles=" + selectedRoles;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
@@ -129,14 +130,14 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 			});
 		} catch (RequestException e) {
-		}		
+		}
 	}
 
 	public void deleteUsers() {
 
 		String selectedUsers = "";
-		for(int i= 0; i < usersListBox.getItemCount(); i++) {
-			if(usersListBox.isItemSelected(i)) {
+		for (int i = 0; i < usersListBox.getItemCount(); i++) {
+			if (usersListBox.isItemSelected(i)) {
 				selectedUsers = selectedUsers + usersListBox.getValue(i) + "|";
 			}
 		}
@@ -157,7 +158,24 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 			});
 		} catch (RequestException e) {
-		}		
+		}
+	}
+	
+	public void updatePassword(String newPassword) {
+		
+		String userName = usersListBox.getValue(usersListBox.getSelectedIndex());
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/updatePassword?userName=" + userName + "&newPassword=" + newPassword;
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+				}
+			});
+		} catch (RequestException e) {
+		}
 	}
 
 	// -- Remote Calls.
@@ -360,7 +378,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			if (!StringUtils.isEmpty(user)) {
 				getRolesForUser(user);
 				userNameTextBox.setText(user);
-				userPasswordTextBox.setText("password");
+				userPasswordTextBox.setText("fakepassword");
 			}
 		}
 	}
@@ -496,6 +514,13 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				});
 				warning.show();
 			}
+		}
+	}
+
+	class EditPasswordListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			ChangePasswordDialog changePasswordDialog = new ChangePasswordDialog(UserRolesAdminPanelController.this);
+			changePasswordDialog.show();
 		}
 	}
 }
