@@ -16,10 +16,13 @@
  */
 package org.pentaho.mantle.client.commands;
 
+import java.util.Date;
+
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
@@ -51,7 +54,7 @@ public class AboutCommand extends AbstractCommand {
   }
 
   private void showAboutDialog(String version) {
-   	    String licenseInfo = Messages.getString("licenseInfo");
+    String licenseInfo = Messages.getString("licenseInfo", ""+((new Date()).getYear()+1900));
     String releaseLabel = Messages.getString("release");
     PromptDialogBox dialogBox = new PromptDialogBox(Messages.getString("aboutDialogTitle"), Messages.getString("ok"), null, false, true); //$NON-NLS-1$
 
