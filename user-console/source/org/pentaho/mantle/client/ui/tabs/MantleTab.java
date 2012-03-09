@@ -24,7 +24,10 @@ import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
+
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.http.client.URL;
@@ -37,7 +40,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -89,11 +92,21 @@ public class MantleTab extends org.pentaho.gwt.widgets.client.tabs.PentahoTab {
       String url = Window.Location.getProtocol() + "//" + Window.Location.getHostName() + ":" + Window.Location.getPort() + Window.Location.getPath() //$NON-NLS-1$ //$NON-NLS-2$
           + "?name=" + getLabelText() + "&startup-url="; //$NON-NLS-1$ //$NON-NLS-2$
       String startup = ((IFrameTabPanel) getContent()).getUrl();
-      TextBox urlbox = new TextBox();
+
+      final TextArea urlbox = new TextArea();
       urlbox.setText(url + URL.encodeComponent(startup));
-      urlbox.setVisibleLength(80);
+      urlbox.setReadOnly(true);
+      urlbox.setVisibleLines(3);
       dialogBox.setContent(urlbox);
+      urlbox.setHeight("80px");
+      urlbox.setWidth("600px");
+      urlbox.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+          urlbox.selectAll();
+        }
+      });
       dialogBox.center();
+      urlbox.selectAll();
     }
   }
 
