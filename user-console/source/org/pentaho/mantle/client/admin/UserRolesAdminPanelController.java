@@ -20,6 +20,8 @@
 
 package org.pentaho.mantle.client.admin;
 
+import java.util.ArrayList;
+
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.ui.xul.XulComponent;
@@ -27,16 +29,19 @@ import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
 import org.pentaho.ui.xul.util.XulDialogCallback;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -63,11 +68,11 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		deleteRoleButton.addClickHandler(new DeleteRoleListener());
 		editPasswordButton.addClickHandler(new EditPasswordListener());
 
-		initializeAvailableUsers();
-		initializeAvailableRoles();
+		initializeAvailableUsers(null);
+		initializeAvailableRoles(null);
 	}
 
-	public void saveUser(String name, String password) {
+	public void saveUser(final String name, final String password) {
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/createUser?userName=" + name + "&password=" + password;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
@@ -76,19 +81,14 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-					userNameTextBox.setText("");
-					userPasswordTextBox.setText("");
-					availableRolesListBox.clear();
-					selectedRolesListBox.clear();
-					editPasswordButton.setEnabled(false);
-					initializeAvailableUsers();
+					initializeAvailableUsers(name);
 				}
 			});
 		} catch (RequestException e) {
 		}
 	}
 
-	public void saveRole(String name) {
+	public void saveRole(final String name) {
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/createRole?roleName=" + name;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
@@ -97,10 +97,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-					roleNameTextBox.setText("");
-					availableMembersListBox.clear();
-					selectedMembersListBox.clear();
-					initializeAvailableRoles();
+					initializeAvailableRoles(name);
 				}
 			});
 		} catch (RequestException e) {
@@ -127,7 +124,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					roleNameTextBox.setText("");
 					availableMembersListBox.clear();
 					selectedMembersListBox.clear();
-					initializeAvailableRoles();
+					initializeAvailableRoles(null);
 				}
 			});
 		} catch (RequestException e) {
@@ -156,15 +153,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					availableRolesListBox.clear();
 					selectedRolesListBox.clear();
 					editPasswordButton.setEnabled(false);
-					initializeAvailableUsers();
+					initializeAvailableUsers(null);
 				}
 			});
 		} catch (RequestException e) {
 		}
 	}
-	
+
 	public void updatePassword(String newPassword) {
-		
+
 		String userName = usersListBox.getValue(usersListBox.getSelectedIndex());
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/updatePassword?userName=" + userName + "&newPassword=" + newPassword;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
@@ -180,9 +177,19 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		}
 	}
 
+	private boolean hasMultiselection(ListBox listBox) {
+		ArrayList<Integer> selectedIndices = new ArrayList<Integer>();
+		for (int i = 0; i < listBox.getItemCount(); i++) {
+			if (listBox.isItemSelected(i)) {
+				selectedIndices.add(i);
+			}
+		}
+		return selectedIndices.size() > 1;
+	}
+
 	// -- Remote Calls.
 
-	private void initializeAvailableRoles() {
+	private void initializeAvailableRoles(final String defaultValue) {
 		final String url = GWT.getHostPageBaseURL() + "api/roles";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
@@ -194,6 +201,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 				public void onResponseReceived(Request request, Response response) {
 					rolesListBox.clear();
+					NativeEvent event = com.google.gwt.dom.client.Document.get().createChangeEvent();
 					String txt = response.getText();
 					Document doc = XMLParser.parse(txt);
 					NodeList roles = doc.getElementsByTagName("role");
@@ -201,6 +209,12 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 						Node roleNode = roles.item(i);
 						String role = roleNode.getFirstChild().getNodeValue();
 						rolesListBox.addItem(role);
+						if (!StringUtils.isEmpty(defaultValue)) {
+							if (role.equals(defaultValue)) {
+								rolesListBox.setSelectedIndex(i);
+								DomEvent.fireNativeEvent(event, rolesListBox);
+							}
+						}
 					}
 				}
 			});
@@ -208,7 +222,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		}
 	}
 
-	private void initializeAvailableUsers() {
+	private void initializeAvailableUsers(final String defaultValue) {
 		final String url = GWT.getHostPageBaseURL() + "api/users";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
@@ -220,6 +234,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 				public void onResponseReceived(Request request, Response response) {
 					usersListBox.clear();
+					NativeEvent event = com.google.gwt.dom.client.Document.get().createChangeEvent();
 					String txt = response.getText();
 					Document doc = XMLParser.parse(txt);
 					NodeList users = doc.getElementsByTagName("user");
@@ -227,6 +242,12 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 						Node userNode = users.item(i);
 						String user = userNode.getFirstChild().getNodeValue();
 						usersListBox.addItem(user);
+						if (!StringUtils.isEmpty(defaultValue)) {
+							if (user.equals(defaultValue)) {
+								usersListBox.setSelectedIndex(i);
+								DomEvent.fireNativeEvent(event, usersListBox);
+							}
+						}
 					}
 				}
 			});
@@ -351,8 +372,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	// -- ISysAdminPanel implementation.
 
 	public void activate() {
-		initializeAvailableUsers();
-		initializeAvailableRoles();
+		initializeAvailableUsers(null);
+		initializeAvailableRoles(null);
 	}
 
 	public String getId() {
@@ -377,22 +398,36 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 	class UsersListChangeListener implements ChangeHandler {
 		public void onChange(ChangeEvent evt) {
-			String user = usersListBox.getValue(usersListBox.getSelectedIndex());
-			if (!StringUtils.isEmpty(user)) {
-				getRolesForUser(user);
-				userNameTextBox.setText(user);
-				userPasswordTextBox.setText("fakepassword");
-				editPasswordButton.setEnabled(true);
+			if (hasMultiselection(usersListBox)) {
+				userNameTextBox.setText("");
+				userPasswordTextBox.setText("");
+				editPasswordButton.setEnabled(false);
+				availableRolesListBox.clear();
+				selectedRolesListBox.clear();
+			} else {
+				String user = usersListBox.getValue(usersListBox.getSelectedIndex());
+				if (!StringUtils.isEmpty(user)) {
+					getRolesForUser(user);
+					userNameTextBox.setText(user);
+					userPasswordTextBox.setText("fakepassword");
+					editPasswordButton.setEnabled(true);
+				}
 			}
 		}
 	}
 
 	class RolesListChangeListener implements ChangeHandler {
 		public void onChange(ChangeEvent evt) {
-			String role = rolesListBox.getValue(rolesListBox.getSelectedIndex());
-			if (!StringUtils.isEmpty(role)) {
-				getUsersInRole(role);
-				roleNameTextBox.setText(role);
+			if (hasMultiselection(rolesListBox)) {
+				roleNameTextBox.setText("");
+				availableMembersListBox.clear();
+				selectedMembersListBox.clear();
+			} else {
+				String role = rolesListBox.getValue(rolesListBox.getSelectedIndex());
+				if (!StringUtils.isEmpty(role)) {
+					getUsersInRole(role);
+					roleNameTextBox.setText(role);
+				}
 			}
 		}
 	}
