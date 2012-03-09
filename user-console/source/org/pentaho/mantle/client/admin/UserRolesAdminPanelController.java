@@ -435,8 +435,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	class AddRoleListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			String userName = userNameTextBox.getText();
-			String roleName = availableRolesListBox.getValue(availableRolesListBox.getSelectedIndex());
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/assignRoleToUser?userName=" + userName + "&roleName=" + roleName;
+
+			String roleNames = "";
+			for (int i = 0; i < availableRolesListBox.getItemCount(); i++) {
+				if (availableRolesListBox.isItemSelected(i)) {
+					roleNames = roleNames + availableRolesListBox.getValue(i) + "|";
+				}
+			}
+
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/assignRoleToUser?userName=" + userName + "&roleNames=" + roleNames;
 			modifyUserRoles(userName, serviceUrl);
 		}
 	}
@@ -444,8 +451,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	class RemoveRoleListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			String userName = userNameTextBox.getText();
-			String roleName = selectedRolesListBox.getValue(selectedRolesListBox.getSelectedIndex());
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/removeRoleFromUser?userName=" + userName + "&roleName=" + roleName;
+
+			String roleNames = "";
+			for (int i = 0; i < selectedRolesListBox.getItemCount(); i++) {
+				if (selectedRolesListBox.isItemSelected(i)) {
+					roleNames = roleNames + selectedRolesListBox.getValue(i) + "|";
+				}
+			}
+
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/removeRoleFromUser?userName=" + userName + "&roleNames=" + roleNames;
 			modifyUserRoles(userName, serviceUrl);
 		}
 	}
@@ -469,8 +483,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	class AddUserListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			String roleName = roleNameTextBox.getText();
-			String userName = availableMembersListBox.getValue(availableMembersListBox.getSelectedIndex());
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/assignUserToRole?userName=" + userName + "&roleName=" + roleName;
+
+			String userNames = "";
+			for (int i = 0; i < availableMembersListBox.getItemCount(); i++) {
+				if (availableMembersListBox.isItemSelected(i)) {
+					userNames = userNames + availableMembersListBox.getValue(i) + "|";
+				}
+			}
+
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/assignUserToRole?userNames=" + userNames + "&roleName=" + roleName;
 			modifyRoleUsers(roleName, serviceUrl);
 		}
 	}
@@ -478,8 +499,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	class RemoveUserListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
 			String roleName = roleNameTextBox.getText();
-			String userName = selectedMembersListBox.getValue(selectedMembersListBox.getSelectedIndex());
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/removeUserFromRole?userName=" + userName + "&roleName=" + roleName;
+
+			String userNames = "";
+			for (int i = 0; i < selectedMembersListBox.getItemCount(); i++) {
+				if (selectedMembersListBox.isItemSelected(i)) {
+					userNames = userNames + selectedMembersListBox.getValue(i) + "|";
+				}
+			}
+
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/userrole/removeUserFromRole?userNames=" + userNames + "&roleName=" + roleName;
 			modifyRoleUsers(roleName, serviceUrl);
 		}
 	}

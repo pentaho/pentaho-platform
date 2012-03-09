@@ -163,7 +163,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		VerticalPanel availableRolesPanel = new VerticalPanel();
 		groupsPanel.add(availableRolesPanel);
 		availableRolesPanel.add(new Label(Messages.getString("available") + ":"));
-		availableRolesListBox = new ListBox();
+		availableRolesListBox = new ListBox(true);
 		availableRolesPanel.add(availableRolesListBox);
 		availableRolesListBox.setVisibleItemCount(20);
 		availableRolesListBox.setWidth("200px");
@@ -205,7 +205,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		VerticalPanel selectedRolesPanel = new VerticalPanel();
 		groupsPanel.add(selectedRolesPanel);
 		selectedRolesPanel.add(new Label(Messages.getString("selected") + ":"));
-		selectedRolesListBox = new ListBox();
+		selectedRolesListBox = new ListBox(true);
 		selectedRolesPanel.add(selectedRolesListBox);
 		selectedRolesListBox.setVisibleItemCount(20);
 		selectedRolesListBox.setWidth("200px");
@@ -286,7 +286,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		VerticalPanel availableMembersPanel = new VerticalPanel();
 		groupsPanel.add(availableMembersPanel);
 		availableMembersPanel.add(new Label(Messages.getString("available") + ":"));
-		availableMembersListBox = new ListBox();
+		availableMembersListBox = new ListBox(true);
 		availableMembersPanel.add(availableMembersListBox);
 		availableMembersListBox.setVisibleItemCount(20);
 		availableMembersListBox.setWidth("200px");
@@ -328,7 +328,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		VerticalPanel selectedMembersPanel = new VerticalPanel();
 		groupsPanel.add(selectedMembersPanel);
 		selectedMembersPanel.add(new Label(Messages.getString("selected") + ":"));
-		selectedMembersListBox = new ListBox();
+		selectedMembersListBox = new ListBox(true);
 		selectedMembersPanel.add(selectedMembersListBox);
 		selectedMembersListBox.setVisibleItemCount(20);
 		selectedMembersListBox.setWidth("200px");
