@@ -156,14 +156,22 @@ function launch_newDashboard() {
 function launch(action, defaultAction) {
   // if we have a plugin to handle this use it
   if (actionToCmdMap[action]) {
-    eval("window.top." + actionToCmdMap[action]);
+    if (window.top.mantle_initialized) {
+      eval("window.top." + actionToCmdMap[action]);
+	} else {
+      eval("window.parent." + actionToCmdMap[action]);
+	}
   } else {
     defaultAction();
   }  
 }
 
 function warning(message) {
-  window.top.mantle_showMessage("Error", message);
+  if (window.top.mantle_initialized) {
+    window.top.mantle_showMessage("Error", message);
+  } else {
+    window.parent.mantle_showMessage("Error", message);
+  }
 }
 
 function checkDA(){ 
