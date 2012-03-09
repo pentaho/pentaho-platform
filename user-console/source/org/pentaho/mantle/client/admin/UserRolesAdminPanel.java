@@ -27,6 +27,7 @@ import org.pentaho.mantle.client.messages.Messages;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -151,7 +152,13 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer.setHeight("15px");
 		detailsPanel.add(hSpacer);
 
-		detailsPanel.add(new Label(Messages.getString("role") + ":"));
+		HorizontalPanel roleLabelPanel = new HorizontalPanel();
+		roleLabelPanel.add(new Label(Messages.getString("role")));
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("5px");
+		roleLabelPanel.add(hSpacer);
+		roleLabelPanel.add(new HTML("<hr style='width:380px;height:1px;background-color:#000;border:0px solid #F00'/>"));
+		detailsPanel.add(roleLabelPanel);
 
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
@@ -274,8 +281,14 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer.setHeight("15px");
 		detailsPanel.add(hSpacer);
 
-		detailsPanel.add(new Label(Messages.getString("members") + ":"));
-
+		HorizontalPanel membersLabelPanel = new HorizontalPanel();
+		membersLabelPanel.add(new Label(Messages.getString("members")));
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("5px");
+		membersLabelPanel.add(hSpacer);
+		membersLabelPanel.add(new HTML("<hr style='width:400px;height:1px;background-color:#000;border:0px solid #F00'/>"));
+		detailsPanel.add(membersLabelPanel);		
+		
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
 		detailsPanel.add(hSpacer);
