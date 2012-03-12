@@ -125,6 +125,14 @@ public class EmailAdminPanel extends SimplePanel {
 
 		CheckBox debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));
 		mailPanel.add(debuggingCheckBox);
+		
+	    vSpacer = new SimplePanel();
+	    vSpacer.setHeight("45px");
+		mailPanel.add(vSpacer);
+		
+		Button saveButton = new Button(Messages.getString("save"));
+		saveButton.setStylePrimaryName("pentaho-button");
+		mailPanel.add(saveButton);
 
 		return mailPanel;
 	}
