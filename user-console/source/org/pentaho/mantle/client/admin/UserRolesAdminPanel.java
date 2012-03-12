@@ -129,7 +129,10 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("10px");
 		namePanel.add(hSpacer);
-		namePanel.add(new Label(Messages.getString("userNameNonEditLabel")));
+		
+		Label msgLabel = new Label(Messages.getString("userNameNonEditLabel"));
+		msgLabel.setStyleName("msg-Label");
+		namePanel.add(msgLabel);
 		detailsPanel.add(namePanel);
 
 		detailsPanel.add(new Label(Messages.getString("password") + ":"));
@@ -157,7 +160,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("5px");
 		roleLabelPanel.add(hSpacer);
-		roleLabelPanel.add(new HTML("<hr style='width:380px;height:1px;background-color:#000;border:0px solid #F00'/>"));
+		roleLabelPanel.add(new HTML("<hr style='width:412px;height:1px;background-color:#000;border:0px solid #F00'/>"));
 		detailsPanel.add(roleLabelPanel);
 
 		hSpacer = new SimplePanel();
@@ -274,7 +277,10 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("10px");
 		namePanel.add(hSpacer);
-		namePanel.add(new Label(Messages.getString("roleNameNonEditLabel")));
+		
+		Label msgLabel = new Label(Messages.getString("roleNameNonEditLabel"));
+		msgLabel.setStyleName("msg-Label");
+		namePanel.add(msgLabel);
 		detailsPanel.add(namePanel);
 		
 		hSpacer = new SimplePanel();
@@ -286,7 +292,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("5px");
 		membersLabelPanel.add(hSpacer);
-		membersLabelPanel.add(new HTML("<hr style='width:400px;height:1px;background-color:#000;border:0px solid #F00'/>"));
+		membersLabelPanel.add(new HTML("<hr style='width:384px;height:1px;background-color:#000;border:0px solid #F00'/>"));
 		detailsPanel.add(membersLabelPanel);		
 		
 		hSpacer = new SimplePanel();

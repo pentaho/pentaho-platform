@@ -594,6 +594,12 @@ code {
 .validDrop{
 }
 
+.msg-Label{
+  font-size: .86em;
+  font-style:italic;
+  color:#737373;
+}
+
 /* BISERVER-6181 - add padding to bottom of the file list panel*/
 .filter-list-panel-container {
   bottom: 14px !important; /* override the inline style that is set by gwt, simple padding doesn't work */

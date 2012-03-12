@@ -114,7 +114,7 @@
 		  		</treeitem>
 			   	<treeitem command="mantleXulHandler.loadUserRolesAdminPanel()">
 	    		 	<treerow>
-						<treecell label="Users/Groups" />
+						<treecell label="Users/Roles" />
 		  			</treerow>
 		  		</treeitem>
 			  </treechildren>

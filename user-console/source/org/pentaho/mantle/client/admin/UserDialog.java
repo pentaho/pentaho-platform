@@ -29,11 +29,11 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PasswordTextBox;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -47,8 +47,8 @@ public class UserDialog extends GwtDialog {
 	private Button cancelBtn = new Button(Messages.getString("cancel"));
 
 	public UserDialog(UserRolesAdminPanelController controller) {
-		setWidth(270);
-		setHeight(210);
+		setWidth(260);
+		setHeight(220);
 		getButtonPanel();
 		setTitle(Messages.getString("newUser"));
 
@@ -82,10 +82,17 @@ public class UserDialog extends GwtDialog {
 	public Panel getDialogContents() {
 
 		HorizontalPanel hp = new HorizontalPanel();
-		hp.setHorizontalAlignment(HorizontalPanel.ALIGN_CENTER);
-		hp.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		SimplePanel hspacer = new SimplePanel();
+		hspacer.setWidth("10px");
+		hp.add(hspacer);
 
 		VerticalPanel vp = new VerticalPanel();
+		hp.add(vp);
+
+		SimplePanel vspacer = new SimplePanel();
+		vspacer.setHeight("10px");
+		vp.add(vspacer);
+
 		Label nameLabel = new Label(Messages.getString("name") + ":");
 		vp.add(nameLabel);
 		vp.add(nameTextBox);
@@ -98,7 +105,6 @@ public class UserDialog extends GwtDialog {
 		vp.add(reTypePasswordLabel);
 		vp.add(reTypePasswordTextBox);
 
-		hp.add(vp);
 		return hp;
 	}
 
