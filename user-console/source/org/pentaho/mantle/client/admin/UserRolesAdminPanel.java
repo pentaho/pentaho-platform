@@ -119,7 +119,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer.setHeight("32px");
 		detailsPanel.add(hSpacer);
 
-		detailsPanel.add(new Label(Messages.getString("name") + ":"));
+		detailsPanel.add(new Label(Messages.getString("userName") + ":"));
 		
 		HorizontalPanel namePanel = new HorizontalPanel();
 		userNameTextBox = new TextBox();

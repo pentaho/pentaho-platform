@@ -23,8 +23,8 @@ import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
+import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.SecurityPanel;
-import org.pentaho.mantle.client.admin.UserRolesAdminPanel;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.service.MantleServiceCache;
@@ -68,6 +68,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   private DeckPanel adminContentDeck = new DeckPanel();
   private SecurityPanel securityPanel = new SecurityPanel();
   private UserRolesAdminPanelController userRolesAdminPanel = new UserRolesAdminPanelController();
+  private EmailAdminPanelController emailAdminPanel = new EmailAdminPanelController();
   private boolean adminCustomized = false;
 
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
@@ -171,7 +172,11 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   }
   
   public Widget getUserRolesAdminPanel() {
-	    return userRolesAdminPanel;
+	return userRolesAdminPanel;
+  }
+  
+  public Widget getEmailAdminPanel() {
+	return emailAdminPanel;  
   }
 
   public Widget getToolbar() {

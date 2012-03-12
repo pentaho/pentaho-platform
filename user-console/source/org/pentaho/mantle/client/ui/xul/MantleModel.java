@@ -189,6 +189,15 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   }
   
   @Bindable
+  public void loadEmailAdminPanel() {
+    DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
+    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getEmailAdminPanel()) == -1) {
+      contentDeck.add(MantleXul.getInstance().getEmailAdminPanel());
+    }
+    contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getEmailAdminPanel()));
+  }
+  
+  @Bindable
   public void refreshContent() {
     if ("workspace.perspective".equals(PerspectiveManager.getInstance().getActivePerspective().getId())) {
       Command cmd = new RefreshWorkspaceCommand();

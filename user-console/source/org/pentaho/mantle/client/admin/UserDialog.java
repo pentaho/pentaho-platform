@@ -96,7 +96,7 @@ public class UserDialog extends GwtDialog {
 		vspacer.setHeight("10px");
 		vp.add(vspacer);
 
-		Label nameLabel = new Label(Messages.getString("name") + ":");
+		Label nameLabel = new Label(Messages.getString("userName") + ":");
 		vp.add(nameLabel);
 		vp.add(nameTextBox);
 

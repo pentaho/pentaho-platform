@@ -21,10 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
+import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.admin.JsSysAdminPanel;
 import org.pentaho.mantle.client.admin.SecurityPanel;
-import org.pentaho.mantle.client.admin.UserRolesAdminPanel;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
@@ -237,6 +237,9 @@ public class MantleController extends AbstractXulEventHandler {
       } else if (((UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
         model.loadUserRolesAdminPanel();
         MantleXul.getInstance().getUserRolesAdminPanel().getElement().setId(((UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel()).getId());
+      } else if (((EmailAdminPanelController)MantleXul.getInstance().getEmailAdminPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
+          model.loadEmailAdminPanel();
+          MantleXul.getInstance().getEmailAdminPanel().getElement().setId(((EmailAdminPanelController)MantleXul.getInstance().getEmailAdminPanel()).getId());
       } else {
         model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
       }
@@ -388,11 +391,20 @@ public class MantleController extends AbstractXulEventHandler {
   
   @Bindable
   public void loadUserRolesAdminPanel() {
-    String usersAndGroupsPanelId = ((UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel()).getId();
-    if (!sysAdminPanelsMap.containsKey(usersAndGroupsPanelId)) {
-      sysAdminPanelsMap.put(usersAndGroupsPanelId, (UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel());
+	String usersAndGroupsPanelId = ((UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel()).getId();
+	if (!sysAdminPanelsMap.containsKey(usersAndGroupsPanelId)) {
+		sysAdminPanelsMap.put(usersAndGroupsPanelId, (UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel());
+	}
+	loadAdminContent(usersAndGroupsPanelId, null);
+  }
+  
+  @Bindable
+  public void loadEmailAdminPanel() {
+    String emailPanelId = ((EmailAdminPanelController)MantleXul.getInstance().getEmailAdminPanel()).getId();
+    if (!sysAdminPanelsMap.containsKey(emailPanelId)) {
+      sysAdminPanelsMap.put(emailPanelId, (EmailAdminPanelController)MantleXul.getInstance().getEmailAdminPanel());
     }
-    loadAdminContent(usersAndGroupsPanelId, null);
+    loadAdminContent(emailPanelId, null);
   }
   
   @Bindable
