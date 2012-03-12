@@ -36,22 +36,30 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class EmailAdminPanel extends SimplePanel {
 
+	protected TextBox smtpHostTextBox;
+	protected TextBox portTextBox;
+	protected ListBox protocolsListBox;
+	protected CheckBox useStartTLSCheckBox;
+	protected CheckBox useSSLCheckBox;
+	protected TextBox fromAddressTextBox;
+	protected CheckBox authenticationCheckBox;
+	protected TextBox userNameTextBox;
+	protected PasswordTextBox passwordTextBox;
+	protected CheckBox debuggingCheckBox;
+	protected Button saveButton;
+	protected Button editPasswordButton;
+
 	public EmailAdminPanel() {
 
 		FlexTable mainPanel = new FlexTable();
-		mainPanel.setWidget(0, 0, new Label("Email" + "/" + "SMTP Server"));
-
+		mainPanel.setWidget(0, 0, new Label(Messages.getString("emailSmtpServer")));
 		HorizontalPanel hPanel = new HorizontalPanel();
-
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("10px");
 		hPanel.add(hSpacer);
-
 		hPanel.add(createEmailPanel());
-
 		mainPanel.setWidget(1, 0, hPanel);
 		setWidget(mainPanel);
-
 	}
 
 	private Widget createEmailPanel() {
@@ -62,31 +70,31 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);
 
 		mailPanel.add(new Label(Messages.getString("smtpHost") + ":"));
-		TextBox smtpHostTextBox = new TextBox();
+		smtpHostTextBox = new TextBox();
 		smtpHostTextBox.setWidth("400px");
 		mailPanel.add(smtpHostTextBox);
 
 		mailPanel.add(new Label(Messages.getString("port") + ":"));
-		TextBox portTextBox = new TextBox();
+		portTextBox = new TextBox();
 		portTextBox.setWidth("400px");
 		mailPanel.add(portTextBox);
 
 		mailPanel.add(new Label(Messages.getString("protocol") + ":"));
-		ListBox protocolsListBox = new ListBox();
+		protocolsListBox = new ListBox();
 		protocolsListBox.addItem(Messages.getString("smtp"));
 		protocolsListBox.addItem(Messages.getString("smtps"));
 		mailPanel.add(protocolsListBox);
 
-		CheckBox useStartTLSCheckBox = new CheckBox(Messages.getString("useStartTLS"));
+		useStartTLSCheckBox = new CheckBox(Messages.getString("useStartTLS"));
 		mailPanel.add(useStartTLSCheckBox);
 
-		CheckBox useSSLCheckBox = new CheckBox(Messages.getString("useSSL"));
+		useSSLCheckBox = new CheckBox(Messages.getString("useSSL"));
 		mailPanel.add(useSSLCheckBox);
 
 		mailPanel.add(new Label(Messages.getString("defaultFromAddress") + ":"));
 
 		HorizontalPanel hPanel = new HorizontalPanel();
-		TextBox fromAddressTextBox = new TextBox();
+		fromAddressTextBox = new TextBox();
 		fromAddressTextBox.setWidth("400px");
 		hPanel.add(fromAddressTextBox);
 		SimplePanel hSpacer = new SimplePanel();
@@ -97,40 +105,40 @@ public class EmailAdminPanel extends SimplePanel {
 		hPanel.add(emailOrginLabel);
 		mailPanel.add(hPanel);
 
-		CheckBox authenticationCheckBox = new CheckBox(Messages.getString("useAuthentication"));
+		authenticationCheckBox = new CheckBox(Messages.getString("useAuthentication"));
 		mailPanel.add(authenticationCheckBox);
 
 		mailPanel.add(new Label(Messages.getString("userName") + ":"));
-		TextBox userNameTextBox = new TextBox();
+		userNameTextBox = new TextBox();
 		userNameTextBox.setWidth("400px");
 		mailPanel.add(userNameTextBox);
 
 		mailPanel.add(new Label(Messages.getString("password") + ":"));
 
 		hPanel = new HorizontalPanel();
-		PasswordTextBox passwordTextBox = new PasswordTextBox();
+		passwordTextBox = new PasswordTextBox();
 		passwordTextBox.setWidth("400px");
 		passwordTextBox.setEnabled(false);
 		hPanel.add(passwordTextBox);
-		
+
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
 		hPanel.add(hSpacer);
 
-		Button editPasswordButton = new Button(Messages.getString("edit") + "...");
+		editPasswordButton = new Button(Messages.getString("edit") + "...");
 		editPasswordButton.setStylePrimaryName("pentaho-button");
 		hPanel.add(editPasswordButton);
 
 		mailPanel.add(hPanel);
 
-		CheckBox debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));
+		debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));
 		mailPanel.add(debuggingCheckBox);
-		
-	    vSpacer = new SimplePanel();
-	    vSpacer.setHeight("45px");
+
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("45px");
 		mailPanel.add(vSpacer);
-		
-		Button saveButton = new Button(Messages.getString("save"));
+
+		saveButton = new Button(Messages.getString("save"));
 		saveButton.setStylePrimaryName("pentaho-button");
 		mailPanel.add(saveButton);
 
