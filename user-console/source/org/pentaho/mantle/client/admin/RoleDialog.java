@@ -52,6 +52,7 @@ public class RoleDialog extends GwtDialog {
 		acceptBtn.setEnabled(false);
 
 		roleNameTextBox = new TextBox();
+		roleNameTextBox.setWidth("240px");
 		TextBoxValueChangeHandler textBoxChangeHandler = new TextBoxValueChangeHandler();
 		roleNameTextBox.addKeyUpHandler(textBoxChangeHandler);
 

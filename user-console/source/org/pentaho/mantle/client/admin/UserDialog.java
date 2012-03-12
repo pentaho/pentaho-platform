@@ -54,8 +54,11 @@ public class UserDialog extends GwtDialog {
 
 		acceptBtn.setEnabled(false);
 		nameTextBox = new TextBox();
+		nameTextBox.setWidth("240px");
 		passwordTextBox = new PasswordTextBox();
+		passwordTextBox.setWidth("240px");
 		reTypePasswordTextBox = new PasswordTextBox();
+		reTypePasswordTextBox.setWidth("240px");
 
 		TextBoxValueChangeHandler textBoxChangeHandler = new TextBoxValueChangeHandler();
 		nameTextBox.addKeyUpHandler(textBoxChangeHandler);
