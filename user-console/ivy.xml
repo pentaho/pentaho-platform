@@ -26,7 +26,6 @@
         <dependency org="commons-codec"         name="commons-codec"      rev="1.3"   transitive="false"/>
     	<dependency org="org.springframework"   name="spring"             rev="2.5.6" transitive="false" />
         <dependency org="org.springframework.security"   name="spring-security-core"      rev="2.0.5.RELEASE" transitive="false"/>
-		<dependency org="metro" name="metro-webservices-api" rev="2.0" transitive="false"/>
         
         <dependency org="com.google.gwt"        name="gwt-servlet"        rev="${dependency.gwt.revision}" transitive="false"/>
 

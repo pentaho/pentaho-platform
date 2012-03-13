@@ -48,7 +48,6 @@
     	<dependency org="com.sun.jersey" name="jersey-servlet" rev="1.11" transitive="false"/>
 		
 		<!-- metro -->
-		<dependency org="metro" name="metro-webservices-api" rev="2.0" transitive="false"/>
 		<dependency org="metro" name="metro-webservices-rt"  rev="2.0" transitive="false"/>
 
 		<!-- gwt -->
