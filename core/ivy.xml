@@ -74,6 +74,6 @@
 		<dependency org="org.jmock" name="jmock-junit4" rev="2.5.1" conf="test->default"/>
     	<dependency org="org.jmock" name="jmock-legacy" rev="2.5.1" conf="test->default" />
 		<dependency org="hsqldb" name="hsqldb" rev="1.8.0.7" conf="test->default" />
-    	<dependency org="log4j" name="log4j" rev="1.2.14" conf="test->default" />
+    	<dependency org="log4j" name="log4j" rev="1.2.16" conf="test->default" />
 	</dependencies>
 </ivy-module>
