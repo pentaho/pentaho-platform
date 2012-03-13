@@ -28,6 +28,7 @@
     <dependency org="pentaho" name="pentaho-versionchecker" rev="${dependency.pentaho-versionchecker.revision}" changing="true" />
         
     <!-- metro -->
+    <dependency org="metro" name="metro-webservices-api" rev="2.0" conf="test->default" />
     <dependency org="metro" name="metro-webservices-rt" rev="2.0" conf="test->default"/>
     <dependency org="org.springframework" name="spring" rev="2.5.6" transitive="false" conf="test->default" />
     <dependency org="org.springframework" name="spring-test" rev="2.5.6" conf="test->default" />
