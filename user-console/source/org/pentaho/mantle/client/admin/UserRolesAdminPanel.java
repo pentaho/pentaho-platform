@@ -95,12 +95,12 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("103px");
 		labelAndButtonsPanel.add(hSpacer);
-		newUserButton = new ImageButton(moduleBaseURL + "images/Add.png", "", "");
+		newUserButton = new ImageButton(moduleBaseURL + "images/add_icon.png", "", "");
 		labelAndButtonsPanel.add(newUserButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("7px");
 		labelAndButtonsPanel.add(hSpacer);
-		deleteUserButton = new ImageButton(moduleBaseURL + "images/Remove.png", "", ""); 
+		deleteUserButton = new ImageButton(moduleBaseURL + "images/remove_icon.png", "", ""); 
 		labelAndButtonsPanel.add(deleteUserButton);
 
 		usersListBox = new ListBox(true);
@@ -160,7 +160,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("5px");
 		roleLabelPanel.add(hSpacer);
-		roleLabelPanel.add(new HTML("<hr style='width:412px;height:1px;background-color:#000;border:0px solid #F00'/>"));
+		roleLabelPanel.add(new HTML("<div class='gwt-HTML' style='height:10px;padding-top:4px;'><hr style='width:412px;height:1px;background-color:#000;border:0px solid #F00'/></div>"));
 		detailsPanel.add(roleLabelPanel);
 
 		hSpacer = new SimplePanel();
@@ -243,12 +243,12 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("103px");
 		labelAndButtonsPanel.add(hSpacer);
-		newRoleButton = new ImageButton(moduleBaseURL + "images/Add.png", "", "");
+		newRoleButton = new ImageButton(moduleBaseURL + "images/add_icon.png", "", "");
 		labelAndButtonsPanel.add(newRoleButton);
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("7px");
 		labelAndButtonsPanel.add(hSpacer);
-		deleteRoleButton = new ImageButton(moduleBaseURL + "images/Remove.png", "", "");
+		deleteRoleButton = new ImageButton(moduleBaseURL + "images/remove_icon.png", "", "");
 		labelAndButtonsPanel.add(deleteRoleButton);
 
 		rolesListBox = new ListBox(true);
@@ -292,7 +292,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("5px");
 		membersLabelPanel.add(hSpacer);
-		membersLabelPanel.add(new HTML("<hr style='width:384px;height:1px;background-color:#000;border:0px solid #F00'/>"));
+		membersLabelPanel.add(new HTML("<div class='gwt-HTML' style='height:10px;padding-top:4px;'><hr style='width:384px;height:1px;background-color:#000;border:0px solid #F00'/></div>"));
 		detailsPanel.add(membersLabelPanel);		
 		
 		hSpacer = new SimplePanel();
