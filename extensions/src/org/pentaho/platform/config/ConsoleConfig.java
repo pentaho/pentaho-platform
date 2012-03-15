@@ -65,7 +65,7 @@ public class ConsoleConfig {
   }
 
   public String getSolutionPath() {
-    return getConfig().getSolutionPath();
+    return "../../pentaho-solutions"; //getConfig().getSolutionPath();
   }
   
   public Double getMetricsExecutionLimit() {
