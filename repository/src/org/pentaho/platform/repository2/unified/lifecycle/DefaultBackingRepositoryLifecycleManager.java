@@ -14,10 +14,13 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
+import java.io.Serializable;
 import java.util.EnumSet;
+import java.util.Map;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
+import org.pentaho.platform.api.repository2.unified.ITenantManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
@@ -116,6 +119,11 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
                 true).build(), false, repositoryAdminUserSid, Messages.getInstance().getString(
                 "DefaultRepositoryLifecycleManager.USER_0002_VER_COMMENT_TENANT_ROOT")); //$NON-NLS-1$
             // no aces added here; access to tenant root is governed by DefaultPentahoJackrabbitAccessControlHelper
+            // Here is where we tell the system that we're a tenant
+            Map<String, Serializable> fileMeta = repositoryFileDao.getFileMetadata(tenantRootFolder.getId());
+            fileMeta.put(ITenantManager.TENANT_ROOT, "true");
+            fileMeta.put(ITenantManager.TENANT_ENABLED, "true");
+            repositoryFileDao.setFileMetadata(tenantRootFolder.getId(), fileMeta);
           }
         }
       });
