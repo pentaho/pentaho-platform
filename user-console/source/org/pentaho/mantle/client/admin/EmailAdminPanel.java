@@ -53,9 +53,14 @@ public class EmailAdminPanel extends SimplePanel {
 	public EmailAdminPanel() {
 
 		FlexTable mainPanel = new FlexTable();
-		mainPanel.setWidget(0, 0, new Label(Messages.getString("emailSmtpServer")));
 		HorizontalPanel hPanel = new HorizontalPanel();
 		SimplePanel hSpacer = new SimplePanel();
+		hSpacer.setWidth("10px");
+		hPanel.add(hSpacer);
+		hPanel.add(new Label(Messages.getString("emailSmtpServer")));
+		mainPanel.setWidget(0, 0, hPanel);
+		hPanel = new HorizontalPanel();
+		hSpacer = new SimplePanel();
 		hSpacer.setWidth("10px");
 		hPanel.add(hSpacer);
 		hPanel.add(createEmailPanel());
