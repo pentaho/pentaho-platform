@@ -71,9 +71,6 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);
 
 		mailPanel.add(new Label(Messages.getString("smtpHost") + ":"));
-		vSpacer = new SimplePanel();
-		vSpacer.setHeight("5px");
-		mailPanel.add(vSpacer);		
 		smtpHostTextBox = new TextBox();
 		smtpHostTextBox.setWidth("400px");
 		mailPanel.add(smtpHostTextBox);
@@ -83,9 +80,6 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);		
 
 		mailPanel.add(new Label(Messages.getString("port") + ":"));
-		vSpacer = new SimplePanel();
-		vSpacer.setHeight("5px");
-		mailPanel.add(vSpacer);		
 		portTextBox = new TextBox();
 		portTextBox.setWidth("400px");
 		mailPanel.add(portTextBox);
@@ -95,9 +89,6 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);		
 		
 		mailPanel.add(new Label(Messages.getString("protocol") + ":"));
-		vSpacer = new SimplePanel();
-		vSpacer.setHeight("5px");
-		mailPanel.add(vSpacer);		
 		protocolsListBox = new ListBox();
 		protocolsListBox.addItem(Messages.getString("smtp"));
 		protocolsListBox.addItem(Messages.getString("smtps"));
@@ -110,9 +101,9 @@ public class EmailAdminPanel extends SimplePanel {
 		useStartTLSCheckBox = new CheckBox(Messages.getString("useStartTLS"));
 		mailPanel.add(useStartTLSCheckBox);	
 		
-		vSpacer = new SimplePanel();
-		vSpacer.setHeight("10px");
-		mailPanel.add(vSpacer);		
+		//vSpacer = new SimplePanel();
+		//vSpacer.setHeight("10px");
+		//mailPanel.add(vSpacer);		
 
 		useSSLCheckBox = new CheckBox(Messages.getString("useSSL"));
 		mailPanel.add(useSSLCheckBox);
@@ -122,10 +113,6 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);		
 
 		mailPanel.add(new Label(Messages.getString("defaultFromAddress") + ":"));
-
-		vSpacer = new SimplePanel();
-		vSpacer.setHeight("5px");
-		mailPanel.add(vSpacer);		
 
 		HorizontalPanel hPanel = new HorizontalPanel();
 		fromAddressTextBox = new TextBox();
@@ -146,18 +133,9 @@ public class EmailAdminPanel extends SimplePanel {
 		authenticationCheckBox = new CheckBox(Messages.getString("useAuthentication"));
 		mailPanel.add(authenticationCheckBox);
 		
-		vSpacer = new SimplePanel();
-		vSpacer.setHeight("10px");
-		mailPanel.add(vSpacer);		
-		
 		authenticationPanel = new VerticalPanel();
 		mailPanel.add(authenticationPanel);
 		authenticationPanel.add(new Label(Messages.getString("userName") + ":"));
-		
-		vSpacer = new SimplePanel();
-		vSpacer.setHeight("5px");
-		authenticationPanel.add(vSpacer);		
-
 		userNameTextBox = new TextBox();
 		userNameTextBox.setWidth("400px");
 		authenticationPanel.add(userNameTextBox);
@@ -167,11 +145,6 @@ public class EmailAdminPanel extends SimplePanel {
 		authenticationPanel.add(vSpacer);		
 
 		authenticationPanel.add(new Label(Messages.getString("password") + ":"));
-
-		vSpacer = new SimplePanel();
-		vSpacer.setHeight("5px");
-		authenticationPanel.add(vSpacer);		
-
 		hPanel = new HorizontalPanel();
 		passwordTextBox = new PasswordTextBox();
 		passwordTextBox.setWidth("400px");
@@ -187,10 +160,6 @@ public class EmailAdminPanel extends SimplePanel {
 		hPanel.add(editPasswordButton);
 
 		authenticationPanel.add(hPanel);
-
-		vSpacer = new SimplePanel();
-		vSpacer.setHeight("10px");
-		mailPanel.add(vSpacer);
 
 		debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));
 		mailPanel.add(debuggingCheckBox);
