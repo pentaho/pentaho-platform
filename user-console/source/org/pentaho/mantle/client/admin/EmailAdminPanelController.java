@@ -20,9 +20,13 @@
 
 package org.pentaho.mantle.client.admin;
 
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
@@ -44,16 +48,49 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		saveButton.addClickHandler(new SaveButtonChangeListener());
 		authenticationCheckBox.addValueChangeHandler(new AuthenticateChangeHandler());
 		editPasswordButton.addClickHandler(new EditPasswordListener());
+		smtpHostTextBox.addKeyUpHandler(new AuthenticationHandler());
+		portTextBox.addKeyUpHandler(new AuthenticationHandler());
+		fromAddressTextBox.addKeyUpHandler(new AuthenticationHandler());
+		userNameTextBox.addKeyUpHandler(new AuthenticationHandler());
+		authenticationCheckBox.addValueChangeHandler(new AuthenticationHandler());
 		activate();
 	}
 
 	public void updatePassword(String password) {
+		passwordTextBox.setValue(password);
+		saveButton.setEnabled(isValid());
+	}
 
+	public boolean isValid() {
+
+		String smtpValue = smtpHostTextBox.getValue();
+		String portValue = portTextBox.getValue();
+		String fromAddressValue = fromAddressTextBox.getValue();
+		boolean authenticationValue = authenticationCheckBox.getValue();
+		String userNameValue = userNameTextBox.getValue();
+		String passwordValue = passwordTextBox.getValue();
+
+		boolean portValid = true;
+		try {
+			Integer.parseInt(portValue);
+		} catch (NumberFormatException e) {
+			portValid = false;
+		}
+		boolean smtpValid = !StringUtils.isEmpty(smtpValue);
+		boolean fromAddressValid = !StringUtils.isEmpty(fromAddressValue);
+		boolean authenticationValid = true;
+		if (authenticationValue) {
+			boolean userNameValid = !StringUtils.isEmpty(userNameValue);
+			boolean passwordValid = !StringUtils.isEmpty(passwordValue);
+			authenticationValid = userNameValid && passwordValid;
+		}
+
+		return portValid && smtpValid && fromAddressValid && authenticationValid;
 	}
 
 	// -- Remote Calls.
 
-	private void getEmailConfig(String params) {
+	private void setEmailConfig(String params) {
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/setEmailConfig" + params;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
@@ -102,6 +139,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 					String protocol = smtpProtocol.stringValue();
 					protocolsListBox.setSelectedIndex(protocol.equalsIgnoreCase("smtp") ? 0 : 1);
+
+					saveButton.setEnabled(isValid());
 				}
 			});
 		} catch (RequestException e) {
@@ -149,7 +188,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			params.append("&useStartTls=");
 			params.append(useStartTLSCheckBox.getValue());
 
-			getEmailConfig(params.toString());
+			setEmailConfig(params.toString());
 		}
 	}
 
@@ -164,6 +203,17 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		public void onClick(ClickEvent event) {
 			ChangePasswordDialog changePasswordDialog = new ChangePasswordDialog(EmailAdminPanelController.this);
 			changePasswordDialog.show();
+		}
+	}
+
+	class AuthenticationHandler implements KeyUpHandler, ValueChangeHandler<Boolean> {
+
+		public void onKeyUp(KeyUpEvent e) {
+			saveButton.setEnabled(isValid());
+		}
+
+		public void onValueChange(ValueChangeEvent<Boolean> value) {
+			saveButton.setEnabled(isValid());
 		}
 	}
 }
