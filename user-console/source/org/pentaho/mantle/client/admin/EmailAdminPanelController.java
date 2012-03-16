@@ -101,7 +101,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-					Window.alert("Email Configuration saved.");
+					saveButton.setEnabled(false);
 				}
 			});
 		} catch (RequestException e) {
@@ -143,7 +143,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 					protocolsListBox.setSelectedIndex(protocol.equalsIgnoreCase("smtp") ? 0 : 1);
 
 					authenticationPanel.setVisible(authenticate.booleanValue());
-					saveButton.setEnabled(isValid());
+					saveButton.setEnabled(false);
 				}
 			});
 		} catch (RequestException e) {
