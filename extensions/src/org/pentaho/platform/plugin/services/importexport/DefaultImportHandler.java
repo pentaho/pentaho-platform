@@ -35,6 +35,8 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.pdi.StreamToJobNodeConverter;
+import org.pentaho.platform.plugin.services.importexport.pdi.StreamToTransNodeConverter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.springframework.util.Assert;
@@ -53,12 +55,18 @@ public class DefaultImportHandler implements ImportHandler {
   private Set<String> executableTypes;
   private HashMap<String, Serializable> parentIdCache;
 
-  static {
+  public DefaultImportHandler(final IUnifiedRepository repository) {
+    // Validate and save the repository
+    if (null == repository) {
+      throw new IllegalArgumentException();
+    }
+    this.repository = repository;
+    
     final StreamConverter streamConverter = new StreamConverter();
+    final StreamToJobNodeConverter jobConverter = new StreamToJobNodeConverter(repository);
+    final StreamToTransNodeConverter transConverter = new StreamToTransNodeConverter(repository);
     converters.put("prpt", streamConverter);
     converters.put("mondrian.xml", streamConverter);
-    converters.put("kjb", streamConverter);
-    converters.put("ktr", streamConverter);
     converters.put("report", streamConverter);
     converters.put("rptdesign", streamConverter);
     converters.put("svg", streamConverter);
@@ -84,16 +92,8 @@ public class DefaultImportHandler implements ImportHandler {
     converters.put("sql", streamConverter);
     converters.put("xmi", streamConverter);
     converters.put("xml", streamConverter);
-  }
-
-
-  public DefaultImportHandler(final IUnifiedRepository repository) {
-    // Validate and save the repository
-    if (null == repository) {
-      throw new IllegalArgumentException();
-    }
-    this.repository = repository;
-
+    converters.put("kjb", jobConverter);
+    converters.put("ktr", transConverter);    
     // Determine the executable types (these will be the only types made visible in the repository)
     determineExecutableTypes();
 
@@ -273,7 +273,7 @@ public class DefaultImportHandler implements ImportHandler {
    */
   protected RepositoryFile createFile(final ImportSource.IRepositoryFileBundle bundle, final String destinationPath,
                                       final boolean hidden, final IRepositoryFileData data, final String comment) {
-    final RepositoryFile file = new RepositoryFile.Builder(bundle.getFile()).hidden(hidden).build();
+    final RepositoryFile file = new RepositoryFile.Builder(bundle.getFile()).hidden(hidden).title(RepositoryFile.ROOT_LOCALE, getTitle(bundle.getFile().getName())).versioned(true).build();
     final Serializable parentId = getParentId(destinationPath);
     final RepositoryFileAcl acl = bundle.getAcl();
     if (null == acl) {
@@ -336,4 +336,16 @@ public class DefaultImportHandler implements ImportHandler {
     executableTypes.add("url");
   }
 
+  /**
+   * truncate the extension from the file name for the extension
+   * @param name
+   * @return title
+   */
+  protected String getTitle(String name) {
+    if(name != null && name.length() > 0) {
+      return name.substring(0, name.lastIndexOf('.'));
+    } else {
+      return name;
+    }
+  }
 }

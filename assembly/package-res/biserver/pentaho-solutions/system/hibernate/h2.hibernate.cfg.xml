@@ -21,7 +21,7 @@
     <!-- replaces DefinitionVersionManager -->
     <property name="hibernate.hbm2ddl.auto">update</property>
     <!-- load resource from classpath -->
-    <mapping resource="hibernate/hsql.hbm.xml" />
+    <mapping resource="hibernate/h2.hbm.xml" />
     <!--  This is only used by Pentaho Administration Console. Spring Security will not use these mapping files -->	
     <mapping resource="PentahoUser.hbm.xml" />
     <mapping resource="PentahoRole.hbm.xml" />
