@@ -225,7 +225,7 @@
                 transitive="false"/>
     <dependency org="com.healthmarketscience.jackcess" name="jackcess" rev="1.2.4" conf="default->default"
                 transitive="false"/>
-    <dependency org="org.apache.hbase" name="hbase" rev="0.90.1" conf="default->default" transitive="false"/>
+    <dependency org="org.apache.hbase" name="hbase" rev="${dependency.apache-hbase.revision}" conf="default->default" transitive="false"/>
     <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.3.2" conf="default->default" transitive="false"/>
     <dependency org="postgresql" name="postgresql" rev="8.4-702.jdbc3" conf="default->default" transitive="false"/>
 
