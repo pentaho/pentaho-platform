@@ -48,6 +48,7 @@ public class EmailAdminPanel extends SimplePanel {
 	protected CheckBox debuggingCheckBox;
 	protected Button saveButton;
 	protected Button editPasswordButton;
+	protected VerticalPanel authenticationPanel;
 
 	public EmailAdminPanel() {
 
@@ -70,28 +71,61 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);
 
 		mailPanel.add(new Label(Messages.getString("smtpHost") + ":"));
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("5px");
+		mailPanel.add(vSpacer);		
 		smtpHostTextBox = new TextBox();
 		smtpHostTextBox.setWidth("400px");
 		mailPanel.add(smtpHostTextBox);
+		
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("10px");
+		mailPanel.add(vSpacer);		
 
 		mailPanel.add(new Label(Messages.getString("port") + ":"));
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("5px");
+		mailPanel.add(vSpacer);		
 		portTextBox = new TextBox();
 		portTextBox.setWidth("400px");
 		mailPanel.add(portTextBox);
 
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("10px");
+		mailPanel.add(vSpacer);		
+		
 		mailPanel.add(new Label(Messages.getString("protocol") + ":"));
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("5px");
+		mailPanel.add(vSpacer);		
 		protocolsListBox = new ListBox();
 		protocolsListBox.addItem(Messages.getString("smtp"));
 		protocolsListBox.addItem(Messages.getString("smtps"));
 		mailPanel.add(protocolsListBox);
 
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("10px");
+		mailPanel.add(vSpacer);		
+
 		useStartTLSCheckBox = new CheckBox(Messages.getString("useStartTLS"));
-		mailPanel.add(useStartTLSCheckBox);
+		mailPanel.add(useStartTLSCheckBox);	
+		
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("10px");
+		mailPanel.add(vSpacer);		
 
 		useSSLCheckBox = new CheckBox(Messages.getString("useSSL"));
 		mailPanel.add(useSSLCheckBox);
+		
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("10px");
+		mailPanel.add(vSpacer);		
 
 		mailPanel.add(new Label(Messages.getString("defaultFromAddress") + ":"));
+
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("5px");
+		mailPanel.add(vSpacer);		
 
 		HorizontalPanel hPanel = new HorizontalPanel();
 		fromAddressTextBox = new TextBox();
@@ -104,16 +138,39 @@ public class EmailAdminPanel extends SimplePanel {
 		emailOrginLabel.setStyleName("msg-Label");
 		hPanel.add(emailOrginLabel);
 		mailPanel.add(hPanel);
+		
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("10px");
+		mailPanel.add(vSpacer);		
 
 		authenticationCheckBox = new CheckBox(Messages.getString("useAuthentication"));
 		mailPanel.add(authenticationCheckBox);
+		
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("10px");
+		mailPanel.add(vSpacer);		
+		
+		authenticationPanel = new VerticalPanel();
+		mailPanel.add(authenticationPanel);
+		authenticationPanel.add(new Label(Messages.getString("userName") + ":"));
+		
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("5px");
+		authenticationPanel.add(vSpacer);		
 
-		mailPanel.add(new Label(Messages.getString("userName") + ":"));
 		userNameTextBox = new TextBox();
 		userNameTextBox.setWidth("400px");
-		mailPanel.add(userNameTextBox);
+		authenticationPanel.add(userNameTextBox);
 
-		mailPanel.add(new Label(Messages.getString("password") + ":"));
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("10px");
+		authenticationPanel.add(vSpacer);		
+
+		authenticationPanel.add(new Label(Messages.getString("password") + ":"));
+
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("5px");
+		authenticationPanel.add(vSpacer);		
 
 		hPanel = new HorizontalPanel();
 		passwordTextBox = new PasswordTextBox();
@@ -129,13 +186,17 @@ public class EmailAdminPanel extends SimplePanel {
 		editPasswordButton.setStylePrimaryName("pentaho-button");
 		hPanel.add(editPasswordButton);
 
-		mailPanel.add(hPanel);
+		authenticationPanel.add(hPanel);
+
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("10px");
+		mailPanel.add(vSpacer);
 
 		debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));
 		mailPanel.add(debuggingCheckBox);
-
+		
 		vSpacer = new SimplePanel();
-		vSpacer.setHeight("45px");
+		vSpacer.setHeight("55px");
 		mailPanel.add(vSpacer);
 
 		saveButton = new Button(Messages.getString("save"));

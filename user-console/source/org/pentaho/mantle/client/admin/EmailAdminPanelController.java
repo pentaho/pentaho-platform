@@ -23,6 +23,8 @@ package org.pentaho.mantle.client.admin;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -35,11 +37,18 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel {
+public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
 	public EmailAdminPanelController() {
 		super();
 		saveButton.addClickHandler(new SaveButtonChangeListener());
+		authenticationCheckBox.addValueChangeHandler(new AuthenticateChangeHandler());
+		editPasswordButton.addClickHandler(new EditPasswordListener());
+		activate();
+	}
+
+	public void updatePassword(String password) {
+
 	}
 
 	// -- Remote Calls.
@@ -141,6 +150,20 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			params.append(useStartTLSCheckBox.getValue());
 
 			getEmailConfig(params.toString());
+		}
+	}
+
+	class AuthenticateChangeHandler implements ValueChangeHandler<Boolean> {
+
+		public void onValueChange(ValueChangeEvent<Boolean> value) {
+			authenticationPanel.setVisible(value.getValue());
+		}
+	}
+
+	class EditPasswordListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			ChangePasswordDialog changePasswordDialog = new ChangePasswordDialog(EmailAdminPanelController.this);
+			changePasswordDialog.show();
 		}
 	}
 }

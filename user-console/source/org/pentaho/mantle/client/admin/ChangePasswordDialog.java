@@ -29,7 +29,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
@@ -39,13 +38,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class ChangePasswordDialog extends GwtDialog {
 
-	private UserRolesAdminPanelController controller;
+	private UpdatePasswordController controller;
 	private PasswordTextBox newPasswordTextBox;
 	private PasswordTextBox reTypePasswordTextBox;
 	private Button acceptBtn = new Button(Messages.getString("ok"));
 	private Button cancelBtn = new Button(Messages.getString("cancel"));
 
-	public ChangePasswordDialog(UserRolesAdminPanelController controller) {
+	public ChangePasswordDialog(UpdatePasswordController controller) {
 		setWidth(260);
 		setHeight(180);
 		getButtonPanel();
@@ -81,18 +80,18 @@ public class ChangePasswordDialog extends GwtDialog {
 	public Panel getDialogContents() {
 
 		HorizontalPanel hp = new HorizontalPanel();
-		
+
 		SimplePanel hspacer = new SimplePanel();
 		hspacer.setWidth("10px");
 		hp.add(hspacer);
-				
+
 		VerticalPanel vp = new VerticalPanel();
 		hp.add(vp);
-		
+
 		SimplePanel vspacer = new SimplePanel();
 		vspacer.setHeight("10px");
 		vp.add(vspacer);
-		
+
 		Label nameLabel = new Label(Messages.getString("newPassword") + ":");
 		vp.add(nameLabel);
 		vp.add(newPasswordTextBox);

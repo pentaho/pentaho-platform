@@ -47,7 +47,7 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
-public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel {
+public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
 	public UserRolesAdminPanelController() {
 		super();
