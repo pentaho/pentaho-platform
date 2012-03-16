@@ -68,6 +68,7 @@
   <bean class="org.pentaho.platform.web.http.api.resources.DirectoryResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.UserRoleResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.EmailResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SessionResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SchedulerResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryResource" scope="request"/>
