@@ -40,7 +40,6 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.json.JSONObject;
 import org.pentaho.platform.config.ConsoleConfig;
-import org.pentaho.platform.config.i18n.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 @Path("/emailconfig/")
@@ -56,20 +55,24 @@ public class EmailResource extends AbstractJaxRSResource {
 		try {
 			File emailConfigFile = ConsoleConfig.getInstance().getEmailConfigFile();
 			EmailConfigXml emailConfigXml = new EmailConfigXml(emailConfigFile);
-			emailConfigXml.setAuthenticate(Boolean.parseBoolean(authenticate));
 			emailConfigXml.setDebug(Boolean.parseBoolean(debug));
 			emailConfigXml.setDefaultFrom(defaultFrom);
 			emailConfigXml.setSmtpHost(smtpHost);
 			emailConfigXml.setSmtpPort(Integer.parseInt(smtpPort));
 			emailConfigXml.setSmtpProtocol(smtpProtocol);
-			emailConfigXml.setUserId(userId);
-			emailConfigXml.setPassword(password);
 			emailConfigXml.setUseSsl(Boolean.parseBoolean(useSsl));
 			emailConfigXml.setUseStartTls(Boolean.parseBoolean(useStartTls));
 
-			 saveDom(emailConfigXml.getDocument(), emailConfigFile);
+			boolean useAuthentication = Boolean.parseBoolean(authenticate);
+			emailConfigXml.setAuthenticate(useAuthentication);
+			if (useAuthentication) {
+				emailConfigXml.setUserId(userId);
+				emailConfigXml.setPassword(password);
+			}
+
+			saveDom(emailConfigXml.getDocument(), emailConfigFile);
 		} catch (Exception e) {
-			logger.error(Messages.getErrorString("ERROR PENDING")); //$NON-NLS-1$
+			logger.error("Email Configuration could not be saved."); //$NON-NLS-1$
 		}
 		return Response.ok().build();
 	}
