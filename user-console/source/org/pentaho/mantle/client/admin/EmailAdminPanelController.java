@@ -39,6 +39,7 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
@@ -96,10 +97,11 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
+					Window.alert(exception.getMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-
+					Window.alert("Email Configuration saved.");
 				}
 			});
 		} catch (RequestException e) {
@@ -140,6 +142,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 					String protocol = smtpProtocol.stringValue();
 					protocolsListBox.setSelectedIndex(protocol.equalsIgnoreCase("smtp") ? 0 : 1);
 
+					authenticationPanel.setVisible(authenticate.booleanValue());
 					saveButton.setEnabled(isValid());
 				}
 			});
