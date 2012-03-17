@@ -608,3 +608,9 @@ code {
   padding-bottom: 6px !important; /* ie setting the padding works */
 }
 /* end fix BISERVER-6181 */
+
+/* BISERVER-6442 */
+#previewResultsTable{
+  overflow:hidden;
+  width: 525px;
+}
