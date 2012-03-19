@@ -40,14 +40,14 @@ public interface ITenantManager {
    * @param tenantName
    * @return a "tenantPath"
    */
-  String createTenant(final String parentPath, final String tenantName);
+  void createTenant(final String parentPath, final String tenantName);
   
   /**
    * @param parentPath
    * @param tenantNames
    * @return a List of strings each holding a "tenantPath"
    */
-  List<String> createTenants(final String parentPath, final List<String> tenantNames);
+  void createTenants(final String parentPath, final List<String> tenantNames);
   
   // ~ List Tenants ====================================================================
   /**
@@ -56,7 +56,7 @@ public interface ITenantManager {
    * @param parentPath
    * @return a list of "tenentPath"
    */
-  List<String> getChildTenants(final String parentPath);
+  List<Serializable> getChildTenants(final String parentPath);
   
   // ~ Modify Tenant ===================================================================
   /**
@@ -66,7 +66,7 @@ public interface ITenantManager {
    * @param tenantInfo
    * @return success
    */
-  boolean updateTentant(final String tenantPath, final Map<String, Serializable> tenantInfo);
+  void updateTentant(final String tenantPath, final Map<String, Serializable> tenantInfo);
   
   // ~ Remove Tenants ==================================================================
   /**
@@ -75,7 +75,7 @@ public interface ITenantManager {
    * @param tenantPath
    * @return success
    */
-  boolean deleteTenant(final String tenantPath);
+  void deleteTenant(final String tenantPath);
   
   /**
    * Deletes a list of tenants
@@ -83,7 +83,7 @@ public interface ITenantManager {
    * @param tenantPaths
    * @return success
    */
-  boolean deleteTenants(final List<String> tenantPaths);
+  void deleteTenants(final List<String> tenantPaths);
   
   // ~ Disable Tenants ================================================================
   /**
@@ -92,7 +92,7 @@ public interface ITenantManager {
    * @param tenantPath
    * @return success
    */
-  Serializable disableTenant(final String tenantPath);
+  void disableTenant(final String tenantPath);
   
   /**
    * Disable the tenants in tenantPaths
@@ -100,5 +100,29 @@ public interface ITenantManager {
    * @param tenantPaths
    * @return success
    */
-  Serializable disableTenants(final List<String> tenantPaths);
+  void disableTenants(final List<String> tenantPaths);
+  
+  /**
+   * @param tenantRootfileId
+   * @return boolean that is true if the tenantRootfileId is a tenant root directory
+   */
+  boolean isTenantRoot(final Serializable tenantRootfileId);
+  
+  /**
+   * @param tenantPath
+   * @return boolean that is true if the tenantPath is a tenant root directory
+   */
+  boolean isTenantRoot(final String tenantPath);
+  
+  /**
+   * @param tenantRootfileId
+   * @return boolean that is true if the tenantRootfileId is an enabled tenant root directory
+   */
+  boolean isTenantEnabled(final Serializable tenantRootfileId);
+  
+  /**
+   * @param tenantPath
+   * @return boolean that is true if the tenantPath is an enabled tenant root directory
+   */
+  boolean isTenantEnabled(final String tenantPath);
 }
