@@ -216,6 +216,10 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 							}
 						}
 					}
+					if(rolesListBox.getSelectedIndex() == -1 && rolesListBox.getItemCount() > 0) {
+						rolesListBox.setSelectedIndex(0);
+						DomEvent.fireNativeEvent(event, rolesListBox);
+					} 
 				}
 			});
 		} catch (RequestException e) {
@@ -249,6 +253,10 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 							}
 						}
 					}
+					if(usersListBox.getSelectedIndex() == -1 && usersListBox.getItemCount() > 0) {
+						usersListBox.setSelectedIndex(0);
+						DomEvent.fireNativeEvent(event, usersListBox);
+					} 
 				}
 			});
 		} catch (RequestException e) {
