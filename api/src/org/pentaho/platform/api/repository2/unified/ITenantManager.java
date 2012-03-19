@@ -56,7 +56,7 @@ public interface ITenantManager {
    * @param parentPath
    * @return a list of "tenentPath"
    */
-  List<Serializable> getChildTenants(final String parentPath);
+  List<RepositoryFile> getChildTenants(final String parentPath);
   
   // ~ Modify Tenant ===================================================================
   /**
