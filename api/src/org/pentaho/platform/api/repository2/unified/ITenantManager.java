@@ -40,14 +40,14 @@ public interface ITenantManager {
    * @param tenantName
    * @return a "tenantPath"
    */
-  void createTenant(final String parentPath, final String tenantName);
+  RepositoryFile createTenant(final String parentPath, final String tenantName);
   
   /**
    * @param parentPath
    * @param tenantNames
    * @return a List of strings each holding a "tenantPath"
    */
-  void createTenants(final String parentPath, final List<String> tenantNames);
+  List<RepositoryFile> createTenants(final String parentPath, final List<String> tenantNames);
   
   // ~ List Tenants ====================================================================
   /**
