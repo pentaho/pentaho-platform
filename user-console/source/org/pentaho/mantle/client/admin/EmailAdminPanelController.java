@@ -44,6 +44,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
+	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
 	public EmailAdminPanelController() {
 		super();
 		saveButton.addClickHandler(new SaveButtonChangeListener());
@@ -78,7 +80,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			portValid = false;
 		}
 		boolean smtpValid = !StringUtils.isEmpty(smtpValue);
-		boolean fromAddressValid = !StringUtils.isEmpty(fromAddressValue);
+		boolean fromAddressValid = isValidEmail(fromAddressValue);
 		boolean authenticationValid = true;
 		if (authenticationValue) {
 			boolean userNameValid = !StringUtils.isEmpty(userNameValue);
@@ -87,6 +89,16 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		}
 
 		return portValid && smtpValid && fromAddressValid && authenticationValid;
+	}
+
+	private boolean isValidEmail(final String email) {
+		boolean isValid = true;
+		if (StringUtils.isEmpty(email)) {
+			isValid = false;
+		} else {
+			isValid = email.matches(EMAIL_PATTERN);
+		}
+		return isValid;
 	}
 
 	// -- Remote Calls.
