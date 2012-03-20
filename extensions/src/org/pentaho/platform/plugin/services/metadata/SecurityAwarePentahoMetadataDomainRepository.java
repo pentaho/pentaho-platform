@@ -72,7 +72,7 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
       roles.add(role.getAuthority());
     }
 
-    RowLevelSecurityHelper helper = new RowLevelSecurityHelper();
+    RowLevelSecurityHelper helper = new SessionAwareRowLevelSecurityHelper();
     return helper.getOpenFormulaSecurityConstraint(rls, username, roles);
   }
 
