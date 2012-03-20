@@ -39,7 +39,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.json.JSONObject;
-import org.pentaho.platform.config.ConsoleConfig;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 @Path("/emailconfig/")
@@ -53,7 +52,7 @@ public class EmailResource extends AbstractJaxRSResource {
 	public Response setEmailConfig(@QueryParam("authenticate") String authenticate, @QueryParam("debug") String debug, @QueryParam("defaultFrom") String defaultFrom, @QueryParam("smtpHost") String smtpHost, @QueryParam("smtpPort") String smtpPort, @QueryParam("smtpProtocol") String smtpProtocol, @QueryParam("userId") String userId, @QueryParam("password") String password, @QueryParam("useSsl") String useSsl, @QueryParam("useStartTls") String useStartTls) {
 
 		try {
-			File emailConfigFile = ConsoleConfig.getInstance().getEmailConfigFile();
+			File emailConfigFile = new File(".." + File.separator + ".." + File.separator + "pentaho-solutions" + File.separator + "system" + File.separator + "smtp-email" + File.separator + "email_config.xml");
 			EmailConfigXml emailConfigXml = new EmailConfigXml(emailConfigFile);
 			emailConfigXml.setDebug(Boolean.parseBoolean(debug));
 			emailConfigXml.setDefaultFrom(defaultFrom);
@@ -80,7 +79,7 @@ public class EmailResource extends AbstractJaxRSResource {
 	private void saveDom(Document document, File file) throws IOException {
 		file.createNewFile();
 		FileOutputStream fileOutputStream = new FileOutputStream(file);
-		XmlDom4JHelper.saveDom(document, fileOutputStream, ConsoleConfig.getInstance().getXmlEncoding());
+		XmlDom4JHelper.saveDom(document, fileOutputStream, "UTF-8");
 		try {
 			fileOutputStream.close();
 		} catch (IOException ex) {
@@ -93,7 +92,7 @@ public class EmailResource extends AbstractJaxRSResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String getEmailConfig() throws Exception {
 
-		File emailConfigFile = ConsoleConfig.getInstance().getEmailConfigFile();
+		File emailConfigFile = new File(".." + File.separator + ".." + File.separator + "pentaho-solutions" + File.separator + "system" + File.separator + "smtp-email" + File.separator + "email_config.xml");
 		EmailConfigXml emailConfigXml = new EmailConfigXml(emailConfigFile);
 
 		JSONObject emailData = new JSONObject();
