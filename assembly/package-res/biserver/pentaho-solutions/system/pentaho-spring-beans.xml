@@ -6,10 +6,6 @@
   +-->
   
 <beans>
-  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="location" value="biserver.properties" />
-  </bean>
-  
   <import resource="pentahoSystemConfig.xml" />
   <import resource="adminPlugins.xml" />
   <import resource="systemListeners.xml" />

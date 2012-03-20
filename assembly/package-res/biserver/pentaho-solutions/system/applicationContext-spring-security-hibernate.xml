@@ -93,4 +93,8 @@
   <!-- not a plaintext password encoder -->
   <bean id="passwordEncoder" class="org.pentaho.platform.engine.security.DefaultPentahoPasswordEncoder" />
 
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location" value="applicationContext-spring-security-hibernate.properties" />
+  </bean>
+
 </beans>
