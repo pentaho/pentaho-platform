@@ -31,7 +31,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.engine.services.messages.Messages;
+import org.pentaho.platform.plugin.services.messages.Messages;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 

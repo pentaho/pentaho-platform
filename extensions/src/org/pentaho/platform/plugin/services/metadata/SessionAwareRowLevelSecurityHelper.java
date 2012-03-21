@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.util.RowLevelSecurityHelper;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.plugin.services.metadata.messages.Messages;
+import org.pentaho.platform.plugin.services.messages.Messages;
 
 /**
  * This row level security helper resolves SESSION("VALUE") in addition to it's parent
