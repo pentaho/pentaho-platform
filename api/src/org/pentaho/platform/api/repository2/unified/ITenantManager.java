@@ -36,6 +36,12 @@ public interface ITenantManager {
   
   // ~ Tenant Creation =================================================================
   /**
+   * @param tenantName
+   * @return
+   */
+  RepositoryFile createSystemTenant(final String tenantName);
+  
+  /**
    * @param parentPath
    * @param tenantName
    * @return a "tenantPath"
