@@ -26,8 +26,8 @@ import java.util.Map;
  * 
  * This interface follows the following argument conventions:
  * - parentPath is a fully qualified TENANT ONLY path that resolves to the parent of the tenant to be operated on
- * - tenentPath is a fully qualified TENANT ONLY path that resolves to the tenant.
- * 
+ * - tenentPath is a fully qualified TENANT ONLY path that resolves to the tenant root folder.
+ * - tenantId is a internal UUID that uniquely identifies the tenant root folder 
  */
 public interface ITenantManager {
   // ~ Constants
@@ -76,6 +76,12 @@ public interface ITenantManager {
   
   // ~ Remove Tenants ==================================================================
   /**
+   * Deletes the tenant based on the tenantId
+   * @param tenantId
+   */
+  void deleteTenant(final Serializable tenantId);
+  
+  /**
    * Deletes the tenant
    * 
    * @param tenantPath
@@ -92,6 +98,12 @@ public interface ITenantManager {
   void deleteTenants(final List<String> tenantPaths);
   
   // ~ Disable Tenants ================================================================
+  /**
+   * Disables the tenant based on the tenantId
+   * @param tenantId
+   */
+  void disableTenant(final Serializable tenantId);
+  
   /**
    * Disables the tenant.  No user login can be performed.
    * 
