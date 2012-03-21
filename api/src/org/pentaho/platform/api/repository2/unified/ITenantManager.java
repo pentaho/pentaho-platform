@@ -120,6 +120,7 @@ public interface ITenantManager {
    */
   void disableTenants(final List<String> tenantPaths);
   
+  // ~ Query Tenants ===================================================================
   /**
    * @param tenantRootfileId
    * @return boolean that is true if the tenantRootfileId is a tenant root directory
