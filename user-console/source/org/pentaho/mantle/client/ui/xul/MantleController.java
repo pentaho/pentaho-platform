@@ -178,6 +178,9 @@ public class MantleController extends AbstractXulEventHandler {
         .getActivePerspective().getId()));
 
     setupNativeHooks(this);
+    
+    
+    //enableUsersRolesTreeItem(false);
   }
 
   public native void setupNativeHooks(MantleController controller)
@@ -212,8 +215,15 @@ public class MantleController extends AbstractXulEventHandler {
     $wnd.mantle_activateWaitingSecurityPanel = function(okToSwitchToNewPanel) { 
       controller.@org.pentaho.mantle.client.ui.xul.MantleController::activateWaitingSecurityPanel(Z)(okToSwitchToNewPanel);      
     } 
+    $wnd.mantle_enableUsersRolesTreeItem = function(enabled) { 
+      controller.@org.pentaho.mantle.client.ui.xul.MantleController::enableUsersRolesTreeItem(Z)(enabled);      
+    } 
   }-*/;
-
+  
+  public void enableUsersRolesTreeItem(boolean enabled) {
+    MantleXul.getInstance().enableUsersRolesTreeItem(enabled);
+  }
+  
   public void registerSysAdminPanel(JsSysAdminPanel sysAdminPanel) {
     sysAdminPanelsMap.put(sysAdminPanel.getId(), sysAdminPanel);
   }
@@ -238,8 +248,8 @@ public class MantleController extends AbstractXulEventHandler {
         model.loadUserRolesAdminPanel();
         MantleXul.getInstance().getUserRolesAdminPanel().getElement().setId(((UserRolesAdminPanelController)MantleXul.getInstance().getUserRolesAdminPanel()).getId());
       } else if (((EmailAdminPanelController)MantleXul.getInstance().getEmailAdminPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
-          model.loadEmailAdminPanel();
-          MantleXul.getInstance().getEmailAdminPanel().getElement().setId(((EmailAdminPanelController)MantleXul.getInstance().getEmailAdminPanel()).getId());
+        model.loadEmailAdminPanel();
+        MantleXul.getInstance().getEmailAdminPanel().getElement().setId(((EmailAdminPanelController)MantleXul.getInstance().getEmailAdminPanel()).getId());
       } else {
         model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
       }

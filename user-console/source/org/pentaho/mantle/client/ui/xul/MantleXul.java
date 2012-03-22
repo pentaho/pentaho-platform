@@ -18,6 +18,7 @@
 package org.pentaho.mantle.client.ui.xul;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.SecurityPanel;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.AbstractCommand;
+import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -47,8 +49,11 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
@@ -163,6 +168,23 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
     t.scheduleRepeating(250);
   }
 
+  public void enableUsersRolesTreeItem(boolean enabled) {
+	  
+	  String usersRolesLabel = Messages.getString("users") + "/" + Messages.getString("roles");
+	  GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
+	  
+	  TreeItem usersRolesTreeItem = null;
+	  Tree adminTree = adminCatTree.getTree();
+	  Iterator<TreeItem> adminTreeItr = adminTree.treeItemIterator();
+	  while(adminTreeItr.hasNext()) {
+		  usersRolesTreeItem = adminTreeItr.next();
+		  if(usersRolesTreeItem.getText().equals(usersRolesLabel)) {
+			  usersRolesTreeItem.setVisible(enabled);
+			break;  
+		  }
+	  }
+  }
+  
   public DeckPanel getAdminContentDeck() {
     return adminContentDeck;
   }
