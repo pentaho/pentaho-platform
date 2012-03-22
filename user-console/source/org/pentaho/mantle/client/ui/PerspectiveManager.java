@@ -309,6 +309,7 @@ public class PerspectiveManager extends HorizontalPanel {
     }
     contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getAdminPerspective()));
     MantleXul.getInstance().customizeAdminStyle();
+    MantleXul.getInstance().configureAdminCatTree();
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {

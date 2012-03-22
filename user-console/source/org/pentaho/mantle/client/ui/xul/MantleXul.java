@@ -45,11 +45,15 @@ import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.BorderStyle;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Tree;
@@ -168,21 +172,46 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
     t.scheduleRepeating(250);
   }
 
-  public void enableUsersRolesTreeItem(boolean enabled) {
+  public void configureAdminCatTree() {
+	  String serviceUrl = GWT.getHostPageBaseURL() + "api/ldap/config/getAttributeValues";
+	  RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					String securityProvider = response.getText();
+					enableUsersRolesTreeItem(securityProvider.contains("DB_BASED_AUTHENTICATION"));
+				}
+			});
+		} catch (RequestException e) {
+		}
+  }
+  
+  public void enableUsersRolesTreeItem(final boolean enabled) {
 	  
-	  String usersRolesLabel = Messages.getString("users") + "/" + Messages.getString("roles");
-	  GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
-	  
-	  TreeItem usersRolesTreeItem = null;
-	  Tree adminTree = adminCatTree.getTree();
-	  Iterator<TreeItem> adminTreeItr = adminTree.treeItemIterator();
-	  while(adminTreeItr.hasNext()) {
-		  usersRolesTreeItem = adminTreeItr.next();
-		  if(usersRolesTreeItem.getText().equals(usersRolesLabel)) {
+	Timer t = new Timer() {
+	  public void run() {
+	    if (container != null) {
+	      cancel(); 	
+	      String usersRolesLabel = Messages.getString("users") + "/" + Messages.getString("roles");
+		  GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
+			  
+		  TreeItem usersRolesTreeItem = null;
+		  Tree adminTree = adminCatTree.getTree();
+		  Iterator<TreeItem> adminTreeItr = adminTree.treeItemIterator();
+		  while(adminTreeItr.hasNext()) {
+			usersRolesTreeItem = adminTreeItr.next();
+			if(usersRolesTreeItem.getText().equals(usersRolesLabel)) {
 			  usersRolesTreeItem.setVisible(enabled);
-			break;  
+			  break;  
+			}
 		  }
+	    }
 	  }
+	};
+	t.scheduleRepeating(250);
   }
   
   public DeckPanel getAdminContentDeck() {

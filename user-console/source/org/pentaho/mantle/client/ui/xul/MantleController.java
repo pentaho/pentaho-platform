@@ -178,9 +178,6 @@ public class MantleController extends AbstractXulEventHandler {
         .getActivePerspective().getId()));
 
     setupNativeHooks(this);
-    
-    
-    //enableUsersRolesTreeItem(false);
   }
 
   public native void setupNativeHooks(MantleController controller)
