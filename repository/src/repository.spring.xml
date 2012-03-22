@@ -156,6 +156,16 @@
     <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
   </bean>
 
+  <bean id="defaultTenantManager"
+  	    class="org.pentaho.platform.repository2.unified.DefaultTenantManager">
+    <constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="repositoryFileAclDao"/>
+    <constructor-arg ref="jcrTransactionTemplate"/>
+    <constructor-arg ref="repositoryAdminUsername"/>
+    <constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>	    
+  </bean>
+  
   <bean id="defaultBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager"
         parent="abstractBackingRepositoryLifecycleManager"/>
