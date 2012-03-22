@@ -1,0 +1,61 @@
+<project name="pentaho-platform-dev" basedir="." default="help">
+
+  <description>
+  </description>
+
+  <!-- This file inherits from the open assembly project -->
+  <property name="assembly.dir" location="assembly" />
+
+  <property file="dev_override.properties" />
+  <property file="dev_build.properties" />
+  <property file="${assembly.dir}/override.properties" />
+  <property file="${assembly.dir}/assembly.properties" />
+
+  <!--Import Open Assembly ant file -->
+  <import file="${assembly.dir}/assembly.xml" />
+
+  <!-- These are the projects that will be compiled to class files and placed in WEB-INF/classes -->
+  <property name="dev-project.list" value="api,core,extensions,repository,scheduler,user-console" />
+
+
+  <target name="dev-rebuild"
+          description="Creates a Pentaho-ready Tomcat instance."
+          depends="clean-all, dev-update" />
+
+
+  <target name="dev-update"
+          description="Copy changed artifacts into Tomcat instance."
+          depends="install-antcontrib">
+    <for list="${dev-project.list}" param="module" trim="true">
+      <sequential>
+        <ant antfile="build.xml" dir="@{module}" inheritall="false" >
+	      <target name="resolve" />
+	      <target name="compile" />
+	      <target name="publish-local" />
+        </ant>
+      </sequential>
+    </for>
+    <ant antfile="assembly.xml" dir="${assembly.dir}" inheritall="false">
+      <target name="clean-all" />
+      <target name="resolve" />
+      <target name="assemble" />
+    </ant>
+  </target>
+
+
+  <target name="clean-all" depends="install-antcontrib">
+    <for list="${dev-project.list}" param="module" trim="true">
+      <sequential>
+        <ant antfile="build.xml" dir="@{module}" target="clean-all" inheritall="false" />
+      </sequential>
+    </for>
+    <ant antfile="assembly.xml" dir="${assembly.dir}" target="clean-all" inheritall="false" />
+  </target>
+
+
+  <target name="help" description="Displays help information.">
+    <echo level="info">Run 'ant -f dev_build.xml -projecthelp' for more information.</echo>
+  </target>
+
+
+</project>
