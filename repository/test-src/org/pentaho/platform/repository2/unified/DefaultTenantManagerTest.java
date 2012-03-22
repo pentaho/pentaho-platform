@@ -252,5 +252,23 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
     assertTrue(isTenanted);
     boolean isTenantEnabled = tenantManager.isTenantEnabled(tenantRoot.getId());
     assertTrue(isTenantEnabled);
+    tenantManager.disableTenant(tenantRoot.getId());
+    isTenantEnabled = tenantManager.isTenantEnabled(tenantRoot.getId());
+    assertTrue(!isTenantEnabled);
+  }
+  
+  @Test
+  public void TestIsTenantRoot() {
+    manager.startup();
+    setUpRoleBindings();
+    RepositoryFile tenantRoot = tenantManager.createTenant("", TENANT_ID_ACME);
+    assertNotNull(tenantRoot);
+    boolean isTenanted = tenantManager.isTenantRoot(tenantRoot.getId());
+    assertTrue(isTenanted);
+    login(USERNAME_JOE, TENANT_ID_ACME);
+    List<RepositoryFile> children = repo.getChildren(tenantRoot.getId());
+    for (RepositoryFile aFile : children) {
+      assertTrue(!tenantManager.isTenantRoot(aFile.getId()));
+    }
   }
 }

@@ -209,7 +209,7 @@ public class DefaultTenantManager implements ITenantManager {
         public void doInTransactionWithoutResult(final TransactionStatus status) {
           //TODO Ensure we're working with a tenantRootFolder
           Map<String, Serializable> fileMeta = repositoryFileDao.getFileMetadata(tenantId);
-          fileMeta.put(ITenantManager.TENANT_ENABLED, "false");
+          fileMeta.put(ITenantManager.TENANT_ENABLED, false);
           repositoryFileDao.setFileMetadata(tenantId, fileMeta);
         }
       });
