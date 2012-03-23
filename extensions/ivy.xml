@@ -241,21 +241,14 @@
     <dependency org="jtds" name="jtds" rev="1.2.5" conf="default->default" transitive="false"/>
     <dependency org="com.ibm" name="db2jcc" rev="2.3.63" conf="default->default" transitive="false"/>
     <dependency org="com.ibm" name="db2jcc_license_cu" rev="2.3.63" conf="default->default" transitive="false"/>
-    <dependency org="com.ibm" name="unijdbc" rev="20060908" conf="default->default" transitive="false"/>
     <dependency org="net.sf.jt400" name="jt400" rev="6.1" conf="default->default" transitive="false"/>
     <dependency org="org.xerial" name="sqlite-jdbc" rev="3.7.2" conf="default->default" transitive="false"/>
     <dependency org="ifxjdbc" name="ifxjdbc" rev="20050429" conf="default->default" transitive="false"/>
-    <dependency org="oracle" name="orai18n" rev="10.2.0.3.0" conf="default->default" transitive="false"/>
-    <dependency org="oracle" name="ojdbc" rev="10.2.0.3.0" conf="default->default" transitive="false"/>
     <dependency org="jaybird" name="jaybird-full" rev="2.1.0" conf="default->default" transitive="false"/>
     <dependency org="com.sap" name="sapdbc" rev="7.4.4" conf="default->default" transitive="false"/>
     <dependency org="monetdb" name="monetdb-jdbc" rev="1.7" conf="default->default" transitive="false"/>
-    <dependency org="com.oracle" name="rdbthin" rev="20060316" conf="default->default" transitive="false"/>
     <dependency org="luciddb" name="LucidDbClient-minimal" rev="0.9.4" conf="default->default" transitive="false"/>
     <dependency org="interbase" name="interclient" rev="20050506" conf="default->default" transitive="false"/>
-    <dependency org="com.kingbase" name="kingbasejdbc" rev="20070625" conf="default->default" transitive="false"/>
-    <dependency org="com.extendb" name="xdbjdbc" rev="20060427" conf="default->default" transitive="false"/>
-    <dependency org="com.ingres" name="iijdbc" rev="2.5" conf="default->default" transitive="false"/>
     <dependency org="org.apache.hadoop.hive" name="hive-jdbc" rev="${dependency.hive-jdbc.revision}" changing="true"
                 transitive="false"/>
     <dependency org="org.mongodb" name="mongo-java-driver" rev="2.5.3" conf="default->default" transitive="false"/>
