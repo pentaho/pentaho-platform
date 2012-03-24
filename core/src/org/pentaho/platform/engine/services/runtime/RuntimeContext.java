@@ -1308,7 +1308,13 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
       debug(Messages.getInstance().getString("RuntimeContext.DEBUG_STARTING_COMPONENT_EXECUTE")); //$NON-NLS-1$
     }
     try {
-      status = actionDefinition.getComponent().execute();
+      if (getOutputPreference() == IOutputHandler.OUTPUT_TYPE_PARAMETERS && actionDefinition.getComponentName().contains("SecureFilterComponent")) {
+        status = actionDefinition.getComponent().execute();
+      } else if (getOutputPreference() != IOutputHandler.OUTPUT_TYPE_PARAMETERS) {
+        status = actionDefinition.getComponent().execute();
+      } else {
+        status = IRuntimeContext.RUNTIME_STATUS_SUCCESS;
+      }
       actionDefinition.getComponent().done();
       if (RuntimeContext.debug) {
         debug(Messages.getInstance().getString("RuntimeContext.DEBUG_FINISHED_COMPONENT_EXECUTE")); //$NON-NLS-1$
@@ -2122,7 +2128,11 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
    * @return Output type
    */
   public int getOutputPreference() {
-    return outputHandler.getOutputPreference();
+    if (outputHandler != null) {
+        return outputHandler.getOutputPreference();
+    } else {
+      return IOutputHandler.OUTPUT_TYPE_DEFAULT;
+    }
   }
 
   public void setOutputHandler(final IOutputHandler outputHandler) {
