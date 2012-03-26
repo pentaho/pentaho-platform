@@ -56,6 +56,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		fromAddressTextBox.addKeyUpHandler(new AuthenticationHandler());
 		userNameTextBox.addKeyUpHandler(new AuthenticationHandler());
 		authenticationCheckBox.addValueChangeHandler(new AuthenticationHandler());
+		debuggingCheckBox.addValueChangeHandler(new AuthenticationHandler());
+		useSSLCheckBox.addValueChangeHandler(new AuthenticationHandler());
+		useStartTLSCheckBox.addValueChangeHandler(new AuthenticationHandler());
 		activate();
 	}
 
