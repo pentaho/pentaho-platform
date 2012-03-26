@@ -40,6 +40,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
@@ -68,8 +69,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		deleteRoleButton.addClickHandler(new DeleteRoleListener());
 		editPasswordButton.addClickHandler(new EditPasswordListener());
 
-		initializeAvailableUsers(null);
-		initializeAvailableRoles(null);
+		activate();
 	}
 
 	public void saveUser(final String name, final String password) {
@@ -82,6 +82,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 				public void onResponseReceived(Request request, Response response) {
 					initializeAvailableUsers(name);
+					initializeAvailableRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()));
 				}
 			});
 		} catch (RequestException e) {
@@ -98,6 +99,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 				public void onResponseReceived(Request request, Response response) {
 					initializeAvailableRoles(name);
+					initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
 				}
 			});
 		} catch (RequestException e) {
@@ -125,6 +127,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					availableMembersListBox.clear();
 					selectedMembersListBox.clear();
 					initializeAvailableRoles(null);
+					initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
 				}
 			});
 		} catch (RequestException e) {
@@ -154,6 +157,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					selectedRolesListBox.clear();
 					editPasswordButton.setEnabled(false);
 					initializeAvailableUsers(null);
+					initializeAvailableRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()));
 				}
 			});
 		} catch (RequestException e) {
@@ -216,10 +220,10 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 							}
 						}
 					}
-					if(rolesListBox.getSelectedIndex() == -1 && rolesListBox.getItemCount() > 0) {
+					if (rolesListBox.getSelectedIndex() == -1 && rolesListBox.getItemCount() > 0) {
 						rolesListBox.setSelectedIndex(0);
 						DomEvent.fireNativeEvent(event, rolesListBox);
-					} 
+					}
 				}
 			});
 		} catch (RequestException e) {
@@ -253,10 +257,10 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 							}
 						}
 					}
-					if(usersListBox.getSelectedIndex() == -1 && usersListBox.getItemCount() > 0) {
+					if (usersListBox.getSelectedIndex() == -1 && usersListBox.getItemCount() > 0) {
 						usersListBox.setSelectedIndex(0);
 						DomEvent.fireNativeEvent(event, usersListBox);
-					} 
+					}
 				}
 			});
 		} catch (RequestException e) {
@@ -284,21 +288,29 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 						selectedRolesListBox.addItem(role);
 					}
 
-					// availableRolesListBox =
-					// rolesListBox - selectedRolesListBox
-					availableRolesListBox.clear();
-					for (int i = 0; i < rolesListBox.getItemCount(); i++) {
-						String role = rolesListBox.getValue(i);
-						boolean isSelected = false;
-						for (int j = 0; j < selectedRolesListBox.getItemCount(); j++) {
-							if (selectedRolesListBox.getValue(j).equals(role)) {
-								isSelected = true;
+					Timer t = new Timer() {
+						public void run() {
+							if (rolesListBox.getItemCount() > 0) {
+								cancel();
+								// availableRolesListBox =
+								// rolesListBox - selectedRolesListBox
+								availableRolesListBox.clear();
+								for (int i = 0; i < rolesListBox.getItemCount(); i++) {
+									String role = rolesListBox.getValue(i);
+									boolean isSelected = false;
+									for (int j = 0; j < selectedRolesListBox.getItemCount(); j++) {
+										if (selectedRolesListBox.getValue(j).equals(role)) {
+											isSelected = true;
+										}
+									}
+									if (!isSelected) {
+										availableRolesListBox.addItem(role);
+									}
+								}
 							}
 						}
-						if (!isSelected) {
-							availableRolesListBox.addItem(role);
-						}
-					}
+					};
+					t.scheduleRepeating(100);
 				}
 			});
 		} catch (RequestException e) {
@@ -326,21 +338,29 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 						selectedMembersListBox.addItem(user);
 					}
 
-					// availableMembersListBox =
-					// usersListBox - selectedMembersListBox
-					availableMembersListBox.clear();
-					for (int i = 0; i < usersListBox.getItemCount(); i++) {
-						String user = usersListBox.getValue(i);
-						boolean isSelected = false;
-						for (int j = 0; j < selectedMembersListBox.getItemCount(); j++) {
-							if (selectedMembersListBox.getValue(j).equals(user)) {
-								isSelected = true;
+					Timer t = new Timer() {
+						public void run() {
+							if (usersListBox.getItemCount() > 0) {
+								cancel();
+								// availableMembersListBox =
+								// usersListBox - selectedMembersListBox
+								availableMembersListBox.clear();
+								for (int i = 0; i < usersListBox.getItemCount(); i++) {
+									String user = usersListBox.getValue(i);
+									boolean isSelected = false;
+									for (int j = 0; j < selectedMembersListBox.getItemCount(); j++) {
+										if (selectedMembersListBox.getValue(j).equals(user)) {
+											isSelected = true;
+										}
+									}
+									if (!isSelected) {
+										availableMembersListBox.addItem(user);
+									}
+								}
 							}
 						}
-						if (!isSelected) {
-							availableMembersListBox.addItem(user);
-						}
-					}
+					};
+					t.scheduleRepeating(100);
 				}
 			});
 		} catch (RequestException e) {
