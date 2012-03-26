@@ -376,6 +376,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 				public void onResponseReceived(Request request, Response response) {
 					getRolesForUser(userName);
+					initializeAvailableRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()));
 				}
 			});
 		} catch (RequestException e) {
@@ -391,6 +392,8 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 				public void onResponseReceived(Request request, Response response) {
 					getUsersInRole(roleName);
+					initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
+					
 				}
 			});
 		} catch (RequestException e) {
