@@ -64,6 +64,14 @@ public interface ITenantManager {
    */
   List<RepositoryFile> getChildTenants(final String parentPath);
   
+  /**
+   * Gets children tenants of the "parentFolderId" tenant.  Returns only level one children.  Not descendants
+   * 
+   * @param parentFolderId - Serializable that represents the folder id of the parent tenant
+   * @return List of children that are subTenants of the parent tenant.
+   */
+  List<RepositoryFile> getChildTenants(final Serializable parentFolderId);
+  
   // ~ Modify Tenant ===================================================================
   /**
    * Updates tenant with the items in tenant info.  Each item must be a "well-know" attribute
