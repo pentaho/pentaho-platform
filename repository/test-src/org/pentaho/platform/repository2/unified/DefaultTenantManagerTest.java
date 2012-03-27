@@ -237,13 +237,23 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
     assertTrue(isTenanted);
     boolean isTenantEnabled = tenantManager.isTenantEnabled(tenantRoot.getId());
     assertTrue(isTenantEnabled);
+    RepositoryFile subTenantRoot = tenantManager.createTenant(TENANT_ID_ACME, TENANT_ID_APPLE);
+    isTenanted = tenantManager.isTenantRoot(subTenantRoot.getId());
+    assertTrue(isTenanted);
+    isTenantEnabled = tenantManager.isTenantEnabled(subTenantRoot.getId());
+    
     login(USERNAME_JOE, TENANT_ID_ACME);
     List<RepositoryFile> children = repo.getChildren(tenantRoot.getId());
     assertTrue(children.size() > 0);
+    
+    // The below code won't work until we can log-in to sub tenants
+    
+//    children = repo.getChildren(subTenantRoot.getId());
+//    assertTrue(children.size() > 0);
   }
   
   @Test
-  public void TestEnableDisableTenant() {
+  public void testEnableDisableTenant() {
     manager.startup();
     setUpRoleBindings();
     RepositoryFile tenantRoot = tenantManager.createTenant("", TENANT_ID_ACME);
@@ -258,7 +268,7 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
   }
   
   @Test
-  public void TestIsTenantRoot() {
+  public void testIsTenantRoot() {
     manager.startup();
     setUpRoleBindings();
     RepositoryFile tenantRoot = tenantManager.createTenant("", TENANT_ID_ACME);
@@ -271,4 +281,5 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
       assertTrue(!tenantManager.isTenantRoot(aFile.getId()));
     }
   }
+  
 }
