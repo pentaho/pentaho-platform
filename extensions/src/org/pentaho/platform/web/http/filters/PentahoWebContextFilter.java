@@ -17,23 +17,20 @@
 */
 package org.pentaho.platform.web.http.filters;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IPentahoRequestContext;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.util.messages.LocaleHelper;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * If the request is searching for a webcontext.js, it writes out the content of the webcontext.js
@@ -77,6 +74,14 @@ public class PentahoWebContextFilter implements Filter {
         out.write(webContext.getBytes());
         out.write(fullyQualifiedUrl.getBytes());
 
+        // Compute the effective locale and set it in the global scope. Also provide it as a module if the RequireJs
+        // system is available.
+        Locale effectiveLocale = LocaleHelper.getLocale();
+        if (!StringUtils.isEmpty(request.getParameter("locale"))) {
+          effectiveLocale = new Locale(request.getParameter("locale"));
+        }
+        printLocale(effectiveLocale, out);
+
         // print global resources defined in plugins
         printResourcesForContext(GLOBAL, out, httpRequest, false);
         
@@ -97,6 +102,14 @@ public class PentahoWebContextFilter implements Filter {
       chain.doFilter(httpRequest, httpResponse);
       return;      
     }
+  }
+
+  private void printLocale(Locale effectiveLocale, OutputStream out) throws IOException{
+    StringBuilder sb = new StringBuilder("<!-- Providing computed Locale for session -->\n")
+        .append("var SESSION_LOCALE = '" + effectiveLocale.toString() + "';\n")         // Global variable
+        // If RequireJs is available, supply a module
+        .append("if(pen && pen.define){pen.define('Locale', {locale:'" + effectiveLocale.toString() + "'})};");
+    out.write(sb.toString().getBytes());
   }
 
   private void printResourcesForContext(String contextName,  OutputStream out, HttpServletRequest request, boolean printCssOnly) throws IOException {
