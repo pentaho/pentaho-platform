@@ -48,6 +48,7 @@ public class EmailAdminPanel extends SimplePanel {
 	protected CheckBox debuggingCheckBox;
 	protected Button saveButton;
 	protected Button editPasswordButton;
+	protected Button testButton;
 	protected VerticalPanel authenticationPanel;
 
 	public EmailAdminPanel() {
@@ -106,10 +107,6 @@ public class EmailAdminPanel extends SimplePanel {
 		useStartTLSCheckBox = new CheckBox(Messages.getString("useStartTLS"));
 		mailPanel.add(useStartTLSCheckBox);	
 		
-		//vSpacer = new SimplePanel();
-		//vSpacer.setHeight("10px");
-		//mailPanel.add(vSpacer);		
-
 		useSSLCheckBox = new CheckBox(Messages.getString("useSSL"));
 		mailPanel.add(useSSLCheckBox);
 		
@@ -173,9 +170,20 @@ public class EmailAdminPanel extends SimplePanel {
 		vSpacer.setHeight("55px");
 		mailPanel.add(vSpacer);
 
+		HorizontalPanel buttonsPanel = new HorizontalPanel();
+		mailPanel.add(buttonsPanel);
+		
 		saveButton = new Button(Messages.getString("save"));
 		saveButton.setStylePrimaryName("pentaho-button");
-		mailPanel.add(saveButton);
+		buttonsPanel.add(saveButton);
+
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("280px");
+		buttonsPanel.add(hSpacer);
+		
+		testButton = new Button(Messages.getString("test"));
+		testButton.setStylePrimaryName("pentaho-button");
+		buttonsPanel.add(testButton);
 
 		return mailPanel;
 	}

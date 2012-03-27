@@ -51,6 +51,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		saveButton.addClickHandler(new SaveButtonChangeListener());
 		authenticationCheckBox.addValueChangeHandler(new AuthenticateChangeHandler());
 		editPasswordButton.addClickHandler(new EditPasswordListener());
+		testButton.addClickHandler(new EmailTestButtonChangeListener());
 		smtpHostTextBox.addKeyUpHandler(new AuthenticationHandler());
 		portTextBox.addKeyUpHandler(new AuthenticationHandler());
 		fromAddressTextBox.addKeyUpHandler(new AuthenticationHandler());
@@ -232,6 +233,24 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 		public void onValueChange(ValueChangeEvent<Boolean> value) {
 			saveButton.setEnabled(isValid());
+		}
+	}
+
+	class EmailTestButtonChangeListener implements ClickHandler {
+		public void onClick(ClickEvent event) {
+			String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/sendEmailTest";
+			RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
+			try {
+				executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+					public void onError(Request request, Throwable exception) {
+					}
+
+					public void onResponseReceived(Request request, Response response) {
+						Window.alert(response.getText());
+					}
+				});
+			} catch (RequestException e) {
+			}
 		}
 	}
 }
