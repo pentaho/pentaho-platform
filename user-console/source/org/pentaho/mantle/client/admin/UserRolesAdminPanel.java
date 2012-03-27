@@ -188,7 +188,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		availableRolesPanel.add(availableRolesListBox);
 		availableRolesListBox.setVisibleItemCount(20);
 		availableRolesListBox.setWidth("200px");
-		availableRolesListBox.setHeight("285px");
+		availableRolesListBox.setHeight("281px");
 
 		VerticalPanel vSpacer = new VerticalPanel();
 		vSpacer.setWidth("15px");
@@ -230,7 +230,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		selectedRolesPanel.add(selectedRolesListBox);
 		selectedRolesListBox.setVisibleItemCount(20);
 		selectedRolesListBox.setWidth("200px");
-		selectedRolesListBox.setHeight("285px");
+		selectedRolesListBox.setHeight("281px");
 
 		return mainPanel;
 	}
