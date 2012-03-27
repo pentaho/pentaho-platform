@@ -254,19 +254,46 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#getChildTenants(java.lang.String)
    */
   @Override
-  public List<RepositoryFile> getChildTenants(String parentPath) {
-    RepositoryFile tenantParentFolder = repositoryFileDao.getFile(parentPath);
-    // TODO check to see if this file is a tenant root directory.. it should be
-    List<RepositoryFile> children = new ArrayList<RepositoryFile>();
-    List<RepositoryFile> allChildren = repositoryFileDao.getChildren(tenantParentFolder.getId(), null);
-    for (RepositoryFile repoFile : allChildren) {
-      if (isTenantRoot(repoFile.getId())) {
-        children.add(repoFile);
-      }
+  public List<RepositoryFile> getChildTenants(final String parentPath) {
+    IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
+    PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
+    Serializable parentFolderId;
+    try {
+        parentFolderId = (Serializable) txnTemplate.execute(new TransactionCallback() {
+        public Object doInTransaction(final TransactionStatus status) {
+          RepositoryFile tenantParentFolder = repositoryFileDao.getFileByAbsolutePath(DefaultTenantManager.this.getParentPath(parentPath));
+          return tenantParentFolder.getId();
+        }
+      });
+    } finally {
+      PentahoSessionHolder.setSession(origPentahoSession);
     }
-    return children;
+    return getChildTenants(parentFolderId);
   }
 
+  public List<RepositoryFile> getChildTenants(final Serializable parentFolderId) {
+    IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
+    PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
+    try {
+      return (List<RepositoryFile>) txnTemplate.execute(new TransactionCallback() {
+        public Object doInTransaction(final TransactionStatus status) {
+          RepositoryFile tenantParentFolder = repositoryFileDao.getFileById(parentFolderId);
+          assert(isTenantRoot(tenantParentFolder.getId()));
+          List<RepositoryFile> children = new ArrayList<RepositoryFile>();
+          List<RepositoryFile> allChildren = repositoryFileDao.getChildren(tenantParentFolder.getId(), null);
+          for (RepositoryFile repoFile : allChildren) {
+            if (isTenantRoot(repoFile.getId())) {
+              children.add(repoFile);
+            }
+          }
+          return children;
+        }
+      });
+    } finally {
+      PentahoSessionHolder.setSession(origPentahoSession);
+    }    
+  }
+  
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#updateTentant(java.lang.String, java.util.Map)
    */
@@ -438,7 +465,7 @@ public class DefaultTenantManager implements ITenantManager {
     }
   }
 
-  private String getParentPath(String parentPath) {
+  String getParentPath(String parentPath) {
     if (parentPath != null && parentPath.length() > 0) {
       return ServerRepositoryPaths.getPentahoRootFolderPath() + RepositoryFile.SEPARATOR + parentPath + RepositoryFile.SEPARATOR;
     } else {
@@ -446,7 +473,7 @@ public class DefaultTenantManager implements ITenantManager {
     }
   }
   
-  private String getTenantPath(String parentPath, String tenantName) {
+  String getTenantPath(String parentPath, String tenantName) {
     return getParentPath(parentPath) + tenantName;
   }
 

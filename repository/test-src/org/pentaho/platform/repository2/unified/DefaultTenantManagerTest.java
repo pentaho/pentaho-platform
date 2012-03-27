@@ -75,6 +75,7 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
   private final String USERNAME_JOE = "joe";
   private final String TENANT_ID_ACME = "acme";
   private final String TENANT_ID_APPLE = "apple";
+  private final String TENANT_ID_MICROSOFT = "microsoft";
   
   // ~ Instance fields =================================================================================================
 
@@ -241,6 +242,7 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
     isTenanted = tenantManager.isTenantRoot(subTenantRoot.getId());
     assertTrue(isTenanted);
     isTenantEnabled = tenantManager.isTenantEnabled(subTenantRoot.getId());
+    assertTrue(isTenantEnabled);
     
     login(USERNAME_JOE, TENANT_ID_ACME);
     List<RepositoryFile> children = repo.getChildren(tenantRoot.getId());
@@ -282,4 +284,28 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
     }
   }
   
+  @Test
+  public void testGetChildrenTenants() {
+    manager.startup();
+    setUpRoleBindings();
+    RepositoryFile tenantRoot = tenantManager.createTenant("", TENANT_ID_ACME);
+    assertNotNull(tenantRoot);
+    assertEquals(tenantRoot.getName(), TENANT_ID_ACME);
+    boolean isTenanted = tenantManager.isTenantRoot(tenantRoot.getId());
+    assertTrue(isTenanted);
+    boolean isTenantEnabled = tenantManager.isTenantEnabled(tenantRoot.getId());
+    assertTrue(isTenantEnabled);
+    RepositoryFile subTenantRoot1 = tenantManager.createTenant(TENANT_ID_ACME, TENANT_ID_APPLE);
+    isTenanted = tenantManager.isTenantRoot(subTenantRoot1.getId());
+    assertTrue(isTenanted);
+    isTenantEnabled = tenantManager.isTenantEnabled(subTenantRoot1.getId());
+    assertTrue(isTenantEnabled);
+    RepositoryFile subTenantRoot2 = tenantManager.createTenant(TENANT_ID_ACME, TENANT_ID_MICROSOFT);
+    isTenanted = tenantManager.isTenantRoot(subTenantRoot2.getId());
+    assertTrue(isTenanted);
+    isTenantEnabled = tenantManager.isTenantEnabled(subTenantRoot2.getId());
+    assertTrue(isTenantEnabled);
+    List<RepositoryFile> tenantChildren = tenantManager.getChildTenants(TENANT_ID_ACME);
+    assertTrue(tenantChildren.size() == 2);
+  }
 }
