@@ -109,4 +109,13 @@ public class EmailResource extends AbstractJaxRSResource {
 
 		return emailData.toString();
 	}
+	
+	@GET
+	@Path("/sendEmailTest")
+	@Consumes({ WILDCARD })
+	@Produces({ MediaType.TEXT_PLAIN })
+	public String sendEmailTest() throws Exception {
+		EmailTester emailTester = new EmailTester();
+		return emailTester.performTest();
+	}
 }
