@@ -72,8 +72,7 @@
     <dependency org="xerces" name="xercesImpl" rev="2.9.1">
       <exclude org="xml-apis" name="xml-apis"/>
     </dependency>
-    <dependency org="xml-apis" name="xml-apis" rev="1.0.b2"/>
-    <!--  Changede rev:2.0.2 to rev:1.0.b2 as the maven2 pom indicates this should be so -->
+    <dependency org="xml-apis" name="xml-apis" rev="1.4.01"/>
 
     <dependency org="dom4j" name="dom4j" rev="1.6.1" transitive="false"/>
     <dependency org="wsdl4j" name="wsdl4j" rev="1.6.2" transitive="false"/>
@@ -234,6 +233,7 @@
     <dependency org="org.apache.hbase" name="hbase" rev="${dependency.apache-hbase.revision}" conf="default->default" transitive="false"/>
     <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.3.2" conf="default->default" transitive="false"/>
     <dependency org="postgresql" name="postgresql" rev="8.4-702.jdbc3" conf="default->default" transitive="false"/>
+    <dependency org="org.apache.hadoop"        name="hadoop-snappy"      rev="0.0.1-SNAPSHOT"           conf="default->default" transitive="false"/>
 
 
     <!-- kettle jdbc drivers -->
@@ -246,7 +246,7 @@
     <dependency org="ifxjdbc" name="ifxjdbc" rev="20050429" conf="default->default" transitive="false"/>
     <dependency org="jaybird" name="jaybird-full" rev="2.1.0" conf="default->default" transitive="false"/>
     <dependency org="com.sap" name="sapdbc" rev="7.4.4" conf="default->default" transitive="false"/>
-    <dependency org="monetdb" name="monetdb-jdbc" rev="1.7" conf="default->default" transitive="false"/>
+    <dependency org="monetdb" name="monetdb-jdbc" rev="2.1" conf="default->default" transitive="false"/>
     <dependency org="luciddb" name="LucidDbClient-minimal" rev="0.9.4" conf="default->default" transitive="false"/>
     <dependency org="interbase" name="interclient" rev="20050506" conf="default->default" transitive="false"/>
     <dependency org="org.apache.hadoop.hive" name="hive-jdbc" rev="${dependency.hive-jdbc.revision}" changing="true"
