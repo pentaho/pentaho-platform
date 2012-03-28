@@ -108,7 +108,7 @@ public class PentahoWebContextFilter implements Filter {
     StringBuilder sb = new StringBuilder("<!-- Providing computed Locale for session -->\n")
         .append("var SESSION_LOCALE = '" + effectiveLocale.toString() + "';\n")         // Global variable
         // If RequireJs is available, supply a module
-        .append("if(pen && pen.define){pen.define('Locale', {locale:'" + effectiveLocale.toString() + "'})};");
+        .append("if(typeof(pen) != 'undefined' && pen.define){pen.define('Locale', {locale:'" + effectiveLocale.toString() + "'})};");
     out.write(sb.toString().getBytes());
   }
 
