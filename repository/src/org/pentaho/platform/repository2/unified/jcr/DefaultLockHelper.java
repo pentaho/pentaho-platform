@@ -15,9 +15,10 @@
 package org.pentaho.platform.repository2.unified.jcr;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.regex.Matcher;
+import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -32,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.TenantUtils;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.springframework.util.Assert;
 
@@ -57,12 +59,11 @@ public class DefaultLockHelper implements ILockHelper {
 
   private static final String FOLDER_NAME_LOCK_TOKENS = ".lockTokens"; //$NON-NLS-1$
 
-  private static final String LOCK_OWNER_INFO_SEPARATOR = ":"; //$NON-NLS-1$
+  private static final char LOCK_OWNER_INFO_SEPARATOR = ':';
 
-  /**
-   * Match ":" not preceded by "\". Uses a negative lookbehind.s
-   */
-  private static final String LOCK_OWNER_INFO_SEPARATOR_REGEX = "(?<!\\\\)\\:"; //$NON-NLS-1$
+  private static final String LOCK_OWNER_INFO_SEPARATOR_REGEX = "\\" + LOCK_OWNER_INFO_SEPARATOR; //$NON-NLS-1$
+
+  private static final List<Character> RESERVED_CHARS = Arrays.asList(new Character[] { LOCK_OWNER_INFO_SEPARATOR });
 
   private static final Log logger =
       LogFactory.getLog(DefaultLockHelper.class);
@@ -276,42 +277,36 @@ public class DefaultLockHelper implements ILockHelper {
     if (in == null || in.trim().equals("")) { //$NON-NLS-1$
       return ""; //$NON-NLS-1$
     }
-    // replace all \ with \\
-    String tmp = in.replaceAll("\\\\", Matcher.quoteReplacement("\\\\")); //$NON-NLS-1$ //$NON-NLS-2$
-    // replace all : with \:
-    return tmp.replaceAll("\\:", Matcher.quoteReplacement("\\:")); //$NON-NLS-1$ //$NON-NLS-2$
+    return RepositoryFilenameUtils.escape(in, RESERVED_CHARS);
   }
 
   private static String unescape(final String in) {
     if (in == null || in.trim().equals("")) { //$NON-NLS-1$
       return ""; //$NON-NLS-1$
     }
-    // replace all \: with :
-    String tmp = in.replaceAll("\\\\:", Matcher.quoteReplacement(":")); //$NON-NLS-1$ //$NON-NLS-2$
-    // replace all \\ with \
-    return tmp.replaceAll("\\\\\\\\", Matcher.quoteReplacement("\\")); //$NON-NLS-1$//$NON-NLS-2$
+    return RepositoryFilenameUtils.unescape(in);
   }
 
-//  public static void main(final String[] args) {
-    //    System.out.println("'" + escape(null) + "'");
-    //    System.out.println("'" + escape("") + "'");
-    //    System.out.println("'" + escape("hello") + "'");
-    //    System.out.println("'" + escape("hell:o") + "'");
-    //    System.out.println("'" + escape("hello:") + "'");
-    //    System.out.println("'" + escape(":hello") + "'");
-    //    System.out.println("'" + escape("hell::o") + "'");
-    //    System.out.println("'" + escape("hell\\::o") + "'");
-    //
-    //    System.out.println("'" + unescape(null) + "'");
-    //    System.out.println("'" + unescape("") + "'");
-    //    System.out.println("'" + unescape("hello") + "'");
-    //    System.out.println("'" + unescape("hell\\:o") + "'");
-    //    System.out.println("'" + unescape("hello\\:") + "'");
-    //    System.out.println("'" + unescape("\\:hello") + "'");
-    //    System.out.println("'" + unescape("hell\\:\\:o") + "'");
-    //    System.out.println("'" + unescape("hell\\\\:\\:o") + "'");
-    //    
-//    System.out.println(Arrays.toString("su\\:zy:1332272120111:lock within versioned folder"
-//        .split(LOCK_OWNER_INFO_SEPARATOR_REGEX)));
-//  }
+//    public static void main(final String[] args) {
+//      System.out.println("'" + escape(null) + "'");
+//      System.out.println("'" + escape("") + "'");
+//      System.out.println("'" + escape("hello") + "'");
+//      System.out.println("'" + escape("hell:o") + "'");
+//      System.out.println("'" + escape("hello:") + "'");
+//      System.out.println("'" + escape(":hello") + "'");
+//      System.out.println("'" + escape("hell::o") + "'");
+//      System.out.println("'" + escape("hell\\::o") + "'");
+//  
+//      System.out.println("'" + unescape(null) + "'");
+//      System.out.println("'" + unescape("") + "'");
+//      System.out.println("'" + unescape("hello") + "'");
+//      System.out.println("'" + unescape("hell\\:o") + "'");
+//      System.out.println("'" + unescape("hello\\:") + "'");
+//      System.out.println("'" + unescape("\\:hello") + "'");
+//      System.out.println("'" + unescape("hell\\:\\:o") + "'");
+//      System.out.println("'" + unescape("hell\\\\:\\:o") + "'");
+//      
+//      System.out.println(Arrays.toString("su%3Azy:1332272120111:lock within versioned folder"
+//          .split(LOCK_OWNER_INFO_SEPARATOR_REGEX)));
+//    }
 }

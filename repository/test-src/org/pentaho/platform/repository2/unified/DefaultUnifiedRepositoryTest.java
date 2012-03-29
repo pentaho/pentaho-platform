@@ -976,7 +976,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNull(newFile.getLockDate());
     assertNull(newFile.getLockMessage());
     assertNull(newFile.getLockOwner());
-    final String lockMessage = "test by Mat";
+    final String lockMessage = "test by :Mat";
     repo.lockFile(newFile.getId(), lockMessage);
 
     // verify no new versions were created on locking
@@ -984,7 +984,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     assertTrue(SimpleJcrTestUtils.isLocked(testJcrTemplate, serverPath));
     String ownerInfo = SimpleJcrTestUtils.getString(testJcrTemplate, serverPath + "/jcr:lockOwner");
-    assertEquals(lockMessage, ownerInfo.split(":")[2]);
+    assertEquals("test by %3AMat", ownerInfo.split(":")[2]);
     assertNotNull(new Date(Long.parseLong(ownerInfo.split(":")[1])));
 
     // test update while locked
