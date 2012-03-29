@@ -228,8 +228,16 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
   }
 
   @Test
+  public void testCreateSystemTenant() {
+    RepositoryFile systemTenant = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderPath());
+    assertNotNull(systemTenant);
+    assert(ServerRepositoryPaths.getPentahoRootFolderPath().endsWith(systemTenant.getName()));
+  }
+  
+  @Test
   public void testCreateTenant() {
-    manager.startup();
+    tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderPath());
+//    manager.startup();
     setUpRoleBindings();
     RepositoryFile tenantRoot = tenantManager.createTenant("", TENANT_ID_ACME);
     assertNotNull(tenantRoot);
@@ -256,7 +264,8 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
   
   @Test
   public void testEnableDisableTenant() {
-    manager.startup();
+    tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderPath());
+//    manager.startup();
     setUpRoleBindings();
     RepositoryFile tenantRoot = tenantManager.createTenant("", TENANT_ID_ACME);
     assertNotNull(tenantRoot);
@@ -271,7 +280,8 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
   
   @Test
   public void testIsTenantRoot() {
-    manager.startup();
+    tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderPath());
+//    manager.startup();
     setUpRoleBindings();
     RepositoryFile tenantRoot = tenantManager.createTenant("", TENANT_ID_ACME);
     assertNotNull(tenantRoot);
@@ -286,7 +296,8 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
   
   @Test
   public void testGetChildrenTenants() {
-    manager.startup();
+//    manager.startup();
+    tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderPath());
     setUpRoleBindings();
     RepositoryFile tenantRoot = tenantManager.createTenant("", TENANT_ID_ACME);
     assertNotNull(tenantRoot);
