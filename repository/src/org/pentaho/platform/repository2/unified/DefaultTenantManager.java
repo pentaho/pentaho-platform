@@ -68,11 +68,6 @@ public class DefaultTenantManager implements ITenantManager {
    */
   protected String singleTenantAuthenticatedAuthorityName;
 
-  /**
-   * When not using multi-tenancy, this value is used as opposed to {@link tenantAdminAuthorityPattern}.
-   */
-  protected String singleTenantAdminAuthorityName;
-
   protected TransactionTemplate txnTemplate;
 
   protected IRepositoryFileDao repositoryFileDao;
@@ -271,6 +266,7 @@ public class DefaultTenantManager implements ITenantManager {
     return getChildTenants(parentFolderId);
   }
 
+  @Override
   public List<RepositoryFile> getChildTenants(final Serializable parentFolderId) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
