@@ -14,16 +14,22 @@
  */
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.jcr.Credentials;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.ValueFactory;
 import javax.jcr.Workspace;
+import javax.jcr.nodetype.NodeTypeDefinition;
+import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.observation.ObservationManager;
 
 import org.slf4j.Logger;
@@ -43,7 +49,8 @@ import org.springframework.util.Assert;
 /**
  * Copy-and-paste of {@link JcrSessionFactory} except that this implementation delegates to a 
  * {@link CredentialsStrategy} implementation for getting a {@link Credentials} instance. Also has fixes from 
- * <a href="http://jira.springframework.org/browse/SEJCR-18">SEJCR-18</a>.
+ * <a href="http://jira.springframework.org/browse/SEJCR-18">SEJCR-18</a>. Also getBareSession changed to 
+ * getAdminSession and runs as Jackrabbit admin.
  * 
  * @author mlowery
  */
@@ -55,8 +62,10 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
   private Repository repository;
 
   private String workspaceName;
-  
+
   private CredentialsStrategy credentialsStrategy = new ConstantCredentialsStrategy();
+
+  private CredentialsStrategy adminCredentialsStrategy = new ConstantCredentialsStrategy();
 
   private EventListenerDefinition eventListeners[] = new EventListenerDefinition[] {};
 
@@ -80,25 +89,28 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    */
   private SessionHolderProvider sessionHolderProvider;
 
+  private List<NodeTypeDefinitionProvider> nodeTypeDefinitionProviders;
+
   /**
    * Constructor with all the required fields.
    * @param repository
    * @param workspaceName
    * @param credentials
    */
-  public CredentialsStrategySessionFactory(Repository repository, CredentialsStrategy credentialsStrategy) {
-      this(repository, null, credentialsStrategy, null);
+  public CredentialsStrategySessionFactory(Repository repository, CredentialsStrategy credentialsStrategy,
+      CredentialsStrategy adminCredentialsStrategy) {
+    this(repository, null, credentialsStrategy, adminCredentialsStrategy, null);
   }
 
-  
   /**
    * Constructor with all the required fields.
    * @param repository
    * @param workspaceName
    * @param credentials
    */
-  public CredentialsStrategySessionFactory(Repository repository, String workspaceName, CredentialsStrategy credentialsStrategy) {
-      this(repository, workspaceName, credentialsStrategy, null);
+  public CredentialsStrategySessionFactory(Repository repository, String workspaceName,
+      CredentialsStrategy credentialsStrategy, CredentialsStrategy adminCredentialsStrategy) {
+    this(repository, workspaceName, credentialsStrategy, adminCredentialsStrategy, null);
   }
 
   /**
@@ -108,38 +120,64 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @param credentials
    * @param sessionHolderProviderManager
    */
-  public CredentialsStrategySessionFactory(Repository repository, String workspaceName, CredentialsStrategy credentialsStrategy, SessionHolderProviderManager sessionHolderProviderManager) {
-      this.repository = repository;
-      this.workspaceName = workspaceName;
-      this.credentialsStrategy = credentialsStrategy;
-      this.sessionHolderProviderManager = sessionHolderProviderManager;
+  public CredentialsStrategySessionFactory(Repository repository, String workspaceName,
+      CredentialsStrategy credentialsStrategy, CredentialsStrategy adminCredentialsStrategy,
+      SessionHolderProviderManager sessionHolderProviderManager) {
+    this.repository = repository;
+    this.workspaceName = workspaceName;
+    this.credentialsStrategy = credentialsStrategy;
+    this.adminCredentialsStrategy = adminCredentialsStrategy;
+    this.sessionHolderProviderManager = sessionHolderProviderManager;
   }
 
   public void afterPropertiesSet() throws Exception {
-      Assert.notNull(getRepository(), "repository is required");
+    Assert.notNull(getRepository(), "repository is required");
 
-      if (eventListeners != null && eventListeners.length > 0 && !JcrUtils.supportsObservation(getRepository()))
-          throw new IllegalArgumentException("repository " + getRepositoryInfo() + " does NOT support Observation; remove Listener definitions");
+    if (eventListeners != null && eventListeners.length > 0 && !JcrUtils.supportsObservation(getRepository()))
+      throw new IllegalArgumentException("repository " + getRepositoryInfo()
+          + " does NOT support Observation; remove Listener definitions");
 
-      registerNamespaces();
-      registerNodeTypes();
+    registerNamespaces();
+    registerNodeTypes();
 
-
-      // determine the session holder provider
-      if (sessionHolderProviderManager == null) {
-          if (LOG.isDebugEnabled())
-              LOG.debug("no session holder provider manager set; using the default one");
-          sessionHolderProvider = new GenericSessionHolderProvider();
-      } else
-          sessionHolderProvider = sessionHolderProviderManager.getSessionProvider(getRepository());
+    // determine the session holder provider
+    if (sessionHolderProviderManager == null) {
+      if (LOG.isDebugEnabled())
+        LOG.debug("no session holder provider manager set; using the default one");
+      sessionHolderProvider = new GenericSessionHolderProvider();
+    } else
+      sessionHolderProvider = sessionHolderProviderManager.getSessionProvider(getRepository());
   }
 
-  /**
-   * Hook for registering node types on the underlying repository. Since this process is not covered by the
-   * spec, each implementation requires its own subclass. By default, this method doesn't do anything.
+  /*
+   * (non-Javadoc)
+   * @see org.springframework.extensions.jcr.JcrSessionFactory#registerNodeTypes()
    */
   protected void registerNodeTypes() throws Exception {
-      // do nothing
+    if (!nodeTypeDefinitionProviders.isEmpty()) {
+      Session session = null;
+      try {
+        session = getAdminSession();
+        Workspace ws = session.getWorkspace();
+        NodeTypeManager ntMgr = ws.getNodeTypeManager();
+        ValueFactory vFac = session.getValueFactory();
+        List<NodeTypeDefinition> ntds = new ArrayList<NodeTypeDefinition>();
+        for (NodeTypeDefinitionProvider nodeTypeDefinitionProvider : nodeTypeDefinitionProviders) {
+          ntds.add(nodeTypeDefinitionProvider.getNodeTypeDefinition(ntMgr, vFac));
+        }
+        ntMgr.registerNodeTypes(ntds.toArray(new NodeTypeDefinition[0]), true);
+      } catch (RepositoryException ex) {
+        LOG.error("Error registering nodetypes ", ex.getCause());
+      } finally {
+        if (session != null) {
+          session.logout();
+        }
+      }
+    }
+  }
+
+  public void setNodeTypeDefinitionProviders(final List<NodeTypeDefinitionProvider> nodeTypeDefinitionProviders) {
+    this.nodeTypeDefinitionProviders = nodeTypeDefinitionProviders;
   }
 
   /**
@@ -147,7 +185,7 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * the spec, each implementation requires its own subclass. By default, this method doesn't do anything.
    */
   protected void unregisterNodeTypes() throws Exception {
-      // do nothing
+    // do nothing
   }
 
   /**
@@ -157,70 +195,70 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    */
   protected void registerNamespaces() throws Exception {
 
-      if (namespaces == null || namespaces.isEmpty())
-          return;
+    if (namespaces == null || namespaces.isEmpty())
+      return;
 
-      if (LOG.isDebugEnabled())
-          LOG.debug("registering custom namespaces " + namespaces);
+    if (LOG.isDebugEnabled())
+      LOG.debug("registering custom namespaces " + namespaces);
 
-        Session session = getBareSession();
-        NamespaceRegistry registry = session.getWorkspace().getNamespaceRegistry();
+    Session session = getAdminSession();
+    NamespaceRegistry registry = session.getWorkspace().getNamespaceRegistry();
 
-      // do the lookup, so we avoid exceptions
-      String[] prefixes = registry.getPrefixes();
-      // sort the array
-      Arrays.sort(prefixes);
+    // do the lookup, so we avoid exceptions
+    String[] prefixes = registry.getPrefixes();
+    // sort the array
+    Arrays.sort(prefixes);
 
-      // unregister namespaces if told so
-      if (forceNamespacesRegistration) {
+    // unregister namespaces if told so
+    if (forceNamespacesRegistration) {
 
-          // save the old namespace only if it makes sense
-          if (!keepNewNamespaces)
-              overwrittenNamespaces = new HashMap<String, String>(namespaces.size());
+      // save the old namespace only if it makes sense
+      if (!keepNewNamespaces)
+        overwrittenNamespaces = new HashMap<String, String>(namespaces.size());
 
-          // search occurences
-          for (Object key : namespaces.keySet()) {
-              String prefix = (String) key;
-              int position = Arrays.binarySearch(prefixes, prefix);
-              if (position >= 0) {
-                  if (LOG.isDebugEnabled()) {
-                      LOG.debug("prefix " + prefix + " was already registered; unregistering it");
-                  }
-                  if (!keepNewNamespaces) {
-                      // save old namespace
-                      overwrittenNamespaces.put(prefix, registry.getURI(prefix));
-                  }
-                  registry.unregisterNamespace(prefix);
-                  // postpone registration for later
-              }
+      // search occurences
+      for (Object key : namespaces.keySet()) {
+        String prefix = (String) key;
+        int position = Arrays.binarySearch(prefixes, prefix);
+        if (position >= 0) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("prefix " + prefix + " was already registered; unregistering it");
           }
-      }
-
-      // do the registration
-      for (Map.Entry entry : namespaces.entrySet()) {
-          Map.Entry<String, String> namespace = (Map.Entry<String, String>) entry;
-          String prefix = (String) namespace.getKey();
-          String ns = (String) namespace.getValue();
-
-          int position = Arrays.binarySearch(prefixes, prefix);
-
-          if (skipExistingNamespaces && position >= 0) {
-              LOG.debug("namespace already registered under [" + prefix + "]; skipping registration");
-          } else {
-              LOG.debug("registering namespace [" + ns + "] under [" + prefix + "]");
-              registry.registerNamespace(prefix, ns);
+          if (!keepNewNamespaces) {
+            // save old namespace
+            overwrittenNamespaces.put(prefix, registry.getURI(prefix));
           }
+          registry.unregisterNamespace(prefix);
+          // postpone registration for later
+        }
       }
+    }
 
-        session.logout();
+    // do the registration
+    for (Map.Entry entry : namespaces.entrySet()) {
+      Map.Entry<String, String> namespace = (Map.Entry<String, String>) entry;
+      String prefix = (String) namespace.getKey();
+      String ns = (String) namespace.getValue();
+
+      int position = Arrays.binarySearch(prefixes, prefix);
+
+      if (skipExistingNamespaces && position >= 0) {
+        LOG.debug("namespace already registered under [" + prefix + "]; skipping registration");
+      } else {
+        LOG.debug("registering namespace [" + ns + "] under [" + prefix + "]");
+        registry.registerNamespace(prefix, ns);
+      }
+    }
+
+    session.logout();
   }
 
   /**
    * @see org.springframework.beans.factory.DisposableBean#destroy()
    */
   public void destroy() throws Exception {
-      unregisterNamespaces();
-      unregisterNodeTypes();
+    unregisterNamespaces();
+    unregisterNodeTypes();
   }
 
   /**
@@ -229,33 +267,33 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    */
   protected void unregisterNamespaces() throws Exception {
 
-      if (namespaces == null || namespaces.isEmpty() || keepNewNamespaces)
-          return;
+    if (namespaces == null || namespaces.isEmpty() || keepNewNamespaces)
+      return;
 
+    if (LOG.isDebugEnabled())
+      LOG.debug("unregistering custom namespaces " + namespaces);
+
+    NamespaceRegistry registry = getSession().getWorkspace().getNamespaceRegistry();
+
+    for (Object key : namespaces.keySet()) {
+      String prefix = (String) key;
+      registry.unregisterNamespace(prefix);
+    }
+
+    if (forceNamespacesRegistration) {
       if (LOG.isDebugEnabled())
-          LOG.debug("unregistering custom namespaces " + namespaces);
-
-      NamespaceRegistry registry = getSession().getWorkspace().getNamespaceRegistry();
-
-      for (Object key : namespaces.keySet()) {
-          String prefix = (String) key;
-          registry.unregisterNamespace(prefix);
-      }
-
-      if (forceNamespacesRegistration) {
-          if (LOG.isDebugEnabled())
-              LOG.debug("reverting back overwritten namespaces " + overwrittenNamespaces);
-          if (overwrittenNamespaces != null)
-              for (Map.Entry<String, String> entry : overwrittenNamespaces.entrySet()) {
-                  Map.Entry<String, String> namespace = (Map.Entry<String, String>) entry;
-                  registry.registerNamespace((String) namespace.getKey(), (String) namespace.getValue());
-              }
-      }
+        LOG.debug("reverting back overwritten namespaces " + overwrittenNamespaces);
+      if (overwrittenNamespaces != null)
+        for (Map.Entry<String, String> entry : overwrittenNamespaces.entrySet()) {
+          Map.Entry<String, String> namespace = (Map.Entry<String, String>) entry;
+          registry.registerNamespace((String) namespace.getKey(), (String) namespace.getValue());
+        }
+    }
   }
 
-  protected Session getBareSession() throws RepositoryException {
-      Session session = repository.login(null, workspaceName);
-      return session;
+  protected Session getAdminSession() throws RepositoryException {
+    Session session = repository.login(adminCredentialsStrategy.getCredentials(), workspaceName);
+    return session;
   }
 
   /**
@@ -274,7 +312,7 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @see org.springframework.extensions.jcr.SessionFactory#getSessionHolder(javax.jcr.Session)
    */
   public SessionHolder getSessionHolder(Session session) {
-      return sessionHolderProvider.createSessionHolder(session);
+    return sessionHolderProvider.createSessionHolder(session);
   }
 
   /**
@@ -284,50 +322,51 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @return the listened session
    */
   protected Session addListeners(Session session) throws RepositoryException {
-      if (eventListeners != null && eventListeners.length > 0) {
-          Workspace ws = session.getWorkspace();
-          ObservationManager manager = ws.getObservationManager();
-          if (LOG.isDebugEnabled())
-              LOG.debug("adding listeners " + Arrays.asList(eventListeners).toString() + " for session " + session);
+    if (eventListeners != null && eventListeners.length > 0) {
+      Workspace ws = session.getWorkspace();
+      ObservationManager manager = ws.getObservationManager();
+      if (LOG.isDebugEnabled())
+        LOG.debug("adding listeners " + Arrays.asList(eventListeners).toString() + " for session " + session);
 
-          for (int i = 0; i < eventListeners.length; i++) {
-              manager.addEventListener(eventListeners[i].getListener(), eventListeners[i].getEventTypes(), eventListeners[i].getAbsPath(), eventListeners[i].isDeep(), eventListeners[i].getUuid(),
-                      eventListeners[i].getNodeTypeName(), eventListeners[i].isNoLocal());
-          }
+      for (int i = 0; i < eventListeners.length; i++) {
+        manager.addEventListener(eventListeners[i].getListener(), eventListeners[i].getEventTypes(),
+            eventListeners[i].getAbsPath(), eventListeners[i].isDeep(), eventListeners[i].getUuid(),
+            eventListeners[i].getNodeTypeName(), eventListeners[i].isNoLocal());
       }
-      return session;
+    }
+    return session;
   }
 
   /**
    * @return Returns the repository.
    */
   public Repository getRepository() {
-      return repository;
+    return repository;
   }
 
   /**
    * @param repository The repository to set.
    */
   public void setRepository(Repository repository) {
-      this.repository = repository;
+    this.repository = repository;
   }
 
   /**
    * @param workspaceName The workspaceName to set.
    */
   public void setWorkspaceName(String workspaceName) {
-      this.workspaceName = workspaceName;
+    this.workspaceName = workspaceName;
   }
 
   /**
    * @see java.lang.Object#equals(java.lang.Object)
    */
   public boolean equals(Object obj) {
-      if (this == obj)
-          return true;
-      if (obj instanceof JcrSessionFactory)
-          return (this.hashCode() == obj.hashCode());
-      return false;
+    if (this == obj)
+      return true;
+    if (obj instanceof JcrSessionFactory)
+      return (this.hashCode() == obj.hashCode());
+    return false;
 
   }
 
@@ -335,39 +374,39 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @see java.lang.Object#hashCode()
    */
   public int hashCode() {
-      int result = 17;
-      result = 37 * result + repository.hashCode();
-      // add the optional params (can be null)
-      if (workspaceName != null)
-          result = 37 * result + workspaceName.hashCode();
+    int result = 17;
+    result = 37 * result + repository.hashCode();
+    // add the optional params (can be null)
+    if (workspaceName != null)
+      result = 37 * result + workspaceName.hashCode();
 
-      return result;
+    return result;
   }
 
   /**
    * @see java.lang.Object#toString()
    */
   public String toString() {
-      StringBuffer buffer = new StringBuffer();
-      buffer.append("SessionFactory for ");
-      buffer.append(getRepositoryInfo());
-      buffer.append("|workspace=");
-      buffer.append(workspaceName);
-      return buffer.toString();
+    StringBuffer buffer = new StringBuffer();
+    buffer.append("SessionFactory for ");
+    buffer.append(getRepositoryInfo());
+    buffer.append("|workspace=");
+    buffer.append(workspaceName);
+    return buffer.toString();
   }
 
   /**
    * @return Returns the eventListenerDefinitions.
    */
   public EventListenerDefinition[] getEventListeners() {
-      return eventListeners;
+    return eventListeners;
   }
 
   /**
    * @param eventListenerDefinitions The eventListenerDefinitions to set.
    */
   public void setEventListeners(EventListenerDefinition[] eventListenerDefinitions) {
-      this.eventListeners = eventListenerDefinitions;
+    this.eventListeners = eventListenerDefinitions;
   }
 
   /**
@@ -375,29 +414,29 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @return
    */
   private String getRepositoryInfo() {
-      // in case toString() is called before afterPropertiesSet()
-      if (getRepository() == null)
-          return "<N/A>";
+    // in case toString() is called before afterPropertiesSet()
+    if (getRepository() == null)
+      return "<N/A>";
 
-      StringBuffer buffer = new StringBuffer();
-      buffer.append(getRepository().getDescriptor(Repository.REP_NAME_DESC));
-      buffer.append(" ");
-      buffer.append(getRepository().getDescriptor(Repository.REP_VERSION_DESC));
-      return buffer.toString();
+    StringBuffer buffer = new StringBuffer();
+    buffer.append(getRepository().getDescriptor(Repository.REP_NAME_DESC));
+    buffer.append(" ");
+    buffer.append(getRepository().getDescriptor(Repository.REP_VERSION_DESC));
+    return buffer.toString();
   }
 
   /**
    * @return Returns the namespaces.
    */
   public Properties getNamespaces() {
-      return namespaces;
+    return namespaces;
   }
 
   /**
    * @param namespaces The namespaces to set.
    */
   public void setNamespaces(Properties namespaces) {
-      this.namespaces = namespaces;
+    this.namespaces = namespaces;
   }
 
   /**
@@ -405,7 +444,7 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @return Returns the sessionHolderProvider.
    */
   protected SessionHolderProvider getSessionHolderProvider() {
-      return sessionHolderProvider;
+    return sessionHolderProvider;
   }
 
   /**
@@ -413,21 +452,21 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @param sessionHolderProvider The sessionHolderProvider to set.
    */
   protected void setSessionHolderProvider(SessionHolderProvider sessionHolderProvider) {
-      this.sessionHolderProvider = sessionHolderProvider;
+    this.sessionHolderProvider = sessionHolderProvider;
   }
 
   /**
    * @return Returns the sessionHolderProviderManager.
    */
   public SessionHolderProviderManager getSessionHolderProviderManager() {
-      return sessionHolderProviderManager;
+    return sessionHolderProviderManager;
   }
 
   /**
    * @param sessionHolderProviderManager The sessionHolderProviderManager to set.
    */
   public void setSessionHolderProviderManager(SessionHolderProviderManager sessionHolderProviderManager) {
-      this.sessionHolderProviderManager = sessionHolderProviderManager;
+    this.sessionHolderProviderManager = sessionHolderProviderManager;
   }
 
   /**
@@ -438,7 +477,7 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @param keepNamespaces The keepNamespaces to set.
    */
   public void setKeepNewNamespaces(boolean keepNamespaces) {
-      this.keepNewNamespaces = keepNamespaces;
+    this.keepNewNamespaces = keepNamespaces;
   }
 
   /**
@@ -451,7 +490,7 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @param forceNamespacesRegistration The forceNamespacesRegistration to set.
    */
   public void setForceNamespacesRegistration(boolean forceNamespacesRegistration) {
-      this.forceNamespacesRegistration = forceNamespacesRegistration;
+    this.forceNamespacesRegistration = forceNamespacesRegistration;
   }
 
   /**
@@ -466,35 +505,35 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @param skipRegisteredNamespace The skipRegisteredNamespace to set.
    */
   public void setSkipExistingNamespaces(boolean skipRegisteredNamespace) {
-      this.skipExistingNamespaces = skipRegisteredNamespace;
+    this.skipExistingNamespaces = skipRegisteredNamespace;
   }
 
   /**
    * @return Returns the forceNamespacesRegistration.
    */
   public boolean isForceNamespacesRegistration() {
-      return forceNamespacesRegistration;
+    return forceNamespacesRegistration;
   }
 
   /**
    * @return Returns the keepNewNamespaces.
    */
   public boolean isKeepNewNamespaces() {
-      return keepNewNamespaces;
+    return keepNewNamespaces;
   }
 
   /**
    * @return Returns the skipExistingNamespaces.
    */
   public boolean isSkipExistingNamespaces() {
-      return skipExistingNamespaces;
+    return skipExistingNamespaces;
   }
 
   /**
    * @return Returns the workspaceName.
    */
   public String getWorkspaceName() {
-      return workspaceName;
+    return workspaceName;
   }
 
 }

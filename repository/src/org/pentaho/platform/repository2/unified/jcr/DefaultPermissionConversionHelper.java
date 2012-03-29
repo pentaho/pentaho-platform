@@ -12,22 +12,24 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  */
-package org.pentaho.platform.repository2.unified.jcr.jackrabbit;
+package org.pentaho.platform.repository2.unified.jcr;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.security.Privilege;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.api.jsr283.security.Privilege;
-import org.apache.jackrabbit.core.SessionImpl;
-import org.apache.jackrabbit.core.security.authorization.PrivilegeRegistry;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.repository2.unified.jcr.jackrabbit.JackrabbitRepositoryFileAclDao.IPermissionConversionHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclDao.IPermissionConversionHelper;
 import org.springframework.util.Assert;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
@@ -58,12 +60,11 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
 
   // ~ Methods =========================================================================================================
 
-  public Privilege[] pentahoPermissionsToJackrabbitPrivileges(final SessionImpl jrSession,
+  public Privilege[] pentahoPermissionsToPrivileges(final Session session,
       final EnumSet<RepositoryFilePermission> permissions) throws RepositoryException {
-    Assert.notNull(jrSession);
+    Assert.notNull(session);
     Assert.notNull(permissions);
     Assert.notEmpty(permissions);
-    PrivilegeRegistry privilegeRegistry = new PrivilegeRegistry(jrSession);
 
     Set<Privilege> privileges = new HashSet<Privilege>();
 
@@ -71,7 +72,7 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
       if (permissionEnumToPrivilegeNamesMap.containsKey(currentPermission)) {
         Collection<String> privNames = permissionEnumToPrivilegeNamesMap.get(currentPermission);
         for (String privName : privNames) {
-          privileges.add(privilegeRegistry.getPrivilege(privName));
+          privileges.add(session.getAccessControlManager().privilegeFromName(privName));
         }
       } else {
         logger.debug("skipping permission=" + currentPermission + " as it doesn't have any corresponding privileges");  //$NON-NLS-1$//$NON-NLS-2$
@@ -83,21 +84,42 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
     return privileges.toArray(new Privilege[0]);
   }
 
-  public EnumSet<RepositoryFilePermission> jackrabbitPrivilegesToPentahoPermissions(final SessionImpl jrSession,
+  public EnumSet<RepositoryFilePermission> privilegesToPentahoPermissions(final Session session,
       final Privilege[] privileges) throws RepositoryException {
-    Assert.notNull(jrSession);
+    Assert.notNull(session);
     Assert.notNull(privileges);
 
     EnumSet<RepositoryFilePermission> permissions = EnumSet.noneOf(RepositoryFilePermission.class);
 
-    for (Privilege privilege : privileges) {
+    // find all aggregate privileges and expand
+    Set<Privilege> expandedPrivileges = new HashSet<Privilege>();
+    expandedPrivileges.addAll(Arrays.asList(privileges));
+    while (true) {
+      boolean foundAggregatePrivilege = false;
+      Set<Privilege> iterable = new HashSet<Privilege>(expandedPrivileges);
+      for (Privilege privilege : iterable) {
+        // expand privilege if not a standard JCR privilege
+        if (!privilege.getName().startsWith("jcr:")) { //$NON-NLS-1$
+          if (privilege.isAggregate()) {
+            expandedPrivileges.remove(privilege);
+            expandedPrivileges.addAll(Arrays.asList(privilege.getAggregatePrivileges()));
+            foundAggregatePrivilege = true;
+          }
+        }
+      }
+      if (!foundAggregatePrivilege) {
+        break;
+      }
+    }
+    
+    for (Privilege privilege : expandedPrivileges) {
       // this privilege name is of the format xyz:blah where xyz is the namespace prefix;
-      // convert it to match the Privilege.JCR_* string constants from Jackrabbit
+      // convert it to match the Privilege.JCR_* string constants
       String extendedPrivilegeName = privilege.getName();
       String privilegeName = privilege.getName();
       int colonIndex = privilegeName.indexOf(":"); //$NON-NLS-1$
       if (colonIndex > -1) {
-        String namespaceUri = jrSession.getNamespaceURI(privilegeName.substring(0, colonIndex));
+        String namespaceUri = session.getNamespaceURI(privilegeName.substring(0, colonIndex));
         extendedPrivilegeName = "{" + namespaceUri + "}" + privilegeName.substring(colonIndex + 1); //$NON-NLS-1$ //$NON-NLS-2$
       }
 
@@ -123,7 +145,8 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
     // READ
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.READ, Privilege.JCR_READ);
     // WRITE
-    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, PrivilegeRegistry.REP_WRITE);
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_WRITE);
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_NODE_TYPE_MANAGEMENT);
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_VERSION_MANAGEMENT);
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_LOCK_MANAGEMENT);
     // READ_ACL
@@ -138,8 +161,12 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_READ, RepositoryFilePermission.READ);
     // JCR_WRITE
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_WRITE, RepositoryFilePermission.WRITE);
-    // REP_WRITE (Jackrabbit's combination of Privilege.JCR_WRITE and Privilege.JCR_NODE_TYPE_MNGMT
-    privilegeNameToPermissionEnumsMap.put(PrivilegeRegistry.REP_WRITE, RepositoryFilePermission.WRITE);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_MODIFY_PROPERTIES, RepositoryFilePermission.WRITE);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_ADD_CHILD_NODES, RepositoryFilePermission.WRITE);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_REMOVE_NODE, RepositoryFilePermission.WRITE);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_REMOVE_CHILD_NODES, RepositoryFilePermission.WRITE);
+    // JCR_NODE_TYPE_MANAGEMENT
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_NODE_TYPE_MANAGEMENT, RepositoryFilePermission.WRITE);
     // JCR_READ_ACCESS_CONTROL
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_READ_ACCESS_CONTROL, RepositoryFilePermission.READ_ACL);
     // JCR_MODIFY_ACCESS_CONTROL
@@ -151,6 +178,8 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
     // JCR_NODE_TYPE_MANAGEMENT
     // JCR_VERSION_MANAGEMENT
     // JCR_LOCK_MANAGEMENT
+    // JCR_RETENTION_MANAGEMENT
+    // JCR_LIFECYCLE_MANAGEMENT
   }
 
 }

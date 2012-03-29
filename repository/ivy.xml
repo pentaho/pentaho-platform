@@ -63,16 +63,14 @@
 		<dependency org="net.sf.ehcache"    name="ehcache-core" rev="2.5.1"    transitive="false"/>
 		<dependency org="cglib"             name="cglib"        rev="2.2"    transitive="false"/>
 
-		<!-- Jackrabbit Repository -->
-		<dependency org="org.apache.jackrabbit" name="jackrabbit-api"             rev="1.6.0" transitive="false"/>
-		<dependency org="org.apache.jackrabbit" name="jackrabbit-core"            rev="1.6.0" transitive="false"/>
-		<dependency org="org.apache.jackrabbit" name="jackrabbit-jcr-commons"     rev="1.6.0" transitive="false"/>
-		<dependency org="org.apache.jackrabbit" name="jackrabbit-jca"             rev="1.5.4" transitive="false"/>
-		<dependency org="org.apache.jackrabbit" name="jackrabbit-spi"             rev="1.6.0" transitive="false"/>
-		<dependency org="org.apache.jackrabbit" name="jackrabbit-spi-commons"     rev="1.6.0" transitive="false"/>
-		<dependency org="org.apache.jackrabbit" name="jackrabbit-text-extractors" rev="1.6.0" transitive="false"/>
+		<!-- begin JCR/Jackrabbit -->
+		<dependency org="org.apache.jackrabbit"    name="jackrabbit-core"            rev="2.4.0" />
+    <dependency org="org.springframework"      name="se-jcr"                     rev="0.9" transitive="false" />
+    <dependency org="javax.jcr"        name="jcr"                          rev="2.0"        transitive="false"/>
+    <dependency org="javax.transaction"        name="jta"                          rev="1.1"        transitive="false"/>
+    <!-- end JCR/Jackrabbit -->
+
 		<dependency org="org.springframework"          name="spring"                 rev="2.5.6"         transitive="false"/>
-		<dependency org="org.springframework"          name="se-jcr"                 rev="0.9"           transitive="false"/>
 		<dependency org="org.springframework"          name="spring-beans"           rev="2.5.6"         transitive="false"/>
 		<dependency org="org.springframework"          name="spring-context"         rev="2.5.6"         transitive="false"/>
 		<dependency org="org.springframework"          name="spring-context-support" rev="2.5.6"         transitive="false"/>
@@ -80,10 +78,7 @@
 		<dependency org="org.springframework.security" name="spring-security-core"   rev="2.0.5.RELEASE" transitive="false"/>
 		<dependency org="org.springframework"          name="spring-web"             rev="2.5.6"         transitive="false"/>
 		<dependency org="org.springframework"          name="spring-webmvc"          rev="2.5.6"         transitive="false"/>
-		<dependency org="geronimo-spec"            name="geronimo-spec-jta"            rev="1.0.1B-rc4" transitive="false"/>
-		<dependency org="geronimo-spec"            name="geronimo-spec-j2ee-connector" rev="1.5-rc4"    transitive="false"/>
-		<dependency org="javax.jcr"                name="jcr"                          rev="1.0"        transitive="false"/>
-		<dependency org="javax.transaction"        name="jta"                          rev="1.1"        transitive="false"/>
+
 		<dependency org="aopalliance"              name="aopalliance"                  rev="1.0"        transitive="false"/>
 		<dependency org="concurrent"               name="concurrent"                   rev="1.3.4"      transitive="false"/>
 		<dependency org="org.apache.derby"         name="derby"                        rev="10.2.1.6"   transitive="false"/>

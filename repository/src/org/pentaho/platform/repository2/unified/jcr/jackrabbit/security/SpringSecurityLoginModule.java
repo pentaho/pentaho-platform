@@ -16,7 +16,10 @@ package org.pentaho.platform.repository2.unified.jcr.jackrabbit.security;
 
 import java.security.Principal;
 import java.security.acl.Group;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
 import javax.jcr.Credentials;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -26,28 +29,41 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jackrabbit.core.security.authentication.AbstractLoginModule;
 import org.apache.jackrabbit.core.security.authentication.Authentication;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
+import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.messages.Messages;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.util.Assert;
 
 /**
- * A Jackrabbit {@code LoginModule} that delegates to a Spring Security {@link AuthenticationManager}.
+ * A Jackrabbit {@code LoginModule} that delegates to a Spring Security {@link AuthenticationManager}. Also, adds more
+ * checks to the pre-authentication scenario.
  * 
  * @author mlowery
  */
-public class SpringSecurityLoginModule extends AbstractPentahoLoginModule {
+public class SpringSecurityLoginModule extends AbstractLoginModule {
 
   // ~ Static fields/initializers ======================================================================================
 
   private static final Log logger = LogFactory.getLog(SpringSecurityLoginModule.class);
+  
+  /**
+   * Comma separated list of known tokens. If a Credentials instance has a preauthentication token, it must match one 
+   * of the values in this list. Ideally, there is a token per application. In this way, other applications are 
+   * unaffected should a token have to be blacklisted.
+   */
+  private static final String KEY_PRE_AUTHENTICATION_TOKENS = "preAuthenticationTokens"; //$NON-NLS-1$
+
+  private static final String PRE_AUTHENTICATION_TOKEN_SEPARATOR = ","; //$NON-NLS-1$
 
   // ~ Instance fields =================================================================================================
 
   private AuthenticationManager authenticationManager;
+  
+  private static Set<String> preAuthenticationTokens = new HashSet<String>();
 
   // ~ Constructors ====================================================================================================
 
@@ -59,21 +75,28 @@ public class SpringSecurityLoginModule extends AbstractPentahoLoginModule {
 
   /**
    * {@inheritDoc}
-   * 
-   * <p>
-   * Searches in classpath for resource named {@code beanRefFactory.xml} which contains a single bean which is itself
-   * a bean factory. That bean factory (and all beans in it) are created once. Pattern copied from 
-   * {@code JbossSpringSecurityLoginModule}.
-   * </p>
-   * 
-   * @see SingletonBeanFactoryLocator
    */
   @Override
   protected void doInit(final CallbackHandler callbackHandler, final Session session, final Map options)
       throws LoginException {
-    // call superclass to setup pre-authentication
-    super.doInit(callbackHandler, session, options);
+    
+    if (options.containsKey(KEY_PRE_AUTHENTICATION_TOKENS)) {
 
+      String preAuthenticationTokensString = (String) options.get(KEY_PRE_AUTHENTICATION_TOKENS);
+      String[] tokens = preAuthenticationTokensString.split(PRE_AUTHENTICATION_TOKEN_SEPARATOR);
+
+      if (tokens.length == 0) {
+        throw new LoginException(Messages.getInstance().getString(
+            "AbstractPentahoLoginModule.ERROR_0001_PRE_AUTH_TOKENS_MALFORMED", KEY_PRE_AUTHENTICATION_TOKENS)); //$NON-NLS-1$
+      }
+
+      for (String token : tokens) {
+        preAuthenticationTokens.add(token.trim());
+      }
+
+      logger.debug("preAuthenticationTokens=" + preAuthenticationTokens); //$NON-NLS-1$
+    }
+    
     authenticationManager = getAuthenticationManager(callbackHandler, session, options);
   }
 
@@ -158,5 +181,27 @@ public class SpringSecurityLoginModule extends AbstractPentahoLoginModule {
       LoginException {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  protected boolean isPreAuthenticated(final Credentials creds) {
+    if (super.isPreAuthenticated(creds)) {
+      SimpleCredentials simpleCreds = (SimpleCredentials) creds;
+      String preAuth = (String) simpleCreds.getAttribute(getPreAuthAttributeName());
+      boolean preAuthenticated = preAuthenticationTokens.contains(preAuth);
+      if (preAuthenticated) {
+        if (logger.isDebugEnabled()) {
+          logger.debug(simpleCreds.getUserID() + " is pre-authenticated"); //$NON-NLS-1$
+        }
+      } else {
+        if (logger.isDebugEnabled()) {
+          logger.debug("pre-authentication token rejected"); //$NON-NLS-1$
+        }
+      }
+      return preAuthenticated;
+    }
+    return false;
+  }
+  
+  
 
 }

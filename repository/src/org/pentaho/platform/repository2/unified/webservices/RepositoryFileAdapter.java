@@ -62,10 +62,6 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     if (v.getVersionId() != null) {
       f.versionId = v.getVersionId().toString();
     }
-    if (v.getOwner() != null) {
-      f.owner = v.getOwner().getName();
-      f.ownerType = v.getOwner().getType() != null ? v.getOwner().getType().ordinal() : -1;
-    }
     if (v.getTitleMap() != null) {
       f.titleMapEntries = new ArrayList<StringKeyStringValueDto>();
       for (Map.Entry<String, String> entry : v.getTitleMap().entrySet()) {
@@ -121,7 +117,7 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
         .lastModificationDate(v.lastModifiedDate).locale(v.locale).lockDate(v.lockDate).locked(v.locked).lockMessage(
             v.lockMessage).lockOwner(v.lockOwner).title(v.title).versioned(v.versioned).versionId(v.versionId)
         .originalParentFolderPath(v.originalParentFolderPath)
-        .deletedDate(v.deletedDate).owner(owner).hidden(v.hidden).build();
+        .deletedDate(v.deletedDate).hidden(v.hidden).build();
   }
 
 }

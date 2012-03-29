@@ -15,6 +15,9 @@
 package org.pentaho.platform.repository2.unified.jcr.sejcr;
 
 import javax.jcr.Credentials;
+import javax.jcr.SimpleCredentials;
+
+import org.springframework.util.Assert;
 
 /**
  * Uses hard-coded credentials.
@@ -23,7 +26,17 @@ import javax.jcr.Credentials;
  */
 public class ConstantCredentialsStrategy implements CredentialsStrategy {
 
+  // ~ Static fields/initializers ======================================================================================
+
+  private static final String ATTR_PRE_AUTHENTICATION_TOKEN = "pre_authentication_token"; //$NON-NLS-1$
+
+  private static final char[] PASSWORD = "ignored".toCharArray(); //$NON-NLS-1$
+  
+  // ~ Instance fields =================================================================================================
+
   private Credentials credentials;
+  
+  // ~ Constructors ====================================================================================================
 
   /**
    * Null credentials.
@@ -36,6 +49,16 @@ public class ConstantCredentialsStrategy implements CredentialsStrategy {
     super();
     this.credentials = credentials;
   }
+  
+  public ConstantCredentialsStrategy(final String userID, final String preAuthenticationToken) {
+    Assert.hasText(userID);
+    Assert.hasText(preAuthenticationToken);
+    SimpleCredentials creds = new SimpleCredentials(userID, PASSWORD);
+    creds.setAttribute(ATTR_PRE_AUTHENTICATION_TOKEN, preAuthenticationToken);
+    this.credentials = creds;
+  }
+  // ~ Methods =========================================================================================================
+
 
   public Credentials getCredentials() {
     return credentials;

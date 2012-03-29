@@ -42,8 +42,6 @@ public class PentahoJcrConstants extends JcrConstants {
    */
   public static final String PHO_MIX_NS = "http://www.pentaho.org/jcr/mix/1.0"; //$NON-NLS-1$
 
-  private static final String PHO_MIX_LOCKABLE = "pentahoLockable"; //$NON-NLS-1$
-
   private static final String PHO_MIX_VERSIONABLE = "pentahoVersionable"; //$NON-NLS-1$
 
   private static final String PHO_NT_PENTAHOFILE = "pentahoFile"; //$NON-NLS-1$
@@ -60,10 +58,6 @@ public class PentahoJcrConstants extends JcrConstants {
 
   private static final String PHO_LASTMODIFIED = "lastModified"; //$NON-NLS-1$
 
-  public static final String PHO_LOCKMESSAGE = "lockMessage"; //$NON-NLS-1$
-
-  public static final String PHO_LOCKDATE = "lockDate"; //$NON-NLS-1$
-
   public static String PHO_CONTENTCREATOR = "contentCreator";  //$NON-NLS-1$
 
   private static final String PHO_LOCKEDNODEREF = "lockedNodeRef"; //$NON-NLS-1$
@@ -75,10 +69,8 @@ public class PentahoJcrConstants extends JcrConstants {
   private static final String PHO_VERSIONAUTHOR = "versionAuthor"; //$NON-NLS-1$
 
   private static final String PHO_VERSIONMESSAGE = "versionMessage"; //$NON-NLS-1$
-
-  private static final String PHO_ACLOWNERNAME = "aclOwnerName"; //$NON-NLS-1$
   
-  private static final String PHO_ACLOWNERTYPE = "aclOwnerType"; //$NON-NLS-1$
+  private static final String PHO_ACLCHANGEONLY = "aclChangeOnly"; //$NON-NLS-1$
 
   private static final String PHO_TITLE = "title"; //$NON-NLS-1$
 
@@ -120,11 +112,7 @@ public class PentahoJcrConstants extends JcrConstants {
   public String getPHO_NT_PENTAHOFILE() {
     return resolveName(PHO_NT_NS, PHO_NT_PENTAHOFILE);
   }
-
-  public String getPHO_MIX_LOCKABLE() {
-    return resolveName(PHO_MIX_NS, PHO_MIX_LOCKABLE);
-  }
-
+  
   public String getPHO_MIX_VERSIONABLE() {
     return resolveName(PHO_MIX_NS, PHO_MIX_VERSIONABLE);
   }
@@ -135,14 +123,6 @@ public class PentahoJcrConstants extends JcrConstants {
 
   public String getPHO_NT_LOCKTOKENSTORAGE() {
     return resolveName(PHO_NT_NS, PHO_NT_LOCKTOKENSTORAGE);
-  }
-
-  public String getPHO_LOCKMESSAGE() {
-    return resolveName(PHO_NS, PHO_LOCKMESSAGE);
-  }
-
-  public String getPHO_LOCKDATE() {
-    return resolveName(PHO_NS, PHO_LOCKDATE);
   }
 
   public String getPHO_LOCKEDNODEREF() {
@@ -159,14 +139,6 @@ public class PentahoJcrConstants extends JcrConstants {
 
   public String getPHO_VERSIONMESSAGE() {
     return resolveName(PHO_NS, PHO_VERSIONMESSAGE);
-  }
-
-  public String getPHO_ACLOWNERNAME() {
-    return resolveName(PHO_NS, PHO_ACLOWNERNAME);
-  }
-
-  public String getPHO_ACLOWNERTYPE() {
-    return resolveName(PHO_NS, PHO_ACLOWNERTYPE);
   }
 
   public String getPHO_LASTMODIFIED() {
@@ -227,6 +199,10 @@ public class PentahoJcrConstants extends JcrConstants {
   
   public String getPHO_ORIGNAME() {
     return resolveName(PHO_NS, PHO_ORIGNAME);
+  }
+
+  public String getPHO_ACLCHANGEONLY() {
+    return resolveName(PHO_NS, PHO_ACLCHANGEONLY);
   }
 
 }

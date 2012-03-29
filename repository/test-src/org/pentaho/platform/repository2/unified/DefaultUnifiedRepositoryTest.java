@@ -14,6 +14,13 @@
  */
 package org.pentaho.platform.repository2.unified;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.Serializable;
@@ -28,9 +35,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.jcr.security.Privilege;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.jackrabbit.api.jsr283.security.Privilege;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -82,13 +90,6 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Integration test. Tests {@link DefaultUnifiedRepository} and {@link IAuthorizationPolicy} fully configured behind 
@@ -300,6 +301,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // pentaho root folder
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath(),
         Privilege.JCR_READ));
+    // TODO mlowery possible issue
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath(),
         Privilege.JCR_READ_ACCESS_CONTROL));
 
@@ -311,8 +313,9 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // tenant root folder
     // there is no ace that gives authenticated acme users access to /pentaho/acme; it's in logic on the server
     assertFalse(repo.getAcl(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId()).isEntriesInheriting());
+    // TODO mlowery possible issue
     assertLocalAclEmpty(repo.getFile(ClientRepositoryPaths.getRootFolderPath()));
-    assertEquals(repositoryAdminSid, repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getOwner());
+    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId()).getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath(),
         Privilege.JCR_READ));
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath(),
@@ -323,7 +326,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()), acmeAuthenticatedAuthoritySid,
         EnumSet.of(RepositoryFilePermission.WRITE, RepositoryFilePermission.WRITE_ACL, RepositoryFilePermission.READ,
             RepositoryFilePermission.READ_ACL));
-    assertEquals(repositoryAdminSid, repo.getFile(ClientRepositoryPaths.getPublicFolderPath()).getOwner());
+    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()).getId()).getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
         Privilege.JCR_READ));
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
@@ -335,7 +338,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertFalse(repo.getAcl(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getId()).isEntriesInheriting());
     assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()), acmeAuthenticatedAuthoritySid,
         EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
-    assertEquals(repositoryAdminSid, repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getOwner());
+    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getId()).getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantHomeFolderPath(),
         Privilege.JCR_READ));
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantHomeFolderPath(),
@@ -344,7 +347,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // tenant etc folder
     assertTrue(repo.getAcl(repo.getFile(ClientRepositoryPaths.getEtcFolderPath()).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(ClientRepositoryPaths.getEtcFolderPath()));
-    assertEquals(repositoryAdminSid, repo.getFile(ClientRepositoryPaths.getEtcFolderPath()).getOwner());
+    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getEtcFolderPath()).getId()).getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantEtcFolderPath(),
         Privilege.JCR_READ));
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantEtcFolderPath(),
@@ -355,7 +358,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         .isEntriesInheriting());
     assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)), suzySid, EnumSet
         .of(RepositoryFilePermission.ALL));
-    assertEquals(suzySid, repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)).getOwner());
+    assertEquals(suzySid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)).getId()).getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(),
         Privilege.JCR_ALL));
 
@@ -363,31 +366,31 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     final String pdiPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "pdi";
     assertFalse(repo.getAcl(repo.getFile(pdiPath).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(pdiPath));
-    assertEquals(repositoryAdminSid, repo.getFile(pdiPath).getOwner());
+    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(pdiPath).getId()).getOwner());
 
     // tenant etc/databases folder
     final String databasesPath = pdiPath + RepositoryFile.SEPARATOR + "databases";
     assertTrue(repo.getAcl(repo.getFile(databasesPath).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(databasesPath));
-    assertEquals(repositoryAdminSid, repo.getFile(databasesPath).getOwner());
+    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(databasesPath).getId()).getOwner());
 
     // tenant etc/slaveServers folder
     final String slaveServersPath = pdiPath + RepositoryFile.SEPARATOR + "slaveServers";
     assertTrue(repo.getAcl(repo.getFile(slaveServersPath).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(slaveServersPath));
-    assertEquals(repositoryAdminSid, repo.getFile(slaveServersPath).getOwner());
+    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(slaveServersPath).getId()).getOwner());
 
     // tenant etc/clusterSchemas folder
     final String clusterSchemasPath = pdiPath + RepositoryFile.SEPARATOR + "clusterSchemas";
     assertTrue(repo.getAcl(repo.getFile(clusterSchemasPath).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(clusterSchemasPath));
-    assertEquals(repositoryAdminSid, repo.getFile(clusterSchemasPath).getOwner());
+    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(clusterSchemasPath).getId()).getOwner());
 
     // tenant etc/partitionSchemas folder
     final String partitionSchemasPath = pdiPath + RepositoryFile.SEPARATOR + "partitionSchemas";
     assertTrue(repo.getAcl(repo.getFile(partitionSchemasPath).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(partitionSchemasPath));
-    assertEquals(repositoryAdminSid, repo.getFile(partitionSchemasPath).getOwner());
+    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(partitionSchemasPath).getId()).getOwner());
     
     login(USERNAME_JOE, TENANT_ID_ACME, true);
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(
@@ -980,8 +983,9 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(1, repo.getVersionSummaries(newFile.getId()).size());
 
     assertTrue(SimpleJcrTestUtils.isLocked(testJcrTemplate, serverPath));
-    assertEquals(lockMessage, SimpleJcrTestUtils.getString(testJcrTemplate, serverPath + "/pho:lockMessage"));
-    assertNotNull(SimpleJcrTestUtils.getDate(testJcrTemplate, serverPath + "/pho:lockDate"));
+    String ownerInfo = SimpleJcrTestUtils.getString(testJcrTemplate, serverPath + "/jcr:lockOwner");
+    assertEquals(lockMessage, ownerInfo.split(":")[2]);
+    assertNotNull(new Date(Long.parseLong(ownerInfo.split(":")[1])));
 
     // test update while locked
     repo.updateFile(repo.getFileById(newFile.getId()), content, "update by Mat");
@@ -996,6 +1000,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(USERNAME_SUZY, lockedFile.getLockOwner());
 
     login(USERNAME_SUZY, TENANT_ID_ACME);
+    assertTrue(repo.canUnlockFile(newFile.getId()));
     repo.unlockFile(newFile.getId());
 
     assertEquals(2, repo.getVersionSummaries(newFile.getId()).size());
@@ -1039,6 +1044,12 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       fail();
     } catch (UnifiedRepositoryException e) {
     }
+    
+    try {
+      repo.updateFile(repo.getFileById(newFile.getId()), content, "update by tiffany");
+      fail();
+    } catch (UnifiedRepositoryException e) {
+    }
 
   }
 
@@ -1060,6 +1071,9 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     List<RepositoryFile> deletedFiles = repo.getDeletedFiles(); 
     assertEquals(0, deletedFiles.size());
     repo.deleteFile(newFile.getId(), null);
+
+    deletedFiles = repo.getDeletedFiles(); 
+    assertEquals(1, deletedFiles.size());
     
     deletedFiles = repo.getDeletedFiles(parentFolder.getPath());
     assertEquals(1, deletedFiles.size());
@@ -1549,7 +1563,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     final String testFolderPath = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "test";
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
-    assertEquals(new RepositoryFileSid(USERNAME_SUZY), newFolder.getOwner());
+    assertEquals(new RepositoryFileSid(USERNAME_SUZY), repo.getAcl(newFolder.getId()).getOwner());
 
     // set acl removing suzy's rights to this folder
     login(USERNAME_JOE, TENANT_ID_ACME, true);
@@ -1559,6 +1573,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     repo.updateAcl(newAcl);
     // but suzy is still the owner--she should be able to "acl" herself back into the folder
     login(USERNAME_SUZY, TENANT_ID_ACME);
+    assertNotNull(repo.getFile(testFolderPath));
+    
+    // as suzy, change owner to role to which she belongs
+    testFolderAcl = repo.getAcl(repo.getFile(testFolderPath).getId());
+    newAcl = new RepositoryFileAcl.Builder(testFolderAcl).owner(new RepositoryFileSid("acme_Authenticated", 
+        RepositoryFileSid.Type.ROLE)).build();
+    repo.updateAcl(newAcl);
+    assertNotNull(repo.getFile(testFolderPath));
+    login(USERNAME_TIFFANY, TENANT_ID_ACME);
     assertNotNull(repo.getFile(testFolderPath));
   }
 
@@ -1580,6 +1603,11 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     RepositoryFileAcl fetchedAcl = repo.updateAcl(newAcl);
     // since isEntriesInheriting is true, ace addition should not have taken
     assertTrue(fetchedAcl.getAces().isEmpty());
+    newAcl = new RepositoryFileAcl.Builder(acl).ace(USERNAME_TIFFANY, RepositoryFileSid.Type.USER,
+        RepositoryFilePermission.READ).build(); // calling ace sets entriesInheriting to false
+    fetchedAcl = repo.updateAcl(newAcl);
+    // since isEntriesInheriting is false, ace addition should have taken
+    assertFalse(fetchedAcl.getAces().isEmpty());
   }
 
   @Test
@@ -1851,7 +1879,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   }
 
   @Test
-  public void testDeleteOwner() throws Exception {
+  public void testDeleteSid() throws Exception {
     TestPrincipalProvider.enableGeorgeAndDuff(true);
     try {
       manager.startup();
@@ -1866,13 +1894,14 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       newAclBuilder.entriesInheriting(false).aces(fetchedAces).ace(USERNAME_GEORGE, RepositoryFileSid.Type.USER,
           RepositoryFilePermission.ALL);
       repo.updateAcl(newAclBuilder.build());
-      TestPrincipalProvider.enableGeorgeAndDuff(false);
+      TestPrincipalProvider.enableGeorgeAndDuff(false); // simulate delete of george who is owner and explicitly in ACE
       RepositoryFile fetchedFile = repo.getFileById(newFile.getId());
-      assertEquals(USERNAME_GEORGE, fetchedFile.getOwner().getName());
-      assertEquals(RepositoryFileSid.Type.USER, fetchedFile.getOwner().getType());
+      assertEquals(USERNAME_GEORGE, repo.getAcl(fetchedFile.getId()).getOwner().getName());
+      assertEquals(RepositoryFileSid.Type.USER, repo.getAcl(fetchedFile.getId()).getOwner().getType());
       RepositoryFileAcl updatedAcl = repo.getAcl(newFile.getId());
       assertEquals("duff_Authenticated", updatedAcl.getAces().get(0).getSid().getName());
-      assertEquals(RepositoryFileSid.Type.ROLE, updatedAcl.getAces().get(0).getSid().getType());
+      // impl just assumes principal was a user; it does not record the sid type at creation
+      assertEquals(RepositoryFileSid.Type.USER, updatedAcl.getAces().get(0).getSid().getType());
       assertEquals(USERNAME_GEORGE, updatedAcl.getAces().get(1).getSid().getName());
       assertEquals(RepositoryFileSid.Type.USER, updatedAcl.getAces().get(1).getSid().getType());
       assertEquals(RepositoryFileSid.Type.USER, updatedAcl.getOwner().getType());
@@ -1881,11 +1910,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     }
   }
 
-  /**
-   * Non-owner can delete file out of public that is inheriting. (No delete access.)
-   */
   @Test
-  public void testJake() throws Exception {
+  public void testAdminCreate() throws Exception {
     manager.startup();
     setUpRoleBindings();
     login(USERNAME_JOE, TENANT_ID_ACME, true);
@@ -2062,7 +2088,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     repo.setFileMetadata(newFile1.getId(), metadataMap);
     savedMap = repo.getFileMetadata(newFile1.getId());
     assertTrue(savedMap.containsKey(key3));
-    assertEquals(value3, savedMap.get(key3));
+    assertEquals(value3.getTime().getTime(), ((Calendar) savedMap.get(key3)).getTime().getTime());
     
     metadataMap.put(key4, value4);
     repo.setFileMetadata(newFile1.getId(), metadataMap);
@@ -2152,6 +2178,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   @Test
   public void testGetReservedChars() throws Exception {
     assertFalse(repo.getReservedChars().isEmpty());
+  }
+  
+  public void testMagicAcesNotCached() throws Exception {
+    manager.startup();
+    login(USERNAME_SUZY, TENANT_ID_ACME); // creates suzy folder
+    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)));
+    login(USERNAME_JOE, TENANT_ID_ACME); // logging in as joe but as if he was stripped of acme_Admin role
+    assertNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)));
   }
   
   @Test(expected = AccessDeniedException.class)

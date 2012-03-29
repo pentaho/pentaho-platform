@@ -30,6 +30,8 @@ import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.EveryonePrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalIteratorAdapter;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclUtils;
+import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy.AclMetadataPrincipal;
 
 /**
  * PrincipalProvider for unit test purposes. Has joe and the other Pentaho users. In addition, it has the Jackrabbit 
@@ -105,6 +107,7 @@ public class TestPrincipalProvider implements PrincipalProvider {
     principals.put("acme_Admin", new SpringSecurityRolePrincipal("acme_Admin"));
     principals.put("duff_Authenticated", new SpringSecurityRolePrincipal("duff_Authenticated"));
     principals.put("duff_Admin", new SpringSecurityRolePrincipal("duff_Admin"));
+
   }
 
   public static void enableGeorgeAndDuff(final boolean enabled) {
@@ -129,6 +132,9 @@ public class TestPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    */
   public Principal getPrincipal(String principalName) {
+    if (AclMetadataPrincipal.isAclMetadataPrincipal(principalName)) {
+      return new AclMetadataPrincipal(principalName);
+    }
     if ("george".equals(principalName)) {
       if (georgeAndDuffEnabled) {
         return principals.get(principalName);
@@ -157,6 +163,9 @@ public class TestPrincipalProvider implements PrincipalProvider {
    */
   public PrincipalIterator getGroupMembership(Principal principal) {
     if (principal instanceof EveryonePrincipal) {
+      return PrincipalIteratorAdapter.EMPTY;
+    }
+    if (principal instanceof AclMetadataPrincipal) {
       return PrincipalIteratorAdapter.EMPTY;
     }
 

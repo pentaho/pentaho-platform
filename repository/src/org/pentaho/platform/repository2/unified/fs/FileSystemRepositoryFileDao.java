@@ -34,6 +34,7 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 
+@SuppressWarnings("nls")
 public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   private File rootDir = new File(System.getProperty("solution.root.dir", System.getProperty("user.dir")));
 
@@ -180,7 +181,6 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
           .lockDate(null)
           .lockMessage(null)
           .lockOwner(null)
-          .owner(null)
           .title(f.getName()).description(f.getName())
           .titleMap(null)
           .descriptionMap(null)

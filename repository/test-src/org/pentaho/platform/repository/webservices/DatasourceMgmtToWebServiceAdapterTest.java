@@ -28,6 +28,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
+@SuppressWarnings("nls")
 public class DatasourceMgmtToWebServiceAdapterTest  extends TestCase {
 
   private static final String EXP_DBMETA_NAME = "haha";

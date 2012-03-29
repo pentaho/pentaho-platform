@@ -102,7 +102,7 @@
   <!-- The username to use to do internal work for no particular user. -->
   <!-- See Jackrabbit repository.xml adminId -->
   <bean id="repositoryAdminUsername" class="java.lang.String">
-    <constructor-arg value="pentahoRepoAdmin"/>
+    <constructor-arg value="admin"/>
   </bean>
 
   <!-- This token allows Jackrabbit to trust that this application has already authenticated the user. -->
@@ -243,11 +243,17 @@
   </bean>
 
   <bean id="jcrSessionFactory"
-        class="org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategyJackrabbitSessionFactory">
+        class="org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory">
     <constructor-arg ref="jcrRepository"/>
     <constructor-arg>
       <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoSessionCredentialsStrategy">
         <constructor-arg ref="jcrPreAuthenticationToken"/>
+      </bean>
+    </constructor-arg>
+    <constructor-arg>
+      <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ConstantCredentialsStrategy">
+        <constructor-arg ref="repositoryAdminUsername" />
+        <constructor-arg ref="jcrPreAuthenticationToken" />
       </bean>
     </constructor-arg>
     <property name="namespaces">
@@ -258,17 +264,15 @@
       </props>
     </property>
     <!-- order matters! -->
-    <property name="nodeDefinitions">
+    <property name="nodeTypeDefinitionProviders">
       <list>
-        <value>classpath:/org/pentaho/platform/repository2/unified/jcr/jackrabbit/pentahoInternalFolder.cnd</value>
-        <value>classpath:/org/pentaho/platform/repository2/unified/jcr/jackrabbit/pentahoLocalizedString.cnd</value>
-        <value>classpath:/org/pentaho/platform/repository2/unified/jcr/jackrabbit/pentahoHierarchyNode.cnd</value>
-        <value>classpath:/org/pentaho/platform/repository2/unified/jcr/jackrabbit/pentahoFile.cnd</value>
-        <value>classpath:/org/pentaho/platform/repository2/unified/jcr/jackrabbit/pentahoFolder.cnd</value>
-        <value>classpath:/org/pentaho/platform/repository2/unified/jcr/jackrabbit/pentahoLockable.cnd</value>
-        <value>classpath:/org/pentaho/platform/repository2/unified/jcr/jackrabbit/pentahoLockTokenStorage.cnd</value>
-        <value>classpath:/org/pentaho/platform/repository2/unified/jcr/jackrabbit/pentahoVersionable.cnd</value>
-        <value>classpath:/org/pentaho/platform/repository2/unified/jcr/jackrabbit/pentahoAcl.cnd</value>
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.InternalFolderNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LocalizedStringNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.HierarchyNodeNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.FileNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.FolderNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LockTokenStorageNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.VersionableNtdProvider" />
       </list>
     </property>
   </bean>
@@ -282,11 +286,9 @@
   <bean id="repositoryFileDao" class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileDao">
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="transformers"/>
-    <constructor-arg ref="ownerLookupHelper"/>
     <constructor-arg ref="lockHelper"/>
     <constructor-arg>
       <bean class="org.pentaho.platform.repository2.unified.jcr.DefaultDeleteHelper">
-        <constructor-arg ref="ownerLookupHelper"/>
         <constructor-arg ref="lockHelper"/>
         <constructor-arg ref="pathConversionHelper"/>
       </bean>
@@ -301,9 +303,7 @@
     <bean class="org.pentaho.platform.repository2.unified.jcr.transform.NodeRepositoryFileDataTransformer"/>
   </util:list>
 
-  <bean id="lockHelper" class="org.pentaho.platform.repository2.unified.jcr.jackrabbit.DefaultLockHelper"/>
-
-  <bean id="ownerLookupHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultOwnerLookupHelper"/>
+  <bean id="lockHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultLockHelper"/>
 
   <bean id="pathConversionHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultPathConversionHelper"/>
 
@@ -311,7 +311,7 @@
       class="org.pentaho.platform.repository2.unified.spring.BackingRepositoryLifecycleManagerAuthenticationSuccessListener"/>
 
   <bean id="repositoryFileAclDao"
-        class="org.pentaho.platform.repository2.unified.jcr.jackrabbit.JackrabbitRepositoryFileAclDao">
+        class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclDao">
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="pathConversionHelper"/>
   </bean>

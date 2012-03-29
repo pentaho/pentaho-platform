@@ -30,6 +30,7 @@ import junit.framework.TestCase;
 /**
  * Test cases for the {@link BackingRepositoryLifecycleManagerAuthenticationSuccessListener}
  */
+@SuppressWarnings("nls")
 public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest extends TestCase {
 
   private static final String CURRENT_USER = "test-currentUser";

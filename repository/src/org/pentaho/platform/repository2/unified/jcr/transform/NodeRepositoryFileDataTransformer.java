@@ -122,7 +122,7 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
           break;
         }
         case REF: {
-          jcrNode.setProperty(propName, session.getNodeByUUID(dataProp.getRef().getId().toString()));
+          jcrNode.setProperty(propName, session.getNodeByIdentifier(dataProp.getRef().getId().toString()));
           break;
         }
         default: {
@@ -154,7 +154,7 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
     
     DataNode dataNode = parentDataNode != null ? parentDataNode.addNode(nodeName)
         : new DataNode(nodeName);
-    dataNode.setId(jcrNode.getUUID());
+    dataNode.setId(jcrNode.getIdentifier());
 
     PropertyIterator props = jcrNode.getProperties(pattern);
     while (props.hasNext()) {
@@ -182,7 +182,7 @@ public class NodeRepositoryFileDataTransformer implements ITransformer<NodeRepos
           break;
         }
         case PropertyType.REFERENCE: {
-          dataNode.setProperty(propName, new DataNodeRef(prop.getNode().getUUID()));
+          dataNode.setProperty(propName, new DataNodeRef(prop.getNode().getIdentifier()));
           break;
         }
         default: {

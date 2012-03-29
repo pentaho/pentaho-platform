@@ -2,8 +2,27 @@
 <!--
 Jackrabbit configuration suitable for integration tests.
 -->
-<!DOCTYPE Repository PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 1.5//EN"
-                            "http://jackrabbit.apache.org/dtd/repository-1.5.dtd">
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE Repository
+          PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 2.0//EN"
+          "http://jackrabbit.apache.org/dtd/repository-2.0.dtd">
+
 <!-- Example Repository Configuration File
      Used by
      - org.apache.jackrabbit.core.config.RepositoryConfigTest.java
@@ -19,6 +38,11 @@ Jackrabbit configuration suitable for integration tests.
     </FileSystem>
 
     <!--
+        data store configuration
+    -->
+    <DataStore class="org.apache.jackrabbit.core.data.FileDataStore"/>
+
+    <!--
         security configuration
     -->
     <Security appName="Jackrabbit">
@@ -26,7 +50,14 @@ Jackrabbit configuration suitable for integration tests.
             security manager:
             class: FQN of class implementing the JackrabbitSecurityManager interface
         -->
-        <SecurityManager class="org.apache.jackrabbit.core.PentahoSecurityManager" workspaceName="security" />
+        <SecurityManager class="org.apache.jackrabbit.core.DefaultSecurityManager" workspaceName="security">
+            <!--
+            workspace access:
+            class: FQN of class implementing the WorkspaceAccessManager interface
+            -->
+            <!-- <WorkspaceAccessManager class="..."/> -->
+            <!-- <param name="config" value="${rep.home}/security.xml"/> -->
+        </SecurityManager>
 
         <!--
             access manager:
@@ -44,13 +75,7 @@ Jackrabbit configuration suitable for integration tests.
            <!--
               administrator user id (default value if param is missing is 'admin')
             -->
-           <param name="adminId" value="pentahoRepoAdmin"/>
-           
-           <!-- 
-              administrator role id (default value if param is missing is 'administrators');
-              must match /Repository/Workspace/WorkspaceSecurity/AccessControlProvider/param      
-            -->
-           <param name="adminRole" value="pentahoRepoAdministrators" />
+           <param name="adminId" value="admin"/>
            
            <param name="principalProvider" 
                value="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider"/>
@@ -80,7 +105,7 @@ Jackrabbit configuration suitable for integration tests.
             persistence manager of the workspace:
             class: FQN of class implementing the PersistenceManager interface
         -->
-        <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.DerbyPersistenceManager">
+        <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.DerbyPersistenceManager">
           <param name="url" value="jdbc:derby:${wsp.home}/db;create=true"/>
           <param name="schemaObjectPrefix" value="${wsp.name}_"/>
         </PersistenceManager>
@@ -90,26 +115,19 @@ Jackrabbit configuration suitable for integration tests.
         -->
         <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
             <param name="path" value="${wsp.home}/index"/>
-            <param name="textFilterClasses" value="org.apache.jackrabbit.extractor.PlainTextExtractor,org.apache.jackrabbit.extractor.MsWordTextExtractor,org.apache.jackrabbit.extractor.MsExcelTextExtractor,org.apache.jackrabbit.extractor.MsPowerPointTextExtractor,org.apache.jackrabbit.extractor.PdfTextExtractor,org.apache.jackrabbit.extractor.OpenOfficeTextExtractor,org.apache.jackrabbit.extractor.RTFTextExtractor,org.apache.jackrabbit.extractor.HTMLTextExtractor,org.apache.jackrabbit.extractor.XMLTextExtractor"/>
-            <param name="extractorPoolSize" value="2"/>
             <param name="supportHighlighting" value="true"/>
         </SearchIndex>
         
-        <WorkspaceSecurity> 
-            <AccessControlProvider class="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.PentahoAccessControlProvider">
-              <!-- must match /Repository/Security/LoginModule/param -->
-              <param name="adminRole" value="pentahoRepoAdministrators" />
-              <param name="helperClass" value="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.DefaultPentahoJackrabbitAccessControlHelper" />
-              <!-- users with administerSecurity get Permission.ALL if effective ACL is at tenant root or below -->
-              <param name="wildcardDynamicMask0" value="/pentaho/{0}=org.pentaho.security.administerSecurity:4095" />
-              <!-- users with read get Permission.READ and Permission.READ_ACL if effective ACL is at tenant root -->
-              <param name="dynamicMask0" value="/pentaho/{0}=org.pentaho.repository.read:33" />
-              <!-- users with read get Permission.READ and Permission.READ_ACL if effective ACL is at tenant etc/pdi -->
-              <param name="dynamicMask1" value="/pentaho/{0}/etc/pdi=org.pentaho.repository.read:33" />
-              <!-- users with create get Permission.READ and Permission.READ_AC and Permission.MODIFY_AC and Permission.LOCK_MNGMT and Permission.VERSION_MNGMT and Permission.NODE_TYPE_MNGMT and Permission.REMOVE_NODE and Permission.REMOVE_PROPERTY and Permission.ADD_NODE and Permission.SET_PROPERTY if effective ACL is at tenant etc/pdi -->
-              <param name="dynamicMask2" value="/pentaho/{0}/etc/pdi=org.pentaho.repository.create:1023" />
-            </AccessControlProvider>
-        </WorkspaceSecurity> 
+        
+        <WorkspaceSecurity>
+          <AccessControlProvider class="org.apache.jackrabbit.core.security.authorization.acl.PentahoACLProvider">
+            <param name="magicAceDefinition0" value="/pentaho/{0};org.pentaho.security.administerSecurity;jcr:all;true" />
+            <param name="magicAceDefinition1" value="/pentaho/{0};org.pentaho.repository.read;jcr:read,jcr:readAccessControl;false" />
+            <param name="magicAceDefinition2" value="/pentaho/{0}/etc/pdi;org.pentaho.repository.read;jcr:read,jcr:readAccessControl;false" />
+            <param name="magicAceDefinition3" value="/pentaho/{0}/etc/pdi;org.pentaho.repository.create;jcr:read,jcr:readAccessControl,jcr:write,jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,jcr:nodeTypeManagement;false" />
+          </AccessControlProvider>
+        </WorkspaceSecurity>
+        
     </Workspace>
 
     <!--
@@ -130,7 +148,7 @@ Jackrabbit configuration suitable for integration tests.
             a 'normal' persistence manager, but this could change in future
             implementations.
         -->
-        <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.DerbyPersistenceManager">
+        <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.DerbyPersistenceManager">
           <param name="url" value="jdbc:derby:${rep.home}/version/db;create=true"/>
           <param name="schemaObjectPrefix" value="version_"/>
         </PersistenceManager>
@@ -142,8 +160,13 @@ Jackrabbit configuration suitable for integration tests.
     -->
     <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
         <param name="path" value="${rep.home}/repository/index"/>
-        <param name="textFilterClasses" value="org.apache.jackrabbit.extractor.PlainTextExtractor,org.apache.jackrabbit.extractor.MsWordTextExtractor,org.apache.jackrabbit.extractor.MsExcelTextExtractor,org.apache.jackrabbit.extractor.MsPowerPointTextExtractor,org.apache.jackrabbit.extractor.PdfTextExtractor,org.apache.jackrabbit.extractor.OpenOfficeTextExtractor,org.apache.jackrabbit.extractor.RTFTextExtractor,org.apache.jackrabbit.extractor.HTMLTextExtractor,org.apache.jackrabbit.extractor.XMLTextExtractor"/>
-        <param name="extractorPoolSize" value="2"/>
         <param name="supportHighlighting" value="true"/>
     </SearchIndex>
+
+    <!--
+        Run with a cluster journal
+    -->
+    <Cluster id="node1">
+        <Journal class="org.apache.jackrabbit.core.journal.MemoryJournal"/>
+    </Cluster>
 </Repository>

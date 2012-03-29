@@ -84,7 +84,7 @@ public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleR
     if (StringUtils.hasText(data.getEncoding())) {
       resourceNode.setProperty(pentahoJcrConstants.getJCR_ENCODING(), data.getEncoding());
     }
-    resourceNode.setProperty(pentahoJcrConstants.getJCR_DATA(), data.getStream());
+    resourceNode.setProperty(pentahoJcrConstants.getJCR_DATA(), session.getValueFactory().createBinary(data.getStream()));
     resourceNode.setProperty(pentahoJcrConstants.getJCR_MIMETYPE(), data.getMimeType());
   }
 
@@ -98,7 +98,7 @@ public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleR
     if (resourceNode.hasProperty(pentahoJcrConstants.getJCR_ENCODING())) {
       encoding = resourceNode.getProperty(pentahoJcrConstants.getJCR_ENCODING()).getString();
     }
-    InputStream data = resourceNode.getProperty(pentahoJcrConstants.getJCR_DATA()).getStream();
+    InputStream data = resourceNode.getProperty(pentahoJcrConstants.getJCR_DATA()).getBinary().getStream();
     String mimeType = resourceNode.getProperty(pentahoJcrConstants.getJCR_MIMETYPE()).getString();
     return new SimpleRepositoryFileData(data, encoding, mimeType);
   }
@@ -117,7 +117,7 @@ public class SimpleRepositoryFileDataTransformer implements ITransformer<SimpleR
     if (StringUtils.hasText(data.getEncoding())) {
       resourceNode.setProperty(pentahoJcrConstants.getJCR_ENCODING(), data.getEncoding());
     }
-    resourceNode.setProperty(pentahoJcrConstants.getJCR_DATA(), data.getStream());
+    resourceNode.setProperty(pentahoJcrConstants.getJCR_DATA(), session.getValueFactory().createBinary(data.getStream()));
     resourceNode.setProperty(pentahoJcrConstants.getJCR_MIMETYPE(), data.getMimeType());
   }
 

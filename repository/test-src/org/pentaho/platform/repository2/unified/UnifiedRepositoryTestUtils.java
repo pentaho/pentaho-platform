@@ -1,5 +1,13 @@
 package org.pentaho.platform.repository2.unified;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,14 +35,6 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.util.web.MimeHelper;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
 
 /**
  * Consider using {@code MockUnifiedRepository} instead.
@@ -543,7 +543,6 @@ public class UnifiedRepositoryTestUtils {
     public boolean matchesSafely(final RepositoryFileAcl acl) {
       return (expectedAcl.getId() != null ? expectedAcl.getId().equals(acl.getId()) : true)
           && expectedAcl.isEntriesInheriting() == acl.isEntriesInheriting()
-          && (expectedAcl.getOwner() != null ? expectedAcl.getOwner().equals(acl.getOwner()) : true)
           && (testAcesUsingEquals ? acl.getAces().equals(expectedAcl.getAces()) : acl.getAces().containsAll(
               expectedAcl.getAces()));
     }
@@ -557,12 +556,6 @@ public class UnifiedRepositoryTestUtils {
         description.appendText(appended ? "," : "");
         description.appendText("id=");
         description.appendText(expectedAcl.getId().toString());
-        appended = true;
-      }
-      if (expectedAcl.getOwner() != null) {
-        description.appendText(appended ? "," : "");
-        description.appendText("owner=");
-        description.appendText(expectedAcl.getOwner().toString());
         appended = true;
       }
       description.appendText(appended ? "," : "");

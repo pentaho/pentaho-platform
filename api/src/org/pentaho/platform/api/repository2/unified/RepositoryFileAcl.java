@@ -47,7 +47,7 @@ public class RepositoryFileAcl implements Serializable {
       throw new IllegalArgumentException();
     }
   }
-  
+
   public List<RepositoryFileAce> getAces() {
     return Collections.unmodifiableList(aces);
   }
@@ -128,7 +128,7 @@ public class RepositoryFileAcl implements Serializable {
     public Builder(final String owner) {
       this(new RepositoryFileSid(owner));
     }
-    
+
     public Builder(final RepositoryFileSid owner) {
       this((Serializable) null, owner);
     }
@@ -162,7 +162,7 @@ public class RepositoryFileAcl implements Serializable {
       this.entriesInheriting = entriesInheriting1;
       return this;
     }
-    
+
     public Builder id(final Serializable id1) {
       this.id = id1;
       return this;
@@ -173,7 +173,11 @@ public class RepositoryFileAcl implements Serializable {
       return this;
     }
 
+    /**
+     * Entries inheriting is set to false when this method is called.
+     */
     public Builder ace(final RepositoryFileAce ace1) {
+      entriesInheriting(false);
       this.aces.add(ace1);
       return this;
     }
@@ -183,16 +187,14 @@ public class RepositoryFileAcl implements Serializable {
      */
     public Builder ace(final RepositoryFileSid recipient, final RepositoryFilePermission first,
         final RepositoryFilePermission... rest) {
-      return ace(recipient, EnumSet.of(first, rest));
+      return ace(new RepositoryFileAce(recipient, EnumSet.of(first, rest)));
     }
 
     /**
      * Entries inheriting is set to false when this method is called.
      */
     public Builder ace(final RepositoryFileSid recipient, final EnumSet<RepositoryFilePermission> permissions) {
-      entriesInheriting(false);
-      this.aces.add(new RepositoryFileAce(recipient, permissions));
-      return this;
+      return ace(new RepositoryFileAce(recipient, permissions));
     }
 
     /**
@@ -200,7 +202,7 @@ public class RepositoryFileAcl implements Serializable {
      */
     public Builder ace(final String name, final RepositoryFileSid.Type type, final RepositoryFilePermission first,
         final RepositoryFilePermission... rest) {
-      return ace(new RepositoryFileSid(name, type), first, rest);
+      return ace(new RepositoryFileAce(new RepositoryFileSid(name, type), EnumSet.of(first, rest)));
     }
 
     /**
@@ -208,7 +210,7 @@ public class RepositoryFileAcl implements Serializable {
      */
     public Builder ace(final String name, final RepositoryFileSid.Type type,
         final EnumSet<RepositoryFilePermission> permissions) {
-      return ace(new RepositoryFileSid(name, type), permissions);
+      return ace(new RepositoryFileAce(new RepositoryFileSid(name, type), permissions));
     }
 
     /**
@@ -221,7 +223,11 @@ public class RepositoryFileAcl implements Serializable {
       return this;
     }
 
+    /**
+     * Replaces the ACEs with the given ACEs. Entries inheriting is set to false when this method is called.
+     */
     public Builder clearAces() {
+      entriesInheriting(false);
       this.aces.clear();
       return this;
     }

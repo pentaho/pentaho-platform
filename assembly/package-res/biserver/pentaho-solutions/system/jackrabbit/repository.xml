@@ -15,8 +15,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<!DOCTYPE Repository PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 1.5//EN"
-                            "http://jackrabbit.apache.org/dtd/repository-1.5.dtd">
+
+<!DOCTYPE Repository
+          PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 2.0//EN"
+          "http://jackrabbit.apache.org/dtd/repository-2.0.dtd">
+
 <!-- Example Repository Configuration File
      Used by
      - org.apache.jackrabbit.core.config.RepositoryConfigTest.java
@@ -32,32 +35,56 @@
     </FileSystem>
 
     <!--
+        data store configuration
+    -->
+    <DataStore class="org.apache.jackrabbit.core.data.FileDataStore"/>
+
+    <!--
         security configuration
     -->
     <Security appName="Jackrabbit">
-        <SecurityManager class="org.apache.jackrabbit.core.PentahoSecurityManager" workspaceName="security" />
+        <!--
+            security manager:
+            class: FQN of class implementing the JackrabbitSecurityManager interface
+        -->
+        <SecurityManager class="org.apache.jackrabbit.core.DefaultSecurityManager" workspaceName="security">
+            <!--
+            workspace access:
+            class: FQN of class implementing the WorkspaceAccessManager interface
+            -->
+            <!-- <WorkspaceAccessManager class="..."/> -->
+            <!-- <param name="config" value="${rep.home}/security.xml"/> -->
+        </SecurityManager>
+
+        <!--
+            access manager:
+            class: FQN of class implementing the AccessManager interface
+        -->
         <AccessManager class="org.apache.jackrabbit.core.security.DefaultAccessManager">
+            <!-- <param name="config" value="${rep.home}/access.xml"/> -->
         </AccessManager>
+
         <LoginModule class="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityLoginModule">
-            <!-- 
+           <!-- 
               anonymous user name ('anonymous' is the default value)
             -->
-            <param name="anonymousId" value="anonymous"/>
-            <!--
+           <param name="anonymousId" value="anonymous"/>
+           <!--
               administrator user id (default value if param is missing is 'admin')
             -->
-            <param name="adminId" value="pentahoRepoAdmin"/>
-            <!-- 
-              administrator role id (default value if param is missing is 'administrators');
-              must match /Repository/Workspace/WorkspaceSecurity/AccessControlProvider/param      
-            -->
-           <param name="adminRole" value="pentahoRepoAdministrators" />
+           <param name="adminId" value="admin"/>
+           
             <param name="principalProvider" 
               value="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityPrincipalProvider"/>
             <!-- comma separated list of pre-authentication tokens, one per application -->
             <param name="preAuthenticationTokens" value="ZchBOvP8q9FQ" />
+            <!-- must match PentahoSessionCredentialsStrategy.ATTR_PRE_AUTHENTICATION_TOKEN -->
+            <param name="trust_credentials_attribute" value="pre_authentication_token" />
         </LoginModule>
     </Security>
+
+
+
 
     <!--
         location of workspaces root directory and name of default workspace
@@ -79,7 +106,7 @@
             persistence manager of the workspace:
             class: FQN of class implementing the PersistenceManager interface
         -->
-        <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.H2PersistenceManager">
+        <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
           <param name="url" value="jdbc:h2:${wsp.home}/db"/>
           <param name="schemaObjectPrefix" value="${wsp.name}_"/>
         </PersistenceManager>
@@ -89,23 +116,19 @@
         -->
         <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
             <param name="path" value="${wsp.home}/index"/>
+            <param name="supportHighlighting" value="true"/>
         </SearchIndex>
         
-        <WorkspaceSecurity> 
-            <AccessControlProvider class="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.PentahoAccessControlProvider">
-              <!-- must match /Repository/Security/LoginModule/param -->
-              <param name="adminRole" value="pentahoRepoAdministrators" />
-              <param name="helperClass" value="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.DefaultPentahoJackrabbitAccessControlHelper" />
-              <!-- users with administerSecurity get Permission.ALL if effective ACL is at tenant root or below -->
-              <param name="wildcardDynamicMask0" value="/pentaho/{0}=org.pentaho.security.administerSecurity:4095" />
-              <!-- users with read get Permission.READ and Permission.READ_ACL if effective ACL is at tenant root -->
-              <param name="dynamicMask0" value="/pentaho/{0}=org.pentaho.repository.read:33" />
-              <!-- users with read get Permission.READ and Permission.READ_ACL if effective ACL is at tenant etc/pdi -->
-              <param name="dynamicMask1" value="/pentaho/{0}/etc/pdi=org.pentaho.repository.read:33" />
-              <!-- users with create get Permission.READ and Permission.READ_AC and Permission.MODIFY_AC and Permission.LOCK_MNGMT and Permission.VERSION_MNGMT and Permission.NODE_TYPE_MNGMT and Permission.REMOVE_NODE and Permission.REMOVE_PROPERTY and Permission.ADD_NODE and Permission.SET_PROPERTY if effective ACL is at tenant etc/pdi -->
-              <param name="dynamicMask2" value="/pentaho/{0}/etc/pdi=org.pentaho.repository.create:1023" /> 
-            </AccessControlProvider>
-        </WorkspaceSecurity> 
+        
+        <WorkspaceSecurity>
+          <AccessControlProvider class="org.apache.jackrabbit.core.security.authorization.acl.PentahoACLProvider">
+            <param name="magicAceDefinition0" value="/pentaho/{0};org.pentaho.security.administerSecurity;jcr:all;true" />
+            <param name="magicAceDefinition1" value="/pentaho/{0};org.pentaho.repository.read;jcr:read,jcr:readAccessControl;false" />
+            <param name="magicAceDefinition2" value="/pentaho/{0}/etc/pdi;org.pentaho.repository.read;jcr:read,jcr:readAccessControl;false" />
+            <param name="magicAceDefinition3" value="/pentaho/{0}/etc/pdi;org.pentaho.repository.create;jcr:read,jcr:readAccessControl,jcr:write,jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,jcr:nodeTypeManagement;false" />
+          </AccessControlProvider>
+        </WorkspaceSecurity>
+        
     </Workspace>
 
     <!--
@@ -126,7 +149,7 @@
             a 'normal' persistence manager, but this could change in future
             implementations.
         -->
-        <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.H2PersistenceManager">
+        <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
           <param name="url" value="jdbc:h2:${rep.home}/version/db"/>
           <param name="schemaObjectPrefix" value="version_"/>
         </PersistenceManager>
@@ -138,5 +161,13 @@
     -->
     <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
         <param name="path" value="${rep.home}/repository/index"/>
+        <param name="supportHighlighting" value="true"/>
     </SearchIndex>
+
+    <!--
+        Run with a cluster journal
+    -->
+    <Cluster id="node1">
+        <Journal class="org.apache.jackrabbit.core.journal.MemoryJournal"/>
+    </Cluster>
 </Repository>

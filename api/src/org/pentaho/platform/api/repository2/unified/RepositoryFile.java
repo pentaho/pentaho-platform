@@ -83,11 +83,6 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   private final Date lockDate;
 
   /**
-   * The owner of this file. Usually plays a role in access control. Read-only.
-   */
-  private final RepositoryFileSid owner;
-
-  /**
    * A title for the file for the current locale. If locale not available, the file's name is returned. Read-only.
    */
   private final String title;
@@ -134,7 +129,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
    */
   public RepositoryFile(Serializable id, String name, boolean folder, boolean hidden, boolean versioned,
       Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
-      String lockMessage, Date lockDate, RepositoryFileSid owner, String locale, String title,
+      String lockMessage, Date lockDate, String locale, String title,
       Map<String, String> titleMap, String description, Map<String, String> descriptionMap,
       String originalParentFolderPath, Date deletedDate, long fileSize, String creatorId) {
     super();
@@ -151,7 +146,6 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     this.lockOwner = lockOwner;
     this.lockMessage = lockMessage;
     this.lockDate = lockDate != null ? new Date(lockDate.getTime()) : null;
-    this.owner = owner;
     this.locale = locale;
     this.title = title;
     this.titleMap = titleMap != null ? new HashMap<String, String>(titleMap) : null;
@@ -229,10 +223,6 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     return (lockDate != null ? new Date(lockDate.getTime()) : null);
   }
 
-  public RepositoryFileSid getOwner() {
-    return owner;
-  }
-
   /**
    * Returns title for current locale or file name if not available.
    */
@@ -303,8 +293,6 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     private Date lockDate;
 
-    private RepositoryFileSid owner;
-
     private String title;
 
     private String description;
@@ -335,8 +323,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       this(other.name);
       this.id(other.id).path(other.path).createdDate(other.createdDate).creatorId(other.creatorId).fileSize(other.fileSize).folder(other.folder).lastModificationDate(
           other.lastModifiedDate).versioned(other.versioned).hidden(other.hidden).versionId(other.versionId).locked(
-          other.locked).lockDate(other.lockDate).lockOwner(other.lockOwner).lockMessage(other.lockMessage).owner(
-          other.owner).title(other.title).description(other.description).titleMap(other.titleMap).descriptionMap(
+          other.locked).lockDate(other.lockDate).lockOwner(other.lockOwner).lockMessage(other.lockMessage).title(other.title).description(other.description).titleMap(other.titleMap).descriptionMap(
           other.descriptionMap).locale(other.locale).originalParentFolderPath(other.originalParentFolderPath)
           .deletedDate(other.deletedDate);
     }
@@ -344,7 +331,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     public RepositoryFile build() {
       return new RepositoryFile(id, name, this.folder, this.hidden, this.versioned, this.versionId, this.path,
           this.createdDate, this.lastModifiedDate, this.locked, this.lockOwner, this.lockMessage, this.lockDate,
-          this.owner, this.locale, this.title, this.titleMap, this.description, this.descriptionMap,
+          this.locale, this.title, this.titleMap, this.description, this.descriptionMap,
           this.originalParentFolderPath, this.deletedDate, this.fileSize, this.creatorId);
     }
 
@@ -426,11 +413,6 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     public Builder lockDate(final Date lockDate1) {
       // defensive copy
       this.lockDate = lockDate1;
-      return this;
-    }
-
-    public Builder owner(final RepositoryFileSid owner1) {
-      this.owner = owner1;
       return this;
     }
 

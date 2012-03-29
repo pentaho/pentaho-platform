@@ -32,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * To run this, put Metro JARs in your classpath.
  */
+@SuppressWarnings("nls")
 public class AuthorizationPolicyClient {
   private IAuthorizationPolicy policy;
 

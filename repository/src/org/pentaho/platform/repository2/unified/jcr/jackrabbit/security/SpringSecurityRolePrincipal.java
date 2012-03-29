@@ -83,9 +83,10 @@ public class SpringSecurityRolePrincipal implements Group {
     return true;
   }
 
+  @SuppressWarnings("nls")
   @Override
   public String toString() {
-    return "PentahoRolePrincipal[name=" + name + "]";  //$NON-NLS-1$//$NON-NLS-2$
+    return "SpringSecurityRolePrincipal[name=" + name + "]";
   }
 
   public boolean addMember(final Principal user) {

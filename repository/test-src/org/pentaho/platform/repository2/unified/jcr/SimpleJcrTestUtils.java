@@ -16,18 +16,19 @@ package org.pentaho.platform.repository2.unified.jcr;
 
 import java.util.Calendar;
 import java.util.Date;
+
 import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.security.AccessControlPolicy;
+import javax.jcr.security.AccessControlPolicyIterator;
+import javax.jcr.security.Privilege;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
 
-import org.apache.jackrabbit.api.jsr283.security.AccessControlPolicy;
-import org.apache.jackrabbit.api.jsr283.security.AccessControlPolicyIterator;
-import org.apache.jackrabbit.api.jsr283.security.Privilege;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
@@ -134,12 +135,11 @@ public class SimpleJcrTestUtils {
     return (Boolean) jcrTemplate.execute(new JcrCallback() {
       public Object doInJcr(final Session session) throws RepositoryException {
         Assert.notEmpty(privNames);
-        SessionImpl jrSession = (SessionImpl) session;
         Privilege[] privs = new Privilege[privNames.length];
         for (int i = 0; i < privs.length; i++) {
-          privs[i] = jrSession.getAccessControlManager().privilegeFromName(privNames[i]);
+          privs[i] = session.getAccessControlManager().privilegeFromName(privNames[i]);
         }
-        return jrSession.getAccessControlManager().hasPrivileges(absPath, privs);
+        return session.getAccessControlManager().hasPrivileges(absPath, privs);
       }
     });
 

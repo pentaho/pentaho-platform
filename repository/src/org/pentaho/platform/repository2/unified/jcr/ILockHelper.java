@@ -15,6 +15,8 @@
 package org.pentaho.platform.repository2.unified.jcr;
 
 import java.io.Serializable;
+import java.util.Date;
+
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.Lock;
@@ -97,4 +99,13 @@ public interface ILockHelper {
    */
   void removeLockTokenFromSessionIfNecessary(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId) throws RepositoryException;
+  
+  Date getLockDate(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final Lock lock) throws RepositoryException;
+  
+  String getLockMessage(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final Lock lock) throws RepositoryException;
+  
+  String getLockOwner(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final Lock lock) throws RepositoryException;
 }
