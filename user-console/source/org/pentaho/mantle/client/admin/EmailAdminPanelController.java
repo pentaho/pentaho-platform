@@ -22,7 +22,8 @@ package org.pentaho.mantle.client.admin;
 
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
+import org.pentaho.ui.xul.XulComponent;
+import org.pentaho.ui.xul.util.XulDialogCallback;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -168,11 +169,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 					} else if (response.getText().equals("EmailTester.FAIL")) {
 						message = Messages.getString("connectionTest.fail");
 					}
-					GwtMessageBox messageBox = new GwtMessageBox();
+					DirtyStateConfirmBox messageBox = new DirtyStateConfirmBox(false);
 					messageBox.setTitle(Messages.getString("connectionTest"));
 					messageBox.setMessage(message);
-					messageBox.setButtons(new Object[GwtMessageBox.ACCEPT]);
-					messageBox.setAcceptLabel(Messages.getString("cancel"));
 					messageBox.show();
 				}
 			});
@@ -234,7 +233,28 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	}
 
 	public void passivate(final AsyncCallback<Boolean> callback) {
-		callback.onSuccess(true);
+
+		DirtyStateConfirmBox messageBox = new DirtyStateConfirmBox();
+		messageBox.setTitle(Messages.getString("warning"));
+		messageBox.setMessage(Messages.getString("dirtyStateMessage"));
+		messageBox.addDialogCallback(new XulDialogCallback<String>() {
+
+			public void onClose(XulComponent component, XulDialogCallback.Status status, String value) {
+				if (status == XulDialogCallback.Status.ACCEPT) {
+					callback.onSuccess(true);
+				}
+				if (status == XulDialogCallback.Status.ONEXTRA1) {
+					callback.onSuccess(true);
+				}
+				if (status == XulDialogCallback.Status.CANCEL) {
+					callback.onSuccess(false);
+				}
+			}
+
+			public void onError(XulComponent e, Throwable t) {
+			}
+		});
+		messageBox.show();
 	}
 
 	// -- Event Listeners.
