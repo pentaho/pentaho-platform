@@ -21,8 +21,6 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
@@ -33,77 +31,52 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.dom4j.Document;
-import org.dom4j.Node;
 import org.pentaho.platform.config.i18n.Messages;
-import org.pentaho.platform.engine.core.system.PathBasedSystemSettings;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.SystemSettings;
 import org.pentaho.platform.util.logging.Logger;
 
 @SuppressWarnings("all")
 public class EmailTester {
 
-	static final String EMAIL_CONFIG_XML = "smtp-email/email_config.xml";
+	public String performTest(String authenticate, String debug, String defaultFrom, String smtpHost, String smtpPort, String smtpProtocol, final String userId, final String password, String useSsl, String useStartTls) {
 
-	private static final String MAILER = "smtpsend";
+		Properties emailProperties = new Properties();
+		emailProperties.put("mail.smtp.host", smtpHost);
+		emailProperties.put("mail.smtp.port", smtpPort);
+		emailProperties.put("mail.transport.protocol", smtpProtocol);
+		emailProperties.put("mail.smtp.starttls.enable", useStartTls);
+		emailProperties.put("mail.smtp.auth", authenticate);
+		emailProperties.put("mail.smtp.ssl", useSsl);
+		emailProperties.put("mail.debug", debug);
 
-	public String performTest() {
-
-		SystemSettings systemSettings = new PathBasedSystemSettings();
-
-		final String mailUserIDStr = systemSettings.getSystemSetting(EMAIL_CONFIG_XML, "email-smtp/mail.userid", "");
-		final String password = systemSettings.getSystemSetting(EMAIL_CONFIG_XML, "email-smtp/mail.password", "");
-		String smtpAuthStr = systemSettings.getSystemSetting(EMAIL_CONFIG_XML, "email-smtp/properties/mail.smtp.auth", "");
-		boolean authenticate = "true".equalsIgnoreCase(smtpAuthStr);
-		String fromDefaultStr = systemSettings.getSystemSetting(EMAIL_CONFIG_XML, "email-smtp/mail.from.default", "");
-		String sendEmailMessage = "";
-
-		Properties props = new Properties();
-
-		try {
-			Document configDocument = systemSettings.getSystemSettingsDocument(EMAIL_CONFIG_XML);
-			List properties = configDocument.selectNodes("/email-smtp/properties/*");
-			Iterator propertyIterator = properties.iterator();
-			while (propertyIterator.hasNext()) {
-				Node propertyNode = (Node) propertyIterator.next();
-				String propertyName = propertyNode.getName();
-				String propertyValue = propertyNode.getText();
-				props.put(propertyName, propertyValue);
-			}
-		} catch (Exception e) {
-
-		}
-
-		Session session;
-		if (authenticate) {
+		Session session = null;
+		if ("true".equalsIgnoreCase(authenticate)) {
 			Authenticator authenticator = new Authenticator() {
 				@Override
 				protected PasswordAuthentication getPasswordAuthentication() {
-					String user = mailUserIDStr;
+					String user = userId;
 					String passwd = password;
 					return new PasswordAuthentication(user, passwd);
 				}
 			};
-			session = Session.getInstance(props, authenticator);
+			session = Session.getInstance(emailProperties, authenticator);
 		} else {
-			session = Session.getInstance(props);
+			session = Session.getInstance(emailProperties);
 		}
 
-		// send a test message
+		String sendEmailMessage = "";
 		try {
 			MimeMessage msg = new MimeMessage(session);
-			msg.setFrom(new InternetAddress(fromDefaultStr));
-			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(fromDefaultStr));
+			msg.setFrom(new InternetAddress(defaultFrom));
+			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(defaultFrom));
 			msg.setSubject(Messages.getString("EmailTester.SUBJECT"));
 			msg.setText(Messages.getString("EmailTester.MESSAGE"));
-			msg.setHeader("X-Mailer", MAILER);
+			msg.setHeader("X-Mailer", "smtpsend");
 			msg.setSentDate(new Date());
 			Transport.send(msg);
-			sendEmailMessage = Messages.getString("EmailTester.MESSAGE_SENT_TO", fromDefaultStr);
+			sendEmailMessage = "EmailTester.SUCESS";
 		} catch (Exception e) {
 			Logger.error(EmailTester.class, Messages.getString("EmailTester.NOT_CONFIGURED"), e);
-			sendEmailMessage = Messages.getString("EmailTester.ERROR_MESSAGE", e.getMessage() != null ? e.getMessage() : Messages.getString("EmailTester.NOT_CONFIGURED"));
+			sendEmailMessage = "EmailTester.FAIL";
 		}
 
 		return sendEmailMessage;

@@ -109,13 +109,13 @@ public class EmailResource extends AbstractJaxRSResource {
 
 		return emailData.toString();
 	}
-	
+
 	@GET
 	@Path("/sendEmailTest")
 	@Consumes({ WILDCARD })
 	@Produces({ MediaType.TEXT_PLAIN })
-	public String sendEmailTest() throws Exception {
+	public String sendEmailTest(@QueryParam("authenticate") String authenticate, @QueryParam("debug") String debug, @QueryParam("defaultFrom") String defaultFrom, @QueryParam("smtpHost") String smtpHost, @QueryParam("smtpPort") String smtpPort, @QueryParam("smtpProtocol") String smtpProtocol, @QueryParam("userId") String userId, @QueryParam("password") String password, @QueryParam("useSsl") String useSsl, @QueryParam("useStartTls") String useStartTls) throws Exception {
 		EmailTester emailTester = new EmailTester();
-		return emailTester.performTest();
+		return emailTester.performTest(authenticate, debug, defaultFrom, smtpHost, smtpPort, smtpProtocol, userId, password, useSsl, useStartTls);
 	}
 }
