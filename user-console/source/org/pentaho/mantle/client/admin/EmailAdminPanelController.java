@@ -21,8 +21,12 @@
 package org.pentaho.mantle.client.admin;
 
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -39,7 +43,6 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
@@ -60,12 +63,14 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		debuggingCheckBox.addValueChangeHandler(new AuthenticationHandler());
 		useSSLCheckBox.addValueChangeHandler(new AuthenticationHandler());
 		useStartTLSCheckBox.addValueChangeHandler(new AuthenticationHandler());
+		protocolsListBox.addChangeHandler(new AuthenticationHandler());
 		activate();
 	}
 
 	public void updatePassword(String password) {
 		passwordTextBox.setValue(password);
 		saveButton.setEnabled(isValid());
+		testButton.setEnabled(isValid());
 	}
 
 	public boolean isValid() {
@@ -105,19 +110,70 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		return isValid;
 	}
 
+	private String appendUIParameters() {
+		StringBuffer params = new StringBuffer();
+		params.append("?authenticate=");
+		params.append(authenticationCheckBox.getValue());
+		params.append("&debug=");
+		params.append(debuggingCheckBox.getValue());
+		params.append("&defaultFrom=");
+		params.append(fromAddressTextBox.getValue());
+		params.append("&smtpHost=");
+		params.append(smtpHostTextBox.getValue());
+		params.append("&smtpPort=");
+		params.append(portTextBox.getValue());
+		params.append("&smtpProtocol=");
+		params.append(protocolsListBox.getValue(protocolsListBox.getSelectedIndex()).toLowerCase());
+		params.append("&userId=");
+		params.append(userNameTextBox.getValue());
+		params.append("&password=");
+		params.append(passwordTextBox.getValue());
+		params.append("&useSsl=");
+		params.append(useSSLCheckBox.getValue());
+		params.append("&useStartTls=");
+		params.append(useStartTLSCheckBox.getValue());
+		return params.toString();
+	}
+
 	// -- Remote Calls.
 
-	private void setEmailConfig(String params) {
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/setEmailConfig" + params;
+	private void setEmailConfig() {
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/setEmailConfig" + appendUIParameters();
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
-					Window.alert(exception.getMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
 					saveButton.setEnabled(false);
+				}
+			});
+		} catch (RequestException e) {
+		}
+	}
+
+	private void testEmail() {
+		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/sendEmailTest" + appendUIParameters();
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					String message = null;
+					if (response.getText().equals("EmailTester.SUCESS")) {
+						message = Messages.getString("connectionTest.sucess");
+					} else if (response.getText().equals("EmailTester.FAIL")) {
+						message = Messages.getString("connectionTest.fail");
+					}
+					GwtMessageBox messageBox = new GwtMessageBox();
+					messageBox.setTitle(Messages.getString("connectionTest"));
+					messageBox.setMessage(message);
+					messageBox.setButtons(new Object[GwtMessageBox.ACCEPT]);
+					messageBox.setAcceptLabel(Messages.getString("cancel"));
+					messageBox.show();
 				}
 			});
 		} catch (RequestException e) {
@@ -160,6 +216,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 					authenticationPanel.setVisible(authenticate.booleanValue());
 					saveButton.setEnabled(false);
+					testButton.setEnabled(isValid());
 				}
 			});
 		} catch (RequestException e) {
@@ -184,30 +241,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 	class SaveButtonChangeListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
-
-			StringBuffer params = new StringBuffer();
-			params.append("?authenticate=");
-			params.append(authenticationCheckBox.getValue());
-			params.append("&debug=");
-			params.append(debuggingCheckBox.getValue());
-			params.append("&defaultFrom=");
-			params.append(fromAddressTextBox.getValue());
-			params.append("&smtpHost=");
-			params.append(smtpHostTextBox.getValue());
-			params.append("&smtpPort=");
-			params.append(portTextBox.getValue());
-			params.append("&smtpProtocol=");
-			params.append(protocolsListBox.getValue(protocolsListBox.getSelectedIndex()).toLowerCase());
-			params.append("&userId=");
-			params.append(userNameTextBox.getValue());
-			params.append("&password=");
-			params.append(passwordTextBox.getValue());
-			params.append("&useSsl=");
-			params.append(useSSLCheckBox.getValue());
-			params.append("&useStartTls=");
-			params.append(useStartTLSCheckBox.getValue());
-
-			setEmailConfig(params.toString());
+			setEmailConfig();
 		}
 	}
 
@@ -225,32 +259,27 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		}
 	}
 
-	class AuthenticationHandler implements KeyUpHandler, ValueChangeHandler<Boolean> {
+	class AuthenticationHandler implements KeyUpHandler, ValueChangeHandler<Boolean>, ChangeHandler {
 
 		public void onKeyUp(KeyUpEvent e) {
 			saveButton.setEnabled(isValid());
+			testButton.setEnabled(isValid());
 		}
 
 		public void onValueChange(ValueChangeEvent<Boolean> value) {
 			saveButton.setEnabled(isValid());
+			testButton.setEnabled(isValid());
+		}
+
+		public void onChange(ChangeEvent value) {
+			saveButton.setEnabled(isValid());
+			testButton.setEnabled(isValid());
 		}
 	}
 
 	class EmailTestButtonChangeListener implements ClickHandler {
 		public void onClick(ClickEvent event) {
-			String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/sendEmailTest";
-			RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
-			try {
-				executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
-					public void onError(Request request, Throwable exception) {
-					}
-
-					public void onResponseReceived(Request request, Response response) {
-						Window.alert(response.getText());
-					}
-				});
-			} catch (RequestException e) {
-			}
+			testEmail();
 		}
 	}
 }

@@ -149,7 +149,7 @@ public class EmailAdminPanel extends SimplePanel {
 		authenticationPanel.add(new Label(Messages.getString("password") + ":"));
 		hPanel = new HorizontalPanel();
 		passwordTextBox = new PasswordTextBox();
-		passwordTextBox.setWidth("400px");
+		passwordTextBox.setWidth("319px");
 		passwordTextBox.setEnabled(false);
 		hPanel.add(passwordTextBox);
 
