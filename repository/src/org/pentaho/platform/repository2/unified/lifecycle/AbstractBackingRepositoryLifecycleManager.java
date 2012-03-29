@@ -89,7 +89,7 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
 
   protected IRepositoryFileAclDao repositoryFileAclDao;
 
-  private AtomicBoolean startedUp = new AtomicBoolean(false);
+  private AtomicBoolean startedUp = new AtomicBoolean(true);
 
   // ~ Constructors ====================================================================================================
 
