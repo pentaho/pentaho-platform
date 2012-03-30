@@ -36,13 +36,11 @@ import javax.jcr.security.Privilege;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository.messages.Messages;
+import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.jcr.IAclMetadataStrategy.AclMetadata;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityRolePrincipal;
@@ -77,19 +75,22 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
   private IPermissionConversionHelper permissionConversionHelper;
 
   private IPathConversionHelper pathConversionHelper;
+  
+  private IDefaultAclHelper defaultAclHelper;
 
   // ~ Constructors ====================================================================================================
 
   public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper) {
-    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper());
+    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper(), new DefaultDefaultAclHelper());
   }
 
   public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper,
-      final IPermissionConversionHelper permissionConversionHelper) {
+      final IPermissionConversionHelper permissionConversionHelper, final IDefaultAclHelper defaultAclHelper) {
     super();
     this.jcrTemplate = jcrTemplate;
     this.pathConversionHelper = pathConversionHelper;
     this.permissionConversionHelper = permissionConversionHelper;
+    this.defaultAclHelper = defaultAclHelper;
   }
 
   // ~ Methods =========================================================================================================
@@ -183,15 +184,9 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
       }
     });
   }
-
-  private String getUsername() {
-    IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-    Assert.state(pentahoSession != null, "this method cannot be called with a null IPentahoSession");
-    return pentahoSession.getName();
-  }
-
+  
   public RepositoryFileAcl createDefaultAcl() {
-    return new RepositoryFileAcl.Builder(getUsername()).entriesInheriting(true).build();
+    return defaultAclHelper.createDefaultAcl();
   }
 
   private RepositoryFileAcl toAcl(final Session session, final PentahoJcrConstants pentahoJcrConstants,

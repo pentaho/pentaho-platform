@@ -38,7 +38,7 @@ import javax.jcr.query.qom.QueryObjectModelFactory;
 import javax.jcr.query.qom.Selector;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository.messages.Messages;
+import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoFileExistsException;
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoReferentialIntegrityException;

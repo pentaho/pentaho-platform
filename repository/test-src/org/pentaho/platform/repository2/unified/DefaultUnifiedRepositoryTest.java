@@ -227,12 +227,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // null out fields to get back memory
     repo = null;
   }
-  
-  @Test(expected = IllegalStateException.class)
-  public void testNotStartedUp() throws Exception {
-    startupCalled = false;
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-  }
 
   @Test
   public void testOnStartup() throws Exception {
