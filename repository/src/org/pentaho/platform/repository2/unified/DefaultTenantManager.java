@@ -123,8 +123,8 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#createTenant(java.lang.String, java.lang.String)
    */
   @Override
-  public RepositoryFile createTenant(String parentPath, String tenantName) {
-    RepositoryFile tenantRootFolder = createTenantRootFolder(parentPath, tenantName);
+  public RepositoryFile createTenant(final String parentTenantPath, final String tenantName) {
+    RepositoryFile tenantRootFolder = createTenantRootFolder(parentTenantPath, tenantName);
     createInitialTenantFolders(tenantRootFolder);
     return tenantRootFolder;
   }
@@ -133,10 +133,10 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#createTenants(java.lang.String, java.util.List)
    */
   @Override
-  public List<RepositoryFile> createTenants(String parentPath, List<String> tenantNames) {
+  public List<RepositoryFile> createTenants(final String parentTenantPath, final List<String> tenantNames) {
     List<RepositoryFile> newTenants = new ArrayList<RepositoryFile>();
     for (String tenantName : tenantNames) {
-      newTenants.add(createTenant(parentPath, tenantName));
+      newTenants.add(createTenant(parentTenantPath, tenantName));
     }
     return newTenants;
   }
@@ -145,14 +145,16 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#deleteTenant(java.io.Serializable)
    */
   @Override
-  public void deleteTenant(final Serializable tenantId) {
+  public void deleteTenant(final Serializable tenantFolderId) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     try {
       txnTemplate.execute(new TransactionCallbackWithoutResult() {
         public void doInTransactionWithoutResult(final TransactionStatus status) {
-          // TODO ensure that we're working with a tenant directory
-          repositoryFileDao.deleteFile(tenantId, "tenant delete");
+          if (!DefaultTenantManager.this.isTenantRoot(tenantFolderId)) {
+            throw new IllegalArgumentException();
+          }
+          repositoryFileDao.deleteFile(tenantFolderId, "tenant delete");
         }
       });
     } finally {
@@ -171,7 +173,6 @@ public class DefaultTenantManager implements ITenantManager {
     try {
       tenantFolderId = (Serializable) txnTemplate.execute(new TransactionCallback() {
         public Object doInTransaction(final TransactionStatus status) {
-          //TODO Ensure we're working with a tenantRootFolder
           RepositoryFile tenantRootFolder = repositoryFileDao.getFile(tenantPath);
           return tenantRootFolder.getId();
         }
@@ -186,7 +187,7 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#deleteTenants(java.util.List)
    */
   @Override
-  public void deleteTenants(List<String> tenantPaths) {
+  public void deleteTenants(final List<String> tenantPaths) {
     for (String tenantPath : tenantPaths) {
       deleteTenant(tenantPath);
     }
@@ -196,16 +197,18 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#disableTenant(java.io.Serializable)
    */
   @Override
-  public void disableTenant(final Serializable tenantId) {
+  public void disableTenant(final Serializable tenantFolderId) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     try {
       txnTemplate.execute(new TransactionCallbackWithoutResult() {
         public void doInTransactionWithoutResult(final TransactionStatus status) {
-          //TODO Ensure we're working with a tenantRootFolder
-          Map<String, Serializable> fileMeta = repositoryFileDao.getFileMetadata(tenantId);
+          if (!DefaultTenantManager.this.isTenantRoot(tenantFolderId)) {
+            throw new IllegalArgumentException();
+          }
+          Map<String, Serializable> fileMeta = repositoryFileDao.getFileMetadata(tenantFolderId);
           fileMeta.put(ITenantManager.TENANT_ENABLED, false);
-          repositoryFileDao.setFileMetadata(tenantId, fileMeta);
+          repositoryFileDao.setFileMetadata(tenantFolderId, fileMeta);
         }
       });
     } finally {
@@ -239,7 +242,7 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#disableTenants(java.util.List)
    */
   @Override
-  public void disableTenants(List<String> tenantPaths) {
+  public void disableTenants(final List<String> tenantPaths) {
     for (String tenantPath : tenantPaths) {
       disableTenant(tenantPath);
     }
@@ -249,14 +252,14 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#getChildTenants(java.lang.String)
    */
   @Override
-  public List<RepositoryFile> getChildTenants(final String parentPath) {
+  public List<RepositoryFile> getChildTenants(final String parentTenantPath) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     Serializable parentFolderId;
     try {
         parentFolderId = (Serializable) txnTemplate.execute(new TransactionCallback() {
         public Object doInTransaction(final TransactionStatus status) {
-          RepositoryFile tenantParentFolder = repositoryFileDao.getFileByAbsolutePath(DefaultTenantManager.this.getParentPath(parentPath));
+          RepositoryFile tenantParentFolder = repositoryFileDao.getFileByAbsolutePath(DefaultTenantManager.this.getParentPath(parentTenantPath));
           return tenantParentFolder.getId();
         }
       });
@@ -267,14 +270,16 @@ public class DefaultTenantManager implements ITenantManager {
   }
 
   @Override
-  public List<RepositoryFile> getChildTenants(final Serializable parentFolderId) {
+  public List<RepositoryFile> getChildTenants(final Serializable parentTenantFolderId) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     try {
       return (List<RepositoryFile>) txnTemplate.execute(new TransactionCallback() {
         public Object doInTransaction(final TransactionStatus status) {
-          RepositoryFile tenantParentFolder = repositoryFileDao.getFileById(parentFolderId);
-          assert(isTenantRoot(tenantParentFolder.getId()));
+          if (isTenantRoot(parentTenantFolderId)) {
+            throw new IllegalArgumentException();
+          }
+          RepositoryFile tenantParentFolder = repositoryFileDao.getFileById(parentTenantFolderId);
           List<RepositoryFile> children = new ArrayList<RepositoryFile>();
           List<RepositoryFile> allChildren = repositoryFileDao.getChildren(tenantParentFolder.getId(), null);
           for (RepositoryFile repoFile : allChildren) {
@@ -307,15 +312,15 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#isTenantEnabled(java.io.Serializable)
    */
   @Override
-  public boolean isTenantEnabled(final Serializable tenantRootfileId) {
+  public boolean isTenantEnabled(final Serializable tenantFolderId) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     try {
       return (Boolean) txnTemplate.execute(new TransactionCallback() {
         public Object doInTransaction(final TransactionStatus status) {
-          Map<String, Serializable> metadata = repositoryFileDao.getFileMetadata(tenantRootfileId);
+          Map<String, Serializable> metadata = repositoryFileDao.getFileMetadata(tenantFolderId);
           
-          return isTenantRoot(tenantRootfileId) && 
+          return isTenantRoot(tenantFolderId) && 
                  metadata.containsKey(ITenantManager.TENANT_ENABLED) && 
                  (Boolean)metadata.get(ITenantManager.TENANT_ENABLED);
         }
@@ -338,13 +343,13 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#isTenantRoot(java.io.Serializable)
    */
   @Override
-  public boolean isTenantRoot(final Serializable tenantRootfileId) {
+  public  boolean isTenantRoot(final Serializable tenantFolderId) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     try {
       return (Boolean) txnTemplate.execute(new TransactionCallback() {
         public Object doInTransaction(final TransactionStatus status) {
-          Map<String, Serializable> metadata = repositoryFileDao.getFileMetadata(tenantRootfileId);
+          Map<String, Serializable> metadata = repositoryFileDao.getFileMetadata(tenantFolderId);
           
           return metadata.containsKey(ITenantManager.TENANT_ROOT) && 
                  (Boolean)metadata.get(ITenantManager.TENANT_ROOT);
@@ -398,19 +403,19 @@ public class DefaultTenantManager implements ITenantManager {
   }
 
   /**
-   * @param parentPath
+   * @param tenantParentPath
    * @param tenantName
    * @return
    */
-  protected RepositoryFile createTenantRootFolder(final String parentPath, final String tenantName) {
+  protected RepositoryFile createTenantRootFolder(final String tenantParentPath, final String tenantName) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     try {
       return (RepositoryFile)txnTemplate.execute(new TransactionCallback() {
         public Object doInTransaction(final TransactionStatus status) {
           final RepositoryFileSid repositoryAdminUserSid = new RepositoryFileSid(repositoryAdminUsername);
-          RepositoryFile parentTenant = repositoryFileDao.getFileByAbsolutePath(DefaultTenantManager.this.getParentPath(parentPath));
-          RepositoryFile tenantRootFolder = repositoryFileDao.getFileByAbsolutePath(DefaultTenantManager.this.getTenantPath(parentPath, tenantName));
+          RepositoryFile parentTenant = repositoryFileDao.getFileByAbsolutePath(DefaultTenantManager.this.getParentPath(tenantParentPath));
+          RepositoryFile tenantRootFolder = repositoryFileDao.getFileByAbsolutePath(DefaultTenantManager.this.getTenantPath(tenantParentPath, tenantName));
           if (tenantRootFolder == null) {
             tenantRootFolder = internalCreateFolder(parentTenant.getId(), new RepositoryFile.Builder(tenantName).folder(true).build(), false, repositoryAdminUserSid, Messages.getInstance().getString("DefaultRepositoryLifecycleManager.USER_0002_VER_COMMENT_TENANT_ROOT")); //$NON-NLS-1$
             // no aces added here; access to tenant root is governed by DefaultPentahoJackrabbitAccessControlHelper
