@@ -640,13 +640,13 @@ public class JcrRepositoryFileUtils {
    */
   public static void checkinNearestVersionableFileIfNecessary(final Session session,
       final PentahoJcrConstants pentahoJcrConstants, final Serializable fileId, final String versionMessage,
-      final boolean aclChangeOnly)
+      final boolean aclOnlyChange)
       throws RepositoryException {
     // file could be null meaning the caller is using null as the parent folder; that's OK; in this case the node in
     // question would be the repository root node and that is never versioned
     if (fileId != null) {
       Node node = session.getNodeByIdentifier(fileId.toString());
-      checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, node, versionMessage, aclChangeOnly);
+      checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, node, versionMessage, aclOnlyChange);
     }
   }
 
@@ -663,7 +663,7 @@ public class JcrRepositoryFileUtils {
    */
   public static void checkinNearestVersionableNodeIfNecessary(final Session session,
       final PentahoJcrConstants pentahoJcrConstants, final Node node, final String versionMessage,
-      final boolean aclChangeOnly)
+      final boolean aclOnlyChange)
       throws RepositoryException {
     Assert.notNull(node);
     session.save();
@@ -683,12 +683,12 @@ public class JcrRepositoryFileUtils {
           versionableNode.setProperty(pentahoJcrConstants.getPHO_VERSIONMESSAGE(), (String) null);
         }
       }
-      if (aclChangeOnly) {
-        versionableNode.setProperty(pentahoJcrConstants.getPHO_ACLCHANGEONLY(), true);
+      if (aclOnlyChange) {
+        versionableNode.setProperty(pentahoJcrConstants.getPHO_ACLONLYCHANGE(), true);
       } else {
         // TODO mlowery why do I need to check for hasProperty here? in JR 1.6, I didn't need to
-        if (versionableNode.hasProperty(pentahoJcrConstants.getPHO_ACLCHANGEONLY())) {
-          versionableNode.getProperty(pentahoJcrConstants.getPHO_ACLCHANGEONLY()).remove();
+        if (versionableNode.hasProperty(pentahoJcrConstants.getPHO_ACLONLYCHANGE())) {
+          versionableNode.getProperty(pentahoJcrConstants.getPHO_ACLONLYCHANGE()).remove();
         }
       }
       session.save(); // required before checkin since we set some properties above
@@ -746,7 +746,7 @@ public class JcrRepositoryFileUtils {
   }
 
   public static Object getVersionSummaries(final Session session, final PentahoJcrConstants pentahoJcrConstants,
-      final Serializable fileId) throws RepositoryException {
+      final Serializable fileId, final boolean includeAclOnlyChanges) throws RepositoryException {
     Node fileNode = session.getNodeByIdentifier(fileId.toString());
     VersionHistory versionHistory = session.getWorkspace().getVersionManager().getVersionHistory(fileNode.getPath());
     // get root version but don't include it in version summaries; from JSR-170 specification section 8.2.5:
@@ -759,7 +759,7 @@ public class JcrRepositoryFileUtils {
     while (successors != null && successors.length > 0) {
       version = successors[0]; // branching not supported
       VersionSummary sum = toVersionSummary(pentahoJcrConstants, versionHistory, version);
-      if (sum != null) {
+      if (!sum.isAclOnlyChange() || (includeAclOnlyChanges && sum.isAclOnlyChange())) {
         versionSummaries.add(sum);
       }
       successors = version.getSuccessors();
@@ -777,12 +777,13 @@ public class JcrRepositoryFileUtils {
     if (nodeAtVersion.hasProperty(pentahoJcrConstants.getPHO_VERSIONMESSAGE())) {
       message = nodeAtVersion.getProperty(pentahoJcrConstants.getPHO_VERSIONMESSAGE()).getString();
     }
-    if (nodeAtVersion.hasProperty(pentahoJcrConstants.getPHO_ACLCHANGEONLY())
-        && nodeAtVersion.getProperty(pentahoJcrConstants.getPHO_ACLCHANGEONLY()).getBoolean() == true) {
-      return null;
+    boolean aclOnlyChange = false;
+    if (nodeAtVersion.hasProperty(pentahoJcrConstants.getPHO_ACLONLYCHANGE())
+        && nodeAtVersion.getProperty(pentahoJcrConstants.getPHO_ACLONLYCHANGE()).getBoolean()) {
+      aclOnlyChange = true;
     }
-    return new VersionSummary(version.getName(), versionHistory.getVersionableIdentifier(), version.getCreated().getTime(),
-        author, message, labels);
+    return new VersionSummary(version.getName(), versionHistory.getVersionableIdentifier(), aclOnlyChange, 
+        version.getCreated().getTime(), author, message, labels);
   }
 
   /**
@@ -843,12 +844,7 @@ public class JcrRepositoryFileUtils {
     } else {
       version = vMgr.getBaseVersion(fileNode.getPath());
     }
-    VersionSummary sum = toVersionSummary(pentahoJcrConstants, versionHistory, version);
-    if (sum == null) {
-      // should never happen since this versionID should have never been given out
-      throw new RepositoryFileDaoException();
-    }
-    return sum;
+    return toVersionSummary(pentahoJcrConstants, versionHistory, version);
   }
 
   public static RepositoryFileTree getTree(final Session session, final PentahoJcrConstants pentahoJcrConstants,

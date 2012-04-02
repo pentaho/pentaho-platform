@@ -70,7 +70,7 @@ public class PentahoJcrConstants extends JcrConstants {
 
   private static final String PHO_VERSIONMESSAGE = "versionMessage"; //$NON-NLS-1$
   
-  private static final String PHO_ACLCHANGEONLY = "aclChangeOnly"; //$NON-NLS-1$
+  private static final String PHO_ACLONLYCHANGE = "aclOnlyChange"; //$NON-NLS-1$
 
   private static final String PHO_TITLE = "title"; //$NON-NLS-1$
 
@@ -201,8 +201,8 @@ public class PentahoJcrConstants extends JcrConstants {
     return resolveName(PHO_NS, PHO_ORIGNAME);
   }
 
-  public String getPHO_ACLCHANGEONLY() {
-    return resolveName(PHO_NS, PHO_ACLCHANGEONLY);
+  public String getPHO_ACLONLYCHANGE() {
+    return resolveName(PHO_NS, PHO_ACLONLYCHANGE);
   }
 
 }

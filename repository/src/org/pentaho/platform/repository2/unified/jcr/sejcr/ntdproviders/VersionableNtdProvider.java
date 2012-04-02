@@ -20,7 +20,7 @@ import org.pentaho.platform.repository2.unified.jcr.sejcr.NodeTypeDefinitionProv
 //     - pho:versionAuthor (string) copy
 //     - pho:versionMessage (string) copy
 //     // since JCR requires a checkout-checkin for setPolicy, mark it as such so it can be filtered later
-//     - pho:aclChangeOnly (boolean) copy
+//     - pho:aclOnlyChange (boolean) copy
 
 public class VersionableNtdProvider implements NodeTypeDefinitionProvider {
 
@@ -34,7 +34,7 @@ public class VersionableNtdProvider implements NodeTypeDefinitionProvider {
     t.setDeclaredSuperTypeNames(new String[] { MIX + "simpleVersionable" }); //$NON-NLS-1$
     t.getPropertyDefinitionTemplates().add(getAuthorProperty(ntMgr, vFac));
     t.getPropertyDefinitionTemplates().add(getMessageProperty(ntMgr, vFac));
-    t.getPropertyDefinitionTemplates().add(getAclChangeOnlyProperty(ntMgr, vFac));
+    t.getPropertyDefinitionTemplates().add(getAclOnlyChangeProperty(ntMgr, vFac));
     return t;
   }
 
@@ -58,10 +58,10 @@ public class VersionableNtdProvider implements NodeTypeDefinitionProvider {
     return t;
   }
 
-  private PropertyDefinitionTemplate getAclChangeOnlyProperty(final NodeTypeManager ntMgr, final ValueFactory vFac)
+  private PropertyDefinitionTemplate getAclOnlyChangeProperty(final NodeTypeManager ntMgr, final ValueFactory vFac)
       throws RepositoryException {
     PropertyDefinitionTemplate t = ntMgr.createPropertyDefinitionTemplate();
-    t.setName(PHO + "aclChangeOnly"); //$NON-NLS-1$
+    t.setName(PHO + "aclOnlyChange"); //$NON-NLS-1$
     t.setRequiredType(PropertyType.BOOLEAN);
     t.setOnParentVersion(OnParentVersionAction.COPY);
     t.setMultiple(false);

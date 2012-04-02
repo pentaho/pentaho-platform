@@ -436,6 +436,42 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   }
 
   @Test
+  public void testStopThenStartInheriting() throws Exception {
+    manager.startup();
+    setUpRoleBindings();
+    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    RepositoryFile tiffanyHomeFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_TIFFANY));
+    RepositoryFile testFolder = repo.createFolder(tiffanyHomeFolder.getId(), new RepositoryFile.Builder("test").folder(true).build(), null);
+    RepositoryFileAcl acl = repo.getAcl(testFolder.getId());
+    RepositoryFileAcl updatedAcl = new RepositoryFileAcl.Builder(acl).entriesInheriting(false).build();
+    updatedAcl = repo.updateAcl(updatedAcl);
+    assertFalse(updatedAcl.isEntriesInheriting());
+    updatedAcl = new RepositoryFileAcl.Builder(updatedAcl).entriesInheriting(true).build();
+    updatedAcl = repo.updateAcl(updatedAcl);
+    assertTrue(updatedAcl.isEntriesInheriting());
+  }
+  
+  /**
+   * While they may be filtered from the version history, we still must be able to fetch acl-only changes.
+   */
+  @Test
+  public void testGetAclOnlyVersion() throws Exception {
+    manager.startup();
+    setUpRoleBindings();
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+    final String fileName = "helloworld.sample";
+    RepositoryFile newFile = createSampleFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY), fileName,
+        "blah", false, 123, true);
+    assertEquals(1, repo.getVersionSummaries(newFile.getId()).size());
+    RepositoryFileAcl acl = repo.getAcl(newFile.getId());
+    // no change; just want to create a new version
+    RepositoryFileAcl updatedAcl = new RepositoryFileAcl.Builder(acl).build();
+    updatedAcl = repo.updateAcl(updatedAcl);
+    assertEquals(1, repo.getVersionSummaries(newFile.getId()).size());
+    assertNotNull(repo.getVersionSummary(newFile.getId(), "1.1"));
+  }
+  
+  @Test
   public void testGetFileNotExist() throws Exception {
     manager.startup();
     setUpRoleBindings();

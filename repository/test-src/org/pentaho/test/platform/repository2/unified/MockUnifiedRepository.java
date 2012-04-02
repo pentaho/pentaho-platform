@@ -607,7 +607,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     } else {
       r = versionManager.getFileAtVersion(fileId, versionId);
     }
-    return new VersionSummary(r.getVersionId(), r.getFile().getId(), r.getDate(), r.getAuthor(), r.getVersionMessage(),
+    return new VersionSummary(r.getVersionId(), r.getFile().getId(), false, r.getDate(), r.getAuthor(), r.getVersionMessage(),
         new ArrayList<String>(0));
   }
 
@@ -627,7 +627,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     List<VersionSummary> sums = new ArrayList<VersionSummary>();
     List<FrozenFileRecord> records = versionManager.getVersions(fileId);
     for (FrozenFileRecord record : records) {
-      sums.add(new VersionSummary(record.getVersionId(), record.getFile().getId(), record.getDate(),
+      sums.add(new VersionSummary(record.getVersionId(), record.getFile().getId(), false, record.getDate(),
           record.getAuthor(), record.getVersionMessage(), new ArrayList<String>(0)));
     }
     return sums;

@@ -43,6 +43,12 @@ public class VersionSummary implements Serializable {
    * The ID of the node that is versioned.
    */
   private final Serializable versionedFileId;
+  
+  /**
+   * {@code true} if this version is the result of a change that is purely access control related. Only applicable in
+   * implementations where changing access control creates a new revision.
+   */
+  private final boolean aclOnlyChange; 
 
   /**
    * List of labels applied to this version (never {@code null}).
@@ -51,7 +57,7 @@ public class VersionSummary implements Serializable {
 
   // ~ Constructors ====================================================================================================
 
-  public VersionSummary(final Serializable id, final Serializable versionedFileId, final Date date,
+  public VersionSummary(final Serializable id, final Serializable versionedFileId, final boolean aclOnlyChange, final Date date,
       final String author, final String message, final List<String> labels) {
     super();
     notNull(id);
@@ -65,6 +71,7 @@ public class VersionSummary implements Serializable {
     this.author = author;
     this.message = message;
     this.labels = Collections.unmodifiableList(labels);
+    this.aclOnlyChange = aclOnlyChange;
   }
 
   // ~ Methods =========================================================================================================
@@ -130,10 +137,15 @@ public class VersionSummary implements Serializable {
     return true;
   }
 
+  public boolean isAclOnlyChange() {
+    return aclOnlyChange;
+  }
+
+  @SuppressWarnings("nls")
   @Override
   public String toString() {
-    return "VersionSummary [author=" + author + ", date=" + date + ", id=" + id + ", labels=" + labels + ", message=" //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$
-        + message + ", versionedFileId=" + versionedFileId + "]"; //$NON-NLS-1$//$NON-NLS-2$
+    return "VersionSummary [id=" + id + ", versionedFileId=" + versionedFileId + ", aclOnlyChange=" + aclOnlyChange
+        + ", date=" + date + ", author=" + author + ", message=" + message + ", labels=" + labels + "]";
   }
 
 }

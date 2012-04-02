@@ -29,12 +29,13 @@ public class VersionSummaryAdapter extends XmlAdapter<VersionSummaryDto, Version
     s.message = v.getMessage();
     s.versionedFileId = v.getVersionedFileId().toString();
     s.labels = v.getLabels();
+    s.aclOnlyChange = v.isAclOnlyChange();
     return s;
   }
 
   @Override
   public VersionSummary unmarshal(final VersionSummaryDto v) {
-    return new VersionSummary(v.id, v.versionedFileId, v.date, v.author, v.message, v.labels);
+    return new VersionSummary(v.id, v.versionedFileId, v.aclOnlyChange, v.date, v.author, v.message, v.labels);
   }
 
 }

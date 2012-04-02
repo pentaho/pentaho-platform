@@ -382,7 +382,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     return (List<VersionSummary>) jcrTemplate.execute(new JcrCallback() {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
-        return JcrRepositoryFileUtils.getVersionSummaries(session, pentahoJcrConstants, fileId);
+        return JcrRepositoryFileUtils.getVersionSummaries(session, pentahoJcrConstants, fileId, false);
       }
     });
   }

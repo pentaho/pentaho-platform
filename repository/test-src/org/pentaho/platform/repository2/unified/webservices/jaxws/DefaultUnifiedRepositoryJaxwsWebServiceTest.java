@@ -256,7 +256,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
         .ace("suzy", RepositoryFileSid.Type.USER, RepositoryFilePermission.ALL).build();
     doReturn(folder1Acl).when(_repo2).updateAcl(argThat(isLikeAcl(folder1Acl)));
     doReturn(true).when(_repo2).canUnlockFile(file1WithId.getId());
-    VersionSummary v = new VersionSummary("1.0", file1WithId.getId(), new Date(), "suzy", "message",
+    VersionSummary v = new VersionSummary("1.0", file1WithId.getId(), false, new Date(), "suzy", "message",
         new ArrayList<String>());
     doReturn(Arrays.asList(v, v, v)).when(_repo2).getVersionSummaries(file1WithId.getId());
     doReturn(v).when(_repo2).getVersionSummary(file1WithId.getId(), null);

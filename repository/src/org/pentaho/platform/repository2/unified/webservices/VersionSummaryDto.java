@@ -29,6 +29,8 @@ public class VersionSummaryDto implements Serializable{
   String id;
 
   String versionedFileId;
+  
+  boolean aclOnlyChange;
 
   List<String> labels = new ArrayList<String>(0);
 
@@ -90,6 +92,14 @@ public class VersionSummaryDto implements Serializable{
   public String toString() {
     return "VersionSummaryDto [id=" + id + ", versionedFileId=" + versionedFileId + ", author=" + author + ", date="
         + date + ", labels=" + labels + ", message=" + message + "]";
+  }
+
+  private boolean isAclOnlyChange() {
+    return aclOnlyChange;
+  }
+
+  private void setAclOnlyChange(boolean aclOnlyChange) {
+    this.aclOnlyChange = aclOnlyChange;
   }
 
 }
