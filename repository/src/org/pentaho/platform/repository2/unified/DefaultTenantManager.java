@@ -33,7 +33,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -66,7 +65,7 @@ public class DefaultTenantManager implements ITenantManager {
   /**
    * When not using multi-tenancy, this value is used as opposed to {@link tenantAuthenticatedAuthorityPattern}.
    */
-  protected String singleTenantAuthenticatedAuthorityName;
+//  protected String singleTenantAuthenticatedAuthorityName;
 
   protected TransactionTemplate txnTemplate;
 
@@ -74,7 +73,7 @@ public class DefaultTenantManager implements ITenantManager {
 
   protected IRepositoryFileAclDao repositoryFileAclDao;
 
-  public DefaultTenantManager(final IRepositoryFileDao contentDao, final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate, final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern, final String singleTenantAuthenticatedAuthorityName) {
+  public DefaultTenantManager(final IRepositoryFileDao contentDao, final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate, final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern) {
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
     Assert.notNull(txnTemplate);
@@ -85,7 +84,6 @@ public class DefaultTenantManager implements ITenantManager {
     this.txnTemplate = txnTemplate;
     this.repositoryAdminUsername = repositoryAdminUsername;
     this.tenantAuthenticatedAuthorityNamePattern = tenantAuthenticatedAuthorityNamePattern;
-    this.singleTenantAuthenticatedAuthorityName = singleTenantAuthenticatedAuthorityName;
     initTransactionTemplate();
   }
 
@@ -459,11 +457,7 @@ public class DefaultTenantManager implements ITenantManager {
   }
 
   protected String internalGetTenantAuthenticatedAuthorityName(final String tenantId) {
-    if (!TenantUtils.TENANTID_SINGLE_TENANT.equals(tenantId)) {
-      return MessageFormat.format(tenantAuthenticatedAuthorityNamePattern, tenantId);
-    } else {
-      return singleTenantAuthenticatedAuthorityName;
-    }
+    return MessageFormat.format(tenantAuthenticatedAuthorityNamePattern, tenantId);
   }
 
   String getParentPath(String parentPath) {

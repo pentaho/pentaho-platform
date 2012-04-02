@@ -162,8 +162,7 @@
     <constructor-arg ref="repositoryFileAclDao"/>
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
-    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>	    
+    <constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>	    
   </bean>
   
   <bean id="defaultBackingRepositoryLifecycleManager"
