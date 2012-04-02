@@ -25,7 +25,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
@@ -52,11 +51,9 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
   // ~ Static fields/initializers ======================================================================================
 
   // ~ Instance fields =================================================================================================
-  ITenantManager tenantManager;
-  
+
   // ~ Constructors ====================================================================================================
 
-  
   public DefaultBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
                                                   final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
                                                   final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
@@ -68,8 +65,8 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
   // ~ Methods =========================================================================================================
 
   public synchronized void doNewTenant(final String tenantId) {
-//    createTenantRootFolder(tenantId);
-//    createInitialTenantFolders(tenantId);
+    createTenantRootFolder(tenantId);
+    createInitialTenantFolders(tenantId);
   }
 
   public synchronized void doNewUser(final String tenantId, final String username) {
@@ -98,12 +95,6 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
             rootFolder = internalCreateFolder(null, new RepositoryFile.Builder(ServerRepositoryPaths
                 .getPentahoRootFolderName()).folder(true).build(), true, repositoryAdminUserSid, Messages.getInstance()
                 .getString("DefaultRepositoryLifecycleManager.USER_0001_VER_COMMENT_PENTAHO_ROOT")); //$NON-NLS-1$
-            // no aces added here; access to tenant root is governed by DefaultPentahoJackrabbitAccessControlHelper
-            // Since the root folder is the root of all tenants it needs to have the metadata of a tenant... but not the extended structure
-            Map<String, Serializable> fileMeta = repositoryFileDao.getFileMetadata(rootFolder.getId());
-            fileMeta.put(ITenantManager.TENANT_ROOT, "true");
-            fileMeta.put(ITenantManager.TENANT_ENABLED, "true");
-            repositoryFileDao.setFileMetadata(rootFolder.getId(), fileMeta);
           }
         }
       });
@@ -208,23 +199,4 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
       PentahoSessionHolder.setSession(origPentahoSession);
     }
   }
-  
-  /**
-   * @return the {@link IBackingRepositoryLifecycleManager} that this instance will use. If none has been specified,
-   * it will default to getting the information from {@link PentahoSystem.get()}
-   */
-  public ITenantManager getTenantManager() {
-    // Check ... if we haven't been injected with a lifecycle manager, get one from PentahoSystem
-    return (null != tenantManager ? tenantManager : PentahoSystem.get(ITenantManager.class));
-  }
-
-  /**
-   * Sets the {@link IBackingRepositoryLifecycleManager} to be used by this instance
-   * @param lifecycleManager the lifecycle manager to use (can not be null)
-   */
-  public void setTenantManager(final ITenantManager tenantManager) {
-    assert(null != tenantManager);
-    this.tenantManager = tenantManager;
-  }
-
 }
