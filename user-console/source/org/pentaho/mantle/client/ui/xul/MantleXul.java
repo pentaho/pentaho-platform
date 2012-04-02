@@ -214,6 +214,20 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
 	t.scheduleRepeating(250);
   }
   
+  public void selectAdminCatTreeTreeItem(final String treeLabel) {
+	  GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
+	  Tree adminTree = adminCatTree.getTree();
+	  adminTree.setSelectedItem(null, true);
+	  Iterator<TreeItem> adminTreeItr = adminTree.treeItemIterator();
+	  while(adminTreeItr.hasNext()) {
+  	    TreeItem treeItem = adminTreeItr.next();
+		if(treeItem.getText().equals(treeLabel)) {
+		  adminTree.setSelectedItem(treeItem, true);
+		  break;  
+		}
+	  }	  
+  }
+  
   public DeckPanel getAdminContentDeck() {
     return adminContentDeck;
   }

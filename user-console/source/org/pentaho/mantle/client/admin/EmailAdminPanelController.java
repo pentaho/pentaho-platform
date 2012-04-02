@@ -22,7 +22,10 @@ package org.pentaho.mantle.client.admin;
 
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.ui.xul.XulComponent;
+import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 import org.pentaho.ui.xul.util.XulDialogCallback;
 
 import com.google.gwt.core.client.GWT;
@@ -169,9 +172,11 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 					} else if (response.getText().equals("EmailTester.FAIL")) {
 						message = Messages.getString("connectionTest.fail");
 					}
-					DirtyStateConfirmBox messageBox = new DirtyStateConfirmBox(false);
+					GwtMessageBox messageBox = new GwtMessageBox();
 					messageBox.setTitle(Messages.getString("connectionTest"));
 					messageBox.setMessage(message);
+					messageBox.setButtons(new Object[GwtMessageBox.ACCEPT]);
+					messageBox.setAcceptLabel(Messages.getString("close"));
 					messageBox.show();
 				}
 			});
@@ -233,9 +238,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	}
 
 	public void passivate(final AsyncCallback<Boolean> callback) {
-
-		DirtyStateConfirmBox messageBox = new DirtyStateConfirmBox();
-		messageBox.setTitle(Messages.getString("warning"));
+		GwtConfirmBox messageBox = new GwtConfirmBox();
+		messageBox.setTitle(Messages.getString("confirm"));
 		messageBox.setMessage(Messages.getString("dirtyStateMessage"));
 		messageBox.addDialogCallback(new XulDialogCallback<String>() {
 
@@ -243,10 +247,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 				if (status == XulDialogCallback.Status.ACCEPT) {
 					callback.onSuccess(true);
 				}
-				if (status == XulDialogCallback.Status.ONEXTRA1) {
-					callback.onSuccess(true);
-				}
 				if (status == XulDialogCallback.Status.CANCEL) {
+					MantleXul.getInstance().selectAdminCatTreeTreeItem(Messages.getString("emailSmtpServer"));
 					callback.onSuccess(false);
 				}
 			}

@@ -215,10 +215,17 @@ public class MantleController extends AbstractXulEventHandler {
     $wnd.mantle_enableUsersRolesTreeItem = function(enabled) { 
       controller.@org.pentaho.mantle.client.ui.xul.MantleController::enableUsersRolesTreeItem(Z)(enabled);      
     } 
+    $wnd.mantle_selectAdminCatTreeTreeItem = function(treeLabel) { 
+      controller.@org.pentaho.mantle.client.ui.xul.MantleController::selectAdminCatTreeTreeItem(Ljava/lang/String;)(treeLabel);      
+    } 
   }-*/;
   
   public void enableUsersRolesTreeItem(boolean enabled) {
     MantleXul.getInstance().enableUsersRolesTreeItem(enabled);
+  }
+  
+  public void selectAdminCatTreeTreeItem(String treeLabel) {
+	  MantleXul.getInstance().selectAdminCatTreeTreeItem(treeLabel);
   }
   
   public void registerSysAdminPanel(JsSysAdminPanel sysAdminPanel) {
