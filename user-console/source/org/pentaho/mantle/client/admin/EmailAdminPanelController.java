@@ -52,6 +52,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
 	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	private boolean isDirty = false;
 
 	public EmailAdminPanelController() {
 		super();
@@ -75,10 +76,10 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		passwordTextBox.setValue(password);
 		saveButton.setEnabled(isValid());
 		testButton.setEnabled(isValid());
+		isDirty = true;
 	}
 
 	public boolean isValid() {
-
 		String smtpValue = smtpHostTextBox.getValue();
 		String portValue = portTextBox.getValue();
 		String fromAddressValue = fromAddressTextBox.getValue();
@@ -100,7 +101,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			boolean passwordValid = !StringUtils.isEmpty(passwordValue);
 			authenticationValid = userNameValid && passwordValid;
 		}
-
 		return portValid && smtpValid && fromAddressValid && authenticationValid;
 	}
 
@@ -230,6 +230,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	// -- ISysAdminPanel implementation.
 
 	public void activate() {
+		isDirty = false;
 		getEmailConfig();
 	}
 
@@ -238,25 +239,29 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	}
 
 	public void passivate(final AsyncCallback<Boolean> callback) {
-		GwtConfirmBox messageBox = new GwtConfirmBox();
-		messageBox.setTitle(Messages.getString("confirm"));
-		messageBox.setMessage(Messages.getString("dirtyStateMessage"));
-		messageBox.addDialogCallback(new XulDialogCallback<String>() {
-
-			public void onClose(XulComponent component, XulDialogCallback.Status status, String value) {
-				if (status == XulDialogCallback.Status.ACCEPT) {
-					callback.onSuccess(true);
+		if(isDirty) {
+			GwtConfirmBox messageBox = new GwtConfirmBox();
+			messageBox.setTitle(Messages.getString("confirm"));
+			messageBox.setMessage(Messages.getString("dirtyStateMessage"));
+			messageBox.addDialogCallback(new XulDialogCallback<String>() {
+	
+				public void onClose(XulComponent component, XulDialogCallback.Status status, String value) {
+					if (status == XulDialogCallback.Status.ACCEPT) {
+						callback.onSuccess(true);
+					}
+					if (status == XulDialogCallback.Status.CANCEL) {
+						MantleXul.getInstance().selectAdminCatTreeTreeItem(Messages.getString("emailSmtpServer"));
+						callback.onSuccess(false);
+					}
 				}
-				if (status == XulDialogCallback.Status.CANCEL) {
-					MantleXul.getInstance().selectAdminCatTreeTreeItem(Messages.getString("emailSmtpServer"));
-					callback.onSuccess(false);
+	
+				public void onError(XulComponent e, Throwable t) {
 				}
-			}
-
-			public void onError(XulComponent e, Throwable t) {
-			}
-		});
-		messageBox.show();
+			});
+			messageBox.show();
+		} else {
+			callback.onSuccess(true);
+		}
 	}
 
 	// -- Event Listeners.
@@ -286,16 +291,19 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		public void onKeyUp(KeyUpEvent e) {
 			saveButton.setEnabled(isValid());
 			testButton.setEnabled(isValid());
+			isDirty = true;
 		}
 
 		public void onValueChange(ValueChangeEvent<Boolean> value) {
 			saveButton.setEnabled(isValid());
 			testButton.setEnabled(isValid());
+			isDirty = true;
 		}
 
 		public void onChange(ChangeEvent value) {
 			saveButton.setEnabled(isValid());
 			testButton.setEnabled(isValid());
+			isDirty = true;
 		}
 	}
 
