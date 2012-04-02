@@ -75,7 +75,7 @@ public class JcrAclMetadataStrategy implements IAclMetadataStrategy {
     List<AccessControlEntry> cleanedAcEntries = new ArrayList<AccessControlEntry>(acEntries.size());
     for (AccessControlEntry acEntry : acEntries) {
       // removes acl metadata but also any magic aces that might leak out during getEffectivePolicies
-      if (!(acEntry.getPrincipal() instanceof PentahoInternalPrincipal)) {
+      if (!(acEntry.getPrincipal() instanceof IPentahoInternalPrincipal)) {
         cleanedAcEntries.add(acEntry);
       }
     }
@@ -92,7 +92,7 @@ public class JcrAclMetadataStrategy implements IAclMetadataStrategy {
    * 
    * @author mlowery
    */
-  public static class AclMetadataPrincipal implements PentahoInternalPrincipal {
+  public static class AclMetadataPrincipal implements IPentahoInternalPrincipal {
 
     /**
      * Helps to guarantee uniqueness of this principal name so that it never matches a real principal.

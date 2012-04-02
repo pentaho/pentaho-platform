@@ -14,6 +14,7 @@ import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.VersionHistory;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.id.NodeId;
@@ -95,41 +96,22 @@ public class PentahoEntryCollector extends EntryCollector {
     return new MagicAceDefinition(path, logicalRole, privileges.toArray(new Privilege[0]), recursive);
   }
 
-  @Override
-  protected Entries getEntries(NodeImpl node) throws RepositoryException {
-    // find nearest node with an ACL that is not inheriting ACEs
+  protected NodeImpl findAccessControlledNode(final NodeImpl node) throws RepositoryException {
     NodeImpl currentNode = node;
-    NodeImpl aclNode;
-    ACLTemplate acl;
-
-    // version history governed by ACL on "versionable" which could be the root if no version history exists for file;
-    // if we do hit the root, then you get jcr:read for everyone which is acceptable
-    if (currentNode.getPath().startsWith("/jcr:system/jcr:versionStorage")) { //$NON-NLS-1$
-      currentNode = getVersionable(currentNode);
+    // skip all nodes that are not access-controlled; might eventually hit root which is always access-controlled
+    while (!ACLProvider.isAccessControlled(currentNode)) {
+      currentNode = (NodeImpl) currentNode.getParent();
     }
+    return currentNode;
+  }
 
-    boolean firstAccessControlledNode = true;
-    String owner = null;
-    
+  protected NodeImpl findNonInheritingNode(final NodeImpl node) throws RepositoryException {
+    NodeImpl currentNode = node;
+    ACLTemplate acl;
     while (true) {
-      // skip all nodes that are not access-controlled
-      if (!ACLProvider.isAccessControlled(currentNode)) {
-        currentNode = (NodeImpl) currentNode.getParent();
-        continue;
-      }
-      aclNode = currentNode.getNode(N_POLICY);
-      acl = new ACLTemplate(aclNode);
-    
-      // owner comes from the first access-controlled node
-      if (firstAccessControlledNode) {
-        firstAccessControlledNode = false;
-        AclMetadata aclMetadata = JcrRepositoryFileAclUtils.getAclMetadata(systemSession,
-            currentNode.getPath(), acl);
-        if (aclMetadata != null) {
-          owner = aclMetadata.getOwner();
-        }
-      }
-      
+      currentNode = findAccessControlledNode(currentNode);
+      acl = new ACLTemplate(currentNode.getNode(N_POLICY));
+
       // skip all nodes that are inheriting
       AclMetadata aclMetadata = JcrRepositoryFileAclUtils.getAclMetadata(systemSession,
           currentNode.getPath(), acl);
@@ -139,13 +121,45 @@ public class PentahoEntryCollector extends EntryCollector {
       }
       break;
     }
-    
-    if (owner != null) {
-      addOwnerAce(owner, acl);
+    return currentNode;
+  }
+
+  @Override
+  protected Entries getEntries(final NodeImpl node) throws RepositoryException {
+    // find nearest node with an ACL that is not inheriting ACEs
+    NodeImpl currentNode = node;
+    ACLTemplate acl;
+
+    // version history governed by ACL on "versionable" which could be the root if no version history exists for file;
+    // if we do hit the root, then you get jcr:read for everyone which is acceptable
+    if (currentNode.getPath().startsWith("/jcr:system/jcr:versionStorage")) { //$NON-NLS-1$
+      currentNode = getVersionable(currentNode);
     }
-    
+
+    // find first access-controlled node
+    currentNode = findAccessControlledNode(currentNode);
+    acl = new ACLTemplate(currentNode.getNode(N_POLICY));
+
+    // owner comes from the first access-controlled node
+    String owner = null;
+    AclMetadata aclMetadata = JcrRepositoryFileAclUtils.getAclMetadata(systemSession, currentNode.getPath(), acl);
+    if (aclMetadata != null) {
+      owner = aclMetadata.getOwner();
+    }
+
+    NodeImpl firstAccessControlledNode = currentNode;
+    currentNode = findNonInheritingNode(currentNode);
+    acl = new ACLTemplate(currentNode.getNode(N_POLICY));
+
+    ACLTemplate ancestorAcl = null;
+    if (firstAccessControlledNode.isSame(currentNode) && !rootID.equals(currentNode.getNodeId())) {
+      NodeImpl ancestorNode = findNonInheritingNode((NodeImpl) currentNode.getParent());
+      ancestorAcl = new ACLTemplate(ancestorNode.getNode(N_POLICY));
+    }
+
     // now acl points to the nearest ancestor that is access-controlled and is not inheriting;
-    return new Entries(new ArrayList<AccessControlEntry>(getAcesIncludingMagicAces(currentNode.getPath(), acl)), null);
+    return new Entries(new ArrayList<AccessControlEntry>(getAcesIncludingMagicAces(currentNode.getPath(), owner,
+        ancestorAcl, acl)), null);
   }
 
   protected NodeImpl getVersionable(final NodeImpl node) throws RepositoryException {
@@ -168,7 +182,11 @@ public class PentahoEntryCollector extends EntryCollector {
     return authorizationPolicy;
   }
 
-  protected List<AccessControlEntry> getAcesIncludingMagicAces(final String path, final ACLTemplate acl)
+  /*
+   * Modifications to these ACLs are not persisted.
+   */
+  protected List<AccessControlEntry> getAcesIncludingMagicAces(final String path, final String owner,
+      final ACLTemplate ancestorAcl, final ACLTemplate acl)
       throws RepositoryException {
     if (PentahoSessionHolder.getSession() == null || PentahoSessionHolder.getSession().getName() == null
         || PentahoSessionHolder.getSession().getName().trim().equals("")) { //$NON-NLS-1$
@@ -176,6 +194,9 @@ public class PentahoEntryCollector extends EntryCollector {
         log.debug("no PentahoSession so no magic ACEs"); //$NON-NLS-1$
       }
       return Collections.emptyList();
+    }
+    if (owner != null) {
+      addOwnerAce(owner, acl);
     }
     boolean match = false;
     for (final MagicAceDefinition def : magicAceDefinitions) {
@@ -198,27 +219,70 @@ public class PentahoEntryCollector extends EntryCollector {
         acl.addAccessControlEntry(principal, def.privileges);
       }
     }
-    return acl.getEntries();
+    List<AccessControlEntry> acEntries = new ArrayList<AccessControlEntry>();
+    acEntries.addAll(acl.getEntries()); // leaf ACEs go first so ACL metadata ACE stays first
+    acEntries.addAll(getRelevantAncestorAces(ancestorAcl));
+    return acEntries;
   }
 
-  protected void addOwnerAce(final String owner, final ACLTemplate acl) throws RepositoryException {
-      Principal ownerPrincipal = systemSession.getPrincipalManager().getPrincipal(owner);
-      if (ownerPrincipal != null) {
-        Principal magicPrincipal = null;
-        if (ownerPrincipal instanceof Group) {
-          magicPrincipal = new MagicGroup((Group) ownerPrincipal);
-        } else {
-          magicPrincipal = new MagicPrincipal(ownerPrincipal.getName());
-        }
-        // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully later; changed never persisted
-        acl.addAccessControlEntry(magicPrincipal, new Privilege[] { systemSession.getAccessControlManager()
-            .privilegeFromName("jcr:all") }); //$NON-NLS-1$
-      } else {
-        // if the Principal doesn't exist anymore, then there's no reason to add an ACE for it
-        if (log.isDebugEnabled()) {
-          log.debug("PrincipalManager cannot find owner=" + owner); //$NON-NLS-1$
+  /*
+   * Modifications to this ACL are not persisted. ACEs must be created in this ACL because the path embedded in the ACL
+   * plays into authorization decisions using parentPrivs.
+   */
+  protected List<AccessControlEntry> getRelevantAncestorAces(final ACLTemplate ancestorAcl) throws RepositoryException {
+    if (ancestorAcl == null) {
+      return Collections.emptyList();
+    }
+    Privilege addChildNodesPrivilege = systemSession.getAccessControlManager().privilegeFromName(
+        Privilege.JCR_ADD_CHILD_NODES);
+    Privilege removeChildNodesPrivilege = systemSession.getAccessControlManager().privilegeFromName(
+        Privilege.JCR_REMOVE_CHILD_NODES);
+    for (AccessControlEntry entry : ancestorAcl.getAccessControlEntries()) {
+      List<Privilege> privs = new ArrayList<Privilege>(2);
+      Privilege[] expandedPrivileges = JcrRepositoryFileAclUtils.expandPrivileges(entry.getPrivileges(), false);
+      if (ArrayUtils.contains(expandedPrivileges, addChildNodesPrivilege)) {
+        privs.add(addChildNodesPrivilege);
+      }
+      if (ArrayUtils.contains(expandedPrivileges, removeChildNodesPrivilege)) {
+        privs.add(removeChildNodesPrivilege);
+      }
+      // remove existing ACE since (1) it doesn't have the privs we're looking for and (2) the following 
+      // addAccessControlEntry will silently fail to add a new ACE if perms already exist
+      ancestorAcl.removeAccessControlEntry(entry);
+      if (!privs.isEmpty()) {
+        // create new ACE with same principal but only privs relevant to child operations
+        if (!ancestorAcl.addAccessControlEntry(
+            entry.getPrincipal() instanceof Group ? new MagicGroup(entry.getPrincipal().getName())
+                : new MagicPrincipal(entry.getPrincipal().getName()), privs.toArray(new Privilege[0]))) {
+          // we can never fail to add this entry because it means we may be giving more permission than the above two
+          throw new RuntimeException();
         }
       }
+    }
+    return ancestorAcl.getEntries();
+  }
+
+  /*
+   * Modifications to this ACL are not persisted.
+   */
+  protected void addOwnerAce(final String owner, final ACLTemplate acl) throws RepositoryException {
+    Principal ownerPrincipal = systemSession.getPrincipalManager().getPrincipal(owner);
+    if (ownerPrincipal != null) {
+      Principal magicPrincipal = null;
+      if (ownerPrincipal instanceof Group) {
+        magicPrincipal = new MagicGroup(ownerPrincipal.getName());
+      } else {
+        magicPrincipal = new MagicPrincipal(ownerPrincipal.getName());
+      }
+      // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully later; changed never persisted
+      acl.addAccessControlEntry(magicPrincipal, new Privilege[] { systemSession.getAccessControlManager()
+          .privilegeFromName("jcr:all") }); //$NON-NLS-1$
+    } else {
+      // if the Principal doesn't exist anymore, then there's no reason to add an ACE for it
+      if (log.isDebugEnabled()) {
+        log.debug("PrincipalManager cannot find owner=" + owner); //$NON-NLS-1$
+      }
+    }
 
   }
 

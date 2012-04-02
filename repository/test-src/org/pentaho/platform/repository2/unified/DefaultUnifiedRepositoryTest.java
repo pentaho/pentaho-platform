@@ -1720,6 +1720,44 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   }
 
   @Test
+  public void testWriteOnFileToMove() throws Exception {
+    manager.startup();
+    setUpRoleBindings();
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile srcFolder = new RepositoryFile.Builder("src").folder(true).build();
+    RepositoryFile destFolder = new RepositoryFile.Builder("dest").folder(true).build();
+    srcFolder = repo.createFolder(parentFolder.getId(), srcFolder, null);
+    destFolder = repo.createFolder(parentFolder.getId(), destFolder, null);
+    
+    RepositoryFile newFile = createSampleFile(srcFolder.getPath(), "helloworld.sample", "ddfdf", false, 83);
+    RepositoryFileAcl acl = new RepositoryFileAcl.Builder(newFile.getId(), USERNAME_TIFFANY, 
+        RepositoryFileSid.Type.USER).entriesInheriting(false).ace(USERNAME_SUZY, RepositoryFileSid.Type.USER, 
+            RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL).build();
+    repo.updateAcl(acl);
+    // at this point, suzy has write access to src and dest folders but only read access to actual file that will be 
+    // moved; this should fail
+    try {
+      repo.moveFile(newFile.getId(), destFolder.getPath(), null);
+      fail();
+    } catch (UnifiedRepositoryAccessDeniedException e) {
+    }
+  }
+  
+  /**
+   * Tests parent ACL's contribution to decision.
+   */
+  @Test
+  public void testDeleteInheritingFile() throws Exception {
+    manager.startup();
+    setUpRoleBindings();
+    login(USERNAME_SUZY, TENANT_ID_ACME);
+    RepositoryFile newFile = createSampleFile(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)).getPath(), "helloworld.sample", "ddfdf", false, 83);
+    RepositoryFileAcl acl = new RepositoryFileAcl.Builder(newFile.getId(), USERNAME_SUZY, RepositoryFileSid.Type.USER).entriesInheriting(false).build();
+    repo.updateAcl(acl);
+  }
+  
+  @Test
   public void testMoveFile() throws Exception {
     manager.startup();
     setUpRoleBindings();

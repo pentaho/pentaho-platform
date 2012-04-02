@@ -7,6 +7,6 @@ import java.security.Principal;
  * 
  * @author mlowery
  */
-public interface PentahoInternalPrincipal extends Principal {
+public interface IPentahoInternalPrincipal extends Principal {
 
 }

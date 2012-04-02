@@ -91,26 +91,7 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
 
     EnumSet<RepositoryFilePermission> permissions = EnumSet.noneOf(RepositoryFilePermission.class);
 
-    // find all aggregate privileges and expand
-    Set<Privilege> expandedPrivileges = new HashSet<Privilege>();
-    expandedPrivileges.addAll(Arrays.asList(privileges));
-    while (true) {
-      boolean foundAggregatePrivilege = false;
-      Set<Privilege> iterable = new HashSet<Privilege>(expandedPrivileges);
-      for (Privilege privilege : iterable) {
-        // expand privilege if not a standard JCR privilege
-        if (!privilege.getName().startsWith("jcr:")) { //$NON-NLS-1$
-          if (privilege.isAggregate()) {
-            expandedPrivileges.remove(privilege);
-            expandedPrivileges.addAll(Arrays.asList(privilege.getAggregatePrivileges()));
-            foundAggregatePrivilege = true;
-          }
-        }
-      }
-      if (!foundAggregatePrivilege) {
-        break;
-      }
-    }
+    Privilege[] expandedPrivileges = JcrRepositoryFileAclUtils.expandPrivileges(privileges, true);
     
     for (Privilege privilege : expandedPrivileges) {
       // this privilege name is of the format xyz:blah where xyz is the namespace prefix;

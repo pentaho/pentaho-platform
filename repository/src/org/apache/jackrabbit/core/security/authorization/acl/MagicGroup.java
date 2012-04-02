@@ -4,21 +4,24 @@ import java.security.Principal;
 import java.security.acl.Group;
 import java.util.Enumeration;
 
-import org.pentaho.platform.repository2.unified.jcr.PentahoInternalPrincipal;
+import org.apache.jackrabbit.core.security.principal.UnknownPrincipal;
+import org.pentaho.platform.repository2.unified.jcr.IPentahoInternalPrincipal;
 
-public class MagicGroup implements Group, PentahoInternalPrincipal {
+/**
+ * {@code Group} that is used in magic ACEs, ACEs that are added on-the-fly and never persisted.
+ * 
+ * <p>Extends {@code UnknownPrincipal} so that Jackrabbit will not throw an exception if the principal does not exist.</p>
+ * 
+ * @author mlowery
+ */
+public class MagicGroup extends UnknownPrincipal implements Group, IPentahoInternalPrincipal {
 
-  private Group group;
+  private static final long serialVersionUID = 2395449661136335711L;
   
-  public MagicGroup(final Group group) {
-    this.group = group;
+  public MagicGroup(final String name) {
+    super(name);
   }
 
-  @Override
-  public String getName() {
-    return group.getName();
-  }
-  
   @Override
   public boolean addMember(Principal arg0) {
     throw new UnsupportedOperationException();
@@ -26,12 +29,12 @@ public class MagicGroup implements Group, PentahoInternalPrincipal {
 
   @Override
   public boolean isMember(Principal arg0) {
-    return group.isMember(arg0);
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Enumeration<? extends Principal> members() {
-    return group.members();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -39,11 +42,17 @@ public class MagicGroup implements Group, PentahoInternalPrincipal {
     throw new UnsupportedOperationException();
   }
 
+  @SuppressWarnings("nls")
+  @Override
+  public String toString() {
+    return "MagicGroup [name=" + getName() + "]";
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
-    result = prime * result + ((group == null) ? 0 : group.hashCode());
+    int result = super.hashCode();
+    result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
     return result;
   }
 
@@ -51,23 +60,17 @@ public class MagicGroup implements Group, PentahoInternalPrincipal {
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (obj == null)
+    if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
     MagicGroup other = (MagicGroup) obj;
-    if (group == null) {
-      if (other.group != null)
+    if (getName() == null) {
+      if (other.getName() != null)
         return false;
-    } else if (!group.equals(other.group))
+    } else if (!getName().equals(other.getName()))
       return false;
     return true;
-  }
-
-  @SuppressWarnings("nls")
-  @Override
-  public String toString() {
-    return "MagicGroup [group=" + group + "]";
   }
 
 }

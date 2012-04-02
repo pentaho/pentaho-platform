@@ -1,32 +1,28 @@
 package org.apache.jackrabbit.core.security.authorization.acl;
 
-import org.pentaho.platform.repository2.unified.jcr.PentahoInternalPrincipal;
+import org.apache.jackrabbit.core.security.principal.UnknownPrincipal;
+import org.pentaho.platform.repository2.unified.jcr.IPentahoInternalPrincipal;
 
 /**
- * A principal that goes into "magic ACEs."
- * <p>This could be accomplished with an anonymous class but this is more readable for debugging.</p>
+ * {@code Principal} that is used in magic ACEs, ACEs that are added on-the-fly and never persisted.
+ * 
+ * <p>Extends {@code UnknownPrincipal} so that Jackrabbit will not throw an exception if the principal does not exist.</p>
  * 
  * @author mlowery
  */
-public class MagicPrincipal implements PentahoInternalPrincipal {
+public class MagicPrincipal extends UnknownPrincipal implements IPentahoInternalPrincipal {
 
-  private String name;
+  private static final long serialVersionUID = -4264281460133459881L;
 
   public MagicPrincipal(final String name) {
-    super();
-    this.name = name;
-  }
-
-  @Override
-  public String getName() {
-    return name;
+    super(name);
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
     return result;
   }
 
@@ -39,10 +35,10 @@ public class MagicPrincipal implements PentahoInternalPrincipal {
     if (getClass() != obj.getClass())
       return false;
     MagicPrincipal other = (MagicPrincipal) obj;
-    if (name == null) {
-      if (other.name != null)
+    if (getName() == null) {
+      if (other.getName() != null)
         return false;
-    } else if (!name.equals(other.name))
+    } else if (!getName().equals(other.getName()))
       return false;
     return true;
   }
@@ -50,7 +46,7 @@ public class MagicPrincipal implements PentahoInternalPrincipal {
   @SuppressWarnings("nls")
   @Override
   public String toString() {
-    return "MagicPrincipal [name=" + name + "]";
+    return "MagicPrincipal [name=" + getName() + "]";
   }
 
 }

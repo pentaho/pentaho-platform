@@ -16,7 +16,7 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
  * 
  * @author mlowery
  */
-public class PentahoMetadataAcePrincipal implements PentahoInternalPrincipal {
+public class PentahoMetadataAcePrincipal implements IPentahoInternalPrincipal {
 
   /**
    * Helps to guarantee uniqueness of this principal name so that it never matches a real principal.

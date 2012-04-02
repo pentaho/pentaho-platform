@@ -1,12 +1,16 @@
 package org.pentaho.platform.repository2.unified.jcr;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.security.AccessControlEntry;
 import javax.jcr.security.AccessControlList;
+import javax.jcr.security.Privilege;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -81,6 +85,37 @@ public class JcrRepositoryFileAclUtils {
   public static List<AccessControlEntry> removeAclMetadata(final List<AccessControlEntry> acEntries)
       throws RepositoryException {
     return strategy.removeAclMetadata(acEntries);
+  }
+  
+  /**
+   * Expands all aggregate privileges.
+   * 
+   * @param privileges input privileges
+   * @param expandNonStandardOnly if {@code true} expand only privileges outside of jcr: namespace
+   * @return expanded privileges
+   */
+  public static Privilege[] expandPrivileges(final Privilege[] privileges, final boolean expandNonStandardOnly) {
+    // find all aggregate privileges and expand
+    Set<Privilege> expandedPrivileges = new HashSet<Privilege>();
+    expandedPrivileges.addAll(Arrays.asList(privileges));
+    while (true) {
+      boolean foundAggregatePrivilege = false;
+      Set<Privilege> iterable = new HashSet<Privilege>(expandedPrivileges);
+      for (Privilege privilege : iterable) {
+        // expand impl custom privileges (e.g. rep:write) but keep aggregates like jcr:write intact
+        if (!expandNonStandardOnly || expandNonStandardOnly && !privilege.getName().startsWith("jcr:")) { //$NON-NLS-1$
+          if (privilege.isAggregate()) {
+            expandedPrivileges.remove(privilege);
+            expandedPrivileges.addAll(Arrays.asList(privilege.getAggregatePrivileges()));
+            foundAggregatePrivilege = true;
+          }
+        }
+      }
+      if (!foundAggregatePrivilege) {
+        break;
+      }
+    }
+    return expandedPrivileges.toArray(new Privilege[0]);
   }
   
 }
