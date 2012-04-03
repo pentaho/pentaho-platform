@@ -34,17 +34,17 @@ import org.slf4j.LoggerFactory;
  * 
  * <p>Changes to original:</p>
  * <ul>
- * <li>{@code Entries} never has a non-null {@code nextId}.</li>
+ * <li>{@code Entries} always have {@code null} {@code nextId}.</li>
  * <li>{@code collectEntries()} copied from {@code EntryCollector} uses {@code entries.getNextId()} instead of 
  * {@code node.getParentId()}</li>
  * <li>{@code filterEntries()} copied from {@code EntryCollector} as it was {@code static} and {@code private}.</li>
  * <li>No caching is done in the presence of dynamic ACEs. This may need to be revisited but due to the short lifetime
  * of the way we use Sessions, it may be acceptable.</li>
- * </ul>
+ * <li>Understands {@code AclMetadataPrincipal}.</li>
+ * <li>Adds {@code MagicPrincipal}s on the fly.</li>
+ * <li>If access decision on versionStorage, then find the associated file node and use that ACL.</li>
  * 
- * <p>Original Javadoc:</p>
- * <code>CachingEntryCollector</code> extends <code>EntryCollector</code> by
- * keeping a cache of ACEs per access controlled nodeId.
+ * </ul>
  * 
  * @author mlowery
  */
@@ -55,14 +55,17 @@ public class PentahoEntryCollector extends EntryCollector {
    */
   private static final Logger log = LoggerFactory.getLogger(PentahoEntryCollector.class);
 
+  private List<MagicAceDefinition> magicAceDefinitions = new ArrayList<MagicAceDefinition>();
+
   public PentahoEntryCollector(final SessionImpl systemSession, final NodeId rootID, final Map configuration)
       throws RepositoryException {
     super(systemSession, rootID);
     parseMagicAceDefinitions(configuration);
   }
 
-  private List<MagicAceDefinition> magicAceDefinitions = new ArrayList<MagicAceDefinition>();
-
+  /**
+   * Parses all magic ACE definitions.
+   */
   protected void parseMagicAceDefinitions(final Map configuration) throws RepositoryException {
     for (int i = 0;; i++) {
       String value = (String) configuration.get("magicAceDefinition" + i); //$NON-NLS-1$
@@ -77,6 +80,9 @@ public class PentahoEntryCollector extends EntryCollector {
     }
   }
 
+  /**
+   * Parses a single magic ACE definition.
+   */
   protected MagicAceDefinition parseMagicAceDefinition(final String value) throws RepositoryException {
     String[] tokens = value.split("\\;"); //$NON-NLS-1$
     if (tokens.length != 4) {
@@ -96,6 +102,9 @@ public class PentahoEntryCollector extends EntryCollector {
     return new MagicAceDefinition(path, logicalRole, privileges.toArray(new Privilege[0]), recursive);
   }
 
+  /**
+   * Find the ancestor (maybe the node itself) that is access-controlled.
+   */
   protected NodeImpl findAccessControlledNode(final NodeImpl node) throws RepositoryException {
     NodeImpl currentNode = node;
     // skip all nodes that are not access-controlled; might eventually hit root which is always access-controlled
@@ -105,6 +114,9 @@ public class PentahoEntryCollector extends EntryCollector {
     return currentNode;
   }
 
+  /**
+   * Find the ancestor (maybe the node itself) that is not inheriting ACEs.
+   */
   protected NodeImpl findNonInheritingNode(final NodeImpl node) throws RepositoryException {
     NodeImpl currentNode = node;
     ACLTemplate acl;
@@ -124,6 +136,9 @@ public class PentahoEntryCollector extends EntryCollector {
     return currentNode;
   }
 
+  /**
+   * Returns an {@code Entries} for the given node. This is where most of the customization lives.
+   */
   @Override
   protected Entries getEntries(final NodeImpl node) throws RepositoryException {
     // find nearest node with an ACL that is not inheriting ACEs
@@ -147,10 +162,12 @@ public class PentahoEntryCollector extends EntryCollector {
       owner = aclMetadata.getOwner();
     }
 
+    // find the ACL
     NodeImpl firstAccessControlledNode = currentNode;
     currentNode = findNonInheritingNode(currentNode);
     acl = new ACLTemplate(currentNode.getNode(N_POLICY));
 
+    // find first ancestor that is not inheriting; its ACEs will be used if the ACL is not inheriting
     ACLTemplate ancestorAcl = null;
     if (firstAccessControlledNode.isSame(currentNode) && !rootID.equals(currentNode.getNodeId())) {
       NodeImpl ancestorNode = findNonInheritingNode((NodeImpl) currentNode.getParent());
@@ -158,10 +175,16 @@ public class PentahoEntryCollector extends EntryCollector {
     }
 
     // now acl points to the nearest ancestor that is access-controlled and is not inheriting;
+    // ancestorAcl points to first ancestor of ACL that is access-controlled and is not inheriting--possibly null
+    // owner is an owner string--possibly null
     return new Entries(new ArrayList<AccessControlEntry>(getAcesIncludingMagicAces(currentNode.getPath(), owner,
         ancestorAcl, acl)), null);
   }
 
+  /**
+   * Incoming node is in versionStorage. Find its associated versionable--the node associated with this version history 
+   * node.
+   */
   protected NodeImpl getVersionable(final NodeImpl node) throws RepositoryException {
     NodeImpl currentNode = node;
     while (!currentNode.isNodeType("nt:versionHistory") && !rootID.equals(currentNode.getNodeId())) { //$NON-NLS-1$
@@ -174,6 +197,9 @@ public class PentahoEntryCollector extends EntryCollector {
     }
   }
 
+  /**
+   * {@link IAuthorizationPolicy} is used in magic ACE definitions.
+   */
   protected IAuthorizationPolicy getAuthorizationPolicy() {
     IAuthorizationPolicy authorizationPolicy = PentahoSystem.get(IAuthorizationPolicy.class);
     if (authorizationPolicy == null) {
@@ -182,8 +208,11 @@ public class PentahoEntryCollector extends EntryCollector {
     return authorizationPolicy;
   }
 
-  /*
-   * Modifications to these ACLs are not persisted.
+  /**
+   * Extracts ACEs including magic aces. Magic ACEs are added for (1) the owner, (2) as a result of magic ACE 
+   * definitions, and (3) as a result of ancestor ACL contributions.
+   * 
+   * <p>Modifications to these ACLs are not persisted.</p>
    */
   protected List<AccessControlEntry> getAcesIncludingMagicAces(final String path, final String owner,
       final ACLTemplate ancestorAcl, final ACLTemplate acl)
@@ -225,9 +254,11 @@ public class PentahoEntryCollector extends EntryCollector {
     return acEntries;
   }
 
-  /*
-   * Modifications to this ACL are not persisted. ACEs must be created in this ACL because the path embedded in the ACL
-   * plays into authorization decisions using parentPrivs.
+  /**
+   * Selects (and modifies) ACEs containing JCR_ADD_CHILD_NODES or JCR_REMOVE_CHILD_NODES privileges from the given ACL.
+   * 
+   * <p>Modifications to this ACL are not persisted. ACEs must be created in the given ACL because the path embedded in 
+   * the given ACL plays into authorization decisions using parentPrivs.</p>
    */
   protected List<AccessControlEntry> getRelevantAncestorAces(final ACLTemplate ancestorAcl) throws RepositoryException {
     if (ancestorAcl == null) {
@@ -262,8 +293,10 @@ public class PentahoEntryCollector extends EntryCollector {
     return ancestorAcl.getEntries();
   }
 
-  /*
-   * Modifications to this ACL are not persisted.
+  /**
+   * Creates an ACE that gives full access to the owner.
+   * 
+   * <p>Modifications to this ACL are not persisted.</p>
    */
   protected void addOwnerAce(final String owner, final ACLTemplate acl) throws RepositoryException {
     Principal ownerPrincipal = systemSession.getPrincipalManager().getPrincipal(owner);
@@ -287,13 +320,8 @@ public class PentahoEntryCollector extends EntryCollector {
   }
 
   /**
-   * Collect the ACEs effective at the given node applying the specified
-   * filter.
-   * 
-   * @param node
-   * @param filter
-   * @return
-   * @throws RepositoryException
+   * Overridden since {@code collectEntries()} from {@code EntryCollector} called {@code node.getParentId()} instead of 
+   * {@code entries.getNextId()}.
    */
   @Override
   protected List<AccessControlEntry> collectEntries(NodeImpl node, EntryFilter filter) throws RepositoryException {
@@ -326,12 +354,7 @@ public class PentahoEntryCollector extends EntryCollector {
   }
 
   /**
-   * Filter the specified access control <code>entries</code>
-   *
-   * @param filter
-   * @param aces
-   * @param userAces
-   * @param groupAces
+   * Copied from {@link EntryCollector} since that method was {@code private}.
    */
   @SuppressWarnings("unchecked")
   protected void filterEntries(EntryFilter filter, List<AccessControlEntry> aces,

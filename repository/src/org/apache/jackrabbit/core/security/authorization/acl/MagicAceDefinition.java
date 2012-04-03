@@ -5,7 +5,8 @@ import java.util.Arrays;
 import javax.jcr.security.Privilege;
 
 /**
- * A configuration entry that defines a "magic ACE" rule.
+ * A configuration entry that defines a "magic ACE" rule. This is the object representation of rules that reside in 
+ * {@code repository.xml}.
  * 
  * @author mlowery
  */

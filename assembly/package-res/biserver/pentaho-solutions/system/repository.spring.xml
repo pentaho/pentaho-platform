@@ -258,9 +258,9 @@
     </constructor-arg>
     <property name="namespaces">
       <props>
-        <prop key="pho">http://www.pentaho.org/jcr/1.0</prop>
-        <prop key="pho_nt">http://www.pentaho.org/jcr/nt/1.0</prop>
-        <prop key="pho_mix">http://www.pentaho.org/jcr/mix/1.0</prop>
+        <prop key="pho">http://www.pentaho.org/jcr/2.0</prop>
+        <prop key="pho_nt">http://www.pentaho.org/jcr/nt/2.0</prop>
+        <prop key="pho_mix">http://www.pentaho.org/jcr/mix/2.0</prop>
       </props>
     </property>
     <!-- order matters! -->

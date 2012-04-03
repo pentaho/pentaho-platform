@@ -16,7 +16,7 @@ import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
 
 /**
- * Subclass of {@link ACLProvider} to customize the {@link EntryCollector} returned.
+ * Customization of {@link ACLProvider}.
  * 
  * @author mlowery
  */
@@ -28,7 +28,7 @@ public class PentahoACLProvider extends ACLProvider {
    * Overridden to:
    * <ul>
    * <li>Store {@code configuration} for later passing to {@link PentahoEntryCollector}.</li>
-   * <li>Add READ_AC to root ACL. This is harmless and avoids more copy-and-pasting.</li>
+   * <li>Add JCR_READ_ACCESS_CONTROL to root ACL. This is harmless and avoids more customization.</li>
    * </ul>
    */
   @Override

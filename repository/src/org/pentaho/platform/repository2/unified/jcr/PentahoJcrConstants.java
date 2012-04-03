@@ -30,17 +30,17 @@ public class PentahoJcrConstants extends JcrConstants {
   /**
    * Pentaho item name namespace.
    */
-  public static final String PHO_NS = "http://www.pentaho.org/jcr/1.0"; //$NON-NLS-1$
+  public static final String PHO_NS = "http://www.pentaho.org/jcr/2.0"; //$NON-NLS-1$
 
   /**
    * Pentaho node type namespace.
    */
-  public static final String PHO_NT_NS = "http://www.pentaho.org/jcr/nt/1.0"; //$NON-NLS-1$
+  public static final String PHO_NT_NS = "http://www.pentaho.org/jcr/nt/2.0"; //$NON-NLS-1$
 
   /**
    * Pentaho mixin type namespace.
    */
-  public static final String PHO_MIX_NS = "http://www.pentaho.org/jcr/mix/1.0"; //$NON-NLS-1$
+  public static final String PHO_MIX_NS = "http://www.pentaho.org/jcr/mix/2.0"; //$NON-NLS-1$
 
   private static final String PHO_MIX_VERSIONABLE = "pentahoVersionable"; //$NON-NLS-1$
 
