@@ -20,6 +20,8 @@
 
 package org.pentaho.mantle.client.admin;
 
+import org.pentaho.gwt.widgets.client.text.ValidatableTextBox;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.user.client.ui.Button;
@@ -36,14 +38,15 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class EmailAdminPanel extends SimplePanel {
 
-	protected TextBox smtpHostTextBox;
-	protected TextBox portTextBox;
+  private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	protected ValidatableTextBox smtpHostTextBox;
+	protected ValidatableTextBox portTextBox;
 	protected ListBox protocolsListBox;
 	protected CheckBox useStartTLSCheckBox;
 	protected CheckBox useSSLCheckBox;
-	protected TextBox fromAddressTextBox;
+	protected ValidatableTextBox fromAddressTextBox;
 	protected CheckBox authenticationCheckBox;
-	protected TextBox userNameTextBox;
+	protected ValidatableTextBox userNameTextBox;
 	protected PasswordTextBox passwordTextBox;
 	protected CheckBox debuggingCheckBox;
 	protected Button saveButton;
@@ -77,7 +80,16 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);
 
 		mailPanel.add(new Label(Messages.getString("smtpHost") + ":"));
-		smtpHostTextBox = new TextBox();
+		smtpHostTextBox = new ValidatableTextBox() {
+
+      @Override
+      public boolean validate() {
+        String text = smtpHostTextBox.getText();
+        return (text != null && text.length() > 0);
+      }
+		  
+		};
+    smtpHostTextBox.setValidationMessage(Messages.getString("smtpHostValidationMessage"));
 		smtpHostTextBox.setWidth("400px");
 		mailPanel.add(smtpHostTextBox);
 		
@@ -86,7 +98,15 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);		
 
 		mailPanel.add(new Label(Messages.getString("port") + ":"));
-		portTextBox = new TextBox();
+		portTextBox = new ValidatableTextBox() {
+
+      @Override
+      public boolean validate() {
+        return validateInteger(portTextBox.getText());
+      }
+      
+    };		
+    portTextBox.setValidationMessage(Messages.getString("portValidationMessage"));
 		portTextBox.setWidth("400px");
 		mailPanel.add(portTextBox);
 
@@ -117,7 +137,15 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(new Label(Messages.getString("defaultFromAddress") + ":"));
 
 		HorizontalPanel hPanel = new HorizontalPanel();
-		fromAddressTextBox = new TextBox();
+		fromAddressTextBox = new ValidatableTextBox() {
+    
+		  @Override
+      public boolean validate() {
+        return validateEmail(fromAddressTextBox.getText());
+      }
+		  
+		};
+		fromAddressTextBox.setValidationMessage(Messages.getString("fromAddressValidationMessage"));
 		fromAddressTextBox.setWidth("400px");
 		hPanel.add(fromAddressTextBox);
 		SimplePanel hSpacer = new SimplePanel();
@@ -138,7 +166,16 @@ public class EmailAdminPanel extends SimplePanel {
 		authenticationPanel = new VerticalPanel();
 		mailPanel.add(authenticationPanel);
 		authenticationPanel.add(new Label(Messages.getString("userName") + ":"));
-		userNameTextBox = new TextBox();
+		userNameTextBox = new ValidatableTextBox()  {
+
+      @Override
+      public boolean validate() {
+        String text = userNameTextBox.getText();
+        return (text != null && text.length() > 0);
+      }
+      
+    };
+    userNameTextBox.setValidationMessage(Messages.getString("usernameValidationMessage"));
 		userNameTextBox.setWidth("400px");
 		authenticationPanel.add(userNameTextBox);
 
@@ -186,5 +223,25 @@ public class EmailAdminPanel extends SimplePanel {
 		buttonsPanel.add(testButton);
 
 		return mailPanel;
+	}
+	
+	 private boolean validateEmail(final String email) {
+	    boolean isValid = true;
+	    if (StringUtils.isEmpty(email)) {
+	      isValid = false;
+	    } else {
+	      isValid = email.matches(EMAIL_PATTERN);
+	    }
+	    return isValid;
+	}
+	 
+	private boolean validateInteger(String value) {
+	   boolean portValid = true;
+	    try {
+	      Integer.parseInt(value);
+	    } catch (NumberFormatException e) {
+	      portValid = false;
+	    }
+	   return portValid;
 	}
 }
