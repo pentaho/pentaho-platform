@@ -80,26 +80,19 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	}
 
 	public boolean isValid() {
-		String smtpValue = smtpHostTextBox.getValue();
-		String portValue = portTextBox.getValue();
-		String fromAddressValue = fromAddressTextBox.getValue();
-		boolean authenticationValue = authenticationCheckBox.getValue();
-		String userNameValue = userNameTextBox.getValue();
-		String passwordValue = passwordTextBox.getValue();
-
+		boolean smtpValid = !StringUtils.isEmpty(smtpHostTextBox.getValue());
+		boolean fromAddressValid = isValidEmail(fromAddressTextBox.getValue());
+		boolean authenticationValid = true;
+		if (authenticationCheckBox.getValue()) {
+			boolean userNameValid = !StringUtils.isEmpty(userNameTextBox.getValue());
+			boolean passwordValid = !StringUtils.isEmpty(passwordTextBox.getValue());
+			authenticationValid = userNameValid && passwordValid;
+		}
 		boolean portValid = true;
 		try {
-			Integer.parseInt(portValue);
+			Integer.parseInt(portTextBox.getValue());
 		} catch (NumberFormatException e) {
 			portValid = false;
-		}
-		boolean smtpValid = !StringUtils.isEmpty(smtpValue);
-		boolean fromAddressValid = isValidEmail(fromAddressValue);
-		boolean authenticationValid = true;
-		if (authenticationValue) {
-			boolean userNameValid = !StringUtils.isEmpty(userNameValue);
-			boolean passwordValid = !StringUtils.isEmpty(passwordValue);
-			authenticationValid = userNameValid && passwordValid;
 		}
 		return portValid && smtpValid && fromAddressValid && authenticationValid;
 	}
