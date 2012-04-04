@@ -223,11 +223,7 @@ public class RepositoryFileAcl implements Serializable {
       return this;
     }
 
-    /**
-     * Replaces the ACEs with the given ACEs. Entries inheriting is set to false when this method is called.
-     */
     public Builder clearAces() {
-      entriesInheriting(false);
       this.aces.clear();
       return this;
     }
