@@ -20,7 +20,7 @@
 
 package org.pentaho.mantle.client.admin;
 
-import org.pentaho.gwt.widgets.client.text.ValidatableTextBox;
+import org.pentaho.gwt.widgets.client.text.ValidationTextBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 
@@ -39,14 +39,14 @@ import com.google.gwt.user.client.ui.Widget;
 public class EmailAdminPanel extends SimplePanel {
 
   private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-	protected ValidatableTextBox smtpHostTextBox;
-	protected ValidatableTextBox portTextBox;
+	protected ValidationTextBox smtpHostTextBox;
+	protected ValidationTextBox portTextBox;
 	protected ListBox protocolsListBox;
 	protected CheckBox useStartTLSCheckBox;
 	protected CheckBox useSSLCheckBox;
-	protected ValidatableTextBox fromAddressTextBox;
+	protected ValidationTextBox fromAddressTextBox;
 	protected CheckBox authenticationCheckBox;
-	protected ValidatableTextBox userNameTextBox;
+	protected ValidationTextBox userNameTextBox;
 	protected PasswordTextBox passwordTextBox;
 	protected CheckBox debuggingCheckBox;
 	protected Button saveButton;
@@ -80,7 +80,7 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);
 
 		mailPanel.add(new Label(Messages.getString("smtpHost") + ":"));
-		smtpHostTextBox = new ValidatableTextBox() {
+		smtpHostTextBox = new ValidationTextBox() {
 
       @Override
       public boolean validate() {
@@ -98,7 +98,7 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);		
 
 		mailPanel.add(new Label(Messages.getString("port") + ":"));
-		portTextBox = new ValidatableTextBox() {
+		portTextBox = new ValidationTextBox() {
 
       @Override
       public boolean validate() {
@@ -137,7 +137,7 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(new Label(Messages.getString("defaultFromAddress") + ":"));
 
 		HorizontalPanel hPanel = new HorizontalPanel();
-		fromAddressTextBox = new ValidatableTextBox() {
+		fromAddressTextBox = new ValidationTextBox() {
     
 		  @Override
       public boolean validate() {
@@ -166,7 +166,7 @@ public class EmailAdminPanel extends SimplePanel {
 		authenticationPanel = new VerticalPanel();
 		mailPanel.add(authenticationPanel);
 		authenticationPanel.add(new Label(Messages.getString("userName") + ":"));
-		userNameTextBox = new ValidatableTextBox()  {
+		userNameTextBox = new ValidationTextBox()  {
 
       @Override
       public boolean validate() {
