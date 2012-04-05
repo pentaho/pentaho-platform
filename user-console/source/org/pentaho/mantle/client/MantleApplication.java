@@ -25,6 +25,8 @@ import java.util.HashMap;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
 import org.pentaho.gwt.widgets.client.dialogs.GlassPaneNativeListener;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.ui.ICallback;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.CommandExec;
 import org.pentaho.mantle.client.commands.LoginCommand;
 import org.pentaho.mantle.client.dialogs.WaitPopup;
@@ -39,6 +41,7 @@ import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
 import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.Request;
@@ -159,15 +162,27 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   }
 
   public void onFetchMantleSettings(final HashMap<String, String> settings) {
+	  
+    final String startupPerspective = Window.Location.getParameter("startupPerspective");
+	  
     mantleRevisionOverride = settings.get("user-console-revision");
     if ("true".equals(settings.get("show-menu-bar"))) {
       RootPanel.get("pucMenuBar").add(MantleXul.getInstance().getMenubar());
+   	  if (!StringUtils.isEmpty(startupPerspective)) {
+   	      RootPanel.get("pucMenuBar").setVisible(false);
+   	  }
     }
 
-    RootPanel.get("pucPerspectives").add(PerspectiveManager.getInstance());
+	RootPanel.get("pucPerspectives").add(PerspectiveManager.getInstance());
+	if (!StringUtils.isEmpty(startupPerspective)) {
+	  RootPanel.get("pucPerspectives").setVisible(false);
+	}
 
     if ("true".equals(settings.get("show-main-toolbar"))) {
       RootPanel.get("pucToolBar").add(MantleXul.getInstance().getToolbar());
+   	  if (!StringUtils.isEmpty(startupPerspective)) {
+   	      RootPanel.get("pucToolBar").setVisible(false);
+   	  }
     }
 
     // update supported file types
@@ -177,6 +192,9 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     contentDeck.add(new Label());
     contentDeck.showWidget(0);
     contentDeck.add(SolutionBrowserPanel.getInstance());
+    if (!StringUtils.isEmpty(startupPerspective)) {
+    	SolutionBrowserPanel.getInstance().setVisible(false);
+    }
 
     contentDeck.setStyleName("applicationShell");
 
@@ -243,12 +261,24 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
         }
       }
     });
+    
     try {
       builder.send();
     } catch (RequestException e) {
       MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
       dialogBox.center();
     }
+    
+  
+	if (!StringUtils.isEmpty(startupPerspective)) {
+      ICallback<Void> callback = new ICallback<Void>() {
+    	public void onHandle(Void nothing) {
+   	      PerspectiveManager.getInstance().setPerspective(startupPerspective);
+    	}
+      };
+      PerspectiveManager.getInstance().addPerspectivesLoadedCallback(callback);
+	}
+	
   }
 
   public DeckPanel getContentDeck() {

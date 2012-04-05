@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.MantleApplication;
@@ -32,11 +33,11 @@ import org.pentaho.mantle.client.workspace.WorkspacePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.util.ResourceBundleTranslator;
+
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -60,8 +61,12 @@ public class PerspectiveManager extends HorizontalPanel {
 
   private IPluginPerspective activePerspective;
 
+  private ArrayList<ICallback<Void>> perspectivesLoadedCallbackList = new ArrayList<ICallback<Void>>();
+  
   private static PerspectiveManager instance = new PerspectiveManager();
 
+  private boolean perspectiveCallbacksFired = false;
+  
   public static PerspectiveManager getInstance() {
     return instance;
   }
@@ -116,12 +121,6 @@ public class PerspectiveManager extends HorizontalPanel {
 
       ToggleButton tb = new ToggleButton(perspective.getTitle(), perspective.getTitle(), new ClickHandler() {
         public void onClick(ClickEvent event) {
-          if (((ToggleButton) event.getSource()).isDown()) {
-            History.newItem(perspective.getId());
-          } else {
-            IPluginPerspective defaultPerspective = perspectives.get(0);
-            History.newItem(defaultPerspective.getId());
-          }
           showPerspective((ToggleButton) event.getSource(), perspective);
         }
       });
@@ -136,13 +135,27 @@ public class PerspectiveManager extends HorizontalPanel {
     // register overlays with XulMainToolbar
     MantleXul.getInstance().addOverlays(overlays);
 
-    String historyTokenPerspectiveId = History.getToken();
-    boolean loadedFromHistory = setPerspective(historyTokenPerspectiveId);
-    if (!loadedFromHistory) {
-      setPerspective(perspectives.get(0).getId());
-    }
+    setPerspective(perspectives.get(0).getId());
+    
+    firePerspectivesLoaded();
   }
 
+  private void firePerspectivesLoaded() {
+	for (ICallback<Void> callback : perspectivesLoadedCallbackList){
+	  callback.onHandle(null);
+	}
+	perspectivesLoadedCallbackList.clear();
+	perspectiveCallbacksFired = true;
+  }
+
+  public void addPerspectivesLoadedCallback(ICallback<Void> callback) {
+	if (!perspectiveCallbacksFired) {
+	  perspectivesLoadedCallbackList.add(callback);
+	} else {
+	  callback.onHandle(null);
+	}
+  }
+  
   private void loadResourceBundle(final ToggleButton button, final IPluginPerspective perspective) {
     try {
       String bundle = perspective.getResourceBundleUri();
@@ -184,6 +197,9 @@ public class PerspectiveManager extends HorizontalPanel {
   }
 
   public boolean setPerspective(final String perspectiveId) {
+	  if (perspectives == null) {
+		  return false;
+	  }
     // return value to indicate if perspective now shown
     for (int i = 0; i < perspectives.size(); i++) {
       if (perspectives.get(i).getId().equalsIgnoreCase(perspectiveId)) {
