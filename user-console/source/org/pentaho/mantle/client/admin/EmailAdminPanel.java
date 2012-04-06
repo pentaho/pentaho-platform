@@ -32,13 +32,12 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class EmailAdminPanel extends SimplePanel {
 
-  private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 	protected ValidationTextBox smtpHostTextBox;
 	protected ValidationTextBox portTextBox;
 	protected ListBox protocolsListBox;
@@ -81,39 +80,33 @@ public class EmailAdminPanel extends SimplePanel {
 
 		mailPanel.add(new Label(Messages.getString("smtpHost") + ":"));
 		smtpHostTextBox = new ValidationTextBox() {
-
-      @Override
-      public boolean validate() {
-        String text = smtpHostTextBox.getText();
-        return (text != null && text.length() > 0);
-      }
-		  
+			public boolean validate() {
+				String text = smtpHostTextBox.getText();
+				return (text != null && text.length() > 0);
+			}
 		};
-    smtpHostTextBox.setValidationMessage(Messages.getString("smtpHostValidationMessage"));
+		smtpHostTextBox.setValidationMessage(Messages.getString("smtpHostValidationMessage"));
 		smtpHostTextBox.setWidth("400px");
 		mailPanel.add(smtpHostTextBox);
-		
+
 		vSpacer = new SimplePanel();
 		vSpacer.setHeight("10px");
-		mailPanel.add(vSpacer);		
+		mailPanel.add(vSpacer);
 
 		mailPanel.add(new Label(Messages.getString("port") + ":"));
 		portTextBox = new ValidationTextBox() {
-
-      @Override
-      public boolean validate() {
-        return validateInteger(portTextBox.getText());
-      }
-      
-    };		
-    portTextBox.setValidationMessage(Messages.getString("portValidationMessage"));
+			public boolean validate() {
+				return isPortValid(portTextBox.getText());
+			}
+		};
+		portTextBox.setValidationMessage(Messages.getString("portValidationMessage"));
 		portTextBox.setWidth("400px");
 		mailPanel.add(portTextBox);
 
 		vSpacer = new SimplePanel();
 		vSpacer.setHeight("10px");
-		mailPanel.add(vSpacer);		
-		
+		mailPanel.add(vSpacer);
+
 		mailPanel.add(new Label(Messages.getString("protocol") + ":"));
 		protocolsListBox = new ListBox();
 		protocolsListBox.addItem(Messages.getString("smtp"));
@@ -122,28 +115,25 @@ public class EmailAdminPanel extends SimplePanel {
 
 		vSpacer = new SimplePanel();
 		vSpacer.setHeight("10px");
-		mailPanel.add(vSpacer);		
+		mailPanel.add(vSpacer);
 
 		useStartTLSCheckBox = new CheckBox(Messages.getString("useStartTLS"));
-		mailPanel.add(useStartTLSCheckBox);	
-		
+		mailPanel.add(useStartTLSCheckBox);
+
 		useSSLCheckBox = new CheckBox(Messages.getString("useSSL"));
 		mailPanel.add(useSSLCheckBox);
-		
+
 		vSpacer = new SimplePanel();
 		vSpacer.setHeight("10px");
-		mailPanel.add(vSpacer);		
+		mailPanel.add(vSpacer);
 
 		mailPanel.add(new Label(Messages.getString("defaultFromAddress") + ":"));
 
 		HorizontalPanel hPanel = new HorizontalPanel();
 		fromAddressTextBox = new ValidationTextBox() {
-    
-		  @Override
-      public boolean validate() {
-        return validateEmail(fromAddressTextBox.getText());
-      }
-		  
+			public boolean validate() {
+				return isValidEmail(fromAddressTextBox.getText());
+			}
 		};
 		fromAddressTextBox.setValidationMessage(Messages.getString("fromAddressValidationMessage"));
 		fromAddressTextBox.setWidth("400px");
@@ -155,33 +145,29 @@ public class EmailAdminPanel extends SimplePanel {
 		emailOrginLabel.setStyleName("msg-Label");
 		hPanel.add(emailOrginLabel);
 		mailPanel.add(hPanel);
-		
+
 		vSpacer = new SimplePanel();
 		vSpacer.setHeight("10px");
-		mailPanel.add(vSpacer);		
+		mailPanel.add(vSpacer);
 
 		authenticationCheckBox = new CheckBox(Messages.getString("useAuthentication"));
 		mailPanel.add(authenticationCheckBox);
-		
+
 		authenticationPanel = new VerticalPanel();
 		mailPanel.add(authenticationPanel);
 		authenticationPanel.add(new Label(Messages.getString("userName") + ":"));
-		userNameTextBox = new ValidationTextBox()  {
-
-      @Override
-      public boolean validate() {
-        String text = userNameTextBox.getText();
-        return (text != null && text.length() > 0);
-      }
-      
-    };
-    userNameTextBox.setValidationMessage(Messages.getString("usernameValidationMessage"));
+		userNameTextBox = new ValidationTextBox() {
+			public boolean validate() {
+				return !StringUtils.isEmpty(userNameTextBox.getText());
+			}
+		};
+		userNameTextBox.setValidationMessage(Messages.getString("usernameValidationMessage"));
 		userNameTextBox.setWidth("400px");
 		authenticationPanel.add(userNameTextBox);
 
 		vSpacer = new SimplePanel();
 		vSpacer.setHeight("10px");
-		authenticationPanel.add(vSpacer);		
+		authenticationPanel.add(vSpacer);
 
 		authenticationPanel.add(new Label(Messages.getString("password") + ":"));
 		hPanel = new HorizontalPanel();
@@ -202,14 +188,14 @@ public class EmailAdminPanel extends SimplePanel {
 
 		debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));
 		mailPanel.add(debuggingCheckBox);
-		
+
 		vSpacer = new SimplePanel();
 		vSpacer.setHeight("55px");
 		mailPanel.add(vSpacer);
 
 		HorizontalPanel buttonsPanel = new HorizontalPanel();
 		mailPanel.add(buttonsPanel);
-		
+
 		saveButton = new Button(Messages.getString("save"));
 		saveButton.setStylePrimaryName("pentaho-button");
 		buttonsPanel.add(saveButton);
@@ -217,31 +203,31 @@ public class EmailAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("280px");
 		buttonsPanel.add(hSpacer);
-		
+
 		testButton = new Button(Messages.getString("test"));
 		testButton.setStylePrimaryName("pentaho-button");
 		buttonsPanel.add(testButton);
 
 		return mailPanel;
 	}
-	
-	 private boolean validateEmail(final String email) {
-	    boolean isValid = true;
-	    if (StringUtils.isEmpty(email)) {
-	      isValid = false;
-	    } else {
-	      isValid = email.matches(EMAIL_PATTERN);
-	    }
-	    return isValid;
+
+	protected boolean isValidEmail(final String email) {
+		boolean isValid = true;
+		if (StringUtils.isEmpty(email)) {
+			isValid = false;
+		} else {
+			isValid = email.matches(EMAIL_PATTERN);
+		}
+		return isValid;
 	}
-	 
-	private boolean validateInteger(String value) {
-	   boolean portValid = true;
-	    try {
-	      Integer.parseInt(value);
-	    } catch (NumberFormatException e) {
-	      portValid = false;
-	    }
-	   return portValid;
+
+	protected boolean isPortValid(String port) {
+		boolean portValid = true;
+		try {
+			Integer.parseInt(port);
+		} catch (NumberFormatException e) {
+			portValid = false;
+		}
+		return portValid;
 	}
 }

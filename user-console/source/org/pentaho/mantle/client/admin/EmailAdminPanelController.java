@@ -51,7 +51,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
-	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 	private boolean isDirty = false;
 
 	public EmailAdminPanelController() {
@@ -82,29 +81,14 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	public boolean isValid() {
 		boolean smtpValid = !StringUtils.isEmpty(smtpHostTextBox.getValue());
 		boolean fromAddressValid = isValidEmail(fromAddressTextBox.getValue());
+		boolean portValid = isPortValid(portTextBox.getValue());
 		boolean authenticationValid = true;
 		if (authenticationCheckBox.getValue()) {
 			boolean userNameValid = !StringUtils.isEmpty(userNameTextBox.getValue());
 			boolean passwordValid = !StringUtils.isEmpty(passwordTextBox.getValue());
 			authenticationValid = userNameValid && passwordValid;
 		}
-		boolean portValid = true;
-		try {
-			Integer.parseInt(portTextBox.getValue());
-		} catch (NumberFormatException e) {
-			portValid = false;
-		}
 		return portValid && smtpValid && fromAddressValid && authenticationValid;
-	}
-
-	private boolean isValidEmail(final String email) {
-		boolean isValid = true;
-		if (StringUtils.isEmpty(email)) {
-			isValid = false;
-		} else {
-			isValid = email.matches(EMAIL_PATTERN);
-		}
-		return isValid;
 	}
 
 	private String appendUIParameters() {
@@ -232,12 +216,12 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	}
 
 	public void passivate(final AsyncCallback<Boolean> callback) {
-		if(isDirty) {
+		if (isDirty) {
 			GwtConfirmBox messageBox = new GwtConfirmBox();
 			messageBox.setTitle(Messages.getString("confirm"));
 			messageBox.setMessage(Messages.getString("dirtyStateMessage"));
 			messageBox.addDialogCallback(new XulDialogCallback<String>() {
-	
+
 				public void onClose(XulComponent component, XulDialogCallback.Status status, String value) {
 					if (status == XulDialogCallback.Status.ACCEPT) {
 						callback.onSuccess(true);
@@ -247,7 +231,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 						callback.onSuccess(false);
 					}
 				}
-	
+
 				public void onError(XulComponent e, Throwable t) {
 				}
 			});
