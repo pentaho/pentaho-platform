@@ -323,34 +323,7 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     }
   }
 
-  public Map<String, String> getSystemThemes() {
-    IThemeManager themeManager = PentahoSystem.get(IThemeManager.class);
-    List<String> ids = themeManager.getSystemThemeIds();
-    Map<String, String> themes = new HashMap<String, String>();
-    for (String id : ids) {
-      Theme theme = themeManager.getSystemTheme(id);
-      if (theme.isHidden() == false) {
-        themes.put(id, theme.getName());
-      }
-    }
-    return themes;
-  }
 
-  public void setTheme(String theme) throws SimpleMessageException {
-    getPentahoSession().setAttribute("pentaho-user-theme", theme);
-    try {
-      IUserSettingService settingsService = PentahoSystem.get(IUserSettingService.class, getPentahoSession());
-      settingsService.setUserSetting("pentaho-user-theme", theme);
-    } catch (Exception e) {
-      throw new SimpleMessageException(e.getMessage());
-    }
-  }
-
-  public String getActiveTheme() {
-    IUserSettingService settingsService = PentahoSystem.get(IUserSettingService.class, getPentahoSession());
-    return StringUtils.defaultIfEmpty((String) getPentahoSession().getAttribute("pentaho-user-theme"),
-        settingsService.getUserSetting("pentaho-user-theme", PentahoSystem.getSystemSetting("default-theme", "onyx")).getSettingValue());
-  }
 
   public void setUserSetting(String settingName, String settingValue) throws SimpleMessageException {
     try {

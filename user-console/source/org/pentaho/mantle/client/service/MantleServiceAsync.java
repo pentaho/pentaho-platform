@@ -21,11 +21,11 @@ package org.pentaho.mantle.client.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.ui.xul.XulOverlay;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface MantleServiceAsync {
@@ -61,7 +61,6 @@ public interface MantleServiceAsync {
   // user settings
   public void getUserSettings(AsyncCallback<ArrayList<IUserSetting>> callback);
   public void setLocaleOverride(String locale, AsyncCallback<Void> callback);
-  public void setTheme(String theme, AsyncCallback<Void> callback);
   // generic user setting getter/setters
   public void setUserSetting(String settingName, String settingValue, AsyncCallback<Void> callback);
   public void getUserSetting(String settingName, AsyncCallback<IUserSetting> callback);
@@ -71,6 +70,4 @@ public interface MantleServiceAsync {
   public void repositorySupportsACLS(AsyncCallback<Boolean> callback);
   public void getOverlays(AsyncCallback<ArrayList<XulOverlay>> callback);
   public void getPluginPerpectives(AsyncCallback<ArrayList<IPluginPerspective>> callback);
-  public void getSystemThemes(AsyncCallback<Map<String, String>> callback);
-  public void getActiveTheme(AsyncCallback<String> callback);
 }

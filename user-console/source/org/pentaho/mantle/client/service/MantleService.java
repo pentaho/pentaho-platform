@@ -21,12 +21,12 @@ package org.pentaho.mantle.client.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.pentaho.mantle.client.objects.SimpleMessageException;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.ui.xul.XulOverlay;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 
 public interface MantleService extends RemoteService {
@@ -74,8 +74,4 @@ public interface MantleService extends RemoteService {
   public ArrayList<XulOverlay> getOverlays();
   public ArrayList<IPluginPerspective> getPluginPerpectives();
   
-  public Map<String, String> getSystemThemes();
-  public String getActiveTheme();
-  public void setTheme(String theme) throws SimpleMessageException;
-
 }
