@@ -34,8 +34,6 @@ public interface MantleService extends RemoteService {
   public boolean isAdministrator();
   public boolean deleteContentItem(String contentId);
   
-  public String getSoftwareUpdatesDocument();
-  
   // file api
   public ArrayList<String> getAllUsers();
   public ArrayList<String> getAllRoles();
@@ -45,9 +43,6 @@ public interface MantleService extends RemoteService {
   // mantle settings
   public HashMap<String,String> getMantleSettings();
 
-  // version information
-  public String getVersion();
-  
   // For New Analysis View
   public HashMap<String,ArrayList<String[]>> getMondrianCatalogs();  
   

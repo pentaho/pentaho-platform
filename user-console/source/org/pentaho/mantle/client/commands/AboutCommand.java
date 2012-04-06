@@ -21,9 +21,14 @@ import java.util.Date;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -38,31 +43,41 @@ public class AboutCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    if(MantleApplication.mantleRevisionOverride != null && MantleApplication.mantleRevisionOverride.length() > 0) {
+    if (MantleApplication.mantleRevisionOverride != null && MantleApplication.mantleRevisionOverride.length() > 0) {
       showAboutDialog(MantleApplication.mantleRevisionOverride);
     } else {
-    AsyncCallback<String> callback = new AsyncCallback<String>() {
-      public void onFailure(Throwable caught) {
-      }
+      final String url = GWT.getHostPageBaseURL() + "api/version/show"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "text/plain");
+      try {
+        requestBuilder.sendRequest(null, new RequestCallback() {
 
-      public void onSuccess(String version) {
-          showAboutDialog(version);
-        }
-      };
-      MantleServiceCache.getService().getVersion(callback);
+          public void onError(Request request, Throwable exception) {
+            // showError(exception);
+          }
+
+          public void onResponseReceived(Request request, Response response) {
+            showAboutDialog(response.getText());
+          }
+        });
+      } catch (RequestException e) {
+        Window.alert(e.getMessage());
+        // showError(e);
+      }
     }
   }
 
   private void showAboutDialog(String version) {
-    String licenseInfo = Messages.getString("licenseInfo", ""+((new Date()).getYear()+1900));
+    @SuppressWarnings("deprecation")
+    String licenseInfo = Messages.getString("licenseInfo", "" + ((new Date()).getYear() + 1900));
     String releaseLabel = Messages.getString("release");
     PromptDialogBox dialogBox = new PromptDialogBox(Messages.getString("aboutDialogTitle"), Messages.getString("ok"), null, false, true); //$NON-NLS-1$
 
-   	    VerticalPanel aboutContent = new VerticalPanel();
+    VerticalPanel aboutContent = new VerticalPanel();
     aboutContent.add(new Label(releaseLabel + " " + version));
-   	    aboutContent.add(new HTML(licenseInfo));
-   	    
-   	    dialogBox.setContent(aboutContent);
-        dialogBox.center();
-      }
+    aboutContent.add(new HTML(licenseInfo));
+
+    dialogBox.setContent(aboutContent);
+    dialogBox.center();
+  }
 }

@@ -80,5 +80,6 @@
   <bean class="org.pentaho.platform.web.http.api.resources.SystemAllResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.GeneratorStreamingOutputProvider" scope="singleton"/>
   <bean class="org.pentaho.platform.web.http.api.resources.ThemeResource" scope="request"/>    
-  <bean class="org.pentaho.platform.web.http.api.resources.SystemRefreshResource" scope="request"/>     
+  <bean class="org.pentaho.platform.web.http.api.resources.SystemRefreshResource" scope="request"/>   
+  <bean class="org.pentaho.platform.web.http.api.resources.VersionResource" scope="request"/>      
 </beans>

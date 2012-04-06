@@ -33,8 +33,6 @@ public interface MantleServiceAsync {
   public void isAdministrator(AsyncCallback<Boolean> callback);
   public void deleteContentItem(String contentId, AsyncCallback<Boolean> callback);
 
-  public void getSoftwareUpdatesDocument(AsyncCallback<String> callback);
-
   // file api
   public void getAllUsers(AsyncCallback<ArrayList<String>> callback);
   public void getAllRoles(AsyncCallback<ArrayList<String>> callback);
@@ -43,9 +41,6 @@ public interface MantleServiceAsync {
   
   // mantle settings
   public void getMantleSettings(AsyncCallback<HashMap<String,String>> callback);
-
-  // version information
-  public void getVersion(AsyncCallback<String> callback);
 
   // For New Analysis View
   public void getMondrianCatalogs(AsyncCallback<HashMap<String,ArrayList<String[]>>> callback);

@@ -57,10 +57,7 @@ import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
-import org.pentaho.platform.util.VersionHelper;
-import org.pentaho.platform.util.VersionInfo;
 import org.pentaho.platform.util.messages.LocaleHelper;
-import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 import org.pentaho.ui.xul.XulOverlay;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -120,15 +117,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
   // userFiles.validate(getPentahoSession(), null);
   // return userFiles;
   // }
-
-  @SuppressWarnings("rawtypes")
-  public String getSoftwareUpdatesDocument() {
-    if (PentahoVersionCheckReflectHelper.isVersionCheckerAvailable()) {
-      List results = PentahoVersionCheckReflectHelper.performVersionCheck(false, -1);
-      return PentahoVersionCheckReflectHelper.logVersionCheck(results, logger);
-    }
-    return "<vercheck><error><[!CDATA[Version Checker is disabled]]></error></vercheck>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-  }
 
   /**
    * Note that this implementation is different from MantleLoginServlet.isAuthenticated. This method may return true even if the user is anonymous. That is not
@@ -319,11 +307,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
   public boolean repositorySupportsACLS() {
     ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, getPentahoSession());
     return repository.supportsAccessControls();
-  }
-
-  public String getVersion() {
-    VersionInfo versionInfo = VersionHelper.getVersionInfo(PentahoSystem.class);
-    return versionInfo.getVersionNumber();
   }
 
   public ArrayList<XulOverlay> getOverlays() {
