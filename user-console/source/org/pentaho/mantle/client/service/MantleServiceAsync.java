@@ -35,14 +35,6 @@ public interface MantleServiceAsync {
 
   public void getSoftwareUpdatesDocument(AsyncCallback<String> callback);
 
-  // admin actions
-  public void executeGlobalActions(AsyncCallback<Void> callback);
-  public void refreshMetadata(AsyncCallback<String> callback);
-  public void refreshSystemSettings(AsyncCallback<Void> callback);
-  public void refreshRepository(AsyncCallback<Void> callback);
-  public void flushMondrianSchemaCache(AsyncCallback<Void> callback);
-  public void purgeReportingDataCache(AsyncCallback<Void> callback);
-
   // file api
   public void getAllUsers(AsyncCallback<ArrayList<String>> callback);
   public void getAllRoles(AsyncCallback<ArrayList<String>> callback);

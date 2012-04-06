@@ -18,8 +18,14 @@ package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
 
 public class RefreshMetaDataCommand extends AbstractCommand {
 
@@ -27,21 +33,25 @@ public class RefreshMetaDataCommand extends AbstractCommand {
   }
 
   protected void performOperation() {
-    AsyncCallback<String> callback = new AsyncCallback<String>() {
+    final String url = GWT.getHostPageBaseURL() + "api/system/refresh/metadata"; //$NON-NLS-1$
+    RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    requestBuilder.setHeader("accept", "text/plain");
+    try {
+      requestBuilder.sendRequest(null, new RequestCallback() {
 
-      public void onFailure(Throwable caught) {
-        MessageDialogBox dialogBox = new MessageDialogBox(
-            Messages.getString("error"), Messages.getString("refreshReportingMetadataFailed"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-        dialogBox.center();
-      }
+        public void onError(Request request, Throwable exception) {
+          // showError(exception);
+        }
 
-      public void onSuccess(String result) {
-        MessageDialogBox dialogBox = new MessageDialogBox(
-            Messages.getString("info"), result, true, false, true); //$NON-NLS-1$
-        dialogBox.center();
-      }
-    };
-    MantleServiceCache.getService().refreshMetadata(callback);
+        public void onResponseReceived(Request request, Response response) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("info"), response.getText(), true, false, true); //$NON-NLS-1$
+          dialogBox.center();
+        }
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+      // showError(e);
+    }
   }
 
   protected void performOperation(final boolean feedback) {

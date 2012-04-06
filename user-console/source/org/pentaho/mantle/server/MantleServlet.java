@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,7 +41,6 @@ import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.objects.SimpleMessageException;
 import org.pentaho.mantle.client.service.MantleService;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
-import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -50,8 +49,6 @@ import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.api.repository.ISolutionRepository;
-import org.pentaho.platform.api.ui.IThemeManager;
-import org.pentaho.platform.api.ui.Theme;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -65,6 +62,7 @@ import org.pentaho.platform.util.VersionInfo;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.versionchecker.PentahoVersionCheckReflectHelper;
 import org.pentaho.ui.xul.XulOverlay;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class MantleServlet extends RemoteServiceServlet implements MantleService {
@@ -132,26 +130,6 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     return "<vercheck><error><[!CDATA[Version Checker is disabled]]></error></vercheck>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   }
 
-  public void executeGlobalActions() {
-    if (isAdministrator()) {
-      PentahoSystem.publish(getPentahoSession(), org.pentaho.platform.engine.core.system.GlobalListsPublisher.class.getName());
-    }
-  }
-
-  public String refreshMetadata() {
-    String result = null;
-    if (isAdministrator()) {
-      result = PentahoSystem.publish(getPentahoSession(), org.pentaho.platform.engine.services.metadata.MetadataPublisher.class.getName());
-    }
-    return result;
-  }
-
-  public void refreshSystemSettings() {
-    if (isAdministrator()) {
-      PentahoSystem.publish(getPentahoSession(), org.pentaho.platform.engine.core.system.SettingsPublisher.class.getName());
-    }
-  }
-
   /**
    * Note that this implementation is different from MantleLoginServlet.isAuthenticated. This method may return true even if the user is anonymous. That is not
    * the case for MantleLoginServlet.isAuthenticated.
@@ -167,18 +145,7 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     return false;
   }
 
-  public void refreshRepository() {
-    if (isAdministrator()) {
-      PentahoSystem.get(ISolutionRepository.class, getPentahoSession()).reloadSolutionRepository(getPentahoSession(), getPentahoSession().getLoggingLevel());
-    }
-  }
 
-  public void flushMondrianSchemaCache() {
-    if (isAdministrator()) {
-      IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(IMondrianCatalogService.class, "IMondrianCatalogService", getPentahoSession()); //$NON-NLS-1$
-      mondrianCatalogService.reInit(getPentahoSession());
-    }
-  }
 
   public ArrayList<String> getAllRoles() {
     IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
@@ -388,11 +355,5 @@ public class MantleServlet extends RemoteServiceServlet implements MantleService
     return new ArrayList<IPluginPerspective>(manager.getPluginPerspectives());
   }
 
-  public void purgeReportingDataCache() {
-    ICacheManager cacheManager = PentahoSystem.get(ICacheManager.class);
-    cacheManager.clearRegionCache("report-dataset-cache");
-    cacheManager.clearRegionCache("report-output-handlers");
-
-  }
 
 }

@@ -36,14 +36,6 @@ public interface MantleService extends RemoteService {
   
   public String getSoftwareUpdatesDocument();
   
-  // admin
-  public void executeGlobalActions();
-  public String refreshMetadata();
-  public void refreshSystemSettings();
-  public void refreshRepository();
-  public void flushMondrianSchemaCache();
-  public void purgeReportingDataCache();
-
   // file api
   public ArrayList<String> getAllUsers();
   public ArrayList<String> getAllRoles();

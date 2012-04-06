@@ -12,15 +12,20 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 Pentaho Corporation.  All rights reserved.
+ * Copyright 2012 Pentaho Corporation.  All rights reserved.
  */
 package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ExecuteGlobalActionsCommand extends AbstractCommand {
 
@@ -28,19 +33,26 @@ public class ExecuteGlobalActionsCommand extends AbstractCommand {
   }
 
   protected void performOperation() {
-    AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+    final String url = GWT.getHostPageBaseURL() + "api/system/refresh/globalActions"; //$NON-NLS-1$
+    RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    requestBuilder.setHeader("accept", "text/plain");
+    try {
+      requestBuilder.sendRequest(null, new RequestCallback() {
 
-      public void onFailure(Throwable caught) {
-        Window.alert(caught.toString());
-      }
+        public void onError(Request request, Throwable exception) {
+          // showError(exception);
+        }
 
-      public void onSuccess(Void result) {
-        MessageDialogBox dialogBox = new MessageDialogBox(
-            Messages.getString("info"), Messages.getString("globalActionsExecutedSuccessfully"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-        dialogBox.center();
-      }
-    };
-    MantleServiceCache.getService().executeGlobalActions(callback);
+        public void onResponseReceived(Request request, Response response) {
+          MessageDialogBox dialogBox = new MessageDialogBox(
+              Messages.getString("info"), Messages.getString("globalActionsExecutedSuccessfully"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+          dialogBox.center();
+        }
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+      // showError(e);
+    }
   }
 
   protected void performOperation(final boolean feedback) {
