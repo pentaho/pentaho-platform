@@ -20,6 +20,7 @@
 
 package org.pentaho.mantle.client.admin;
 
+import org.pentaho.gwt.widgets.client.text.ValidationPasswordTextBox;
 import org.pentaho.gwt.widgets.client.text.ValidationTextBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
@@ -46,7 +47,7 @@ public class EmailAdminPanel extends SimplePanel {
 	protected ValidationTextBox fromAddressTextBox;
 	protected CheckBox authenticationCheckBox;
 	protected ValidationTextBox userNameTextBox;
-	protected PasswordTextBox passwordTextBox;
+	protected ValidationPasswordTextBox passwordTextBox;
 	protected CheckBox debuggingCheckBox;
 	protected Button saveButton;
 	protected Button editPasswordButton;
@@ -171,9 +172,16 @@ public class EmailAdminPanel extends SimplePanel {
 
 		authenticationPanel.add(new Label(Messages.getString("password") + ":"));
 		hPanel = new HorizontalPanel();
-		passwordTextBox = new PasswordTextBox();
+		passwordTextBox = new ValidationPasswordTextBox() {
+
+      @Override
+      public boolean validate() {
+        return !StringUtils.isEmpty(passwordTextBox.getText());
+      }
+		  
+		};
 		passwordTextBox.setWidth("319px");
-		passwordTextBox.setEnabled(false);
+		passwordTextBox.getManagedObject().setEnabled(false);
 		hPanel.add(passwordTextBox);
 
 		hSpacer = new SimplePanel();
