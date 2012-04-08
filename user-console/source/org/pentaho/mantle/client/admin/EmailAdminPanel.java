@@ -180,8 +180,10 @@ public class EmailAdminPanel extends SimplePanel {
       }
 		  
 		};
+		passwordTextBox.setValidationMessage(Messages.getString("passwordValidationMessage"));
 		passwordTextBox.setWidth("319px");
 		passwordTextBox.getManagedObject().setEnabled(false);
+		
 		hPanel.add(passwordTextBox);
 
 		hSpacer = new SimplePanel();
