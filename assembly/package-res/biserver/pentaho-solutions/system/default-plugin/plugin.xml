@@ -29,7 +29,7 @@
     <overlay id="startup.jpivot" resourcebundle="content/default-plugin/resources/messages/messages">
       <menubar id="newmenu">
         <menuitem id="jpivotMenuItem" label="${analysisView}"
-                  command="mainMenubarHandler.executeMantleCommand('AnalysisViewCommand')"/>
+                  command="mantleXulHandler.executeMantleCommand('AnalysisViewCommand')"/>
       </menubar>
     </overlay>
   </overlays>
