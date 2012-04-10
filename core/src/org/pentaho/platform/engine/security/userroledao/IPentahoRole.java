@@ -28,6 +28,8 @@ import java.util.Set;
  */
 public interface IPentahoRole extends Serializable {
 
+  String getTenant();
+  
   String getName();
 
   String getDescription();

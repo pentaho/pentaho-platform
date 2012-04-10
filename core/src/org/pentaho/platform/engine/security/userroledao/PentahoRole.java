@@ -26,12 +26,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * A role in the Pentaho platform. Contains a set of users to which the role is assigned. A role is also known as an 
- * authority.
+ * A role in the Pentaho platform. A role is also known as an authority.
  * 
- * <p>Note that users are not considered during equals comparisons and hashCode calculations. This is because instances 
- * are sometimes stored in Java collections. The users set is mutable and we don't want two roles that have the same 
- * name but different users in the same set.</p>
  * 
  * @see PentahoUser
  * @author mlowery
@@ -43,9 +39,12 @@ public class PentahoRole implements IPentahoRole {
   private static final long serialVersionUID = 7280850318778455743L;
 
   private static final String FIELD_NAME = "name"; //$NON-NLS-1$
+  private static final String FIELD_TENANT = "tenant"; //$NON-NLS-1$
 
   // ~ Instance fields =================================================================================================
 
+  private String tenant;
+  
   private String name;
 
   private String description;
@@ -63,14 +62,20 @@ public class PentahoRole implements IPentahoRole {
   }
 
   public PentahoRole(String name, String description) {
+    this(null, name, description);
+  }
+
+  public PentahoRole(String tenant, String name, String description) {
+    this.tenant = tenant;
     this.name = name;
     this.description = description;
   }
-
+  
   /**
    * Copy constructor
    */
   public PentahoRole(IPentahoRole roleToCopy) {
+    this.tenant = roleToCopy.getTenant();
     this.name = roleToCopy.getName();
     this.description = roleToCopy.getDescription();
     users = new HashSet<IPentahoUser>(roleToCopy.getUsers());
@@ -98,15 +103,26 @@ public class PentahoRole implements IPentahoRole {
       return true;
     }
     PentahoRole rhs = (PentahoRole) obj;
-    return new EqualsBuilder().append(name, rhs.name).isEquals();
+    boolean result;
+    if ((tenant == null) && (rhs.tenant == null)) {
+      result = new EqualsBuilder().append(name, rhs.name).isEquals();
+    } else {
+      result = new EqualsBuilder().append(name, rhs.name).append(tenant, rhs.tenant).isEquals();
+    }
+    return result;
   }
 
   public int hashCode() {
-    return new HashCodeBuilder(61, 167).append(name).toHashCode();
+    
+    return tenant == null ? new HashCodeBuilder(61, 167).append(name).toHashCode() : new HashCodeBuilder(61, 167).append(tenant).append(name).toHashCode();
   }
 
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append(FIELD_NAME, name).toString();
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append(FIELD_TENANT, tenant).append(FIELD_NAME, name).toString();
+  }
+
+  public String getTenant() {
+    return tenant;
   }
 
   public void setUsers(Set<IPentahoUser> users) {
@@ -128,5 +144,4 @@ public class PentahoRole implements IPentahoRole {
   public void clearUsers() {
     users.clear();
   }
-
 }

@@ -28,7 +28,21 @@ import java.util.Set;
 public interface IPentahoUser extends Serializable {
 
   String getUsername();
+  
+  String getTenant();
 
+  String getPassword();
+
+  void setPassword(String password);
+
+  boolean isEnabled();
+
+  void setEnabled(boolean enabled);
+
+  String getDescription();
+
+  void setDescription(String description);
+  
   Set<IPentahoRole> getRoles();
 
   void setRoles(Set<IPentahoRole> roles);
@@ -45,15 +59,4 @@ public interface IPentahoUser extends Serializable {
 
   void clearRoles();
 
-  String getPassword();
-
-  void setPassword(String password);
-
-  boolean isEnabled();
-
-  void setEnabled(boolean enabled);
-
-  String getDescription();
-
-  void setDescription(String description);
 }

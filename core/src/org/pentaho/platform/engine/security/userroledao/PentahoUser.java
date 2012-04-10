@@ -17,20 +17,13 @@
 */
 package org.pentaho.platform.engine.security.userroledao;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * A user of the Pentaho platform. Contains a set of roles for which this user is a member.
- * 
- * <p>Note that roles are not considered during equals comparisons and hashCode calculations. This is because instances 
- * are sometimes stored in Java collections. The roles set is mutable and we don't want two users that have the same 
- * username but different roles in the same set.</p>
+ * A user of the Pentaho platform.
  * 
  * @see PentahoRole
  * @author mlowery
@@ -49,11 +42,15 @@ public class PentahoUser implements IPentahoUser {
 
   private static final String FIELD_USERNAME = "username"; //$NON-NLS-1$
 
+  private static final String FIELD_TENANT = "tenant"; //$NON-NLS-1$
+  
   private static final String FIELD_DESCRIPTION = "description"; //$NON-NLS-1$
 
   // ~ Instance fields =================================================================================================
 
   private String username;
+  
+  private String tenant;
 
   private String password;
 
@@ -80,6 +77,14 @@ public class PentahoUser implements IPentahoUser {
     this.enabled = enabled;
   }
 
+  public PentahoUser(String tenant, String username, String password, String description, boolean enabled) {
+    this.tenant = tenant;
+    this.username = username;
+    this.password = password;
+    this.description = description;
+    this.enabled = enabled;
+  }
+  
   /**
    * Copy constructor
    */
@@ -94,6 +99,10 @@ public class PentahoUser implements IPentahoUser {
 
   public String getUsername() {
     return username;
+  }
+
+  public String getTenant() {
+    return this.tenant;
   }
 
   public String getPassword() {
@@ -112,14 +121,6 @@ public class PentahoUser implements IPentahoUser {
     this.enabled = enabled;
   }
 
-  public void setRoles(Set<IPentahoRole> roles) {
-    this.roles = roles;
-  }
-
-  public Set<IPentahoRole> getRoles() {
-    return roles;
-  }
-
   public boolean equals(Object obj) {
     if (obj instanceof PentahoUser == false) {
       return false;
@@ -128,11 +129,17 @@ public class PentahoUser implements IPentahoUser {
       return true;
     }
     PentahoUser rhs = (PentahoUser) obj;
-    return new EqualsBuilder().append(username, rhs.username).isEquals();
+    boolean result;
+    if ((getTenant() == null) && (rhs.getTenant() == null)) {
+      result = new EqualsBuilder().append(username, rhs.username).isEquals();
+    } else {
+      result = new EqualsBuilder().append(username, rhs.username).append(tenant, rhs.tenant).isEquals();
+    }
+    return result;
   }
 
   public int hashCode() {
-    return new HashCodeBuilder(71, 223).append(username).toHashCode();
+    return tenant == null ? new HashCodeBuilder(71, 223).append(username).toHashCode() : new HashCodeBuilder(71, 223).append(tenant).append(username).toHashCode();
   }
 
   public String getDescription() {
@@ -144,7 +151,7 @@ public class PentahoUser implements IPentahoUser {
   }
 
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append(FIELD_USERNAME, username).append(
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append(FIELD_TENANT, tenant).append(FIELD_USERNAME, username).append(
         FIELD_PASSWORD, PASSWORD_MASK).append(FIELD_DESCRIPTION, description).append(FIELD_ENABLED, enabled).toString();
   }
 
