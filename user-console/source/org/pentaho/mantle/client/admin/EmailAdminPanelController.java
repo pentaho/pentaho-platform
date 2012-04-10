@@ -128,6 +128,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 				public void onResponseReceived(Request request, Response response) {
 					saveButton.setEnabled(false);
+					isDirty = false;
 				}
 			});
 		} catch (RequestException e) {
