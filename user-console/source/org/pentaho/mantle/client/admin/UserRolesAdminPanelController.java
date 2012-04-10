@@ -598,6 +598,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		public void onClick(ClickEvent event) {
 			if (usersListBox.getSelectedIndex() != -1) {
 				GwtConfirmBox warning = new GwtConfirmBox();
+				warning.setHeight(117); 
 				warning.setMessage(Messages.getString("deleteUserMessage"));
 				warning.setTitle(Messages.getString("deleteUserTitle"));
 				warning.addDialogCallback(new XulDialogCallback<String>() {
