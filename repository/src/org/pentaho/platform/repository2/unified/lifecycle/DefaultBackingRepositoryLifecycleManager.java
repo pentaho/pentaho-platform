@@ -76,6 +76,7 @@ public class DefaultBackingRepositoryLifecycleManager extends AbstractBackingRep
   public synchronized void doShutdown() {
   }
 
+  // This will need to be replaced with a call to the tenantManager
   public synchronized void doStartup() {
     createPentahoRootFolder();
   }
