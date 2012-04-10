@@ -39,21 +39,21 @@ public interface ITenantManager {
    * @param tenantName
    * @return
    */
-  RepositoryFile createSystemTenant(final String tenantName);
+  Serializable createSystemTenant(final String tenantName);
   
   /**
    * @param parentPath
    * @param tenantName
    * @return a "tenantPath"
    */
-  RepositoryFile createTenant(final String parentPath, final String tenantName);
+  Serializable createTenant(final Serializable parentTenantId, final String tenantName);
   
   /**
    * @param parentPath
    * @param tenantNames
    * @return a List of strings each holding a "tenantPath"
    */
-  List<RepositoryFile> createTenants(final String parentPath, final List<String> tenantNames);
+  List<Serializable> createTenants(final Serializable parentTenantId, final List<String> tenantNames);
   
   // ~ List Tenants ====================================================================
   /**
@@ -62,7 +62,7 @@ public interface ITenantManager {
    * @param parentPath
    * @return a list of "tenentPath"
    */
-  List<RepositoryFile> getChildTenants(final String parentPath);
+  List<Serializable> getChildTenants(final String parentTenantPath);
   
   /**
    * Gets children tenants of the "parentFolderId" tenant.  Returns only level one children.  Not descendants
@@ -70,7 +70,7 @@ public interface ITenantManager {
    * @param parentFolderId - Serializable that represents the folder id of the parent tenant
    * @return List of children that are subTenants of the parent tenant.
    */
-  List<RepositoryFile> getChildTenants(final Serializable parentFolderId);
+  List<Serializable> getChildTenants(final Serializable parentTenantFolderId);
   
   // ~ Modify Tenant ===================================================================
   /**
@@ -87,7 +87,7 @@ public interface ITenantManager {
    * Deletes the tenant based on the tenantId
    * @param tenantId
    */
-  void deleteTenant(final Serializable tenantId);
+  void deleteTenant(final Serializable tenantFolderId);
   
   /**
    * Deletes the tenant
@@ -110,7 +110,7 @@ public interface ITenantManager {
    * Disables the tenant based on the tenantId
    * @param tenantId
    */
-  void disableTenant(final Serializable tenantId);
+  void disableTenant(final Serializable tenantFolderId);
   
   /**
    * Disables the tenant.  No user login can be performed.
@@ -133,7 +133,7 @@ public interface ITenantManager {
    * @param tenantRootfileId
    * @return boolean that is true if the tenantRootfileId is a tenant root directory
    */
-  boolean isTenantRoot(final Serializable tenantRootfileId);
+  boolean isTenantRoot(final Serializable tenantFolderId);
   
   /**
    * @param tenantPath
@@ -145,7 +145,7 @@ public interface ITenantManager {
    * @param tenantRootfileId
    * @return boolean that is true if the tenantRootfileId is an enabled tenant root directory
    */
-  boolean isTenantEnabled(final Serializable tenantRootfileId);
+  boolean isTenantEnabled(final Serializable tenantFolderId);
   
   /**
    * @param tenantPath
