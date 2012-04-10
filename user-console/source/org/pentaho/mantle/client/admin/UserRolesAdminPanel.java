@@ -69,7 +69,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("10px");
 		hPanel.add(hSpacer);
-		hPanel.add(new Label(Messages.getString("users") + "/" + Messages.getString("roles")));
+		hPanel.add(new Label(Messages.getString("users") + " / " + Messages.getString("roles")));
 		mainPanel.setWidget(0, 0, hPanel);
 		
 

@@ -195,7 +195,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
 	  public void run() {
 	    if (container != null) {
 	      cancel(); 	
-	      String usersRolesLabel = Messages.getString("users") + "/" + Messages.getString("roles");
+	      String usersRolesLabel = Messages.getString("users") + " / " + Messages.getString("roles");
 		  GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
 			  
 		  TreeItem usersRolesTreeItem = null;

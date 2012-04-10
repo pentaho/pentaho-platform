@@ -97,7 +97,7 @@
 				<treechildren id="configuration">
 			   		<treeitem command="mantleXulHandler.loadEmailAdminPanel()">
 	    		 		<treerow>
-							<treecell label="Email/SMTP Server" />
+							<treecell label="Email / SMTP Server" />
 		  				</treerow>
 		  			</treeitem>
 			    </treechildren>		  		
@@ -121,7 +121,7 @@
 		  		</treeitem>
 			   	<treeitem command="mantleXulHandler.loadUserRolesAdminPanel()">
 	    		 	<treerow>
-						<treecell label="Users/Roles" />
+						<treecell label="Users / Roles" />
 		  			</treerow>
 		  		</treeitem>
 			  </treechildren>
