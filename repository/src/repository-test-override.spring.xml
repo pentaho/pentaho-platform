@@ -21,6 +21,12 @@
     <property name="homeDir" value="file:/tmp/jackrabbit-test-TRUNK" />
   </bean>
   
+  <bean id="jcrTemplate" class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoJcrTemplate">
+    <property name="sessionFactory" ref="jcrSessionFactory"/>
+    <property name="allowCreate" value="true"/>
+    <property name="exposeNativeSession" value="true"/>
+  </bean>
+
   <!-- override to keep only the required managers -->
   <bean id="backingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DelegatingBackingRepositoryLifecycleManager">
     <constructor-arg>

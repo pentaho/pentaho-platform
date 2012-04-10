@@ -160,7 +160,7 @@
   	    class="org.pentaho.platform.repository2.unified.DefaultTenantManager">
     <constructor-arg ref="repositoryFileDao"/>
     <constructor-arg ref="repositoryFileAclDao"/>
-    <constructor-arg ref="jcrTransactionTemplate"/>
+    <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
     <constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>	    
   </bean>
