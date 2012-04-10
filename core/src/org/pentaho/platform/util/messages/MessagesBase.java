@@ -36,8 +36,11 @@ public class MessagesBase {
     this.bundleName = bundleName;
   }
   
-  private ResourceBundle getBundle() {
-    Locale locale = LocaleHelper.getLocale();
+  public ResourceBundle getBundle() {
+    return getBundle(LocaleHelper.getLocale());
+  }
+  
+  public ResourceBundle getBundle(Locale locale) {
     ResourceBundle bundle = locales.get(locale);
     if (bundle == null) {
       bundle = ResourceBundle.getBundle(bundleName, locale);
