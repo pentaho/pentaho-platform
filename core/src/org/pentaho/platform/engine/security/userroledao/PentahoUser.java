@@ -17,6 +17,9 @@
 */
 package org.pentaho.platform.engine.security.userroledao;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -119,6 +122,14 @@ public class PentahoUser implements IPentahoUser {
 
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
+  }
+
+  public void setRoles(Set<IPentahoRole> roles) {
+    this.roles = roles;
+  }
+
+  public Set<IPentahoRole> getRoles() {
+    return roles;
   }
 
   public boolean equals(Object obj) {
