@@ -20,7 +20,6 @@
 
 package org.pentaho.mantle.client.admin;
 
-import org.pentaho.gwt.widgets.client.buttons.ProgressIndicatorButton;
 import org.pentaho.gwt.widgets.client.buttons.ProgressIndicatorWidget;
 import org.pentaho.gwt.widgets.client.panel.ActionBar;
 import org.pentaho.gwt.widgets.client.text.ValidationPasswordTextBox;
