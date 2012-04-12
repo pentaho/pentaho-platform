@@ -19,30 +19,26 @@ package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.WILDCARD;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.ui.IThemeManager;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
+import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-@Path("/theme")
-public class ThemeResource extends AbstractJaxRSResource {
+@Path("/user-settings")
+public class UserSettingsResource extends AbstractJaxRSResource {
 
-  public ThemeResource() {
+  public UserSettingsResource() {
   }
 
   private IPentahoSession getPentahoSession() {
@@ -52,39 +48,37 @@ public class ThemeResource extends AbstractJaxRSResource {
   @GET
   @Path("/list")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public List<Theme> getSystemThemes() {
-    ArrayList<Theme> themes = new ArrayList<Theme>();
-    IThemeManager themeManager = PentahoSystem.get(IThemeManager.class);
-    List<String> ids = themeManager.getSystemThemeIds();
-    for (String id : ids) {
-      org.pentaho.platform.api.ui.Theme theme = themeManager.getSystemTheme(id);
-      if (theme.isHidden() == false) {
-        themes.add(new Theme(id, theme.getName()));
-      }
-    }
-    return themes;
-  }
+  public ArrayList<Setting> getUserSettings() {
+    try {
+      IUserSettingService settingsService = PentahoSystem.get(IUserSettingService.class, getPentahoSession());
+      ArrayList<IUserSetting> userSettings = (ArrayList<IUserSetting>) settingsService.getUserSettings();
 
-  @POST
-  @Path("/set")
-  @Consumes({WILDCARD})
-  @Produces("text/plain")
-  public Response setTheme(String theme) {
-    getPentahoSession().setAttribute("pentaho-user-theme", theme);
-    IUserSettingService settingsService = PentahoSystem.get(IUserSettingService.class, getPentahoSession());
-    settingsService.setUserSetting("pentaho-user-theme", theme);
-    return getActiveTheme();
+      ArrayList<Setting> settings = new ArrayList<Setting>();
+      for (IUserSetting userSetting : userSettings) {
+        settings.add(new Setting(userSetting.getSettingName(), userSetting.getSettingValue()));
+      }
+
+      return settings;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 
   @GET
-  @Path("/active")
-  @Produces("text/plain")
-  public Response getActiveTheme() {
+  @Path("{setting : .+}")
+  public Response getUserSetting(@PathParam("setting") String setting) {
     IUserSettingService settingsService = PentahoSystem.get(IUserSettingService.class, getPentahoSession());
-    return Response
-        .ok(StringUtils.defaultIfEmpty((String) getPentahoSession().getAttribute("pentaho-user-theme"),
-            settingsService.getUserSetting("pentaho-user-theme", PentahoSystem.getSystemSetting("default-theme", "onyx")).getSettingValue()))
-        .type(MediaType.TEXT_PLAIN).build();
+    IUserSetting userSetting = settingsService.getUserSetting(setting, null);
+    return Response.ok(userSetting != null ? userSetting.getSettingValue() : null).build();
+  }
+
+  @POST
+  @Path("{setting : .+}")
+  public Response setUserSetting(@PathParam("setting") String setting, String settingValue) {
+    IUserSettingService settingsService = PentahoSystem.get(IUserSettingService.class, getPentahoSession());
+    settingsService.setUserSetting(setting, settingValue);
+    return getUserSetting(setting);
   }
 
 }

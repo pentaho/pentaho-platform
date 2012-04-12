@@ -17,7 +17,9 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;
@@ -29,33 +31,46 @@ import com.sun.jersey.api.json.JSONJAXBContext;
 @Provider
 public class JAXBContextResolver implements ContextResolver<JAXBContext> {
 
-	private JAXBContext context;
-	@SuppressWarnings("rawtypes")
-	private ArrayList<Class> types = new ArrayList<Class>();
-	private ArrayList<String> arrays = new ArrayList<String>();
-	
-	public JAXBContextResolver() throws Exception {
-		types.add(ArrayList.class);
-		types.add(JaxbList.class);
-		arrays.add("list");
-		arrays.add("values");
-		JSONConfiguration config = JSONConfiguration.mapped().rootUnwrapping(true).arrays(arrays.toArray(new String[]{})).build();
-		context = new JSONJAXBContext(config, types.toArray(new Class[] {}));
-	}
+  private JAXBContext context;
+  @SuppressWarnings("rawtypes")
+  private ArrayList<Class> types = new ArrayList<Class>();
+  private ArrayList<String> arrays = new ArrayList<String>();
 
-	public JAXBContext getContext(Class<?> objectType) {
-		if (types.contains(objectType)) {
-			return context;
-		}
-		arrays.add(objectType.getSimpleName().toLowerCase());
-		types.add(objectType);
-		try {
-			JSONConfiguration config = JSONConfiguration.mapped().rootUnwrapping(true).arrays(arrays.toArray(new String[]{})).build();
-			context = new JSONJAXBContext(config, types.toArray(new Class[] {}));
-			return getContext(objectType);
-		} catch (JAXBException e) {
-		}
-		return null;
-	}
-	
+  public JAXBContextResolver() throws Exception {
+    types.add(ArrayList.class);
+    types.add(JaxbList.class);
+    arrays.add("list");
+    arrays.add("values");
+    JSONConfiguration config = JSONConfiguration.mapped().rootUnwrapping(true).arrays(arrays.toArray(new String[] {})).build();
+    context = new JSONJAXBContext(config, types.toArray(new Class[] {}));
+  }
+
+  public JAXBContext getContext(Class<?> objectType) {
+    if (types.contains(objectType)) {
+      return context;
+    }
+
+    // need to see if class has any ArrayList types, if so, add those to arrays
+    Field[] fields = objectType.getDeclaredFields();
+    for (int i = 0; i < fields.length; i++) {
+      if (fields[i].getType().isAssignableFrom(ArrayList.class)) {
+        String simpleName = fields[i].getName();
+        simpleName = simpleName.substring(0, 1).toLowerCase() + simpleName.substring(1);
+        arrays.add(simpleName);
+      }
+    }
+
+    String simpleName = objectType.getSimpleName();
+    simpleName = simpleName.substring(0, 1).toLowerCase() + simpleName.substring(1);
+    arrays.add(simpleName);
+    types.add(objectType);
+    try {
+      JSONConfiguration config = JSONConfiguration.mapped().rootUnwrapping(true).arrays(arrays.toArray(new String[] {})).build();
+      context = new JSONJAXBContext(config, types.toArray(new Class[] {}));
+      return getContext(objectType);
+    } catch (JAXBException e) {
+    }
+    return null;
+  }
+
 }

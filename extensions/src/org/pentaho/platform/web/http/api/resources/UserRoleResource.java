@@ -37,18 +37,15 @@ public class UserRoleResource extends AbstractJaxRSResource {
 
 	@GET
 	@Path("/users")
-	@Produces({ MediaType.APPLICATION_XML })
-	public Response getUsers() throws Exception {
-		try {
-			return Response.ok(SystemResourceUtil.getUsers().asXML()).type(MediaType.APPLICATION_XML).build();
-		} catch (Throwable t) {
-			throw new WebApplicationException(t);
-		}
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+	public UserListWrapper getUsers() throws Exception {
+    IUserRoleListService service = PentahoSystem.get(IUserRoleListService.class);
+    return new UserListWrapper(service.getAllUsers());
 	}
 
 	@GET
 	@Path("/roles")
-	@Produces({ MediaType.APPLICATION_JSON })
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
 	public RoleListWrapper getRoles() throws Exception {
 		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
 		return new RoleListWrapper(userRoleListService.getAllRoles());
@@ -56,7 +53,7 @@ public class UserRoleResource extends AbstractJaxRSResource {
 
 	@GET
 	@Path("/logicalRoleMap")
-	@Produces({ MediaType.APPLICATION_JSON })
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
 	public SystemRolesMap getRoleBindingStruct(@QueryParam("locale") String locale) {
 		RoleBindingStruct roleBindingStruct = roleBindingDao.getRoleBindingStruct(locale);
 		SystemRolesMap systemRolesMap = new SystemRolesMap();
@@ -81,7 +78,7 @@ public class UserRoleResource extends AbstractJaxRSResource {
 
 	@GET
 	@Path("/getRolesForUser")
-	@Produces({ MediaType.APPLICATION_XML })
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
 	public Response getRolesForUser(@QueryParam("user") String user) throws Exception {
 		try {
 			return Response.ok(SystemResourceUtil.getRolesForUser(user).asXML()).type(MediaType.APPLICATION_XML).build();
@@ -92,7 +89,7 @@ public class UserRoleResource extends AbstractJaxRSResource {
 
 	@GET
 	@Path("/getUsersInRole")
-	@Produces({ MediaType.APPLICATION_XML })
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
 	public Response getUsersInRole(@QueryParam("role") String role) throws Exception {
 		try {
 			return Response.ok(SystemResourceUtil.getUsersInRole(role).asXML()).type(MediaType.APPLICATION_XML).build();
