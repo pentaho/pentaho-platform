@@ -20,6 +20,9 @@
 
 package org.pentaho.mantle.client.admin;
 
+import org.pentaho.gwt.widgets.client.buttons.ProgressIndicatorButton;
+import org.pentaho.gwt.widgets.client.buttons.ProgressIndicatorWidget;
+import org.pentaho.gwt.widgets.client.panel.ActionBar;
 import org.pentaho.gwt.widgets.client.text.ValidationPasswordTextBox;
 import org.pentaho.gwt.widgets.client.text.ValidationTextBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -27,11 +30,11 @@ import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -49,13 +52,15 @@ public class EmailAdminPanel extends SimplePanel {
 	protected ValidationTextBox userNameTextBox;
 	protected ValidationPasswordTextBox passwordTextBox;
 	protected CheckBox debuggingCheckBox;
-	protected Button saveButton;
+	protected ProgressIndicatorWidget saveButton;
 	protected Button editPasswordButton;
 	protected Button testButton;
 	protected VerticalPanel authenticationPanel;
-
+	protected ActionBar actionBar;
+	protected DockPanel dockPanel;
 	public EmailAdminPanel() {
-
+	  dockPanel = new DockPanel();
+	  actionBar = new ActionBar();
 		FlexTable mainPanel = new FlexTable();
 		HorizontalPanel hPanel = new HorizontalPanel();
 		SimplePanel hSpacer = new SimplePanel();
@@ -69,7 +74,20 @@ public class EmailAdminPanel extends SimplePanel {
 		hPanel.add(hSpacer);
 		hPanel.add(createEmailPanel());
 		mainPanel.setWidget(1, 0, hPanel);
-		setWidget(mainPanel);
+		dockPanel.add(mainPanel, DockPanel.CENTER);
+		dockPanel.setCellWidth(mainPanel, "100%");
+		saveButton = new ProgressIndicatorWidget(new Button(Messages.getString("save")));
+    actionBar.addWidget(saveButton, HorizontalPanel.ALIGN_RIGHT);
+    dockPanel.add(actionBar, DockPanel.SOUTH);
+    dockPanel.setCellVerticalAlignment(actionBar, HorizontalPanel.ALIGN_BOTTOM);
+    dockPanel.setCellWidth(actionBar, "100%");
+    dockPanel.setCellHeight(actionBar, "100%");
+		setWidget(dockPanel);
+		dockPanel.setHeight("100%");
+		dockPanel.setWidth("100%");
+    this.setWidth("100%");
+    this.setHeight("100%");
+		actionBar.collapse();
 	}
 
 	private Widget createEmailPanel() {
@@ -182,8 +200,6 @@ public class EmailAdminPanel extends SimplePanel {
 		};
 		passwordTextBox.setValidationMessage(Messages.getString("passwordValidationMessage"));
 		passwordTextBox.setWidth("319px");
-		passwordTextBox.getManagedObject().setEnabled(false);
-		
 		hPanel.add(passwordTextBox);
 
 		hSpacer = new SimplePanel();
@@ -198,25 +214,21 @@ public class EmailAdminPanel extends SimplePanel {
 
 		debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));
 		mailPanel.add(debuggingCheckBox);
+		
+    vSpacer = new SimplePanel();
+    vSpacer.setHeight("20px");
+    mailPanel.add(vSpacer);
 
-		vSpacer = new SimplePanel();
-		vSpacer.setHeight("55px");
-		mailPanel.add(vSpacer);
+    HorizontalPanel buttonsPanel = new HorizontalPanel();
+    mailPanel.add(buttonsPanel);
 
-		HorizontalPanel buttonsPanel = new HorizontalPanel();
-		mailPanel.add(buttonsPanel);
+    hSpacer = new SimplePanel();
+    hSpacer.setWidth("339px");
+    buttonsPanel.add(hSpacer);
 
-		saveButton = new Button(Messages.getString("save"));
-		saveButton.setStylePrimaryName("pentaho-button");
-		buttonsPanel.add(saveButton);
-
-		hSpacer = new SimplePanel();
-		hSpacer.setWidth("280px");
-		buttonsPanel.add(hSpacer);
-
-		testButton = new Button(Messages.getString("test"));
-		testButton.setStylePrimaryName("pentaho-button");
-		buttonsPanel.add(testButton);
+    testButton = new Button(Messages.getString("test"));
+    testButton.setStylePrimaryName("pentaho-button");
+    buttonsPanel.add(testButton);
 
 		return mailPanel;
 	}

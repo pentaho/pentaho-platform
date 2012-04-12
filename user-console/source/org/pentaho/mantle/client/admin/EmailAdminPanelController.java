@@ -48,6 +48,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
 
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
@@ -55,7 +56,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 	public EmailAdminPanelController() {
 		super();
-		saveButton.addClickHandler(new SaveButtonChangeListener());
+		((Button) saveButton.getManagedObject()).addClickHandler(new SaveButtonChangeListener());
 		authenticationCheckBox.addValueChangeHandler(new AuthenticateChangeHandler());
 		editPasswordButton.addClickHandler(new EditPasswordListener());
 		testButton.addClickHandler(new EmailTestButtonChangeListener());
@@ -73,7 +74,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 	public void updatePassword(String password) {
 		passwordTextBox.setValue(password);
-		saveButton.setEnabled(isValid());
+    if(passwordTextBox.getValue() != null && passwordTextBox.getValue().length() > 0) {
+      passwordTextBox.getManagedObject().setEnabled(false);
+    }
 		testButton.setEnabled(isValid());
 		isDirty = true;
 	}
@@ -88,6 +91,12 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			boolean passwordValid = !StringUtils.isEmpty(passwordTextBox.getValue());
 			authenticationValid = userNameValid && passwordValid;
 		}
+		if(portValid && smtpValid && fromAddressValid && authenticationValid) {
+		  actionBar.expand();
+		} else {
+		  actionBar.collapse();
+		}
+		
 		return portValid && smtpValid && fromAddressValid && authenticationValid;
 	}
 
@@ -119,15 +128,19 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	// -- Remote Calls.
 
 	private void setEmailConfig() {
+    saveButton.inProgress(true);
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/setEmailConfig" + appendUIParameters();
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
+			    saveButton.inProgress(false);
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-					saveButton.setEnabled(false);
+          actionBar.collapse();
+			    saveButton.inProgress(false);
+					isDirty = false; 
 					isDirty = false;
 				}
 			});
@@ -190,15 +203,20 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 					useSSLCheckBox.setValue(useSsl.booleanValue());
 					fromAddressTextBox.setValue(defaultFrom.stringValue());
 					userNameTextBox.setValue(userId.stringValue());
+					// If password is non-empty.. disable the text-box
+					if(!StringUtils.isEmpty(password.stringValue())) {
+					  passwordTextBox.getManagedObject().setEnabled(false);
+					}
+					 
 					passwordTextBox.setValue(password.stringValue());
+					
 					debuggingCheckBox.setValue(debug.booleanValue());
 
 					String protocol = smtpProtocol.stringValue();
 					protocolsListBox.setSelectedIndex(protocol.equalsIgnoreCase("smtp") ? 0 : 1);
 
 					authenticationPanel.setVisible(authenticate.booleanValue());
-					saveButton.setEnabled(false);
-					testButton.setEnabled(isValid());
+          testButton.setEnabled(isValid());
 				}
 			});
 		} catch (RequestException e) {
@@ -210,6 +228,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	public void activate() {
 		isDirty = false;
 		getEmailConfig();
+		if(passwordTextBox.getValue() != null && passwordTextBox.getValue().length() > 0) {
+	    passwordTextBox.getManagedObject().setEnabled(false);
+		}
 	}
 
 	public String getId() {
@@ -267,21 +288,18 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	class AuthenticationHandler implements KeyUpHandler, ValueChangeHandler<Boolean>, ChangeHandler {
 
 		public void onKeyUp(KeyUpEvent e) {
-			saveButton.setEnabled(isValid());
-			testButton.setEnabled(isValid());
+		  testButton.setEnabled(isValid());
 			isDirty = true;
 		}
 
 		public void onValueChange(ValueChangeEvent<Boolean> value) {
-			saveButton.setEnabled(isValid());
-			testButton.setEnabled(isValid());
-			isDirty = true;
+		  testButton.setEnabled(isValid());
+      isDirty = true;
 		}
 
 		public void onChange(ChangeEvent value) {
-			saveButton.setEnabled(isValid());
-			testButton.setEnabled(isValid());
-			isDirty = true;
+		  testButton.setEnabled(isValid());
+      isDirty = true;
 		}
 	}
 

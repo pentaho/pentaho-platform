@@ -614,3 +614,7 @@ code {
   overflow:hidden;
   width: 525px;
 }
+
+.adminContentPanel > tbody > tr > td > div {
+	height: 100%;
+}

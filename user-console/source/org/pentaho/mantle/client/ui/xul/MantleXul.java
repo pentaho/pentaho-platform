@@ -43,6 +43,7 @@ import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.BorderStyle;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.http.client.Request;
@@ -139,7 +140,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
 
     Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
     adminContentPanel.add(adminContentDeck);
-
+    adminContentDeck.setHeight("100%");
+    adminContentDeck.getElement().getStyle().setProperty("height", "100%");
     fetchPluginOverlays();
   }
 

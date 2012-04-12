@@ -74,6 +74,7 @@
           <artifact name="pentaho-xul-gwt" type="source" ext="jar" m:classifier="sources"/>
         </dependency>
 		
+        <dependency org="GWT-FX" name="GWT-FX" rev="0.5.0" conf="codegen->default" transitive="false"/>
 		<dependency org="com.google.code.gwtx" name="gwtx" rev="1.5.2" conf="codegen->default" transitive="false"/>
         <dependency org="com.google.gwt" name="gwt-incubator" rev="${dependency.gwt-incubator.revision}" conf="codegen->default" transitive="false"/>
         <dependency org="com.allen_sauer" name="gwt-dnd" rev="${dependency.gwt-dnd.revision}"       conf="codegen->default" transitive="false"/>
