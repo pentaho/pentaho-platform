@@ -422,6 +422,11 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>DebugHome</servlet-name>
+		<jsp-file>/mantle/MantleDebug.jsp</jsp-file>
+	</servlet>
+
+	<servlet>
 		<servlet-name>PreviousHome</servlet-name>
 		<jsp-file>/jsp/OldHome.jsp</jsp-file>
 	</servlet>
@@ -761,6 +766,11 @@
 	<servlet-mapping>
 		<servlet-name>Home</servlet-name>
 		<url-pattern>/Home</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>DebugHome</servlet-name>
+		<url-pattern>/DebugHome</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
