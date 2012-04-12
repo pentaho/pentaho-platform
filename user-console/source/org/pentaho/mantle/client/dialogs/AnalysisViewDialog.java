@@ -17,16 +17,22 @@
 package org.pentaho.mantle.client.dialogs;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.HashSet;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -40,7 +46,7 @@ public class AnalysisViewDialog extends PromptDialogBox {
 
   public static final String FOCUS_ON_TITLE = "title"; //$NON-NLS-1$
 
-  private HashMap<String, ArrayList<String[]>> schemaCubeHashMap;
+  private JsArray<JsCube> cubes;
 
   public AnalysisViewDialog() {
     super(Messages.getString("newAnalysisView"), Messages.getString("ok"), Messages.getString("cancel"), false, true, new VerticalPanel()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -100,34 +106,36 @@ public class AnalysisViewDialog extends PromptDialogBox {
    * Populates the schema and cube list box based on the information retrieved from the catalogs.
    */
   private void getSchemaAndCubeInfo() {
-    AsyncCallback<HashMap<String, ArrayList<String[]>>> callback = new AsyncCallback<HashMap<String, ArrayList<String[]>>>() {
-      public void onFailure(Throwable caught) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetFileProperties"), false, false, //$NON-NLS-1$ //$NON-NLS-2$
-            true);
-        dialogBox.center();
-      }
 
-      public void onSuccess(HashMap<String, ArrayList<String[]>> result) {
-        if (result != null) {
-          schemaCubeHashMap = result;
+    final String url = GWT.getHostPageBaseURL() + "api/mantle/cubes"; //$NON-NLS-1$
+    RequestBuilder cubesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    cubesRequestBuilder.setHeader("accept", "application/json");
+    try {
+      cubesRequestBuilder.sendRequest(null, new RequestCallback() {
 
-          if (schemaCubeHashMap != null && schemaCubeHashMap.size() >= 1) {
-
-            for (Entry<String, ArrayList<String[]>> entry : schemaCubeHashMap.entrySet()) {
-              lboxSchema.addItem(entry.getKey());
-            }
-
-            lboxSchema.setSelectedIndex(0);
-            updateCubeListBox(lboxSchema.getItemText(lboxSchema.getSelectedIndex()));
-          }
-        } else {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("noMondrianSchemas"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+        public void onError(Request request, Throwable exception) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetFileProperties"), false, false, //$NON-NLS-1$ //$NON-NLS-2$
+              true);
           dialogBox.center();
         }
-      }
-    };
 
-    MantleServiceCache.getService().getMondrianCatalogs(callback);
+        public void onResponseReceived(Request request, Response response) {
+          cubes = parseCubeJson(JsonUtils.escapeJsonForEval(response.getText()));
+          HashSet<String> schemas = new HashSet<String>();
+          for (int i = 0; i < cubes.length(); i++) {
+            schemas.add(cubes.get(i).getCatName());
+          }
+          for (String catName : schemas) {
+            lboxSchema.addItem(catName);
+          }
+          lboxSchema.setSelectedIndex(0);
+          updateCubeListBox(lboxSchema.getItemText(lboxSchema.getSelectedIndex()));
+        }
+      });
+    } catch (RequestException e) {
+      // showError(e);
+    }
+
   }
 
   /**
@@ -139,15 +147,27 @@ public class AnalysisViewDialog extends PromptDialogBox {
   public void updateCubeListBox(String currentSchema) {
     lboxCube.clear();
 
-    ArrayList<String[]> cubeNamesList = schemaCubeHashMap.get(currentSchema);
-    int size = cubeNamesList.size();
+    ArrayList<JsCube> cubesForSchema = new ArrayList<JsCube>();
 
-    for (int i = 0; i < size; i++) {
-      String name = cubeNamesList.get(i)[0];
-      String id = cubeNamesList.get(i)[1];
+    for (int i = 0; i < cubes.length(); i++) {
+      JsCube cube = cubes.get(i);
+      if (cube.getCatName().equalsIgnoreCase(currentSchema)) {
+        cubesForSchema.add(cube);
+      }
+    }
+
+    for (int i = 0; i < cubesForSchema.size(); i++) {
+      String name = cubesForSchema.get(i).getName();
+      String id = cubesForSchema.get(i).getId();
       lboxCube.addItem(name, id);
     }
   }
+
+  private final native JsArray<JsCube> parseCubeJson(String json)
+  /*-{
+    var obj = eval('(' + json + ')');
+    return obj.cubes;
+  }-*/;
 
   /**
    * Checks the input fields for input.

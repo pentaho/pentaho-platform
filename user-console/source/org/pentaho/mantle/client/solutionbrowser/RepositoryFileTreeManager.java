@@ -6,6 +6,8 @@ import java.util.List;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
 import org.pentaho.gwt.widgets.client.filechooser.XMLToRepositoryFileTreeConverter;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -85,16 +87,12 @@ public class RepositoryFileTreeManager {
     }
   }
 
-  private native String getFullyQualifiedURL()/*-{
-                                              return $wnd.FULL_QUALIFIED_URL;
-                                              }-*/;
-
   public void fetchRepositoryFileTree(final AsyncCallback<RepositoryFileTree> callback, Integer depth, String filter, Boolean showHidden) {
     // notify listeners that we are about to talk to the server (in case there's anything they want to do
     // such as busy cursor or tree loading indicators)
     beforeFetchRepositoryFileTree();
     RequestBuilder builder = null;
-    String url = getFullyQualifiedURL() + "api/repo/files/:/children?"; //$NON-NLS-1$
+    String url = GWT.getHostPageBaseURL() + "api/repo/files/:/children?"; //$NON-NLS-1$
     if (depth == null) {
       depth = -1;
     }
@@ -117,7 +115,7 @@ public class RepositoryFileTreeManager {
         if (response.getStatusCode() == Response.SC_OK) {
           final XMLToRepositoryFileTreeConverter converter = new XMLToRepositoryFileTreeConverter(response.getText());
           fileTree = converter.getTree();
-          String deletedFilesUrl = getFullyQualifiedURL() + "api/repo/files/deleted";
+          String deletedFilesUrl = GWT.getHostPageBaseURL() + "api/repo/files/deleted";
           RequestBuilder deletedFilesRequestBuilder = new RequestBuilder(RequestBuilder.GET, deletedFilesUrl);
           try {
             deletedFilesRequestBuilder.sendRequest(null, new RequestCallback() {

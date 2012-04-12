@@ -26,20 +26,31 @@ import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.mantle.client.MantleApplication;
-import org.pentaho.mantle.client.service.MantleServiceCache;
+import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.ui.xul.JsPerspective;
+import org.pentaho.mantle.client.ui.xul.JsXulOverlay;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.mantle.client.workspace.WorkspacePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
+import org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.util.ResourceBundleTranslator;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -62,11 +73,11 @@ public class PerspectiveManager extends HorizontalPanel {
   private IPluginPerspective activePerspective;
 
   private ArrayList<ICallback<Void>> perspectivesLoadedCallbackList = new ArrayList<ICallback<Void>>();
-  
+
   private static PerspectiveManager instance = new PerspectiveManager();
 
   private boolean perspectiveCallbacksFired = false;
-  
+
   public static PerspectiveManager getInstance() {
     return instance;
   }
@@ -74,16 +85,61 @@ public class PerspectiveManager extends HorizontalPanel {
   private PerspectiveManager() {
     getElement().setId("mantle-perspective-switcher");
     setStyleName("mantle-perspective-switcher");
-    AsyncCallback<ArrayList<IPluginPerspective>> callback = new AsyncCallback<ArrayList<IPluginPerspective>>() {
-      public void onFailure(Throwable caught) {
-        Window.alert("getPluginPerpectives fail: " + caught.getMessage());
-      }
 
-      public void onSuccess(ArrayList<IPluginPerspective> perspectives) {
-        setPluginPerspectives(perspectives);
-      }
-    };
-    MantleServiceCache.getService().getPluginPerpectives(callback);
+    final String url = GWT.getHostPageBaseURL() + "api/plugin-manager/perspectives"; //$NON-NLS-1$
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    builder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+
+    try {
+      builder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          Window.alert("getPluginPerpectives fail: " + exception.getMessage());
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+
+          JsArray<JsPerspective> jsperspectives = JsPerspective.parseJson(JsonUtils.escapeJsonForEval(response.getText()));
+          ArrayList<IPluginPerspective> perspectives = new ArrayList<IPluginPerspective>();
+          for (int i = 0; i < jsperspectives.length(); i++) {
+            JsPerspective jsperspective = jsperspectives.get(i);
+            DefaultPluginPerspective perspective = new DefaultPluginPerspective();
+            perspective.setContentUrl(jsperspective.getContentUrl());
+            perspective.setId(jsperspective.getId());
+            perspective.setLayoutPriority(Integer.parseInt(jsperspective.getLayoutPriority()));
+
+            ArrayList<String> requiredSecurityActions = new ArrayList<String>();
+            if (jsperspective.getRequiredSecurityActions() != null) {
+              for (int j = 0; j < jsperspective.getRequiredSecurityActions().length(); j++) {
+                requiredSecurityActions.add(jsperspective.getRequiredSecurityActions().get(j));
+              }
+            }
+
+            // will need to iterate over jsoverlays and convert to MantleXulOverlay
+            ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
+            if (jsperspective.getOverlays() != null) {
+              for (int j = 0; j < jsperspective.getOverlays().length(); j++) {
+                JsXulOverlay o = jsperspective.getOverlays().get(j);
+                MantleXulOverlay overlay = new MantleXulOverlay(o.getId(), o.getOverlayUri(), o.getSource(), o.getResourceBundleUri());
+                overlays.add(overlay);
+              }
+            }
+            perspective.setOverlays(overlays);
+
+            perspective.setRequiredSecurityActions(requiredSecurityActions);
+            perspective.setResourceBundleUri(jsperspective.getResourceBundleUri());
+            perspective.setTitle(jsperspective.getTitle());
+
+            perspectives.add(perspective);
+          }
+
+          setPluginPerspectives(perspectives);
+        }
+      });
+    } catch (RequestException e) {
+      // showError(e);
+    }
+
     registerFunctions(this);
   }
 
@@ -114,6 +170,7 @@ public class PerspectiveManager extends HorizontalPanel {
     });
 
     for (final IPluginPerspective perspective : perspectives) {
+
       // if we have overlays add it to the list
       if (perspective.getOverlays() != null) {
         overlays.addAll(perspective.getOverlays());
@@ -124,6 +181,7 @@ public class PerspectiveManager extends HorizontalPanel {
           showPerspective((ToggleButton) event.getSource(), perspective);
         }
       });
+
       tb.getElement().setId(perspective.getId());
       tb.setStyleName("mantle-perspective-toggle");
       tb.getElement().setAttribute("layoutPriority", "" + perspective.getLayoutPriority());
@@ -136,26 +194,26 @@ public class PerspectiveManager extends HorizontalPanel {
     MantleXul.getInstance().addOverlays(overlays);
 
     setPerspective(perspectives.get(0).getId());
-    
+
     firePerspectivesLoaded();
   }
 
   private void firePerspectivesLoaded() {
-	for (ICallback<Void> callback : perspectivesLoadedCallbackList){
-	  callback.onHandle(null);
-	}
-	perspectivesLoadedCallbackList.clear();
-	perspectiveCallbacksFired = true;
+    for (ICallback<Void> callback : perspectivesLoadedCallbackList) {
+      callback.onHandle(null);
+    }
+    perspectivesLoadedCallbackList.clear();
+    perspectiveCallbacksFired = true;
   }
 
   public void addPerspectivesLoadedCallback(ICallback<Void> callback) {
-	if (!perspectiveCallbacksFired) {
-	  perspectivesLoadedCallbackList.add(callback);
-	} else {
-	  callback.onHandle(null);
-	}
+    if (!perspectiveCallbacksFired) {
+      perspectivesLoadedCallbackList.add(callback);
+    } else {
+      callback.onHandle(null);
+    }
   }
-  
+
   private void loadResourceBundle(final ToggleButton button, final IPluginPerspective perspective) {
     try {
       String bundle = perspective.getResourceBundleUri();
@@ -197,9 +255,9 @@ public class PerspectiveManager extends HorizontalPanel {
   }
 
   public boolean setPerspective(final String perspectiveId) {
-	  if (perspectives == null) {
-		  return false;
-	  }
+    if (perspectives == null) {
+      return false;
+    }
     // return value to indicate if perspective now shown
     for (int i = 0; i < perspectives.size(); i++) {
       if (perspectives.get(i).getId().equalsIgnoreCase(perspectiveId)) {
@@ -309,13 +367,21 @@ public class PerspectiveManager extends HorizontalPanel {
   }
 
   private void showWorkspacePerspective() {
-    DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
-    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(WorkspacePanel.getInstance()) == -1) {
-      contentDeck.add(WorkspacePanel.getInstance());
-    } else {
-      WorkspacePanel.getInstance().refresh();
-    }
-    contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));
+    GWT.runAsync(new RunAsyncCallback() {
+      
+      public void onSuccess() {
+        DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
+        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(WorkspacePanel.getInstance()) == -1) {
+          contentDeck.add(WorkspacePanel.getInstance());
+        } else {
+          WorkspacePanel.getInstance().refresh();
+        }
+        contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));
+      }
+      
+      public void onFailure(Throwable reason) {
+      }
+    });
   }
 
   private void showAdminPerspective() {

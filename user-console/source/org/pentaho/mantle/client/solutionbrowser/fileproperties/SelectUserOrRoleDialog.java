@@ -25,10 +25,18 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -43,12 +51,12 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
     usersListBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         rolesListBox.setSelectedIndex(-1);
-      }      
+      }
     });
     rolesListBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         usersListBox.setSelectedIndex(-1);
-      }      
+      }
     });
   }
 
@@ -67,7 +75,7 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
         }
       }
     });
-    
+
     // Unique ids are important for test automation
     contentTable.getElement().setId("userOrRoleDialogContentTable");
     usersListBox.getElement().setId("userOrRoleDialogUsersList");
@@ -91,46 +99,77 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
   }
 
   public void fetchAllRoles(final ArrayList<String> existing) {
-    AsyncCallback<ArrayList<String>> callback = new AsyncCallback<ArrayList<String>>() {
 
-      public void onFailure(Throwable caught) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetRoles"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-        dialogBox.center();
-      }
+    try {
+      final String url = GWT.getHostPageBaseURL() + "api/userrole/roles"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "application/json");
+      requestBuilder.sendRequest(null, new RequestCallback() {
 
-      public void onSuccess(ArrayList<String> roles) {
-        // filter out existing
-        rolesListBox.clear();
-        for (String role : roles) {
-          if (!existing.contains(role)) {
-            rolesListBox.addItem(role);
-          }
+        public void onError(Request request, Throwable caught) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetRoles"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+          dialogBox.center();
         }
 
-      }
-    };
-    MantleServiceCache.getService().getAllRoles(callback);
+        public void onResponseReceived(Request request, Response response) {
+          JsArrayString roles = parseRolesJson(JsonUtils.escapeJsonForEval(response.getText()));
+          // filter out existing
+          rolesListBox.clear();
+          for (int i = 0; i < roles.length(); i++) {
+            String role = roles.get(i);
+            if (!existing.contains(role)) {
+              rolesListBox.addItem(role);
+            }
+          }
+
+        }
+
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+    }
   }
 
+  private final native JsArrayString parseUsersJson(String json)
+  /*-{
+    var obj = eval('(' + json + ')');
+    return obj.users;
+  }-*/;
+
+  private final native JsArrayString parseRolesJson(String json)
+  /*-{
+    var obj = eval('(' + json + ')');
+    return obj.roles;
+  }-*/;
+
   public void fetchAllUsers(final ArrayList<String> existing) {
-    AsyncCallback<ArrayList<String>> callback = new AsyncCallback<ArrayList<String>>() {
+    try {
+      final String url = GWT.getHostPageBaseURL() + "api/userrole/users"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "application/json");
+      requestBuilder.sendRequest(null, new RequestCallback() {
 
-      public void onFailure(Throwable caught) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUsers"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-        dialogBox.center();
-      }
+        public void onError(Request request, Throwable caught) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUsers"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+          dialogBox.center();
+        }
 
-      public void onSuccess(ArrayList<String> users) {
-        // filter out existing
-        usersListBox.clear();
-        for (String user : users) {
-          if (!existing.contains(user)) {
-            usersListBox.addItem(user);
+        public void onResponseReceived(Request request, Response response) {
+          JsArrayString users = parseUsersJson(JsonUtils.escapeJsonForEval(response.getText()));
+          // filter out existing
+          usersListBox.clear();
+          for (int i = 0; i < users.length(); i++) {
+            String user = users.get(i);
+            if (!existing.contains(user)) {
+              usersListBox.addItem(user);
+            }
           }
         }
-      }
-    };
-    MantleServiceCache.getService().getAllUsers(callback);
+
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+    }
   }
 
   public static String getSelectedUser() {

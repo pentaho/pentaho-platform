@@ -24,12 +24,9 @@ import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
-import org.pentaho.mantle.client.admin.EmailAdminPanelController;
-import org.pentaho.mantle.client.admin.SecurityPanel;
-import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
+import org.pentaho.mantle.client.objects.MantleXulOverlay;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
@@ -43,7 +40,8 @@ import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.dom.client.Style.BorderStyle;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.http.client.Request;
@@ -53,7 +51,6 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -76,11 +73,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   private SimplePanel menubar = new SimplePanel();
   private SimplePanel adminPerspective = new SimplePanel();
   private DeckPanel adminContentDeck = new DeckPanel();
-  private SecurityPanel securityPanel = new SecurityPanel();
-  private UserRolesAdminPanelController userRolesAdminPanel = new UserRolesAdminPanelController();
-  private EmailAdminPanelController emailAdminPanel = new EmailAdminPanelController();
-  private boolean adminCustomized = false;
-
+  
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
 
   private MantleXul() {
@@ -175,75 +168,63 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   }
 
   public void configureAdminCatTree() {
-	  String serviceUrl = GWT.getHostPageBaseURL() + "api/ldap/config/getAttributeValues";
-	  RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
-		try {
-			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
-				public void onError(Request request, Throwable exception) {
-				}
+    String serviceUrl = GWT.getHostPageBaseURL() + "api/ldap/config/getAttributeValues";
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
+    try {
+      executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+        public void onError(Request request, Throwable exception) {
+        }
 
-				public void onResponseReceived(Request request, Response response) {
-					String securityProvider = response.getText();
-					enableUsersRolesTreeItem(securityProvider.contains("DB_BASED_AUTHENTICATION"));
-				}
-			});
-		} catch (RequestException e) {
-		}
+        public void onResponseReceived(Request request, Response response) {
+          String securityProvider = response.getText();
+          enableUsersRolesTreeItem(securityProvider.contains("DB_BASED_AUTHENTICATION"));
+        }
+      });
+    } catch (RequestException e) {
+    }
   }
-  
+
   public void enableUsersRolesTreeItem(final boolean enabled) {
-	  
-	Timer t = new Timer() {
-	  public void run() {
-	    if (container != null) {
-	      cancel(); 	
-	      String usersRolesLabel = Messages.getString("users") + " / " + Messages.getString("roles");
-		  GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
-			  
-		  TreeItem usersRolesTreeItem = null;
-		  Tree adminTree = adminCatTree.getTree();
-		  Iterator<TreeItem> adminTreeItr = adminTree.treeItemIterator();
-		  while(adminTreeItr.hasNext()) {
-			usersRolesTreeItem = adminTreeItr.next();
-			if(usersRolesTreeItem.getText().equals(usersRolesLabel)) {
-			  usersRolesTreeItem.setVisible(enabled);
-			  break;  
-			}
-		  }
-	    }
-	  }
-	};
-	t.scheduleRepeating(250);
+
+    Timer t = new Timer() {
+      public void run() {
+        if (container != null) {
+          cancel();
+          String usersRolesLabel = Messages.getString("users") + "/" + Messages.getString("roles");
+          GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
+
+          TreeItem usersRolesTreeItem = null;
+          Tree adminTree = adminCatTree.getTree();
+          Iterator<TreeItem> adminTreeItr = adminTree.treeItemIterator();
+          while (adminTreeItr.hasNext()) {
+            usersRolesTreeItem = adminTreeItr.next();
+            if (usersRolesTreeItem.getText().equals(usersRolesLabel)) {
+              usersRolesTreeItem.setVisible(enabled);
+              break;
+            }
+          }
+        }
+      }
+    };
+    t.scheduleRepeating(250);
   }
-  
+
   public void selectAdminCatTreeTreeItem(final String treeLabel) {
-	  GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
-	  Tree adminTree = adminCatTree.getTree();
-	  adminTree.setSelectedItem(null, true);
-	  Iterator<TreeItem> adminTreeItr = adminTree.treeItemIterator();
-	  while(adminTreeItr.hasNext()) {
-  	    TreeItem treeItem = adminTreeItr.next();
-		if(treeItem.getText().equals(treeLabel)) {
-		  adminTree.setSelectedItem(treeItem, true);
-		  break;  
-		}
-	  }	  
+    GwtTree adminCatTree = (GwtTree) container.getDocumentRoot().getElementById("adminCatTree");
+    Tree adminTree = adminCatTree.getTree();
+    adminTree.setSelectedItem(null, true);
+    Iterator<TreeItem> adminTreeItr = adminTree.treeItemIterator();
+    while (adminTreeItr.hasNext()) {
+      TreeItem treeItem = adminTreeItr.next();
+      if (treeItem.getText().equals(treeLabel)) {
+        adminTree.setSelectedItem(treeItem, true);
+        break;
+      }
+    }
   }
-  
+
   public DeckPanel getAdminContentDeck() {
     return adminContentDeck;
-  }
-
-  public Widget getSecurityPanel() {
-    return securityPanel;
-  }
-  
-  public Widget getUserRolesAdminPanel() {
-	return userRolesAdminPanel;
-  }
-  
-  public Widget getEmailAdminPanel() {
-	return emailAdminPanel;  
   }
 
   public Widget getToolbar() {
@@ -265,16 +246,34 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
       }
 
       protected void performOperation() {
-        AsyncCallback<ArrayList<XulOverlay>> callback = new AsyncCallback<ArrayList<XulOverlay>>() {
-          public void onFailure(Throwable caught) {
-            Window.alert(caught.getMessage());
-          }
+        final String url = GWT.getHostPageBaseURL() + "api/plugin-manager/overlays"; //$NON-NLS-1$
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
 
-          public void onSuccess(ArrayList<XulOverlay> overlays) {
-            MantleXul.this.addOverlays(overlays);
-          }
-        };
-        MantleServiceCache.getService().getOverlays(callback);
+        try {
+          builder.sendRequest(null, new RequestCallback() {
+
+            public void onError(Request request, Throwable exception) {
+              Window.alert(exception.getMessage());
+            }
+
+            public void onResponseReceived(Request request, Response response) {
+
+              JsArray<JsXulOverlay> jsoverlays = JsXulOverlay.parseJson(JsonUtils.escapeJsonForEval(response.getText()));
+
+              ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
+              for (int i = 0; i < jsoverlays.length(); i++) {
+                JsXulOverlay o = jsoverlays.get(i);
+                MantleXulOverlay overlay = new MantleXulOverlay(o.getId(), o.getOverlayUri(), o.getSource(), o.getResourceBundleUri());
+                overlays.add(overlay);
+              }
+
+              MantleXul.this.addOverlays(overlays);
+            }
+          });
+        } catch (RequestException e) {
+          // showError(e);
+        }
       }
     };
     cmd.execute();

@@ -54,7 +54,13 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 	private boolean isDirty = false;
 
-	public EmailAdminPanelController() {
+	private static EmailAdminPanelController instance = new EmailAdminPanelController();
+	
+	public static EmailAdminPanelController getInstance() {
+	  return instance;
+	}
+	
+	private EmailAdminPanelController() {
 		super();
 		((Button) saveButton.getManagedObject()).addClickHandler(new SaveButtonChangeListener());
 		authenticationCheckBox.addValueChangeHandler(new AuthenticateChangeHandler());

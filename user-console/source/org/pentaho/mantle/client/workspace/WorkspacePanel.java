@@ -14,8 +14,8 @@ import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.commands.RefreshWorkspaceCommand;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.GeneratedContentPanel;
+
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -43,7 +43,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -141,17 +141,26 @@ public class WorkspacePanel extends SimplePanel {
   private boolean isAdmin = false;
 
   private WorkspacePanel() {
-    MantleServiceCache.getService().isAdministrator(new AsyncCallback<Boolean>() {
-      public void onSuccess(Boolean isAdmin) {
-        WorkspacePanel.this.isAdmin = isAdmin;
-        createUI(isAdmin);
-        refresh(isAdmin);
-      }
+    try {
+      final String url = GWT.getHostPageBaseURL() + "api/mantle/isAdministrator"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.sendRequest(null, new RequestCallback() {
 
-      public void onFailure(Throwable caught) {
-        refresh(false);
-      }
-    });
+        public void onError(Request request, Throwable caught) {
+          refresh(false);
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          WorkspacePanel.this.isAdmin = "true".equalsIgnoreCase(response.getText());
+          createUI(isAdmin);
+          refresh(isAdmin);
+        }
+
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+    }
   }
 
   public static WorkspacePanel getInstance() {
@@ -611,7 +620,7 @@ public class WorkspacePanel extends SimplePanel {
     });
     filterButton.setToolTip(Messages.getString("filterSchedules"));
     bar.add(filterButton);
-    
+
     filterRemoveButton.setCommand(new Command() {
       public void execute() {
         filterDialog = null;

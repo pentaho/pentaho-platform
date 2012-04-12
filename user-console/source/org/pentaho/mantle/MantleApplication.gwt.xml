@@ -25,5 +25,4 @@
 	<!-- Specify the app entry point class.                   -->
 	<entry-point class='org.pentaho.mantle.client.MantleEntryPoint'/>
 	
-	<servlet path="/MantleService" class="org.pentaho.mantle.server.DebugMantleServlet" />
 </module>

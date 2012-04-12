@@ -114,7 +114,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         final SelectUserOrRoleDialog pickUserRoleDialog = new SelectUserOrRoleDialog(existingUsersAndRoles, new IUserRoleSelectedCallback() {
 
           public void roleSelected(String role) {
-            usersAndRolesList.addItem(role + Messages.getString("role", role), role); //$NON-NLS-1$
+            usersAndRolesList.addItem(role, role); //$NON-NLS-1$
             existingUsersAndRoles.add(role);
             usersAndRolesList.setSelectedIndex(usersAndRolesList.getItemCount() - 1);
             addRecipient(role, ROLE_TYPE);
@@ -122,7 +122,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
           }
 
           public void userSelected(String user) {
-            usersAndRolesList.addItem(Messages.getString("user", user), user); //$NON-NLS-1$
+            usersAndRolesList.addItem(user, user); //$NON-NLS-1$
             existingUsersAndRoles.add(user);
             usersAndRolesList.setSelectedIndex(usersAndRolesList.getItemCount() - 1);
             addRecipient(user, USER_TYPE);
@@ -301,11 +301,11 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     existingUsersAndRoles.clear();
 
     for (String name : getNames(USER_TYPE)) {
-      usersAndRolesList.addItem(Messages.getString("user", name), name); //$NON-NLS-1$
+      usersAndRolesList.addItem(name, name); //$NON-NLS-1$
       existingUsersAndRoles.add(name);
       }
     for (String name : getNames(ROLE_TYPE)) {
-      usersAndRolesList.addItem(Messages.getString("role", name), name); //$NON-NLS-1$
+      usersAndRolesList.addItem(name, name); //$NON-NLS-1$
       existingUsersAndRoles.add(name);
       }
     if (usersAndRolesList.getItemCount() > 0) {

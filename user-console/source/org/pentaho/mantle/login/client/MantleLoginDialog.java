@@ -27,6 +27,7 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.utils.i18n.PropertiesUtil;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.login.client.messages.Messages;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -39,7 +40,6 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -66,16 +66,8 @@ public class MantleLoginDialog extends PromptDialogBox {
   private static boolean showUsersList = false;
   private static boolean showNewWindowOption = true;
   private static boolean openInNewWindowDefault = false;
-  private static MantleLoginServiceAsync SERVICE;
 
   private static LinkedHashMap<String, String[]> defaultUsers = new LinkedHashMap<String, String[]>();
-
-  static {
-    SERVICE = (MantleLoginServiceAsync) GWT.create(MantleLoginService.class);
-    ServiceDefTarget endpoint = (ServiceDefTarget) SERVICE;
-    String moduleRelativeURL = GWT.getModuleBaseURL() + "MantleLoginService"; //$NON-NLS-1$
-    endpoint.setServiceEntryPoint(moduleRelativeURL);
-  }
 
   private final IDialogCallback myCallback = new IDialogCallback() {
 
@@ -97,35 +89,51 @@ public class MantleLoginDialog extends PromptDialogBox {
         }
 
         public void onResponseReceived(Request request, Response response) {
-          final AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 
-            public void onSuccess(Boolean result) {
+          try {
+            final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
+            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+            requestBuilder.setHeader("accept", "text/plain");
+            requestBuilder.sendRequest(null, new RequestCallback() {
 
-              if (result) {
-                long year = 1000 * 60 * 60 * 24 * 365;
-                // one year into the future
-                Date expirationDate = new Date(System.currentTimeMillis() + year);
-                Cookies.setCookie("loginNewWindowChecked", "" + newWindowChk.getValue(), expirationDate); //$NON-NLS-1$ //$NON-NLS-2$
-                outerCallback.onSuccess(newWindowChk != null && newWindowChk.getValue());
-              } else {
-                outerCallback.onFailure(new Throwable(Messages.getString("authFailed"))); //$NON-NLS-1$
+              public void onError(Request request, final Throwable caught) {
+                MessageDialogBox errBox = new MessageDialogBox(Messages.getString("loginError"), Messages.getString("authFailed"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+                errBox.setCallback(new IDialogCallback() {
+                  public void cancelPressed() {
+                  }
+
+                  public void okPressed() {
+                    outerCallback.onFailure(caught);
+                  }
+                });
+                errBox.show();
               }
-            }
 
-            public void onFailure(final Throwable caught) {
-              MessageDialogBox errBox = new MessageDialogBox(Messages.getString("loginError"), Messages.getString("authFailed"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-              errBox.setCallback(new IDialogCallback() {
-                public void cancelPressed() {
+              public void onResponseReceived(Request request, Response response) {
+                if ("true".equalsIgnoreCase(response.getText())) {
+                  long year = 1000 * 60 * 60 * 24 * 365;
+                  // one year into the future
+                  Date expirationDate = new Date(System.currentTimeMillis() + year);
+                  Cookies.setCookie("loginNewWindowChecked", "" + newWindowChk.getValue(), expirationDate); //$NON-NLS-1$ //$NON-NLS-2$
+                  outerCallback.onSuccess(newWindowChk != null && newWindowChk.getValue());
+                } else {
+                  outerCallback.onFailure(new Throwable(Messages.getString("authFailed"))); //$NON-NLS-1$
                 }
+              }
 
-                public void okPressed() {
-                  outerCallback.onFailure(caught);
-                }
-              });
-              errBox.show();
-            }
-          };
-          SERVICE.isAuthenticated(callback);
+            });
+          } catch (final RequestException e) {
+            MessageDialogBox errBox = new MessageDialogBox(Messages.getString("loginError"), Messages.getString("authFailed"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+            errBox.setCallback(new IDialogCallback() {
+              public void cancelPressed() {
+              }
+
+              public void okPressed() {
+                outerCallback.onFailure(e);
+              }
+            });
+            errBox.show();
+          }
         }
       };
       try {
@@ -142,16 +150,7 @@ public class MantleLoginDialog extends PromptDialogBox {
   public MantleLoginDialog() {
     super(Messages.getString("login"), Messages.getString("login"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     setCallback(myCallback);
-    SERVICE.isShowUsersList(new AsyncCallback<Boolean>() {
-
-      public void onFailure(Throwable caught) {
-        getLoginSettingsAndShow(false);
-      }
-
-      public void onSuccess(Boolean showUsersList) {
-        getLoginSettingsAndShow(showUsersList);
-      }
-    });
+    getLoginSettingsAndShow(false);
     super.setStylePrimaryName("pentaho-dialog");
   }
 
@@ -213,20 +212,29 @@ public class MantleLoginDialog extends PromptDialogBox {
 
   public static void performLogin(final AsyncCallback<Boolean> callback) {
     // let's only login if we are not actually logged in
-    SERVICE.isAuthenticated(new AsyncCallback<Boolean>() {
+    try {
+      final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.sendRequest(null, new RequestCallback() {
 
-      public void onFailure(Throwable caught) {
-        MantleLoginDialog dialog = new MantleLoginDialog(callback, false);
-        dialog.show();
-      }
-
-      public void onSuccess(Boolean result) {
-        if (!result) {
+        public void onError(Request request, Throwable caught) {
           MantleLoginDialog dialog = new MantleLoginDialog(callback, false);
           dialog.show();
         }
-      }
-    });
+
+        public void onResponseReceived(Request request, Response response) {
+          if (!"true".equalsIgnoreCase(response.getText())) {
+            MantleLoginDialog dialog = new MantleLoginDialog(callback, false);
+            dialog.show();
+          }
+        }
+
+      });
+    } catch (RequestException e) {
+      MantleLoginDialog dialog = new MantleLoginDialog(callback, false);
+      dialog.show();
+    }
   }
 
   private Widget buildLoginPanel(boolean openInNewWindowDefault) {

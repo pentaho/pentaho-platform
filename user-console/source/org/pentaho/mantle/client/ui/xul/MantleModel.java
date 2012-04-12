@@ -20,6 +20,9 @@ package org.pentaho.mantle.client.ui.xul;
 import java.util.HashMap;
 
 import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.admin.EmailAdminPanelController;
+import org.pentaho.mantle.client.admin.SecurityPanel;
+import org.pentaho.mantle.client.admin.UserRolesAdminPanel;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.OpenDocCommand;
 import org.pentaho.mantle.client.commands.OpenFileCommand;
@@ -37,7 +40,10 @@ import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 import org.pentaho.ui.xul.stereotype.Bindable;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -172,29 +178,49 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   
   @Bindable
   public void loadSecurityPanel() {
-    DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
-    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getSecurityPanel()) == -1) {
-      contentDeck.add(MantleXul.getInstance().getSecurityPanel());
-    }
-    contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getSecurityPanel()));
+    GWT.runAsync(new RunAsyncCallback() {
+      public void onSuccess() {
+        DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
+        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(SecurityPanel.getInstance()) == -1) {
+          contentDeck.add(SecurityPanel.getInstance());
+        }
+        contentDeck.showWidget(contentDeck.getWidgetIndex(SecurityPanel.getInstance()));
+      }
+      
+      public void onFailure(Throwable reason) {
+      }
+    });
   }
   
   @Bindable
   public void loadUserRolesAdminPanel() {
-    DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
-    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getUserRolesAdminPanel()) == -1) {
-      contentDeck.add(MantleXul.getInstance().getUserRolesAdminPanel());
-    }
-    contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getUserRolesAdminPanel()));
+    GWT.runAsync(new RunAsyncCallback() {
+      public void onSuccess() {
+        DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
+        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(UserRolesAdminPanel.getInstance()) == -1) {
+          contentDeck.add(UserRolesAdminPanel.getInstance());
+        }
+        contentDeck.showWidget(contentDeck.getWidgetIndex(UserRolesAdminPanel.getInstance()));
+      }
+      
+      public void onFailure(Throwable reason) {
+      }
+    });
   }
   
   @Bindable
   public void loadEmailAdminPanel() {
-    DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
-    if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getEmailAdminPanel()) == -1) {
-      contentDeck.add(MantleXul.getInstance().getEmailAdminPanel());
-    }
-    contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getEmailAdminPanel()));
+    GWT.runAsync(new RunAsyncCallback() {
+      public void onSuccess() {
+        DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
+        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(EmailAdminPanelController.getInstance()) == -1) {
+          contentDeck.add(EmailAdminPanelController.getInstance());
+        }
+        contentDeck.showWidget(contentDeck.getWidgetIndex(EmailAdminPanelController.getInstance()));
+      }
+      public void onFailure(Throwable reason) {
+      }
+    });
   }
   
   @Bindable

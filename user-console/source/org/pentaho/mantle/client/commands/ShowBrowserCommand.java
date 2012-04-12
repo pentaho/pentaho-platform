@@ -16,10 +16,13 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import org.pentaho.mantle.client.service.EmptyCallback;
-import org.pentaho.mantle.client.service.MantleServiceCache;
+import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestException;
 import com.google.gwt.user.client.Command;
 
 public class ShowBrowserCommand implements Command {
@@ -33,7 +36,14 @@ public class ShowBrowserCommand implements Command {
       PerspectiveManager.getInstance().setPerspective("default.perspective");
     }
     solutionBrowserPerspective.setNavigatorShowing(!solutionBrowserPerspective.isNavigatorShowing());
-    MantleServiceCache.getService().setShowNavigator(solutionBrowserPerspective.isNavigatorShowing(), EmptyCallback.getInstance());
+
+    final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_NAVIGATOR"; //$NON-NLS-1$
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+    try {
+      builder.sendRequest("" + solutionBrowserPerspective.isNavigatorShowing(), EmptyRequestCallback.getInstance());
+    } catch (RequestException e) {
+      // showError(e);
+    }
   }
 
 }

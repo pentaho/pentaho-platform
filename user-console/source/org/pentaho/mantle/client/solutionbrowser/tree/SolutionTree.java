@@ -40,8 +40,10 @@ import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
+import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
-import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
+
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
@@ -124,20 +126,21 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     UserSettingsManager.getInstance().addUserSettingsListener(this);
   }
 
-  public void onFetchUserSettings(ArrayList<IUserSetting> settings) {
+  public void onFetchUserSettings(JsArray<JsSetting> settings) {
     if (settings == null) {
       return;
     }
 
-    for (IUserSetting setting : settings) {
-      if (IMantleUserSettingsConstants.MANTLE_SHOW_LOCALIZED_FILENAMES.equals(setting.getSettingName())) {
-        boolean showLocalizedFileNames = "true".equals(setting.getSettingValue()); //$NON-NLS-1$
+    for (int i=0;i<settings.length();i++) {
+      JsSetting setting = settings.get(i);
+      if (IMantleUserSettingsConstants.MANTLE_SHOW_LOCALIZED_FILENAMES.equals(setting.getName())) {
+        boolean showLocalizedFileNames = "true".equals(setting.getName()); //$NON-NLS-1$
         setShowLocalizedFileNames(showLocalizedFileNames);
-      } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getSettingName())) {
-        boolean useDescriptions = "true".equals(setting.getSettingValue()); //$NON-NLS-1$
+      } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
+        boolean useDescriptions = "true".equals(setting.getValue()); //$NON-NLS-1$
         setUseDescriptionsForTooltip(useDescriptions);
-      } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getSettingName())) {
-        boolean showHiddenFiles = "true".equals(setting.getSettingValue()); //$NON-NLS-1$
+      } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
+        boolean showHiddenFiles = "true".equals(setting.getName()); //$NON-NLS-1$
         setShowHiddenFiles(showHiddenFiles);
       }
     }

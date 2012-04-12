@@ -19,7 +19,6 @@
  */
 package org.pentaho.mantle.client;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.pentaho.gwt.widgets.client.dialogs.GlassPane;
@@ -38,12 +37,13 @@ import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.mantle.client.usersettings.IMantleSettingsListener;
 import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
+import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
-import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -143,15 +143,16 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     dialog.center();
   }
 
-  public void onFetchUserSettings(ArrayList<IUserSetting> settings) {
+  public void onFetchUserSettings(JsArray<JsSetting> settings) {
     if (settings == null) {
       return;
     }
 
-    for (IUserSetting setting : settings) {
+    for (int i=0;i<settings.length();i++) {
+      JsSetting setting = settings.get(i);
       try {
-        if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getSettingName())) {
-          boolean showNavigator = "true".equals(setting.getSettingValue()); //$NON-NLS-1$
+        if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
+          boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
           SolutionBrowserPanel.getInstance().setNavigatorShowing(showNavigator);
         }
       } catch (Exception e) {

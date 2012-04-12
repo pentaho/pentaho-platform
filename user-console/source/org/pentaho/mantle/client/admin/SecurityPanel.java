@@ -71,7 +71,13 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
   private RadioButton regularRolesBtn = new RadioButton("securityRole", "Roles");
   private RadioButton systemRolesBtn = new RadioButton("securityRole", "System");
   
-  public SecurityPanel() {
+  private static SecurityPanel instance = new SecurityPanel();
+  
+  public static SecurityPanel getInstance() {
+    return instance;
+  }
+  
+  private SecurityPanel() {
     
     saveButton.setStylePrimaryName("pentaho-button");
     

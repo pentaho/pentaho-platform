@@ -16,8 +16,12 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import org.pentaho.mantle.client.service.MantleServiceCache;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 
 public class SwitchLocaleCommand extends AbstractCommand {
@@ -35,7 +39,23 @@ public class SwitchLocaleCommand extends AbstractCommand {
   protected void performOperation(boolean feedback) {
     // stuff the locale in the server's session so we can use it
     // to override the browser setting, as needed
-    MantleServiceCache.getService().setLocaleOverride(locale, null);
+
+    final String url = GWT.getHostPageBaseURL() + "api/mantle/locale"; //$NON-NLS-1$
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+    try {
+      builder.sendRequest(locale, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          // showError(exception);
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+        }
+      });
+    } catch (RequestException e) {
+      // showError(e);
+    }
+
     String newLocalePath = "Home?locale=" + locale;
     String baseUrl = GWT.getModuleBaseURL();
     int index = baseUrl.indexOf("/mantle/");

@@ -50,6 +50,12 @@ import com.google.gwt.xml.client.XMLParser;
 
 public class UserRolesAdminPanelController extends UserRolesAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
+  private static UserRolesAdminPanelController instance = new UserRolesAdminPanelController();
+
+  public static UserRolesAdminPanelController getInstance() {
+    return instance;
+  }
+  
 	public UserRolesAdminPanelController() {
 		super();
 

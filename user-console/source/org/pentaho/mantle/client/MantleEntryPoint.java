@@ -23,9 +23,14 @@ import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -41,7 +46,22 @@ public class MantleEntryPoint implements EntryPoint, IResourceBundleLoadCallback
     // just some quick sanity setting of the platform effective locale based on the override
     // which comes from the url parameter
     if (!StringUtils.isEmpty(Window.Location.getParameter("locale"))) {
-      MantleServiceCache.getService().setLocaleOverride(Window.Location.getParameter("locale"), null);
+      String locale = Window.Location.getParameter("locale");
+      final String url = GWT.getHostPageBaseURL() + "api/mantle/locale"; //$NON-NLS-1$
+      RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+      try {
+        builder.sendRequest(locale, new RequestCallback() {
+
+          public void onError(Request request, Throwable exception) {
+            // showError(exception);
+          }
+
+          public void onResponseReceived(Request request, Response response) {
+          }
+        });
+      } catch (RequestException e) {
+        // showError(e);
+      }
     }
     ResourceBundle messages = new ResourceBundle();
     Messages.setResourceBundle(messages);

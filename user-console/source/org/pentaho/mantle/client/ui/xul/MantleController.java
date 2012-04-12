@@ -30,7 +30,6 @@ import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.ui.xul.XulException;
@@ -47,6 +46,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -189,14 +189,23 @@ public class MantleController extends AbstractXulEventHandler {
       // showError(e);
     }
 
-    MantleServiceCache.getService().isAdministrator(new AsyncCallback<Boolean>() {
-      public void onFailure(Throwable caught) {
-      }
+    try {
+      final String url = GWT.getHostPageBaseURL() + "api/mantle/isAdministrator"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.sendRequest(null, new RequestCallback() {
 
-      public void onSuccess(Boolean isAdministrator) {
-        toolsMenu.setVisible(isAdministrator);
-      }
-    });
+        public void onError(Request request, Throwable caught) {
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          toolsMenu.setVisible("true".equalsIgnoreCase(response.getText()));
+        }
+
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+    }
 
     bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled");
     bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled");
@@ -281,19 +290,26 @@ public class MantleController extends AbstractXulEventHandler {
         }
       }
 
-      if (((SecurityPanel) MantleXul.getInstance().getSecurityPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
-        model.loadSecurityPanel();
-        MantleXul.getInstance().getSecurityPanel().getElement().setId(((SecurityPanel) MantleXul.getInstance().getSecurityPanel()).getId());
-      } else if (((UserRolesAdminPanelController) MantleXul.getInstance().getUserRolesAdminPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
-        model.loadUserRolesAdminPanel();
-        MantleXul.getInstance().getUserRolesAdminPanel().getElement()
-            .setId(((UserRolesAdminPanelController) MantleXul.getInstance().getUserRolesAdminPanel()).getId());
-      } else if (((EmailAdminPanelController) MantleXul.getInstance().getEmailAdminPanel()).getId().equals(adminPanelAwaitingActivation.id)) {
-        model.loadEmailAdminPanel();
-        MantleXul.getInstance().getEmailAdminPanel().getElement().setId(((EmailAdminPanelController) MantleXul.getInstance().getEmailAdminPanel()).getId());
-      } else {
-        model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
-      }
+      GWT.runAsync(new RunAsyncCallback() {
+        public void onSuccess() {
+          if ((SecurityPanel.getInstance()).getId().equals(adminPanelAwaitingActivation.id)) {
+            model.loadSecurityPanel();
+            SecurityPanel.getInstance().getElement().setId((SecurityPanel.getInstance()).getId());
+          } else if (UserRolesAdminPanelController.getInstance().getId().equals(adminPanelAwaitingActivation.id)) {
+            model.loadUserRolesAdminPanel();
+            UserRolesAdminPanelController.getInstance().getElement().setId((UserRolesAdminPanelController.getInstance()).getId());
+          } else if ((EmailAdminPanelController.getInstance()).getId().equals(adminPanelAwaitingActivation.id)) {
+            model.loadEmailAdminPanel();
+            EmailAdminPanelController.getInstance().getElement().setId((EmailAdminPanelController.getInstance()).getId());
+          } else {
+            model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
+          }
+        }
+
+        public void onFailure(Throwable reason) {
+        }
+      });
+
     } else if (!activate) {
       adminPanelAwaitingActivation = null;
     }
@@ -433,29 +449,50 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public void loadSecurityPanel() {
-    String securityPanelId = ((SecurityPanel) MantleXul.getInstance().getSecurityPanel()).getId();
-    if (!sysAdminPanelsMap.containsKey(securityPanelId)) {
-      sysAdminPanelsMap.put(securityPanelId, (SecurityPanel) MantleXul.getInstance().getSecurityPanel());
-    }
-    loadAdminContent(securityPanelId, null);
+    GWT.runAsync(new RunAsyncCallback() {
+      public void onSuccess() {
+        String securityPanelId = SecurityPanel.getInstance().getId();
+        if (!sysAdminPanelsMap.containsKey(securityPanelId)) {
+          sysAdminPanelsMap.put(securityPanelId, SecurityPanel.getInstance());
+        }
+        loadAdminContent(securityPanelId, null);
+      }
+
+      public void onFailure(Throwable reason) {
+      }
+    });
   }
 
   @Bindable
   public void loadUserRolesAdminPanel() {
-    String usersAndGroupsPanelId = ((UserRolesAdminPanelController) MantleXul.getInstance().getUserRolesAdminPanel()).getId();
-    if (!sysAdminPanelsMap.containsKey(usersAndGroupsPanelId)) {
-      sysAdminPanelsMap.put(usersAndGroupsPanelId, (UserRolesAdminPanelController) MantleXul.getInstance().getUserRolesAdminPanel());
-    }
-    loadAdminContent(usersAndGroupsPanelId, null);
+    GWT.runAsync(new RunAsyncCallback() {
+      public void onSuccess() {
+        String usersAndGroupsPanelId = UserRolesAdminPanelController.getInstance().getId();
+        if (!sysAdminPanelsMap.containsKey(usersAndGroupsPanelId)) {
+          sysAdminPanelsMap.put(usersAndGroupsPanelId, UserRolesAdminPanelController.getInstance());
+        }
+        loadAdminContent(usersAndGroupsPanelId, null);
+      }
+
+      public void onFailure(Throwable reason) {
+      }
+    });
   }
 
   @Bindable
   public void loadEmailAdminPanel() {
-    String emailPanelId = ((EmailAdminPanelController) MantleXul.getInstance().getEmailAdminPanel()).getId();
-    if (!sysAdminPanelsMap.containsKey(emailPanelId)) {
-      sysAdminPanelsMap.put(emailPanelId, (EmailAdminPanelController) MantleXul.getInstance().getEmailAdminPanel());
-    }
-    loadAdminContent(emailPanelId, null);
+    GWT.runAsync(new RunAsyncCallback() {
+      public void onSuccess() {
+        String emailPanelId = EmailAdminPanelController.getInstance().getId();
+        if (!sysAdminPanelsMap.containsKey(emailPanelId)) {
+          sysAdminPanelsMap.put(emailPanelId, EmailAdminPanelController.getInstance());
+        }
+        loadAdminContent(emailPanelId, null);
+      }
+
+      public void onFailure(Throwable reason) {
+      }
+    });
   }
 
   @Bindable

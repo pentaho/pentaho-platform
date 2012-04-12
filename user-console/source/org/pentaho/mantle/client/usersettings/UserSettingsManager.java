@@ -4,15 +4,22 @@ import java.util.ArrayList;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
-import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class UserSettingsManager {
 
   private ArrayList<IUserSettingsListener> listeners = new ArrayList<IUserSettingsListener>();
 
-  private ArrayList<IUserSetting> settings;
+  private JsArray<JsSetting> settings;
   private static UserSettingsManager instance;
 
   private UserSettingsManager() {
@@ -49,7 +56,7 @@ public class UserSettingsManager {
     }
   }
 
-  public void fetchUserSettings(final AsyncCallback<ArrayList<IUserSetting>> callback, final boolean forceReload) {
+  public void fetchUserSettings(final AsyncCallback<JsArray<JsSetting>> callback, final boolean forceReload) {
     if (forceReload || settings == null) {
       fetchUserSettings(callback);
     } else {
@@ -57,23 +64,32 @@ public class UserSettingsManager {
     }
   }
 
-  public void fetchUserSettings(final AsyncCallback<ArrayList<IUserSetting>> callback) {
-    AsyncCallback<ArrayList<IUserSetting>> internalCallback = new AsyncCallback<ArrayList<IUserSetting>>() {
+  public void fetchUserSettings(final AsyncCallback<JsArray<JsSetting>> callback) {
+    final String url = GWT.getHostPageBaseURL() + "api/user-settings/list"; //$NON-NLS-1$
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    try {
+      builder.sendRequest(null, new RequestCallback() {
 
-      public void onFailure(Throwable caught) {
-        MessageDialogBox dialog = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), true, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-        dialog.center();
-      }
-
-      public void onSuccess(final ArrayList<IUserSetting> settings) {
-        getInstance().settings = settings;
-        if (callback != null) {
-          callback.onSuccess(settings);
+        public void onError(Request request, Throwable exception) {
+          MessageDialogBox dialog = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), true, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+          dialog.center();
         }
-        fireUserSettingsFetched();
-      }
-    };
-    MantleServiceCache.getService().getUserSettings(internalCallback);
+
+        public void onResponseReceived(Request request, Response response) {
+          JsArray<JsSetting> jsSettings = JsSetting.parseSettingsJson(JsonUtils.escapeJsonForEval(response.getText()));
+
+          getInstance().settings = jsSettings;
+          if (callback != null) {
+            callback.onSuccess(settings);
+          }
+          fireUserSettingsFetched();
+        }
+
+      });
+    } catch (RequestException e) {
+      // showError(e);
+    }
+
   }
 
 }

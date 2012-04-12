@@ -30,7 +30,6 @@ import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.MantleMenuBar;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
@@ -38,8 +37,14 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.filelist.IFileItemListener;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -122,21 +127,28 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
     Image miscDisabledImage = new Image(MantleImages.images.miscDisabled());
     miscComboBtn = new ToolbarComboButton(miscImage, miscDisabledImage);
     miscComboBtn.setId("filesToolbarOptions");
-    MantleServiceCache.getService().repositorySupportsACLS(new AsyncCallback<Boolean>() {
 
-      public void onFailure(Throwable caught) {
-        Window.alert("FilesToolbar begin");
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), caught.toString(), false, false, true); //$NON-NLS-1$
-        dialogBox.center();
-        createMenuItems(false);
-        Window.alert("FilesToolbar end");
-      }
+    final String url = GWT.getHostPageBaseURL() + "api/mantle/doesRepositorySupportPermissions"; //$NON-NLS-1$
+    RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    requestBuilder.setHeader("accept", "text/plain");
+    try {
+      requestBuilder.sendRequest(null, new RequestCallback() {
 
-      public void onSuccess(Boolean result) {
-        createMenuItems(result);
-      }
+        public void onError(Request request, Throwable caught) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), caught.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+          createMenuItems(false);
+        }
 
-    });
+        public void onResponseReceived(Request arg0, Response response) {
+          createMenuItems("true".equalsIgnoreCase(response.getText()));
+        }
+
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+    }
+
     miscComboBtn.setToolTip(Messages.getString("options")); //$NON-NLS-1$
     miscComboBtn.setStylePrimaryName("mantle-toolbar-combo-button");
     add(miscComboBtn);
@@ -196,7 +208,7 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
   public void itemSelected(FileItem item) {
     updateMenus(item);
   }
-  
+
   /**
    * @param selectedFileItem
    */

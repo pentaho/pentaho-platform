@@ -28,13 +28,12 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
+import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.EmptyCallback;
-import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper.ContentTypePlugin;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
@@ -48,7 +47,7 @@ import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTree;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
-import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
+
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
@@ -67,7 +66,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -101,16 +99,22 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private PickupDragController dragController;
   private List<String> executableFileExtensions = new ArrayList<String>();
   private SolutionBrowserClipboard clipboard = new SolutionBrowserClipboard();
-  
+
   private Element vSplitter;
   private Element hSplitter;
-  
+
   private Command ToggleLocalizedNamesCommand = new Command() {
     public void execute() {
       solutionTree.setShowLocalizedFileNames(!solutionTree.isShowLocalizedFileNames());
 
       // update setting
-      MantleServiceCache.getService().setShowLocalizedFileNames(solutionTree.isShowLocalizedFileNames(), EmptyCallback.getInstance());
+      final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_LOCALIZED_FILENAMES"; //$NON-NLS-1$
+      RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+      try {
+        builder.sendRequest("" + solutionTree.isShowLocalizedFileNames(), EmptyRequestCallback.getInstance());
+      } catch (RequestException e) {
+        // showError(e);
+      }
     }
   };
 
@@ -121,7 +125,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       solutionTree.setSelectedItem(solutionTree.getSelectedItem(), true);
 
       // update setting
-      MantleServiceCache.getService().setShowHiddenFiles(solutionTree.isShowHiddenFiles(), EmptyCallback.getInstance());
+      final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_HIDDEN_FILES"; //$NON-NLS-1$
+      RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+      try {
+        builder.sendRequest("" + solutionTree.isShowHiddenFiles(), EmptyRequestCallback.getInstance());
+      } catch (RequestException e) {
+        // showError(e);
+      }
     }
   };
 
@@ -131,8 +141,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       solutionTree.setSelectedItem(solutionTree.getSelectedItem(), true);
 
       // update setting
-      MantleServiceCache.getService().setUserSetting(IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS,
-          "" + solutionTree.isUseDescriptionsForTooltip(), EmptyCallback.getInstance());
+      final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS"; //$NON-NLS-1$
+      RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+      try {
+        builder.sendRequest("" + solutionTree.isUseDescriptionsForTooltip(), EmptyRequestCallback.getInstance());
+      } catch (RequestException e) {
+        // showError(e);
+      }
     }
   };
 
@@ -293,17 +308,17 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       DOM.releaseCapture(getElement());
       break;
     }
-    
+
     case Event.ONMOUSEMOVE: {
       if (isMouseDown) {
-        
+
         if (hSplitter == null) {
           hSplitter = DOM.getElementById("pucHorizontalSplitter");
         }
         if (vSplitter == null) {
           vSplitter = DOM.getElementById("pucVerticalSplitter");
         }
-        
+
         String left = hSplitter.getParentElement().getStyle().getLeft();
         if (left.indexOf("px") != -1) {
           left = left.substring(0, left.indexOf("px"));
@@ -642,26 +657,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
           Window.open(url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no"); //$NON-NLS-1$ //$NON-NLS-2$
         } else if (mode == FileCommand.COMMAND.SUBSCRIBE) {
           final String myurl = url + "&subscribepage=yes"; //$NON-NLS-1$
-          AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
-
-            public void onFailure(Throwable caught) {
-              MessageDialogBox dialogBox = new MessageDialogBox(
-                  Messages.getString("error"), Messages.getString("couldNotGetFileProperties"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-              dialogBox.center();
-            }
-
-            public void onSuccess(Boolean subscribable) {
-              if (subscribable) {
-                contentTabPanel.showNewURLTab(selectedFileItem.getLocalizedName(), selectedFileItem.getLocalizedName(), myurl, true);
-              } else {
-                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("info"), //$NON-NLS-1$
-                    Messages.getString("noSchedulePermission"), false, false, true); //$NON-NLS-1$
-                dialogBox.center();
-              }
-            }
-          };
-          MantleServiceCache.getService()
-              .hasAccess(selectedFileItem.getRepositoryFile().getPath(), selectedFileItem.getRepositoryFile().getName(), 3, callback);
+          contentTabPanel.showNewURLTab(selectedFileItem.getLocalizedName(), selectedFileItem.getLocalizedName(), myurl, true);
         } else {
           contentTabPanel.showNewURLTab(selectedFileItem.getLocalizedName(), selectedFileItem.getLocalizedName(), url, true);
         }

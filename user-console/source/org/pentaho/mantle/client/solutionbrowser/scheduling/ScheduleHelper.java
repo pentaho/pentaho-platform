@@ -6,15 +6,16 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.service.MantleServiceCache;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -33,55 +34,63 @@ public class ScheduleHelper {
   }-*/;
 
   private static void showScheduleDialog(final String fileNameWithPath) {
-    final AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 
-      public void onSuccess(Boolean result) {
-        String moduleBaseURL = GWT.getModuleBaseURL();
-        String moduleName = GWT.getModuleName();
-        String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-        String urlPath = fileNameWithPath.replaceAll("/", ":");
-        RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath + "/parameterizable");    
-        scheduleFileRequestBuilder.setHeader("accept", "text/plain");    
-        try {
-          scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
+    try {
+      final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.sendRequest(null, new RequestCallback() {
 
-           public void onError(Request request, Throwable exception) {
-             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
-             dialogBox.center();
+        public void onError(Request request, Throwable caught) {
+          MantleLoginDialog.performLogin(new AsyncCallback<Boolean>() {
+
+            public void onFailure(Throwable caught) {
             }
 
-            public void onResponseReceived(Request request, Response response) {
-              if (response.getStatusCode() == Response.SC_OK) {
-                final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, Boolean.parseBoolean(response.getText()));
-                dialog.center();
-              } else {
-                MessageDialogBox dialogBox = new MessageDialogBox(
-                    Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true);   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                dialogBox.center();    
-              }
+            public void onSuccess(Boolean result) {
+              showScheduleDialog(fileNameWithPath);
             }
-            
+
           });
-        } catch (RequestException e) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), false, false, true); //$NON-NLS-1$
-          dialogBox.center();
         }
-      }
 
-      public void onFailure(Throwable caught) {
-        MantleLoginDialog.performLogin(new AsyncCallback<Boolean>() {
+        public void onResponseReceived(Request request, Response response) {
+          String moduleBaseURL = GWT.getModuleBaseURL();
+          String moduleName = GWT.getModuleName();
+          String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+          String urlPath = fileNameWithPath.replaceAll("/", ":");
+          RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath + "/parameterizable");
+          scheduleFileRequestBuilder.setHeader("accept", "text/plain");
+          try {
+            scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
 
-          public void onFailure(Throwable caught) {
+              public void onError(Request request, Throwable exception) {
+                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+                dialogBox.center();
+              }
+
+              public void onResponseReceived(Request request, Response response) {
+                if (response.getStatusCode() == Response.SC_OK) {
+                  final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, Boolean.parseBoolean(response.getText()));
+                  dialog.center();
+                } else {
+                  MessageDialogBox dialogBox = new MessageDialogBox(
+                      Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                  dialogBox.center();
+                }
+              }
+
+            });
+          } catch (RequestException e) {
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), false, false, true); //$NON-NLS-1$
+            dialogBox.center();
           }
+        }
 
-          public void onSuccess(Boolean result) {
-            showScheduleDialog(fileNameWithPath);
-          }
-
-        });
-      }
-    };
-    MantleServiceCache.getService().isAuthenticated(callback);
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+    }
   }
 
   public static void createSchedule(final RepositoryFile repositoryFile) {
@@ -91,26 +100,27 @@ public class ScheduleHelper {
         String extension = ""; //$NON-NLS-1$
         if (repositoryFile.getPath().lastIndexOf(".") > 0) { //$NON-NLS-1$
           extension = repositoryFile.getPath().substring(repositoryFile.getPath().lastIndexOf(".") + 1); //$NON-NLS-1$
-          }
+        }
 
         if (SolutionBrowserPanel.getInstance().getExecutableFileExtensions().contains(extension)) {
           showScheduleDialog(repositoryFile.getPath());
         } else {
-            final MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("open"), Messages.getString("scheduleInvalidFileType", repositoryFile.getPath()), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+          final MessageDialogBox dialogBox = new MessageDialogBox(
+              Messages.getString("open"), Messages.getString("scheduleInvalidFileType", repositoryFile.getPath()), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
 
-            dialogBox.setCallback(new IDialogCallback() {
-              public void cancelPressed() {
-              }
+          dialogBox.setCallback(new IDialogCallback() {
+            public void cancelPressed() {
+            }
 
-              public void okPressed() {
-                dialogBox.hide();
-              }
-            });
+            public void okPressed() {
+              dialogBox.hide();
+            }
+          });
 
-            dialogBox.center();
-            return;
+          dialogBox.center();
+          return;
         }
-        
+
       }
 
       protected void performOperation() {
