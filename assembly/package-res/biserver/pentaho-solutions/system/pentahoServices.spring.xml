@@ -69,17 +69,20 @@
   <bean class="org.pentaho.platform.web.http.api.resources.UserRoleResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.EmailResource" scope="request"/>
-  <bean class="org.pentaho.platform.web.http.api.resources.SessionResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.SessionResource" scope="request"/>  
   <bean class="org.pentaho.platform.web.http.api.resources.SchedulerResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryImportResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.PluginResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.PluginManagerResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SystemPermissionsResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SystemUsersResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SystemRolesResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SystemAllResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.GeneratorStreamingOutputProvider" scope="singleton"/>
   <bean class="org.pentaho.platform.web.http.api.resources.ThemeResource" scope="request"/>    
-  <bean class="org.pentaho.platform.web.http.api.resources.SystemRefreshResource" scope="request"/>   
-  <bean class="org.pentaho.platform.web.http.api.resources.VersionResource" scope="request"/>      
+  <bean class="org.pentaho.platform.web.http.api.resources.SystemRefreshResource" scope="request"/>  
+  <bean class="org.pentaho.platform.web.http.api.resources.VersionResource" scope="request"/>   
+  <bean class="org.pentaho.platform.web.http.api.resources.UserConsoleResource" scope="request"/>   
+  <bean class="org.pentaho.platform.web.http.api.resources.UserSettingsResource" scope="request"/>      
 </beans>

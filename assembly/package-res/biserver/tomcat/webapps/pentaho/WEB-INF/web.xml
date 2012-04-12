@@ -510,16 +510,6 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>MantleService</servlet-name>
-		<servlet-class>org.pentaho.mantle.server.MantleServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>MantleLoginService</servlet-name>
-		<servlet-class>org.pentaho.mantle.login.server.MantleLoginServlet</servlet-class>
-	</servlet>
-
-	<servlet>
 		<servlet-name>UploadService</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.UploadFileServlet</servlet-class>
 	</servlet>
@@ -601,21 +591,6 @@
 	<servlet-mapping>
 		<servlet-name>UploadService</servlet-name>
 		<url-pattern>/UploadService</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>MantleService</servlet-name>
-		<url-pattern>/mantle/MantleService</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>MantleLoginService</servlet-name>
-		<url-pattern>/mantleLogin/MantleLoginService</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>MantleLoginService</servlet-name>
-		<url-pattern>/mantle/MantleLoginService</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
