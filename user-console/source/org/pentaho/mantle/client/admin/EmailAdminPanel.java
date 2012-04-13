@@ -208,7 +208,7 @@ public class EmailAdminPanel extends SimplePanel {
 		editPasswordButton = new Button(Messages.getString("edit") + "...");
 		editPasswordButton.setStylePrimaryName("pentaho-button");
 		hPanel.add(editPasswordButton);
-
+		editPasswordButton.setEnabled(false);
 		authenticationPanel.add(hPanel);
 
 		debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));

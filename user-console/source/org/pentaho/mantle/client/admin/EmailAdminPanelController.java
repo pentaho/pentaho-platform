@@ -49,6 +49,8 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FocusListener;
+import com.google.gwt.user.client.ui.Widget;
 
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
@@ -76,11 +78,30 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		useStartTLSCheckBox.addValueChangeHandler(new AuthenticationHandler());
 		protocolsListBox.addChangeHandler(new AuthenticationHandler());
 		activate();
+		passwordTextBox.getManagedObject().addFocusListener(new FocusListener() {
+
+      @Override
+      public void onFocus(Widget sender) {
+        // TODO Auto-generated method stub
+        
+      }
+
+      @Override
+      public void onLostFocus(Widget sender) {
+        if(!StringUtils.isEmpty(passwordTextBox.getValue())) {
+          testButton.setEnabled(isValid());
+          isDirty = true;
+          editPasswordButton.setEnabled(true);
+          passwordTextBox.getManagedObject().setEnabled(false);
+        }
+      }
+
+		});
 	}
 
 	public void updatePassword(String password) {
 		passwordTextBox.setValue(password);
-    if(passwordTextBox.getValue() != null && passwordTextBox.getValue().length() > 0) {
+    if(!StringUtils.isEmpty(passwordTextBox.getValue())) {
       passwordTextBox.getManagedObject().setEnabled(false);
     }
 		testButton.setEnabled(isValid());
@@ -212,6 +233,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 					// If password is non-empty.. disable the text-box
 					if(!StringUtils.isEmpty(password.stringValue())) {
 					  passwordTextBox.getManagedObject().setEnabled(false);
+					  editPasswordButton.setEnabled(true);
 					}
 					 
 					passwordTextBox.setValue(password.stringValue());
@@ -234,9 +256,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	public void activate() {
 		isDirty = false;
 		getEmailConfig();
-		if(passwordTextBox.getValue() != null && passwordTextBox.getValue().length() > 0) {
-	    passwordTextBox.getManagedObject().setEnabled(false);
-		}
 	}
 
 	public String getId() {
