@@ -55,7 +55,7 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
       assertTrue("Make sure your current directory is the repository project", sourceFile.exists());
       FileSolutionRepositoryImportSource importSource
           = new FileSolutionRepositoryImportSource(sourceFile, "UTF-8");
-      assertEquals(11, importSource.getCount());
+      assertEquals(13, importSource.getCount());
     }
   }
 
@@ -101,7 +101,7 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
     final Map<String, ImportSource.IRepositoryFileBundle> filesFound = new HashMap<String, ImportSource.IRepositoryFileBundle>();
     assertTrue("Make sure your current directory is the repository project", sourceFile.exists());
     FileSolutionRepositoryImportSource importSource = new FileSolutionRepositoryImportSource(sourceFile, "UTF-8");
-    assertEquals(11, importSource.getCount());
+    assertEquals(13, importSource.getCount());
     final Iterable<ImportSource.IRepositoryFileBundle> files = importSource.getFiles();
     assertNotNull(files);
     for (Iterator<ImportSource.IRepositoryFileBundle> it = files.iterator(); it.hasNext(); ) {
@@ -115,7 +115,7 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
       }
     }
 
-    assertEquals(8, filesFound.size());
+    assertEquals(10, filesFound.size());
     assertNotNull(filesFound.get("Empty.zip"));
     assertNotNull(filesFound.get("Success.zip"));
     assertNotNull(filesFound.get("TestZipFile.zip"));
