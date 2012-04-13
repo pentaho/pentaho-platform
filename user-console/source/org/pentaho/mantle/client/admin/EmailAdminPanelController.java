@@ -119,9 +119,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			authenticationValid = userNameValid && passwordValid;
 		}
 		if(portValid && smtpValid && fromAddressValid && authenticationValid) {
-		  actionBar.expand();
+		  actionBar.expand(0);
 		} else {
-		  actionBar.collapse();
+		  actionBar.collapse(0);
 		}
 		
 		return portValid && smtpValid && fromAddressValid && authenticationValid;
@@ -165,7 +165,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-          actionBar.collapse();
+          actionBar.collapse(500);
 			    saveButton.inProgress(false);
 					isDirty = false; 
 					isDirty = false;
