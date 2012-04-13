@@ -27,7 +27,6 @@ import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
 import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 import org.pentaho.ui.xul.util.XulDialogCallback;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -42,11 +41,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONBoolean;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FocusListener;
@@ -54,283 +48,313 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
-	private boolean isDirty = false;
+  private boolean isDirty = false;
 
-	private static EmailAdminPanelController instance = new EmailAdminPanelController();
-	
-	public static EmailAdminPanelController getInstance() {
-	  return instance;
-	}
-	
-	private EmailAdminPanelController() {
-		super();
-		((Button) saveButton.getManagedObject()).addClickHandler(new SaveButtonChangeListener());
-		authenticationCheckBox.addValueChangeHandler(new AuthenticateChangeHandler());
-		editPasswordButton.addClickHandler(new EditPasswordListener());
-		testButton.addClickHandler(new EmailTestButtonChangeListener());
-		smtpHostTextBox.addKeyUpHandler(new AuthenticationHandler());
-		portTextBox.addKeyUpHandler(new AuthenticationHandler());
-		fromAddressTextBox.addKeyUpHandler(new AuthenticationHandler());
-		userNameTextBox.addKeyUpHandler(new AuthenticationHandler());
-		authenticationCheckBox.addValueChangeHandler(new AuthenticationHandler());
-		debuggingCheckBox.addValueChangeHandler(new AuthenticationHandler());
-		useSSLCheckBox.addValueChangeHandler(new AuthenticationHandler());
-		useStartTLSCheckBox.addValueChangeHandler(new AuthenticationHandler());
-		protocolsListBox.addChangeHandler(new AuthenticationHandler());
-		activate();
-		passwordTextBox.getManagedObject().addFocusListener(new FocusListener() {
+  private static EmailAdminPanelController instance = new EmailAdminPanelController();
 
+  public static EmailAdminPanelController getInstance() {
+    return instance;
+  }
+
+  private JsEmailConfiguration emailConfig;
+
+  private EmailAdminPanelController() {
+    super();
+
+    editPasswordButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(final ClickEvent clickEvent) {
+        ChangePasswordDialog changePasswordDialog = new ChangePasswordDialog(EmailAdminPanelController.this);
+        changePasswordDialog.show();
+      }
+    });
+
+    testButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(final ClickEvent clickEvent) {
+        testEmail();
+      }
+    });
+
+    authenticationCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(final ValueChangeEvent<Boolean> booleanValueChangeEvent) {
+        emailConfig.setAuthenticate(booleanValueChangeEvent.getValue());
+        isDirty = true;
+        validate();
+      }
+    });
+
+    smtpHostTextBox.addKeyUpHandler(new KeyUpHandler() {
+      @Override
+      public void onKeyUp(final KeyUpEvent keyUpEvent) {
+        emailConfig.setSmtpHost(smtpHostTextBox.getText());
+        isDirty = true;
+        validate();
+      }
+    });
+
+    portTextBox.addKeyUpHandler(new KeyUpHandler() {
+      @Override
+      public void onKeyUp(final KeyUpEvent keyUpEvent) {
+        emailConfig.setSmtpPort(Short.parseShort(portTextBox.getValue()));
+        isDirty = true;
+        validate();
+      }
+    });
+
+    fromAddressTextBox.addKeyUpHandler(new KeyUpHandler() {
+      @Override
+      public void onKeyUp(final KeyUpEvent keyUpEvent) {
+        emailConfig.setDefaultFrom(fromAddressTextBox.getText());
+        isDirty = true;
+        validate();
+      }
+    });
+
+    userNameTextBox.addKeyUpHandler(new KeyUpHandler() {
+      @Override
+      public void onKeyUp(final KeyUpEvent keyUpEvent) {
+        emailConfig.setUserId(userNameTextBox.getText());
+        isDirty = true;
+        validate();
+      }
+    });
+
+
+    authenticationCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(final ValueChangeEvent<Boolean> booleanValueChangeEvent) {
+        emailConfig.setAuthenticate(authenticationCheckBox.getValue());
+        isDirty = true;
+        validate();
+      }
+    });
+
+    debuggingCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(final ValueChangeEvent<Boolean> booleanValueChangeEvent) {
+        emailConfig.setDebug(debuggingCheckBox.getValue());
+        isDirty = true;
+        validate();
+      }
+    });
+
+    useSSLCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(final ValueChangeEvent<Boolean> booleanValueChangeEvent) {
+        emailConfig.setUseSsl(useSSLCheckBox.getValue());
+        isDirty = true;
+        validate();
+      }
+    });
+
+    useStartTLSCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(final ValueChangeEvent<Boolean> booleanValueChangeEvent) {
+        emailConfig.setUseStartTls(useStartTLSCheckBox.getValue());
+        isDirty = true;
+        validate();
+      }
+    });
+
+    protocolsListBox.addChangeHandler(new ChangeHandler() {
+      @Override
+      public void onChange(final ChangeEvent changeEvent) {
+        emailConfig.setSmtpProtocol(protocolsListBox.getItemText(protocolsListBox.getSelectedIndex()));
+        isDirty = true;
+        validate();
+      }
+    });
+
+    activate();
+
+
+    ((Button) saveButton.getManagedObject()).addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(final ClickEvent clickEvent) {
+        setEmailConfig();
+      }
+    });
+
+    passwordTextBox.getManagedObject().addFocusListener(new FocusListener() {
       @Override
       public void onFocus(Widget sender) {
-        // TODO Auto-generated method stub
-        
       }
 
       @Override
       public void onLostFocus(Widget sender) {
-        if(!StringUtils.isEmpty(passwordTextBox.getValue())) {
-          testButton.setEnabled(isValid());
-          isDirty = true;
+        if (!StringUtils.isEmpty(passwordTextBox.getValue())) {
           editPasswordButton.setEnabled(true);
           passwordTextBox.getManagedObject().setEnabled(false);
+          isDirty = true;
+          validate();
         }
       }
 
-		});
-	}
+    });
+  }
 
-	public void updatePassword(String password) {
-		passwordTextBox.setValue(password);
-    if(!StringUtils.isEmpty(passwordTextBox.getValue())) {
+  public void updatePassword(String password) {
+    passwordTextBox.setValue(password);
+    if (!StringUtils.isEmpty(passwordTextBox.getValue())) {
       passwordTextBox.getManagedObject().setEnabled(false);
     }
-		testButton.setEnabled(isValid());
-		isDirty = true;
-	}
+    isDirty = true;
+    validate();
+  }
 
-	public boolean isValid() {
-		boolean smtpValid = !StringUtils.isEmpty(smtpHostTextBox.getValue());
-		boolean fromAddressValid = isValidEmail(fromAddressTextBox.getValue());
-		boolean portValid = isPortValid(portTextBox.getValue());
-		boolean authenticationValid = true;
-		if (authenticationCheckBox.getValue()) {
-			boolean userNameValid = !StringUtils.isEmpty(userNameTextBox.getValue());
-			boolean passwordValid = !StringUtils.isEmpty(passwordTextBox.getValue());
-			authenticationValid = userNameValid && passwordValid;
-		}
-		if(portValid && smtpValid && fromAddressValid && authenticationValid) {
-		  actionBar.expand(1);
-		} else {
-		  actionBar.collapse(1);
-		}
-		
-		return portValid && smtpValid && fromAddressValid && authenticationValid;
-	}
+  private void validate() {
+    boolean smtpValid = !StringUtils.isEmpty(emailConfig.getSmtpProtocol());
+    boolean fromAddressValid = isValidEmail(emailConfig.getDefaultFrom());
+    boolean portValid = emailConfig.getSmtpPort() != null && isPortValid(emailConfig.getSmtpPort().toString());
+    boolean authenticationValid = true;
+    if (emailConfig.isAuthenticate()) {
+      boolean userNameValid = !StringUtils.isEmpty(emailConfig.getUserId());
+      boolean passwordValid = !StringUtils.isEmpty(emailConfig.getPassword());
+      authenticationValid = userNameValid && passwordValid;
+    }
 
-	private String appendUIParameters() {
-		StringBuffer params = new StringBuffer();
-		params.append("?authenticate=");
-		params.append(authenticationCheckBox.getValue());
-		params.append("&debug=");
-		params.append(debuggingCheckBox.getValue());
-		params.append("&defaultFrom=");
-		params.append(fromAddressTextBox.getValue());
-		params.append("&smtpHost=");
-		params.append(smtpHostTextBox.getValue());
-		params.append("&smtpPort=");
-		params.append(portTextBox.getValue());
-		params.append("&smtpProtocol=");
-		params.append(protocolsListBox.getValue(protocolsListBox.getSelectedIndex()).toLowerCase());
-		params.append("&userId=");
-		params.append(userNameTextBox.getValue());
-		params.append("&password=");
-		params.append(passwordTextBox.getValue());
-		params.append("&useSsl=");
-		params.append(useSSLCheckBox.getValue());
-		params.append("&useStartTls=");
-		params.append(useStartTLSCheckBox.getValue());
-		return params.toString();
-	}
+    if (portValid && smtpValid && fromAddressValid && authenticationValid) {
+      actionBar.expand(1);
+      testButton.setEnabled(true);
+    } else {
+      actionBar.collapse(1);
+      testButton.setEnabled(false);
+    }
+  }
 
-	// -- Remote Calls.
+  // -- Remote Calls.
 
-	private void setEmailConfig() {
+  private void setEmailConfig() {
     saveButton.inProgress(true);
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/setEmailConfig" + appendUIParameters();
-		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
-		try {
-			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
-				public void onError(Request request, Throwable exception) {
-			    saveButton.inProgress(false);
-				}
+    String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/setEmailConfig";
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
+    try {
+      executableTypesRequestBuilder.sendRequest(emailConfig.toString(), new RequestCallback() {
+        public void onError(Request request, Throwable exception) {
+          saveButton.inProgress(false);
+        }
 
-				public void onResponseReceived(Request request, Response response) {
+        public void onResponseReceived(Request request, Response response) {
           actionBar.collapse(500);
-			    saveButton.inProgress(false);
-					isDirty = false; 
-					isDirty = false;
-				}
-			});
-		} catch (RequestException e) {
-		}
-	}
+          saveButton.inProgress(false);
+          isDirty = false;
+        }
+      });
+    } catch (RequestException e) {
+    }
+  }
 
-	private void testEmail() {
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/sendEmailTest" + appendUIParameters();
-		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
-		try {
-			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
-				public void onError(Request request, Throwable exception) {
-				}
+  private void testEmail() {
+    String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/sendEmailTest";
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
+    try {
+      executableTypesRequestBuilder.sendRequest(emailConfig.toString(), new RequestCallback() {
+        public void onError(Request request, Throwable exception) {
+        }
 
-				public void onResponseReceived(Request request, Response response) {
-					String message = null;
-					if (response.getText().equals("EmailTester.SUCESS")) {
-						message = Messages.getString("connectionTest.sucess");
-					} else if (response.getText().equals("EmailTester.FAIL")) {
-						message = Messages.getString("connectionTest.fail");
-					}
-					GwtMessageBox messageBox = new GwtMessageBox();
-					messageBox.setTitle(Messages.getString("connectionTest"));
-					messageBox.setMessage(message);
-					messageBox.setButtons(new Object[GwtMessageBox.ACCEPT]);
-					messageBox.setAcceptLabel(Messages.getString("close"));
-					messageBox.show();
-				}
-			});
-		} catch (RequestException e) {
-		}
-	}
+        public void onResponseReceived(Request request, Response response) {
+          String message = null;
+          if (response.getText().equals("EmailTester.SUCESS")) {
+            message = Messages.getString("connectionTest.sucess");
+          } else if (response.getText().equals("EmailTester.FAIL")) {
+            message = Messages.getString("connectionTest.fail");
+          }
+          GwtMessageBox messageBox = new GwtMessageBox();
+          messageBox.setTitle(Messages.getString("connectionTest"));
+          messageBox.setMessage(message);
+          messageBox.setButtons(new Object[GwtMessageBox.ACCEPT]);
+          messageBox.setAcceptLabel(Messages.getString("close"));
+          messageBox.show();
+        }
+      });
+    } catch (RequestException e) {
+    }
+  }
 
-	private void getEmailConfig() {
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/getEmailConfig";
-		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
-		try {
-			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
-				public void onError(Request request, Throwable exception) {
-				}
+  private void getEmailConfig() {
+    String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/getEmailConfig";
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
+    try {
+      executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+        public void onError(Request request, Throwable exception) {
+        }
 
-				public void onResponseReceived(Request request, Response response) {
-					JSONObject emailData = (JSONObject) JSONParser.parseLenient(response.getText());
-					JSONBoolean authenticate = (JSONBoolean) emailData.get("authenticate");
-					JSONBoolean debug = (JSONBoolean) emailData.get("debug");
-					JSONString defaultFrom = (JSONString) emailData.get("defaultFrom");
-					JSONString smtpHost = (JSONString) emailData.get("smtpHost");
-					JSONNumber smtpPort = (JSONNumber) emailData.get("smtpPort");
-					JSONString smtpProtocol = (JSONString) emailData.get("smtpProtocol");
-					JSONString userId = (JSONString) emailData.get("userId");
-					JSONString password = (JSONString) emailData.get("password");
-					JSONBoolean useSsl = (JSONBoolean) emailData.get("useSsl");
-					JSONBoolean useStartTls = (JSONBoolean) emailData.get("useStartTls");
+        public void onResponseReceived(Request request, Response response) {
+          emailConfig = JsEmailConfiguration.parseJsonString(response.getText());
 
-					authenticationCheckBox.setValue(authenticate.booleanValue());
-					smtpHostTextBox.setValue(smtpHost.stringValue());
-					portTextBox.setValue(smtpPort.toString());
-					useStartTLSCheckBox.setValue(useStartTls.booleanValue());
-					useSSLCheckBox.setValue(useSsl.booleanValue());
-					fromAddressTextBox.setValue(defaultFrom.stringValue());
-					userNameTextBox.setValue(userId.stringValue());
-					// If password is non-empty.. disable the text-box
-					if(!StringUtils.isEmpty(password.stringValue())) {
-					  passwordTextBox.getManagedObject().setEnabled(false);
-					  editPasswordButton.setEnabled(true);
-					}
-					 
-					passwordTextBox.setValue(password.stringValue());
-					
-					debuggingCheckBox.setValue(debug.booleanValue());
+          authenticationCheckBox.setValue(emailConfig.isAuthenticate());
+          authenticationPanel.setVisible(emailConfig.isAuthenticate());
+          smtpHostTextBox.setValue(emailConfig.getSmtpHost());
+          portTextBox.setValue(emailConfig.getSmtpPort().toString());
+          useStartTLSCheckBox.setValue(emailConfig.isUseStartTls());
+          useSSLCheckBox.setValue(emailConfig.isUseSsl());
+          fromAddressTextBox.setValue(emailConfig.getDefaultFrom());
+          userNameTextBox.setValue(emailConfig.getUserId());
+          debuggingCheckBox.setValue(emailConfig.isDebug());
 
-					String protocol = smtpProtocol.stringValue();
-					protocolsListBox.setSelectedIndex(protocol.equalsIgnoreCase("smtp") ? 0 : 1);
+          // If password is non-empty.. disable the text-box
+          final String password = emailConfig.getPassword();
+          if (!StringUtils.isEmpty(password)) {
+            passwordTextBox.getManagedObject().setEnabled(false);
+            editPasswordButton.setEnabled(true);
+          }
+          passwordTextBox.setValue(password);
 
-					authenticationPanel.setVisible(authenticate.booleanValue());
-          testButton.setEnabled(isValid());
-				}
-			});
-		} catch (RequestException e) {
-		}
-	}
 
-	// -- ISysAdminPanel implementation.
+          final String protocol = emailConfig.getSmtpProtocol();
+          protocolsListBox.setSelectedIndex(-1); // TODO ?
+          if (!StringUtils.isEmpty(protocol)) {
+            for (int i = 0; i < protocolsListBox.getItemCount(); ++i) {
+              if (protocol.equals(protocolsListBox.getItemText(i))) {
+                protocolsListBox.setSelectedIndex(i);
+                break;
+              }
+            }
+          }
 
-	public void activate() {
-		isDirty = false;
-		getEmailConfig();
-	}
+          validate();
+        }
+      });
+    } catch (RequestException e) {
+    }
+  }
 
-	public String getId() {
-		return "emailAdminPanel";
-	}
+  // -- ISysAdminPanel implementation.
 
-	public void passivate(final AsyncCallback<Boolean> callback) {
-		if (isDirty) {
-			GwtConfirmBox messageBox = new GwtConfirmBox();
-			messageBox.setTitle(Messages.getString("confirm"));
-			messageBox.setMessage(Messages.getString("dirtyStateMessage"));
-			messageBox.addDialogCallback(new XulDialogCallback<String>() {
+  public void activate() {
+    isDirty = false;
+    getEmailConfig();
+  }
 
-				public void onClose(XulComponent component, XulDialogCallback.Status status, String value) {
-					if (status == XulDialogCallback.Status.ACCEPT) {
-						callback.onSuccess(true);
-					}
-					if (status == XulDialogCallback.Status.CANCEL) {
-						MantleXul.getInstance().selectAdminCatTreeTreeItem(Messages.getString("emailSmtpServer"));
-						callback.onSuccess(false);
-					}
-				}
+  public String getId() {
+    return "emailAdminPanel";
+  }
 
-				public void onError(XulComponent e, Throwable t) {
-				}
-			});
-			messageBox.show();
-		} else {
-			callback.onSuccess(true);
-		}
-	}
+  public void passivate(final AsyncCallback<Boolean> callback) {
+    if (isDirty) {
+      GwtConfirmBox messageBox = new GwtConfirmBox();
+      messageBox.setTitle(Messages.getString("confirm"));
+      messageBox.setMessage(Messages.getString("dirtyStateMessage"));
+      messageBox.addDialogCallback(new XulDialogCallback<String>() {
 
-	// -- Event Listeners.
+        public void onClose(XulComponent component, XulDialogCallback.Status status, String value) {
+          if (status == XulDialogCallback.Status.ACCEPT) {
+            callback.onSuccess(true);
+          }
+          if (status == XulDialogCallback.Status.CANCEL) {
+            MantleXul.getInstance().selectAdminCatTreeTreeItem(Messages.getString("emailSmtpServer"));
+            callback.onSuccess(false);
+          }
+        }
 
-	class SaveButtonChangeListener implements ClickHandler {
-		public void onClick(ClickEvent event) {
-			setEmailConfig();
-		}
-	}
-
-	class AuthenticateChangeHandler implements ValueChangeHandler<Boolean> {
-
-		public void onValueChange(ValueChangeEvent<Boolean> value) {
-			authenticationPanel.setVisible(value.getValue());
-		}
-	}
-
-	class EditPasswordListener implements ClickHandler {
-		public void onClick(ClickEvent event) {
-			ChangePasswordDialog changePasswordDialog = new ChangePasswordDialog(EmailAdminPanelController.this);
-			changePasswordDialog.show();
-		}
-	}
-
-	class AuthenticationHandler implements KeyUpHandler, ValueChangeHandler<Boolean>, ChangeHandler {
-
-		public void onKeyUp(KeyUpEvent e) {
-		  testButton.setEnabled(isValid());
-			isDirty = true;
-		}
-
-		public void onValueChange(ValueChangeEvent<Boolean> value) {
-		  testButton.setEnabled(isValid());
-      isDirty = true;
-		}
-
-		public void onChange(ChangeEvent value) {
-		  testButton.setEnabled(isValid());
-      isDirty = true;
-		}
-	}
-
-	class EmailTestButtonChangeListener implements ClickHandler {
-		public void onClick(ClickEvent event) {
-			testEmail();
-		}
-	}
+        public void onError(XulComponent e, Throwable t) {
+        }
+      });
+      messageBox.show();
+    } else {
+      callback.onSuccess(true);
+    }
+  }
 }
