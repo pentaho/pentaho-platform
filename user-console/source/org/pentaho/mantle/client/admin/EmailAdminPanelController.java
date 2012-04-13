@@ -119,9 +119,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			authenticationValid = userNameValid && passwordValid;
 		}
 		if(portValid && smtpValid && fromAddressValid && authenticationValid) {
-		  actionBar.expand(0);
+		  actionBar.expand(1);
 		} else {
-		  actionBar.collapse(0);
+		  actionBar.collapse(1);
 		}
 		
 		return portValid && smtpValid && fromAddressValid && authenticationValid;

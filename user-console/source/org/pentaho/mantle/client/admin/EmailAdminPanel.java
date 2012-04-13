@@ -86,7 +86,7 @@ public class EmailAdminPanel extends SimplePanel {
 		dockPanel.setWidth("100%");
     this.setWidth("100%");
     this.setHeight("100%");
-		actionBar.collapse(0);
+		actionBar.collapse(1);
 	}
 
 	private Widget createEmailPanel() {
