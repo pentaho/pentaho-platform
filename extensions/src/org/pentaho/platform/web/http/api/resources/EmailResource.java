@@ -20,12 +20,6 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
-import static javax.ws.rs.core.MediaType.WILDCARD;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -37,85 +31,72 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.json.JSONObject;
-import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
+import org.pentaho.platform.plugin.services.email.EmailConfiguration;
+import org.pentaho.platform.plugin.services.email.EmailService;
+
+import static javax.ws.rs.core.MediaType.WILDCARD;
 
 @Path("/emailconfig/")
 public class EmailResource extends AbstractJaxRSResource {
 
-	private static final Log logger = LogFactory.getLog(EmailResource.class);
+  /**
+   * The logger for this class
+   */
+  private static final Log logger = LogFactory.getLog(EmailResource.class);
 
-	@PUT
-	@Path("/setEmailConfig")
-	@Consumes({ WILDCARD })
-	public Response setEmailConfig(@QueryParam("authenticate") String authenticate, @QueryParam("debug") String debug, @QueryParam("defaultFrom") String defaultFrom, @QueryParam("smtpHost") String smtpHost, @QueryParam("smtpPort") String smtpPort, @QueryParam("smtpProtocol") String smtpProtocol, @QueryParam("userId") String userId, @QueryParam("password") String password, @QueryParam("useSsl") String useSsl, @QueryParam("useStartTls") String useStartTls) {
+  private EmailService emailService = null;
 
-		try {
-			File emailConfigFile = new File(".." + File.separator + ".." + File.separator + "pentaho-solutions" + File.separator + "system" + File.separator + "smtp-email" + File.separator + "email_config.xml");
-			EmailConfigXml emailConfigXml = new EmailConfigXml(emailConfigFile);
-			emailConfigXml.setDebug(Boolean.parseBoolean(debug));
-			emailConfigXml.setDefaultFrom(defaultFrom);
-			emailConfigXml.setSmtpHost(smtpHost);
-			emailConfigXml.setSmtpPort(Integer.parseInt(smtpPort));
-			emailConfigXml.setSmtpProtocol(smtpProtocol);
-			emailConfigXml.setUseSsl(Boolean.parseBoolean(useSsl));
-			emailConfigXml.setUseStartTls(Boolean.parseBoolean(useStartTls));
+  /**
+   * Constructs an instance of this class using the default email service
+   *
+   * @throws IllegalArgumentException Indicates that the default location for the email configuration file is invalid
+   */
+  public EmailResource() throws IllegalArgumentException {
+    this(new EmailService());
+  }
 
-			boolean useAuthentication = Boolean.parseBoolean(authenticate);
-			emailConfigXml.setAuthenticate(useAuthentication);
-			if (useAuthentication) {
-				emailConfigXml.setUserId(userId);
-				emailConfigXml.setPassword(password);
-			}
+  /**
+   * Constructs an instance of this class using the default email service
+   *
+   * @throws IllegalArgumentException Indicates that the default location for the email configuration file is invalid
+   */
+  public EmailResource(final EmailService emailService) throws IllegalArgumentException {
+    if (emailService == null) {
+      throw new IllegalArgumentException();
+    }
+    this.emailService = emailService;
+  }
 
-			saveDom(emailConfigXml.getDocument(), emailConfigFile);
-		} catch (Exception e) {
-			logger.error("Email Configuration could not be saved."); //$NON-NLS-1$
-		}
-		return Response.ok().build();
-	}
+  @PUT
+  @Path("/setEmailConfig")
+  @Consumes({WILDCARD})
+  public Response setEmailConfig(@QueryParam("configuration") EmailConfiguration emailConfiguration) {
+    try {
+      emailService.setEmailConfig(emailConfiguration);
+    } catch (Exception e) {
+      return Response.serverError().build();
+    }
+    return Response.ok().build();
+  }
 
-	private void saveDom(Document document, File file) throws IOException {
-		file.createNewFile();
-		FileOutputStream fileOutputStream = new FileOutputStream(file);
-		XmlDom4JHelper.saveDom(document, fileOutputStream, "UTF-8");
-		try {
-			fileOutputStream.close();
-		} catch (IOException ex) {
-			// Do nothing.
-		}
-	}
+  @GET
+  @Path("/getEmailConfig")
+  @Produces({MediaType.APPLICATION_JSON})
+  public EmailConfiguration getEmailConfig() {
+    try {
+      return emailService.getEmailConfig();
+    } catch (Exception e) {
+      return new EmailConfiguration();
+    }
+  }
 
-	@GET
-	@Path("/getEmailConfig")
-	@Produces({ MediaType.APPLICATION_JSON })
-	public String getEmailConfig() throws Exception {
-
-		File emailConfigFile = new File(".." + File.separator + ".." + File.separator + "pentaho-solutions" + File.separator + "system" + File.separator + "smtp-email" + File.separator + "email_config.xml");
-		EmailConfigXml emailConfigXml = new EmailConfigXml(emailConfigFile);
-
-		JSONObject emailData = new JSONObject();
-		emailData.put("authenticate", emailConfigXml.getAuthenticate());
-		emailData.put("debug", emailConfigXml.getDebug());
-		emailData.put("defaultFrom", emailConfigXml.getDefaultFrom());
-		emailData.put("smtpHost", emailConfigXml.getSmtpHost());
-		emailData.put("smtpPort", emailConfigXml.getSmtpPort());
-		emailData.put("smtpProtocol", emailConfigXml.getSmtpProtocol());
-		emailData.put("userId", emailConfigXml.getUserId());
-		emailData.put("password", emailConfigXml.getPassword());
-		emailData.put("useSsl", emailConfigXml.getUseSsl());
-		emailData.put("useStartTls", emailConfigXml.getUseStartTls());
-
-		return emailData.toString();
-	}
-
-	@GET
-	@Path("/sendEmailTest")
-	@Consumes({ WILDCARD })
-	@Produces({ MediaType.TEXT_PLAIN })
-	public String sendEmailTest(@QueryParam("authenticate") String authenticate, @QueryParam("debug") String debug, @QueryParam("defaultFrom") String defaultFrom, @QueryParam("smtpHost") String smtpHost, @QueryParam("smtpPort") String smtpPort, @QueryParam("smtpProtocol") String smtpProtocol, @QueryParam("userId") String userId, @QueryParam("password") String password, @QueryParam("useSsl") String useSsl, @QueryParam("useStartTls") String useStartTls) throws Exception {
-		EmailTester emailTester = new EmailTester();
-		return emailTester.performTest(authenticate, debug, defaultFrom, smtpHost, smtpPort, smtpProtocol, userId, password, useSsl, useStartTls);
-	}
+  @GET
+  @Path("/sendEmailTest")
+  @Consumes({WILDCARD})
+  @Produces({MediaType.TEXT_PLAIN})
+  public Response sendEmailTest(@QueryParam("configuration") EmailConfiguration emailConfiguration)
+      throws Exception {
+    emailService.sendEmailTest(emailConfiguration);
+    return Response.ok().build();
+  }
 }
