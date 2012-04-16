@@ -105,7 +105,6 @@ public class MantleSettingsManager {
           try {
             builder.sendRequest(null, internalCallback);
           } catch (RequestException e) {
-            Window.alert("fucked");
           }
           MantleSettingsManager.getInstance().isAdministrator = false;
         }
@@ -114,7 +113,6 @@ public class MantleSettingsManager {
           try {
             builder.sendRequest(null, internalCallback);
           } catch (RequestException e) {
-            Window.alert("fucked");
           }
           MantleSettingsManager.getInstance().isAdministrator = isAdministrator;
         }
