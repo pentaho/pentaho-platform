@@ -93,7 +93,7 @@ public class MantleSettingsManager {
     };
 
     final RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/mantle/settings");
-    builder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+    builder.setHeader("accept", "application/json");
 
     try {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAdministrator"; //$NON-NLS-1$

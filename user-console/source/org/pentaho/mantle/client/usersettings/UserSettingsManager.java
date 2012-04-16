@@ -67,6 +67,8 @@ public class UserSettingsManager {
   public void fetchUserSettings(final AsyncCallback<JsArray<JsSetting>> callback) {
     final String url = GWT.getHostPageBaseURL() + "api/user-settings/list"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    builder.setHeader("accept", "application/json");
+
     try {
       builder.sendRequest(null, new RequestCallback() {
 
