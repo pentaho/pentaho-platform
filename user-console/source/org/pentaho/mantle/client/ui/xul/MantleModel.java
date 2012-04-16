@@ -23,6 +23,7 @@ import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.SecurityPanel;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanel;
+import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.OpenDocCommand;
 import org.pentaho.mantle.client.commands.OpenFileCommand;
@@ -197,10 +198,10 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     GWT.runAsync(new RunAsyncCallback() {
       public void onSuccess() {
         DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
-        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(UserRolesAdminPanel.getInstance()) == -1) {
-          contentDeck.add(UserRolesAdminPanel.getInstance());
+        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(UserRolesAdminPanelController.getInstance()) == -1) {
+          contentDeck.add(UserRolesAdminPanelController.getInstance());
         }
-        contentDeck.showWidget(contentDeck.getWidgetIndex(UserRolesAdminPanel.getInstance()));
+        contentDeck.showWidget(contentDeck.getWidgetIndex(UserRolesAdminPanelController.getInstance()));
       }
       
       public void onFailure(Throwable reason) {

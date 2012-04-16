@@ -93,7 +93,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private LaunchPanel launchPanel = new LaunchPanel();
 
   private MantleTabPanel contentTabPanel = new MantleTabPanel(true);
-  private boolean showSolutionBrowser = false;
+  private boolean showSolutionBrowser = true;
   private boolean isAdministrator = false;
   private ArrayList<SolutionBrowserListener> listeners = new ArrayList<SolutionBrowserListener>();
   private PickupDragController dragController;
@@ -685,22 +685,27 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     return showSolutionBrowser;
   }
 
-  public void setNavigatorShowing(boolean showSolutionBrowser) {
+  public void setNavigatorShowing(final boolean showSolutionBrowser) {
     this.showSolutionBrowser = showSolutionBrowser;
-    if (showSolutionBrowser) {
-      solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
-      solutionNavigatorAndContentPanel.setSplitPosition(defaultSplitPosition);
-      solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
-      solutionNavigatorPanel.setSplitPosition("60%"); //$NON-NLS-1$
-      Element vSplitter = DOM.getElementById("pucVerticalSplitter");
-      if (vSplitter != null) {
-        ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
-      }
-    } else {
-      solutionNavigatorAndContentPanel.setLeftWidget(new SimplePanel());
-      solutionNavigatorAndContentPanel.setSplitPosition("0px"); //$NON-NLS-1$
-      solutionNavigatorPanel.setVisible(false); //$NON-NLS-1$
-    }
+	  Timer t = new Timer() {
+		public void run() {
+		    if (showSolutionBrowser) {
+		      solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
+		      solutionNavigatorAndContentPanel.setSplitPosition(defaultSplitPosition);
+		      solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
+		      solutionNavigatorPanel.setSplitPosition("60%"); //$NON-NLS-1$
+		      Element vSplitter = DOM.getElementById("pucVerticalSplitter");
+		      if (vSplitter != null) {
+		        ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
+		      }
+		    } else {
+		      solutionNavigatorAndContentPanel.setLeftWidget(new SimplePanel());
+		      solutionNavigatorAndContentPanel.setSplitPosition("0px"); //$NON-NLS-1$
+		      solutionNavigatorPanel.setVisible(false); //$NON-NLS-1$
+		    }
+		}
+	  };
+	  t.schedule(1000);
   }
 
   public void addSolutionBrowserListener(SolutionBrowserListener listener) {

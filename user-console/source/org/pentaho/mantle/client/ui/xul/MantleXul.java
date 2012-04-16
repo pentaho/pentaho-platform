@@ -248,7 +248,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
       protected void performOperation() {
         final String url = GWT.getHostPageBaseURL() + "api/plugin-manager/overlays"; //$NON-NLS-1$
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-        builder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+        builder.setHeader("accept", "application/json");
 
         try {
           builder.sendRequest(null, new RequestCallback() {

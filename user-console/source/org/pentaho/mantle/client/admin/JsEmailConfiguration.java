@@ -53,7 +53,7 @@ public class JsEmailConfiguration extends JavaScriptObject {
   public final native void setUseSsl(final boolean useSsl) /*-{ this.useSsl = useSsl; }-*/; //
   public final native void setUseStartTls(final boolean useStartTls) /*-{ this.useStartTls = useStartTls; }-*/; //
 
-  public String getJSONString() {
+  public final String getJSONString() {
     return new JSONObject(this).toString();
   }
 
