@@ -34,6 +34,8 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailService;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 
 @Path("/emailconfig/")
@@ -81,7 +83,7 @@ public class EmailResource extends AbstractJaxRSResource {
 
   @GET
   @Path("/getEmailConfig")
-  @Produces({MediaType.APPLICATION_JSON})
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
   public EmailConfiguration getEmailConfig() {
     try {
       return emailService.getEmailConfig();

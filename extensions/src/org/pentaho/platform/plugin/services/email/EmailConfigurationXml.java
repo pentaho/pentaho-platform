@@ -19,6 +19,8 @@ package org.pentaho.platform.plugin.services.email;
 import java.io.File;
 import java.io.IOException;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -28,10 +30,12 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.pentaho.platform.config.DtdEntityResolver;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
+@XmlRootElement
 public class EmailConfigurationXml extends EmailConfiguration {
 
   private static final String ROOT_ELEMENT = "email-smtp";  //$NON-NLS-1$
@@ -49,6 +53,13 @@ public class EmailConfigurationXml extends EmailConfiguration {
 
   private static final Log logger = LogFactory.getLog(EmailConfigurationXml.class);
   private static final Messages messages = Messages.getInstance();
+  
+  private static final String DEFAULT_EMAIL_CONFIG_PATH =
+	      "system" + File.separator + "smtp-email" + File.separator + "email_config.xml";
+  
+  public EmailConfigurationXml() throws Exception {
+    this(new File(PentahoSystem.getApplicationContext().getSolutionPath(DEFAULT_EMAIL_CONFIG_PATH)));
+  }
 
   public EmailConfigurationXml(File pentahoXmlFile) throws IOException, DocumentException {
     if (null == pentahoXmlFile) {
