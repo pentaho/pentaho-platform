@@ -64,6 +64,6 @@ public class JsEmailConfiguration extends JavaScriptObject {
   private static final native JavaScriptObject parseEmailConfig(String json)
     /*-{
       var obj = eval('(' + json + ')');
-      return obj.emailConfiguration;
+      return obj;
     }-*/;
 }
