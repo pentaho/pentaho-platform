@@ -18,6 +18,7 @@
 package org.pentaho.mantle.client.ui.xul;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 
 public class JsTheme extends JavaScriptObject {
 
@@ -28,4 +29,10 @@ public class JsTheme extends JavaScriptObject {
   public final native String getId() /*-{ return this.id; }-*/; //
   public final native String getName() /*-{ return this.name; }-*/; //
 
+  public static final native JsArray<JsTheme> getThemes(String json)
+  /*-{
+    var obj = eval('(' + json + ')');
+    return obj.theme;
+  }-*/;  
+  
 }

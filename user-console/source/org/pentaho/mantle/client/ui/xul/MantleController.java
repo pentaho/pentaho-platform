@@ -165,7 +165,7 @@ public class MantleController extends AbstractXulEventHandler {
               }
 
               public void onResponseReceived(Request request, Response response) {
-                JsArray<JsTheme> themes = parseJson(JsonUtils.escapeJsonForEval(response.getText()));
+                JsArray<JsTheme> themes = JsTheme.getThemes(JsonUtils.escapeJsonForEval(response.getText()));
 
                 for (int i = 0; i < themes.length(); i++) {
                   JsTheme theme = themes.get(i);
@@ -218,12 +218,6 @@ public class MantleController extends AbstractXulEventHandler {
 
     setupNativeHooks(this);
   }
-
-  private final native JsArray<JsTheme> parseJson(String json)
-  /*-{
-    var obj = eval('(' + json + ')');
-    return obj.theme;
-  }-*/;
 
   public native void setupNativeHooks(MantleController controller)
   /*-{
