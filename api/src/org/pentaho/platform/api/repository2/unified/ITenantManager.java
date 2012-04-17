@@ -46,14 +46,21 @@ public interface ITenantManager {
    * @param tenantName
    * @return a "tenantPath"
    */
-  Serializable createTenant(final Serializable parentTenantId, final String tenantName);
+  Serializable createTenant(final Serializable parentTenantFolderId, final String tenantName);
   
   /**
    * @param parentPath
    * @param tenantNames
    * @return a List of strings each holding a "tenantPath"
    */
-  List<Serializable> createTenants(final Serializable parentTenantId, final List<String> tenantNames);
+  List<Serializable> createTenants(final Serializable parentTenantFolderId, final List<String> tenantNames);
+  
+  /**
+   * @param tenantPath
+   * @param username
+   * @return
+   */
+  Serializable createUserHomeFolder(final String tenantPath, final String username);
   
   // ~ List Tenants ====================================================================
   /**
