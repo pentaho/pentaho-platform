@@ -151,7 +151,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		});
 
 		((Button) saveButton.getManagedObject()).addClickHandler(new ClickHandler() {
-
 			public void onClick(final ClickEvent clickEvent) {
 				setEmailConfig();
 			}
@@ -320,6 +319,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 				public void onClose(XulComponent component, XulDialogCallback.Status status, String value) {
 					if (status == XulDialogCallback.Status.ACCEPT) {
+						actionBar.collapse(1);
 						callback.onSuccess(true);
 					}
 					if (status == XulDialogCallback.Status.CANCEL) {
