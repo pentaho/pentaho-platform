@@ -51,9 +51,10 @@ public class EmailAdminPanel extends SimplePanel {
 	protected ValidationTextBox userNameTextBox;
 	protected ValidationPasswordTextBox passwordTextBox;
 	protected CheckBox debuggingCheckBox;
-	protected ProgressIndicatorWidget saveButton;
+	protected ProgressIndicatorWidget progressIndicator;
 	protected Button editPasswordButton;
 	protected Button testButton;
+	protected Button saveButton;
 	protected VerticalPanel authenticationPanel;
 	protected ActionBar actionBar;
 	protected DockPanel dockPanel;
@@ -76,8 +77,9 @@ public class EmailAdminPanel extends SimplePanel {
 		mainPanel.setWidget(1, 0, hPanel);
 		dockPanel.add(mainPanel, DockPanel.CENTER);
 		dockPanel.setCellWidth(mainPanel, "100%");
-		saveButton = new ProgressIndicatorWidget(new Button(Messages.getString("save")));
-		actionBar.addWidget(saveButton, HorizontalPanel.ALIGN_RIGHT);
+		saveButton = new Button(Messages.getString("save"));
+		progressIndicator = new ProgressIndicatorWidget(saveButton);
+		actionBar.addWidget(progressIndicator, HorizontalPanel.ALIGN_RIGHT);
 		dockPanel.add(actionBar, DockPanel.SOUTH);
 		dockPanel.setCellVerticalAlignment(actionBar, HorizontalPanel.ALIGN_BOTTOM);
 		dockPanel.setCellWidth(actionBar, "100%");
@@ -247,7 +249,7 @@ public class EmailAdminPanel extends SimplePanel {
 		boolean portValid = true;
 		try {
 			Short port = Short.parseShort(portValue);
-			if(port == -1) {
+			if (port == -1) {
 				portValid = false;
 			}
 		} catch (Exception e) {

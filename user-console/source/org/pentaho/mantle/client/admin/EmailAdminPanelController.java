@@ -45,7 +45,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
 
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
@@ -150,7 +149,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			}
 		});
 
-		((Button) saveButton.getManagedObject()).addClickHandler(new ClickHandler() {
+		saveButton.addClickHandler(new ClickHandler() {
 			public void onClick(final ClickEvent clickEvent) {
 				setEmailConfig();
 			}
@@ -195,7 +194,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			authenticationValid = userNameValid && passwordValid;
 		}
 		if (smtpHostValid && portValid && smtpValid && fromAddressValid && authenticationValid) {
-			actionBar.expand(1);
+			if(isDirty) {
+				actionBar.expand(1);
+			}
 			testButton.setEnabled(true);
 		} else {
 			actionBar.collapse(1);
@@ -206,19 +207,19 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	// -- Remote Calls.
 
 	private void setEmailConfig() {
-		saveButton.inProgress(true);
+		progressIndicator.inProgress(true);
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/setEmailConfig";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
 			executableTypesRequestBuilder.setHeader("Content-Type", "application/json");
 			executableTypesRequestBuilder.sendRequest(emailConfig.getJSONString(), new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
-					saveButton.inProgress(false);
+					progressIndicator.inProgress(false);
 				}
 
 				public void onResponseReceived(Request request, Response response) {
 					actionBar.collapse(500);
-					saveButton.inProgress(false);
+					progressIndicator.inProgress(false);
 					isDirty = false;
 				}
 			});
@@ -293,6 +294,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 							}
 						}
 					}
+					validate();
 				}
 			});
 		} catch (RequestException e) {
