@@ -128,7 +128,7 @@ public class EmailService {
    * @param emailConfig the email configuration to test
    * @throws Exception indicates an error running the test (as in an invalid configuration)
    */
-  public void sendEmailTest(final EmailConfiguration emailConfig) throws Exception {
+  public String sendEmailTest(final EmailConfiguration emailConfig) throws Exception {
     final Properties emailProperties = new Properties();
     emailProperties.setProperty("mail.smtp.host", emailConfig.getSmtpHost());
     emailProperties.setProperty("mail.smtp.port", ObjectUtils.toString(emailConfig.getSmtpPort()));
@@ -151,18 +151,22 @@ public class EmailService {
       session = Session.getInstance(emailProperties);
     }
 
+    String sendEmailMessage = "";
     try {
       MimeMessage msg = new MimeMessage(session);
       msg.setFrom(new InternetAddress(emailConfig.getDefaultFrom()));
       msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailConfig.getDefaultFrom()));
-      msg.setSubject(messages.getString("EmailService.SUBJECT"));
-      msg.setText(messages.getString("EmailService.MESSAGE"));
+      msg.setSubject(org.pentaho.platform.config.i18n.Messages.getString("EmailService.SUBJECT"));
+      msg.setText(org.pentaho.platform.config.i18n.Messages.getString("EmailService.MESSAGE"));
       msg.setHeader("X-Mailer", "smtpsend");
       msg.setSentDate(new Date());
       Transport.send(msg);
+      sendEmailMessage = "EmailTester.SUCESS";
     } catch (Exception e) {
       logger.error(messages.getString("EmailService.NOT_CONFIGURED"), e);
+      sendEmailMessage = "EmailTester.FAIL";
     }
+    return sendEmailMessage;
   }
 
   /**

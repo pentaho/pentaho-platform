@@ -25,7 +25,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,71 +33,69 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailService;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.WILDCARD;
-
 @Path("/emailconfig/")
 public class EmailResource extends AbstractJaxRSResource {
 
-  /**
-   * The logger for this class
-   */
-  private static final Log logger = LogFactory.getLog(EmailResource.class);
+	/**
+	 * The logger for this class
+	 */
+	private static final Log logger = LogFactory.getLog(EmailResource.class);
 
-  private EmailService emailService = null;
+	private EmailService emailService = null;
 
-  /**
-   * Constructs an instance of this class using the default email service
-   *
-   * @throws IllegalArgumentException Indicates that the default location for the email configuration file is invalid
-   */
-  public EmailResource() throws IllegalArgumentException {
-    this(new EmailService());
-  }
+	/**
+	 * Constructs an instance of this class using the default email service
+	 * 
+	 * @throws IllegalArgumentException
+	 *             Indicates that the default location for the email
+	 *             configuration file is invalid
+	 */
+	public EmailResource() throws IllegalArgumentException {
+		this(new EmailService());
+	}
 
-  /**
-   * Constructs an instance of this class using the default email service
-   *
-   * @throws IllegalArgumentException Indicates that the default location for the email configuration file is invalid
-   */
-  public EmailResource(final EmailService emailService) throws IllegalArgumentException {
-    if (emailService == null) {
-      throw new IllegalArgumentException();
-    }
-    this.emailService = emailService;
-  }
+	/**
+	 * Constructs an instance of this class using the default email service
+	 * 
+	 * @throws IllegalArgumentException
+	 *             Indicates that the default location for the email
+	 *             configuration file is invalid
+	 */
+	public EmailResource(final EmailService emailService) throws IllegalArgumentException {
+		if (emailService == null) {
+			throw new IllegalArgumentException();
+		}
+		this.emailService = emailService;
+	}
 
-  @PUT
-  @Path("/setEmailConfig")
-  @Consumes({WILDCARD})
-  public Response setEmailConfig(@QueryParam("configuration") EmailConfiguration emailConfiguration) {
-    try {
-      emailService.setEmailConfig(emailConfiguration);
-    } catch (Exception e) {
-      return Response.serverError().build();
-    }
-    return Response.ok().build();
-  }
+	@PUT
+	@Path("/setEmailConfig")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	public Response setEmailConfig(EmailConfiguration emailConfiguration) {
+		try {
+			emailService.setEmailConfig(emailConfiguration);
+		} catch (Exception e) {
+			return Response.serverError().build();
+		}
+		return Response.ok().build();
+	}
 
-  @GET
-  @Path("/getEmailConfig")
-  @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public EmailConfiguration getEmailConfig() {
-    try {
-      return emailService.getEmailConfig();
-    } catch (Exception e) {
-      return new EmailConfiguration();
-    }
-  }
+	@GET
+	@Path("/getEmailConfig")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public EmailConfiguration getEmailConfig() {
+		try {
+			return emailService.getEmailConfig();
+		} catch (Exception e) {
+			return new EmailConfiguration();
+		}
+	}
 
-  @GET
-  @Path("/sendEmailTest")
-  @Consumes({WILDCARD})
-  @Produces({MediaType.TEXT_PLAIN})
-  public Response sendEmailTest(@QueryParam("configuration") EmailConfiguration emailConfiguration)
-      throws Exception {
-    emailService.sendEmailTest(emailConfiguration);
-    return Response.ok().build();
-  }
+	@PUT
+	@Path("/sendEmailTest")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.TEXT_PLAIN })
+	public String sendEmailTest(EmailConfiguration emailConfiguration) throws Exception {
+		return emailService.sendEmailTest(emailConfiguration);
+	}
 }
