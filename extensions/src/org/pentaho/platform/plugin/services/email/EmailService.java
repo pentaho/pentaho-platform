@@ -34,7 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.action.messages.Messages;
+import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 /**
@@ -156,8 +156,8 @@ public class EmailService {
       MimeMessage msg = new MimeMessage(session);
       msg.setFrom(new InternetAddress(emailConfig.getDefaultFrom()));
       msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailConfig.getDefaultFrom()));
-      msg.setSubject(org.pentaho.platform.config.i18n.Messages.getString("EmailService.SUBJECT"));
-      msg.setText(org.pentaho.platform.config.i18n.Messages.getString("EmailService.MESSAGE"));
+      msg.setSubject(messages.getString("EmailService.SUBJECT"));
+      msg.setText(messages.getString("EmailService.MESSAGE"));
       msg.setHeader("X-Mailer", "smtpsend");
       msg.setSentDate(new Date());
       Transport.send(msg);
