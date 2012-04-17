@@ -13,7 +13,6 @@
 
     <!-- Pentaho -->
     <dependency org="pentaho" name="pentaho-platform-extensions" rev="${project.revision}" changing="true"/>
-    <dependency org="pentaho" name="pentaho-user-console" rev="${project.revision}" changing="true" />
     
     <!-- Pentaho Commons  -->
     <dependency org="pentaho" name="pentaho-database-model"     rev="${dependency.pentaho-database-model}"               changing="true" transitive="false"/>

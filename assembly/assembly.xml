@@ -94,7 +94,7 @@
           target: assemble-no-plugins                      
          ================================= -->
   <target name="assemble-no-plugins"
-          depends="check-blacklist,validate-user-console-svn-revisions,assemble-tomcat,assemble-third-party,assemble-pentaho-webapp,install-resources,install-solutions,update-solutions">
+          depends="check-blacklist,assemble-tomcat,assemble-third-party,assemble-pentaho-webapp,install-resources,install-solutions,update-solutions">
     <chmod perm="a+x" dir="${stage.dir}" includes="**/*.sh" />
   </target>
 
@@ -445,45 +445,6 @@
            basedir="${dist.dir}/bi-server-ce-${project.revision}-all-sources"
            compression="gzip" />
       <delete dir="${dist.dir}/bi-server-ce-${project.revision}-all-sources" />
-    </sequential>
-  </target>
-
-  <target name="validate-user-console-svn-revisions" unless="suppress-svn-validation" depends="install-antcontrib">
-    <sequential>
-      <mkdir dir="${user-console.tmp.dir}/user-console" />
-      <mkdir dir="${user-console.tmp.dir}/user-console-pkg" />
-
-      <property name="user-console.rev" value="${project.revision}.${build.id}" />
-      <property name="user-console.pkg.rev" value="${project.revision}.${build.id}" />
-
-      <unjar src="${lib.dir}/pentaho-user-console-${project.revision}.jar" dest="${user-console.tmp.dir}/user-console" />
-      <unzip src="${lib.dir}/pentaho-user-console-package-${project.revision}.zip" dest="${user-console.tmp.dir}/user-console-pkg" />
-
-      <loadfile property="user-console.rev" srcFile="${user-console.tmp.dir}/user-console/META-INF/MANIFEST.MF">
-        <filterchain>
-          <linecontains>
-            <contains value="Implementation-Version" />
-          </linecontains>
-        </filterchain>
-      </loadfile>
-
-      <loadfile property="user-console.pkg.rev" srcFile="${user-console.tmp.dir}/user-console/META-INF/MANIFEST.MF">
-        <filterchain>
-          <linecontains>
-            <contains value="Implementation-Version" />
-          </linecontains>
-        </filterchain>
-      </loadfile>
-      <if>
-        <equals arg1="${user-console.rev}" arg2="${user-console.pkg.rev}" />
-        <then>
-          <echo message="User-Console SVN revisions in sync" />
-          <delete dir="${user-console.tmp.dir}" />
-        </then>
-        <else>
-          <fail message="User-Console SVN revisions out of sync.  Currently reporting: ${user-console.rev} / ${user-console.pkg.rev}.  Please correct and rebuild. " />
-        </else>
-      </if>
     </sequential>
   </target>
 
