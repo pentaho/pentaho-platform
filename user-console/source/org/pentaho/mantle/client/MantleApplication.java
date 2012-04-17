@@ -148,7 +148,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
       return;
     }
 
-    for (int i=0;i<settings.length();i++) {
+    for (int i = 0; i < settings.length(); i++) {
       JsSetting setting = settings.get(i);
       try {
         if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
@@ -163,27 +163,23 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   }
 
   public void onFetchMantleSettings(final HashMap<String, String> settings) {
-	  
+
     final String startupPerspective = Window.Location.getParameter("startupPerspective");
-	  
+
     mantleRevisionOverride = settings.get("user-console-revision");
-    if ("true".equals(settings.get("show-menu-bar"))) {
-      RootPanel.get("pucMenuBar").add(MantleXul.getInstance().getMenubar());
-   	  if (!StringUtils.isEmpty(startupPerspective)) {
-   	      RootPanel.get("pucMenuBar").setVisible(false);
-   	  }
+    RootPanel.get("pucMenuBar").add(MantleXul.getInstance().getMenubar());
+    if (!StringUtils.isEmpty(startupPerspective)) {
+      RootPanel.get("pucMenuBar").setVisible(false);
     }
 
-	RootPanel.get("pucPerspectives").add(PerspectiveManager.getInstance());
-	if (!StringUtils.isEmpty(startupPerspective)) {
-	  RootPanel.get("pucPerspectives").setVisible(false);
-	}
+    RootPanel.get("pucPerspectives").add(PerspectiveManager.getInstance());
+    if (!StringUtils.isEmpty(startupPerspective)) {
+      RootPanel.get("pucPerspectives").setVisible(false);
+    }
 
-    if ("true".equals(settings.get("show-main-toolbar"))) {
-      RootPanel.get("pucToolBar").add(MantleXul.getInstance().getToolbar());
-   	  if (!StringUtils.isEmpty(startupPerspective)) {
-   	      RootPanel.get("pucToolBar").setVisible(false);
-   	  }
+    RootPanel.get("pucToolBar").add(MantleXul.getInstance().getToolbar());
+    if (!StringUtils.isEmpty(startupPerspective)) {
+      RootPanel.get("pucToolBar").setVisible(false);
     }
 
     // update supported file types
@@ -194,7 +190,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     contentDeck.showWidget(0);
     contentDeck.add(SolutionBrowserPanel.getInstance());
     if (!StringUtils.isEmpty(startupPerspective)) {
-    	SolutionBrowserPanel.getInstance().setVisible(false);
+      SolutionBrowserPanel.getInstance().setVisible(false);
     }
 
     contentDeck.setStyleName("applicationShell");
@@ -207,7 +203,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     }
 
     RootPanel.get().add(WaitPopup.getInstance());
-    
+
     // Add in the overlay panel
     overlayPanel.setVisible(false);
     overlayPanel.setHeight("100%");
@@ -216,10 +212,11 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     overlayPanel.getElement().getStyle().setProperty("position", "absolute");
     RootPanel.get().add(overlayPanel, 0, 0);
 
-    showAdvancedFeatures = "true".equals(settings.get("show-advanced-features")); //$NON-NLS-1$ //$NON-NLS-2$
+    String showAdvancedFeaturesSetting = settings.get("show-advanced-features"); //$NON-NLS-1$ 
+    showAdvancedFeatures = showAdvancedFeaturesSetting == null ? showAdvancedFeatures : Boolean.parseBoolean(showAdvancedFeaturesSetting);
 
     String submitOnEnterSetting = settings.get("submit-on-enter-key");
-    submitOnEnter = submitOnEnterSetting == null ? true : Boolean.parseBoolean(submitOnEnterSetting);
+    submitOnEnter = submitOnEnterSetting == null ? submitOnEnter : Boolean.parseBoolean(submitOnEnterSetting);
 
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
@@ -241,19 +238,22 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
         SolutionBrowserPanel.getInstance().setAdministrator(isAdministrator);
         // menuBar.buildMenuBar(settings, isAdministrator);
 
-        int numStartupURLs = Integer.parseInt(settings.get("num-startup-urls")); //$NON-NLS-1$
-        for (int i = 0; i < numStartupURLs; i++) {
-          String url = settings.get("startup-url-" + (i + 1)); //$NON-NLS-1$
-          String name = settings.get("startup-name-" + (i + 1)); //$NON-NLS-1$
-          if (url != null && !"".equals(url)) { //$NON-NLS-1$
-            SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(name != null ? name : url, url, url, false);
+        String numStartupURLsSetting = settings.get("num-startup-urls");
+        if (numStartupURLsSetting != null) {
+          int numStartupURLs = Integer.parseInt(numStartupURLsSetting); //$NON-NLS-1$
+          for (int i = 0; i < numStartupURLs; i++) {
+            String url = settings.get("startup-url-" + (i + 1)); //$NON-NLS-1$
+            String name = settings.get("startup-name-" + (i + 1)); //$NON-NLS-1$
+            if (url != null && !"".equals(url)) { //$NON-NLS-1$
+              SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(name != null ? name : url, url, url, false);
+            }
           }
         }
         if (SolutionBrowserPanel.getInstance().getContentTabPanel().getWidgetCount() > 0) {
           SolutionBrowserPanel.getInstance().getContentTabPanel().selectTab(0);
         }
 
-        // startup-url on the URL for the app, wins over user-settings
+        // startup-url on the URL for the app, wins over settings
         String startupURL = Window.Location.getParameter("startup-url"); //$NON-NLS-1$
         if (startupURL != null && !"".equals(startupURL)) { //$NON-NLS-1$
           String title = Window.Location.getParameter("name"); //$NON-NLS-1$
@@ -262,24 +262,23 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
         }
       }
     });
-    
+
     try {
       builder.send();
     } catch (RequestException e) {
       MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
       dialogBox.center();
     }
-    
-  
-	if (!StringUtils.isEmpty(startupPerspective)) {
+
+    if (!StringUtils.isEmpty(startupPerspective)) {
       ICallback<Void> callback = new ICallback<Void>() {
-    	public void onHandle(Void nothing) {
-   	      PerspectiveManager.getInstance().setPerspective(startupPerspective);
-    	}
+        public void onHandle(Void nothing) {
+          PerspectiveManager.getInstance().setPerspective(startupPerspective);
+        }
       };
       PerspectiveManager.getInstance().addPerspectivesLoadedCallback(callback);
-	}
-	
+    }
+
   }
 
   public DeckPanel getContentDeck() {

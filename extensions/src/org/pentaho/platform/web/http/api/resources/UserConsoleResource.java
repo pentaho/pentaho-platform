@@ -33,6 +33,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -49,6 +51,8 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 
 @Path("/mantle/")
 public class UserConsoleResource extends AbstractJaxRSResource {
+
+  private static final Log logger = LogFactory.getLog(UserConsoleResource.class);
 
   protected IAuthorizationPolicy policy;
 
@@ -94,57 +98,57 @@ public class UserConsoleResource extends AbstractJaxRSResource {
         String value = (String) props.getProperty(key);
         settings.add(new Setting(key, value));
       }
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+    }
 
-      settings.add(new Setting("login-show-users-list", PentahoSystem.getSystemSetting("login-show-users-list", ""))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      settings.add(new Setting("documentation-url", PentahoSystem.getSystemSetting("documentation-url", ""))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    settings.add(new Setting("login-show-users-list", PentahoSystem.getSystemSetting("login-show-users-list", ""))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    settings.add(new Setting("documentation-url", PentahoSystem.getSystemSetting("documentation-url", ""))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-      // Check for override of New Analysis View via pentaho.xml
-      // Poked in via pentaho.xml entries
-      // <new-analysis-view>
-      // <command-url>http://www.google.com</command-url>
-      // <command-title>Marc Analysis View</command-title>
-      // </new-analysis-view>
-      // <new-report>
-      // <command-url>http://www.yahoo.com</command-url>
-      // <command-title>Marc New Report</command-title>
-      // </new-report>
-      //
-      String overrideNewAnalysisViewCommmand = PentahoSystem.getSystemSetting("new-analysis-view/command-url", null); //$NON-NLS-1$
-      String overrideNewAnalysisViewTitle = PentahoSystem.getSystemSetting("new-analysis-view/command-title", null); //$NON-NLS-1$
-      if ((overrideNewAnalysisViewCommmand != null) && (overrideNewAnalysisViewTitle != null)) {
-        settings.add(new Setting("new-analysis-view-command-url", overrideNewAnalysisViewCommmand)); //$NON-NLS-1$
-        settings.add(new Setting("new-analysis-view-command-title", overrideNewAnalysisViewTitle)); //$NON-NLS-1$
-      }
-      String overrideNewReportCommmand = PentahoSystem.getSystemSetting("new-report/command-url", null); //$NON-NLS-1$
-      String overrideNewReportTitle = PentahoSystem.getSystemSetting("new-report/command-title", null); //$NON-NLS-1$
-      if ((overrideNewReportCommmand != null) && (overrideNewReportTitle != null)) {
-        settings.add(new Setting("new-report-command-url", overrideNewReportCommmand)); //$NON-NLS-1$
-        settings.add(new Setting("new-report-command-title", overrideNewReportTitle)); //$NON-NLS-1$
-      }
+    // Check for override of New Analysis View via pentaho.xml
+    // Poked in via pentaho.xml entries
+    // <new-analysis-view>
+    // <command-url>http://www.google.com</command-url>
+    // <command-title>Marc Analysis View</command-title>
+    // </new-analysis-view>
+    // <new-report>
+    // <command-url>http://www.yahoo.com</command-url>
+    // <command-title>Marc New Report</command-title>
+    // </new-report>
+    //
+    String overrideNewAnalysisViewCommmand = PentahoSystem.getSystemSetting("new-analysis-view/command-url", null); //$NON-NLS-1$
+    String overrideNewAnalysisViewTitle = PentahoSystem.getSystemSetting("new-analysis-view/command-title", null); //$NON-NLS-1$
+    if ((overrideNewAnalysisViewCommmand != null) && (overrideNewAnalysisViewTitle != null)) {
+      settings.add(new Setting("new-analysis-view-command-url", overrideNewAnalysisViewCommmand)); //$NON-NLS-1$
+      settings.add(new Setting("new-analysis-view-command-title", overrideNewAnalysisViewTitle)); //$NON-NLS-1$
+    }
+    String overrideNewReportCommmand = PentahoSystem.getSystemSetting("new-report/command-url", null); //$NON-NLS-1$
+    String overrideNewReportTitle = PentahoSystem.getSystemSetting("new-report/command-title", null); //$NON-NLS-1$
+    if ((overrideNewReportCommmand != null) && (overrideNewReportTitle != null)) {
+      settings.add(new Setting("new-report-command-url", overrideNewReportCommmand)); //$NON-NLS-1$
+      settings.add(new Setting("new-report-command-title", overrideNewReportTitle)); //$NON-NLS-1$
+    }
 
-      IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getPentahoSession()); //$NON-NLS-1$
-      if (pluginManager != null) {
-        // load content types from IPluginSettings
-        int i = 0;
-        for (String contentType : pluginManager.getContentTypes()) {
-          IContentInfo info = pluginManager.getContentTypeInfo(contentType);
-          if (info != null) {
-            settings.add(new Setting("plugin-content-type-" + i, "." + contentType)); //$NON-NLS-1$ //$NON-NLS-2$
-            settings.add(new Setting("plugin-content-type-icon-" + i, info.getIconUrl())); //$NON-NLS-1$
-            int j = 0;
-            for (IPluginOperation operation : info.getOperations()) {
-              settings.add(new Setting("plugin-content-type-" + i + "-command-" + j, operation.getId())); //$NON-NLS-1$
-              settings.add(new Setting("plugin-content-type-" + i + "-command-perspective-" + j, operation.getPerspective())); //$NON-NLS-1$
-              j++;
-            }
-            i++;
+    IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getPentahoSession()); //$NON-NLS-1$
+    if (pluginManager != null) {
+      // load content types from IPluginSettings
+      int i = 0;
+      for (String contentType : pluginManager.getContentTypes()) {
+        IContentInfo info = pluginManager.getContentTypeInfo(contentType);
+        if (info != null) {
+          settings.add(new Setting("plugin-content-type-" + i, "." + contentType)); //$NON-NLS-1$ //$NON-NLS-2$
+          settings.add(new Setting("plugin-content-type-icon-" + i, info.getIconUrl())); //$NON-NLS-1$
+          int j = 0;
+          for (IPluginOperation operation : info.getOperations()) {
+            settings.add(new Setting("plugin-content-type-" + i + "-command-" + j, operation.getId())); //$NON-NLS-1$
+            settings.add(new Setting("plugin-content-type-" + i + "-command-perspective-" + j, operation.getPerspective())); //$NON-NLS-1$
+            j++;
           }
+          i++;
         }
       }
-
-    } catch (Exception e) {
-      e.printStackTrace();
     }
+
     return settings;
   }
 
@@ -174,7 +178,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
       LocaleHelper.setLocaleOverride(new Locale(locale));
     } else {
       LocaleHelper.setLocaleOverride(null);
-    }    
+    }
     return getLocale();
   }
 
@@ -183,5 +187,5 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   public Response getLocale() {
     return Response.ok(LocaleHelper.getLocale().toString()).build();
   }
-  
+
 }
