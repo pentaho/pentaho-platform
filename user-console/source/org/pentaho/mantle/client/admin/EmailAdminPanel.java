@@ -57,9 +57,10 @@ public class EmailAdminPanel extends SimplePanel {
 	protected VerticalPanel authenticationPanel;
 	protected ActionBar actionBar;
 	protected DockPanel dockPanel;
+
 	public EmailAdminPanel() {
-	  dockPanel = new DockPanel();
-	  actionBar = new ActionBar();
+		dockPanel = new DockPanel();
+		actionBar = new ActionBar();
 		FlexTable mainPanel = new FlexTable();
 		HorizontalPanel hPanel = new HorizontalPanel();
 		SimplePanel hSpacer = new SimplePanel();
@@ -76,16 +77,16 @@ public class EmailAdminPanel extends SimplePanel {
 		dockPanel.add(mainPanel, DockPanel.CENTER);
 		dockPanel.setCellWidth(mainPanel, "100%");
 		saveButton = new ProgressIndicatorWidget(new Button(Messages.getString("save")));
-    actionBar.addWidget(saveButton, HorizontalPanel.ALIGN_RIGHT);
-    dockPanel.add(actionBar, DockPanel.SOUTH);
-    dockPanel.setCellVerticalAlignment(actionBar, HorizontalPanel.ALIGN_BOTTOM);
-    dockPanel.setCellWidth(actionBar, "100%");
-    dockPanel.setCellHeight(actionBar, "100%");
+		actionBar.addWidget(saveButton, HorizontalPanel.ALIGN_RIGHT);
+		dockPanel.add(actionBar, DockPanel.SOUTH);
+		dockPanel.setCellVerticalAlignment(actionBar, HorizontalPanel.ALIGN_BOTTOM);
+		dockPanel.setCellWidth(actionBar, "100%");
+		dockPanel.setCellHeight(actionBar, "100%");
 		setWidget(dockPanel);
 		dockPanel.setHeight("100%");
 		dockPanel.setWidth("100%");
-    this.setWidth("100%");
-    this.setHeight("100%");
+		this.setWidth("100%");
+		this.setHeight("100%");
 		actionBar.collapse(1);
 	}
 
@@ -191,11 +192,11 @@ public class EmailAdminPanel extends SimplePanel {
 		hPanel = new HorizontalPanel();
 		passwordTextBox = new ValidationPasswordTextBox() {
 
-      @Override
-      public boolean validate() {
-        return !StringUtils.isEmpty(passwordTextBox.getText());
-      }
-		  
+			@Override
+			public boolean validate() {
+				return !StringUtils.isEmpty(passwordTextBox.getText());
+			}
+
 		};
 		passwordTextBox.setValidationMessage(Messages.getString("passwordValidationMessage"));
 		passwordTextBox.setWidth("319px");
@@ -213,21 +214,21 @@ public class EmailAdminPanel extends SimplePanel {
 
 		debuggingCheckBox = new CheckBox(Messages.getString("enableDebugging"));
 		mailPanel.add(debuggingCheckBox);
-		
-    vSpacer = new SimplePanel();
-    vSpacer.setHeight("20px");
-    mailPanel.add(vSpacer);
 
-    HorizontalPanel buttonsPanel = new HorizontalPanel();
-    mailPanel.add(buttonsPanel);
+		vSpacer = new SimplePanel();
+		vSpacer.setHeight("20px");
+		mailPanel.add(vSpacer);
 
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("339px");
-    buttonsPanel.add(hSpacer);
+		HorizontalPanel buttonsPanel = new HorizontalPanel();
+		mailPanel.add(buttonsPanel);
 
-    testButton = new Button(Messages.getString("test"));
-    testButton.setStylePrimaryName("pentaho-button");
-    buttonsPanel.add(testButton);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("339px");
+		buttonsPanel.add(hSpacer);
+
+		testButton = new Button(Messages.getString("test"));
+		testButton.setStylePrimaryName("pentaho-button");
+		buttonsPanel.add(testButton);
 
 		return mailPanel;
 	}
@@ -242,11 +243,14 @@ public class EmailAdminPanel extends SimplePanel {
 		return isValid;
 	}
 
-	protected boolean isPortValid(String port) {
+	protected boolean isPortValid(String portValue) {
 		boolean portValid = true;
 		try {
-			Integer.parseInt(port);
-		} catch (NumberFormatException e) {
+			Short port = Short.parseShort(portValue);
+			if(port == -1) {
+				portValid = false;
+			}
+		} catch (Exception e) {
 			portValid = false;
 		}
 		return portValid;
