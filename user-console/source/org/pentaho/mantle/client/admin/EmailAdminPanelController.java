@@ -190,7 +190,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		boolean fromAddressValid = isValidEmail(emailConfig.getDefaultFrom());
 		boolean portValid = isPortValid(emailConfig.getSmtpPort() + "");
 		boolean authenticationValid = true;
-		if (emailConfig.isAuthenticate()) {
+		if (Boolean.parseBoolean(emailConfig.isAuthenticate() + "")) {
 			boolean userNameValid = !StringUtils.isEmpty(emailConfig.getUserId());
 			boolean passwordValid = !StringUtils.isEmpty(emailConfig.getPassword());
 			authenticationValid = userNameValid && passwordValid;
@@ -211,7 +211,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/setEmailConfig";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
-			executableTypesRequestBuilder.sendRequest(emailConfig.toString(), new RequestCallback() {
+			executableTypesRequestBuilder.setHeader("Content-Type", "application/json");
+			executableTypesRequestBuilder.sendRequest(emailConfig.getJSONString(), new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 					saveButton.inProgress(false);
 				}
@@ -228,9 +229,10 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 	private void testEmail() {
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/sendEmailTest";
-		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, serviceUrl);
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
-			executableTypesRequestBuilder.sendRequest(emailConfig.toString(), new RequestCallback() {
+			executableTypesRequestBuilder.setHeader("Content-Type", "application/json");
+			executableTypesRequestBuilder.sendRequest(emailConfig.getJSONString(), new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
 				}
 
@@ -292,8 +294,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 							}
 						}
 					}
-
-					validate();
 				}
 			});
 		} catch (RequestException e) {
