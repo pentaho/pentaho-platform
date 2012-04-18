@@ -278,10 +278,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 					// If password is non-empty.. disable the text-box
 					String password = emailConfig.getPassword();
-					if (!StringUtils.isEmpty(password)) {
-						passwordTextBox.getManagedObject().setEnabled(false);
-						editPasswordButton.setEnabled(true);
-					}
+					passwordTextBox.getManagedObject().setEnabled(StringUtils.isEmpty(password));
+					editPasswordButton.setEnabled(!StringUtils.isEmpty(password));
 					passwordTextBox.setValue(password);
 
 					String protocol = emailConfig.getSmtpProtocol();
