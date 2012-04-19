@@ -78,6 +78,23 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
   private final String TENANT_ID_APPLE = "apple";
   private final String TENANT_ID_MICROSOFT = "microsoft";
   
+  public static final String SYSTEM_ADMIN ="admin";
+
+  public static final String MAIN_TENANT_1_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant1";
+  public static final String SUB_TENANT1_1_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant1" + RepositoryFile.SEPARATOR + "subtenant11";
+  public static final String SUB_TENANT1_2_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant1" + RepositoryFile.SEPARATOR + "subtenant12";
+  public static final String MAIN_TENANT_2_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant2";
+  public static final String SUB_TENANT2_1_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant2" + RepositoryFile.SEPARATOR + "subtenant21";
+  public static final String SUB_TENANT2_2_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant2" + RepositoryFile.SEPARATOR + "subtenant22";
+
+  
+  public static final String MAIN_TENANT_1 = "maintenant1";
+  public static final String SUB_TENANT1_1 = "subtenant11";
+  public static final String SUB_TENANT1_2 = "subtenant12";
+  public static final String MAIN_TENANT_2 = "maintenant2";
+  public static final String SUB_TENANT2_1 = "subtenant21";
+  public static final String SUB_TENANT2_2 = "subtenant22";
+
   // ~ Instance fields =================================================================================================
 
   private boolean startupCalled;
@@ -282,6 +299,25 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
     for (RepositoryFile aFile : children) {
       assertTrue(!tenantManager.isTenantRoot(aFile.getId()));
     }
+  }
+  
+  @Test
+  public void testIsSubTenant() {
+    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    Serializable subTenant1_1_Id = tenantManager.createTenant(mainTenant_1_Id, SUB_TENANT1_1);
+    Serializable subTenant1_2_Id = tenantManager.createTenant(mainTenant_1_Id, SUB_TENANT1_2);
+    Serializable subTenant2_1_Id = tenantManager.createTenant(mainTenant_2_Id, SUB_TENANT2_1);
+    Serializable subTenant2_2_Id = tenantManager.createTenant(mainTenant_2_Id, SUB_TENANT2_2);
+    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT1_2_PATH));
+    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT1_1_PATH));
+    assertFalse(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT2_1_PATH));
+    assertFalse(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT2_2_PATH));
+    assertFalse(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT1_2_PATH));
+    assertFalse(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT1_1_PATH));
+    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT2_1_PATH));
+    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT2_2_PATH));
   }
   
 //  @Test

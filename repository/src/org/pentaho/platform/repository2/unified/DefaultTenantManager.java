@@ -580,4 +580,55 @@ public class DefaultTenantManager implements ITenantManager {
     }
     
   }
+
+  private Serializable getIdFromPath(final String path) {
+    IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
+    PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
+    Serializable folderId;
+    RepositoryFile folder;
+    try {
+        folderId = (Serializable) jcrTemplate.execute(new JcrCallback() {
+          public Object doInJcr(final Session session) {
+          RepositoryFile folder = repositoryFileDao.getFileByAbsolutePath(path);
+          return folder.getId();
+        }
+      });
+    } finally {
+      PentahoSessionHolder.setSession(origPentahoSession);
+    }
+    return folderId;
+  }
+
+  private boolean isSubTenant(Serializable parentFolderId, Serializable descendantFolderId, List<Serializable> childTenants) {
+    for(Serializable tenantId: childTenants) {
+      if(tenantId.equals(descendantFolderId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean isSubTenant(Serializable parentFolderId, Serializable descendantFolderId) {
+    List<Serializable> childTenants = getChildTenants(parentFolderId);
+    if(childTenants != null && childTenants.size() > 0) {
+      if(isSubTenant(parentFolderId, descendantFolderId, childTenants)) {
+        return true;
+      } else {
+        for(Serializable childTenant: childTenants) {
+          boolean done = isSubTenant(childTenant, descendantFolderId);
+          if(done) {
+            return done;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean isSubTenant(String parentTenantPath, String descendantTenantPath) {
+    Serializable descendantFolderId = getIdFromPath(descendantTenantPath);
+    Serializable parentFolderId = getIdFromPath(parentTenantPath);
+    return isSubTenant(parentFolderId, descendantFolderId);
+  }
 }
