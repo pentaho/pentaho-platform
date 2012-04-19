@@ -508,4 +508,31 @@ public class CacheManager implements ICacheManager {
     }
   }
 
+  @Override
+  public long getElementCountInRegionCache(String region) {
+    if(cacheEnabled) {
+      Cache cache = regionCache.get(region);
+      if(cache != null) {
+        try {
+          return cache.getElementCountInMemory();
+        } catch (Exception ignored) {
+          return -1;
+        }
+      } else {
+        return -1;
+      }
+    } else {
+      return -1;
+    }
+  }
+  
+  @Override
+  public long getElementCountInSessionCache() {
+    return getElementCountInRegionCache(SESSION);
+  }
+
+  @Override
+  public long getElementCountInGlobalCache() {
+    return getElementCountInRegionCache(GLOBAL);
+  }
 }
