@@ -39,338 +39,336 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class UserRolesAdminPanel extends SimplePanel {
 
-  private String moduleBaseURL = GWT.getModuleBaseURL();
-  protected PasswordTextBox userPasswordTextBox;
-  protected TextBox roleNameTextBox;
-  protected TextBox userNameTextBox;
-  protected ListBox rolesListBox;
-  protected ListBox usersListBox;
-  protected ListBox selectedRolesListBox;
-  protected ListBox selectedMembersListBox;
-  protected ListBox availableMembersListBox;
-  protected ListBox availableRolesListBox;
-  protected ImageButton addUserButton;
-  protected ImageButton removeUserButton;
-  protected ImageButton addAllUsersButton;
-  protected ImageButton removeAllUsersButton;
-  protected ImageButton addRoleButton;
-  protected ImageButton removeRoleButton;
-  protected ImageButton addAllRolesButton;
-  protected ImageButton removeAllRolesButton;
-  protected ImageButton newRoleButton;
-  protected ImageButton deleteRoleButton;
-  protected ImageButton newUserButton;
-  protected ImageButton deleteUserButton;
-  protected Button editPasswordButton;
+	private String moduleBaseURL = GWT.getModuleBaseURL();
+	protected PasswordTextBox userPasswordTextBox;
+	protected TextBox roleNameTextBox;
+	protected TextBox userNameTextBox;
+	protected ListBox rolesListBox;
+	protected ListBox usersListBox;
+	protected ListBox selectedRolesListBox;
+	protected ListBox selectedMembersListBox;
+	protected ListBox availableMembersListBox;
+	protected ListBox availableRolesListBox;
+	protected ImageButton addUserButton;
+	protected ImageButton removeUserButton;
+	protected ImageButton addAllUsersButton;
+	protected ImageButton removeAllUsersButton;
+	protected ImageButton addRoleButton;
+	protected ImageButton removeRoleButton;
+	protected ImageButton addAllRolesButton;
+	protected ImageButton removeAllRolesButton;
+	protected ImageButton newRoleButton;
+	protected ImageButton deleteRoleButton;
+	protected ImageButton newUserButton;
+	protected ImageButton deleteUserButton;
+	protected Button editPasswordButton;
 
-  private static UserRolesAdminPanel instance = new UserRolesAdminPanel();
+	private static UserRolesAdminPanel instance = new UserRolesAdminPanel();
 
-  public static UserRolesAdminPanel getInstance() {
-    return instance;
-  }
+	public static UserRolesAdminPanel getInstance() {
+		return instance;
+	}
 
-  protected UserRolesAdminPanel() {
-    FlexTable mainPanel = new FlexTable();
-    HorizontalPanel hPanel = new HorizontalPanel();
-    SimplePanel hSpacer = new SimplePanel();
-    hSpacer.setWidth("10px");
-    hPanel.add(hSpacer);
-    hPanel.add(new Label(Messages.getString("users") + " / " + Messages.getString("roles")));
-    mainPanel.setWidget(0, 0, hPanel);
+	protected UserRolesAdminPanel() {
+		FlexTable mainPanel = new FlexTable();
+		HorizontalPanel hPanel = new HorizontalPanel();
+		SimplePanel hSpacer = new SimplePanel();
+		hSpacer.setWidth("10px");
+		hPanel.add(hSpacer);
+		hPanel.add(new Label(Messages.getString("users") + " / " + Messages.getString("roles")));
+		mainPanel.setWidget(0, 0, hPanel);
 
-    hPanel = new HorizontalPanel();
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("10px");
-    hPanel.add(hSpacer);
-    PentahoTabPanel mainTabPanel = new PentahoTabPanel();
-    mainTabPanel.setWidth("715px");
-    mainTabPanel.setHeight("515px");
-    mainTabPanel.addTab(Messages.getString("users"), "", false, createUsersPanel());
-    mainTabPanel.addTab(Messages.getString("roles"), "", false, createRolesPanel());
-    hPanel.add(mainTabPanel);
-    mainPanel.setWidget(1, 0, hPanel);
-    setWidget(mainPanel);
-  }
+		hPanel = new HorizontalPanel();
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("10px");
+		hPanel.add(hSpacer);
+		PentahoTabPanel mainTabPanel = new PentahoTabPanel();
+		mainTabPanel.setWidth("715px");
+		mainTabPanel.setHeight("515px");
+		mainTabPanel.addTab(Messages.getString("users"), "", false, createUsersPanel());
+		mainTabPanel.addTab(Messages.getString("roles"), "", false, createRolesPanel());
+		hPanel.add(mainTabPanel);
+		mainPanel.setWidget(1, 0, hPanel);
+		setWidget(mainPanel);
+	}
 
-  private Widget createUsersPanel() {
+	private Widget createUsersPanel() {
 
-    HorizontalPanel mainPanel = new HorizontalPanel();
-    SimplePanel hSpacer = new SimplePanel();
-    hSpacer.setWidth("15px");
-    mainPanel.add(hSpacer);
+		HorizontalPanel mainPanel = new HorizontalPanel();
+		SimplePanel hSpacer = new SimplePanel();
+		hSpacer.setWidth("15px");
+		mainPanel.add(hSpacer);
 
-    VerticalPanel availablePanel = new VerticalPanel();
-    mainPanel.add(availablePanel);
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("15px");
-    availablePanel.add(hSpacer);
+		VerticalPanel availablePanel = new VerticalPanel();
+		mainPanel.add(availablePanel);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("15px");
+		availablePanel.add(hSpacer);
 
-    HorizontalPanel labelAndButtonsPanel = new HorizontalPanel();
-    availablePanel.add(labelAndButtonsPanel);
-    labelAndButtonsPanel.add(new Label(Messages.getString("available") + ":"));
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("103px");
-    labelAndButtonsPanel.add(hSpacer);
-    newUserButton = new ImageButton(moduleBaseURL + "images/add_icon.png", "", "");
-    labelAndButtonsPanel.add(newUserButton);
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("7px");
-    labelAndButtonsPanel.add(hSpacer);
-    deleteUserButton = new ImageButton(moduleBaseURL + "images/remove_icon.png", "", "");
-    labelAndButtonsPanel.add(deleteUserButton);
+		HorizontalPanel labelAndButtonsPanel = new HorizontalPanel();
+		availablePanel.add(labelAndButtonsPanel);
+		labelAndButtonsPanel.add(new Label(Messages.getString("available") + ":"));
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("103px");
+		labelAndButtonsPanel.add(hSpacer);
+		newUserButton = new ImageButton(moduleBaseURL + "images/add_icon.png", "", "", 15, 15);
+		labelAndButtonsPanel.add(newUserButton);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("7px");
+		labelAndButtonsPanel.add(hSpacer);
+		deleteUserButton = new ImageButton(moduleBaseURL + "images/remove_icon.png", "", "", 16, 16);
+		labelAndButtonsPanel.add(deleteUserButton);
 
-    usersListBox = new ListBox(true);
-    availablePanel.add(usersListBox);
-    usersListBox.setVisibleItemCount(20);
-    usersListBox.setWidth("200px");
-    usersListBox.setHeight("432px");
+		usersListBox = new ListBox(true);
+		availablePanel.add(usersListBox);
+		usersListBox.setVisibleItemCount(20);
+		usersListBox.setWidth("200px");
+		usersListBox.setHeight("432px");
 
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("15px");
-    mainPanel.add(hSpacer);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("15px");
+		mainPanel.add(hSpacer);
 
-    VerticalPanel detailsPanel = new VerticalPanel();
-    mainPanel.add(detailsPanel);
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("32px");
-    detailsPanel.add(hSpacer);
+		VerticalPanel detailsPanel = new VerticalPanel();
+		mainPanel.add(detailsPanel);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("32px");
+		detailsPanel.add(hSpacer);
 
-    detailsPanel.add(new Label(Messages.getString("userName") + ":"));
+		detailsPanel.add(new Label(Messages.getString("userName") + ":"));
 
-    HorizontalPanel namePanel = new HorizontalPanel();
-    userNameTextBox = new TextBox();
-    userNameTextBox.setWidth("250px");
-    userNameTextBox.setEnabled(false);
-    namePanel.add(userNameTextBox);
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("10px");
-    namePanel.add(hSpacer);
+		HorizontalPanel namePanel = new HorizontalPanel();
+		userNameTextBox = new TextBox();
+		userNameTextBox.setWidth("250px");
+		userNameTextBox.setEnabled(false);
+		namePanel.add(userNameTextBox);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("10px");
+		namePanel.add(hSpacer);
 
-    Label msgLabel = new Label(Messages.getString("userNameNonEditLabel"));
-    msgLabel.setStyleName("msg-Label");
-    namePanel.add(msgLabel);
-    detailsPanel.add(namePanel);
+		Label msgLabel = new Label(Messages.getString("userNameNonEditLabel"));
+		msgLabel.setStyleName("msg-Label");
+		namePanel.add(msgLabel);
+		detailsPanel.add(namePanel);
 
-    detailsPanel.add(new Label(Messages.getString("password") + ":"));
+		detailsPanel.add(new Label(Messages.getString("password") + ":"));
 
-    userPasswordTextBox = new PasswordTextBox();
-    userPasswordTextBox.setEnabled(false);
-    userPasswordTextBox.setWidth("200px");
-    HorizontalPanel passwordPanel = new HorizontalPanel();
-    passwordPanel.add(userPasswordTextBox);
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("10px");
-    passwordPanel.add(hSpacer);
-    editPasswordButton = new Button(Messages.getString("edit") + "...");
-    editPasswordButton.setStylePrimaryName("pentaho-button");
-    editPasswordButton.setEnabled(false);
-    passwordPanel.add(editPasswordButton);
-    detailsPanel.add(passwordPanel);
+		userPasswordTextBox = new PasswordTextBox();
+		userPasswordTextBox.setEnabled(false);
+		userPasswordTextBox.setWidth("200px");
+		HorizontalPanel passwordPanel = new HorizontalPanel();
+		passwordPanel.add(userPasswordTextBox);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("10px");
+		passwordPanel.add(hSpacer);
+		editPasswordButton = new Button(Messages.getString("edit") + "...");
+		editPasswordButton.setStylePrimaryName("pentaho-button");
+		editPasswordButton.setEnabled(false);
+		passwordPanel.add(editPasswordButton);
+		detailsPanel.add(passwordPanel);
 
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("15px");
-    detailsPanel.add(hSpacer);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("15px");
+		detailsPanel.add(hSpacer);
 
-    HorizontalPanel roleLabelPanel = new HorizontalPanel();
-    roleLabelPanel.add(new Label(Messages.getString("role")));
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("5px");
-    roleLabelPanel.add(hSpacer);
-    roleLabelPanel.add(new HTML(
-        "<div class='gwt-HTML' style='height:10px;padding-top:4px;'><hr style='width:412px;height:1px;background-color:#000;border:0px solid #F00'/></div>"));
-    detailsPanel.add(roleLabelPanel);
+		HorizontalPanel roleLabelPanel = new HorizontalPanel();
+		roleLabelPanel.add(new Label(Messages.getString("role")));
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("5px");
+		roleLabelPanel.add(hSpacer);
+		roleLabelPanel.add(new HTML("<div class='gwt-HTML' style='height:10px;padding-top:4px;'><hr style='width:412px;height:1px;background-color:#000;border:0px solid #F00'/></div>"));
+		detailsPanel.add(roleLabelPanel);
 
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("15px");
-    detailsPanel.add(hSpacer);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("15px");
+		detailsPanel.add(hSpacer);
 
-    HorizontalPanel groupsPanel = new HorizontalPanel();
-    detailsPanel.add(groupsPanel);
+		HorizontalPanel groupsPanel = new HorizontalPanel();
+		detailsPanel.add(groupsPanel);
 
-    VerticalPanel availableRolesPanel = new VerticalPanel();
-    groupsPanel.add(availableRolesPanel);
-    availableRolesPanel.add(new Label(Messages.getString("available") + ":"));
-    availableRolesListBox = new ListBox(true);
-    availableRolesPanel.add(availableRolesListBox);
-    availableRolesListBox.setVisibleItemCount(20);
-    availableRolesListBox.setWidth("200px");
-    availableRolesListBox.setHeight("281px");
+		VerticalPanel availableRolesPanel = new VerticalPanel();
+		groupsPanel.add(availableRolesPanel);
+		availableRolesPanel.add(new Label(Messages.getString("available") + ":"));
+		availableRolesListBox = new ListBox(true);
+		availableRolesPanel.add(availableRolesListBox);
+		availableRolesListBox.setVisibleItemCount(20);
+		availableRolesListBox.setWidth("200px");
+		availableRolesListBox.setHeight("281px");
 
-    VerticalPanel vSpacer = new VerticalPanel();
-    vSpacer.setWidth("15px");
-    groupsPanel.add(vSpacer);
+		VerticalPanel vSpacer = new VerticalPanel();
+		vSpacer.setWidth("15px");
+		groupsPanel.add(vSpacer);
 
-    VerticalPanel arrowsPanel = new VerticalPanel();
-    groupsPanel.add(arrowsPanel);
-    arrowsPanel.setWidth("35px");
+		VerticalPanel arrowsPanel = new VerticalPanel();
+		groupsPanel.add(arrowsPanel);
+		arrowsPanel.setWidth("35px");
 
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("110px");
-    arrowsPanel.add(hSpacer);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("110px");
+		arrowsPanel.add(hSpacer);
 
-    addRoleButton = new ImageButton(moduleBaseURL + "images/accum_add.png", "", "");
-    arrowsPanel.add(addRoleButton);
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("10px");
-    arrowsPanel.add(hSpacer);
+		addRoleButton = new ImageButton(moduleBaseURL + "images/accum_add.png", "", "", 14, 13);
+		arrowsPanel.add(addRoleButton);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("10px");
+		arrowsPanel.add(hSpacer);
 
-    removeRoleButton = new ImageButton(moduleBaseURL + "images/accum_remove.png", "", "");
-    arrowsPanel.add(removeRoleButton);
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("30px");
-    arrowsPanel.add(hSpacer);
+		removeRoleButton = new ImageButton(moduleBaseURL + "images/accum_remove.png", "", "", 14, 13);
+		arrowsPanel.add(removeRoleButton);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("30px");
+		arrowsPanel.add(hSpacer);
 
-    addAllRolesButton = new ImageButton(moduleBaseURL + "images/accum_add_all.png", "", "");
-    arrowsPanel.add(addAllRolesButton);
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("10px");
-    arrowsPanel.add(hSpacer);
+		addAllRolesButton = new ImageButton(moduleBaseURL + "images/accum_add_all.png", "", "", 14, 13);
+		arrowsPanel.add(addAllRolesButton);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("10px");
+		arrowsPanel.add(hSpacer);
 
-    removeAllRolesButton = new ImageButton(moduleBaseURL + "images/accum_remove_all.png", "", "");
-    arrowsPanel.add(removeAllRolesButton);
+		removeAllRolesButton = new ImageButton(moduleBaseURL + "images/accum_remove_all.png", "", "", 14, 13);
+		arrowsPanel.add(removeAllRolesButton);
 
-    VerticalPanel selectedRolesPanel = new VerticalPanel();
-    groupsPanel.add(selectedRolesPanel);
-    selectedRolesPanel.add(new Label(Messages.getString("selected") + ":"));
-    selectedRolesListBox = new ListBox(true);
-    selectedRolesPanel.add(selectedRolesListBox);
-    selectedRolesListBox.setVisibleItemCount(20);
-    selectedRolesListBox.setWidth("200px");
-    selectedRolesListBox.setHeight("281px");
+		VerticalPanel selectedRolesPanel = new VerticalPanel();
+		groupsPanel.add(selectedRolesPanel);
+		selectedRolesPanel.add(new Label(Messages.getString("selected") + ":"));
+		selectedRolesListBox = new ListBox(true);
+		selectedRolesPanel.add(selectedRolesListBox);
+		selectedRolesListBox.setVisibleItemCount(20);
+		selectedRolesListBox.setWidth("200px");
+		selectedRolesListBox.setHeight("281px");
 
-    return mainPanel;
-  }
+		return mainPanel;
+	}
 
-  private Widget createRolesPanel() {
+	private Widget createRolesPanel() {
 
-    HorizontalPanel mainPanel = new HorizontalPanel();
-    SimplePanel hSpacer = new SimplePanel();
-    hSpacer.setWidth("15px");
-    mainPanel.add(hSpacer);
+		HorizontalPanel mainPanel = new HorizontalPanel();
+		SimplePanel hSpacer = new SimplePanel();
+		hSpacer.setWidth("15px");
+		mainPanel.add(hSpacer);
 
-    VerticalPanel availablePanel = new VerticalPanel();
-    mainPanel.add(availablePanel);
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("15px");
-    availablePanel.add(hSpacer);
+		VerticalPanel availablePanel = new VerticalPanel();
+		mainPanel.add(availablePanel);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("15px");
+		availablePanel.add(hSpacer);
 
-    HorizontalPanel labelAndButtonsPanel = new HorizontalPanel();
-    availablePanel.add(labelAndButtonsPanel);
-    labelAndButtonsPanel.add(new Label(Messages.getString("available") + ":"));
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("103px");
-    labelAndButtonsPanel.add(hSpacer);
-    newRoleButton = new ImageButton(moduleBaseURL + "images/add_icon.png", "", "");
-    labelAndButtonsPanel.add(newRoleButton);
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("7px");
-    labelAndButtonsPanel.add(hSpacer);
-    deleteRoleButton = new ImageButton(moduleBaseURL + "images/remove_icon.png", "", "");
-    labelAndButtonsPanel.add(deleteRoleButton);
+		HorizontalPanel labelAndButtonsPanel = new HorizontalPanel();
+		availablePanel.add(labelAndButtonsPanel);
+		labelAndButtonsPanel.add(new Label(Messages.getString("available") + ":"));
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("103px");
+		labelAndButtonsPanel.add(hSpacer);
+		newRoleButton = new ImageButton(moduleBaseURL + "images/add_icon.png", "", "", 15, 15);
+		labelAndButtonsPanel.add(newRoleButton);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("7px");
+		labelAndButtonsPanel.add(hSpacer);
+		deleteRoleButton = new ImageButton(moduleBaseURL + "images/remove_icon.png", "", "", 16, 16);
+		labelAndButtonsPanel.add(deleteRoleButton);
 
-    rolesListBox = new ListBox(true);
-    availablePanel.add(rolesListBox);
-    rolesListBox.setVisibleItemCount(20);
-    rolesListBox.setWidth("200px");
-    rolesListBox.setHeight("432px");
+		rolesListBox = new ListBox(true);
+		availablePanel.add(rolesListBox);
+		rolesListBox.setVisibleItemCount(20);
+		rolesListBox.setWidth("200px");
+		rolesListBox.setHeight("432px");
 
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("15px");
-    mainPanel.add(hSpacer);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("15px");
+		mainPanel.add(hSpacer);
 
-    VerticalPanel detailsPanel = new VerticalPanel();
-    mainPanel.add(detailsPanel);
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("32px");
-    detailsPanel.add(hSpacer);
+		VerticalPanel detailsPanel = new VerticalPanel();
+		mainPanel.add(detailsPanel);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("32px");
+		detailsPanel.add(hSpacer);
 
-    detailsPanel.add(new Label(Messages.getString("name") + ":"));
+		detailsPanel.add(new Label(Messages.getString("name") + ":"));
 
-    HorizontalPanel namePanel = new HorizontalPanel();
-    roleNameTextBox = new TextBox();
-    roleNameTextBox.setWidth("250px");
-    roleNameTextBox.setEnabled(false);
-    namePanel.add(roleNameTextBox);
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("10px");
-    namePanel.add(hSpacer);
+		HorizontalPanel namePanel = new HorizontalPanel();
+		roleNameTextBox = new TextBox();
+		roleNameTextBox.setWidth("250px");
+		roleNameTextBox.setEnabled(false);
+		namePanel.add(roleNameTextBox);
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("10px");
+		namePanel.add(hSpacer);
 
-    Label msgLabel = new Label(Messages.getString("roleNameNonEditLabel"));
-    msgLabel.setStyleName("msg-Label");
-    namePanel.add(msgLabel);
-    detailsPanel.add(namePanel);
+		Label msgLabel = new Label(Messages.getString("roleNameNonEditLabel"));
+		msgLabel.setStyleName("msg-Label");
+		namePanel.add(msgLabel);
+		detailsPanel.add(namePanel);
 
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("15px");
-    detailsPanel.add(hSpacer);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("15px");
+		detailsPanel.add(hSpacer);
 
-    HorizontalPanel membersLabelPanel = new HorizontalPanel();
-    membersLabelPanel.add(new Label(Messages.getString("members")));
-    hSpacer = new SimplePanel();
-    hSpacer.setWidth("5px");
-    membersLabelPanel.add(hSpacer);
-    membersLabelPanel.add(new HTML(
-        "<div class='gwt-HTML' style='height:10px;padding-top:4px;'><hr style='width:384px;height:1px;background-color:#000;border:0px solid #F00'/></div>"));
-    detailsPanel.add(membersLabelPanel);
+		HorizontalPanel membersLabelPanel = new HorizontalPanel();
+		membersLabelPanel.add(new Label(Messages.getString("members")));
+		hSpacer = new SimplePanel();
+		hSpacer.setWidth("5px");
+		membersLabelPanel.add(hSpacer);
+		membersLabelPanel.add(new HTML("<div class='gwt-HTML' style='height:10px;padding-top:4px;'><hr style='width:384px;height:1px;background-color:#000;border:0px solid #F00'/></div>"));
+		detailsPanel.add(membersLabelPanel);
 
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("15px");
-    detailsPanel.add(hSpacer);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("15px");
+		detailsPanel.add(hSpacer);
 
-    HorizontalPanel groupsPanel = new HorizontalPanel();
-    detailsPanel.add(groupsPanel);
+		HorizontalPanel groupsPanel = new HorizontalPanel();
+		detailsPanel.add(groupsPanel);
 
-    VerticalPanel availableMembersPanel = new VerticalPanel();
-    groupsPanel.add(availableMembersPanel);
-    availableMembersPanel.add(new Label(Messages.getString("available") + ":"));
-    availableMembersListBox = new ListBox(true);
-    availableMembersPanel.add(availableMembersListBox);
-    availableMembersListBox.setVisibleItemCount(20);
-    availableMembersListBox.setWidth("200px");
-    availableMembersListBox.setHeight("328px");
+		VerticalPanel availableMembersPanel = new VerticalPanel();
+		groupsPanel.add(availableMembersPanel);
+		availableMembersPanel.add(new Label(Messages.getString("available") + ":"));
+		availableMembersListBox = new ListBox(true);
+		availableMembersPanel.add(availableMembersListBox);
+		availableMembersListBox.setVisibleItemCount(20);
+		availableMembersListBox.setWidth("200px");
+		availableMembersListBox.setHeight("328px");
 
-    VerticalPanel vSpacer = new VerticalPanel();
-    vSpacer.setWidth("15px");
-    groupsPanel.add(vSpacer);
+		VerticalPanel vSpacer = new VerticalPanel();
+		vSpacer.setWidth("15px");
+		groupsPanel.add(vSpacer);
 
-    VerticalPanel arrowsPanel = new VerticalPanel();
-    groupsPanel.add(arrowsPanel);
-    arrowsPanel.setWidth("35px");
+		VerticalPanel arrowsPanel = new VerticalPanel();
+		groupsPanel.add(arrowsPanel);
+		arrowsPanel.setWidth("35px");
 
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("130px");
-    arrowsPanel.add(hSpacer);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("130px");
+		arrowsPanel.add(hSpacer);
 
-    addUserButton = new ImageButton(moduleBaseURL + "images/accum_add.png", "", "");
-    arrowsPanel.add(addUserButton);
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("10px");
-    arrowsPanel.add(hSpacer);
+		addUserButton = new ImageButton(moduleBaseURL + "images/accum_add.png", "", "", 14, 13);
+		arrowsPanel.add(addUserButton);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("10px");
+		arrowsPanel.add(hSpacer);
 
-    removeUserButton = new ImageButton(moduleBaseURL + "images/accum_remove.png", "", "");
-    arrowsPanel.add(removeUserButton);
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("30px");
-    arrowsPanel.add(hSpacer);
+		removeUserButton = new ImageButton(moduleBaseURL + "images/accum_remove.png", "", "", 14, 13);
+		arrowsPanel.add(removeUserButton);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("30px");
+		arrowsPanel.add(hSpacer);
 
-    addAllUsersButton = new ImageButton(moduleBaseURL + "images/accum_add_all.png", "", "");
-    arrowsPanel.add(addAllUsersButton);
-    hSpacer = new SimplePanel();
-    hSpacer.setHeight("10px");
-    arrowsPanel.add(hSpacer);
+		addAllUsersButton = new ImageButton(moduleBaseURL + "images/accum_add_all.png", "", "", 14, 13);
+		arrowsPanel.add(addAllUsersButton);
+		hSpacer = new SimplePanel();
+		hSpacer.setHeight("10px");
+		arrowsPanel.add(hSpacer);
 
-    removeAllUsersButton = new ImageButton(moduleBaseURL + "images/accum_remove_all.png", "", "");
-    arrowsPanel.add(removeAllUsersButton);
+		removeAllUsersButton = new ImageButton(moduleBaseURL + "images/accum_remove_all.png", "", "", 14, 13);
+		arrowsPanel.add(removeAllUsersButton);
 
-    VerticalPanel selectedMembersPanel = new VerticalPanel();
-    groupsPanel.add(selectedMembersPanel);
-    selectedMembersPanel.add(new Label(Messages.getString("selected") + ":"));
-    selectedMembersListBox = new ListBox(true);
-    selectedMembersPanel.add(selectedMembersListBox);
-    selectedMembersListBox.setVisibleItemCount(20);
-    selectedMembersListBox.setWidth("200px");
-    selectedMembersListBox.setHeight("328px");
+		VerticalPanel selectedMembersPanel = new VerticalPanel();
+		groupsPanel.add(selectedMembersPanel);
+		selectedMembersPanel.add(new Label(Messages.getString("selected") + ":"));
+		selectedMembersListBox = new ListBox(true);
+		selectedMembersPanel.add(selectedMembersListBox);
+		selectedMembersListBox.setVisibleItemCount(20);
+		selectedMembersListBox.setWidth("200px");
+		selectedMembersListBox.setHeight("328px");
 
-    return mainPanel;
-  }
+		return mainPanel;
+	}
 }
