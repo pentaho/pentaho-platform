@@ -91,6 +91,9 @@ public class DefaultTenantManager implements ITenantManager {
     this.tenantAuthenticatedAuthorityNamePattern = tenantAuthenticatedAuthorityNamePattern;
   }
 
+  public Serializable createUserHomeFolder(final String tenantPath, final String username) {
+    return null;
+  }
   @Override
   public Serializable createSystemTenant(final String tenantName) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
