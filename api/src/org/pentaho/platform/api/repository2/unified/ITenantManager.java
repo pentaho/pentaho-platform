@@ -159,4 +159,14 @@ public interface ITenantManager {
    * @return boolean that is true if the tenantPath is an enabled tenant root directory
    */
   boolean isTenantEnabled(final String tenantPath);
+  
+  /**
+   * 
+   * @param tenantPath
+   * @param descendantTenantPath
+   * @return boolean that is true if the parentTenantPath is the same as 
+   * descendantTenantPath or the descendantTenantPath is the descendant of the
+   * parent
+   */
+  boolean isSubTenant(final String parentTenantPath, final String descendantTenantPath);
 }
