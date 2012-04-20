@@ -514,7 +514,9 @@ public class CacheManager implements ICacheManager {
       Cache cache = regionCache.get(region);
       if(cache != null) {
         try {
-          return cache.getElementCountInMemory();
+          long memCnt = cache.getElementCountInMemory();
+          long discCnt = cache.getElementCountOnDisk();
+          return memCnt+discCnt;
         } catch (Exception ignored) {
           return -1;
         }
