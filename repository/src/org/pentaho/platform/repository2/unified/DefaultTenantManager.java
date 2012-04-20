@@ -612,20 +612,26 @@ public class DefaultTenantManager implements ITenantManager {
   }
 
   private boolean isSubTenant(Serializable parentFolderId, Serializable descendantFolderId) {
-    List<Serializable> childTenants = getChildTenants(parentFolderId);
-    if(childTenants != null && childTenants.size() > 0) {
-      if(isSubTenant(parentFolderId, descendantFolderId, childTenants)) {
-        return true;
-      } else {
-        for(Serializable childTenant: childTenants) {
-          boolean done = isSubTenant(childTenant, descendantFolderId);
-          if(done) {
-            return done;
+    if(parentFolderId.equals(descendantFolderId)){
+      return true;
+    } else {
+      List<Serializable> childTenants = getChildTenants(parentFolderId);
+      if(childTenants != null && childTenants.size() > 0) {
+        if(isSubTenant(parentFolderId, descendantFolderId, childTenants)) {
+          return true;
+        } else {
+          for(Serializable childTenant: childTenants) {
+            boolean done = isSubTenant(childTenant, descendantFolderId);
+            if(done) {
+              return done;
+            }
           }
         }
+      } else {
+        return false;
       }
     }
-    return false;
+    return false; 
   }
 
   @Override

@@ -310,6 +310,8 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
     Serializable subTenant1_2_Id = tenantManager.createTenant(mainTenant_1_Id, SUB_TENANT1_2);
     Serializable subTenant2_1_Id = tenantManager.createTenant(mainTenant_2_Id, SUB_TENANT2_1);
     Serializable subTenant2_2_Id = tenantManager.createTenant(mainTenant_2_Id, SUB_TENANT2_2);
+    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, MAIN_TENANT_1_PATH));
+    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, MAIN_TENANT_2_PATH));
     assertTrue(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT1_2_PATH));
     assertTrue(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT1_1_PATH));
     assertFalse(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT2_1_PATH));
@@ -318,6 +320,9 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
     assertFalse(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT1_1_PATH));
     assertTrue(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT2_1_PATH));
     assertTrue(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT2_2_PATH));
+    assertTrue(tenantManager.isSubTenant(SUB_TENANT2_2_PATH, SUB_TENANT2_2_PATH));
+    assertTrue(tenantManager.isSubTenant(SUB_TENANT1_2_PATH, SUB_TENANT1_2_PATH));
+
   }
   
 //  @Test
