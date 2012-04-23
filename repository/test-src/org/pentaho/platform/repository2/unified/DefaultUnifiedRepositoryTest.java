@@ -467,7 +467,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // no change; just want to create a new version
     RepositoryFileAcl updatedAcl = new RepositoryFileAcl.Builder(acl).build();
     updatedAcl = repo.updateAcl(updatedAcl);
-    assertEquals(1, repo.getVersionSummaries(newFile.getId()).size());
+    assertEquals(2, repo.getVersionSummaries(newFile.getId()).size());
     assertNotNull(repo.getVersionSummary(newFile.getId(), "1.1"));
   }
   
