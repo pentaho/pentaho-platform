@@ -33,9 +33,21 @@ import org.springframework.security.providers.encoding.PasswordEncoder;
 @Path("/userrole/")
 public class UserRoleResource extends AbstractJaxRSResource {
 
-	private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = PentahoSystem.get(IRoleAuthorizationPolicyRoleBindingDao.class);
+	private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = null;
 
-	@GET
+
+  public UserRoleResource() {
+    this(PentahoSystem.get(IRoleAuthorizationPolicyRoleBindingDao.class));
+  }
+
+  public UserRoleResource(final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao) {
+    if (roleBindingDao == null) {
+      throw new IllegalArgumentException();
+    }
+    this.roleBindingDao = roleBindingDao;
+  }
+
+  @GET
 	@Path("/users")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
 	public UserListWrapper getUsers() throws Exception {
