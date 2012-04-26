@@ -296,11 +296,6 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
     Serializable tenantRootId = tenantManager.createTenant(systemTenantId, TENANT_ID_ACME);
     assertNotNull(tenantRootId);
     assertTrue(tenantManager.isTenantRoot(tenantRootId));
-    login(USERNAME_JOE, TENANT_ID_ACME);
-    List<RepositoryFile> children = repo.getChildren(tenantRootId);
-    for (RepositoryFile aFile : children) {
-      assertTrue(!tenantManager.isTenantRoot(aFile.getId()));
-    }
   }
   
   @Test
@@ -327,29 +322,24 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
 
   }
   
-//  @Test
-//  public void testGetChildrenTenants() {
-////    manager.startup();
-//    tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderPath());
-//    setUpRoleBindings();
-//    RepositoryFile tenantRoot = tenantManager.createTenant("", TENANT_ID_ACME);
-//    assertNotNull(tenantRoot);
-//    assertEquals(tenantRoot.getName(), TENANT_ID_ACME);
-//    boolean isTenanted = tenantManager.isTenantRoot(tenantRoot.getId());
-//    assertTrue(isTenanted);
-//    boolean isTenantEnabled = tenantManager.isTenantEnabled(tenantRoot.getId());
-//    assertTrue(isTenantEnabled);
-//    RepositoryFile subTenantRoot1 = tenantManager.createTenant(TENANT_ID_ACME, TENANT_ID_APPLE);
-//    isTenanted = tenantManager.isTenantRoot(subTenantRoot1.getId());
-//    assertTrue(isTenanted);
-//    isTenantEnabled = tenantManager.isTenantEnabled(subTenantRoot1.getId());
-//    assertTrue(isTenantEnabled);
-//    RepositoryFile subTenantRoot2 = tenantManager.createTenant(TENANT_ID_ACME, TENANT_ID_MICROSOFT);
-//    isTenanted = tenantManager.isTenantRoot(subTenantRoot2.getId());
-//    assertTrue(isTenanted);
-//    isTenantEnabled = tenantManager.isTenantEnabled(subTenantRoot2.getId());
-//    assertTrue(isTenantEnabled);
-//    List<RepositoryFile> tenantChildren = tenantManager.getChildTenants(TENANT_ID_ACME);
-//    assertTrue(tenantChildren.size() == 2);
-//  }
+  @Test
+  public void testGetChildrenTenants() {
+    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+
+    Serializable tenantRootId = tenantManager.createTenant(systemTenantId, TENANT_ID_ACME);
+    assertNotNull(tenantRootId);
+    assertTrue(tenantManager.isTenantRoot(tenantRootId));
+    assertTrue(tenantManager.isTenantEnabled(tenantRootId));
+    
+    Serializable subTenantRoot1Id = tenantManager.createTenant(tenantRootId, TENANT_ID_APPLE);
+    assertTrue(tenantManager.isTenantRoot(subTenantRoot1Id));
+    assertTrue(tenantManager.isTenantEnabled(subTenantRoot1Id));
+    
+    Serializable subTenantRoot2Id = tenantManager.createTenant(tenantRootId, TENANT_ID_MICROSOFT);
+    assertTrue(tenantManager.isTenantRoot(subTenantRoot2Id));
+    assertTrue(tenantManager.isTenantEnabled(subTenantRoot2Id));
+    
+    List<Serializable> tenantChildren = tenantManager.getChildTenants(tenantRootId);
+    assertTrue(tenantChildren.size() == 2);
+  }
 }
