@@ -281,8 +281,10 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
     assertNotNull(tenantRootId);
     assertTrue(tenantManager.isTenantRoot(tenantRootId));
     assertTrue(tenantManager.isTenantEnabled(tenantRootId));
-    tenantManager.disableTenant(tenantRootId);
+    tenantManager.enableTenant(tenantRootId, false);
     assertTrue(!tenantManager.isTenantEnabled(tenantRootId));
+    tenantManager.enableTenant(tenantRootId, true);
+    assertTrue(tenantManager.isTenantEnabled(tenantRootId));
   }
   
   @Test

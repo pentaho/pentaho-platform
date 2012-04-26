@@ -112,28 +112,27 @@ public interface ITenantManager {
    */
   void deleteTenants(final List<String> tenantPaths);
   
-  // ~ Disable Tenants ================================================================
+  // ~ Enable/Disable Tenants ================================================================
   /**
-   * Disables the tenant based on the tenantId
-   * @param tenantId
+   * Enables/disables the tenant with the root folder of tenantFolderId
+   * @param tenantFolderId
+   * @param enable
    */
-  void disableTenant(final Serializable tenantFolderId);
+  void enableTenant(final Serializable tenantFolderId, final boolean enable);
   
   /**
-   * Disables the tenant.  No user login can be performed.
-   * 
+   * Enables/disables the tenant with the paths of tenantPath
    * @param tenantPath
-   * @return success
+   * @param enable
    */
-  void disableTenant(final String tenantPath);
+  void enableTenant(final String tenantPath, final boolean enable);
   
   /**
-   * Disable the tenants in tenantPaths
-   * 
+   * Enables/disables the tenants with paths in the tenantPaths list
    * @param tenantPaths
-   * @return success
+   * @param enable
    */
-  void disableTenants(final List<String> tenantPaths);
+  void enableTenants(final List<String> tenantPaths, final boolean enable);
   
   // ~ Query Tenants ===================================================================
   /**

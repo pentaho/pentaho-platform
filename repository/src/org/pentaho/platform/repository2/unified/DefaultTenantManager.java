@@ -201,11 +201,11 @@ public class DefaultTenantManager implements ITenantManager {
     }
   }
 
+
   /* (non-Javadoc)
-   * @see org.pentaho.platform.api.repository2.unified.ITenantManager#disableTenant(java.io.Serializable)
+   * @see org.pentaho.platform.api.repository2.unified.ITenantManager#enableTenant(java.io.Serializable)
    */
-  @Override
-  public void disableTenant(final Serializable tenantFolderId) {
+  public void enableTenant(final Serializable tenantFolderId, final boolean enable) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     try {
@@ -216,7 +216,7 @@ public class DefaultTenantManager implements ITenantManager {
           }
           try {
             Map<String, Serializable> fileMeta = JcrRepositoryFileUtils.getFileMetadata(session, tenantFolderId);
-            fileMeta.put(ITenantManager.TENANT_ENABLED, false );
+            fileMeta.put(ITenantManager.TENANT_ENABLED, enable);
             JcrRepositoryFileUtils.setFileMetadata(session, tenantFolderId, fileMeta);
           } catch (RepositoryException e) {
             e.printStackTrace();
@@ -226,14 +226,14 @@ public class DefaultTenantManager implements ITenantManager {
       });
     } finally {
       PentahoSessionHolder.setSession(origPentahoSession);
-    }
+    }   
   }
-
+  
   /* (non-Javadoc)
-   * @see org.pentaho.platform.api.repository2.unified.ITenantManager#disableTenant(java.lang.String)
+   * @see org.pentaho.platform.api.repository2.unified.ITenantManager#enableTenant(java.lang.String)
    */
   @Override
-  public void disableTenant(final String tenantPath) {
+  public void enableTenant(final String tenantPath, final boolean enable) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     final Serializable tenantFolderId;
@@ -248,17 +248,17 @@ public class DefaultTenantManager implements ITenantManager {
     } finally {
       PentahoSessionHolder.setSession(origPentahoSession);
     }
-    disableTenant(tenantFolderId);
+    enableTenant(tenantFolderId, enable);
   }
-
+  
   /* (non-Javadoc)
-   * @see org.pentaho.platform.api.repository2.unified.ITenantManager#disableTenants(java.util.List)
+   * @see org.pentaho.platform.api.repository2.unified.ITenantManager#enableTenants(java.util.List)
    */
   @Override
-  public void disableTenants(final List<String> tenantPaths) {
+  public void enableTenants(final List<String> tenantPaths, final boolean enable) {
     for (String tenantPath : tenantPaths) {
-      disableTenant(tenantPath);
-    }
+      enableTenant(tenantPath, enable);
+    }    
   }
 
   /* (non-Javadoc)
