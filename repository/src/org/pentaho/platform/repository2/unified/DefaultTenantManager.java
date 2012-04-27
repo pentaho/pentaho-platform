@@ -11,7 +11,7 @@
  * the license for the specific language governing your rights and limitations.
  *
  * @created Mar 13, 2012 
- * @author wseyler
+ * @author wseyle
  */
 
 package org.pentaho.platform.repository2.unified;
@@ -31,12 +31,14 @@ import javax.jcr.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.ITenant;
 import org.pentaho.platform.api.repository2.unified.ITenantManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
@@ -95,23 +97,23 @@ public class DefaultTenantManager implements ITenantManager {
     return null;
   }
   @Override
-  public Serializable createSystemTenant(final String tenantName) {
+  public ITenant createSystemTenant(final String tenantName) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     try {
-      return (Serializable) jcrTemplate.execute(new JcrCallback() {
-        public Object doInJcr(final Session session) throws RepositoryException, IOException {
+      return (ITenant) jcrTemplate.execute(new JcrCallback() {
+       public Object doInJcr(final Session session) throws RepositoryException, IOException {
           RepositoryFile systemTenantFolder = repositoryFileDao.getFileByAbsolutePath(RepositoryFile.SEPARATOR + tenantName);
           if (systemTenantFolder == null) {
-            Serializable systemTenantFolderId = internalCreateFolder(session, null, new RepositoryFile.Builder(tenantName).folder(true).build(), false, null, tenantName);
-            Map<String, Serializable> fileMeta = JcrRepositoryFileUtils.getFileMetadata(session, systemTenantFolderId);
+            Node systemTenantNode = internalCreateFolder(session, null, new RepositoryFile.Builder(tenantName).folder(true).path(RepositoryFile.SEPARATOR + tenantName).build(), false, null, tenantName);
+            Map<String, Serializable> fileMeta = JcrRepositoryFileUtils.getFileMetadata(session, systemTenantNode.getIdentifier());
             fileMeta.put(ITenantManager.TENANT_ROOT, true);
             fileMeta.put(ITenantManager.TENANT_ENABLED, true );
-            JcrRepositoryFileUtils.setFileMetadata(session, systemTenantFolderId, fileMeta);
-            createInitialTenantFolders(systemTenantFolderId);
-            return systemTenantFolderId;
+            JcrRepositoryFileUtils.setFileMetadata(session, systemTenantNode.getIdentifier(), fileMeta);
+            createInitialTenantFolders(systemTenantNode.getIdentifier());
+            return getTenant(systemTenantNode);
           } else {
-            return systemTenantFolder.getId();
+            return getTenant(systemTenantFolder);
           }
         }
       });
@@ -124,24 +126,34 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#createTenant(java.lang.String, java.lang.String)
    */
   @Override
-  public Serializable createTenant(final Serializable parentTenantId, final String tenantName) {
-    Serializable tenantRootFolderId = null;
+  public ITenant createTenant(final Serializable parentTenantId, final String tenantName) {
+    ITenant tenant = null;
     try {
-      tenantRootFolderId = createTenantRootFolder(parentTenantId, tenantName);
-      createInitialTenantFolders(tenantRootFolderId);
+      tenant = createTenantRootFolder(parentTenantId, tenantName);
+      createInitialTenantFolders(tenant.getId());
     } catch (RepositoryException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    return tenantRootFolderId;
+    return tenant;
+  }
+
+  @Override
+  public ITenant createTenant(ITenant parentTenant, String tenantName) {
+    return createTenant(parentTenant.getId(), tenantName);
+  }
+
+  @Override
+  public List<ITenant> createTenants(ITenant parentTenant, List<String> tenantNames) {
+    return createTenants(parentTenant.getId(), tenantNames);
   }
 
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#createTenants(java.lang.String, java.util.List)
    */
   @Override
-  public List<Serializable> createTenants(final Serializable parentTenantId, final List<String> tenantNames) {
-    List<Serializable> newTenants = new ArrayList<Serializable>();
+  public List<ITenant> createTenants(final Serializable parentTenantId, final List<String> tenantNames) {
+    List<ITenant> newTenants = new ArrayList<ITenant>();
     for (String tenantName : tenantNames) {
       newTenants.add(createTenant(parentTenantId, tenantName));
     }
@@ -202,6 +214,17 @@ public class DefaultTenantManager implements ITenantManager {
   }
 
 
+  @Override
+  public void deleteTenant(ITenant tenant) {
+    deleteTenant(tenant.getId());
+  }
+
+  @Override
+  public void enableTenant(ITenant tenant, boolean enable) {
+   enableTenant(tenant.getId(), enable);
+  }
+
+
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#enableTenant(java.io.Serializable)
    */
@@ -251,6 +274,22 @@ public class DefaultTenantManager implements ITenantManager {
     enableTenant(tenantFolderId, enable);
   }
   
+  private ITenant getTenant(RepositoryFile file) {
+    ITenant tenant = PentahoSystem.get(ITenant.class);
+    tenant.setId(file.getId());
+    tenant.setName(file.getName());
+    tenant.setPath(file.getPath());
+    return tenant;
+  }
+  
+  private ITenant getTenant(Node systemTenantNode) throws RepositoryException{
+    ITenant tenant = PentahoSystem.get(ITenant.class);
+    tenant.setId(systemTenantNode.getIdentifier());
+    tenant.setName(systemTenantNode.getName());
+    tenant.setPath(systemTenantNode.getPath());
+    return tenant;
+
+  }
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#enableTenants(java.util.List)
    */
@@ -261,18 +300,26 @@ public class DefaultTenantManager implements ITenantManager {
     }    
   }
 
+
+
+  @Override
+  public List<ITenant> getChildTenants(ITenant parentTenant) {
+    return getChildTenants(parentTenant.getId());
+  }
+
+  
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#getChildTenants(java.lang.String)
    */
   @Override
-  public List<Serializable> getChildTenants(final String parentTenantPath) {
+  public List<ITenant> getChildTenants(final String parentTenantPath) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     Serializable parentFolderId;
     try {
         parentFolderId = (Serializable) jcrTemplate.execute(new JcrCallback() {
           public Object doInJcr(final Session session) {
-          RepositoryFile tenantParentFolder = repositoryFileDao.getFileByAbsolutePath(DefaultTenantManager.this.getParentPath(parentTenantPath));
+          RepositoryFile tenantParentFolder = repositoryFileDao.getFileByAbsolutePath(parentTenantPath);
           return tenantParentFolder.getId();
         }
       });
@@ -283,16 +330,16 @@ public class DefaultTenantManager implements ITenantManager {
   }
 
   @Override
-  public List<Serializable> getChildTenants(final Serializable parentTenantFolderId) {
+  public List<ITenant> getChildTenants(final Serializable parentTenantFolderId) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     try {
-      return (List<Serializable>) jcrTemplate.execute(new JcrCallback() {
+      return (List<ITenant>) jcrTemplate.execute(new JcrCallback() {
         public Object doInJcr(final Session session) {
           if (!isTenantRoot(parentTenantFolderId)) {
             throw new IllegalArgumentException();
           }
-          List<Serializable> children = new ArrayList<Serializable>();
+          List<ITenant> children = new ArrayList<ITenant>();
           List<RepositoryFile> allChildren = null;
           try {
             allChildren = JcrRepositoryFileUtils.getChildren(session, new PentahoJcrConstants(session), new TenantPathConversionHelper(), null, parentTenantFolderId, null);
@@ -302,7 +349,7 @@ public class DefaultTenantManager implements ITenantManager {
           }
           for (RepositoryFile repoFile : allChildren) {
             if (isTenantRoot(repoFile.getId())) { // Absolutely make sure that this is a tenanted folder before adding it
-              children.add(repoFile.getId());
+              children.add(getTenant(repoFile));
             }
           }
           return children;
@@ -347,16 +394,40 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#isTenantEnabled(java.lang.String)
    */
   @Override
-  public boolean isTenantEnabled(String tenantPath) {
-    // TODO Auto-generated method stub
-    return false;
+  public boolean isTenantEnabled(final String tenantPath) {
+    IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
+    PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
+    RepositoryFile repositoryFile;
+    try {
+        repositoryFile = (RepositoryFile) jcrTemplate.execute(new JcrCallback() {
+          public Object doInJcr(final Session session) {
+            return repositoryFileDao.getFileByAbsolutePath(tenantPath);
+        }
+      });
+    } finally {
+      PentahoSessionHolder.setSession(origPentahoSession);
+    }
+    return isTenantEnabled(repositoryFile.getId());
   }
+
+
+  @Override
+  public boolean isTenantEnabled(ITenant tenant) {
+    return isTenantEnabled(tenant.getId());
+  }
+
+  @Override
+  public boolean isTenantRoot(ITenant tenant) {
+    return isTenantRoot(tenant.getId());
+  }
+
 
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#isTenantRoot(java.io.Serializable)
    */
   @Override
   public boolean isTenantRoot(final Serializable tenantFolderId) {
+    
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     Object result = null;
@@ -384,9 +455,29 @@ public class DefaultTenantManager implements ITenantManager {
    * @see org.pentaho.platform.api.repository2.unified.ITenantManager#isTenantRoot(java.lang.String)
    */
   @Override
-  public boolean isTenantRoot(String tenantPath) {
-    // TODO Auto-generated method stub
-    return false;
+  public boolean isTenantRoot(final String tenantPath) {
+    IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
+    PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
+    Object result = null;
+    try {
+      result = jcrTemplate.execute(new JcrCallback() {
+        public Object doInJcr(final Session session) {
+          Map<String, Serializable> metadata = null;
+          try {
+            RepositoryFile file = repositoryFileDao.getFileByAbsolutePath(tenantPath);
+            metadata = JcrRepositoryFileUtils.getFileMetadata(session, file.getId());
+          } catch (RepositoryException e) {
+            return false;
+          }
+          return metadata.containsKey(ITenantManager.TENANT_ROOT) && 
+                 (Boolean)metadata.get(ITenantManager.TENANT_ROOT);
+        }
+      });
+    } finally {
+      PentahoSessionHolder.setSession(origPentahoSession);
+    }
+    
+    return (Boolean)result;
   }
 
   /**
@@ -431,7 +522,7 @@ public class DefaultTenantManager implements ITenantManager {
   
               // etc folder inherits ACEs from parent ACL
               internalCreateFolder(session,
-                tenantRootFolderId, 
+                  tenantRootFolder.getId(), 
                 new RepositoryFile.Builder(ServerRepositoryPaths.getTenantEtcFolderName()).folder(true).build(), 
                 true, 
                 repositoryAdminUserSid, 
@@ -457,7 +548,7 @@ public class DefaultTenantManager implements ITenantManager {
    * @return
    * @throws RepositoryException 
    */
-  protected Serializable createTenantRootFolder(final Serializable tenantParentPathId, final String tenantName) throws RepositoryException {
+  protected ITenant createTenantRootFolder(final Serializable tenantParentPathId, final String tenantName) throws RepositoryException {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
     Object result = null;
@@ -468,22 +559,20 @@ public class DefaultTenantManager implements ITenantManager {
           try {
             RepositoryFile parentTenant = JcrRepositoryFileUtils.getFileById(session, new PentahoJcrConstants(session), new TenantPathConversionHelper(), null, tenantParentPathId);
             RepositoryFile tenantRootFolder = repositoryFileDao.getFileByAbsolutePath(parentTenant.getPath() + tenantName);
-            Serializable tenantRootFolderId = null;
+            Node tenantRootFolderNode = null;
             if (tenantRootFolder == null) {
-              tenantRootFolderId = internalCreateFolder(session,
+              tenantRootFolderNode = internalCreateFolder(session,
                 parentTenant.getId(), 
                 new RepositoryFile.Builder(tenantName).folder(true).build(), 
                 false, 
                 repositoryAdminUserSid, 
                 Messages.getInstance().getString("DefaultRepositoryLifecycleManager.USER_0002_VER_COMMENT_TENANT_ROOT")); //$NON-NLS-1$
-              Map<String, Serializable> fileMeta = JcrRepositoryFileUtils.getFileMetadata(session, tenantRootFolderId);
+              Map<String, Serializable> fileMeta = JcrRepositoryFileUtils.getFileMetadata(session, tenantRootFolderNode.getIdentifier());
               fileMeta.put(ITenantManager.TENANT_ROOT, true);
               fileMeta.put(ITenantManager.TENANT_ENABLED, true );
-              JcrRepositoryFileUtils.setFileMetadata(session, tenantRootFolderId, fileMeta);
-            } else {
-              tenantRootFolderId = tenantRootFolder.getId();
+              JcrRepositoryFileUtils.setFileMetadata(session, tenantRootFolderNode.getIdentifier(), fileMeta);
             }
-            return tenantRootFolderId;
+            return getTenant(tenantRootFolderNode);
           } catch (RepositoryException e) {
             return e;
           }
@@ -495,7 +584,7 @@ public class DefaultTenantManager implements ITenantManager {
     if (result instanceof RepositoryException) {
       throw (RepositoryException) result;
     }
-    return (Serializable)result;
+    return (ITenant)result;
   }
 
   protected IPentahoSession createRepositoryAdminPentahoSession() {
@@ -504,7 +593,7 @@ public class DefaultTenantManager implements ITenantManager {
     return pentahoSession;
   }
 
-  protected Serializable internalCreateFolder(final Session session, final Serializable parentFolderId, final RepositoryFile folder, final boolean inheritAces, final RepositoryFileSid ownerSid, final String versionMessage) throws RepositoryException {
+  protected Node internalCreateFolder(final Session session, final Serializable parentFolderId, final RepositoryFile folder, final boolean inheritAces, final RepositoryFileSid ownerSid, final String versionMessage) throws RepositoryException {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
     Node folderNode = JcrRepositoryFileUtils.createFolderNode(session, pentahoJcrConstants, parentFolderId, folder);
@@ -526,7 +615,7 @@ public class DefaultTenantManager implements ITenantManager {
                 .getInstance()
                 .getString(
                     "JcrRepositoryFileDao.USER_0001_VER_COMMENT_ADD_FOLDER", folder.getName(), (parentFolderId == null ? "root" : parentFolderId.toString()))); //$NON-NLS-1$ //$NON-NLS-2$
-    return folderNode.getIdentifier();
+    return folderNode;
   }
 
   protected RepositoryFileAcl makeAcl(final boolean inheritAces, final RepositoryFileSid ownerSid) {
@@ -584,44 +673,40 @@ public class DefaultTenantManager implements ITenantManager {
     
   }
 
-  private Serializable getIdFromPath(final String path) {
-    IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
-    PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
-    Serializable folderId;
-    RepositoryFile folder;
-    try {
-        folderId = (Serializable) jcrTemplate.execute(new JcrCallback() {
-          public Object doInJcr(final Session session) {
-          RepositoryFile folder = repositoryFileDao.getFileByAbsolutePath(path);
-          return folder.getId();
+  private boolean isSubTenant(String descendantFolderPath, List<ITenant> childTenants) {
+    for(ITenant tenant: childTenants) {
+      if(tenant != null) {
+        if(tenant.getPath() != null && tenant.getPath().equals(descendantFolderPath)) {
+          return true;
         }
-      });
-    } finally {
-      PentahoSessionHolder.setSession(origPentahoSession);
-    }
-    return folderId;
-  }
-
-  private boolean isSubTenant(Serializable parentFolderId, Serializable descendantFolderId, List<Serializable> childTenants) {
-    for(Serializable tenantId: childTenants) {
-      if(tenantId.equals(descendantFolderId)) {
-        return true;
       }
     }
     return false;
   }
 
-  private boolean isSubTenant(Serializable parentFolderId, Serializable descendantFolderId) {
-    if(parentFolderId.equals(descendantFolderId)){
+  private boolean isSubTenant(Serializable descendantFolderId, List<ITenant> childTenants) {
+    for(ITenant tenant: childTenants) {
+      if(tenant != null) {
+        if(tenant.getId() != null && tenant.getId().equals(descendantFolderId)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean isSubTenant(String parentTenantPath, String descendantTenantPath) {
+    if(parentTenantPath.equals(descendantTenantPath)){
       return true;
     } else {
-      List<Serializable> childTenants = getChildTenants(parentFolderId);
+      List<ITenant> childTenants = getChildTenants(parentTenantPath);
       if(childTenants != null && childTenants.size() > 0) {
-        if(isSubTenant(parentFolderId, descendantFolderId, childTenants)) {
+        if(isSubTenant(descendantTenantPath, childTenants)) {
           return true;
         } else {
-          for(Serializable childTenant: childTenants) {
-            boolean done = isSubTenant(childTenant, descendantFolderId);
+          for(ITenant childTenant: childTenants) {
+            boolean done = isSubTenant(childTenant.getPath(), descendantTenantPath);
             if(done) {
               return done;
             }
@@ -634,10 +719,33 @@ public class DefaultTenantManager implements ITenantManager {
     return false; 
   }
 
+
   @Override
-  public boolean isSubTenant(String parentTenantPath, String descendantTenantPath) {
-    Serializable descendantFolderId = getIdFromPath(descendantTenantPath);
-    Serializable parentFolderId = getIdFromPath(parentTenantPath);
-    return isSubTenant(parentFolderId, descendantFolderId);
+  public boolean isSubTenant(ITenant parentTenant, ITenant descendantTenant) {
+    return isSubTenant(parentTenant.getPath(), descendantTenant.getPath());
+  }
+
+  @Override
+  public boolean isSubTenant(Serializable parentTenantFolderId, Serializable descendantTenantFolderId) {
+    if(parentTenantFolderId.equals(descendantTenantFolderId)){
+      return true;
+    } else {
+      List<ITenant> childTenants = getChildTenants(parentTenantFolderId);
+      if(childTenants != null && childTenants.size() > 0) {
+        if(isSubTenant(descendantTenantFolderId, childTenants)) {
+          return true;
+        } else {
+          for(ITenant childTenant: childTenants) {
+            boolean done = isSubTenant(childTenant.getId(), descendantTenantFolderId);
+            if(done) {
+              return done;
+            }
+          }
+        }
+      } else {
+        return false;
+      }
+    }
+    return false; 
   }
 }

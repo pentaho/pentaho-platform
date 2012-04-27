@@ -32,6 +32,7 @@ import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
+import org.pentaho.platform.api.repository2.unified.ITenant;
 import org.pentaho.platform.api.repository2.unified.ITenantManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -77,7 +78,7 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
   private final String TENANT_ID_ACME = "acme";
   private final String TENANT_ID_APPLE = "apple";
   private final String TENANT_ID_MICROSOFT = "microsoft";
-  
+  private final String TENANT_ID_SUN = "sun";
   public static final String SYSTEM_ADMIN ="admin";
 
   public static final String MAIN_TENANT_1_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant1";
@@ -146,6 +147,7 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
     mp = new MicroPlatform();
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
+    mp.define(ITenant.class, Tenant.class);
 
     // Start the micro-platform
     mp.start();
@@ -245,101 +247,146 @@ public class DefaultTenantManagerTest implements ApplicationContextAware {
   private void setUpRoleBindings() {
   }
 
+  private void assertTenantNotNull(ITenant tenant) {
+    assertNotNull(tenant);
+    assertNotNull(tenant.getId());
+    assertNotNull(tenant.getName());
+    assertNotNull(tenant.getPath());
+  }
   @Test
   public void testCreateSystemTenant() {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    assertNotNull(systemTenantId);
+    ITenant systemTenant = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    assertTenantNotNull(systemTenant);
+    
 //    assert(ServerRepositoryPaths.getPentahoRootFolderPath().endsWith(systemTenant.getName()));
   }
   
   @Test
   public void testCreateTenant() {
     // This line is equivalent to manager.startup();
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    assertNotNull(systemTenantId);
-    assertTrue(tenantManager.isTenantRoot(systemTenantId));
-    assertTrue(tenantManager.isTenantEnabled(systemTenantId));
-    Serializable tenantRootId = tenantManager.createTenant(systemTenantId, TENANT_ID_ACME);
-    assertNotNull(tenantRootId);
-    assertTrue(tenantManager.isTenantRoot(tenantRootId));
-    assertTrue(tenantManager.isTenantEnabled(tenantRootId));
-    Serializable subTenantRootId = tenantManager.createTenant(tenantRootId, TENANT_ID_APPLE);
-    assertNotNull(subTenantRootId);
-    assertTrue(tenantManager.isTenantRoot(subTenantRootId));
-    assertTrue(tenantManager.isTenantEnabled(subTenantRootId));
-    List<Serializable> childTenants = tenantManager.getChildTenants(tenantRootId);
+    ITenant systemTenant = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    assertTenantNotNull(systemTenant);
+    assertTrue(tenantManager.isTenantRoot(systemTenant));
+    assertTrue(tenantManager.isTenantRoot(systemTenant.getId()));
+    assertTrue(tenantManager.isTenantRoot(systemTenant.getPath()));
+    assertTrue(tenantManager.isTenantEnabled(systemTenant));
+    assertTrue(tenantManager.isTenantEnabled(systemTenant.getId()));
+    assertTrue(tenantManager.isTenantEnabled(systemTenant.getPath()));
+    ITenant tenantRoot = tenantManager.createTenant(systemTenant, TENANT_ID_ACME);
+    assertTenantNotNull(tenantRoot);
+    assertTrue(tenantManager.isTenantRoot(tenantRoot));
+    assertTrue(tenantManager.isTenantEnabled(tenantRoot));
+    ITenant subTenantRoot = tenantManager.createTenant(tenantRoot, TENANT_ID_APPLE);
+    assertTenantNotNull(subTenantRoot);
+    assertTrue(tenantManager.isTenantRoot(subTenantRoot));
+    assertTrue(tenantManager.isTenantEnabled(subTenantRoot));
+    List<ITenant> childTenants = tenantManager.getChildTenants(tenantRoot);
     assertTrue(childTenants.size() == 1);
-    assertTrue(childTenants.get(0).equals(subTenantRootId));
+    assertTrue(childTenants.get(0).equals(subTenantRoot));
+    ITenant subTenantRoot2 = tenantManager.createTenant(tenantRoot.getId(), TENANT_ID_SUN);
+    assertTenantNotNull(subTenantRoot2);
+    assertTrue(tenantManager.isTenantRoot(subTenantRoot2.getId()));
+    assertTrue(tenantManager.isTenantEnabled(subTenantRoot2.getId()));
   }
   
   @Test
   public void testEnableDisableTenant() {
     // This line is equivalent to manager.startup();
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    assertNotNull(systemTenantId);
-    Serializable tenantRootId = tenantManager.createTenant(systemTenantId, TENANT_ID_ACME);
-    assertNotNull(tenantRootId);
-    assertTrue(tenantManager.isTenantRoot(tenantRootId));
-    assertTrue(tenantManager.isTenantEnabled(tenantRootId));
-    tenantManager.enableTenant(tenantRootId, false);
-    assertTrue(!tenantManager.isTenantEnabled(tenantRootId));
-    tenantManager.enableTenant(tenantRootId, true);
-    assertTrue(tenantManager.isTenantEnabled(tenantRootId));
+    ITenant systemTenant = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    assertTenantNotNull(systemTenant);
+    ITenant tenantRoot = tenantManager.createTenant(systemTenant, TENANT_ID_ACME);
+    assertTenantNotNull(tenantRoot);
+    assertTrue(tenantManager.isTenantRoot(tenantRoot));
+    assertTrue(tenantManager.isTenantRoot(tenantRoot.getId()));
+    assertTrue(tenantManager.isTenantEnabled(tenantRoot));
+    assertTrue(tenantManager.isTenantEnabled(tenantRoot.getId()));
+    tenantManager.enableTenant(tenantRoot, false);
+    assertTrue(!tenantManager.isTenantEnabled(tenantRoot));
+    tenantManager.enableTenant(tenantRoot, true);
+    assertTrue(tenantManager.isTenantEnabled(tenantRoot));
   }
   
   @Test
   public void testIsTenantRoot() {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    assertNotNull(systemTenantId);
-    assertTrue(tenantManager.isTenantRoot(systemTenantId));
-    assertTrue(tenantManager.isTenantEnabled(systemTenantId));
-    Serializable tenantRootId = tenantManager.createTenant(systemTenantId, TENANT_ID_ACME);
-    assertNotNull(tenantRootId);
-    assertTrue(tenantManager.isTenantRoot(tenantRootId));
+    ITenant systemTenant = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    assertTenantNotNull(systemTenant);
+    assertTrue(tenantManager.isTenantRoot(systemTenant));
+    assertTrue(tenantManager.isTenantEnabled(systemTenant));
+    ITenant tenantRoot = tenantManager.createTenant(systemTenant.getId(), TENANT_ID_ACME);
+    assertTenantNotNull(tenantRoot);
+    assertTrue(tenantManager.isTenantRoot(tenantRoot));
   }
   
   @Test
   public void testIsSubTenant() {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
-    Serializable subTenant1_1_Id = tenantManager.createTenant(mainTenant_1_Id, SUB_TENANT1_1);
-    Serializable subTenant1_2_Id = tenantManager.createTenant(mainTenant_1_Id, SUB_TENANT1_2);
-    Serializable subTenant2_1_Id = tenantManager.createTenant(mainTenant_2_Id, SUB_TENANT2_1);
-    Serializable subTenant2_2_Id = tenantManager.createTenant(mainTenant_2_Id, SUB_TENANT2_2);
-    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, MAIN_TENANT_1_PATH));
-    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, MAIN_TENANT_2_PATH));
-    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT1_2_PATH));
-    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT1_1_PATH));
-    assertFalse(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT2_1_PATH));
-    assertFalse(tenantManager.isSubTenant(MAIN_TENANT_1_PATH, SUB_TENANT2_2_PATH));
-    assertFalse(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT1_2_PATH));
-    assertFalse(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT1_1_PATH));
-    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT2_1_PATH));
-    assertTrue(tenantManager.isSubTenant(MAIN_TENANT_2_PATH, SUB_TENANT2_2_PATH));
-    assertTrue(tenantManager.isSubTenant(SUB_TENANT2_2_PATH, SUB_TENANT2_2_PATH));
-    assertTrue(tenantManager.isSubTenant(SUB_TENANT1_2_PATH, SUB_TENANT1_2_PATH));
+    ITenant systemTenant = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2);
+    ITenant subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1);
+    ITenant subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2);
+    ITenant subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1);
+    ITenant subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2);
+    assertTrue(tenantManager.isSubTenant(mainTenant_1, mainTenant_1));
+    assertTrue(tenantManager.isSubTenant(mainTenant_2, mainTenant_2));
+    assertTrue(tenantManager.isSubTenant(mainTenant_1, subTenant1_2));
+    assertTrue(tenantManager.isSubTenant(mainTenant_1, subTenant1_1));
+    assertFalse(tenantManager.isSubTenant(mainTenant_1, subTenant2_1));
+    assertFalse(tenantManager.isSubTenant(mainTenant_1, subTenant2_2));
+    assertFalse(tenantManager.isSubTenant(mainTenant_2, subTenant1_2));
+    assertFalse(tenantManager.isSubTenant(mainTenant_2, subTenant1_1));
+    assertTrue(tenantManager.isSubTenant(mainTenant_2, subTenant2_1));
+    assertTrue(tenantManager.isSubTenant(mainTenant_2, subTenant2_2));
+    assertTrue(tenantManager.isSubTenant(subTenant2_2, subTenant2_2));
+    assertTrue(tenantManager.isSubTenant(subTenant1_2, subTenant1_2));
+
+    assertTrue(tenantManager.isSubTenant(mainTenant_1.getId(), mainTenant_1.getId()));
+    assertTrue(tenantManager.isSubTenant(mainTenant_2.getId(), mainTenant_2.getId()));
+    assertTrue(tenantManager.isSubTenant(mainTenant_1.getId(), subTenant1_2.getId()));
+    assertTrue(tenantManager.isSubTenant(mainTenant_1.getId(), subTenant1_1.getId()));
+    assertFalse(tenantManager.isSubTenant(mainTenant_1.getId(), subTenant2_1.getId()));
+    assertFalse(tenantManager.isSubTenant(mainTenant_1.getId(), subTenant2_2.getId()));
+    assertFalse(tenantManager.isSubTenant(mainTenant_2.getId(), subTenant1_2.getId()));
+    assertFalse(tenantManager.isSubTenant(mainTenant_2.getId(), subTenant1_1.getId()));
+    assertTrue(tenantManager.isSubTenant(mainTenant_2.getId(), subTenant2_1.getId()));
+    assertTrue(tenantManager.isSubTenant(mainTenant_2.getId(), subTenant2_2.getId()));
+    assertTrue(tenantManager.isSubTenant(subTenant2_2.getId(), subTenant2_2.getId()));
+    assertTrue(tenantManager.isSubTenant(subTenant1_2.getId(), subTenant1_2.getId()));
+
+    assertTrue(tenantManager.isSubTenant(mainTenant_1.getPath(), mainTenant_1.getPath()));
+    assertTrue(tenantManager.isSubTenant(mainTenant_2.getPath(), mainTenant_2.getPath()));
+    assertTrue(tenantManager.isSubTenant(mainTenant_1.getPath(), subTenant1_2.getPath()));
+    assertTrue(tenantManager.isSubTenant(mainTenant_1.getPath(), subTenant1_1.getPath()));
+    assertFalse(tenantManager.isSubTenant(mainTenant_1.getPath(), subTenant2_1.getPath()));
+    assertFalse(tenantManager.isSubTenant(mainTenant_1.getPath(), subTenant2_2.getPath()));
+    assertFalse(tenantManager.isSubTenant(mainTenant_2.getPath(), subTenant1_2.getPath()));
+    assertFalse(tenantManager.isSubTenant(mainTenant_2.getPath(), subTenant1_1.getPath()));
+    assertTrue(tenantManager.isSubTenant(mainTenant_2.getPath(), subTenant2_1.getPath()));
+    assertTrue(tenantManager.isSubTenant(mainTenant_2.getPath(), subTenant2_2.getPath()));
+    assertTrue(tenantManager.isSubTenant(subTenant2_2.getPath(), subTenant2_2.getPath()));
+    assertTrue(tenantManager.isSubTenant(subTenant1_2.getPath(), subTenant1_2.getPath()));
 
   }
   
   @Test
   public void testGetChildrenTenants() {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant systemTenant = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
 
-    Serializable tenantRootId = tenantManager.createTenant(systemTenantId, TENANT_ID_ACME);
-    assertNotNull(tenantRootId);
-    assertTrue(tenantManager.isTenantRoot(tenantRootId));
-    assertTrue(tenantManager.isTenantEnabled(tenantRootId));
+    ITenant tenantRoot = tenantManager.createTenant(systemTenant, TENANT_ID_ACME);
+    assertNotNull(tenantRoot);
+    assertTrue(tenantManager.isTenantRoot(tenantRoot));
+    assertTrue(tenantManager.isTenantEnabled(tenantRoot));
     
-    Serializable subTenantRoot1Id = tenantManager.createTenant(tenantRootId, TENANT_ID_APPLE);
-    assertTrue(tenantManager.isTenantRoot(subTenantRoot1Id));
-    assertTrue(tenantManager.isTenantEnabled(subTenantRoot1Id));
+    ITenant subTenantRoot1 = tenantManager.createTenant(tenantRoot.getId(), TENANT_ID_APPLE);
+    assertTrue(tenantManager.isTenantRoot(subTenantRoot1));
+    assertTrue(tenantManager.isTenantEnabled(subTenantRoot1));
     
-    Serializable subTenantRoot2Id = tenantManager.createTenant(tenantRootId, TENANT_ID_MICROSOFT);
-    assertTrue(tenantManager.isTenantRoot(subTenantRoot2Id));
-    assertTrue(tenantManager.isTenantEnabled(subTenantRoot2Id));
+    ITenant subTenantRoot2 = tenantManager.createTenant(tenantRoot, TENANT_ID_MICROSOFT);
+    assertTrue(tenantManager.isTenantRoot(subTenantRoot2));
+    assertTrue(tenantManager.isTenantEnabled(subTenantRoot2));
     
-    List<Serializable> tenantChildren = tenantManager.getChildTenants(tenantRootId);
+    List<ITenant> tenantChildren = tenantManager.getChildTenants(tenantRoot);
     assertTrue(tenantChildren.size() == 2);
+    List<ITenant> tenantChildrenId = tenantManager.getChildTenants(tenantRoot.getId());
+    assertTrue(tenantChildrenId.size() == 2);
   }
 }

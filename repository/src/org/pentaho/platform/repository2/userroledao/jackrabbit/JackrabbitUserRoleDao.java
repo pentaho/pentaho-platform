@@ -1,6 +1,7 @@
 package org.pentaho.platform.repository2.userroledao.jackrabbit;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
 import javax.jcr.NamespaceException;
@@ -12,15 +13,15 @@ import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository2.unified.ITenantManager;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.userroledao.AccessDeniedException;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.security.userroledao.AlreadyExistsException;
 import org.pentaho.platform.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.engine.security.userroledao.UncategorizedUserRoleDaoException;
+import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.springframework.dao.DataAccessException;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrSystemException;
@@ -31,9 +32,13 @@ public class JackrabbitUserRoleDao extends JackrabbitUserRoleService /*implement
   NameFactory NF = NameFactoryImpl.getInstance();
   Name P_PRINCIPAL_NAME = NF.create(Name.NS_REP_URI, "principalName"); //$NON-NLS-1$
   JcrTemplate jcrTemplate;
+  protected String repositoryAdminUsername;
+  protected IRepositoryFileDao repositoryFileDao;
+
   
-  public JackrabbitUserRoleDao(JcrTemplate jcrTemplate) throws NamespaceException {
+  public JackrabbitUserRoleDao(JcrTemplate jcrTemplate, IRepositoryFileDao repositoryFileDao) throws NamespaceException {
     this.jcrTemplate = jcrTemplate;
+    this.repositoryFileDao = repositoryFileDao;
   }
   
   public void setRoleMembers(final String tenantPath, final String roleName, final String[] memberUserNames) {
@@ -308,6 +313,12 @@ public class JackrabbitUserRoleDao extends JackrabbitUserRoleService /*implement
 
   public List<IPentahoRole> getUserRoles(String userName) throws UncategorizedUserRoleDaoException {
     return getUserRoles((String)null, userName);
+  }
+  
+  protected IPentahoSession createRepositoryAdminPentahoSession() {
+    StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
+    pentahoSession.setAuthenticated(repositoryAdminUsername);
+    return pentahoSession;
   }
 }
 

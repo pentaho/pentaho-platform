@@ -16,7 +16,12 @@
  *
 */
 package org.pentaho.platform.repository2.userroledao.jackrabbit;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.Serializable;
 import java.text.MessageFormat;
@@ -45,9 +50,8 @@ import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
+import org.pentaho.platform.api.repository2.unified.ITenant;
 import org.pentaho.platform.api.repository2.unified.ITenantManager;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.security.userroledao.AlreadyExistsException;
@@ -58,7 +62,9 @@ import org.pentaho.platform.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.engine.security.userroledao.PentahoRole;
 import org.pentaho.platform.engine.security.userroledao.PentahoUser;
 import org.pentaho.platform.engine.security.userroledao.hibernate.HibernateUserRoleDao;
+import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.Tenant;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.BeansException;
@@ -90,18 +96,18 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
   
   public static final String MAIN_TENANT_1 = "maintenant1";
   public static final String SUB_TENANT1_1 = "subtenant11";
+  public static final String SUB_TENANT1_1_1 = "subtenant111";
+  public static final String SUB_TENANT1_1_2 = "subtenant112";
   public static final String SUB_TENANT1_2 = "subtenant12";
+  public static final String SUB_TENANT1_2_1 = "subtenant121";
+  public static final String SUB_TENANT1_2_2 = "subtenant122";
   public static final String MAIN_TENANT_2 = "maintenant2";
   public static final String SUB_TENANT2_1 = "subtenant21";
+  public static final String SUB_TENANT2_1_1 = "subtenant111";
+  public static final String SUB_TENANT2_1_2 = "subtenant112";
   public static final String SUB_TENANT2_2 = "subtenant22";
-
-  public static final String MAIN_TENANT_1_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant1";
-  public static final String SUB_TENANT1_1_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant1" + RepositoryFile.SEPARATOR + "subtenant11";
-  public static final String SUB_TENANT1_2_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant1" + RepositoryFile.SEPARATOR + "subtenant12";
-  public static final String MAIN_TENANT_2_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant2";
-  public static final String SUB_TENANT2_1_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant2" + RepositoryFile.SEPARATOR + "subtenant21";
-  public static final String SUB_TENANT2_2_PATH = RepositoryFile.SEPARATOR + ServerRepositoryPaths.getPentahoRootFolderName() + RepositoryFile.SEPARATOR + "maintenant2" + RepositoryFile.SEPARATOR + "subtenant22";
-
+  public static final String SUB_TENANT2_2_1 = "subtenant111";
+  public static final String SUB_TENANT2_2_2 = "subtenant112";
 
   public static final String PASSWORD_1 = "password1"; //$NON-NLS-1$
   public static final String PASSWORD_2 = "password2"; //$NON-NLS-1$
@@ -111,6 +117,12 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
   public static final String PASSWORD_6 = "password6"; //$NON-NLS-1$
   public static final String PASSWORD_7 = "password7"; //$NON-NLS-1$
   public static final String PASSWORD_8 = "password8"; //$NON-NLS-1$
+  public static final String PASSWORD_9 = "password9"; //$NON-NLS-1$
+  public static final String PASSWORD_10 = "password10"; //$NON-NLS-1$
+  public static final String PASSWORD_11 = "password11"; //$NON-NLS-1$
+  public static final String PASSWORD_12 = "password12"; //$NON-NLS-1$
+  public static final String PASSWORD_13 = "password13"; //$NON-NLS-1$
+  public static final String PASSWORD_14 = "password14"; //$NON-NLS-1$
 
   public static final String USER_1 = "joe"; //$NON-NLS-1$
   public static final String USER_2 = "jim"; //$NON-NLS-1$
@@ -120,6 +132,13 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
   public static final String USER_6 = "john"; //$NON-NLS-1$
   public static final String USER_7 = "jane"; //$NON-NLS-1$
   public static final String USER_8 = "jerry"; //$NON-NLS-1$
+  public static final String USER_9 = "tom"; //$NON-NLS-1$
+  public static final String USER_10 = "johny"; //$NON-NLS-1$
+  public static final String USER_11 = "mary"; //$NON-NLS-1$
+  public static final String USER_12 = "jill"; //$NON-NLS-1$
+  public static final String USER_13 = "jack"; //$NON-NLS-1$
+  public static final String USER_14 = "jeremy"; //$NON-NLS-1$
+
   public static final String UNKNOWN_USER = "unknownUser"; //$NON-NLS-1$
   
 
@@ -127,12 +146,20 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
   
   public static final String ROLE_1 = "SalesMgr"; //$NON-NLS-1$
   public static final String ROLE_2 = "IT"; //$NON-NLS-1$
+
   public static final String ROLE_3 = "Sales"; //$NON-NLS-1$
   public static final String ROLE_4 = "Developer"; //$NON-NLS-1$
   public static final String ROLE_5 = "CEO"; //$NON-NLS-1$
   public static final String ROLE_6 = "Finance"; //$NON-NLS-1$
   public static final String ROLE_7 = "Marketing"; //$NON-NLS-1$
   public static final String ROLE_8 = "RegionalMgr"; //$NON-NLS-1$
+  public static final String ROLE_9 = "CTO"; //$NON-NLS-1$
+  public static final String ROLE_10 = "CFO"; //$NON-NLS-1$
+  public static final String ROLE_11 = "CMO"; //$NON-NLS-1$
+  public static final String ROLE_12 = "CIO"; //$NON-NLS-1$
+  public static final String ROLE_13 = "COO"; //$NON-NLS-1$
+  public static final String ROLE_14 = "CSO"; //$NON-NLS-1$
+
   public static final String UNKNOWN_ROLE = "unknownRole"; //$NON-NLS-1$
   
   public static final String USER_DESCRIPTION_1 = "User Description 1"; //$NON-NLS-1$
@@ -143,6 +170,14 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
   public static final String USER_DESCRIPTION_6 = "User Description 6"; //$NON-NLS-1$
   public static final String USER_DESCRIPTION_7 = "User Description 7"; //$NON-NLS-1$
   public static final String USER_DESCRIPTION_8 = "User Description 8"; //$NON-NLS-1$
+  public static final String USER_DESCRIPTION_9 = "User Description 9"; //$NON-NLS-1$
+  public static final String USER_DESCRIPTION_10 = "User Description 10"; //$NON-NLS-1$
+  public static final String USER_DESCRIPTION_11 = "User Description 11"; //$NON-NLS-1$
+  public static final String USER_DESCRIPTION_12 = "User Description 12"; //$NON-NLS-1$
+  public static final String USER_DESCRIPTION_13 = "User Description 13"; //$NON-NLS-1$
+  public static final String USER_DESCRIPTION_14 = "User Description 14"; //$NON-NLS-1$
+  
+  
   public static final String ROLE_DESCRIPTION_1 = "Role Description 1"; //$NON-NLS-1$
   public static final String ROLE_DESCRIPTION_2 = "Role Description 2"; //$NON-NLS-1$
   public static final String ROLE_DESCRIPTION_3 = "Role Description 3"; //$NON-NLS-1$
@@ -151,6 +186,13 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
   public static final String ROLE_DESCRIPTION_6 = "Role Description 6"; //$NON-NLS-1$
   public static final String ROLE_DESCRIPTION_7 = "Role Description 7"; //$NON-NLS-1$
   public static final String ROLE_DESCRIPTION_8 = "Role Description 8"; //$NON-NLS-1$
+
+  public static final String ROLE_DESCRIPTION_9 = "Role Description 9"; //$NON-NLS-1$
+  public static final String ROLE_DESCRIPTION_10 = "Role Description 10"; //$NON-NLS-1$
+  public static final String ROLE_DESCRIPTION_11 = "Role Description 11"; //$NON-NLS-1$
+  public static final String ROLE_DESCRIPTION_12 = "Role Description 12"; //$NON-NLS-1$
+  public static final String ROLE_DESCRIPTION_13 = "Role Description 13"; //$NON-NLS-1$
+  public static final String ROLE_DESCRIPTION_14 = "Role Description 14"; //$NON-NLS-1$
 
   NameFactory NF = NameFactoryImpl.getInstance();
   Name P_PRINCIPAL_NAME = NF.create(Name.NS_REP_URI, "principalName"); //$NON-NLS-1$
@@ -167,7 +209,7 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
   private IBackingRepositoryLifecycleManager manager;
   private IAuthorizationPolicy authorizationPolicy;
   private MicroPlatform mp;
-
+  private IRepositoryFileDao repositoryFileDao;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
@@ -188,7 +230,7 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance(ITenantManager.class, tenantManager);
-    
+    mp.define(ITenant.class, Tenant.class);
 
     // Start the micro-platform
     mp.start();
@@ -213,7 +255,7 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     jcrTemplate.setAllowCreate(true);
     jcrTemplate.setExposeNativeSession(true);
     
-    JackrabbitUserRoleDao jackrabbitUserRoleDao = new JackrabbitUserRoleDao(jcrTemplate);
+    JackrabbitUserRoleDao jackrabbitUserRoleDao = new JackrabbitUserRoleDao(jcrTemplate, repositoryFileDao);
     jackrabbitUserRoleDao.setTenantedUserNameUtils(new DefaultTenantedPrincipleNameUtils());
     jackrabbitUserRoleDao.setTenantedRoleNameUtils(new DefaultTenantedPrincipleNameUtils());
     
@@ -303,155 +345,298 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     authorizationPolicy = (IAuthorizationPolicy) applicationContext
         .getBean("authorizationPolicy");
     tenantManager = (ITenantManager) applicationContext.getBean("defaultTenantManager");
+    repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean("repositoryFileDao");
   }
+
+  
+  @Test
+  public void testGetUserWithSubTenant() throws Exception {
+    ITenant systemTenant = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2);
+    ITenant subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1);
+    ITenant subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2);
+    ITenant subTenant1_1_1 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_1);
+    ITenant subTenant1_1_2 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_2);
+    ITenant subTenant1_2_1 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_1);
+    ITenant subTenant1_2_2 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_2);
+    ITenant subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1);
+    ITenant subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2);
+    ITenant subTenant2_1_1 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_1);
+    ITenant subTenant2_1_2 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_2);
+    ITenant subTenant2_2_1 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_1);
+    ITenant subTenant2_2_2 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_2);
+    
+    login("systemTenantUser", mainTenant_1.getPath());
+    IPentahoUser pentahoUser = userRoleDao.createUser(mainTenant_1.getPath(), USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
+    pentahoUser = userRoleDao.createUser(subTenant1_1.getPath(), USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
+    pentahoUser = userRoleDao.createUser(subTenant1_2.getPath(), USER_3, PASSWORD_3, USER_DESCRIPTION_3, null);
+    pentahoUser = userRoleDao.createUser(subTenant1_1_1.getPath(), USER_4, PASSWORD_2, USER_DESCRIPTION_2, null);
+    pentahoUser = userRoleDao.createUser(subTenant1_1_2.getPath(), USER_5, PASSWORD_3, USER_DESCRIPTION_3, null);
+    pentahoUser = userRoleDao.createUser(subTenant1_2_1.getPath(), USER_6, PASSWORD_2, USER_DESCRIPTION_2, null);
+    pentahoUser = userRoleDao.createUser(subTenant1_2_2.getPath(), USER_7, PASSWORD_3, USER_DESCRIPTION_3, null);
+    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+
+    List<IPentahoUser> usersWithSubTenant = userRoleDao.getUsers(mainTenant_1.getPath(), true);
+    assertEquals(usersWithSubTenant.size(), 7);
+    List<IPentahoUser> usersWithoutSubTenant = userRoleDao.getUsers(mainTenant_1.getPath(), false);
+    assertEquals(usersWithoutSubTenant.size(), 1);
+
+
+    usersWithSubTenant = userRoleDao.getUsers(subTenant1_1.getPath(), true);
+    assertEquals(usersWithSubTenant.size(), 3);
+
+    usersWithSubTenant = userRoleDao.getUsers(subTenant1_2.getPath(), true);
+    assertEquals(usersWithSubTenant.size(), 3);
+
+    usersWithoutSubTenant = userRoleDao.getUsers(subTenant1_1.getPath(), false);
+    assertEquals(usersWithoutSubTenant.size(), 1);
+
+    usersWithoutSubTenant = userRoleDao.getUsers(subTenant1_2.getPath(), false);
+    assertEquals(usersWithoutSubTenant.size(), 1);
+
+    logout();
+
+    login("systemTenantUser", mainTenant_2.getPath());
+    
+    pentahoUser = userRoleDao.createUser(mainTenant_2.getPath(), USER_8, PASSWORD_8, USER_DESCRIPTION_8, null);
+    pentahoUser = userRoleDao.createUser(subTenant2_1.getPath(), USER_9, PASSWORD_9, USER_DESCRIPTION_9, null);
+    pentahoUser = userRoleDao.createUser(subTenant2_2.getPath(), USER_10, PASSWORD_10, USER_DESCRIPTION_10, null);
+    pentahoUser = userRoleDao.createUser(subTenant2_1_1.getPath(), USER_11, PASSWORD_11, USER_DESCRIPTION_11, null);
+    pentahoUser = userRoleDao.createUser(subTenant2_1_2.getPath(), USER_12, PASSWORD_12, USER_DESCRIPTION_12, null);
+    pentahoUser = userRoleDao.createUser(subTenant2_2_1.getPath(), USER_13, PASSWORD_13, USER_DESCRIPTION_13, null);
+    pentahoUser = userRoleDao.createUser(subTenant2_2_2.getPath(), USER_14, PASSWORD_14, USER_DESCRIPTION_14, null);
+
+    usersWithSubTenant = userRoleDao.getUsers(mainTenant_2.getPath(), true);
+    assertEquals(usersWithSubTenant.size(), 7);
+    usersWithoutSubTenant = userRoleDao.getUsers(mainTenant_2.getPath(), false);
+    assertEquals(usersWithoutSubTenant.size(), 1);
+
+    usersWithSubTenant = userRoleDao.getUsers(subTenant2_1.getPath(), true);
+    assertEquals(usersWithSubTenant.size(), 3);
+
+    usersWithSubTenant = userRoleDao.getUsers(subTenant2_2.getPath(), true);
+    assertEquals(usersWithSubTenant.size(), 3);
+
+    usersWithoutSubTenant = userRoleDao.getUsers(subTenant2_1.getPath(), false);
+    assertEquals(usersWithoutSubTenant.size(), 1);
+
+    usersWithoutSubTenant = userRoleDao.getUsers(subTenant2_2.getPath(), false);
+    assertEquals(usersWithoutSubTenant.size(), 1);
+
+    logout();
+    
+  }  
+
+  @Test
+  public void testGetRolesWithSubTenant() throws Exception {
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    ITenant subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1);
+    ITenant subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2);
+    ITenant subTenant1_1_1 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_1);
+    ITenant subTenant1_1_2 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_2);
+    ITenant subTenant1_2_1 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_1);
+    ITenant subTenant1_2_2 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_2);
+    ITenant subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1);
+    ITenant subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2);
+    ITenant subTenant2_1_1 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_1);
+    ITenant subTenant2_1_2 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_2);
+    ITenant subTenant2_2_1 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_1);
+    ITenant subTenant2_2_2 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_2);
+    
+    login("systemTenantUser", mainTenant_1.getPath());
+    IPentahoRole pentahoRole = userRoleDao.createRole(mainTenant_1.getPath(), ROLE_1, ROLE_DESCRIPTION_1, null);
+    pentahoRole = userRoleDao.createRole(subTenant1_1.getPath(), ROLE_2, ROLE_DESCRIPTION_2, null);
+    pentahoRole = userRoleDao.createRole(subTenant1_2.getPath(), ROLE_3, ROLE_DESCRIPTION_3, null);
+    pentahoRole = userRoleDao.createRole(subTenant1_1_1.getPath(), ROLE_4, ROLE_DESCRIPTION_4, null);
+    pentahoRole = userRoleDao.createRole(subTenant1_1_2.getPath(), ROLE_5, ROLE_DESCRIPTION_5, null);
+    pentahoRole = userRoleDao.createRole(subTenant1_2_1.getPath(), ROLE_6, ROLE_DESCRIPTION_6, null);
+    pentahoRole = userRoleDao.createRole(subTenant1_2_2.getPath(), ROLE_7, ROLE_DESCRIPTION_7, null);
+        
+    List<IPentahoRole> rolesWithSubTenant = userRoleDao.getRoles(mainTenant_1.getPath(), true);
+    assertEquals(rolesWithSubTenant.size(), 7);
+    List<IPentahoRole> rolesWithoutSubTenant = userRoleDao.getRoles(mainTenant_1.getPath(), false);
+    assertEquals(rolesWithoutSubTenant.size(), 1);
+    
+    logout();
+
+    login("systemTenantUser", mainTenant_2.getPath());
+    
+    pentahoRole = userRoleDao.createRole(mainTenant_2.getPath(), ROLE_8, ROLE_DESCRIPTION_8, null);
+    pentahoRole = userRoleDao.createRole(subTenant2_1.getPath(), ROLE_9, ROLE_DESCRIPTION_9, null);
+    pentahoRole = userRoleDao.createRole(subTenant2_2.getPath(), ROLE_10, ROLE_DESCRIPTION_10, null);
+    pentahoRole = userRoleDao.createRole(subTenant2_1_1.getPath(), ROLE_11, ROLE_DESCRIPTION_11, null);
+    pentahoRole = userRoleDao.createRole(subTenant2_1_2.getPath(), ROLE_12, ROLE_DESCRIPTION_12, null);
+    pentahoRole = userRoleDao.createRole(subTenant2_2_1.getPath(), ROLE_13, ROLE_DESCRIPTION_13, null);
+    pentahoRole = userRoleDao.createRole(subTenant2_2_2.getPath(), ROLE_14, ROLE_DESCRIPTION_14, null);
+ 
+
+    rolesWithSubTenant = userRoleDao.getRoles(mainTenant_2.getPath(), true);
+    assertEquals(rolesWithSubTenant.size(), 7);
+    rolesWithoutSubTenant = userRoleDao.getRoles(mainTenant_2.getPath(), false);
+    assertEquals(rolesWithoutSubTenant.size(), 1);
+
+    rolesWithSubTenant = userRoleDao.getRoles(subTenant2_1.getPath(), true);
+    assertEquals(rolesWithSubTenant.size(), 3);
+
+    rolesWithSubTenant = userRoleDao.getRoles(subTenant2_2.getPath(), true);
+    assertEquals(rolesWithSubTenant.size(), 3);
+
+    rolesWithoutSubTenant = userRoleDao.getRoles(subTenant2_1.getPath(), false);
+    assertEquals(rolesWithoutSubTenant.size(), 1);
+
+    rolesWithoutSubTenant = userRoleDao.getRoles(subTenant2_2.getPath(), false);
+    assertEquals(rolesWithoutSubTenant.size(), 1);
+    logout();
+  }  
 
   @Test
   public void testCreateUser() throws Exception {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
-    Serializable subTenant1_1_Id = tenantManager.createTenant(mainTenant_1_Id, SUB_TENANT1_1);
-    Serializable subTenant1_2_Id = tenantManager.createTenant(mainTenant_1_Id, SUB_TENANT1_2);
-    Serializable subTenant2_1_Id = tenantManager.createTenant(mainTenant_2_Id, SUB_TENANT2_1);
-    Serializable subTenant2_2_Id = tenantManager.createTenant(mainTenant_2_Id, SUB_TENANT2_2);
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    ITenant subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1);
+    ITenant subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2);
+    ITenant subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1);
+    ITenant subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2);
 
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
-    List<IPentahoUser> users = userRoleDao.getUsers(MAIN_TENANT_1_PATH);
-    IPentahoUser pentahoUser = userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
-    pentahoUser = userRoleDao.getUser(MAIN_TENANT_1_PATH, USER_1);
-    assertEquals(pentahoUser.getTenant(), MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
+    List<IPentahoUser> users = userRoleDao.getUsers(mainTenant_1.getPath());
+    IPentahoUser pentahoUser = userRoleDao.createUser(mainTenant_1.getPath(), USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
+    pentahoUser = userRoleDao.getUser(mainTenant_1.getPath(), USER_1);
+    assertEquals(pentahoUser.getTenant(), mainTenant_1.getPath());
     assertEquals(pentahoUser.getUsername(), USER_1);
     assertEquals(pentahoUser.getDescription(), USER_DESCRIPTION_1);
     assertEquals(pentahoUser.isEnabled(), true);
     logout();
-    login("systemTenantUser", SUB_TENANT2_1_PATH);
+    login("systemTenantUser", subTenant2_1.getPath());
     try {
-      pentahoUser = userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
+      pentahoUser = userRoleDao.createUser(mainTenant_1.getPath(), USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
       fail("Exception not thrown");
     } catch(Throwable th) {
       assertNotNull(th);
     }
     logout();
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
     SessionImpl session = (SessionImpl)repository.login(new SimpleCredentials("admin", "admin".toCharArray())); //$NON-NLS-1$ //$NON-NLS-2$
-    traverseNodes(session.getRootNode(), 0);
-    
-    users = userRoleDao.getUsers(MAIN_TENANT_1_PATH);
+    users = userRoleDao.getUsers(mainTenant_1.getPath());
     assertTrue(users.size() == 1);
     pentahoUser = users.get(0);    
-    assertEquals(pentahoUser.getTenant(), MAIN_TENANT_1_PATH);
+    assertEquals(pentahoUser.getTenant(), mainTenant_1.getPath());
     assertEquals(pentahoUser.getUsername(), USER_1);
     assertEquals(pentahoUser.getDescription(), USER_DESCRIPTION_1);
     assertEquals(pentahoUser.isEnabled(), true);
     
     logout();
-    login("systemTenantUser", MAIN_TENANT_2_PATH);
-    pentahoUser = userRoleDao.createUser(MAIN_TENANT_2_PATH, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
+    login("systemTenantUser", mainTenant_2.getPath());
+    pentahoUser = userRoleDao.createUser(mainTenant_2.getPath(), USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
     
     logout();
-    login("systemTenantUser", SUB_TENANT1_1_PATH);
+    login("systemTenantUser", subTenant1_1.getPath());
     try {
-      pentahoUser = userRoleDao.createUser(MAIN_TENANT_2_PATH, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
+      pentahoUser = userRoleDao.createUser(mainTenant_2.getPath(), USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
       fail("Exception not thrown");
     } catch(Throwable th) {
       assertNotNull(th);
     }
 
     logout();
-    login("systemTenantUser", MAIN_TENANT_2_PATH);
+    login("systemTenantUser", mainTenant_2.getPath());
 
-    pentahoUser = userRoleDao.getUser(MAIN_TENANT_2_PATH, USER_2);
-    assertEquals(pentahoUser.getTenant(), MAIN_TENANT_2_PATH);
+    pentahoUser = userRoleDao.getUser(mainTenant_2.getPath(), USER_2);
+    assertEquals(pentahoUser.getTenant(), mainTenant_2.getPath());
     assertEquals(pentahoUser.getUsername(), USER_2);
     assertEquals(pentahoUser.getDescription(), USER_DESCRIPTION_2);
     assertEquals(pentahoUser.isEnabled(), true);
 
-    users = userRoleDao.getUsers(MAIN_TENANT_2_PATH);
+    users = userRoleDao.getUsers(mainTenant_2.getPath());
     assertTrue(users.size() == 1);
     pentahoUser = users.get(0);    
-    assertEquals(pentahoUser.getTenant(), MAIN_TENANT_2_PATH);
+    assertEquals(pentahoUser.getTenant(), mainTenant_2.getPath());
     assertEquals(pentahoUser.getUsername(), USER_2);
     assertEquals(pentahoUser.getDescription(), USER_DESCRIPTION_2);
     assertEquals(pentahoUser.isEnabled(), true);
     
     logout();
-    login("systemTenantUser", SUB_TENANT2_1_PATH);
+    login("systemTenantUser", subTenant2_1.getPath());
 
-    pentahoUser = userRoleDao.createUser(USER_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + SUB_TENANT2_1_PATH, PASSWORD_3, USER_DESCRIPTION_3, null);
+    pentahoUser = userRoleDao.createUser(USER_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + subTenant2_1.getPath(), PASSWORD_3, USER_DESCRIPTION_3, null);
     
-    pentahoUser = userRoleDao.getUser(USER_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + SUB_TENANT2_1_PATH);
-    assertEquals(pentahoUser.getTenant(), SUB_TENANT2_1_PATH);
+    pentahoUser = userRoleDao.getUser(USER_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + subTenant2_1.getPath());
+    assertEquals(pentahoUser.getTenant(), subTenant2_1.getPath());
     assertEquals(pentahoUser.getUsername(), USER_3);
     assertEquals(pentahoUser.getDescription(), USER_DESCRIPTION_3);
     assertEquals(pentahoUser.isEnabled(), true);
     
     logout();
-    login("systemTenantUser", SUB_TENANT1_1_PATH);
+    login("systemTenantUser", subTenant1_1.getPath());
 
     try {
-      pentahoUser = userRoleDao.createUser(SUB_TENANT2_1_PATH, USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
+      pentahoUser = userRoleDao.createUser(subTenant2_1.getPath(), USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
       fail("Exception not thrown");
     } catch(Throwable th) {
       assertNotNull(th);
     }
 
     logout();
-    login("systemTenantUser", SUB_TENANT2_1_PATH);
+    login("systemTenantUser", subTenant2_1.getPath());
 
-    users = userRoleDao.getUsers(SUB_TENANT2_1_PATH);
+    users = userRoleDao.getUsers(subTenant2_1.getPath());
     assertTrue(users.size() == 1);
     pentahoUser = users.get(0);    
-    assertEquals(pentahoUser.getTenant(), SUB_TENANT2_1_PATH);
+    assertEquals(pentahoUser.getTenant(), subTenant2_1.getPath());
     assertEquals(pentahoUser.getUsername(), USER_3);
     assertEquals(pentahoUser.getDescription(), USER_DESCRIPTION_3);
     assertEquals(pentahoUser.isEnabled(), true);
     
     logout();
-    login("systemTenantUser", SUB_TENANT1_1_PATH);
+    login("systemTenantUser", subTenant1_1.getPath());
     
-    pentahoUser = userRoleDao.createUser(USER_4 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + SUB_TENANT1_1_PATH, PASSWORD_4, USER_DESCRIPTION_4, null);
+    pentahoUser = userRoleDao.createUser(USER_4 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + subTenant1_1.getPath(), PASSWORD_4, USER_DESCRIPTION_4, null);
     
-    pentahoUser = userRoleDao.getUser(USER_4 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + SUB_TENANT1_1_PATH);
-    assertEquals(pentahoUser.getTenant(), SUB_TENANT1_1_PATH);
+    pentahoUser = userRoleDao.getUser(USER_4 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + subTenant1_1.getPath());
+    assertEquals(pentahoUser.getTenant(), subTenant1_1.getPath());
     assertEquals(pentahoUser.getUsername(), USER_4);
     assertEquals(pentahoUser.getDescription(), USER_DESCRIPTION_4);
     assertEquals(pentahoUser.isEnabled(), true);
     
     logout();
-    login("systemTenantUser", SUB_TENANT2_1_PATH);
+    login("systemTenantUser", subTenant2_1.getPath());
 
     try {
-      pentahoUser = userRoleDao.createUser(SUB_TENANT1_1_PATH, USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
+      pentahoUser = userRoleDao.createUser(subTenant1_1.getPath(), USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
       fail("Exception not thrown");
     } catch(Throwable th) {
       assertNotNull(th);
     }
 
     logout();
-    login("systemTenantUser", SUB_TENANT1_1_PATH);
+    login("systemTenantUser", subTenant1_1.getPath());
 
     
-    users = userRoleDao.getUsers(SUB_TENANT1_1_PATH);
+    users = userRoleDao.getUsers(subTenant1_1.getPath());
     assertTrue(users.size() == 1);
     pentahoUser = users.get(0);    
-    assertEquals(pentahoUser.getTenant(), SUB_TENANT1_1_PATH);
+    assertEquals(pentahoUser.getTenant(), subTenant1_1.getPath());
     assertEquals(pentahoUser.getUsername(), USER_4);
     assertEquals(pentahoUser.getDescription(), USER_DESCRIPTION_4);
     assertEquals(pentahoUser.isEnabled(), true);
 
     logout();
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
     try {
-      pentahoUser = userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
+      pentahoUser = userRoleDao.createUser(mainTenant_1.getPath(), USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
       fail("Exception not thrown");
     } catch (AlreadyExistsException e) {
       // Expected exception
     }
     
     try {
-      pentahoUser = userRoleDao.createUser(USER_1 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH, PASSWORD_1, USER_DESCRIPTION_1, null);
+      pentahoUser = userRoleDao.createUser(USER_1 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath(), PASSWORD_1, USER_DESCRIPTION_1, null);
       fail("Exception not thrown");
     } catch (AlreadyExistsException e) {
       // Expected exception
@@ -460,124 +645,124 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
 
   @Test
   public void testCreateRole() throws Exception {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
-    Serializable subTenant1_1_Id = tenantManager.createTenant(mainTenant_1_Id, SUB_TENANT1_1);
-    Serializable subTenant1_2_Id = tenantManager.createTenant(mainTenant_1_Id, SUB_TENANT1_2);
-    Serializable subTenant2_1_Id = tenantManager.createTenant(mainTenant_2_Id, SUB_TENANT2_1);
-    Serializable subTenant2_2_Id = tenantManager.createTenant(mainTenant_2_Id, SUB_TENANT2_2);
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    ITenant subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1);
+    ITenant subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2);
+    ITenant subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1);
+    ITenant subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2);
 
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
-    IPentahoRole pentahoRole = userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_1, ROLE_DESCRIPTION_1, null);
+    IPentahoRole pentahoRole = userRoleDao.createRole(mainTenant_1.getPath(), ROLE_1, ROLE_DESCRIPTION_1, null);
     
-    pentahoRole = userRoleDao.getRole(MAIN_TENANT_1_PATH, ROLE_1);
-    assertEquals(pentahoRole.getTenant(), MAIN_TENANT_1_PATH);
+    pentahoRole = userRoleDao.getRole(mainTenant_1.getPath(), ROLE_1);
+    assertEquals(pentahoRole.getTenant(), mainTenant_1.getPath());
     assertEquals(pentahoRole.getName(), ROLE_1);
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_1);
     
-    List<IPentahoRole> roles = userRoleDao.getRoles(MAIN_TENANT_1_PATH);
+    List<IPentahoRole> roles = userRoleDao.getRoles(mainTenant_1.getPath());
     assertTrue(roles.size() == 1);
     pentahoRole = roles.get(0);    
-    assertEquals(pentahoRole.getTenant(), MAIN_TENANT_1_PATH);
+    assertEquals(pentahoRole.getTenant(), mainTenant_1.getPath());
     assertEquals(pentahoRole.getName(), ROLE_1);
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_1);
     logout();
-    login("systemTenantUser", SUB_TENANT2_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
     try {
-      pentahoRole = userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_1, ROLE_DESCRIPTION_1, null);
+      pentahoRole = userRoleDao.createRole(mainTenant_1.getPath(), ROLE_1, ROLE_DESCRIPTION_1, null);
       fail("Exception not thrown");
     } catch(Throwable th) {
       assertNotNull(th);
     }
     logout();
-    login("systemTenantUser", MAIN_TENANT_2_PATH);
+    login("systemTenantUser", mainTenant_2.getPath());
 
-    pentahoRole = userRoleDao.createRole(MAIN_TENANT_2_PATH, ROLE_1, ROLE_DESCRIPTION_2, null);
+    pentahoRole = userRoleDao.createRole(mainTenant_2.getPath(), ROLE_1, ROLE_DESCRIPTION_2, null);
     
-    pentahoRole = userRoleDao.getRole(MAIN_TENANT_2_PATH, ROLE_1);
-    assertEquals(pentahoRole.getTenant(), MAIN_TENANT_2_PATH);
+    pentahoRole = userRoleDao.getRole(mainTenant_2.getPath(), ROLE_1);
+    assertEquals(pentahoRole.getTenant(), mainTenant_2.getPath());
     assertEquals(pentahoRole.getName(), ROLE_1);
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_2);
     
-    roles = userRoleDao.getRoles(MAIN_TENANT_2_PATH);
+    roles = userRoleDao.getRoles(mainTenant_2.getPath());
     assertTrue(roles.size() == 1);
     pentahoRole = roles.get(0);    
-    assertEquals(pentahoRole.getTenant(), MAIN_TENANT_2_PATH);
+    assertEquals(pentahoRole.getTenant(), mainTenant_2.getPath());
     assertEquals(pentahoRole.getName(), ROLE_1);
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_2);
 
     logout();
-    login("systemTenantUser", SUB_TENANT2_1_PATH);
+    login("systemTenantUser", subTenant2_1.getPath());
     try {
-      pentahoRole = userRoleDao.createRole(MAIN_TENANT_2_PATH, ROLE_1, ROLE_DESCRIPTION_1, null);
+      pentahoRole = userRoleDao.createRole(mainTenant_2.getPath(), ROLE_1, ROLE_DESCRIPTION_1, null);
       fail("Exception not thrown");
     } catch(Throwable th) {
       assertNotNull(th);
     }
 
-    userRoleDao.createRole(ROLE_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + SUB_TENANT2_1_PATH, ROLE_DESCRIPTION_3, null);
+    userRoleDao.createRole(ROLE_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + subTenant2_1.getPath(), ROLE_DESCRIPTION_3, null);
     
-    pentahoRole = userRoleDao.getRole(ROLE_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + SUB_TENANT2_1_PATH);
-    assertEquals(pentahoRole.getTenant(), SUB_TENANT2_1_PATH);
+    pentahoRole = userRoleDao.getRole(ROLE_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + subTenant2_1.getPath());
+    assertEquals(pentahoRole.getTenant(), subTenant2_1.getPath());
     assertEquals(pentahoRole.getName(), ROLE_3);
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_3);
     
-    roles = userRoleDao.getRoles(SUB_TENANT2_1_PATH);
+    roles = userRoleDao.getRoles(subTenant2_1.getPath());
     assertTrue(roles.size() == 1);
     pentahoRole = roles.get(0);    
-    assertEquals(pentahoRole.getTenant(), SUB_TENANT2_1_PATH);
+    assertEquals(pentahoRole.getTenant(), subTenant2_1.getPath());
     assertEquals(pentahoRole.getName(), ROLE_3);
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_3);
     
     logout();
-    login("systemTenantUser", SUB_TENANT1_1_PATH);
+    login("systemTenantUser", subTenant1_1.getPath());
     try {
-      pentahoRole = userRoleDao.createRole(SUB_TENANT2_1_PATH, ROLE_3, ROLE_DESCRIPTION_3, null);
+      pentahoRole = userRoleDao.createRole(subTenant2_1.getPath(), ROLE_3, ROLE_DESCRIPTION_3, null);
       fail("Exception not thrown");
     } catch(Throwable th) {
       assertNotNull(th);
     }
 
     logout();
-    login("systemTenantUser", SUB_TENANT1_1_PATH);
+    login("systemTenantUser", subTenant1_1.getPath());
     
-    pentahoRole = userRoleDao.createRole(ROLE_4 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + SUB_TENANT1_1_PATH, ROLE_DESCRIPTION_4, null);
+    pentahoRole = userRoleDao.createRole(ROLE_4 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + subTenant1_1.getPath(), ROLE_DESCRIPTION_4, null);
     
-    pentahoRole = userRoleDao.getRole(ROLE_4 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + SUB_TENANT1_1_PATH);
-    assertEquals(pentahoRole.getTenant(), SUB_TENANT1_1_PATH);
+    pentahoRole = userRoleDao.getRole(ROLE_4 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + subTenant1_1.getPath());
+    assertEquals(pentahoRole.getTenant(), subTenant1_1.getPath());
     assertEquals(pentahoRole.getName(), ROLE_4);
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_4);
     
-    roles = userRoleDao.getRoles(SUB_TENANT1_1_PATH);
+    roles = userRoleDao.getRoles(subTenant1_1.getPath());
     assertTrue(roles.size() == 1);
     pentahoRole = roles.get(0);    
-    assertEquals(pentahoRole.getTenant(), SUB_TENANT1_1_PATH);
+    assertEquals(pentahoRole.getTenant(), subTenant1_1.getPath());
     assertEquals(pentahoRole.getName(), ROLE_4);
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_4);
 
     logout();
-    login("systemTenantUser", SUB_TENANT2_1_PATH);
+    login("systemTenantUser", subTenant2_1.getPath());
     try {
-      pentahoRole = userRoleDao.createRole(SUB_TENANT1_1_PATH, ROLE_3, ROLE_DESCRIPTION_3, null);
+      pentahoRole = userRoleDao.createRole(subTenant1_1.getPath(), ROLE_3, ROLE_DESCRIPTION_3, null);
       fail("Exception not thrown");
     } catch(Throwable th) {
       assertNotNull(th);
     }
 
     logout();
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
     try {
-      pentahoRole = userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_1, ROLE_DESCRIPTION_1, null);
+      pentahoRole = userRoleDao.createRole(mainTenant_1.getPath(), ROLE_1, ROLE_DESCRIPTION_1, null);
       fail("Exception not thrown");
     } catch (AlreadyExistsException e) {
       // Expected exception
     }
     
     try {
-      pentahoRole = userRoleDao.createRole(ROLE_1 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH, ROLE_DESCRIPTION_1, null);
+      pentahoRole = userRoleDao.createRole(ROLE_1 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath(), ROLE_DESCRIPTION_1, null);
       fail("Exception not thrown");
     } catch (AlreadyExistsException e) {
       // Expected exception
@@ -588,30 +773,30 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
   @Test
   public void testUpdateUser() throws Exception {
     
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
 
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
-    IPentahoUser pentahoUser = userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_5, PASSWORD_5, USER_DESCRIPTION_5, null);   
-    pentahoUser = userRoleDao.getUser(MAIN_TENANT_1_PATH, USER_5);
+    IPentahoUser pentahoUser = userRoleDao.createUser(mainTenant_1.getPath(), USER_5, PASSWORD_5, USER_DESCRIPTION_5, null);   
+    pentahoUser = userRoleDao.getUser(mainTenant_1.getPath(), USER_5);
     assertEquals(pentahoUser.getDescription(), USER_DESCRIPTION_5);
     String originalPassword = pentahoUser.getPassword();
     String encryptedPassword = originalPassword;
     
     String changedDescription1 = USER_DESCRIPTION_5 + "change1";
-    userRoleDao.setUserDescription(MAIN_TENANT_1_PATH, USER_5, changedDescription1);
-    pentahoUser = userRoleDao.getUser(USER_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH);
+    userRoleDao.setUserDescription(mainTenant_1.getPath(), USER_5, changedDescription1);
+    pentahoUser = userRoleDao.getUser(USER_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath());
     assertEquals(changedDescription1, pentahoUser.getDescription());
     
     String changedDescription2 = USER_DESCRIPTION_5 + "change2";
-    userRoleDao.setUserDescription(USER_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH, changedDescription2);
-    pentahoUser = userRoleDao.getUser(MAIN_TENANT_1_PATH, USER_5);
+    userRoleDao.setUserDescription(USER_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath(), changedDescription2);
+    pentahoUser = userRoleDao.getUser(mainTenant_1.getPath(), USER_5);
     assertEquals(changedDescription2, pentahoUser.getDescription());
     
-    userRoleDao.setUserDescription(USER_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH, null);
-    pentahoUser = userRoleDao.getUser(MAIN_TENANT_1_PATH, USER_5);
+    userRoleDao.setUserDescription(USER_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath(), null);
+    pentahoUser = userRoleDao.getUser(mainTenant_1.getPath(), USER_5);
     assertNull(pentahoUser.getDescription());
     
     try {
@@ -628,17 +813,17 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     }
         
     try {
-      userRoleDao.setUserDescription(MAIN_TENANT_1_PATH, UNKNOWN_USER, changedDescription2);
+      userRoleDao.setUserDescription(mainTenant_1.getPath(), UNKNOWN_USER, changedDescription2);
       fail("Exception not thrown");
     } catch (NotFoundException ex) {
       // Expected exception
     }
     logout();
-    login("systemTenantUser", MAIN_TENANT_2_PATH);
+    login("systemTenantUser", mainTenant_2.getPath());
 
     try {
       changedDescription1 = USER_DESCRIPTION_5 + "change1";
-      userRoleDao.setUserDescription(MAIN_TENANT_1_PATH, USER_5, changedDescription1);
+      userRoleDao.setUserDescription(mainTenant_1.getPath(), USER_5, changedDescription1);
       fail("Exception not thrown");
     } catch(Throwable th) {
       assertNotNull(th);
@@ -662,28 +847,28 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
 
   @Test
   public void testUpdateRole() throws Exception {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
 
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
-    IPentahoRole pentahoRole = userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_5, ROLE_DESCRIPTION_5, null);   
-    pentahoRole = userRoleDao.getRole(MAIN_TENANT_1_PATH, ROLE_5);
+    IPentahoRole pentahoRole = userRoleDao.createRole(mainTenant_1.getPath(), ROLE_5, ROLE_DESCRIPTION_5, null);   
+    pentahoRole = userRoleDao.getRole(mainTenant_1.getPath(), ROLE_5);
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_5);
     
     String changedDescription1 = ROLE_DESCRIPTION_5 + "change1";
-    userRoleDao.setRoleDescription(MAIN_TENANT_1_PATH, ROLE_5, changedDescription1);
-    pentahoRole = userRoleDao.getRole(ROLE_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH);
+    userRoleDao.setRoleDescription(mainTenant_1.getPath(), ROLE_5, changedDescription1);
+    pentahoRole = userRoleDao.getRole(ROLE_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath());
     assertEquals(changedDescription1, pentahoRole.getDescription());
     
     String changedDescription2 = ROLE_DESCRIPTION_5 + "change2";
-    userRoleDao.setRoleDescription(ROLE_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH, changedDescription2);
-    pentahoRole = userRoleDao.getRole(MAIN_TENANT_1_PATH, ROLE_5);
+    userRoleDao.setRoleDescription(ROLE_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath(), changedDescription2);
+    pentahoRole = userRoleDao.getRole(mainTenant_1.getPath(), ROLE_5);
     assertEquals(changedDescription2, pentahoRole.getDescription());
     
-    userRoleDao.setRoleDescription(ROLE_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH, null);
-    pentahoRole = userRoleDao.getRole(MAIN_TENANT_1_PATH, ROLE_5);
+    userRoleDao.setRoleDescription(ROLE_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath(), null);
+    pentahoRole = userRoleDao.getRole(mainTenant_1.getPath(), ROLE_5);
     assertNull(pentahoRole.getDescription());
     
     try {
@@ -701,17 +886,17 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     
     
     try {
-      userRoleDao.setRoleDescription(MAIN_TENANT_1_PATH, UNKNOWN_ROLE, changedDescription2);
+      userRoleDao.setRoleDescription(mainTenant_1.getPath(), UNKNOWN_ROLE, changedDescription2);
       fail("Exception not thrown");
     } catch (NotFoundException ex) {
       // Expected exception
     }
     logout();
-    login("systemTenantUser", MAIN_TENANT_2_PATH);
+    login("systemTenantUser", mainTenant_2.getPath());
 
     try {
       changedDescription1 = ROLE_DESCRIPTION_5 + "change1";
-      userRoleDao.setRoleDescription(MAIN_TENANT_1_PATH, ROLE_5, changedDescription1);
+      userRoleDao.setRoleDescription(mainTenant_1.getPath(), ROLE_5, changedDescription1);
       fail("Exception not thrown");
     } catch(Throwable th) {
       assertNotNull(th);
@@ -721,18 +906,18 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
 
   @Test
   public void testDeleteUser() throws Exception {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
 
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
-    IPentahoUser pentahoUser = userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_6, PASSWORD_6, USER_DESCRIPTION_6, null);       
-    pentahoUser = userRoleDao.getUser(USER_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH);   
+    IPentahoUser pentahoUser = userRoleDao.createUser(mainTenant_1.getPath(), USER_6, PASSWORD_6, USER_DESCRIPTION_6, null);       
+    pentahoUser = userRoleDao.getUser(USER_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath());   
     assertNotNull(pentahoUser);
     
     logout();
-    login("systemTenantUser", MAIN_TENANT_2_PATH);
+    login("systemTenantUser", mainTenant_2.getPath());
     try {
       userRoleDao.deleteUser(pentahoUser);    
       fail("Exception not thrown");
@@ -741,22 +926,22 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     }    
 
     logout();
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
     userRoleDao.deleteUser(pentahoUser);
     
-    pentahoUser = userRoleDao.getUser(USER_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH);   
+    pentahoUser = userRoleDao.getUser(USER_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath());   
     assertNull(pentahoUser);
-    assertEquals(0, userRoleDao.getUsers(MAIN_TENANT_1_PATH).size());
+    assertEquals(0, userRoleDao.getUsers(mainTenant_1.getPath()).size());
    
-    pentahoUser = userRoleDao.createUser(USER_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH, PASSWORD_6, USER_DESCRIPTION_6, null);   
-    pentahoUser = userRoleDao.getUser(MAIN_TENANT_1_PATH, USER_6);
+    pentahoUser = userRoleDao.createUser(USER_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath(), PASSWORD_6, USER_DESCRIPTION_6, null);   
+    pentahoUser = userRoleDao.getUser(mainTenant_1.getPath(), USER_6);
     
     assertNotNull(pentahoUser);
     
     userRoleDao.deleteUser(pentahoUser);
     
-    assertNull(userRoleDao.getUser(USER_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH));
+    assertNull(userRoleDao.getUser(USER_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath()));
 
     try {
       userRoleDao.deleteUser(pentahoUser);    
@@ -774,7 +959,7 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     }
     
     try {
-      pentahoUser = new PentahoUser(MAIN_TENANT_1_PATH, null, PASSWORD_6, USER_DESCRIPTION_6, true);
+      pentahoUser = new PentahoUser(mainTenant_1.getPath(), null, PASSWORD_6, USER_DESCRIPTION_6, true);
       userRoleDao.deleteUser(pentahoUser);    
       fail("Exception not thrown");
     } catch (NotFoundException e) {
@@ -782,7 +967,7 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     }
     
     try {
-      pentahoUser = new PentahoUser(MAIN_TENANT_1_PATH, UNKNOWN_USER, PASSWORD_6, USER_DESCRIPTION_6, true);
+      pentahoUser = new PentahoUser(mainTenant_1.getPath(), UNKNOWN_USER, PASSWORD_6, USER_DESCRIPTION_6, true);
       userRoleDao.deleteUser(pentahoUser);    
       fail("Exception not thrown");
     } catch (NotFoundException e) {
@@ -793,19 +978,19 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
 
   @Test
   public void testDeleteRole() throws Exception {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
 
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
 
-    IPentahoRole pentahoRole = userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_6, ROLE_DESCRIPTION_6, null);       
-    pentahoRole = userRoleDao.getRole(ROLE_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH);   
+    IPentahoRole pentahoRole = userRoleDao.createRole(mainTenant_1.getPath(), ROLE_6, ROLE_DESCRIPTION_6, null);       
+    pentahoRole = userRoleDao.getRole(ROLE_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath());   
     assertNotNull(pentahoRole);
 
     logout();
-    login("systemTenantUser", MAIN_TENANT_2_PATH);
+    login("systemTenantUser", mainTenant_2.getPath());
     try {
       userRoleDao.deleteRole(pentahoRole);
       fail("Exception not thrown");
@@ -814,21 +999,21 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     }    
 
     logout();
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
     userRoleDao.deleteRole(pentahoRole);
-    pentahoRole = userRoleDao.getRole(ROLE_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH);   
+    pentahoRole = userRoleDao.getRole(ROLE_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath());   
     assertNull(pentahoRole);
-    assertEquals(0, userRoleDao.getRoles(MAIN_TENANT_1_PATH).size());
+    assertEquals(0, userRoleDao.getRoles(mainTenant_1.getPath()).size());
    
-    pentahoRole = userRoleDao.createRole(ROLE_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH, ROLE_DESCRIPTION_6, null);   
-    pentahoRole = userRoleDao.getRole(MAIN_TENANT_1_PATH, ROLE_6);
+    pentahoRole = userRoleDao.createRole(ROLE_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath(), ROLE_DESCRIPTION_6, null);   
+    pentahoRole = userRoleDao.getRole(mainTenant_1.getPath(), ROLE_6);
     
     assertNotNull(pentahoRole);
     
     userRoleDao.deleteRole(pentahoRole);
     
-    assertNull(userRoleDao.getRole(ROLE_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH));
+    assertNull(userRoleDao.getRole(ROLE_6 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath()));
     
     try {
       userRoleDao.deleteRole(pentahoRole);    
@@ -846,7 +1031,7 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     }
     
     try {
-      pentahoRole = new PentahoRole(MAIN_TENANT_1_PATH, null, ROLE_DESCRIPTION_6);
+      pentahoRole = new PentahoRole(mainTenant_1.getPath(), null, ROLE_DESCRIPTION_6);
       userRoleDao.deleteRole(pentahoRole);    
       fail("Exception not thrown");
     } catch (NotFoundException e) {
@@ -854,7 +1039,7 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     }
     
     try {
-      pentahoRole = new PentahoRole(MAIN_TENANT_1_PATH, UNKNOWN_ROLE, ROLE_DESCRIPTION_6);
+      pentahoRole = new PentahoRole(mainTenant_1.getPath(), UNKNOWN_ROLE, ROLE_DESCRIPTION_6);
       userRoleDao.deleteRole(pentahoRole);    
       fail("Exception not thrown");
     } catch (NotFoundException e) {
@@ -864,11 +1049,11 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
   
   @Test
   public void testGetUser() throws Exception {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
 
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
     assertNull(userRoleDao.getUser(UNKNOWN_TENANT, UNKNOWN_USER));   
     assertNull(userRoleDao.getUser(UNKNOWN_USER));
@@ -876,24 +1061,24 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
 
   @Test
   public void testGetUsers() throws Exception {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
 
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
 
-    userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_7, PASSWORD_7, USER_DESCRIPTION_7, null);       
-    userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_8, PASSWORD_8, USER_DESCRIPTION_8, null);
-    List<IPentahoUser> users = userRoleDao.getUsers(MAIN_TENANT_1_PATH);
+    userRoleDao.createUser(mainTenant_1.getPath(), USER_7, PASSWORD_7, USER_DESCRIPTION_7, null);       
+    userRoleDao.createUser(mainTenant_1.getPath(), USER_8, PASSWORD_8, USER_DESCRIPTION_8, null);
+    List<IPentahoUser> users = userRoleDao.getUsers(mainTenant_1.getPath());
     assertEquals(2, users.size());
     
     for (IPentahoUser user : users) {
       if (user.getUsername().equals(USER_7)) {
-        assertEquals(user.getTenant(), MAIN_TENANT_1_PATH);
+        assertEquals(user.getTenant(), mainTenant_1.getPath());
         assertEquals(user.getDescription(), USER_DESCRIPTION_7);
         assertEquals(user.isEnabled(), true);
       } else if (user.getUsername().equals(USER_8)) {
-        assertEquals(user.getTenant(), MAIN_TENANT_1_PATH);
+        assertEquals(user.getTenant(), mainTenant_1.getPath());
         assertEquals(user.getDescription(), USER_DESCRIPTION_8);
         assertEquals(user.isEnabled(), true);
       } else {
@@ -910,22 +1095,22 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
 
   @Test
   public void testGetRoles() throws Exception {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
 
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
-    userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_7, ROLE_DESCRIPTION_7, null);       
-    userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_8, ROLE_DESCRIPTION_8, null);
-    List<IPentahoRole> roles = userRoleDao.getRoles(MAIN_TENANT_1_PATH);
+    login("systemTenantUser", mainTenant_1.getPath());
+    userRoleDao.createRole(mainTenant_1.getPath(), ROLE_7, ROLE_DESCRIPTION_7, null);       
+    userRoleDao.createRole(mainTenant_1.getPath(), ROLE_8, ROLE_DESCRIPTION_8, null);
+    List<IPentahoRole> roles = userRoleDao.getRoles(mainTenant_1.getPath());
     assertEquals(2, roles.size());
     
     for (IPentahoRole user : roles) {
       if (user.getName().equals(ROLE_7)) {
-        assertEquals(user.getTenant(), MAIN_TENANT_1_PATH);
+        assertEquals(user.getTenant(), mainTenant_1.getPath());
         assertEquals(user.getDescription(), ROLE_DESCRIPTION_7);
       } else if (user.getName().equals(ROLE_8)) {
-        assertEquals(user.getTenant(), MAIN_TENANT_1_PATH);
+        assertEquals(user.getTenant(), mainTenant_1.getPath());
         assertEquals(user.getDescription(), ROLE_DESCRIPTION_8);
       } else {
         fail("Invalid user name");
@@ -941,18 +1126,18 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
 
   @Test
   public void testRoleWithMembers() throws Exception {
-    Serializable systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
-    Serializable mainTenant_1_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
-    Serializable mainTenant_2_Id = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
-    login("systemTenantUser", MAIN_TENANT_1_PATH);
+    ITenant systemTenantId = tenantManager.createSystemTenant(ServerRepositoryPaths.getPentahoRootFolderName());
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_1);
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenantId, MAIN_TENANT_2);
+    login("systemTenantUser", mainTenant_1.getPath());
     
-    userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_1, ROLE_DESCRIPTION_1, null);       
-    userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_2, ROLE_DESCRIPTION_2, null);
-    userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_3, ROLE_DESCRIPTION_3, null);
-    userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_1, PASSWORD_1, USER_DESCRIPTION_1, new String[]{ROLE_1});
-    userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_2, PASSWORD_2, USER_DESCRIPTION_2, new String[]{ROLE_1, ROLE_2});
+    userRoleDao.createRole(mainTenant_1.getPath(), ROLE_1, ROLE_DESCRIPTION_1, null);       
+    userRoleDao.createRole(mainTenant_1.getPath(), ROLE_2, ROLE_DESCRIPTION_2, null);
+    userRoleDao.createRole(mainTenant_1.getPath(), ROLE_3, ROLE_DESCRIPTION_3, null);
+    userRoleDao.createUser(mainTenant_1.getPath(), USER_1, PASSWORD_1, USER_DESCRIPTION_1, new String[]{ROLE_1});
+    userRoleDao.createUser(mainTenant_1.getPath(), USER_2, PASSWORD_2, USER_DESCRIPTION_2, new String[]{ROLE_1, ROLE_2});
     
-    List<IPentahoUser> users = userRoleDao.getRoleMembers(MAIN_TENANT_1_PATH, ROLE_2);
+    List<IPentahoUser> users = userRoleDao.getRoleMembers(mainTenant_1.getPath(), ROLE_2);
     assertEquals(1, users.size());
     assertEquals(USER_2, users.get(0).getUsername());
     
@@ -960,23 +1145,23 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     expectedUserNames.add(USER_1);
     expectedUserNames.add(USER_2);
     ArrayList<String> actualUserNames = new ArrayList<String>();
-    users = userRoleDao.getRoleMembers(ROLE_1 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH);
+    users = userRoleDao.getRoleMembers(ROLE_1 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath());
     for (IPentahoUser user : users) {
       actualUserNames.add(user.getUsername());
     }
     assertEquals(2, actualUserNames.size());
     assertTrue(actualUserNames.containsAll(expectedUserNames));
         
-    users = userRoleDao.getRoleMembers(MAIN_TENANT_1_PATH, ROLE_3);
+    users = userRoleDao.getRoleMembers(mainTenant_1.getPath(), ROLE_3);
     assertEquals(0, users.size());
     
-    userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_5, PASSWORD_5, USER_DESCRIPTION_5, null);       
-    userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_6, PASSWORD_6, USER_DESCRIPTION_6, null);
-    userRoleDao.createUser(MAIN_TENANT_1_PATH, USER_7, PASSWORD_7, USER_DESCRIPTION_7, null);
-    userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_5, ROLE_DESCRIPTION_6, new String[]{USER_5});
-    userRoleDao.createRole(MAIN_TENANT_1_PATH, ROLE_6, ROLE_DESCRIPTION_7, new String[]{USER_5, USER_6});
+    userRoleDao.createUser(mainTenant_1.getPath(), USER_5, PASSWORD_5, USER_DESCRIPTION_5, null);       
+    userRoleDao.createUser(mainTenant_1.getPath(), USER_6, PASSWORD_6, USER_DESCRIPTION_6, null);
+    userRoleDao.createUser(mainTenant_1.getPath(), USER_7, PASSWORD_7, USER_DESCRIPTION_7, null);
+    userRoleDao.createRole(mainTenant_1.getPath(), ROLE_5, ROLE_DESCRIPTION_6, new String[]{USER_5});
+    userRoleDao.createRole(mainTenant_1.getPath(), ROLE_6, ROLE_DESCRIPTION_7, new String[]{USER_5, USER_6});
     
-    List<IPentahoRole> roles = userRoleDao.getUserRoles(MAIN_TENANT_1_PATH, USER_6);
+    List<IPentahoRole> roles = userRoleDao.getUserRoles(mainTenant_1.getPath(), USER_6);
     assertEquals(1, roles.size());
     assertEquals(ROLE_6, roles.get(0).getName());
     
@@ -984,18 +1169,18 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     expectedRoleNames.add(ROLE_5);
     expectedRoleNames.add(ROLE_6);
     ArrayList<String> actualRoleNames = new ArrayList<String>();
-    roles = userRoleDao.getUserRoles(USER_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH);
+    roles = userRoleDao.getUserRoles(USER_5 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath());
     for (IPentahoRole role : roles) {
       actualRoleNames.add(role.getName());
     }
     assertEquals(2, actualRoleNames.size());
     assertTrue(actualRoleNames.containsAll(expectedRoleNames));
         
-    roles = userRoleDao.getUserRoles(MAIN_TENANT_1_PATH, USER_7);
+    roles = userRoleDao.getUserRoles(mainTenant_1.getPath(), USER_7);
     assertEquals(0, roles.size());
     
-    userRoleDao.setUserRoles(USER_7 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH, new String[]{ROLE_5, ROLE_6});
-    roles = userRoleDao.getUserRoles(USER_7 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH);
+    userRoleDao.setUserRoles(USER_7 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath(), new String[]{ROLE_5, ROLE_6});
+    roles = userRoleDao.getUserRoles(USER_7 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath());
     actualRoleNames.clear();
     for (IPentahoRole role : roles) {
       actualRoleNames.add(role.getName());
@@ -1003,8 +1188,8 @@ public class JackrabbitUserRoleDaoTest implements ApplicationContextAware {
     assertEquals(2, actualRoleNames.size());
     assertTrue(actualRoleNames.containsAll(expectedRoleNames));
     
-    userRoleDao.setRoleMembers(ROLE_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH, new String[]{USER_1, USER_2});
-    users = userRoleDao.getRoleMembers(ROLE_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + MAIN_TENANT_1_PATH);
+    userRoleDao.setRoleMembers(ROLE_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath(), new String[]{USER_1, USER_2});
+    users = userRoleDao.getRoleMembers(ROLE_3 + DefaultTenantedPrincipleNameUtils.DEFAULT_DELIMETER + mainTenant_1.getPath());
     actualUserNames.clear();
     for (IPentahoUser user : users) {
       actualUserNames.add(user.getUsername());

@@ -38,12 +38,10 @@ import org.pentaho.platform.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.engine.security.userroledao.PentahoRole;
 import org.pentaho.platform.engine.security.userroledao.PentahoUser;
 
-public class JackrabbitUserRoleService  {
+public abstract class JackrabbitUserRoleService  {
   
   NameFactory NF = NameFactoryImpl.getInstance();
   Name P_PRINCIPAL_NAME = NF.create(Name.NS_REP_URI, "principalName"); //$NON-NLS-1$
-  
-//  private SessionImpl session;
   private ITenantedPrincipleNameUtils tenantedUserNameUtils;
   private ITenantedPrincipleNameUtils tenantedRoleNameUtils;
   String pPrincipalName = "rep:principalName";  
@@ -51,8 +49,6 @@ public class JackrabbitUserRoleService  {
   HashMap<String, UserManagerImpl> userMgrMap = new HashMap<String, UserManagerImpl>();
   ITenantManager tenantManager = PentahoSystem.get(ITenantManager.class);
   
-  public JackrabbitUserRoleService() throws NamespaceException {
-  }
   
 //  public JackrabbitUserRoleDao(SessionImpl superUserSession) throws NamespaceException {
 //    session = superUserSession;
@@ -167,7 +163,8 @@ public class JackrabbitUserRoleService  {
     String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, role);
     
     UserManager tenantUserMgr = getUserManager(tenant, session);
-    tenantUserMgr.createGroup(new PrincipalImpl(roleId), tenant);
+    // Intermediate path will always be an empty string. The path is already provided while creating a user manager
+    tenantUserMgr.createGroup(new PrincipalImpl(roleId), "");
     setRoleMembers(session, tenant, role, memberUserNames);
     setRoleDescription(session, tenant, role, description);
     return getRole(session, tenantName, roleName);
@@ -182,9 +179,9 @@ public class JackrabbitUserRoleService  {
     }
     internalSubTenantCheck(tenant);
     String userId = tenantedUserNameUtils.getPrincipleId(tenant, user);
-    
     UserManager tenantUserMgr = getUserManager(tenant, session);
-    tenantUserMgr.createUser(userId, password, new PrincipalImpl(userId), tenant);
+    // Intermediate path will always be an empty string. The path is already provided while creating a user manager
+    tenantUserMgr.createUser(userId, password, new PrincipalImpl(userId), "");
     setUserRoles(session, tenant, user, roles);
     setUserDescription(session, tenant, user, description);
     return getUser(session, tenantName, userName);
@@ -332,7 +329,8 @@ public class JackrabbitUserRoleService  {
     return getRoles(session, tenant, false);
   }
 
-  public List<IPentahoRole> getRoles(Session session, final String tenant, boolean includeSubtenants) throws RepositoryException {
+  
+ public List<IPentahoRole> getRoles(Session session, final String tenant, boolean includeSubtenants) throws RepositoryException {
     ArrayList<IPentahoRole> roles = new ArrayList<IPentahoRole>();
     internalSubTenantCheck(tenant);
     UserManager userMgr = getUserManager(tenant, session);
@@ -340,10 +338,17 @@ public class JackrabbitUserRoleService  {
     Iterator<Authorizable> it = userMgr.findAuthorizables(pPrincipalName, null, UserManager.SEARCH_TYPE_GROUP);
     while (it.hasNext()) {
       Group group = (Group)it.next();
-      roles.add(convertToPentahoRole(group));
+      IPentahoRole pentahoRole = convertToPentahoRole(group);
+      if(includeSubtenants) {
+        roles.add(pentahoRole);
+      } else {
+        if(pentahoRole.getTenant() != null && pentahoRole.getTenant().equals(tenant)) {
+          roles.add(pentahoRole);
+        }
+      }
     }
     return roles;
-  }
+ }
   
   public List<IPentahoUser> getUsers(Session session, String tenant) throws RepositoryException {
     return getUsers(session, tenant, false);
@@ -357,8 +362,16 @@ public class JackrabbitUserRoleService  {
     Iterator<Authorizable> it = userMgr.findAuthorizables(pPrincipalName, null, UserManager.SEARCH_TYPE_USER);
     while (it.hasNext()) {
       User user = (User)it.next();
-      users.add(convertToPentahoUser(user));
+      IPentahoUser pentahoUser = convertToPentahoUser(user);
+      if(includeSubtenants) {
+        users.add(pentahoUser);
+      } else {
+        if(pentahoUser.getTenant() != null && pentahoUser.getTenant().equals(tenant)) {
+          users.add(pentahoUser);
+        }
+      }
     }
+    
     return users;
  }
   
