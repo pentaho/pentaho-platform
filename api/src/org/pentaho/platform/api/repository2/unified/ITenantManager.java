@@ -36,42 +36,25 @@ public interface ITenantManager {
   
   // ~ Tenant Creation =================================================================
   /**
-   *  
    * @param tenantName
-   * @return tenant
+   * @return
    */
-  ITenant createSystemTenant(final String tenantName);
+  Serializable createSystemTenant(final String tenantName);
   
   /**
-   *  
-   * @param parentTenant
+   * @param parentPath
    * @param tenantName
-   * @return tenant
+   * @return a "tenantPath"
    */
-  ITenant createTenant(final ITenant parentTenant, final String tenantName);
-
-  /**
-   * 
-   * @param parentTenantFolderId
-   * @param tenantName
-   * @return tenant
-   */
-  ITenant createTenant(final Serializable parentTenantFolderId, final String tenantName);
+  Serializable createTenant(final Serializable parentTenantFolderId, final String tenantName);
   
   /**
-   * @param parentTenant
+   * @param parentPath
    * @param tenantNames
-   * @return a Tenant List
+   * @return a List of strings each holding a "tenantPath"
    */
-  List<ITenant> createTenants(final ITenant parentTenant, final List<String> tenantNames);
-
-  /**
-   * @param parentTenantFolderId
-   * @param tenantNames
-   * @return a Tenant List
-   */
-  List<ITenant> createTenants(final Serializable parentTenantFolderId, final List<String> tenantNames);
-
+  List<Serializable> createTenants(final Serializable parentTenantFolderId, final List<String> tenantNames);
+  
   /**
    * @param tenantPath
    * @param username
@@ -83,10 +66,10 @@ public interface ITenantManager {
   /**
    * Gets children of the "parentPath" tenant.  Returns only level one children.  Not descendants
    * 
-   * @param parentTenantPath
-   * @return a list of Tenant
+   * @param parentPath
+   * @return a list of "tenentPath"
    */
-  List<ITenant> getChildTenants(final String parentTenantPath);
+  List<Serializable> getChildTenants(final String parentTenantPath);
   
   /**
    * Gets children tenants of the "parentFolderId" tenant.  Returns only level one children.  Not descendants
@@ -94,16 +77,8 @@ public interface ITenantManager {
    * @param parentFolderId - Serializable that represents the folder id of the parent tenant
    * @return List of children that are subTenants of the parent tenant.
    */
-  List<ITenant> getChildTenants(final Serializable parentTenantFolderId);
-
-  /**
-   * Gets children tenants of the "parent" tenant.  Returns only level one children.  Not descendants
-   * 
-   * @param parentTenant - 
-   * @return List of children that are subTenants of the parent tenant.
-   */
-  List<ITenant> getChildTenants(final ITenant parentTenant);
-
+  List<Serializable> getChildTenants(final Serializable parentTenantFolderId);
+  
   // ~ Modify Tenant ===================================================================
   /**
    * Updates tenant with the items in tenant info.  Each item must be a "well-know" attribute
@@ -128,15 +103,7 @@ public interface ITenantManager {
    * @return success
    */
   void deleteTenant(final String tenantPath);
-
-  /**
-   * Deletes the tenant
-   * 
-   * @param tenant
-   * @return success
-   */
-  void deleteTenant(final ITenant tenant);
-
+  
   /**
    * Deletes a list of tenants
    * 
@@ -144,7 +111,6 @@ public interface ITenantManager {
    * @return success
    */
   void deleteTenants(final List<String> tenantPaths);
-
   
   // ~ Enable/Disable Tenants ================================================================
   /**
@@ -160,13 +126,6 @@ public interface ITenantManager {
    * @param enable
    */
   void enableTenant(final String tenantPath, final boolean enable);
-
-  /**
-   * Enables/disables the tenant with the paths of tenantPath
-   * @param tenant
-   * @param enable
-   */
-  void enableTenant(final ITenant tenant, final boolean enable);
   
   /**
    * Enables/disables the tenants with paths in the tenantPaths list
@@ -187,13 +146,7 @@ public interface ITenantManager {
    * @return boolean that is true if the tenantPath is a tenant root directory
    */
   boolean isTenantRoot(final String tenantPath);
-
-  /**
-   * @param tenant
-   * @return boolean that is true if the tenantPath is a tenant root directory
-   */
-  boolean isTenantRoot(final ITenant tenant);
-
+  
   /**
    * @param tenantRootfileId
    * @return boolean that is true if the tenantRootfileId is an enabled tenant root directory
@@ -205,13 +158,7 @@ public interface ITenantManager {
    * @return boolean that is true if the tenantPath is an enabled tenant root directory
    */
   boolean isTenantEnabled(final String tenantPath);
-
-  /**
-   * @param tenant
-   * @return boolean that is true if the tenantPath is an enabled tenant root directory
-   */
-  boolean isTenantEnabled(final ITenant tenant);
-
+  
   /**
    * 
    * @param tenantPath
@@ -221,24 +168,4 @@ public interface ITenantManager {
    * parent
    */
   boolean isSubTenant(final String parentTenantPath, final String descendantTenantPath);
-
-  /**
-   * 
-   * @param parentTenant
-   * @param descendantTenant
-   * @return boolean that is true if the parentTenant is the same as 
-   * descendantTenant or the descendantTenant is the descendant of the
-   * parent
-   */
-  boolean isSubTenant(final ITenant parentTenant, final ITenant descendantTenant);
-
-  /**
-   * 
-   * @param parentTenantFolderId
-   * @param descendantTenantFolderId
-   * @return boolean that is true if the parentTenantFolderId is the same as 
-   * descendantTenantFolderId or the descendantTenantFolderId is the descendant of the
-   * parent
-   */
-  boolean isSubTenant(final Serializable parentTenantFolderId, final Serializable descendantTenantFolderId);
 }
