@@ -201,4 +201,6 @@ not directly from the PentahoObjectFactory. -->
   <bean id="ICacheExpirationRegistry" class="org.pentaho.platform.plugin.services.cache.CacheExpirationRegistry"
         scope="singleton"/>
 
+  <bean id="ITenant" class="org.pentaho.platform.repository2.unified.Tenant" scope="prototype"/>
+
 </beans>

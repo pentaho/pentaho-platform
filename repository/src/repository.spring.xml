@@ -472,5 +472,5 @@
   </bean>
 
   <!-- end authorization policy -->
-
+  <bean id="ITenant" class="org.pentaho.platform.repository2.unified.Tenant"/>
 </beans>
