@@ -458,6 +458,11 @@
 	</servlet>
 	<!--   End BISERVER-3640 -->
 
+    <servlet>
+        <servlet-name>RequireJSConfig</servlet-name>
+        <jsp-file>/jsp/RequireJSConfig.jsp</jsp-file>
+    </servlet>
+
 	<!-- ================================= merged servlets =================================== -->
     <servlet>
         <servlet-name>CacheExpirationService</servlet-name>
@@ -805,7 +810,12 @@
 	</servlet-mapping>
 	<!--   End BISERVER-3640 -->
 
-	<!-- =============================== merged servlet-mappings ============================= -->
+    <servlet-mapping>
+        <servlet-name>RequireJSConfig</servlet-name>
+        <url-pattern>/js/require-cfg.js</url-pattern>
+    </servlet-mapping>
+
+    <!-- =============================== merged servlet-mappings ============================= -->
 	<servlet-mapping>
 		<servlet-name>RepositoryTree</servlet-name>
 		<url-pattern>/RepositoryTree</url-pattern>
