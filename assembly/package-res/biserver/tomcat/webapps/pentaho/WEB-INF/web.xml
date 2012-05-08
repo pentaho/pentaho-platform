@@ -463,6 +463,11 @@
         <jsp-file>/jsp/RequireJSConfig.jsp</jsp-file>
     </servlet>
 
+    <servlet>
+        <servlet-name>LocalizationServlet</servlet-name>
+        <servlet-class>org.pentaho.platform.web.servlet.LocalizationServlet</servlet-class>
+    </servlet>
+
 	<!-- ================================= merged servlets =================================== -->
     <servlet>
         <servlet-name>CacheExpirationService</servlet-name>
@@ -814,6 +819,12 @@
         <servlet-name>RequireJSConfig</servlet-name>
         <url-pattern>/js/require-cfg.js</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>LocalizationServlet</servlet-name>
+        <url-pattern>/i18n</url-pattern>
+    </servlet-mapping>
+
 
     <!-- =============================== merged servlet-mappings ============================= -->
 	<servlet-mapping>
