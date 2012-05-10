@@ -52,6 +52,10 @@
   <property name="bi-developers.solution.dir" value="${solutions.dir}/bi-developers" />
   <property name="datasource.res.dir" value="${package.res.dir}/appserver/tomcat/res/datasources"/>
   <property name="bi-developers.visible" value="true" description="Should the bi-developers samples be visible" />
+
+  <property name="plugin-samples.solution.dir" value="${stage.dir.solutions}/plugin-samples" />
+  <property name="plugin-samples.visible" value="true" description="Should the plugin-samples be visible" />
+
   <property name="user-console.tmp.dir" value="${basedir}/temp" />
   <property name="tomcat.dir" value="${subfloor.resources.dir}/apache-tomcat-6.0.29" description="Directory where tomcat is deployed"/>
   <property name="third-party.dir" value="${subfloor.resources.dir}/third-party" description="Directory where 3rd party tools are included in the platform assemblies" />
@@ -292,11 +296,13 @@
     </copy>
 
     <!-- install solution archives -->
-    <unzip dest="${stage.dir.solutions}" overwrite="true">
+    <unzip dest="${plugin-samples.solution.dir}" overwrite="true">
       <fileset file="${solution-archives.dir}/*.zip" />
     </unzip>
+    <!-- Set the visible value of the plugin-sample dirs -->
+    <set-solution-visibility dir="${plugin-samples.solution.dir}" visible="${plugin-samples.visible}" />
 
-    <!-- Add libraries to the sample data -->
+      <!-- Add libraries to the sample data -->
     <antcall target="resolve-sampledata-libs"/>
 
   </target>
