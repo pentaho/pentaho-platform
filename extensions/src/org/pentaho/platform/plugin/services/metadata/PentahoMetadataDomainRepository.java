@@ -503,11 +503,13 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
 
   protected void loadLocaleStrings(final String domainId, final Domain domain) {
     final Map<String, RepositoryFile> localeFiles = metadataMapping.getLocaleFiles(domainId);
-    for (final String locale : localeFiles.keySet()) {
-      final RepositoryFile localeFile = localeFiles.get(locale);
-      final Properties properties = loadProperties(localeFile);
-      logger.trace("\tLoading properties [" + domain + " : " + locale + "]");
-      localizationUtil.importLocalizedProperties(domain, properties, locale);
+    if(localeFiles != null) {
+	    for (final String locale : localeFiles.keySet()) {
+	      final RepositoryFile localeFile = localeFiles.get(locale);
+	      final Properties properties = loadProperties(localeFile);
+	      logger.trace("\tLoading properties [" + domain + " : " + locale + "]");
+	      localizationUtil.importLocalizedProperties(domain, properties, locale);
+	    }
     }
   }
 
