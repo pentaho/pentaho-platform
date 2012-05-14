@@ -28,7 +28,7 @@
 		<dependency org="dom4j"               name="dom4j"               rev="1.6.1" transitive="false"/>
 		<dependency org="jaxen"               name="jaxen"               rev="1.1"   transitive="false"/>
 		<dependency org="jfree" name="jcommon"        rev="1.0.14" transitive="false"/>
-		<dependency org="jfree"               name="jfreechart"           rev="1.0.9" transitive="false"/>
+		<dependency org="jfree"               name="jfreechart"           rev="1.0.13" transitive="false"/>
 		
 		<dependency org="org.springframework"          name="spring"               rev="2.5.6"         transitive="false"/>
 		<dependency org="org.springframework.security" name="spring-security-core" rev="2.0.5.RELEASE" transitive="false"/>
@@ -76,5 +76,6 @@
     	<dependency org="org.jmock" name="jmock-legacy" rev="2.5.1" conf="test->default" />
 		<dependency org="hsqldb" name="hsqldb" rev="1.8.0.7" conf="test->default" />
     	<dependency org="log4j" name="log4j" rev="1.2.16" conf="test->default" />
+    <dependency org="org.springframework" name="spring-mock" rev="2.0.2" transitive="false" conf="test->default" />
 	</dependencies>
 </ivy-module>

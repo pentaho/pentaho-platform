@@ -85,7 +85,9 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
     
     try {
     	DefaultFileSystemManager dfsm = (DefaultFileSystemManager)VFS.getManager();
-    	dfsm.addProvider("mondrian", new MondrianVfs());
+      if(dfsm.hasProvider("mondrian") == false){
+        dfsm.addProvider("mondrian", new MondrianVfs());
+      }
     } catch (FileSystemException e) {
     	logger.error(e.getMessage());
     }
