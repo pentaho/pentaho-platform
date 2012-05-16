@@ -66,6 +66,7 @@ public class DefaultImportHandler implements ImportHandler {
     final StreamToJobNodeConverter jobConverter = new StreamToJobNodeConverter(repository);
     final StreamToTransNodeConverter transConverter = new StreamToTransNodeConverter(repository);
     converters.put("prpt", streamConverter);
+    converters.put("prpti", streamConverter);
     converters.put("mondrian.xml", streamConverter);
     converters.put("report", streamConverter);
     converters.put("rptdesign", streamConverter);
