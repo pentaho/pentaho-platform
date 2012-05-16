@@ -77,16 +77,20 @@ public class SimpleImportProcessor implements ImportProcessor {
    */
   @Override
   public void performImport() throws ImportException {
-    try {
-      final Iterable<ImportSource.IRepositoryFileBundle> files = importSource.getFiles();
-      for (final ImportHandler importHandler : importHandlerList) {
-        try {
-          log.info("Trying import handler [" + importHandler.getName() + "] with a file set of size " + importSource.getCount() + "...");
-          importHandler.doImport(files, destinationPath, comment, true);
-        } catch (ImportException e) {
-          log.error("Error using import handler [" + importHandler.getName() + "] (skipping) - " + e.getLocalizedMessage()); // TODO I18N
-        }
-      }
+    performImport(true);
+  }
+  
+  public void performImport(boolean overwrite) {
+	try {
+	  final Iterable<ImportSource.IRepositoryFileBundle> files = importSource.getFiles();
+	  for (final ImportHandler importHandler : importHandlerList) {
+	    try {
+	      log.info("Trying import handler [" + importHandler.getName() + "] with a file set of size " + importSource.getCount() + "...");
+	      importHandler.doImport(files, destinationPath, comment, overwrite);
+	    } catch (ImportException e) {
+	      log.error("Error using import handler [" + importHandler.getName() + "] (skipping) - " + e.getLocalizedMessage()); // TODO I18N
+	    }
+	  }
     } catch (IOException e) {
       e.printStackTrace(); // TODO I18N
     }
