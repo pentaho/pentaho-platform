@@ -62,7 +62,7 @@ public class FileSystemXmlPluginProvider extends SystemPathXmlPluginProvider {
     for (File kid : kids) {
       if (kid.isDirectory()) {
         try {
-          processDirectory(plugins, kid, null, session);
+          processDirectory(plugins, kid, session);
         } catch (Throwable t) {
           //don't throw an exception.  we need to continue to process any remaining good plugins
           String msg = Messages.getInstance().getErrorString(
@@ -77,7 +77,7 @@ public class FileSystemXmlPluginProvider extends SystemPathXmlPluginProvider {
   }
   
   @Override
-  protected void processDirectory(List<IPlatformPlugin> plugins, File folder, ISolutionRepository repo,
+  protected void processDirectory(List<IPlatformPlugin> plugins, File folder,
       IPentahoSession session) throws PlatformPluginRegistrationException {
     // see if there is a plugin.xml file
     FilenameFilter filter = new NameFileFilter("plugin.xml", IOCase.SENSITIVE); //$NON-NLS-1$
@@ -108,7 +108,7 @@ public class FileSystemXmlPluginProvider extends SystemPathXmlPluginProvider {
       String xml = sb.toString();
       doc = DocumentHelper.parseText( xml );
       if (doc != null) {
-        plugins.add(createPlugin(doc, session, folder.getName(), null, hasLib));
+        plugins.add(createPlugin(doc, session, folder.getName(), hasLib));
       }
     } catch (Exception e) {
       throw new PlatformPluginRegistrationException(Messages.getInstance().getErrorString(

@@ -66,17 +66,12 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
    * Gets the list of plugins that this provider class has discovered.
    * 
    * @return an read-only list of plugins
-   * @see IPluginProvider#getPlugins()
+   * @see IPluginProvider#getPlugins(IPentahoSession session)
    * @throws PlatformPluginRegistrationException if there is a problem preventing the impl from looking for plugins
    */
   public List<IPlatformPlugin> getPlugins(IPentahoSession session) throws PlatformPluginRegistrationException {
     List<IPlatformPlugin> plugins = new ArrayList<IPlatformPlugin>();
 
-    ISolutionRepository repo = PentahoSystem.get(ISolutionRepository.class, session);
-    if (repo == null) {
-      throw new PlatformPluginRegistrationException(Messages.getInstance()
-          .getErrorString("PluginManager.ERROR_0008_CANNOT_GET_REPOSITORY")); //$NON-NLS-1$
-    }
     // look in each of the system setting folders looking for plugin.xml files
     String systemPath = PentahoSystem.getApplicationContext().getSolutionPath("system"); //$NON-NLS-1$
     File systemDir = new File(systemPath);
@@ -89,7 +84,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     for (File kid : kids) {
       if (kid.isDirectory()) {
         try {
-          processDirectory(plugins, kid, repo, session);
+          processDirectory(plugins, kid, session);
         } catch (Throwable t) {
           //don't throw an exception.  we need to continue to process any remaining good plugins
           String msg = Messages.getInstance().getErrorString(
@@ -103,7 +98,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     return Collections.unmodifiableList(plugins);
   }
 
-  protected void processDirectory(List<IPlatformPlugin> plugins, File folder, ISolutionRepository repo,
+  protected void processDirectory(List<IPlatformPlugin> plugins, File folder,
       IPentahoSession session) throws PlatformPluginRegistrationException {
     // see if there is a plugin.xml file
     FilenameFilter filter = new NameFileFilter("plugin.xml", IOCase.SENSITIVE); //$NON-NLS-1$
@@ -130,7 +125,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
         // XML document can't be read. We'll just return a null document.
       }
       if (doc != null) {
-        plugins.add(createPlugin(doc, session, folder.getName(), repo, hasLib));
+        plugins.add(createPlugin(doc, session, folder.getName(), hasLib));
       }
     } catch (Exception e) {
       throw new PlatformPluginRegistrationException(Messages.getInstance().getErrorString(
@@ -142,14 +137,14 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     }
   }
 
-  protected PlatformPlugin createPlugin(Document doc, IPentahoSession session, String folder, ISolutionRepository repo,
+  protected PlatformPlugin createPlugin(Document doc, IPentahoSession session, String folder,
       boolean hasLib) {
     PlatformPlugin plugin = new PlatformPlugin();
 
     processStaticResourcePaths(plugin, doc, session);
     processPluginInfo(plugin, doc, folder, session);
     processContentTypes(plugin, doc, session);
-    processContentGenerators(plugin, doc, session, folder, repo, hasLib);
+    processContentGenerators(plugin, doc, session, folder, hasLib);
     processOverlays(plugin, doc, session);
     processLifecycleListeners(plugin, doc);
     processBeans(plugin, doc);
@@ -372,8 +367,7 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     return propValue;
   }
 
-  protected void processContentGenerators(PlatformPlugin plugin, Document doc, IPentahoSession session, String folder,
-      ISolutionRepository repo, boolean hasLib) {
+  protected void processContentGenerators(PlatformPlugin plugin, Document doc, IPentahoSession session, String folder, boolean hasLib) {
     // look for content generators
     List<?> nodes = doc.selectNodes("//content-generator"); //$NON-NLS-1$
     for (Object obj : nodes) {
