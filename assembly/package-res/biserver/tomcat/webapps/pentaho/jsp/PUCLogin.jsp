@@ -308,8 +308,12 @@ function toggleEvalPanel() {
 function bounceToReturnLocation() {
 	// pass
 	var locale = document.login.locale.options[document.login.locale.selectedIndex].value;
-	
+
 	var returnLocation = '<%=ESAPI.encoder().encodeForJavaScript(requestedURL)%>';
+
+	if(/(iPad|iPod|iPhone)/.test(navigator.userAgent) || window.orientation !== undefined){
+    returnLocation = CONTEXT_PATH+"content/analyzer/selectSchema";
+	}
 
 	if (document.getElementById("launchInNewWindow").checked) {
 		if (returnLocation != '' && returnLocation != null) {
