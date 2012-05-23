@@ -98,6 +98,11 @@ body{
   boolean hasDashboards = false;
   IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()); 
   if (pluginManager != null) {
+
+  	hasAnalyzer = pluginManager.getRegisteredPlugins().contains("analyzer");
+  	hasIteractiveReporting = pluginManager.getRegisteredPlugins().contains("pentaho-interactive-reporting");
+  	hasDashboards = pluginManager.getRegisteredPlugins().contains("dashboards");
+
     for(XulOverlay overlayObj : pluginManager.getOverlays()) {
       if (overlayObj.getId() != null && overlayObj.getId().equals("launch")) { //$NON-NLS-1$
         ResourceBundle bundle = getBundle(overlayObj.getResourceBundleUri());
@@ -120,16 +125,14 @@ body{
         if (actionName != null) {	  
           int startCommand = overlay.indexOf("command=\""); //$NON-NLS-1$
           int endCommand = overlay.indexOf("\"", startCommand + 9); //$NON-NLS-1$
-          String actionCommand = overlay.substring(startCommand + 9, endCommand);		  
+          String actionCommand = overlay.substring(startCommand + 9, endCommand);	
+          if(actionCommand.contains("xwaqr") && hasIteractiveReporting) continue; 
 		  %>
 		  actionToCmdMap['<%=actionName%>'] = "<%= actionCommand%>";
 		  <%
         }
       }
     }
-  	hasAnalyzer = pluginManager.getRegisteredPlugins().contains("analyzer");
-  	hasIteractiveReporting = pluginManager.getRegisteredPlugins().contains("pentaho-interactive-reporting");
-  	hasDashboards = pluginManager.getRegisteredPlugins().contains("dashboards");
   }
 %>
 
