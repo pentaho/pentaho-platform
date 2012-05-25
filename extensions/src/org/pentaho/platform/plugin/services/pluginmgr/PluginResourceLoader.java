@@ -265,9 +265,15 @@ public class PluginResourceLoader implements IPluginResourceLoader {
   public String getPluginSetting(Class<?> pluginClass, String key, String defaultVal) {
     ClassLoader classLoader = getClassLoader(pluginClass);
     String pluginPath = getSystemRelativePluginPath(classLoader);
+    File absPluginPath = getPluginDir(classLoader);
     if( pluginPath == null ) {
       Logger.debug(this, Messages.getInstance().getString(
           "PluginResourceLoader.WARN_PLUGIN_PATH_BAD", ""+pluginClass, settingsPath, key)); //$NON-NLS-1$
+      return defaultVal;
+    }
+    File settingsFile = new File(absPluginPath, settingsPath);
+    if(!settingsFile.exists()){
+      Logger.debug(this, Messages.getInstance().getErrorString("SYSTEMSETTINGS.ERROR_0002_FILE_NOT_IN_SOLUTION", settingsFile.getAbsolutePath())); //$NON-NLS-1$
       return defaultVal;
     }
     return PentahoSystem.getSystemSetting( pluginPath+settingsPath, key, defaultVal);
