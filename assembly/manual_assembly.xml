@@ -40,15 +40,17 @@
   <property name="bi.platform.web.dir" value="../bi-platform-web" />
   <property name="bi.platform.web.servlet.dir" value="../bi-platform-web-servlet" />
   <property name="bi.platform.security.userroledao.dir" value="../bi-platform-security-userroledao" />
+  <property name="third-party.dir" value="${subfloor.resources.dir}/third-party" description="Directory where 3rd party tools are included in the platform assemblies" />
+  <property name="wkhtmltoimage.dir" value="${third-party.dir}/wkhtmltoimage" description="Directory where wkhtmltoimage is downloaded"/>
 
   <target name="package" depends="package-zip" description="Creates a j2ee manual deployments package" />
 
   <target name="assemble-no-plugins"
-          depends="assemble.init,check-blacklist,assemble-message-bundles,assemble-licenses,assemble-jars,assemble-resource-files,assemble-webapps,assemble-solutions,prepare-custom-solutions,do-assemble"
+          depends="assemble.init,check-blacklist,assemble-message-bundles,assemble-licenses,assemble-jars,assemble-resource-files,assemble-webapps,assemble-solutions,prepare-custom-solutions,assemble-third-party,do-assemble"
           description="Assembles a j2ee manual deployments package without plugins" />
 
   <target name="assemble"
-          depends="assemble.init,check-blacklist,assemble-message-bundles,assemble-licenses,assemble-jars,assemble-resource-files,assemble-webapps,assemble-solutions,assemble-plugins,prepare-custom-solutions,do-assemble"
+          depends="assemble.init,check-blacklist,assemble-message-bundles,assemble-licenses,assemble-jars,assemble-resource-files,assemble-webapps,assemble-solutions,assemble-plugins,prepare-custom-solutions,assemble-third-party,do-assemble"
           description="Assembles a j2ee manual deployments package" />
 
   <target name="do-assemble">
@@ -342,5 +344,64 @@
     </unzip>
   </target>
 
+  <!--=======================================================================
+		      target: third-party.download-check
+	         ====================================================================-->
+  <target name="third-party.download-check"
+          description="Fetches third part tools if it is not already present">
+
+    <condition property="wkhtmltoimage.available">
+      <available file="${wkhtmltoimage.dir}" />
+    </condition>
+    <antcall target="wkhtmltoimage.download" />
+
+  </target>
+
+  <!--=======================================================================
+             target: wkhtmltoimage.download
+            ====================================================================-->
+  <target name="wkhtmltoimage.download"
+          unless="wkhtmltoimage.available"
+          description="Fetches third-party tools">
+
+    <mkdir dir="${wkhtmltoimage.dir}" />
+
+    <!-- get the mac version -->
+    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltoimage-OSX-0.10.0_rc2-static.tar.bz2"
+         dest="${wkhtmltoimage.dir}/wkhtmltoimage_mac.tar.bz2"
+         usetimestamp="true" />
+
+    <!-- get the linux amd64 version -->
+    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltoimage-0.10.0_rc2-static-amd64.tar.bz2"
+         dest="${wkhtmltoimage.dir}/wkhtmltoimage_linux_amd64.tar.bz2"
+         usetimestamp="true" />
+
+    <!-- get the linux i386 version -->
+    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltoimage-0.10.0_rc2-static-i386.tar.bz2"
+         dest="${wkhtmltoimage.dir}/wkhtmltoimage_linux_i386.tar.bz2"
+         usetimestamp="true" />
+
+    <!-- get the windows version -->
+    <get src="http://wkhtmltopdf.googlecode.com/files/wkhtmltox-0.10.0_rc2-installer.exe"
+         dest="${wkhtmltoimage.dir}/wkhtmltoimage_windows_installer.exe"
+         usetimestamp="true" />
+
+  </target>
+
+
+  <!--=======================================================================
+             target: assemble-third-party
+            ====================================================================-->
+  <target name="assemble-third-party"
+          depends="third-party.download-check">
+
+    <!-- copy the files to the stage dir -->
+    <copy todir="${stage.dir.server}/third-party-tools/wkhtmltoimage">
+      <fileset dir="${wkhtmltoimage.dir}">
+      </fileset>
+    </copy>
+
+
+  </target>
 
 </project>
