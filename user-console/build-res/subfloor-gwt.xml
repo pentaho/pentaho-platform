@@ -58,7 +58,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!-- override this in build.properties to change the copyright -->
   <property name="pentaho-copyright" value="This program is free software; you can redistribute it and/or modify it under the${line.separator}terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software ${line.separator}Foundation.${line.separator}${line.separator}You should have received a copy of the GNU Lesser General Public License along with this ${line.separator}program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html ${line.separator}or from the Free Software Foundation, Inc., ${line.separator}51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.${line.separator}${line.separator}This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;${line.separator}without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.${line.separator}See the GNU Lesser General Public License for more details.${line.separator}${line.separator}Copyright 2011 Pentaho Corporation.  All rights reserved.${line.separator}"/>
-	
+  
   <!-- setup the classpath used for gwt-compile -->
   <path id="codegen.classpath">
     <fileset dir="${codegenlib.dir}">
@@ -85,18 +85,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </path>
 
   <!--=======================================================================
-	    init (override)
-	    
-	    ====================================================================-->
+      init (override)
+      
+      ====================================================================-->
   <target name="init" depends="subfloor.init">
     <mkdir dir="${codegenlib.dir}" />
   </target>
 
   <!--=======================================================================
-	    clean (override)
-	    
-	    Removes all the files generated from the build process.
-	    ====================================================================-->
+      clean (override)
+      
+      Removes all the files generated from the build process.
+      ====================================================================-->
   <target name="clean" depends="subfloor.clean"
           description="Cleans all the files generated from a build with the exception of IVY-downloaded jars (see clean-all)">
     <delete file="${bin.dir}/.gwtBuild*" />
@@ -135,7 +135,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       ====================================================================-->
   <target name="resolve-codegen" depends="resolve-init">
     <ivy:resolve file="ivy.xml" conf="codegen" />
-    <ivy:retrieve conf="codegen" pattern="${codegenlib.dir}/[module]-[revision](-[classifier]).[ext]" />
+    <ivy:retrieve conf="codegen" pattern="${codegenlib.dir}/[module]-[revision](-[classifier]).[ext]" symlink="${ivy.use.symlinks.internal}" />
   </target>
 
 
@@ -167,7 +167,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <replaceregexp match="^^" replace="&lt;!--${pentaho-copyright}--&gt;${line.separator}">
       <fileset dir="${gwt.output.dir}" includes="**/*.cache.html" />
     </replaceregexp>
-  	
+    
   </target>
 
 
