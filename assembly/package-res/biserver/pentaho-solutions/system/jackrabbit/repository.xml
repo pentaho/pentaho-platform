@@ -30,13 +30,54 @@
         virtual file system where the repository stores global state
         (e.g. registered namespaces, custom node types, etc.)
     -->
+    <!-- 
+    	Uncomment the following "FileSystem" XML node to use MySql as 
+    	the repository file system.  Change the url, user, and password
+    	to suit your mysql installation.  The schemaObjectPrefix should
+    	be a unique prefix that will be prepended to the table names.
+    	NOTE: The database must be pre-created in mysql.  See Jackrabbit
+    	documentation for further explanation.
+    -->
+    <!--
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+  	  <param name="driver" value="com.mysql.jdbc.Driver"/>
+  	  <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+  	  <param name="user" value="jackrabbit"/>
+  	  <param name="password" value="jackrabbit"/>
+  	  <param name="schema" value="mysql"/>
+  	  <param name="schemaObjectPrefix" value="fs_repos_"/>
+	</FileSystem>
+	-->
+
     <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
         <param name="path" value="${rep.home}/repository"/>
     </FileSystem>
-
     <!--
         data store configuration
     -->
+    <!--
+    	Uncomment the following "DataStore" XML node to use MySql as the data
+    	store for the repository.  Change the url, user, and password
+    	to suit your mysql installation.  The schemaObjectPrefix should
+    	be a unique prefix that will be prepended to the table names.
+    	NOTE: The database must be pre-created in mysql.  See Jackrabbit
+    	documentation for further explanation.
+    -->
+    <!--
+	<DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
+        <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+        <param name="user" value="jackrabbit"/>
+        <param name="password" value="jackrabbit"/>
+        <param name="databaseType" value="mysql"/>
+        <param name="driver" value="com.mysql.jdbc.Driver"/>
+        <param name="minRecordLength" value="1024"/>
+        <param name="maxConnections" value="3"/>
+        <param name="copyWhenReading" value="true"/>
+        <param name="tablePrefix" value=""/>
+        <param name="schemaObjectPrefix" value="ds_repos_"/>
+    </DataStore>
+    -->
+
     <DataStore class="org.apache.jackrabbit.core.data.FileDataStore"/>
 
     <!--
@@ -99,6 +140,24 @@
             virtual file system of the workspace:
             class: FQN of class implementing the FileSystem interface
         -->
+        <!-- 
+        	Uncomment the following "FileSystem" XML node to use MySql as the
+        	file system for workspaces.  Change the url, user, and password
+    		to suit your mysql installation.  The schemaObjectPrefix should
+    		be a unique prefix that will be prepended to the table names.
+    		NOTE: The database must be pre-created in mysql.  See Jackrabbit
+    		documentation for further explanation.
+    	-->
+    	<!--
+        <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+  		  <param name="driver" value="com.mysql.jdbc.Driver"/>
+  		  <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+  		  <param name="user" value="jackrabbit"/>
+  		  <param name="password" value="jackrabbit"/>
+  		  <param name="schema" value="mysql"/>
+  		  <param name="schemaObjectPrefix" value="fs_ws_"/>
+		</FileSystem>
+		-->
         <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
             <param name="path" value="${wsp.home}"/>
         </FileSystem>
@@ -106,6 +165,23 @@
             persistence manager of the workspace:
             class: FQN of class implementing the PersistenceManager interface
         -->
+        <!-- 
+        	Uncomment the following "PersistenceManager" XML node to use MySql as the
+        	persistenanceManager store.  Change the url, user, and password
+    		to suit your mysql installation.  The schemaObjectPrefix should
+    		be a unique prefix that will be prepended to the table names.
+    		NOTE: The database must be pre-created in mysql.  See Jackrabbit
+    		documentation for further explanation.
+    	-->
+    	<!--
+        <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.MySqlPersistenceManager">
+  		  <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+  		  <param name="user" value="jackrabbit" />
+  		  <param name="password" value="jackrabbit" />
+  		  <param name="schema" value="mysql"/>
+  		  <param name="schemaObjectPrefix" value="pm_ws_"/>
+		</PersistenceManager>
+		-->
         <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
           <param name="url" value="jdbc:h2:${wsp.home}/db"/>
           <param name="schemaObjectPrefix" value="${wsp.name}_"/>
@@ -145,16 +221,50 @@
             Configures the filesystem to use for versioning for the respective
             persistence manager
         -->
+        <!-- 
+        	Uncomment the following "FileSystem" XML node to use MySql as the
+        	versioning filesystem store.  Change the url, user, and password
+    		to suit your mysql installation.  The schemaObjectPrefix should
+    		be a unique prefix that will be prepended to the table names.
+    		NOTE: The database must be pre-created in mysql.  See Jackrabbit
+    		documentation for further explanation.
+    	-->
+		<!--
+		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+		  <param name="driver" value="com.mysql.jdbc.Driver"/>
+		  <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+		  <param name="user" value="jackrabbit"/>
+		  <param name="password" value="jackrabbit"/>
+		  <param name="schema" value="mysql"/>
+		  <param name="schemaObjectPrefix" value="fs_ver_"/>
+		</FileSystem>
+		-->
         <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
             <param name="path" value="${rep.home}/version" />
         </FileSystem>
-
         <!--
             Configures the persistence manager to be used for persisting version state.
             Please note that the current versioning implementation is based on
             a 'normal' persistence manager, but this could change in future
             implementations.
         -->
+        <!-- 
+        	Uncomment the following "PersistenceManager" XML node to use MySql as the
+        	to persist the version state.  Change the url, user, and password
+    		to suit your mysql installation.  The schemaObjectPrefix should
+    		be a unique prefix that will be prepended to the table names.
+    		NOTE: The database must be pre-created in mysql.  See Jackrabbit
+    		documentation for further explanation.
+    	-->
+    	<!--
+        <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.MySqlPersistenceManager">
+  		  <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+  		  <param name="user" value="jackrabbit" />
+  		  <param name="password" value="jackrabbit" />
+  		  <param name="schema" value="mysql"/>
+  		  <param name="schemaObjectPrefix" value="pm_ver_"/>
+		</PersistenceManager>
+		-->
         <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
           <param name="url" value="jdbc:h2:${rep.home}/version/db"/>
           <param name="schemaObjectPrefix" value="version_"/>
