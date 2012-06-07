@@ -159,6 +159,10 @@
 }
 
 .mantle-default-tab-background {
+	background-color: transparent;
+}
+
+.mantle-white-tab-background {
 	background-color: white;
 }
 

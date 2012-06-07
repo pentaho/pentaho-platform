@@ -132,8 +132,10 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     // be set on a white background (default for web browsers)
     // I have defined a CSS class for this background if someone
     // wants to change or remove the color
-    if (url.indexOf("content/") == -1) {
-      panel.getElement().addClassName("mantle-default-tab-background");
+    if (url.indexOf("/content") == -1) {
+      panel.getElement().addClassName("mantle-default-tab-background"); // transparent background
+    } else {
+      panel.getElement().addClassName("mantle-white-tab-background"); // white background
     }
 
     final ArrayList<com.google.gwt.dom.client.Element> parentList = new ArrayList<com.google.gwt.dom.client.Element>();

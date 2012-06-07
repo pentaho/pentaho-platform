@@ -181,6 +181,9 @@
 	background-color: transparent;
 }
 
+.mantle-white-tab-background {
+	background-color: white;
+}
 
 .mainToolbar {
   background-image: url(../../toolbar_bg.png);
