@@ -56,7 +56,7 @@
 
     <dependency org="rhino" name="js" rev="1.7R1"/>
     <!--  open flash chart json builder -->
-    <dependency org="com.thoughtworks.xstream" name="xstream" rev="1.4.2"/>
+    <dependency org="com.thoughtworks.xstream" name="xstream" rev="${dependency.xstream.revision}"/>
     
     <!--  The PDI Excel output step depends on this  -->
     <dependency org="org.apache.xmlbeans" name="xmlbeans" rev="2.5.0" transitive="false"/>
@@ -131,7 +131,7 @@
     <dependency org="com.sun.jersey" name="jersey-servlet" rev="1.11" transitive="false"/>
 
     <!-- END JAX-WS (Service extension) dependencies -->
-    <dependency org="org.codehaus.jettison" name="jettison" rev="1.2"/>
+    <dependency org="org.codehaus.jettison" name="jettison" rev="${dependency.jettison.revision}"/>
     <dependency org="org.codehaus.castor" name="castor" rev="1.0.5" transitive="false"/>
     <dependency org="com.sun" name="jai_codec" rev="1.1.2"/>
     <dependency org="com.sun" name="jai_core" rev="1.1.2"/>
