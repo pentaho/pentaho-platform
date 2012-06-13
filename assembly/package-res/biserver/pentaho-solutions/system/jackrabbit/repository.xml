@@ -28,14 +28,20 @@
 <Repository>
     <!--
         virtual file system where the repository stores global state
-        (e.g. registered namespaces, custom node types, etc.)
+        (e.g. registered namespaces, custom node types, etc.).
+        
+        ALERT: If you make changes to the Repository XML ensure that you delete
+        all files is {solution_folder}/system/jackrabbit/repository and drop all
+        the the tables in associated dbs to ensure you start with a pristine
+        repository.  If you leave artifacts you may run into errors resulting from
+        an "inconsistent" repository!
     -->
     <!-- 
-    	Uncomment the following "FileSystem" XML node to use MySql as 
-    	the repository file system.  Change the url, user, and password
-    	to suit your mysql installation.  The schemaObjectPrefix should
+    	Replace the following "FileSystem" XML node to use supported databases as 
+    	the repository file system.  Change the url, user, password and other parameters
+    	to suit your db installation.  The schemaObjectPrefix should
     	be a unique prefix that will be prepended to the table names.
-    	NOTE: The database must be pre-created in mysql.  See Jackrabbit
+    	NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
     	documentation for further explanation.
     -->
     <!--
@@ -47,6 +53,14 @@
   	  <param name="schema" value="mysql"/>
   	  <param name="schemaObjectPrefix" value="fs_repos_"/>
 	</FileSystem>
+	
+	<FileSystem class="org.apache.jackrabbit.core.fs.db.OracleFileSystem">
+	  <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+	  <param name="user" value="jackrabbit"/>
+      <param name="password" value="jackrabbit"/>
+  	  <param name="schemaObjectPrefix" value="fs_repos_"/>
+      <param name="tablespace" value="jackrabbit"/>
+    </FileSystem>
 	-->
 
     <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
@@ -56,11 +70,11 @@
         data store configuration
     -->
     <!--
-    	Uncomment the following "DataStore" XML node to use MySql as the data
-    	store for the repository.  Change the url, user, and password
-    	to suit your mysql installation.  The schemaObjectPrefix should
+    	Replace the following "DataStore" XML node to use supported databases as the data
+    	store for the repository.  Change the url, user, password and other parameters
+    	to suit your db installation.  The schemaObjectPrefix should
     	be a unique prefix that will be prepended to the table names.
-    	NOTE: The database must be pre-created in mysql.  See Jackrabbit
+    	NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
     	documentation for further explanation.
     -->
     <!--
@@ -70,6 +84,19 @@
         <param name="password" value="jackrabbit"/>
         <param name="databaseType" value="mysql"/>
         <param name="driver" value="com.mysql.jdbc.Driver"/>
+        <param name="minRecordLength" value="1024"/>
+        <param name="maxConnections" value="3"/>
+        <param name="copyWhenReading" value="true"/>
+        <param name="tablePrefix" value=""/>
+        <param name="schemaObjectPrefix" value="ds_repos_"/>
+    </DataStore>
+    
+    <DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
+		<param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+		<param name="driver" value="oracle.jdbc.OracleDriver"/>
+		<param name="user" value="jackrabbit"/>
+        <param name="password" value="jackrabbit"/>
+        <param name="databaseType" value="oracle"/>
         <param name="minRecordLength" value="1024"/>
         <param name="maxConnections" value="3"/>
         <param name="copyWhenReading" value="true"/>
@@ -124,9 +151,6 @@
         </LoginModule>
     </Security>
 
-
-
-
     <!--
         location of workspaces root directory and name of default workspace
     -->
@@ -141,12 +165,12 @@
             class: FQN of class implementing the FileSystem interface
         -->
         <!-- 
-        	Uncomment the following "FileSystem" XML node to use MySql as the
-        	file system for workspaces.  Change the url, user, and password
-    		to suit your mysql installation.  The schemaObjectPrefix should
-    		be a unique prefix that will be prepended to the table names.
-    		NOTE: The database must be pre-created in mysql.  See Jackrabbit
-    		documentation for further explanation.
+	    	Replace the following "FileSystem" XML node to use supported databases as 
+	    	the repository file system.  Change the url, user, password and other parameters
+	    	to suit your db installation.  The schemaObjectPrefix should
+	    	be a unique prefix that will be prepended to the table names.
+	    	NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
+	    	documentation for further explanation.
     	-->
     	<!--
         <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
@@ -157,6 +181,14 @@
   		  <param name="schema" value="mysql"/>
   		  <param name="schemaObjectPrefix" value="fs_ws_"/>
 		</FileSystem>
+		
+		<FileSystem class="org.apache.jackrabbit.core.fs.db.OracleFileSystem">
+	  	  <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+	  	  <param name="user" value="jackrabbit"/>
+          <param name="password" value="jackrabbit"/>
+  		  <param name="schemaObjectPrefix" value="fs_ws_"/>
+          <param name="tablespace" value="jackrabbit"/>
+		</FileSystem>
 		-->
         <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
             <param name="path" value="${wsp.home}"/>
@@ -166,11 +198,11 @@
             class: FQN of class implementing the PersistenceManager interface
         -->
         <!-- 
-        	Uncomment the following "PersistenceManager" XML node to use MySql as the
-        	persistenanceManager store.  Change the url, user, and password
-    		to suit your mysql installation.  The schemaObjectPrefix should
+        	Replace the following "PersistenceManager" XML node to use a supported database as the
+        	persistenanceManager store.  Change the url, user, password and parameters
+    		to suit your db installation.  The schemaObjectPrefix should
     		be a unique prefix that will be prepended to the table names.
-    		NOTE: The database must be pre-created in mysql.  See Jackrabbit
+    		NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
     		documentation for further explanation.
     	-->
     	<!--
@@ -181,7 +213,18 @@
   		  <param name="schema" value="mysql"/>
   		  <param name="schemaObjectPrefix" value="pm_ws_"/>
 		</PersistenceManager>
+		
+		<PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.OraclePersistenceManager">
+	  	  <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+	  	  <param name="driver" value="oracle.jdbc.OracleDriver"/>
+	  	  <param name="user" value="jackrabbit"/>
+          <param name="password" value="jackrabbit"/>
+  		  <param name="schema" value="oracle"/>
+  		  <param name="schemaObjectPrefix" value="pm_ws_"/>
+	      <param name="tablespace" value="jackrabbit"/>
+	    </PersistenceManager>
 		-->
+		
         <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
           <param name="url" value="jdbc:h2:${wsp.home}/db"/>
           <param name="schemaObjectPrefix" value="${wsp.name}_"/>
@@ -222,12 +265,12 @@
             persistence manager
         -->
         <!-- 
-        	Uncomment the following "FileSystem" XML node to use MySql as the
-        	versioning filesystem store.  Change the url, user, and password
-    		to suit your mysql installation.  The schemaObjectPrefix should
-    		be a unique prefix that will be prepended to the table names.
-    		NOTE: The database must be pre-created in mysql.  See Jackrabbit
-    		documentation for further explanation.
+	    	Replace the following "FileSystem" XML node to use a supported database as 
+	    	the repository file system.  Change the url, user, password and other parameters
+	    	to suit your db installation.  The schemaObjectPrefix should
+	    	be a unique prefix that will be prepended to the table names.
+	    	NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
+	    	documentation for further explanation.
     	-->
 		<!--
 		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
@@ -238,7 +281,16 @@
 		  <param name="schema" value="mysql"/>
 		  <param name="schemaObjectPrefix" value="fs_ver_"/>
 		</FileSystem>
+		
+		<FileSystem class="org.apache.jackrabbit.core.fs.db.OracleFileSystem">
+	  	  <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+	  	  <param name="user" value="jackrabbit"/>
+          <param name="password" value="jackrabbit"/>
+	  	  <param name="schemaObjectPrefix" value="fs_ver_"/>
+          <param name="tablespace" value="jackrabbit"/>
+		</FileSystem>
 		-->
+		
         <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
             <param name="path" value="${rep.home}/version" />
         </FileSystem>
@@ -249,11 +301,11 @@
             implementations.
         -->
         <!-- 
-        	Uncomment the following "PersistenceManager" XML node to use MySql as the
-        	to persist the version state.  Change the url, user, and password
-    		to suit your mysql installation.  The schemaObjectPrefix should
+        	Replace the following "PersistenceManager" XML node to use a supported database as the
+        	persistenanceManager store.  Change the url, user, password and parameters
+    		to suit your db installation.  The schemaObjectPrefix should
     		be a unique prefix that will be prepended to the table names.
-    		NOTE: The database must be pre-created in mysql.  See Jackrabbit
+    		NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
     		documentation for further explanation.
     	-->
     	<!--
@@ -264,7 +316,18 @@
   		  <param name="schema" value="mysql"/>
   		  <param name="schemaObjectPrefix" value="pm_ver_"/>
 		</PersistenceManager>
+		
+		<PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.OraclePersistenceManager">
+	  	  <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+	  	  <param name="driver" value="oracle.jdbc.OracleDriver"/>
+	  	  <param name="user" value="jackrabbit"/>
+          <param name="password" value="jackrabbit"/>
+	  	  <param name="schema" value="oracle"/>
+	  	  <param name="schemaObjectPrefix" value="pm_ver_"/>
+	  	  <param name="tablespace" value="jackrabbit"/>
+		</PersistenceManager>
 		-->
+		
         <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
           <param name="url" value="jdbc:h2:${rep.home}/version/db"/>
           <param name="schemaObjectPrefix" value="version_"/>
