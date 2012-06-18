@@ -61,6 +61,15 @@
   	  <param name="schemaObjectPrefix" value="fs_repos_"/>
       <param name="tablespace" value="jackrabbit"/>
     </FileSystem>
+    
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+	  <param name="driver" value="org.postgresql.Driver"/>
+	  <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+	  <param name="user" value="jackrabbit"/>
+	  <param name="password" value="jackrabbit"/>
+	  <param name="schema" value="postgresql"/>
+	  <param name="schemaObjectPrefix" value="fs_repos_"/>
+	</FileSystem>
 	-->
 
     <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
@@ -97,6 +106,19 @@
 		<param name="user" value="jackrabbit"/>
         <param name="password" value="jackrabbit"/>
         <param name="databaseType" value="oracle"/>
+        <param name="minRecordLength" value="1024"/>
+        <param name="maxConnections" value="3"/>
+        <param name="copyWhenReading" value="true"/>
+        <param name="tablePrefix" value=""/>
+        <param name="schemaObjectPrefix" value="ds_repos_"/>
+    </DataStore>
+    
+    <DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
+		<param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+		<param name="driver" value="org.postgresql.Driver"/>
+		<param name="user" value="jackrabbit"/>
+        <param name="password" value="jackrabbit"/>
+        <param name="databaseType" value="postgresql"/>
         <param name="minRecordLength" value="1024"/>
         <param name="maxConnections" value="3"/>
         <param name="copyWhenReading" value="true"/>
@@ -189,6 +211,16 @@
   		  <param name="schemaObjectPrefix" value="fs_ws_"/>
           <param name="tablespace" value="jackrabbit"/>
 		</FileSystem>
+		
+		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+  		  <param name="driver" value="org.postgresql.Driver"/>
+  		  <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+  		  <param name="user" value="jackrabbit"/>
+  		  <param name="password" value="jackrabbit"/>
+  	      <param name="schema" value="postgresql"/>
+  	      <param name="schemaObjectPrefix" value="fs_ws_"/>
+		</FileSystem>
+
 		-->
         <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
             <param name="path" value="${wsp.home}"/>
@@ -223,6 +255,16 @@
   		  <param name="schemaObjectPrefix" value="pm_ws_"/>
 	      <param name="tablespace" value="jackrabbit"/>
 	    </PersistenceManager>
+	    
+	    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.PostgreSQLPersistenceManager">
+		  <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+		  <param name="driver" value="org.postgresql.Driver"/>
+		  <param name="user" value="jackrabbit"/>
+		  <param name="password" value="jackrabbit"/>
+		  <param name="schema" value="postgresql"/>
+  		  <param name="schemaObjectPrefix" value="pm_ws_"/>
+		</PersistenceManager>        
+
 		-->
 		
         <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
@@ -289,6 +331,16 @@
 	  	  <param name="schemaObjectPrefix" value="fs_ver_"/>
           <param name="tablespace" value="jackrabbit"/>
 		</FileSystem>
+		
+		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+		  <param name="driver" value="org.postgresql.Driver"/>
+  		  <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+  		  <param name="user" value="jackrabbit"/>
+  		  <param name="password" value="jackrabbit"/>
+  		  <param name="schema" value="postgresql"/>
+  		  <param name="schemaObjectPrefix" value="fs_ver_"/>
+		</FileSystem>
+
 		-->
 		
         <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
@@ -326,6 +378,15 @@
 	  	  <param name="schemaObjectPrefix" value="pm_ver_"/>
 	  	  <param name="tablespace" value="jackrabbit"/>
 		</PersistenceManager>
+		
+		<PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.PostgreSQLPersistenceManager">
+	   	  <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+		  <param name="driver" value="org.postgresql.Driver"/>
+	  	  <param name="user" value="jackrabbit"/>
+      	  <param name="password" value="jackrabbit"/>
+  		  <param name="schema" value="postgresql"/>
+  		  <param name="schemaObjectPrefix" value="pm_ver_"/>
+	  	</PersistenceManager>    
 		-->
 		
         <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
