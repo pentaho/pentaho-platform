@@ -32,7 +32,7 @@ import static org.pentaho.platform.plugin.services.importexport.PentahoMetadataF
  *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-class PentahoMetadataFileInfo {
+public class PentahoMetadataFileInfo {
   private static Log log = LogFactory.getLog(PentahoMetadataFileInfo.class);
 
   public enum FileType {XMI, PROPERTIES, UNKNOWN}
@@ -43,6 +43,9 @@ class PentahoMetadataFileInfo {
 
       // Stored in solution repository
       Pattern.compile(".*/([^/]+)/metadata.xmi$"),
+
+      // passed to root like a publish
+      Pattern.compile("/([^/]+)\\.xmi$"),
   };
 
   private static final String LANG = "[a-z]{2}";
@@ -55,7 +58,7 @@ class PentahoMetadataFileInfo {
       // Created by data access
       Pattern.compile(".*/([^/]+/resources/metadata/[^/]+)_(" + LANG + ")\\.properties$"),
       Pattern.compile(".*/([^/]+/resources/metadata/[^/]+)_(" + LANG_CC + ")\\.properties$"),
-      Pattern.compile(".*/([^/]+/resources/metadata/[^/]+)_(" + LANG_CC_EXT + ")\\.properties$"),
+      Pattern.compile(".*/([^/]+/resources/metadata/[^/]+)_(" + LANG_CC_EXT + ")\\.properties$")
   };
 
   private static final Pattern[] propertyBundlePatternsNoPostfix = new Pattern[]{
@@ -63,6 +66,9 @@ class PentahoMetadataFileInfo {
       Pattern.compile(".*/([^/]+)/metadata_(" + LANG + ").properties$"),
       Pattern.compile(".*/([^/]+)/metadata_(" + LANG_CC + ").properties$"),
       Pattern.compile(".*/([^/]+)/metadata_(" + LANG_CC_EXT + ").properties$"),
+      Pattern.compile(".*/([^/]+)_(" + LANG + ")\\.properties$"),
+      Pattern.compile(".*/([^/]+)_(" + LANG_CC + ")\\.properties$"),
+      Pattern.compile(".*/([^/]+)_(" + LANG_CC_EXT + ")\\.properties$"),
   };
 
   private FileType fileType;
