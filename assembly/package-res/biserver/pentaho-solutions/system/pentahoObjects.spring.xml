@@ -203,4 +203,26 @@ not directly from the PentahoObjectFactory. -->
 
   <bean id="ITenant" class="org.pentaho.platform.repository2.unified.Tenant" scope="prototype"/>
 
+
+  <bean id="IPlatformImporter" class="org.pentaho.platform.plugin.services.importer.PentahoPlatformImporter" scope="singleton">
+    <constructor-arg>
+      <map>
+        <entry key="text/xmi+xml">
+          <bean class="org.pentaho.platform.plugin.services.importer.MetadataImportHandler">
+            <constructor-arg ref="IMetadataDomainRepositoryImpl"/>
+          </bean>
+        </entry>
+      </map>
+    </constructor-arg>
+    <constructor-arg>
+      <bean class="org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver">
+        <constructor-arg>
+          <map>
+            <entry key="xmi" value="text/xmi+xml"/>
+          </map>
+        </constructor-arg>
+      </bean>
+    </constructor-arg>
+  </bean>
+
 </beans>
