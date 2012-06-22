@@ -2,7 +2,7 @@ package org.pentaho.platform.plugin.services.importer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.repository.messages.Messages;
+import org.pentaho.platform.plugin.services.messages.Messages;
 
 import java.util.Map;
 
@@ -49,17 +49,6 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     } catch(Exception e){
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0003_UNEXPECTED_ERROR", e.getMessage()), e);
     }
-  }
-
-  private String extractExtension(String name) {
-    if( name == null ) {
-      return null;
-    }
-    int idx = name.lastIndexOf(".");
-    if(idx == -1){
-      return name;
-    }
-    return name.substring(idx+1);
   }
 
 }

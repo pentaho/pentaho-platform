@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * A struct-like object for bundling related objects together for import into the platform. Bundles contain all
- * information necessary for import into the platform. While this interface includes a hash-map optional paramters
+ * information necessary for import into the system. While this interface includes a hash-map optional parameters
  * function, it should be subclassed if many properties are accessed this way.
  *
  * @author mlowery, nbaker
@@ -27,12 +27,14 @@ public interface IPlatformImportBundle {
   /**
    * Optional content name. Repository content this will be stored based on this name
    *
-   * @return
+   * @return optional name
    */
   String getName();
 
   /**
    * Optional InputStream for content with a binary component.
+   *
+   * @return optional InputStream
    */
   InputStream getInputStream() throws IOException;
 
@@ -40,7 +42,7 @@ public interface IPlatformImportBundle {
    * Optional character set for the binary InputStream. UTF-8 will be used by default for in the case of binary text
    * content
    *
-   * @return Character set for the associated InputStream
+   * @return Optional character set for the associated InputStream
    */
   String getCharset();
 
@@ -57,7 +59,7 @@ public interface IPlatformImportBundle {
    * accessed from this method.
    *
    * @param prop
-   * @return
+   * @return property Object
    */
   Object getProperty(String prop);
 }

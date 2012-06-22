@@ -2,6 +2,7 @@ package org.pentaho.platform.plugin.services.importer;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.junit.Assert;
 import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.plugin.services.importer.*;
@@ -16,7 +17,7 @@ import java.util.Map;
  * User: nbaker
  * Date: 6/13/12
  */
-public class NewImporterTest {
+public class PlatformImporterTest {
 
   @Test
   public void testDomainOnlyImport() throws Exception {
@@ -103,5 +104,60 @@ public class NewImporterTest {
     context.assertIsSatisfied();
 
   }
+
+  @Test
+  public void testNoMatchingMime() throws Exception {
+    Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
+
+    Mockery context = new Mockery();
+    IUnifiedRepository mockRepo = context.mock(IUnifiedRepository.class);
+    final IPentahoMetadataDomainRepositoryImporter metadataImporter = context.mock(IPentahoMetadataDomainRepositoryImporter.class);
+
+
+    Map<String, String> mimes = new HashMap<String, String>();
+    PentahoPlatformImporter importer = new PentahoPlatformImporter(handlers, new NameBaseMimeResolver(mimes));
+
+    FileInputStream in = new FileInputStream(new File("test-res/ImportTest/steel-wheels.xmi"));
+
+    // With custom domain id
+    final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").hidden(false).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
+
+    try{
+      importer.importFile(bundle1);
+    } catch(PlatformImportException e){
+      e.printStackTrace();
+      return;
+    }
+    Assert.fail("should have failed to resolve a mime-type");
+  }
+
+
+  @Test
+  public void testNoMatchingHandlerMime() throws Exception {
+    Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
+
+    Mockery context = new Mockery();
+    IUnifiedRepository mockRepo = context.mock(IUnifiedRepository.class);
+    final IPentahoMetadataDomainRepositoryImporter metadataImporter = context.mock(IPentahoMetadataDomainRepositoryImporter.class);
+
+
+    Map<String, String> mimes = new HashMap<String, String>();
+    mimes.put("xmi", "text/xmi+xml");
+    PentahoPlatformImporter importer = new PentahoPlatformImporter(handlers, new NameBaseMimeResolver(mimes));
+
+    FileInputStream in = new FileInputStream(new File("test-res/ImportTest/steel-wheels.xmi"));
+
+    // With custom domain id
+    final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").hidden(false).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
+
+    try{
+      importer.importFile(bundle1);
+    } catch(PlatformImportException e){
+      e.printStackTrace();
+      return;
+    }
+    Assert.fail("should have failed resolving a handler");
+  }
+
 
 }
