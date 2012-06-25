@@ -87,14 +87,6 @@ public class SystemPathPluginProviderTest {
 
   @SuppressWarnings("deprecation")
   @Test(expected = PlatformPluginRegistrationException.class)
-  public void testLoad_NoSolutionRepo() throws PlatformPluginRegistrationException {
-    microPlatform.init();
-
-    provider.getPlugins(new StandaloneSession());
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expected = PlatformPluginRegistrationException.class)
   public void testLoad_BadSolutionPath() throws PlatformPluginRegistrationException {
     MicroPlatform mp = new MicroPlatform("test-res/SystemPathPluginProviderTest/system");
     mp.define(ISolutionEngine.class, SolutionEngine.class);
