@@ -45,12 +45,12 @@ public class MetadataImportHandler implements IPlatformImportHandler {
   @Override
   public void importFile(IPlatformImportBundle file) throws PlatformImportException {
 
-    processMetadataFile(file);
+    String domainId = processMetadataFile(file);
 
     // bundle may have language files supplied with it.
     if(file.getChildBundles() != null){
       for(IPlatformImportBundle child : file.getChildBundles()){
-        processLocaleFile(child);
+        processLocaleFile(child, domainId);
       }
     }
 
@@ -80,12 +80,17 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     return null;
   }
 
-  private void processLocaleFile(final IPlatformImportBundle bundle) {
+  private void processLocaleFile(final IPlatformImportBundle bundle, String domainId) throws PlatformImportException {
     final String fullFilename = RepositoryFilenameUtils.concat("/", bundle.getName());
     final PentahoMetadataFileInfo info = new PentahoMetadataFileInfo(fullFilename);
-    String domainId = (String) bundle.getProperty("domain-id");
+
+
     if(domainId == null){
-      domainId = info.getDomainId();
+      // try to resolve domainId from bundle
+      domainId = (String) bundle.getProperty("domain-id");
+    }
+    if(domainId == null){
+      throw new PlatformImportException("Bundle missing required domain-id property");
     }
     try {
       log.debug("Importing [" + info.getPath() + "] as properties - [domain=" + domainId + " : locale=" + info.getLocale() + "]");

@@ -43,9 +43,6 @@ public class PentahoMetadataFileInfo {
 
       // Stored in solution repository
       Pattern.compile(".*/([^/]+)/metadata.xmi$"),
-
-      // passed to root like a publish
-      Pattern.compile("/([^/]+)\\.xmi$"),
   };
 
   private static final String LANG = "[a-z]{2}";
