@@ -64,12 +64,13 @@ import org.pentaho.platform.web.http.HttpOutputHandler;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.pentaho.platform.web.http.request.HttpRequestParameterProvider;
 import org.pentaho.platform.web.http.session.HttpSessionParameterProvider;
+import org.pentaho.platform.web.servlet.HttpMimeTypeListener;
 import org.pentaho.reporting.libraries.base.util.StringUtils;
 
 public class XactionUtil {
   private static final Log logger = LogFactory.getLog(XactionUtil.class);
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public static void createOutputFileName(RepositoryFile file, IOutputHandler outputHandler) {
     IPentahoSession userSession = PentahoSessionHolder.getSession();
     ActionSequenceJCRHelper actionHelper = new ActionSequenceJCRHelper(userSession);
@@ -121,7 +122,7 @@ public class XactionUtil {
   }
 
   public static void setupOutputHandler(HttpOutputHandler outputHandler, IParameterProvider requestParameters) {
-    int outputPreference = 3;
+    int outputPreference = IOutputHandler.OUTPUT_TYPE_DEFAULT;
     outputHandler.setOutputPreference(outputPreference);
   }
 
@@ -139,7 +140,7 @@ public class XactionUtil {
 
     IMessageFormatter formatter = PentahoSystem.get(IMessageFormatter.class);
     if ((!outputHandler.isResponseExpected()) || (doMessages)) {
-      if ((runtime != null) && (runtime.getStatus() == 6)) {
+      if ((runtime != null) && (runtime.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS)) {
         formatter.formatSuccessMessage("text/html", runtime, buffer, doMessages, doWrapper); //$NON-NLS-1$
       } else {
         formatter.formatFailureMessage("text/html", runtime, buffer, null); //$NON-NLS-1$
@@ -148,7 +149,7 @@ public class XactionUtil {
     return buffer.toString();
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public static String executeHtml(RepositoryFile file, HttpServletRequest httpServletRequest,
       HttpServletResponse httpServletResponse, IPentahoSession userSession) throws Exception {
     IParameterProvider requestParams = new HttpRequestParameterProvider(httpServletRequest);
@@ -157,15 +158,22 @@ public class XactionUtil {
       IOutputHandler outputHandler = createOutputHandler(httpServletResponse,
           getOutputStream(httpServletResponse, doMessages(httpServletRequest)));
 
+      // configure output handler, this is necessary so that the right content disposition is set on the response header
+      outputHandler.setSession(userSession);
+      IMimeTypeListener listener = new HttpMimeTypeListener(httpServletRequest, httpServletResponse, null);
+      outputHandler.setMimeTypeListener(listener);
+      
       HttpSessionParameterProvider sessionParameters = new HttpSessionParameterProvider(userSession);
       HttpRequestParameterProvider requestParameters = new HttpRequestParameterProvider(httpServletRequest);
       Map parameterProviders = new HashMap();
       parameterProviders.put("request", requestParameters); //$NON-NLS-1$
       parameterProviders.put("session", sessionParameters); //$NON-NLS-1$
       createOutputFileName(file, outputHandler);
-      int outputPreference = 3;
+      int outputPreference = IOutputHandler.OUTPUT_TYPE_DEFAULT;
       outputHandler.setOutputPreference(outputPreference);
-      runtime = executeInternal(file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession);
+      boolean forcePrompt = "true".equalsIgnoreCase(requestParams.getStringParameter("prompt", "false")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+
+      runtime = executeInternal(file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession, forcePrompt);
       boolean doMessages = "true".equalsIgnoreCase(requestParams.getStringParameter("debug", "false")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       boolean doWrapper = "true".equalsIgnoreCase(requestParams.getStringParameter("wrapper", "true")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       String str = postExecute(runtime, doMessages, doWrapper, outputHandler, parameterProviders);
@@ -179,11 +187,62 @@ public class XactionUtil {
 
     }
   }
+  
+  /**
+   * This method executes an xaction with forcePrompt=true and outputPreference=PARAMETERS, allowing
+   * for the xaction to render the secure filter appropriately when being executed in the background
+   * or while being scheduled. 
+   * 
+   * @param file the location of the xaction
+   * @param httpServletRequest the request object
+   * @param httpServletResponse the response object
+   * @param userSession the user session
+   * @return potential response message
+   * @throws Exception
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public static String executeScheduleUi(RepositoryFile file, HttpServletRequest httpServletRequest,
+      HttpServletResponse httpServletResponse, IPentahoSession userSession) throws Exception {
+    IParameterProvider requestParams = new HttpRequestParameterProvider(httpServletRequest);
+    IRuntimeContext runtime = null;
+    try {
+      IOutputHandler outputHandler = createOutputHandler(httpServletResponse,
+          getOutputStream(httpServletResponse, doMessages(httpServletRequest)));
 
-  @SuppressWarnings("unchecked")
+      outputHandler.setSession(userSession);
+      IMimeTypeListener listener = new HttpMimeTypeListener(httpServletRequest, httpServletResponse, null);
+      outputHandler.setMimeTypeListener(listener);
+      
+      HttpSessionParameterProvider sessionParameters = new HttpSessionParameterProvider(userSession);
+      HttpRequestParameterProvider requestParameters = new HttpRequestParameterProvider(httpServletRequest);
+      Map parameterProviders = new HashMap();
+      parameterProviders.put("request", requestParameters); //$NON-NLS-1$
+      parameterProviders.put("session", sessionParameters); //$NON-NLS-1$
+      createOutputFileName(file, outputHandler);
+      int outputPreference = IOutputHandler.OUTPUT_TYPE_PARAMETERS;
+      outputHandler.setOutputPreference(outputPreference);
+      
+      // forcePrompt=true when displaying the scheduling UI
+      runtime = executeInternal(file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession, true);
+      boolean doMessages = "true".equalsIgnoreCase(requestParams.getStringParameter("debug", "false")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      boolean doWrapper = "true".equalsIgnoreCase(requestParams.getStringParameter("wrapper", "true")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      
+      String str = postExecute(runtime, doMessages, doWrapper, outputHandler, parameterProviders);
+      return str;
+    } catch (Exception e) {
+      logger.error(Messages.getInstance().getString("XactionUtil.ERROR_EXECUTING_ACTION_SEQUENCE", file.getName()), e); //$NON-NLS-1$
+      throw e;
+    } finally {
+      if (runtime != null) {
+        runtime.dispose();
+      }
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
   protected static IRuntimeContext executeInternal(RepositoryFile file, IParameterProvider requestParams,
       HttpServletRequest httpServletRequest, IOutputHandler outputHandler,
-      Map<String, IParameterProvider> parameterProviders, IPentahoSession userSession) throws Exception {
+      Map<String, IParameterProvider> parameterProviders, IPentahoSession userSession, boolean forcePrompt) throws Exception {
     String processId = XactionUtil.class.getName();
     String instanceId = httpServletRequest.getParameter("instance-id"); //$NON-NLS-1$
     SimpleUrlFactory urlFactory = new SimpleUrlFactory(""); //$NON-NLS-1$
@@ -197,7 +256,6 @@ public class XactionUtil {
 
     boolean instanceEnds = "true".equalsIgnoreCase(requestParams.getStringParameter("instanceends", "true")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     String parameterXsl = systemSettings.getSystemSetting("default-parameter-xsl", "DefaultParameterForm.xsl"); //$NON-NLS-1$ //$NON-NLS-2$
-    boolean forcePrompt = "true".equalsIgnoreCase(requestParams.getStringParameter("prompt", "false")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 
     solutionEngine.setLoggingLevel(2);
     solutionEngine.init(userSession);
@@ -209,7 +267,7 @@ public class XactionUtil {
         parameterProviders, outputHandler, null, urlFactory, messages);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public static String executeXml(RepositoryFile file, HttpServletRequest httpServletRequest,
       HttpServletResponse httpServletResponse, IPentahoSession userSession) throws Exception {
     try {
@@ -222,14 +280,15 @@ public class XactionUtil {
       IParameterProvider requestParams = new HttpRequestParameterProvider(httpServletRequest);
       httpServletResponse.setContentType("text/xml"); //$NON-NLS-1$
       httpServletResponse.setCharacterEncoding(LocaleHelper.getSystemEncoding());
+      boolean forcePrompt = "true".equalsIgnoreCase(requestParams.getStringParameter("prompt", "false")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 
       OutputStream contentStream = new ByteArrayOutputStream();
       SimpleOutputHandler outputHandler = new SimpleOutputHandler(contentStream, false);
-
+      
       IRuntimeContext runtime = null;
       try {
         runtime = executeInternal(file, requestParams, httpServletRequest, outputHandler, parameterProviders,
-            userSession);
+            userSession, forcePrompt);
         Document responseDoc = SoapHelper.createSoapResponseDocument(runtime, outputHandler, contentStream, messages);
         OutputFormat format = OutputFormat.createCompactFormat();
         format.setSuppressDeclaration(true);
@@ -257,6 +316,7 @@ public class XactionUtil {
     return executeHtml(file, httpServletRequest, httpServletResponse, userSession);
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public static String doParameter(final RepositoryFile file, IParameterProvider parameterProvider,
       final IPentahoSession userSession) throws IOException {
     ActionSequenceJCRHelper helper = new ActionSequenceJCRHelper();
@@ -314,6 +374,7 @@ public class XactionUtil {
     }
   }
 
+  @SuppressWarnings("rawtypes")
   private static Element createParameterElement(final Element parametersElement, final String paramName,
       final Class type, final String label, final String role, final String group, final String[] values) {
     final Element parameterElement = parametersElement.addElement("parameter");

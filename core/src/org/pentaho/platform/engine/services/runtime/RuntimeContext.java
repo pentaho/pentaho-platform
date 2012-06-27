@@ -1782,6 +1782,9 @@ public class RuntimeContext extends PentahoMessenger implements IRuntimeContext 
         // add any subscription information here
         Element root = document.getRootElement();
         
+        // notify the xsl whether we're in parameter view or not.
+        root.addAttribute("parameterView", (getOutputPreference() == IOutputHandler.OUTPUT_TYPE_PARAMETERS) ? "true" : "false"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        
         Map<String,String> parameters = new HashMap<String,String>();
         parameters.put("baseUrl", PentahoSystem.getApplicationContext().getBaseUrl()); //$NON-NLS-1$
         parameters.put("actionUrl", this.getUrlFactory().getActionUrlBuilder().getUrl()); //$NON-NLS-1$

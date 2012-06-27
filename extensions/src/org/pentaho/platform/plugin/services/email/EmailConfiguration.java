@@ -30,6 +30,9 @@ import org.apache.commons.lang.StringUtils;
  */
 @XmlRootElement
 public class EmailConfiguration implements Serializable {
+
+  private static final long serialVersionUID = -7765357320116118032L;
+  
   private boolean authenticate;
   private boolean debug;
   private String defaultFrom;

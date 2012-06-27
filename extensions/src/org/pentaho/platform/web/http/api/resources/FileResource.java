@@ -368,7 +368,7 @@ public class FileResource extends AbstractJaxRSResource {
         }
       }
     } catch (Exception e) {
-      // TODO: handle exception
+      logger.error(Messages.getInstance().getString("FileResource.PARAM_FAILURE", e.getMessage()), e); //$NON-NLS-1$
     }
     return Boolean.toString(hasParameterUi && hasParameters);
   }

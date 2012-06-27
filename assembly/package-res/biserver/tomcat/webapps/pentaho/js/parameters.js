@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 - 2010 Pentaho Corporation. All Rights Reserved.
+ * Copyright 2006 - 2012 Pentaho Corporation. All Rights Reserved.
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software
  * Foundation.
@@ -19,6 +19,121 @@ var pentaho_ignoreFields = new Array();
 var pentaho_ignoreIndexOfFields = new Array();
 var pentaho_optionalParams = new Array();
 var pentaho_paramName = new Array();
+
+/*
+ * this method is called by gwt during init of the schedule/background param view
+ */
+window.initSchedulingParams = function(filepath, callback) {
+	callback(true);
+}
+
+/*
+ * this method is called by gwt to retrieve the schedule/background param vals
+ */
+window.getParams = function() {
+	try {
+		var id = pentaho_formId;
+		var params = new Array();
+		var form = document.forms['form_'+id];
+		var elements = form.elements;
+		var i;
+	
+		var gotOne = 0;
+		var lastName = null;
+		var element;
+		var str;
+		for( i=0; i < elements.length; i++ ) {
+	
+			if( elements[i].name != lastName ) {
+				if( lastName != null && lastName.length > 0) {
+					var ckRtn = checkParams( form, element.type, lastName, gotOne );
+					if( ckRtn == 0 ) {
+						throw 'Parameter Check Failed.';
+					}
+				}
+				gotOne = 0;
+				str = '';
+			}
+			element = elements[i];
+			lastName = element.name;
+			if( element.type == 'select-one') {
+				if( element.selectedIndex > 0 ) {
+					addToParams(params, element.name, element.value);
+					gotOne++;
+				}
+			} else if( element.type == 'button') {
+				gotOne++;
+			} else if( element.type == 'text') {
+				if( element.value != '' ) {
+					addToParams(params, element.name, element.value);
+					gotOne++;
+				}
+			} else if( element.type == 'hidden') {
+				// make sure field isn't ignored first before adding it to the list.
+				var found = false;
+				for (var j = 0; j < pentaho_ignoreFields.length; j++) {
+					if (element.name == pentaho_ignoreFields[j]) {
+						found = true;
+					}
+				}
+				
+				for (var j = 0; j < pentaho_ignoreIndexOfFields.length; j++) {
+					if (element.name.indexOf(pentaho_ignoreIndexOfFields[j]) >= 0) {
+						found = true;
+					}
+				}
+				
+				if (!found) {
+					addToParams(params, element.name, element.value);
+				}
+				gotOne++;
+			} else if( element.type == 'radio' ) {
+				if( element.checked ) {
+					addToParams(params, element.name, element.value);
+					gotOne++;
+				}
+			} else if( element.type == 'checkbox' ) {
+				if( element.checked ) {
+					addToParams(params, element.name, element.value);
+					gotOne++;
+				}
+			} else if( element.type == 'select-multiple' ) {
+				var options = element.options;
+				var j;
+				for( j=0; j!=options.length; j++ ) {
+					if( options[j].selected && options[j].value != '') {
+						addToParams(params, element.name, element.value);
+						gotOne++;
+					}
+				}
+			}
+		}
+		var ckRtn2 = checkParams( form, element.type, lastName, gotOne );
+		if( ckRtn2 == 0 ) {
+			return 'Parameter Check Failed.';
+		} else if (ckRtn2 == 2) {
+			addToParams(params, lastName, '');
+		}
+	
+		return params;
+	} catch (e) {
+		alert(e);
+		throw e;
+	}
+}
+
+function addToParams(params, key, value) {
+	if (key in params) {
+		var orig = params[key];
+		if (typeof orig == "Array") {
+			params[key].push(value);
+		} else {
+			params[key] = [orig, value];
+		}
+	} else {
+		params[key] = value;
+	}
+}
 
 function dynExec(funcName, formName, objectName) {
 	var func = funcName + formName + "('" + objectName + "');";

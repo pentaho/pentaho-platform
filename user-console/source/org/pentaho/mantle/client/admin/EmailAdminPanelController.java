@@ -174,6 +174,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	}
 
 	public void updatePassword(String password) {
+		emailConfig.setPassword(password);
 		passwordTextBox.setValue(password);
 		if (!StringUtils.isEmpty(passwordTextBox.getValue())) {
 			passwordTextBox.getManagedObject().setEnabled(false);

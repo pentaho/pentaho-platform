@@ -20,6 +20,9 @@ import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.util.Iterator;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -33,7 +36,14 @@ import org.pentaho.platform.engine.services.solution.SimpleParameterSetter;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.api.resources.XactionUtil;
 
-public class ActionSequenceParameterContentGenerator extends SimpleContentGenerator {
+/**
+ * The purpose of this content generator is to render prompts for a specific xaction, used during
+ * background and scheduling operations.
+ * 
+ * @author Will Gorman (wgorman@pentaho.com)
+ *
+ */
+public class ActionSequenceParameterUiContentGenerator extends SimpleContentGenerator {
 
   private static final long serialVersionUID = 458870144807597675L;
 
@@ -57,14 +67,16 @@ public class ActionSequenceParameterContentGenerator extends SimpleContentGenera
     if (path != null && path.length() > 0) {
       IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class, null);
       RepositoryFile file = unifiedRepository.getFile(path);
-      String buffer = XactionUtil.doParameter(file, requestParams, PentahoSessionHolder.getSession());
+      HttpServletRequest httpRequest = (HttpServletRequest)pathParams.getParameter("httprequest"); //$NON-NLS-1$
+      HttpServletResponse httpResponse = (HttpServletResponse)pathParams.getParameter("httpresponse"); //$NON-NLS-1$
+      String buffer = XactionUtil.executeScheduleUi(file, httpRequest, httpResponse, PentahoSessionHolder.getSession());
       outputStream.write(buffer.toString().getBytes(LocaleHelper.getSystemEncoding()));
     }
   }
 
   @Override
   public String getMimeType() {
-    return "text/xml";
+    return "text/html";
   }
 
   @Override
@@ -101,13 +113,12 @@ public class ActionSequenceParameterContentGenerator extends SimpleContentGenera
 
     IParameterProvider pathParams = this.parameterProviders.get("path"); //$NON-NLS-1$
     SimpleParameterSetter parameters = new SimpleParameterSetter();
-    if (pathParams != null) {
-      Iterator pathParamIterator = pathParams.getParameterNames();
-      while (pathParamIterator.hasNext()) {
-        String param = (String) pathParamIterator.next();
-        parameters.setParameter(param, pathParams.getParameter(param));
-      }
+    Iterator pathParamIterator = pathParams.getParameterNames();
+    while (pathParamIterator.hasNext()) {
+      String param = (String) pathParamIterator.next();
+      parameters.setParameter(param, pathParams.getParameter(param));
     }
+
     this.pathParameters = parameters;
     return parameters;
   }
