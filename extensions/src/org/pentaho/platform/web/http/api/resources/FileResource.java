@@ -51,6 +51,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IContentGenerator;
 import org.pentaho.platform.api.engine.IParameterProvider;
@@ -364,7 +365,17 @@ public class FileResource extends AbstractJaxRSResource {
         parameterContentGenerator.createContent();
         if (outputStream.size() > 0) {
           Document document = DocumentHelper.parseText(outputStream.toString());
-          hasParameters = document.selectNodes("/parameters/parameter").size() > 0;
+
+          // exclude all parameters that are of type "system", xactions set system params that have to be ignored.
+          @SuppressWarnings("rawtypes")
+          List nodes = document.selectNodes("parameters/parameter");
+          for (int i = 0; i < nodes.size() && !hasParameters; i++) {
+            Element elem = (Element)nodes.get(i);
+            Element attrib = (Element)elem.selectSingleNode("attribute[@namespace='http://reporting.pentaho.org/namespaces/engine/parameter-attributes/core' and @name='role']");
+            if (attrib == null || !"system".equals(attrib.attributeValue("value"))) {
+              hasParameters = true;
+            }
+          }
         }
       }
     } catch (Exception e) {
