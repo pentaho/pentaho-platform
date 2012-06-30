@@ -13,6 +13,7 @@ import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.metadata.repository.IMetadataDomainRepository;
+import org.pentaho.metadata.util.SecurityHelper;
 import org.pentaho.platform.api.engine.ICacheManager;
 import org.pentaho.platform.api.engine.ILogoutListener;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -189,6 +190,8 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     }
     domain = delegate.getDomain(id);
     if (domain != null) {
+      SecurityHelper helper = new SecurityHelper();
+      domain = helper.createSecureDomain(this, domain);
       // cache domain with the key we used to look it up, not whatever new id it might have now
       if (logger.isDebugEnabled()) {
         logger.debug("Caching domain by session: " + key); //$NON-NLS-1$
