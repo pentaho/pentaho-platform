@@ -68,6 +68,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
+import org.pentaho.platform.plugin.services.importer.MondrianImportHandler;
+import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
+import org.pentaho.platform.plugin.services.metadata.PentahoMetadataDomainRepository;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
 import org.pentaho.platform.util.logging.Logger;
@@ -85,7 +88,6 @@ import mondrian.rolap.agg.AggregationManager;
 import mondrian.xmla.DataSourcesConfig;
 import mondrian.xmla.DataSourcesConfig.DataSource;
 import mondrian.xmla.DataSourcesConfig.DataSources;
-
 
 /**
  * Reads in file containing Mondrian data sources and catalogs. (Contains code copied from <code>XmlaServlet</code>.)
@@ -112,17 +114,13 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    */
   private Map<String, MondrianCatalogComplementInfo> catalogComplementInfoMap;
 
-
   // ~ Constructors ====================================================================================================
 
   @SuppressWarnings("unchecked")
   private List<MondrianCatalog> getCatalogs(IPentahoSession pentahoSession) {
 
-    Map<String, MondrianCatalog> catalogsMap =
-        (Map<String, MondrianCatalog>) PentahoSystem.getCacheManager(pentahoSession)
-            .getFromRegionCache(
-                MONDRIAN_CATALOG_CACHE_REGION,
-                getLocale().toString());
+    Map<String, MondrianCatalog> catalogsMap = (Map<String, MondrianCatalog>) PentahoSystem.getCacheManager(
+        pentahoSession).getFromRegionCache(MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString());
 
     List<MondrianCatalog> catalogs = new ArrayList<MondrianCatalog>();
     // Analyzer cache is also placed in the MONDRIAN_CATALOG_CACHE_REGION
@@ -179,10 +177,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     //  retrieve the catalog form the cache, you cannot be guaranteed what datasource is in play; so under these circumstances, this catalog's
     //  definition is the only part of the catalog that can be trusted. As this feature was added to enable looking up Mondrian
     //  roles from the schema, we don't much care which datasource is in play.
-    Map<String, MondrianCatalog> catalogs =
-        (Map<String, MondrianCatalog>) PentahoSystem.getCacheManager(pentahoSession).getFromRegionCache(
-            MONDRIAN_CATALOG_CACHE_REGION,
-            getLocale().toString());
+    Map<String, MondrianCatalog> catalogs = (Map<String, MondrianCatalog>) PentahoSystem
+        .getCacheManager(pentahoSession).getFromRegionCache(MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString());
     return catalogs.get(context);
   }
 
@@ -201,7 +197,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
     try {
       DefaultFileSystemManager dfsm = (DefaultFileSystemManager) VFS.getManager();
-      if(dfsm.hasProvider("mondrian") == false){
+      if (dfsm.hasProvider("mondrian") == false) {
         dfsm.addProvider("mondrian", new MondrianVfs());
       }
     } catch (FileSystemException e) {
@@ -267,8 +263,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
             Reason.GENERAL);
       }
     } catch (IOException e) {
-      throw new MondrianCatalogServiceException(
-          Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0001_INVALID_DATASOURCE_CONFIG", dataSourcesConfig),  //$NON-NLS-1$
+      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0001_INVALID_DATASOURCE_CONFIG", dataSourcesConfig), //$NON-NLS-1$
           e, Reason.GENERAL);
     }
   }
@@ -297,8 +293,10 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     for (RepositoryFile catalog : mondrianCatalogs) {
 
       String catalogName = catalog.getName();
-      RepositoryFile metadata = unifiedRepository.getFile(etcMondrian + RepositoryFile.SEPARATOR + catalogName + RepositoryFile.SEPARATOR + "metadata");
-      DataNode metadataNode = unifiedRepository.getDataForRead(metadata.getId(), NodeRepositoryFileData.class).getNode();
+      RepositoryFile metadata = unifiedRepository.getFile(etcMondrian + RepositoryFile.SEPARATOR + catalogName
+          + RepositoryFile.SEPARATOR + "metadata");
+      DataNode metadataNode = unifiedRepository.getDataForRead(metadata.getId(), NodeRepositoryFileData.class)
+          .getNode();
       String datasourceInfo = metadataNode.getProperty("datasourceInfo").getString();
       String definition = metadataNode.getProperty("definition").getString();
 
@@ -321,7 +319,13 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       return parseDataSources(dataSourcesConfigString);
 
     } catch (Exception e) {
-      throw Util.newError(e, Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0002_FAILED_TO_PARSE_DATASOURCE_CONFIG", dataSourcesConfigUrl.toExternalForm())); //$NON-NLS-1$
+      throw Util
+          .newError(
+              e,
+              Messages
+                  .getInstance()
+                  .getErrorString(
+                      "MondrianCatalogHelper.ERROR_0002_FAILED_TO_PARSE_DATASOURCE_CONFIG", dataSourcesConfigUrl.toExternalForm())); //$NON-NLS-1$
     }
   }
 
@@ -333,7 +337,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
     try {
       if (dataSourcesConfigString == null) {
-        MondrianCatalogHelper.logger.warn(Messages.getInstance().getString("MondrianCatalogHelper.WARN_PARSE_NULL_INPUT")); //$NON-NLS-1$
+        MondrianCatalogHelper.logger.warn(Messages.getInstance().getString(
+            "MondrianCatalogHelper.WARN_PARSE_NULL_INPUT")); //$NON-NLS-1$
         return null;
       }
       String replacedConfigString = Util.replaceProperties(dataSourcesConfigString, Util.toMap(System.getProperties()));
@@ -348,7 +353,10 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       return new DataSourcesConfig.DataSources(doc);
 
     } catch (XOMException e) {
-      throw Util.newError(e, Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0002_FAILED_TO_PARSE_DATASOURCE_CONFIG", dataSourcesConfigString)); //$NON-NLS-1$
+      throw Util.newError(
+          e,
+          Messages.getInstance().getErrorString(
+              "MondrianCatalogHelper.ERROR_0002_FAILED_TO_PARSE_DATASOURCE_CONFIG", dataSourcesConfigString)); //$NON-NLS-1$
     }
   }
 
@@ -422,7 +430,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     if (def1.equals(def2)) {
       return true;
     }
-    String tmp = def1.startsWith("solution:/") ? "solution:" + def1.substring(10) : "solution:/" + def1.substring(9);  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+    String tmp = def1.startsWith("solution:/") ? "solution:" + def1.substring(10) : "solution:/" + def1.substring(9); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
     return tmp.equals(def2);
   }
 
@@ -457,7 +465,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   }
 
   public synchronized void addCatalog(final MondrianCatalog catalog, final boolean overwrite,
-                                      final IPentahoSession pentahoSession) throws MondrianCatalogServiceException {
+      final IPentahoSession pentahoSession) throws MondrianCatalogServiceException {
     if (MondrianCatalogHelper.logger.isDebugEnabled()) {
       MondrianCatalogHelper.logger.debug("addCatalog"); //$NON-NLS-1$
     }
@@ -469,12 +477,14 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       if (MondrianCatalogHelper.logger.isDebugEnabled()) {
         MondrianCatalogHelper.logger.debug("user does not have access; throwing exception"); //$NON-NLS-1$
       }
-      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0003_INSUFFICIENT_PERMISSION"), Reason.ACCESS_DENIED); //$NON-NLS-1$
+      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0003_INSUFFICIENT_PERMISSION"), Reason.ACCESS_DENIED); //$NON-NLS-1$
     }
 
     // check for existing dataSourceInfo+catalog
     if (catalogExists(catalog, pentahoSession) && !overwrite) {
-      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS"), Reason.ALREADY_EXISTS); //$NON-NLS-1$
+      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS"), Reason.ALREADY_EXISTS); //$NON-NLS-1$
     }
 
     // Checks if a catalog of the same name but with a different file 
@@ -487,17 +497,18 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       }
     }
 
-    if (fileLocationCatalogTest != null && !definitionEquals(fileLocationCatalogTest.getDefinition(), "mondrian:/" + catalog.getName())) {
+    if (fileLocationCatalogTest != null
+        && !definitionEquals(fileLocationCatalogTest.getDefinition(), "mondrian:/" + catalog.getName())) {
       throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
           "MondrianCatalogHelper.ERROR_0004_ALREADY_EXISTS"), //$NON-NLS-1$ 
           Reason.XMLA_SCHEMA_NAME_EXISTS);
     }
 
-
     try {
       String mondrianSchema = (String) pentahoSession.getAttribute("MONDRIAN_SCHEMA_XML_CONTENT");
       InputStream schemaInputStream = IOUtils.toInputStream(mondrianSchema);
-      org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper = new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(PentahoSystem.get(IUnifiedRepository.class));
+      org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper = new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(
+          PentahoSystem.get(IUnifiedRepository.class));
       helper.addSchema(schemaInputStream, catalog.getName(), catalog.getDataSourceInfo());
     } catch (Exception e) {
       throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
@@ -520,33 +531,34 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       }
 
       //Note: Mondrian parameters could be validated here and throw subsequent exception if they do not conform to spec.
-      
+
       FileInputStream parsingInputStream = new FileInputStream(mondrianFile);
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       DocumentBuilder builder = factory.newDocumentBuilder();
       org.w3c.dom.Document document = builder.parse(parsingInputStream);
       NodeList schemas = document.getElementsByTagName("Schema");
       Node schema = schemas.item(0);
-      if(schema == null) {
-    	  throw new SAXParseException("", null); // Generic schema error message will be provided at catch statement.
+      if (schema == null) {
+        throw new SAXParseException("", null); // Generic schema error message will be provided at catch statement.
       }
       Node name = schema.getAttributes().getNamedItem("name");
       String catalogName = name.getTextContent();
       parsingInputStream.close();
 
       FileInputStream schemaInputStream = new FileInputStream(mondrianFile);
-      org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper = new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(PentahoSystem.get(IUnifiedRepository.class));
+      org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper = new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(
+          PentahoSystem.get(IUnifiedRepository.class));
       helper.addSchema(schemaInputStream, catalogName, datasourceInfo);
 
       reInit(PentahoSessionHolder.getSession());
-      
+
     } catch (SAXParseException e) {
-        throw new MondrianCatalogServiceException(Messages.getInstance().getString(
+      throw new MondrianCatalogServiceException(Messages.getInstance().getString(
           "MondrianCatalogHelper.ERROR_0018_IMPORT_SCHEMA_ERROR"));
     } catch (Exception e) {
-    	throw new MondrianCatalogServiceException(Messages.getInstance().getString(
-    	          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
-    	          Reason.valueOf(e.getMessage()));
+      throw new MondrianCatalogServiceException(Messages.getInstance().getString(
+          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
+          Reason.valueOf(e.getMessage()));
     }
   }
 
@@ -557,7 +569,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     try {
       dataSourcesFile = new File(new URL(dataSourcesConfig).getFile()); // dataSourcesConfigResource.getFile();
     } catch (IOException e) {
-      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0005_RESOURCE_NOT_AVAILABLE"), e, Reason.GENERAL); //$NON-NLS-1$
+      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0005_RESOURCE_NOT_AVAILABLE"), e, Reason.GENERAL); //$NON-NLS-1$
     }
 
     Writer sxml;
@@ -576,7 +589,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     } catch (XmlParseException e) {
       throw new MondrianCatalogServiceException(e);
     }
-
 
     // pretty print
     try {
@@ -612,15 +624,15 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       }
     } else {
       if (MondrianCatalogHelper.logger.isDebugEnabled()) {
-        MondrianCatalogHelper.logger.debug("user requested catalog with name\"" + context + "\", but catalog doesn't exist"); //$NON-NLS-1$ //$NON-NLS-2$
+        MondrianCatalogHelper.logger
+            .debug("user requested catalog with name\"" + context + "\", but catalog doesn't exist"); //$NON-NLS-1$ //$NON-NLS-2$
       }
       return null;
     }
 
   }
 
-  protected void loadCatalogsIntoCache(
-      final DataSourcesConfig.DataSources dataSources,
+  protected void loadCatalogsIntoCache(final DataSourcesConfig.DataSources dataSources,
       final IPentahoSession pentahoSession) {
 
     // Create the cache region if necessary.
@@ -631,9 +643,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     }
     if (cacheMgr.getFromRegionCache(MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString()) == null) {
       // Put the map in the region
-      cacheMgr.putInRegionCache(
-          MONDRIAN_CATALOG_CACHE_REGION,
-          getLocale().toString(),
+      cacheMgr.putInRegionCache(MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString(),
           new HashMap<String, List<MondrianCatalog>>());
     }
 
@@ -647,10 +657,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           dataSource.url, dataSource.dataSourceInfo, dataSource.providerName, dataSource.providerType,
           dataSource.authenticationMode, catalogNames);
 
-      Map<String, MondrianCatalog> catalogs =
-          (Map<String, MondrianCatalog>) cacheMgr.getFromRegionCache(
-              MONDRIAN_CATALOG_CACHE_REGION,
-              getLocale().toString());
+      Map<String, MondrianCatalog> catalogs = (Map<String, MondrianCatalog>) cacheMgr.getFromRegionCache(
+          MONDRIAN_CATALOG_CACHE_REGION, getLocale().toString());
 
       for (DataSourcesConfig.Catalog catalog : dataSource.catalogs.catalogs) {
         if (catalog.definition.startsWith("mondrian:") || catalog.definition.startsWith("solution:")) { //$NON-NLS-1$
@@ -666,10 +674,13 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
             catalogs.put(mondrianCatalog.getDefinition(), mondrianCatalog);
 
           } catch (Exception e) {
-            MondrianCatalogHelper.logger.error(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0013_FAILED_TO_LOAD_SCHEMA", catalog.definition), e); //$NON-NLS-1$
+            MondrianCatalogHelper.logger.error(
+                Messages.getInstance().getErrorString(
+                    "MondrianCatalogHelper.ERROR_0013_FAILED_TO_LOAD_SCHEMA", catalog.definition), e); //$NON-NLS-1$
           }
         } else {
-          MondrianCatalogHelper.logger.warn(Messages.getInstance().getString("MondrianCatalogHelper.WARN_SKIPPING_DATASOURCE_DEF", catalog.definition)); //$NON-NLS-1$
+          MondrianCatalogHelper.logger.warn(Messages.getInstance().getString(
+              "MondrianCatalogHelper.WARN_SKIPPING_DATASOURCE_DEF", catalog.definition)); //$NON-NLS-1$
         }
       }
     }
@@ -677,7 +688,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
   @Deprecated
   protected List<MondrianCatalog> transformIntoCatalogList(final DataSourcesConfig.DataSources dataSources,
-                                                           final IPentahoSession pentahoSession) {
+      final IPentahoSession pentahoSession) {
     List<MondrianCatalog> localCatalogs = new ArrayList<MondrianCatalog>();
     for (DataSourcesConfig.DataSource dataSource : dataSources.dataSources) {
       List<String> catalogNames = new ArrayList<String>();
@@ -701,11 +712,14 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
                 catalogComplementInfo);
             localCatalogs.add(mondrianCatalog);
           } catch (Exception e) {
-            MondrianCatalogHelper.logger.error(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0013_FAILED_TO_LOAD_SCHEMA", catalog.definition), e); //$NON-NLS-1$
+            MondrianCatalogHelper.logger.error(
+                Messages.getInstance().getErrorString(
+                    "MondrianCatalogHelper.ERROR_0013_FAILED_TO_LOAD_SCHEMA", catalog.definition), e); //$NON-NLS-1$
 
           }
         } else {
-          MondrianCatalogHelper.logger.warn(Messages.getInstance().getString("MondrianCatalogHelper.WARN_SKIPPING_DATASOURCE_DEF", catalog.definition)); //$NON-NLS-1$
+          MondrianCatalogHelper.logger.warn(Messages.getInstance().getString(
+              "MondrianCatalogHelper.WARN_SKIPPING_DATASOURCE_DEF", catalog.definition)); //$NON-NLS-1$
         }
       }
     }
@@ -755,9 +769,11 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       in = mondrianDS.getInputStream();
       res = schemaProcessor.filter(null, localeInfo, in);
     } catch (FileNotFoundException fnfe) {
-      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0007_FILE_NOT_FOUND"), fnfe); //$NON-NLS-1$
+      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0007_FILE_NOT_FOUND"), fnfe); //$NON-NLS-1$
     } catch (Exception e) {
-      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0006_IO_PROBLEM"), e); //$NON-NLS-1$
+      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0006_IO_PROBLEM"), e); //$NON-NLS-1$
     } finally {
       IOUtils.closeQuietly(in);
     }
@@ -775,7 +791,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
   protected MondrianSchema makeSchema(final String catalogStr) {
     if (MondrianCatalogHelper.logger.isDebugEnabled()) {
-      MondrianCatalogHelper.logger.debug("makeSchema (catalogStr=" + catalogStr.substring(0, Math.min(40, catalogStr.length())) + "...)"); //$NON-NLS-1$ //$NON-NLS-2$
+      MondrianCatalogHelper.logger
+          .debug("makeSchema (catalogStr=" + catalogStr.substring(0, Math.min(40, catalogStr.length())) + "...)"); //$NON-NLS-1$ //$NON-NLS-2$
     }
     MondrianSchema schema = null;
     try {
@@ -818,9 +835,11 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
     } catch (XOMException e) {
       if (MondrianCatalogHelper.logger.isErrorEnabled()) {
-        MondrianCatalogHelper.logger.error(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), e); //$NON-NLS-1$
+        MondrianCatalogHelper.logger.error(
+            Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), e); //$NON-NLS-1$
       }
-      throw Util.newError(e, Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0009_WHILE_PARSING_CATALOG", catalogStr)); //$NON-NLS-1$
+      throw Util.newError(e,
+          Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0009_WHILE_PARSING_CATALOG", catalogStr)); //$NON-NLS-1$
     }
     return schema;
   }
@@ -830,7 +849,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   }
 
   protected List<MondrianCatalog> filter(final List<MondrianCatalog> origList, final IPentahoSession pentahoSession,
-                                         final boolean jndiOnly) {
+      final boolean jndiOnly) {
     List<MondrianCatalog> filtered = new ArrayList<MondrianCatalog>();
     for (MondrianCatalog orig : origList) {
       if (hasAccess(orig, CatalogPermission.READ, pentahoSession)
@@ -849,7 +868,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    * Why is this class even enforcing security anyway!?
    */
   protected boolean hasAccess(final MondrianCatalog cat, final CatalogPermission perm,
-                              final IPentahoSession pentahoSession) {
+      final IPentahoSession pentahoSession) {
     //IUnifiedRepository unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
     //unifiedRepository.hasAccess(null, null);
     return true;
@@ -861,7 +880,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       FileSystemManager fsManager = VFS.getManager();
       return fsManager.resolveFile(path).getName().getPath();
     } catch (FileSystemException e) {
-      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0012_FILESYSTEM_PROBLEM"), e); //$NON-NLS-1$
+      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0012_FILESYSTEM_PROBLEM"), e); //$NON-NLS-1$
     }
 
   }
@@ -874,9 +894,11 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     this.useSchemaNameAsCatalogName = useSchemaNameAsCatalogName;
   }
 
-  public static int addToCatalog(String baseUrl, boolean enableXmla, String schemaSolutionPath, IPentahoSession session, String jndiName, boolean overwrite) {
+  public static int addToCatalog(String baseUrl, boolean enableXmla, String schemaSolutionPath,
+      IPentahoSession session, String jndiName, boolean overwrite) {
 
-    IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(IMondrianCatalogService.class, "IMondrianCatalogService", session); //$NON-NLS-1$
+    IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(IMondrianCatalogService.class,
+        "IMondrianCatalogService", session); //$NON-NLS-1$
 
     String dsUrl = baseUrl;
     if (!dsUrl.endsWith("/")) { //$NON-NLS-1$
@@ -903,9 +925,13 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       IDBDatasourceService datasourceService = PentahoSystem.getObjectFactory().get(IDBDatasourceService.class, null);
       datasourceService.getDSBoundName(jndiName);
     } catch (ObjectFactoryException objface) {
-      Logger.error("MondrianCatalogHelper", Messages.getInstance().getErrorString("MondrianCatalogPublisher.ERROR_0006_UNABLE_TO_FACTORY_OBJECT", jndiName), objface); //$NON-NLS-1$ //$NON-NLS-2$
+      Logger
+          .error(
+              "MondrianCatalogHelper", Messages.getInstance().getErrorString("MondrianCatalogPublisher.ERROR_0006_UNABLE_TO_FACTORY_OBJECT", jndiName), objface); //$NON-NLS-1$ //$NON-NLS-2$
     } catch (DBDatasourceServiceException dse) {
-      Logger.error("MondrianCatalogHelper", Messages.getInstance().getErrorString("MondrianCatalogPublisher.ERROR_0001_JNDI_NAMING_ERROR", jndiName), dse); //$NON-NLS-1$ //$NON-NLS-2$
+      Logger
+          .error(
+              "MondrianCatalogHelper", Messages.getInstance().getErrorString("MondrianCatalogPublisher.ERROR_0001_JNDI_NAMING_ERROR", jndiName), dse); //$NON-NLS-1$ //$NON-NLS-2$
       return -1;
     }
 
@@ -919,14 +945,15 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
     // MB - 12/2009 - TODO: Figure out the empty list
     // Curious why we aren't adding the cubes from the read schema into the created schema.
-    MondrianCatalog cat = new MondrianCatalog(catName, catConnectStr, catDef, ds,
-        new MondrianSchema(catName, new ArrayList<MondrianCube>(), roleNames)
-    );
+    MondrianCatalog cat = new MondrianCatalog(catName, catConnectStr, catDef, ds, new MondrianSchema(catName,
+        new ArrayList<MondrianCube>(), roleNames));
 
     try {
       mondrianCatalogService.addCatalog(cat, overwrite, session);
     } catch (MondrianCatalogServiceException e) {
-      Logger.error("MondrianCatalogHelper", Messages.getInstance().getErrorString("MondrianCatalogPublisher.ERROR_0002_EXCEPTION_OCCURRED"), e); //$NON-NLS-1$ //$NON-NLS-2$
+      Logger
+          .error(
+              "MondrianCatalogHelper", Messages.getInstance().getErrorString("MondrianCatalogPublisher.ERROR_0002_EXCEPTION_OCCURRED"), e); //$NON-NLS-1$ //$NON-NLS-2$
       return -1;
     }
 
@@ -950,7 +977,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     MondrianCatalog catalog = getCatalog(catalogName, pentahoSession);
 
     if (catalog == null) {
-      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0015_CATALOG_NOT_FOUND", catalogName)); //$NON-NLS-1$
+      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0015_CATALOG_NOT_FOUND", catalogName)); //$NON-NLS-1$
     }
 
     //
@@ -961,12 +989,55 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       if (MondrianCatalogHelper.logger.isDebugEnabled()) {
         MondrianCatalogHelper.logger.debug("user does not have access; throwing exception"); //$NON-NLS-1$
       }
-      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString("MondrianCatalogHelper.ERROR_0003_INSUFFICIENT_PERMISSION"), Reason.ACCESS_DENIED); //$NON-NLS-1$
+      throw new MondrianCatalogServiceException(Messages.getInstance().getErrorString(
+          "MondrianCatalogHelper.ERROR_0003_INSUFFICIENT_PERMISSION"), Reason.ACCESS_DENIED); //$NON-NLS-1$
     }
 
     IUnifiedRepository solutionRepository = PentahoSystem.get(IUnifiedRepository.class);
-    RepositoryFile deletingFile = solutionRepository.getFile(RepositoryFile.SEPARATOR + "etc" + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + catalog.getName());
+    RepositoryFile deletingFile = solutionRepository.getFile(RepositoryFile.SEPARATOR + "etc"
+        + RepositoryFile.SEPARATOR + "mondrian" + RepositoryFile.SEPARATOR + catalog.getName());
     solutionRepository.deleteFile(deletingFile.getId(), "");
     reInit(pentahoSession);
+  }
+
+  @Override
+  public void importSchema(InputStream fileInputStream, String domainId, boolean overwriteInRepossitory,
+      boolean xmlaEnabled) {
+    try {
+
+      PentahoMetadataDomainRepository metadataDomainRepos = new PentahoMetadataDomainRepository(
+          PentahoSystem.get(IUnifiedRepository.class));
+      MondrianImportHandler importHandler = new MondrianImportHandler(metadataDomainRepos);
+      importHandler.importSchema(fileInputStream, domainId, overwriteInRepossitory);
+      //xmlaEnabled??
+    } catch (Exception e) {
+      throw new MondrianCatalogServiceException(Messages.getInstance().getString(
+          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
+          Reason.valueOf(e.getMessage()));
+    } finally {
+      try {
+        fileInputStream.close();
+      } catch (IOException e) {
+        ;//tcb
+      }
+    }
+
+  }
+
+  @Override
+  public void removeSchema(String domainId) {
+    try {
+
+      PentahoMetadataDomainRepository metadataDomainRepos = new PentahoMetadataDomainRepository(
+          PentahoSystem.get(IUnifiedRepository.class));
+      MondrianImportHandler importHandler = new MondrianImportHandler(metadataDomainRepos);
+      importHandler.removeDomain(domainId);
+      //xmlaEnabled??
+    } catch (Exception e) {
+      throw new MondrianCatalogServiceException(Messages.getInstance().getString(
+          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
+          Reason.valueOf(e.getMessage()));
+    }
+
   }
 }
