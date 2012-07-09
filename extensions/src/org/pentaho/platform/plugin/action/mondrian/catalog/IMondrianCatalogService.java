@@ -18,6 +18,7 @@
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -76,5 +77,26 @@ public interface IMondrianCatalogService {
    */
   public void reInit(IPentahoSession pentahoSession) throws MondrianCatalogServiceException;
   
+  /**
+   * 
+   * @param analysisFile
+   * @param databaseConnection
+   * @param parameters
+   */
   public void importSchema(File analysisFile, String databaseConnection, String parameters);
+  
+  /**
+   * Extended API to support overwrite and publish XMLA enabled file
+   * @param analysisFile
+   * @param databaseConnection
+   * @param overwriteSchama
+   * @param xmlaEnabled
+   */
+  public void importSchema(InputStream analysisFile, String databaseConnection,boolean overwriteSchama,boolean xmlaEnabled);
+
+  /**
+   * used to remove a mondrian domain
+   * @param domainId
+   */
+  public void removeSchema(String domainId);
 }
