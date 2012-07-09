@@ -18,4 +18,6 @@ public interface IPentahoMetadataDomainRepositoryImporter {
   public void addLocalizationFile(final String domainId, final String locale, final InputStream inputStream,
                                   final boolean overwrite)
       throws DomainStorageException;
+
+  public void removeDomain(String domainId);
 }
