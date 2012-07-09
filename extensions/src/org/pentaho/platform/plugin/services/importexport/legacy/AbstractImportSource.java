@@ -30,7 +30,7 @@ public abstract class AbstractImportSource implements org.pentaho.platform.plugi
     // Keys are extensions and values are MIME types.
     mimeTypes.put("prpt", "application/zip"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("prpti", "application/zip"); //$NON-NLS-1$ //$NON-NLS-2$
-    mimeTypes.put("mondrian.xml", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
+    mimeTypes.put("mondrian.xml", "application/vnd.pentaho.mondrian+xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("gif", "image/gif"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("css", "text/css"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("html", "text/html"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -61,7 +61,7 @@ public abstract class AbstractImportSource implements org.pentaho.platform.plugi
     mimeTypes.put("waqr.xml", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("xwaqr", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("cda", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
-    mimeTypes.put("xls", "application/vnd.ms-excel"); //$NON-NLS-1$ //$NON-NLS-2$
+    mimeTypes.put("xls", "application/vnd.ms-excel"); //$NON-NLS-1$ //$NON-NLS-2$   
     mimeTypes.put(null, null);
   }
 
