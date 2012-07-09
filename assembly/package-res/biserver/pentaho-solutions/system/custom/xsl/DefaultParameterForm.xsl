@@ -65,7 +65,7 @@
                   <td valign="top">
                     <input type="button" class="portlet-form-button">
                       <xsl:attribute name="value">OK</xsl:attribute>
-                      <xsl:attribute name="onClick">doRun("<xsl:value-of select="/filters/id" />", 'generatedContent?', '<xsl:value-of select="/filters/target"/>', false);</xsl:attribute>
+                      <xsl:attribute name="onClick">doRun("<xsl:value-of select="/filters/id" />", 'generatedContent?', '<xsl:value-of select="/filters/target"/>', document.getElementById('run_as_background_yes').checked);</xsl:attribute>
                       <xsl:attribute name="id">run2button<xsl:value-of select="/filters/id" /></xsl:attribute>
                     </input>
                   </td>
@@ -87,12 +87,10 @@
             </td>
           </tr>       
        </xsl:when>
-      <xsl:otherwise>
-        <script type="text/javascript">
-          var pentaho_formId = '<xsl:value-of select="/filters/id" />';
-        </script>
-      </xsl:otherwise>
-    </xsl:choose> 
+     </xsl:choose>
+     <script type="text/javascript">
+       var pentaho_formId = '<xsl:value-of select="/filters/id" />';
+     </script>
   </xsl:template>
 
 </xsl:stylesheet>

@@ -25,8 +25,8 @@
 				<title><xsl:value-of select="title" disable-output-escaping="yes"/></title>
 				<link rel='stylesheet' type='text/css' href='/pentaho-style/active/default.css' />
 
-				<script type="text/javascript" language="javascript" src="/pentaho/js/parameters.js"></script>
-				<script type="text/javascript" language="javascript" src="/pentaho/js/subscription.js"></script>
+				<script type="text/javascript" language="javascript" src="../../../js/parameters.js"></script>
+				<script type="text/javascript" language="javascript" src="../../../js/pentaho-ajax.js"></script>
 
 				<script type="text/javascript">
 					var pentaho_notOptionalMessage = '<xsl:value-of select="msg:getXslString($messages, 'UI.USER_PARAMETER_NOT_OPTIONAL')" disable-output-escaping="yes"/>';

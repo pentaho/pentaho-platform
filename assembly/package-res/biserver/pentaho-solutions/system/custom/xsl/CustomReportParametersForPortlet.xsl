@@ -16,7 +16,7 @@
 
 	<xsl:template match="filters">
 	 			<xsl:variable name="messages" select="msg:getInstance()" />
-			    <script type="text/javascript" language="javascript" src="js/parameters.js"></script>
+			    <script type="text/javascript" language="javascript" src="../../../js/parameters.js"></script>
 				<script type="text/javascript">
 					var pentaho_notOptionalMessage = '<xsl:value-of select="msg:getXslString($messages, 'UI.USER_PARAMETER_NOT_OPTIONAL')" disable-output-escaping="yes"/>';
 					var pentaho_backgroundWarning = '<xsl:value-of select="msg:getXslString($messages, 'UI.USER_PARAMETER_BACKGROUND_WARNING')" disable-output-escaping="yes"/>';
