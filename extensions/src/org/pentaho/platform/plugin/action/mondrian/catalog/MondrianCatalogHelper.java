@@ -33,8 +33,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.collections.list.SetUniqueList;
 import org.apache.commons.io.IOUtils;
@@ -82,6 +85,7 @@ import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import mondrian.i18n.LocalizingDynamicSchemaProcessor;
@@ -120,6 +124,13 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
   // ~ Constructors ====================================================================================================
 
+  public static void main(String[] args){
+    String parameters =  "Provider=Mondrian;DataSource=Pentaho;XmlaEnabled=true";
+    MondrianCatalogHelper mh = new MondrianCatalogHelper();
+    System.out.println(mh.getValue(parameters, "Provider"));
+    System.out.println(mh.getValue(parameters, "DataSource"));
+    System.out.println(mh.getValue(parameters, "xmlaEnabled"));
+  }
   @SuppressWarnings("unchecked")
   private List<MondrianCatalog> getCatalogs(IPentahoSession pentahoSession) {
 
@@ -534,30 +545,13 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         datasourceInfo = parameters;
       }
 
-      //private String getParameter(String parameters, String string) {
-      //  boolean overWriteInRepository = "True".equalsIgnoreCase(getParameter(parameters,"overwrite"))?true:false;
-      //  boolean xmlaEnabled = "True".equalsIgnoreCase(getParameter(parameters,"xmlaEnabledFlag"))?true:false;
-      //  return null;
-     /// }
-      //Note: Mondrian parameters could be validated here and throw subsequent exception if they do not conform to spec.
+      boolean overWriteInRepository = "True".equalsIgnoreCase(getValue(parameters, "Overwirte")) ? true : false;
+      boolean xmlaEnabled = "True".equalsIgnoreCase(getValue(parameters, "EnableXmla")) ? true : false;
+      InputStream schemaInputStream = new FileInputStream(mondrianFile);
+      String catalogName = getCatalogName(schemaInputStream);
 
-      FileInputStream parsingInputStream = new FileInputStream(mondrianFile);
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      org.w3c.dom.Document document = builder.parse(parsingInputStream);
-      NodeList schemas = document.getElementsByTagName("Schema");
-      Node schema = schemas.item(0);
-      if (schema == null) {
-        throw new SAXParseException("", null); // Generic schema error message will be provided at catch statement.
-      }
-      Node name = schema.getAttributes().getNamedItem("name");
-      String catalogName = name.getTextContent();
-      parsingInputStream.close();
-
-      FileInputStream schemaInputStream = new FileInputStream(mondrianFile);
-      org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper = new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(
-          PentahoSystem.get(IUnifiedRepository.class));
-      helper.addSchema(schemaInputStream, catalogName, datasourceInfo);
+      this.importSchema(schemaInputStream, catalogName, overWriteInRepository, xmlaEnabled);
+      schemaInputStream.close();
 
       reInit(PentahoSessionHolder.getSession());
 
@@ -568,7 +562,71 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       throw new MondrianCatalogServiceException(Messages.getInstance().getString(
           "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
           Reason.valueOf(e.getMessage()));
+    } finally {
+
     }
+  }
+
+  /**
+   * refactored method to use Schema to get the catalog name from Mondrian XML
+   * @param schemaInputStream
+   * @return
+   * @throws ParserConfigurationException
+   * @throws SAXException
+   * @throws IOException
+   */
+  private String getCatalogName(InputStream schemaInputStream) throws ParserConfigurationException, SAXException,
+      IOException {
+    Node schema = getSchema(schemaInputStream);
+    Node name = schema.getAttributes().getNamedItem("name");
+    String catalogName = name.getTextContent();
+    return catalogName;
+  }
+
+  /**
+   * convert string to property to do a lookup "Provider=Mondrian;DataSource=Pentaho"
+   * @param parameters
+   * @param key
+   * @return
+   */
+  private String getValue(String parameters, String key) {
+    // convert  string list and lookup value
+    String value = null;
+    if (parameters != null && !"".equals(parameters)) {
+      String[] pairs = StringUtils.split(parameters, ";");
+      if (pairs != null) {
+        for (int i = 0; i < pairs.length; i++) {
+          String[] map = StringUtils.split(pairs[i], "=");
+          if (map[0].equalsIgnoreCase(key)) {
+            value = map[1];
+            break;
+          }
+        }
+      }
+    }
+    return value;
+  }
+
+  /**
+   * refactored method to get schema object from Mondrian XML
+   * @param parsingInputStream
+   * @return
+   * @throws ParserConfigurationException
+   * @throws SAXException
+   * @throws IOException
+   */
+  private Node getSchema(InputStream parsingInputStream) throws ParserConfigurationException, SAXException, IOException {
+
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder = factory.newDocumentBuilder();
+    org.w3c.dom.Document document = builder.parse(parsingInputStream);
+    NodeList schemas = document.getElementsByTagName("Schema");
+    Node schema = schemas.item(0);
+
+    if (schema == null) {
+      throw new SAXParseException("", null); // Generic schema error message will be provided at catch statement.
+    }
+    return schema;
   }
 
   @Deprecated
@@ -1016,8 +1074,13 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     PentahoMetadataDomainRepository metadataDomainRepos = new PentahoMetadataDomainRepository(
         PentahoSystem.get(IUnifiedRepository.class));
     MondrianImportHandler importHandler = new MondrianImportHandler(metadataDomainRepos);
-   try{
+    try {
+      if (MondrianCatalogHelper.logger.isDebugEnabled()) {
+        MondrianCatalogHelper.logger.debug("importSchema " + domainId + " overwriteInRepossitory:"
+            + overwriteInRepossitory);
+      }
       importHandler.importSchema(fileInputStream, domainId, overwriteInRepossitory);
+      //XMLA Enabled???
     } catch (DomainIdNullException e) {
       throw new PlatformImportException(e.getMessage(), PlatformImportException.PUBLISH_DATASOURCE_ERROR, e);
     } catch (DomainAlreadyExistsException e) {
@@ -1026,25 +1089,26 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       throw new PlatformImportException(e.getMessage(), PlatformImportException.PUBLISH_DATASOURCE_ERROR, e);
     } catch (IOException e) {
       throw new PlatformImportException(e.getMessage(), PlatformImportException.PUBLISH_GENERAL_ERROR, e);
-   } finally {
+    } finally {
       try {
         fileInputStream.close();
       } catch (IOException e) {
         ;//tcb
       }
     }
-
+    reInit(PentahoSessionHolder.getSession());
   }
 
   @Override
-  public void removeSchema(String domainId) {
+  public void removeSchema(String domainId) throws MondrianCatalogServiceException {
     try {
-      
+      /*
       PentahoMetadataDomainRepository metadataDomainRepos = new PentahoMetadataDomainRepository(
           PentahoSystem.get(IUnifiedRepository.class));
       MondrianImportHandler importHandler = new MondrianImportHandler(metadataDomainRepos);
-      importHandler.removeDomain(domainId);
-      //xmlaEnabled??
+      importHandler.removeDomain(domainId);  
+      */
+      this.removeCatalog(domainId, PentahoSessionHolder.getSession());
     } catch (Exception e) {
       throw new MondrianCatalogServiceException(Messages.getInstance().getString(
           "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
