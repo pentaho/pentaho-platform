@@ -64,7 +64,7 @@ public interface IMondrianCatalogService {
    * @return Mondrian Schema object
    */
   MondrianSchema loadMondrianSchema(String solutionLocation, IPentahoSession pentahoSession);
-  
+
   /**
    * this method removes a Mondrian schema from the platform
    * 
@@ -72,12 +72,13 @@ public interface IMondrianCatalogService {
    * @param pentahoSession current session object
    */
   void removeCatalog(final String catalogName, final IPentahoSession pentahoSession);
+
   /**
    * Flushes the catalog cache.
    * @param pentahoSession
    */
   public void reInit(IPentahoSession pentahoSession) throws MondrianCatalogServiceException;
-  
+
   /**
    * 
    * @param analysisFile
@@ -85,7 +86,7 @@ public interface IMondrianCatalogService {
    * @param parameters
    */
   public void importSchema(File analysisFile, String databaseConnection, String parameters);
-  
+
   /**
    * Extended API to support overwrite and publish XMLA enabled file
    * @param analysisFile
@@ -94,11 +95,13 @@ public interface IMondrianCatalogService {
    * @param xmlaEnabled
    * @throws PlatformImportException 
    */
-  public void importSchema(InputStream analysisFile, String domainNameId,boolean overwriteSchama,boolean xmlaEnabled) throws PlatformImportException;
+  public void importSchema(InputStream analysisFile, String domainNameId, boolean overwriteSchama, boolean xmlaEnabled)
+      throws PlatformImportException;
 
   /**
    * used to remove a mondrian domain
    * @param domainNameId
+   * @throws MondrianCatalogServiceException
    */
-  public void removeSchema(String domainNameId);
+  public void removeSchema(String domainNameId) throws MondrianCatalogServiceException;
 }
