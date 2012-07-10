@@ -53,6 +53,9 @@ import org.eigenbase.xom.Parser;
 import org.eigenbase.xom.XMLOutput;
 import org.eigenbase.xom.XOMException;
 import org.eigenbase.xom.XOMUtil;
+import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
@@ -69,6 +72,7 @@ import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
 import org.pentaho.platform.plugin.services.importer.MondrianImportHandler;
+import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.plugin.services.metadata.PentahoMetadataDomainRepository;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
@@ -530,6 +534,11 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         datasourceInfo = parameters;
       }
 
+      //private String getParameter(String parameters, String string) {
+      //  boolean overWriteInRepository = "True".equalsIgnoreCase(getParameter(parameters,"overwrite"))?true:false;
+      //  boolean xmlaEnabled = "True".equalsIgnoreCase(getParameter(parameters,"xmlaEnabledFlag"))?true:false;
+      //  return null;
+     /// }
       //Note: Mondrian parameters could be validated here and throw subsequent exception if they do not conform to spec.
 
       FileInputStream parsingInputStream = new FileInputStream(mondrianFile);
@@ -1002,19 +1011,22 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
   @Override
   public void importSchema(InputStream fileInputStream, String domainId, boolean overwriteInRepossitory,
-      boolean xmlaEnabled) {
-    try {
+      boolean xmlaEnabled) throws PlatformImportException {
 
-      PentahoMetadataDomainRepository metadataDomainRepos = new PentahoMetadataDomainRepository(
-          PentahoSystem.get(IUnifiedRepository.class));
-      MondrianImportHandler importHandler = new MondrianImportHandler(metadataDomainRepos);
+    PentahoMetadataDomainRepository metadataDomainRepos = new PentahoMetadataDomainRepository(
+        PentahoSystem.get(IUnifiedRepository.class));
+    MondrianImportHandler importHandler = new MondrianImportHandler(metadataDomainRepos);
+   try{
       importHandler.importSchema(fileInputStream, domainId, overwriteInRepossitory);
-      //xmlaEnabled??
-    } catch (Exception e) {
-      throw new MondrianCatalogServiceException(Messages.getInstance().getString(
-          "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
-          Reason.valueOf(e.getMessage()));
-    } finally {
+    } catch (DomainIdNullException e) {
+      throw new PlatformImportException(e.getMessage(), PlatformImportException.PUBLISH_DATASOURCE_ERROR, e);
+    } catch (DomainAlreadyExistsException e) {
+      throw new PlatformImportException(e.getMessage(), PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR, e);
+    } catch (DomainStorageException e) {
+      throw new PlatformImportException(e.getMessage(), PlatformImportException.PUBLISH_DATASOURCE_ERROR, e);
+    } catch (IOException e) {
+      throw new PlatformImportException(e.getMessage(), PlatformImportException.PUBLISH_GENERAL_ERROR, e);
+   } finally {
       try {
         fileInputStream.close();
       } catch (IOException e) {
@@ -1027,7 +1039,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   @Override
   public void removeSchema(String domainId) {
     try {
-
+      
       PentahoMetadataDomainRepository metadataDomainRepos = new PentahoMetadataDomainRepository(
           PentahoSystem.get(IUnifiedRepository.class));
       MondrianImportHandler importHandler = new MondrianImportHandler(metadataDomainRepos);
