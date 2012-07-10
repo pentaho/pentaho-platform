@@ -16,9 +16,15 @@
  */
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.plugin.services.importexport.PentahoMetadataFileInfo;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -31,12 +37,13 @@ import org.pentaho.platform.repository.messages.Messages;
  */
 public class MetadataImportHandler implements IPlatformImportHandler {
   private static final Log log = LogFactory.getLog(MetadataImportHandler.class);
+
   private static final Messages messages = Messages.getInstance();
 
   IPentahoMetadataDomainRepositoryImporter metadataRepositoryImporter;
 
   public MetadataImportHandler(final IPentahoMetadataDomainRepositoryImporter metadataImporter) {
-    if ( metadataImporter == null) {
+    if (metadataImporter == null) {
       throw new IllegalArgumentException();
     }
     this.metadataRepositoryImporter = metadataImporter;
@@ -48,8 +55,8 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     String domainId = processMetadataFile(file);
 
     // bundle may have language files supplied with it.
-    if(file.getChildBundles() != null){
-      for(IPlatformImportBundle child : file.getChildBundles()){
+    if (file.getChildBundles() != null) {
+      for (IPlatformImportBundle child : file.getChildBundles()) {
         processLocaleFile(child, domainId);
       }
     }
@@ -66,15 +73,16 @@ public class MetadataImportHandler implements IPlatformImportHandler {
   protected String processMetadataFile(final IPlatformImportBundle bundle) throws PlatformImportException {
     final String domainId = (String) bundle.getProperty("domain-id");
 
-    if(domainId == null){
+    if (domainId == null) {
       throw new PlatformImportException("Bundle missing required domain-id property");
     }
     try {
-      log.debug("Importing as metadata - [domain=" + domainId+ "]");
+      log.debug("Importing as metadata - [domain=" + domainId + "]");
       metadataRepositoryImporter.storeDomain(bundle.getInputStream(), domainId, true);
       return domainId;
     } catch (Exception e) {
-      final String errorMessage = messages.getErrorString("MetadataImportHandler.ERROR_0001_IMPORTING_METADATA", domainId, e.getLocalizedMessage());
+      final String errorMessage = messages.getErrorString("MetadataImportHandler.ERROR_0001_IMPORTING_METADATA",
+          domainId, e.getLocalizedMessage());
       log.error(errorMessage, e);
     }
     return null;
@@ -84,16 +92,16 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     final String fullFilename = RepositoryFilenameUtils.concat("/", bundle.getName());
     final PentahoMetadataFileInfo info = new PentahoMetadataFileInfo(fullFilename);
 
-
-    if(domainId == null){
+    if (domainId == null) {
       // try to resolve domainId from bundle
       domainId = (String) bundle.getProperty("domain-id");
     }
-    if(domainId == null){
+    if (domainId == null) {
       throw new PlatformImportException("Bundle missing required domain-id property");
     }
     try {
-      log.debug("Importing [" + info.getPath() + "] as properties - [domain=" + domainId + " : locale=" + info.getLocale() + "]");
+      log.debug("Importing [" + info.getPath() + "] as properties - [domain=" + domainId + " : locale="
+          + info.getLocale() + "]");
       metadataRepositoryImporter.addLocalizationFile(domainId, info.getLocale(), bundle.getInputStream(), true);
 
     } catch (Exception e) {
@@ -101,6 +109,14 @@ public class MetadataImportHandler implements IPlatformImportHandler {
           info.getPath(), domainId, info.getLocale(), e.getLocalizedMessage());
       log.error(errorMessage, e);
     }
+  }
+
+  @Override
+  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepository) throws PlatformImportException,
+      DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
+    
+      processLocaleFile(bundle, bundle.getName());
+
   }
 
 }
