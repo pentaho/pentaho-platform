@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 
 /**
  * A service registering/enumerating registered Mondrian catalogs (schemas).
@@ -88,15 +89,16 @@ public interface IMondrianCatalogService {
   /**
    * Extended API to support overwrite and publish XMLA enabled file
    * @param analysisFile
-   * @param databaseConnection
+   * @param domainNameId
    * @param overwriteSchama
    * @param xmlaEnabled
+   * @throws PlatformImportException 
    */
-  public void importSchema(InputStream analysisFile, String databaseConnection,boolean overwriteSchama,boolean xmlaEnabled);
+  public void importSchema(InputStream analysisFile, String domainNameId,boolean overwriteSchama,boolean xmlaEnabled) throws PlatformImportException;
 
   /**
    * used to remove a mondrian domain
-   * @param domainId
+   * @param domainNameId
    */
-  public void removeSchema(String domainId);
+  public void removeSchema(String domainNameId);
 }
