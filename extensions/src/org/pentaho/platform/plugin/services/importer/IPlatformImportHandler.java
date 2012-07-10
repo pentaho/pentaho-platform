@@ -1,5 +1,12 @@
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
+
 /**
  * Implementations handle importing content into the repository.
  *
@@ -8,11 +15,32 @@ package org.pentaho.platform.plugin.services.importer;
  */
 public interface IPlatformImportHandler {
 
+  
   /**
    * Import the provided IPlatformImportBundle into the platform.
    *
    * @param bundle
    * @throws PlatformImportException
+   * @throws IOException 
+   * @throws DomainStorageException 
+   * @throws DomainAlreadyExistsException 
+   * @throws DomainIdNullException 
+   *
    */
-  void importFile(IPlatformImportBundle bundle) throws PlatformImportException;
-}
+  void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException;
+  /**
+   * Import the provided IPlatformImportBundle into the platform.
+   *
+   * @param bundle
+   * @param overwriteInRepository
+   * @throws PlatformImportException
+   * @throws IOException 
+   * @throws DomainStorageException 
+   * @throws DomainAlreadyExistsException 
+   * @throws DomainIdNullException 
+   *
+   */
+  void importFile(IPlatformImportBundle bundle,boolean overwriteInRepository) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException;
+  
+ }
+
