@@ -2,8 +2,12 @@ package org.pentaho.platform.plugin.services.importer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.platform.repository.messages.Messages;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -14,7 +18,7 @@ import java.util.Map;
  * User: nbaker
  * Date: 5/29/12
  */
-public class PentahoPlatformImporter implements IPlatformImporter {
+public class PentahoPlatformImporter implements IPlatformImportHandler {
 
   private static final Log log = LogFactory.getLog(PentahoPlatformImporter.class);
   private static final Messages messages = Messages.getInstance();
@@ -50,5 +54,25 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0003_UNEXPECTED_ERROR", e.getMessage()), e);
     }
   }
+
+  private String extractExtension(String name) {
+    if( name == null ) {
+      return null;
+    }
+    int idx = name.lastIndexOf(".");
+    if(idx == -1){
+      return name;
+    }
+    return name.substring(idx+1);
+  }
+
+  @Override
+  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepository) throws PlatformImportException,
+      DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
+    // TODO Auto-generated method stub
+    
+  }
+
+
 
 }
