@@ -53,11 +53,11 @@ public class MondrianImportHandler implements IPlatformImportHandler {
    * @throws DomainIdNullException 
    */
   public void importSchema(InputStream dataInputStream, String domainId, boolean overwriteInRepossitory)
-      throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException,
+      throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException,
       IOException {
     IPlatformImportBundle bundle = fileIImportBundle(dataInputStream, domainId, overwriteInRepossitory);
     logger.debug("importSchema start " + domainId);
-   
+
     this.importFile(bundle, overwriteInRepossitory);
   }
 
@@ -80,46 +80,40 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
   /**
    * overloaded method from original - default to false (do not overwrite)
+   * @throws IOException 
+   * @throws DomainStorageException 
+   * @throws DomainAlreadyExistsException 
+   * @throws DomainIdNullException 
    */
-  public void importFile(IPlatformImportBundle bundle) throws PlatformImportException {
+  public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
     this.importFile(bundle, false);
   }
 
-  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepossitory) throws PlatformImportException {
-    logger.debug("importFile start " + bundle.getName());
+  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepossitory) throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
+    logger.debug("importFile start " + bundle.getName() + " overwriteInRepossitory:" + overwriteInRepossitory);
     final String domainId = (String) bundle.getProperty("domain-id");
 
     if (domainId == null) {
-      throw new PlatformImportException("Bundle missing required domain-id property");
+      throw new DomainIdNullException("Bundle missing required domain-id property");
     }
 
     logger.debug("Importing as metadata - [domain=" + domainId + "]");
+
    
-      try {
       metadataRepositoryImporter.storeDomain(bundle.getInputStream(), domainId, overwriteInRepossitory);
-      } catch (DomainIdNullException e) {
-        throw new PlatformImportException(e.getMessage(),1,e);
-        //todo - change these to constants
-      } catch (DomainAlreadyExistsException e) {
-        throw new PlatformImportException(e.getMessage(),7,e);
-      } catch (DomainStorageException e) {
-        throw new PlatformImportException(e.getMessage(),1,e);
-      } catch (IOException e) {
-        throw new PlatformImportException(e.getMessage(),2,e);
-      }
-    
+   
+
   }
+
   public void removeDomain(String domainId) throws PlatformImportException {
-    
 
     if (domainId == null) {
       throw new PlatformImportException("Bundle missing required domain-id property");
     }
 
-    logger.debug("Remove metadata - [domain=" + domainId + "]");      
-        metadataRepositoryImporter.removeDomain( domainId);
-     
-    
+    logger.debug("Remove metadata - [domain=" + domainId + "]");
+    metadataRepositoryImporter.removeDomain(domainId);
+
   }
 
 }
