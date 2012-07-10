@@ -14,7 +14,20 @@ package org.pentaho.platform.plugin.services.importer;
  * 
  */
 public class PlatformImportException extends Exception {
-  int errorStatusCode = 1;
+
+  public static final int PUBLISH_TO_SERVER_FAILED = 1;
+
+  public static final int PUBLISH_GENERAL_ERROR = 2;
+
+  public static final int PUBLISH_DATASOURCE_ERROR = 6;
+  
+  public static final int PUBLISH_USERNAME_PASSWORD_FAIL = 5;
+
+  public static final int PUBLISH_XMLA_CATALOG_EXISTS = 7;
+
+  public static final int PUBLISH_SCHEMA_EXISTS_ERROR = 8;
+
+  private int errorStatusCode = 1;
 
   public PlatformImportException(String s) {
     super(s);
@@ -32,5 +45,9 @@ public class PlatformImportException extends Exception {
   public PlatformImportException(String s, int statusCode, Throwable t) {
     super(s, t);
     this.errorStatusCode = statusCode;
+  }
+
+  public int getErrorStatus() {
+    return this.errorStatusCode;
   }
 }
