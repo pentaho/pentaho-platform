@@ -3,6 +3,9 @@ package org.pentaho.platform.plugin.services.importer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -29,7 +32,8 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private static final Messages messages = Messages.getInstance();
   private Map<String, Serializable> parentIdCache = new HashMap<String, Serializable>();
   private static StreamConverter converter = new StreamConverter();
-
+  private boolean overwriteFile = false;
+  
   public void importFile(IPlatformImportBundle bnd) throws PlatformImportException {
 
     if(bnd instanceof RepositoryFileImportBundle == false){
@@ -169,6 +173,13 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   public void setRepository(IUnifiedRepository repository) {
     this.repository = repository;
+  }
+
+  @Override
+  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepository) throws PlatformImportException,
+      DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
+    // TODO Auto-generated method stub
+    
   }
 
 }
