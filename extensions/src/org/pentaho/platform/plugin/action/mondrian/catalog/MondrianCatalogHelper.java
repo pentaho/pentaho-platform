@@ -125,11 +125,22 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
   // ~ Constructors ====================================================================================================
 
   public static void main(String[] args){
-    String parameters =  "Provider=Mondrian;DataSource=Pentaho;XmlaEnabled=true";
+    String TEST_RES_IMPORT_TEST_FOODMART_XML = "test-res/ImportTest/FoodMart.xml";
+    String parameters =  "Provider=Mondrian;DataSource=FoodMart;XmlaEnabled=true";
     MondrianCatalogHelper mh = new MondrianCatalogHelper();
+   // IPentahoSession pentahoSession =  PentahoSessionHolder.getSession();
+   // mh.getCatalogs( pentahoSession );
     System.out.println(mh.getValue(parameters, "Provider"));
     System.out.println(mh.getValue(parameters, "DataSource"));
     System.out.println(mh.getValue(parameters, "xmlaEnabled"));
+    File importFile = new File(TEST_RES_IMPORT_TEST_FOODMART_XML);
+    try {
+      InputStream schemaInputStream = new FileInputStream(importFile);
+      System.out.println("Catalog Name: "+mh.getCatalogName(schemaInputStream));
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
   @SuppressWarnings("unchecked")
   private List<MondrianCatalog> getCatalogs(IPentahoSession pentahoSession) {
@@ -536,9 +547,11 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     }
     reInit(pentahoSession);
   }
-
+  /**
+   * used by the Jersey /import command by PUC
+   */
   public void importSchema(File mondrianFile, String databaseConnection, String parameters) {
-
+    InputStream schemaInputStream = null;
     try {
       String datasourceInfo = "Provider=mondrian;DataSource=" + databaseConnection;
       if (!StringUtils.isEmpty(parameters)) {
@@ -547,11 +560,10 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
       boolean overWriteInRepository = "True".equalsIgnoreCase(getValue(parameters, "Overwirte")) ? true : false;
       boolean xmlaEnabled = "True".equalsIgnoreCase(getValue(parameters, "EnableXmla")) ? true : false;
-      InputStream schemaInputStream = new FileInputStream(mondrianFile);
+      schemaInputStream = new FileInputStream(mondrianFile);
       String catalogName = getCatalogName(schemaInputStream);
 
-      this.importSchema(schemaInputStream, catalogName, overWriteInRepository, xmlaEnabled);
-      schemaInputStream.close();
+      this.importSchema(schemaInputStream, catalogName, overWriteInRepository, xmlaEnabled);     
 
       reInit(PentahoSessionHolder.getSession());
 
@@ -563,7 +575,11 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
           "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
           Reason.valueOf(e.getMessage()));
     } finally {
-
+      try {
+        schemaInputStream.close();
+      } catch (IOException e) {
+        ;//tcb
+      }
     }
   }
 
@@ -1066,6 +1082,18 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     solutionRepository.deleteFile(deletingFile.getId(), "");
     reInit(pentahoSession);
   }
+  
+  @Override
+  public void importSchema(InputStream fileInputStream, String domainId, String parameters) throws PlatformImportException {
+  
+    String dataSource = (getValue(parameters,"datasource") != null)?getValue(parameters,"datasource"):null; 
+    boolean overwriteInRepossitory = ("true".equalsIgnoreCase(getValue(parameters,"overwrite")))?true:false;
+    boolean xmlaEnabled = ("true".equalsIgnoreCase(getValue(parameters,"xmlaEnabled")))?true:false;
+    if(dataSource == null)
+      dataSource = domainId;
+    this.importSchema(fileInputStream, dataSource, overwriteInRepossitory, xmlaEnabled);
+  }
+
 
   @Override
   public void importSchema(InputStream fileInputStream, String domainId, boolean overwriteInRepossitory,
@@ -1095,20 +1123,17 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       } catch (IOException e) {
         ;//tcb
       }
-    }
-    reInit(PentahoSessionHolder.getSession());
+    }    
   }
 
   @Override
   public void removeSchema(String domainId) throws MondrianCatalogServiceException {
     try {
-      /*
+      
       PentahoMetadataDomainRepository metadataDomainRepos = new PentahoMetadataDomainRepository(
           PentahoSystem.get(IUnifiedRepository.class));
       MondrianImportHandler importHandler = new MondrianImportHandler(metadataDomainRepos);
-      importHandler.removeDomain(domainId);  
-      */
-      this.removeCatalog(domainId, PentahoSessionHolder.getSession());
+      importHandler.removeDomain(domainId);         
     } catch (Exception e) {
       throw new MondrianCatalogServiceException(Messages.getInstance().getString(
           "MondrianCatalogHelper.ERROR_0008_ERROR_OCCURRED"), //$NON-NLS-1$
