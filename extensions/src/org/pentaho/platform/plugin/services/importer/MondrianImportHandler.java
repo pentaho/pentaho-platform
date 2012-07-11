@@ -53,9 +53,9 @@ public class MondrianImportHandler implements IPlatformImportHandler {
    * @throws DomainIdNullException 
    */
   public void importSchema(InputStream dataInputStream, String domainId, boolean overwriteInRepossitory)
-      throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException,
-      IOException {
-    IPlatformImportBundle bundle = fileIImportBundle(dataInputStream, domainId, overwriteInRepossitory);
+      throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
+    String mimeType = this.MONDRIAN_MIME_TYPE;//should we pass this in??
+    IPlatformImportBundle bundle = fileIImportBundle(dataInputStream, domainId, mimeType, overwriteInRepossitory);
     logger.debug("importSchema start " + domainId);
 
     this.importFile(bundle, overwriteInRepossitory);
@@ -68,11 +68,10 @@ public class MondrianImportHandler implements IPlatformImportHandler {
    * @param overwriteInRepossitory
    * @return
    */
-  public IPlatformImportBundle fileIImportBundle(InputStream dataInputStream, String domainId,
+  public IPlatformImportBundle fileIImportBundle(InputStream dataInputStream, String domainId, String mimeType,
       boolean overwriteInRepossitory) {
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder().input(dataInputStream)
-        .charSet(UTF_8).hidden(false).mime(MONDRIAN_MIME_TYPE).withParam(DOMAIN_ID, domainId)
-        .overwrite(overwriteInRepossitory);
+        .charSet(UTF_8).hidden(false).mime(mimeType).withParam(DOMAIN_ID, domainId).overwrite(overwriteInRepossitory);
     logger.debug("fileIImportBundle start " + domainId);
     return (IPlatformImportBundle) bundleBuilder.build();
 
@@ -85,11 +84,13 @@ public class MondrianImportHandler implements IPlatformImportHandler {
    * @throws DomainAlreadyExistsException 
    * @throws DomainIdNullException 
    */
-  public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
+  public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException,
+      DomainAlreadyExistsException, DomainStorageException, IOException {
     this.importFile(bundle, false);
   }
 
-  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepossitory) throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
+  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepossitory) throws DomainIdNullException,
+      DomainAlreadyExistsException, DomainStorageException, IOException {
     logger.debug("importFile start " + bundle.getName() + " overwriteInRepossitory:" + overwriteInRepossitory);
     final String domainId = (String) bundle.getProperty("domain-id");
 
@@ -98,19 +99,19 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     }
 
     logger.debug("Importing as metadata - [domain=" + domainId + "]");
-
-   
-      metadataRepositoryImporter.storeDomain(bundle.getInputStream(), domainId, overwriteInRepossitory);
-   
-
+    metadataRepositoryImporter.storeDomain(bundle.getInputStream(), domainId, overwriteInRepossitory);
   }
 
+  /**
+   * remove the domainId from the Jcr
+   * @param domainId
+   * @throws PlatformImportException
+   */
   public void removeDomain(String domainId) throws PlatformImportException {
 
     if (domainId == null) {
       throw new PlatformImportException("Bundle missing required domain-id property");
-    }
-
+    }    
     logger.debug("Remove metadata - [domain=" + domainId + "]");
     metadataRepositoryImporter.removeDomain(domainId);
 
