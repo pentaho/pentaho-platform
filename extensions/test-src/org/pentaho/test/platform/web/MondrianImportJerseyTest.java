@@ -26,13 +26,19 @@ import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
 public class MondrianImportJerseyTest {
+  private static final String PARAMETERS = "parameters";
+
   private static final String IMPORT_URL = "http://localhost:8080/pentaho/plugin/data-access/api/mondrian/import";
 
   private static final String MONDRIAN_URL = "http://localhost:8080/pentaho/plugin/data-access/api/mondrian/importSchema";
 
   private static final String TEST_RES_IMPORT_TEST_FOODMART_XML = "test-res/ImportTest/FoodMart.xml";
 
-  private static final String domainName = "Mondrian FoodMart";
+  private static String domainName = "Mondrian FoodMart";
+
+  private static String username = "joe";
+
+  private static String pw = "password";
 
   private static final String MONDRIAN_URL_REMOVE = "http://localhost:8080/pentaho/plugin/data-access/api/mondrian/removeSchema";
 
@@ -40,18 +46,53 @@ public class MondrianImportJerseyTest {
    * @param args
    */
   public static void main(String[] args) {
+    testMondrianSchemaImport(true);
+    removeSchema();
+  }
 
+
+  private static void testRemoveInsert() {
+    //mutipleImportTest();   
+    String ans;
     removeSchema();//clean up first
-    testMondrianSchemaImport(false); //first time
+    //bad password test
+    // username = "foo";
+    // pw = "foobar";
+    ans = testMondrianSchemaImport(false); //first time 3
+    username = "joe";
+    pw = "password";
+    ans = testMondrianSchemaImport(false); //should return 8 -existing schema
+    ans = testMondrianSchemaImport(true); //3 - success
+    removeSchema();//clean up 
+  }
+  private static void testPasswordUserName() {
+    //mutipleImportTest();   
+    String ans;
+    removeSchema();//clean up first
+    //bad password test
+     username = "foo";
+     pw = "foobar";
+    ans = testMondrianSchemaImport(false); //first time error
+    username = "joe";
+    pw = "password";
+    ans = testMondrianSchemaImport(false); //should return 3 -new schema
+    ans = testMondrianSchemaImport(true); //3 - success
+    removeSchema();//clean up 
+  }
+
+  private static void mutipleImportTest() {
+    String ans;
+    removeSchema();//clean up first
+    ans = testMondrianSchemaImport(false); //first time
     try {
-      testMondrianSchemaImport(false);//should throw exception
+      ans = testMondrianSchemaImport(false);//should throw exception
     } catch (Exception ex) {
-      System.out.println("Success " + ex.getMessage());
+      System.out.println("Success overwrite was false and schema existing:" + ex.getMessage());
     }
     try {
-      testMondrianSchemaImport(true);
+      ans = testMondrianSchemaImport(true);
     } catch (Exception ex) {
-      System.out.println("Error " + ex.getMessage());
+      System.out.println("Error overwrite did not work" + ex.getMessage());
     }
     removeSchema();
   }
@@ -59,35 +100,35 @@ public class MondrianImportJerseyTest {
   private static void removeSchema() {
 
     try {
-      FormDataMultiPart part = new FormDataMultiPart().field("parameters", "", MediaType.MULTIPART_FORM_DATA_TYPE)
-          .field("datasourceName", domainName, MediaType.MULTIPART_FORM_DATA_TYPE);
+      FormDataMultiPart part = new FormDataMultiPart().field(PARAMETERS, "", MediaType.MULTIPART_FORM_DATA_TYPE).field(
+          "datasourceName", domainName, MediaType.MULTIPART_FORM_DATA_TYPE);
       // If the import service needs the file name do the following.
-   
 
       Client client = Client.create();
 
       // Credentials here
-      client.addFilter(new HTTPBasicAuthFilter("joe", "password"));
+      client.addFilter(new HTTPBasicAuthFilter(username, pw));
       WebResource resource = client.resource(MONDRIAN_URL_REMOVE);
       String response = resource.type(MediaType.MULTIPART_FORM_DATA_TYPE).put(String.class, part);
-      System.out.println("response " + response);
+      System.out.println("Remove Schema response=" + response);
     } catch (Exception e) {
       System.out.println("Remove Error " + e.getMessage());
     }
   }
 
-  private static void testMondrianSchemaImport(boolean overwriteInRepos) {
+  private static String testMondrianSchemaImport(boolean overwriteInRepos) {
     InputStream inputStream = null;
+    String respsonse = null;
     try {
       File importFile = new File(TEST_RES_IMPORT_TEST_FOODMART_XML);
       inputStream = new FileInputStream(importFile);
       if (inputStream == null)
-        return;
-
-      FormDataMultiPart part = new FormDataMultiPart().field("parameters", "", MediaType.MULTIPART_FORM_DATA_TYPE)
+        return "-1";
+      String parameters = buildParameters();
+      FormDataMultiPart part = new FormDataMultiPart().field(PARAMETERS, parameters, MediaType.MULTIPART_FORM_DATA_TYPE)
           .field("schemaFile", inputStream, MediaType.MULTIPART_FORM_DATA_TYPE)
           .field("datasourceName", domainName, MediaType.MULTIPART_FORM_DATA_TYPE)
-          .field("overwrite", overwriteInRepos?"true":"false", MediaType.MULTIPART_FORM_DATA_TYPE)
+          .field("overwrite", overwriteInRepos ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE)
           .field("xmlaEnabledFlag", "true", MediaType.MULTIPART_FORM_DATA_TYPE);
 
       // If the import service needs the file name do the following.
@@ -97,27 +138,29 @@ public class MondrianImportJerseyTest {
       Client client = Client.create();
 
       // Credentials here
-      client.addFilter(new HTTPBasicAuthFilter("joe", "password"));
+      client.addFilter(new HTTPBasicAuthFilter(username, pw));
 
       WebResource resource = client.resource(MONDRIAN_URL);
-      String response = resource.type(MediaType.MULTIPART_FORM_DATA_TYPE).put(String.class, part);
-      System.out.println("response " + response);
+      respsonse = resource.type(MediaType.MULTIPART_FORM_DATA_TYPE).put(String.class, part);
+
     } catch (Exception e) {
       System.out.println("ImportSchema Error " + e.getMessage());
+      e.printStackTrace();
     }
+    System.out.println("testMondrianSchemaImport response=" + respsonse);
+    return respsonse;
   }
 
-  private static void testimportAnalysisDatasource() {
+  private static String testimportAnalysisDatasource() {
     InputStream inputStream = null;
+    String response = "-1";
     try {
       inputStream = new FileInputStream(new File(TEST_RES_IMPORT_TEST_FOODMART_XML));
       if (inputStream == null)
-        return;
-      //(String parameters, @QueryParam("analysisFile")
-      //String analysisFile, @QueryParam("databaseConnection")
-      // String databaseConnection)
+        return "-1";
+     
       String parms = "";
-      FormDataMultiPart part = new FormDataMultiPart().field("parameters", parms, MediaType.TEXT_PLAIN_TYPE)
+      FormDataMultiPart part = new FormDataMultiPart().field(PARAMETERS, buildParameters(), MediaType.TEXT_PLAIN_TYPE)
           .field("analysisFile", inputStream.toString(), MediaType.TEXT_PLAIN_TYPE)
           .field("databaseConnection", "SampleData", MediaType.TEXT_PLAIN_TYPE);
 
@@ -128,15 +171,18 @@ public class MondrianImportJerseyTest {
       Client client = Client.create();
 
       // Credentials here
-      client.addFilter(new HTTPBasicAuthFilter("joe", "password"));
+      client.addFilter(new HTTPBasicAuthFilter(username, pw));
 
       WebResource resource = client.resource(IMPORT_URL);
-      String response = resource.type(MediaType.TEXT_PLAIN).put(String.class, part);
+      response = resource.type(MediaType.TEXT_PLAIN).put(String.class, part);
     } catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
+    return response;
   }
 
-    
+  private static String buildParameters() {
+    return "Provider=Mondrain;Datasource=FoodMart;overwrite=true;xmlaEnabled=false";
+  }
+
 }
