@@ -88,6 +88,14 @@ public interface IMondrianCatalogService {
   public void importSchema(File analysisFile, String databaseConnection, String parameters);
 
   /**
+   * pass in the domain overwrite and xmlaEnabled in parameters 
+   * @param analysisFile
+   * @param domainNameId
+   * @param parameters
+   * @throws PlatformImportException 
+   */
+  public void importSchema(InputStream analysisFile, String domainNameId, String parameters) throws PlatformImportException;
+  /**
    * Extended API to support overwrite and publish XMLA enabled file
    * @param analysisFile
    * @param domainNameId
