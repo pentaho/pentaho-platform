@@ -25,7 +25,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
   private static final String DOMAIN_ID = "domain-id";
 
-  private static final String MONDRIAN_MIME_TYPE = "application/vnd.pentaho.mondrian+xml";
+  private static final String MONDRIAN_MIME_TYPE = "text/xml";
 
   private static final String UTF_8 = "UTF-8";
 
@@ -71,7 +71,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
   public IPlatformImportBundle fileIImportBundle(InputStream dataInputStream, String domainId, String mimeType,
       boolean overwriteInRepossitory) {
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder().input(dataInputStream)
-        .charSet(UTF_8).hidden(false).mime(mimeType).withParam(DOMAIN_ID, domainId).overwrite(overwriteInRepossitory);
+        .charSet(UTF_8).hidden(false).mime(mimeType).name(domainId).withParam(DOMAIN_ID, domainId).overwrite(overwriteInRepossitory);
     logger.debug("fileIImportBundle start " + domainId);
     return (IPlatformImportBundle) bundleBuilder.build();
 
@@ -99,19 +99,5 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     metadataRepositoryImporter.storeDomain(bundle.getInputStream(), domainId, overwriteInRepossitory);
   }
 
-  /**
-   * remove the domainId from the Jcr
-   * @param domainId
-   * @throws PlatformImportException
-   */
-  public void removeDomain(String domainId) throws PlatformImportException {
-
-    if (domainId == null) {
-      throw new PlatformImportException("Bundle missing required domain-id property");
-    }    
-    logger.debug("Remove metadata - [domain=" + domainId + "]");
-    metadataRepositoryImporter.removeDomain(domainId);
-
-  }
 
 }
