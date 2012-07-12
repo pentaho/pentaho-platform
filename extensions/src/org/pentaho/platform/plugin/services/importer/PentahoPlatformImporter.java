@@ -66,13 +66,5 @@ public class PentahoPlatformImporter implements IPlatformImportHandler {
     return name.substring(idx+1);
   }
 
-  @Override
-  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepository) throws PlatformImportException,
-      DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
-    // TODO Auto-generated method stub
-    
-  }
-
-
 
 }

@@ -111,12 +111,5 @@ public class MetadataImportHandler implements IPlatformImportHandler {
     }
   }
 
-  @Override
-  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepository) throws PlatformImportException,
-      DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
-    
-      processLocaleFile(bundle, bundle.getName());
-
-  }
 
 }

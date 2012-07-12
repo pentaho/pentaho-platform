@@ -62,4 +62,11 @@ public interface IPlatformImportBundle {
    * @return property Object
    */
   Object getProperty(String prop);
+  
+  /**
+   * pass in flag to allow overwrite in repository (if exists)
+   * @return boolean
+   */
+  boolean overwriteInRepossitory();
+
 }

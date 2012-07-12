@@ -28,19 +28,6 @@ public interface IPlatformImportHandler {
    *
    */
   void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException;
-  /**
-   * Import the provided IPlatformImportBundle into the platform.
-   *
-   * @param bundle
-   * @param overwriteInRepository
-   * @throws PlatformImportException
-   * @throws IOException 
-   * @throws DomainStorageException 
-   * @throws DomainAlreadyExistsException 
-   * @throws DomainIdNullException 
-   *
-   */
-  void importFile(IPlatformImportBundle bundle,boolean overwriteInRepository) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException;
-  
+    
  }
 

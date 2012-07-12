@@ -102,11 +102,11 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     this.comment = comment;
   }
 
-  public boolean isOverwrite() {
+  public boolean overwriteInRepossitory() {
     return overwrite;
   }
 
-  public void setOverwrite(boolean overwrite) {
+  public void setOverwriteInRepossitory(boolean overwrite) {
     this.overwrite = overwrite;
   }
 
@@ -145,7 +145,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     }
 
     public Builder overwrite(boolean overwrite){
-      bundle.setOverwrite(overwrite);
+      bundle.setOverwriteInRepossitory(overwrite);
       return this;
     }
 

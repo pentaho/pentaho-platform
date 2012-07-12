@@ -32,7 +32,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private static final Messages messages = Messages.getInstance();
   private Map<String, Serializable> parentIdCache = new HashMap<String, Serializable>();
   private static StreamConverter converter = new StreamConverter();
-  private boolean overwriteFile = false;
+
   
   public void importFile(IPlatformImportBundle bnd) throws PlatformImportException {
 
@@ -52,7 +52,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 //            + " and the entry to be imported is a " + (bundle.getFile().isFolder() ? "folder" : "file"));
 //      }
 
-      if (!bundle.isOverwrite()) {
+      if (!bundle.overwriteInRepossitory()) {
         log.trace("File already exists in repository and overwrite is false - skipping");
       } else if (file.isFolder()) {
         log.trace("Folder already exists - skip");
@@ -175,11 +175,6 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     this.repository = repository;
   }
 
-  @Override
-  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepository) throws PlatformImportException,
-      DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
-    // TODO Auto-generated method stub
-    
-  }
+ 
 
 }

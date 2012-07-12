@@ -58,7 +58,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     IPlatformImportBundle bundle = fileIImportBundle(dataInputStream, domainId, mimeType, overwriteInRepossitory);
     logger.debug("importSchema start " + domainId);
 
-    this.importFile(bundle, overwriteInRepossitory);
+    this.importFile(bundle);
   }
 
   /**
@@ -84,21 +84,18 @@ public class MondrianImportHandler implements IPlatformImportHandler {
    * @throws DomainAlreadyExistsException 
    * @throws DomainIdNullException 
    */
-  public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException,
+ 
+  public void importFile(IPlatformImportBundle bundle) throws DomainIdNullException,
       DomainAlreadyExistsException, DomainStorageException, IOException {
-    this.importFile(bundle, false);
-  }
-
-  public void importFile(IPlatformImportBundle bundle, boolean overwriteInRepossitory) throws DomainIdNullException,
-      DomainAlreadyExistsException, DomainStorageException, IOException {
+    boolean overwriteInRepossitory = bundle.overwriteInRepossitory();
+    logger.debug("Importing as metadata - [domain=" + bundle.getName() + "]");
     logger.debug("importFile start " + bundle.getName() + " overwriteInRepossitory:" + overwriteInRepossitory);
     final String domainId = (String) bundle.getProperty("domain-id");
 
     if (domainId == null) {
       throw new DomainIdNullException("Bundle missing required domain-id property");
     }
-
-    logger.debug("Importing as metadata - [domain=" + domainId + "]");
+   ;
     metadataRepositoryImporter.storeDomain(bundle.getInputStream(), domainId, overwriteInRepossitory);
   }
 
