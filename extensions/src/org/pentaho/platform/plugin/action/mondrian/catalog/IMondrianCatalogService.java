@@ -99,17 +99,13 @@ public interface IMondrianCatalogService {
    * Extended API to support overwrite and publish XMLA enabled file
    * @param analysisFile
    * @param domainNameId
+   * @param datasource
    * @param overwriteSchama
    * @param xmlaEnabled
    * @throws PlatformImportException 
    */
-  public void importSchema(InputStream analysisFile, String domainNameId, boolean overwriteSchama, boolean xmlaEnabled)
+  public void importSchema(InputStream analysisFile, String domainNameId,  String datasource, boolean overwriteSchama, boolean xmlaEnabled)
       throws PlatformImportException;
 
-  /**
-   * used to remove a mondrian domain
-   * @param domainNameId
-   * @throws MondrianCatalogServiceException
-   */
-  public void removeSchema(String domainNameId) throws MondrianCatalogServiceException;
+
 }
