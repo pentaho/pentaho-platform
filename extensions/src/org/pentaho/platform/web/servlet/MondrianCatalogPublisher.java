@@ -98,7 +98,7 @@ public class MondrianCatalogPublisher extends RepositoryFilePublisher {
 
     List<FileItem> fileItems = Collections.emptyList();
     try {
-      fileItems = getFileItems(req);
+      fileItems = getFileItems(req); 
     } catch (FileUploadException e) {
       if (MondrianCatalogPublisher.logger.isErrorEnabled()) {
         MondrianCatalogPublisher.logger.error(Messages.getInstance().getErrorString("MondrianCatalogPublisher.ERROR_0002_EXCEPTION_OCCURRED"), e); //$NON-NLS-1$

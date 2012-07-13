@@ -1132,6 +1132,15 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     }
   }
 
+  /**
+   * Helper method to create a catalog object 
+   * @param domainId
+   * @param datasource
+   * @return
+   * @throws ParserConfigurationException
+   * @throws SAXException
+   * @throws IOException
+   */
   protected MondrianCatalog createCatalogObject(String domainId, String datasource)
       throws ParserConfigurationException, SAXException, IOException {
     

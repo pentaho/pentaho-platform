@@ -35,6 +35,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.pdi.StreamToJobNodeConverter;
 import org.pentaho.platform.plugin.services.importexport.pdi.StreamToTransNodeConverter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -110,14 +111,17 @@ public class DefaultImportHandler implements ImportHandler {
     return "DefaultImportHandler";
   }
 
+  @SuppressWarnings("unchecked")
   protected static Map<String, Converter> getConverters() {
     return UnmodifiableMap.decorate(converters);
   }
 
+  @SuppressWarnings("unchecked")
   protected Set<String> getExecutableTypes() {
     return UnmodifiableSet.decorate(executableTypes);
   }
 
+  @SuppressWarnings("unchecked")
   protected Map<String, Serializable> getParentIdCache() {
     return UnmodifiableMap.decorate(parentIdCache);
   }
@@ -144,7 +148,7 @@ public class DefaultImportHandler implements ImportHandler {
     Assert.notNull(getParentId(RepositoryFilenameUtils.normalize(destinationPath + RepositoryFile.SEPARATOR)));
 
     // Iterate through the file set
-    for (Iterator iterator = importFileSet.iterator(); iterator.hasNext(); ) {
+    for (Iterator<IRepositoryFileBundle> iterator = importFileSet.iterator(); iterator.hasNext(); ) {
       final ImportSource.IRepositoryFileBundle bundle = (ImportSource.IRepositoryFileBundle) iterator.next();
 
       // Make sure we don't try to do anything in a system-defined folder
