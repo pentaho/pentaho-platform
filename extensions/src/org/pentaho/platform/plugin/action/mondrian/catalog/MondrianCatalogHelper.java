@@ -577,7 +577,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
       schemaInputStream = new FileInputStream(mondrianFile);
       String catalogName = getCatalogName(schemaInputStream);
 
-      this.importSchema(schemaInputStream, catalogName, datasource , overWriteInRepository, xmlaEnabled);
+      this.importSchema(schemaInputStream, catalogName, datasource, overWriteInRepository, xmlaEnabled);
 
       reInit(PentahoSessionHolder.getSession());
 
@@ -1097,22 +1097,21 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     reInit(pentahoSession);
   }
 
-  @Override
   public void importSchema(InputStream fileInputStream, String dataSource, String parameters)
       throws PlatformImportException {
 
-   // String dataSource = (getValue(parameters, "datasource") != null) ? getValue(parameters, "datasource") : null;
+    // String dataSource = (getValue(parameters, "datasource") != null) ? getValue(parameters, "datasource") : null;
     boolean overwriteInRepossitory = ("true".equalsIgnoreCase(getValue(parameters, "overwrite"))) ? true : false;
     boolean xmlaEnabled = ("true".equalsIgnoreCase(getValue(parameters, "xmlaEnabled"))) ? true : false;
     String domainId = (getValue(parameters, "domainId") != null) ? getValue(parameters, "domainId") : null;
-   
+
     this.importSchema(fileInputStream, domainId, dataSource, overwriteInRepossitory, xmlaEnabled);
   }
 
-  @Override
-  public void importSchema(InputStream fileInputStream,String domainId ,String datasource, boolean overwriteInRepossitory,
-      boolean xmlaEnabled) throws PlatformImportException {
-      try {
+
+  public void importSchema(InputStream fileInputStream, String domainId, String datasource,
+      boolean overwriteInRepossitory, boolean xmlaEnabled) throws PlatformImportException {
+    try {
       if (MondrianCatalogHelper.logger.isDebugEnabled()) {
         MondrianCatalogHelper.logger.debug("importSchema " + domainId + " overwriteInRepossitory:"
             + overwriteInRepossitory);
@@ -1121,8 +1120,8 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
       this.addCatalog(fileInputStream, catalog, overwriteInRepossitory, PentahoSessionHolder.getSession());
       //XMLA Enabled???
-    }catch(Exception ex){
-      throw new PlatformImportException(ex.getMessage(),PlatformImportException.PUBLISH_GENERAL_ERROR,ex);
+    } catch (Exception ex) {
+      throw new PlatformImportException(ex.getMessage(), PlatformImportException.PUBLISH_GENERAL_ERROR, ex);
     } finally {
       try {
         fileInputStream.close();
@@ -1132,6 +1131,27 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     }
   }
 
+  
+
+  @Override
+  public void storeDomain(InputStream schemaInputStream, String domainId, String datasource, boolean overwriteInRepossitory)
+      throws PlatformImportException {
+
+    MondrianCatalog catalog = null;
+    try {
+      catalog = createCatalogObject(domainId, datasource);
+    } catch (ParserConfigurationException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (SAXException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    this.addCatalog(schemaInputStream, catalog, overwriteInRepossitory, PentahoSessionHolder.getSession());
+  }
   /**
    * Helper method to create a catalog object 
    * @param domainId
@@ -1143,35 +1163,14 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    */
   protected MondrianCatalog createCatalogObject(String domainId, String datasource)
       throws ParserConfigurationException, SAXException, IOException {
-    
+
     String catName = domainId;
     MondrianSchema schema = new MondrianSchema(catName, null);
-    MondrianDataSource ds = new MondrianDataSource(catName, "", "", "Provider=mondrian;DataSource=SampleData;", "",
-        "", "", null);
-   
+    MondrianDataSource ds = new MondrianDataSource(catName, "", "", "Provider=mondrian;DataSource=" + datasource,
+        "Provider=Mondrian", DataSource.PROVIDER_TYPE_MDP, DataSource.AUTH_MODE_UNAUTHENTICATED, null);
+
     MondrianCatalog catalog = new MondrianCatalog(catName, "Provider=mondrian;DataSource=" + datasource + ";",
         "etc/mondrian/" + catName + ".mondrian.xml", ds, schema);
     return catalog;
   }
-
-  @Override
-  public void storeDomain(InputStream schemaInputStream, String domainId, boolean overwriteInRepossitory)
-      throws PlatformImportException {
-   
-     MondrianCatalog catalog = null;
-    try {
-      catalog = createCatalogObject(domainId,"");
-    } catch (ParserConfigurationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (SAXException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    this.addCatalog(schemaInputStream, catalog , overwriteInRepossitory,  PentahoSessionHolder.getSession());
-  }
-
 }

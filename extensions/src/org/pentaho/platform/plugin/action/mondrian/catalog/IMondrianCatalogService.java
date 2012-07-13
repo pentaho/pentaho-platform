@@ -79,44 +79,17 @@ public interface IMondrianCatalogService {
    */
   public void reInit(IPentahoSession pentahoSession) throws MondrianCatalogServiceException;
 
-  /**
-   * 
-   * @param analysisFile
-   * @param databaseConnection
-   * @param parameters
-   */
-  public void importSchema(File analysisFile, String databaseConnection, String parameters);
-
-  /**
-   * pass in the domain overwrite and xmlaEnabled in parameters 
-   * @param analysisFile
-   * @param domainNameId
-   * @param parameters
-   * @throws PlatformImportException 
-   */
-  public void importSchema(InputStream analysisFile, String domainNameId, String parameters)
-      throws PlatformImportException;
-
-  /**
-   * Extended API to support overwrite and publish XMLA enabled file
-   * @param analysisFile
-   * @param domainNameId
-   * @param datasource
-   * @param overwriteSchama
-   * @param xmlaEnabled
-   * @throws PlatformImportException 
-   */
-  public void importSchema(InputStream analysisFile, String domainNameId, String datasource, boolean overwriteSchama,
-      boolean xmlaEnabled) throws PlatformImportException;
 
   /**
    * 
    * @param inputStream
    * @param domainId
+   * @param datasource
    * @param overwriteInRepossitory
    * @throws PlatformImportException
    */
-  public void storeDomain(InputStream inputStream, String domainId, boolean overwriteInRepossitory)
+
+  void storeDomain(InputStream schemaInputStream, String domainId, String datasource, boolean overwriteInRepossitory)
       throws PlatformImportException;
 
 }

@@ -93,8 +93,9 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     if (domainId == null) {
       throw new DomainIdNullException("Bundle missing required domain-id property");
     }
+     String datasource = (String) bundle.getProperty("datasource");
    
-     mondrianRepositoryImporter.storeDomain(bundle.getInputStream(), domainId, overwriteInRepossitory);
+     mondrianRepositoryImporter.storeDomain(bundle.getInputStream(), domainId, datasource, overwriteInRepossitory);
   }
 
 
