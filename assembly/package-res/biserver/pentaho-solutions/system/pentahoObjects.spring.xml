@@ -212,6 +212,11 @@ not directly from the PentahoObjectFactory. -->
             <constructor-arg ref="IMetadataDomainRepositoryImpl"/>
           </bean>
         </entry>
+        <entry key="application/vnd.pentaho.mondrian+xml">
+          <bean class="org.pentaho.platform.plugin.services.importer.MondrianImportHandler">
+            <constructor-arg ref="IMondrianCatalogService"/>
+          </bean>
+        </entry>
       </map>
     </constructor-arg>
     <constructor-arg>
@@ -222,6 +227,15 @@ not directly from the PentahoObjectFactory. -->
           </map>
         </constructor-arg>
       </bean>
+    </constructor-arg>
+     <constructor-arg>
+      <map>
+        <entry key="mondrian.xml" value="application/vnd.pentaho.mondrian+xml">
+          <bean class="org.pentaho.platform.plugin.services.importer.MondrainImportHandler">
+            <constructor-arg ref="IMetadataDomainRepositoryImpl"/>
+          </bean>
+        </entry>
+      </map>
     </constructor-arg>
   </bean>
 
