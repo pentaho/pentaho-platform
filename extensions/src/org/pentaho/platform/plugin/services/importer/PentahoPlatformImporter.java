@@ -18,7 +18,7 @@ import java.util.Map;
  * User: nbaker
  * Date: 5/29/12
  */
-public class PentahoPlatformImporter implements IPlatformImportHandler {
+public class PentahoPlatformImporter implements IPlatformImporter {
 
   private static final Log log = LogFactory.getLog(PentahoPlatformImporter.class);
   private static final Messages messages = Messages.getInstance();
