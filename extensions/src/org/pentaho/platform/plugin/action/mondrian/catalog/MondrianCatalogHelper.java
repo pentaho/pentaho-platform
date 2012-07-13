@@ -33,11 +33,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import mondrian.i18n.LocalizingDynamicSchemaProcessor;
+import mondrian.olap.MondrianDef;
+import mondrian.olap.Util;
+import mondrian.olap.Util.PropertyList;
+import mondrian.rolap.agg.AggregationManager;
+import mondrian.xmla.DataSourcesConfig;
+import mondrian.xmla.DataSourcesConfig.DataSource;
+import mondrian.xmla.DataSourcesConfig.DataSources;
 
 import org.apache.commons.collections.list.SetUniqueList;
 import org.apache.commons.io.IOUtils;
@@ -56,9 +64,6 @@ import org.eigenbase.xom.Parser;
 import org.eigenbase.xom.XMLOutput;
 import org.eigenbase.xom.XOMException;
 import org.eigenbase.xom.XOMUtil;
-import org.pentaho.metadata.repository.DomainAlreadyExistsException;
-import org.pentaho.metadata.repository.DomainIdNullException;
-import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.data.DBDatasourceServiceException;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.ICacheManager;
@@ -74,10 +79,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogServiceException.Reason;
-import org.pentaho.platform.plugin.services.importer.MondrianImportHandler;
 import org.pentaho.platform.plugin.services.importer.PlatformImportException;
-import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
-import org.pentaho.platform.plugin.services.metadata.PentahoMetadataDomainRepository;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
 import org.pentaho.platform.repository.solution.filebased.SolutionRepositoryVfsFileObject;
 import org.pentaho.platform.util.logging.Logger;
@@ -87,15 +89,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
-import mondrian.i18n.LocalizingDynamicSchemaProcessor;
-import mondrian.olap.MondrianDef;
-import mondrian.olap.Util;
-import mondrian.olap.Util.PropertyList;
-import mondrian.rolap.agg.AggregationManager;
-import mondrian.xmla.DataSourcesConfig;
-import mondrian.xmla.DataSourcesConfig.DataSource;
-import mondrian.xmla.DataSourcesConfig.DataSources;
 
 /**
  * Reads in file containing Mondrian data sources and catalogs. (Contains code copied from <code>XmlaServlet</code>.)
@@ -1124,14 +1117,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         MondrianCatalogHelper.logger.debug("importSchema " + domainId + " overwriteInRepossitory:"
             + overwriteInRepossitory);
       }
-      String catName =this.getCatalogName(fileInputStream);
-      if(domainId != null) catName = domainId;
-      MondrianSchema schema = new MondrianSchema(catName, null);
-      MondrianDataSource ds = new MondrianDataSource(catName, "", "", "Provider=mondrian;DataSource=SampleData;", "",
-          "", "", null);
-     
-      MondrianCatalog catalog = new MondrianCatalog(catName, "Provider=mondrian;DataSource=" + datasource + ";",
-          "etc/mondrian/" + catName + ".mondrian.xml", ds, schema);
+      MondrianCatalog catalog = createCatalogObject(domainId, datasource);
 
       this.addCatalog(fileInputStream, catalog, overwriteInRepossitory, PentahoSessionHolder.getSession());
       //XMLA Enabled???
@@ -1144,6 +1130,39 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
         ;//tcb
       }
     }
+  }
+
+  protected MondrianCatalog createCatalogObject(String domainId, String datasource)
+      throws ParserConfigurationException, SAXException, IOException {
+    
+    String catName = domainId;
+    MondrianSchema schema = new MondrianSchema(catName, null);
+    MondrianDataSource ds = new MondrianDataSource(catName, "", "", "Provider=mondrian;DataSource=SampleData;", "",
+        "", "", null);
+   
+    MondrianCatalog catalog = new MondrianCatalog(catName, "Provider=mondrian;DataSource=" + datasource + ";",
+        "etc/mondrian/" + catName + ".mondrian.xml", ds, schema);
+    return catalog;
+  }
+
+  @Override
+  public void storeDomain(InputStream schemaInputStream, String domainId, boolean overwriteInRepossitory)
+      throws PlatformImportException {
+   
+     MondrianCatalog catalog = null;
+    try {
+      catalog = createCatalogObject(domainId,"");
+    } catch (ParserConfigurationException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (SAXException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    this.addCatalog(schemaInputStream, catalog , overwriteInRepossitory,  PentahoSessionHolder.getSession());
   }
 
 }

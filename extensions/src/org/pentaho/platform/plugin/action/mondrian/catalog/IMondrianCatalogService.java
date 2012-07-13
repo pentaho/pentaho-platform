@@ -94,7 +94,9 @@ public interface IMondrianCatalogService {
    * @param parameters
    * @throws PlatformImportException 
    */
-  public void importSchema(InputStream analysisFile, String domainNameId, String parameters) throws PlatformImportException;
+  public void importSchema(InputStream analysisFile, String domainNameId, String parameters)
+      throws PlatformImportException;
+
   /**
    * Extended API to support overwrite and publish XMLA enabled file
    * @param analysisFile
@@ -104,8 +106,17 @@ public interface IMondrianCatalogService {
    * @param xmlaEnabled
    * @throws PlatformImportException 
    */
-  public void importSchema(InputStream analysisFile, String domainNameId,  String datasource, boolean overwriteSchama, boolean xmlaEnabled)
-      throws PlatformImportException;
+  public void importSchema(InputStream analysisFile, String domainNameId, String datasource, boolean overwriteSchama,
+      boolean xmlaEnabled) throws PlatformImportException;
 
+  /**
+   * 
+   * @param inputStream
+   * @param domainId
+   * @param overwriteInRepossitory
+   * @throws PlatformImportException
+   */
+  public void storeDomain(InputStream inputStream, String domainId, boolean overwriteInRepossitory)
+      throws PlatformImportException;
 
 }
