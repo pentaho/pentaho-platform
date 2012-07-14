@@ -39,40 +39,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     this.mondrianRepositoryImporter = mondrianImporter;
   }
 
-  /**
-   * Override function to pass in the input stream and name then create a bundle and importFile
-   * @param dataInputStream
-   * @param domainId
-   * @throws PlatformImportException
-   * @throws IOException 
-   * @throws DomainStorageException 
-   * @throws DomainAlreadyExistsException 
-   * @throws DomainIdNullException 
-   */
-  public void importSchema(InputStream dataInputStream, String domainId, boolean overwriteInRepossitory)
-      throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException, PlatformImportException {
-    String mimeType = this.MONDRIAN_MIME_TYPE;//should we pass this in??
-    IPlatformImportBundle bundle = fileIImportBundle(dataInputStream, domainId, mimeType, overwriteInRepossitory);
-    logger.debug("importSchema start " + domainId);
 
-    this.importFile(bundle);
-  }
-
-  /**
-   * Utility to build a bundle from the data input stream
-   * @param dataInputStream
-   * @param domainId
-   * @param overwriteInRepossitory
-   * @return
-   */
-  public IPlatformImportBundle fileIImportBundle(InputStream dataInputStream, String domainId, String mimeType,
-      boolean overwriteInRepossitory) {
-    RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder().input(dataInputStream)
-        .charSet(UTF_8).hidden(false).mime(mimeType).name(domainId).withParam(DOMAIN_ID, domainId).overwrite(overwriteInRepossitory);
-    logger.debug("fileIImportBundle start " + domainId);
-    return (IPlatformImportBundle) bundleBuilder.build();
-
-  }
 
   /**
    * overloaded method from original - default to false (do not overwrite)
