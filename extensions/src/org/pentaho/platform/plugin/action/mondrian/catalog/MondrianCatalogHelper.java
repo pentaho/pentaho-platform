@@ -115,27 +115,6 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
    */
   private Map<String, MondrianCatalogComplementInfo> catalogComplementInfoMap;
 
-  // ~ Constructors ====================================================================================================
-
-  public static void main(String[] args) {
-    String TEST_RES_IMPORT_TEST_FOODMART_XML = "test-res/ImportTest/FoodMart.xml";
-    String parameters = "Provider=Mondrian1";//DataSource=FoodMart;XmlaEnabled=true
-    MondrianCatalogHelper mh = new MondrianCatalogHelper();
-    // IPentahoSession pentahoSession =  PentahoSessionHolder.getSession();
-    // mh.getCatalogs( pentahoSession );
-    System.out.println(mh.getValue(parameters, "Provider"));
-    System.out.println(mh.getValue(parameters, "DataSource"));
-    System.out.println(mh.getValue(parameters, "xmlaEnabled"));
-    File importFile = new File(TEST_RES_IMPORT_TEST_FOODMART_XML);
-    try {
-      InputStream schemaInputStream = new FileInputStream(importFile);
-      System.out.println("Catalog Name: " + mh.getCatalogName(schemaInputStream));
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
-
   @SuppressWarnings("unchecked")
   private List<MondrianCatalog> getCatalogs(IPentahoSession pentahoSession) {
 
