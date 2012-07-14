@@ -39,19 +39,30 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     this.defaultHandler = defaultHandler;
   }
 
+  /**
+   * this is the main method that uses the mime time (from Spring) to determine which handler to invoke.
+   */
   public void importFile(IPlatformImportBundle file) throws PlatformImportException {
     String mime = mimeResolver.resolveMimeForBundle(file);
     if(mime == null){
-      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE"));
+      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE"),PlatformImportException.PUBLISH_GENERAL_ERROR);
     }
     IPlatformImportHandler handler = (importHandlers.containsKey(mime) == false) ? defaultHandler : importHandlers.get(mime);
     if(handler == null){
-      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0002_MISSING_IMPORT_HANDLER")); //replace with default handler?
+      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0002_MISSING_IMPORT_HANDLER"),PlatformImportException.PUBLISH_GENERAL_ERROR); //replace with default handler?
     }
-    try{
+    try {
       handler.importFile(file);
-    } catch(Exception e){
-      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0003_UNEXPECTED_ERROR", e.getMessage()), e);
+    } catch (DomainIdNullException e1) {
+      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_TO_SERVER_FAILED);
+    } catch (DomainAlreadyExistsException e1) {
+      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR"),PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR);
+    } catch (DomainStorageException e1) {
+      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_DATASOURCE_ERROR);
+    } catch (IOException e1) {
+      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
+    }catch (Exception e1) {
+      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
     }
   }
 
