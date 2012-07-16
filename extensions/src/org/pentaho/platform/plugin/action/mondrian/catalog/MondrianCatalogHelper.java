@@ -1028,6 +1028,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
     try {
       mondrianCatalogService.addCatalog(cat, overwrite, session);
+     
     } catch (MondrianCatalogServiceException e) {
       Logger
           .error(
