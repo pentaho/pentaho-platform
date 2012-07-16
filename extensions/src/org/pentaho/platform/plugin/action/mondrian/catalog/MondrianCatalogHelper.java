@@ -1104,19 +1104,35 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
 
     MondrianCatalog catalog = null;
     try {
-      catalog = createCatalogObject(domainId, datasource,xmlaEnabled);
-    } catch (ParserConfigurationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (SAXException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      catalog = createCatalogObject(domainId, datasource,xmlaEnabled);  
+      this.addCatalog(schemaInputStream, catalog, overwriteInRepossitory, xmlaEnabled, PentahoSessionHolder.getSession());
+    } catch(MondrianCatalogServiceException mse){
+      throw new PlatformImportException(mse.getMessage(),convertExceptionToStatus(mse));
+    }catch (Exception e) {
+      throw new PlatformImportException(e.getMessage(),PlatformImportException.PUBLISH_DATASOURCE_ERROR);
     }
-    this.addCatalog(schemaInputStream, catalog, overwriteInRepossitory, xmlaEnabled, PentahoSessionHolder.getSession());
   }
+  /**
+   * convert the catalog service exception to a platform exception and get the proper status code
+   * @param mse
+   * @return
+   */
+  private int convertExceptionToStatus(MondrianCatalogServiceException mse) {
+    int statusCode = PlatformImportException.PUBLISH_TO_SERVER_FAILED;
+    if(mse.getReason().equals( Reason.GENERAL)){
+      statusCode = PlatformImportException.PUBLISH_GENERAL_ERROR;
+    } else {
+      if(mse.getReason().equals( Reason.ACCESS_DENIED)){
+        statusCode = PlatformImportException.PUBLISH_TO_SERVER_FAILED;
+      } else {
+        if(mse.getReason().equals( Reason.ALREADY_EXISTS)){
+          statusCode = PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR;
+        } 
+      }
+    }
+    return statusCode;
+  }
+
   /**
    * Helper method to create a catalog object 
    * @param domainId
