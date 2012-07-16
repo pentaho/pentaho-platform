@@ -1140,6 +1140,12 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     return catalog;
   }
 
+  @Override
+  public void addCatalog(MondrianCatalog cat, boolean overwrite, IPentahoSession pentahoSession) {
+      this.addCatalog(cat, overwrite, false, pentahoSession);
+    
+  }
+
 
 
   
