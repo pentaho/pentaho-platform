@@ -37,13 +37,7 @@ public interface IMondrianCatalogService {
    */
   List<MondrianCatalog> listCatalogs(IPentahoSession pentahoSession, boolean jndiOnly);
 
-  /**
-   * Adds to the global catalog list and possibly persists this information.
-   * @param overwrite true to overwrite existing catalog (based on match with definition and effectiveDataSourceInfo 
-   */
-  void addCatalog(MondrianCatalog catalog, boolean overwrite, IPentahoSession pentahoSession)
-      throws MondrianCatalogServiceException;
-
+  
   /**
    * Returns the catalog with the given context - name or definition allowable. Returns <code>null</code> if context not recognized. 
    * @param context Either the name of the catalog to fetch, or the catalog's definition string
@@ -86,10 +80,23 @@ public interface IMondrianCatalogService {
    * @param domainId
    * @param datasource
    * @param overwriteInRepossitory
+   * @param xmlaEnabled
    * @throws PlatformImportException
    */
 
-  void storeDomain(InputStream schemaInputStream, String domainId, String datasource, boolean overwriteInRepossitory)
-      throws PlatformImportException;
+  void storeDomain(InputStream schemaInputStream, String domainId, String datasource, boolean overwriteInRepossitory,
+      boolean xmlaEnabled) throws PlatformImportException;
+
+  /**
+   * helper method exppsed to use instead of building bundle
+   * @param fileInputStream
+   * @param domainId
+   * @param datasource
+   * @param overwriteInRepossitory
+   * @param xmlaEnabled
+   * @throws PlatformImportException
+   */
+  void importSchema(InputStream fileInputStream, String domainId, String datasource, boolean overwriteInRepossitory,
+      boolean xmlaEnabled) throws PlatformImportException;
 
 }
