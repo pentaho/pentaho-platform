@@ -1134,9 +1134,10 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     String dsProvider = xmlaEnabled ? DataSource.PROVIDER_TYPE_MDP:"None:";
     MondrianDataSource ds = new MondrianDataSource(catName, "", "", "Provider=mondrian;DataSource=" + datasource,
         "Provider=Mondrian",dsProvider , DataSource.AUTH_MODE_UNAUTHENTICATED, null);
-    //etc/mondrian/FoodMart.mondrian.xml
+    
+    String FILE_SEPARTOR = "/"; //redo
     MondrianCatalog catalog = new MondrianCatalog(catName, "Provider=mondrian;DataSource=" + datasource + ";",
-        "solution:etc/mondrian/" + catName + ".mondrian.xml", ds, schema);
+        "mondrian:"+FILE_SEPARTOR+catName , ds, schema);
     return catalog;
   }
 
