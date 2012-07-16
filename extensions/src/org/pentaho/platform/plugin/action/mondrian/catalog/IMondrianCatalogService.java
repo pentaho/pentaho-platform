@@ -99,4 +99,12 @@ public interface IMondrianCatalogService {
   void importSchema(InputStream fileInputStream, String domainId, String datasource, boolean overwriteInRepossitory,
       boolean xmlaEnabled) throws PlatformImportException;
 
+  /**
+   * original method
+   * @param cat
+   * @param overwrite
+   * @param session
+   */
+  void addCatalog(MondrianCatalog cat, boolean overwrite, IPentahoSession session);
+
 }
