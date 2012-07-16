@@ -61,6 +61,8 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_DATASOURCE_ERROR);
     } catch (IOException e1) {
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
+    } catch (PlatformImportException pe){
+      throw pe; // if already converted - just rethrow
     }catch (Exception e1) {
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
     }
