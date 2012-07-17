@@ -231,7 +231,7 @@
                 transitive="false"/>
     <dependency org="org.apache.hbase" name="hbase" rev="${dependency.apache-hbase.revision}" conf="default->default" transitive="false"/>
     <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.3.2" conf="default->default" transitive="false"/>
-    <dependency org="postgresql" name="postgresql" rev="8.4-702.jdbc3" conf="default->default" transitive="false"/>
+    <dependency org="postgresql" name="postgresql" rev="9.1-902.jdbc4" conf="default->default" transitive="false"/>
     <dependency org="pentaho" name="pentaho-hadoop-snappy" rev="0.0.1-SNAPSHOT" conf="default->default" transitive="false"/>
 
 
