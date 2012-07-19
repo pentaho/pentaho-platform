@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.plugin.services.importer.PlatformImportException;
 
 /**
  * A service registering/enumerating registered Mondrian catalogs (schemas).
@@ -37,7 +36,24 @@ public interface IMondrianCatalogService {
    */
   List<MondrianCatalog> listCatalogs(IPentahoSession pentahoSession, boolean jndiOnly);
 
+  /**
+   * Adds to the global catalog list and possibly persists this information.
+   * @param overwrite true to overwrite existing catalog (based on match with definition and effectiveDataSourceInfo 
+   */
+  void addCatalog(MondrianCatalog catalog, boolean overwrite, IPentahoSession pentahoSession)
+      throws MondrianCatalogServiceException;
+
   
+  /**
+   * new method to support the input stream support
+   * @param schemaInputStream
+   * @param catalog
+   * @param overwrite
+   * @param pentahoSession
+   * @throws MondrianCatalogServiceException
+   */
+  void addCatalog(InputStream schemaInputStream, final MondrianCatalog catalog,
+      final boolean overwrite, final IPentahoSession pentahoSession) throws MondrianCatalogServiceException;
   /**
    * Returns the catalog with the given context - name or definition allowable. Returns <code>null</code> if context not recognized. 
    * @param context Either the name of the catalog to fetch, or the catalog's definition string
@@ -58,7 +74,7 @@ public interface IMondrianCatalogService {
    * @return Mondrian Schema object
    */
   MondrianSchema loadMondrianSchema(String solutionLocation, IPentahoSession pentahoSession);
-
+  
   /**
    * this method removes a Mondrian schema from the platform
    * 
@@ -66,45 +82,10 @@ public interface IMondrianCatalogService {
    * @param pentahoSession current session object
    */
   void removeCatalog(final String catalogName, final IPentahoSession pentahoSession);
-
   /**
    * Flushes the catalog cache.
    * @param pentahoSession
    */
   public void reInit(IPentahoSession pentahoSession) throws MondrianCatalogServiceException;
-
-
-  /**
-   * 
-   * @param inputStream
-   * @param domainId
-   * @param datasource
-   * @param overwriteInRepossitory
-   * @param xmlaEnabled
-   * @throws PlatformImportException
-   */
-
-  void storeDomain(InputStream schemaInputStream, String domainId, String datasource, boolean overwriteInRepossitory,
-      boolean xmlaEnabled) throws PlatformImportException;
-
-  /**
-   * helper method exppsed to use instead of building bundle
-   * @param fileInputStream
-   * @param domainId
-   * @param datasource
-   * @param overwriteInRepossitory
-   * @param xmlaEnabled
-   * @throws PlatformImportException
-   */
-  void importSchema(InputStream fileInputStream, String domainId, String datasource, boolean overwriteInRepossitory,
-      boolean xmlaEnabled) throws PlatformImportException;
-
-  /**
-   * original method
-   * @param cat
-   * @param overwrite
-   * @param session
-   */
-  void addCatalog(MondrianCatalog cat, boolean overwrite, IPentahoSession session);
-
+ 
 }

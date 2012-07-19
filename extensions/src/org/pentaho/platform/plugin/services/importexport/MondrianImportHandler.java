@@ -197,7 +197,7 @@ public class MondrianImportHandler implements ImportHandler {
       Client client = Client.create(clientConfig); 
       client.addFilter(new HTTPBasicAuthFilter(this.username, this.password)); 
 
-      String storeDomainUrl = this.url + "/plugin/data-access/api/mondrian/addSchema?catalogName=" + catalogName + "&datasourceInfo=" + datasourceInfo;
+      String storeDomainUrl = this.url + "/plugin/data-access/api/mondrian/putSchema?catalogName=" + catalogName + "&datasourceInfo=" + datasourceInfo;
       WebResource resource = client.resource(storeDomainUrl); 
       ClientResponse response = resource.put(ClientResponse.class, mondrianFile);
 
