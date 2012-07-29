@@ -378,7 +378,7 @@ public class SecurityHelper implements ISecurityHelper {
     try {
       StandaloneSession session;
       GrantedAuthority[] roles;
-      if (origSession.getAttribute(IPentahoSession.TENANT_ID_KEY) != null) {
+      if (origSession != null && origSession.getAttribute(IPentahoSession.TENANT_ID_KEY) != null) {
     // create pentaho session
         name = "jim_" + origSession.getAttribute(IPentahoSession.TENANT_ID_KEY);        
         session = new StandaloneSession(name);
