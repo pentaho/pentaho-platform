@@ -1,0 +1,8 @@
+<module>
+    <!--  query model -->
+    <source path="ws">
+      <exclude name="IUserRoleWebService.java"/>
+      <exclude name="UserRoleWebService.java"/>
+      <exclude name="ProxyPentahoUserRoleHelper.java"/>
+    </source>
+</module>
