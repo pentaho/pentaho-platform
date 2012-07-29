@@ -18,7 +18,7 @@
   </bean>
 
   <!-- UserDetailsService that delegates to an IUserRoleDao -->
-  <bean id="userDetailsService" class="org.pentaho.platform.engine.security.userroledao.userdetailsservice.UserRoleDaoUserDetailsService">
+  <bean id="userDetailsService" class="org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService">
     <property name="userRoleDao">
       <ref local="userRoleDao" />
     </property>

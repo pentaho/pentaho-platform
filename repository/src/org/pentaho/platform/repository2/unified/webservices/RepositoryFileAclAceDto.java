@@ -19,6 +19,7 @@ import java.util.List;
 
 public class RepositoryFileAclAceDto implements Serializable{
   String recipient;
+  String tenantPath;
 
   /**
    * RepositoryFileSid.Type enum.
@@ -33,6 +34,14 @@ public class RepositoryFileAclAceDto implements Serializable{
   public RepositoryFileAclAceDto() {
     super();
     // TODO Auto-generated constructor stub
+  }
+
+  public String getTenantPath() {
+    return tenantPath;
+  }
+
+  public void setTenantPath(String tenantPath) {
+    this.tenantPath = tenantPath;
   }
 
   public String getRecipient() {

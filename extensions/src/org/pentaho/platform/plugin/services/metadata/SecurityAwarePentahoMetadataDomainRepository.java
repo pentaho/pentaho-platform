@@ -18,6 +18,8 @@
 package org.pentaho.platform.plugin.services.metadata;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -28,6 +30,7 @@ import org.pentaho.metadata.model.concept.security.RowLevelSecurity;
 import org.pentaho.metadata.util.RowLevelSecurityHelper;
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -46,11 +49,18 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
   public static final int[] ACCESS_TYPE_MAP = new int[]{IAclHolder.ACCESS_TYPE_READ, IAclHolder.ACCESS_TYPE_WRITE,
       IAclHolder.ACCESS_TYPE_UPDATE, IAclHolder.ACCESS_TYPE_DELETE, IAclHolder.ACCESS_TYPE_ADMIN,
       IAclHolder.ACCESS_TYPE_ADMIN};
+  private ITenantedPrincipleNameResolver roleNameResolver;
 
   public SecurityAwarePentahoMetadataDomainRepository(final IUnifiedRepository repository) {
     super(repository);
   }
 
+  // This constructor is intended for use in a single tenanted environment.
+  public SecurityAwarePentahoMetadataDomainRepository(final IUnifiedRepository repository, ITenantedPrincipleNameResolver roleNameResolver) {
+    super(repository);
+    this.roleNameResolver = roleNameResolver;
+  }
+  
   public IPentahoSession getSession() {
     return PentahoSessionHolder.getSession();
   }
@@ -67,13 +77,14 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
       return "FALSE()"; //$NON-NLS-1$
     }
     String username = auth.getName();
-    List<String> roles = new ArrayList<String>();
+    HashSet<String> roles = new HashSet<String>();
     for (GrantedAuthority role : auth.getAuthorities()) {
-      roles.add(role.getAuthority());
+      String roleName = roleNameResolver != null ? roleNameResolver.getPrincipleName(role.getAuthority()) : role.getAuthority();
+      roles.add(roleName);
     }
 
     RowLevelSecurityHelper helper = new SessionAwareRowLevelSecurityHelper();
-    return helper.getOpenFormulaSecurityConstraint(rls, username, roles);
+    return helper.getOpenFormulaSecurityConstraint(rls, username, new ArrayList<String>(roles));
   }
 
   @Override

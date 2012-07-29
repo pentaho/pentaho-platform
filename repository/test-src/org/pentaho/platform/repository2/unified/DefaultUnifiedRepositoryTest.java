@@ -24,7 +24,6 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -35,6 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.jcr.Repository;
 import javax.jcr.security.Privilege;
 
 import org.apache.commons.io.FileUtils;
@@ -47,6 +47,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantManager;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -70,10 +76,15 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
+import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -90,6 +101,7 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Integration test. Tests {@link DefaultUnifiedRepository} and {@link IAuthorizationPolicy} fully configured behind 
@@ -123,18 +135,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   private static final String RUNTIME_ROLE_ACME_AUTHENTICATED = "acme_Authenticated";
 
-  private static final String LOGICAL_ROLE_SECURITY_ADMINISTRATOR = "org.pentaho.di.securityAdministrator";
-
-  private static final String LOGICAL_ROLE_CREATOR = "org.pentaho.di.creator";
-
-  private static final String LOGICAL_ROLE_READER = "org.pentaho.di.reader";
-
-  private static final String ACTION_READ = "org.pentaho.repository.read";
-
-  private static final String ACTION_CREATE = "org.pentaho.repository.create";
-
-  private static final String ACTION_ADMINISTER_SECURITY = "org.pentaho.security.administerSecurity";
-  
   private final String USERNAME_SUZY = "suzy";
 
   private final String USERNAME_TIFFANY = "tiffany";
@@ -148,32 +148,44 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   private final String TENANT_ID_ACME = "acme";
 
   private final String TENANT_ID_DUFF = "duff";
-  
+
   // ~ Instance fields =================================================================================================
+
+  private ITenantManager tenantManager;
 
   private IUnifiedRepository repo;
 
-  private boolean startupCalled;
-
   private String repositoryAdminUsername;
+  
+  private IBackingRepositoryLifecycleManager repositoryLifecyleManager;
 
-  private String tenantAdminAuthorityNamePattern;
-
-  private String tenantAuthenticatedAuthorityNamePattern;
 
   /**
    * Used for state verification and test cleanup.
    */
   private JcrTemplate testJcrTemplate;
 
-  private IBackingRepositoryLifecycleManager manager;
-
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
+  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
 
   private IAuthorizationPolicy authorizationPolicy;
-  
+
   private MicroPlatform mp;
 
+  private ITenantedPrincipleNameResolver userNameUtils = new DefaultTenantedPrincipleNameResolver();
+  private ITenantedPrincipleNameResolver roleNameUtils = new DefaultTenantedPrincipleNameResolver();
+
+  private String superAdminRoleName;
+  private String tenantAdminRoleName;
+  private String tenantAuthenticatedRoleName;
+  private String sysAdminUserName;
+  private ITenant systemTenant;
+  private IPathConversionHelper pathConversionHelper;
+  IUserRoleDao userRoleDao;
+  IUserRoleDao testUserRoleDao;
+  private static TransactionTemplate jcrTransactionTemplate;
+  private ITenantedPrincipleNameResolver tenantedUserNameUtils;
+  
   // ~ Constructors ==================================================================================================== 
 
   public DefaultUnifiedRepositoryTest() throws Exception {
@@ -197,41 +209,68 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Before
   public void setUp() throws Exception {
+    loginAsRepositoryAdmin();
+    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
     mp = new MicroPlatform();
     // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
+    mp.defineInstance(ITenantManager.class, tenantManager);
+    mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
 
     // Start the micro-platform
-//    mp.start();
+    //    mp.start();
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
     logout();
-    startupCalled = true;
+    JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
+        repositoryAdminUsername, "c:/build/testrepo_7", Mode.CUSTOM);
+    dumpToFile.execute();
+
   }
 
+  private void cleanupUserAndRoles(final ITenant tenant) {
+    loginAsRepositoryAdmin();
+    for (IPentahoRole role : testUserRoleDao.getRoles(tenant)) {
+      testUserRoleDao.deleteRole(role);
+    }
+    for (IPentahoUser user : testUserRoleDao.getUsers(tenant)) {
+      testUserRoleDao.deleteUser(user);
+    }
+  }
+  
   @After
   public void tearDown() throws Exception {
     // null out fields to get back memory
     authorizationPolicy = null;
-    loginAsRepositoryAdmin();
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenant = tenantManager.getTenant("/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/" + TENANT_ID_ACME);
+    if (tenant != null) {
+      cleanupUserAndRoles(tenant);
+    }
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    tenant = tenantManager.getTenant("/" + ServerRepositoryPaths.getPentahoRootFolderName() + "/" + TENANT_ID_DUFF);
+    if (tenant != null) {
+      cleanupUserAndRoles(tenant);
+    }
+    cleanupUserAndRoles(systemTenant);
     SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
     logout();
+
     repositoryAdminUsername = null;
-    tenantAdminAuthorityNamePattern = null;
-    tenantAuthenticatedAuthorityNamePattern = null;
+    tenantAdminRoleName = null;
+    tenantAuthenticatedRoleName = null;
     roleBindingDao = null;
     authorizationPolicy = null;
     testJcrTemplate = null;
-    if (startupCalled) {
-      manager.shutdown();
-    }
 
     // null out fields to get back memory
+    tenantManager = null;
     repo = null;
   }
 
   @Test
   public void testOnStartup() throws Exception {
-    manager.startup();
-    loginAsRepositoryAdmin();
+    loginAsSysTenantAdmin();
     // make sure pentaho root folder exists
     final String rootFolderPath = ServerRepositoryPaths.getPentahoRootFolderPath();
     assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, rootFolderPath));
@@ -239,9 +278,12 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testGetFileWithLoadedMaps() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", new String[]{tenantAdminRoleName});
+    logout();
+    
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     final String fileName = "helloworld.sample";
     RepositoryFile newFile = createSampleFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY), fileName,
         "blah", false, 123);
@@ -258,6 +300,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     assertEquals(EN_US_VALUE, updatedFileWithMaps.getTitleMap().get(Locale.getDefault().toString()));
     assertEquals(ROOT_LOCALE_VALUE, updatedFileWithMaps.getTitleMap().get(RepositoryFile.ROOT_LOCALE));
+    logout();
   }
 
   /**
@@ -265,15 +308,19 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
    */
   @Test
   public void testOnNewUser() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", new String[]{tenantAdminRoleName});
+    logout();
+    
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    
     RepositoryFile suzyHomeFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
     assertNotNull(suzyHomeFolder);
     assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath()));
     assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath()));
     assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getTenantHomeFolderPath()));
-    final String suzyFolderPath = ServerRepositoryPaths.getUserHomeFolderPath();
+    final String suzyFolderPath = ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY);
     assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, suzyFolderPath));
   }
 
@@ -282,45 +329,88 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
    */
   @Test
   public void testAclsOnDefaultFolders() throws Exception {
-    final RepositoryFileSid suzySid = new RepositoryFileSid(USERNAME_SUZY, RepositoryFileSid.Type.USER);
-    final RepositoryFileSid acmeAuthenticatedAuthoritySid = new RepositoryFileSid(MessageFormat.format(
-        tenantAuthenticatedAuthorityNamePattern, TENANT_ID_ACME), RepositoryFileSid.Type.ROLE);
-    final RepositoryFileSid repositoryAdminSid = new RepositoryFileSid(repositoryAdminUsername,
-        RepositoryFileSid.Type.USER);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    final RepositoryFileSid suzySid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), RepositoryFileSid.Type.USER);
+    final RepositoryFileSid acmeAuthenticatedAuthoritySid = new RepositoryFileSid(roleNameUtils.getPrincipleId(tenantAcme, tenantAuthenticatedRoleName), RepositoryFileSid.Type.ROLE);
+    final RepositoryFileSid sysAdminSid = new RepositoryFileSid(userNameUtils.getPrincipleId(systemTenant, sysAdminUserName), RepositoryFileSid.Type.USER);
+    final RepositoryFileSid tenantAdminSid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_JOE), RepositoryFileSid.Type.USER);
+    final RepositoryFileSid tenantCreatorSid = new RepositoryFileSid(userNameUtils.getPrincipleId(systemTenant, sysAdminUserName), RepositoryFileSid.Type.USER);
 
+    RepositoryFile file = tenantManager.getTenantRootFolder(tenantAcme);
+    String tenantRootFolderAbsPath = pathConversionHelper.relToAbs(file.getPath());
     // pentaho root folder
-    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath(),
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, tenantRootFolderAbsPath,
         Privilege.JCR_READ));
     // TODO mlowery possible issue
-    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath(),
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, tenantRootFolderAbsPath,
         Privilege.JCR_READ_ACCESS_CONTROL));
-
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
-    assertFalse(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath(),
+    
+    assertFalse(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, tenantRootFolderAbsPath,
         Privilege.JCR_WRITE));
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    // TODO mlowery possible issue
+    assertFalse(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, tenantRootFolderAbsPath,
+        Privilege.JCR_MODIFY_ACCESS_CONTROL));
+
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, tenantRootFolderAbsPath,
+        Privilege.JCR_READ));
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, tenantRootFolderAbsPath,
+        Privilege.JCR_READ_ACCESS_CONTROL));
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, tenantRootFolderAbsPath,
+        Privilege.JCR_WRITE));
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, tenantRootFolderAbsPath,
+        Privilege.JCR_MODIFY_ACCESS_CONTROL));
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     // tenant root folder
     // there is no ace that gives authenticated acme users access to /pentaho/acme; it's in logic on the server
     assertFalse(repo.getAcl(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId()).isEntriesInheriting());
     // TODO mlowery possible issue
-    assertLocalAclEmpty(repo.getFile(ClientRepositoryPaths.getRootFolderPath()));
-    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId()).getOwner());
+    
+    RepositoryFileAcl acl = repo.getAcl(file.getId());
+    List<RepositoryFileAce> aces = acl.getAces();
+    assertEquals(2, aces.size());
+    for (RepositoryFileAce ace : aces) {
+      RepositoryFileSid sid = ace.getSid();
+      String roleName = roleNameUtils.getPrincipleName(sid.getName());
+      ITenant tenant = roleNameUtils.getTenant(sid.getName());
+      assertTrue(roleName.equals(tenantAdminRoleName));
+      if (tenant.equals(systemTenant)) {
+        for (RepositoryFilePermission perm : ace.getPermissions()) {
+          perm.equals(RepositoryFilePermission.ALL);
+        }
+      } else if (tenant.equals(tenantAcme)) {
+        for (RepositoryFilePermission perm : ace.getPermissions()) {
+          assertTrue(perm.equals(RepositoryFilePermission.ALL));
+        }
+      } else {
+        fail("Unknown tenant");
+      }
+    }
+    
+    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId())
+        .getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath(),
         Privilege.JCR_READ));
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath(),
         Privilege.JCR_READ_ACCESS_CONTROL));
 
-    // tenant public folder
     assertFalse(repo.getAcl(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()).getId()).isEntriesInheriting());
+      
+    // tenant public folder
     assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()), acmeAuthenticatedAuthoritySid,
         EnumSet.of(RepositoryFilePermission.WRITE, RepositoryFilePermission.WRITE_ACL, RepositoryFilePermission.READ,
             RepositoryFilePermission.READ_ACL));
-    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()).getId()).getOwner());
+    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()).getId())
+        .getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
         Privilege.JCR_READ));
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
@@ -332,76 +422,84 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertFalse(repo.getAcl(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getId()).isEntriesInheriting());
     assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()), acmeAuthenticatedAuthoritySid,
         EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
-    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getId()).getOwner());
+    assertEquals(tenantAdminSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getId())
+        .getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantHomeFolderPath(),
         Privilege.JCR_READ));
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantHomeFolderPath(),
         Privilege.JCR_READ_ACCESS_CONTROL));
 
-    // tenant etc folder
-    assertTrue(repo.getAcl(repo.getFile(ClientRepositoryPaths.getEtcFolderPath()).getId()).isEntriesInheriting());
-    assertLocalAclEmpty(repo.getFile(ClientRepositoryPaths.getEtcFolderPath()));
-    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getEtcFolderPath()).getId()).getOwner());
+    Serializable fileId = repo.getFile(ClientRepositoryPaths.getEtcFolderPath()).getId();
+    assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getEtcFolderPath()), acmeAuthenticatedAuthoritySid,
+        EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
+    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getEtcFolderPath()).getId())
+        .getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantEtcFolderPath(),
         Privilege.JCR_READ));
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantEtcFolderPath(),
         Privilege.JCR_READ_ACCESS_CONTROL));
 
     // suzy home folder
-    assertFalse(repo.getAcl(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)).getId())
-        .isEntriesInheriting());
-    assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)), suzySid, EnumSet
-        .of(RepositoryFilePermission.ALL));
     assertEquals(suzySid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)).getId()).getOwner());
-    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(),
+    assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY),
         Privilege.JCR_ALL));
 
     // tenant etc/pdi folder
     final String pdiPath = ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + "pdi";
-    assertFalse(repo.getAcl(repo.getFile(pdiPath).getId()).isEntriesInheriting());
+    assertTrue(repo.getAcl(repo.getFile(pdiPath).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(pdiPath));
-    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(pdiPath).getId()).getOwner());
+    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(pdiPath).getId()).getOwner());
 
     // tenant etc/databases folder
     final String databasesPath = pdiPath + RepositoryFile.SEPARATOR + "databases";
     assertTrue(repo.getAcl(repo.getFile(databasesPath).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(databasesPath));
-    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(databasesPath).getId()).getOwner());
+    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(databasesPath).getId()).getOwner());
 
     // tenant etc/slaveServers folder
     final String slaveServersPath = pdiPath + RepositoryFile.SEPARATOR + "slaveServers";
     assertTrue(repo.getAcl(repo.getFile(slaveServersPath).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(slaveServersPath));
-    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(slaveServersPath).getId()).getOwner());
+    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(slaveServersPath).getId()).getOwner());
 
     // tenant etc/clusterSchemas folder
     final String clusterSchemasPath = pdiPath + RepositoryFile.SEPARATOR + "clusterSchemas";
     assertTrue(repo.getAcl(repo.getFile(clusterSchemasPath).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(clusterSchemasPath));
-    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(clusterSchemasPath).getId()).getOwner());
+    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(clusterSchemasPath).getId()).getOwner());
 
     // tenant etc/partitionSchemas folder
     final String partitionSchemasPath = pdiPath + RepositoryFile.SEPARATOR + "partitionSchemas";
     assertTrue(repo.getAcl(repo.getFile(partitionSchemasPath).getId()).isEntriesInheriting());
     assertLocalAclEmpty(repo.getFile(partitionSchemasPath));
-    assertEquals(repositoryAdminSid, repo.getAcl(repo.getFile(partitionSchemasPath).getId()).getOwner());
-    
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(partitionSchemasPath).getId()).getOwner());
+
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(
-        TENANT_ID_ACME, USERNAME_SUZY), Privilege.JCR_WRITE));
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+        tenantAcme, USERNAME_SUZY), Privilege.JCR_WRITE));
   }
 
   @Test
   public void testGetFileAccessDenied() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    ITenant tenantDuff = tenantManager.createTenant(systemTenant, TENANT_ID_DUFF, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantDuff, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+    
+    login(USERNAME_JOE, tenantDuff, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantDuff, USERNAME_PAT, "password", "", null);    
+    
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     RepositoryFile tiffanyHomeFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_TIFFANY));
     assertNotNull(tiffanyHomeFolder);
     assertNotNull(repo.createFolder(tiffanyHomeFolder.getId(), new RepositoryFile.Builder("test").folder(true).build(),
         null));
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     final String acmeTenantRootFolderPath = ClientRepositoryPaths.getRootFolderPath();
     final String homeFolderPath = ClientRepositoryPaths.getHomeFolderPath();
     final String tiffanyFolderPath = homeFolderPath + "/tiffany";
@@ -413,35 +511,47 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     final String tiffanySubFolderPath = tiffanyFolderPath + "/test";
     assertNull(repo.getFile(tiffanySubFolderPath));
     // make sure Pat can't see acme folder (pat is in the duff tenant)
-    login(USERNAME_PAT, TENANT_ID_DUFF);
-    assertNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths
-        .getTenantRootFolderPath(TENANT_ID_ACME)));
+    login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
+    assertNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath(tenantAcme)));
     assertFalse(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths
-        .getTenantRootFolderPath(TENANT_ID_ACME), Privilege.JCR_READ));
+        .getTenantRootFolderPath(tenantAcme), Privilege.JCR_READ));
     assertFalse(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths
-        .getTenantRootFolderPath(TENANT_ID_ACME), Privilege.JCR_READ_ACCESS_CONTROL));
+        .getTenantRootFolderPath(tenantAcme), Privilege.JCR_READ_ACCESS_CONTROL));
   }
 
   @Test
   public void testGetFileAdmin() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile tiffanyHomeFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_TIFFANY));
     repo.createFolder(tiffanyHomeFolder.getId(), new RepositoryFile.Builder("test").folder(true).build(), null);
     RepositoryFileAcl acl = repo.getAcl(tiffanyHomeFolder.getId());
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_TIFFANY)));
     assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_TIFFANY) + "/test"));
   }
 
   @Test
   public void testStopThenStartInheriting() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile tiffanyHomeFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_TIFFANY));
-    RepositoryFile testFolder = repo.createFolder(tiffanyHomeFolder.getId(), new RepositoryFile.Builder("test").folder(true).build(), null);
+    RepositoryFile testFolder = repo.createFolder(tiffanyHomeFolder.getId(), new RepositoryFile.Builder("test").folder(
+        true).build(), null);
     RepositoryFileAcl acl = repo.getAcl(testFolder.getId());
     RepositoryFileAcl updatedAcl = new RepositoryFileAcl.Builder(acl).entriesInheriting(false).build();
     updatedAcl = repo.updateAcl(updatedAcl);
@@ -450,15 +560,21 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     updatedAcl = repo.updateAcl(updatedAcl);
     assertTrue(updatedAcl.isEntriesInheriting());
   }
-  
+
   /**
    * While they may be filtered from the version history, we still must be able to fetch acl-only changes.
    */
   @Test
   public void testGetAclOnlyVersion() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     final String fileName = "helloworld.sample";
     RepositoryFile newFile = createSampleFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY), fileName,
         "blah", false, 123, true);
@@ -470,39 +586,33 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(2, repo.getVersionSummaries(newFile.getId()).size());
     assertNotNull(repo.getVersionSummary(newFile.getId(), "1.1"));
   }
-  
+
   @Test
   public void testGetFileNotExist() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile file2 = repo.getFile("/doesnotexist");
     assertNull(file2);
   }
 
   @Test
-  public void testStartupTwice() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    manager.startup();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-    assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() + "[1]"));
-    assertNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath() + "[2]"));
-  }
-
-  @Test
-  public void testOnNewUserTwice() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-  }
-
-  @Test
   public void testCreateFolder() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).hidden(true).build();
 
@@ -519,14 +629,20 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull(newFolder);
     assertNotNull(newFolder.getId());
     assertTrue(newFolder.isHidden());
-    assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath() + "/test"));
+    assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY) + "/test"));
   }
 
   @Test
   public void testCreateFolderWithAtSymbol() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
     RepositoryFile newFolder = new RepositoryFile.Builder("me@example.com").folder(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
@@ -538,9 +654,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test(expected = UnifiedRepositoryAccessDeniedException.class)
   public void testCreateFolderAccessDenied() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getRootFolderPath());
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).build();
     repo.createFolder(parentFolder.getId(), newFolder, null);
@@ -548,18 +670,30 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test(expected = UnifiedRepositoryException.class)
   public void testCreateFolderAtRootIllegal() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).build();
     repo.createFolder(null, newFolder, null);
   }
 
   @Test(expected = UnifiedRepositoryException.class)
   public void testCreateFileAtRootIllegal() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
     byte[] data = dataString.getBytes(encoding);
@@ -571,9 +705,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testCreateSimpleFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
     final String expectedDataString = "Hello World!";
     final String expectedEncoding = "UTF-8";
@@ -588,8 +728,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         expectedMimeType);
     Date beginTime = Calendar.getInstance().getTime();
     Thread.sleep(1000); // when the test runs too fast, begin and lastModifiedDate are the same; manual pause
-    RepositoryFile newFile = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(expectedName).hidden(true).build(),
-        content, null);
+    RepositoryFile newFile = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(expectedName)
+        .hidden(true).build(), content, null);
     Date endTime = Calendar.getInstance().getTime();
     assertTrue(beginTime.before(newFile.getLastModifiedDate()));
     assertTrue(endTime.after(newFile.getLastModifiedDate()));
@@ -611,9 +751,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testCreateSampleFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     final String expectedName = "helloworld.sample";
     final String sampleString = "Ciao World!";
     final boolean sampleBoolean = true;
@@ -637,42 +783,52 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(sampleBoolean, data.getSampleBoolean());
     assertEquals(sampleInteger, data.getSampleInteger());
   }
-  
+
   @Test
   public void testGetReferrers() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     final String refereeFileName = "referee.sample";
     final String referrerFileName = "referrer.sample";
-    
+
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
-    
+
     RepositoryFile refereeFile = createSampleFile(parentFolderPath, refereeFileName, "dfdd", true, 83);
-    
+
     DataNode node = new DataNode("kdjd");
     node.setProperty("ddf", "ljsdfkjsdkf");
     DataNode newChild1 = node.addNode("herfkmdx");
     newChild1.setProperty("urei2", new DataNodeRef(refereeFile.getId()));
 
     NodeRepositoryFileData data = new NodeRepositoryFileData(node);
-    repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(referrerFileName).build(),
-        data, null);
-    
+    repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(referrerFileName).build(), data, null);
+
     List<RepositoryFile> referrers = repo.getReferrers(refereeFile.getId());
-    
+
     assertNotNull(referrers);
     assertEquals(1, referrers.size());
-    assertEquals(referrers.get(0).getName(), referrerFileName);    
+    assertEquals(referrers.get(0).getName(), referrerFileName);
   }
 
   @Test
   public void testCreateNodeFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     final String expectedName = "helloworld.doesnotmatter";
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
@@ -743,7 +899,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     DataNode foundChild2 = foundNode.getNode(RepositoryFilenameUtils.escape("pppq/qqs2", repo.getReservedChars()));
     assertNotNull(foundChild2.getId());
     assertEquals(newChild2.getName(), foundChild2.getName());
-    assertEquals(newChild2.getProperty(RepositoryFilenameUtils.escape("ttt:ss4", repo.getReservedChars())), foundChild2.getProperty(RepositoryFilenameUtils.escape("ttt:ss4", repo.getReservedChars())));
+    assertEquals(newChild2.getProperty(RepositoryFilenameUtils.escape("ttt:ss4", repo.getReservedChars())), foundChild2
+        .getProperty(RepositoryFilenameUtils.escape("ttt:ss4", repo.getReservedChars())));
     actualPropCount = 0;
     for (DataProperty prop : foundChild2.getProperties()) {
       actualPropCount++;
@@ -760,63 +917,150 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       }
     }
   }
-  
+
   @Test
   public void testCheckName() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-    IRepositoryFileData data = new SimpleRepositoryFileData(new ByteArrayInputStream(new byte[0]), null, "application/octet-stream");
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
+    IRepositoryFileData data = new SimpleRepositoryFileData(new ByteArrayInputStream(new byte[0]), null,
+        "application/octet-stream");
     NodeRepositoryFileData badNodeData = new NodeRepositoryFileData(new DataNode("a/b"));
     DataNode node = new DataNode("hello");
     node.setProperty("hello:world", "whatever");
     NodeRepositoryFileData badNodeData2 = new NodeRepositoryFileData(node);
-    
+
     final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
-    try { repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("a/b").folder(true).build(), null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("a:b").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(".").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("..").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("/").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("a[0]").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("a*b").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(" hello").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello ").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("\t\t\t").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(" ").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("\"hello\"").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("'hello'").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("he||o").build(), data, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello").build(), badNodeData, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
-    try { repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello").build(), badNodeData2, null);fail(); } catch (UnifiedRepositoryMalformedNameException e) {  }
+    try {
+      repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("a/b").folder(true).build(), null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("a:b").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(".").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("..").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("/").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("a[0]").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("a*b").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(" hello").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello ").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("\t\t\t").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(" ").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("\"hello\"").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("'hello'").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("he||o").build(), data, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello").build(), badNodeData, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
+    try {
+      repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello").build(), badNodeData2, null);
+      fail();
+    } catch (UnifiedRepositoryMalformedNameException e) {
+    }
     repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("%hello%").build(), data, null);
     repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello world").build(), data, null);
     repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("hello\\world").build(), data, null);
-  } 
+  }
 
   @Test(expected = UnifiedRepositoryException.class)
   public void testCreateFileUnrecognizedContentType() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
     IRepositoryFileData content = new IRepositoryFileData() {
       @Override
       public long getDataSize() {
         // TODO Auto-generated method stub
         return 0;
-      }     
+      }
     };
     repo.createFile(parentFolder.getId(), new RepositoryFile.Builder("helloworld.xaction").build(), content, null);
   }
 
   @Test
   public void testGetChildren() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME); // creates acme tenant folder
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     List<RepositoryFile> children = repo.getChildren(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId());
     assertEquals(3, children.size());
     RepositoryFile f0 = children.get(0);
@@ -840,19 +1084,31 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
    */
   @Test
   public void testListHomeFolders() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+   
     List<RepositoryFile> children = repo.getChildren(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getId());
     assertEquals(1, children.size());
   }
 
   @Test
   public void testUpdateFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
     final String fileName = "helloworld.sample";
@@ -883,9 +1139,14 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
    */
   @Test
   public void testTransactionRollback() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     final String expectedName = "helloworld.sample";
     final String sampleString = "Ciao World!";
@@ -902,7 +1163,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       repo.updateFile(newFile, new IRepositoryFileData() {
         @Override
         public long getDataSize() {
-           return 0;
+          return 0;
         }
       }, null);
       fail("expected UnifiedRepositoryException");
@@ -913,31 +1174,49 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test(expected = UnifiedRepositoryException.class)
   public void testCreateDuplicateFolder() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
-    assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath() + "/test"));
+    assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY) + "/test"));
     RepositoryFile anotherFolder = new RepositoryFile.Builder("test").folder(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), anotherFolder, null);
   }
 
   @Test
   public void testWriteToPublic() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     assertNotNull(createSampleFile(parentFolderPath, "helloworld.sample", "Hello World!", false, 500));
   }
 
   @Test
   public void testCreateVersionedFolder() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
@@ -952,9 +1231,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testCreateVersionedFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
 
@@ -970,7 +1255,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         .build(), content, null);
     assertTrue(newFile.isVersioned());
     assertNotNull(newFile.getVersionId());
-    final String filePath = ServerRepositoryPaths.getUserHomeFolderPath() + RepositoryFile.SEPARATOR + fileName;
+    final String filePath = ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY) + RepositoryFile.SEPARATOR + fileName;
     int versionCount = SimpleJcrTestUtils.getVersionCount(testJcrTemplate, filePath);
     assertTrue(versionCount > 0);
     repo.updateFile(newFile, content, null);
@@ -985,9 +1270,16 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testLockFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     final String dataString = "Hello World!";
@@ -1022,14 +1314,14 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     assertEquals(2, repo.getVersionSummaries(newFile.getId()).size());
 
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     RepositoryFile lockedFile = repo.getFile(clientPath);
     assertTrue(lockedFile.isLocked());
     assertNotNull(lockedFile.getLockDate());
     assertEquals(lockMessage, lockedFile.getLockMessage());
-    assertEquals(USERNAME_SUZY, lockedFile.getLockOwner());
+    assertEquals(tenantedUserNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), lockedFile.getLockOwner());
 
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     assertTrue(repo.canUnlockFile(newFile.getId()));
     repo.unlockFile(newFile.getId());
 
@@ -1042,7 +1334,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNull(unlockedFile.getLockOwner());
 
     // make sure lock token node has been removed
-    assertNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath()
+    assertNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY)
         + "/.lockTokens/" + newFile.getId()));
 
     // lock it again by suzy
@@ -1051,7 +1343,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(2, repo.getVersionSummaries(newFile.getId()).size());
 
     // login as tenant admin; make sure we can unlock
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     assertTrue(repo.canUnlockFile(newFile.getId()));
     repo.unlockFile(newFile.getId());
 
@@ -1060,81 +1352,87 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     RepositoryFile unlockedFile2 = repo.getFile(clientPath);
     assertFalse(unlockedFile2.isLocked());
 
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     // lock it again by suzy
     repo.lockFile(newFile.getId(), lockMessage);
 
     assertEquals(2, repo.getVersionSummaries(newFile.getId()).size());
 
     // login as another tenant member; make sure we cannot unlock
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     assertFalse(repo.canUnlockFile(newFile.getId()));
     try {
       repo.unlockFile(newFile.getId());
       fail();
     } catch (UnifiedRepositoryException e) {
     }
-    
+
     try {
       repo.updateFile(repo.getFileById(newFile.getId()), content, "update by tiffany");
       fail();
     } catch (UnifiedRepositoryException e) {
     }
-
   }
 
   @Test
   public void testUndeleteFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
 
     Date testBegin = new Date();
 
     Thread.sleep(1000);
 
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     final String fileName = "helloworld.sample";
     RepositoryFile newFile = createSampleFile(parentFolderPath, fileName, "dfdfd", true, 3, true);
 
-    List<RepositoryFile> deletedFiles = repo.getDeletedFiles(); 
+    List<RepositoryFile> deletedFiles = repo.getDeletedFiles();
     assertEquals(0, deletedFiles.size());
     repo.deleteFile(newFile.getId(), null);
 
-    deletedFiles = repo.getDeletedFiles(); 
+    deletedFiles = repo.getDeletedFiles();
     assertEquals(1, deletedFiles.size());
-    
+
     deletedFiles = repo.getDeletedFiles(parentFolder.getPath());
     assertEquals(1, deletedFiles.size());
     assertTrue(testBegin.before(deletedFiles.get(0).getDeletedDate()));
     assertEquals(parentFolder.getPath(), deletedFiles.get(0).getOriginalParentFolderPath());
     assertEquals(newFile.getId(), deletedFiles.get(0).getId());
-    
+
     deletedFiles = repo.getDeletedFiles(parentFolder.getPath(), "*.sample");
     assertEquals(1, deletedFiles.size());
     assertTrue(testBegin.before(deletedFiles.get(0).getDeletedDate()));
     assertEquals(parentFolder.getPath(), deletedFiles.get(0).getOriginalParentFolderPath());
-    
+
     deletedFiles = repo.getDeletedFiles(parentFolder.getPath(), "*.doesnotexist");
     assertEquals(0, deletedFiles.size());
-    
+
     deletedFiles = repo.getDeletedFiles();
     assertEquals(1, deletedFiles.size());
     assertEquals(parentFolder.getPath(), deletedFiles.get(0).getOriginalParentFolderPath());
     assertTrue(testBegin.before(deletedFiles.get(0).getDeletedDate()));
     assertEquals(newFile, deletedFiles.get(0));
 
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     // tiffany shouldn't see suzy's deleted file
     assertEquals(0, repo.getDeletedFiles(parentFolder.getPath()).size());
     assertEquals(0, repo.getDeletedFiles().size());
 
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     repo.undeleteFile(newFile.getId(), null);
     assertEquals(0, repo.getDeletedFiles(parentFolder.getPath()).size());
     assertEquals(0, repo.getDeletedFiles().size());
-    
+
     newFile = repo.getFileById(newFile.getId());
     // next two fields only populated when going through the delete-related API calls
     assertNull(newFile.getDeletedDate());
@@ -1147,24 +1445,26 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       fail();
     } catch (UnifiedRepositoryException e) {
     }
-    
+
     // test preservation of original path even if that path no longer exists
     RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
-    RepositoryFile test1Folder = repo.createFolder(publicFolder.getId(), new RepositoryFile.Builder("test1").folder(true).build(), null);
+    RepositoryFile test1Folder = repo.createFolder(publicFolder.getId(), new RepositoryFile.Builder("test1").folder(
+        true).build(), null);
     newFile = createSampleFile(test1Folder.getPath(), fileName, "dfdfd", true, 3);
     repo.deleteFile(newFile.getId(), null);
     assertNull(repo.getFile("/public/test1/helloworld.sample"));
     // rename original parent folder
-    repo.moveFile(test1Folder.getId(), ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "test2", null);
+    repo.moveFile(test1Folder.getId(),
+        ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "test2", null);
     assertNull(repo.getFile(test1Folder.getPath()));
     repo.undeleteFile(newFile.getId(), null);
     assertNotNull(repo.getFile("/public/test1/helloworld.sample"));
     assertNull(repo.getFile("/public/test2/helloworld.sample")); // repo should create any missing folders on undelete
     assertEquals("/public/test1/helloworld.sample", repo.getFileById(newFile.getId()).getPath());
-    
+
     // test versioned parent folder
-    RepositoryFile test5Folder = repo.createFolder(publicFolder.getId(), new RepositoryFile.Builder("test5").
-        folder(true).versioned(true).build(), null);
+    RepositoryFile test5Folder = repo.createFolder(publicFolder.getId(), new RepositoryFile.Builder("test5").folder(
+        true).versioned(true).build(), null);
     int versionCountBefore = repo.getVersionSummaries(test5Folder.getId()).size();
     RepositoryFile newFile5 = createSampleFile(test5Folder.getPath(), fileName, "dfdfd", true, 3);
     repo.deleteFile(newFile5.getId(), null);
@@ -1176,12 +1476,12 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // test permanent delete without undelete
     RepositoryFile newFile6 = createSampleFile(ClientRepositoryPaths.getPublicFolderPath(), fileName, "dfdfd", true, 3);
     repo.deleteFile(newFile6.getId(), true, null);
-    
+
     // test undelete where path to restored file already exists
     RepositoryFile newFile7 = createSampleFile(ClientRepositoryPaths.getPublicFolderPath(), fileName, "dfdfd", true, 3);
     repo.deleteFile(newFile7.getId(), null);
     createSampleFile(ClientRepositoryPaths.getPublicFolderPath(), fileName, "dfdfd", true, 3);
-    
+
     try {
       repo.undeleteFile(newFile7.getId(), null);
       fail();
@@ -1189,33 +1489,37 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       e.printStackTrace();
     }
   }
-  
+
   /**
    * Tests that files in legacy trash structure are still found.
    */
   @Test
   public void testUndeleteFileLegacy() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     final String fileName = "helloworld.sample";
     RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
-    RepositoryFile test3Folder = repo.createFolder(publicFolder.getId(), new RepositoryFile.Builder("test3").
-        folder(true).build(), null);
-    
+    RepositoryFile test3Folder = repo.createFolder(publicFolder.getId(), new RepositoryFile.Builder("test3").folder(
+        true).build(), null);
+
     // simulate file(s) in legacy trash structure
     final String suzyHomePath = "/pentaho/acme/home/suzy";
-    SimpleJcrTestUtils.addNode(testJcrTemplate, suzyHomePath, ".trash", 
-    "pho_nt:pentahoInternalFolder");
+    SimpleJcrTestUtils.addNode(testJcrTemplate, suzyHomePath, ".trash", "pho_nt:pentahoInternalFolder");
     final String suzyTrashPath = suzyHomePath + "/.trash";
-    SimpleJcrTestUtils.addNode(testJcrTemplate, suzyTrashPath, "pho:" + test3Folder.getId(), 
+    SimpleJcrTestUtils.addNode(testJcrTemplate, suzyTrashPath, "pho:" + test3Folder.getId(),
         "pho_nt:pentahoInternalFolder");
     final String suzyTrashFolderIdPath = suzyTrashPath + "/pho:" + test3Folder.getId();
     assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, suzyTrashFolderIdPath));
     RepositoryFile newFile3 = createSampleFile(test3Folder.getPath(), fileName, "dfdfd", true, 3, true);
-    SimpleJcrTestUtils.addNode(testJcrTemplate, suzyTrashFolderIdPath, "pho:" + newFile3.getId(), 
-    "pho_nt:pentahoInternalFolder");
+    SimpleJcrTestUtils.addNode(testJcrTemplate, suzyTrashFolderIdPath, "pho:" + newFile3.getId(),
+        "pho_nt:pentahoInternalFolder");
     final String suzyTrashFileIdPath = suzyTrashFolderIdPath + "/pho:" + newFile3.getId();
     assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, suzyTrashFileIdPath));
     String absTrashPath = suzyTrashFileIdPath + "/helloworld.sample";
@@ -1223,7 +1527,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, absTrashPath));
     Date expectedDate = new Date();
     SimpleJcrTestUtils.setDate(testJcrTemplate, suzyTrashFileIdPath + "/pho:deletedDate", expectedDate);
-    
+
     List<RepositoryFile> deletedFiles = repo.getDeletedFiles(test3Folder.getPath());
     assertEquals(1, deletedFiles.size());
     assertEquals(expectedDate, deletedFiles.get(0).getDeletedDate());
@@ -1236,16 +1540,16 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     deletedFiles = repo.getDeletedFiles(test3Folder.getPath(), "*.doesnotexist");
     assertEquals(0, deletedFiles.size());
-    
+
     deletedFiles = repo.getDeletedFiles();
     assertEquals(1, deletedFiles.size());
     assertEquals(expectedDate, deletedFiles.get(0).getDeletedDate());
     assertEquals(test3Folder.getPath(), deletedFiles.get(0).getOriginalParentFolderPath());
-    
+
     repo.undeleteFile(newFile3.getId(), null);
     assertNull(SimpleJcrTestUtils.getItem(testJcrTemplate, suzyTrashFileIdPath));
     assertNotNull(repo.getFile(newFile3.getPath()));
-    
+
     repo.deleteFile(newFile3.getId(), true, null);
     try {
       repo.getFileById(newFile3.getId());
@@ -1260,10 +1564,14 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
    */
   @Test
   public void testWeird1() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).build();
@@ -1287,14 +1595,19 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     assertNotNull(repo.getFile(testFolder2.getPath()));
     assertNull(repo.getFile(newFile.getPath()));
-
   }
 
   @Test
   public void testDeleteLockedFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     final String dataString = "Hello World!";
@@ -1314,23 +1627,28 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     repo.deleteFile(newFile.getId(), null);
     // lock only removed when file is permanently deleted
-    assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath()
+    assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY)
         + "/.lockTokens/" + newFile.getId()));
     repo.undeleteFile(newFile.getId(), null);
     repo.deleteFile(newFile.getId(), null);
     repo.deleteFile(newFile.getId(), true, null);
 
     // make sure lock token node has been removed
-    assertNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath()
+    assertNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY)
         + "/.lockTokens/" + newFile.getId()));
   }
 
   @Test
   public void testDeleteFileAtVersion() throws Exception {
     // Startup and login to repository
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     // Create a simple file
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
@@ -1388,9 +1706,14 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   @Test
   public void testRestoreFileAtVersion() throws Exception {
     // Startup and login to repository
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     // Create a simple file
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
@@ -1446,9 +1769,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testGetVersionSummaries() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     final String dataString = "Hello World!";
@@ -1469,30 +1798,42 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull(versionSummaries);
     assertTrue(versionSummaries.size() >= 3);
     assertEquals("update 3", versionSummaries.get(versionSummaries.size() - 1).getMessage());
-    assertEquals(USERNAME_SUZY, versionSummaries.get(0).getAuthor());
+    assertEquals(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), versionSummaries.get(0).getAuthor());
     System.out.println(versionSummaries);
     System.out.println(versionSummaries.size());
   }
 
   @Test
   public void testCircumventApiToGetVersionHistoryNodeAccessDenied() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
-    final String absPath = ServerRepositoryPaths.getUserHomeFolderPath() + RepositoryFile.SEPARATOR + "test";
+    final String absPath = ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY) + RepositoryFile.SEPARATOR + "test";
     String versionHistoryAbsPath = SimpleJcrTestUtils.getVersionHistoryNodePath(testJcrTemplate, absPath);
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     assertNull(SimpleJcrTestUtils.getItem(testJcrTemplate, versionHistoryAbsPath));
   }
 
   @Test
   public void testGetVersionSummary() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
     final String fileName = "helloworld.sample";
@@ -1507,7 +1848,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     VersionSummary v1 = repo.getVersionSummary(newFile.getId(), newFile.getVersionId());
     assertNotNull(v1);
-    assertEquals(USERNAME_SUZY, v1.getAuthor());
+    assertEquals(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), v1.getAuthor());
     assertEquals(new Date().getDate(), v1.getDate().getDate());
 
     repo.updateFile(newFile, newContent, null);
@@ -1516,7 +1857,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     VersionSummary v2 = repo.getVersionSummary(newFile.getId(), null);
 
     assertNotNull(v2);
-    assertEquals(USERNAME_SUZY, v2.getAuthor());
+    assertEquals(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), v2.getAuthor());
     assertEquals(new Date().getDate(), v2.getDate().getDate());
     assertFalse(v1.equals(v2));
     List<VersionSummary> sums = repo.getVersionSummaries(newFile.getId());
@@ -1527,9 +1868,14 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testGetFileByVersionSummary() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
     final String fileName = "helloworld.sample";
@@ -1586,54 +1932,73 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testOwnership() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     final String testFolderPath = ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "test";
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
-    assertEquals(new RepositoryFileSid(USERNAME_SUZY), repo.getAcl(newFolder.getId()).getOwner());
+    assertEquals(new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY)), repo.getAcl(
+        newFolder.getId()).getOwner());
 
     // set acl removing suzy's rights to this folder
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     RepositoryFileAcl testFolderAcl = repo.getAcl(repo.getFile(testFolderPath).getId());
     RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(testFolderAcl).entriesInheriting(false).clearAces()
         .build();
     repo.updateAcl(newAcl);
     // but suzy is still the owner--she should be able to "acl" herself back into the folder
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     assertNotNull(repo.getFile(testFolderPath));
-    
+
     // as suzy, change owner to role to which she belongs
     testFolderAcl = repo.getAcl(repo.getFile(testFolderPath).getId());
-    newAcl = new RepositoryFileAcl.Builder(testFolderAcl).owner(new RepositoryFileSid("acme_Authenticated", 
-        RepositoryFileSid.Type.ROLE)).build();
+    newAcl = new RepositoryFileAcl.Builder(testFolderAcl).owner(
+        new RepositoryFileSid(roleNameUtils.getPrincipleId(tenantAcme, "Authenticated"),
+            RepositoryFileSid.Type.ROLE)).build();
     repo.updateAcl(newAcl);
     assertNotNull(repo.getFile(testFolderPath));
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     assertNotNull(repo.getFile(testFolderPath));
   }
 
   @Test
   public void testGetAcl() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+    
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
     RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
     assertEquals(true, acl.isEntriesInheriting());
-    assertEquals(new RepositoryFileSid(USERNAME_SUZY), acl.getOwner());
+    assertEquals(new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY)), acl
+        .getOwner());
     assertEquals(newFolder.getId(), acl.getId());
     assertTrue(acl.getAces().isEmpty());
-    RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).ace(USERNAME_TIFFANY, RepositoryFileSid.Type.USER,
+    RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).ace(
+        userNameUtils.getPrincipleId(tenantAcme, USERNAME_TIFFANY), RepositoryFileSid.Type.USER,
         RepositoryFilePermission.READ).entriesInheriting(true).build();
     RepositoryFileAcl fetchedAcl = repo.updateAcl(newAcl);
     // since isEntriesInheriting is true, ace addition should not have taken
     assertTrue(fetchedAcl.getAces().isEmpty());
-    newAcl = new RepositoryFileAcl.Builder(acl).ace(USERNAME_TIFFANY, RepositoryFileSid.Type.USER,
+    newAcl = new RepositoryFileAcl.Builder(acl).ace(
+        userNameUtils.getPrincipleId(tenantAcme, USERNAME_TIFFANY), RepositoryFileSid.Type.USER,
         RepositoryFilePermission.READ).build(); // calling ace sets entriesInheriting to false
     fetchedAcl = repo.updateAcl(newAcl);
     // since isEntriesInheriting is false, ace addition should have taken
@@ -1642,15 +2007,22 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testGetAcl2() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
     RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
     RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).entriesInheriting(false).ace(
-        new RepositoryFileSid(USERNAME_SUZY), RepositoryFilePermission.ALL).build();
+        new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY)),
+        RepositoryFilePermission.ALL).build();
     repo.updateAcl(newAcl);
     RepositoryFileAcl fetchedAcl = repo.getAcl(newFolder.getId());
     assertEquals(1, fetchedAcl.getAces().size());
@@ -1658,31 +2030,52 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test(expected = UnifiedRepositoryAccessDeniedException.class)
   public void testGetAclAccessDenied() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
     RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
     RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).entriesInheriting(false).ace(
-        new RepositoryFileSid(USERNAME_SUZY), RepositoryFilePermission.ALL).ace(
-        new RepositoryFileSid(USERNAME_TIFFANY), RepositoryFilePermission.READ).build();
+        new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY)),
+        RepositoryFilePermission.ALL).ace(
+        new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_TIFFANY)),
+        RepositoryFilePermission.READ).build();
     repo.updateAcl(newAcl);
-    login(USERNAME_TIFFANY, TENANT_ID_ACME);
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     assertNotNull(repo.getFileById(newFolder.getId())); // tiffany can read file
     repo.getAcl(newFolder.getId()); // but tiffany cannot read acl
   }
 
   @Test
   public void testHasAccess() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    ITenant tenantDuff = tenantManager.createTenant(systemTenant, TENANT_ID_DUFF, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantDuff, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    
+    login(USERNAME_JOE, tenantDuff, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantDuff, USERNAME_PAT, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     assertTrue(repo.hasAccess(ClientRepositoryPaths.getPublicFolderPath(), EnumSet.of(RepositoryFilePermission.READ)));
-    login(USERNAME_PAT, TENANT_ID_DUFF);
+    
+    login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
     assertFalse(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths
-        .getTenantPublicFolderPath(TENANT_ID_ACME), Privilege.JCR_READ));
+        .getTenantPublicFolderPath(tenantAcme), Privilege.JCR_READ));
+    
     // false is returned if path does not exist
     assertFalse(repo.hasAccess(ClientRepositoryPaths.getRootFolderPath() + "doesnotexist", EnumSet
         .of(RepositoryFilePermission.READ)));
@@ -1690,9 +2083,16 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testGetEffectiveAces() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFile acmePublicFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     List<RepositoryFileAce> expectedEffectiveAces1 = repo.getEffectiveAces(acmePublicFolder.getId());
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
@@ -1701,15 +2101,17 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
     RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).entriesInheriting(false).ace(
-        new RepositoryFileSid(USERNAME_SUZY), RepositoryFilePermission.ALL).ace(
-        new RepositoryFileSid(USERNAME_TIFFANY), RepositoryFilePermission.READ).build();
+        new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY)),
+        RepositoryFilePermission.ALL).ace(
+        new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_TIFFANY)),
+        RepositoryFilePermission.READ).build();
     repo.updateAcl(newAcl);
 
     List<RepositoryFileAce> expectedEffectiveAces2 = new ArrayList<RepositoryFileAce>();
-    expectedEffectiveAces2.add(new RepositoryFileAce(new RepositoryFileSid(USERNAME_SUZY), EnumSet
-        .of(RepositoryFilePermission.ALL)));
-    expectedEffectiveAces2.add(new RepositoryFileAce(new RepositoryFileSid(USERNAME_TIFFANY), EnumSet
-        .of(RepositoryFilePermission.READ)));
+    expectedEffectiveAces2.add(new RepositoryFileAce(new RepositoryFileSid(userNameUtils.getPrincipleId(
+        tenantAcme, USERNAME_SUZY)), EnumSet.of(RepositoryFilePermission.ALL)));
+    expectedEffectiveAces2.add(new RepositoryFileAce(new RepositoryFileSid(userNameUtils.getPrincipleId(
+        tenantAcme, USERNAME_TIFFANY)), EnumSet.of(RepositoryFilePermission.READ)));
     assertEquals(expectedEffectiveAces2, repo.getEffectiveAces(newFolder.getId()));
 
     assertEquals(expectedEffectiveAces2, repo.getEffectiveAces(newFolder.getId(), false));
@@ -1719,57 +2121,80 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testUpdateAcl() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
     RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
 
     RepositoryFileAcl.Builder newAclBuilder = new RepositoryFileAcl.Builder(acl);
-    RepositoryFileSid tiffanySid = new RepositoryFileSid(USERNAME_TIFFANY);
+    RepositoryFileSid tiffanySid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme,
+        USERNAME_TIFFANY));
     newAclBuilder.owner(tiffanySid);
     repo.updateAcl(newAclBuilder.build());
     RepositoryFileAcl fetchedAcl = repo.getAcl(newFolder.getId());
-    assertEquals(new RepositoryFileSid(USERNAME_TIFFANY), fetchedAcl.getOwner());
+    assertEquals(new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_TIFFANY)), fetchedAcl
+        .getOwner());
   }
 
   @Test
   public void testCreateFolderWithAcl() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
-    RepositoryFileSid tiffanySid = new RepositoryFileSid(USERNAME_TIFFANY);
-    RepositoryFileSid suzySid = new RepositoryFileSid(USERNAME_SUZY);
+    RepositoryFileSid tiffanySid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme,
+        USERNAME_TIFFANY));
+    RepositoryFileSid suzySid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY));
     // tiffany owns it but suzy is creating it
     RepositoryFileAcl.Builder aclBuilder = new RepositoryFileAcl.Builder(tiffanySid);
     // need this to be able to fetch acl as suzy
     aclBuilder.ace(suzySid, RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL);
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, aclBuilder.build(), null);
     RepositoryFileAcl fetchedAcl = repo.getAcl(newFolder.getId());
-    assertEquals(new RepositoryFileSid(USERNAME_TIFFANY), fetchedAcl.getOwner());
+    assertEquals(new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme, USERNAME_TIFFANY)), fetchedAcl
+        .getOwner());
     assertLocalAceExists(newFolder, suzySid, EnumSet.of(RepositoryFilePermission.READ,
         RepositoryFilePermission.READ_ACL));
   }
 
   @Test
   public void testWriteOnFileToMove() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile srcFolder = new RepositoryFile.Builder("src").folder(true).build();
     RepositoryFile destFolder = new RepositoryFile.Builder("dest").folder(true).build();
     srcFolder = repo.createFolder(parentFolder.getId(), srcFolder, null);
     destFolder = repo.createFolder(parentFolder.getId(), destFolder, null);
-    
+
     RepositoryFile newFile = createSampleFile(srcFolder.getPath(), "helloworld.sample", "ddfdf", false, 83);
-    RepositoryFileAcl acl = new RepositoryFileAcl.Builder(newFile.getId(), USERNAME_TIFFANY, 
-        RepositoryFileSid.Type.USER).entriesInheriting(false).ace(USERNAME_SUZY, RepositoryFileSid.Type.USER, 
-            RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL).build();
+    RepositoryFileAcl acl = new RepositoryFileAcl.Builder(newFile.getId(), userNameUtils.getPrincipleId(
+        tenantAcme, USERNAME_TIFFANY), RepositoryFileSid.Type.USER).entriesInheriting(false).ace(
+        userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), RepositoryFileSid.Type.USER,
+        RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL).build();
     repo.updateAcl(acl);
     // at this point, suzy has write access to src and dest folders but only read access to actual file that will be 
     // moved; this should fail
@@ -1779,25 +2204,39 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     } catch (UnifiedRepositoryAccessDeniedException e) {
     }
   }
-  
+
   /**
    * Tests parent ACL's contribution to decision.
    */
   @Test
   public void testDeleteInheritingFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-    RepositoryFile newFile = createSampleFile(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)).getPath(), "helloworld.sample", "ddfdf", false, 83);
-    RepositoryFileAcl acl = new RepositoryFileAcl.Builder(newFile.getId(), USERNAME_SUZY, RepositoryFileSid.Type.USER).entriesInheriting(false).build();
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
+    RepositoryFile newFile = createSampleFile(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY))
+        .getPath(), "helloworld.sample", "ddfdf", false, 83);
+    RepositoryFileAcl acl = new RepositoryFileAcl.Builder(newFile.getId(), userNameUtils.getPrincipleId(
+        tenantAcme, USERNAME_SUZY), RepositoryFileSid.Type.USER).entriesInheriting(false).build();
     repo.updateAcl(acl);
   }
-  
+
   @Test
   public void testMoveFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile moveTest1Folder = new RepositoryFile.Builder("moveTest1").folder(true).versioned(true).build();
     moveTest1Folder = repo.createFolder(parentFolder.getId(), moveTest1Folder, null);
@@ -1833,68 +2272,94 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     } catch (UnifiedRepositoryException e) {
       // moving a folder to a file is illegal
     }
-
   }
-  
+
   /**
    * Jackrabbit will throw a javax.jcr.ItemExistsException ("colliding with same-named existing node") error.
    */
-  @Test(expected=UnifiedRepositoryException.class)
+  @Test(expected = UnifiedRepositoryException.class)
   public void testCopyFileOverwrite() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile testFile1 = createSimpleFile(parentFolder.getId(), "testfile1");
     RepositoryFile testFile2 = createSimpleFile(parentFolder.getId(), "testfile2");
     repo.copyFile(testFile1.getId(), testFile2.getPath(), null);
   }
-  
+
   /**
    * Jackrabbit will throw a javax.jcr.ItemExistsException ("colliding with same-named existing node") error.
    */
-  @Test(expected=UnifiedRepositoryException.class)
+  @Test(expected = UnifiedRepositoryException.class)
   public void testCopyFolderOverwrite() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
-    RepositoryFile testFolder1 = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testfolder1").folder(true).build(), null);
-    RepositoryFile testFolder1Child = repo.createFolder(testFolder1.getId(), new RepositoryFile.Builder("testfolder1").folder(true).build(), null);
+    RepositoryFile testFolder1 = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testfolder1")
+        .folder(true).build(), null);
+    RepositoryFile testFolder1Child = repo.createFolder(testFolder1.getId(), new RepositoryFile.Builder("testfolder1")
+        .folder(true).build(), null);
     repo.copyFile(testFolder1Child.getId(), parentFolder.getPath(), null);
   }
 
   @Test
   public void testCopyRecursive() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
-    RepositoryFile testFolder1 = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testfolder1").folder(true).build(), null);
+    RepositoryFile testFolder1 = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testfolder1")
+        .folder(true).build(), null);
     RepositoryFile testFile1 = createSimpleFile(testFolder1.getId(), "testfile1");
-    RepositoryFile testFolder2 = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testfolder2").folder(true).build(), null);
+    RepositoryFile testFolder2 = repo.createFolder(parentFolder.getId(), new RepositoryFile.Builder("testfolder2")
+        .folder(true).build(), null);
     RepositoryFile testFile2 = createSimpleFile(testFolder2.getId(), "testfile2");
     repo.copyFile(testFolder1.getId(), testFolder2.getPath(), null);
     assertNotNull(repo.getFile(testFolder2.getPath() + RepositoryFile.SEPARATOR + "testfile2"));
     assertNotNull(repo.getFile(testFolder2.getPath() + RepositoryFile.SEPARATOR + "testfolder1"));
-    assertNotNull(repo.getFile(testFolder2.getPath() + RepositoryFile.SEPARATOR + "testfolder1" + RepositoryFile.SEPARATOR + "testfile1"));
+    assertNotNull(repo.getFile(testFolder2.getPath() + RepositoryFile.SEPARATOR + "testfolder1"
+        + RepositoryFile.SEPARATOR + "testfile1"));
   }
-  
+
   @Test
   public void testCopyFile() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile copyTest1Folder = new RepositoryFile.Builder("copyTest1").folder(true).versioned(true).build();
-    copyTest1Folder = repo.createFolder(parentFolder.getId(), copyTest1Folder, null);
+    RepositoryFileSid fileOwnerSid = new RepositoryFileSid(tenantedUserNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY));
+    copyTest1Folder = repo.createFolder(parentFolder.getId(), copyTest1Folder, new RepositoryFileAcl.Builder(fileOwnerSid).build(), null);
     RepositoryFile copyTest2Folder = new RepositoryFile.Builder("copyTest2").folder(true).versioned(true).build();
-    copyTest2Folder = repo.createFolder(parentFolder.getId(), copyTest2Folder, null);
+    copyTest2Folder = repo.createFolder(parentFolder.getId(), copyTest2Folder, new RepositoryFileAcl.Builder(fileOwnerSid).build(), null);
     RepositoryFile testFolder = new RepositoryFile.Builder("test").folder(true).build();
-    testFolder = repo.createFolder(copyTest1Folder.getId(), testFolder, null);
+    testFolder = repo.createFolder(copyTest1Folder.getId(), testFolder, new RepositoryFileAcl.Builder(fileOwnerSid).build(), null);
     // copy folder into new folder
     repo.copyFile(testFolder.getId(), copyTest2Folder.getPath(), null);
     assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "copyTest1"
@@ -1907,14 +2372,14 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
         + RepositoryFile.SEPARATOR + "test"));
     assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "copyTest2"
         + RepositoryFile.SEPARATOR + "newTest2"));
-    
+
     // copy within same folder
     repo.copyFile(testFolder.getId(), copyTest2Folder.getPath() + RepositoryFile.SEPARATOR + "newTest", null);
     assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "copyTest2"
         + RepositoryFile.SEPARATOR + "test"));
     assertNotNull(repo.getFile(ClientRepositoryPaths.getPublicFolderPath() + RepositoryFile.SEPARATOR + "copyTest2"
         + RepositoryFile.SEPARATOR + "newTest"));
-    
+
     RepositoryFile newFile = createSampleFile(copyTest2Folder.getPath(), "helloworld.sample", "ddfdf", false, 83);
     try {
       repo.copyFile(testFolder.getId(), copyTest2Folder.getPath() + RepositoryFile.SEPARATOR + "doesnotexist"
@@ -1930,14 +2395,22 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     } catch (UnifiedRepositoryException e) {
       // copying a folder to a file is illegal
     }
-
+    JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
+        repositoryAdminUsername, "c:/build/testrepo_17", Mode.CUSTOM);
+    dumpToFile.execute();
   }
 
   @Test
   public void testGetRoot() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFile rootFolder = repo.getFile("/");
     assertNotNull(rootFolder);
     assertEquals("", rootFolder.getName());
@@ -1948,41 +2421,57 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testDeleteSid() throws Exception {
-    TestPrincipalProvider.enableGeorgeAndDuff(true);
-    try {
-      manager.startup();
-      setUpRoleBindings();
-      login(USERNAME_GEORGE, TENANT_ID_DUFF, false);
-      RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
-      RepositoryFile newFile = createSampleFile(parentFolder.getPath(), "hello.xaction", "", false, 2, false);
-      login(USERNAME_PAT, TENANT_ID_DUFF, false);
-      RepositoryFileAcl fetchedAcl = repo.getAcl(newFile.getId());
-      List<RepositoryFileAce> fetchedAces = repo.getEffectiveAces(newFile.getId());
-      RepositoryFileAcl.Builder newAclBuilder = new RepositoryFileAcl.Builder(fetchedAcl);
-      newAclBuilder.entriesInheriting(false).aces(fetchedAces).ace(USERNAME_GEORGE, RepositoryFileSid.Type.USER,
-          RepositoryFilePermission.ALL);
-      repo.updateAcl(newAclBuilder.build());
-      TestPrincipalProvider.enableGeorgeAndDuff(false); // simulate delete of george who is owner and explicitly in ACE
-      RepositoryFile fetchedFile = repo.getFileById(newFile.getId());
-      assertEquals(USERNAME_GEORGE, repo.getAcl(fetchedFile.getId()).getOwner().getName());
-      assertEquals(RepositoryFileSid.Type.USER, repo.getAcl(fetchedFile.getId()).getOwner().getType());
-      RepositoryFileAcl updatedAcl = repo.getAcl(newFile.getId());
-      assertEquals("duff_Authenticated", updatedAcl.getAces().get(0).getSid().getName());
-      // impl just assumes principal was a user; it does not record the sid type at creation
-      assertEquals(RepositoryFileSid.Type.USER, updatedAcl.getAces().get(0).getSid().getType());
-      assertEquals(USERNAME_GEORGE, updatedAcl.getAces().get(1).getSid().getName());
-      assertEquals(RepositoryFileSid.Type.USER, updatedAcl.getAces().get(1).getSid().getType());
-      assertEquals(RepositoryFileSid.Type.USER, updatedAcl.getOwner().getType());
-    } finally {
-      TestPrincipalProvider.enableGeorgeAndDuff(true);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantDuff = tenantManager.createTenant(systemTenant, TENANT_ID_DUFF, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantDuff, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantDuff, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    IPentahoUser userGeorge = userRoleDao.createUser(tenantDuff, USERNAME_GEORGE, "password", "", null);
+    userRoleDao.createUser(tenantDuff, USERNAME_PAT, "password", "", null);
+        
+    login(USERNAME_GEORGE, tenantDuff, new String[]{tenantAuthenticatedRoleName});
+    
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    RepositoryFile newFile = createSampleFile(parentFolder.getPath(), "hello.xaction", "", false, 2, false);
+    login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
+    RepositoryFileAcl fetchedAcl = repo.getAcl(newFile.getId());
+    List<RepositoryFileAce> fetchedAces = repo.getEffectiveAces(newFile.getId());
+    RepositoryFileAcl.Builder newAclBuilder = new RepositoryFileAcl.Builder(fetchedAcl);
+    newAclBuilder.entriesInheriting(false).aces(fetchedAces).ace(
+        userNameUtils.getPrincipleId(tenantDuff, USERNAME_GEORGE), RepositoryFileSid.Type.USER,
+        RepositoryFilePermission.ALL);
+    repo.updateAcl(newAclBuilder.build());
+    
+    
+    userRoleDao.deleteUser(userGeorge);
+
+    //TestPrincipalProvider.enableGeorgeAndDuff(false);  simulate delete of george who is owner and explicitly in ACE
+    RepositoryFile fetchedFile = repo.getFileById(newFile.getId());
+    assertEquals(tenantedUserNameUtils.getPrincipleId(tenantDuff, USERNAME_GEORGE), repo.getAcl(fetchedFile.getId()).getOwner().getName());
+    assertEquals(RepositoryFileSid.Type.USER, repo.getAcl(fetchedFile.getId()).getOwner().getType());
+    
+    RepositoryFileAcl updatedAcl = repo.getAcl(newFile.getId());
+    
+    
+    boolean foundGeorge = false;
+    
+    for (RepositoryFileAce ace : updatedAcl.getAces()) {
+      if (tenantedUserNameUtils.getPrincipleId(tenantDuff, USERNAME_GEORGE).equals(ace.getSid().getName())) {
+        foundGeorge = true;
+      }
     }
+    assertTrue(foundGeorge);
   }
 
   @Test
   public void testAdminCreate() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
     final String expectedName = "helloworld.sample";
     final String sampleString = "Ciao World!";
     final boolean sampleBoolean = true;
@@ -1990,15 +2479,21 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     RepositoryFile newFile = createSampleFile(parentFolderPath, expectedName, sampleString, sampleBoolean,
         sampleInteger);
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     repo.deleteFile(newFile.getId(), null);
   }
 
   @Test
   public void testGetTree() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFileTree root = repo.getTree(ClientRepositoryPaths.getRootFolderPath(), 0, null, true);
     assertNotNull(root.getFile());
     assertNull(root.getChildren());
@@ -2021,10 +2516,16 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testGetTreeWithShowHidden() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
     RepositoryFileTree root = null;
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     RepositoryFile publicFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -2032,25 +2533,30 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     ByteArrayInputStream dataStream = new ByteArrayInputStream(data);
     final String mimeType = "text/plain";
     final SimpleRepositoryFileData content = new SimpleRepositoryFileData(dataStream, encoding, mimeType);
-    RepositoryFile newFile1 = repo.createFile(publicFolder.getId(), new RepositoryFile.Builder("helloworld.xaction").versioned(true)
-        .hidden(true).build(), content, null);
+    RepositoryFile newFile1 = repo.createFile(publicFolder.getId(), new RepositoryFile.Builder("helloworld.xaction")
+        .versioned(true).hidden(true).build(), content, null);
     root = repo.getTree(publicFolder.getPath(), -1, null, true);
     assertFalse(root.getChildren().isEmpty());
     root = repo.getTree(publicFolder.getPath(), -1, null, false);
     assertTrue(root.getChildren().isEmpty());
   }
-  
-  
+
   @Test
   public void testGetDataForReadInBatch_unversioned() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
     
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
+    final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
+
     String sampleString1 = "sampleString1";
     String sampleString2 = "sampleString2";
-    
+
     RepositoryFile newFile1 = createSampleFile(parentFolderPath, "helloworld.sample1", sampleString1, true, 1);
     RepositoryFile newFile2 = createSampleFile(parentFolderPath, "file2", sampleString2, false, 2);
 
@@ -2059,7 +2565,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull(newFile2.getId());
     assertNull(newFile2.getVersionId());
 
-    List<SampleRepositoryFileData> data = repo.getDataForReadInBatch(Arrays.asList(newFile1, newFile2), SampleRepositoryFileData.class);
+    List<SampleRepositoryFileData> data = repo.getDataForReadInBatch(Arrays.asList(newFile1, newFile2),
+        SampleRepositoryFileData.class);
     assertEquals(2, data.size());
     SampleRepositoryFileData d = data.get(0);
     assertEquals(sampleString1, d.getSampleString());
@@ -2069,9 +2576,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testGetDataForReadInBatch_versioned() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
 
     String sampleString1 = "sampleString1";
@@ -2095,7 +2608,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     RepositoryFile lookup1 = new RepositoryFile.Builder(newFile1.getId(), null).build();
     RepositoryFile lookup2 = new RepositoryFile.Builder(newFile2.getId(), null).build();
 
-    List<SampleRepositoryFileData> data = repo.getDataForReadInBatch(Arrays.asList(lookup1, lookup2), SampleRepositoryFileData.class);
+    List<SampleRepositoryFileData> data = repo.getDataForReadInBatch(Arrays.asList(lookup1, lookup2),
+        SampleRepositoryFileData.class);
     assertEquals(2, data.size());
     SampleRepositoryFileData d = data.get(0);
     assertEquals(updatedContent.getSampleString(), d.getSampleString());
@@ -2112,27 +2626,33 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     d = data.get(1);
     assertEquals(sampleString2, d.getSampleString());
   }
-  
+
   @Test
   public void testMetadata() throws Exception {
     String key1 = "myMetadataString";
     String value1 = "wseyler";
-    
+
     String key2 = "myMetadataBoolean";
     Boolean value2 = true;
-    
+
     String key3 = "myMetadataDate";
     Calendar value3 = Calendar.getInstance();
-    
+
     String key4 = "myMetadataDouble";
     Double value4 = 1234.378283293429;
-    
+
     String key5 = "myMetadataLong";
     Long value5 = new Long(12345768);
+
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
     
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
 
     String sampleString1 = "sampleString1";
@@ -2142,10 +2662,10 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     Map<String, Serializable> metadataMap = new HashMap<String, Serializable>();
     metadataMap.put(key1, value1);
     repo.setFileMetadata(newFile1.getId(), metadataMap);
-    Map <String, Serializable> savedMap = repo.getFileMetadata(newFile1.getId());
+    Map<String, Serializable> savedMap = repo.getFileMetadata(newFile1.getId());
     assertTrue(savedMap.containsKey(key1));
     assertEquals(value1, savedMap.get(key1));
-    
+
     metadataMap.put(key2, value2);
     repo.setFileMetadata(newFile1.getId(), metadataMap);
     savedMap = repo.getFileMetadata(newFile1.getId());
@@ -2157,25 +2677,31 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     savedMap = repo.getFileMetadata(newFile1.getId());
     assertTrue(savedMap.containsKey(key3));
     assertEquals(value3.getTime().getTime(), ((Calendar) savedMap.get(key3)).getTime().getTime());
-    
+
     metadataMap.put(key4, value4);
     repo.setFileMetadata(newFile1.getId(), metadataMap);
     savedMap = repo.getFileMetadata(newFile1.getId());
     assertTrue(savedMap.containsKey(key4));
     assertEquals(value4, savedMap.get(key4));
-    
+
     metadataMap.put(key5, value5);
     repo.setFileMetadata(newFile1.getId(), metadataMap);
     savedMap = repo.getFileMetadata(newFile1.getId());
     assertTrue(savedMap.containsKey(key5));
-    assertEquals(value5, savedMap.get(key5));    
+    assertEquals(value5, savedMap.get(key5));
   }
-  
+
   @Test
   public void testFileCreator() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     final String parentFolderPath = ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY);
 
     String sampleString1 = "sampleString1";
@@ -2183,7 +2709,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     RepositoryFile newFile1 = createSampleFile(parentFolderPath, "helloworld.sample1", sampleString1, true, 1, true);
     RepositoryFile newFile2 = createSampleFile(parentFolderPath, "helloworld.sample2", sampleString2, true, 1, true);
-   
+
     RepositoryFile.Builder builder = new RepositoryFile.Builder(newFile1);
     builder.creatorId((String) newFile2.getId());
     final String mimeType = "text/plain";
@@ -2201,9 +2727,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test
   public void testGetVersionSummaryInBatch() throws Exception {
-    manager.startup();
-    setUpRoleBindings();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
     final String parentFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     RepositoryFile parentFolder = repo.getFile(parentFolderPath);
     final String dataString = "Hello World!";
@@ -2214,11 +2746,11 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     final String fileName1 = "helloworld1.xaction";
     final String fileName2 = "helloworld2.xaction";
     final SimpleRepositoryFileData content = new SimpleRepositoryFileData(dataStream, encoding, mimeType);
-    RepositoryFile newFile1 = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(fileName1).versioned(true)
-        .build(), content, "created helloworld.xaction");
+    RepositoryFile newFile1 = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(fileName1).versioned(
+        true).build(), content, "created helloworld.xaction");
     final String createMsg = "created helloworld2.xaction";
-    RepositoryFile newFile2 = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(fileName2).versioned(true)
-        .build(), content, createMsg);
+    RepositoryFile newFile2 = repo.createFile(parentFolder.getId(), new RepositoryFile.Builder(fileName2).versioned(
+        true).build(), content, createMsg);
     final String updateMsg1 = "updating 1";
     newFile1 = repo.updateFile(newFile1, content, updateMsg1);
     // Update file2 but don't save the info.  We'll look up the original revision
@@ -2227,7 +2759,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // Create a new file with just the Id set so we get the latest revision
     RepositoryFile lookup1 = new RepositoryFile.Builder(newFile1.getId(), null).build();
     // Create a new file with the original version id and file id for file #2
-    RepositoryFile lookup2 = new RepositoryFile.Builder(newFile2.getId(), null).versionId(newFile2.getVersionId()).build();
+    RepositoryFile lookup2 = new RepositoryFile.Builder(newFile2.getId(), null).versionId(newFile2.getVersionId())
+        .build();
     List<VersionSummary> versionSummaries = repo.getVersionSummaryInBatch(Arrays.asList(lookup1, lookup2));
     assertNotNull(versionSummaries);
     assertEquals(2, versionSummaries.size());
@@ -2242,134 +2775,191 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(newFile2.getVersionId(), summary.getId());
     assertEquals(createMsg, summary.getMessage());
   }
-  
+
   @Test
   public void testGetReservedChars() throws Exception {
     assertFalse(repo.getReservedChars().isEmpty());
   }
-  
+
   public void testMagicAcesNotCached() throws Exception {
-    manager.startup();
-    login(USERNAME_SUZY, TENANT_ID_ACME); // creates suzy folder
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+    userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
+        
     assertNotNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)));
-    login(USERNAME_JOE, TENANT_ID_ACME); // logging in as joe but as if he was stripped of acme_Admin role
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     assertNull(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)));
   }
-  
+
   @Test(expected = AccessDeniedException.class)
   public void testRoleAuthorizationPolicyAdministerSecurityAccessDenied() throws Exception {
-    manager.startup();
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-    roleBindingDao.setRoleBindings("acme_Authenticated", Arrays.asList(new String[] { LOGICAL_ROLE_READER }));
+    loginAsSysTenantAdmin();
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
+    roleBindingDao.setRoleBindings("Authenticated", Arrays
+        .asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION }));
   }
-  
+
   @Test
   public void testRoleAuthorizationPolicyNoBoundLogicalRoles() throws Exception {
-    manager.startup();
-    login(USERNAME_JOE, TENANT_ID_ACME);
-    assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR }), roleBindingDao.getBoundLogicalRoleNames(Arrays.asList(new String[] { "acme_Authenticated", "acme_ceo" })));
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    
+    assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
+        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION }), roleBindingDao.getBoundLogicalRoleNames(Arrays
+        .asList(new String[] { "Authenticated", "ceo" })));
   }
 
   @Test
   public void testRoleAuthorizationPolicyGetAllowedActions() throws Exception {
-    manager.startup();
-    // login with suzy (in tenant acme)
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    ITenant tenantDuff = tenantManager.createTenant(systemTenant, TENANT_ID_DUFF, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantDuff, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_JOE, tenantDuff, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantDuff, USERNAME_PAT, "password", "", null);
+    
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     // test with null namespace
     List<String> allowedActions = authorizationPolicy.getAllowedActions(null);
 
     assertEquals(2, allowedActions.size());
-    assertTrue(allowedActions.contains(ACTION_READ));
-    assertTrue(allowedActions.contains(ACTION_CREATE));
+    assertTrue(allowedActions.contains(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
+    assertTrue(allowedActions.contains(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
 
     // test with explicit namespace
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_REPOSITORY);
     assertEquals(2, allowedActions.size());
-    assertTrue(allowedActions.contains(ACTION_READ));
-    assertTrue(allowedActions.contains(ACTION_CREATE));
+    assertTrue(allowedActions.contains(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
+    assertTrue(allowedActions.contains(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
 
     // test with bogus namespace
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_DOESNOTEXIST);
     assertEquals(0, allowedActions.size());
 
     // login with pat (in tenant duff); pat is granted "Authenticated" so he is allowed
-    login(USERNAME_PAT, TENANT_ID_DUFF);
+    login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
     allowedActions = authorizationPolicy.getAllowedActions(null);
-    assertTrue(allowedActions.contains(ACTION_READ));
-    assertTrue(allowedActions.contains(ACTION_CREATE));
+    assertTrue(allowedActions.contains(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
+    assertTrue(allowedActions.contains(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
 
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_REPOSITORY);
     assertEquals(2, allowedActions.size());
-    assertTrue(allowedActions.contains(ACTION_READ));
-    assertTrue(allowedActions.contains(ACTION_CREATE));
+    assertTrue(allowedActions.contains(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
+    assertTrue(allowedActions.contains(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_SECURITY);
     assertEquals(1, allowedActions.size());
-    assertTrue(allowedActions.contains(ACTION_ADMINISTER_SECURITY));
+    assertTrue(allowedActions.contains(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION));
 
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_PENTAHO);
     assertEquals(3, allowedActions.size());
   }
-  
+
   @Test
   public void testRoleAuthorizationPolicyTenants() throws Exception {
-    List<String> origLogicalRoles = roleBindingDao.getBoundLogicalRoleNames(Arrays.asList(new String[] {"acme_Authenticated"}));
+    ITenant tenantAcme = null;
+    List<String> origLogicalRoles = null;
     try {
-      manager.startup();
-      // login with suzy (in tenant acme)
-      login(USERNAME_SUZY, TENANT_ID_ACME);
+      login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+      origLogicalRoles = roleBindingDao.getBoundLogicalRoleNames(Arrays.asList(new String[] { "acme_Authenticated" }));
+      tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+      userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+      ITenant tenantDuff = tenantManager.createTenant(systemTenant, TENANT_ID_DUFF, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+      userRoleDao.createUser(tenantDuff, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+      
+      login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+      userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+          
+      login(USERNAME_JOE, tenantDuff, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+      userRoleDao.createUser(tenantDuff, USERNAME_PAT, "password", "", null);
+      assertEquals(3, authorizationPolicy.getAllowedActions(null).size());
+      
+      login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
       assertEquals(2, authorizationPolicy.getAllowedActions(null).size());
 
       // login with joe (in tenant acme)
-      login(USERNAME_JOE, TENANT_ID_ACME, true);
-      roleBindingDao.setRoleBindings(RUNTIME_ROLE_ACME_AUTHENTICATED, Arrays.asList(new String[] { LOGICAL_ROLE_READER,
-          LOGICAL_ROLE_CREATOR, LOGICAL_ROLE_SECURITY_ADMINISTRATOR }));
+      login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+      roleBindingDao.setRoleBindings(tenantAuthenticatedRoleName, Arrays.asList(new String[] {
+          IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION,
+          IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION }));
       assertEquals(3, authorizationPolicy.getAllowedActions(null).size());
-      
+
       // login with pat (in tenant duff)
-      login(USERNAME_PAT, TENANT_ID_DUFF);
+      login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
       assertEquals(2, authorizationPolicy.getAllowedActions(null).size());
 
       // login with suzy again (in tenant acme); expect additional action for suzy
-      login(USERNAME_SUZY, TENANT_ID_ACME);
+      login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
       assertEquals(3, authorizationPolicy.getAllowedActions(null).size());
     } finally {
-      login(USERNAME_JOE, TENANT_ID_ACME, true);
+      login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
       // must do it this way in order to reset the cache
-      roleBindingDao.setRoleBindings(RUNTIME_ROLE_ACME_AUTHENTICATED, origLogicalRoles);
+      roleBindingDao.setRoleBindings(tenantAuthenticatedRoleName, origLogicalRoles);
     }
   }
 
   @Test
   public void testRoleAuthorizationPolicyIsAllowed() throws Exception {
-    manager.startup();
-    // login with user that is allowed to "administer security"
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
-    assertTrue(authorizationPolicy.isAllowed(ACTION_READ));
-    assertTrue(authorizationPolicy.isAllowed(ACTION_CREATE));
-    assertTrue(authorizationPolicy.isAllowed(ACTION_ADMINISTER_SECURITY));
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    ITenant tenantDuff = tenantManager.createTenant(systemTenant, TENANT_ID_DUFF, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantDuff, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_JOE, tenantDuff, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantDuff, USERNAME_PAT, "password", "", null);
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
+    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
+    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION));
 
-    login(USERNAME_SUZY, TENANT_ID_ACME);
-    assertTrue(authorizationPolicy.isAllowed(ACTION_READ));
-    assertTrue(authorizationPolicy.isAllowed(ACTION_CREATE));
-    assertFalse(authorizationPolicy.isAllowed(ACTION_ADMINISTER_SECURITY));
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
+    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
+    assertFalse(authorizationPolicy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION));
 
-    login(USERNAME_PAT, TENANT_ID_DUFF);
-    assertTrue(authorizationPolicy.isAllowed(ACTION_READ));
-    assertTrue(authorizationPolicy.isAllowed(ACTION_CREATE));
-    assertFalse(authorizationPolicy.isAllowed(ACTION_ADMINISTER_SECURITY));
+    login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
+    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
+    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
+    assertFalse(authorizationPolicy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION));
   }
 
   @Test
   public void testRoleAuthorizationPolicyRemoveImmutableBinding() throws Exception {
-    manager.startup();
-    // login with user that is allowed to "administer security"
-    login(USERNAME_JOE, TENANT_ID_ACME, true);
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     try {
-      roleBindingDao.setRoleBindings(RUNTIME_ROLE_ACME_ADMIN, Arrays.asList(new String[] { LOGICAL_ROLE_READER,
-          LOGICAL_ROLE_CREATOR }));
+      roleBindingDao
+          .setRoleBindings(tenantAdminRoleName, Arrays.asList(new String[] {
+              IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
+              IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION }));
       fail();
     } catch (Exception e) {
 
@@ -2378,9 +2968,15 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
   @Test(expected = AccessDeniedException.class)
   public void testRoleAuthorizationPolicyGetRoleBindingStructAccessDenied() throws Exception {
-    manager.startup();
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
     // login with user that is not allowed to "administer security"
-    login(USERNAME_SUZY, TENANT_ID_ACME);
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
   }
 
@@ -2390,35 +2986,40 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
    */
   @Test
   public void testRoleAuthorizationPolicyGetRoleBindingStruct() throws Exception {
-    List<String> origLogicalRoles = roleBindingDao.getBoundLogicalRoleNames(Arrays.asList(new String[] {"acme_Authenticated"}));
-    try {
-      manager.startup();
-      // login with user that is allowed to "administer security"
-      login(USERNAME_JOE, TENANT_ID_ACME, true);
-      RoleBindingStruct struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
-      assertNotNull(struct);
-      assertNotNull(struct.bindingMap);
-      assertEquals(5, struct.bindingMap.size());
-      assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR,
-          LOGICAL_ROLE_SECURITY_ADMINISTRATOR }), struct.bindingMap.get(RUNTIME_ROLE_ACME_ADMIN));
-      assertEquals(Arrays.asList(new String[] { LOGICAL_ROLE_READER, LOGICAL_ROLE_CREATOR }), struct.bindingMap
-          .get(RUNTIME_ROLE_ACME_AUTHENTICATED));
-      roleBindingDao.setRoleBindings("whatever", Arrays.asList(new String[] { "org.pentaho.p1.reader" }));
+    ITenant tenantAcme = null;
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    RoleBindingStruct struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
+    assertNotNull(struct);
+    assertNotNull(struct.bindingMap);
+    assertEquals(3, struct.bindingMap.size());
+    assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
+        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION, IAuthorizationPolicy.CREATE_TENANTS_ACTION}),
+        struct.bindingMap.get(superAdminRoleName));
+    assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
+        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION }),
+        struct.bindingMap.get(tenantAdminRoleName));
+    assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
+        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION }), struct.bindingMap
+        .get(tenantAuthenticatedRoleName));
+    roleBindingDao.setRoleBindings("whatever", Arrays.asList(new String[] { "org.pentaho.p1.reader" }));
 
-      struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
-      assertEquals(6, struct.bindingMap.size());
-      assertEquals(Arrays.asList(new String[] { "org.pentaho.p1.reader" }), struct.bindingMap.get("whatever"));
+    struct = roleBindingDao.getRoleBindingStruct(Locale.getDefault().toString());
+    assertEquals(4, struct.bindingMap.size());
+    assertEquals(Arrays.asList(new String[] { "org.pentaho.p1.reader" }), struct.bindingMap.get("whatever"));
 
-      assertNotNull(struct.logicalRoleNameMap);
-      assertEquals(3, struct.logicalRoleNameMap.size());
-      assertEquals("Create Content", struct.logicalRoleNameMap.get(LOGICAL_ROLE_CREATOR));
-    } finally {
-      login(USERNAME_JOE, TENANT_ID_ACME, true);
-      // must do it this way in order to reset the cache
-      roleBindingDao.setRoleBindings("whatever", origLogicalRoles);
-    }
+    assertNotNull(struct.logicalRoleNameMap);
+    assertEquals(4, struct.logicalRoleNameMap.size());
+    assertEquals("Create Content", struct.logicalRoleNameMap
+        .get(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
+    assertEquals("Manage System", struct.logicalRoleNameMap
+        .get(IAuthorizationPolicy.CREATE_TENANTS_ACTION));
+    
   }
-  
+
   private RepositoryFile createSampleFile(final String parentFolderPath, final String fileName,
       final String sampleString, final boolean sampleBoolean, final int sampleInteger, boolean versioned)
       throws Exception {
@@ -2432,7 +3033,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       final String sampleString, final boolean sampleBoolean, final int sampleInteger) throws Exception {
     return createSampleFile(parentFolderPath, fileName, sampleString, sampleBoolean, sampleInteger, false);
   }
-  
+
   private RepositoryFile createSimpleFile(final Serializable parentFolderId, final String fileName) throws Exception {
     final String dataString = "Hello World!";
     final String encoding = "UTF-8";
@@ -2461,59 +3062,68 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertTrue(acl.getAces().size() == 0);
   }
 
-  private void setUpRoleBindings() {
-  }
-
+  @Override
   public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-    manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");
     SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean("jcrSessionFactory");
     testJcrTemplate = new JcrTemplate(jcrSessionFactory);
     testJcrTemplate.setAllowCreate(true);
     testJcrTemplate.setExposeNativeSession(true);
     repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
-    tenantAuthenticatedAuthorityNamePattern = (String) applicationContext
-        .getBean("tenantAuthenticatedAuthorityNamePattern");
-    tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
-    roleBindingDao = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
-        .getBean("roleAuthorizationPolicyRoleBindingDao");
-    authorizationPolicy = (IAuthorizationPolicy) applicationContext
-        .getBean("authorizationPolicy");
+    superAdminRoleName = (String) applicationContext.getBean("superAdminAuthorityName");
+    sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
+    tenantAuthenticatedRoleName = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
+    tenantAdminRoleName = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrProxy");
+    pathConversionHelper = (IPathConversionHelper) applicationContext.getBean("pathConversionHelper");
+    roleBindingDao = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTxn");
+    roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTarget");
+    authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
     repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
+    userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDao");
+    jcrTransactionTemplate = (TransactionTemplate) applicationContext.getBean("jcrTransactionTemplate");
+    tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedUserNameUtils");
+    testUserRoleDao = userRoleDao;
+    repositoryLifecyleManager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("defaultBackingRepositoryLifecycleManager");
+    TestPrincipalProvider.userRoleDao = testUserRoleDao;
+    TestPrincipalProvider.adminCredentialsStrategy = (CredentialsStrategy) applicationContext.getBean("jcrAdminCredentialsStrategy");
+    TestPrincipalProvider.repository = (Repository)applicationContext.getBean("jcrRepository");
   }
 
-  /**
-   * Logs in with given username.
-   *
-   * @param username username of user
-   * @param tenantId tenant to which this user belongs
-   * @tenantAdmin true to add the tenant admin authority to the user's roles
-   */
-  protected void login(final String username, final String tenantId, final boolean tenantAdmin) {
-    StandaloneSession pentahoSession = new StandaloneSession(username);
-    pentahoSession.setAuthenticated(username);
-    pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenantId);
-    final String password = "password";
+  protected void loginAsSysTenantAdmin() {
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName});
+  }
 
+  protected void login(String userName, ITenant tenant, String[] roles) {
+    StandaloneSession pentahoSession = new StandaloneSession(userNameUtils.getPrincipleId(tenant, userName));
+    pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
+    pentahoSession.setAuthenticated(tenant.getId(), userNameUtils.getPrincipleId(tenant, userName));
+    final String password = "ignored";
+       
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-    authList.add(new GrantedAuthorityImpl(MessageFormat.format(tenantAuthenticatedAuthorityNamePattern, tenantId)));
-    if (tenantAdmin) {
-      authList.add(new GrantedAuthorityImpl(MessageFormat.format(tenantAdminAuthorityNamePattern, tenantId)));
+    authList.add(new GrantedAuthorityImpl(roleNameUtils.getPrincipleId(tenant, tenantAuthenticatedRoleName)));
+    for (String role : roles) {
+      authList.add(new GrantedAuthorityImpl(roleNameUtils.getPrincipleId(tenant, role)));
     }
-    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
-    UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
-    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
+    
+    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);    
+    UserDetails repositoryAdminUserDetails = new User(userNameUtils.getPrincipleId(tenant, userName), password, true, true, true, true, authorities);
+    Authentication repositoryAdminAuthentication = new UsernamePasswordAuthenticationToken(repositoryAdminUserDetails, password, authorities);
     PentahoSessionHolder.setSession(pentahoSession);
     // this line necessary for Spring Security's MethodSecurityInterceptor
-    SecurityContextHolder.getContext().setAuthentication(auth);
-
-    manager.newTenant();
-    manager.newUser();
+    SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
+    
+    repositoryLifecyleManager.newUser(tenant.getId(), userName);
+  }
+  
+  protected void logout() {
+    PentahoSessionHolder.removeSession();
+    SecurityContextHolder.getContext().setAuthentication(null);
   }
 
   protected void loginAsRepositoryAdmin() {
     StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
     pentahoSession.setAuthenticated(repositoryAdminUsername);
-    final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[0];
+    final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[]{new GrantedAuthorityImpl(superAdminRoleName)};
     final String password = "ignored";
     UserDetails repositoryAdminUserDetails = new User(repositoryAdminUsername, password, true, true, true, true,
         repositoryAdminAuthorities);
@@ -2523,14 +3133,4 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
   }
-
-  protected void logout() {
-    PentahoSessionHolder.removeSession();
-    SecurityContextHolder.getContext().setAuthentication(null);
-  }
-
-  protected void login(final String username, final String tenantId) {
-    login(username, tenantId, false);
-  }
-
 }

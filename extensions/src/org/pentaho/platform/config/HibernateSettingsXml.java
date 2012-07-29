@@ -23,8 +23,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.pentaho.platform.config.messages.Messages;
 import org.pentaho.platform.api.util.XmlParseException;
-import org.pentaho.platform.engine.security.userroledao.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 public class HibernateSettingsXml implements IHibernateSettings{

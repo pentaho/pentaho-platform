@@ -116,7 +116,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    */
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
                                    final IRepositoryFileData data, final String versionMessage) {
-    return createFile(parentFolderId, file, data, repositoryFileAclDao.createDefaultAcl(), versionMessage);
+    return createFile(parentFolderId, file, data, null, versionMessage);
   }
 
   /**
@@ -124,7 +124,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    */
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
                                      final String versionMessage) {
-    return createFolder(parentFolderId, file, repositoryFileAclDao.createDefaultAcl(), versionMessage);
+    return createFolder(parentFolderId, file, null, versionMessage);
   }
 
   /**
@@ -135,7 +135,6 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
     Assert.notNull(data);
-    Assert.notNull(acl);
     // external callers never allowed to create files at repo root
     Assert.notNull(parentFolderId);
     return internalCreateFile(parentFolderId, file, data, acl, versionMessage);
@@ -147,7 +146,6 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
                                      final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
-    Assert.notNull(acl);
     Assert.isTrue(file.isFolder());
     // external callers never allowed to create folders at repo root
     Assert.notNull(parentFolderId);
@@ -421,14 +419,12 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
                                             final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.notNull(data);
-    Assert.notNull(acl);
     return repositoryFileDao.createFile(parentFolderId, file, data, acl, versionMessage);
   }
 
   private RepositoryFile internalCreateFolder(final Serializable parentFolderId, final RepositoryFile file,
                                               final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
-    Assert.notNull(acl);
     return repositoryFileDao.createFolder(parentFolderId, file, acl, versionMessage);
   }
 

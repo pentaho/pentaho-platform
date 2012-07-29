@@ -43,9 +43,14 @@ public class BackingRepositoryLifecycleManagerSystemListener implements IPentaho
 
   // ~ Methods =========================================================================================================
 
+  @Override
   public boolean startup(IPentahoSession session) {
     try {
-      PentahoSystem.get(IBackingRepositoryLifecycleManager.class).startup();
+      IBackingRepositoryLifecycleManager lcm = PentahoSystem.get(IBackingRepositoryLifecycleManager.class);
+      if(lcm != null) {
+        lcm.startup();        
+      }
+
       return true;
     } catch (Exception e) {
       logger.error("", e); //$NON-NLS-1$
@@ -53,6 +58,7 @@ public class BackingRepositoryLifecycleManagerSystemListener implements IPentaho
     }
   }
 
+  @Override
   public void shutdown() {
 
   }

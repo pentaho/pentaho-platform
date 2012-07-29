@@ -47,9 +47,4 @@ public class FileSystemFileAclDao implements IRepositoryFileAclDao{
     return null;
   }
 
-  public RepositoryFileAcl createDefaultAcl() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
 }

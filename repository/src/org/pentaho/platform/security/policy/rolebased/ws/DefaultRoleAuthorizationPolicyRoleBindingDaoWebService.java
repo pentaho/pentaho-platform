@@ -15,8 +15,10 @@
 package org.pentaho.platform.security.policy.rolebased.ws;
 
 import java.util.List;
+
 import javax.jws.WebService;
 
+import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
@@ -59,15 +61,33 @@ public class DefaultRoleAuthorizationPolicyRoleBindingDaoWebService implements
 
   // ~ Methods =========================================================================================================
 
+  @Override
   public RoleBindingStruct getRoleBindingStruct(final String locale) {
     return roleBindingDao.getRoleBindingStruct(locale);
   }
 
+  @Override
   public List<String> getBoundLogicalRoleNames(final List<String> runtimeRoleNames) {
     return roleBindingDao.getBoundLogicalRoleNames(runtimeRoleNames);
   }
 
+  @Override
   public void setRoleBindings(final String runtimeRoleName, final List<String> logicalRolesNames) {
     roleBindingDao.setRoleBindings(runtimeRoleName, logicalRolesNames);
+  }
+
+  @Override
+  public List<String> getBoundLogicalRoleNamesForTenant(Tenant tenant, List<String> runtimeRoleNames) {
+    return roleBindingDao.getBoundLogicalRoleNames(tenant, runtimeRoleNames);
+  }
+
+  @Override
+  public RoleBindingStruct getRoleBindingStructForTenant(Tenant tenant, String locale) {
+    return roleBindingDao.getRoleBindingStruct(tenant, locale);
+  }
+
+  @Override
+  public void setRoleBindingsForTenant(Tenant tenant, String runtimeRoleName, List<String> logicalRolesNames) {
+    roleBindingDao.setRoleBindings(tenant, runtimeRoleName, logicalRolesNames);
   }
 }

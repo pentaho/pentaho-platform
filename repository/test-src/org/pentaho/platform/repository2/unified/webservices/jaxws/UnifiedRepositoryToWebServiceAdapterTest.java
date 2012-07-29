@@ -18,42 +18,290 @@
  */
 package org.pentaho.platform.repository2.unified.webservices.jaxws;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.jcr.Repository;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantManager;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
-
-import junit.framework.TestCase;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
+import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
+import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.extensions.jcr.JcrTemplate;
+import org.springframework.extensions.jcr.SessionFactory;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Class Description
  *
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class UnifiedRepositoryToWebServiceAdapterTest extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/repository.spring.xml",
+    "classpath:/repository-test-override.spring.xml" })
+@SuppressWarnings("nls")
+public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationContextAware {
   private UnifiedRepositoryToWebServiceAdapter adapter;
-  private IUnifiedRepositoryJaxwsWebService repositoryWS;
+  private String tenantAdminAuthorityNamePattern;
+  private String tenantAuthenticatedAuthorityNamePattern;
+  private String sysAdminAuthorityName;
   private IUnifiedRepository repository;
-
-  @Override
-  protected void setUp() throws Exception {
-    repository = new MockUnifiedRepository(new MockUserProvider());
-    repositoryWS = new DefaultUnifiedRepositoryJaxwsWebService(repository);
-    adapter = new UnifiedRepositoryToWebServiceAdapter(repositoryWS);
+  private IUnifiedRepositoryJaxwsWebService repositoryWS;
+  private ITenantManager tenantManager;
+  private ITenantManager tenantMgrTxn;
+  private String repositoryAdminUsername;
+  private JcrTemplate testJcrTemplate;
+  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
+  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
+  private ITenantedPrincipleNameResolver userNameUtils = new DefaultTenantedPrincipleNameResolver();
+  private ITenantedPrincipleNameResolver roleNameUtils = new DefaultTenantedPrincipleNameResolver();
+  private String sysAdminRoleName;
+  private String tenantAdminRoleName;
+  private String tenantAuthenticatedRoleName;
+  private String sysAdminUserName;
+  private IPathConversionHelper pathConversionHelper;
+  IUserRoleDao userRoleDao;
+  private IBackingRepositoryLifecycleManager manager;
+  private IAuthorizationPolicy authorizationPolicy;
+  private MicroPlatform mp;
+  private IRepositoryFileDao repositoryFileDao;
+  private IUnifiedRepository repo;
+  private ITenantedPrincipleNameResolver tenantedUserNameUtils;
+  private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
+  private IRoleAuthorizationPolicyRoleBindingDao roleAuthorizationPolicyRoleBindingDao;
+  private static TransactionTemplate jcrTransactionTemplate;
+  private boolean startupCalled;
+  public static final String MAIN_TENANT_1 = "maintenant1";  
+  public ITenant systemTenant;
+  
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    // folder cannot be deleted at teardown shutdown hooks have not yet necessarily completed
+    // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
+    FileUtils.deleteDirectory(new File("/tmp/jackrabbit-test-TRUNK"));
+    PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
   }
 
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL);
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    repositoryWS = new DefaultUnifiedRepositoryJaxwsWebService(repository);
+    adapter = new UnifiedRepositoryToWebServiceAdapter(repositoryWS);
+    loginAsRepositoryAdmin();
+    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
+    mp = new MicroPlatform();
+    // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
+    mp.defineInstance(ITenantManager.class, tenantManager);
+    mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
+
+    // Start the micro-platform
+    mp.start();
+    systemTenant = tenantMgrTxn.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    logout();
+
+  }
+  
+  private void cleanupUserAndRoles(String userName, ITenant systemTenant, ITenant tenant) {
+    login(userName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    for (IPentahoRole role : userRoleDao.getRoles(tenant)) {
+      userRoleDao.deleteRole(role);
+    }
+    for (IPentahoUser user : userRoleDao.getUsers(tenant)) {
+      userRoleDao.deleteUser(user);
+    }
+    logout();
+  }
+  
+  /* private void deleteUserRoleAndTenant(ITenant parentTenant, List<ITenant> tenants) {
+    try {
+      if(tenants != null && tenants.size() > 0) {
+        for(ITenant tenant: tenants) {
+          login("joe", tenant, true);
+          for(IPentahoRole role:userRoleDao.getRoles())  {
+            userRoleDao.deleteRole(role);
+          }
+          for(IPentahoUser user:userRoleDao.getUsers())  {
+            userRoleDao.deleteUser(user);
+          }
+          deleteUserRoleAndTenant(tenant, tenantManager.getChildTenants(tenant));
+          logout();
+        }
+      } else {
+        tenantManager.deleteTenant(parentTenant);
+      }
+    } catch (Throwable e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } //$NON-NLS-1$ //$NON-NLS-2$
+  }*/
+  @After
+  public void tearDown() throws Exception {
+    // Deleting all user and roles and tenant
+    // null out fields to get back memory
+    authorizationPolicy = null;
+    loginAsRepositoryAdmin();
+    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
+    logout();
+    repositoryAdminUsername = null;
+    sysAdminAuthorityName = null;
+    sysAdminUserName = null;
+    tenantAdminAuthorityNamePattern = null;
+    tenantAuthenticatedAuthorityNamePattern = null;
+    authorizationPolicy = null;
+    testJcrTemplate = null;
+    if (startupCalled) {
+      manager.shutdown();
+    }
+
+    // null out fields to get back memory
+    repo = null;
+    tenantManager = null;
+    
+  }
+
+  protected void loginAsRepositoryAdmin() {
+    StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
+    pentahoSession.setAuthenticated(repositoryAdminUsername);
+    final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[]{new GrantedAuthorityImpl(sysAdminAuthorityName)};
+    final String password = "ignored";
+    UserDetails repositoryAdminUserDetails = new User(repositoryAdminUsername, password, true, true, true, true,
+        repositoryAdminAuthorities);
+    Authentication repositoryAdminAuthentication = new UsernamePasswordAuthenticationToken(repositoryAdminUserDetails,
+        password, repositoryAdminAuthorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
+  }
+
+  protected void logout() {
+    PentahoSessionHolder.removeSession();
+    SecurityContextHolder.getContext().setAuthentication(null);
+  }
+
+  /**
+   * Logs in with given username.
+   *
+   * @param username username of user
+   * @param tenantId tenant to which this user belongs
+   * @tenantAdmin true to add the tenant admin authority to the user's roles
+   */
+  protected void login(final String username, final ITenant tenant, String[] roles) {
+    StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
+    pentahoSession.setAuthenticated(tenant.getId(), tenantedUserNameUtils.getPrincipleId(tenant, username));
+    PentahoSessionHolder.setSession(pentahoSession);
+    pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
+    final String password = "password";
+
+    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
+
+    for (String roleName : roles) {
+      authList.add(new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, roleName)));
+    }
+    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
+    UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
+    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(auth);
+  }
+
+
+  @Override
+  public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
+    manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");
+    SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean("jcrSessionFactory");
+    testJcrTemplate = new JcrTemplate(jcrSessionFactory);
+    testJcrTemplate.setAllowCreate(true);
+    testJcrTemplate.setExposeNativeSession(true);
+    repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
+    tenantAuthenticatedAuthorityNamePattern = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
+    tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    sysAdminAuthorityName = (String) applicationContext.getBean("superAdminAuthorityName");
+    sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
+    authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
+    roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTarget");
+    tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrProxy");
+    tenantMgrTxn = (ITenantManager) applicationContext.getBean("tenantMgrTxn");
+    
+    userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDao");
+    pathConversionHelper = (IPathConversionHelper) applicationContext.getBean("pathConversionHelper");
+    roleBindingDao = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDao");
+    roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTarget");
+    authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
+    repository = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
+    tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedUserNameUtils");
+    tenantedRoleNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedRoleNameUtils");
+    jcrTransactionTemplate = (TransactionTemplate) applicationContext.getBean("jcrTransactionTemplate");
+    TestPrincipalProvider.userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDao");
+    TestPrincipalProvider.adminCredentialsStrategy = (CredentialsStrategy) applicationContext.getBean("jcrAdminCredentialsStrategy");
+    TestPrincipalProvider.repository = (Repository)applicationContext.getBean("jcrRepository");
+  }
+  
   @Test
   public void testFileMetadata() throws Exception {
-    final RepositoryFile testfile = repository.createFile(repository.getFile("/etc").getId(),
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    RepositoryFile file = repository.getFile(ClientRepositoryPaths.getPublicFolderPath());
+    final RepositoryFile testfile = repository.createFile(file.getId(),
         new RepositoryFile.Builder("testfile").build(),
         new SimpleRepositoryFileData(new ByteArrayInputStream("test".getBytes()), "UTF-8", "text/plain"), null);
 
@@ -90,20 +338,10 @@ public class UnifiedRepositoryToWebServiceAdapterTest extends TestCase {
       assertTrue(StringUtils.equals("\"an even more 'complex' value\"! {and them some}",
           (String) fileMetadata.get("complex key?")));
     }
+       
+    cleanupUserAndRoles(sysAdminUserName, systemTenant, mainTenant_1);
+    cleanupUserAndRoles(sysAdminUserName, systemTenant, systemTenant);
+    
   }
 
-  /**
-   * Mock user provider for the mock repository
-   */
-  private class MockUserProvider implements MockUnifiedRepository.ICurrentUserProvider {
-    @Override
-    public String getUser() {
-      return MockUnifiedRepository.root().getName();
-    }
-
-    @Override
-    public List<String> getRoles() {
-      return new ArrayList<String>();
-    }
-  }
 }

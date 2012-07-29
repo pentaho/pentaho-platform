@@ -16,9 +16,11 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 
 public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
 
@@ -254,6 +256,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
           "DatasourceMgmtService.ERROR_0003_UNABLE_TO_UPDATE_DATASOURCE", databaseConnection.getName(), ure.getLocalizedMessage()), ure ); //$NON-NLS-1$
     }
   }
+
   private String getDatabaseParentFolderPath() {
     return ClientRepositoryPaths.getEtcFolderPath() + RepositoryFile.SEPARATOR + FOLDER_PDI + RepositoryFile.SEPARATOR
         + FOLDER_DATABASES;

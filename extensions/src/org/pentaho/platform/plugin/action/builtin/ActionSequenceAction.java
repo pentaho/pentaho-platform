@@ -90,7 +90,8 @@ public class ActionSequenceAction implements IStreamProcessingAction, IStreaming
   }
 
   public void setVarArgs(Map<String, Object> arg0) {
-    xActionInputParams = arg0;
+    xActionInputParams.clear();
+    xActionInputParams.putAll(arg0);
   }
 
 }

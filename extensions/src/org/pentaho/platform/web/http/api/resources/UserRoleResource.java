@@ -4,8 +4,10 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.Consumes;
@@ -19,32 +21,34 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.engine.security.userroledao.IPentahoUser;
-import org.pentaho.platform.engine.security.userroledao.IUserRoleDao;
-import org.pentaho.platform.engine.security.userroledao.PentahoRole;
-import org.pentaho.platform.engine.security.userroledao.PentahoUser;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
-import org.springframework.security.providers.encoding.PasswordEncoder;
 
 @Path("/userrole/")
 public class UserRoleResource extends AbstractJaxRSResource {
 
 	private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = null;
+	private ITenantManager tenantManager = null;
 
 
   public UserRoleResource() {
-    this(PentahoSystem.get(IRoleAuthorizationPolicyRoleBindingDao.class));
+    this(PentahoSystem.get(IRoleAuthorizationPolicyRoleBindingDao.class), PentahoSystem.get(ITenantManager.class));
   }
 
-  public UserRoleResource(final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao) {
+  public UserRoleResource(final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao, final ITenantManager tenantMgr) {
     if (roleBindingDao == null) {
       throw new IllegalArgumentException();
     }
     this.roleBindingDao = roleBindingDao;
+    tenantManager = tenantMgr;
   }
 
   @GET
@@ -113,156 +117,132 @@ public class UserRoleResource extends AbstractJaxRSResource {
 	@PUT
 	@Path("/assignRoleToUser")
 	@Consumes({ WILDCARD })
-	public Response assignRoleToUser(@QueryParam("userName") String userName, @QueryParam("roleNames") String roleNames) {
+	public Response assignRoleToUser(@QueryParam("tenant") String tenantPath, @QueryParam("userName") String userName, @QueryParam("roleNames") String roleNames) {
 
 		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
 		StringTokenizer tokenizer = new StringTokenizer(roleNames, "|");
-		IPentahoUser user = roleDao.getUser(userName);
-		while (tokenizer.hasMoreTokens()) {
-			IPentahoRole role = roleDao.getRole(tokenizer.nextToken());
-			if (role != null) {
-				user.addRole(role);
-				roleDao.updateUser(user);
-			}
+		Set<String>assignedRoles = new HashSet<String>();
+		for (IPentahoRole pentahoRole : roleDao.getUserRoles(getTenant(tenantPath), userName)) {
+		  assignedRoles.add(pentahoRole.getName());
 		}
+		while (tokenizer.hasMoreTokens()) {
+		  assignedRoles.add(tokenizer.nextToken());
+		}
+    roleDao.setUserRoles(getTenant(tenantPath), userName, assignedRoles.toArray(new String[0]));
 		return Response.ok().build();
 	}
 
 	@PUT
 	@Path("/removeRoleFromUser")
 	@Consumes({ WILDCARD })
-	public Response removeRoleFromUser(@QueryParam("userName") String userName, @QueryParam("roleNames") String roleNames) {
+	public Response removeRoleFromUser(@QueryParam("tenant") String tenantPath, @QueryParam("userName") String userName, @QueryParam("roleNames") String roleNames) {
 
-		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
-		StringTokenizer tokenizer = new StringTokenizer(roleNames, "|");
-		IPentahoUser user = roleDao.getUser(userName);
-		while (tokenizer.hasMoreTokens()) {
-			IPentahoRole role = roleDao.getRole(tokenizer.nextToken());
-			if (role != null) {
-				user.removeRole(role);
-				roleDao.updateUser(user);
-			}
-		}
-		return Response.ok().build();
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+    StringTokenizer tokenizer = new StringTokenizer(roleNames, "|");
+    Set<String>assignedRoles = new HashSet<String>();
+    for (IPentahoRole pentahoRole : roleDao.getUserRoles(getTenant(tenantPath), userName)) {
+      assignedRoles.add(pentahoRole.getName());
+    }
+    while (tokenizer.hasMoreTokens()) {
+      assignedRoles.remove(tokenizer.nextToken());
+    }
+    roleDao.setUserRoles(getTenant(tenantPath), userName, assignedRoles.toArray(new String[0]));
+    return Response.ok().build();
 	}
 
 	@PUT
 	@Path("/assignAllRolesToUser")
 	@Consumes({ WILDCARD })
-	public Response assignAllRolesToUser(@QueryParam("userName") String userName) {
-		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
-		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
-		IPentahoUser user = roleDao.getUser(userName);
-		List<String> roleNames = userRoleListService.getAllRoles();
-		for (String roleName : roleNames) {
-			IPentahoRole role = roleDao.getRole(roleName);
-			user.addRole(role);
-		}
-		roleDao.updateUser(user);
-		return Response.ok().build();
+	public Response assignAllRolesToUser(@QueryParam("tenant") String tenantPath, @QueryParam("userName") String userName) {
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+    Set<String>assignedRoles = new HashSet<String>();
+    for (IPentahoRole pentahoRole : roleDao.getRoles(getTenant(tenantPath))) {
+      assignedRoles.add(pentahoRole.getName());
+    }
+    roleDao.setUserRoles(getTenant(tenantPath), userName, assignedRoles.toArray(new String[0]));
+    return Response.ok().build();
 	}
 
 	@PUT
 	@Path("/removeAllRolesFromUser")
 	@Consumes({ WILDCARD })
-	public Response removeAllRolesFromUser(@QueryParam("userName") String userName) {
-		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
-		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
-		IPentahoUser user = roleDao.getUser(userName);
-		List<String> roleNames = userRoleListService.getAllRoles();
-		for (String roleName : roleNames) {
-			IPentahoRole role = roleDao.getRole(roleName);
-			user.removeRole(role);
-		}
-		roleDao.updateUser(user);
-		return Response.ok().build();
+	public Response removeAllRolesFromUser(@QueryParam("tenant") String tenantPath, @QueryParam("userName") String userName) {
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+    roleDao.setUserRoles(getTenant(tenantPath), userName, new String[0]);
+    return Response.ok().build();
 	}
 
 	@PUT
 	@Path("/assignUserToRole")
 	@Consumes({ WILDCARD })
-	public Response assignUserToRole(@QueryParam("userNames") String userNames, @QueryParam("roleName") String roleName) {
-
-		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
-		StringTokenizer tokenizer = new StringTokenizer(userNames, "|");
-		IPentahoRole role = roleDao.getRole(roleName);
-		while (tokenizer.hasMoreTokens()) {
-			IPentahoUser user = roleDao.getUser(tokenizer.nextToken());
-			if (role != null) {
-				role.addUser(user);
-				roleDao.updateRole(role);
-			}
-		}
-		return Response.ok().build();
+	public Response assignUserToRole(@QueryParam("tenant") String tenantPath, @QueryParam("userNames") String userNames, @QueryParam("roleName") String roleName) {
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+    StringTokenizer tokenizer = new StringTokenizer(userNames, "|");
+    Set<String>assignedUserNames = new HashSet<String>();
+    for (IPentahoUser pentahoUser : roleDao.getRoleMembers(getTenant(tenantPath), roleName)) {
+      assignedUserNames.add(pentahoUser.getUsername());
+    }
+    while (tokenizer.hasMoreTokens()) {
+      assignedUserNames.add(tokenizer.nextToken());
+    }
+    roleDao.setRoleMembers(getTenant(tenantPath), roleName, assignedUserNames.toArray(new String[0]));
+    return Response.ok().build();
 	}
 
 	@PUT
 	@Path("/removeUserFromRole")
 	@Consumes({ WILDCARD })
-	public Response removeUserFromRole(@QueryParam("userNames") String userNames, @QueryParam("roleName") String roleName) {
-
-		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
-		StringTokenizer tokenizer = new StringTokenizer(userNames, "|");
-		IPentahoRole role = roleDao.getRole(roleName);
-		while (tokenizer.hasMoreTokens()) {
-			IPentahoUser user = roleDao.getUser(tokenizer.nextToken());
-			if (role != null) {
-				role.removeUser(user);
-				roleDao.updateRole(role);
-			}
-		}
-		return Response.ok().build();
+	public Response removeUserFromRole(@QueryParam("tenant") String tenantPath, @QueryParam("userNames") String userNames, @QueryParam("roleName") String roleName) {
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+    StringTokenizer tokenizer = new StringTokenizer(userNames, "|");
+    Set<String>assignedUserNames = new HashSet<String>();
+    for (IPentahoUser pentahoUser : roleDao.getRoleMembers(getTenant(tenantPath), roleName)) {
+      assignedUserNames.add(pentahoUser.getUsername());
+    }
+    while (tokenizer.hasMoreTokens()) {
+      assignedUserNames.remove(tokenizer.nextToken());
+    }
+    roleDao.setRoleMembers(getTenant(tenantPath), roleName, assignedUserNames.toArray(new String[0]));
+    return Response.ok().build();
 	}
 
 	@PUT
 	@Path("/assignAllUsersToRole")
 	@Consumes({ WILDCARD })
-	public Response assignAllUsersToRole(@QueryParam("roleName") String roleName) {
-		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
-		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
-		IPentahoRole role = roleDao.getRole(roleName);
-		List<String> userNames = userRoleListService.getAllUsers();
-		for (String userName : userNames) {
-			IPentahoUser user = roleDao.getUser(userName);
-			role.addUser(user);
-		}
-		roleDao.updateRole(role);
-		return Response.ok().build();
+	public Response assignAllUsersToRole(@QueryParam("tenant") String tenantPath, @QueryParam("roleName") String roleName) {
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+    Set<String>assignedUserNames = new HashSet<String>();
+    for (IPentahoUser pentahoUser : roleDao.getUsers(getTenant(tenantPath))) {
+      assignedUserNames.add(pentahoUser.getUsername());
+    }
+    roleDao.setRoleMembers(getTenant(tenantPath), roleName, assignedUserNames.toArray(new String[0]));
+    return Response.ok().build();
 	}
 
 	@PUT
 	@Path("/removeAllUsersFromRole")
 	@Consumes({ WILDCARD })
-	public Response removeAllUsersFromRole(@QueryParam("roleName") String roleName) {
-		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
-		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
-		IPentahoRole role = roleDao.getRole(roleName);
-		List<String> userNames = userRoleListService.getAllUsers();
-		for (String userName : userNames) {
-			IPentahoUser user = roleDao.getUser(userName);
-			role.removeUser(user);
-		}
-		roleDao.updateRole(role);
-		return Response.ok().build();
+	public Response removeAllUsersFromRole(@QueryParam("tenant") String tenantPath, @QueryParam("roleName") String roleName) {
+    IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
+    roleDao.setRoleMembers(getTenant(tenantPath), roleName, new String[0]);
+    return Response.ok().build();
 	}
 
 	@PUT
 	@Path("/createUser")
 	@Consumes({ WILDCARD })
-	public Response createUser(@QueryParam("userName") String userName, @QueryParam("password") String password) {
+	public Response createUser(@QueryParam("tenant") String tenantPath, @QueryParam("userName") String userName, @QueryParam("password") String password) {
 		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
-		PentahoUser user = new PentahoUser(userName, password, "", true);
-		roleDao.createUser(user);
+		roleDao.createUser(getTenant(tenantPath), userName, password, "", new String[0]);
 		return Response.ok().build();
 	}
 
 	@PUT
 	@Path("/createRole")
 	@Consumes({ WILDCARD })
-	public Response createRole(@QueryParam("roleName") String roleName) {
+	public Response createRole(@QueryParam("tenant") String tenantPath, @QueryParam("roleName") String roleName) {
 		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
-		PentahoRole role = new PentahoRole(roleName);
-		roleDao.createRole(role);
+		roleDao.createRole(getTenant(tenantPath), roleName, "", new String[0]);
 		return Response.ok().build();
 	}
 
@@ -273,7 +253,7 @@ public class UserRoleResource extends AbstractJaxRSResource {
 		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
 		StringTokenizer tokenizer = new StringTokenizer(roles, "|");
 		while (tokenizer.hasMoreTokens()) {
-			IPentahoRole role = roleDao.getRole(tokenizer.nextToken());
+			IPentahoRole role = roleDao.getRole(null,tokenizer.nextToken());
 			if (role != null) {
 				roleDao.deleteRole(role);
 			}
@@ -288,7 +268,7 @@ public class UserRoleResource extends AbstractJaxRSResource {
 		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
 		StringTokenizer tokenizer = new StringTokenizer(users, "|");
 		while (tokenizer.hasMoreTokens()) {
-			IPentahoUser user = roleDao.getUser(tokenizer.nextToken());
+			IPentahoUser user = roleDao.getUser(null,tokenizer.nextToken());
 			if (user != null) {
 				roleDao.deleteUser(user);
 			}
@@ -301,12 +281,21 @@ public class UserRoleResource extends AbstractJaxRSResource {
 	@Consumes({ WILDCARD })
 	public Response updatePassword(@QueryParam("userName") String userName, @QueryParam("newPassword") String newPassword) {
 		IUserRoleDao roleDao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession());
-		PasswordEncoder encoder = PentahoSystem.get(PasswordEncoder.class, "passwordEncoder", PentahoSessionHolder.getSession());
-		IPentahoUser user = roleDao.getUser(userName);
+		IPentahoUser user = roleDao.getUser(null,userName);
 		if (user != null) {
-			user.setPassword(encoder.encodePassword(newPassword, null));
-			roleDao.updateUser(user);
+			roleDao.setPassword(null,userName, newPassword);
 		}
 		return Response.ok().build();
+	}
+	
+	private ITenant getTenant(String tenantId) throws NotFoundException {
+	  ITenant tenant = null;
+	  if (tenantId != null) {
+	    tenant = tenantManager.getTenant(tenantId);
+	    if (tenant == null) {
+	      throw new NotFoundException("Tenant not found.");
+	    }
+	  }
+	  return tenant;
 	}
 }

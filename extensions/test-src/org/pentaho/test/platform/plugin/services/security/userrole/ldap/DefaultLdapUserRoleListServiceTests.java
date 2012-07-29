@@ -18,10 +18,14 @@
 package org.pentaho.test.platform.plugin.services.security.userrole.ldap;
 
 
-import java.util.Arrays;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.naming.directory.SearchControls;
 
 import org.apache.commons.collections.Transformer;
@@ -29,6 +33,11 @@ import org.apache.commons.collections.functors.ChainedTransformer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.core.mt.Tenant;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.security.DefaultRoleComparator;
 import org.pentaho.platform.engine.security.DefaultUsernameComparator;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserRoleListService;
@@ -42,13 +51,17 @@ import org.pentaho.platform.plugin.services.security.userrole.ldap.search.Unioni
 import org.pentaho.platform.plugin.services.security.userrole.ldap.transform.GrantedAuthorityToString;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.transform.SearchResultToAttrValueList;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.transform.StringToGrantedAuthority;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ldap.LdapUserSearch;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsService;
-
-import static org.junit.Assert.assertTrue;
 
 //import org.pentaho.platform.engine.core.audit.NullAuditEntry;
 
@@ -79,6 +92,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
    * </p>
    * @throws Exception 
    */
+  @Test
   public void testGetAuthoritiesForUser1() throws Exception {
     LdapUserSearch userSearch = getUserSearch("ou=users", "(uid={0})"); //$NON-NLS-1$//$NON-NLS-2$
 
@@ -94,9 +108,9 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setUserDetailsService(service);
 
-    List res = Arrays.asList(userRoleListService.getRolesForUser("suzy")); //$NON-NLS-1$
+    List res = userRoleListService.getRolesForUser(null, "suzy"); //$NON-NLS-1$
 
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_IS"))); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_A")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAuthoritiesForUser1(): " + res); //$NON-NLS-1$
@@ -104,6 +118,42 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
   }
 
+  @Test
+  public void testGetAuthoritiesForUser1ForTenant() throws Exception {
+    ITenant defaultTenant = new Tenant("/pentaho/tenant0", true);
+    login("suzy", defaultTenant);
+    
+    LdapUserSearch userSearch = getUserSearch("ou=users", "(uid={0})"); //$NON-NLS-1$//$NON-NLS-2$
+
+
+    LdapUserDetailsService service = new LdapUserDetailsService(userSearch, new NoOpLdapAuthoritiesPopulator());
+
+    RolePreprocessingMapper mapper = new RolePreprocessingMapper();
+    mapper.setRoleAttributes(new String[] { "uniqueMember" }); //$NON-NLS-1$
+    mapper.setTokenName("cn"); //$NON-NLS-1$
+    service.setUserDetailsMapper(mapper);
+
+    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+
+    userRoleListService.setUserDetailsService(service);
+
+    List res = userRoleListService.getRolesForUser(defaultTenant, "suzy"); //$NON-NLS-1$
+
+    assertTrue(res.contains("ROLE_A")); //$NON-NLS-1$
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("results of getAuthoritiesForUser1(): " + res); //$NON-NLS-1$
+    }
+    
+    try {
+      userRoleListService.getRolesForUser(new Tenant("/pentaho",true), "suzy");
+    } catch(UnsupportedOperationException uoe) {
+      assertNotNull(uoe);
+    }
+
+  }
+
+  
   /**
    * Get the roles of user <code>suzy</code> by returning the
    * <code>cn</code> attribute of each object that matches base of
@@ -127,9 +177,8 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setUserDetailsService(service);
 
-    List res = Arrays.asList(userRoleListService.getRolesForUser("suzy")); //$NON-NLS-1$
-
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_IS"))); //$NON-NLS-1$
+    List res = userRoleListService.getRolesForUser(null, "suzy"); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_IS")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAuthoritiesForUser2(): " + res); //$NON-NLS-1$
@@ -155,11 +204,10 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     userRoleListService.setUserDetailsService(service);
     userRoleListService.setRoleComparator(new DefaultRoleComparator());
 
-    List res = Arrays.asList(userRoleListService.getRolesForUser("suzy")); //$NON-NLS-1$
+    List res = userRoleListService.getRolesForUser(null, "suzy"); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_IS")); //$NON-NLS-1$
 
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_IS"))); //$NON-NLS-1$
-
-    assertTrue(res.indexOf(new GrantedAuthorityImpl("ROLE_CTO")) < res.indexOf(new GrantedAuthorityImpl("ROLE_IS")));
+    assertTrue(res.indexOf("ROLE_CTO") < res.indexOf("ROLE_IS"));
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAuthoritiesForUser2Sorted(): " + res); //$NON-NLS-1$
@@ -191,7 +239,38 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setAllUsernamesSearch(allUsernamesSearch);
 
-    List res = Arrays.asList(userRoleListService.getAllUsers());
+    List res = userRoleListService.getAllUsers();
+    
+    assertTrue(res.contains("pat")); //$NON-NLS-1$
+    assertTrue(res.contains("joe")); //$NON-NLS-1$
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("results of getAllUserNames1(): " + res); //$NON-NLS-1$
+    }
+  }
+  
+  @Test
+  public void testGetAllUserNames1ForTenant() throws Exception {
+    ITenant defaultTenant = new Tenant("/pentaho/tenant0", true);
+    login("suzy", defaultTenant);
+    
+    SearchControls con1 = new SearchControls();
+    con1.setReturningAttributes(new String[] { "uniqueMember" }); //$NON-NLS-1$
+
+    LdapSearchParamsFactoryImpl paramFactory = new LdapSearchParamsFactoryImpl(
+        "ou=groups", "(objectClass=groupOfUniqueNames)", con1); //$NON-NLS-1$//$NON-NLS-2$
+    paramFactory.afterPropertiesSet();
+
+    Transformer transformer1 = new SearchResultToAttrValueList("uniqueMember", "uid"); //$NON-NLS-1$ //$NON-NLS-2$
+
+    GenericLdapSearch allUsernamesSearch = new GenericLdapSearch(getContextSource(), paramFactory, transformer1);
+    allUsernamesSearch.afterPropertiesSet();
+
+    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+
+    userRoleListService.setAllUsernamesSearch(allUsernamesSearch);
+
+    List res =userRoleListService.getAllUsers(defaultTenant);
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("joe")); //$NON-NLS-1$
@@ -199,6 +278,13 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllUserNames1(): " + res); //$NON-NLS-1$
     }
+    
+    try {
+      userRoleListService.getAllUsers(new Tenant("/pentaho",true));
+    } catch(UnsupportedOperationException uoe) {
+      assertNotNull(uoe);
+    }
+    
   }
 
   /**
@@ -223,7 +309,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     userRoleListService.setAllUsernamesSearch(allUsernamesSearch);
     userRoleListService.setUsernameComparator(new DefaultUsernameComparator());
 
-    List res = Arrays.asList(userRoleListService.getAllUsers());
+    List res = userRoleListService.getAllUsers();
 
     assertTrue(res.indexOf("pat") < res.indexOf("tiffany"));
 
@@ -252,7 +338,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setAllUsernamesSearch(allUsernamesSearch);
 
-    List res = Arrays.asList(userRoleListService.getAllUsers());
+    List res = userRoleListService.getAllUsers();
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("joe")); //$NON-NLS-1$
@@ -284,7 +370,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setAllUsernamesSearch(allUsernamesSearch);
 
-    List res = Arrays.asList(userRoleListService.getAllUsers());
+    List res = userRoleListService.getAllUsers();
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("tiffany")); //$NON-NLS-1$
@@ -320,13 +406,51 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setUsernamesInRoleSearch(usernamesInRoleSearch);
 
-    List<String> res = userRoleListService.getUsersInRole("ROLE_DEV"); //$NON-NLS-1$
+    List<String> res = userRoleListService.getUsersInRole(null, "DEV"); //$NON-NLS-1$
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("tiffany")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getUsernamesInRole1(): " + res); //$NON-NLS-1$
+    }
+  }
+  
+  @Test
+  public void testGetUsernamesInRole1ForTenant() {
+    ITenant defaultTenant = new Tenant("/pentaho/tenant0", true);
+    login("suzy", defaultTenant);
+    
+    SearchControls con1 = new SearchControls();
+    con1.setReturningAttributes(new String[] { "uid" }); //$NON-NLS-1$
+
+    LdapSearchParamsFactory paramFactory = new LdapSearchParamsFactoryImpl(
+        "ou=users", "(businessCategory=cn={0}*)", con1); //$NON-NLS-1$//$NON-NLS-2$
+
+    Transformer transformer1 = new SearchResultToAttrValueList("uid"); //$NON-NLS-1$
+
+    GrantedAuthorityToString transformer2 = new GrantedAuthorityToString();
+
+    LdapSearch usernamesInRoleSearch = new GenericLdapSearch(getContextSource(), paramFactory, transformer1,
+        transformer2);
+
+    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+
+    userRoleListService.setUsernamesInRoleSearch(usernamesInRoleSearch);
+
+    List<String> res = userRoleListService.getUsersInRole(defaultTenant, "DEV"); //$NON-NLS-1$
+
+    assertTrue(res.contains("pat")); //$NON-NLS-1$
+    assertTrue(res.contains("tiffany")); //$NON-NLS-1$
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("results of getUsernamesInRole1(): " + res); //$NON-NLS-1$
+    }
+    
+    try {
+      userRoleListService.getUsersInRole(new Tenant("/pentaho",true), "DEV");
+    } catch(UnsupportedOperationException uoe) {
+      assertNotNull(uoe);
     }
   }
 
@@ -353,7 +477,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     userRoleListService.setUsernamesInRoleSearch(usernamesInRoleSearch);
     userRoleListService.setUsernameComparator(new DefaultUsernameComparator());
 
-    List<String> res = userRoleListService.getUsersInRole("ROLE_DEV"); //$NON-NLS-1$
+    List<String> res = userRoleListService.getUsersInRole(null, "DEV"); //$NON-NLS-1$
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("tiffany")); //$NON-NLS-1$
@@ -393,7 +517,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setUsernamesInRoleSearch(usernamesInRoleSearch);
 
-    List<String> res = userRoleListService.getUsersInRole("ROLE_DEV"); //$NON-NLS-1$
+    List<String> res = userRoleListService.getUsersInRole(null, "DEV"); //$NON-NLS-1$
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("tiffany")); //$NON-NLS-1$
@@ -431,7 +555,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setUsernamesInRoleSearch(usernamesInRoleSearch);
 
-    List<String> res = userRoleListService.getUsersInRole("ROLE_DEVELOPMENT"); //$NON-NLS-1$
+    List<String> res = userRoleListService.getUsersInRole(null, "DEVELOPMENT"); //$NON-NLS-1$
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("tiffany")); //$NON-NLS-1$
@@ -489,7 +613,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setUsernamesInRoleSearch(unionSearch);
 
-    List<String> res = userRoleListService.getUsersInRole("ROLE_DEV"); //$NON-NLS-1$
+    List<String> res = userRoleListService.getUsersInRole(null, "DEV"); //$NON-NLS-1$
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("tiffany")); //$NON-NLS-1$
@@ -498,13 +622,13 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
       logger.debug("results of getUsernamesInRole4() with role=ROLE_DEV: " + res); //$NON-NLS-1$
     }
 
-    res = userRoleListService.getUsersInRole("ROLE_DEVELOPMENT"); //$NON-NLS-1$
+    res = userRoleListService.getUsersInRole(null, "DEVELOPMENT"); //$NON-NLS-1$
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("tiffany")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
-      logger.debug("results of getUsernamesInRole4() with role=ROLE_DEVELOPMENT: " + res); //$NON-NLS-1$
+      logger.debug("results of getUsernamesInRole4() with role=DEVELOPMENT: " + res); //$NON-NLS-1$
     }
 
   }
@@ -533,16 +657,53 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setAllAuthoritiesSearch(rolesSearch);
 
-    List res = Arrays.asList(userRoleListService.getAllRoles());
+    List res = userRoleListService.getAllRoles();
 
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_CTO"))); //$NON-NLS-1$
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_CEO"))); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_CTO")); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_CEO")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllAuthorities1(): " + res); //$NON-NLS-1$
     }
   }
 
+  @Test 
+  public void testGetAllAuthorities1ForTenant() {
+    ITenant defaultTenant = new Tenant("/pentaho/tenant0", true);
+    login("suzy", defaultTenant);
+    SearchControls con1 = new SearchControls();
+    con1.setReturningAttributes(new String[] { "cn" }); //$NON-NLS-1$
+
+    LdapSearchParamsFactory paramsFactory = new LdapSearchParamsFactoryImpl(
+        "ou=roles", "(objectClass=organizationalRole)", con1); //$NON-NLS-1$//$NON-NLS-2$
+
+    Transformer one = new SearchResultToAttrValueList("cn"); //$NON-NLS-1$
+    Transformer two = new StringToGrantedAuthority();
+    Transformer[] transformers = { one, two };
+    Transformer transformer = new ChainedTransformer(transformers);
+
+    LdapSearch rolesSearch = new GenericLdapSearch(getContextSource(), paramsFactory, transformer);
+
+    DefaultLdapUserRoleListService userRoleListService = new DefaultLdapUserRoleListService();
+
+    userRoleListService.setAllAuthoritiesSearch(rolesSearch);
+
+    List res = userRoleListService.getAllRoles(defaultTenant);
+
+    assertTrue(res.contains("ROLE_CTO")); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_CEO")); //$NON-NLS-1$
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("results of getAllAuthorities1(): " + res); //$NON-NLS-1$
+    }
+    
+    try {
+      userRoleListService.getAllRoles(new Tenant("/pentaho",true));
+    } catch(UnsupportedOperationException uoe) {
+      assertNotNull(uoe);
+    }
+  }
+  
   /**
    * Same as above except sorted.
    */
@@ -566,12 +727,12 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     userRoleListService.setAllAuthoritiesSearch(rolesSearch);
     userRoleListService.setRoleComparator(new DefaultRoleComparator());
 
-    List res = Arrays.asList(userRoleListService.getAllRoles());
+    List res = userRoleListService.getAllRoles();
 
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_CTO"))); //$NON-NLS-1$
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_CEO"))); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_CTO")); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_CEO")); //$NON-NLS-1$
 
-    assertTrue(res.indexOf(new GrantedAuthorityImpl("ROLE_ADMIN")) < res.indexOf(new GrantedAuthorityImpl("ROLE_DEV")));
+    assertTrue(res.indexOf("ROLE_ADMIN") < res.indexOf("ROLE_DEV"));
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllAuthorities1Sorted(): " + res); //$NON-NLS-1$
@@ -602,10 +763,10 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setAllAuthoritiesSearch(rolesSearch);
 
-    List res = Arrays.asList(userRoleListService.getAllRoles());
+    List res = userRoleListService.getAllRoles();
 
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_SALES"))); //$NON-NLS-1$
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_MARKETING"))); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_SALES")); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_MARKETING")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllAuthorities2(): " + res); //$NON-NLS-1$
@@ -662,10 +823,10 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     userRoleListService.setAllAuthoritiesSearch(unionSearch);
 
-    List res = Arrays.asList(userRoleListService.getAllRoles());
+    List res = userRoleListService.getAllRoles();
 
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_DEVMGR"))); //$NON-NLS-1$
-    assertTrue(res.contains(new GrantedAuthorityImpl("ROLE_DEVELOPMENT"))); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_DEVMGR")); //$NON-NLS-1$
+    assertTrue(res.contains("ROLE_DEVELOPMENT")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllAuthorities3(): " + res); //$NON-NLS-1$
@@ -673,4 +834,27 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
   }
 
+  /**
+   * Logs in with given username.
+   *
+   * @param username username of user
+   * @param tenantId tenant to which this user belongs
+   * @tenantAdmin true to add the tenant admin authority to the user's roles
+   */
+  protected void login(final String username, final ITenant tenant) {
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(username);
+    pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
+    final String password = "password";
+
+    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
+    authList.add(new GrantedAuthorityImpl("TenantAdmin"));
+    authList.add(new GrantedAuthorityImpl("Authenticated"));
+    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
+    UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
+    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(auth);
+  }
 }

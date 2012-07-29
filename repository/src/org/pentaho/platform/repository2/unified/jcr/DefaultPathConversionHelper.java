@@ -31,7 +31,7 @@ public class DefaultPathConversionHelper implements IPathConversionHelper {
   public String absToRel(final String absPath) {
     Assert.hasLength(absPath);
     Assert.isTrue(absPath.startsWith(RepositoryFile.SEPARATOR));
-    if (absPath.startsWith(ServerRepositoryPaths.getTenantRootFolderPath())) {
+    if ((ServerRepositoryPaths.getTenantRootFolderPath() != null) && absPath.startsWith(ServerRepositoryPaths.getTenantRootFolderPath())) {
       String tmpPath = absPath.substring(ServerRepositoryPaths.getTenantRootFolderPath().length());
       if ("".equals(tmpPath)) { //$NON-NLS-1$
         return RepositoryFile.SEPARATOR;

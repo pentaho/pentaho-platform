@@ -22,9 +22,14 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.sql.DataSource;
 
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.core.mt.Tenant;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.SqlParameter;
@@ -233,4 +238,41 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
     this.userDetailsService = userDetailsService;
   }
 
+  @Override
+  public List<String> getAllRoles(ITenant tenant) {
+    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+      throw new UnsupportedOperationException("only allowed to access to default tenant");
+    }
+    return getAllRoles();
+  }
+
+  @Override
+  public List<String> getAllUsers(ITenant tenant) {
+    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+      throw new UnsupportedOperationException("only allowed to access to default tenant");
+    }
+    return getAllUsers();
+  }
+
+  @Override
+  public List<String> getUsersInRole(ITenant tenant, String role) {
+    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+      throw new UnsupportedOperationException("only allowed to access to default tenant");
+    }
+    return getUsersInRole(role);
+  }
+
+  @Override
+  public List<String> getRolesForUser(ITenant tenant, String username) {
+    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+      throw new UnsupportedOperationException("only allowed to access to default tenant");
+    }
+    return getRolesForUser(username);
+  }
+
+  private ITenant getDefaultTenant() {
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
+    return new Tenant(tenantId, true);
+  }
 }

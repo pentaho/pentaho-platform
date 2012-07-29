@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.GrantedAuthority;
@@ -55,6 +56,7 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
 
   private UserDetailsService userDetailsService;
 
+  @Override
   public List<String> getAllRoles() {
     List<String> results = new ArrayList<String>(allRoles);
     if (null != roleComparator) {
@@ -63,6 +65,7 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
     return results;
   }
 
+  @Override
   public List<String> getAllUsers() {
     List<String> results = Arrays.asList(userRoleListEnhancedUserMap.getAllUsers());
     if (null != usernameComparator) {
@@ -71,7 +74,8 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
     return results;
   }
 
-  public List<String> getUsersInRole(final String role) {
+  @Override
+  public List<String> getUsersInRole(final ITenant tenant, final String role) {
     List<String> results = Arrays.asList(userRoleListEnhancedUserMap.getUserNamesInRole(role));
     if (null != usernameComparator) {
       Collections.sort(results, usernameComparator);
@@ -83,6 +87,7 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
     this.allRoles = new ArrayList<String>(allRoles);
   }
 
+  @Override
   public void afterPropertiesSet() throws Exception {
     Assert.notNull(userRoleListEnhancedUserMap, Messages.getInstance()
         .getErrorString("InMemoryUserRoleListService.ERROR_0001_PROPERTY_LIST_NOT_SPECIFIED")); //$NON-NLS-1$
@@ -92,7 +97,8 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
         .getString("InMemoryUserRoleListService.ERROR_0003_USERDETAILSSERVICE_NOT_SPECIFIED")); //$NON-NLS-1$
   }
 
-  public List<String> getRolesForUser(final String username) throws UsernameNotFoundException {
+  @Override
+  public List<String> getRolesForUser(final ITenant tenant, final String username) throws UsernameNotFoundException {
     UserDetails user = userDetailsService.loadUserByUsername(username);
     List<GrantedAuthority> results = Arrays.asList(user.getAuthorities());
     List<String> roles = new ArrayList<String>(results.size());
@@ -129,5 +135,17 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
   public void setUsernameComparator(final Comparator<String> usernameComparator) {
     Assert.notNull(usernameComparator);
     this.usernameComparator = usernameComparator;
+  }
+
+  @Override
+  public List<String> getAllRoles(ITenant tenant) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<String> getAllUsers(ITenant tenant) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

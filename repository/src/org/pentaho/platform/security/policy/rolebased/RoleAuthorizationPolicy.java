@@ -38,18 +38,13 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
 
   // ~ Instance fields =================================================================================================
 
-  private IRoleAuthorizationPolicyActionBindingDao actionBindingDao;
-
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
 
   // ~ Constructors ====================================================================================================
 
-  public RoleAuthorizationPolicy(final IRoleAuthorizationPolicyActionBindingDao actionBindingDao,
-      final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao) {
+  public RoleAuthorizationPolicy(final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao) {
     super();
-    Assert.notNull(actionBindingDao);
     Assert.notNull(roleBindingDao);
-    this.actionBindingDao = actionBindingDao;
     this.roleBindingDao = roleBindingDao;
   }
 
@@ -59,30 +54,27 @@ public class RoleAuthorizationPolicy implements IAuthorizationPolicy {
    * {@inheritDoc}
    */
   public List<String> getAllowedActions(String actionNamespace) {
-    List<String> allowedActions = new ArrayList<String>();
-    List<String> userLogicalRoleNames = null; 
-    userLogicalRoleNames = roleBindingDao.getBoundLogicalRoleNames(getRuntimeRoleNames());
-    Map<String, List<String>> actionBindings = actionBindingDao.getActionBindings(actionNamespace);
-    for (Map.Entry<String, List<String>> entry : actionBindings.entrySet()) {
-      if (isAllowed(entry.getKey(), entry.getValue(), userLogicalRoleNames)) {
-        allowedActions.add(entry.getKey());
+    List<String> assignedRolesInNamespace = new ArrayList<String>();
+    if (actionNamespace == null) {
+      assignedRolesInNamespace.addAll(roleBindingDao.getBoundLogicalRoleNames(getRuntimeRoleNames()));      
+    } else {
+      if (!actionNamespace.endsWith(".")) {
+        actionNamespace += ".";
+      }
+      for (String assignedRole : roleBindingDao.getBoundLogicalRoleNames(getRuntimeRoleNames())) {
+        if (assignedRole.startsWith(actionNamespace)) {
+          assignedRolesInNamespace.add(assignedRole);
+        }      
       }
     }
-    return allowedActions;
+    return assignedRolesInNamespace;
   }
 
   /**
    * {@inheritDoc}
    */
   public boolean isAllowed(String actionName) {
-    List<String> userLogicalRoleNames = roleBindingDao.getBoundLogicalRoleNames(getRuntimeRoleNames());
-    List<String> boundLogicalRoleNames = actionBindingDao.getBoundLogicalRoleNames(actionName);
-    return isAllowed(actionName, boundLogicalRoleNames, userLogicalRoleNames);
-  }
-
-  protected boolean isAllowed(String actionName, List<String> boundLogicalRoleNames, List<String> userLogicalRoleNames) {
-    // return true if there is at least one role in common
-    return !Collections.disjoint(boundLogicalRoleNames, userLogicalRoleNames);
+    return roleBindingDao.getBoundLogicalRoleNames(getRuntimeRoleNames()).contains(actionName);
   }
 
   protected List<String> getRuntimeRoleNames() {

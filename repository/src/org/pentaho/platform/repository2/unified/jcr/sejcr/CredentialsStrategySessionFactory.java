@@ -97,6 +97,16 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @param workspaceName
    * @param credentials
    */
+  public CredentialsStrategySessionFactory(Repository repository, CredentialsStrategy credentialsStrategy) {
+    this(repository, null, credentialsStrategy, null, null);
+  }
+
+  /**
+   * Constructor with all the required fields.
+   * @param repository
+   * @param workspaceName
+   * @param credentials
+   */
   public CredentialsStrategySessionFactory(Repository repository, CredentialsStrategy credentialsStrategy,
       CredentialsStrategy adminCredentialsStrategy) {
     this(repository, null, credentialsStrategy, adminCredentialsStrategy, null);
@@ -137,8 +147,10 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
       throw new IllegalArgumentException("repository " + getRepositoryInfo()
           + " does NOT support Observation; remove Listener definitions");
 
+    if (this.adminCredentialsStrategy != null) {
     registerNamespaces();
     registerNodeTypes();
+    }
 
     // determine the session holder provider
     if (sessionHolderProviderManager == null) {
@@ -257,8 +269,10 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
    * @see org.springframework.beans.factory.DisposableBean#destroy()
    */
   public void destroy() throws Exception {
+    if (this.adminCredentialsStrategy != null) {
     unregisterNamespaces();
     unregisterNodeTypes();
+  }
   }
 
   /**
@@ -291,9 +305,8 @@ public class CredentialsStrategySessionFactory implements InitializingBean, Disp
     }
   }
 
-  protected Session getAdminSession() throws RepositoryException {
-    Session session = repository.login(adminCredentialsStrategy.getCredentials(), workspaceName);
-    return session;
+  public Session getAdminSession() throws RepositoryException {
+    return adminCredentialsStrategy != null ? repository.login(adminCredentialsStrategy.getCredentials(), workspaceName) : null;
   }
 
   /**

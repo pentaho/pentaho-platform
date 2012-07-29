@@ -31,8 +31,8 @@ import javax.jcr.security.Privilege;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.springframework.util.Assert;
@@ -73,13 +73,16 @@ public class DefaultLockHelper implements ILockHelper {
   private static final int POSITION_LOCK_DATE = 1;
 
   private static final int POSITION_LOCK_MESSAGE = 2;
+  
+  ITenantedPrincipleNameResolver userNameUtils;
 
   // ~ Instance fields =================================================================================================
 
   // ~ Constructors ====================================================================================================
 
-  public DefaultLockHelper() {
+  public DefaultLockHelper(ITenantedPrincipleNameResolver userNameUtils) {
     super();
+    this.userNameUtils = userNameUtils;
   }
 
   // ~ Methods =========================================================================================================
@@ -128,8 +131,7 @@ public class DefaultLockHelper implements ILockHelper {
 
   protected Node getOrCreateLockTokensNode(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Lock lock) throws RepositoryException {
-    String absPath = ServerRepositoryPaths.getUserHomeFolderPath(
-        ServerRepositoryPaths.getTenantId(lock.getNode().getPath()), getLockOwner(session, pentahoJcrConstants, lock));
+    String absPath = ServerRepositoryPaths.getUserHomeFolderPath(userNameUtils.getTenant(getLockOwner(session, pentahoJcrConstants, lock)), userNameUtils.getPrincipleName(getLockOwner(session, pentahoJcrConstants, lock)));
     Node userHomeFolderNode = (Node) session.getItem(absPath);
     if (userHomeFolderNode.hasNode(FOLDER_NAME_LOCK_TOKENS)) {
       return userHomeFolderNode.getNode(FOLDER_NAME_LOCK_TOKENS);
@@ -146,8 +148,7 @@ public class DefaultLockHelper implements ILockHelper {
    */
   public boolean canUnlock(final Session session, final PentahoJcrConstants pentahoJcrConstants, final Lock lock)
       throws RepositoryException {
-    String absPath = ServerRepositoryPaths.getUserHomeFolderPath(TenantUtils.getTenantId(),
-        getLockOwner(session, pentahoJcrConstants, lock));
+    String absPath = ServerRepositoryPaths.getUserHomeFolderPath(userNameUtils.getTenant(getLockOwner(session, pentahoJcrConstants, lock)), userNameUtils.getPrincipleName(getLockOwner(session, pentahoJcrConstants, lock)));
     AccessControlManager acMgr = session.getAccessControlManager();
     return acMgr.hasPrivileges(
         absPath,

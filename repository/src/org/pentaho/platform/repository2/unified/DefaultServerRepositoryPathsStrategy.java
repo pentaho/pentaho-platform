@@ -15,13 +15,11 @@
 package org.pentaho.platform.repository2.unified;
 
 import java.text.MessageFormat;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths.IServerRepositoryPathsStrategy;
-import org.springframework.util.Assert;
 
 
 /**
@@ -41,23 +39,13 @@ public class DefaultServerRepositoryPathsStrategy implements IServerRepositoryPa
 
   // ~ Instance fields =================================================================================================
 
-  private final String PATTERN_TENANT_ROOT_PATH = PATH_ROOT + RepositoryFile.SEPARATOR + "{0}"; //$NON-NLS-1$
-
-  private final String PATTERN_TENANT_HOME_PATH = PATH_ROOT + RepositoryFile.SEPARATOR + "{0}" //$NON-NLS-1$
-      + ClientRepositoryPaths.getHomeFolderPath();
-
-  private final String PATTERN_TENANT_PUBLIC_PATH = PATH_ROOT + RepositoryFile.SEPARATOR + "{0}" //$NON-NLS-1$
-      + ClientRepositoryPaths.getPublicFolderPath();
-
-  private final String PATTERN_TENANT_ETC_PATH = PATH_ROOT + RepositoryFile.SEPARATOR + "{0}" //$NON-NLS-1$
-      + RepositoryFile.SEPARATOR + FOLDER_ETC;
-
-//  private final String PATTERN_USER_HOME_PATH = PATH_ROOT + RepositoryFile.SEPARATOR + "{0}" //$NON-NLS-1$
-//      + RepositoryFile.SEPARATOR + FOLDER_HOME + RepositoryFile.SEPARATOR + "{1}"; //$NON-NLS-1$
-
-  private final String REGEX_TENANT_ABS_PATH = PATH_ROOT + RepositoryFile.SEPARATOR + "([\\w-]*)" //$NON-NLS-1$
-      + RepositoryFile.SEPARATOR + ".*"; //$NON-NLS-1$
-
+  private final String PATTERN_TENANT_HOME_PATH = "{0}" + ClientRepositoryPaths.getHomeFolderPath(); //$NON-NLS-1$
+      
+  private final String PATTERN_TENANT_PUBLIC_PATH = "{0}" + ClientRepositoryPaths.getPublicFolderPath();//$NON-NLS-1$
+      
+  private final String PATTERN_TENANT_ETC_PATH = "{0}" + RepositoryFile.SEPARATOR + FOLDER_ETC; //$NON-NLS-1$
+  
+      
   // ~ Constructors ====================================================================================================
 
   public DefaultServerRepositoryPathsStrategy() {
@@ -70,21 +58,20 @@ public class DefaultServerRepositoryPathsStrategy implements IServerRepositoryPa
     return PATH_ROOT;
   }
 
-  public String getTenantHomeFolderPath(final String tenantId) {
-    return MessageFormat.format(PATTERN_TENANT_HOME_PATH, tenantId);
+  public String getTenantHomeFolderPath(final ITenant tenant) {
+    return MessageFormat.format(PATTERN_TENANT_HOME_PATH, tenant.getRootFolderAbsolutePath());
   }
 
-  public String getTenantPublicFolderPath(final String tenantId) {
-    return MessageFormat.format(PATTERN_TENANT_PUBLIC_PATH, tenantId);
+  public String getTenantPublicFolderPath(final ITenant tenant) {
+    return MessageFormat.format(PATTERN_TENANT_PUBLIC_PATH, tenant.getRootFolderAbsolutePath());
   }
 
-  public String getTenantRootFolderPath(final String tenantId) {
-    return MessageFormat.format(PATTERN_TENANT_ROOT_PATH, tenantId);
+  public String getTenantRootFolderPath(final ITenant tenant) {
+    return tenant.getRootFolderAbsolutePath();
   }
 
-  public String getUserHomeFolderPath(final String tenantId, final String username) {
-    return MessageFormat.format(PATTERN_TENANT_ROOT_PATH, tenantId)
-        + ClientRepositoryPaths.getUserHomeFolderPath(username);
+  public String getUserHomeFolderPath(ITenant tenant, final String username) {
+    return getTenantRootFolderPath(tenant) + ClientRepositoryPaths.getUserHomeFolderPath(username);
   }
 
   public String getPentahoRootFolderName() {
@@ -103,16 +90,12 @@ public class DefaultServerRepositoryPathsStrategy implements IServerRepositoryPa
     return FOLDER_ETC;
   }
 
-  public String getTenantEtcFolderPath(final String tenantId) {
-    return MessageFormat.format(PATTERN_TENANT_ETC_PATH, tenantId);
+  public String getTenantEtcFolderPath(final ITenant tenant) {
+    return MessageFormat.format(PATTERN_TENANT_ETC_PATH, tenant.getRootFolderAbsolutePath());
   }
 
   public String getTenantId(final String absPath) {
-    Pattern pattern = Pattern.compile(REGEX_TENANT_ABS_PATH);
-    Matcher matcher = pattern.matcher(absPath);
-    Assert.isTrue(matcher.matches());
-    Assert.isTrue(matcher.groupCount() == 1);
-    return matcher.group(1);
+    return absPath;
   }
 
 }

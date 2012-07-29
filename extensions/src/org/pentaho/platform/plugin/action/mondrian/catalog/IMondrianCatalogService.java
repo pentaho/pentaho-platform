@@ -18,7 +18,6 @@
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -43,17 +42,6 @@ public interface IMondrianCatalogService {
   void addCatalog(MondrianCatalog catalog, boolean overwrite, IPentahoSession pentahoSession)
       throws MondrianCatalogServiceException;
 
-  
-  /**
-   * new method to support the input stream support
-   * @param schemaInputStream
-   * @param catalog
-   * @param overwrite
-   * @param pentahoSession
-   * @throws MondrianCatalogServiceException
-   */
-  void addCatalog(InputStream schemaInputStream, final MondrianCatalog catalog,
-      final boolean overwrite, final IPentahoSession pentahoSession) throws MondrianCatalogServiceException;
   /**
    * Returns the catalog with the given context - name or definition allowable. Returns <code>null</code> if context not recognized. 
    * @param context Either the name of the catalog to fetch, or the catalog's definition string

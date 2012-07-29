@@ -29,6 +29,8 @@ public class RepositoryFileAclDto  implements Serializable {
   String id;
 
   String owner;
+  
+  String tenantPath;
 
   /**
    * RepositoryFileSid.Type enum.
@@ -86,6 +88,14 @@ public class RepositoryFileAclDto  implements Serializable {
     this.entriesInheriting = entriesInheriting;
   }
 
+  public String getTenantPath() {
+    return tenantPath;
+  }
+  
+  public void setTenantPath(String tenantPath) {
+    this.tenantPath = tenantPath;
+  }
+  
   @SuppressWarnings("nls")
   @Override
   public String toString() {

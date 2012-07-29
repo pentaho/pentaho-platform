@@ -22,10 +22,5 @@
     <property name="hibernate.hbm2ddl.auto">update</property>
     <!-- load resource from classpath -->
     <mapping resource="hibernate/postgresql.hbm.xml" />
-    <!--  This is only used by Pentaho Administration Console. Spring Security will not use these mapping files -->	
-    <mapping resource="PentahoUser.hbm.xml" />
-    <mapping resource="PentahoRole.hbm.xml" />
-    <mapping resource="PentahoUserRoleMapping.hbm.xml" />
-        
   </session-factory>
 </hibernate-configuration>

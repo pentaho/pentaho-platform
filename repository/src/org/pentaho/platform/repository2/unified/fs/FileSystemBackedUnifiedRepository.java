@@ -2,7 +2,6 @@ package org.pentaho.platform.repository2.unified.fs;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
 
   public RepositoryFile createFile(Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
                                    String versionMessage) {
-    return repositoryFileDao.createFile(parentFolderId, file, data, createDefaultAcl(), versionMessage);
+    return repositoryFileDao.createFile(parentFolderId, file, data, null, versionMessage);
   }
 
   public RepositoryFile createFile(Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
@@ -51,7 +50,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   }
 
   public RepositoryFile createFolder(Serializable parentFolderId, RepositoryFile file, String versionMessage) {
-    return repositoryFileDao.createFolder(parentFolderId, file, createDefaultAcl(), versionMessage);
+    return repositoryFileDao.createFolder(parentFolderId, file, null, versionMessage);
   }
 
   public RepositoryFile createFolder(Serializable parentFolderId, RepositoryFile file, RepositoryFileAcl acl,
@@ -194,10 +193,6 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     return repositoryFileDao.updateFile(file, data, versionMessage);
   }
 
-  protected RepositoryFileAcl createDefaultAcl() {
-    return new RepositoryFileAcl.Builder(new RepositoryFileSid("joe")).entriesInheriting(true).build();
-  }
-
   public List<RepositoryFile> getReferrers(Serializable arg0) {
     throw new UnsupportedOperationException();
   }
@@ -236,7 +231,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public List<Character> getReservedChars() {
-    return Collections.emptyList();
+    throw new UnsupportedOperationException();
   }
 
 

@@ -53,7 +53,7 @@ public class RepositoryFileAclAdapter extends XmlAdapter<RepositoryFileAclDto, R
       if (v.id != null) {
         builder = new RepositoryFileAcl.Builder(v.id, v.owner, RepositoryFileSid.Type.values()[v.ownerType]);
       } else {
-        builder = new RepositoryFileAcl.Builder(v.owner, RepositoryFileSid.Type.values()[v.ownerType]);
+        builder = new RepositoryFileAcl.Builder(v.tenantPath, v.owner, RepositoryFileSid.Type.values()[v.ownerType]);
       }
     } else {
       builder = new RepositoryFileAcl.Builder((Serializable) v.id, null);

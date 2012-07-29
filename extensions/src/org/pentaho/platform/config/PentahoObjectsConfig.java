@@ -30,7 +30,7 @@ import org.dom4j.io.SAXReader;
 import org.jaxen.JaxenException;
 import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.dom4j.Dom4jXPath;
-import org.pentaho.platform.engine.security.userroledao.messages.Messages;
+import org.pentaho.platform.config.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
 public class PentahoObjectsConfig {

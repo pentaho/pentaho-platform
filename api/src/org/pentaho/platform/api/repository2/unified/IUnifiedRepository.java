@@ -12,7 +12,8 @@ import java.util.Map;
  * @author mlowery
  */
 public interface IUnifiedRepository {
-
+  public static final String SYSTEM_FOLDER = "system_folder"; //$NON-NLS-1$
+  
   /**
    * Gets file. Use this method to test for file existence too.
    *

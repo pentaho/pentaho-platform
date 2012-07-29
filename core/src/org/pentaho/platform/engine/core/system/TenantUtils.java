@@ -1,6 +1,10 @@
 package org.pentaho.platform.engine.core.system;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.core.mt.Tenant;
 
 /**
  * Utilities relating to multi-tenancy.
@@ -17,16 +21,37 @@ public class TenantUtils {
   /**
    * Returns the tenant ID of the current user.
    */
-  public static String getTenantId() {
+  public static ITenant getCurrentTenant() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     if (pentahoSession == null) {
       throw new IllegalStateException();
     }
-    String tenantId = (String) pentahoSession.getAttribute(IPentahoSession.TENANT_ID_KEY);
-    if (tenantId == null) {
-      tenantId = TENANTID_SINGLE_TENANT;
+    
+    String tenantId  = (String) pentahoSession.getAttribute(IPentahoSession.TENANT_ID_KEY);
+    
+    if(tenantId == null) {
+      ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", pentahoSession);
+      if(tenantedUserNameUtils != null) {
+        ITenant tenant = tenantedUserNameUtils.getTenant(pentahoSession.getName());
+        pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
+        return new Tenant(tenant.getId(), true);
+      }
     }
-    return tenantId;
+    
+    return new Tenant(tenantId, true);
   }
 
+  public static String getDefaultTenant() {
+    return TENANTID_SINGLE_TENANT;
+  }
+  
+  public static boolean isAccessibleTenant(ITenant tenant) {
+    ITenant currentTenant = TenantUtils.getCurrentTenant();
+    try {
+      return currentTenant.getId() == null || tenant.getRootFolderAbsolutePath().startsWith(currentTenant.getRootFolderAbsolutePath() + RepositoryFile.SEPARATOR)
+          || tenant.equals(currentTenant);
+    } catch (NullPointerException ex) {
+    }
+    return false;
+  }
 }

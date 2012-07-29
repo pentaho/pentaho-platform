@@ -25,13 +25,13 @@
   <wss:binding url="/webservices/userRoleService">
     <wss:service>
       <ws:service
-          impl="org.pentaho.platform.engine.security.userroledao.ws.AuthorizationPolicyBasedUserRoleWebService"/>
+impl="org.pentaho.platform.security.userroledao.ws.AuthorizationPolicyBasedUserRoleWebService" />
     </wss:service>
   </wss:binding>
 
   <wss:binding url="/webservices/userRoleListService">
     <wss:service>
-      <ws:service impl="org.pentaho.platform.engine.security.userrole.ws.DefaultUserRoleListWebService"/>
+      <ws:service impl="org.pentaho.platform.security.userrole.ws.DefaultUserRoleListWebService" />
     </wss:service>
   </wss:binding>
 

@@ -19,6 +19,13 @@
 
 package org.pentaho.test.platform.repository2.unified;
 
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ_ACL;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE_ACL;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.ROLE;
+import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.USER;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +49,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -53,20 +61,15 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.core.mt.Tenant;
+import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
-
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ_ACL;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE_ACL;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.ROLE;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.USER;
 
 /**
  * Mock implementation of the {@link IUnifiedRepository} for unit testing.
@@ -94,6 +97,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   private ICurrentUserProvider currentUserProvider = new SpringSecurityCurrentUserProvider();
 
   private FileRecord root;
+  
+  private static ITenantedPrincipleNameResolver userNameUtils = new DefaultTenantedPrincipleNameResolver();
 
   // ~ Constructors ====================================================================================================
 
@@ -111,11 +116,11 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   // ~ Methods =========================================================================================================
 
   public static RepositoryFileSid everyone() {
-    return new RepositoryFileSid("__everyone__", ROLE);
+    return new RepositoryFileSid(userNameUtils.getPrincipleId(null, "__everyone__"), ROLE);
   }
 
   public static RepositoryFileSid root() {
-    return new RepositoryFileSid("__root__", USER);
+    return new RepositoryFileSid(userNameUtils.getPrincipleId(null, "__root__"), USER);
   }
 
   protected void init() {
@@ -150,6 +155,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   }
 
+  @Override
   public RepositoryFile getFile(final String path) {
     FileRecord r = root.getFileRecord(path);
     if (r != null) {
@@ -161,6 +167,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return null;
   }
 
+  @Override
   public RepositoryFileTree getTree(final String path, final int depth, final String filter, final boolean showHidden) {
     FileRecord r = root.getFileRecord(path);
     RepositoryFile rootFile = r.getFile();
@@ -186,10 +193,12 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return new RepositoryFileTree(rootFile, children);
   }
 
+  @Override
   public RepositoryFile getFileAtVersion(final Serializable fileId, final Serializable versionId) {
     return versionManager.getFileAtVersion(fileId, versionId).getFile();
   }
 
+  @Override
   public RepositoryFile getFileById(final Serializable fileId) {
     if (idManager.hasId(fileId)) {
       if (!hasAccess(fileId, EnumSet.of(READ))) {
@@ -201,20 +210,24 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
   }
 
+  @Override
   public RepositoryFile getFile(final String path, final boolean loadLocaleMaps) {
     return getFile(path);
   }
 
+  @Override
   public RepositoryFile getFileById(final Serializable fileId, final boolean loadLocaleMaps) {
     return getFileById(fileId);
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <T extends IRepositoryFileData> T getDataForRead(final Serializable fileId, final Class<T> dataClass) {
     FileRecord r = idManager.getFileById(fileId);
     return (T) r.getData();
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <T extends IRepositoryFileData> T getDataAtVersionForRead(final Serializable fileId,
                                                                    final Serializable versionId, final Class<T> dataClass) {
@@ -225,15 +238,18 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
   }
 
+  @Override
   public <T extends IRepositoryFileData> T getDataForExecute(final Serializable fileId, final Class<T> dataClass) {
     return getDataForRead(fileId, dataClass);
   }
 
+  @Override
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute(final Serializable fileId,
                                                                       final Serializable versionId, final Class<T> dataClass) {
     return getDataAtVersionForRead(fileId, versionId, dataClass);
   }
 
+  @Override
   public <T extends IRepositoryFileData> List<T> getDataForReadInBatch(final List<RepositoryFile> files,
                                                                        final Class<T> dataClass) {
     List<T> datas = new ArrayList<T>();
@@ -247,6 +263,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return datas;
   }
 
+  @Override
   public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch(final List<RepositoryFile> files,
                                                                           final Class<T> dataClass) {
     List<T> datas = new ArrayList<T>();
@@ -260,17 +277,19 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return datas;
   }
 
+  @Override
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
                                    final IRepositoryFileData data, final String versionMessage) {
     return createFile(parentFolderId, file, data, createDefaultAcl(), versionMessage);
   }
 
   private RepositoryFileAcl createDefaultAcl() {
-    RepositoryFileAcl.Builder builder = new RepositoryFileAcl.Builder(currentUserProvider.getUser());
+    RepositoryFileAcl.Builder builder = new RepositoryFileAcl.Builder(userNameUtils.getPrincipleId(new Tenant("/pentaho", true), currentUserProvider.getUser()));
     builder.entriesInheriting(true);
     return builder.build();
   }
 
+  @Override
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
                                    final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     Validate.isTrue(!file.isFolder());
@@ -328,11 +347,13 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return desc;
   }
 
+  @Override
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
                                      final String versionMessage) {
     return createFolder(parentFolderId, file, createDefaultAcl(), versionMessage);
   }
 
+  @Override
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
                                      final RepositoryFileAcl acl, final String versionMessage) {
     Validate.isTrue(file.isFolder());
@@ -353,10 +374,12 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return fileRecord.getFile();
   }
 
+  @Override
   public List<RepositoryFile> getChildren(final Serializable folderId) {
     return getChildren(folderId, null);
   }
 
+  @Override
   public List<RepositoryFile> getChildren(final Serializable folderId, final String filter) {
     FileRecord r = idManager.getFileById(folderId);
     List<RepositoryFile> children = new ArrayList<RepositoryFile>();
@@ -394,6 +417,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return m.matches();
   }
 
+  @Override
   public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData data,
                                    final String versionMessage) {
     Validate.isTrue(!file.isFolder());
@@ -414,6 +438,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return fileRecord.getFile();
   }
 
+  @Override
   public void deleteFile(final Serializable fileId, final boolean permanent, final String versionMessage) {
     FileRecord r = idManager.getFileById(fileId);
     FileRecord parentFolder = r.getParent();
@@ -434,14 +459,17 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     parentFolder.orphan(r.getFile().getName());
   }
 
+  @Override
   public void deleteFile(final Serializable fileId, final String versionMessage) {
     deleteFile(fileId, false, versionMessage);
   }
 
+  @Override
   public void moveFile(final Serializable fileId, final String destAbsPath, final String versionMessage) {
     copyMoveFile(fileId, destAbsPath, true);
   }
 
+  @Override
   public void copyFile(final Serializable fileId, final String destAbsPath, final String versionMessage) {
     copyMoveFile(fileId, destAbsPath, false);
   }
@@ -478,6 +506,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
   }
 
+  @Override
   public void undeleteFile(final Serializable fileId, final String versionMessage) {
     FileRecord r = idManager.getFileById(fileId);
     FileRecord parentFolder = r.getParent();
@@ -487,10 +516,12 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     deleteManager.restore(fileId);
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles(final String origParentFolderPath) {
     return getDeletedFiles(origParentFolderPath, null);
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles(final String origParentFolderPath, final String filter) {
     List<RepositoryFile> deletedFiles = new ArrayList<RepositoryFile>();
     List<FileRecord> d = deleteManager.getTrashedFiles(origParentFolderPath, filter);
@@ -500,6 +531,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return deletedFiles;
   }
 
+  @Override
   public List<RepositoryFile> getDeletedFiles() {
     List<RepositoryFile> deletedFiles = new ArrayList<RepositoryFile>();
     List<FileRecord> d = deleteManager.getTrashedFiles();
@@ -509,18 +541,22 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return deletedFiles;
   }
 
+  @Override
   public boolean canUnlockFile(final Serializable fileId) {
     return lockManager.canUnlockFile(fileId);
   }
 
+  @Override
   public void lockFile(final Serializable fileId, final String message) {
     lockManager.lockFile(fileId, message);
   }
 
+  @Override
   public void unlockFile(final Serializable fileId) {
     lockManager.unlockFile(fileId);
   }
 
+  @Override
   public RepositoryFileAcl getAcl(final Serializable fileId) {
     if (!hasAccess(fileId, EnumSet.of(READ_ACL))) {
       throw new AccessDeniedException("access denied");
@@ -529,6 +565,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return r.getAcl();
   }
 
+  @Override
   public RepositoryFileAcl updateAcl(final RepositoryFileAcl acl) {
     if (!hasAccess(acl.getId(), EnumSet.of(WRITE_ACL))) {
       throw new AccessDeniedException("access denied");
@@ -538,6 +575,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return acl;
   }
 
+  @Override
   public boolean hasAccess(final String path, final EnumSet<RepositoryFilePermission> permissions) {
     FileRecord r = root.getFileRecord(path);
     if (r != null) {
@@ -573,6 +611,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return false;
   }
 
+  @Override
   public List<RepositoryFileAce> getEffectiveAces(final Serializable fileId) {
     if (!hasAccess(fileId, EnumSet.of(READ_ACL))) {
       throw new AccessDeniedException("access denied");
@@ -591,6 +630,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
   }
 
+  @Override
   public List<RepositoryFileAce> getEffectiveAces(final Serializable fileId, final boolean forceEntriesInheriting) {
     FileRecord r = idManager.getFileById(fileId);
     if (r.getParent() != null) {
@@ -600,6 +640,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
   }
 
+  @Override
   public VersionSummary getVersionSummary(final Serializable fileId, final Serializable versionId) {
     FrozenFileRecord r = null;
     if (versionId == null) {
@@ -611,6 +652,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
         new ArrayList<String>(0));
   }
 
+  @Override
   public List<VersionSummary> getVersionSummaryInBatch(final List<RepositoryFile> files) {
     List<VersionSummary> sums = new ArrayList<VersionSummary>();
     for (RepositoryFile file : files) {
@@ -623,6 +665,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return sums;
   }
 
+  @Override
   public List<VersionSummary> getVersionSummaries(final Serializable fileId) {
     List<VersionSummary> sums = new ArrayList<VersionSummary>();
     List<FrozenFileRecord> records = versionManager.getVersions(fileId);
@@ -633,10 +676,12 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return sums;
   }
 
+  @Override
   public void deleteFileAtVersion(final Serializable fileId, final Serializable versionId) {
     versionManager.deleteVersion(fileId, versionId);
   }
 
+  @Override
   public void restoreFileAtVersion(final Serializable fileId, final Serializable versionId, final String versionMessage) {
     FrozenFileRecord restored = versionManager.restoreVersion(fileId, versionId, currentUserProvider.getUser(),
         versionMessage, new Date());
@@ -649,6 +694,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
         .lockDate(orig.getLockDate()).lockMessage(orig.getLockMessage()).lockOwner(orig.getLockOwner()).build());
   }
 
+  @Override
   public List<RepositoryFile> getReferrers(final Serializable fileId) {
     List<RepositoryFile> files = new ArrayList<RepositoryFile>();
     for (Serializable refFileId : referralManager.getReferrers(fileId)) {
@@ -657,14 +703,16 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     return files;
   }
 
+  @Override
   public void setFileMetadata(final Serializable fileId, final Map<String, Serializable> metadataMap) {
-    if (!hasAccess(fileId, EnumSet.of(WRITE))) {
-      throw new AccessDeniedException("access denied");
-    }
+    //if (!hasAccess(fileId, EnumSet.of(WRITE))) {
+    //  throw new AccessDeniedException("access denied");
+    //}
     FileRecord r = idManager.getFileById(fileId);
     r.setMetadata(metadataMap);
   }
 
+  @Override
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
     if (!hasAccess(fileId, EnumSet.of(READ))) {
       throw new AccessDeniedException("access denied");

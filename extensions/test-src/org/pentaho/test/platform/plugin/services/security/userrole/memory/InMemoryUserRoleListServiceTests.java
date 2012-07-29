@@ -118,7 +118,7 @@ public class InMemoryUserRoleListServiceTests {
 
   @Test
   public void testGetAllUserNamesInRole() throws Exception {
-    List<String> allUserNames = dao.getUsersInRole("ROLE_ONE"); //$NON-NLS-1$
+    List<String> allUserNames = dao.getUsersInRole(null, "ROLE_ONE"); //$NON-NLS-1$
     assertTrue("Two users should be in the role ROLE_ONE", allUserNames.size() == 2); //$NON-NLS-1$
     for (String username: allUserNames) {
       if (logger.isDebugEnabled()) {
@@ -132,7 +132,7 @@ public class InMemoryUserRoleListServiceTests {
   @Test
   public void testGetAllUserNamesInRoleSorted() throws Exception {
     dao.setUsernameComparator(new DefaultUsernameComparator());
-    List<String> usernames = dao.getUsersInRole("ROLE_ONE");
+    List<String> usernames = dao.getUsersInRole(null, "ROLE_ONE");
     if (logger.isDebugEnabled()) {
       logger.debug("testGetAllUserNamesInRoleSorted(): Usernames: " + usernames); //$NON-NLS-1$
     }
@@ -141,7 +141,7 @@ public class InMemoryUserRoleListServiceTests {
 
   @Test
   public void testGetRolesForUser() throws Exception {
-    List<String> userAuths = dao.getRolesForUser("marissa"); //$NON-NLS-1$
+    List<String> userAuths = dao.getRolesForUser(null, "marissa"); //$NON-NLS-1$
     if (logger.isDebugEnabled()) {
       logger.debug("testGetRolesForUser(): Roles: " + userAuths); //$NON-NLS-1$
     }
@@ -154,7 +154,7 @@ public class InMemoryUserRoleListServiceTests {
   @Test
   public void testGetRolesForUserSorted() throws Exception {
     dao.setRoleComparator(new DefaultRoleComparator());
-    List<String> authorities = dao.getRolesForUser("scott"); //$NON-NLS-1$
+    List<String> authorities = dao.getRolesForUser(null, "scott"); //$NON-NLS-1$
     if (logger.isDebugEnabled()) {
       logger.debug("testGetRolesForUser(): Roles: " + authorities); //$NON-NLS-1$
     }

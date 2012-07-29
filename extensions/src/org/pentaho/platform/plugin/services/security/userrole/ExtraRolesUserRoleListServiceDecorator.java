@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.mt.ITenant;
 import org.springframework.util.Assert;
 
 /**
@@ -37,6 +38,7 @@ public class ExtraRolesUserRoleListServiceDecorator implements IUserRoleListServ
 
   // ~ Methods =========================================================================================================
 
+  @Override
   public List<String> getAllRoles() {
     return getNewRoles();
   }
@@ -55,16 +57,9 @@ public class ExtraRolesUserRoleListServiceDecorator implements IUserRoleListServ
     return newRoles1;
   }
   
+  @Override
   public List<String> getAllUsers() {
     return userRoleListService.getAllUsers();
-  }
-
-  public List<String> getRolesForUser(final String username) {
-    return userRoleListService.getRolesForUser(username);
-  }
-
-  public List<String> getUsersInRole(final String role) {
-    return userRoleListService.getUsersInRole(role);
   }
 
   public void setUserRoleListService(final IUserRoleListService userRoleListService) {
@@ -74,6 +69,26 @@ public class ExtraRolesUserRoleListServiceDecorator implements IUserRoleListServ
   public void setExtraRoles(final List<String> extraRoles) {
     Assert.notNull(extraRoles);
     this.extraRoles = new ArrayList<String>(extraRoles);
+  }
+
+  @Override
+  public List<String> getAllRoles(ITenant tenant) {
+    return userRoleListService.getAllRoles(tenant);
+  }
+
+  @Override
+  public List<String> getAllUsers(ITenant tenant) {
+    return userRoleListService.getAllUsers();
+  }
+
+  @Override
+  public List<String> getUsersInRole(ITenant tenant, String role) {
+    return userRoleListService.getUsersInRole(tenant, role);
+  }
+
+  @Override
+  public List<String> getRolesForUser(ITenant tenant, String username) {
+    return userRoleListService.getRolesForUser(tenant, username);
   }
 
 }

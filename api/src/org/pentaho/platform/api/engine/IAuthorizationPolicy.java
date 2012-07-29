@@ -1,6 +1,8 @@
 package org.pentaho.platform.api.engine;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * An access control policy.
@@ -14,7 +16,25 @@ import java.util.List;
  * @author mlowery
  */
 public interface IAuthorizationPolicy {
-
+  
+  class Initializer {
+    static Set<String> getPredefinedSystemRoles() {
+      HashSet<String> predefinedSystemRoles = new HashSet<String>();
+      predefinedSystemRoles.add(CREATE_REPOSITORY_CONTENT_ACTION);
+      predefinedSystemRoles.add(READ_REPOSITORY_CONTENT_ACTION);
+      predefinedSystemRoles.add(ADMINISTER_SECURITY_ACTION);
+      predefinedSystemRoles.add(CREATE_TENANTS_ACTION);
+      return predefinedSystemRoles;
+    }
+  }
+  public static final String CREATE_REPOSITORY_CONTENT_ACTION = "org.pentaho.repository.create";
+  public static final String READ_REPOSITORY_CONTENT_ACTION = "org.pentaho.repository.read";
+  public static final String ADMINISTER_SECURITY_ACTION = "org.pentaho.security.administerSecurity";
+  public static final String CREATE_TENANTS_ACTION = "org.pentaho.security.administerSystem";
+  
+  public static final Set<String> PREDEFINED_SYSTEM_LOGICAL_ROLES = Initializer.getPredefinedSystemRoles();
+  
+  
   /**
    * Returns {@code true} if the the action should be allowed.
    * 

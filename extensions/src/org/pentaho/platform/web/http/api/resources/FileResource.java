@@ -97,12 +97,6 @@ public class FileResource extends AbstractJaxRSResource {
 
   public static final String PATH_SEPERATOR = "/"; //$NON-NLS-1$
 
-  private static final String ACTION_READ = "org.pentaho.repository.read"; //$NON-NLS-1$
-
-  private static final String ACTION_CREATE = "org.pentaho.repository.create"; //$NON-NLS-1$
-
-  private static final String ACTION_ADMINISTER_SECURITY = "org.pentaho.security.administerSecurity"; //$NON-NLS-1$
-
   public static final String APPLICATION_ZIP = "application/zip"; //$NON-NLS-1$
 
   private static final Log logger = LogFactory.getLog(FileResource.class);
@@ -458,8 +452,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("/canAdminister")
   @Produces(TEXT_PLAIN)
   public String doGetCanAdminister() {
-    return policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE)
-        && policy.isAllowed(ACTION_ADMINISTER_SECURITY) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+    return policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+        && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
   @GET

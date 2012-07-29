@@ -238,7 +238,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     RepositoryFile file = getFileById(fileId);
     SimpleRepositoryFileData data = getData(fileId, null, SimpleRepositoryFileData.class);
     deleteFile(fileId, versionMessage);
-    createFile(null, file, data, createDefaultAcl(), versionMessage);
+    createFile(null, file, data, null, versionMessage);
   }
 
   public void permanentlyDeleteFile(Serializable fileId, String versionMessage) {
@@ -276,10 +276,6 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     }
 
     return getFile(file.getPath());
-  }
-
-  protected RepositoryFileAcl createDefaultAcl() {
-    return new RepositoryFileAcl.Builder(new RepositoryFileSid("joe")).entriesInheriting(true).build();
   }
 
   public List<RepositoryFile> getReferrers(Serializable fileId) {

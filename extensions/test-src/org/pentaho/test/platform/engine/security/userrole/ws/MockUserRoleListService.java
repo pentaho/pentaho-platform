@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.mt.ITenant;
 
 public class MockUserRoleListService implements IUserRoleListService {
 
@@ -60,6 +61,30 @@ public class MockUserRoleListService implements IUserRoleListService {
     }
     return Collections.emptyList();
 
+  }
+
+  @Override
+  public List<String> getAllRoles(ITenant arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<String> getAllUsers(ITenant arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<String> getRolesForUser(ITenant arg0, String arg1) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<String> getUsersInRole(ITenant arg0, String arg1) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

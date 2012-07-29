@@ -32,7 +32,7 @@ public class PentahoSessionCredentialsStrategy implements CredentialsStrategy {
 
   private static final String ATTR_PRE_AUTHENTICATION_TOKEN = "pre_authentication_token"; //$NON-NLS-1$
 
-  private static final char[] PASSWORD = "ignored".toCharArray(); //$NON-NLS-1$
+  private static final char[] PASSWORD = "ingnored".toCharArray(); //$NON-NLS-1$
 
   // ~ Instance fields =================================================================================================
 
@@ -49,13 +49,13 @@ public class PentahoSessionCredentialsStrategy implements CredentialsStrategy {
   // ~ Methods =========================================================================================================
 
   public Credentials getCredentials() {
-    String username = getUsername();
-    SimpleCredentials creds = new SimpleCredentials(username, PASSWORD);
+    String userId = getUserId();
+    SimpleCredentials creds = new SimpleCredentials(userId, PASSWORD);
     creds.setAttribute(ATTR_PRE_AUTHENTICATION_TOKEN, preAuthenticationToken);
     return creds;
   }
 
-  private String getUsername() {
+  private String getUserId() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     Assert.state(pentahoSession != null, "this method cannot be called with a null IPentahoSession");
     return pentahoSession.getName();

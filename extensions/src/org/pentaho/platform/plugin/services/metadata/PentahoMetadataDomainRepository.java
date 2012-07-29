@@ -236,13 +236,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       } catch (Exception e) {
         return null;  // This pretty much ensures an exception will be thrown later and passed to the client
       }
-      
-      String fileName = null;
-      if(repoFile.getName().endsWith(".properties")) {
-    	  fileName = repoFile.getName();
-      } else {
-    	  fileName = domainId.endsWith(".xmi") ? domainId : domainId + ".xmi";
-      }
+      String fileName = repoFile.getName().endsWith(".properties") ? repoFile.getName() : domainId + ".xmi";
       values.put(fileName, is);
     }
     return values;

@@ -32,6 +32,9 @@ PentahoSystem which is initialized after Spring
     <constructor-arg>
       <ref bean="unifiedRepository"/>
     </constructor-arg>
+  <constructor-arg>
+      <ref bean="tenantedRoleNameUtils"/>
+    </constructor-arg>
   </bean>
   <!-- Wrap the concrete IMetadataDomainRepository implementation with one that caches domains per session -->
   <bean id="IMetadataDomainRepository"
@@ -123,7 +126,7 @@ not directly from the PentahoObjectFactory. -->
   <alias name="authorizationPolicy" alias="IAuthorizationPolicy"/>
 
   <!-- actual bean defined in repository.spring.xml; aliased here -->
-  <alias name="roleAuthorizationPolicyRoleBindingDao" alias="IRoleAuthorizationPolicyRoleBindingDao"/>
+  <alias name="roleAuthorizationPolicyRoleBindingDaoTxn" alias="IRoleAuthorizationPolicyRoleBindingDao"/>
 
   <!-- actual bean defined in applicationContext-pentaho-security-*.xml; aliased here -->
   <alias name="userRoleListService" alias="IUserRoleListService"/>
@@ -201,8 +204,7 @@ not directly from the PentahoObjectFactory. -->
   <bean id="ICacheExpirationRegistry" class="org.pentaho.platform.plugin.services.cache.CacheExpirationRegistry"
         scope="singleton"/>
 
-  <bean id="ITenant" class="org.pentaho.platform.repository2.unified.Tenant" scope="prototype"/>
-
+<bean id="ITenant" class="org.pentaho.platform.core.mt.Tenant" scope="prototype"/>
 
   <bean id="IPlatformImporter" class="org.pentaho.platform.plugin.services.importer.PentahoPlatformImporter" scope="singleton">
     <constructor-arg>

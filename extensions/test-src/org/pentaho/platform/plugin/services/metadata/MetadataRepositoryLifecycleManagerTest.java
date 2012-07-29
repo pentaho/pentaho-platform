@@ -20,21 +20,26 @@ package org.pentaho.platform.plugin.services.metadata;
 
 import java.io.File;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.fs.FileSystemFileAclDao;
 import org.pentaho.platform.repository2.unified.fs.FileSystemRepositoryFileDao;
+import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import junit.framework.TestCase;
 
 /**
  * Class Description
@@ -45,8 +50,11 @@ public class MetadataRepositoryLifecycleManagerTest extends TestCase {
   public static final String TENANT_AUTHENTICATED_AUTHORITY_NAME_PATTERN = "{0}_Admin";
   public static final String SINGLE_TENANT_AUTHENTICATED_AUTHORITY_NAME = "Authenticated";
   private static final String TEST_TENANT_ID = "Pentaho";
+  private static final String TEST_USER_ID = "joe";
+  private MicroPlatform mp;
 
   private PentahoMetadataRepositoryLifecycleManager lifecycleManager;
+  private ITenantedPrincipleNameResolver tenantedUserNameUtils = new DefaultTenantedPrincipleNameResolver();
   private File tempDir;
 
   @Override
@@ -62,8 +70,11 @@ public class MetadataRepositoryLifecycleManagerTest extends TestCase {
     final IRepositoryFileAclDao repositoryFileAclDao = new FileSystemFileAclDao();
     final TransactionTemplate txnTemplate = new MockTransactionTemplate();
     lifecycleManager = new PentahoMetadataRepositoryLifecycleManager(contentDao, repositoryFileAclDao, txnTemplate,
-        REPOSITORY_ADMIN_USERNAME, TENANT_AUTHENTICATED_AUTHORITY_NAME_PATTERN,
-        SINGLE_TENANT_AUTHENTICATED_AUTHORITY_NAME);
+        REPOSITORY_ADMIN_USERNAME, TENANT_AUTHENTICATED_AUTHORITY_NAME_PATTERN);
+    mp = new MicroPlatform();
+    mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
+    mp.start();
+
     lifecycleManager.startup();
   }
 
@@ -75,9 +86,7 @@ public class MetadataRepositoryLifecycleManagerTest extends TestCase {
 
   @Test
   public void testDoNewTenant() throws Exception {
-    // Save the current session
-    final IPentahoSession currentSession = PentahoSessionHolder.getSession();
-
+    IPentahoSession currentSession = PentahoSessionHolder.getSession();
     try {
       lifecycleManager.newTenant(TEST_TENANT_ID);
       fail("The /etc folder is not setup and this should cause a failure");
@@ -86,8 +95,13 @@ public class MetadataRepositoryLifecycleManagerTest extends TestCase {
     }
 
     // Create the folder and it should work
-    final String tenantEtcFolderPath = ServerRepositoryPaths.getTenantEtcFolderPath(TEST_TENANT_ID);
+    final String tenantEtcFolderPath = ServerRepositoryPaths.getTenantEtcFolderPath(new Tenant("/" + TEST_TENANT_ID, true));
     createFolder(tenantEtcFolderPath);
+    StandaloneSession pentahoSession = new StandaloneSession("");
+    pentahoSession.setAuthenticated(TEST_TENANT_ID, tenantedUserNameUtils.getPrincipleId(new Tenant("/" + TEST_TENANT_ID, true), TEST_USER_ID));
+    PentahoSessionHolder.setSession(pentahoSession);
+    currentSession = PentahoSessionHolder.getSession();
+    currentSession.setAttribute(IPentahoSession.TENANT_ID_KEY, TEST_TENANT_ID);
     lifecycleManager.newTenant(TEST_TENANT_ID);
     assertTrue(new File(tempDir, tenantEtcFolderPath + "/metadata").exists());
     assertEquals(currentSession, PentahoSessionHolder.getSession());
@@ -101,19 +115,19 @@ public class MetadataRepositoryLifecycleManagerTest extends TestCase {
   @Test
   public void testDoNewUser() throws Exception {
     // Nothing to test
-    lifecycleManager.doNewUser(null, null);
+    lifecycleManager.newUser(null, null);
   }
 
   @Test
   public void testDoShutdown() throws Exception {
     // Nothing to test
-    lifecycleManager.doShutdown();
+    lifecycleManager.shutdown();
   }
 
   @Test
   public void testDoStartup() throws Exception {
     // Nothing to test
-    lifecycleManager.doStartup();
+    lifecycleManager.startup();
   }
 
   private void createFolder(final String folderName) {

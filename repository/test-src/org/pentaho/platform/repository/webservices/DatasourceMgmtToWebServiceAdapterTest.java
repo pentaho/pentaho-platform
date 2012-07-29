@@ -7,7 +7,6 @@ import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermiss
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE_ACL;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;

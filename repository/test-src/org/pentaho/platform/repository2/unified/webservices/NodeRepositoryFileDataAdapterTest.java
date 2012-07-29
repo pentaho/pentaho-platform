@@ -1,5 +1,8 @@
 package org.pentaho.platform.repository2.unified.webservices;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -8,9 +11,6 @@ import org.junit.Test;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class NodeRepositoryFileDataAdapterTest {
 

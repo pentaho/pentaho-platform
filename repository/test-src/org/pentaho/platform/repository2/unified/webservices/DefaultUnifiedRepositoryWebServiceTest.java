@@ -24,12 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.test.platform.repository2.unified.MockUnifiedRepository;
-
-import junit.framework.TestCase;
 
 /**
  * Test class for DefaultUnifiedRepositoryWebService

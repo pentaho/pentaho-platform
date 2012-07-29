@@ -108,6 +108,8 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 
   private String tenantAuthenticatedAuthorityNamePattern;
 
+  private String sysAdminRoleName;
+  
   private JcrTemplate testJcrTemplate;
 
   private IBackingRepositoryLifecycleManager manager;
@@ -203,8 +205,8 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   
   protected void clearRoleBindings() throws Exception {
 	loginAsRepositoryAdmin();
-	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath("duff") + ".authz");
-	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath("duff") + ".authz");
+//	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath("duff") + ".authz");
+//	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath("duff") + ".authz");
   }  
   
   @Test

@@ -31,6 +31,8 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISecurityHelper;
 import org.pentaho.platform.api.engine.ISolutionFile;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -102,6 +104,14 @@ public class SecurityHelper implements ISecurityHelper {
     UserSession session = new UserSession(principalName, null, false, paramProvider);
     session.setAuthenticated(principalName);
     Authentication auth = createAuthentication(principalName);
+    // TODO We need to figure out how to inject this
+    // Get the tenant id from the principle name and set it as an attribute of the pentaho session
+    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", session);
+    if(tenantedUserNameUtils != null) {
+      ITenant tenant = tenantedUserNameUtils.getTenant(principalName);
+      session.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
+      
+    }
     PentahoSessionHolder.setSession(session);
     SecurityContextHolder.getContext().setAuthentication(auth);
     PentahoSystem.sessionStartup(PentahoSessionHolder.getSession(), paramProvider);
@@ -323,7 +333,7 @@ public class SecurityHelper implements ISecurityHelper {
   @Override
   public Authentication createAuthentication(String principalName) {
     IUserRoleListService roleListService = PentahoSystem.get(IUserRoleListService.class);
-    List<String> roles = roleListService.getRolesForUser(principalName);
+    List<String> roles = roleListService.getRolesForUser(null, principalName);
     if (SecurityHelper.logger.isDebugEnabled()) {
       SecurityHelper.logger.debug("rolesForUser from roleListService:" + roles); //$NON-NLS-1$
     }
@@ -362,16 +372,25 @@ public class SecurityHelper implements ISecurityHelper {
     // TODO Substitute the tennant admin user name using the pattern {0}_adminUser
     // final String name = MessageFormat.format("{0}_adminUser", TenantUtils.getTenantId());
     
-    final String name = "joe"; //$NON-NLS-1$
+    String name = "joe"; //$NON-NLS-1$
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
+      StandaloneSession session;
+      GrantedAuthority[] roles;
+      if (origSession.getAttribute(IPentahoSession.TENANT_ID_KEY) != null) {
     // create pentaho session
-    StandaloneSession session = new StandaloneSession(name);
+        name = "jim_" + origSession.getAttribute(IPentahoSession.TENANT_ID_KEY);        
+        session = new StandaloneSession(name);
+        session.setAuthenticated(name);
+        roles = new GrantedAuthority[1];
+        roles[0] = new GrantedAuthorityImpl(origSession.getAttribute(IPentahoSession.TENANT_ID_KEY) + "_Admin");
+      } else {
+        name = "joe";        
+        session = new StandaloneSession(name);
     session.setAuthenticated(name);
     // create authentication
     
-    GrantedAuthority[] roles;
     IAclVoter aclVoter = PentahoSystem.get(IAclVoter.class, null);
     if (aclVoter != null) {
       roles = new GrantedAuthority[1];
@@ -380,6 +399,7 @@ public class SecurityHelper implements ISecurityHelper {
       // silently ignore a missing IAclVoter (access will be denied for lack of roles)
       roles = new GrantedAuthority[0];
     }
+      }
     Authentication auth = new UsernamePasswordAuthenticationToken(name, "", roles); //$NON-NLS-1$
 
     // set holders

@@ -76,21 +76,18 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
   private IPathConversionHelper pathConversionHelper;
   
-  private IDefaultAclHelper defaultAclHelper;
-
   // ~ Constructors ====================================================================================================
 
   public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper) {
-    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper(), new DefaultDefaultAclHelper());
+    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper());
   }
 
   public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper,
-      final IPermissionConversionHelper permissionConversionHelper, final IDefaultAclHelper defaultAclHelper) {
+      final IPermissionConversionHelper permissionConversionHelper) {
     super();
     this.jcrTemplate = jcrTemplate;
     this.pathConversionHelper = pathConversionHelper;
     this.permissionConversionHelper = permissionConversionHelper;
-    this.defaultAclHelper = defaultAclHelper;
   }
 
   // ~ Methods =========================================================================================================
@@ -185,10 +182,6 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     });
   }
   
-  public RepositoryFileAcl createDefaultAcl() {
-    return defaultAclHelper.createDefaultAcl();
-  }
-
   private RepositoryFileAcl toAcl(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable id) throws RepositoryException {
 
@@ -204,10 +197,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     RepositoryFileSid owner = null;
     String ownerString = getOwner(session, absPath, acList);
 
-    // special handling for root node; it doesn't have a "pentaho acl" so we make some assumptions
-    if (ownerString == null) {
-      owner = null;
-    } else {
+    if (ownerString != null) {
       // for now, just assume all owners are users; only has UI impact
       owner = new RepositoryFileSid(ownerString, RepositoryFileSid.Type.USER);
     }
@@ -360,8 +350,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
       acList.removeAccessControlEntry(acEntries[i]);
     }
 
-    JcrRepositoryFileAclUtils.setAclMetadata(session, absPath, acList, new AclMetadata(acl
-        .getOwner().getName(), acl.isEntriesInheriting()));
+    JcrRepositoryFileAclUtils.setAclMetadata(session, absPath, acList, new AclMetadata(acl.getOwner().getName(), acl.isEntriesInheriting()));
 
     // add entries to now empty list but only if not inheriting; force user to start with clean slate 
     if (!acl.isEntriesInheriting()) {

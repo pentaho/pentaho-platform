@@ -7,7 +7,6 @@ import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermiss
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE_ACL;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -15,7 +14,6 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.pentaho.database.model.DatabaseAccessType;
 import org.pentaho.database.model.DatabaseConnection;
-import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.model.IDatabaseType;
 import org.pentaho.database.service.DatabaseDialectService;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;

@@ -99,11 +99,4 @@ public interface IRepositoryFileAclDao {
    */
   void setFullControl(final Serializable fileId, RepositoryFileSid sid, final RepositoryFilePermission permission);
   
-  /**
-   * Creates a default ACL. Implementations might use the current user as the owner and set entries inheriting to true.
-   * 
-   * @return default ACL 
-   */
-  RepositoryFileAcl createDefaultAcl();
-
 }

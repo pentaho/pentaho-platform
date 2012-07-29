@@ -18,10 +18,8 @@ import java.lang.reflect.Constructor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.engine.core.system.TenantUtils;
-import org.springframework.util.Assert;
 
 /**
  * Class of static methods that return commonly needed absolute paths like "tenant root folder path."
@@ -60,20 +58,20 @@ public class ServerRepositoryPaths {
     return strategy.getPentahoRootFolderPath();
   }
 
-  public static String getTenantHomeFolderPath(final String tenantId) {
-    return strategy.getTenantHomeFolderPath(tenantId);
+  public static String getTenantHomeFolderPath(final ITenant tenant) {
+    return strategy.getTenantHomeFolderPath(tenant);
   }
 
-  public static String getTenantPublicFolderPath(final String tenantId) {
-    return strategy.getTenantPublicFolderPath(tenantId);
+  public static String getTenantPublicFolderPath(final ITenant tenant) {
+    return strategy.getTenantPublicFolderPath(tenant);
   }
 
-  public static String getTenantRootFolderPath(final String tenantId) {
-    return strategy.getTenantRootFolderPath(tenantId);
+  public static String getTenantRootFolderPath(final ITenant tenant) {
+    return strategy.getTenantRootFolderPath(tenant);
   }
 
-  public static String getUserHomeFolderPath(final String tenantId, final String username) {
-    return strategy.getUserHomeFolderPath(tenantId, username);
+  public static String getUserHomeFolderPath(ITenant tenant, String username) {
+    return strategy.getUserHomeFolderPath(tenant, username);
   }
 
   /**
@@ -86,28 +84,24 @@ public class ServerRepositoryPaths {
     return strategy.getTenantId(absPath);
   }
 
-  public static String getTenantEtcFolderPath(final String tenantId) {
-    return strategy.getTenantEtcFolderPath(tenantId);
+  public static String getTenantEtcFolderPath(final ITenant tenant) {
+    return strategy.getTenantEtcFolderPath(tenant);
   }
 
   public static String getTenantHomeFolderPath() {
-    return getTenantHomeFolderPath(TenantUtils.getTenantId());
+    return getTenantHomeFolderPath(TenantUtils.getCurrentTenant());
   }
 
   public static String getTenantPublicFolderPath() {
-    return getTenantPublicFolderPath(TenantUtils.getTenantId());
+    return getTenantPublicFolderPath(TenantUtils.getCurrentTenant());
   }
 
   public static String getTenantRootFolderPath() {
-    return getTenantRootFolderPath(TenantUtils.getTenantId());
-  }
-
-  public static String getUserHomeFolderPath() {
-    return getUserHomeFolderPath(TenantUtils.getTenantId(), internalGetUsername());
+    return getTenantRootFolderPath(TenantUtils.getCurrentTenant());
   }
 
   public static String getTenantEtcFolderPath() {
-    return getTenantEtcFolderPath(TenantUtils.getTenantId());
+    return getTenantEtcFolderPath(TenantUtils.getCurrentTenant());
   }
 
   public static String getTenantHomeFolderName() {
@@ -158,15 +152,15 @@ public class ServerRepositoryPaths {
   public static interface IServerRepositoryPathsStrategy {
     String getPentahoRootFolderPath();
 
-    String getTenantHomeFolderPath(final String tenantId);
+    String getTenantHomeFolderPath(final ITenant tenant);
 
-    String getTenantPublicFolderPath(final String tenantId);
+    String getTenantPublicFolderPath(final ITenant tenant);
 
-    String getTenantRootFolderPath(final String tenantId);
+    String getTenantRootFolderPath(final ITenant tenant);
 
-    String getUserHomeFolderPath(final String tenantId, final String username);
+    String getUserHomeFolderPath(ITenant tenant, final String username);
 
-    String getTenantEtcFolderPath(final String tenantId);
+    String getTenantEtcFolderPath(final ITenant tenant);
 
     String getTenantHomeFolderName();
 
@@ -179,13 +173,5 @@ public class ServerRepositoryPaths {
     String getTenantId(final String absPath);
   }
 
-  /**
-   * Returns the username of the current user.
-   */
-  private static String internalGetUsername() {
-    IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-    Assert.state(pentahoSession != null);
-    return pentahoSession.getName();
-  }
 
 }

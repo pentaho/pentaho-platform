@@ -102,9 +102,10 @@ public class SpringSecurityLoginModule extends AbstractLoginModule {
 
   protected AuthenticationManager getAuthenticationManager(final CallbackHandler callbackHandler,
       final Session session, final Map options) {
+    if(PentahoSystem.getInitializedOK()) {
     AuthenticationManager am = PentahoSystem.get(AuthenticationManager.class);
-    Assert.state(am != null);
     return am;
+    } else return null;
   }
 
   /**

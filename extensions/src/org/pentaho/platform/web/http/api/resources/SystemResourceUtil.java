@@ -88,7 +88,7 @@ public class SystemResourceUtil {
     Element rootElement = new DefaultElement("roles"); //$NON-NLS-1$
     Document doc = DocumentHelper.createDocument(rootElement);
     if (service != null) {
-      List<String> roles = service.getRolesForUser(user);
+      List<String> roles = service.getRolesForUser(null, user);
       for (Iterator<String> rolesIterator = roles.iterator(); rolesIterator.hasNext();) {
         String roleName = rolesIterator.next().toString();
         if ((null != roleName) && (roleName.length() > 0)) {
@@ -108,7 +108,7 @@ public class SystemResourceUtil {
 	Element rootElement = new DefaultElement("users"); //$NON-NLS-1$
 	Document doc = DocumentHelper.createDocument(rootElement);
 	if (service != null) {
-	  List<String> users = service.getUsersInRole(role);
+	  List<String> users = service.getUsersInRole(null, role);
 	  for (Iterator<String> usersIterator = users.iterator(); usersIterator.hasNext();) {
 	    String username = usersIterator.next().toString();
 	    if ((null != username) && (username.length() > 0)) {

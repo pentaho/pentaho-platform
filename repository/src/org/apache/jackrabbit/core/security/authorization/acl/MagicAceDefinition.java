@@ -18,15 +18,20 @@ public class MagicAceDefinition {
 
   public Privilege[] privileges;
 
-  public boolean recursive;
+  public boolean applyToChildren;
 
-  public MagicAceDefinition(final String path, final String logicalRole, final Privilege[] privileges,
-      final boolean recursive) {
+  public boolean applyToAncestors;
+  
+  public boolean applyToTarget;
+  
+  public MagicAceDefinition(final String path, final String logicalRole, final Privilege[] privileges, final boolean applyToTarget, final boolean applyToChildren, final boolean applyToAncestors) {
     super();
     this.path = path;
     this.logicalRole = logicalRole;
     this.privileges = privileges;
-    this.recursive = recursive;
+    this.applyToChildren = applyToChildren;
+    this.applyToAncestors = applyToAncestors;
+    this.applyToTarget = applyToTarget;
   }
 
   @Override
@@ -36,7 +41,9 @@ public class MagicAceDefinition {
     result = prime * result + ((logicalRole == null) ? 0 : logicalRole.hashCode());
     result = prime * result + ((path == null) ? 0 : path.hashCode());
     result = prime * result + Arrays.hashCode(privileges);
-    result = prime * result + (recursive ? 1231 : 1237);
+    result = prime * result + (applyToChildren ? 1231 : 1237);
+    result = prime * result + (applyToAncestors ? 8 : 9);
+    result = prime * result + (applyToTarget ? 6 : 7);
     return result;
   }
 
@@ -61,7 +68,11 @@ public class MagicAceDefinition {
       return false;
     if (!Arrays.equals(privileges, other.privileges))
       return false;
-    if (recursive != other.recursive)
+    if (applyToChildren != other.applyToChildren)
+      return false;
+    if (applyToAncestors != other.applyToAncestors)
+      return false;
+    if (applyToTarget != other.applyToTarget)
       return false;
     return true;
   }
@@ -70,6 +81,6 @@ public class MagicAceDefinition {
   @Override
   public String toString() {
     return "MagicAceDefinition [path=" + path + ", logicalRole=" + logicalRole + ", privileges="
-        + Arrays.toString(privileges) + ", recursive=" + recursive + "]";
+        + Arrays.toString(privileges) + ", applyToTarget=" + applyToTarget + ", applyToChildren=" + applyToChildren + ", applyToAncestors=" + applyToAncestors + "]";
   }
 }

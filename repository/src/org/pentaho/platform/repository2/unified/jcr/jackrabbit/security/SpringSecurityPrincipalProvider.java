@@ -37,10 +37,12 @@ import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy.AclMetadataPrincipal;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.messages.Messages;
+import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.dao.UserCache;
+import org.springframework.security.providers.dao.cache.EhCacheBasedUserCache;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
@@ -138,9 +140,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     if (logger.isTraceEnabled()) {
       logger.trace(String.format("using anonymousId [%s]", anonymousId)); //$NON-NLS-1$
     }
+    if(PentahoSystem.getInitializedOK()) {
     userDetailsService = PentahoSystem.get(UserDetailsService.class);
-    Assert.state(userDetailsService != null);
     springSecurityUserCache = PentahoSystem.get(UserCache.class);
+    }
+    
     initialized = true;
   }
 
@@ -275,6 +279,9 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    */
   protected UserDetails internalGetUserDetails(final String username) {
 
+    if(username != null && username.equals("administrators")) {
+      return null;
+    } 
     // optimization for when running in pre-authenticated mode (i.e. Spring Security filters have setup holder with
     //   current user meaning we don't have to hit the back-end again)
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -289,8 +296,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
     UserDetails user = null;
     // first try user cache
-    if (springSecurityUserCache != null) {
-      user = springSecurityUserCache.getUserFromCache(username);
+    if (getSpringSecurityUserCache() != null) {
+      user = getSpringSecurityUserCache().getUserFromCache(username);
       if (user != null) {
         if (logger.isTraceEnabled()) {
           logger.trace("user " + username + " found in spring security cache"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -308,7 +315,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     }
     // user cache not available or user not in cache; do lookup
     try {
-      user = userDetailsService.loadUserByUsername(username);
+      user = getUserDetailsService().loadUserByUsername(username);
       // cache the roles while we're here
       for (GrantedAuthority grantedAuth : user.getAuthorities()) {
         roleCache.put(grantedAuth.getAuthority(), new SpringSecurityRolePrincipal(grantedAuth));
@@ -322,8 +329,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       }
     }
 
-    if (springSecurityUserCache != null && user != null) {
-      springSecurityUserCache.putUserInCache(user);
+    if (getSpringSecurityUserCache() != null && user != null) {
+      getSpringSecurityUserCache().putUserInCache(user);
     }
     return user;
   }
@@ -371,4 +378,22 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     throw new UnsupportedOperationException();
   }
 
+  protected UserDetailsService getUserDetailsService() {
+    if(PentahoSystem.getInitializedOK()) {
+      userDetailsService = PentahoSystem.get(UserDetailsService.class);
+      return userDetailsService;
+    } else {
+      return null;
+    }
+  }
+
+  protected UserCache getSpringSecurityUserCache() {
+    if(PentahoSystem.getInitializedOK()) {
+      springSecurityUserCache = PentahoSystem.get(UserCache.class);
+      return springSecurityUserCache;
+    } else {
+      return null;
+    }
+  }
+  
 }

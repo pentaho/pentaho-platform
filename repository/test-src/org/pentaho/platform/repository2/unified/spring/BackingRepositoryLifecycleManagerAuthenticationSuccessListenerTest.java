@@ -17,15 +17,18 @@ package org.pentaho.platform.repository2.unified.spring;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
+import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.test.platform.MethodTrackingData;
 import org.pentaho.test.platform.engine.security.MockSecurityHelper;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
-
-import junit.framework.TestCase;
 
 /**
  * Test cases for the {@link BackingRepositoryLifecycleManagerAuthenticationSuccessListener}
@@ -33,13 +36,17 @@ import junit.framework.TestCase;
 @SuppressWarnings("nls")
 public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest extends TestCase {
 
-  private static final String CURRENT_USER = "test-currentUser";
+  private static final String CURRENT_USER = "testCurrentUser";
+  private static final String CURRENT_TENANT = "/testTenant";
   private static final String SYSTEM_USER = "system";
+  private static final String SYSTEM_TENANT = "/systemTenant";
   private static final String USER_PARAMETER = "user";
+  private static final String TENANTID_PARAMETER = "tenantId";
+  private ITenantedPrincipleNameResolver usernamePrincipleUtils = new DefaultTenantedPrincipleNameResolver();
 
   public void testOnApplicationEvent() throws Exception {
     final BackingRepositoryLifecycleManagerAuthenticationSuccessListener listener = new
-        BackingRepositoryLifecycleManagerAuthenticationSuccessListener();
+        BackingRepositoryLifecycleManagerAuthenticationSuccessListener(usernamePrincipleUtils);
 
     // Test the getters and setters
     final int order = listener.getOrder() + 1;
@@ -57,21 +64,21 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest 
     assertEquals(mockLifecycleManager, listener.getLifecycleManager());
 
     // Test that the "newTenant() method is executed as the system currentUser and the
-    listener.onApplicationEvent(new MockAbstractAuthenticationEvent(new MockAuthentication(CURRENT_USER)));
+    String principleName = usernamePrincipleUtils.getPrincipleId(new Tenant(CURRENT_TENANT, true), CURRENT_USER);
+    listener.onApplicationEvent(new MockAbstractAuthenticationEvent(new MockAuthentication(principleName)));
     final List<MethodTrackingData> methodTrackerHistory1 = mockLifecycleManager.getMethodTrackerHistory();
     assertEquals(2, methodTrackerHistory1.size());
     assertEquals("newTenant", methodTrackerHistory1.get(0).getMethodName());
-    assertEquals(1, methodTrackerHistory1.get(0).getParameters().size());
-    assertEquals(SYSTEM_USER, methodTrackerHistory1.get(0).getParameters().get(USER_PARAMETER));
+    assertEquals(2, methodTrackerHistory1.get(0).getParameters().size());
+    assertEquals(principleName, methodTrackerHistory1.get(0).getParameters().get(USER_PARAMETER));
+    assertEquals(CURRENT_TENANT, methodTrackerHistory1.get(0).getParameters().get(TENANTID_PARAMETER));
     assertEquals("newUser", methodTrackerHistory1.get(1).getMethodName());
     assertEquals(1, methodTrackerHistory1.get(1).getParameters().size());
-    assertEquals(CURRENT_USER, methodTrackerHistory1.get(1).getParameters().get(USER_PARAMETER));
-
+    assertEquals(principleName, methodTrackerHistory1.get(1).getParameters().get(USER_PARAMETER));
     // Make sure both methods get called when exceptions are thrown
     mockLifecycleManager.resetCallHistory();
     mockLifecycleManager.setThrowException(true);
-    listener.onApplicationEvent(new MockAbstractAuthenticationEvent(new MockAuthentication(CURRENT_USER)));
-
+    listener.onApplicationEvent(new MockAbstractAuthenticationEvent(new MockAuthentication(principleName)));
   }
 
   /**

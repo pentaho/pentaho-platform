@@ -53,10 +53,6 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   protected VersionSummaryAdapter versionSummaryAdapter = new VersionSummaryAdapter();
   
-  private final String ACTION_READ = "org.pentaho.repository.read"; 
-  private final String ACTION_CREATE = "org.pentaho.repository.create";
-  private final String ACTION_ADMINISTER_SECURITY = "org.pentaho.security.administerSecurity";
-
   // ~ Constructors ====================================================================================================
 
   /**
@@ -120,7 +116,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     // Filter etc folder from results if user is non admin.
     List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
     IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-    boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY);
+    boolean isAdmin = policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION);
     for(RepositoryFileTree file : tree.getChildren()) {
     	if(!isAdmin && file.getFile().getName().equals("etc")) {
     		continue;
@@ -328,7 +324,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   
   protected void validateEtcReadAccess(String path) {
 	  IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-	  boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY);
+	  boolean isAdmin = policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION);
 	  if(!isAdmin && path.startsWith("/etc")) {
 		  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
 	  }

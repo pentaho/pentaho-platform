@@ -22,6 +22,8 @@ package org.pentaho.platform.api.engine;
 
 import java.util.List;
 
+import org.pentaho.platform.api.mt.ITenant;
+
 public interface IUserRoleListService {
 
   /**
@@ -32,6 +34,13 @@ public interface IUserRoleListService {
   public List<String> getAllRoles();
 
   /**
+   * Returns all authorities known to the provider for a given tenant. Cannot return
+   * <code>null</code>
+   * @param tenant
+   * @return the authorities (never <code>null</code>)
+   */
+  public List<String> getAllRoles(ITenant tenant);
+  /**
    * Returns all user names known to the provider. Cannot return
    * <code>null</code>
    * @return the users (never <code>null</code>)
@@ -39,18 +48,28 @@ public interface IUserRoleListService {
   public List<String> getAllUsers();
 
   /**
+   * Returns all user names known to the provider for a given tenant. Cannot return
+   * <code>null</code>
+   * @param tenant
+   * @return the users (never <code>null</code>)
+   */
+  public List<String> getAllUsers(ITenant tenant);
+  /**
    * Returns all known users in the specified role. Cannot return
    * <code>null</code>
+   * @param tenant. tenant information
    * @param authority The authority to look users up by. Cannot be <code>null</code>
    * @return the users. (never <code>null</code>)
    */
-  public List<String> getUsersInRole(String role);
+  public List<String> getUsersInRole(ITenant tenant, String role);
 
   /**
    * Returns all authorities granted for a specified user.
+   * 
+   * @param tenant information
    * @param username The name of the user to look up authorities for
    * @return the authorities. (Never <code>null</code>)
    */
-  public List<String> getRolesForUser(String username);
+  public List<String> getRolesForUser(ITenant tenant, String username);
 
 }

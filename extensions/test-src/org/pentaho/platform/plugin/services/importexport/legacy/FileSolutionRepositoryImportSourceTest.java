@@ -127,7 +127,7 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
 
     assertEquals("", filesFound.get("TestZipFile.zip").getPath());
     assertEquals("TestZipFile.zip", filesFound.get("TestZipFile.zip").getFile().getName());
-    assertEquals("/pentaho-solutions/getting-started", filesFound.get("HelloWorld.xaction").getPath());
+    assertEquals(File.separator + "pentaho-solutions" + File.separator + "getting-started", filesFound.get("HelloWorld.xaction").getPath());
     assertEquals("HelloWorld.xaction", filesFound.get("HelloWorld.xaction").getFile().getName());
 
     assertEquals(3, foldersFound.size());
@@ -135,7 +135,7 @@ public class FileSolutionRepositoryImportSourceTest extends TestCase {
     assertNotNull(foldersFound.get("pentaho-solutions"));
     assertNotNull(foldersFound.get("getting-started"));
 
-    assertEquals("/pentaho-solutions", foldersFound.get("getting-started").getPath());
+    assertEquals(File.separator + "pentaho-solutions", foldersFound.get("getting-started").getPath());
   }
 
   public void testCreate() throws Exception {

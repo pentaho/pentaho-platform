@@ -14,17 +14,21 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.util.EnumSet;
+import java.io.Serializable;
 
-import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -35,67 +39,120 @@ import org.springframework.util.Assert;
  *
  * @author Ezequiel Cuellar
  */
-public class MondrianBackingRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager {
+public class MondrianBackingRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
 
   // ~ Static fields/initializers ======================================================================================
 
   // ~ Instance fields =================================================================================================
+  protected String repositoryAdminUsername;
 
+  protected String tenantAuthenticatedAuthorityNamePattern;
+
+  protected String singleTenantAuthenticatedAuthorityName;
+
+  protected TransactionTemplate txnTemplate;
+
+  protected IRepositoryFileDao repositoryFileDao;
+
+  protected IRepositoryFileAclDao repositoryFileAclDao;
   // ~ Constructors ====================================================================================================
 
   private static final String FOLDER_MONDRIAN = "mondrian"; //$NON-NLS-1$
+  
+  private ITenantedPrincipleNameResolver nameUtils = new DefaultTenantedPrincipleNameResolver();
 
   public MondrianBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
                                                    final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-                                                   final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
-                                                   final String singleTenantAuthenticatedAuthorityName) {
-    super(contentDao, repositoryFileAclDao, txnTemplate, repositoryAdminUsername,
-        tenantAuthenticatedAuthorityNamePattern, singleTenantAuthenticatedAuthorityName);
+                                                   final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern) {
+
+    Assert.notNull(contentDao);
+    Assert.notNull(repositoryFileAclDao);
+    Assert.notNull(txnTemplate);
+    Assert.hasText(repositoryAdminUsername);
+    Assert.hasText(tenantAuthenticatedAuthorityNamePattern);
+    this.repositoryFileDao = contentDao;
+    this.repositoryFileAclDao = repositoryFileAclDao;
+    this.txnTemplate = txnTemplate;
+    this.repositoryAdminUsername = repositoryAdminUsername;
+    this.tenantAuthenticatedAuthorityNamePattern = tenantAuthenticatedAuthorityNamePattern;
+    initTransactionTemplate();
   }
 
   // ~ Methods =========================================================================================================
 
-  public synchronized void doNewTenant(String tenantId) {
-    createEtcMondrianFolder(tenantId);
+  protected void initTransactionTemplate() {
+    // a new transaction must be created (in order to run with the correct user privileges)
+    txnTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
   }
 
-  public synchronized void doNewUser(String tenantId, String username) {
-  }
-
-  public synchronized void doShutdown() {
-  }
-
-  public synchronized void doStartup() {
-  }
-
-  protected void createEtcMondrianFolder(final String tenantId) {
-    IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
-    PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
+  protected void createEtcMondrianFolder(final String tenantPath) {
     try {
       txnTemplate.execute(new TransactionCallbackWithoutResult() {
+        @Override
         public void doInTransactionWithoutResult(final TransactionStatus status) {
-          final RepositoryFileSid repositoryAdminUserSid = new RepositoryFileSid(repositoryAdminUsername);
+          ITenant tenant = new Tenant(tenantPath, true);
+          final RepositoryFileSid repositoryAdminUserSid = new RepositoryFileSid(nameUtils.getPrincipleId(tenant, repositoryAdminUsername));
           RepositoryFile tenantEtcFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
-              .getTenantEtcFolderPath(tenantId));
+              .getTenantEtcFolderPath(tenant));
           Assert.notNull(tenantEtcFolder);
 
-          if (repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths.getTenantEtcFolderPath(tenantId)
+          if (repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths.getTenantEtcFolderPath(tenant)
               + RepositoryFile.SEPARATOR + FOLDER_MONDRIAN) == null) {
             // mondrian folder
             internalCreateFolder(tenantEtcFolder.getId(),
-                new RepositoryFile.Builder(FOLDER_MONDRIAN).folder(true).build(), false, repositoryAdminUserSid, Messages
+                new RepositoryFile.Builder(FOLDER_MONDRIAN).folder(true).build(), true, repositoryAdminUserSid, Messages
                 .getInstance().getString("MondrianRepositoryLifecycleManager.USER_0001_VER_COMMENT_MONDRIAN")); //$NON-NLS-1$
           }
         }
       });
     } finally {
-      PentahoSessionHolder.setSession(origPentahoSession);
+     
     }
   }
 
-  protected void addTenantAuthenticatedPermissions(final RepositoryFile folder,
-                                                   final RepositoryFileSid tenantAuthenticatedAuthoritySid) {
-    internalAddPermission(folder.getId(), tenantAuthenticatedAuthoritySid, EnumSet.of(RepositoryFilePermission.READ,
-        RepositoryFilePermission.READ_ACL, RepositoryFilePermission.WRITE, RepositoryFilePermission.WRITE_ACL));
+  @Override
+  public void startup() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void shutdown() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void newTenant(String tenantId) {
+    createEtcMondrianFolder(tenantId);
+  }
+
+  @Override
+  public void newTenant() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void newUser(String tenantId, String username) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void newUser() {
+    // TODO Auto-generated method stub
+    
+  }
+  
+  protected RepositoryFile internalCreateFolder(final Serializable parentFolderId, final RepositoryFile file,
+      final boolean inheritAces, final RepositoryFileSid ownerSid, final String versionMessage) {
+    Assert.notNull(file);
+
+    return repositoryFileDao.createFolder(parentFolderId, file, makeAcl(inheritAces, ownerSid), versionMessage);
+  }
+
+  protected RepositoryFileAcl makeAcl(final boolean inheritAces, final RepositoryFileSid ownerSid) {
+    return new RepositoryFileAcl.Builder(ownerSid).entriesInheriting(inheritAces).build();
   }
 }

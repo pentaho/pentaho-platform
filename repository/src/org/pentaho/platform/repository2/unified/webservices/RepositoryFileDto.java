@@ -62,6 +62,8 @@ public class RepositoryFileDto implements Serializable {
   Date lockDate;
 
   String owner;
+  
+  String ownerTenantPath;
 
   /**
    * RepositoryFileSid.Type enum.
@@ -85,6 +87,14 @@ public class RepositoryFileDto implements Serializable {
   public RepositoryFileDto() {
     super();
     // TODO Auto-generated constructor stub
+  }
+
+  public String getOwnerTenantPath() {
+    return ownerTenantPath;
+  }
+
+  public void setOwnerTenantPath(String ownerTenantPath) {
+    this.ownerTenantPath = ownerTenantPath;
   }
 
   public String getName() {

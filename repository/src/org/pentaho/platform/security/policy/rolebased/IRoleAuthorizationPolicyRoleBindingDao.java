@@ -16,6 +16,8 @@ package org.pentaho.platform.security.policy.rolebased;
 
 import java.util.List;
 
+import org.pentaho.platform.api.mt.ITenant;
+
 /**
  * Associates (binds) logical roles with runtime roles.
  * 
@@ -30,7 +32,16 @@ public interface IRoleAuthorizationPolicyRoleBindingDao {
    * @return role binding struct
    */
   RoleBindingStruct getRoleBindingStruct(final String locale);
-
+  
+  /**
+   * Gets a struct-like object that contains everything known by this DAO for a given tenant. This is a batch operation provided for UIs.
+   * 
+   * @param tenant
+   * @param locale
+   * @return role binding struct
+   */
+  RoleBindingStruct getRoleBindingStruct(final ITenant tenant, final String locale);
+  
   /**
    * Sets the bindings for the given runtime role. All other bindings for this runtime role are removed.
    * 
@@ -38,7 +49,16 @@ public interface IRoleAuthorizationPolicyRoleBindingDao {
    * @param logicalRoleNames list of logical role names
    */
   void setRoleBindings(final String runtimeRoleName, final List<String> logicalRolesNames);
-
+  
+  /**
+   * Sets the bindings for the given runtime role in a particular tenant. All other bindings for this runtime role are removed. 
+   * 
+   * @param tenant
+   * @param runtimeRoleName
+   * @param logicalRolesNames
+   */
+  void setRoleBindings(final ITenant tenant, final String runtimeRoleName, final List<String> logicalRolesNames);
+  
   /**
    * Gets the logical roles bound to the given runtime roles. Note that the size of the incoming list might not match
    * the size of the returned list. This is a convenience method. The same result could be obtained from 
@@ -48,5 +68,15 @@ public interface IRoleAuthorizationPolicyRoleBindingDao {
    * @return list of logical role names, never {@code null}
    */
   List<String> getBoundLogicalRoleNames(final List<String> runtimeRoleNames);
-
+  
+  /**
+   * Gets the logical roles bound to the given runtime roles in a particular tenant. Note that the size of the incoming list might not match
+   * the size of the returned list. This is a convenience method. The same result could be obtained from 
+   * {@link #getRoleBindingStruct()}.
+   * 
+   * @param tenant
+   * @param runtimeRoleNames list of runtime role names
+   * @return list of logical role names, never {@code null}
+   */
+  List<String> getBoundLogicalRoleNames(final ITenant tenant, final List<String> runtimeRoleNames);
 }

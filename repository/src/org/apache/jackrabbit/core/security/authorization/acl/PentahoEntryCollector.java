@@ -19,13 +19,24 @@ import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoObjectFactory;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.unified.jcr.IAclMetadataStrategy.AclMetadata;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclUtils;
+import org.pentaho.platform.security.policy.rolebased.AbstractJcrBackedRoleBindingDao;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * Copy-and-paste of {@code org.apache.jackrabbit.core.security.authorization.acl.EntryCollector} in Jackrabbit 
@@ -85,13 +96,12 @@ public class PentahoEntryCollector extends EntryCollector {
    */
   protected MagicAceDefinition parseMagicAceDefinition(final String value) throws RepositoryException {
     String[] tokens = value.split("\\;"); //$NON-NLS-1$
-    if (tokens.length != 4) {
-      throw new IllegalArgumentException();
-    }
     String path = tokens[0];
     String logicalRole = tokens[1];
     String privilegeString = tokens[2];
-    boolean recursive = Boolean.valueOf(tokens[3]);
+    boolean applyToTarget = Boolean.valueOf(tokens[3]);
+    boolean applyToChildren = Boolean.valueOf(tokens[4]);
+    boolean applyToAncestors = Boolean.valueOf(tokens[5]);
 
     String[] privilegeTokens = privilegeString.split("\\,"); //$NON-NLS-1$
     List<Privilege> privileges = new ArrayList<Privilege>(privilegeTokens.length);
@@ -99,7 +109,7 @@ public class PentahoEntryCollector extends EntryCollector {
       privileges.add(systemSession.getAccessControlManager().privilegeFromName(privilegeToken));
     }
 
-    return new MagicAceDefinition(path, logicalRole, privileges.toArray(new Privilege[0]), recursive);
+    return new MagicAceDefinition(path, logicalRole, privileges.toArray(new Privilege[0]), applyToTarget, applyToChildren, applyToAncestors);
   }
 
   /**
@@ -208,6 +218,10 @@ public class PentahoEntryCollector extends EntryCollector {
     return authorizationPolicy;
   }
 
+  protected IRoleAuthorizationPolicyRoleBindingDao getRoleBindingDao() {
+    return PentahoSystem.get(IRoleAuthorizationPolicyRoleBindingDao.class);    
+  }
+  
   /**
    * Extracts ACEs including magic aces. Magic ACEs are added for (1) the owner, (2) as a result of magic ACE 
    * definitions, and (3) as a result of ancestor ACL contributions.
@@ -227,19 +241,31 @@ public class PentahoEntryCollector extends EntryCollector {
     if (owner != null) {
       addOwnerAce(owner, acl);
     }
+
     boolean match = false;
+    IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = null;
+    try {
+      roleBindingDao = PentahoSystem.getObjectFactory().get(IRoleAuthorizationPolicyRoleBindingDao.class, "roleAuthorizationPolicyRoleBindingDaoTarget", PentahoSessionHolder.getSession());
+    } catch (ObjectFactoryException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+    ITenant currentTenant = TenantUtils.getCurrentTenant();
+    if ((currentTenant != null) && (currentTenant.getId() != null)) {
     for (final MagicAceDefinition def : magicAceDefinitions) {
       match = false;
-      String substitutedPath = MessageFormat.format(def.path, TenantUtils.getTenantId());
-      if (getAuthorizationPolicy().isAllowed(def.logicalRole)) {
-        if (def.recursive) {
-          if (path.equals(substitutedPath) || path.startsWith(substitutedPath + "/")) { //$NON-NLS-1$
-            match = true;
-          }
-        } else {
-          if (path.equals(substitutedPath)) {
-            match = true;
-          }
+          
+        String substitutedPath = MessageFormat.format(def.path, currentTenant.getRootFolderAbsolutePath());
+      if (isAllowed(roleBindingDao, def.logicalRole)) {        
+        if (def.applyToTarget) {
+          match = path.equals(substitutedPath);
+        }
+        if (!match && def.applyToChildren) {
+          match = path.startsWith(substitutedPath + "/");
+        }
+        if (!match && def.applyToAncestors) {
+          match = substitutedPath.startsWith(path + "/");
         }
       }
       if (match) {
@@ -248,6 +274,8 @@ public class PentahoEntryCollector extends EntryCollector {
         acl.addAccessControlEntry(principal, def.privileges);
       }
     }
+    }
+    
     List<AccessControlEntry> acEntries = new ArrayList<AccessControlEntry>();
     acEntries.addAll(acl.getEntries()); // leaf ACEs go first so ACL metadata ACE stays first
     acEntries.addAll(getRelevantAncestorAces(ancestorAcl));
@@ -365,4 +393,24 @@ public class PentahoEntryCollector extends EntryCollector {
     }
   }
 
+  protected List<String> getRuntimeRoleNames() {
+    IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
+    Assert.state(pentahoSession != null);
+    Authentication authentication = SecurityHelper.getInstance().getAuthentication();
+    GrantedAuthority[] authorities = authentication.getAuthorities();
+    List<String> runtimeRoles = new ArrayList<String>();
+    for (int i = 0; i < authorities.length; i++) {
+      runtimeRoles.add(authorities[i].getAuthority());
+    }
+    return runtimeRoles;
+  }
+  
+  protected boolean isAllowed(IRoleAuthorizationPolicyRoleBindingDao roleBindingDao, String logicalRoleName) throws RepositoryException{
+    if (roleBindingDao instanceof AbstractJcrBackedRoleBindingDao) {
+      AbstractJcrBackedRoleBindingDao jcrBackedRoleBindingDao = (AbstractJcrBackedRoleBindingDao)roleBindingDao;
+      return jcrBackedRoleBindingDao.getBoundLogicalRoleNames(systemSession, getRuntimeRoleNames()).contains(logicalRoleName);
+    } else {
+      return roleBindingDao.getBoundLogicalRoleNames(getRuntimeRoleNames()).contains(logicalRoleName);
+    }
+  }
 }

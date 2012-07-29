@@ -64,9 +64,18 @@ public abstract class BaseSession extends PentahoBase implements IPentahoSession
   }
 
   public void setAuthenticated(final String name) {
+    setAuthenticated(null, name);
+  }
+
+  public void setAuthenticated(final String tenantId, final String name) {
     if (name != null) {
       authenticated = true;
       this.name = name;
+      if (tenantId != null) {
+        setAttribute(TENANT_ID_KEY, tenantId);
+      } else {
+        removeAttribute(TENANT_ID_KEY);
+      }
     } else {
       // TODO audit this
     }

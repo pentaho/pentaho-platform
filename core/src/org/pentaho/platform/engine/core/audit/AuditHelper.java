@@ -55,9 +55,17 @@ public class AuditHelper {
       e = null; // Prevent Stack Trace
     }
     if (logger != null) {
+      if(e != null) {
       logger.error(msg, e);
     } else {
+        logger.error(msg);
+      }
+    } else {
+      if(e != null) {
       Logger.error(AuditHelper.class.getName(), msg, e);
+      } else {
+        Logger.error(AuditHelper.class.getName(), msg);
+      }
     }
   }
 

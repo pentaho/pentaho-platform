@@ -66,12 +66,17 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
    * Gets the list of plugins that this provider class has discovered.
    * 
    * @return an read-only list of plugins
-   * @see IPluginProvider#getPlugins(IPentahoSession session)
+   * @see IPluginProvider#getPlugins()
    * @throws PlatformPluginRegistrationException if there is a problem preventing the impl from looking for plugins
    */
   public List<IPlatformPlugin> getPlugins(IPentahoSession session) throws PlatformPluginRegistrationException {
     List<IPlatformPlugin> plugins = new ArrayList<IPlatformPlugin>();
 
+    ISolutionRepository repo = PentahoSystem.get(ISolutionRepository.class, session);
+    if (repo == null) {
+      throw new PlatformPluginRegistrationException(Messages.getInstance()
+          .getErrorString("PluginManager.ERROR_0008_CANNOT_GET_REPOSITORY")); //$NON-NLS-1$
+    }
     // look in each of the system setting folders looking for plugin.xml files
     String systemPath = PentahoSystem.getApplicationContext().getSolutionPath("system"); //$NON-NLS-1$
     File systemDir = new File(systemPath);

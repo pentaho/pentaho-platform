@@ -250,9 +250,9 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
             final int mask = rs.getInt(7);
             final int recipientType = rs.getInt(8);
             final String recipient = rs.getString(9);
-            currentAclBuilder = new RepositoryFileAcl.Builder(ownerName, RepositoryFileSid.Type.USER);
-            currentAclBuilder.ace(recipient, recipientType == 0 ? RepositoryFileSid.Type.USER
-                : RepositoryFileSid.Type.ROLE, makePerms(mask));
+//            currentAclBuilder = new RepositoryFileAcl.Builder(ownerName, RepositoryFileSid.Type.USER);
+//            currentAclBuilder.ace(recipient, recipientType == 0 ? RepositoryFileSid.Type.USER
+//                : RepositoryFileSid.Type.ROLE, makePerms(mask));
           }
         } else {
           // the only way to get here is to see two consecutive rows with same id; this necessarily means that this file
@@ -261,8 +261,8 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
           final int recipientType = rs.getInt(8);
           final String recipient = rs.getString(9);
           // just add ace
-          currentAclBuilder.ace(recipient, recipientType == 0 ? RepositoryFileSid.Type.USER
-              : RepositoryFileSid.Type.ROLE, makePerms(mask));
+//          currentAclBuilder.ace(recipient, recipientType == 0 ? RepositoryFileSid.Type.USER
+//              : RepositoryFileSid.Type.ROLE, makePerms(mask));
         }
 
       }

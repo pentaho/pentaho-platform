@@ -14,9 +14,12 @@
  */
 package org.pentaho.platform.security.policy.rolebased;
 
+import static org.junit.Assert.assertEquals;
+
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
@@ -27,8 +30,6 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.security.policy.rolebased.ws.IAuthorizationPolicyWebService;
 import org.pentaho.platform.security.policy.rolebased.ws.IRoleAuthorizationPolicyRoleBindingDaoWebService;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * To run this, put Metro JARs in your classpath.
  */
@@ -36,7 +37,7 @@ import static org.junit.Assert.assertEquals;
 public class AuthorizationPolicyClient {
   private IAuthorizationPolicy policy;
 
-  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
+  private IRoleAuthorizationPolicyRoleBindingDaoWebService roleBindingDaoWebService;
 
   @Before
   public void setUp() throws Exception {
@@ -48,26 +49,23 @@ public class AuthorizationPolicyClient {
     service = Service.create(new URL("http://localhost:8080/pentaho/webservices/roleBindingDao?wsdl"), new QName(
         "http://www.pentaho.org/ws/1.0", "roleBindingDao"));
 
-    roleBindingDao = service.getPort(IRoleAuthorizationPolicyRoleBindingDaoWebService.class);
+    roleBindingDaoWebService = service.getPort(IRoleAuthorizationPolicyRoleBindingDaoWebService.class);
 
     // basic auth
     ((BindingProvider) policy).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "suzy");
     ((BindingProvider) policy).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "password");
     // accept cookies to maintain session on server
     ((BindingProvider) policy).getRequestContext().put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
-    ((BindingProvider) roleBindingDao).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "joe");
-    ((BindingProvider) roleBindingDao).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "password");
+    ((BindingProvider) roleBindingDaoWebService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "joe");
+    ((BindingProvider) roleBindingDaoWebService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "password");
     // accept cookies to maintain session on server
-    ((BindingProvider) roleBindingDao).getRequestContext().put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
+    ((BindingProvider) roleBindingDaoWebService).getRequestContext().put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
   }
 
   @Test
   public void testEverything() {
     final String RUNTIME_ROLE_AUTHENTICATED = "Authenticated";
-    final String LOGICAL_ROLE_CREATOR = "org.pentaho.di.creator";
-    final String LOGICAL_ROLE_READER = "org.pentaho.di.reader";
-    roleBindingDao.setRoleBindings(RUNTIME_ROLE_AUTHENTICATED, Arrays.asList(new String[] { LOGICAL_ROLE_READER,
-        LOGICAL_ROLE_CREATOR }));
+    roleBindingDaoWebService.setRoleBindings(RUNTIME_ROLE_AUTHENTICATED, Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION }));
 
     List<String> allowedActions = policy.getAllowedActions("org.pentaho");
     assertEquals(2, allowedActions.size());

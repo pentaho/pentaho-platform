@@ -18,10 +18,10 @@
  */
 package org.pentaho.platform.repository2.unified.webservices;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
-
-import junit.framework.TestCase;
 
 /**
  * Test class for the KeyStringKeyValueDto class

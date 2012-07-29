@@ -292,13 +292,13 @@
         <!-- Param value subitem #2: ABS action name -->
         <!-- Param value subitem #3: comma-separated list of JCR privileges -->
         <!-- Param value subitem #4: boolean where true means that path is a prefix and not to be matched exactly -->
-        <param name="magicAceDefinition0" value="/pentaho/{0};org.pentaho.security.administerSecurity;jcr:all;true"/>
+        <param name="magicAceDefinition0" value="{0};org.pentaho.security.administerSecurity;jcr:all;true;true;false" />
         <param name="magicAceDefinition1"
-               value="/pentaho/{0};org.pentaho.repository.read;jcr:read,jcr:readAccessControl;false"/>
+value="{0};org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false;true" />
         <param name="magicAceDefinition2"
-               value="/pentaho/{0}/etc/pdi;org.pentaho.repository.read;jcr:read,jcr:readAccessControl;false"/>
+value="{0}/etc/pdi;org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false;false" />
         <param name="magicAceDefinition3"
-               value="/pentaho/{0}/etc/pdi;org.pentaho.repository.create;jcr:read,jcr:readAccessControl,jcr:write,jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,jcr:nodeTypeManagement;false"/>
+value="{0}/etc/pdi;org.pentaho.repository.create;jcr:read,jcr:readAccessControl,jcr:write,jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,jcr:nodeTypeManagement;true;false;false" />
       </AccessControlProvider>
     </WorkspaceSecurity>
 

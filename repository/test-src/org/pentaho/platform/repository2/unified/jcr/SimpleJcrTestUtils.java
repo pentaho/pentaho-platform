@@ -139,6 +139,7 @@ public class SimpleJcrTestUtils {
         for (int i = 0; i < privs.length; i++) {
           privs[i] = session.getAccessControlManager().privilegeFromName(privNames[i]);
         }
+        Privilege[] privileges = session.getAccessControlManager().getPrivileges(absPath);
         return session.getAccessControlManager().hasPrivileges(absPath, privs);
       }
     });

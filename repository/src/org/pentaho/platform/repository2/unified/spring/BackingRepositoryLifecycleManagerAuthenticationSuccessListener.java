@@ -19,6 +19,8 @@ import java.util.concurrent.Callable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.ISecurityHelper;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -48,12 +50,19 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
 
   private IBackingRepositoryLifecycleManager lifecycleManager;
   private ISecurityHelper securityHelper;
+  private ITenantedPrincipleNameResolver tenantedUserNameUtils;
 
   // ~ Constructors ====================================================================================================
 
   public BackingRepositoryLifecycleManagerAuthenticationSuccessListener() {
     super();
   }
+
+  public BackingRepositoryLifecycleManagerAuthenticationSuccessListener(ITenantedPrincipleNameResolver tenantedUserNameUtils) {
+    this();
+    this.tenantedUserNameUtils = tenantedUserNameUtils;
+  }
+
 
   // ~ Methods =========================================================================================================
 
@@ -63,7 +72,25 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
 
       // Get the lifecycle manager for this event
       final IBackingRepositoryLifecycleManager lifecycleManager = getLifecycleManager();
+      
+      // Execute new tenant with the tenant id from the logged in user
+      AbstractAuthenticationEvent aEvent = (AbstractAuthenticationEvent) event;
+      final String principalName = aEvent.getAuthentication().getName();
+      try {
+        getSecurityHelper().runAsUser(principalName, new Callable<Void>() {
+          @Override
+          public Void call() throws Exception {
+            ITenant tenant = tenantedUserNameUtils.getTenant(principalName);
+            lifecycleManager.newTenant(tenant.getId());
+            return null;
+          }
+        });
+      } catch (Exception e) {
+        logger.error(e.getLocalizedMessage(), e);
+      }
 
+      // Do we need to call this  any more
+      /*
       try {
         // The newTenant() call should be executed as the system (or more correctly the tenantAdmin)
         getSecurityHelper().runAsSystem(new Callable<Void>() {
@@ -76,13 +103,14 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
       } catch (Exception e) {
         logger.error(e.getLocalizedMessage(), e);
       }
-
+      */
+      
       try {
         // run as user to populate SecurityContextHolder and PentahoSessionHolder since Spring Security events are fired
         //   before SecurityContextHolder is set
-        AbstractAuthenticationEvent aEvent = (AbstractAuthenticationEvent) event;
-        final String principalName = aEvent.getAuthentication().getName();
-        getSecurityHelper().runAsUser(principalName, new Callable<Void>() {
+        aEvent = (AbstractAuthenticationEvent) event;
+        final String principal = aEvent.getAuthentication().getName();
+        getSecurityHelper().runAsUser(principal, new Callable<Void>() {
           @Override
           public Void call() throws Exception {
             lifecycleManager.newUser();

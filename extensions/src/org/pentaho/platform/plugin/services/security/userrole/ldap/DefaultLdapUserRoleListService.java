@@ -23,7 +23,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.core.mt.Tenant;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.search.LdapSearch;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.GrantedAuthority;
@@ -76,9 +80,11 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
   
   // ~ Methods =========================================================================================================
 
+  @Override
   public void afterPropertiesSet() throws Exception {
   }
 
+  @Override
   public List<String> getAllRoles() {
     List<GrantedAuthority> results = allAuthoritiesSearch.search(new Object[0]);
     List<String> roles = new ArrayList<String>(results.size());
@@ -91,6 +97,7 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     return roles;
   }
 
+  @Override
   public List<String> getAllUsers() {
     List<String> results = allUsernamesSearch.search(new Object[0]);
     if (null != usernameComparator) {
@@ -99,7 +106,11 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     return results;
   }
 
-  public List<String> getUsersInRole(final String role) {
+  @Override
+  public List<String> getUsersInRole(final ITenant tenant, final String role) {
+    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+      throw new UnsupportedOperationException("only allowed to access to default tenant");
+    }
     List<String> results = usernamesInRoleSearch.search(new Object[] { role });
     if (null != usernameComparator) {
       Collections.sort(results, usernameComparator);
@@ -107,7 +118,11 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     return results;
   }
 
-  public List<String> getRolesForUser(final String username) {
+  @Override
+  public List<String> getRolesForUser(final ITenant tenant, final String username) {
+    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+      throw new UnsupportedOperationException("only allowed to access to default tenant");
+    }
     UserDetails user = userDetailsService.loadUserByUsername(username);
     List<GrantedAuthority> results = Arrays.asList(user.getAuthorities());
     List<String> roles = new ArrayList<String>(results.size());
@@ -146,4 +161,25 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     this.usernameComparator = usernameComparator;
   }
 
+  @Override
+  public List<String> getAllRoles(ITenant tenant) {
+    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+      throw new UnsupportedOperationException("only allowed to access to default tenant");
+    }
+    return getAllRoles();
+  }
+
+  @Override
+  public List<String> getAllUsers(ITenant tenant) {
+    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+      throw new UnsupportedOperationException("only allowed to access to default tenant");
+    }
+    return getAllUsers();
+  }
+
+  private ITenant getDefaultTenant() {
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
+    return new Tenant(tenantId, true);
+  }
 }

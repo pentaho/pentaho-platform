@@ -69,7 +69,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     try {
       String ds = (String) bundle.getProperty("DataSource");
       MondrianCatalog catalog = this.createCatalogObject(domainId, ds, xmla);
-      mondrianRepositoryImporter.addCatalog(bundle.getInputStream(), catalog, overwriteInRepossitory,
+      mondrianRepositoryImporter.addCatalog(catalog, overwriteInRepossitory,
           PentahoSessionHolder.getSession());
     } catch (MondrianCatalogServiceException mse) {
       int statusCode = convertExceptionToStatus(mse);

@@ -50,9 +50,6 @@ import com.sun.jersey.multipart.FormDataParam;
 public class RepositoryImportResource {
 
   private IUnifiedRepository repository;
-  private final String ACTION_READ = "org.pentaho.repository.read"; 
-  private final String ACTION_CREATE = "org.pentaho.repository.create";
-  private final String ACTION_ADMINISTER_SECURITY = "org.pentaho.security.administerSecurity";
 
   public RepositoryImportResource() {
     repository = PentahoSystem.get(IUnifiedRepository.class);
@@ -139,7 +136,7 @@ public class RepositoryImportResource {
   
   private void validateAccess() throws PentahoAccessControlException {
 	  IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-	  boolean isAdmin = policy.isAllowed(ACTION_READ) && policy.isAllowed(ACTION_CREATE) && policy.isAllowed(ACTION_ADMINISTER_SECURITY); 
+	  boolean isAdmin = policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION); 
 	  if(!isAdmin) {
 		  throw new PentahoAccessControlException("Access Denied");
 	  }

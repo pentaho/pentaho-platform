@@ -17,6 +17,8 @@ package org.pentaho.platform.repository2.unified.lifecycle;
 import java.util.List;
 
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.repository2.unified.jcr.DumpToFilePentahoSystemListener;
 import org.springframework.util.Assert;
 
 /**

@@ -78,11 +78,6 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
    */
   protected String singleTenantAuthenticatedAuthorityName;
 
-  /**
-   * When not using multi-tenancy, this value is used as opposed to {@link tenantAdminAuthorityPattern}.
-   */
-  protected String singleTenantAdminAuthorityName;
-
   protected TransactionTemplate txnTemplate;
 
   protected IRepositoryFileDao repositoryFileDao;
@@ -95,8 +90,7 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
 
   public AbstractBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
                                                    final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-                                                   final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
-                                                   final String singleTenantAuthenticatedAuthorityName) {
+                                                   final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern) {
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
     Assert.notNull(txnTemplate);
@@ -107,16 +101,15 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
     this.txnTemplate = txnTemplate;
     this.repositoryAdminUsername = repositoryAdminUsername;
     this.tenantAuthenticatedAuthorityNamePattern = tenantAuthenticatedAuthorityNamePattern;
-    this.singleTenantAuthenticatedAuthorityName = singleTenantAuthenticatedAuthorityName;
     initTransactionTemplate();
   }
 
   public void newTenant() {
-    newTenant(internalGetTenantId());
+    newTenant(TenantUtils.getCurrentTenant().getId());
   }
 
   public void newUser() {
-    newUser(internalGetTenantId(), internalGetUsername());
+    newUser(TenantUtils.getCurrentTenant().getId(), internalGetUsername());
   }
 
   public void newTenant(final String tenantId) {
@@ -195,11 +188,7 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
   }
 
   protected String internalGetTenantAuthenticatedAuthorityName(final String tenantId) {
-    if (!TenantUtils.TENANTID_SINGLE_TENANT.equals(tenantId)) {
-      return MessageFormat.format(tenantAuthenticatedAuthorityNamePattern, tenantId);
-    } else {
-      return singleTenantAuthenticatedAuthorityName;
-    }
+    return tenantAuthenticatedAuthorityNamePattern;
   }
 
   protected void internalSetOwner(final RepositoryFile file, final RepositoryFileSid owner) {
@@ -218,13 +207,6 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     Assert.state(pentahoSession != null);
     return pentahoSession.getName();
-  }
-
-  /**
-   * Returns the tenant ID of the current user.
-   */
-  protected String internalGetTenantId() {
-    return TenantUtils.getTenantId();
   }
 
 }

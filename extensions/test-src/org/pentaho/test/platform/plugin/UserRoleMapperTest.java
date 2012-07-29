@@ -32,11 +32,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.engine.IConnectionUserRoleMapper;
-import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository.ISolutionRepository;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -303,12 +304,25 @@ public class UserRoleMapperTest {
     }
 
     @Override
-    public List<String> getUsersInRole(String role) {
-      throw new UnsupportedOperationException();
+    public List<String> getAllRoles(ITenant tenant) {
+      // TODO Auto-generated method stub
+      return null;
     }
 
     @Override
-    public List<String> getRolesForUser(String username) {
+    public List<String> getAllUsers(ITenant tenant) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public List<String> getUsersInRole(ITenant tenant, String role) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public List<String> getRolesForUser(ITenant tenant, String username) {
       if (username.equals("joe")) {
         return Arrays.asList(new String[] { "ceo", "Admin", "Authenticated" });
       } else if (username.equals("simplebob")) {

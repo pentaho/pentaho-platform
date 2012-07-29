@@ -118,5 +118,8 @@
     <dependency org="org.hamcrest"          name="hamcrest-core"  rev="1.1"   conf="test->default"/>
     <dependency org="org.hamcrest"          name="hamcrest-library"  rev="1.1"   conf="test->default"/>
     <dependency org="org.mockito"          name="mockito-all"  rev="1.8.5"   conf="test->default"/>
+	<dependency org="org.jmock" name="jmock-junit4" rev="2.5.1" conf="test->default"/>
+    <dependency org="org.jmock" name="jmock-legacy" rev="2.5.1" conf="test->default" />
+    
 	</dependencies>
 </ivy-module>

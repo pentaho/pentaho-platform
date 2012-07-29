@@ -14,28 +14,19 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.util.EnumSet;
-
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
-import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.Assert;
 
 /**
  * Initializes folders used by Pentaho Data Integration.
  *
  * @author mlowery
  */
-public class PdiBackingRepositoryLifecycleManager extends AbstractBackingRepositoryLifecycleManager {
+public class PdiBackingRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
 
   // ~ Static fields/initializers ======================================================================================
 
@@ -43,83 +34,47 @@ public class PdiBackingRepositoryLifecycleManager extends AbstractBackingReposit
 
   // ~ Constructors ====================================================================================================
 
-  private static final String FOLDER_PDI = "pdi"; //$NON-NLS-1$
-
-  private static final String FOLDER_PARTITION_SCHEMAS = "partitionSchemas"; //$NON-NLS-1$
-
-  private static final String FOLDER_CLUSTER_SCHEMAS = "clusterSchemas"; //$NON-NLS-1$
-
-  private static final String FOLDER_SLAVE_SERVERS = "slaveServers"; //$NON-NLS-1$
-
-  private static final String FOLDER_DATABASES = "databases"; //$NON-NLS-1$
-
+  private ITenantedPrincipleNameResolver nameUtils = new DefaultTenantedPrincipleNameResolver();
+  
   public PdiBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
                                               final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-                                              final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
-                                              final String singleTenantAuthenticatedAuthorityName) {
-    super(contentDao, repositoryFileAclDao, txnTemplate, repositoryAdminUsername,
-        tenantAuthenticatedAuthorityNamePattern, singleTenantAuthenticatedAuthorityName);
+                                              final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern) {
   }
 
   // ~ Methods =========================================================================================================
-
-  public synchronized void doNewTenant(String tenantId) {
-    createEtcPdiFolders(tenantId);
+  @Override
+  public void startup() {
+    // TODO Auto-generated method stub
+    
   }
 
-  public synchronized void doNewUser(String tenantId, String username) {
+  @Override
+  public void shutdown() {
+    // TODO Auto-generated method stub
+    
   }
 
-  public synchronized void doShutdown() {
+  @Override
+  public void newTenant(String tenantId) {
+    // TODO Auto-generated method stub
+    
   }
 
-  public synchronized void doStartup() {
+  @Override
+  public void newTenant() {
+    // TODO Auto-generated method stub
+    
   }
 
-  protected void createEtcPdiFolders(final String tenantId) {
-    IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
-    PentahoSessionHolder.setSession(createRepositoryAdminPentahoSession());
-    try {
-      txnTemplate.execute(new TransactionCallbackWithoutResult() {
-        public void doInTransactionWithoutResult(final TransactionStatus status) {
-          final RepositoryFileSid repositoryAdminUserSid = new RepositoryFileSid(repositoryAdminUsername);
-          RepositoryFile tenantEtcFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
-              .getTenantEtcFolderPath(tenantId));
-          Assert.notNull(tenantEtcFolder);
-
-          if (repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths.getTenantEtcFolderPath(tenantId)
-              + RepositoryFile.SEPARATOR + FOLDER_PDI) == null) {
-            // pdi folder
-            RepositoryFile tenantEtcPdiFolder = internalCreateFolder(tenantEtcFolder.getId(),
-                new RepositoryFile.Builder(FOLDER_PDI).folder(true).build(), false, repositoryAdminUserSid, Messages
-                .getInstance().getString("PdiRepositoryLifecycleManager.USER_0001_VER_COMMENT_PDI")); //$NON-NLS-1$
-            // databases folder
-            internalCreateFolder(tenantEtcPdiFolder.getId(), new RepositoryFile.Builder(FOLDER_DATABASES).folder(true)
-                .build(), true, repositoryAdminUserSid, Messages.getInstance().getString(
-                "PdiRepositoryLifecycleManager.USER_0002_VER_COMMENT_DATABASES")); //$NON-NLS-1$
-            // slave servers folder
-            internalCreateFolder(tenantEtcPdiFolder.getId(), new RepositoryFile.Builder(FOLDER_SLAVE_SERVERS).folder(
-                true).build(), true, repositoryAdminUserSid, Messages.getInstance().getString(
-                "PdiRepositoryLifecycleManager.USER_0003_VER_COMMENT_SLAVESERVERS")); //$NON-NLS-1$
-            // cluster schemas folder
-            internalCreateFolder(tenantEtcPdiFolder.getId(), new RepositoryFile.Builder(FOLDER_CLUSTER_SCHEMAS).folder(
-                true).build(), true, repositoryAdminUserSid, Messages.getInstance().getString(
-                "PdiRepositoryLifecycleManager.USER_0004_CLUSTERSCHEMAS")); //$NON-NLS-1$
-            // partition schemas folder
-            internalCreateFolder(tenantEtcPdiFolder.getId(), new RepositoryFile.Builder(FOLDER_PARTITION_SCHEMAS)
-                .folder(true).build(), true, repositoryAdminUserSid, Messages.getInstance().getString(
-                "PdiRepositoryLifecycleManager.USER_0005_PARTITIONSCHEMAS")); //$NON-NLS-1$
-          }
-        }
-      });
-    } finally {
-      PentahoSessionHolder.setSession(origPentahoSession);
-    }
+  @Override
+  public void newUser(String tenantId, String username) {
+    // TODO Auto-generated method stub
+    
   }
 
-  protected void addTenantAuthenticatedPermissions(final RepositoryFile folder,
-                                                   final RepositoryFileSid tenantAuthenticatedAuthoritySid) {
-    internalAddPermission(folder.getId(), tenantAuthenticatedAuthoritySid, EnumSet.of(RepositoryFilePermission.READ,
-        RepositoryFilePermission.READ_ACL, RepositoryFilePermission.WRITE, RepositoryFilePermission.WRITE_ACL));
+  @Override
+  public void newUser() {
+    // TODO Auto-generated method stub
+    
   }
 }
