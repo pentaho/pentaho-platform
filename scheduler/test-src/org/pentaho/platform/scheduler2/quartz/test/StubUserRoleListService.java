@@ -17,6 +17,7 @@
  */
 package org.pentaho.platform.scheduler2.quartz.test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,8 +66,10 @@ public class StubUserRoleListService implements IUserRoleListService {
 
   @Override
   public List<String> getRolesForUser(ITenant tenant, String username) {
-    // TODO Auto-generated method stub
-    return null;
+    List roles = new ArrayList<String>();
+    roles.add("Admin");
+    roles.add("Authenticated");
+    return roles;
   }
 
 }
