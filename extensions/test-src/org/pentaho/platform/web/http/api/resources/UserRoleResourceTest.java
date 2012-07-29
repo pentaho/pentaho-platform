@@ -194,6 +194,12 @@ public class UserRoleResourceTest extends TestCase {
       // TODO Auto-generated method stub
       return null;
     }
+
+    @Override
+    public ITenant getTenantByRootFolderPath(String arg0) {
+      // TODO Auto-generated method stub
+      return null;
+    }
     
   }
 }
