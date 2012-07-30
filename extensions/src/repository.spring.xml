@@ -626,7 +626,7 @@
   </bean>
 
   <!-- IUserRoleDao implementation -->
-  <bean id="userRoleDao" class="org.pentaho.platform.security.userroledao.jackrabbit.UserRoleDao">
+  <bean id="userRoleDao" class="org.pentaho.platform.security.userroledao.jackrabbit.JcrUserRoleDao">
 	<constructor-arg ref="adminJcrTemplate"/>
   	<constructor-arg ref="tenantedUserNameUtils"/>
   	<constructor-arg ref="tenantedRoleNameUtils"/>

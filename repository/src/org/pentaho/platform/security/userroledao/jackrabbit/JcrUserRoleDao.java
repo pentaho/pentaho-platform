@@ -43,13 +43,13 @@ import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 
-public class UserRoleDao extends AbstractJcrBackedUserRoleDao  {
+public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao  {
   
   NameFactory NF = NameFactoryImpl.getInstance();
   Name P_PRINCIPAL_NAME = NF.create(Name.NS_REP_URI, "principalName"); //$NON-NLS-1$
   JcrTemplate adminJcrTemplate;
   
-  public UserRoleDao(JcrTemplate adminJcrTemplate, ITenantedPrincipleNameResolver userNameUtils, ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName, String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao,  IRepositoryFileDao repositoryFileDao) throws NamespaceException {
+  public JcrUserRoleDao(JcrTemplate adminJcrTemplate, ITenantedPrincipleNameResolver userNameUtils, ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName, String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao) throws NamespaceException {
     super(userNameUtils, roleNameUtils, authenticatedRoleName, tenantAdminRoleName, repositoryAdminUsername, repositoryFileAclDao, repositoryFileDao);
     this.adminJcrTemplate = adminJcrTemplate;
   }
