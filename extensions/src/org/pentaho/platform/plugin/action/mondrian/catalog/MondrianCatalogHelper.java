@@ -469,9 +469,26 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     // defensive copy
     return Collections.unmodifiableList(filter(getCatalogs(pentahoSession), pentahoSession, jndiOnly));
   }
-
+  /**
+   * use the in memory session value of input stream (used by test harness)
+   */
   public synchronized void addCatalog(final MondrianCatalog catalog, final boolean overwrite,
       final IPentahoSession pentahoSession) throws MondrianCatalogServiceException {
+    String mondrianSchema = (String) pentahoSession.getAttribute("MONDRIAN_SCHEMA_XML_CONTENT");
+    InputStream schemaInputStream = IOUtils.toInputStream(mondrianSchema);
+    addCatalog(schemaInputStream, catalog, overwrite, pentahoSession);
+  }
+
+  /**
+   * new method to pass the input stream directly from data access put and post schema
+   * @param schemaInputStream
+   * @param catalog
+   * @param overwrite
+   * @param pentahoSession
+   * @throws MondrianCatalogServiceException
+   */
+  public synchronized void addCatalog(InputStream schemaInputStream, final MondrianCatalog catalog,
+      final boolean overwrite, final IPentahoSession pentahoSession) throws MondrianCatalogServiceException {
     if (MondrianCatalogHelper.logger.isDebugEnabled()) {
       MondrianCatalogHelper.logger.debug("addCatalog"); //$NON-NLS-1$
     }
@@ -508,9 +525,7 @@ public class MondrianCatalogHelper implements IMondrianCatalogService {
     }
 
 
-    try {
-      String mondrianSchema = (String) pentahoSession.getAttribute("MONDRIAN_SCHEMA_XML_CONTENT");
-      InputStream schemaInputStream = IOUtils.toInputStream(mondrianSchema);
+    try {      
       org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper helper = new org.pentaho.platform.plugin.services.importexport.legacy.MondrianCatalogRepositoryHelper(PentahoSystem.get(IUnifiedRepository.class));
       helper.addSchema(schemaInputStream, catalog.getName(), catalog.getDataSourceInfo());
     } catch (Exception e) {

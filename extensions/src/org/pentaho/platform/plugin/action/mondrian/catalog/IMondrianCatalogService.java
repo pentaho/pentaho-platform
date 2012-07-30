@@ -18,6 +18,7 @@
 package org.pentaho.platform.plugin.action.mondrian.catalog;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -75,5 +76,15 @@ public interface IMondrianCatalogService {
    * @param pentahoSession
    */
   public void reInit(IPentahoSession pentahoSession) throws MondrianCatalogServiceException;
+
+  /**
+   * pass the input stream directly from data access PUC and schema workbench
+   * @param inputStream
+   * @param catalog
+   * @param overwriteInRepossitory
+   * @param session
+   */
+  void addCatalog(InputStream inputStream, MondrianCatalog catalog, boolean overwriteInRepossitory,
+      IPentahoSession session);
  
 }
