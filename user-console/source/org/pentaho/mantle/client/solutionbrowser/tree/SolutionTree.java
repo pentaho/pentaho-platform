@@ -71,7 +71,6 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
   public List<RepositoryFile> trashItems;
   public FileTreeItem trashItem;
   
-  public static final String ETC_FOLDER = "etc";//$NON-NLS-1$
   private TreeItem selectedItem = null;
 
   FocusPanel focusable = new FocusPanel();
@@ -426,7 +425,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       RepositoryFile file = treeItem.getFile();
       boolean isDirectory = file.isFolder();
       String fileName = file.getName();
-      if (!(!StringUtils.isEmpty(fileName) && fileName.equals(ETC_FOLDER)) ) {
+      if (!StringUtils.isEmpty(fileName)) {
         
         // TODO Mapping Title to LocalizedName
         String localizedName = file.getTitle();
