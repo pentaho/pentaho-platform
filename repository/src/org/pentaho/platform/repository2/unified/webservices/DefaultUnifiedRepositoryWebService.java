@@ -113,12 +113,15 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   public RepositoryFileTreeDto getTree(final String path, final int depth, final String filter, final boolean showHidden) {
     RepositoryFileTree tree = repo.getTree(path, depth, filter, showHidden);
 
-    // Filter etc folder from results if user is non admin.
+    // Filter system folders from non-admin users.
+    // PDI uses this web-service and system folders must be returned to admin repository database connections.
     List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
     IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
     boolean isAdmin = policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION);
     for(RepositoryFileTree file : tree.getChildren()) {
-    	if(!isAdmin && file.getFile().getName().equals("etc")) {
+    	Map<String, Serializable> fileMeta = repo.getFileMetadata(file.getFile().getId());
+    	boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta.get(IUnifiedRepository.SYSTEM_FOLDER) : false;
+    	if(!isAdmin && isSystemFolder) {
     		continue;
     	}
     	files.add(file);
