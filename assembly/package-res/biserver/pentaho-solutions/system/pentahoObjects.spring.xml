@@ -32,9 +32,12 @@ PentahoSystem which is initialized after Spring
     <constructor-arg>
       <ref bean="unifiedRepository"/>
     </constructor-arg>
-  <constructor-arg>
+	<constructor-arg>
+      <ref bean="tenantedUserNameUtils"/>
+  	</constructor-arg>
+	<constructor-arg>
       <ref bean="tenantedRoleNameUtils"/>
-    </constructor-arg>
+  	</constructor-arg>
   </bean>
   <!-- Wrap the concrete IMetadataDomainRepository implementation with one that caches domains per session -->
   <bean id="IMetadataDomainRepository"

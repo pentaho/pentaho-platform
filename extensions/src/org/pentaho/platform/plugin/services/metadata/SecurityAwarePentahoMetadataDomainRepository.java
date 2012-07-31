@@ -50,15 +50,17 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
       IAclHolder.ACCESS_TYPE_UPDATE, IAclHolder.ACCESS_TYPE_DELETE, IAclHolder.ACCESS_TYPE_ADMIN,
       IAclHolder.ACCESS_TYPE_ADMIN};
   private ITenantedPrincipleNameResolver roleNameResolver;
+  private ITenantedPrincipleNameResolver userNameResolver;
 
   public SecurityAwarePentahoMetadataDomainRepository(final IUnifiedRepository repository) {
     super(repository);
   }
 
   // This constructor is intended for use in a single tenanted environment.
-  public SecurityAwarePentahoMetadataDomainRepository(final IUnifiedRepository repository, ITenantedPrincipleNameResolver roleNameResolver) {
+  public SecurityAwarePentahoMetadataDomainRepository(final IUnifiedRepository repository, final ITenantedPrincipleNameResolver roleNameResolver, final ITenantedPrincipleNameResolver userNameResolver) {
     super(repository);
     this.roleNameResolver = roleNameResolver;
+    this.userNameResolver = userNameResolver;
   }
   
   public IPentahoSession getSession() {
@@ -91,7 +93,7 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
   public boolean hasAccess(final int accessType, final IConcept aclHolder) {
     boolean result = true;
     if (aclHolder != null) {
-      PentahoMetadataAclHolder newHolder = new PentahoMetadataAclHolder(aclHolder);
+      PentahoMetadataAclHolder newHolder = new PentahoMetadataAclHolder(aclHolder, userNameResolver, roleNameResolver);
       int mappedActionOperation = ACCESS_TYPE_MAP[accessType];
       result = SecurityHelper.getInstance().hasAccess(newHolder, mappedActionOperation, getSession());
     } else if (accessType == ACCESS_TYPE_SCHEMA_ADMIN) {
