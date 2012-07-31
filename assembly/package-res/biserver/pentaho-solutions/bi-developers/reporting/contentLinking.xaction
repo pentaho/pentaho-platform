@@ -23,18 +23,6 @@
   </outputs>
 
   <resources> 
-    <catalog> 
-      <url> 
-        <location>steel-wheels/analysis/steelwheels.mondrian.xml</location>  
-        <mime-type>text/plain</mime-type> 
-      </url> 
-    </catalog>  
-    <catalog1> 
-      <solution-file> 
-        <location>steel-wheels/analysis/steelwheels.mondrian.xml</location>  
-        <mime-type>text/plain</mime-type> 
-      </solution-file> 
-    </catalog1> 
   </resources>
   
   <actions> 
@@ -44,15 +32,13 @@
         <action-type>Qry territory sales</action-type>
         <action-inputs/>
         <action-resources> 
-          <catalog type="resource"/> 
         </action-resources>
         <action-outputs> 
           <query-results type="string-list" mapping="swresult"/> 
         </action-outputs>
         <component-definition> 
-          <jndi>SampleData</jndi>  
+          <catalog>SteelWheels</catalog>  
           <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS, NON EMPTY TopCount([Markets].[All Markets].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales]]]></query>  
-          <location>mondrian</location>  
         </component-definition> 
       </action-definition>
  

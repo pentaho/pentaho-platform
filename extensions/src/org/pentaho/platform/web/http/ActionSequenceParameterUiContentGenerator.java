@@ -69,7 +69,7 @@ public class ActionSequenceParameterUiContentGenerator extends SimpleContentGene
       RepositoryFile file = unifiedRepository.getFile(path);
       HttpServletRequest httpRequest = (HttpServletRequest)pathParams.getParameter("httprequest"); //$NON-NLS-1$
       HttpServletResponse httpResponse = (HttpServletResponse)pathParams.getParameter("httpresponse"); //$NON-NLS-1$
-      String buffer = XactionUtil.executeScheduleUi(file, httpRequest, httpResponse, PentahoSessionHolder.getSession());
+      String buffer = XactionUtil.executeScheduleUi(file, httpRequest, httpResponse, PentahoSessionHolder.getSession(), outputHandler.getMimeTypeListener());
       outputStream.write(buffer.toString().getBytes(LocaleHelper.getSystemEncoding()));
     }
   }

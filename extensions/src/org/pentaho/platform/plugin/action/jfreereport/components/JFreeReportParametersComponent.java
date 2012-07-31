@@ -114,7 +114,10 @@ public class JFreeReportParametersComponent extends AbstractJFreeReportComponent
       if (AbstractJFreeReportComponent.DATACOMPONENT_DATAINPUT.equals(paramName)) {
         continue;
       }
-
+      /*
+       * WG: Commenting out because this change (SVN: 44880) breaks bi-developers / reporting / subreport.xaction
+       * we'll need to revisit this when reving to the 4.0 reporting engine.
+       *  
       final ParameterDefinitionEntry[] parameterDefinitions = report.getParameterDefinition().getParameterDefinitions();
       boolean foundParameter = false;
       for (int j = 0; j < parameterDefinitions.length; j++)
@@ -135,6 +138,7 @@ public class JFreeReportParametersComponent extends AbstractJFreeReportComponent
           parameterDefinition.addParameterDefinition(new PlainParameter(paramName));
         }
       }
+      */
 
       if (paramValue instanceof Object[]) {
         Object values[] = (Object[]) paramValue;
@@ -147,9 +151,11 @@ public class JFreeReportParametersComponent extends AbstractJFreeReportComponent
             valuesBuffer.append(',').append(values[j].toString());
           }
         }
-        report.getParameterValues().put(paramName, valuesBuffer.toString());
+        // report.getParameterValues().put(paramName, valuesBuffer.toString());
+        report.setProperty(paramName,  valuesBuffer.toString());
       } else {
-        report.getParameterValues().put(paramName, paramValue);
+        // report.getParameterValues().put(paramName, paramValue);
+        report.setProperty(paramName, paramValue);
       }
     }
 

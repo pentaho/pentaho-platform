@@ -35,6 +35,7 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.pdi.PDIImportUtil;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.pdi.StreamToJobNodeConverter;
 import org.pentaho.platform.plugin.services.importexport.pdi.StreamToTransNodeConverter;
@@ -64,8 +65,6 @@ public class DefaultImportHandler implements ImportHandler {
     this.repository = repository;
     
     final StreamConverter streamConverter = new StreamConverter();
-    final StreamToJobNodeConverter jobConverter = new StreamToJobNodeConverter(repository);
-    final StreamToTransNodeConverter transConverter = new StreamToTransNodeConverter(repository);
     converters.put("prpt", streamConverter);
     converters.put("prpti", streamConverter);
     converters.put("mondrian.xml", streamConverter);
@@ -94,8 +93,20 @@ public class DefaultImportHandler implements ImportHandler {
     converters.put("sql", streamConverter);
     converters.put("xmi", streamConverter);
     converters.put("xml", streamConverter);
-    converters.put("kjb", jobConverter);
-    converters.put("ktr", transConverter);    
+    
+    try {
+      PDIImportUtil.connectToRepository(null);
+      final StreamToJobNodeConverter jobConverter = new StreamToJobNodeConverter(repository);
+      final StreamToTransNodeConverter transConverter = new StreamToTransNodeConverter(repository);
+      converters.put("kjb", jobConverter);
+      converters.put("ktr", transConverter);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("No PDI Repository found, switching to standard converter.");
+      converters.put("kjb", streamConverter);
+      converters.put("ktr", streamConverter);
+    }
+
     // Determine the executable types (these will be the only types made visible in the repository)
     determineExecutableTypes();
 

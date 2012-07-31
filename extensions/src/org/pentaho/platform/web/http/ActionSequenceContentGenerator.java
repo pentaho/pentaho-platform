@@ -58,9 +58,11 @@ public class ActionSequenceContentGenerator extends SimpleContentGenerator
   
       HttpServletResponse httpResponse = (HttpServletResponse)pathParams.getParameter("httpresponse"); //$NON-NLS-1$
   
-      String buffer = XactionUtil.execute(contentType, file, httpRequest, httpResponse, PentahoSessionHolder.getSession());
+     String buffer = XactionUtil.execute(contentType, file, httpRequest, httpResponse, PentahoSessionHolder.getSession(), outputHandler.getMimeTypeListener());
   
-      outputStream.write(buffer.toString().getBytes(LocaleHelper.getSystemEncoding()));
+      if (buffer != null && buffer.trim().length() > 0) {
+        outputStream.write(buffer.getBytes(LocaleHelper.getSystemEncoding()));
+      }
     }
   }
   public Map<String, IParameterProvider> getParameterProviders()

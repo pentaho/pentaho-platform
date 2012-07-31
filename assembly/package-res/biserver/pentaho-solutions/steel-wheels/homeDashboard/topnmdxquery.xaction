@@ -31,18 +31,6 @@
   </outputs>
 
   <resources> 
-    <catalog> 
-      <url> 
-        <location>/public/pentaho-solutions/steel-wheels/analysis/steelwheels.mondrian.xml</location>  
-        <mime-type>text/plain</mime-type> 
-      </url> 
-    </catalog>  
-    <catalog1> 
-      <solution-file> 
-        <location>/public/pentaho-solutions/steel-wheels/analysis/steelwheels.mondrian.xml</location>  
-        <mime-type>text/plain</mime-type> 
-      </solution-file> 
-    </catalog1> 
   </resources>
   
   <actions> 
@@ -53,15 +41,13 @@
         <action-type>Qry All Territories and Productlines</action-type>
         <action-inputs/>
         <action-resources> 
-          <catalog type="resource"/> 
         </action-resources>
         <action-outputs> 
           <query-results type="string-list" mapping="swresult"/> 
         </action-outputs>
         <component-definition> 
-          <jndi>SampleData</jndi>  
+          <catalog>SteelWheels</catalog>  
           <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS, NON EMPTY TopCount([Customers].[All Customers].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales]]]></query>  
-          <location>mondrian</location>  
         </component-definition> 
       </action-definition>
  
@@ -76,18 +62,15 @@
           <territory type="string"/> 
         </action-inputs>
         <action-resources> 
-          <catalog type="resource"/> 
         </action-resources>
         <action-outputs> 
           <query-results type="string-list" mapping="swresult"/> 
         </action-outputs>
         <component-definition> 
-          <jndi>SampleData</jndi>  
+          <catalog>SteelWheels</catalog>  
           <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS,NON EMPTY TopCount([Customers].[All Customers].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales] where ([Markets].[All Markets].[{territory}])]]></query>  
-          <location>mondrian</location>  
         </component-definition> 
       </action-definition>
- 
     </actions>
   
     <actions> 
@@ -99,15 +82,13 @@
           <productline type="string"/> 
         </action-inputs>
         <action-resources> 
-          <catalog type="resource"/> 
         </action-resources>
         <action-outputs> 
           <query-results type="result-set" mapping="swresult"/> 
         </action-outputs>
         <component-definition> 
-          <jndi>SampleData</jndi>  
+          <catalog>SteelWheels</catalog>  
           <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS, NON EMPTY TopCount([Customers].[All Customers].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales] where ([Product].[All Products].[{productline}] )]]></query>  
-          <location>mondrian</location> 
         </component-definition> 
       </action-definition>
  
@@ -123,15 +104,13 @@
           <productline type="string"/> 
         </action-inputs>
         <action-resources> 
-          <catalog type="resource"/> 
         </action-resources>
         <action-outputs> 
           <query-results type="string-list" mapping="swresult"/> 
         </action-outputs>
         <component-definition> 
-          <jndi>SampleData</jndi>  
+          <catalog>SteelWheels</catalog>  
           <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS, NON EMPTY TopCount([Customers].[All Customers].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales] where ([Product].[All Products].[{productline}], [Markets].[All Markets].[{territory}] )]]></query>  
-          <location>mondrian</location>  
         </component-definition> 
       </action-definition>
  

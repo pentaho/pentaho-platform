@@ -52,6 +52,7 @@ import org.pentaho.platform.api.engine.IRuntimeContext;
 import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.api.engine.ISystemSettings;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -130,20 +131,29 @@ public class XactionUtil {
     return new HttpOutputHandler(response, outputStream, true);
   }
 
-  public static boolean doMessages(HttpServletRequest request) {
-    return "true".equalsIgnoreCase(request.getParameter("debug")); //$NON-NLS-1$//$NON-NLS-2$
-  }
-
-  public static String postExecute(IRuntimeContext runtime, boolean doMessages, boolean doWrapper,
-      IOutputHandler outputHandler, Map<String, IParameterProvider> parameterProviders) throws Exception {
+  public static String postExecute(IRuntimeContext runtime, boolean debugMessages, boolean doWrapper,
+      IOutputHandler outputHandler, Map<String, IParameterProvider> parameterProviders, HttpServletRequest request, HttpServletResponse response, List messages)
+      throws Exception {
     StringBuffer buffer = new StringBuffer();
 
-    IMessageFormatter formatter = PentahoSystem.get(IMessageFormatter.class);
-    if ((!outputHandler.isResponseExpected()) || (doMessages)) {
-      if ((runtime != null) && (runtime.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS)) {
-        formatter.formatSuccessMessage("text/html", runtime, buffer, doMessages, doWrapper); //$NON-NLS-1$
+    boolean hasResponse = outputHandler.isResponseExpected();
+    IContentItem responseContentItem = outputHandler.getOutputContentItem(IOutputHandler.RESPONSE, IOutputHandler.CONTENT, null, null);
+
+    boolean success = (runtime != null && runtime.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS);
+    boolean printSuccess = (runtime != null) && success && (!hasResponse || debugMessages);
+    boolean printError = (runtime != null) && !success && !response.isCommitted();
+
+    if (printSuccess || printError) {
+      final String htmlMimeType = "text/html"; //$NON-NLS-1$
+      responseContentItem.setMimeType(htmlMimeType);
+      response.setContentType(htmlMimeType);
+      IMessageFormatter formatter = PentahoSystem.get(IMessageFormatter.class, PentahoSessionHolder.getSession());
+
+      if (printSuccess) {
+        formatter.formatSuccessMessage(htmlMimeType, runtime, buffer, debugMessages, doWrapper);
       } else {
-        formatter.formatFailureMessage("text/html", runtime, buffer, null); //$NON-NLS-1$
+        response.resetBuffer();
+        formatter.formatFailureMessage(htmlMimeType, runtime, buffer, messages);
       }
     }
     return buffer.toString();
@@ -151,20 +161,27 @@ public class XactionUtil {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static String executeHtml(RepositoryFile file, HttpServletRequest httpServletRequest,
-      HttpServletResponse httpServletResponse, IPentahoSession userSession) throws Exception {
+      HttpServletResponse httpServletResponse, IPentahoSession userSession, IMimeTypeListener mimeTypeListener) throws Exception {
     IParameterProvider requestParams = new HttpRequestParameterProvider(httpServletRequest);
     IRuntimeContext runtime = null;
     try {
-      IOutputHandler outputHandler = createOutputHandler(httpServletResponse,
-          getOutputStream(httpServletResponse, doMessages(httpServletRequest)));
 
-      // configure output handler, this is necessary so that the right content disposition is set on the response header
-      outputHandler.setSession(userSession);
-      IMimeTypeListener listener = new HttpMimeTypeListener(httpServletRequest, httpServletResponse, null);
-      outputHandler.setMimeTypeListener(listener);
-      
       HttpSessionParameterProvider sessionParameters = new HttpSessionParameterProvider(userSession);
       HttpRequestParameterProvider requestParameters = new HttpRequestParameterProvider(httpServletRequest);
+
+      boolean doMessages = "true".equalsIgnoreCase(requestParams.getStringParameter("debug", "false")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      boolean doWrapper = "true".equalsIgnoreCase(requestParams.getStringParameter("wrapper", "true")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+      IOutputHandler outputHandler = createOutputHandler(httpServletResponse, getOutputStream(httpServletResponse, doMessages));
+
+      // configure output handler, this is necessary so that the right content
+      // disposition is set on the response header
+      if (mimeTypeListener == null) {
+        mimeTypeListener = new HttpMimeTypeListener(httpServletRequest, httpServletResponse, null);
+      }
+      outputHandler.setMimeTypeListener(mimeTypeListener);
+      outputHandler.setSession(userSession);
+
       Map parameterProviders = new HashMap();
       parameterProviders.put("request", requestParameters); //$NON-NLS-1$
       parameterProviders.put("session", sessionParameters); //$NON-NLS-1$
@@ -173,10 +190,9 @@ public class XactionUtil {
       outputHandler.setOutputPreference(outputPreference);
       boolean forcePrompt = "true".equalsIgnoreCase(requestParams.getStringParameter("prompt", "false")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 
-      runtime = executeInternal(file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession, forcePrompt);
-      boolean doMessages = "true".equalsIgnoreCase(requestParams.getStringParameter("debug", "false")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      boolean doWrapper = "true".equalsIgnoreCase(requestParams.getStringParameter("wrapper", "true")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      String str = postExecute(runtime, doMessages, doWrapper, outputHandler, parameterProviders);
+      List messages = new ArrayList();
+      runtime = executeInternal(file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession, forcePrompt, messages);
+      String str = postExecute(runtime, doMessages, doWrapper, outputHandler, parameterProviders, httpServletRequest, httpServletResponse, messages);
       return str;
     } catch (Exception e) {
       logger.error(Messages.getInstance().getString("XactionUtil.ERROR_EXECUTING_ACTION_SEQUENCE", file.getName()), e); //$NON-NLS-1$
@@ -187,11 +203,11 @@ public class XactionUtil {
 
     }
   }
-  
+
   /**
-   * This method executes an xaction with forcePrompt=true and outputPreference=PARAMETERS, allowing
+   * This method executes an xaction with forcePrompt=true and outputPreference=PARAMETERS, allowing 
    * for the xaction to render the secure filter appropriately when being executed in the background
-   * or while being scheduled. 
+   * or while being scheduled.
    * 
    * @param file the location of the xaction
    * @param httpServletRequest the request object
@@ -202,32 +218,36 @@ public class XactionUtil {
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static String executeScheduleUi(RepositoryFile file, HttpServletRequest httpServletRequest,
-      HttpServletResponse httpServletResponse, IPentahoSession userSession) throws Exception {
+      HttpServletResponse httpServletResponse, IPentahoSession userSession, IMimeTypeListener mimeTypeListener) throws Exception {
     IParameterProvider requestParams = new HttpRequestParameterProvider(httpServletRequest);
     IRuntimeContext runtime = null;
     try {
-      IOutputHandler outputHandler = createOutputHandler(httpServletResponse,
-          getOutputStream(httpServletResponse, doMessages(httpServletRequest)));
-
-      outputHandler.setSession(userSession);
-      IMimeTypeListener listener = new HttpMimeTypeListener(httpServletRequest, httpServletResponse, null);
-      outputHandler.setMimeTypeListener(listener);
-      
       HttpSessionParameterProvider sessionParameters = new HttpSessionParameterProvider(userSession);
       HttpRequestParameterProvider requestParameters = new HttpRequestParameterProvider(httpServletRequest);
+
+      boolean doMessages = "true".equalsIgnoreCase(requestParams.getStringParameter("debug", "false")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      boolean doWrapper = "true".equalsIgnoreCase(requestParams.getStringParameter("wrapper", "true")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+      IOutputHandler outputHandler = createOutputHandler(httpServletResponse,
+          getOutputStream(httpServletResponse, doMessages));
+      if (mimeTypeListener == null) {
+        mimeTypeListener = new HttpMimeTypeListener(httpServletRequest,
+            httpServletResponse, null);
+      }
+      outputHandler.setMimeTypeListener(mimeTypeListener);
+      outputHandler.setSession(userSession);
+
       Map parameterProviders = new HashMap();
       parameterProviders.put("request", requestParameters); //$NON-NLS-1$
       parameterProviders.put("session", sessionParameters); //$NON-NLS-1$
       createOutputFileName(file, outputHandler);
       int outputPreference = IOutputHandler.OUTPUT_TYPE_PARAMETERS;
       outputHandler.setOutputPreference(outputPreference);
+      List messages = new ArrayList();
       
       // forcePrompt=true when displaying the scheduling UI
-      runtime = executeInternal(file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession, true);
-      boolean doMessages = "true".equalsIgnoreCase(requestParams.getStringParameter("debug", "false")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      boolean doWrapper = "true".equalsIgnoreCase(requestParams.getStringParameter("wrapper", "true")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      
-      String str = postExecute(runtime, doMessages, doWrapper, outputHandler, parameterProviders);
+      runtime = executeInternal(file, requestParams, httpServletRequest, outputHandler, parameterProviders, userSession, true, messages);
+      String str = postExecute(runtime, doMessages, doWrapper, outputHandler, parameterProviders, httpServletRequest, httpServletResponse, messages);
       return str;
     } catch (Exception e) {
       logger.error(Messages.getInstance().getString("XactionUtil.ERROR_EXECUTING_ACTION_SEQUENCE", file.getName()), e); //$NON-NLS-1$
@@ -242,11 +262,10 @@ public class XactionUtil {
   @SuppressWarnings("rawtypes")
   protected static IRuntimeContext executeInternal(RepositoryFile file, IParameterProvider requestParams,
       HttpServletRequest httpServletRequest, IOutputHandler outputHandler,
-      Map<String, IParameterProvider> parameterProviders, IPentahoSession userSession, boolean forcePrompt) throws Exception {
+      Map<String, IParameterProvider> parameterProviders, IPentahoSession userSession, boolean forcePrompt, List messages) throws Exception {
     String processId = XactionUtil.class.getName();
     String instanceId = httpServletRequest.getParameter("instance-id"); //$NON-NLS-1$
     SimpleUrlFactory urlFactory = new SimpleUrlFactory(""); //$NON-NLS-1$
-    List messages = new ArrayList();
     ISolutionEngine solutionEngine = PentahoSystem.get(ISolutionEngine.class, userSession);
     ISystemSettings systemSettings = PentahoSystem.getSystemSettings();
 
@@ -284,11 +303,10 @@ public class XactionUtil {
 
       OutputStream contentStream = new ByteArrayOutputStream();
       SimpleOutputHandler outputHandler = new SimpleOutputHandler(contentStream, false);
-      
       IRuntimeContext runtime = null;
       try {
-        runtime = executeInternal(file, requestParams, httpServletRequest, outputHandler, parameterProviders,
-            userSession, forcePrompt);
+        runtime = executeInternal(file, requestParams, httpServletRequest,
+            outputHandler, parameterProviders, userSession, forcePrompt, messages);
         Document responseDoc = SoapHelper.createSoapResponseDocument(runtime, outputHandler, contentStream, messages);
         OutputFormat format = OutputFormat.createCompactFormat();
         format.setSuppressDeclaration(true);
@@ -309,15 +327,15 @@ public class XactionUtil {
   }
 
   public static String execute(String returnContentType, RepositoryFile file, HttpServletRequest httpServletRequest,
-      HttpServletResponse httpServletResponse, IPentahoSession userSession) throws Exception {
+      HttpServletResponse httpServletResponse, IPentahoSession userSession, IMimeTypeListener mimeTypeListener) throws Exception {
     if ((returnContentType != null) && (returnContentType.equals(MediaType.APPLICATION_XML))) {
       return executeXml(file, httpServletRequest, httpServletResponse, userSession);
     }
-    return executeHtml(file, httpServletRequest, httpServletResponse, userSession);
+    return executeHtml(file, httpServletRequest, httpServletResponse, userSession, mimeTypeListener);
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public static String doParameter(final RepositoryFile file, IParameterProvider parameterProvider,
+  public static String doParameter(final RepositoryFile file, IParameterProvider parameterProvider, 
       final IPentahoSession userSession) throws IOException {
     ActionSequenceJCRHelper helper = new ActionSequenceJCRHelper();
     final IActionSequence actionSequence = helper.getActionSequence(file.getPath(), PentahoSystem.loggingLevel, 1);
@@ -353,12 +371,9 @@ public class XactionUtil {
         createParameterElement(parametersElement, paramName, type, label, "user", "parameters", values);
       }
 
-      createParameterElement(parametersElement, "path", String.class, null, "system", "system",
-          new String[] { file.getPath() });
-      createParameterElement(parametersElement, "prompt", String.class, null, "system", "system", new String[] { "yes",
-          "no" });
-      createParameterElement(parametersElement, "instance-id", String.class, null, "system", "system",
-          new String[] { parameterProvider.getStringParameter("instance-id", null) });
+      createParameterElement(parametersElement, "path", String.class, null, "system", "system", new String[] { file.getPath() });
+      createParameterElement(parametersElement, "prompt", String.class, null, "system", "system", new String[] { "yes", "no" });
+      createParameterElement(parametersElement, "instance-id", String.class, null, "system", "system", new String[] { parameterProvider.getStringParameter("instance-id", null) });
       // no close, as far as I know tomcat does not like it that much ..
       OutputFormat format = OutputFormat.createCompactFormat();
       format.setSuppressDeclaration(true);
@@ -400,8 +415,7 @@ public class XactionUtil {
     paramGroupAttr.addAttribute("value", group);
 
     final Element paramGroupLabelAttr = parameterElement.addElement("attribute");
-    paramGroupLabelAttr.addAttribute("namespace",
-        "http://reporting.pentaho.org/namespaces/engine/parameter-attributes/core");
+    paramGroupLabelAttr.addAttribute("namespace", "http://reporting.pentaho.org/namespaces/engine/parameter-attributes/core");
     paramGroupLabelAttr.addAttribute("name", "parameter-group-label");
     paramGroupLabelAttr.addAttribute("value", lookupParameterGroupLabel(group));
 

@@ -22,7 +22,7 @@
       <sources>
         <request>reportDefinitionPath</request>
       </sources>
-      <default-value><![CDATA[/bi-developers/reporting/unified-file-format/simpleReport.prpt]]></default-value>
+      <default-value><![CDATA[/public/bi-developers/reporting/unified-file-format/simpleReport.prpt]]></default-value>
     </reportDefinitionPath>
     <outputTypeList type="property-map-list"> 
       <sources> 
@@ -86,9 +86,10 @@
       </action-outputs>
       <component-definition> 
         <script><![CDATA[ 
-				var solutionRepository = Packages.org.pentaho.platform.engine.core.system.PentahoSystem.get(Packages.org.pentaho.platform.api.repository.ISolutionRepository);
-				reportDefinitionInputStream = solutionRepository.getResourceInputStream(reportDefinitionPath, false, Packages.org.pentaho.platform.api.repository.ISolutionRepository.ACTION_EXECUTE);
-		      ]]> </script> 
+		var repo = Packages.org.pentaho.platform.engine.core.system.PentahoSystem.get(Packages.org.pentaho.platform.api.repository2.unified.IUnifiedRepository);
+		var file = repo.getFile(reportDefinitionPath);
+		reportDefinitionInputStream = repo.getDataForExecute(file.getId(), Packages.org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData).getStream();
+	]]> </script> 
       </component-definition> 
     </action-definition>
 

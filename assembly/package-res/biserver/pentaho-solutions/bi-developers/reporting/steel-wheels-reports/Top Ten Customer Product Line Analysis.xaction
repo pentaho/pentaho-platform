@@ -53,12 +53,6 @@
         <mime-type>text/xml</mime-type> 
       </solution-file> 
     </report-definition>  
-    <catalog0> 
-      <solution-file> 
-        <location>steelwheels.mondrian.xml</location>  
-        <mime-type>text/xml</mime-type> 
-      </solution-file> 
-    </catalog0> 
   </resources>
   
   <actions> 
@@ -82,15 +76,13 @@
     <action-definition> 
       <component-name>MDXLookupRule</component-name>
       <action-resources> 
-        <catalog type="resource" mapping="catalog0"/> 
       </action-resources>
       <action-outputs> 
         <prepared_component type="mdx-connection" mapping="conn0"/> 
       </action-outputs>
       <component-definition> 
         <extended_column_names>false</extended_column_names> 
-        <location><![CDATA[mondrian]]></location>  
-        <jndi><![CDATA[SampleData]]></jndi> 
+        <catalog><![CDATA[SteelWheels]]></catalog> 
       </component-definition> 
     </action-definition>
   

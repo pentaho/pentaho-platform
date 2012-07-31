@@ -21,8 +21,13 @@
 
 package org.pentaho.platform.plugin.action.mdx;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+
+import mondrian.olap.Util;
+import mondrian.rolap.RolapConnectionProperties;
+import mondrian.util.Pair;
 
 import org.apache.commons.logging.Log;
 import org.pentaho.actionsequence.dom.ActionInputConstant;
@@ -35,14 +40,20 @@ import org.pentaho.platform.api.data.IDBDatasourceService;
 import org.pentaho.platform.api.data.IDataComponent;
 import org.pentaho.platform.api.data.IPreparedComponent;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
+import org.pentaho.platform.api.repository.ISolutionRepository;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.connection.PentahoConnectionFactory;
 import org.pentaho.platform.engine.services.runtime.MapParameterResolver;
 import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.engine.services.solution.ComponentBase;
+import org.pentaho.platform.engine.services.solution.SolutionReposHelper;
 import org.pentaho.platform.plugin.action.messages.Messages;
+import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXResultSet;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
 public abstract class MDXBaseComponent extends ComponentBase implements IDataComponent, IPreparedComponent {
 
@@ -398,6 +409,51 @@ public abstract class MDXBaseComponent extends ComponentBase implements IDataCom
   }
 
   protected IPentahoConnection getConnection() {
+    
+    // first attempt to get the connection metadata from the catalog service.  if that is not successful,
+    // get the connection using the original approach.
+    
+    MdxConnectionAction connAction = (MdxConnectionAction) getActionDefinition();
+    String catalogName = connAction.getCatalog().getStringValue();
+    IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(IMondrianCatalogService.class,"IMondrianCatalogService", PentahoSessionHolder.getSession()); //$NON-NLS-1$
+    MondrianCatalog catalog = mondrianCatalogService.getCatalog(catalogName, PentahoSessionHolder.getSession());
+
+    if (catalog == null) {
+      return getConnectionOrig();
+    }
+
+    // this inits the solution: VFS file provider.
+    SolutionReposHelper.setSolutionRepositoryThreadVariable(PentahoSystem.get(ISolutionRepository.class, PentahoSessionHolder.getSession()));
+
+    Util.PropertyList connectProperties = Util.parseConnectString(catalog.getDataSourceInfo());
+
+    Properties properties = new Properties();
+
+    Iterator<Pair<String, String>> iter = connectProperties.iterator();
+    while (iter.hasNext()) {
+      Pair<String, String> pair = iter.next();
+      properties.put(pair.getKey(), pair.getValue());
+    }
+
+    properties.put("Catalog", catalog.getDefinition());
+    properties.put("Provider", "mondrian");
+    properties.put("PoolNeeded", "false");
+    properties.put(RolapConnectionProperties.Locale.name(), LocaleHelper.getLocale().toString());
+
+    debug("Mondrian Connection Properties: " + properties.toString());
+
+    MDXConnection mdxConnection = (MDXConnection) PentahoConnectionFactory.getConnection(IPentahoConnection.MDX_DATASOURCE, properties, PentahoSessionHolder.getSession(), this);
+
+    if (connAction != null) {
+      if ((connAction.getExtendedColumnNames() != ActionInputConstant.NULL_INPUT)) {
+        mdxConnection.setUseExtendedColumnNames(connAction.getExtendedColumnNames().getBooleanValue());
+      }
+    }
+    
+    return mdxConnection;
+  }
+  
+  protected IPentahoConnection getConnectionOrig() {
     IPentahoConnection localConnection = null;
     MdxConnectionAction connAction = (MdxConnectionAction) getActionDefinition();
     try {

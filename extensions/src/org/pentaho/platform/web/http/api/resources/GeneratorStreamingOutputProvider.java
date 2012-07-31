@@ -61,7 +61,7 @@ public class GeneratorStreamingOutputProvider implements MessageBodyWriter<Gener
       public void setMimeType(String mimeType) {
         //this has to happen *prior* to the content actually being written to the http response output stream
         logger.debug("Setting Content-Type HTTP response header to "+mimeType); //$NON-NLS-1$
-        httpHeaders.add("Content-Type", mimeType); //$NON-NLS-1$
+        httpHeaders.putSingle("Content-Type", mimeType); //$NON-NLS-1$
       }
     
     });
