@@ -475,15 +475,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
       final RepositoryFileSid fileOwnerSid) throws RepositoryException {
     // We create a tenant's home folder while creating a user
 
-    RepositoryFile publicFolder = createPublicFolder(tenant, tenantRootFolder, fileOwnerSid);
+    createPublicFolder(tenant, tenantRootFolder, fileOwnerSid);
     RepositoryFile etcFolder = createEtcFolder(tenant, tenantRootFolder, fileOwnerSid);
-    
-    Map<String, Serializable> fileMeta = repositoryFileDao.getFileMetadata(publicFolder.getId());
-    fileMeta.put(IUnifiedRepository.SYSTEM_FOLDER, true);
-    repositoryFileDao.setFileMetadata(publicFolder.getId(), fileMeta);
-
-    fileMeta = repositoryFileDao.getFileMetadata(etcFolder.getId());
-    fileMeta.put(IUnifiedRepository.SYSTEM_FOLDER, true);
-    repositoryFileDao.setFileMetadata(etcFolder.getId(), fileMeta);
+    setAsSystemFolder(etcFolder.getId());
   }
 }
