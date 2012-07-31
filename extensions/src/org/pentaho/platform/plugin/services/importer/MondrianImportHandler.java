@@ -58,7 +58,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
   public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException,
       DomainAlreadyExistsException, DomainStorageException, IOException {
     boolean overwriteInRepossitory = bundle.overwriteInRepossitory();
-    boolean xmla = ("True".equals(bundle.getProperty("enableXmla"))) ? true : false;
+    boolean xmla = ("True".equalsIgnoreCase((String)bundle.getProperty("enableXmla"))) ? true : false;
     logger.debug("Importing as metadata - [domain=" + bundle.getName() + "]");
     logger.debug("importFile start " + bundle.getName() + " overwriteInRepossitory:" + overwriteInRepossitory);
     final String domainId = (String) bundle.getProperty("domain-id");
@@ -94,6 +94,10 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       } else {
         if (mse.getReason().equals(Reason.ALREADY_EXISTS)) {
           statusCode = PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR;
+        } else {
+          if (mse.getReason().equals(Reason.XMLA_SCHEMA_NAME_EXISTS)){
+            statusCode = PlatformImportException.PUBLISH_XMLA_CATALOG_EXISTS;
+          }
         }
       }
     }
