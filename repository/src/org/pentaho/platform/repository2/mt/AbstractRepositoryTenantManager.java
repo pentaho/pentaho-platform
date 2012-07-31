@@ -194,12 +194,12 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
   protected void createInitialTenantFolders(Session session, final RepositoryFile tenantRootFolder,
       final RepositoryFileSid fileOwnerSid, final RepositoryFileSid authenticatedRoleSid) throws RepositoryException {
     // We create a tenant's home folder while creating a user
-    setAsSystemFolder(repositoryFileDao.createFolder(tenantRootFolder.getId(),
+    repositoryFileDao.createFolder(tenantRootFolder.getId(),
         new RepositoryFile.Builder(ServerRepositoryPaths.getTenantPublicFolderName()).folder(true).build(),
-        new RepositoryFileAcl.Builder(fileOwnerSid).build(), null).getId());
-    setAsSystemFolder(repositoryFileDao.createFolder(tenantRootFolder.getId(),
+        new RepositoryFileAcl.Builder(fileOwnerSid).build(), null);
+    repositoryFileDao.createFolder(tenantRootFolder.getId(),
         new RepositoryFile.Builder(ServerRepositoryPaths.getTenantEtcFolderName()).folder(true).build(),
-        new RepositoryFileAcl.Builder(fileOwnerSid).build(), null).getId());
+        new RepositoryFileAcl.Builder(fileOwnerSid).build(), null);
   }
 
   protected void setAsSystemFolder(Serializable fileId) {
