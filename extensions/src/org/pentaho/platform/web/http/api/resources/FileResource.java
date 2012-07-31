@@ -554,7 +554,19 @@ public class FileResource extends AbstractJaxRSResource {
     if (showHidden == null) {
       showHidden = Boolean.FALSE;
     }
-    return repoWs.getTree(path, depth, filter, showHidden.booleanValue());
+    
+    List<RepositoryFileTreeDto> filteredChildren = new ArrayList();
+    RepositoryFileTreeDto tree = repoWs.getTree(path, depth, filter, showHidden.booleanValue());
+    for(RepositoryFileTreeDto child : tree.getChildren()) {
+  	  RepositoryFileDto file = child.getFile();
+  	  Map<String, Serializable> fileMeta = repository.getFileMetadata(file.getId());
+  	  boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta.get(IUnifiedRepository.SYSTEM_FOLDER) : false;
+  	  if(!isSystemFolder) {
+  		  filteredChildren.add(child);
+  	  }
+    }
+    tree.setChildren(filteredChildren);
+    return tree;
   }
 
   @GET
