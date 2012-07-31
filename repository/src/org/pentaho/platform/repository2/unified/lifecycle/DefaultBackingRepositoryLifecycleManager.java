@@ -393,12 +393,6 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
               // Tenant home folder does not exist, so create it
               tenantHomeFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
                   ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).build(), aclBuilder.build(), "tenant home folder");
-              // Marking the folder as a system folder
-              Map<String, Serializable> fileMeta = repositoryFileDao.getFileMetadata(tenantHomeFolder.getId());
-              fileMeta.put(IUnifiedRepository.SYSTEM_FOLDER, true);
-              repositoryFileDao.setFileMetadata(tenantHomeFolder.getId(), fileMeta);
-              
-      
             }
             
             Builder aclBuilder = new RepositoryFileAcl.Builder(userSid).entriesInheriting(true);
