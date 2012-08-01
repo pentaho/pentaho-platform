@@ -125,7 +125,7 @@
     <property name="interceptorNames">
       <list>
         <idref local="tenantManagerMethodInterceptor"/>
-      <idref local="unifiedRepositoryTransactionInterceptor"/>
+        <idref local="unifiedRepositoryTransactionInterceptor"/>
       </list>
     </property>
   </bean>
@@ -135,6 +135,25 @@
     <property name="interceptorNames">
       <list>
         <idref local="unifiedRepositoryTransactionInterceptor"/>
+      </list>
+    </property>
+  </bean>
+  
+  <bean id="userRoleDaoProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target" ref="userRoleDao"/>
+    <property name="interceptorNames">
+      <list>
+        <idref local="userRoleDaoMethodInterceptor"/>
+        <idref local="userRoleDaoTransactionInterceptor"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="userRoleDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target" ref="userRoleDao"/>
+    <property name="interceptorNames">
+      <list>
+        <idref local="userRoleDaoTransactionInterceptor"/>
       </list>
     </property>
   </bean>
@@ -187,8 +206,7 @@
     <constructor-arg ref="tenantAdminAuthorityNamePattern"/>
   </bean>
  
-  <bean id="defaultBackingRepositoryLifecycleManager"
-class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager">
+  <bean id="defaultBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager">
             <constructor-arg ref="repositoryFileDao"/>
 		    <constructor-arg ref="repositoryFileAclDao"/>
     		<constructor-arg ref="jcrTransactionTemplate"/>
@@ -197,10 +215,11 @@ class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingReposito
     		<constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
 	        <constructor-arg ref="tenantedUserNameUtils"/>            
     	    <constructor-arg ref="tenantedRoleNameUtils"/>            
-        	<property name="tenantManager" ref="tenantMgrTxn"/>
-      <property name="userRoleDao" ref="userRoleDao"/>
+      <property name="tenantManager" ref="tenantMgrTxn"/>
+      <property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
-            <bean id="pdiBackingRepositoryLifecycleManager"
+  
+  <bean id="pdiBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.PdiBackingRepositoryLifecycleManager">
     <constructor-arg ref="repositoryFileDao"/>
     <constructor-arg ref="repositoryFileAclDao"/>
@@ -328,7 +347,7 @@ class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingReposito
       </bean>
     </constructor-arg>
     <constructor-arg ref="jcrAdminCredentialsStrategy"/>
-      <property name="namespaces">
+    <property name="namespaces">
       <props>
         <prop key="pho">http://www.pentaho.org/jcr/2.0</prop>
         <prop key="pho_nt">http://www.pentaho.org/jcr/nt/2.0</prop>
@@ -368,7 +387,7 @@ class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingReposito
     </constructor-arg>
     <constructor-arg ref="pathConversionHelper"/>
     <constructor-arg ref="repositoryFileAclDao"/>
-    </bean>
+  </bean>
 
   <util:list id="transformers">
     <bean class="org.pentaho.platform.repository2.unified.jcr.transform.SampleRepositoryFileDataTransformer"/>
@@ -403,16 +422,16 @@ class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingReposito
 
   <bean id="roleBindingDaoTransactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
     <property name="transactionManager" ref="jcrTransactionManager"/>
-      <property name="transactionAttributeSource">
-          <value>        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.getRoleBindingStruct=PROPAGATION_REQUIRED,readOnly
+    <property name="transactionAttributeSource">
+      <value>
+        org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.getRoleBindingStruct=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.setRoleBindings=PROPAGATION_REQUIRED
         org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao.getBoundLogicalRoleNames=PROPAGATION_REQUIRED,readOnly
-          </value>
-          </property>
+      </value>
+    </property>
   </bean>
-
-  <bean id="roleAuthorizationPolicyRoleBindingDaoTarget"
-class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicyRoleBindingDao">
+    
+  <bean id="roleAuthorizationPolicyRoleBindingDaoTarget" class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicyRoleBindingDao">
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg>
       <null/>
@@ -451,7 +470,8 @@ class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicy
     </entry>
     <!-- for single tenant mode -->
   </util:map>
-            <bean id="roleAuthorizationPolicyRoleBindingDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
+  
+  <bean id="roleAuthorizationPolicyRoleBindingDaoTxn" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target" ref="roleAuthorizationPolicyRoleBindingDaoTarget"/>
     <property name="interceptorNames">
       <list>
@@ -459,18 +479,17 @@ class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicy
       </list>
     </property>
   </bean>
-
+  
   <bean id="roleAuthorizationPolicyRoleBindingDao" class="org.springframework.aop.framework.ProxyFactoryBean">
-      <property name="target" ref="roleAuthorizationPolicyRoleBindingDaoTarget"/>
+    <property name="target" ref="roleAuthorizationPolicyRoleBindingDaoTarget"/>
     <property name="interceptorNames">
       <list>
-    <idref local="roleAuthorizationPolicyRoleBindingDaoMethodInterceptor"/>
-    </list>
+        <idref local="roleAuthorizationPolicyRoleBindingDaoMethodInterceptor"/>
+      </list>
     </property>
   </bean>
-  
-  
-<bean id="roleAuthorizationPolicyRoleBindingDaoMethodInterceptor"
+
+  <bean id="roleAuthorizationPolicyRoleBindingDaoMethodInterceptor"
         class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
     <property name="validateConfigAttributes">
       <value>true</value>
@@ -488,34 +507,34 @@ class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicy
       </value>
     </property>
   </bean>
-  
 
-<!-- An access decision voter that reads VOTE_AUTHZ_POLICY_* configuration settings
+  <!-- An access decision voter that reads VOTE_AUTHZ_POLICY_* configuration settings
 -->
   <bean id="authorizationPolicyVoter"
-    class="org.pentaho.platform.security.policy.rolebased.springsecurity.AuthorizationPolicyVoter">
-        <constructor-arg ref="authorizationPolicy"/>
-        <constructor-arg value="VOTE_AUTHZ_POLICY_"/>
-      </bean>
-            
+        class="org.pentaho.platform.security.policy.rolebased.springsecurity.AuthorizationPolicyVoter">
+    <constructor-arg ref="authorizationPolicy"/>
+    <constructor-arg value="VOTE_AUTHZ_POLICY_"/>
+  </bean>
+
+
 <bean id="adminJcrTemplate" class="org.springframework.extensions.jcr.JcrTemplate">
     <property name="sessionFactory" ref="jcrAdminSessionFactory"/>
-
-<property name="allowCreate" value="false"/>
+    <property name="allowCreate" value="false"/>
     <property name="exposeNativeSession" value="true"/>
   </bean>
   
-            <bean id="tenantManagerMethodInterceptor"
+
+  <bean id="tenantManagerMethodInterceptor"
         class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
-	<property name="validateConfigAttributes">
-	<value>true</value>
-	</property>
-	<property name="authenticationManager">
+    <property name="validateConfigAttributes">
+      <value>true</value>
+    </property>
+    <property name="authenticationManager">
       <ref bean="authenticationManager"/>
-	</property>
+    </property>
     <property name="accessDecisionManager">
       <ref bean="businessAccessDecisionManager"/>
-	</property>
+    </property>
     <property name="objectDefinitionSource">
       <value>
         org.pentaho.platform.api.mt.ITenantManager.createTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
@@ -529,7 +548,63 @@ class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicy
       </value>
     </property>
   </bean>
-    
+  
+
+  <bean id="userRoleDaoTransactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+    <property name="transactionManager" ref="jcrAdminTransactionManager"/>
+    <property name="transactionAttributeSource">
+      <value>
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createUserHomeFolder=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createUser=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setPassword=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserDescription=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteUser=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUser=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUsers=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createRole=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleDescription=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteRole=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRole=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoles=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleMembers=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserRoles=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoleMembers=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUserRoles=PROPAGATION_REQUIRED,readOnly
+      </value>
+    </property>
+  </bean>
+  
+  
+  <bean id="userRoleDaoMethodInterceptor"
+        class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+    <property name="validateConfigAttributes">
+      <value>true</value>
+    </property>
+    <property name="authenticationManager">
+      <ref bean="authenticationManager"/>
+    </property>
+    <property name="accessDecisionManager">
+      <ref bean="businessAccessDecisionManager"/>
+    </property>
+    <property name="objectDefinitionSource">
+      <value>
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createUser=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setPassword=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserDescription=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteUser=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getUsers=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createRole=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleDescription=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.deleteRole=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRole=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoles=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setRoleMembers=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserRoles=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.getRoleMembers=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
+      </value>
+    </property>
+  </bean>
+  
   <bean id="jcrAdminSessionHolderProvider" class="org.springframework.extensions.jcr.jackrabbit.support.JackRabbitSessionHolderProvider">
   </bean>
 
@@ -544,12 +619,12 @@ class="org.pentaho.platform.security.policy.rolebased.JcrRoleAuthorizationPolicy
 
   <bean id="jcrAdminSessionFactory" class="org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory">
     <constructor-arg ref="jcrRepository"/>
-	<constructor-arg ref="jcrAdminCredentialsStrategy"/>
-	<property name="sessionHolderProviderManager">
+    <constructor-arg ref="jcrAdminCredentialsStrategy"/>
+    <property name="sessionHolderProviderManager">
       <ref bean="jcrAdminSessionHolderProviderMgr"/>
-  </property>
+    </property>
   </bean>
-
+  
   <!-- IUserRoleDao implementation -->
   <bean id="userRoleDao" class="org.pentaho.test.mock.MockUserRoleDao">
 	<constructor-arg ref="tenantedUserNameUtils"/>            

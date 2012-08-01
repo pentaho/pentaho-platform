@@ -113,7 +113,7 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
     UserDetails user = userDetailsService.loadUserByUsername(tenantedUserNameUtils.getPrincipleId(tenant, username));
     List<String> roles = new ArrayList<String>(user.getAuthorities().length);
     for (GrantedAuthority role : user.getAuthorities()) {
-      roles.add(role.getAuthority());
+      roles.add(tenantedRoleNameUtils.getPrincipleName(role.getAuthority()));
     }
     return roles;
   }

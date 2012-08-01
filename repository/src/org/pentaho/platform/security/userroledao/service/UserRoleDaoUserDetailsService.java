@@ -21,11 +21,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.userroledao.messages.Messages;
@@ -57,6 +60,8 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
    * A default role which will be assigned to all authenticated users if set
    */
   private GrantedAuthority defaultRole;
+  
+  private String defaultRoleString;
   
   ITenantedPrincipleNameResolver tenantedUserNameUtils;
   
@@ -100,6 +105,21 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
 
     List<GrantedAuthority> dbAuths = new ArrayList<GrantedAuthority>(Arrays.asList(auths));
     addCustomAuthorities(tenantedUserNameUtils.getPrincipleId(user.getTenant(), user.getUsername()), dbAuths);
+    
+    // Get the tenant information from the username first
+    ITenant tenant = tenantedUserNameUtils.getTenant(username);
+    
+    // If the tenant information is not present then get the tenant information from session
+    if(tenant == null || tenant.getId() == null) {
+      IPentahoSession session = PentahoSessionHolder.getSession();
+      String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
+      if(tenantId != null) {
+        tenant = new Tenant(tenantId, true);        
+      }
+    }
+    
+    // reconstruct the default role with tenant
+    defaultRole = new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, defaultRoleString));
     
     if (defaultRole != null && !dbAuths.contains(defaultRole)) {
       dbAuths.add(defaultRole);
@@ -175,6 +195,7 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
    */
   public void setDefaultRole(String defaultRole) {
       Assert.notNull(defaultRole);
+      this.defaultRoleString = defaultRole;
       this.defaultRole = new GrantedAuthorityImpl(defaultRole);
   }
 }
