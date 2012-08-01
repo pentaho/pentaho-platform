@@ -13,9 +13,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import mondrian.xmla.DataSourcesConfig.DataSource;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
@@ -31,7 +28,13 @@ import org.xml.sax.SAXException;
 
 public class MondrianImportHandler implements IPlatformImportHandler {
 
-  private static final Log logger = LogFactory.getLog(MondrianImportHandler.class);
+  private static final String PARAMETERS = "parameters";
+
+  private static final String ENABLE_XMLA = "enableXmla";
+
+  private static final String DOMAIN_ID = "domain-id";
+
+  private static final String DATA_SOURCE = "DataSource";
 
   IMondrianCatalogService mondrianRepositoryImporter;
 
@@ -58,16 +61,14 @@ public class MondrianImportHandler implements IPlatformImportHandler {
   public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException,
       DomainAlreadyExistsException, DomainStorageException, IOException {
     boolean overwriteInRepossitory = bundle.overwriteInRepossitory();
-    boolean xmla = ("True".equalsIgnoreCase((String)bundle.getProperty("enableXmla"))) ? true : false;
-    logger.debug("Importing as metadata - [domain=" + bundle.getName() + "]");
-    logger.debug("importFile start " + bundle.getName() + " overwriteInRepossitory:" + overwriteInRepossitory);
-    final String domainId = (String) bundle.getProperty("domain-id");
+    boolean xmla = "true".equalsIgnoreCase(findParameterPropertyValue(bundle, ENABLE_XMLA)) ? true : false;
+    final String domainId = (String) bundle.getProperty(DOMAIN_ID);
 
     if (domainId == null) {
       throw new PlatformImportException("Bundle missing required domain-id property");
     }
     try {
-      String ds = (String) bundle.getProperty("DataSource");
+      String ds = findParameterPropertyValue(bundle, DATA_SOURCE);
       MondrianCatalog catalog = this.createCatalogObject(domainId, ds, xmla);
       mondrianRepositoryImporter.addCatalog(bundle.getInputStream(), catalog, overwriteInRepossitory,
           PentahoSessionHolder.getSession());
@@ -77,6 +78,22 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     } catch (Exception e) {
       throw new PlatformImportException(e.getMessage(), PlatformImportException.PUBLISH_GENERAL_ERROR);
     }
+  }
+
+  /**
+   * helper method to find the value in the bundle from either the property or parameter list
+   * @param bundle
+   * @param key
+   * @return
+   */
+  private String findParameterPropertyValue(IPlatformImportBundle bundle, String key) {
+    String value = (String) bundle.getProperty(key);
+    if (value == null) {
+      mondrian.olap.Util.PropertyList propertyList = mondrian.olap.Util.parseConnectString((String) bundle
+          .getProperty(PARAMETERS));
+      value = propertyList.get(key);
+    }
+    return value;
   }
 
   /**
@@ -95,7 +112,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
         if (mse.getReason().equals(Reason.ALREADY_EXISTS)) {
           statusCode = PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR;
         } else {
-          if (mse.getReason().equals(Reason.XMLA_SCHEMA_NAME_EXISTS)){
+          if (mse.getReason().equals(Reason.XMLA_SCHEMA_NAME_EXISTS)) {
             statusCode = PlatformImportException.PUBLISH_XMLA_CATALOG_EXISTS;
           }
         }
@@ -120,11 +137,9 @@ public class MondrianImportHandler implements IPlatformImportHandler {
     MondrianSchema schema = new MondrianSchema(catName, null);
     String dsProvider = xmlaEnabled ? DataSource.PROVIDER_TYPE_MDP : "None:";
     MondrianDataSource ds = new MondrianDataSource(catName, "", "", "Provider=mondrian;DataSource=" + datasource,
-        "Provider=Mondrian", dsProvider, DataSource.AUTH_MODE_UNAUTHENTICATED, null);
-
-    String FILE_SEPARTOR = RepositoryFile.SEPARATOR;
+        "Provider=Mondrian", dsProvider, DataSource.AUTH_MODE_UNAUTHENTICATED, null); 
     MondrianCatalog catalog = new MondrianCatalog(catName, "Provider=mondrian;DataSource=" + datasource + ";",
-        "mondrian:" + FILE_SEPARTOR + catName, ds, schema);
+        "mondrian:" +  RepositoryFile.SEPARATOR + catName, ds, schema);
     return catalog;
   }
 
