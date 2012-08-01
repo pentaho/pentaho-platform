@@ -30,7 +30,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
   private static final String PARAMETERS = "parameters";
 
-  private static final String ENABLE_XMLA = "enableXmla";
+  private static final String ENABLE_XMLA = "EnableXmla";
 
   private static final String DOMAIN_ID = "domain-id";
 
