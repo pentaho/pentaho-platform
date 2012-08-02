@@ -190,7 +190,7 @@ public class MantleController extends AbstractXulEventHandler {
     }
 
     try {
-      final String url = GWT.getHostPageBaseURL() + "api/mantle/isAdministrator"; //$NON-NLS-1$
+      final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "text/plain");
       requestBuilder.sendRequest(null, new RequestCallback() {
