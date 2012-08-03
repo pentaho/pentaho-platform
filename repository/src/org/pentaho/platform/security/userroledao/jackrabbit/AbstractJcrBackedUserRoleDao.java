@@ -190,6 +190,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     UserManager tenantUserMgr = getUserManager(tenant, session);
     // Intermediate path will always be an empty string. The path is already provided while creating a user manager
     tenantUserMgr.createGroup(new PrincipalImpl(roleId), "");
+    session.save();
     setRoleMembers(session, tenant, role, memberUserNames);
     setRoleDescription(session, tenant, role, description);
     return getRole(session, theTenant, roleName);
@@ -213,6 +214,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     String userId = tenantedUserNameUtils.getPrincipleId(tenant, user);
     UserManager tenantUserMgr = getUserManager(tenant, session);
     tenantUserMgr.createUser(userId, password, new PrincipalImpl(userId), "");
+    session.save();
     setUserRoles(session, tenant, user, roles);
     setUserDescription(session, tenant, user, description);
     
