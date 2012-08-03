@@ -27,7 +27,8 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.util.logging.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -56,6 +57,7 @@ import org.springframework.context.ApplicationContext;
 public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObjectFactory {
 
   protected ApplicationContext beanFactory;
+  protected static final Log logger = LogFactory.getLog(AbstractSpringPentahoObjectFactory.class);
 
   /**
    * @see IPentahoObjectFactory#get(Class, IPentahoSession)
@@ -96,7 +98,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
 
   protected Object retreiveObject(String key, final IPentahoSession session) throws ObjectFactoryException {
     //cannot access logger here since this object factory provides the logger
-    Logger.debug(this, "Attempting to get an instance of [" + key + "] while in session [" + session + "]");   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+    logger.debug("Attempting to get an instance of [" + key + "] while in session [" + session + "]");   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
     Object object = null;
 
@@ -108,7 +110,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       } catch (Throwable t) {
         //Spring could not create the object, perhaps due to session scoping, let's try
         //retrieving it from our internal session map
-        Logger.debug(this, "Retrieving object from Pentaho session map (not Spring).");   //$NON-NLS-1$
+        logger.debug("Retrieving object from Pentaho session map (not Spring).");   //$NON-NLS-1$
 
         object = session.getAttribute(key);
 
@@ -128,7 +130,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
       ((IPentahoInitializer) object).init(session);
     }
 
-    Logger.debug(this, " got an instance of [" + key + "]: " + object);   //$NON-NLS-1$ //$NON-NLS-2$
+    logger.debug(" Got an instance of [" + key + "]: " + object);   //$NON-NLS-1$ //$NON-NLS-2$
     return object;
   }
 
