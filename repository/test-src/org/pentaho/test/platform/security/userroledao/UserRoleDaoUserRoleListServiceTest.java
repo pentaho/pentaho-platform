@@ -85,7 +85,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
     "classpath:/repository-test-override.spring.xml" })
 @SuppressWarnings("nls")
 public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAware {
-  public static final int DEFAULT_ROLE_COUNT = 3;
+  public static final int DEFAULT_ROLE_COUNT = 4;
   public static final int DEFAULT_USER_COUNT = 1; // joe
   public static final String MAIN_TENANT_1 = "maintenant1";
   public static final String MAIN_TENANT_2 = "maintenant2";
@@ -341,7 +341,7 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
         .getBean("authorizationPolicy");
     tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrTxn");
     repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean("repositoryFileDao");
-    userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDao");
+    userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDaoTxn");
     TestPrincipalProvider.userRoleDao = userRoleDao;
     repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
     repository = (Repository) applicationContext.getBean("jcrRepository");
@@ -419,7 +419,7 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
   public void testGetAllUsernames() {
     loginAsRepositoryAdmin();
     ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
     userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
@@ -530,7 +530,7 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     }
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils, tenantedRoleNameUtils);
     userDetailsService.setUserRoleDao(userRoleDao);
-    
+    userDetailsService.setDefaultRole(tenantAuthenticatedAuthorityNamePattern);
     UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(tenantedUserNameUtils, tenantedRoleNameUtils, userRoleDao, userDetailsService);
     service.setUserDetailsService(userDetailsService);
 
@@ -594,6 +594,7 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     login("joe", mainTenant_1, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils, tenantedRoleNameUtils);
     userDetailsService.setUserRoleDao(userRoleDao);
+    userDetailsService.setDefaultRole(tenantAuthenticatedAuthorityNamePattern);
     UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(tenantedUserNameUtils, tenantedRoleNameUtils, userRoleDao, userDetailsService);
     
     List<String> usersInRole_1 = service.getUsersInRole(mainTenant_1, ROLE_1);

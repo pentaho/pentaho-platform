@@ -20,6 +20,7 @@ import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.TenantUtils;
 
 
 
@@ -159,7 +160,11 @@ public class MockUserRoleDao implements IUserRoleDao {
   }
   
   public List<IPentahoRole> getRoles(ITenant tenant) throws UncategorizedUserRoleDaoException {
-    return Collections.list(Collections.enumeration(tenantRoles.get(tenant)));
+    if(TenantUtils.getCurrentTenant().equals(tenant)) {
+      return Collections.list(Collections.enumeration(tenantRoles.get(tenant)));  
+    } else {
+      return Collections.emptyList();
+    }
   }
   
   public IPentahoUser getUser(ITenant tenant, String userName) throws UncategorizedUserRoleDaoException {
@@ -213,7 +218,11 @@ public class MockUserRoleDao implements IUserRoleDao {
   }
   
   public List<IPentahoUser> getUsers(ITenant tenant) throws UncategorizedUserRoleDaoException {
-    return Collections.list(Collections.enumeration(tenantUsers.get(tenant)));
+    if(TenantUtils.getCurrentTenant().equals(tenant)) {
+      return Collections.list(Collections.enumeration(tenantUsers.get(tenant)));  
+    } else {
+      return Collections.emptyList();
+    }
   }
   
   public void setPassword(ITenant tenant, String userName, String password) throws NotFoundException, UncategorizedUserRoleDaoException {

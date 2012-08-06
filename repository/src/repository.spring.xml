@@ -187,6 +187,14 @@
     <constructor-arg value="super"/>
   </bean>
 
+  <bean id="systemTenantAdminUserName" class="java.lang.String">
+    <constructor-arg value="system"/>
+  </bean>
+  
+  <bean id="singleTenantAdminUserName" class="java.lang.String">
+    <constructor-arg value="admin"/>
+  </bean>
+
   <!-- Used in code that doesn't use Spring's transaction interception. -->
   <!-- The code sets the propagation behavior to PROPAGATION_REQUIRES_NEW. -->
   <bean id="jcrTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
@@ -207,16 +215,18 @@
   </bean>
  
   <bean id="defaultBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager">
-            <constructor-arg ref="repositoryFileDao"/>
-		    <constructor-arg ref="repositoryFileAclDao"/>
-    		<constructor-arg ref="jcrTransactionTemplate"/>
-		    <constructor-arg ref="repositoryAdminUsername"/>
-    		<constructor-arg ref="tenantAdminAuthorityNamePattern"/>	
-    		<constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
-	        <constructor-arg ref="tenantedUserNameUtils"/>            
-    	    <constructor-arg ref="tenantedRoleNameUtils"/>            
-      <property name="tenantManager" ref="tenantMgrTxn"/>
-      <property name="userRoleDao" ref="userRoleDaoTxn"/>
+	<constructor-arg ref="repositoryFileDao"/>
+	<constructor-arg ref="repositoryFileAclDao"/>
+	<constructor-arg ref="jcrTransactionTemplate"/>
+	<constructor-arg ref="repositoryAdminUsername"/>
+	<constructor-arg ref="systemTenantAdminUserName"/>
+	<constructor-arg ref="singleTenantAdminUserName"/>
+	<constructor-arg ref="tenantAdminAuthorityNamePattern"/>	
+	<constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+	<constructor-arg ref="tenantedUserNameUtils"/>            
+	<constructor-arg ref="tenantedRoleNameUtils"/>            
+	<property name="tenantManager" ref="tenantMgrTxn"/>
+	<property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
   
   <bean id="pdiBackingRepositoryLifecycleManager"

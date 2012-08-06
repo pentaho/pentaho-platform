@@ -380,6 +380,7 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
 
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils, tenantedRoleNameUtils);
     userDetailsService.setUserRoleDao(userRoleDao);
+    userDetailsService.setDefaultRole(tenantAuthenticatedAuthorityNamePattern);
     UserDetails userFromService = userDetailsService.loadUserByUsername(tenantedUserNameUtils.getPrincipleId(mainTenant_1, USER_2));
 
     assertTrue(userFromService.getUsername().equals(tenantedUserNameUtils.getPrincipleId(mainTenant_1, USER_2)));
