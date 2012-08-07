@@ -30,15 +30,6 @@
       </list>
     </constructor-arg>
   </bean>
-  
-  <bean id="userRoleDaoTestProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="target" ref="userRoleDao"/>
-    <property name="interceptorNames">
-      <list>
-        <idref bean="userRoleDaoTransactionInterceptor"/>
-      </list>
-    </property>
-  </bean>
 <!-- 
   To enable RMI in a unit test, put jackrabbit-jcr-rmi-1.5.0.jar in dev-lib and add to Eclipse classpath.
   

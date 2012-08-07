@@ -349,7 +349,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrProxy");
     repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean("repositoryFileDao");
     userRoleDaoProxy = (IUserRoleDao) applicationContext.getBean("userRoleDaoTxn");
-    userRoleDaoTestProxy = (IUserRoleDao) applicationContext.getBean("userRoleDaoTestProxy");
+    userRoleDaoTestProxy = (IUserRoleDao) applicationContext.getBean("userRoleDaoTxn");
     tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedUserNameUtils");
     tenantedRoleNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedRoleNameUtils");
     TestPrincipalProvider.userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDaoTxn");
