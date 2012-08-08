@@ -520,11 +520,11 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
     sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
-    tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrTxn");
+    tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrProxy");
     userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDao");
     pathConversionHelper = (IPathConversionHelper) applicationContext.getBean("pathConversionHelper");
+    roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTarget");
     roleBindingDao = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTxn");
-    roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTxn");
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
     defaultBackingRepositoryLifecycleManager = (DefaultBackingRepositoryLifecycleManager) applicationContext.getBean("defaultBackingRepositoryLifecycleManager");
     tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedUserNameUtils");

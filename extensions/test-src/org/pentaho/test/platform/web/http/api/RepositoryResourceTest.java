@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.Repository;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -34,30 +35,45 @@ import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IOutputHandler;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginProvider;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantManager;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.solution.ContentInfo;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
 import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.plugin.services.pluginmgr.PlatformPlugin;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginClassLoader;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
+import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.repository2.unified.webservices.ExecutableFileTypeDto;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
+import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService;
 import org.pentaho.platform.web.http.api.resources.FileResourceContentGenerator;
 import org.pentaho.platform.web.http.api.resources.RepositoryResource;
 import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
@@ -79,6 +95,7 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -96,27 +113,46 @@ import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestCon
 @SuppressWarnings("nls")
 public class RepositoryResourceTest extends JerseyTest implements ApplicationContextAware {
 
-  private static MicroPlatform mp = new MicroPlatform("test-res/FileOutputResourceTest/");
+  private static MicroPlatform mp = new MicroPlatform();
+
+  public static final String MAIN_TENANT_1 = "maintenant1";
   
   private IUnifiedRepository repo;
-  
+
+  private IUserRoleListService userRoleListService;
+
   private boolean startupCalled;
 
   private String repositoryAdminUsername;
 
+  private String sysAdminRoleName;
+  
   private String tenantAdminAuthorityNamePattern;
 
   private String tenantAuthenticatedAuthorityNamePattern;
 
-  private String sysAdminRoleName;
-  
   private JcrTemplate testJcrTemplate;
 
   private IBackingRepositoryLifecycleManager manager;
 
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
 
-  private IAuthorizationPolicy authorizationPolicy;  
+  private IAuthorizationPolicy authorizationPolicy;
+
+  IUserRoleDao userRoleDao;
+  
+  private ITenantManager tenantManager;
+  private String sysAdminAuthorityName;
+  private String sysAdminUserName;
+  private IRepositoryFileDao repositoryFileDao;
+  private Repository repository = null;
+  private ITenant systemTenant = null; 
+  private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
+  private ITenantedPrincipleNameResolver tenantedUserNameUtils;
+  private IRoleAuthorizationPolicyRoleBindingDao roleAuthorizationPolicyRoleBindingDao;
+  private static TransactionTemplate jcrTransactionTemplate;
+  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
+  public static final String SYSTEM_PROPERTY = "spring.security.strategy";
   
   private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder(
   "org.pentaho.platform.web.http.api.resources").contextPath("api").addFilter(PentahoRequestContextFilter.class,
@@ -139,16 +175,17 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   @BeforeClass
   public static void beforeClass() throws Exception {
 //    BasicConfigurator.configure();
+    System.setProperty(SYSTEM_PROPERTY, "MODE_INHERITABLETHREADLOCAL");
     Logger.getLogger("org").setLevel(Level.WARN);
     Logger.getLogger("org.pentaho").setLevel(Level.WARN);
     Logger.getLogger(RepositoryResource.class).setLevel(Level.DEBUG);
 //    Logger.getLogger(RequestProxy.class).setLevel(Level.DEBUG);
     Logger.getLogger("MIME_TYPE").setLevel(Level.TRACE);
     
-    PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
+    PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL);
     
     FileUtils.deleteDirectory(new File("/tmp/jackrabbit-test-TRUNK"));
-	SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_GLOBAL);    
+	SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);    
   }
 
   @AfterClass
@@ -158,7 +195,11 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 
   @Before
   public void beforeTest() throws PlatformInitializationException {
-
+    System.setProperty(SYSTEM_PROPERTY, "MODE_INHERITABLETHREADLOCAL");
+    mp = new MicroPlatform();
+    File path = new File(".", "test-res/PluginResourceTest/system/test-plugin");
+    mp.setFilePath(path.getAbsolutePath());
+    // used by DefaultPentahoJackrabbitAccessControlHelper
     mp.define(IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL);
     mp.defineInstance(IPluginResourceLoader.class, new PluginResourceLoader() {
       protected PluginClassLoader getOverrideClassloader() {
@@ -167,18 +208,24 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
     });
     mp.define(IPluginProvider.class, TestPlugin.class, Scope.GLOBAL);
 
-    PentahoSystem.get(IPluginManager.class).reload();
-    
-    repo = mock(IUnifiedRepository.class);
-    mp.defineInstance(IUnifiedRepository.class, repo);
-    
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
+      mp.defineInstance(ITenantManager.class, tenantManager);
+      mp.define(ITenant.class, Tenant.class);
+      mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
+      mp.defineInstance(IRoleAuthorizationPolicyRoleBindingDao.class, roleBindingDaoTarget);
+      mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
+      UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils, tenantedRoleNameUtils);
+      userDetailsService.setUserRoleDao(userRoleDao);
+      
+      userRoleListService = new UserRoleDaoUserRoleListService(tenantedUserNameUtils, tenantedRoleNameUtils, userRoleDao, userDetailsService);
+      ((UserRoleDaoUserRoleListService)userRoleListService).setUserRoleDao(userRoleDao);
+      ((UserRoleDaoUserRoleListService)userRoleListService).setUserDetailsService(userDetailsService);
 
-	// Start the micro-platform
-	// mp.start();
-	logout();
-	manager.startup();
-	startupCalled = true;    
+      mp.defineInstance(IUserRoleListService.class, userRoleListService);
+      mp.start();
+      PentahoSystem.get(IPluginManager.class).reload();
+    logout();
+    startupCalled = true;  
   }
 
   @After
@@ -203,6 +250,16 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 	repo = null;	  
   }
   
+  private void cleanupUserAndRoles(final ITenant tenant) {
+    loginAsRepositoryAdmin();
+    for (IPentahoRole role : userRoleDao.getRoles(tenant)) {
+      userRoleDao.deleteRole(role);
+    }
+    for (IPentahoUser user : userRoleDao.getUsers(tenant)) {
+      userRoleDao.deleteUser(user);
+    }
+  }
+  
   protected void clearRoleBindings() throws Exception {
 	loginAsRepositoryAdmin();
 //	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath("duff") + ".authz");
@@ -211,8 +268,17 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   
   @Test
   public void testGetFileText() throws Exception {
-    stubGetFile(repo, "/public/file.txt");
-    stubGetData(repo, "/public/file.txt", "abcdefg");
+    loginAsRepositoryAdmin();
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    mp.defineInstance(IUnifiedRepository.class, repo);
+
+    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+
+    createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "file.txt", "abcdefg");
     
     WebResource webResource = resource();
     
@@ -230,27 +296,53 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
     ClientResponse r3 = webResource.path("repos/:public:file.txt/content").accept(TEXT_PLAIN).accept(MediaType.WILDCARD).get(ClientResponse.class);
     assertResponse(r3, Status.OK, MediaType.TEXT_PLAIN);
     assertEquals("abcdefg", r3.getEntity(String.class));
+    
+    cleanupUserAndRoles(mainTenant_1);
+    cleanupUserAndRoles(systemTenant);
   }
 
   @Test
   public void a1_HappyPath() {
-    stubGetFile(repo, "/public/test.xjunit");
+    loginAsRepositoryAdmin();
+
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    mp.defineInstance(IUnifiedRepository.class, repo);
+
+    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+
+    createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "test.xjunit", "abcdefg");
 
     WebResource webResource = resource();
 
     ClientResponse response = webResource.path("repos/:public:test.xjunit/public/file.txt").get(ClientResponse.class);
     assertResponse(response, ClientResponse.Status.OK, TEXT_PLAIN);
     assertEquals("contents of file incorrect/missing", "test text", response.getEntity(String.class));
+    
+    cleanupUserAndRoles(mainTenant_1);
+    cleanupUserAndRoles(systemTenant);
   }
 
   @Test
   public void a2_HappyPath() {
-    stubGetFile(repo, "/public/test.xjunit");
-    stubGetFile(repo, "/public/test.css");
-    stubGetData(repo, "/public/test.css", "css content");
-    stubGetFile(repo, "/public/js/test.js");
-    stubGetData(repo, "/public/js/test.js", "js content");
-    
+    loginAsRepositoryAdmin();
+
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    mp.defineInstance(IUnifiedRepository.class, repo);
+
+    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+
+    createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "test.xjunit", "abcdefg");
+    createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "js/test.js", "js content");
+    createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "test.css", "css content");
+
     WebResource webResource = resource();
 
     //load the css
@@ -266,9 +358,19 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   
   @Test
   public void a3_dotUrl() {
+    loginAsRepositoryAdmin();
+
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    mp.defineInstance(IUnifiedRepository.class, repo);
+
+    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+
     final String text = "URL=http://google.com";
-    stubGetFile(repo, "/public/test.url");
-    stubGetData(repo, "/public/test.url", text);
+    createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "test.url", text);
     
     WebResource webResource = resource();
 
@@ -281,7 +383,7 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 
   @Test
   public void a3_dotUrlRelativeUrl() {
-	login("joe", "duff", true);  
+	//login("joe", "duff", true);  
     final String text = "URL=repo/files/public/children";
     stubGetFile(repo, "/public/relUrlTest.url");
     stubGetData(repo, "/public/relUrlTest.url", text);
@@ -298,8 +400,19 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 
   @Test
   public void a3_HappyPath_GET() {
-    stubGetFile(repo, "/public/test.xjunit");
-    
+    loginAsRepositoryAdmin();
+
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    mp.defineInstance(IUnifiedRepository.class, repo);
+
+    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+
+    createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "test.xjunit", "abcdefg");
+
     WebResource webResource = resource();
 
     //get the output of the .xjunit file (should invoke the content generator)
@@ -309,7 +422,18 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 
   @Test
   public void a3_HappyPath_POST() {
-    stubGetFile(repo, "/public/test.xjunit");
+    loginAsRepositoryAdmin();
+
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    mp.defineInstance(IUnifiedRepository.class, repo);
+
+    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
+    
+    createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "test.xjunit", "abcdefg");
     
     WebResource webResource = resource();
 
@@ -587,60 +711,113 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
     }
   }
   
+  @Override
   public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-	manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");
-	SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean("jcrSessionFactory");
-	testJcrTemplate = new JcrTemplate(jcrSessionFactory);
-	testJcrTemplate.setAllowCreate(true);
-	testJcrTemplate.setExposeNativeSession(true);
-	repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
-	tenantAuthenticatedAuthorityNamePattern = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
-	tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
-	roleBindingDao = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDao");
-	authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
-	repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
-  }  
-  
-  protected void login(final String username, final String tenantId, final boolean tenantAdmin) {
-	StandaloneSession pentahoSession = new StandaloneSession(username);
-	pentahoSession.setAuthenticated(username);
-	pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenantId);
-	final String password = "password";
-
-	List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-	authList.add(new GrantedAuthorityImpl(MessageFormat.format(tenantAuthenticatedAuthorityNamePattern, tenantId)));
-	if (tenantAdmin) {
-		authList.add(new GrantedAuthorityImpl(MessageFormat.format(tenantAdminAuthorityNamePattern, tenantId)));
-	}
-	GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
-	UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
-	Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
-	PentahoSessionHolder.setSession(pentahoSession);
-	// this line necessary for Spring Security's MethodSecurityInterceptor
-	SecurityContextHolder.getContext().setAuthentication(auth);
-	manager.newTenant();
-	manager.newUser();
+  manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");
+  SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean("jcrSessionFactory");
+  testJcrTemplate = new JcrTemplate(jcrSessionFactory);
+  testJcrTemplate.setAllowCreate(true);
+  testJcrTemplate.setExposeNativeSession(true);
+  repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
+  tenantAuthenticatedAuthorityNamePattern = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
+  tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    sysAdminAuthorityName = (String) applicationContext.getBean("superAdminAuthorityName");
+    sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
+  authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
+    roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTarget");
+    tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrTxn");
+    repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean("repositoryFileDao");
+    userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDaoTxn");
+    tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedUserNameUtils");
+    tenantedRoleNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedRoleNameUtils");
+    jcrTransactionTemplate = (TransactionTemplate) applicationContext.getBean("jcrTransactionTemplate");
+  repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
+    TestPrincipalProvider.userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDaoTxn");
+    TestPrincipalProvider.adminCredentialsStrategy = (CredentialsStrategy) applicationContext.getBean("jcrAdminCredentialsStrategy");
+    TestPrincipalProvider.repository = (Repository)applicationContext.getBean("jcrRepository");
  }
 
   protected void loginAsRepositoryAdmin() {
-	StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
-	pentahoSession.setAuthenticated(repositoryAdminUsername);
-	final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[0];
-	final String password = "ignored";
-	UserDetails repositoryAdminUserDetails = new User(repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities);
-	Authentication repositoryAdminAuthentication = new UsernamePasswordAuthenticationToken(repositoryAdminUserDetails, password, repositoryAdminAuthorities);
-	PentahoSessionHolder.setSession(pentahoSession);
-	// this line necessary for Spring Security's MethodSecurityInterceptor
-	SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
+  StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
+  pentahoSession.setAuthenticated(repositoryAdminUsername);
+  final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[]{new GrantedAuthorityImpl(sysAdminAuthorityName)};
+  final String password = "ignored";
+  UserDetails repositoryAdminUserDetails = new User(repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities);
+  Authentication repositoryAdminAuthentication = new UsernamePasswordAuthenticationToken(repositoryAdminUserDetails, password, repositoryAdminAuthorities);
+  PentahoSessionHolder.setSession(pentahoSession);
+  // this line necessary for Spring Security's MethodSecurityInterceptor
+  SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
   }
 
   protected void logout() {
-	PentahoSessionHolder.removeSession();
-	SecurityContextHolder.getContext().setAuthentication(null);
+  PentahoSessionHolder.removeSession();
+  SecurityContextHolder.getContext().setAuthentication(null);
   }
 
-  protected void login(final String username, final String tenantId) {
-	login(username, tenantId, false);
-  }   
+  protected void login(final String username, final ITenant tenant) {
+    login(username, tenant, false);
+  }  
+
+  /**
+   * Logs in with given username.
+   *
+   * @param username username of user
+   * @param tenantId tenant to which this user belongs
+   * @tenantAdmin true to add the tenant admin authority to the user's roles
+   */
+  protected void login(final String username, final ITenant tenant, String[] roles) {
+    StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
+    pentahoSession.setAuthenticated(tenant.getId(), tenantedUserNameUtils.getPrincipleId(tenant, username));
+    PentahoSessionHolder.setSession(pentahoSession);
+    pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
+    final String password = "password";
+
+    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
+
+    for (String roleName : roles) {
+      authList.add(new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, roleName)));
+    }
+    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
+    UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
+    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(auth);
+    SecurityHelper.getInstance().becomeUser(tenantedUserNameUtils.getPrincipleId(tenant, username));
+    SecurityContextHolder.getContext().setAuthentication(auth);
+  }
+
+  
+  /**
+   * Logs in with given username.
+   *
+   * @param username username of user
+   * @param tenantId tenant to which this user belongs
+   * @tenantAdmin true to add the tenant admin authority to the user's roles
+   */
+  protected void login(final String username, final ITenant tenant, final boolean tenantAdmin) {
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(username);
+    pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
+    final String password = "password";
+
+    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
+    authList.add(new GrantedAuthorityImpl(tenantAuthenticatedAuthorityNamePattern));
+    if (tenantAdmin) {
+      authList.add(new GrantedAuthorityImpl(tenantAdminAuthorityNamePattern));
+    }
+    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
+    UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
+    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(auth);
+  }
+  
+  protected void createTestFile(String pathId, String text) {
+    WebResource webResource = resource();
+    ClientResponse response = webResource.path("repo/files/" + pathId).type(TEXT_PLAIN).put(ClientResponse.class, text);
+    assertResponse(response, Status.OK);
+  }
 
 }
