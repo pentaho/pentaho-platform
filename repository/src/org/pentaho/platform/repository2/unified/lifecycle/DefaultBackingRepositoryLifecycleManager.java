@@ -78,13 +78,9 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
   // ~ Static fields/initializers ======================================================================================
 
   // ~ Instance fields =================================================================================================
-  IUserRoleDao userRoleDao;
-  ITenantManager tenantManager;
   protected String repositoryAdminUsername;
   
   protected String tenantAdminRoleName;
-  protected String systemTenantAdminUserName;
-  protected String singleTenantAdminUserName;
 
   protected String tenantAuthenticatedRoleName;
 
@@ -94,9 +90,12 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
 
   protected IRepositoryFileAclDao repositoryFileAclDao;
   
-  ITenantedPrincipleNameResolver tenantedUserNameUtils;  
-  ITenantedPrincipleNameResolver tenantedRoleNameUtils;
+  ITenantManager tenantManager;
+  IUserRoleDao userRoleDao;
 
+  ITenantedPrincipleNameResolver tenantedUserNameUtils;
+  
+  ITenantedPrincipleNameResolver tenantedRoleNameUtils;
 
   // ~ Constructors ====================================================================================================
 
@@ -104,8 +103,6 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
                                                   final IRepositoryFileAclDao repositoryFileAclDao, 
                                                   final TransactionTemplate txnTemplate,
                                                   final String repositoryAdminUsername, 
-                                                  final String systemTenantAdminUserName,
-                                                  final String singleTenantAdminUserName,
                                                   final String tenantAdminRoleName,
                                                   final String tenantAuthenticatedRoleName, 
                                                   final ITenantedPrincipleNameResolver tenantedUserNameUtils, 
@@ -123,8 +120,6 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
     this.tenantedUserNameUtils = tenantedUserNameUtils;
     this.tenantedRoleNameUtils = tenantedRoleNameUtils;
     this.tenantAdminRoleName = tenantAdminRoleName;
-    this.systemTenantAdminUserName = systemTenantAdminUserName;
-    this.singleTenantAdminUserName = singleTenantAdminUserName;
     initTransactionTemplate();
 
     
@@ -139,6 +134,8 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
 
   @Override
   public synchronized void newTenant(final String tenantId) {
+//    createTenantRootFolder(tenantId);
+//    createInitialTenantFolders(tenantId);
   }
 
   @Override
@@ -149,10 +146,14 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
 
   @Override
   public void newTenant() {
+    // TODO Auto-generated method stub
+    
   }
 
   @Override
   public void newUser() {
+    // TODO Auto-generated method stub
+    
   }
 
   @Override
@@ -164,24 +165,112 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
     ITenant defaultTenant = null;
     loginAsRepositoryAdmin();
     ITenantManager tenantMgr = getTenantManager();
-    ITenant systemTenant = tenantMgr.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    ITenant systemTenant = tenantMgr.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), "TenantAdmin", "Authenticated", "Anonymous");
     if (systemTenant != null) {
-      userRoleDao.createUser(systemTenant, systemTenantAdminUserName, "password", "", new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+      userRoleDao.createUser(systemTenant, "super", "password", "", new String[]{"TenantAdmin"});
       IPentahoSession origSession = PentahoSessionHolder.getSession();
       Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
-      login(systemTenantAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+      login("super", systemTenant, new String[]{"TenantAdmin", "Authenticated"});
       try {
-        defaultTenant = tenantMgr.getTenant(systemTenant.getRootFolderAbsolutePath() + RepositoryFile.SEPARATOR + TenantUtils.TENANTID_SINGLE_TENANT);
-        if(defaultTenant == null) {
-          // We'll create the default tenant here... maybe this isn't the best place.
-          defaultTenant = tenantMgr.createTenant(systemTenant, TenantUtils.TENANTID_SINGLE_TENANT, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-          userRoleDao.createUser(defaultTenant, singleTenantAdminUserName, "password", "", new String[]{tenantAdminRoleName});
-        }
+      defaultTenant = tenantMgr.getTenant(systemTenant.getRootFolderAbsolutePath() + RepositoryFile.SEPARATOR + TenantUtils.TENANTID_SINGLE_TENANT);
+      if(defaultTenant == null) {
+        // We'll create the default tenant here... maybe this isn't the best place.
+        defaultTenant = tenantMgr.createTenant(systemTenant, TenantUtils.TENANTID_SINGLE_TENANT, "TenantAdmin", "Authenticated", "Anonymous");
+        userRoleDao.createUser(defaultTenant, "joe", "password", "", new String[]{"TenantAdmin"});
+      }
+      login("joe", defaultTenant, new String[]{"TenantAdmin", "Authenticated"});
+      // TODO Check to see if were using LDAP here.
+      // Create the users for this tenant.. We should do a check to see if this is LDAP first.  If it is we should drop out of here without doing anything more.
+      createDefaultUsersAndRoles(defaultTenant);
+
       } finally {
         PentahoSessionHolder.setSession(origSession);
         SecurityContextHolder.getContext().setAuthentication(origAuth);
       }
+    }
+    
+    
+  }
+
+
+  /**
+   * 
+   */
+  private void createDefaultUsersAndRoles(ITenant defaultTenant) {
+    boolean creatingPrincipals = false;
+
+    IPentahoRole role = userRoleDao.getRole(defaultTenant, "Admin");
+    if (role == null) {
+      userRoleDao.createRole(defaultTenant, "Admin", "", new String[0]);
+      creatingPrincipals = true;
+    }
+    
+    role = userRoleDao.getRole(defaultTenant, "ceo");
+    if (role == null) {
+      userRoleDao.createRole(defaultTenant, "ceo", "", new String[0]);
+      creatingPrincipals = true;
+    }
+    
+    role = userRoleDao.getRole(defaultTenant, "cto");
+    if (role == null) {
+      userRoleDao.createRole(defaultTenant, "cto", "", new String[0]);
+      creatingPrincipals = true;
+    }
+    
+    role = userRoleDao.getRole(defaultTenant, "dev");
+    if (role == null) {
+      userRoleDao.createRole(defaultTenant, "dev", "", new String[0]);
+      creatingPrincipals = true;
+    }
+    
+    role = userRoleDao.getRole(defaultTenant, "devmgr");
+    if (role == null) {
+      userRoleDao.createRole(defaultTenant, "devmgr", "", new String[0]);
+      creatingPrincipals = true;
+    }
+    
+    role = userRoleDao.getRole(defaultTenant, "is");
+    if (role == null) {
+      userRoleDao.createRole(defaultTenant, "is", "", new String[0]);
+      creatingPrincipals = true;
     }    
+       
+    IPentahoUser user = userRoleDao.getUser(defaultTenant, "suzy");
+    if (user == null) {
+      userRoleDao.createUser(defaultTenant, "suzy", "password", "user", new String[] {"Authenticated", "cto", "is"});
+      creatingPrincipals = true;
+    }
+    
+    user = userRoleDao.getUser(defaultTenant, "pat");
+    if (user == null) {
+      userRoleDao.createUser(defaultTenant, "pat", "password", "user", new String[] {"Authenticated", "dev"});
+      creatingPrincipals = true;
+    }
+    
+    user = userRoleDao.getUser(defaultTenant, "tiffany");
+    if (user == null) {
+      userRoleDao.createUser(defaultTenant, "tiffany", "password", "user", new String[] {"Authenticated", "dev", "devmgr"});
+      creatingPrincipals = true;
+    }
+
+    user = userRoleDao.getUser(defaultTenant, "joe");
+    if (user == null) {
+      userRoleDao.createUser(defaultTenant, "joe", "password", "user", new String[] {"Authenticated", "Admin", "ceo"});
+    } else if (creatingPrincipals) {
+      List<IPentahoRole> userRoles = userRoleDao.getUserRoles(defaultTenant, "joe");
+      HashSet<String> roleNames = new HashSet<String>();
+      for (IPentahoRole userRole : userRoles) {
+        roleNames.add(userRole.getName());
+      }
+      int roleCount = roleNames.size();
+      roleNames.add("Authenticated");
+      roleNames.add("Admin");
+      roleNames.add("ceo");
+      if (roleNames.size() != roleCount) {
+        userRoleDao.setUserRoles(defaultTenant, "joe", roleNames.toArray(new String[0]));
+      }
+    }
+
   }
 
   /**
@@ -211,7 +300,7 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
   public IUserRoleDao getUserRoleDao() {
     return userRoleDao;
   }
-  
+
   public void setUserRoleDao(IUserRoleDao userRoleDao) {
     this.userRoleDao = userRoleDao;
   }
@@ -256,7 +345,7 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
   }
-   
+  
   protected void createUserHomeFolder(final ITenant theTenant, final String username) {
     IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
     Authentication origAuthentication = SecurityContextHolder.getContext().getAuthentication();
