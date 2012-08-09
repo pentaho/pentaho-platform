@@ -254,6 +254,7 @@
         org.pentaho.platform.api.mt.ITenantManager.deleteTenants=PROPAGATION_REQUIRED
         org.pentaho.platform.api.mt.ITenantManager.enableTenant=PROPAGATION_REQUIRED
         org.pentaho.platform.api.mt.ITenantManager.enableTenants=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.mt.ITenantManager.getTenantByRootFolderPath=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.mt.ITenantManager.isSubTenant=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.mt.ITenantManager.getTenantRootFolder=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.mt.ITenantManager.getTenant=PROPAGATION_REQUIRED,readOnly
@@ -421,23 +422,33 @@
     <constructor-arg value="super"/>
   </bean>
 
-  <!-- Used in code that doesn't use Spring's transaction interception. -->
+  <bean id="systemTenantAdminUserName" class="java.lang.String">
+    <constructor-arg value="system"/>
+  </bean>
+  
+  <bean id="singleTenantAdminUserName" class="java.lang.String">
+    <constructor-arg value="sadmin"/>
+  </bean>
+  
+    <!-- Used in code that doesn't use Spring's transaction interception. -->
   <!-- The code sets the propagation behavior to PROPAGATION_REQUIRES_NEW. -->
   <bean id="jcrTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
     <constructor-arg ref="jcrTransactionManager"/>
   </bean>
 
   <bean id="defaultBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager">
-            <constructor-arg ref="repositoryFileDao"/>
-		    <constructor-arg ref="repositoryFileAclDao"/>
-    		<constructor-arg ref="jcrTransactionTemplate"/>
-		    <constructor-arg ref="repositoryAdminUsername"/>
-    		<constructor-arg ref="tenantAdminAuthorityNamePattern"/>	
-    		<constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
-	        <constructor-arg ref="tenantedUserNameUtils"/>            
-    	    <constructor-arg ref="tenantedRoleNameUtils"/>            
-      <property name="tenantManager" ref="tenantMgrTxn"/>
-      <property name="userRoleDao" ref="userRoleDaoTxn"/>
+	<constructor-arg ref="repositoryFileDao"/>
+	<constructor-arg ref="repositoryFileAclDao"/>
+	<constructor-arg ref="jcrTransactionTemplate"/>
+	<constructor-arg ref="repositoryAdminUsername"/>
+	<constructor-arg ref="systemTenantAdminUserName"/>
+	<constructor-arg ref="singleTenantAdminUserName"/>
+	<constructor-arg ref="tenantAdminAuthorityNamePattern"/>	
+	<constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+	<constructor-arg ref="tenantedUserNameUtils"/>            
+	<constructor-arg ref="tenantedRoleNameUtils"/>            
+	<property name="tenantManager" ref="tenantMgrTxn"/>
+	<property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
   
   <bean id="pdiBackingRepositoryLifecycleManager"
@@ -456,10 +467,17 @@
     <constructor-arg ref="repositoryAdminUsername"/>
     <constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
   </bean>        
-  <bean id="sampleDataRepositoryLifecycleManager"
-        class="org.pentaho.platform.repository2.unified.lifecycle.SampleDataRepositoryLifecycleManager">
+  <bean id="sampleDataRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.SampleDataRepositoryLifecycleManager">
     <constructor-arg ref="IDatasourceMgmtService"/>
     <constructor-arg ref="IDatabaseDialectService"/>
+	<constructor-arg ref="repositoryAdminUsername"/>
+	<constructor-arg ref="singleTenantAdminUserName"/>
+	<constructor-arg ref="tenantAdminAuthorityNamePattern"/>	
+	<constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+	<constructor-arg ref="tenantedUserNameUtils"/>            
+	<constructor-arg ref="tenantedRoleNameUtils"/>            
+	<property name="tenantManager" ref="tenantMgrTxn"/>
+	<property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
   <bean id="mondrianBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager">
