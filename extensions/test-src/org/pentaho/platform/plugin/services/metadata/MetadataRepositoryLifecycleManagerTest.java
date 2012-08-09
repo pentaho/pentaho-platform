@@ -18,165 +18,364 @@
  */
 package org.pentaho.platform.plugin.services.metadata;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import junit.framework.TestCase;
+import javax.jcr.Repository;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
+import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
+import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.mt.ITenant;
+import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
+import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
+import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
-import org.pentaho.platform.repository2.unified.fs.FileSystemFileAclDao;
-import org.pentaho.platform.repository2.unified.fs.FileSystemRepositoryFileDao;
-import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
+import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
+import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
+import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService;
+import org.pentaho.platform.web.http.api.resources.RepositoryResource;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.extensions.jcr.JcrTemplate;
+import org.springframework.extensions.jcr.SessionFactory;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Class Description
  * User: dkincade
  */
-public class MetadataRepositoryLifecycleManagerTest extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/repository.spring.xml",
+    "classpath:/repository-test-override.spring.xml" })
+@SuppressWarnings("nls")
+public class MetadataRepositoryLifecycleManagerTest implements ApplicationContextAware {
   public static final String REPOSITORY_ADMIN_USERNAME = "pentahoRepoAdmin";
+
   public static final String TENANT_AUTHENTICATED_AUTHORITY_NAME_PATTERN = "{0}_Admin";
+
   public static final String SINGLE_TENANT_AUTHENTICATED_AUTHORITY_NAME = "Authenticated";
+
   private static final String TEST_TENANT_ID = "Pentaho";
+
   private static final String TEST_USER_ID = "joe";
-  private MicroPlatform mp;
 
-  private PentahoMetadataRepositoryLifecycleManager lifecycleManager;
-  private ITenantedPrincipleNameResolver tenantedUserNameUtils = new DefaultTenantedPrincipleNameResolver();
-  private File tempDir;
+  private static MicroPlatform mp = new MicroPlatform();
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  public static final String MAIN_TENANT_1 = "maintenant1";
 
-    // Create a temp directory on the filesystem to act as a FS repository
-    tempDir = File.createTempFile("MetadataRepositoryLifecycleManagerTest-", null);
-    assertTrue(tempDir.delete());
-    assertTrue(tempDir.mkdir());
+  private IUnifiedRepository repo;
 
-    final IRepositoryFileDao contentDao = new FileSystemRepositoryFileDao(tempDir);
-    final IRepositoryFileAclDao repositoryFileAclDao = new FileSystemFileAclDao();
-    final TransactionTemplate txnTemplate = new MockTransactionTemplate();
-    lifecycleManager = new PentahoMetadataRepositoryLifecycleManager(contentDao, repositoryFileAclDao, txnTemplate,
-        REPOSITORY_ADMIN_USERNAME, TENANT_AUTHENTICATED_AUTHORITY_NAME_PATTERN);
-    mp = new MicroPlatform();
-    mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
-    mp.start();
+  private IUserRoleListService userRoleListService;
 
-    lifecycleManager.startup();
+  private boolean startupCalled;
+
+  private String repositoryAdminUsername;
+
+  private String tenantAdminAuthorityNamePattern;
+
+  private String tenantAuthenticatedAuthorityNamePattern;
+
+  private JcrTemplate testJcrTemplate;
+
+  private IBackingRepositoryLifecycleManager manager;
+
+  private IAuthorizationPolicy authorizationPolicy;
+
+  private IBackingRepositoryLifecycleManager metadataRepositoryLifecycleManager;
+
+  IUserRoleDao userRoleDao;
+
+  private ITenantManager tenantManager;
+
+  private String sysAdminAuthorityName;
+
+  private String sysAdminUserName;
+
+  private IRepositoryFileDao repositoryFileDao;
+
+  private Repository repository = null;
+
+  private ITenant systemTenant = null;
+
+  private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
+
+  private ITenantedPrincipleNameResolver tenantedUserNameUtils;
+
+  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
+
+  public static final String SYSTEM_PROPERTY = "spring.security.strategy";
+
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    System.setProperty(SYSTEM_PROPERTY, "MODE_GLOBAL");
+    Logger.getLogger("org").setLevel(Level.WARN);
+    Logger.getLogger("org.pentaho").setLevel(Level.WARN);
+    Logger.getLogger(RepositoryResource.class).setLevel(Level.DEBUG);
+    Logger.getLogger("MIME_TYPE").setLevel(Level.TRACE);
+    PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
+    FileUtils.deleteDirectory(new File("/tmp/jackrabbit-test-TRUNK"));
+    SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_GLOBAL);
   }
 
-  @Override
-  protected void tearDown() throws Exception {
-    lifecycleManager = null;
-    super.tearDown();
+  @AfterClass
+  public static void afterClass() {
+    PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_INHERITABLETHREADLOCAL);
+  }
+
+  @Before
+  public void beforeTest() throws PlatformInitializationException {
+    System.setProperty(SYSTEM_PROPERTY, "MODE_INHERITABLETHREADLOCAL");
+    mp = new MicroPlatform();
+    mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
+    mp.define(IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL);
+    mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
+    mp.defineInstance(ITenantManager.class, tenantManager);
+    mp.define(ITenant.class, Tenant.class);
+    mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
+    mp.defineInstance(IRoleAuthorizationPolicyRoleBindingDao.class, roleBindingDaoTarget);
+    mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
+    UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils,
+        tenantedRoleNameUtils);
+    userDetailsService.setUserRoleDao(userRoleDao);
+    userRoleListService = new UserRoleDaoUserRoleListService(tenantedUserNameUtils, tenantedRoleNameUtils, userRoleDao,
+        userDetailsService);
+    ((UserRoleDaoUserRoleListService) userRoleListService).setUserRoleDao(userRoleDao);
+    ((UserRoleDaoUserRoleListService) userRoleListService).setUserDetailsService(userDetailsService);
+    mp.defineInstance(IUserRoleListService.class, userRoleListService);
+    mp.start();
+    logout();
+    startupCalled = true;
+  }
+
+  @After
+  public void afterTest() throws Exception {
+    // null out fields to get back memory
+    authorizationPolicy = null;
+    loginAsRepositoryAdmin();
+    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
+    logout();
+    repositoryAdminUsername = null;
+    tenantAdminAuthorityNamePattern = null;
+    tenantAuthenticatedAuthorityNamePattern = null;
+    authorizationPolicy = null;
+    testJcrTemplate = null;
+    if (startupCalled) {
+      manager.shutdown();
+    }
+
+    // null out fields to get back memory
+    repo = null;
+  }
+
+  private void cleanupUserAndRoles(final ITenant tenant) {
+    loginAsRepositoryAdmin();
+    for (IPentahoRole role : userRoleDao.getRoles(tenant)) {
+      userRoleDao.deleteRole(role);
+    }
+    for (IPentahoUser user : userRoleDao.getUsers(tenant)) {
+      userRoleDao.deleteUser(user);
+    }
   }
 
   @Test
   public void testDoNewTenant() throws Exception {
     IPentahoSession currentSession = PentahoSessionHolder.getSession();
     try {
-      lifecycleManager.newTenant(TEST_TENANT_ID);
+      metadataRepositoryLifecycleManager.newTenant(TEST_TENANT_ID);
       fail("The /etc folder is not setup and this should cause a failure");
     } catch (Exception success) {
       assertEquals(currentSession, PentahoSessionHolder.getSession());
     }
 
-    // Create the folder and it should work
-    final String tenantEtcFolderPath = ServerRepositoryPaths.getTenantEtcFolderPath(new Tenant("/" + TEST_TENANT_ID, true));
-    createFolder(tenantEtcFolderPath);
-    StandaloneSession pentahoSession = new StandaloneSession("");
-    pentahoSession.setAuthenticated(TEST_TENANT_ID, tenantedUserNameUtils.getPrincipleId(new Tenant("/" + TEST_TENANT_ID, true), TEST_USER_ID));
-    PentahoSessionHolder.setSession(pentahoSession);
-    currentSession = PentahoSessionHolder.getSession();
-    currentSession.setAttribute(IPentahoSession.TENANT_ID_KEY, TEST_TENANT_ID);
-    lifecycleManager.newTenant(TEST_TENANT_ID);
-    assertTrue(new File(tempDir, tenantEtcFolderPath + "/metadata").exists());
-    assertEquals(currentSession, PentahoSessionHolder.getSession());
+    loginAsRepositoryAdmin();
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+
+    metadataRepositoryLifecycleManager.newTenant(TEST_TENANT_ID);
+    String metadataPath = ClientRepositoryPaths.getEtcFolderPath() + "/metadata";
+    RepositoryFile metadataRepositoryPath = repo.getFile(metadataPath);
+    assertTrue(metadataRepositoryPath.getPath() != null);
 
     // Nothing should change if we run it again
-    lifecycleManager.newTenant(TEST_TENANT_ID);
-    assertTrue(new File(tempDir, tenantEtcFolderPath + "/metadata").exists());
-    assertEquals(currentSession, PentahoSessionHolder.getSession());
+    metadataRepositoryLifecycleManager.newTenant(TEST_TENANT_ID);
+    metadataPath = ClientRepositoryPaths.getEtcFolderPath() + "/metadata";
+    metadataRepositoryPath = repo.getFile(metadataPath);
+    assertTrue(metadataRepositoryPath.getPath() != null);
+    cleanupUserAndRoles(mainTenant_1);
+    cleanupUserAndRoles(systemTenant);
   }
 
   @Test
   public void testDoNewUser() throws Exception {
     // Nothing to test
-    lifecycleManager.newUser(null, null);
+    metadataRepositoryLifecycleManager.newUser(null, null);
   }
 
   @Test
   public void testDoShutdown() throws Exception {
     // Nothing to test
-    lifecycleManager.shutdown();
+    metadataRepositoryLifecycleManager.shutdown();
   }
 
   @Test
   public void testDoStartup() throws Exception {
     // Nothing to test
-    lifecycleManager.startup();
+    metadataRepositoryLifecycleManager.startup();
   }
 
-  private void createFolder(final String folderName) {
-    final String[] folders = StringUtils.split(folderName, '/');
-    File currentDir = tempDir;
-    for (final String newFolder : folders) {
-      currentDir = new File(currentDir, newFolder);
-      assertTrue(currentDir.mkdir());
-    }
+  @Override
+  public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
+    manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");
+    SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean("jcrSessionFactory");
+    testJcrTemplate = new JcrTemplate(jcrSessionFactory);
+    testJcrTemplate.setAllowCreate(true);
+    testJcrTemplate.setExposeNativeSession(true);
+    repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
+    tenantAuthenticatedAuthorityNamePattern = (String) applicationContext
+        .getBean("tenantAuthenticatedAuthorityNamePattern");
+    tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    sysAdminAuthorityName = (String) applicationContext.getBean("superAdminAuthorityName");
+    sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
+    authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
+    roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext
+        .getBean("roleAuthorizationPolicyRoleBindingDaoTarget");
+    tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrTxn");
+    repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean("repositoryFileDao");
+    userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDaoTxn");
+    tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedUserNameUtils");
+    tenantedRoleNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedRoleNameUtils");
+    metadataRepositoryLifecycleManager = (IBackingRepositoryLifecycleManager) applicationContext
+        .getBean("metadataRepositoryLifecycleManager");
+    repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
+    TestPrincipalProvider.userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDaoTxn");
+    TestPrincipalProvider.adminCredentialsStrategy = (CredentialsStrategy) applicationContext
+        .getBean("jcrAdminCredentialsStrategy");
+    TestPrincipalProvider.repository = (Repository) applicationContext.getBean("jcrRepository");
   }
 
-  private class MockTransactionTemplate extends TransactionTemplate {
-    @Override
-    public Object execute(final TransactionCallback action) throws TransactionException {
-      return action.doInTransaction(new MockTransactionStatus());
-    }
+  protected void loginAsRepositoryAdmin() {
+    StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
+    pentahoSession.setAuthenticated(repositoryAdminUsername);
+    final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[] { new GrantedAuthorityImpl(
+        sysAdminAuthorityName) };
+    final String password = "ignored";
+    UserDetails repositoryAdminUserDetails = new User(repositoryAdminUsername, password, true, true, true, true,
+        repositoryAdminAuthorities);
+    Authentication repositoryAdminAuthentication = new UsernamePasswordAuthenticationToken(repositoryAdminUserDetails,
+        password, repositoryAdminAuthorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
+  }
+
+  protected void logout() {
+    PentahoSessionHolder.removeSession();
+    SecurityContextHolder.getContext().setAuthentication(null);
+  }
+
+  protected void login(final String username, final ITenant tenant) {
+    login(username, tenant, false);
   }
 
   /**
+   * Logs in with given username.
    *
+   * @param username username of user
+   * @param tenantId tenant to which this user belongs
+   * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
-  private class MockTransactionStatus implements TransactionStatus {
-    public boolean isNewTransaction() {
-      return false;
-    }
+  protected void login(final String username, final ITenant tenant, String[] roles) {
+    StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
+    pentahoSession.setAuthenticated(tenant.getId(), tenantedUserNameUtils.getPrincipleId(tenant, username));
+    PentahoSessionHolder.setSession(pentahoSession);
+    pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
+    final String password = "password";
 
-    public boolean hasSavepoint() {
-      return false;
-    }
+    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
-    public void setRollbackOnly() {
+    for (String roleName : roles) {
+      authList.add(new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, roleName)));
     }
+    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
+    UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
+    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(auth);
+    SecurityHelper.getInstance().becomeUser(tenantedUserNameUtils.getPrincipleId(tenant, username));
+    SecurityContextHolder.getContext().setAuthentication(auth);
+  }
 
-    public boolean isRollbackOnly() {
-      return false;
-    }
+  /**
+   * Logs in with given username.
+   *
+   * @param username username of user
+   * @param tenantId tenant to which this user belongs
+   * @tenantAdmin true to add the tenant admin authority to the user's roles
+   */
+  protected void login(final String username, final ITenant tenant, final boolean tenantAdmin) {
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(username);
+    pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
+    final String password = "password";
 
-    public boolean isCompleted() {
-      return false;
+    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
+    authList.add(new GrantedAuthorityImpl(tenantAuthenticatedAuthorityNamePattern));
+    if (tenantAdmin) {
+      authList.add(new GrantedAuthorityImpl(tenantAdminAuthorityNamePattern));
     }
-
-    public Object createSavepoint() throws TransactionException {
-      return null;
-    }
-
-    public void rollbackToSavepoint(final Object o) throws TransactionException {
-    }
-
-    public void releaseSavepoint(final Object o) throws TransactionException {
-    }
+    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
+    UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
+    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(auth);
   }
 }

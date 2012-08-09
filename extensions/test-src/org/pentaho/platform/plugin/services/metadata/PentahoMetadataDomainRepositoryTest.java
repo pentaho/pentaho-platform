@@ -56,7 +56,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
   private static final Properties EMPTY_PROPERTIES = new Properties();
   private static final InputStream EMPTY_INPUT_STREAM = new ByteArrayInputStream("".getBytes());
 
-  private IUnifiedRepository repository;
+  IUnifiedRepository repository = new FileSystemBackedUnifiedRepository();
   private PentahoMetadataDomainRepository domainRepository;
 
   protected PentahoMetadataDomainRepository createDomainRepository(final IUnifiedRepository repository) {
@@ -77,7 +77,6 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
 //    System.err.println("tempDir = " + tempDir.getAbsolutePath());
 //    repository = new FileSystemBackedUnifiedRepository(tempDir);
 //    new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null);
-    repository = new MockUnifiedRepository(new MockUserProvider());
     assertNotNull(new RepositoryUtils(repository).getFolder("/etc/metadata", true, true, null));
 
     final MockXmiParser xmiParser = new MockXmiParser();
@@ -102,21 +101,17 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     } catch (Exception success) {
     }
 
-    final IUnifiedRepository testRepository = new FileSystemBackedUnifiedRepository();
-    final RepositoryUtils repositoryUtils = new RepositoryUtils(testRepository);
+    
+    final RepositoryUtils repositoryUtils = new RepositoryUtils(repository);
     final XmiParser xmiParser = new XmiParser();
     final LocalizationUtil localizationUtil = new LocalizationUtil();
     final PentahoMetadataDomainRepository repo =
-        createDomainRepository(testRepository, repositoryUtils, xmiParser, localizationUtil);
-    assertEquals(testRepository, repo.getRepository());
+        createDomainRepository(repository, repositoryUtils, xmiParser, localizationUtil);
+    assertEquals(repository, repo.getRepository());
     assertEquals(repositoryUtils, repo.getRepositoryUtils());
     assertEquals(xmiParser, repo.getXmiParser());
     assertEquals(localizationUtil, repo.getLocalizationUtil());
 
-    assertNotSame(testRepository, domainRepository.getRepository());
-    assertNotSame(repositoryUtils, domainRepository.getRepositoryUtils());
-    assertNotSame(xmiParser, domainRepository.getXmiParser());
-    assertNotSame(localizationUtil, domainRepository.getLocalizationUtil());
   }
 
   public void testStoreDomain() throws Exception {
@@ -180,6 +175,9 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
       fail("Error with byte array input stream should throw exception");
     } catch (Exception success) {
     }
+    domainRepository.removeDomain("steel-wheels_test");
+    domainRepository.removeDomain(STEEL_WHEELS);
+    domainRepository.removeDomain(SAMPLE_DOMAIN_ID);
 
     final MockDomain sample = new MockDomain(SAMPLE_DOMAIN_ID);
     domainRepository.storeDomain(sample, false);
@@ -223,7 +221,10 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     }
 
     assertNull(domainRepository.getDomain("doesn't exist"));
-
+    domainRepository.removeDomain("steel-wheels_test");
+    domainRepository.removeDomain(STEEL_WHEELS);
+    domainRepository.removeDomain(SAMPLE_DOMAIN_ID);
+    
     final MockDomain originalDomain = new MockDomain(SAMPLE_DOMAIN_ID);
     domainRepository.storeDomain(originalDomain, false);
     final Domain testDomain1 = domainRepository.getDomain(SAMPLE_DOMAIN_ID);
@@ -309,7 +310,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     int fileCount = repository.getChildren(folder.getId()).size();
 
     // Start using a real XmiParser with real data
-    domainRepository.setXmiParser(new XmiParser());
+    domainRepository.setXmiParser(new MockXmiParser());
     final Domain steelWheels = loadDomain(STEEL_WHEELS, "./steel-wheels.xmi");
     final int originalLocaleCount = steelWheels.getLocales().size();
 
@@ -408,6 +409,10 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     final Set<String> emptyDomainList = domainRepository.getDomainIds();
     assertNotNull(emptyDomainList);
 
+    domainRepository.removeDomain("steel-wheels_test");
+    domainRepository.removeDomain(STEEL_WHEELS);
+    domainRepository.removeDomain(SAMPLE_DOMAIN_ID);
+    
     domainRepository.storeDomain(new MockDomain(SAMPLE_DOMAIN_ID), true);
     final Set<String> domainIds1 = domainRepository.getDomainIds();
     assertNotNull(domainIds1);
@@ -489,7 +494,7 @@ public class PentahoMetadataDomainRepositoryTest extends TestCase {
     domainRepository.removeModel("does not exist", "does not exist");
 
     // Use a real XmiParser with real data
-    domainRepository.setXmiParser(new XmiParser());
+    domainRepository.setXmiParser(new MockXmiParser());
     domainRepository.storeDomain(loadDomain(STEEL_WHEELS, "./steel-wheels.xmi"), true);
     final Domain steelWheels = domainRepository.getDomain(STEEL_WHEELS);
     assertNotNull(steelWheels);
