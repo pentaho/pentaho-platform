@@ -22,6 +22,8 @@ import org.pentaho.platform.api.engine.IAclVoter;
 import org.pentaho.platform.api.engine.IPentahoInitializer;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ISystemSettings;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -52,22 +54,25 @@ public abstract class AbstractPentahoAclVoter implements IAclVoter, IPentahoInit
     return isGranted(session, adminRole);
   }
 
-  public boolean isGranted(final IPentahoSession session, final GrantedAuthority role) {
-    Authentication auth = getAuthentication(session);
-    if ((auth != null) && auth.isAuthenticated()) {
-      GrantedAuthority[] userAuths = auth.getAuthorities();
-      if (userAuths == null) {
-        return false;
-      }
-      for (GrantedAuthority element : userAuths) {
-        if (element.equals(role)) {
-          return true;
-        }
-      }
-      return false;
-    } else {
-      return false;
-    }
+  public boolean isGranted(final IPentahoSession session, GrantedAuthority role) {
+	ITenantedPrincipleNameResolver tenantedRoleNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedRoleNameUtils", PentahoSessionHolder.getSession());
+	Authentication auth = getAuthentication(session);
+	if ((auth != null) && auth.isAuthenticated()) {
+		GrantedAuthority[] userAuths = auth.getAuthorities();
+		if (userAuths == null) {
+			return false;
+		}
+		for (GrantedAuthority element : userAuths) {
+			if (tenantedRoleNameUtils != null) {
+				element = new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleName(element.getAuthority()));
+			}
+			if (element.equals(role)) {
+				return true;
+			}
+		}
+		return false;
+	} else {
+		return false;
+	}
   }
-
 }
