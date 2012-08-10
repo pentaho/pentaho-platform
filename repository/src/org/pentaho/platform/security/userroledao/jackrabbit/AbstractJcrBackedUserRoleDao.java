@@ -190,7 +190,6 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     UserManager tenantUserMgr = getUserManager(tenant, session);
     // Intermediate path will always be an empty string. The path is already provided while creating a user manager
     tenantUserMgr.createGroup(new PrincipalImpl(roleId), "");
-    session.save();
     setRoleMembers(session, tenant, role, memberUserNames);
     setRoleDescription(session, tenant, role, description);
     return getRole(session, theTenant, roleName);
@@ -275,9 +274,10 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     String description = null;
     try {
       propertyValues = jackrabbitGroup.getProperty("description");
+      description = propertyValues.length > 0 ? propertyValues[0].getString() : null;
     } catch (Exception ex) {
     }
-
+    
     role = new PentahoRole(tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID()),
         tenantedRoleNameUtils.getPrincipleName(jackrabbitGroup.getID()), description);
     return role;
