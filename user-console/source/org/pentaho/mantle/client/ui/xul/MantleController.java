@@ -24,6 +24,7 @@ import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.admin.JsSysAdminPanel;
+import org.pentaho.mantle.client.admin.LicenseManagerPanelController;
 import org.pentaho.mantle.client.admin.SecurityPanel;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
@@ -295,6 +296,9 @@ public class MantleController extends AbstractXulEventHandler {
           } else if ((EmailAdminPanelController.getInstance()).getId().equals(adminPanelAwaitingActivation.id)) {
             model.loadEmailAdminPanel();
             EmailAdminPanelController.getInstance().getElement().setId((EmailAdminPanelController.getInstance()).getId());
+          } else if ((LicenseManagerPanelController.getInstance()).getId().equals(adminPanelAwaitingActivation.id)) {
+              model.loadLicenseManger();
+              LicenseManagerPanelController.getInstance().getElement().setId((LicenseManagerPanelController.getInstance()).getId());            
           } else {
             model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
           }
@@ -488,6 +492,22 @@ public class MantleController extends AbstractXulEventHandler {
       }
     });
   }
+  
+  @Bindable
+  public void loadLicenseManger() {
+    GWT.runAsync(new RunAsyncCallback() {
+      public void onSuccess() {
+        String licenseManagerPanelId = LicenseManagerPanelController.getInstance().getId();
+        if (!sysAdminPanelsMap.containsKey(licenseManagerPanelId)) {
+          sysAdminPanelsMap.put(licenseManagerPanelId, LicenseManagerPanelController.getInstance());
+        }
+        loadAdminContent(licenseManagerPanelId, null);
+      }
+
+      public void onFailure(Throwable reason) {
+      }
+    });
+  }  
 
   @Bindable
   public void executeMantleCommand(String cmd) {
