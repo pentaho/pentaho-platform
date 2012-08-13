@@ -127,12 +127,6 @@
 			  </treechildren>
 			</treeitem>
 			
-			<treeitem command="mantleXulHandler.loadLicenseManger()">
-	    		<treerow>
-					<treecell label="License Manager" />
-		  		</treerow>
-		  	</treeitem>			
-			
 	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('adminHelpPanel', 'http://wiki.pentaho.com/display/COM/Community+Wiki+Home')">
 	  			<treerow>
 	    			<treecell label="Help" />

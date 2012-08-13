@@ -21,7 +21,6 @@ import java.util.HashMap;
 
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
-import org.pentaho.mantle.client.admin.LicenseManagerPanelController;
 import org.pentaho.mantle.client.admin.SecurityPanel;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
@@ -223,21 +222,6 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
       }
     });
   }
-  
-  @Bindable
-  public void loadLicenseManger() {
-    GWT.runAsync(new RunAsyncCallback() {
-      public void onSuccess() {
-        DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
-        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(LicenseManagerPanelController.getInstance()) == -1) {
-          contentDeck.add(LicenseManagerPanelController.getInstance());
-        }
-        contentDeck.showWidget(contentDeck.getWidgetIndex(LicenseManagerPanelController.getInstance()));
-      }
-      public void onFailure(Throwable reason) {
-      }
-    });
-  }  
   
   @Bindable
   public void refreshContent() {
