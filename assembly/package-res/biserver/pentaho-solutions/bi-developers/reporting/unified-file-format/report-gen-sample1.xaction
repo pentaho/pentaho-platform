@@ -22,7 +22,7 @@
       <sources>
         <request>reportDefinitionPath</request>
       </sources>
-      <default-value><![CDATA[/bi-developers/reporting/unified-file-format/simpleReport.prpt]]></default-value>
+      <default-value><![CDATA[/public/bi-developers/reporting/unified-file-format/simpleReport.prpt]]></default-value>
     </reportDefinitionPath>
     <outputTypeList type="property-map-list"> 
       <sources> 
