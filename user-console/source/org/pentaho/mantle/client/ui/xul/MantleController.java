@@ -53,6 +53,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.MenuBar;
@@ -110,113 +111,121 @@ public class MantleController extends AbstractXulEventHandler {
    */
   @Bindable
   public void init() {
-    openBtn = (XulToolbarbutton) document.getElementById("openButton");
-    saveBtn = (XulToolbarbutton) document.getElementById("saveButton");
-    saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton");
-    newAnalysisBtn = (XulToolbarbutton) document.getElementById("newAnalysisButton");
-    showBrowserBtn = (XulToolbarbutton) document.getElementById("showBrowserButton");
-    contentEditBtn = (XulToolbarbutton) document.getElementById("editContentButton");
+    Timer t = new Timer() {
 
-    BindingFactory bf = new GwtBindingFactory(this.document);
-    bf.createBinding(model, "saveEnabled", saveBtn, "!disabled");
-    bf.createBinding(model, "saveAsEnabled", saveAsBtn, "!disabled");
-    bf.createBinding(model, "contentEditEnabled", contentEditBtn, "!disabled");
-    bf.createBinding(model, "contentEditSelected", this, "editContentSelected");
+      @Override
+      public void run() {
+        openBtn = (XulToolbarbutton) document.getElementById("openButton");
+        saveBtn = (XulToolbarbutton) document.getElementById("saveButton");
+        saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton");
+        newAnalysisBtn = (XulToolbarbutton) document.getElementById("newAnalysisButton");
+        showBrowserBtn = (XulToolbarbutton) document.getElementById("showBrowserButton");
+        contentEditBtn = (XulToolbarbutton) document.getElementById("editContentButton");
 
-    propertiesMenuItem = (XulMenuitem) document.getElementById("propertiesMenuItem");
-    saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem");
-    saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem");
-    showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem");
-    showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem");
-    useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem");
-    showHiddenFilesMenuItem = (XulMenuitem) document.getElementById("showHiddenFilesMenuItem");
-    languageMenu = (XulMenubar) document.getElementById("languagemenu");
-    themesMenu = (XulMenubar) document.getElementById("themesmenu");
-    toolsMenu = (XulMenubar) document.getElementById("toolsmenu");
+        BindingFactory bf = new GwtBindingFactory(document);
+        bf.createBinding(model, "saveEnabled", saveBtn, "!disabled");
+        bf.createBinding(model, "saveAsEnabled", saveAsBtn, "!disabled");
+        bf.createBinding(model, "contentEditEnabled", contentEditBtn, "!disabled");
+        bf.createBinding(model, "contentEditSelected", this, "editContentSelected");
 
-    // install language sub-menus
-    Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
-    if (supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty()) {
-      MenuBar langMenu = (MenuBar) languageMenu.getManagedObject();
-      for (String lang : supportedLanguages.keySet()) {
-        MenuItem langMenuItem = new MenuItem(supportedLanguages.get(lang), new SwitchLocaleCommand(lang)); //$NON-NLS-1$
-        langMenuItem.getElement().setId(supportedLanguages.get(lang) + "_menu_item");
-        langMenu.addItem(langMenuItem);
-      }
-    }
+        propertiesMenuItem = (XulMenuitem) document.getElementById("propertiesMenuItem");
+        saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem");
+        saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem");
+        showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem");
+        showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem");
+        useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem");
+        showHiddenFilesMenuItem = (XulMenuitem) document.getElementById("showHiddenFilesMenuItem");
+        languageMenu = (XulMenubar) document.getElementById("languagemenu");
+        themesMenu = (XulMenubar) document.getElementById("themesmenu");
+        toolsMenu = (XulMenubar) document.getElementById("toolsmenu");
 
-    // install themes
-    RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/active");
-    try {
-      getActiveThemeRequestBuilder.sendRequest(null, new RequestCallback() {
-
-        public void onError(Request request, Throwable exception) {
-          // showError(exception);
-        }
-
-        public void onResponseReceived(Request request, Response response) {
-          final String activeTheme = response.getText();
-          RequestBuilder getThemesRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/list");
-          getThemesRequestBuilder.setHeader("accept", "application/json");
-
-          try {
-            getThemesRequestBuilder.sendRequest(null, new RequestCallback() {
-              public void onError(Request arg0, Throwable arg1) {
-              }
-
-              public void onResponseReceived(Request request, Response response) {
-                JsArray<JsTheme> themes = JsTheme.getThemes(JsonUtils.escapeJsonForEval(response.getText()));
-
-                for (int i = 0; i < themes.length(); i++) {
-                  JsTheme theme = themes.get(i);
-                  PentahoMenuItem themeMenuItem = new PentahoMenuItem(theme.getName(), new SwitchThemeCommand(theme.getId())); //$NON-NLS-1$
-                  themeMenuItem.getElement().setId(theme.getId() + "_menu_item");
-                  themeMenuItem.setChecked(theme.getId().equals(activeTheme));
-                  ((MenuBar) themesMenu.getManagedObject()).addItem(themeMenuItem);
-                }
-              }
-            });
-
-          } catch (RequestException e) {
-            // showError(e);
+        // install language sub-menus
+        Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
+        if (supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty()) {
+          MenuBar langMenu = (MenuBar) languageMenu.getManagedObject();
+          for (String lang : supportedLanguages.keySet()) {
+            MenuItem langMenuItem = new MenuItem(supportedLanguages.get(lang), new SwitchLocaleCommand(lang)); //$NON-NLS-1$
+            langMenuItem.getElement().setId(supportedLanguages.get(lang) + "_menu_item");
+            langMenu.addItem(langMenuItem);
           }
         }
 
-      });
+        // install themes
+        RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/active");
+        try {
+          getActiveThemeRequestBuilder.sendRequest(null, new RequestCallback() {
 
-    } catch (RequestException e) {
-      Window.alert(e.getMessage());
-      // showError(e);
-    }
+            public void onError(Request request, Throwable exception) {
+              // showError(exception);
+            }
 
-    try {
-      final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
-      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-      requestBuilder.setHeader("accept", "text/plain");
-      requestBuilder.sendRequest(null, new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+              final String activeTheme = response.getText();
+              RequestBuilder getThemesRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/list");
+              getThemesRequestBuilder.setHeader("accept", "application/json");
 
-        public void onError(Request request, Throwable caught) {
+              try {
+                getThemesRequestBuilder.sendRequest(null, new RequestCallback() {
+                  public void onError(Request arg0, Throwable arg1) {
+                  }
+
+                  public void onResponseReceived(Request request, Response response) {
+                    JsArray<JsTheme> themes = JsTheme.getThemes(JsonUtils.escapeJsonForEval(response.getText()));
+
+                    for (int i = 0; i < themes.length(); i++) {
+                      JsTheme theme = themes.get(i);
+                      PentahoMenuItem themeMenuItem = new PentahoMenuItem(theme.getName(), new SwitchThemeCommand(theme.getId())); //$NON-NLS-1$
+                      themeMenuItem.getElement().setId(theme.getId() + "_menu_item");
+                      themeMenuItem.setChecked(theme.getId().equals(activeTheme));
+                      ((MenuBar) themesMenu.getManagedObject()).addItem(themeMenuItem);
+                    }
+                  }
+                });
+
+              } catch (RequestException e) {
+                // showError(e);
+              }
+            }
+
+          });
+
+        } catch (RequestException e) {
+          Window.alert(e.getMessage());
+          // showError(e);
         }
 
-        public void onResponseReceived(Request request, Response response) {
-          toolsMenu.setVisible("true".equalsIgnoreCase(response.getText()));
+        try {
+          final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
+          RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+          requestBuilder.setHeader("accept", "text/plain");
+          requestBuilder.sendRequest(null, new RequestCallback() {
+
+            public void onError(Request request, Throwable caught) {
+            }
+
+            public void onResponseReceived(Request request, Response response) {
+              toolsMenu.setVisible("true".equalsIgnoreCase(response.getText()));
+            }
+
+          });
+        } catch (RequestException e) {
+          Window.alert(e.getMessage());
         }
 
-      });
-    } catch (RequestException e) {
-      Window.alert(e.getMessage());
-    }
+        bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled");
+        bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled");
+        bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled");
 
-    bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled");
-    bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled");
-    bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled");
+        // init known values
+        ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(SolutionBrowserPanel.getInstance().isNavigatorShowing());
+        ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked("workspace.perspective".equals(PerspectiveManager.getInstance()
+            .getActivePerspective().getId()));
 
-    // init known values
-    ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(SolutionBrowserPanel.getInstance().isNavigatorShowing());
-    ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked("workspace.perspective".equals(PerspectiveManager.getInstance()
-        .getActivePerspective().getId()));
+        setupNativeHooks(MantleController.this);
 
-    setupNativeHooks(this);
+      }
+    };
+    t.schedule(10);
   }
 
   public native void setupNativeHooks(MantleController controller)
