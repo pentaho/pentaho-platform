@@ -168,7 +168,6 @@ public class MantleController extends AbstractXulEventHandler {
 
                 public void onResponseReceived(Request request, Response response) {
                   try {
-                    log("Before making canAdministrator call");
                     final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
                     RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
                     requestBuilder.setHeader("accept", "text/plain");
@@ -178,9 +177,7 @@ public class MantleController extends AbstractXulEventHandler {
                       }
 
                       public void onResponseReceived(Request request, Response response) {
-                        log("After response has been received from canAdministrator call");
                         toolsMenu.setVisible("true".equalsIgnoreCase(response.getText()));
-                        log("Set setVisible Flag" + response.getText());
                       }
 
                     });
@@ -224,11 +221,6 @@ public class MantleController extends AbstractXulEventHandler {
       }
   }
 
-  public native void log(String message)
-  /*-{
-    console.log(message);
-  }-*/;
-  
   public native void setupNativeHooks(MantleController controller)
   /*-{
     $wnd.mantle_isToolbarButtonEnabled = function(id) { 
