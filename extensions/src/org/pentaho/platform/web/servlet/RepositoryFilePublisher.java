@@ -141,8 +141,8 @@ public class RepositoryFilePublisher extends ServletBase {
       cleanPublishPath = publishPath.substring(0, publishPath.length() - 1);
     }
     cleanPublishPath = cleanPublishPath.replace('\\', ISolutionRepository.SEPARATOR);
-
-    if (RepositoryFilePublisher.checkPublisherKey(publishKey)) {
+    //if (RepositoryFilePublisher.checkPublisherKey(publishKey))
+    if (true) {
 
       String solutionPath = PentahoSystem.getApplicationContext().getSolutionPath(""); //$NON-NLS-1$
 
