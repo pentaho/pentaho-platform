@@ -30,6 +30,7 @@ import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.StringUtils;
 
 /**
  * Creates an export of the JCR in various formats.
@@ -88,26 +89,35 @@ public class DumpToFilePentahoSystemListener implements IPentahoSystemListener {
 
   private enum Mode { CUSTOM, SYS, DOC };
   
+  private String fileName;
+  
   // ~ Instance fields =================================================================================================
 
   // ~ Constructors ====================================================================================================
 
   // ~ Methods =========================================================================================================
 
+
+
   @Override
   public boolean startup(IPentahoSession pentahoSession) {
-    String filename = System.getProperty(PROP_DUMP_TO_FILE);
-    Mode tmpMode = Mode.CUSTOM;
-    if (filename == null) {
-      filename = System.getProperty(PROP_DUMP_TO_FILE_SYSTEM_VIEW);
-      tmpMode = Mode.SYS;
-    }
-    if (filename == null) {
-      filename = System.getProperty(PROP_DUMP_TO_FILE_DOCUMENT_VIEW);
-      tmpMode = Mode.DOC;
+    Mode tmpMode = null;
+    if(!StringUtils.hasText(fileName)) {
+      fileName = System.getProperty(PROP_DUMP_TO_FILE);
+      tmpMode = Mode.CUSTOM;
+      if (fileName == null) {
+        fileName = System.getProperty(PROP_DUMP_TO_FILE_SYSTEM_VIEW);
+        tmpMode = Mode.SYS;
+      }
+      if (fileName == null) {
+        fileName = System.getProperty(PROP_DUMP_TO_FILE_DOCUMENT_VIEW);
+        tmpMode = Mode.DOC;
+      }
+    } else {
+      tmpMode = Mode.CUSTOM;
     }
     final Mode mode = tmpMode;
-    if (filename != null) {
+    if (fileName != null) {
       final JcrTemplate jcrTemplate = PentahoSystem.get(JcrTemplate.class, "jcrTemplate", pentahoSession); //$NON-NLS-1$
       TransactionTemplate txnTemplate = PentahoSystem.get(TransactionTemplate.class,
           "jcrTransactionTemplate", pentahoSession); //$NON-NLS-1$
@@ -115,14 +125,14 @@ public class DumpToFilePentahoSystemListener implements IPentahoSystemListener {
 
       final String ZIP_EXTENSION = ".zip"; //$NON-NLS-1$
       // let the user know this is a zip
-      if (!filename.endsWith(ZIP_EXTENSION)) {
-        filename = filename + ZIP_EXTENSION;
+      if (!fileName.endsWith(ZIP_EXTENSION)) {
+        fileName = fileName + ZIP_EXTENSION;
       }
-      logger.debug(String.format("dumping repository to file \"%s\"", filename)); //$NON-NLS-1$
+      logger.debug(String.format("dumping repository to file \"%s\"", fileName)); //$NON-NLS-1$
       ZipOutputStream tmpOut = null;
       try {
         tmpOut = new
-            ZipOutputStream(new BufferedOutputStream(FileUtils.openOutputStream(new File(filename))));
+            ZipOutputStream(new BufferedOutputStream(FileUtils.openOutputStream(new File(fileName))));
       } catch (IOException e) {
         IOUtils.closeQuietly(tmpOut);
         throw new RuntimeException(e);
@@ -167,7 +177,7 @@ public class DumpToFilePentahoSystemListener implements IPentahoSystemListener {
         PentahoSessionHolder.setSession(origPentahoSession);
         IOUtils.closeQuietly(out);
       }
-      logger.debug(String.format("dumped repository to file \"%s\"", filename)); //$NON-NLS-1$
+      logger.debug(String.format("dumped repository to file \"%s\"", fileName)); //$NON-NLS-1$
     }
     return true;
   }
@@ -269,5 +279,11 @@ public class DumpToFilePentahoSystemListener implements IPentahoSystemListener {
 
   }
 
+  public String getFileName() {
+    return fileName;
+  }
 
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
+  }  
 }

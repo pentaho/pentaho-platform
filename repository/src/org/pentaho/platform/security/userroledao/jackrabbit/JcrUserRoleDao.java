@@ -326,6 +326,9 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao  {
    */
   @Override
   public RepositoryFile createUserHomeFolder(ITenant theTenant, String username) {
+    Builder aclsForUserHomeFolder = null;
+    Builder aclsForTenantHomeFolder = null;
+    
     if (theTenant == null) {
       theTenant = getTenant(username, true);
       username = getPrincipalName(username, true);
@@ -349,55 +352,30 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao  {
         tenantHomeFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
             .getTenantHomeFolderPath(theTenant));
         if (tenantHomeFolder == null) {
-          String tenantAdminRoleId = tenantedRoleNameUtils.getPrincipleId(theTenant, tenantAdminRoleName);
-          RepositoryFileSid tenantAdminRoleSid = new RepositoryFileSid(tenantAdminRoleId, Type.ROLE);
+          String ownerId = tenantedUserNameUtils.getPrincipleId(theTenant, username);
+          RepositoryFileSid ownerSid = new RepositoryFileSid(ownerId, Type.USER);
           
           String tenantAuthenticatedRoleId = tenantedRoleNameUtils.getPrincipleId(theTenant, authenticatedRoleName);
           RepositoryFileSid tenantAuthenticatedRoleSid = new RepositoryFileSid(tenantAuthenticatedRoleId, Type.ROLE);
           
-          Builder aclBuilder = new RepositoryFileAcl.Builder(userSid).ace(tenantAdminRoleSid, EnumSet.of(RepositoryFilePermission.ALL)).ace(tenantAuthenticatedRoleSid, EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
-          
-          String parentTenantFolder = FilenameUtils.getFullPathNoEndSeparator(theTenant.getRootFolderAbsolutePath());
-          try {
-            // Give all to Tenant Admin of all ancestors
-            while (!parentTenantFolder.equals("/")) {
-              ITenant parentTenant = new Tenant(parentTenantFolder, true);
-              String parentTenantAdminRoleId = tenantedRoleNameUtils.getPrincipleId(parentTenant, tenantAdminRoleName);
-              RepositoryFileSid parentTenantAdminSid = new RepositoryFileSid(parentTenantAdminRoleId, Type.ROLE);
-              aclBuilder.ace(parentTenantAdminSid, EnumSet.of(RepositoryFilePermission.ALL));
-              parentTenantFolder = FilenameUtils.getFullPathNoEndSeparator(parentTenantFolder);
-            }
-          } catch (Throwable th) {
-            th.printStackTrace();
-          }
-          
-          // When we create the "/<tenant>/home folder we give privaleges to administrators of ancestor tenants.
-          // Since the user who is currently performing this operation may not have the rights to see these 
-          // ancestor tenant administrator roles so we need to switch over to somebody who can see these roles so
-          // that priveleges can be assigned to them.
-          IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
-          Authentication origAuthentication = SecurityContextHolder.getContext().getAuthentication();
-          StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
-          pentahoSession.setAuthenticated(null, repositoryAdminUsername);
-          PentahoSessionHolder.setSession(pentahoSession);
-          try {
-            // Tenant home folder does not exist, so create it
-            tenantHomeFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
-                ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).build(), aclBuilder.build(), "tenant home folder");
-          } finally {
-            // Switch our identity back to the original user.
-            PentahoSessionHolder.setSession(origPentahoSession);
-            SecurityContextHolder.getContext().setAuthentication(origAuthentication);
-          }
+          aclsForTenantHomeFolder = new RepositoryFileAcl.Builder(userSid)
+            .ace(tenantAuthenticatedRoleSid, EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
+
+          aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid, EnumSet.of(RepositoryFilePermission.ALL));
+          tenantHomeFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
+                ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).build(), aclsForTenantHomeFolder.build(), "tenant home folder");
+        } else {
+          String ownerId = tenantedUserNameUtils.getPrincipleId(theTenant, username);
+          RepositoryFileSid ownerSid = new RepositoryFileSid(ownerId, Type.USER);
+          aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid, EnumSet.of(RepositoryFilePermission.ALL));
         }
         
-        Builder aclBuilder = new RepositoryFileAcl.Builder(userSid).entriesInheriting(true);
         // now check if user's home folder exist
         userHomeFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths.getUserHomeFolderPath(theTenant, username));
         if (userHomeFolder == null) {
           userHomeFolder = repositoryFileDao.createFolder(tenantHomeFolder.getId(),
               new RepositoryFile.Builder(username).folder(true).build(),
-              aclBuilder.build(), "user home folder"); //$NON-NLS-1$
+              aclsForUserHomeFolder.build(), "user home folder"); //$NON-NLS-1$
         }
 
       }

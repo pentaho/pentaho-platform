@@ -143,7 +143,7 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
 
   @Override
   public synchronized void newUser(final String tenantId, final String username) {
-    createUserHomeFolder(new Tenant(tenantId, true), username);
+    userRoleDao.createUserHomeFolder(new Tenant(tenantId, true), username);
   }
 
 
@@ -256,72 +256,4 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
   }
-   
-  protected void createUserHomeFolder(final ITenant theTenant, final String username) {
-    IPentahoSession origPentahoSession = PentahoSessionHolder.getSession();
-    Authentication origAuthentication = SecurityContextHolder.getContext().getAuthentication();
-    StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
-    pentahoSession.setAuthenticated(null, repositoryAdminUsername);
-    PentahoSessionHolder.setSession(pentahoSession);
-    try {
-      txnTemplate.execute(new TransactionCallbackWithoutResult() {
-        public void doInTransactionWithoutResult(final TransactionStatus status) {
-          RepositoryFile userHomeFolder = null;
-          String userId = tenantedUserNameUtils.getPrincipleId(theTenant, username);
-          final RepositoryFileSid userSid = new RepositoryFileSid(userId);
-          RepositoryFile tenantHomeFolder = null;
-          RepositoryFile tenantRootFolder = null;
-          // Get the Tenant Root folder. If the Tenant Root folder does not exist then exit.
-          tenantRootFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
-              .getTenantRootFolderPath(theTenant));
-          if (tenantRootFolder != null) {
-            // Try to see if Tenant Home folder exist
-            tenantHomeFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
-                .getTenantHomeFolderPath(theTenant));
-            if (tenantHomeFolder == null) {
-              String tenantAdminRoleId = tenantedRoleNameUtils.getPrincipleId(theTenant, tenantAdminRoleName);
-              RepositoryFileSid tenantAdminRoleSid = new RepositoryFileSid(tenantAdminRoleId, Type.ROLE);
-              
-              String tenantAuthenticatedRoleId = tenantedRoleNameUtils.getPrincipleId(theTenant, tenantAuthenticatedRoleName);
-              RepositoryFileSid tenantAuthenticatedRoleSid = new RepositoryFileSid(tenantAuthenticatedRoleId, Type.ROLE);
-              
-              Builder aclBuilder = new RepositoryFileAcl.Builder(userSid).ace(tenantAdminRoleSid, EnumSet.of(RepositoryFilePermission.ALL)).ace(tenantAuthenticatedRoleSid, EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
-              
-              String parentTenantFolder = FilenameUtils.getFullPathNoEndSeparator(theTenant.getRootFolderAbsolutePath());
-              try {
-                // Give all to Tenant Admin of all ancestors
-                while (!parentTenantFolder.equals("/")) {
-                  ITenant parentTenant = new Tenant(parentTenantFolder, true);
-                  String parentTenantAdminRoleId = tenantedRoleNameUtils.getPrincipleId(parentTenant, tenantAdminRoleName);
-                  RepositoryFileSid parentTenantAdminSid = new RepositoryFileSid(parentTenantAdminRoleId, Type.ROLE);
-                  aclBuilder.ace(parentTenantAdminSid, EnumSet.of(RepositoryFilePermission.ALL));
-                  parentTenantFolder = FilenameUtils.getFullPathNoEndSeparator(parentTenantFolder);
-                }
-              } catch (Throwable th) {
-                th.printStackTrace();
-              }
-              
-              // Tenant home folder does not exist, so create it
-              tenantHomeFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
-                  ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).build(), aclBuilder.build(), "tenant home folder");
-            }
-            
-            Builder aclBuilder = new RepositoryFileAcl.Builder(userSid).entriesInheriting(true);
-            // now check if user's home folder exist
-            userHomeFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths.getUserHomeFolderPath(theTenant, username));
-            if (userHomeFolder == null) {
-              userHomeFolder = repositoryFileDao.createFolder(tenantHomeFolder.getId(),
-                  new RepositoryFile.Builder(username).folder(true).build(),
-                  aclBuilder.build(), "user home folder"); //$NON-NLS-1$
-            }
-          }
-        }
-      });
-    } finally {
-      // Switch our identity back to the original user.
-      PentahoSessionHolder.setSession(origPentahoSession);
-      SecurityContextHolder.getContext().setAuthentication(origAuthentication);
-    }
-  }
-  
 }
