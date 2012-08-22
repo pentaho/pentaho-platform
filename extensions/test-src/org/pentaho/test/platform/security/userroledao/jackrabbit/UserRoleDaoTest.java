@@ -470,21 +470,20 @@ public class UserRoleDaoTest implements ApplicationContextAware {
 
     logout();
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
-    tenantManager.deleteTenant(subTenant2_2_2);
-    tenantManager.deleteTenant(subTenant2_2_1);
-    tenantManager.deleteTenant(subTenant2_1_2);
-    tenantManager.deleteTenant(subTenant2_1_1);
-    tenantManager.deleteTenant(subTenant2_1);
-    tenantManager.deleteTenant(subTenant2_2);
-    tenantManager.deleteTenant(subTenant1_2_1);
-    tenantManager.deleteTenant(subTenant1_2_2);
-    tenantManager.deleteTenant(subTenant1_1_1);
-    tenantManager.deleteTenant(subTenant1_1_2);
-    tenantManager.deleteTenant(subTenant1_2);
-    tenantManager.deleteTenant(subTenant1_1);
-    tenantManager.deleteTenant(mainTenant_1);
-    tenantManager.deleteTenant(mainTenant_2);
+    cleanupUserAndRoles(mainTenant_1);
+    cleanupUserAndRoles(mainTenant_2);
+    cleanupUserAndRoles(subTenant1_1);
+    cleanupUserAndRoles(subTenant1_1_1);
+    cleanupUserAndRoles(subTenant1_1_2);
+    cleanupUserAndRoles(subTenant1_2);
+    cleanupUserAndRoles(subTenant1_2_1);
+    cleanupUserAndRoles(subTenant1_2_2);
+    cleanupUserAndRoles(subTenant2_1);
+    cleanupUserAndRoles(subTenant2_1_1);
+    cleanupUserAndRoles(subTenant2_1_2);
+    cleanupUserAndRoles(subTenant2_2);
+    cleanupUserAndRoles(subTenant2_2_1);
+    cleanupUserAndRoles(subTenant2_2_2);
     cleanupUserAndRoles(systemTenant);
    }  
 
@@ -587,21 +586,20 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(rolesWithoutSubTenant.size(), 1 + DEFAULT_ROLE_COUNT);
     logout();
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
-    tenantManager.deleteTenant(subTenant2_2_2);
-    tenantManager.deleteTenant(subTenant2_2_1);
-    tenantManager.deleteTenant(subTenant2_1_2);
-    tenantManager.deleteTenant(subTenant2_1_1);
-    tenantManager.deleteTenant(subTenant2_1);
-    tenantManager.deleteTenant(subTenant2_2);
-    tenantManager.deleteTenant(subTenant1_2_1);
-    tenantManager.deleteTenant(subTenant1_2_2);
-    tenantManager.deleteTenant(subTenant1_1_1);
-    tenantManager.deleteTenant(subTenant1_1_2);
-    tenantManager.deleteTenant(subTenant1_2);
-    tenantManager.deleteTenant(subTenant1_1);
-    tenantManager.deleteTenant(mainTenant_1);
-    tenantManager.deleteTenant(mainTenant_2);
+    cleanupUserAndRoles(mainTenant_1);
+    cleanupUserAndRoles(mainTenant_2);
+    cleanupUserAndRoles(subTenant1_1);
+    cleanupUserAndRoles(subTenant1_1_1);
+    cleanupUserAndRoles(subTenant1_1_2);
+    cleanupUserAndRoles(subTenant1_2);
+    cleanupUserAndRoles(subTenant1_2_1);
+    cleanupUserAndRoles(subTenant1_2_2);
+    cleanupUserAndRoles(subTenant2_1);
+    cleanupUserAndRoles(subTenant2_1_1);
+    cleanupUserAndRoles(subTenant2_1_2);
+    cleanupUserAndRoles(subTenant2_2);
+    cleanupUserAndRoles(subTenant2_2_1);
+    cleanupUserAndRoles(subTenant2_2_2);
     cleanupUserAndRoles(systemTenant);
   }  
 
