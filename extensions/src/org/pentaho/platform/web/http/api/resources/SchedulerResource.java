@@ -100,8 +100,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
     Job job = null;
     try {
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-      pentahoSession.getName();
-      String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName())
+      ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", PentahoSessionHolder.getSession());
+      String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(tenantedUserNameUtils.getPrincipleName(pentahoSession.getName()))
           + "/workspace/" + RepositoryFilenameUtils.getBaseName(scheduleRequest.getInputFile()) + ".*"; //$NON-NLS-1$ // //$NON-NLS-2$
       String actionId = RepositoryFilenameUtils.getExtension(scheduleRequest.getInputFile()) + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
       JobTrigger jobTrigger = scheduleRequest.getSimpleJobTrigger();
