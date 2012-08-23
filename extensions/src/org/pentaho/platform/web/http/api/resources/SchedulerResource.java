@@ -42,6 +42,7 @@ import javax.ws.rs.core.Response.Status;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
@@ -199,7 +200,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
   public List<Job> getJobs() {
     try {
-      return scheduler.getJobs(new IJobFilter() {
+      List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
           if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
             return true;
@@ -207,6 +208,11 @@ public class SchedulerResource extends AbstractJaxRSResource {
           return PentahoSessionHolder.getSession().getName().equals(job.getUserName());
         }
       });
+      ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", PentahoSessionHolder.getSession());
+      for (Job job : jobs) {
+        job.setUserName(tenantedUserNameUtils.getPrincipleName(job.getUserName()));
+      }
+      return jobs;
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
