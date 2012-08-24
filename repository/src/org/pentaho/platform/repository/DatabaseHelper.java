@@ -54,15 +54,16 @@ public class DatabaseHelper {
     if(databaseConnection.getDatabaseType() != null) {
       rootNode.setProperty(PROP_TYPE, databaseConnection.getDatabaseType().getShortName());      
     }
-    rootNode.setProperty(PROP_CONTYPE, databaseConnection.getAccessType().getName());
-    rootNode.setProperty(PROP_HOST_NAME, databaseConnection.getHostname());
-    rootNode.setProperty(PROP_DATABASE_NAME, databaseConnection.getDatabaseName());
-    rootNode.setProperty(PROP_PORT, new Long(databaseConnection.getDatabasePort()));
-    rootNode.setProperty(PROP_USERNAME, databaseConnection.getUsername());
-    rootNode.setProperty(PROP_PASSWORD, databaseConnection.getPassword());
-    rootNode.setProperty(PROP_SERVERNAME, databaseConnection.getInformixServername());
-    rootNode.setProperty(PROP_DATA_TBS, databaseConnection.getDataTablespace());
-    rootNode.setProperty(PROP_INDEX_TBS, databaseConnection.getIndexTablespace());
+    String port = ("".equals(setNull(databaseConnection.getDatabasePort())))?"0":databaseConnection.getDatabasePort();
+    rootNode.setProperty(PROP_CONTYPE, setNull(databaseConnection.getAccessType().getName()));
+    rootNode.setProperty(PROP_HOST_NAME, setNull(databaseConnection.getHostname()));
+    rootNode.setProperty(PROP_DATABASE_NAME, setNull(databaseConnection.getDatabaseName()));
+    rootNode.setProperty(PROP_PORT, new Long(port));
+    rootNode.setProperty(PROP_USERNAME, setNull(databaseConnection.getUsername()));
+    rootNode.setProperty(PROP_PASSWORD, setNull(databaseConnection.getPassword()));
+    rootNode.setProperty(PROP_SERVERNAME, setNull(databaseConnection.getInformixServername()));
+    rootNode.setProperty(PROP_DATA_TBS, setNull(databaseConnection.getDataTablespace()));
+    rootNode.setProperty(PROP_INDEX_TBS, setNull(databaseConnection.getIndexTablespace()));
     DataNode attrNode = rootNode.addNode(NODE_ATTRIBUTES);
 
   // Now store all the attributes set on the database connection...
@@ -76,6 +77,13 @@ public class DatabaseHelper {
     return rootNode;
   }
   
+  private String setNull(String value) {
+    String response = value;
+    if(value == null)
+      response = "";
+    return response;
+  }
+
   public IDatabaseConnection dataNodeToDatabaseConnection(final Serializable id, final String name, final DataNode rootNode) {
     IDatabaseConnection databaseConnection = new DatabaseConnection();
     String databaseType  = getString(rootNode, PROP_TYPE);
