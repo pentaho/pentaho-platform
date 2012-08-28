@@ -55,11 +55,12 @@ Your Tomcat environment is now properly configured for the BI Server.
 
 <h2>Setting the CATALINA_OPTS Variable on Windows</h2>
 <p>Once the BI Server is deployed to Tomcat, you will need to set an environment variable called
-CATALINA_OPTS that specifies resource and timing settings. 
-Open the startup.bat and past the line below at a convenient location.
-</p>
+CATALINA_OPTS that specifies resource and timing settings.
+<ol> 
+<li>Open the startup.bat and past the line below at a convenient location.</li>
 set CATALINA_OPTS=-Xms256m -Xmx768m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
-
+</p>
+</ol>
 
     </div>
   </div>
