@@ -32,6 +32,7 @@
   <property name="rdbms" value="hsqldb" description="Default database for open assembly is hsqldb" />
   <property name="stage.dir.server" value="${stage.dir}/${package.id}" />
   <property name="stage.dir.solutions" value="${stage.dir.server}/pentaho-solutions"/>
+  <property name="stage.dir.data" value="${stage.dir.server}/data"/>	
   <property name="stage.sampledata.lib.dir" value="${stage.dir.server}/data/lib" />
   <property name="container.stage.dir" value="${stage.dir.server}/tomcat" />
   <property name="container.deploy.dir" value="${stage.dir.server}/tomcat/webapps" />
@@ -41,7 +42,8 @@
   <property name="container.lib.dir" value="${stage.dir.server}/tomcat/lib" />
   <property name="plugins.dir" value="plugins" />
   <property name="solution-archives.dir" value="solution-archives" />
-
+  <property name="install-doc.dir" value="${package.res.dir}/install-doc" />
+	
   <!-- default relative project paths -->
   <property name="bi.platform.core.dir"       value="../${prefix}core" />
   <property name="bi.platform.extensions.dir" value="../${prefix}extensions" />
@@ -51,6 +53,7 @@
   <property name="system.solution.dir"        value="${solutions.dir}/system" />
   <property name="bi-developers.solution.dir" value="${solutions.dir}/bi-developers" />
   <property name="datasource.res.dir" value="${package.res.dir}/appserver/tomcat/res/datasources"/>
+  <property name="pentaho-style.dir" value="${package.res.dir}/biserver/tomcat/webapps/pentaho-style"/>	
   <property name="bi-developers.visible" value="true" description="Should the bi-developers samples be visible" />
 
   <property name="plugin-samples.solution.dir" value="${stage.dir.solutions}/plugin-samples" />
@@ -61,6 +64,7 @@
   <property name="third-party.dir" value="${subfloor.resources.dir}/third-party" description="Directory where 3rd party tools are included in the platform assemblies" />
   <property name="wkhtmltoimage.dir" value="${third-party.dir}/wkhtmltoimage" description="Directory where wkhtmltoimage is downloaded"/>
 
+  <property name="pentaho.wars.dir" value="${stage.dir}/pentaho-wars" />
   <!-- =================================
           target: clean-all
          ================================= -->
@@ -459,5 +463,87 @@
     <ivy:resolve file="${ivyfile}" conf="sampledata-libs" />
     <ivy:retrieve conf="sampledata-libs" pattern="${stage.sampledata.lib.dir}/[module]-[revision](-[classifier]).[ext]" />
   </target>
+
+	<!-- ===================================================================
+		  target: init-pentaho-wars
+
+		  This target makes replacements for database host, port, username, and password keys
+		  in the hibernate.cfg.xml files and the datasoure files used by
+		  jboss. This is what makes your pentaho war database specific.
+		  Check the build.properties file for the default replacements values.
+		  You can override these if you'd like. Note that this file looks for
+		  the defaults. If you are using this target as part of the manual
+		  deployments, the files in the pentaho-res folder should not be modified
+		  by the build. The entire folder is copied to the /build folder, and the
+		  replacements are made there. This way, the manual deployments package
+		  stays clean, and you can run the build multiple times with different
+		  values for the host, port, usernames, and passwords.
+		 =================================================================== -->
+	<target name="init-pentaho-wars">
+		<mkdir dir="${pentaho.wars.dir}" />
+	</target>
+
+	<!-- ===================================================================
+	        target: war-pentaho-tomcat
+	       =================================================================== -->
+	<target name="war-pentaho-tomcat" depends="init, init-pentaho-wars, zip-pentaho-style-war">
+		<mkdir dir="${dist.dir}/tomcat/" />
+
+		<manifest file="${dist.dir}/tomcat/MANIFEST.MF">
+			<attribute name="Implementation-Title" value="${impl.title}" />
+			<attribute name="Implementation-Version" value="${impl.version}" />
+			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
+		</manifest>
+
+		<!-- war pentaho -->
+		<zip destfile="${dist.dir}/tomcat/pentaho.war" duplicate="preserve">
+			<zipfileset dir="${prep.pentaho.war.dir}">
+				<exclude name="**/WEB-INF/default-object.xml" />
+				<exclude name="**/WEB-INF/jboss-app.xml" />
+				<exclude name="**/WEB-INF/jboss-portlet.xml" />
+				<exclude name="**/WEB-INF/jboss-web.xml" />
+				<exclude name="**/WEB-INF/portlet-instances.xml" />
+			</zipfileset>
+		</zip>
+		<!--copy install doc to the dist folder -->
+		<copy todir="${dist.dir}">
+			<fileset dir="${install-doc.dir}">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- ===================================================================
+	       target: zip-pentaho-style-war
+
+	       Create the pentaho-style.war.
+	      =================================================================== -->
+	<target name="zip-pentaho-style-war" depends="init">
+		<zip destfile="${dist.dir}/pentaho-style.war">
+			<zipfileset dir="${pentaho-style.dir}" />
+		</zip>
+	</target>
+
+	<!-- ===================================================================
+	       target: zip-pentaho-data
+
+	       Create the pentaho-data.zip
+	      =================================================================== -->
+	<target name="zip-pentaho-data" depends="init">
+		<zip destfile="${dist.dir}/pentaho-data.zip">
+			<zipfileset dir="${stage.dir.data}"   prefix="data"/>
+		</zip>
+	</target>
+		
+	<!-- ===================================================================
+	       target: zip-pentaho-solutions
+
+	       Create the pentaho-solutions.zip
+	      =================================================================== -->
+	<target name="zip-pentaho-solutions" depends="init">
+		<zip destfile="${dist.dir}/pentaho-solutions.zip">
+			<zipfileset dir="${stage.dir.solutions}" prefix="pentaho-solutions"/>
+		</zip>
+	</target>
 
 </project>

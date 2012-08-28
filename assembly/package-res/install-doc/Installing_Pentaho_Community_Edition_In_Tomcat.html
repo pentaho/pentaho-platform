@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>Installing Pentaho Community Edition in Tomcat 6.0</title>
+<style type="text/css">#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style></head>
+<body class="webkit"><div id="MathJax_Message" style="display: none; "></div>
+
+<div id="wiki-wrapper" class="page">
+<div id="head">
+  <h1>Installing Pentaho Community Edition in Tomcat</h1>
+
+  </div>
+<div id="wiki-content">
+<div class="wrap  ">
+  <div id="wiki-body" class="gollum-markdown-content">
+    <div id="template">
+
+<p>Below are the steps to configure pentaho in tomcat </p>
+
+<ol>
+	<li>Create home folder for pentaho/biserver-ce</li>
+    <li>Download <a href="http://tomcat.apache.org/"> tomcat version 6</a> and install under pentaho/biserver-ce</li>
+    <li>Download pentaho.war from <a href="http://ci.pentaho.org/view/Sugar/job/BISERVER-CE/">http://ci.pentaho.org/view/Sugar/job/BISERVER-CE/</a>. Copy the pentaho.war file to the
+    webapps subdirectory of your Tomcat home directory.</li> 
+    <li>Download pentaho-style.war from <a href="http://ci.pentaho.org/view/Sugar/job/BISERVER-CE/"> http://ci.pentaho.org/view/Sugar/job/BISERVER-CE/</a>. Copy the pentaho-style.war file to the
+    webapps subdirectory of your Tomcat home directory.</li> 
+    <li>Download pentaho-solutios.zip from <a href="http://ci.pentaho.org/view/Sugar/job/BISERVER-CE"> http://ci.pentaho.org/view/Sugar/job/BISERVER-CE</a>. Unzip this under pentaho/biserver-ce folder</li> 
+    <li>If you want to install pentaho's sample data then download pentaho-data.zip from <a href="http://ci.pentaho.org/view/Sugar/job/BISERVER-CE/">http://ci.pentaho.org/view/Sugar/job/BISERVER-CE/</a>.
+    Unzip this under pentaho/biserver-ce folder</li> 
+    <li>Copy the hsqldb jar from biserver-ce/data/lib to tomcat/lib folder</li>
+    <li>Download <a href="http://www.h2database.com/html/download.html">h2</a> jar and copy it into tomcat/lib folder</li>    
+    <li>Download any plugins that you have a license for and install under pentaho/biserver-ce/pentaho-solutions/system folder</li> 
+</ol>
+
+<h2>Setting the CATALINA_OPTS Variable on Linux, OS X, and Solaris</h2>
+<p>Once the BI Server is deployed to Tomcat, you will need to set an environment variable called
+CATALINA_OPTS that specifies resource and timing settings. You may already have a CATALINA_OPTS
+variable set; if so, you will have to adjust it to accommodate the settings shown below.
+Note: The memory settings in the below example are recommended minimums; change them to
+scale up to your environment and usage needs.</p>
+<ol>
+<li>Edit your ~/.bashrc file with a text editor.
+If you are not using BASH as your default shell, edit your command shell's configuration file instead.
+The export statement in the next step should not need to change depending on your shell.</li>
+<li>Add this line in a convenient place: export CATALINA_OPTS="-Xms128m -
+Xmx512m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -
+Dsun.rmi.dgc.server.gcInterval=3600000".
+On Ubuntu Linux, you can alternatively add this line to /etc/environment instead of ~/.bashrc.</li>
+<li>You must log out and log back into the operating system for the change to take effect.</li>
+Your Tomcat environment is now properly configured for the BI Server.
+</ol>
+
+<h2>Setting the CATALINA_OPTS Variable on Windows</h2>
+<p>Once the BI Server is deployed to Tomcat, you will need to set an environment variable called
+CATALINA_OPTS that specifies resource and timing settings. 
+Open the startup.bat and past the line below at a convenient location.
+</p>
+set CATALINA_OPTS=-Xms256m -Xmx768m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
+
+
+    </div>
+  </div>
+  </div>
+
+</div>
+</div>
+</body></html>
