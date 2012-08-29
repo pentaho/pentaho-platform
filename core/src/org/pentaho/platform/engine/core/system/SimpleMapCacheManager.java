@@ -167,11 +167,12 @@ public class SimpleMapCacheManager implements ICacheManager {
   private List getFromMap(String id) {
     List list = new ArrayList();
     if (simpleMap != null) {
+      String keyId = id + "\t";
       Iterator it = simpleMap.entrySet().iterator();
       while (it.hasNext()) {
         Map.Entry entry = (Map.Entry) it.next();
         String key = (entry.getKey()!= null) ? entry.getKey().toString(): ""; //$NON-NLS-1$
-        if(key.indexOf(id) >= 0) {
+        if(key.startsWith(keyId)) {
           list.add(entry.getValue());  
         }
       }
@@ -183,10 +184,11 @@ public class SimpleMapCacheManager implements ICacheManager {
   private void removeFromMap(String id) {
     if (simpleMap != null) {
       Iterator it = simpleMap.entrySet().iterator();
+      String keyId = id + "\t";
       while (it.hasNext()) {
         Map.Entry entry = (Map.Entry) it.next();
         String key = entry.getKey() != null ? (String) entry.getKey() : ""; //$NON-NLS-1$
-        if(key.indexOf(id) >= 0) {
+        if(key.startsWith(keyId)) {
           it.remove();  
         }
       }
@@ -196,11 +198,12 @@ public class SimpleMapCacheManager implements ICacheManager {
   @Override
   public long getElementCountInRegionCache(String region) {
     long cnt = 0;
+    String regionKey = region + "\t";
     Iterator it = simpleMap.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry entry = (Map.Entry) it.next();
       String key = entry.getKey() != null ? (String) entry.getKey() : ""; //$NON-NLS-1$
-      if (key.startsWith(region)) {
+      if (key.startsWith(regionKey)) {
         cnt++;
       }
     }
