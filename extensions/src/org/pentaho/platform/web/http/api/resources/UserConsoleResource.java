@@ -82,6 +82,28 @@ public class UserConsoleResource extends AbstractJaxRSResource {
     ISolutionRepository repository = PentahoSystem.get(ISolutionRepository.class, getPentahoSession());
     return Response.ok("" + repository.supportsAccessControls()).build();
   }
+  
+  @GET
+  @Path("/getAdminContent")
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
+  public List<Setting> getAdminContent() {
+	  
+	  ArrayList<Setting> settings = new ArrayList<Setting>();
+	  IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getPentahoSession()); 
+	  List<String> pluginIds = pluginManager.getRegisteredPlugins();
+	  for (String id : pluginIds) {
+		if(id.equals("biServerAdmin")) {
+			if(!SecurityHelper.getInstance().isPentahoAdministrator(getPentahoSession())) {
+				continue;
+			}
+		}  
+		String contentInfo = (String)pluginManager.getPluginSetting(id, "admin-content-info", null);  
+	    if (contentInfo != null ) {
+	    	settings.add(new Setting("admin-content-info", contentInfo));
+	    }
+	  }
+	  return settings;
+  }
 
   @GET
   @Path("/settings")
