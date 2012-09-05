@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
+import org.pentaho.gwt.widgets.client.ui.ICallback;
+import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.admin.JsSysAdminPanel;
@@ -32,6 +34,7 @@ import org.pentaho.mantle.client.commands.SwitchThemeCommand;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
@@ -53,7 +56,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.MenuBar;
@@ -204,6 +206,12 @@ public class MantleController extends AbstractXulEventHandler {
                   ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked("workspace.perspective".equals(PerspectiveManager.getInstance()
                       .getActivePerspective().getId()));
 
+                  PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
+                	  public void onHandle(Void v) {
+                		  executeAdminContent();
+                	  }
+				  });
+                  
                   setupNativeHooks(MantleController.this);
                 }
               });
@@ -219,6 +227,49 @@ public class MantleController extends AbstractXulEventHandler {
         Window.alert(e.getMessage());
         // showError(e);
       }
+  }
+  
+  private void executeAdminContent() {
+	  
+	  try {
+		 RequestCallback internalCallback = new RequestCallback() {
+
+			 public void onError(Request request, Throwable exception) {
+		     }
+
+		     public void onResponseReceived(Request request, Response response) {
+		    	 JsArray<JsSetting> jsSettings = JsSetting.parseSettingsJson(JsonUtils.escapeJsonForEval(response.getText()));
+		    	 for (int i = 0; i < jsSettings.length(); i++) {
+		    		 String adminContentInfo = jsSettings.get(i).getValue();
+		    		 StringTokenizer nameValuePairs = new StringTokenizer(adminContentInfo, ";");
+		    		 String perspective = null, content_panel_id  = null, content_url  = null;
+		    		 for(int j = 0; j < nameValuePairs.countTokens(); j ++) {
+		    			 String currentToken = nameValuePairs.tokenAt(j).trim();
+		    			 if(currentToken.startsWith("perspective=")) {
+		    				 perspective = currentToken.substring("perspective=".length());
+		    			 }
+		    			 if(currentToken.startsWith("content-panel-id=")) {
+		    				 content_panel_id = currentToken.substring("content-panel-id=".length());
+		    			 }
+		    			 if(currentToken.startsWith("content-url=")) {
+		    				 content_url = currentToken.substring("content-url=".length());
+		    			 }
+		    		 }
+		    		 if(perspective != null) {
+		    			 PerspectiveManager.getInstance().setPerspective(perspective);
+		    		 }
+		    		 if(content_panel_id != null && content_url != null) {
+		    			 loadAdminContent(content_panel_id, content_url);
+		    		 }
+		    	 }
+		     }
+		 };  
+		  
+		 RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/mantle/getAdminContent");
+		 builder.setHeader("accept", "application/json");
+		 builder.sendRequest(null, internalCallback);
+	  } catch (RequestException e) {
+	  }
   }
 
   public native void setupNativeHooks(MantleController controller)
