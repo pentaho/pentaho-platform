@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -47,6 +48,7 @@ import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCube;
+import org.pentaho.platform.plugin.services.pluginmgr.IAdminContentConditionalLogic;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
 @Path("/mantle/")
@@ -89,18 +91,29 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   public List<Setting> getAdminContent() {
 	  
 	  ArrayList<Setting> settings = new ArrayList<Setting>();
-	  IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getPentahoSession()); 
-	  List<String> pluginIds = pluginManager.getRegisteredPlugins();
-	  for (String id : pluginIds) {
-		if(id.equals("biServerAdmin")) {
-			if(!SecurityHelper.getInstance().isPentahoAdministrator(getPentahoSession())) {
-				continue;
+	  try {
+		  IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getPentahoSession()); 
+		  List<String> pluginIds = pluginManager.getRegisteredPlugins();
+		  for (String pluginId : pluginIds) {
+			String adminContentInfo = (String)pluginManager.getPluginSetting(pluginId, "admin-content-info", null);    
+			if(adminContentInfo != null) {
+				StringTokenizer nameValuePairs = new StringTokenizer(adminContentInfo, ";");
+		 		while(nameValuePairs.hasMoreTokens()) {
+		 			 String currentToken = nameValuePairs.nextToken().trim();
+		 			 if(currentToken.startsWith("conditional-logic-validator=")) {
+		 				 String validatorName = currentToken.substring("conditional-logic-validator=".length());
+	  				 	 Class validatorClass = pluginManager.getClassLoader(pluginId).loadClass(validatorName);
+		 				 IAdminContentConditionalLogic validator = (IAdminContentConditionalLogic) validatorClass.newInstance();
+		 				 boolean isValid = validator.validate();
+		 				 if (isValid && adminContentInfo != null ) {
+		 				 	settings.add(new Setting("admin-content-info", adminContentInfo));
+		 				 }
+		 			 }
+		 		}
 			}
-		}  
-		String contentInfo = (String)pluginManager.getPluginSetting(id, "admin-content-info", null);  
-	    if (contentInfo != null ) {
-	    	settings.add(new Setting("admin-content-info", contentInfo));
-	    }
+		  }
+	  }	catch(Exception e) {
+		  logger.error(e.getMessage(), e);
 	  }
 	  return settings;
   }
