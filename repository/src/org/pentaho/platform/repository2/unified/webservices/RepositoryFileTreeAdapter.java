@@ -16,7 +16,7 @@ public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto,
   @Override
   public RepositoryFileTreeDto marshal(final RepositoryFileTree v) {
     RepositoryFileTreeDto treeDto = new RepositoryFileTreeDto();
-    treeDto.file = RepositoryFileAdapter.toFileDto(v.getFile());
+    treeDto.setFile(RepositoryFileAdapter.toFileDto(v.getFile()));
 
     List<RepositoryFileTreeDto> children = null;
     if (v.getChildren() != null) {
@@ -26,7 +26,7 @@ public class RepositoryFileTreeAdapter extends XmlAdapter<RepositoryFileTreeDto,
       }
     }
 
-    treeDto.children = children;
+    treeDto.setChildren(children);
 
     return treeDto;
   }
