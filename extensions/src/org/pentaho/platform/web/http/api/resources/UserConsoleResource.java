@@ -104,8 +104,8 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 		 				 String validatorName = currentToken.substring("conditional-logic-validator=".length());
 	  				 	 Class validatorClass = pluginManager.getClassLoader(pluginId).loadClass(validatorName);
 		 				 IAdminContentConditionalLogic validator = (IAdminContentConditionalLogic) validatorClass.newInstance();
-		 				 boolean isValid = validator.validate();
-		 				 if (isValid && adminContentInfo != null ) {
+		 				 boolean execute = validator.validate();
+		 				 if (execute && adminContentInfo != null ) {
 		 				 	settings.add(new Setting("admin-content-info", adminContentInfo));
 		 				 }
 		 			 }
