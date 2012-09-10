@@ -35,8 +35,9 @@ public abstract class JobTrigger implements Serializable{
   
   private Date startTime;
   private Date endTime;
-  
-  
+  private String uiPassParam; 
+  private String cronString;
+    
   public JobTrigger() {
   }
   
@@ -76,4 +77,41 @@ public abstract class JobTrigger implements Serializable{
   public void setEndTime(Date endTime) {
     this.endTime = endTime;
   }
+
+	/**
+	 * @return the uiPassParam
+	 */
+	public String getUiPassParam() {
+		return uiPassParam;
+	}
+
+	/**
+	 * The value of this field comes from the UI and is persisted in quartz but not used
+   * by quartz or the server.  It is strictly a way for the UI to persist something.  In the
+   * present implementation, this field holds the scheduleType.  @See JsJobTrigger
+	 * @param uiPassParam A User Interface provided string
+	 */
+	public void setUiPassParam(String uiPassParam) {
+		this.uiPassParam = uiPassParam;
+	}
+
+	/**
+	 * Returns the Cron String used by quartz Scheduler
+	 * @return the cronString
+	 */
+	public String getCronString() {
+		return cronString;
+	}
+
+	/**
+	 * Sets the cron String used by the quartz scheduler
+	 * @param cronString the cronString to set
+	 */
+	public void setCronString(String cronString) {
+		this.cronString = cronString;
+	}
+	
+	
+  
+  
 }

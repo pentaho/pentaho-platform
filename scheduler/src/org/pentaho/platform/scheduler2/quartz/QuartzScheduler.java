@@ -78,6 +78,8 @@ public class QuartzScheduler implements IScheduler {
   public static final String RESERVEDMAPKEY_ACTIONID = "ActionAdapterQuartzJob-ActionId"; //$NON-NLS-1$
 
   public static final String RESERVEDMAPKEY_STREAMPROVIDER = "ActionAdapterQuartzJob-StreamProvider"; //$NON-NLS-1$
+  
+  public static final String RESERVEDMAPKEY_UIPASSPARAM = "uiPassParam";
 
   private static final Log logger = LogFactory.getLog(QuartzScheduler.class);
 
@@ -229,8 +231,12 @@ public class QuartzScheduler implements IScheduler {
 
     if (outputStreamProvider != null) {
       jobParams.put(RESERVEDMAPKEY_STREAMPROVIDER, outputStreamProvider);
-
     }
+    
+    if (trigger.getUiPassParam() != null){
+    	jobParams.put(RESERVEDMAPKEY_UIPASSPARAM, trigger.getUiPassParam());
+    }
+    
     JobDetail jobDetail = createJobDetails(jobId, jobParams);
 
     try {
@@ -284,7 +290,10 @@ public class QuartzScheduler implements IScheduler {
       if (origJobDetail.getJobDataMap().containsKey(RESERVEDMAPKEY_STREAMPROVIDER)) {
         jobParams.put(RESERVEDMAPKEY_STREAMPROVIDER, (Serializable) origJobDetail.getJobDataMap().get(RESERVEDMAPKEY_STREAMPROVIDER));
       }
-
+      if (origJobDetail.getJobDataMap().containsKey(RESERVEDMAPKEY_UIPASSPARAM)) {
+        jobParams.put(RESERVEDMAPKEY_UIPASSPARAM, (Serializable) origJobDetail.getJobDataMap().get(RESERVEDMAPKEY_STREAMPROVIDER));
+      }
+      
       JobDetail jobDetail = createJobDetails(jobKey, jobParams);
       scheduler.addJob(jobDetail, true);
       if (triggerCalendar != null) {
@@ -342,60 +351,10 @@ public class QuartzScheduler implements IScheduler {
             job.setJobParams(wrappedMap);
           }
         }
-
-        if (trigger instanceof SimpleTrigger) {
-          SimpleTrigger simpleTrigger = (SimpleTrigger) trigger;
-          SimpleJobTrigger simpleJobTrigger = new SimpleJobTrigger();
-          simpleJobTrigger.setStartTime(simpleTrigger.getStartTime());
-          simpleJobTrigger.setEndTime(simpleTrigger.getEndTime());
-          long interval = simpleTrigger.getRepeatInterval();
-          if (interval > 0) {
-            interval /= 1000;
-          }
-          simpleJobTrigger.setRepeatInterval(interval);
-          simpleJobTrigger.setRepeatCount(simpleTrigger.getRepeatCount());
-          job.setJobTrigger(simpleJobTrigger);
-        } else if (trigger instanceof CronTrigger) {
-          CronTrigger cronTrigger = (CronTrigger) trigger;
-          ComplexJobTrigger complexJobTrigger = createComplexTrigger(cronTrigger.getCronExpression());
-          job.setJobTrigger(complexJobTrigger);
-          if (trigger.getCalendarName() != null) {
-            Calendar calendar = scheduler.getCalendar(trigger.getCalendarName());
-            if (calendar instanceof QuartzSchedulerAvailability) {
-              QuartzSchedulerAvailability quartzSchedulerAvailability = (QuartzSchedulerAvailability) calendar;
-              complexJobTrigger.setStartTime(quartzSchedulerAvailability.getStartTime());
-              complexJobTrigger.setEndTime(quartzSchedulerAvailability.getEndTime());
-            }
-          }
-        }
-
-        int triggerState = scheduler.getTriggerState(jobId, groupName);
-        switch (triggerState) {
-        case Trigger.STATE_NORMAL:
-          job.setState(JobState.NORMAL);
-          break;
-        case Trigger.STATE_BLOCKED:
-          job.setState(JobState.BLOCKED);
-          break;
-        case Trigger.STATE_COMPLETE:
-          job.setState(JobState.COMPLETE);
-          break;
-        case Trigger.STATE_ERROR:
-          job.setState(JobState.ERROR);
-          break;
-        case Trigger.STATE_PAUSED:
-          job.setState(JobState.PAUSED);
-          break;
-        default:
-          job.setState(JobState.UNKNOWN);
-          break;
-        }
-
-        job.setUserName(jobDetail.getGroup());
-        job.setJobName(QuartzJobKey.parse(jobId).getJobName());
-        job.setNextRun(trigger.getNextFireTime());
-        job.setLastRun(trigger.getPreviousFireTime());
+        
         job.setJobId(jobId);
+        setJobTrigger(scheduler, job, trigger);
+        job.setUserName(jobDetail.getGroup());
         return job;
       }
     } catch (org.quartz.SchedulerException e) {
@@ -403,7 +362,7 @@ public class QuartzScheduler implements IScheduler {
     }
     return null;
   }
-
+  
   /** {@inheritDoc} */
   @SuppressWarnings("unchecked")
   public List<Job> getJobs(IJobFilter filter) throws SchedulerException {
@@ -423,59 +382,12 @@ public class QuartzScheduler implements IScheduler {
                 job.setJobParams(wrappedMap);
               }
             }
-
-            if (trigger instanceof SimpleTrigger) {
-              SimpleTrigger simpleTrigger = (SimpleTrigger) trigger;
-              SimpleJobTrigger simpleJobTrigger = new SimpleJobTrigger();
-              simpleJobTrigger.setStartTime(simpleTrigger.getStartTime());
-              simpleJobTrigger.setEndTime(simpleTrigger.getEndTime());
-              long interval = simpleTrigger.getRepeatInterval();
-              if (interval > 0) {
-                interval /= 1000;
-              }
-              simpleJobTrigger.setRepeatInterval(interval);
-              simpleJobTrigger.setRepeatCount(simpleTrigger.getRepeatCount());
-              job.setJobTrigger(simpleJobTrigger);
-            } else if (trigger instanceof CronTrigger) {
-              CronTrigger cronTrigger = (CronTrigger) trigger;
-              ComplexJobTrigger complexJobTrigger = createComplexTrigger(cronTrigger.getCronExpression());
-              job.setJobTrigger(complexJobTrigger);
-              if (trigger.getCalendarName() != null) {
-                Calendar calendar = scheduler.getCalendar(trigger.getCalendarName());
-                if (calendar instanceof QuartzSchedulerAvailability) {
-                  QuartzSchedulerAvailability quartzSchedulerAvailability = (QuartzSchedulerAvailability) calendar;
-                  complexJobTrigger.setStartTime(quartzSchedulerAvailability.getStartTime());
-                  complexJobTrigger.setEndTime(quartzSchedulerAvailability.getEndTime());
-                }
-              }
-            }
-
-            int triggerState = scheduler.getTriggerState(jobId, groupName);
-            switch (triggerState) {
-            case Trigger.STATE_NORMAL:
-              job.setState(JobState.NORMAL);
-              break;
-            case Trigger.STATE_BLOCKED:
-              job.setState(JobState.BLOCKED);
-              break;
-            case Trigger.STATE_COMPLETE:
-              job.setState(JobState.COMPLETE);
-              break;
-            case Trigger.STATE_ERROR:
-              job.setState(JobState.ERROR);
-              break;
-            case Trigger.STATE_PAUSED:
-              job.setState(JobState.PAUSED);
-              break;
-            default:
-              job.setState(JobState.UNKNOWN);
-              break;
-            }
-
+            
+            job.setJobId(jobId);
+            setJobTrigger(scheduler, job, trigger);
             job.setJobName(QuartzJobKey.parse(jobId).getJobName());
             job.setNextRun(trigger.getNextFireTime());
             job.setLastRun(trigger.getPreviousFireTime());
-            job.setJobId(jobId);
             if ((filter == null) || filter.accept(job)) {
               jobs.add(job);
             }
@@ -486,6 +398,71 @@ public class QuartzScheduler implements IScheduler {
       throw new SchedulerException(Messages.getInstance().getString("QuartzScheduler.ERROR_0004_FAILED_TO_LIST_JOBS"), e); //$NON-NLS-1$
     }
     return jobs;
+  }
+  
+  private void setJobTrigger (Scheduler scheduler, Job job, Trigger trigger)
+  		throws SchedulerException, org.quartz.SchedulerException {
+    QuartzJobKey jobKey = QuartzJobKey.parse(job.getJobId());
+    String groupName = jobKey.getUserName();
+    if (trigger instanceof SimpleTrigger) {
+      SimpleTrigger simpleTrigger = (SimpleTrigger) trigger;
+      SimpleJobTrigger simpleJobTrigger = new SimpleJobTrigger();
+      simpleJobTrigger.setStartTime(simpleTrigger.getStartTime());
+      simpleJobTrigger.setEndTime(simpleTrigger.getEndTime());
+      simpleJobTrigger.setUiPassParam((String) job.getJobParams().get( RESERVEDMAPKEY_UIPASSPARAM));
+      long interval = simpleTrigger.getRepeatInterval();
+      if (interval > 0) {
+        interval /= 1000;
+      }
+      simpleJobTrigger.setRepeatInterval(interval);
+      simpleJobTrigger.setRepeatCount(simpleTrigger.getRepeatCount());
+      job.setJobTrigger(simpleJobTrigger);
+    } else if (trigger instanceof CronTrigger) {
+      CronTrigger cronTrigger = (CronTrigger) trigger;
+      ComplexJobTrigger complexJobTrigger = createComplexTrigger(cronTrigger.getCronExpression());
+      complexJobTrigger.setUiPassParam((String) job.getJobParams().get(RESERVEDMAPKEY_UIPASSPARAM));
+      complexJobTrigger.setCronString(((CronTrigger) trigger).getCronExpression());
+      job.setJobTrigger(complexJobTrigger);
+      if (trigger.getCalendarName() != null) {
+        Calendar calendar = scheduler.getCalendar(trigger.getCalendarName());
+        if (calendar instanceof QuartzSchedulerAvailability) {
+          QuartzSchedulerAvailability quartzSchedulerAvailability = (QuartzSchedulerAvailability) calendar;
+          complexJobTrigger.setStartTime(quartzSchedulerAvailability.getStartTime());
+          complexJobTrigger.setEndTime(quartzSchedulerAvailability.getEndTime());
+        }
+      }
+      complexJobTrigger.setCronString(((CronTrigger) trigger).getCronExpression());
+      if (trigger instanceof SimpleTrigger) {
+
+      }
+    }
+
+    int triggerState = scheduler.getTriggerState(job.getJobId(), groupName);
+    switch (triggerState) {
+    case Trigger.STATE_NORMAL:
+      job.setState(JobState.NORMAL);
+      break;
+    case Trigger.STATE_BLOCKED:
+      job.setState(JobState.BLOCKED);
+      break;
+    case Trigger.STATE_COMPLETE:
+      job.setState(JobState.COMPLETE);
+      break;
+    case Trigger.STATE_ERROR:
+      job.setState(JobState.ERROR);
+      break;
+    case Trigger.STATE_PAUSED:
+      job.setState(JobState.PAUSED);
+      break;
+    default:
+      job.setState(JobState.UNKNOWN);
+      break;
+    }
+    
+    job.setJobName(QuartzJobKey.parse(job.getJobId()).getJobName());
+    job.setNextRun(trigger.getNextFireTime());
+    job.setLastRun(trigger.getPreviousFireTime());
+    
   }
 
   /** {@inheritDoc} */

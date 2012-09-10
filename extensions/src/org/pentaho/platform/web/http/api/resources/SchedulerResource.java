@@ -21,6 +21,10 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,6 +39,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -46,6 +52,7 @@ import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.CronJobTrigger;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
@@ -57,14 +64,11 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.scheduler2.quartz.QuartzCronStringFactory;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifier;
-
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
  * Represents a file node in the repository. This api provides methods for discovering information about repository files as well as CRUD operations
@@ -109,6 +113,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
         SimpleJobTrigger simpleJobTrigger = scheduleRequest.getSimpleJobTrigger();
         if (simpleJobTrigger.getStartTime() == null) {
           simpleJobTrigger.setStartTime(new Date());
+          simpleJobTrigger.setUiPassParam(scheduleRequest.getCronJobTrigger().getUiPassParam());
         }
         jobTrigger = simpleJobTrigger;
       } else if (scheduleRequest.getComplexJobTrigger() != null) {
@@ -150,12 +155,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
         calendar.setTime(complexJobTrigger.getStartTime());
         complexJobTrigger.setHourlyRecurrence(calendar.get(Calendar.HOUR_OF_DAY));
         complexJobTrigger.setMinuteRecurrence(calendar.get(Calendar.MINUTE));
+        complexJobTrigger.setUiPassParam(scheduleRequest.getComplexJobTrigger().getUiPassParam());
         jobTrigger = complexJobTrigger;
       } else if (scheduleRequest.getCronJobTrigger() != null) {
         if (scheduler instanceof QuartzScheduler) {
           ComplexJobTrigger complexJobTrigger = QuartzScheduler.createComplexTrigger(scheduleRequest.getCronJobTrigger().getCronString());
           complexJobTrigger.setStartTime(scheduleRequest.getCronJobTrigger().getStartTime());
           complexJobTrigger.setEndTime(scheduleRequest.getCronJobTrigger().getEndTime());
+          complexJobTrigger.setUiPassParam(scheduleRequest.getComplexJobTrigger().getUiPassParam());
           jobTrigger = complexJobTrigger;
         } else {
           throw new IllegalArgumentException();
@@ -198,7 +205,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @GET
   @Path("/jobs")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public List<Job> getJobs() {
+  public List<Job> getJobs(@DefaultValue("false") @QueryParam("asCronString") Boolean asCronString) {
     try {
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
@@ -356,9 +363,26 @@ public class SchedulerResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-
+  
   @GET
   @Path("/jobinfo")
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
+  public Job getJob( @QueryParam("jobId") String jobId, @DefaultValue("false") @QueryParam("asCronString") String asCronString) {
+    try {
+    	Job job = scheduler.getJob(jobId); 
+      if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())
+      		|| PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
+      	return job; 
+      } else {
+      	throw new RuntimeException("Job not found or improper credentials for access");
+      }
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @GET
+  @Path("/jobinfotest")
   @Produces({ APPLICATION_JSON })
   public JobScheduleRequest getJobInfo() {
     JobScheduleRequest jobRequest = new JobScheduleRequest();

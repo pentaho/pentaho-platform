@@ -22,7 +22,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
@@ -39,7 +42,8 @@ public class SessionResource extends AbstractJaxRSResource {
   @Produces(TEXT_PLAIN)
   public String doGetCurrentUserDir() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-    String value = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName()) + "/workspace";
+    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", PentahoSessionHolder.getSession());
+    String value = ClientRepositoryPaths.getUserHomeFolderPath(tenantedUserNameUtils.getPrincipleName(pentahoSession.getName())) + "/workspace";
     return value;
   }
 }

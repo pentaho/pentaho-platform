@@ -19,14 +19,18 @@ package org.pentaho.mantle.client.workspace;
 
 import java.util.Date;
 
+import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.ScheduleType;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
 import org.pentaho.mantle.client.messages.Messages;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayInteger;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.user.client.Window;
 
 public class JsJobTrigger extends JavaScriptObject {
 
@@ -44,14 +48,26 @@ public class JsJobTrigger extends JavaScriptObject {
   public final native void setType(String type) /*-{
     this['@type'] = type;
   }-*/;
+  
+  public final String getScheduleType(){
+  	String s = getUiPassParamRaw();
+  	if (s != null && !s.equals("")) return s;
+  	return calcScheduleType().name();
+  }
+  
+  private final native String getUiPassParamRaw() /*-{	return this.uiPassParam; }-*/; //
+  
+  public final native void setScheduleType(String scheduleType) /*-{
+  	this.ScheduleType = scheduleType;
+	}-*/; 
 
-  public final native int getRepeatCount() /*-{ return this.repeatCount; }-*/; //
+  public final native int getRepeatCount() /*-{ return parseInt(this.repeatCount); }-*/; //
 
   public final native void setRepeatCount(int count) /*-{
     this.repeatCount = count;
   }-*/;
   
-  public final native int getRepeatInterval() /*-{ return this.repeatInterval; }-*/; //
+  public final native int getRepeatInterval() /*-{ return parseInt(this.repeatInterval); }-*/; //
 
   public final native void setRepeatInterval(int interval) /*-{
     this.repeatInterval = interval;
@@ -124,13 +140,45 @@ public class JsJobTrigger extends JavaScriptObject {
     }
     this.hourRecurrences.recurrenceList.values = hours; 
   }-*/;
-  
-  public final native int[] getDayOfWeekRecurrences()
-  /*-{ 
-    return this.dayOfWeekRecurrences.recurrenceList.values; 
+
+	public final int[] getDayOfWeekRecurrences(){
+		if (getDayOfWeekRecurrencesRaw() == null){
+			return null; 
+		} else {
+			return convertJsArrayStringToIntArray(getDayOfWeekRecurrencesRaw());
+	  }
+	}
+
+private final native JsArrayString getDayOfWeekRecurrencesRaw()
+/*-{ 
+   if ('dayOfWeekRecurrences' in this && this.dayOfWeekRecurrences != null) {
+    if ('recurrenceList' in this.dayOfWeekRecurrences){
+  		return this.dayOfWeekRecurrences.recurrenceList.values;
+    }
+   }
+   return null;
   }-*/;
 
-  public final native void setDayOfWeekRecurrences(JsArrayInteger days)
+/**
+ * Converts javascript integer arrays that were stored as quoted numbers in the
+ * JSON as an int[] array.
+ * 
+ * @param jsArrayString = Json Array with the integer elements quoted
+ * @return int array
+ */
+public final int[] convertJsArrayStringToIntArray(JsArrayString jsArrayString){
+  if (jsArrayString == null) {
+  	return null;
+  } else {
+  	int[] intArray = new int[jsArrayString.length()];
+  	for (int i=0; i < intArray.length; i++){
+  		intArray[i] = Integer.parseInt(jsArrayString.get(i));
+  	}
+  	return intArray;
+  }
+}
+  
+public final native void setDayOfWeekRecurrences(JsArrayInteger days)
   /*-{ 
     if (!('dayOfWeekRecurrences' in this) || !this.dayOfWeekRecurrences) {
       this.dayOfWeekRecurrences = {};
@@ -178,9 +226,17 @@ public class JsJobTrigger extends JavaScriptObject {
     this.dayOfWeekRecurrences.qualifiedDayOfWeek.dayOfWeek = dayOfWeek; 
   }-*/;
   
-  public final native int[] getDayOfMonthRecurrences()
+  public final int[] getDayOfMonthRecurrences(){
+  	return convertJsArrayStringToIntArray(getDayOfMonthRecurrencesRaw());
+  }
+  
+  private final native JsArrayString getDayOfMonthRecurrencesRaw()
   /*-{ 
-    return this.dayOfMonthRecurrences.recurrenceList.values; 
+    if (this.dayOfMonthRecurrences != null && ('recurrenceList' in this.dayOfMonthRecurrences)) {
+    	return this.dayOfMonthRecurrences.recurrenceList.values;
+    } else {
+    	return null;
+    }
   }-*/;
 
   public final native void setDayOfMonthRecurrences(JsArrayInteger days)
@@ -194,9 +250,17 @@ public class JsJobTrigger extends JavaScriptObject {
     this.dayOfMonthRecurrences.recurrenceList.values = days; 
   }-*/;
   
-  public final native int[] getMonthlyRecurrences()
-  /*-{ 
-    return this.monthlyRecurrences.recurrenceList.values; 
+  public final int[] getMonthlyRecurrences(){
+  	return convertJsArrayStringToIntArray(getMonthlyRecurrencesRaw());
+  }
+  
+  private final native JsArrayString getMonthlyRecurrencesRaw()
+  /*-{
+    if (this.monthlyRecurrences != null && ('recurrenceList' in this.monthlyRecurrences)){
+    	return this.monthlyRecurrences.recurrenceList.values;
+    } else {
+     	return null;
+    }
   }-*/;
 
   public final native void setMonthlyRecurrences(JsArrayInteger months)
@@ -225,10 +289,27 @@ public class JsJobTrigger extends JavaScriptObject {
     }
     this.yearlyRecurrences.recurrenceList.values = years; 
   }-*/;
+  
+  public final native String getCronString()
+  /*-{ 
+    return this.cronString;
+  }-*/; 
+  
+  public final native void setCronString(String cronString)
+  /*-{ 
+  	this.cronString = cronString;
+	}-*/;  	
 
   public final String getDescription() {
+  	
     String trigDesc = "";
-    if ("complexJobTrigger".equals(getType())) {
+    ScheduleType scheduleType = ScheduleType.valueOf(getScheduleType());
+    if (scheduleType == ScheduleType.RUN_ONCE) {
+    	return "Run Once";
+    }
+    if ("cronJobTrigger".equals(getType()) || (getUiPassParamRaw() !=null && getUiPassParamRaw().equals("CRON"))) {
+    	trigDesc += "CRON: " + getCronString();
+    } else if ("complexJobTrigger".equals(getType())) {
       // need to digest the recurrences
       int[] monthsOfYear = getMonthlyRecurrences();
       int[] daysOfMonth = getDayOfMonthRecurrences();
@@ -236,7 +317,7 @@ public class JsJobTrigger extends JavaScriptObject {
       // we are "YEARLY" if
       // monthsOfYear, daysOfMonth OR
       // monthsOfYear, qualifiedDayOfWeek
-      if (monthsOfYear.length > 0) {
+      if (monthsOfYear != null && monthsOfYear.length > 0) {
         if (isQualifiedDayOfWeekRecurrence()) {
           // monthsOfYear, qualifiedDayOfWeek
           String qualifier = getDayOfWeekQualifier();
@@ -247,19 +328,13 @@ public class JsJobTrigger extends JavaScriptObject {
           // monthsOfYear, daysOfMonth
           trigDesc = Messages.getString("every") + " " + MonthOfYear.get(monthsOfYear[0] - 1) + " " + daysOfMonth[0];
         }
-      } else if (daysOfMonth.length > 0) {
+      } else if (daysOfMonth != null && daysOfMonth.length > 0) {
         // MONTHLY: Day N of every month
         trigDesc = Messages.getString("day") + " " + daysOfMonth[0] + " " + Messages.getString("ofEveryMonth");
       } else if (isQualifiedDayOfWeekRecurrence()) {
         // MONTHLY: The <qualifier> <dayOfWeek> of every month at <time>
         String qualifier = getDayOfWeekQualifier();
         String dayOfWeek = getQualifiedDayOfWeek();
-
-        if ("THU".equalsIgnoreCase(dayOfWeek)) {
-          dayOfWeek = "THUR";
-        } else if ("TUE".equalsIgnoreCase(dayOfWeek)) {
-          dayOfWeek = "TUES";
-        }
 
         trigDesc = Messages.getString("the") + " " + WeekOfMonth.valueOf(qualifier) + " " + DayOfWeek.valueOf(dayOfWeek) + " "
             + Messages.getString("ofEveryMonth");
@@ -273,81 +348,61 @@ public class JsJobTrigger extends JavaScriptObject {
       DateTimeFormat timeFormat = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM);
       trigDesc += " at " + timeFormat.format(getStartTime());
     } else if ("simpleJobTrigger".equals(getType())) {
-      if (getRepeatCount() > 0) {
-        trigDesc += Messages.getString("run") + " " + getRepeatCount() + " " + Messages.getString("times");
+      //if (getRepeatInterval() > 0) {
+      	String intervalUnits="";
+      	int intervalSeconds = 1;
+      	if (scheduleType == ScheduleType.DAILY ) {
+      		intervalSeconds = 86400;
+      		intervalUnits = timeUnitText(intervalSeconds, "day");
+        	DateTimeFormat timeFormat = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM);
+        	if (getRepeatInterval() == intervalSeconds) {
+        		intervalUnits = Messages.getString("dailyAt");
+        	} else {
+        		intervalUnits += " " + Messages.getString("at");
+        	}
+      		intervalUnits += " " + timeFormat.format(getStartTime());
+      	} else if (scheduleType == ScheduleType.HOURS) {
+      		intervalSeconds = 3600;
+      		intervalUnits = timeUnitText(intervalSeconds, "hour");
+      	} else if (scheduleType == ScheduleType.MINUTES) {
+      		intervalSeconds = 60;
+      		intervalUnits = timeUnitText(intervalSeconds, "minute");
+      	} else if (scheduleType == ScheduleType.SECONDS) {
+      		intervalSeconds = 1;
+      		intervalUnits = timeUnitText(intervalSeconds, "second");
+      	} else if (scheduleType == ScheduleType.WEEKLY) {
+      		intervalSeconds = 604800;
+          intervalUnits = Messages.getString("weekly");
+       	}
+      	if (intervalSeconds != getRepeatInterval()) {
+      		trigDesc = Messages.getString("every") + " " + intervalUnits; 
+      	} else {
+      		trigDesc = Messages.getString("every") + " " + intervalUnits;
+      	}
+        if (getRepeatCount() > 0) {
+          trigDesc += "; " + Messages.getString("run") + " " + getRepeatCount() + " " + Messages.getString("times");
+      //  } 	
       }
-      if (getRepeatInterval() > 0) {
-        String intervalUnits = " seconds";
-        float interval = getRepeatInterval();
-        if (getRepeatInterval() < 60) {
-          if (interval == 1) {
-            intervalUnits = " " + Messages.getString("second");
-          } else {
-            intervalUnits = " " + Messages.getString("seconds");
-          }
-        } else if (getRepeatInterval() < 3600) {
-          interval = interval / 60f;
-          if (interval == 1) {
-            intervalUnits = " " + Messages.getString("minute");
-          } else {
-            intervalUnits = " " + Messages.getString("minutes");
-          }
-        } else if (getRepeatInterval() < 86400) {
-          interval = interval / 3600f;
-          if (interval == 1) {
-            intervalUnits = " " + Messages.getString("hour");
-          } else {
-            intervalUnits = " " + Messages.getString("hours");
-          }
-        } else if (getRepeatInterval() < 604800) {
-          DateTimeFormat timeFormat = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM);
-          interval = interval / 86400f;
-          if (interval == 1) {
-            if ("".equals(trigDesc)) {
-              intervalUnits = Messages.getString("dailyAt") + " " + timeFormat.format(getStartTime());
-            } else {
-              intervalUnits = " " + Messages.getString("dailyAt") + " " + timeFormat.format(getStartTime());
-            }
-          } else {
-            intervalUnits = " " + Messages.getString("days");
-          }
-        } else if (getRepeatInterval() == 604800) {
-          if ("".equals(trigDesc)) {
-            intervalUnits = Messages.getString("weekly");
-          } else {
-            intervalUnits = " " + Messages.getString("weekly");
-          }
-        } else if (getRepeatInterval() > 604800) {
-          intervalUnits = " " + Messages.getString("days");
-          interval = interval / 86400f;
-        }
-        if ("".equals(trigDesc)) {
-          if (interval == 1) {
-            trigDesc += intervalUnits;
-          } else {
-            trigDesc += Messages.getString("every") + " " + interval + intervalUnits;
-          }
-        } else {
-          if (interval == 1) {
-            trigDesc += intervalUnits;
-          } else {
-            trigDesc += " " + Messages.getString("every").toLowerCase() + " " + interval + intervalUnits;
-          }
-        }
-      }
+
       // if (getStartTime() != null) {
       // trigDesc += " from " + getStartTime();
       // }
       // if (getEndTime() != null) {
       // trigDesc += " until " + getEndTime();
       // }
-    } else {
-      // cron trigger
-    }
+    } 
     return trigDesc;
   }
+  
+  public final String timeUnitText(int intervalSeconds, String timeUnit){
+		if (getRepeatInterval() == intervalSeconds) {
+			return Messages.getString(timeUnit);
+		} else {
+			return "" + getRepeatInterval()/intervalSeconds + " " + Messages.getString(timeUnit + "s");
+		}
+  }
 
-  public final String getScheduleType() {
+  public final String oldGetScheduleType() {
     if ("complexJobTrigger".equals(getType())) {
       // need to digest the recurrences
       int[] monthsOfYear = getMonthlyRecurrences();
@@ -382,5 +437,66 @@ public class JsJobTrigger extends JavaScriptObject {
     }
     return null;
   }
-
+  
+  /**
+   * Intended to deduce the ScheduleType if not already set.  This method should
+   * only be called if the schedule type is unassigned.
+   * @return
+   */
+  public final ScheduleType calcScheduleType(){
+    if ("complexJobTrigger".equals(getType())) {
+      // need to digest the recurrences
+      int[] monthsOfYear = getMonthlyRecurrences();
+      int[] daysOfMonth = getDayOfMonthRecurrences();
+      // we are "YEARLY" if
+      // monthsOfYear, daysOfMonth OR
+      // monthsOfYear, qualifiedDayOfWeek
+      if (monthsOfYear != null && monthsOfYear.length > 0) {
+      	return ScheduleType.YEARLY;
+      } else if (daysOfMonth != null && daysOfMonth.length > 0) {
+        // MONTHLY: Day N of every month
+        return ScheduleType.MONTHLY;
+      } else if (isQualifiedDayOfWeekRecurrence()) {
+        // MONTHLY: The <qualifier> <dayOfWeek> of every month at <time>
+        return ScheduleType.MONTHLY;
+        
+      } else if (isWorkDaysInWeek()){
+      	return ScheduleType.DAILY;
+      } else {
+      	return ScheduleType.WEEKLY;
+      }
+    } else if ("simpleJobTrigger".equals(getType())) {
+    	if (getRepeatInterval() == 0) {
+    		return ScheduleType.RUN_ONCE;
+    	} else if (getRepeatInterval() % 604800 == 0){
+    		return ScheduleType.WEEKLY;
+    	} else if (getRepeatInterval() % 86400 == 0) {
+    		return ScheduleType.DAILY;
+    	} else if (getRepeatInterval() % 3600 == 0) {
+    		return ScheduleType.HOURS;
+    	} else if (getRepeatInterval() % 60 == 0) {
+    		return ScheduleType.MINUTES;
+    	} else if (getRepeatInterval() > 0) {
+    		return ScheduleType.SECONDS;
+    	} else {
+    		return ScheduleType.RUN_ONCE;
+    	}
+    } else {
+      return ScheduleType.CRON; // cron trigger
+    } 
+  }
+  
+  public final boolean isWorkDaysInWeek(){
+    int[] daysOfWeek = getDayOfWeekRecurrences();
+    if (daysOfWeek == null || daysOfWeek.length != 5) {
+    	return false;
+    } else {
+    	for (int i = 0; i<5; i++){
+    		if (daysOfWeek[i] != i + 2){
+    			return false;
+    		}
+    	}
+    	return true;
+  	}
+  }
 }

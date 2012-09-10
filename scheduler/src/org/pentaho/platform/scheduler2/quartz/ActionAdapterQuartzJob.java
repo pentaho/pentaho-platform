@@ -116,6 +116,7 @@ public class ActionAdapterQuartzJob implements Job {
     params.remove(QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER);
     final IBackgroundExecutionStreamProvider streamProvider = (IBackgroundExecutionStreamProvider)params.get(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
+    params.remove(QuartzScheduler.RESERVEDMAPKEY_UIPASSPARAM);
 
     if (log.isDebugEnabled()) {
       log.debug(MessageFormat.format("Scheduling system invoking action {0} as user {1} with params [ {2} ]", actionBean //$NON-NLS-1$

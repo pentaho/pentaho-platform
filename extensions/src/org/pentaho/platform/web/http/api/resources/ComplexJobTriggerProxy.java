@@ -14,6 +14,8 @@ public class ComplexJobTriggerProxy {
   
   Date startTime;
   Date endTime;
+  String uiPassParam; 
+  String cronString;
   
   public Date getStartTime() {
     return startTime;
@@ -76,4 +78,21 @@ public class ComplexJobTriggerProxy {
   public void setYears(int[] years) {
     this.years = years == null ? new int[0] : years;
   }
+  
+	public String getUiPassParam() {
+		return uiPassParam;
+	}
+
+	public void setUiPassParam(String uiPassParam) {
+		this.uiPassParam = uiPassParam;
+	}
+
+	public String getCronString() {
+		return cronString;
+	}
+
+	public void setCronString(String cronString) {
+		this.cronString = cronString;
+	}
+  
 }

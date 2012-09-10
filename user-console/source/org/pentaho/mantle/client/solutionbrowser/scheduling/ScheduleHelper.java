@@ -71,7 +71,7 @@ public class ScheduleHelper {
 
               public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_OK) {
-                  final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, Boolean.parseBoolean(response.getText()));
+                  final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, null, Boolean.parseBoolean(response.getText()));
                   dialog.center();
                 } else {
                   MessageDialogBox dialogBox = new MessageDialogBox(

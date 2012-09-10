@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
@@ -15,6 +16,7 @@ import org.pentaho.mantle.client.commands.RefreshWorkspaceCommand;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.GeneratedContentPanel;
+import org.pentaho.mantle.client.solutionbrowser.scheduling.NewScheduleDialog;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
@@ -64,6 +66,7 @@ public class WorkspacePanel extends SimplePanel {
   private static WorkspacePanel instance = new WorkspacePanel();
 
   private ToolbarButton controlScheduleButton = new ToolbarButton(new Image(MantleImages.images.run16()));
+  private ToolbarButton editButton = new ToolbarButton(new Image(MantleImages.images.edit16()));
   private ToolbarButton triggerNowButton = new ToolbarButton(new Image(MantleImages.images.execute16()));
   private ToolbarButton scheduleRemoveButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
   private ToolbarButton filterButton = new ToolbarButton(new Image(MantleImages.images.filter16()));
@@ -137,6 +140,16 @@ public class WorkspacePanel extends SimplePanel {
     public void cancelPressed() {
     }
   };
+  
+  private IDialogCallback scheduleDialogCallback = new IDialogCallback() {
+    public void okPressed() {
+    	// Remove Next Line to disable deletion of old job
+      controlJobs(selectedJobs, "removeJob", RequestBuilder.DELETE, true);
+      refresh();
+    }
+    public void cancelPressed() {
+    }
+  };  
 
   private boolean isAdmin = false;
 
@@ -175,6 +188,7 @@ public class WorkspacePanel extends SimplePanel {
     controlScheduleButton.setEnabled(false);
     triggerNowButton.setEnabled(false);
     scheduleRemoveButton.setEnabled(false);
+    editButton.setEnabled(false);
 
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobs"; //$NON-NLS-1$
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
@@ -554,9 +568,10 @@ public class WorkspacePanel extends SimplePanel {
       public void onSelectionChange(SelectionChangeEvent event) {
         selectedJobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
         JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
+        editButton.setEnabled(true);
         if ("NORMAL".equalsIgnoreCase(jobs[0].getState())) {
           controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
-        } else {
+          } else {
           controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
         }
         controlScheduleButton.setEnabled(jobs != null);
@@ -673,7 +688,38 @@ public class WorkspacePanel extends SimplePanel {
     bar.add(controlSchedulerButton);
     bar.addSpacer(20);
 
-    ToolbarButton editButton = new ToolbarButton(new Image(MantleImages.images.edit16()));
+    editButton.setCommand(new Command() {
+      public void execute() {
+        if (selectedJobs != null) {
+          JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
+          
+          final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + jobs[0].getJobId();
+          RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+          executableTypesRequestBuilder.setHeader("accept", "application/json");
+          try {
+            executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+              public void onError(Request request, Throwable exception) {
+                //showError(exception);
+              }
+
+              public void onResponseReceived(Request request, Response response) {
+                if (response.getStatusCode() == Response.SC_OK) {
+                	JsJob jsJob = parseJsonJob(JsonUtils.escapeJsonForEval(response.getText()));
+                	final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, false);
+                } else {
+                  MessageDialogBox dialogBox = new MessageDialogBox(
+                      Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                  dialogBox.center();
+                }
+              }
+            });
+          } catch (RequestException e) {
+            // showError(e);
+          }
+        }
+      }
+    });
     editButton.setEnabled(false);
     bar.add(editButton);
 
@@ -779,6 +825,12 @@ public class WorkspacePanel extends SimplePanel {
     var obj = eval('(' + json + ')');
     return obj.job;
   }-*/;
+  
+  private final native JsJob parseJsonJob(String json)
+  /*-{
+    var obj = eval('(' + json + ')');
+    return obj;
+  }-*/;
 
   public interface CellTableResources extends Resources {
     public interface CellTableStyle extends CellTable.Style {
@@ -796,5 +848,4 @@ public class WorkspacePanel extends SimplePanel {
     @Source("org/pentaho/mantle/client/workspace/CellTable.css")
     public Style cellTableStyle();
   }
-
 }
