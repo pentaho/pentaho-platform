@@ -362,6 +362,9 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
       stmts.add(stmt);
       enhanceStatement(stmt);
       setStatementLimitations(stmt);
+      if (logger != null && logger.getLoggingLevel() == ILogger.DEBUG) {
+        logger.debug("SQLConnection.executeQuery:" + query); //$NON-NLS-1$
+      }      
       resultSet = stmt.executeQuery(query);
       
     } catch (Exception e) {
@@ -373,6 +376,9 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
         stmts.add(stmt);
         enhanceStatement(stmt);
         setStatementLimitations(stmt);
+        if (logger != null && logger.getLoggingLevel() == ILogger.DEBUG) {
+          logger.debug("SQLConnection.executeQuery(e):" + query); //$NON-NLS-1$
+        }
         resultSet = stmt.executeQuery(query);
         setForcedForwardOnly(true);
       }
@@ -452,6 +458,10 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
     PreparedStatement pStmt = null;
     ResultSet resultSet = null;
     try {
+      if (logger != null && logger.getLoggingLevel() == ILogger.DEBUG) {
+        logger.debug("SQLConnection.prepareAndExecuteQuery:" + query); //$NON-NLS-1$
+      }
+      
       pStmt = nativeConnection.prepareStatement(query, scrollType, concur);
       // add to stmts list for closing when connection closes
       stmts.add(pStmt);
@@ -467,6 +477,9 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
       stmts.remove(pStmt);
       if ((scrollType == ResultSet.TYPE_SCROLL_INSENSITIVE)&&(isFallBackToNonscrollableOnError())){
         // FORCE forward only
+        if (logger != null && logger.getLoggingLevel() == ILogger.DEBUG) {
+          logger.debug("SQLConnection.prepareAndExecuteQuery(e):" + query); //$NON-NLS-1$
+        }
         pStmt = nativeConnection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, concur);
         // add to stmts list for closing when connection closes
         stmts.add(pStmt);
@@ -566,6 +579,10 @@ public class SQLConnection implements IPentahoLoggingConnection, ILimitableConne
     stmts.add(stmt);
     
     setStatementLimitations(stmt);
+    
+    if (logger != null && logger.getLoggingLevel() == ILogger.DEBUG) {
+      logger.debug("SQLConnection.execute:" + query); //$NON-NLS-1$
+    }
     
     int result = stmt.executeUpdate(query);
     lastQuery = query;
