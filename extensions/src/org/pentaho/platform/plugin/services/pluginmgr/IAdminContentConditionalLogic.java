@@ -19,5 +19,10 @@
 package org.pentaho.platform.plugin.services.pluginmgr;
 
 public interface IAdminContentConditionalLogic {
-	boolean validate();
+
+	public static int DISPLAY_ADMIN_CONTENT = 0;
+	public static int AVOID_ADMIN_CONTENT = 1;
+	public static int DISPLAY_EXCEPTION_MESSAGE = 2;
+
+	int validate();
 }

@@ -94,8 +94,9 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 	  try {
 		  IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, getPentahoSession()); 
 		  List<String> pluginIds = pluginManager.getRegisteredPlugins();
-		  for (String pluginId : pluginIds) {
-			String adminContentInfo = (String)pluginManager.getPluginSetting(pluginId, "admin-content-info", null);    
+		  nextPlugin : for (String pluginId : pluginIds) {
+			String adminContentInfo = (String) pluginManager.getPluginSetting(pluginId, "admin-content-info", null);    
+			String exceptionMessage = (String) pluginManager.getPluginSetting(pluginId, "exception-message", null);
 			if(adminContentInfo != null) {
 				StringTokenizer nameValuePairs = new StringTokenizer(adminContentInfo, ";");
 		 		while(nameValuePairs.hasMoreTokens()) {
@@ -104,9 +105,15 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 		 				 String validatorName = currentToken.substring("conditional-logic-validator=".length());
 	  				 	 Class validatorClass = pluginManager.getClassLoader(pluginId).loadClass(validatorName);
 		 				 IAdminContentConditionalLogic validator = (IAdminContentConditionalLogic) validatorClass.newInstance();
-		 				 boolean execute = validator.validate();
-		 				 if (execute && adminContentInfo != null ) {
-		 				 	settings.add(new Setting("admin-content-info", adminContentInfo));
+		 				 int status = validator.validate();
+		 				 if(status == IAdminContentConditionalLogic.DISPLAY_ADMIN_CONTENT) {
+		 					settings.add(new Setting("admin-content-info", adminContentInfo));
+		 				 }
+		 				 if(status == IAdminContentConditionalLogic.DISPLAY_EXCEPTION_MESSAGE && exceptionMessage != null) {
+		 					settings.add(new Setting("exception-message", exceptionMessage));
+		 				 }
+		 				 if(status == IAdminContentConditionalLogic.AVOID_ADMIN_CONTENT) {
+		 					 continue nextPlugin;
 		 				 }
 		 			 }
 		 		}

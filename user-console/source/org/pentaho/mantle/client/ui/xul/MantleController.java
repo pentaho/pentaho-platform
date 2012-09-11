@@ -240,8 +240,8 @@ public class MantleController extends AbstractXulEventHandler {
 		     public void onResponseReceived(Request request, Response response) {
 		    	 JsArray<JsSetting> jsSettings = JsSetting.parseSettingsJson(JsonUtils.escapeJsonForEval(response.getText()));
 		    	 for (int i = 0; i < jsSettings.length(); i++) {
-		    		 String adminContentInfo = jsSettings.get(i).getValue();
-		    		 StringTokenizer nameValuePairs = new StringTokenizer(adminContentInfo, ";");
+		    		 String content = jsSettings.get(i).getValue();
+		    		 StringTokenizer nameValuePairs = new StringTokenizer(content, ";");
 		    		 String perspective = null, content_panel_id  = null, content_url  = null;
 		    		 for(int j = 0; j < nameValuePairs.countTokens(); j ++) {
 		    			 String currentToken = nameValuePairs.tokenAt(j).trim();
@@ -257,9 +257,12 @@ public class MantleController extends AbstractXulEventHandler {
 		    		 }
 		    		 if(perspective != null) {
 		    			 PerspectiveManager.getInstance().setPerspective(perspective);
-		    		 }
+		    		 } 
 		    		 if(content_panel_id != null && content_url != null) {
 		    			 loadAdminContent(content_panel_id, content_url);
+		    		 } 
+		    		 if(perspective == null && content_panel_id == null && content_url == null) {
+		    			 Window.alert(content);
 		    		 }
 		    	 }
 		     }
