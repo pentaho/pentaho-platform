@@ -42,6 +42,7 @@ import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.containers.XulMenubar;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.binding.GwtBindingFactory;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
 
@@ -262,7 +263,12 @@ public class MantleController extends AbstractXulEventHandler {
 		    			 loadAdminContent(content_panel_id, content_url);
 		    		 } 
 		    		 if(perspective == null && content_panel_id == null && content_url == null) {
-		    			 Window.alert(content);
+		    			 GwtMessageBox warning = new GwtMessageBox();
+						 warning.setTitle(Messages.getString("warning"));
+						 warning.setMessage(content);
+						 warning.setButtons(new Object[GwtMessageBox.ACCEPT]);
+						 warning.setAcceptLabel(Messages.getString("close"));
+						 warning.show();
 		    		 }
 		    	 }
 		     }
