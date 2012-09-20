@@ -1,7 +1,7 @@
 <html>
   <head>
     
-    <title>Pentaho BI Platform</title>    
+    <title>Pentaho Business Analytics</title>    
     
     <META HTTP-EQUIV="refresh" CONTENT="0;URL=./Home">
   </head>
