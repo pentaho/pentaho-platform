@@ -39,6 +39,15 @@
 
     <!--  runtime batik -->
     <dependency org="org.apache.xmlgraphics" name="fop" rev="0.94" transitive="false" />
+    <dependency org="org.apache.xmlgraphics" name="batik-ext" rev="1.7" transitive="false" />
+    <dependency org="org.apache.xmlgraphics" name="batik-gui-util" rev="1.7" transitive="false" />
+    <dependency org="org.apache.xmlgraphics" name="batik-gvt" rev="1.7" transitive="false" />
+    <dependency org="org.apache.xmlgraphics" name="batik-parser" rev="1.7" transitive="false" />
+    <dependency org="org.apache.xmlgraphics" name="batik-script" rev="1.7" transitive="false" />
+    <dependency org="org.apache.xmlgraphics" name="batik-svg-dom" rev="1.7" transitive="false" />
+    <dependency org="org.apache.xmlgraphics" name="batik-swing" rev="1.7" transitive="false" />
+    <dependency org="org.apache.xmlgraphics" name="batik-util" rev="1.7" transitive="false" />
+    <dependency org="org.apache.xmlgraphics" name="batik-xml" rev="1.7" transitive="false" />
 
     <!-- required by fop -->
     <dependency org="log4j" name="log4j" rev="1.2.16" transitive="false"/>
@@ -55,7 +64,7 @@
     
     <dependency org="org.quartz-scheduler" name="quartz" rev="1.7.2" transitive="false"/>
 
-    <dependency org="rhino" name="js" rev="1.7R1"/>
+    <dependency org="rhino" name="js" rev="1.7R3"/>
     <!--  open flash chart json builder -->
     <dependency org="com.thoughtworks.xstream" name="xstream" rev="${dependency.xstream.revision}"/>
     
@@ -239,11 +248,8 @@
     <!-- kettle jdbc drivers -->
     <dependency org="infobright" name="infobright-core" rev="3.4" conf="default->default" transitive="false"/>
     <dependency org="jtds" name="jtds" rev="1.2.5" conf="default->default" transitive="false"/>
-    <dependency org="com.ibm" name="db2jcc" rev="2.3.63" conf="default->default" transitive="false"/>
-    <dependency org="com.ibm" name="db2jcc_license_cu" rev="2.3.63" conf="default->default" transitive="false"/>
     <dependency org="net.sf.jt400" name="jt400" rev="6.1" conf="default->default" transitive="false"/>
     <dependency org="org.xerial" name="sqlite-jdbc" rev="3.7.2" conf="default->default" transitive="false"/>
-    <dependency org="ifxjdbc" name="ifxjdbc" rev="20050429" conf="default->default" transitive="false"/>
     <dependency org="jaybird" name="jaybird-full" rev="2.1.0" conf="default->default" transitive="false"/>
     <dependency org="com.sap" name="sapdbc" rev="7.4.4" conf="default->default" transitive="false"/>
     <dependency org="monetdb" name="monetdb-jdbc" rev="2.1" conf="default->default" transitive="false"/>
@@ -275,9 +281,9 @@
                 transitive="false" changing="false"/>
     <dependency org="net.java.dev.jets3t" name="jets3t" rev="0.7.4" conf="default->default" transitive="false"/>
     <dependency org="org.odftoolkit" name="odfdom-java" rev="0.8.6" conf="default->default" transitive="false"/>
-    <dependency org="org.apache.poi" name="poi" rev="3.7" conf="default->default" transitive="false"/>
-    <dependency org="org.apache.poi" name="poi-ooxml" rev="3.7" conf="default->default" transitive="false"/>
-    <dependency org="org.apache.poi" name="poi-ooxml-schemas" rev="3.7" conf="default->default" transitive="false"/>
+    <dependency org="org.apache.poi" name="poi" rev="3.8" conf="default->default" transitive="false"/>
+    <dependency org="org.apache.poi" name="poi-ooxml" rev="3.8" conf="default->default" transitive="false"/>
+    <dependency org="org.apache.poi" name="poi-ooxml-schemas" rev="3.8" conf="default->default" transitive="false"/>
     <dependency org="org.apache.xbean" name="xbean" rev="2.5" conf="default->default" transitive="false"/>
     <dependency org="org.yaml" name="snakeyaml" rev="1.7" conf="default->default" transitive="false"/>
     <dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1" conf="default->default"
