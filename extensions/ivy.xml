@@ -231,10 +231,7 @@
                 transitive="false"/>
     <dependency org="com.healthmarketscience.jackcess" name="jackcess" rev="1.2.4" conf="default->default"
                 transitive="false"/>
-    <dependency org="org.apache.hbase" name="hbase" rev="${dependency.apache-hbase.revision}" conf="default->default" transitive="false"/>
-    <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.3.2" conf="default->default" transitive="false"/>
     <dependency org="postgresql" name="postgresql" rev="9.1-902.jdbc4" conf="default->default" transitive="false"/>
-    <dependency org="pentaho" name="pentaho-hadoop-snappy" rev="0.0.1-SNAPSHOT" conf="default->default" transitive="false"/>
 
 
     <!-- kettle jdbc drivers -->
@@ -247,31 +244,14 @@
     <dependency org="monetdb" name="monetdb-jdbc" rev="2.1" conf="default->default" transitive="false"/>
     <dependency org="luciddb" name="LucidDbClient-minimal" rev="0.9.4" conf="default->default" transitive="false"/>
     <dependency org="interbase" name="interclient" rev="20050506" conf="default->default" transitive="false"/>
-    <dependency org="org.apache.hadoop.hive" name="hive-jdbc" rev="${dependency.hive-jdbc.revision}" changing="true"
+    <dependency org="pentaho" name="pentaho-hadoop-hive-jdbc-shim" rev="${dependency.pentaho-hadoop-hive-jdbc-shim.revision}" changing="true"
                 transitive="false"/>
-    <dependency org="org.mongodb" name="mongo-java-driver" rev="2.5.3" conf="default->default" transitive="false"/>
 
-    <!-- begin selected transitive dependencies of hive-jdbc -->
     <dependency org="net.sf.kosmosfs" name="kfs" rev="0.3" transitive="false"/>
     <dependency org="xmlenc" name="xmlenc" rev="0.52" transitive="false"/>
-    <dependency org="org.apache.hadoop.hive" name="hive-metastore" rev="${dependency.hive-jdbc.revision}"
-                changing="true" transitive="false"/>
-    <dependency org="org.apache.hadoop.hive" name="hive-exec" rev="${dependency.hive-jdbc.revision}" changing="true"
-                transitive="false"/>
-    <dependency org="org.apache.hadoop.hive" name="hive-service" rev="${dependency.hive-jdbc.revision}" changing="true"
-                transitive="false"/>
-    <dependency org="org.apache.thrift" name="libfb303" rev="0.5.0" transitive="false"/>
     <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.5.2" changing="true" transitive="false"/>
     <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.5.2" changing="true" transitive="false"/>
-    <!-- end selected transitive dependencies of hive-jdbc -->
 
-    <dependency org="pentaho" name="pentaho-s3-vfs" rev="${dependency.pentaho-s3-vfs.revision}" conf="default->default"
-                transitive="false" changing="true"/>
-    <dependency org="pentaho" name="pentaho-hdfs-vfs" rev="${dependency.pentaho-hdfs-vfs.revision}"
-                conf="default->default" transitive="false" changing="true"/>
-    <dependency org="org.apache.hadoop" name="hadoop-core" rev="0.20.2-cdh3u0" conf="default->default"
-                transitive="false" changing="false"/>
-    <dependency org="net.java.dev.jets3t" name="jets3t" rev="0.7.4" conf="default->default" transitive="false"/>
     <dependency org="org.odftoolkit" name="odfdom-java" rev="0.8.6" conf="default->default" transitive="false"/>
     <dependency org="org.apache.poi" name="poi" rev="3.8" conf="default->default" transitive="false"/>
     <dependency org="org.apache.poi" name="poi-ooxml" rev="3.8" conf="default->default" transitive="false"/>
