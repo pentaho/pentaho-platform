@@ -330,22 +330,12 @@ function bounceToReturnLocation() {
 	}
 }
 
-var loginAttemptCount = 0;
-
 function doLogin() {
 	
-	loginAttemptCount++;
-
 	// if we have a valid session and we attempt to login on top of it, the server
 	// will actually log us out and will not log in with the supplied credentials, you must
-	// login again, so we do this on behalf of the user (anything else would add to the confusion)
-	if (loginAttemptCount > 2) {
-		//alert("The username or password you entered is incorrect.");
-		DisplayAlert('loginError', 40, 30);
-		loginAttemptCount = 0;
-		return false;
-	}
-	
+	// login again. So instead, if they're already logged in, we bounce out of here to
+	// prevent confusion.
 	if (<%=loggedIn%>) {
 		bounceToReturnLocation();
 		return false;
@@ -371,7 +361,8 @@ function doLogin() {
         success:function(data, textStatus, jqXHR){
 			if (data.indexOf("j_spring_security_check") != -1) {
 				// fail
-				doLogin();
+		        DisplayAlert('loginError', 40, 30);
+		        return false;
 			} else {
 				document.getElementById("j_password").value = "";
 				bounceToReturnLocation();
