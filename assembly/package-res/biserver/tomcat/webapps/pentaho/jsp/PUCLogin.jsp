@@ -354,6 +354,14 @@ function doLogin() {
 				bounceToReturnLocation();
 				return;
 			}
+            //Fix for BISERVER-7525
+            //parsereerror caused by attempting to serve a complex document like a prd report in any presentation format like a .ppt
+            //does not necesarly mean that there was a failure in the login process, status is 200 so just let it serve the archive to the web browser.
+            if (xhr.status == 200 && thrownError == 'parsererror') {
+               document.getElementById("j_password").value = "";
+               bounceToReturnLocation();
+	           return;
+            }			
 			// fail
 			DisplayAlert('loginError', 40, 30);			
         },
