@@ -87,10 +87,12 @@ public class PentahoWebContextFilter implements Filter {
         OutputStream out = response.getOutputStream();
         out.write(initialCommentBytes);
         byte[] contextPathBytes = THREAD_LOCAL_CONTEXT_PATH.get();
+
+        IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
+        String contextPath = requestContext.getContextPath();
+
         if (contextPathBytes == null) {
           // split out a fully qualified url, guaranteed to have a trailing slash
-          IPentahoRequestContext requestContext = PentahoRequestContextHolder.getRequestContext();
-          String contextPath = requestContext.getContextPath();
           String webContext = "var CONTEXT_PATH = '" + contextPath + "';\n\n";//$NON-NLS-1$ //$NON-NLS-2$
           contextPathBytes = webContext.getBytes();
           THREAD_LOCAL_CONTEXT_PATH.set(contextPathBytes);
