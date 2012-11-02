@@ -60,6 +60,9 @@ public class PentahoWebContextFilter implements Filter {
   private static final String CSS = ".css";
   private static final String CONTEXT = "context";
   private static final String GLOBAL = "global";
+  private static final String REQUIRE_JS_CFG_START = "var requireCfg = {waitSeconds: 30, paths: {}, shim: {}};\n";
+  private static final String REQUIRE_JS_CFG_END = "<script type='text/javascript' src='{0}js/require.js'></script>\n<script type='text/javascript'>pen.require.config(requireCfg)</script>\n";
+  private static final String REQUIRE_JS = "requirejs";
   //Changed to not do so much work for every request
   private static final ThreadLocal<byte[]> THREAD_LOCAL_CONTEXT_PATH = new ThreadLocal<byte[]>();
   
@@ -101,6 +104,16 @@ public class PentahoWebContextFilter implements Filter {
         if (!StringUtils.isEmpty(request.getParameter("locale"))) {
           effectiveLocale = new Locale(request.getParameter("locale"));
         }
+
+        // setup the RequireJS config object for plugins to extend
+        out.write(REQUIRE_JS_CFG_START.getBytes());
+
+        // Let all plugins contribute to the RequireJS config
+        printResourcesForContext(REQUIRE_JS, out, httpRequest, false);
+
+        out.write(("document.write(\"<script type='text/javascript' src='"+contextPath+"js/require.js'></scr\"+\"ipt>\");\n" +
+            "document.write(\"<script type=\'text/javascript\' src='"+contextPath+"js/require-cfg.js'></scr\"+\"ipt>\");\n").getBytes());
+
         printLocale(effectiveLocale, out);
 
         // print global resources defined in plugins
