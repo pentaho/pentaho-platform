@@ -8,7 +8,9 @@
 			<menubar id="newmenu" label="${new}" layout="vertical">
 				<!-- the rest of the menu items here are provided by the plugins overlays -->	
 			</menubar>
-			<menuitem id="openMenuItem" label="${openEllipsis}" command="mantleXulHandler.executeMantleCommand('OpenFileCommand')" />		
+			<menuitem id="openMenuItem" label="${openEllipsis}" command="mantleXulHandler.executeMantleCommand('OpenFileCommand')" />
+			<menubar id="recentmenu" label="${recent}" layout="vertical" />
+			<menubar id="favoritesmenu" label="${favorites}" layout="verticle" />	
 			<menubarseparator id="openSeparator"/>
 			<menuitem id="saveMenuItem" label="${save}" command="mantleXulHandler.saveClicked()" disabled="true" />		
 			<menuitem id="saveAsMenuItem" label="${saveAsEllipsis}" command="mantleXulHandler.saveAsClicked()" disabled="true" />		

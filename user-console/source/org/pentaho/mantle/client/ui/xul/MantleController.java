@@ -33,8 +33,17 @@ import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.AbstractFilePickList;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickItem;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickItem;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickListListener;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickItem;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.usersettings.JsSetting;
+import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
@@ -56,6 +65,9 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -86,8 +98,12 @@ public class MantleController extends AbstractXulEventHandler {
   private XulMenubar languageMenu;
   private XulMenubar themesMenu;
   private XulMenubar toolsMenu;
+  private XulMenubar recentMenu;
+  private XulMenubar favoriteMenu;
   private BindingFactory bf; 
   HashMap<String, ISysAdminPanel> sysAdminPanelsMap = new HashMap<String, ISysAdminPanel>();
+	RecentPickList recentPickList = RecentPickList.getInstance();
+	FavoritePickList favoritePickList = FavoritePickList.getInstance();
 
   class SysAdminPanelInfo {
     String id;
@@ -138,6 +154,10 @@ public class MantleController extends AbstractXulEventHandler {
       languageMenu = (XulMenubar) document.getElementById("languagemenu");
       themesMenu = (XulMenubar) document.getElementById("themesmenu");
       toolsMenu = (XulMenubar) document.getElementById("toolsmenu");
+      recentMenu = (XulMenubar) document.getElementById("recentmenu");
+      favoriteMenu = (XulMenubar) document.getElementById("favoritesmenu");
+		
+      favoriteMenu.setVisible(false); //hide the menu until it is implemented
 
       // install language sub-menus
       Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
@@ -149,6 +169,8 @@ public class MantleController extends AbstractXulEventHandler {
           langMenu.addItem(langMenuItem);
         }
       }
+  		
+      buildFavoritesAndRecent(false);
 
       // install themes
       RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/active");
@@ -230,6 +252,107 @@ public class MantleController extends AbstractXulEventHandler {
       }
   }
   
+	/**
+	 * 
+	 * @param force Force the reload of user settings from server
+	 * rather than use cache.
+	 * 
+	 */
+	public void buildFavoritesAndRecent(boolean force) {
+		
+		loadRecentAndFavorites(force);
+		refreshPickListMenu(recentMenu, recentPickList);
+		refreshPickListMenu(favoriteMenu, favoritePickList);
+		
+		recentPickList.addItemsChangedListener(new IFilePickListListener<RecentPickItem>(){
+
+			public void itemsChanged(AbstractFilePickList<RecentPickItem> filePickList) {
+				refreshPickListMenu(recentMenu, recentPickList);
+				if (recentPickList.size() > 0) {
+					recentPickList.save("recent");
+				}
+			}
+		});
+		
+		favoritePickList.addItemsChangedListener(new IFilePickListListener<FavoritePickItem>(){
+
+			public void itemsChanged(AbstractFilePickList<FavoritePickItem> filePickList) {
+				refreshPickListMenu(favoriteMenu, favoritePickList);
+				if (favoritePickList.size() > 0) {
+					favoritePickList.save("favorite");
+				}
+			}
+		});
+	}
+
+	/**
+	 * Loads an arbitrary <code>FilePickList</code> into a menu
+	 *  
+	 * @param pickMenu	The XulMenuBar to host the menu entries
+	 * @param filePickList The files to list in natural order
+	 */
+	private void refreshPickListMenu(XulMenubar pickMenu,
+			AbstractFilePickList<? extends IFilePickItem> filePickList) {
+		final MenuBar menuBar = (MenuBar) pickMenu.getManagedObject();
+		menuBar.clearItems();
+
+		if (filePickList.size() > 0) {
+			for (IFilePickItem filePickItem : filePickList.getFilePickList()) {
+				final String text = filePickItem.getFullPath();
+				final String name = text.substring(text.lastIndexOf("/") + 1);
+				menuBar.addItem(name, new Command() {
+					public void execute() {
+						SolutionBrowserPanel.getInstance().openFile(text, COMMAND.RUN);
+					}
+				});
+			}
+		}
+	}
+
+	private void loadRecentAndFavorites(boolean force) {
+		UserSettingsManager.getInstance().fetchUserSettings(
+				new AsyncCallback<JsArray<JsSetting>>() {
+					
+					
+					public void onSuccess(JsArray<JsSetting> result) {
+						JsSetting setting;
+						for (int j = 0; j < result.length(); j++) {
+							setting = result.get(j);
+							if ("favorites".equalsIgnoreCase(setting.getName())) {
+								try {
+									// handle favorite
+									JSONArray favorites = JSONParser.parse(setting.getValue()).isArray();
+									if (favorites != null) {
+										// Create the FavoritePickList object from the JSONArray
+										FavoritePickList.getInstanceFromJSON(favorites);
+									} else {
+										favoritePickList = FavoritePickList.getInstance();
+									}
+								} catch (Throwable t) {
+								}
+							} else if ("recent".equalsIgnoreCase(setting.getName())) {
+								try {
+									// handle recent
+									JSONArray recents = JSONParser.parse(setting.getValue()).isArray();
+									if (recents != null) {
+										// Create the RecentPickList object from the JSONArray
+										recentPickList = RecentPickList.getInstanceFromJSON(recents);
+									} else {
+										recentPickList = RecentPickList.getInstance();
+									}
+									recentPickList.setMaxSize(10);
+								} catch (Throwable t) {
+								}
+							}
+						}
+					}
+
+					public void onFailure(Throwable caught) {
+					}
+					
+				}, force);
+	}
+	
   private void executeAdminContent() {
 	  
 	  try {

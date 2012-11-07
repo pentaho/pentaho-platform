@@ -28,6 +28,7 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
@@ -39,6 +40,8 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FilesListPanel;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickItem;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
 import org.pentaho.mantle.client.solutionbrowser.launcher.LaunchPanel;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleHelper;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
@@ -47,6 +50,7 @@ import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTree;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
+import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
@@ -199,8 +203,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorPanel.setTopWidget(topPanel);
     solutionNavigatorPanel.setBottomWidget(filesListPanel);
 
-    /*
-     * BISERVER-6181 - - add padding to bottom of file list panel. add a css class to allow us to override inline styles to add the padding
+    /* BISERVER-6181 - - add padding to bottom of file list panel.
+       add a css class to allow us to override inline styles to add the padding
      */
     filesListPanel.getElement().getParentElement().addClassName("filter-list-panel-container");
 
@@ -387,11 +391,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   /**
-   * The passed in URL has all the parameters set for background execution. We simply call GET on the URL and handle the response object. If the response object
-   * contains a particular string then we display success message box.
+   * The passed in URL has all the parameters set for background execution. We
+   * simply call GET on the URL and handle the response object. If the response
+   * object contains a particular string then we display success message box.
    * 
    * @param url
-   *          Complete url with all the parameters set for scheduling a job in the background.
+   *          Complete url with all the parameters set for scheduling a job in
+   *          the background.
    */
   private void runInBackground(final String url) {
 
@@ -406,8 +412,10 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
         public void onResponseReceived(Request request, Response response) {
           /*
-           * We are checking for this specific string because if the job was scheduled successfully by QuartzBackgroundExecutionHelper then the response is an
-           * html that contains the specific string. We have coded this way because we did not want to touch the old way.
+           * We are checking for this specific string because if the job was
+           * scheduled successfully by QuartzBackgroundExecutionHelper then the
+           * response is an html that contains the specific string. We have
+           * coded this way because we did not want to touch the old way.
            */
           if ("true".equals(response.getHeader("background_execution"))) {
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("info"), Messages.getString("backgroundJobScheduled"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
@@ -448,7 +456,44 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     // TODO Not sure what event type to pass
     fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, contentTabPanel.getSelectedTabIndex());
   }
+  
+  /**
+   * Load the recent pick list from the IUserSetting for same
+   * 
+   * @param recentSetting
+   * @param path
+   * @param name
+   */
+  private void loadRecentList(IUserSetting recentSetting, String path, String name) {
+    String fullpath = path + "/" + name;
+    JSONArray recents = new JSONArray();
 
+    if (recentSetting != null && !StringUtils.isEmpty(recentSetting.getSettingValue())) {
+      recents = JSONParser.parse(recentSetting.getSettingValue()).isArray();
+      // Convert the JSONArray to POJ Array without the current entry (if it was there at all)
+      RecentPickList recentPickList = RecentPickList.getInstanceFromJSON(recents);
+      recentPickList.setMaxSize(10);
+    }
+    
+    // update setting
+    final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_RECENT_FILES"; //$NON-NLS-1$
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+    try {
+      builder.sendRequest(recents.toString(), new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          MessageDialogBox dialog = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotSetUserSettings"), true, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+          dialog.center();
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+        }
+      });
+    } catch (RequestException e) {
+      // showError(e);
+    }
+  }
+  
   @SuppressWarnings("nls")
   public static String pathToId(String path) {
     String id = path.replace("/", ":");
@@ -463,6 +508,40 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   public List<String> getExecutableFileExtensions() {
     return executableFileExtensions;
+  }
+  
+  public void openFile(final String fileNameWithPath, final FileCommand.COMMAND mode){
+    final String moduleBaseURL = GWT.getModuleBaseURL();
+    final String moduleName = GWT.getModuleName();
+    final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+    final String path = fileNameWithPath; //Expecting some encoding here
+    final String url = contextURL + "api/repo/files/" + pathToId(path) + "/properties"; //$NON-NLS-1$
+       
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("accept", "application/json");
+        
+    try {
+      executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          // showError(exception);
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
+            @SuppressWarnings("deprecation")
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("repositoryFileDto", (JSONObject) JSONParser.parse(response.getText()));
+            RepositoryFile repositoryFile = new RepositoryFile(jsonObject);
+            openFile(repositoryFile, mode);
+          } else {
+            // showServerError(response);
+          }
+        }
+      });
+    } catch (RequestException e) {
+      // showError(e);
+    }
   }
 
   public void openFile(final RepositoryFile repositoryFile, final FileCommand.COMMAND mode) {
@@ -491,10 +570,17 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         Window.open(url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no"); //$NON-NLS-1$ //$NON-NLS-2$
       } else {
         contentTabPanel.showNewURLTab(repositoryFile.getTitle(), repositoryFile.getTitle(), url, true);
+        addRecent(fileNameWithPath);
       }
     }
   }
-
+  
+  private void addRecent(String fileNameWithPath){
+  	RecentPickItem recentPickItem = new RecentPickItem(fileNameWithPath);
+  	recentPickItem.setLastUse(System.currentTimeMillis());
+  	RecentPickList.getInstance().add(recentPickItem);
+  }
+  
   protected void initializeExecutableFileTypes() {
     // GeneratedContentDialog dialog = new GeneratedContentDialog();
     // dialog.show();

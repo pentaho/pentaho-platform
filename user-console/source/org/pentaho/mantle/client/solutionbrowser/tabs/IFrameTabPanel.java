@@ -274,6 +274,18 @@ public class IFrameTabPanel extends VerticalPanel {
     return this.editContentSelected;
   }
 
+  public boolean isPrintVisible(){
+	return checkFrameWindowPrintVisible(frame.getElement());
+  }
+
+  private native boolean checkFrameWindowPrintVisible(Element frame)/*-{
+    try {
+	return frame.contentWindow.printVisible;
+    } catch (e) {
+    }
+    return false;
+  }-*/;
+  
   public void setId(String id){
     frame.getElement().setAttribute("id", id); //$NON-NLS-1$
   }
