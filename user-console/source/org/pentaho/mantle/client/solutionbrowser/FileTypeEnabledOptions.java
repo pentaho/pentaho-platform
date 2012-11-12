@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
 
 /**
  * This class defines the options available for individual file extensions.
@@ -60,6 +61,12 @@ public class FileTypeEnabledOptions {
       case DELETE:
         validSelectionCount = SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0;
         break;
+      case FAVORITE:
+      	validSelectionCount = !isFavorite() && SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0;
+      	break;
+      case FAVORITE_REMOVE:
+      	validSelectionCount = isFavorite() && SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0;
+      	break;
       case BACKGROUND:
       case CREATE_FOLDER:
       case EDIT:
@@ -98,5 +105,13 @@ public class FileTypeEnabledOptions {
     } else {
       return filename != null && filename.endsWith(fileExtension);
     }
+  }
+  
+  private boolean isFavorite(){
+  	if (SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0){
+  		return FavoritePickList.getInstance().contains(SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().get(0).getPath());
+  	} else {
+  		return false;
+  	}
   }
 }

@@ -78,6 +78,8 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     new MenuGlue("showHistoryEllipsis", COMMAND.GENERATED_CONTENT), //$NON-NLS-1$
     new MenuGlue(SEPARATOR, null),
     new MenuGlue("share", COMMAND.SHARE), //$NON-NLS-1$
+    new MenuGlue("addToFavorites",COMMAND.FAVORITE), //$NON-NLS-1$
+    new MenuGlue("removeFromFavorites",COMMAND.FAVORITE_REMOVE), //$NON-NLS-1$
     new MenuGlue("scheduleEllipsis", COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
     new MenuGlue(SEPARATOR, null),
     new MenuGlue("cut", COMMAND.CUT), //$NON-NLS-1$
@@ -97,6 +99,8 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     new MenuGlue("showHistoryEllipsis", COMMAND.GENERATED_CONTENT), //$NON-NLS-1$
     new MenuGlue(SEPARATOR, null),
     new MenuGlue("share", COMMAND.SHARE), //$NON-NLS-1$
+    new MenuGlue("addToFavorites",COMMAND.FAVORITE), //$NON-NLS-1$
+    new MenuGlue("removeFromFavorites",COMMAND.FAVORITE_REMOVE), //$NON-NLS-1$
     new MenuGlue("scheduleEllipsis", COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
     new MenuGlue(SEPARATOR, null),
     new MenuGlue("cut", COMMAND.CUT), //$NON-NLS-1$

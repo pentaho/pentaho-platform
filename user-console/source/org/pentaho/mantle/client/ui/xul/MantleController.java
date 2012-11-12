@@ -157,8 +157,6 @@ public class MantleController extends AbstractXulEventHandler {
       recentMenu = (XulMenubar) document.getElementById("recentmenu");
       favoriteMenu = (XulMenubar) document.getElementById("favoritesmenu");
 		
-      favoriteMenu.setVisible(false); //hide the menu until it is implemented
-
       // install language sub-menus
       Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
       if (supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty()) {
@@ -270,6 +268,9 @@ public class MantleController extends AbstractXulEventHandler {
 				refreshPickListMenu(recentMenu, recentPickList);
 				if (recentPickList.size() > 0) {
 					recentPickList.save("recent");
+		      recentMenu.setVisible(true);
+				} else {
+					recentMenu.setVisible(false);
 				}
 			}
 		});
@@ -279,7 +280,10 @@ public class MantleController extends AbstractXulEventHandler {
 			public void itemsChanged(AbstractFilePickList<FavoritePickItem> filePickList) {
 				refreshPickListMenu(favoriteMenu, favoritePickList);
 				if (favoritePickList.size() > 0) {
-					favoritePickList.save("favorite");
+					favoritePickList.save("favorites");
+		      favoriteMenu.setVisible(true);
+				} else {
+		      favoriteMenu.setVisible(false);
 				}
 			}
 		});
@@ -324,7 +328,7 @@ public class MantleController extends AbstractXulEventHandler {
 									JSONArray favorites = JSONParser.parse(setting.getValue()).isArray();
 									if (favorites != null) {
 										// Create the FavoritePickList object from the JSONArray
-										FavoritePickList.getInstanceFromJSON(favorites);
+										favoritePickList = FavoritePickList.getInstanceFromJSON(favorites);
 									} else {
 										favoritePickList = FavoritePickList.getInstance();
 									}

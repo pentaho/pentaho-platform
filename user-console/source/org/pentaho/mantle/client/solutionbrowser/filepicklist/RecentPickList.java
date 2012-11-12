@@ -74,4 +74,8 @@ public class RecentPickList extends AbstractFilePickList<RecentPickItem> {
 	public void add(int index, RecentPickItem pickListItem){
 		add(pickListItem);
 	}
+	
+	public boolean contains(String fileNameWithPath) {
+		return recentPickList.contains(new RecentPickItem(fileNameWithPath));
+	}
 }

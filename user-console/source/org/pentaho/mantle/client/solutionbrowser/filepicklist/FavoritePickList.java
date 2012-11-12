@@ -53,4 +53,8 @@ public class FavoritePickList extends AbstractFilePickList<FavoritePickItem> {
 		favoritePickList = new FavoritePickList(jsa);
 		return favoritePickList;
 	}
+	
+	public boolean contains(String fileNameWithPath) {
+		return favoritePickList.contains(new FavoritePickItem(fileNameWithPath));
+	}
 }

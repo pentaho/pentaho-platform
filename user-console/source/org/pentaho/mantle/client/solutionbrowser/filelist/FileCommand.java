@@ -36,6 +36,8 @@ import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickItem;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog.Tabs;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleHelper;
@@ -63,7 +65,9 @@ public class FileCommand implements Command {
     CUT,
     GENERATED_CONTENT, 
     RESTORE, 
-    DELETEPERMANENT
+    DELETEPERMANENT,
+    FAVORITE,
+    FAVORITE_REMOVE
   }
 
   COMMAND mode = COMMAND.RUN;
@@ -148,6 +152,12 @@ public class FileCommand implements Command {
         selectedItemsClone.add(fileItem.getRepositoryFile());
       }
       new DeletePermanentFileCommand(selectedItemsClone).execute();
+    } else if (mode == COMMAND.FAVORITE) {
+    	sbp.addFavorite(selectedItem.getRepositoryFile().getPath());
+    	FavoritePickList.getInstance().save("favorites");
+    } else if (mode == COMMAND.FAVORITE_REMOVE) {
+    	sbp.removeFavorite(selectedItem.getRepositoryFile().getPath());
+    	FavoritePickList.getInstance().save("favorites");
     }
   }
 

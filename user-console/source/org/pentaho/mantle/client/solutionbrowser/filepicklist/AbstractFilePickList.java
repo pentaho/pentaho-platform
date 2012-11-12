@@ -58,8 +58,10 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
 	}
 
 	abstract T createFilePickItem(JSONObject jsonFilePickItem);
-
-	/**
+	
+	public abstract boolean contains(String fileNameWithPath);
+	
+		/**
 	 * @return JSONArray representation of list suitable for storage
 	 */
 	public JSONArray toJson() {
@@ -77,7 +79,7 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
 	}
 
 	public void add(T pickListItem) {
-		filePickList.add(filePickList.size(), pickListItem);
+		add(filePickList.size(), pickListItem);
 	}
 
 	/**
@@ -104,7 +106,9 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
 
 	public boolean remove(T pickListItem) {
 		boolean removed = filePickList.remove(pickListItem);
-		fireItemsChangedEvent();
+		if (removed) {
+			fireItemsChangedEvent();
+		}
 		return removed;
 	}
 	
@@ -112,6 +116,10 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
 		T removed = filePickList.remove(index);
 		fireItemsChangedEvent();
 		return removed;
+	}
+	
+public boolean contains(T pickListItem) {
+		return filePickList.contains(pickListItem);
 	}
 
 	public void fireItemsChangedEvent() {
@@ -191,8 +199,7 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
 	 * @param settingName
 	 */
   public void save(String settingName) {
-  	final String url = GWT.getHostPageBaseURL() + "api/user-settings/recent"; //$NON-NLS-1$
-  	String killme = toJson().toString();
+  	final String url = GWT.getHostPageBaseURL() + "api/user-settings/" + settingName; //$NON-NLS-1$
 
     RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
     try {

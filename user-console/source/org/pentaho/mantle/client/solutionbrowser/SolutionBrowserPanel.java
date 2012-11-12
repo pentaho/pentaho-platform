@@ -40,6 +40,8 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FilesListPanel;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickItem;
+import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
 import org.pentaho.mantle.client.solutionbrowser.launcher.LaunchPanel;
@@ -457,44 +459,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, contentTabPanel.getSelectedTabIndex());
   }
   
-  /**
-   * Load the recent pick list from the IUserSetting for same
-   * 
-   * @param recentSetting
-   * @param path
-   * @param name
-   */
-  private void loadRecentList(IUserSetting recentSetting, String path, String name) {
-    String fullpath = path + "/" + name;
-    JSONArray recents = new JSONArray();
-
-    if (recentSetting != null && !StringUtils.isEmpty(recentSetting.getSettingValue())) {
-      recents = JSONParser.parse(recentSetting.getSettingValue()).isArray();
-      // Convert the JSONArray to POJ Array without the current entry (if it was there at all)
-      RecentPickList recentPickList = RecentPickList.getInstanceFromJSON(recents);
-      recentPickList.setMaxSize(10);
-    }
-    
-    // update setting
-    final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_RECENT_FILES"; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
-    try {
-      builder.sendRequest(recents.toString(), new RequestCallback() {
-
-        public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialog = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotSetUserSettings"), true, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-          dialog.center();
-        }
-
-        public void onResponseReceived(Request request, Response response) {
-        }
-      });
-    } catch (RequestException e) {
-      // showError(e);
-    }
-  }
-  
-  @SuppressWarnings("nls")
+@SuppressWarnings("nls")
   public static String pathToId(String path) {
     String id = path.replace("/", ":");
     if (!id.startsWith(":")) {
@@ -581,6 +546,15 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   	RecentPickList.getInstance().add(recentPickItem);
   }
   
+  public void addFavorite(String fileNameWithPath){
+  	FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
+  	FavoritePickList.getInstance().add(favoritePickItem);
+  }
+  
+  public void removeFavorite(String fileNameWithPath){
+  	FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
+  	FavoritePickList.getInstance().remove(favoritePickItem);
+  }
   protected void initializeExecutableFileTypes() {
     // GeneratedContentDialog dialog = new GeneratedContentDialog();
     // dialog.show();

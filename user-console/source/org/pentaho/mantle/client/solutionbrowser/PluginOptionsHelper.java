@@ -88,6 +88,8 @@ public class PluginOptionsHelper {
       pluginMenu.addCommand(COMMAND.DELETE);
       pluginMenu.addCommand(COMMAND.PROPERTIES);
       pluginMenu.addCommand(COMMAND.EXPORT);
+      pluginMenu.addCommand(COMMAND.FAVORITE);
+      pluginMenu.addCommand(COMMAND.FAVORITE_REMOVE);
 
       contentTypePluginList.add(plugin);
       enabledOptionsList.add(pluginMenu);
@@ -105,6 +107,8 @@ public class PluginOptionsHelper {
     analysisMenu.addCommand(COMMAND.SHARE);
     analysisMenu.addCommand(COMMAND.PROPERTIES);
     analysisMenu.addCommand(COMMAND.EXPORT);
+    analysisMenu.addCommand(COMMAND.FAVORITE);
+    analysisMenu.addCommand(COMMAND.FAVORITE_REMOVE);
     enabledOptionsList.add(analysisMenu);
 
     FileTypeEnabledOptions xactionMenu = new FileTypeEnabledOptions(FileItem.XACTION_SUFFIX);
@@ -117,6 +121,8 @@ public class PluginOptionsHelper {
     xactionMenu.addCommand(COMMAND.SHARE);
     xactionMenu.addCommand(COMMAND.PROPERTIES);
     xactionMenu.addCommand(COMMAND.EXPORT);
+    xactionMenu.addCommand(COMMAND.FAVORITE);
+    xactionMenu.addCommand(COMMAND.FAVORITE_REMOVE);
     enabledOptionsList.add(xactionMenu);
 
     FileTypeEnabledOptions defaultMenu = new FileTypeEnabledOptions(null);
@@ -126,6 +132,8 @@ public class PluginOptionsHelper {
     defaultMenu.addCommand(COMMAND.SHARE);
     defaultMenu.addCommand(COMMAND.PROPERTIES);
     defaultMenu.addCommand(COMMAND.EXPORT);
+    defaultMenu.addCommand(COMMAND.FAVORITE);
+    defaultMenu.addCommand(COMMAND.FAVORITE_REMOVE);
     enabledOptionsList.add(defaultMenu);
   }
 
