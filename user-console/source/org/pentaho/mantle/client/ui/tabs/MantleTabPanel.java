@@ -525,25 +525,23 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       FrameUtils.setEmbedVisibility(((IFrameTabPanel) selectedTab.getContent()).getFrame(), true);
       // fix for BISERVER-6027 - on selection, set the focus into a textbox
       // element to allow IE mouse access in these elements
+      // this was made native due to BISERVER-7400
+      ieFix(((IFrameTabPanel) selectedTab.getContent()).getFrame().getElement());
+    }
+  }
+
+  private native void ieFix(Element frame)/*-{
       try {
-        IFrameElement iFrameElement = IFrameElement.as(((IFrameTabPanel) selectedTab.getContent()).getFrame().getElement());
-        NodeList<com.google.gwt.dom.client.Element> inputElements = iFrameElement.getContentDocument().getElementsByTagName("input");
-        if (inputElements != null && inputElements.getLength() > 0) {
-          for (int j = 0; j < inputElements.getLength(); j++) {
-            com.google.gwt.dom.client.Element elem = inputElements.getItem(j);
-            if ("text".equalsIgnoreCase(elem.getAttribute("type"))) {
-              if (!"date".equalsIgnoreCase(elem.getAttribute("paramType"))) {
-                // only focus things which are not date boxes
-                elem.focus();
+      var inputElements = frame.contentWindow.document.getElementsByTagName("input");
+      for (var i = 0; i < inputElements.length; i++) {
+        if (inputElements[i].getAttribute("type") != null && "TEXT" === inputElements[i].getAttribute("type").toUpperCase()) {
+          if (inputElements[i].getAttribute("paramType") == null || !("DATE" === inputElements[i].getAttribute("paramType").toUpperCase())) { 
+            inputElements[i].focus();
                 break;
               }
             }
           }
+    } catch (e) {    
         }
-      } catch (Exception err) {
-        // elements might not be visible, IE will fail in this case
-      }
-    }
-  }
-
+  }-*/;
 }
