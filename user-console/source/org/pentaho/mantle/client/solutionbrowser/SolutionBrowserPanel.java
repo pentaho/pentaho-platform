@@ -205,8 +205,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorPanel.setTopWidget(topPanel);
     solutionNavigatorPanel.setBottomWidget(filesListPanel);
 
-    /* BISERVER-6181 - - add padding to bottom of file list panel.
-       add a css class to allow us to override inline styles to add the padding
+    /*
+     * BISERVER-6181 - - add padding to bottom of file list panel. add a css class to allow us to override inline styles to add the padding
      */
     filesListPanel.getElement().getParentElement().addClassName("filter-list-panel-container");
 
@@ -393,13 +393,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   /**
-   * The passed in URL has all the parameters set for background execution. We
-   * simply call GET on the URL and handle the response object. If the response
-   * object contains a particular string then we display success message box.
+   * The passed in URL has all the parameters set for background execution. We simply call GET on the URL and handle the response object. If the response object
+   * contains a particular string then we display success message box.
    * 
    * @param url
-   *          Complete url with all the parameters set for scheduling a job in
-   *          the background.
+   *          Complete url with all the parameters set for scheduling a job in the background.
    */
   private void runInBackground(final String url) {
 
@@ -414,10 +412,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
         public void onResponseReceived(Request request, Response response) {
           /*
-           * We are checking for this specific string because if the job was
-           * scheduled successfully by QuartzBackgroundExecutionHelper then the
-           * response is an html that contains the specific string. We have
-           * coded this way because we did not want to touch the old way.
+           * We are checking for this specific string because if the job was scheduled successfully by QuartzBackgroundExecutionHelper then the response is an
+           * html that contains the specific string. We have coded this way because we did not want to touch the old way.
            */
           if ("true".equals(response.getHeader("background_execution"))) {
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("info"), Messages.getString("backgroundJobScheduled"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
@@ -458,8 +454,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     // TODO Not sure what event type to pass
     fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.SELECT, contentTabPanel.getSelectedTabIndex());
   }
-  
-@SuppressWarnings("nls")
+
+  @SuppressWarnings("nls")
   public static String pathToId(String path) {
     String id = path.replace("/", ":");
     if (!id.startsWith(":")) {
@@ -474,17 +470,17 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   public List<String> getExecutableFileExtensions() {
     return executableFileExtensions;
   }
-  
-  public void openFile(final String fileNameWithPath, final FileCommand.COMMAND mode){
+
+  public void openFile(final String fileNameWithPath, final FileCommand.COMMAND mode) {
     final String moduleBaseURL = GWT.getModuleBaseURL();
     final String moduleName = GWT.getModuleName();
     final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    final String path = fileNameWithPath; //Expecting some encoding here
+    final String path = fileNameWithPath; // Expecting some encoding here
     final String url = contextURL + "api/repo/files/" + pathToId(path) + "/properties"; //$NON-NLS-1$
-       
+
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     executableTypesRequestBuilder.setHeader("accept", "application/json");
-        
+
     try {
       executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
@@ -539,22 +535,23 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       }
     }
   }
-  
-  private void addRecent(String fileNameWithPath){
-  	RecentPickItem recentPickItem = new RecentPickItem(fileNameWithPath);
-  	recentPickItem.setLastUse(System.currentTimeMillis());
-  	RecentPickList.getInstance().add(recentPickItem);
+
+  private void addRecent(String fileNameWithPath) {
+    RecentPickItem recentPickItem = new RecentPickItem(fileNameWithPath);
+    recentPickItem.setLastUse(System.currentTimeMillis());
+    RecentPickList.getInstance().add(recentPickItem);
   }
-  
-  public void addFavorite(String fileNameWithPath){
-  	FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
-  	FavoritePickList.getInstance().add(favoritePickItem);
+
+  public void addFavorite(String fileNameWithPath) {
+    FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
+    FavoritePickList.getInstance().add(favoritePickItem);
   }
-  
-  public void removeFavorite(String fileNameWithPath){
-  	FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
-  	FavoritePickList.getInstance().remove(favoritePickItem);
+
+  public void removeFavorite(String fileNameWithPath) {
+    FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
+    FavoritePickList.getInstance().remove(favoritePickItem);
   }
+
   protected void initializeExecutableFileTypes() {
     // GeneratedContentDialog dialog = new GeneratedContentDialog();
     // dialog.show();
@@ -747,25 +744,20 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   public void setNavigatorShowing(final boolean showSolutionBrowser) {
     this.showSolutionBrowser = showSolutionBrowser;
-	  Timer t = new Timer() {
-		public void run() {
-		    if (showSolutionBrowser) {
-		      solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
-		      solutionNavigatorAndContentPanel.setSplitPosition(defaultSplitPosition);
-		      solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
-		      solutionNavigatorPanel.setSplitPosition("60%"); //$NON-NLS-1$
-		      Element vSplitter = DOM.getElementById("pucVerticalSplitter");
-		      if (vSplitter != null) {
-		        ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
-		      }
-		    } else {
-		      solutionNavigatorAndContentPanel.setLeftWidget(new SimplePanel());
-		      solutionNavigatorAndContentPanel.setSplitPosition("0px"); //$NON-NLS-1$
-		      solutionNavigatorPanel.setVisible(false); //$NON-NLS-1$
-		    }
-		}
-	  };
-	  t.schedule(1000);
+    if (showSolutionBrowser) {
+      solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
+      solutionNavigatorAndContentPanel.setSplitPosition(defaultSplitPosition);
+      solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
+      solutionNavigatorPanel.setSplitPosition("60%"); //$NON-NLS-1$
+      Element vSplitter = DOM.getElementById("pucVerticalSplitter");
+      if (vSplitter != null) {
+        ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
+      }
+    } else {
+      solutionNavigatorAndContentPanel.setLeftWidget(new SimplePanel());
+      solutionNavigatorAndContentPanel.setSplitPosition("0px"); //$NON-NLS-1$
+      solutionNavigatorPanel.setVisible(false); //$NON-NLS-1$
+    }
   }
 
   public void addSolutionBrowserListener(SolutionBrowserListener listener) {
