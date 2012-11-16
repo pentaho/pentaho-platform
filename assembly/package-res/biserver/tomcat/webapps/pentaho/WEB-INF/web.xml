@@ -459,11 +459,6 @@
 	<!--   End BISERVER-3640 -->
 
     <servlet>
-        <servlet-name>RequireJSConfig</servlet-name>
-        <jsp-file>/jsp/RequireJSConfig.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
         <servlet-name>LocalizationServlet</servlet-name>
         <servlet-class>org.pentaho.platform.web.servlet.LocalizationServlet</servlet-class>
     </servlet>
@@ -814,11 +809,6 @@
 		<url-pattern>/js/browserLocale.js</url-pattern>
 	</servlet-mapping>
 	<!--   End BISERVER-3640 -->
-
-    <servlet-mapping>
-        <servlet-name>RequireJSConfig</servlet-name>
-        <url-pattern>/js/require-cfg.js</url-pattern>
-    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>LocalizationServlet</servlet-name>
