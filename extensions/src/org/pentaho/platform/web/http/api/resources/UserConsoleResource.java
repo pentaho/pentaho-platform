@@ -21,10 +21,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.GET;
@@ -103,7 +101,7 @@ public class UserConsoleResource extends AbstractJaxRSResource {
 		 			 String currentToken = nameValuePairs.nextToken().trim();
 		 			 if(currentToken.startsWith("conditional-logic-validator=")) {
 		 				 String validatorName = currentToken.substring("conditional-logic-validator=".length());
-	  				 	 Class validatorClass = pluginManager.getClassLoader(pluginId).loadClass(validatorName);
+	  				 	 Class<?> validatorClass = pluginManager.getClassLoader(pluginId).loadClass(validatorName);
 		 				 IAdminContentConditionalLogic validator = (IAdminContentConditionalLogic) validatorClass.newInstance();
 		 				 int status = validator.validate();
 		 				 if(status == IAdminContentConditionalLogic.DISPLAY_ADMIN_CONTENT) {
@@ -130,20 +128,6 @@ public class UserConsoleResource extends AbstractJaxRSResource {
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
   public List<Setting> getMantleSettings() {
     ArrayList<Setting> settings = new ArrayList<Setting>();
-    // read properties file
-    Properties props = new Properties();
-    try {
-      props.load(getClass().getResourceAsStream("/org/pentaho/mantle/server/MantleSettings.properties")); //$NON-NLS-1$
-      Enumeration keys = props.keys();
-      while (keys.hasMoreElements()) {
-        String key = (String) keys.nextElement();
-        String value = (String) props.getProperty(key);
-        settings.add(new Setting(key, value));
-      }
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-    }
-
     settings.add(new Setting("login-show-users-list", PentahoSystem.getSystemSetting("login-show-users-list", ""))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     settings.add(new Setting("documentation-url", PentahoSystem.getSystemSetting("documentation-url", ""))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
