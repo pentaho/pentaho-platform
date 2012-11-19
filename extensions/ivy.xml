@@ -114,8 +114,8 @@
            a service to the BIServer
       -->
     <!-- metro -->
-    <dependency org="metro" name="metro-webservices-api" rev="2.1"/>
-    <dependency org="metro" name="metro-webservices-rt" rev="2.1"/>
+	<dependency org="org.glassfish.metro" name="webservices-api" rev="2.1" transitive="false"/>
+	<dependency org="org.glassfish.metro" name="webservices-rt" rev="2.1" transitive="false"/>
 
     <!-- jaxws-spring extension (allows spring configuration of web services); see pentahoServices.spring.xml -->
     <dependency org="org.jvnet.jax-ws-commons.spring" name="jaxws-spring" rev="1.8" transitive="false"/>
