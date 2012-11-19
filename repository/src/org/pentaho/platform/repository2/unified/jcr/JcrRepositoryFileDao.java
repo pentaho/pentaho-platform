@@ -37,6 +37,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
@@ -46,6 +48,7 @@ import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
 
 /**
  * CRUD operations against JCR. Note that there is no access control in this class (implicit or explicit).
@@ -116,17 +119,25 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   private RepositoryFile internalCreateFile(final Serializable parentFolderId, final RepositoryFile file,
                                             final IRepositoryFileData content, final RepositoryFileAcl acl, final String versionMessage) {
+    
+    /*
+     * PPP-3049: Changed the Assert.notNull(content) to code that creates a file with a single blank when
+     * the assert WOULD have been triggered.
+     */
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
-    Assert.notNull(content);
-
+//    Assert.notNull(content);
+    DataNode emptyDataNode = new DataNode(file.getName());
+    emptyDataNode.setProperty(" ", "content");
+    final IRepositoryFileData emptyContent = new NodeRepositoryFileData(emptyDataNode);
+  
     return (RepositoryFile) jcrTemplate.execute(new JcrCallback() {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
         Node fileNode = JcrRepositoryFileUtils.createFileNode(session, pentahoJcrConstants, 
-            parentFolderId, file, content, findTransformerForWrite(content.getClass()));
+            parentFolderId, file, content==null?emptyContent:content, findTransformerForWrite(content==null?emptyContent.getClass():content.getClass()));
         // we must create the acl during checkout
         aclDao.createAcl(fileNode.getIdentifier(), acl == null ? createDefaultAcl() : acl);
         session.save();
