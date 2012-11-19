@@ -49,8 +49,8 @@
     <dependency org="hsqldb" name="hsqldb" rev="1.8.0" conf="sampledata-libs->default" transitive="false"/>
 
     <!-- metro -->
-    <dependency org="metro" name="metro-webservices-api" rev="2.0" />
-    <dependency org="metro" name="metro-webservices-rt" rev="2.0" />
+    <dependency org="metro" name="metro-webservices-api" rev="2.1" />
+    <dependency org="metro" name="metro-webservices-rt" rev="2.1" />
 
     <!-- COMMONS -->
     <dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.0" transitive="false" />

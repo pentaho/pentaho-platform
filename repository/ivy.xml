@@ -38,19 +38,19 @@
 		
 		
     	<!-- jersey -->
-    	<dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.11"/>
-    	<dependency org="com.sun.jersey.contribs" name="jersey-apache-client" rev="1.11" transitive="false"/>
-    	<dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.11" transitive="false"/>
+    	<dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.15"/>
+    	<dependency org="com.sun.jersey.contribs" name="jersey-apache-client" rev="1.15" transitive="false"/>
+    	<dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.15" transitive="false"/>
 
-    	<dependency org="com.sun.jersey" name="jersey-core" rev="1.11" transitive="false"/>
-    	<dependency org="com.sun.jersey" name="jersey-json" rev="1.11" transitive="false"/>
-    	<dependency org="com.sun.jersey" name="jersey-client" rev="1.11" transitive="false"/>
-    	<dependency org="com.sun.jersey" name="jersey-server" rev="1.11" transitive="false"/>
-    	<dependency org="com.sun.jersey" name="jersey-servlet" rev="1.11" transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-core" rev="1.15" transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-json" rev="1.15" transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-client" rev="1.15" transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-server" rev="1.15" transitive="false"/>
+    	<dependency org="com.sun.jersey" name="jersey-servlet" rev="1.15" transitive="false"/>
 		
 		<!-- metro -->
-		<dependency org="metro" name="metro-webservices-api" rev="2.0" transitive="false"/>
-		<dependency org="metro" name="metro-webservices-rt"  rev="2.0" transitive="false"/>
+		<dependency org="org.glassfish.metro" name="webservices-api" rev="2.1" transitive="true"/>
+		<dependency org="org.glassfish.metro" name="webservices-rt" rev="2.1" transitive="true"/>
 
 		<!-- gwt -->
 		<dependency org="com.google.gwt" name="gwt-servlet" rev="2.4.0" transitive="false"/>
