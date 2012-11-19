@@ -511,7 +511,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     cleanupUserAndRoles(mainTenant_1);
     cleanupUserAndRoles(systemTenant);
   }
-
+/*
   @Test
   public void testDeleteFiles() {
     loginAsRepositoryAdmin();
@@ -520,7 +520,6 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
     userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
     login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
-    
     String testFile1Id = "abc.txt";
     String testFile2Id = "def.txt";
 
@@ -543,7 +542,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     cleanupUserAndRoles(mainTenant_1);
     cleanupUserAndRoles(systemTenant);
   }
-
+*/ 
   @Test
   public void testFileCreator() {
     loginAsRepositoryAdmin();
