@@ -37,7 +37,7 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
 	private ArrayList<T> filePickList;
 	private int maxSize = 0; // 0 size equals no limit
 	private ArrayList<IFilePickListListener<T>> listeners = new ArrayList<IFilePickListListener<T>>();
-
+	
 	public AbstractFilePickList() {
 		this.filePickList = new ArrayList<T>(10);
 	}
@@ -118,14 +118,19 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
 		return removed;
 	}
 	
-public boolean contains(T pickListItem) {
+	public void clear() {
+		filePickList.clear();
+		fireItemsChangedEvent();
+	}
+	
+	public boolean contains(T pickListItem) {
 		return filePickList.contains(pickListItem);
 	}
 
 	public void fireItemsChangedEvent() {
 		for (IFilePickListListener<T> listener : listeners) {
 			listener.itemsChanged(this);
-		}
+			}
 	}
 
 	public void addItemsChangedListener(IFilePickListListener<T> listener) {

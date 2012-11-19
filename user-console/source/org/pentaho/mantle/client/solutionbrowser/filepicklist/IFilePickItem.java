@@ -33,6 +33,13 @@ public interface IFilePickItem {
 	 */
 	public void setFullPath(String fullPath);
 	
+	public String getTitle();
+
+	/**
+	 * @param title User Friendly title to use in UI
+	 */
+	public void setTitle(String title);
+	
 	public Long getLastUse();
 
 	public void setLastUse(Long lastUse);

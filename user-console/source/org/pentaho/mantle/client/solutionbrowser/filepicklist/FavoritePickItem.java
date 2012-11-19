@@ -25,6 +25,7 @@ import com.google.gwt.json.client.JSONString;
 
 public class FavoritePickItem implements IFilePickItem {
 	private Long lastUse = 0L; //Last time file was used
+	private String title; //User Friendly title
 	private String fullPath; // The full path to the file including file name
 	
 	public FavoritePickItem(String fullPath){
@@ -32,12 +33,17 @@ public class FavoritePickItem implements IFilePickItem {
 		this.fullPath = fullPath;
 	}
 	
-	FavoritePickItem(JSONObject jso) {
-		this(jso.get("fullPath").isString().stringValue());
-		if (jso.get("lastUse") != null){
-			if (jso.get("lastUse").isNumber() != null){
-				this.lastUse = (long) (jso.get("lastUse").isNumber().doubleValue());
+	FavoritePickItem(JSONObject jsonFilePickItem) {
+		this(jsonFilePickItem.get("fullPath").isString().stringValue());
+		if (jsonFilePickItem.get("lastUse") != null){
+			if (jsonFilePickItem.get("lastUse").isNumber() != null){
+				this.lastUse = (long) (jsonFilePickItem.get("lastUse").isNumber().doubleValue());
 			}
+		}
+		if (jsonFilePickItem.get("title") == null || jsonFilePickItem.get("title").isString() == null) {
+			this.title = fullPath.substring(fullPath.lastIndexOf("/") + 1);
+		} else {
+			this.title = jsonFilePickItem.get("title").isString().stringValue();
 		}
 	}
 	
@@ -67,6 +73,7 @@ public class FavoritePickItem implements IFilePickItem {
 		JSONObject jso = new JSONObject();
 		jso.put("fullPath", new JSONString(fullPath));
 		if (lastUse != null) {
+			jso.put("title", new JSONString(title));
 			jso.put("lastUse", new JSONNumber(lastUse));
 		}
 		return jso;
@@ -83,5 +90,15 @@ public class FavoritePickItem implements IFilePickItem {
 	
 	public int hashCode(){
 		return getFullPath().hashCode();
+	}
+
+	@Override
+	public String getTitle() {
+		return title;
+	}
+
+	@Override
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }

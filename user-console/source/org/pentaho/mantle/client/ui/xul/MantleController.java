@@ -44,6 +44,7 @@ import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
+import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
@@ -51,15 +52,19 @@ import org.pentaho.ui.xul.components.XulToolbarbutton;
 import org.pentaho.ui.xul.containers.XulMenubar;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.binding.GwtBindingFactory;
+import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
 import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
+import org.pentaho.ui.xul.util.XulDialogCallback;
+import org.pentaho.ui.xul.util.XulDialogCallback.Status;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -266,12 +271,7 @@ public class MantleController extends AbstractXulEventHandler {
 
 			public void itemsChanged(AbstractFilePickList<RecentPickItem> filePickList) {
 				refreshPickListMenu(recentMenu, recentPickList);
-				if (recentPickList.size() > 0) {
-					recentPickList.save("recent");
-		      recentMenu.setVisible(true);
-				} else {
-					recentMenu.setVisible(false);
-				}
+				recentPickList.save("recent");
 			}
 		});
 		
@@ -279,12 +279,7 @@ public class MantleController extends AbstractXulEventHandler {
 
 			public void itemsChanged(AbstractFilePickList<FavoritePickItem> filePickList) {
 				refreshPickListMenu(favoriteMenu, favoritePickList);
-				if (favoritePickList.size() > 0) {
-					favoritePickList.save("favorites");
-		      favoriteMenu.setVisible(true);
-				} else {
-		      favoriteMenu.setVisible(false);
-				}
+				favoritePickList.save("favorites");
 			}
 		});
 	}
@@ -296,20 +291,46 @@ public class MantleController extends AbstractXulEventHandler {
 	 * @param filePickList The files to list in natural order
 	 */
 	private void refreshPickListMenu(XulMenubar pickMenu,
-			AbstractFilePickList<? extends IFilePickItem> filePickList) {
+		final AbstractFilePickList<? extends IFilePickItem> filePickList) {
 		final MenuBar menuBar = (MenuBar) pickMenu.getManagedObject();
 		menuBar.clearItems();
 
 		if (filePickList.size() > 0) {
 			for (IFilePickItem filePickItem : filePickList.getFilePickList()) {
 				final String text = filePickItem.getFullPath();
-				final String name = text.substring(text.lastIndexOf("/") + 1);
-				menuBar.addItem(name, new Command() {
+				menuBar.addItem(filePickItem.getTitle(), new Command() {
 					public void execute() {
 						SolutionBrowserPanel.getInstance().openFile(text, COMMAND.RUN);
 					}
 				});
 			}
+			menuBar.addSeparator();
+			menuBar.addItem(Messages.getString("clearItems"), new Command()  {
+				public void execute() {
+					//confirm the clear
+					GwtConfirmBox warning = new GwtConfirmBox();
+					warning.setHeight(117); 
+					warning.setMessage(Messages.getString("clearItemsMessage"));
+					warning.setTitle(Messages.getString("clearItems"));
+					warning.addDialogCallback(new XulDialogCallback<String>() {
+						public void onClose(XulComponent sender, Status returnCode, String retVal) {
+							if (returnCode == Status.ACCEPT) {
+								filePickList.clear();
+							}
+						}
+
+						public void onError(XulComponent sender, Throwable t) {
+						}
+					});
+					warning.show();
+				}
+			});
+		} else {
+			menuBar.addItem(Messages.getString("empty"), new Command()  {
+				public void execute() {
+					//Do nothing
+				}
+			});
 		}
 	}
 

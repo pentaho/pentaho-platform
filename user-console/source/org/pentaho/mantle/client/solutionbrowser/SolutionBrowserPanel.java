@@ -531,27 +531,29 @@ public class SolutionBrowserPanel extends HorizontalPanel {
         Window.open(url, "_blank", "menubar=yes,location=no,resizable=yes,scrollbars=yes,status=no"); //$NON-NLS-1$ //$NON-NLS-2$
       } else {
         contentTabPanel.showNewURLTab(repositoryFile.getTitle(), repositoryFile.getTitle(), url, true);
-        addRecent(fileNameWithPath);
+        addRecent(fileNameWithPath, repositoryFile.getTitle());
       }
     }
   }
-
-  private void addRecent(String fileNameWithPath) {
-    RecentPickItem recentPickItem = new RecentPickItem(fileNameWithPath);
-    recentPickItem.setLastUse(System.currentTimeMillis());
-    RecentPickList.getInstance().add(recentPickItem);
+  
+  private void addRecent(String fileNameWithPath, String title) {
+  	RecentPickItem recentPickItem = new RecentPickItem(fileNameWithPath);
+  	recentPickItem.setTitle(title);
+  	recentPickItem.setLastUse(System.currentTimeMillis());
+  	RecentPickList.getInstance().add(recentPickItem);
   }
-
-  public void addFavorite(String fileNameWithPath) {
-    FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
-    FavoritePickList.getInstance().add(favoritePickItem);
+  
+  public void addFavorite(String fileNameWithPath, String title) {
+  	FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
+  	favoritePickItem.setTitle(title);
+  	FavoritePickList.getInstance().add(favoritePickItem);
   }
-
+  
   public void removeFavorite(String fileNameWithPath) {
-    FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
-    FavoritePickList.getInstance().remove(favoritePickItem);
+  	FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
+  	FavoritePickList.getInstance().remove(favoritePickItem);
   }
-
+  
   protected void initializeExecutableFileTypes() {
     // GeneratedContentDialog dialog = new GeneratedContentDialog();
     // dialog.show();

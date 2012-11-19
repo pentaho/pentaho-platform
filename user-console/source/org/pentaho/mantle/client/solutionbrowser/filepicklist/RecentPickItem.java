@@ -26,6 +26,7 @@ import com.google.gwt.json.client.JSONString;
 
 public class RecentPickItem implements IFilePickItem {
 	private Long lastUse; //Last time file was used
+	private String title; //User Friendly Display Title
 	private String fullPath; // The full path to the file including file name
 	
 	public RecentPickItem(String fullPath){
@@ -36,6 +37,11 @@ public class RecentPickItem implements IFilePickItem {
 	RecentPickItem(JSONObject jsonFilePickItem){
 		this(jsonFilePickItem.get("fullPath").isString().stringValue());
 		this.lastUse = (long) (jsonFilePickItem.get("lastUse").isNumber().doubleValue());
+		if (jsonFilePickItem.get("title") == null || jsonFilePickItem.get("title").isString() == null) {
+			this.title = fullPath.substring(fullPath.lastIndexOf("/") + 1);
+		} else {
+			this.title = jsonFilePickItem.get("title").isString().stringValue();
+		}
 	}
 	
 	/**
@@ -63,6 +69,7 @@ public class RecentPickItem implements IFilePickItem {
 	public JSONObject toJson(){
 		JSONObject jso = new JSONObject();
 		jso.put("fullPath", new JSONString(fullPath));
+		jso.put("title", new JSONString(title));
 		jso.put("lastUse", new JSONNumber(lastUse));
 		return jso;
 	}
@@ -74,10 +81,18 @@ public class RecentPickItem implements IFilePickItem {
 		} else {
 			return false;
 		}
-			
 	}
 	
 	public int hashCode(){
 		return getFullPath().hashCode();
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	@Override
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }

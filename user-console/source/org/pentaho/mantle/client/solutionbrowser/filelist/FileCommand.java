@@ -153,7 +153,7 @@ public class FileCommand implements Command {
       }
       new DeletePermanentFileCommand(selectedItemsClone).execute();
     } else if (mode == COMMAND.FAVORITE) {
-    	sbp.addFavorite(selectedItem.getRepositoryFile().getPath());
+    	sbp.addFavorite(selectedItem.getRepositoryFile().getPath(),selectedItem.getRepositoryFile().getTitle());
     	FavoritePickList.getInstance().save("favorites");
     } else if (mode == COMMAND.FAVORITE_REMOVE) {
     	sbp.removeFavorite(selectedItem.getRepositoryFile().getPath());
