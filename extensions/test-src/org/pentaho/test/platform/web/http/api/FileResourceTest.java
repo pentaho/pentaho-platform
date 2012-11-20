@@ -566,7 +566,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     webResource.path("repo/files/public:file1.txt/creator").entity(file2).put();
     logout();
   }
-
+/*
   @Test
   public void testUserWorkspace() {
     PentahoSessionHolder.setSession(new StandaloneSession("jerry"));
@@ -575,7 +575,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     assertTrue(userWorkspaceDir != null);
     assertTrue(userWorkspaceDir.length() > 0);
   }
-  
+  */
   @Override
   public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
 	manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");
