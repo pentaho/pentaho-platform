@@ -104,6 +104,8 @@
     <!--  Other archive resources -->
     <dependency org="pentaho" name="pentaho-user-console-package" rev="${project.revision}" transitive="false" changing="true" />
 
+    <!--  BigData dependencies -->	         <!--  BigData dependencies -->
+    <dependency org="org.apache.hadoop.hive" name="hive-jdbc" rev="${dependency.hive-jdbc.revision}" transitive="true" conf="default->default"/>	         <dependency org="pentaho" name="pentaho-hadoop-hive-jdbc-shim" rev="${dependency.pentaho-hadoop-hive-jdbc-shim.revision}" transitive="true" conf="default->default" />
     <!--
       Explicitly exluding illegal jars is purely a workaround. We need to fix the root problem, that certain project(s)
       are exporting these jars in their default dependencies.
