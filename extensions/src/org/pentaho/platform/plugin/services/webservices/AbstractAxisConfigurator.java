@@ -29,6 +29,7 @@ import org.apache.axis2.deployment.AxisConfigBuilder;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.engine.AxisConfigurator;
+import org.apache.axis2.description.Parameter;
 import org.apache.commons.logging.Log;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IServiceConfig;
@@ -44,6 +45,8 @@ public abstract class AbstractAxisConfigurator extends PentahoBase implements Ax
 
   protected IPentahoSession session; // Session to use during initialization
   
+  protected boolean loaded = false;
+
   //map of the web service wrappers
   private Map<String, IServiceConfig> services = new HashMap<String,IServiceConfig>();  
 
@@ -78,7 +81,7 @@ public abstract class AbstractAxisConfigurator extends PentahoBase implements Ax
     for( String serviceName : removed ) {
       services.remove( serviceName );
     }
-
+    loaded = false;
   }
   
   public IServiceConfig getWebServiceDefinition( String name ) {
@@ -147,6 +150,12 @@ public abstract class AbstractAxisConfigurator extends PentahoBase implements Ax
    */
   public void loadServices() {
     
+	  // JD - only setup the Axis services once
+	  if( loaded) {
+		  // we have done this already
+		  return;
+	  }
+
     List<IServiceConfig> wsDfns = getWebServiceDefinitions();
     
     for( IServiceConfig wsDef : wsDfns ) {
@@ -157,7 +166,8 @@ public abstract class AbstractAxisConfigurator extends PentahoBase implements Ax
         Logger.error(getClass().getName(), Messages.getInstance().getErrorString( "AbstractAxisConfigurator.ERROR_0001_COULD_NOT_LOAD_SERVICE", wsDef.getId() ), e ); //$NON-NLS-1$
       }
     }
-      
+    loaded = true;
+
   }
 
   /**
@@ -177,8 +187,11 @@ public abstract class AbstractAxisConfigurator extends PentahoBase implements Ax
     // add any end points
     addServiceEndPoints( axisService );
     
-    // create the WSDL for the service
-    AxisUtil.createServiceWsdl( axisService, wsDef, getAxisConfiguration() );
+    // JD - don't create the WSDL yet, do it on demand. Just store the wsDef for now
+    Parameter wsDefParam = new Parameter();
+    wsDefParam.setName("wsDefParam"); //$NON-NLS-1$
+    wsDefParam.setValue(wsDef); //$NON-NLS-1$
+    axisService.addParameter(wsDefParam);
     
     // add the wrapper to the service list
     services.put( serviceId, wsDef );
