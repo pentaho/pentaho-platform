@@ -15,7 +15,29 @@
 
 package org.pentaho.platform.plugin.action.chartbeans;
 
-import com.ibm.icu.text.MessageFormat;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.CONTENT_TYPE;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.INTEGER_TYPE;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.REQUEST_INPUT_SOURCE;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.RESPONSE_OUTPUT_DESTINATION;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.RESULTSET_TYPE;
+import static org.pentaho.actionsequence.dom.IActionSequenceDocument.STRING_TYPE;
+
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
+import java.util.Set;
+
 import org.apache.commons.io.IOUtils;
 import org.pentaho.actionsequence.dom.ActionSequenceDocument;
 import org.pentaho.actionsequence.dom.IActionSequenceInput;
@@ -29,7 +51,14 @@ import org.pentaho.chart.model.util.ChartSerializer;
 import org.pentaho.chart.model.util.ChartSerializer.ChartSerializationFormat;
 import org.pentaho.chart.plugin.jfreechart.JFreeChartPlugin;
 import org.pentaho.chart.plugin.openflashchart.OpenFlashChartPlugin;
-import org.pentaho.platform.api.engine.*;
+import org.pentaho.platform.api.engine.ILogger;
+import org.pentaho.platform.api.engine.IOutputHandler;
+import org.pentaho.platform.api.engine.IParameterProvider;
+import org.pentaho.platform.api.engine.IPentahoRequestContext;
+import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.engine.IPentahoUrlFactory;
+import org.pentaho.platform.api.engine.IRuntimeContext;
+import org.pentaho.platform.api.engine.ISolutionEngine;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
@@ -38,11 +67,6 @@ import org.pentaho.platform.engine.services.runtime.TemplateUtil;
 import org.pentaho.platform.plugin.action.pentahometadata.ActionDefinitionEncoder;
 import org.pentaho.platform.util.UUIDUtil;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
-
-import java.io.*;
-import java.util.*;
-
-import static org.pentaho.actionsequence.dom.IActionSequenceDocument.*;
 
 public class DefaultChartBeansGenerator implements IChartBeansGenerator {
 
