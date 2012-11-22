@@ -194,7 +194,6 @@ CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 \A/js/theme.*\Z=Anonymous,Authenticated
 \A/content/common-ui/resources/themes/.*\Z=Anonymous,Authenticated
 \A/content/common-ui/resources/web/dojo/djconfig.js.*\Z=Anonymous,Authenticated
-\A/content/common-ui/resources/web/cache/cache-service.js.*\Z=Anonymous,Authenticated
 \A/docs/.*\Z=Anonymous,Authenticated
 \A/mantlelogin/.*\Z=Anonymous,Authenticated
 \A/mantle/mantleloginservice/*\Z=Anonymous,Authenticated
