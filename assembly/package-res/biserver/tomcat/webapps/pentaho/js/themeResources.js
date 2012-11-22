@@ -35,7 +35,11 @@ function includeResources(resourceTree){
     if(cssPat.test(baseName)){
       
       document.write("<link rel='stylesheet' type='text/css' href='"+CONTEXT_PATH + resourceTree[selectedTheme].rootDir +baseName+ "'/>");
-      
+      // Check to see if we're in a mobile device, if so add a "-mobile"
+      if(navigator.userAgent.match(/(iPad|iPod|iPhone)/) != null){
+        document.write("<link rel='stylesheet' type='text/css' href='"+CONTEXT_PATH + resourceTree[selectedTheme].rootDir +baseName.replace(".css","")+ "-mobile.css'/>");
+      }
+
     } else {
       
       document.write("<script type='text/javascript' src='"+CONTEXT_PATH + resourceTree[selectedTheme].rootDir +baseName+ "'></script>");
