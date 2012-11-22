@@ -65,6 +65,10 @@
   <property name="wkhtmltoimage.dir" value="${third-party.dir}/wkhtmltoimage" description="Directory where wkhtmltoimage is downloaded"/>
 
   <property name="pentaho.wars.dir" value="${stage.dir}/pentaho-wars" />
+
+  <property name="kettle-plugins.stage.dir" value="kettle-plugins" />
+  <property name="kettle-plugins.dir" value="${solution.dir.server}/system/kettle/plugins" />
+
   <!-- =================================
           target: clean-all
          ================================= -->
@@ -94,7 +98,7 @@
           target: assemble
          ================================= -->
   <target name="assemble"
-          depends="assemble-no-plugins,install-plugins"
+          depends="assemble-no-plugins,install-plugins,install-kettle-plugins"
           description="Assembles an archive-based BIServer community edition"/>
 
 
@@ -362,6 +366,16 @@
       <fileset file="${plugins.dir}/*.zip" />
     </unzip>
   </target>
+
+  <!-- - - - - - - - - - - - - - - - - -
+  target: install-kettle-plugins
+  - - - - - - - - - - - - - - - - - -->
+  <target name="install-kettle-plugins" depends="resolve-kettle-plugins">
+    <unzip dest="${kettle-plugins.dir}" overwrite="true">
+      <fileset file="${kettle-plugins.stage.dir}/*.zip" />
+    </unzip>
+  </target>
+
 
 
   <!--=======================================================================

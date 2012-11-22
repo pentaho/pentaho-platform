@@ -41,7 +41,15 @@
     <ivy:resolve file="${ivyfile}" conf="plugin" />
     <ivy:retrieve conf="plugin" pattern="${basedir}/${plugins.dir}/[module]-[revision](-[classifier]).[ext]" />
   </target>
-  
+
+
+  <!-- - - - - - - - - - - - - - - - - -
+    target: resolve-kettle-plugins
+  - - - - - - - - - - - - - - - - - -->
+  <target name="resolve-kettle-plugins" depends="install-ivy">
+    <ivy:resolve file="${ivyfile}" conf="kettle-plugin" />
+    <ivy:retrieve conf="kettle-plugin" pattern="${kettle-plugins.stage.dir}/[module]-[revision](-[classifier]).[ext]" />
+  </target>
 
   <!-- - - - - - - - - - - - - - - - - - 
           target: resolve-datasource-libs
