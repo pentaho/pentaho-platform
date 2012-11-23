@@ -100,7 +100,7 @@ public class MDXConnection implements IPentahoLoggingConnection {
       final String userName = props.getProperty(IPentahoConnection.USERNAME_KEY);
       final String password = props.getProperty(IPentahoConnection.PASSWORD_KEY);
       if (connection != null && provider != null) {
-        init(connection, provider, userName, password);
+        init(connection, provider, userName, password, props);
       } else {
         init(props);
       }
@@ -119,7 +119,7 @@ public class MDXConnection implements IPentahoLoggingConnection {
   @Deprecated
   public MDXConnection(final String driver, final String provider, final String userName, final String password) {
     super();
-    init(driver, provider, userName, password);
+    init(driver, provider, userName, password, new Properties());
   }
 
   public MDXConnection(final String connectStr, final ILogger logger) {
@@ -145,7 +145,7 @@ public class MDXConnection implements IPentahoLoggingConnection {
       init(pl);
   }
   
-  protected void init(final String driver, final String provider, final String userName, final String password) {
+  protected void init(final String driver, final String provider, final String userName, final String password, final Properties props) {
     StringBuffer buffer = new StringBuffer();
     buffer.append("provider=" + provider); //$NON-NLS-1$
     //
@@ -171,6 +171,19 @@ public class MDXConnection implements IPentahoLoggingConnection {
     if (password != null) {
       buffer.append("; JdbcPassword=" + password); //$NON-NLS-1$
     }
+
+
+       Enumeration enum1 = props.keys();
+      while (enum1.hasMoreElements()) {
+        String key = (String)enum1.nextElement();
+        if (IPentahoConnection.CONNECTION.equals(key) ||
+            IPentahoConnection.PROVIDER.equals(key) ||
+            IPentahoConnection.USERNAME_KEY.equals(key) ||
+            IPentahoConnection.PASSWORD_KEY.equals(key))
+          continue;
+        buffer.append("; " + key +"=" + props.get(key));
+      }
+
     init(buffer.toString());
   }
 
