@@ -25,6 +25,10 @@ import java.util.concurrent.Callable;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import mondrian.olap.Connection;
+import mondrian.olap.DriverManager;
+import mondrian.olap.MondrianServer;
+import mondrian.server.FileRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.FileSystemException;
@@ -44,6 +48,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.PentahoEntityResolver;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalog;
 import org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper;
 import org.pentaho.platform.plugin.services.connections.mondrian.MDXConnection;
 import org.pentaho.platform.repository.solution.filebased.MondrianVfs;
@@ -178,7 +183,7 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
   }
   
   @Override
-  protected ConnectionFactory createConnectionFactory(ServletConfig servletConfig) throws ServletException {
+  protected ConnectionFactory createConnectionFactory(final ServletConfig servletConfig) throws ServletException {
       
     final ConnectionFactory delegate =
       super.createConnectionFactory(servletConfig);
@@ -250,8 +255,10 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
           addComma = true;
         }
         
+
         // Now let the delegate connection factory do its magic.
-        return 
+        if (catalogName == null)
+        return
           delegate.getConnection(
             databaseName,
             catalogName,
@@ -259,6 +266,21 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
               ? null
               : roleName,
             props);
+        else {
+         //We create a connection differently so we can ensure that
+          //the XMLA servlet shares the same MondrianServer instance as the rest
+          //of the platform
+          MondrianCatalog mc = org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper.getInstance().getCatalog(catalogName,
+                  PentahoSessionHolder.getSession());
+
+
+          Connection con = DriverManager.getConnection(mc.getDataSourceInfo() + ";Catalog=" + mc.getDefinition(), makeCatalogLocator(servletConfig));
+
+
+          MondrianServer server = MondrianServer.forConnection(con);
+          FileRepository fr = new FileRepository(makeContentFinder(makeDataSourcesUrl(servletConfig)), makeCatalogLocator(servletConfig));
+          return fr.getConnection(server, databaseName, catalogName, roleName, props);
+        }
       }
     };
   }
