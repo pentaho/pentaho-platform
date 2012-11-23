@@ -1,5 +1,7 @@
 package org.pentaho.platform.plugin.action.chartbeans;
 
+import java.util.regex.Matcher;
+
 import org.pentaho.chart.IChartLinkGenerator;
 
 /**
@@ -29,6 +31,10 @@ public class ChartLinkGenerator implements IChartLinkGenerator {
     // escape single quotes for javascript
     seriesName = resolveEscapeCharacters(seriesName);
     domainName = resolveEscapeCharacters(domainName);
+
+    seriesName = Matcher.quoteReplacement(seriesName);
+    domainName = Matcher.quoteReplacement(domainName);
+
     return urlTemplate.replaceAll("\\{series\\}", seriesName == null ? "" : seriesName).replaceAll("\\{domain\\}", domainName == null ? "" : domainName).replaceAll("\\{range\\}", rangeValue == null ? "" : rangeValue.toString()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
   }
 
