@@ -174,6 +174,8 @@ public class ChartComponent {
           themeFiles.add(new File(PentahoSystem.getApplicationContext().getSolutionPath("system/chartbeans/themes/Theme4.xml"))); //$NON-NLS-1$
           themeFiles.add(new File(PentahoSystem.getApplicationContext().getSolutionPath("system/chartbeans/themes/Theme5.xml"))); //$NON-NLS-1$
           themeFiles.add(new File(PentahoSystem.getApplicationContext().getSolutionPath("system/chartbeans/themes/Theme6.xml"))); //$NON-NLS-1$
+          themeFiles.add(new File(PentahoSystem.getApplicationContext().getSolutionPath("system/chartbeans/themes/Theme7.xml"))); //$NON-NLS-1$
+          themeFiles.add(new File(PentahoSystem.getApplicationContext().getSolutionPath("system/chartbeans/themes/Theme8.xml"))); //$NON-NLS-1$
           return themeFiles;
             }
       };
@@ -242,9 +244,21 @@ public class ChartComponent {
         Graphics2D graphics = image.createGraphics();
         graphics.setFont(new Font("serif", Font.BOLD, 14)); //$NON-NLS-1$
         graphics.setColor(Color.BLACK);
-        graphics.drawString("The chart data query returned no data.", 5, 5); //$NON-NLS-1$
-        String outputType = getMimeType().equals("image/jpg") ? "jpeg" : "png"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        ImageIO.write(image, outputType, outputStream);
+        graphics.drawString("The chart data query returned no data.", 40, 40); //$NON-NLS-1$
+        String outputType =  "png"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+        File imageFile = PentahoSystem.getApplicationContext().createTempFile(PentahoSessionHolder.getSession(), "tmp_chart_", ".png", false); //$NON-NLS-1$
+        FileOutputStream fo = new FileOutputStream(imageFile);
+        ImageIO.write(image, "png", fo);
+
+        String jFreeChartHtml = ChartBeansGeneratorUtil.mergeJFreeChartHtmlTemplate(imageFile, null, null, chartWidth, chartHeight, PentahoRequestContextHolder.getRequestContext().getContextPath());
+        is = new ByteArrayInputStream(jFreeChartHtml.getBytes("utf-8")); //$NON-NLS-1$
+
+        int val = 0;
+        while((val = is.read()) != -1){
+          outputStream.write(val);
+        }
+
       } else {
         String flashContent = ChartBeansGeneratorUtil.buildEmptyOpenFlashChartHtmlFragment("The chart data query returned no data."); //$NON-NLS-1$
         is = new ByteArrayInputStream(flashContent.getBytes("utf-8")); //$NON-NLS-1$
