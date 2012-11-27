@@ -142,12 +142,6 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   }
 
   @Bindable
-  public void toggleShowBrowser() {
-    boolean showing = SolutionBrowserPanel.getInstance().isNavigatorShowing();
-    SolutionBrowserPanel.getInstance().setNavigatorShowing(!showing);
-  }
-
-  @Bindable
   public void toggleShowWorkspace() {
     IPluginPerspective perspective = PerspectiveManager.getInstance().getActivePerspective();
     boolean showing = perspective.getId().equalsIgnoreCase("workspace.perspective");
@@ -332,7 +326,6 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   @Bindable
   public void setShowBrowserSelected(boolean showBrowserSelected) {
     boolean prevVal = this.showBrowserSelected;
-
     this.showBrowserSelected = showBrowserSelected;
     this.firePropertyChange("showBrowserSelected", prevVal, showBrowserSelected);
   }

@@ -17,9 +17,12 @@
  */
 package org.pentaho.mantle.client.ui.xul;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
@@ -42,10 +45,13 @@ import org.pentaho.mantle.client.solutionbrowser.filepicklist.IFilePickListListe
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.RecentPickList;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
+import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
+import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
 import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.UserSettingsManager;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.XulException;
+import org.pentaho.ui.xul.binding.Binding;
 import org.pentaho.ui.xul.binding.BindingFactory;
 import org.pentaho.ui.xul.components.XulMenuitem;
 import org.pentaho.ui.xul.components.XulToolbarbutton;
@@ -57,14 +63,12 @@ import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
 import org.pentaho.ui.xul.stereotype.Bindable;
 import org.pentaho.ui.xul.util.XulDialogCallback;
-import org.pentaho.ui.xul.util.XulDialogCallback.Status;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -174,7 +178,59 @@ public class MantleController extends AbstractXulEventHandler {
       }
   		
       buildFavoritesAndRecent(false);
+      
+      //Bindings to keep menu and toolbar in sync with BrowserPanel state showBrowserSelected
+      final List<Binding> bindingsToUpdate = new ArrayList<Binding>();
+      //For the menu item
+      bindingsToUpdate.add(
+      		bf.createBinding(model, "showBrowserSelected", showBrowserMenuItem, "checked")
+      );
+      //For the toolbar button
+      bindingsToUpdate.add(
+      		bf.createBinding(model, "showBrowserSelected", showBrowserBtn, "selected")
+      );
 
+      //Glue the two to this method
+  		bindingsToUpdate.add(
+      		bf.createBinding(model, "showBrowserSelected", this, "showBrowserSelected")
+      );
+
+
+      UserSettingsManager.getInstance().addUserSettingsListener(new IUserSettingsListener(){
+
+				@Override
+				public void onFetchUserSettings(JsArray<JsSetting> settings) {
+					if (settings == null) {
+			      return;
+			    }
+
+			    for (int i = 0; i < settings.length(); i++) {
+			      JsSetting setting = settings.get(i);
+			      try {
+			        if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
+			          boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
+
+								model.setShowBrowserSelected(showNavigator);
+						    
+					      for(Binding b : bindingsToUpdate){
+					      	try{
+					      		b.fireSourceChanged();
+					      	} catch(Exception e){
+					      		e.printStackTrace();
+					      	}
+					      }
+					      
+								break;
+			        }
+			      } catch (Exception e) {
+			        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+			        dialogBox.center();
+			      }
+			    }
+				}
+      	
+      });
+      
       // install themes
       RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/active");
       try {
@@ -226,11 +282,6 @@ public class MantleController extends AbstractXulEventHandler {
                   bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled");
                   bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled");
                   bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled");
-
-                  // init known values
-                  ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(SolutionBrowserPanel.getInstance().isNavigatorShowing());
-                  ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked("workspace.perspective".equals(PerspectiveManager.getInstance()
-                      .getActivePerspective().getId()));
 
                   PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
                 	  public void onHandle(Void v) {
@@ -565,14 +616,14 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public void showBrowserClicked() {
-    ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand();
-    showBrowserCommand.execute();
+  	model.setShowBrowserSelected(!model.isShowBrowserSelected());
   }
 
   @Bindable
   public void setShowBrowserSelected(boolean flag) {
-    // called by the MainToolbarModel to change state.
-    showBrowserBtn.setSelected(flag);
+    ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(flag);
+    showBrowserCommand.execute();
+    showBrowserBtn.setSelected(flag, false);
   }
 
   @Bindable

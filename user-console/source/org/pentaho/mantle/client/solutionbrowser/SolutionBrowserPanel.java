@@ -28,7 +28,6 @@ import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTab;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
@@ -52,7 +51,6 @@ import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTree;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
-import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
@@ -250,12 +248,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     contentPanel.setAnimationEnabled(false);
     contentPanel.add(launchPanel);
     contentPanel.add(contentTabPanel);
-    if (showSolutionBrowser) {
-      solutionNavigatorAndContentPanel.setSplitPosition(defaultSplitPosition);
-    } else {
-      solutionNavigatorAndContentPanel.setSplitPosition("0px"); //$NON-NLS-1$
-      solutionNavigatorPanel.setVisible(false);
-    }
     contentPanel.setHeight("100%"); //$NON-NLS-1$
     contentPanel.setWidth("100%"); //$NON-NLS-1$
     contentPanel.getElement().setId("contentDeck");
@@ -536,7 +528,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     }
   }
   
-  private void addRecent(String fileNameWithPath, String title) {
+  public void addRecent(String fileNameWithPath, String title) {
   	RecentPickItem recentPickItem = new RecentPickItem(fileNameWithPath);
   	recentPickItem.setTitle(title);
   	recentPickItem.setLastUse(System.currentTimeMillis());
@@ -745,6 +737,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   public void setNavigatorShowing(final boolean showSolutionBrowser) {
+    boolean prevVal = this.showSolutionBrowser;
     this.showSolutionBrowser = showSolutionBrowser;
     if (showSolutionBrowser) {
       solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);

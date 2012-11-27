@@ -84,10 +84,11 @@ public class SaveCommand extends AbstractCommand {
             }
 
             @Override
-            public void fileSelected(RepositoryFile file, String filePath, String fileName, String title) {
+            public void fileSelected(final RepositoryFile file, String filePath, String fileName, String title) {
               SaveCommand.this.type = SolutionFileInfo.Type.XACTION; 
               SaveCommand.this.name = fileName;
               SaveCommand.this.path = filePath;
+              // final String fullPathWithName = filePath + "/" + fileName;
               tabName = name;
               if (tabName.indexOf("analysisview.xaction") != -1) {
                 // trim off the analysisview.xaction from the localized-name
@@ -103,6 +104,7 @@ public class SaveCommand extends AbstractCommand {
                   public void okPressed() {
                     doSaveAs(navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true);
                     Window.setTitle(Messages.getString("productName") + " - " + name); //$NON-NLS-1$ //$NON-NLS-2$
+                    //navigatorPerspective.addRecent(fullPathWithName, name);
                   }
 
                   public void cancelPressed() {
@@ -114,6 +116,7 @@ public class SaveCommand extends AbstractCommand {
                 doSaveAs(navigatorPerspective.getContentTabPanel().getCurrentFrameElementId(), name, path, type, true);
                 Window.setTitle(Messages.getString("productName") + " - " + name); //$NON-NLS-1$ //$NON-NLS-2$
                 persistFileInfoInFrame();
+                //navigatorPerspective.addRecent(fullPathWithName, name);
                 clearValues();
               }
             }

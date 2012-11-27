@@ -26,8 +26,15 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.user.client.Command;
 
 public class ShowBrowserCommand implements Command {
-
+	private boolean state;
+	
   public ShowBrowserCommand() {
+    final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
+  	this.state = !solutionBrowserPerspective.isNavigatorShowing();
+  }
+  
+  public ShowBrowserCommand(boolean flag){
+  	this.state = flag;
   }
 
   public void execute() {
@@ -35,12 +42,12 @@ public class ShowBrowserCommand implements Command {
     if (!solutionBrowserPerspective.isNavigatorShowing()) {
       PerspectiveManager.getInstance().setPerspective("default.perspective");
     }
-    solutionBrowserPerspective.setNavigatorShowing(!solutionBrowserPerspective.isNavigatorShowing());
+    solutionBrowserPerspective.setNavigatorShowing(state);
 
     final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_NAVIGATOR"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
     try {
-      builder.sendRequest("" + solutionBrowserPerspective.isNavigatorShowing(), EmptyRequestCallback.getInstance());
+      builder.sendRequest("" + state, EmptyRequestCallback.getInstance());
     } catch (RequestException e) {
       // showError(e);
     }

@@ -36,6 +36,8 @@ public class UserSettingsManager {
     listeners.add(listener);
     if (settings == null) {
       fetchUserSettings(true);
+    } else {
+    	listener.onFetchUserSettings(settings);
     }
   }
 

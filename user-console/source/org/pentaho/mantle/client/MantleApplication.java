@@ -35,7 +35,6 @@ import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.mantle.client.usersettings.IMantleSettingsListener;
-import org.pentaho.mantle.client.usersettings.IMantleUserSettingsConstants;
 import org.pentaho.mantle.client.usersettings.IUserSettingsListener;
 import org.pentaho.mantle.client.usersettings.JsSetting;
 import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
@@ -144,22 +143,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   }
 
   public void onFetchUserSettings(JsArray<JsSetting> settings) {
-    if (settings == null) {
-      return;
-    }
-
-    for (int i = 0; i < settings.length(); i++) {
-      JsSetting setting = settings.get(i);
-      try {
-        if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
-          boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
-          SolutionBrowserPanel.getInstance().setNavigatorShowing(showNavigator);
-        }
-      } catch (Exception e) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-        dialogBox.center();
-      }
-    }
+    //Moved to MantleController
   }
 
   public void onFetchMantleSettings(final HashMap<String, String> settings) {

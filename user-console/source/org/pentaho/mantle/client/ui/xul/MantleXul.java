@@ -112,9 +112,6 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
       return;
     }
 
-    // TODO: remove controller reference from model when Bindings in place
-    controller.setModel(new MantleModel(this));
-
     // Get the toolbar from the XUL doc
     Widget bar = (Widget) container.getDocumentRoot().getElementById("mainToolbarWrapper").getManagedObject(); //$NON-NLS-1$
     Widget xultoolbar = (Widget) container.getDocumentRoot().getElementById("mainToolbar").getManagedObject(); //$NON-NLS-1$
