@@ -70,7 +70,7 @@ public class JFreeReportZipHtmlComponent extends AbstractGenerateStreamContentCo
       final ContentLocation data = RepositoryUtilities.createLocation(zipRepository, RepositoryUtilities.split(
           dataDirectory, "/"));//$NON-NLS-1$
 
-      final FlowHtmlOutputProcessor outputProcessor = new FlowHtmlOutputProcessor(report.getConfiguration());
+      final FlowHtmlOutputProcessor outputProcessor = new FlowHtmlOutputProcessor();
 
       final HtmlPrinter printer = new AllItemsHtmlPrinter(report.getResourceManager());
       printer.setContentWriter(root, new DefaultNameGenerator(root, "report.html"));//$NON-NLS-1$

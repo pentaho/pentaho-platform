@@ -17,7 +17,9 @@
  */
 package org.pentaho.platform.plugin.action.jfreereport;
 
-import java.awt.*;
+import java.awt.Dialog;
+import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,6 +32,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.activation.DataSource;
 import javax.print.DocFlavor;
 import javax.print.PrintException;
@@ -96,9 +99,6 @@ import org.pentaho.reporting.engine.classic.core.modules.output.table.rtf.Stream
 import org.pentaho.reporting.engine.classic.core.modules.output.table.xls.FlowExcelOutputProcessor;
 import org.pentaho.reporting.engine.classic.core.modules.output.xml.XMLProcessor;
 import org.pentaho.reporting.engine.classic.core.modules.parser.base.ReportGenerator;
-import org.pentaho.reporting.engine.classic.core.parameters.ModifiableReportParameterDefinition;
-import org.pentaho.reporting.engine.classic.core.parameters.ParameterDefinitionEntry;
-import org.pentaho.reporting.engine.classic.core.parameters.PlainParameter;
 import org.pentaho.reporting.engine.classic.core.util.ReportParameterValues;
 import org.pentaho.reporting.engine.classic.extensions.modules.java14print.Java14PrintUtil;
 import org.pentaho.reporting.libraries.base.config.Configuration;
@@ -852,11 +852,11 @@ public class JFreeReportComponent extends AbstractJFreeReportComponent {
             valuesBuffer.append(',').append(values[j].toString());
           }
         }
-        // report.getParameterValues().put(paramName, valuesBuffer.toString());
-        report.setProperty(paramName, valuesBuffer.toString());
+        report.getParameterValues().put(paramName, valuesBuffer.toString());
+        //report.setProperty(paramName, valuesBuffer.toString());
       } else {
-        // report.getParameterValues().put(paramName, paramValue);
-        report.setProperty(paramName, paramValue);
+        report.getParameterValues().put(paramName, paramValue);
+        //report.setProperty(paramName, paramValue);
       }
     }
     return true;
@@ -1155,7 +1155,7 @@ public class JFreeReportComponent extends AbstractJFreeReportComponent {
   protected boolean writeCsv(final MasterReport report, final OutputStream outputStream, final int yieldRate) {
     boolean result = false;
     try {
-      final StreamCSVOutputProcessor target = new StreamCSVOutputProcessor(report.getConfiguration(), outputStream);
+      final StreamCSVOutputProcessor target = new StreamCSVOutputProcessor(outputStream);
       final StreamReportProcessor reportProcessor = new StreamReportProcessor(report, target);
       if (yieldRate > 0) {
         reportProcessor.addReportProgressListener(new YieldReportListener(yieldRate));

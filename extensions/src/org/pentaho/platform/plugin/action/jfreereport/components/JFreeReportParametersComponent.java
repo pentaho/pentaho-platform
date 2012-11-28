@@ -151,11 +151,11 @@ public class JFreeReportParametersComponent extends AbstractJFreeReportComponent
             valuesBuffer.append(',').append(values[j].toString());
           }
         }
-        // report.getParameterValues().put(paramName, valuesBuffer.toString());
-        report.setProperty(paramName,  valuesBuffer.toString());
+        report.getParameterValues().put(paramName, valuesBuffer.toString());
+        //report.setProperty(paramName,  valuesBuffer.toString());
       } else {
-        // report.getParameterValues().put(paramName, paramValue);
-        report.setProperty(paramName, paramValue);
+        report.getParameterValues().put(paramName, paramValue);
+        //report.setProperty(paramName, paramValue);
       }
     }
 

@@ -90,7 +90,7 @@ public class JFreeReportDirectoryHtmlComponent extends AbstractGenerateContentCo
       final FileRepository dataRepository = new FileRepository(dataDirectory);
       final ContentLocation dataRoot = dataRepository.getRoot();
 
-      final FlowHtmlOutputProcessor outputProcessor = new FlowHtmlOutputProcessor(report.getConfiguration());
+      final FlowHtmlOutputProcessor outputProcessor = new FlowHtmlOutputProcessor();
 
       final HtmlPrinter printer = new AllItemsHtmlPrinter(report.getResourceManager());
       printer.setContentWriter(targetRoot, new DefaultNameGenerator(targetRoot, targetFile.getName()));

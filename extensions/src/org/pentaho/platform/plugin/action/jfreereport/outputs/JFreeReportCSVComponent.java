@@ -50,7 +50,7 @@ public class JFreeReportCSVComponent extends AbstractGenerateStreamContentCompon
   @Override
   protected boolean performExport(final MasterReport report, final OutputStream outputStream) {
     try {
-      final StreamCSVOutputProcessor target = new StreamCSVOutputProcessor(report.getConfiguration(), outputStream);
+      final StreamCSVOutputProcessor target = new StreamCSVOutputProcessor(outputStream);
       final StreamReportProcessor reportProcessor = new StreamReportProcessor(report, target);
       final int yieldRate = getYieldRate();
       if (yieldRate > 0) {
