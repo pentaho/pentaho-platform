@@ -36,6 +36,7 @@ import javax.jcr.security.Privilege;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
@@ -76,18 +77,30 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
   private IPathConversionHelper pathConversionHelper;
   
+  private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
+  
+  private ITenantedPrincipleNameResolver tenantedUserNameUtils;
+  
+  
   // ~ Constructors ====================================================================================================
 
   public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper) {
-    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper());
+    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper(), null, null);
+  }
+
+  public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper,final ITenantedPrincipleNameResolver tenantedUserNameUtils , final ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
+    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper(), tenantedUserNameUtils, tenantedRoleNameUtils);
   }
 
   public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper,
-      final IPermissionConversionHelper permissionConversionHelper) {
+      final IPermissionConversionHelper permissionConversionHelper,final ITenantedPrincipleNameResolver tenantedUserNameUtils, final ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
     super();
     this.jcrTemplate = jcrTemplate;
     this.pathConversionHelper = pathConversionHelper;
     this.permissionConversionHelper = permissionConversionHelper;
+    this.tenantedUserNameUtils = tenantedUserNameUtils;
+    this.tenantedRoleNameUtils = tenantedRoleNameUtils;
+    
   }
 
   // ~ Methods =========================================================================================================
@@ -199,6 +212,9 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
     if (ownerString != null) {
       // for now, just assume all owners are users; only has UI impact
+      if(tenantedUserNameUtils != null) {
+        ownerString = tenantedUserNameUtils.getPrincipleName(ownerString);
+      }
       owner = new RepositoryFileSid(ownerString, RepositoryFileSid.Type.USER);
     }
 
@@ -220,10 +236,17 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
       throws RepositoryException {
     Principal principal = acEntry.getPrincipal();
     RepositoryFileSid sid = null;
+    String name = principal.getName();
     if (principal instanceof Group) {
-      sid = new RepositoryFileSid(principal.getName(), RepositoryFileSid.Type.ROLE);
+      if(tenantedRoleNameUtils != null) {
+        name = tenantedRoleNameUtils.getPrincipleName(name);
+      }
+      sid = new RepositoryFileSid(name, RepositoryFileSid.Type.ROLE);
     } else {
-      sid = new RepositoryFileSid(principal.getName(), RepositoryFileSid.Type.USER);
+      if(tenantedUserNameUtils != null) {
+        name = tenantedUserNameUtils.getPrincipleName(name);
+      }
+      sid = new RepositoryFileSid(name, RepositoryFileSid.Type.USER);
     }
     logger.debug(String.format("principal class [%s]", principal.getClass().getName())); //$NON-NLS-1$
     Privilege[] privileges = acEntry.getPrivileges();
@@ -369,6 +392,22 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     session.save();
     return getAcl(fileId);
 
+  }
+  
+  public void setTenantedRoleNameUtils(ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
+    this.tenantedRoleNameUtils = tenantedRoleNameUtils;
+  }
+
+  public ITenantedPrincipleNameResolver getTenantedRoleNameUtils() {
+    return tenantedRoleNameUtils;
+  }
+  
+  public ITenantedPrincipleNameResolver getTenantedUserNameUtils() {
+    return tenantedUserNameUtils;
+  }
+
+  public void setTenantedUserNameUtils(ITenantedPrincipleNameResolver tenantedUserNameUtils) {
+    this.tenantedUserNameUtils = tenantedUserNameUtils;
   }
 
 }

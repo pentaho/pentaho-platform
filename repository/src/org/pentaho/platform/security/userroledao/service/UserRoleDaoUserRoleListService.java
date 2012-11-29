@@ -57,6 +57,11 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
     super();
   }
 
+  public UserRoleDaoUserRoleListService(IUserRoleDao userRoleDao, UserDetailsService userDetailsService) {
+    super();
+    this.userRoleDao = userRoleDao;
+    this.userDetailsService = userDetailsService;
+  }
   public UserRoleDaoUserRoleListService(ITenantedPrincipleNameResolver tenantedUserNameUtils, ITenantedPrincipleNameResolver tenantedRoleNameUtils, IUserRoleDao userRoleDao, UserDetailsService userDetailsService) {
     super();
     this.tenantedUserNameUtils = tenantedUserNameUtils;
@@ -113,7 +118,11 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
     UserDetails user = userDetailsService.loadUserByUsername(tenantedUserNameUtils.getPrincipleId(tenant, username));
     List<String> roles = new ArrayList<String>(user.getAuthorities().length);
     for (GrantedAuthority role : user.getAuthorities()) {
-      roles.add(tenantedRoleNameUtils.getPrincipleName(role.getAuthority()));
+      String principalName = role.getAuthority(); 
+      if(tenantedRoleNameUtils != null) {
+        principalName = tenantedRoleNameUtils.getPrincipleName(principalName);
+      }
+      roles.add(principalName);
     }
     return roles;
   }
