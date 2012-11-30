@@ -102,7 +102,7 @@ public class RepositoryFileTreeManager {
     if (showHidden == null) {
       showHidden = Boolean.FALSE;
     }
-    url = url + "depth=" + depth + "&filter=" + filter + "&showHidden=" + showHidden; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    url = url + "depth=" + depth + "&filter=" + filter + "&showHidden=" + showHidden + "&ts=" + System.currentTimeMillis(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     builder = new RequestBuilder(RequestBuilder.GET, url);
 
     RequestCallback innerCallback = new RequestCallback() {
@@ -115,7 +115,7 @@ public class RepositoryFileTreeManager {
         if (response.getStatusCode() == Response.SC_OK) {
           final XMLToRepositoryFileTreeConverter converter = new XMLToRepositoryFileTreeConverter(response.getText());
           fileTree = converter.getTree();
-          String deletedFilesUrl = GWT.getHostPageBaseURL() + "api/repo/files/deleted";
+          String deletedFilesUrl = GWT.getHostPageBaseURL() + "api/repo/files/deleted?ts=" + System.currentTimeMillis();;
           RequestBuilder deletedFilesRequestBuilder = new RequestBuilder(RequestBuilder.GET, deletedFilesUrl);
           try {
             deletedFilesRequestBuilder.sendRequest(null, new RequestCallback() {
