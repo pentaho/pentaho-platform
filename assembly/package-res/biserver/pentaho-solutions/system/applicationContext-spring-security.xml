@@ -275,6 +275,7 @@ CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 \A/webservices/repositorysync\?wsdl.*\Z=Anonymous,Authenticated
 \A/webservices/datasourcemgmtservice\?wsdl.*\Z=Anonymous,Authenticated
 \A/webservices/.*\Z=Authenticated
+\A/api/.*require-js-cfg.js\Z=Anonymous,Authenticated
 \A/api/.*\Z=Authenticated
       ]]>
     </value>
