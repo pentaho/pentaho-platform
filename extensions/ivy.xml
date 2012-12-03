@@ -239,7 +239,7 @@
     <dependency org="jtds" name="jtds" rev="1.2.5" conf="default->default" transitive="false"/>
     <dependency org="net.sf.jt400" name="jt400" rev="6.1" conf="default->default" transitive="false"/>
     <dependency org="org.xerial" name="sqlite-jdbc" rev="3.7.2" conf="default->default" transitive="false"/>
-    <dependency org="jaybird" name="jaybird-full" rev="2.1.0" conf="default->default" transitive="false"/>
+    <dependency org="org.firebirdsql.jdbc" name="jaybird" rev="2.1.6" conf="default->default" transitive="false"/>
     <dependency org="com.sap" name="sapdbc" rev="7.4.4" conf="default->default" transitive="false"/>
     <dependency org="monetdb" name="monetdb-jdbc" rev="2.1" conf="default->default" transitive="false"/>
     <dependency org="luciddb" name="LucidDbClient-minimal" rev="0.9.4" conf="default->default" transitive="false"/>
