@@ -72,11 +72,6 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
   public List<IPlatformPlugin> getPlugins(IPentahoSession session) throws PlatformPluginRegistrationException {
     List<IPlatformPlugin> plugins = new ArrayList<IPlatformPlugin>();
 
-    ISolutionRepository repo = PentahoSystem.get(ISolutionRepository.class, session);
-    if (repo == null) {
-      throw new PlatformPluginRegistrationException(Messages.getInstance()
-          .getErrorString("PluginManager.ERROR_0008_CANNOT_GET_REPOSITORY")); //$NON-NLS-1$
-    }
     // look in each of the system setting folders looking for plugin.xml files
     String systemPath = PentahoSystem.getApplicationContext().getSolutionPath("system"); //$NON-NLS-1$
     File systemDir = new File(systemPath);
