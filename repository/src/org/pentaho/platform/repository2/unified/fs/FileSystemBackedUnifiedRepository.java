@@ -2,6 +2,7 @@ package org.pentaho.platform.repository2.unified.fs;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -231,7 +232,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public List<Character> getReservedChars() {
-    throw new UnsupportedOperationException();
+    return Collections.emptyList();
   }
 
 
