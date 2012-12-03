@@ -32,7 +32,11 @@ import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemEntryPoint;
 import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.util.ITempFileDeleter;
+import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.TenantUtils;
 
 public class StandaloneApplicationContext implements IApplicationContext {
 
@@ -87,9 +91,11 @@ public class StandaloneApplicationContext implements IApplicationContext {
       fileDeleter = (ITempFileDeleter)session.getAttribute(ITempFileDeleter.DELETER_SESSION_VARIABLE);
     }
     int sessionIdLength = session.getId().length();
-    final String newPrefix = new StringBuilder().append(prefix)
-        .append(session.getId().substring(0, sessionIdLength > 10 ? 10 : sessionIdLength))
-        .append('-').toString();
+    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", session);
+    String name = tenantedUserNameUtils.getPrincipleName(session.getName());
+	  final String newPrefix = new StringBuilder().append(prefix)
+		  .append(name.substring(0, name.length() > 10 ? 10 : name.length()))
+		  .append('-').toString();
     if (parentDir != null) {
       parentDir.mkdirs();
     }
