@@ -75,6 +75,9 @@ body{
     Locale locale = LocaleHelper.getLocale();
     IPentahoSession session = new StandaloneSession( "dashboards messages" ); //$NON-NLS-1$
     try {
+        if (messageUri.startsWith("api/repos/")) {
+    	  messageUri = "content/" + messageUri.substring(10); //$NON-NLS-1$
+	    }
         if (messageUri.startsWith("content/")) {
           messageUri = "system/" + messageUri.substring(8); //$NON-NLS-1$
         }
