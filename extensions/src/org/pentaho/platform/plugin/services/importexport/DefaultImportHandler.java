@@ -93,6 +93,7 @@ public class DefaultImportHandler implements ImportHandler {
     converters.put("sql", streamConverter);
     converters.put("xmi", streamConverter);
     converters.put("xml", streamConverter);
+    converters.put("cda", streamConverter); //$NON-NLS-1$
     
     try {
       PDIImportUtil.connectToRepository(null);
