@@ -20,6 +20,7 @@ import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputHandler;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
@@ -62,16 +63,35 @@ public class ActionSequenceAction implements IStreamProcessingAction, IStreaming
 
       if (!outputHandler.contentDone()) {
         if ((rt != null) && (rt.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS)) {
-          StringBuffer buffer = new StringBuffer();
-          PentahoSystem.get(IMessageFormatter.class, null).formatSuccessMessage(
-              "text/html", rt, buffer, false); //$NON-NLS-1$
-          xactionResultsOutputStream.write(buffer.toString().getBytes(LocaleHelper.getSystemEncoding()));
+        	boolean isFlushed = false;
+        	boolean isEmpty;
+          if (xactionResultsOutputStream instanceof RepositoryFileOutputStream) {
+          	RepositoryFileOutputStream repositoryFileOutputStream = (RepositoryFileOutputStream) xactionResultsOutputStream;
+          	isFlushed = repositoryFileOutputStream.isFlushed();
+          	isEmpty = repositoryFileOutputStream.size() > 0 ? false : true;
+          	if (RepositoryFilenameUtils.getExtension(repositoryFileOutputStream.getFilePath()).isEmpty() && xactionResultsOutputStream.toString().isEmpty()) {
+          		repositoryFileOutputStream.setFilePath(repositoryFileOutputStream.getFilePath() + ".html");
+          	}
+          } else {
+          	isEmpty = xactionResultsOutputStream.toString().isEmpty();
+          }
+          
+        	if (!isFlushed) {
+        		if (isEmpty){
+        			StringBuffer buffer = new StringBuffer();
+        			PentahoSystem.get(IMessageFormatter.class, null).formatSuccessMessage(
+        					"text/html", rt, buffer, false); //$NON-NLS-1$
+        			xactionResultsOutputStream.write(buffer.toString().getBytes(LocaleHelper.getSystemEncoding()));
+        		} 
+       			xactionResultsOutputStream.close();
+        	}
         } else {
           // we need an error message...
           StringBuffer buffer = new StringBuffer();
           PentahoSystem.get(IMessageFormatter.class, null).formatFailureMessage(
               "text/html", rt, buffer, messages); //$NON-NLS-1$
-          xactionResultsOutputStream.write(buffer.toString().getBytes(LocaleHelper.getSystemEncoding()));
+          	xactionResultsOutputStream.write(buffer.toString().getBytes(LocaleHelper.getSystemEncoding()));
+          	xactionResultsOutputStream.close();
         }
       }
     } finally {
