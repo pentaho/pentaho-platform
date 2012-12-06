@@ -275,4 +275,8 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
   public void setCharsetName(final String charsetName) {
     this.charsetName = charsetName;
   }
+  
+  public boolean isFlushed() {
+  	return flushed;
+  }
 }
