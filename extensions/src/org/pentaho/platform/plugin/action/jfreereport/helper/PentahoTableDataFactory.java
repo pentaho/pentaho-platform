@@ -24,14 +24,9 @@ import javax.swing.table.TableModel;
 
 import org.pentaho.commons.connection.IPentahoResultSet;
 import org.pentaho.platform.api.data.IPreparedComponent;
-import org.pentaho.platform.plugin.action.messages.Messages;
-import org.pentaho.reporting.engine.classic.core.DataFactory;
+import org.pentaho.reporting.engine.classic.core.AbstractDataFactory;
 import org.pentaho.reporting.engine.classic.core.DataRow;
-import org.pentaho.reporting.engine.classic.core.ResourceBundleFactory;
 import org.pentaho.reporting.engine.classic.core.util.CloseableTableModel;
-import org.pentaho.reporting.libraries.base.config.Configuration;
-import org.pentaho.reporting.libraries.resourceloader.ResourceKey;
-import org.pentaho.reporting.libraries.resourceloader.ResourceManager;
 
 /**
  * The PentahoTableDataFactory class implements JFreeReport's data factory and
@@ -44,9 +39,9 @@ import org.pentaho.reporting.libraries.resourceloader.ResourceManager;
  * 
  * @author Will Gorman
  */
-public class PentahoTableDataFactory implements DataFactory, Cloneable {
+public class PentahoTableDataFactory extends AbstractDataFactory {
 
-  private static final long serialVersionUID = -338882557376609479L;
+  private static final long serialVersionUID = -33882557376609479L;
 
   /** map of tables to keep track of */
   private HashMap<String, TableModel> tables;
@@ -72,22 +67,6 @@ public class PentahoTableDataFactory implements DataFactory, Cloneable {
   public PentahoTableDataFactory(final String name, final TableModel tableModel) {
     this();
     addTable(name, tableModel);
-  }
-
-  /**
-   * Initializes the data factory and provides new context information. Initialize is always called before the
-   * datafactory has been opened by calling DataFactory#open.
-   *
-   * @param configuration         the current report configuration.
-   * @param resourceManager       the report's resource manager.
-   * @param contextKey            the report's context key to access resources relative to the report location.
-   * @param resourceBundleFactory the report's resource-bundle factory to access localization information.
-   */
-  public void initialize(final Configuration configuration,
-                         final ResourceManager resourceManager,
-                         final ResourceKey contextKey,
-                         final ResourceBundleFactory resourceBundleFactory)
-  {
   }
 
   /**
@@ -155,10 +134,6 @@ public class PentahoTableDataFactory implements DataFactory, Cloneable {
     return model;
   }
 
-  public void open() {
-
-  }
-
   public void close() {
     // this gets called too frequently for the old implementation
     // the reporting engine seems to call this method during each stage
@@ -183,21 +158,16 @@ public class PentahoTableDataFactory implements DataFactory, Cloneable {
    * 
    * @return
    */
-  public DataFactory derive() {
-      return (DataFactory) clone();
+  public PentahoTableDataFactory derive() {
+      return clone();
   }
 
   @Override
-  public Object clone() {
-    try
-    {
-      final PentahoTableDataFactory dataFactory = (PentahoTableDataFactory) super.clone();
-      dataFactory.tables = (HashMap) tables.clone();
-      dataFactory.components = (HashMap) components.clone();
-      return dataFactory;
-    } catch (CloneNotSupportedException e) {
-      throw new IllegalStateException(Messages.getInstance().getErrorString("PentahoTableDataFactory.ERROR_0001_CLONE_SHOULD_NOT_FAIL")); //$NON-NLS-1$
-    }
+  public PentahoTableDataFactory clone() {
+    final PentahoTableDataFactory dataFactory = (PentahoTableDataFactory) super.clone();
+    dataFactory.tables = (HashMap) tables.clone();
+    dataFactory.components = (HashMap) components.clone();
+    return dataFactory;
   }
 
   public String[] getQueryNames() {
