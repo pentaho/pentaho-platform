@@ -60,10 +60,12 @@ import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.RowListener;
 import org.pentaho.di.trans.step.StepMetaDataCombi;
 import org.pentaho.platform.api.engine.IActionSequenceResource;
+import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
+import org.pentaho.di.core.logging.LogLevel; 
 
 /**
  * KettleComponent shows a list of available transformations in the root of the choosen repository.
@@ -674,28 +676,8 @@ public class KettleComponent extends ComponentBase implements RowListener {
         debug(Messages.getInstance().getString("Kettle.DEBUG_PREPARING_TRANSFORMATION")); //$NON-NLS-1$
 
         try {
-          if (isDefinedInput(KettleComponent.KETTLELOGLEVEL)) {
-            String logLevel = getInputStringValue(KettleComponent.KETTLELOGLEVEL);
-            if (logLevel.equalsIgnoreCase("basic")) { //$NON-NLS-1$
-              trans.setLogLevel(LogLevel.BASIC);
-            } else if (logLevel.equalsIgnoreCase("detail")) { //$NON-NLS-1$
-              trans.setLogLevel(LogLevel.DETAILED);
-            } else if (logLevel.equalsIgnoreCase("error")) { //$NON-NLS-1$
-              trans.setLogLevel(LogLevel.ERROR);
-            } else if (logLevel.equalsIgnoreCase("debug")) { //$NON-NLS-1$
-              trans.setLogLevel(LogLevel.DEBUG);
-            } else if (logLevel.equalsIgnoreCase("minimal")) { //$NON-NLS-1$
-              trans.setLogLevel(LogLevel.MINIMAL);
-            } else if (logLevel.equalsIgnoreCase("rowlevel")) { //$NON-NLS-1$
-              trans.setLogLevel(LogLevel.ROWLEVEL);
-            } else {
-              error(Messages.getInstance().getErrorString("Kettle.ERROR_0024_BAD_LOGGING_LEVEL", logLevel)); //$NON-NLS-1$
-              trans.setLogLevel(LogLevel.NOTHING);
-            }
-          } else {
-            trans.setLogLevel(LogLevel.NOTHING);
-          }
-
+          LogLevel lvl = getLogLevel();
+          trans.setLogLevel(lvl);
           trans.prepareExecution(transMeta.getArguments());
         } catch (Exception e) {
           throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0011_TRANSFORMATION_PREPARATION_FAILED"), e); //$NON-NLS-1$
@@ -829,6 +811,31 @@ public class KettleComponent extends ComponentBase implements RowListener {
     return result;
   }
 
+  private LogLevel getLogLevel() {
+    if (isDefinedInput(KettleComponent.KETTLELOGLEVEL)) {
+      String logLevelStr = getInputStringValue(KettleComponent.KETTLELOGLEVEL);
+      try {
+        return LogLevel.valueOf(logLevelStr);
+      } catch (Exception ex) {
+        error(Messages.getInstance().getErrorString("Kettle.ERROR_0024_BAD_LOGGING_LEVEL", logLevelStr)); //$NON-NLS-1$
+        return LogLevel.BASIC;
+      }
+    } else {
+      // If not defined in the component, translate
+      // xaction logging level to PDI Logging Level
+      switch (loggingLevel) {
+        case ILogger.DEBUG: return LogLevel.DEBUG;
+        case ILogger.ERROR: return LogLevel.ERROR;
+        case ILogger.FATAL: return LogLevel.ERROR;
+        case ILogger.INFO:  return LogLevel.MINIMAL;
+        case ILogger.WARN:  return LogLevel.BASIC;
+        case ILogger.TRACE: return LogLevel.ROWLEVEL;
+        default:            return LogLevel.BASIC;
+      } 
+      
+    }
+  }
+  
   private String getTransformSuccessOutputName() {
     String result = null;
 
@@ -919,28 +926,8 @@ public class KettleComponent extends ComponentBase implements RowListener {
           if (ComponentBase.debug) {
             debug(Messages.getInstance().getString("Kettle.DEBUG_STARTING_JOB")); //$NON-NLS-1$
           }
-          if (isDefinedInput(KettleComponent.KETTLELOGLEVEL)) {
-            String logLevel = getInputStringValue(KettleComponent.KETTLELOGLEVEL);
-            if (logLevel.equalsIgnoreCase("basic")) { //$NON-NLS-1$
-              job.setLogLevel(LogLevel.BASIC);
-            } else if (logLevel.equalsIgnoreCase("detail")) { //$NON-NLS-1$
-              job.setLogLevel(LogLevel.DETAILED);
-            } else if (logLevel.equalsIgnoreCase("error")) { //$NON-NLS-1$
-              job.setLogLevel(LogLevel.ERROR);
-            } else if (logLevel.equalsIgnoreCase("debug")) { //$NON-NLS-1$
-              job.setLogLevel(LogLevel.DEBUG);
-            } else if (logLevel.equalsIgnoreCase("minimal")) { //$NON-NLS-1$
-              job.setLogLevel(LogLevel.MINIMAL);
-            } else if (logLevel.equalsIgnoreCase("rowlevel")) { //$NON-NLS-1$
-              job.setLogLevel(LogLevel.ROWLEVEL);
-            } else {
-              error(Messages.getInstance().getErrorString("Kettle.ERROR_0024_BAD_LOGGING_LEVEL", logLevel)); //$NON-NLS-1$
-              job.setLogLevel(LogLevel.NOTHING);
-            }
-          } else {
-            job.setLogLevel(LogLevel.NOTHING);
-          }
-          
+          LogLevel lvl = getLogLevel();
+          job.setLogLevel(lvl);
           job.start();
         } catch (Exception e) {
           throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0022_JOB_START_FAILED"), e); //$NON-NLS-1$
