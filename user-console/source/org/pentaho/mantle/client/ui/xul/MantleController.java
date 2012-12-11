@@ -178,7 +178,7 @@ public class MantleController extends AbstractXulEventHandler {
       }
   		
       buildFavoritesAndRecent(false);
-      
+
       //Bindings to keep menu and toolbar in sync with BrowserPanel state showBrowserSelected
       final List<Binding> bindingsToUpdate = new ArrayList<Binding>();
       //For the menu item
@@ -623,7 +623,7 @@ public class MantleController extends AbstractXulEventHandler {
   public void setShowBrowserSelected(boolean flag) {
     ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(flag);
     showBrowserCommand.execute();
-    showBrowserBtn.setSelected(flag, false);
+    //showBrowserBtn.setSelected(flag, false);
   }
 
   @Bindable
