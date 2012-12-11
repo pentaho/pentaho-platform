@@ -64,6 +64,7 @@ public class LocalizationServlet extends ServletBase {
       String json = getJSONBundle(pluginId, name);
       resp.setContentType("text/plain"); //$NON-NLS-1$
       resp.setStatus(HttpServletResponse.SC_OK);
+      resp.setCharacterEncoding(LocaleHelper.getSystemEncoding());
       PrintWriter writer = resp.getWriter();
       try {
         writer.write(json);
