@@ -1,7 +1,7 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core'%>
 <%@
     page language="java"
-	import="org.springframework.security.ui.AbstractProcessingFilter,
+  import="org.springframework.security.ui.AbstractProcessingFilter,
             org.springframework.security.ui.webapp.AuthenticationProcessingFilter,
             org.springframework.security.ui.savedrequest.SavedRequest,
             org.springframework.security.AuthenticationException,
@@ -11,6 +11,7 @@
             org.pentaho.platform.api.engine.IPentahoSession,
             org.pentaho.platform.web.http.WebTemplateHelper,
             org.pentaho.platform.api.engine.IUITemplater,
+			org.pentaho.platform.api.engine.IPluginManager,
             org.pentaho.platform.web.jsp.messages.Messages,
             java.util.List,
             java.util.ArrayList,
@@ -74,20 +75,54 @@ boolean showUsers = Boolean.parseBoolean(PentahoSystem.getSystemSetting("login-s
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Pentaho User Console - Login</title>
+
+	<%
+	  String ua = request.getHeader("User-Agent").toLowerCase();
+	  if (!"desktop".equalsIgnoreCase(request.getParameter("mode"))) {		
+		if (ua.contains("ipad") || ua.contains("ipod") || ua.contains("iphone") || ua.contains("android") || "mobile".equalsIgnoreCase(request.getParameter("mode"))) {		
+		  IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()); 
+		  List<String> pluginIds = pluginManager.getRegisteredPlugins();
+		  for (String id : pluginIds) {
+		    String mobileRedirect = (String)pluginManager.getPluginSetting(id, "mobile-redirect", null);
+		    if (mobileRedirect != null) {
+		      // we have a mobile redirect
+			  %>
+			  <script type="text/javascript">
+          if(typeof window.top.PentahoMobile != "undefined"){
+            window.top.location.reload();
+          } else {
+            document.write('<META HTTP-EQUIV="refresh" CONTENT="0;URL=<%=mobileRedirect%>">');
+          }
+        </script>
+			  </head>
+			  <BODY>
+					<!-- this div is here for authentication detection (used by mobile, PIR, etc) -->
+					<div style="display:none">j_spring_security_check</div>
+			  </BODY>
+			  </HTML>
+			  <%			  
+			  return;
+		    }
+		  }
+		}
+	  }
+	%>
+
+
 <style type="text/css">
 <!--
 html, body {
-	margin:0;
-	padding:0;
-	height:100%;
-	border:none
+  margin:0;
+  padding:0;
+  height:100%;
+  border:none
 }
 #container_header {
-	margin: 0 auto;
-	padding: 0;
-	width:740px;
-	height: 94px;
-	display: block;
+  margin: 0 auto;
+  padding: 0;
+  width:740px;
+  height: 94px;
+  display: block;
 }
 #links{
 Float: right;
@@ -96,54 +131,54 @@ color: #828282;
 padding: 8px 0 0 0;
 }
 #links a{
-	color: #999;
-	text-decoration: none;
-	font-size: .8em;
+  color: #999;
+  text-decoration: none;
+  font-size: .8em;
 }
 #container_content {
-	margin: 0 auto;
-	padding: 0;
-	width:740px;
-	height: 335px;
-	font-family: Tahoma, Arial, sans-serif;
-	display: block;
-	background-image: url(/pentaho-style/images/login/middle_shadows.png);
-	background-repeat:no-repeat;
+  margin: 0 auto;
+  padding: 0;
+  width:740px;
+  height: 335px;
+  font-family: Tahoma, Arial, sans-serif;
+  display: block;
+  background-image: url(/pentaho-style/images/login/middle_shadows.png);
+  background-repeat:no-repeat;
 }
 #container_footer {
-	margin: 0 auto;
-	padding: 0;
-	width:740px;
-	height: 100%;
-	color: #000;
-	font-size: .75em;
-	/* padding: 8px 0 0 80px;*/
-	display: block;
-	background-image: url(/pentaho-style/images/login/middle_shadows_footer.png);
-	background-repeat:no-repeat;
+  margin: 0 auto;
+  padding: 0;
+  width:740px;
+  height: 100%;
+  color: #000;
+  font-size: .75em;
+  /* padding: 8px 0 0 80px;*/
+  display: block;
+  background-image: url(/pentaho-style/images/login/middle_shadows_footer.png);
+  background-repeat:no-repeat;
 }
 #message {
-	color: #FFF;
-	font-size: 1.05em;
-	font-family: Tahoma, Arial, sans-serif;
-	float: left;
-	clear: both;
-	display: block;
-	width: 260px;
-	padding: 20px 10px 0 40px;
-	line-height: 1.85em;
+  color: #FFF;
+  font-size: 1.05em;
+  font-family: Tahoma, Arial, sans-serif;
+  float: left;
+  clear: both;
+  display: block;
+  width: 260px;
+  padding: 20px 10px 0 40px;
+  line-height: 1.85em;
 }
 .dark {
-	background-image: url(/pentaho-style/images/login/content_bg.png);
-	background-position:bottom;
-	background-repeat:repeat-x;
-	height: 225px;
+  background-image: url(/pentaho-style/images/login/content_bg.png);
+  background-position:bottom;
+  background-repeat:repeat-x;
+  height: 225px;
 }
 a {
-	color: #e17b03
+  color: #e17b03
 }
 .IE .pentaho-rounded-panel {
-	border: 1px solid #ccc;
+  border: 1px solid #ccc;
 }
 -->
 </style>
@@ -201,40 +236,40 @@ a {
               </tr>
               <tr>
                 <td colspan="2">
-					<input  style="border:1px solid #333; padding: 4px; width:190px;height:17px;" id="j_username" name="j_username" type="text"/>
+          <input  style="border:1px solid #333; padding: 4px; width:190px;height:17px;" id="j_username" name="j_username" type="text"/>
                 </td>
               </tr>
               <tr>
                 <td colspan="2" style="padding: 5px 0 4px 0;">
 					<label style="padding: 15px 0 2px 0; color: #FFF; font-size:.85em; font-family: Tahoma, Arial, sans-serif; text-shadow: 0px 1px 1px #000;" for="password"><%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%></label>
-				</td>
+        </td>
               </tr>
               <tr>
                 <td colspan="2">
-					<input style="border:1px solid #333; padding: 4px; width:190px;height:17px;" id="j_password" name="j_password" type="password"/>
-				</td>
+          <input style="border:1px solid #333; padding: 4px; width:190px;height:17px;" id="j_password" name="j_password" type="password"/>
+        </td>
               </tr>
               <tr>
                 <td colspan="2" align="left" style="padding:5px 0 2px 0px;">
-					<input id="launchInNewWindow" name="Launch in new window" type="checkbox" value="" />
+          <input id="launchInNewWindow" name="Launch in new window" type="checkbox" value="" />
 					<span style="padding:0px 0 2px 0px; color:#fff; font-size:.8em; font-family: Tahoma, Arial, sans-serif;"><%=Messages.getInstance().getString("UI.PUC.LOGIN.NEW_WINDOW")%></span>
-				</td>
+        </td>
               </tr>
               <tr>
                 <td style="padding:4px 0 0 0px;">
                 <%
                 if (showUsers) {
                 %>
-				  <img src="/pentaho-style/images/login/about.png" width="18" height="16" align="absmiddle"/>
+          <img src="/pentaho-style/images/login/about.png" width="18" height="16" align="absmiddle"/>
 				  <a style="color: #fff; padding: 0 4px 0px 4px; font-size: .8em;" href="#" onClick="toggleEvalPanel()"><%=Messages.getInstance().getString("UI.PUC.LOGIN.EVAL_LOGIN")%></a>
-				<%
-				} else {
-				%>
-				  &nbsp;
-				<%
-				}
-				%>
-                </td>			  
+        <%
+        } else {
+        %>
+          &nbsp;
+        <%
+        }
+        %>
+                </td>       
                 <td style="padding:4px 0 0 0px;">
                   <input class="pentaho-button" value="<%=Messages.getInstance().getString("UI.PUC.LOGIN.LOGIN")%>" type="submit" style="float:right; clear: both;"/>
                 </td>
@@ -244,7 +279,7 @@ a {
               %>
               <tr>
                 <td id="evaluationPanel" colspan="3" style="padding: 30px 20px 0 0; display: none;">
-				  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
                       <td style="font-size: .8em;"><strong><%=Messages.getInstance().getString("UI.PUC.LOGIN.ADMIN_USER")%></strong><br>
                         <%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%> joe<br>
@@ -257,11 +292,11 @@ a {
                     <td colspan="3" style="padding: 4px 20px 0 0; font-size: .8em;"><a href="http://www.pentaho.com/helpmeout/" target="_blank"><%=Messages.getInstance().getString("UI.PUC.LOGIN.REQUEST_SUPPORT")%></a><img src="/pentaho-style/images/login/help_link.png" width="20" height="20" align="absbottom"></td>
                     </tr>
                   </table>
-				</td>
+        </td>
               </tr>
               <%
-				}
-			  %>
+        }
+        %>
             </form>
           </table>
         </div>
@@ -293,54 +328,55 @@ if (showUsers) {
 %>
 
 function toggleEvalPanel() {
-	var evaluationPanel = document.getElementById("evaluationPanel");
-	var display = evaluationPanel.style.display;
-	if (display == "none") {
-		evaluationPanel.style.display = "";
-	} else {
-		evaluationPanel.style.display = "none";
-	}
+  var evaluationPanel = document.getElementById("evaluationPanel");
+  var display = evaluationPanel.style.display;
+  if (display == "none") {
+    evaluationPanel.style.display = "";
+  } else {
+    evaluationPanel.style.display = "none";
+  }
 }
 <%
 }
 %>
 
 function bounceToReturnLocation() {
-	// pass
-	var locale = document.login.locale.options[document.login.locale.selectedIndex].value;
+  // pass
+  var locale = document.login.locale.options[document.login.locale.selectedIndex].value;
+  
+  var returnLocation = '<%=ESAPI.encoder().encodeForJavaScript(requestedURL)%>';
 
-	var returnLocation = '<%=ESAPI.encoder().encodeForJavaScript(requestedURL)%>';
-
-	if(/(iPad|iPod|iPhone)/.test(navigator.userAgent) || window.orientation !== undefined){
+  if(/(iPad|iPod|iPhone)/.test(navigator.userAgent) || window.orientation !== undefined){
     returnLocation = CONTEXT_PATH+"content/analyzer/selectSchema";
-	}
+  }
 
-	if (document.getElementById("launchInNewWindow").checked) {
-		if (returnLocation != '' && returnLocation != null) {
-		  window.open(returnLocation, '_blank', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no');
-		} else {
-		  window.open(window.location.href.replace("Login", "Home") + "?locale=" + locale, '_blank', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no');
-		}
-	} else {
-		if (returnLocation != '' && returnLocation != null) {
-			  window.location.href = returnLocation;
-		} else {
-		    window.location.href = window.location.href.replace("Login", "Home") + "?locale=" + locale;
-		}
-	}
+
+  if (document.getElementById("launchInNewWindow").checked) {
+    if (returnLocation != '' && returnLocation != null) {
+      window.open(returnLocation, '_blank', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no');
+    } else {
+      window.open(window.location.href.replace("Login", "Home") + "?locale=" + locale, '_blank', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no');
+    }
+  } else {
+    if (returnLocation != '' && returnLocation != null) {
+        window.location.href = returnLocation;
+    } else {
+        window.location.href = window.location.href.replace("Login", "Home") + "?locale=" + locale;
+    }
+  }
 }
 
 function doLogin() {
-	
+  
 	// if we have a valid session and we attempt to login on top of it, the server
 	// will actually log us out and will not log in with the supplied credentials, you must
 	// login again. So instead, if they're already logged in, we bounce out of here to
 	// prevent confusion.
-	if (<%=loggedIn%>) {
-		bounceToReturnLocation();
-		return false;
-	}
-	
+    if (<%=loggedIn%>) {
+      bounceToReturnLocation();
+      return false;
+    }
+  
     jQuery.ajax({
         type: "POST",
         url: "j_spring_security_check",
@@ -348,33 +384,33 @@ function doLogin() {
         data: $("#login").serialize(),
 
         error:function (xhr, ajaxOptions, thrownError){
-			if (xhr.status == 404) {
-				// if we get a 404 it means login was successful but intended resource does not exist
-				// just let it go - let the user get the 404
-				bounceToReturnLocation();
-				return;
-			}
-            //Fix for BISERVER-7525
-            //parsereerror caused by attempting to serve a complex document like a prd report in any presentation format like a .ppt
-            //does not necesarly mean that there was a failure in the login process, status is 200 so just let it serve the archive to the web browser.
-            if (xhr.status == 200 && thrownError == 'parsererror') {
-               document.getElementById("j_password").value = "";
-               bounceToReturnLocation();
-	           return;
-            }			
-			// fail
-			DisplayAlert('loginError', 40, 30);			
-        },
-        
+      if (xhr.status == 404) {
+        // if we get a 404 it means login was successful but intended resource does not exist
+        // just let it go - let the user get the 404
+        bounceToReturnLocation();
+        return;
+      }
+      //Fix for BISERVER-7525
+      //parsereerror caused by attempting to serve a complex document like a prd report in any presentation format like a .ppt
+      //does not necesarly mean that there was a failure in the login process, status is 200 so just let it serve the archive to the web browser.
+      if (xhr.status == 200 && thrownError == 'parsererror') {
+         document.getElementById("j_password").value = "";
+         bounceToReturnLocation();
+	     return;
+       }
+       // fail
+       DisplayAlert('loginError', 40, 30);
+      },
+            
         success:function(data, textStatus, jqXHR){
-			if (data.indexOf("j_spring_security_check") != -1) {
-				// fail
-		        DisplayAlert('loginError', 40, 30);
-		        return false;
-			} else {
-				document.getElementById("j_password").value = "";
-				bounceToReturnLocation();
-			}
+      if (data.indexOf("j_spring_security_check") != -1) {
+        // fail
+	    DisplayAlert('loginError', 40, 30);
+	    return false;
+      } else {
+        document.getElementById("j_password").value = "";
+        bounceToReturnLocation();
+      }
         }
         
     });
@@ -384,9 +420,9 @@ function doLogin() {
 $(document).ready(function(){
     $("#login").submit(doLogin);
 
-	if (<%=loggedIn%>) {
-		bounceToReturnLocation();
-	}
+  if (<%=loggedIn%>) {
+    bounceToReturnLocation();
+  }
 });
 </script>
 </body>
