@@ -23,10 +23,9 @@
   </inputs>
 
   <outputs> 
-    <REGION-list type="list"> 
+    <REGION-list type="string"> 
       <destinations> 
         <session>REGION-list</session>  
-        <session>REGION_FILTER</session> 
       </destinations> 
     </REGION-list>  
     <REGION_list_msg type="string">
@@ -46,20 +45,17 @@
         <user type="string"/> 
       </action-inputs>
       <action-outputs> 
-        <REGION-list type="list"/> 
+        <REGION-list type="string"/> 
       </action-outputs>
       <component-definition> 
         <script><![CDATA[ 
 			      function getRegions( user ) {
-			      	var results = new JavaScriptResultSet();
-			      	results.setColumnHeaders( 'REGION' );
+			      	var results = '';
 			      	if( user == 'joe' ) {
-			      		results.addRow( new Array( 'Central' ) );
+			      		results= 'Central';
 			      	} 
 			      	else if( user == 'suzy' ) {
-			      		results.addRow( new Array( 'Eastern' ) );
-			      		results.addRow( new Array( 'Western' ) );
-			      		results.addRow( new Array( 'Southern' ) );
+			      		results='Eastern,Western,Southern';
 			      	}
 			      	return results;
 			      }
