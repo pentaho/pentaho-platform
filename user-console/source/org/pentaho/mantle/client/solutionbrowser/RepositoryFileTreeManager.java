@@ -3,9 +3,9 @@ package org.pentaho.mantle.client.solutionbrowser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.pentaho.gwt.widgets.client.filechooser.JsonToRepositoryFileTreeConverter;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFileTree;
-import org.pentaho.gwt.widgets.client.filechooser.XMLToRepositoryFileTreeConverter;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
@@ -104,6 +104,7 @@ public class RepositoryFileTreeManager {
     }
     url = url + "depth=" + depth + "&filter=" + filter + "&showHidden=" + showHidden + "&ts=" + System.currentTimeMillis(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     builder = new RequestBuilder(RequestBuilder.GET, url);
+    builder.setHeader("Accept", "application/json");
 
     RequestCallback innerCallback = new RequestCallback() {
 
@@ -113,10 +114,16 @@ public class RepositoryFileTreeManager {
 
       public void onResponseReceived(Request request, Response response) {
         if (response.getStatusCode() == Response.SC_OK) {
-          final XMLToRepositoryFileTreeConverter converter = new XMLToRepositoryFileTreeConverter(response.getText());
+        	String json = response.getText();
+        	System.out.println(json);
+        	
+          final JsonToRepositoryFileTreeConverter converter = new JsonToRepositoryFileTreeConverter(response.getText());
           fileTree = converter.getTree();
+          
+          
           String deletedFilesUrl = GWT.getHostPageBaseURL() + "api/repo/files/deleted?ts=" + System.currentTimeMillis();;
           RequestBuilder deletedFilesRequestBuilder = new RequestBuilder(RequestBuilder.GET, deletedFilesUrl);
+          deletedFilesRequestBuilder.setHeader("Accept", "application/json");
           try {
             deletedFilesRequestBuilder.sendRequest(null, new RequestCallback() {
 
@@ -127,7 +134,7 @@ public class RepositoryFileTreeManager {
 
               public void onResponseReceived(Request delRequest, Response delResponse) {
                 if (delResponse.getStatusCode() == Response.SC_OK) {
-                  trashItems = XMLToRepositoryFileTreeConverter.getTrashFiles(delResponse.getText());
+                  trashItems = JsonToRepositoryFileTreeConverter.getTrashFiles(delResponse.getText());
                   fireRepositoryFileTreeFetched();
                 } else {
                   fireRepositoryFileTreeFetched();
