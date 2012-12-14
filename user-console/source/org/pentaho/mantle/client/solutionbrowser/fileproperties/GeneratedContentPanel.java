@@ -24,7 +24,7 @@ import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.gwt.widgets.client.filechooser.XMLToRepositoryFileTreeConverter;
+import org.pentaho.gwt.widgets.client.filechooser.JsonToRepositoryFileTreeConverter;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.mantle.client.images.MantleImages;
@@ -111,6 +111,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
     String url = contextURL + "api/repo/files/" + fileSummaryPath + "/generatedcontent"; //$NON-NLS-1$ //$NON-NLS-2$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    builder.setHeader("Accept", "application/json");
     try {
       builder.sendRequest(null, new RequestCallback() {
 
@@ -121,7 +122,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
 
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
-            List<RepositoryFile> repositoryFiles = XMLToRepositoryFileTreeConverter.getFileListFromXml(response.getText());
+            List<RepositoryFile> repositoryFiles = JsonToRepositoryFileTreeConverter.getFileListFromJson(response.getText());
             Collections.sort(repositoryFiles, new Comparator<RepositoryFile>() {
               @Override
               public int compare(RepositoryFile o1, RepositoryFile o2) {
