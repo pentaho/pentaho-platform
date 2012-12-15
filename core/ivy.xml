@@ -51,8 +51,8 @@
     	</dependency>
     		<!-- CM-241 -->
 		<dependency org="antlr"             name="antlr"     rev="2.7.6"    transitive="false"/>
-		<dependency org="asm"               name="asm"       rev="1.5.3"    transitive="false"/>
-		<dependency org="asm"               name="asm-attrs" rev="1.5.3"    transitive="false"/>
+		<dependency org="asm"               name="asm"       rev="3.1"    transitive="false"/>
+		<dependency org="asm"               name="asm-attrs" rev="2.2.3"    transitive="false"/>
     	<dependency org="cglib" name="cglib-nodep" rev="2.2" transitive="false" />
 		<dependency org="javax.transaction" name="jta"       rev="1.1"   transitive="false"/>
     	<dependency org="net.sf.ehcache" name="ehcache-core" rev="2.5.1" />
