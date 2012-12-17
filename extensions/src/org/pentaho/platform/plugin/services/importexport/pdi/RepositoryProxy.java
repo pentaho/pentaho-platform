@@ -35,6 +35,7 @@ import org.pentaho.di.repository.RepositorySecurityProvider;
 import org.pentaho.di.repository.StringObjectId;
 import org.pentaho.di.repository.UserInfo;
 import org.pentaho.di.shared.SharedObjects;
+import org.pentaho.di.trans.DataServiceMeta;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
@@ -660,4 +661,10 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
   public IRepositoryImporter getImporter() {
     throw new UnsupportedOperationException();
   }
+
+@Override
+public List<DataServiceMeta> listDataServices() throws KettleException {
+	// TODO Auto-generated method stub
+	return null;
+}
 }
