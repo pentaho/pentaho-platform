@@ -101,17 +101,22 @@ public class SecurityHelper implements ISecurityHelper {
    */
   @Override
   public void becomeUser(final String principalName, final IParameterProvider paramProvider) {
-    UserSession session = new UserSession(principalName, null, false, paramProvider);
-    session.setAuthenticated(principalName);
+    UserSession session = null;
+    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null);
+    if(tenantedUserNameUtils != null) {
+      session = new UserSession(tenantedUserNameUtils.getPrincipleName(principalName), principalName, null, false, paramProvider);
+      ITenant tenant = tenantedUserNameUtils.getTenant(principalName);
+      session.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
+      session.setAuthenticated(tenant.getId(), principalName);
+    } else {
+      session = new UserSession(principalName, null, false, paramProvider);
+      session.setAuthenticated(principalName);
+    }
+
     Authentication auth = createAuthentication(principalName);
     // TODO We need to figure out how to inject this
     // Get the tenant id from the principle name and set it as an attribute of the pentaho session
-    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", session);
-    if(tenantedUserNameUtils != null) {
-      ITenant tenant = tenantedUserNameUtils.getTenant(principalName);
-      session.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
-      
-    }
+    
     PentahoSessionHolder.setSession(session);
     SecurityContextHolder.getContext().setAuthentication(auth);
     PentahoSystem.sessionStartup(PentahoSessionHolder.getSession(), paramProvider);

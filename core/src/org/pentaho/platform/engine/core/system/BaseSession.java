@@ -26,6 +26,7 @@ import java.util.Locale;
 
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.messages.Messages;
 
 public abstract class BaseSession extends PentahoBase implements IPentahoSession {
@@ -63,14 +64,16 @@ public abstract class BaseSession extends PentahoBase implements IPentahoSession
     return authenticated;
   }
 
-  public void setAuthenticated(final String name) {
-    setAuthenticated(null, name);
+  public void setAuthenticated(final String id) {
+    setAuthenticated(null, id);
   }
 
-  public void setAuthenticated(final String tenantId, final String name) {
-    if (name != null) {
+  public void setAuthenticated(final String tenantId, final String id) {
+    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null);
+    if (id != null) {
       authenticated = true;
-      this.name = name;
+      this.id = id;
+      this.name = (tenantedUserNameUtils != null) ? tenantedUserNameUtils.getPrincipleName(id): id;
       if (tenantId != null) {
         setAttribute(TENANT_ID_KEY, tenantId);
       } else {
@@ -83,6 +86,7 @@ public abstract class BaseSession extends PentahoBase implements IPentahoSession
 
   public void setNotAuthenticated() {
     name = null;
+    id = null;
     authenticated = false;
   }
 

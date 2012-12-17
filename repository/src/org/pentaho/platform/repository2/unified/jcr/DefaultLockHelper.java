@@ -214,7 +214,7 @@ public class DefaultLockHelper implements ILockHelper {
     // makes it to the persistent workspace and therefore it does nothing"
     final boolean isSessionScoped = false;
     final long timeoutHint = Long.MAX_VALUE;
-    final String ownerInfo = makeOwnerInfo(PentahoSessionHolder.getSession().getName(), Calendar.getInstance()
+    final String ownerInfo = makeOwnerInfo(PentahoSessionHolder.getSession().getId(), Calendar.getInstance()
         .getTime(), message);
     Node fileNode = session.getNodeByIdentifier(fileId.toString());
     Assert.isTrue(fileNode.isNodeType(pentahoJcrConstants.getMIX_LOCKABLE()));

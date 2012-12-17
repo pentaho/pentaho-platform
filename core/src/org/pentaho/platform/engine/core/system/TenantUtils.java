@@ -32,7 +32,7 @@ public class TenantUtils {
     if(tenantId == null) {
       ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", pentahoSession);
       if(tenantedUserNameUtils != null) {
-        ITenant tenant = tenantedUserNameUtils.getTenant(pentahoSession.getName());
+        ITenant tenant = tenantedUserNameUtils.getTenant(pentahoSession.getId());
         pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
         return new Tenant(tenant.getId(), true);
       }

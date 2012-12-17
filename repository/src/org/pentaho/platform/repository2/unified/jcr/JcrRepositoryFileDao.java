@@ -574,7 +574,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   }
 
   public RepositoryFileAcl createDefaultAcl() {
-    return new RepositoryFileAcl.Builder(PentahoSessionHolder.getSession().getName()).entriesInheriting(true).build();
+    return new RepositoryFileAcl.Builder(PentahoSessionHolder.getSession().getId()).entriesInheriting(true).build();
   }
   
   private void internalCopyOrMove(final Serializable fileId, final String destRelPath, final String versionMessage, final boolean copy) {

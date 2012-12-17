@@ -183,7 +183,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    */
   private Node getOrCreateTrashInternalFolderNode(final Session session, final PentahoJcrConstants pentahoJcrConstants)
       throws RepositoryException {
-    Node userHomeFolderNode = (Node) session.getItem(ServerRepositoryPaths.getUserHomeFolderPath(userNameUtils.getTenant(PentahoSessionHolder.getSession().getName()), userNameUtils.getPrincipleName(PentahoSessionHolder.getSession().getName())));
+    Node userHomeFolderNode = (Node) session.getItem(ServerRepositoryPaths.getUserHomeFolderPath(userNameUtils.getTenant(PentahoSessionHolder.getSession().getId()), PentahoSessionHolder.getSession().getName()));
     if (userHomeFolderNode.hasNode(FOLDER_NAME_TRASH)) {
       return userHomeFolderNode.getNode(FOLDER_NAME_TRASH);
     } else {
@@ -392,7 +392,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
     }
 
     // if this file was non-permanently deleted, delete its containing folder too
-    String trashFolder = ServerRepositoryPaths.getUserHomeFolderPath(userNameUtils.getTenant(PentahoSessionHolder.getSession().getName()), userNameUtils.getPrincipleName(PentahoSessionHolder.getSession().getName())) + RepositoryFile.SEPARATOR + FOLDER_NAME_TRASH;
+    String trashFolder = ServerRepositoryPaths.getUserHomeFolderPath(userNameUtils.getTenant(PentahoSessionHolder.getSession().getId()), userNameUtils.getPrincipleName(PentahoSessionHolder.getSession().getId())) + RepositoryFile.SEPARATOR + FOLDER_NAME_TRASH;
     if (fileNode.getPath().startsWith(trashFolder)) {
       fileNode.getParent().remove();
     } else {

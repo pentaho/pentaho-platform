@@ -90,9 +90,7 @@ public class StandaloneApplicationContext implements IApplicationContext {
     if ((session != null) && trackFile) {
       fileDeleter = (ITempFileDeleter)session.getAttribute(ITempFileDeleter.DELETER_SESSION_VARIABLE);
     }
-    int sessionIdLength = session.getId().length();
-    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", session);
-    String name = tenantedUserNameUtils.getPrincipleName(session.getName());
+    String name = session.getName();
 	  final String newPrefix = new StringBuilder().append(prefix)
 		  .append(name.substring(0, name.length() > 10 ? 10 : name.length()))
 		  .append('-').toString();

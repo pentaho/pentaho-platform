@@ -40,6 +40,20 @@ public class UserSession extends StandaloneSession {
     return UserSession.logger;
   }
 
+  public UserSession(final String userName, final String userId, final Locale locale, final boolean authenticated,
+      final IParameterProvider sessionParameters) {
+    super(userName, userId, locale);
+
+    // audit session creation
+    AuditHelper.audit(getId(), getName(), getActionName(), getObjectName(), "", MessageTypes.SESSION_START, "", "", 0, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+    if (authenticated) {
+      setAuthenticated(userName);
+      PentahoSystem.sessionStartup(this, sessionParameters);
+    }
+  }
+
+  
   public UserSession(final String userName, final Locale locale, final boolean authenticated,
       final IParameterProvider sessionParameters) {
     super(userName, userName, locale);

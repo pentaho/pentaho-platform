@@ -41,9 +41,6 @@ public class SessionResource extends AbstractJaxRSResource {
   @Path("/userWorkspaceDir")
   @Produces(TEXT_PLAIN)
   public String doGetCurrentUserDir() {
-    IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", PentahoSessionHolder.getSession());
-    String value = ClientRepositoryPaths.getUserHomeFolderPath(tenantedUserNameUtils.getPrincipleName(pentahoSession.getName())) + "/workspace";
-    return value;
+    return ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + "/workspace";
   }
 }

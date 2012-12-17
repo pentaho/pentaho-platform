@@ -231,8 +231,8 @@ public class PentahoEntryCollector extends EntryCollector {
   protected List<AccessControlEntry> getAcesIncludingMagicAces(final String path, final String owner,
       final ACLTemplate ancestorAcl, final ACLTemplate acl)
       throws RepositoryException {
-    if (PentahoSessionHolder.getSession() == null || PentahoSessionHolder.getSession().getName() == null
-        || PentahoSessionHolder.getSession().getName().trim().equals("")) { //$NON-NLS-1$
+    if (PentahoSessionHolder.getSession() == null || PentahoSessionHolder.getSession().getId() == null
+        || PentahoSessionHolder.getSession().getId().trim().equals("")) { //$NON-NLS-1$
       if (log.isDebugEnabled()) {
         log.debug("no PentahoSession so no magic ACEs"); //$NON-NLS-1$
       }
@@ -269,7 +269,7 @@ public class PentahoEntryCollector extends EntryCollector {
         }
       }
       if (match) {
-        Principal principal = new MagicPrincipal(PentahoSessionHolder.getSession().getName());
+        Principal principal = new MagicPrincipal(PentahoSessionHolder.getSession().getId());
         // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully later; changed never persisted
         acl.addAccessControlEntry(principal, def.privileges);
       }
