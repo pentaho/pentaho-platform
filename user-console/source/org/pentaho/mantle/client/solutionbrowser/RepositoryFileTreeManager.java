@@ -134,7 +134,11 @@ public class RepositoryFileTreeManager {
 
               public void onResponseReceived(Request delRequest, Response delResponse) {
                 if (delResponse.getStatusCode() == Response.SC_OK) {
-                  trashItems = JsonToRepositoryFileTreeConverter.getTrashFiles(delResponse.getText());
+                	try {
+                		trashItems = JsonToRepositoryFileTreeConverter.getTrashFiles(delResponse.getText());
+                	} catch (Throwable t) {
+                		//apparently this happens when you have no trash
+                	}
                   fireRepositoryFileTreeFetched();
                 } else {
                   fireRepositoryFileTreeFetched();

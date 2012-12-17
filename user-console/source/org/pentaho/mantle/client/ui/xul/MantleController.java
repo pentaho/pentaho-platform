@@ -438,7 +438,15 @@ public class MantleController extends AbstractXulEventHandler {
 		     }
 
 		     public void onResponseReceived(Request request, Response response) {
-		    	 JsArray<JsSetting> jsSettings = JsSetting.parseSettingsJson(JsonUtils.escapeJsonForEval(response.getText()));
+		    	 JsArray<JsSetting> jsSettings = null;
+		    	 try {
+		    		 jsSettings = JsSetting.parseSettingsJson(response.getText());
+		    	 } catch (Throwable t) {
+		    		 // happens when there are no settings
+		    	 }
+		    	 if (jsSettings == null) {
+		    		 return;
+		    	 }
 		    	 for (int i = 0; i < jsSettings.length(); i++) {
 		    		 String content = jsSettings.get(i).getValue();
 		    		 StringTokenizer nameValuePairs = new StringTokenizer(content, ";");

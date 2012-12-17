@@ -8,7 +8,6 @@ import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -78,7 +77,12 @@ public class MantleSettingsManager {
 
       public void onResponseReceived(Request request, Response response) {
 
-        JsArray<JsSetting> jsSettings = JsSetting.parseSettingsJson(JsonUtils.escapeJsonForEval(response.getText()));
+		JsArray<JsSetting> jsSettings = null;
+        try {
+          jsSettings = JsSetting.parseSettingsJson(response.getText());
+        } catch (Throwable t) {
+          // happens when there are no settings
+        }
 
         for (int i = 0; i < jsSettings.length(); i++) {
           settings.put(jsSettings.get(i).getName(), jsSettings.get(i).getValue());
