@@ -50,6 +50,7 @@ public abstract class BaseSession extends PentahoBase implements IPentahoSession
   private boolean authenticated;
 
   private volatile boolean backgroundExecutionAlert;
+  private ITenantedPrincipleNameResolver tenantedUserNameUtils; 
 
   public BaseSession(final String name, final String id, final Locale locale) {
     this.name = name;
@@ -69,7 +70,10 @@ public abstract class BaseSession extends PentahoBase implements IPentahoSession
   }
 
   public void setAuthenticated(final String tenantId, final String id) {
-    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null);
+    if(PentahoSystem.getInitializedOK()) {
+      tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null);  
+    }
+    
     if (id != null) {
       authenticated = true;
       this.id = id;
