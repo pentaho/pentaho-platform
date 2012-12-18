@@ -42,6 +42,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -191,10 +192,10 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
         return name1.compareTo(name2);
       }
     });
+    
     if (files != null) {
       int rowCounter = 0;
-      for (int i = 0; i < files.size(); i++) {
-        RepositoryFile file = files.get(i);
+      for (RepositoryFile file : files) {
         if ((item == solutionTree.getTrashItem()) || (!file.isFolder() && (isShowHiddenFiles() || !file.isHidden()))) { 
           // TODO Currently Old solution repository stores url type files. New repository does not have that concept. What do we need to do here
           //String url = fileElement.getAttribute("url"); //$NON-NLS-1$
@@ -222,7 +223,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
           fileLabel.setWidth("100%"); //$NON-NLS-1$
           try{
             perspective.getDragController().makeDraggable(fileLabel);
-          } catch (Exception e){
+          } catch (Throwable e){
             Throwable throwable = e;
             String text = "Uncaught exception: ";
             while (throwable != null) {
@@ -252,6 +253,8 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
               if (fileItem.getRepositoryFile().equals(fileLabel.getRepositoryFile())) {
                 fileLabel.setStyleName("fileLabelSelected");
                 selectedFileItems.add(fileLabel);
+                // if we do not break this loop, it will go forever! (we added an item)
+                break;
               }
             }
           } else {
