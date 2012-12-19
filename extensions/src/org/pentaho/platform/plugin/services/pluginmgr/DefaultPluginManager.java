@@ -53,6 +53,7 @@ import org.pentaho.platform.api.engine.PluginLifecycleException;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
 import org.pentaho.platform.api.engine.ServiceException;
 import org.pentaho.platform.api.engine.ServiceInitializationException;
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.engine.core.solution.FileInfo;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -923,5 +924,39 @@ public class DefaultPluginManager implements IPluginManager {
       }
     }
     return resources;
+  }
+
+  @Override
+  public List<String> getPluginRESTPerspectivesForType(String contentType) {
+    List<String> pluginPerspectives = new ArrayList<String>();
+    for (String pluginId : getRegisteredPlugins()) {
+      for (String beanId : getBeanIdsForType(pluginId, IContentGenerator.class)) {
+        String serviceContentType = beanId;
+        if (beanId.contains(".")) { //$NON-NLS-1$
+          serviceContentType = beanId.substring(0, beanId.indexOf('.'));
+        }
+        if(serviceContentType != null && serviceContentType.equals(contentType)) {
+          if (beanId.contains(".")) { //$NON-NLS-1$
+            pluginPerspectives.add(beanId.substring(beanId.lastIndexOf('.'), beanId.length()));
+          }
+        } 
+      }
+    }
+    return pluginPerspectives;
+  }
+  
+  @Override
+  public List<String> getPluginRESTPerspectivesForId(String id) {
+    List<String> pluginPerspectives = new ArrayList<String>();
+    for (String pluginId : getRegisteredPlugins()) {
+      if(id.equals(pluginId)) {
+        for (String beanId : getBeanIdsForType(pluginId, IContentGenerator.class)) {
+          if (beanId.contains(".")) { //$NON-NLS-1$
+            pluginPerspectives.add(beanId.substring(beanId.lastIndexOf('.') + 1, beanId.length()));
+          }
+        }
+      }
+    }
+    return pluginPerspectives;
   }
 }

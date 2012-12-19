@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
+import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -130,12 +132,12 @@ public class PluginResource {
   @Path("/files/{path : .+}")
   @Produces(WILDCARD)
   public Response readFile(@PathParam("pluginId") String pluginId, @PathParam("path") String path) throws IOException {
-
+    List<String> pluginRestPerspectives = pluginManager.getPluginRESTPerspectivesForId(pluginId);
     boolean useCache = "true".equals(pluginManager.getPluginSetting(pluginId, "settings/cache", "false")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
     String maxAge = (String) pluginManager.getPluginSetting(pluginId, "settings/max-age", null); //$NON-NLS-1$
     ////
-    // Set browser cache if valid value
-    if (maxAge != null && !"0".equals(maxAge)) { //$NON-NLS-1$
+    // Set browser cache if valid value and if the path is not one of the plugin REST perspectives. (/viewer, /editor, /scheduler)
+    if (!pluginRestPerspectives.contains(path) && maxAge != null && !"0".equals(maxAge)) { //$NON-NLS-1$
       httpServletResponse.setHeader("Cache-Control", "max-age=" + maxAge); //$NON-NLS-1$ //$NON-NLS-2$
     }
 

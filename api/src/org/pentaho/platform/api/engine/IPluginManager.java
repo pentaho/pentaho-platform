@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
+import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -147,6 +148,22 @@ public interface IPluginManager {
    *        or <code>null</code> if none were found
    */
   public String getPluginIdForType(String contentType);
+
+  /**
+   * Returns the Plugin perspectives for files of type <code>contentType</code>
+   * @param contentType a user-defined file-extension like suffix denoting a type of content. for example xaction, prpt
+   * @return the list of REST perspectives for files of type <code>contentType</code>
+   *        or <code>null</code> if none were found
+   */
+  public List<String> getPluginRESTPerspectivesForType(String contentType);
+  
+  /**
+   * Returns the Plugin perspectives for a plugin of specific id
+   * @param the id of the plugin
+   * @return the list of REST perspectives for a plugin of specific id
+   *        or <code>null</code> if none were found
+   */
+  public List<String> getPluginRESTPerspectivesForId(String id);
   
   /**
    * Each plugin is loaded on its own classloader, we can use this to find the plugin for which the
