@@ -99,6 +99,12 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     if(url.indexOf("http") != 0 && url.indexOf("/") != 0){
       url = GWT.getHostPageBaseURL() + url;
     }
+    
+    if(!url.contains("?")) {
+    	url = url + "?ts=" + System.currentTimeMillis();
+    } else {
+    	url = url + "&ts=" + System.currentTimeMillis();
+    }
 
     final int elementId = getTabCount();
     if (frameName == null || "".equals(frameName.trim())) {
