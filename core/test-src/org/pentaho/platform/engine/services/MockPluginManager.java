@@ -208,4 +208,16 @@ public class MockPluginManager implements IPluginManager {
     // TODO Auto-generated method stub
     return false;
   }
+
+  @Override
+  public List<String> getPluginRESTPerspectivesForId(String arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<String> getPluginRESTPerspectivesForType(String arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }
