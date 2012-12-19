@@ -222,7 +222,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       if (child instanceof Element) {
         Element elementChild = (Element) child;
         if (elementChild.getClassName().equalsIgnoreCase("hsplitter")) {
-          Window.alert("setting hsplitter parent height");
           elementChild.getParentElement().getStyle().setHeight(100, Unit.PCT);
           elementChild.setAttribute("id", "pucHorizontalSplitter");
           elementChild.addClassName("pentaho-rounded-panel-top-right");
