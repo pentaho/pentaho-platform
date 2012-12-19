@@ -57,6 +57,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -221,6 +222,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       if (child instanceof Element) {
         Element elementChild = (Element) child;
         if (elementChild.getClassName().equalsIgnoreCase("hsplitter")) {
+          Window.alert("setting hsplitter parent height");
+          elementChild.getParentElement().getStyle().setHeight(100, Unit.PCT);
           elementChild.setAttribute("id", "pucHorizontalSplitter");
           elementChild.addClassName("pentaho-rounded-panel-top-right");
           elementChild.addClassName("pentaho-shadow-right-side");
