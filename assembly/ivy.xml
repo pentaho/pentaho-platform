@@ -65,7 +65,7 @@
     <dependency org="jcommon-logging-log4jlog" name="jcommon-logging-log4jlog" rev="1.0.2" />
     <dependency org="joda-time" name="joda-time" rev="1.6" transitive="false" />
     <dependency org="commons-math" name="commons-math" rev="1.1" transitive="false" />
-    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.8" />
+    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" />
 
     <!-- SAXON -->
     <dependency org="net.sourceforge.saxon" name="saxon" rev="9.1.0.8" />
