@@ -88,11 +88,13 @@ public class PerspectiveUtil {
     @SuppressWarnings("unchecked")
     List<Node> overlayElements = (List<Node>) node.selectNodes("overlay");
     for (Node overlayNode : overlayElements) {
-      Element overlayElement = (Element) overlayNode;
-      String id = overlayElement.attributeValue("id"); //$NON-NLS-1$
-      String resourceBundleUri = overlayElement.attributeValue("resourcebundle"); //$NON-NLS-1$
-      String xml = overlayNode.asXML();
-      overlays.add(new DefaultXulOverlay(id, null, xml, resourceBundleUri));
+      DefaultXulOverlay overlay;
+
+      // reuse static method to honor overlay priorities as well
+      overlay = SystemPathXmlPluginProvider.processOverlay((Element) overlayNode);
+      if(overlay != null){
+        overlays.add(overlay);
+      }
     }
 
     return overlays;

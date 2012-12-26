@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 - 2009 Pentaho Corporation.  All rights reserved.
+ * Copyright 2008 - 2012 Pentaho Corporation.  All rights reserved.
  * 
 */
 package org.pentaho.mantle.client.objects;
@@ -33,14 +33,21 @@ public class MantleXulOverlay implements Serializable, XulOverlay {
 
   private String resourceBundleUri;
 
+  private int priority;
+
   public MantleXulOverlay() {
   }
-  
+
   public MantleXulOverlay(String id, String overlayUri, String source, String resourceBundleUri) {
+      this(id, overlayUri, source, resourceBundleUri, DEFAULT_PRIORITY);
+  }
+
+  public MantleXulOverlay(String id, String overlayUri, String source, String resourceBundleUri, int priority) {
     this.id = id;
     this.overlayUri = overlayUri;
     this.source = source;
     this.resourceBundleUri = resourceBundleUri;
+    this.priority = priority;
   }
 
   public String getId() {
@@ -61,5 +68,9 @@ public class MantleXulOverlay implements Serializable, XulOverlay {
 
   public String getSource() {
     return source;
+  }
+
+  public int getPriority(){
+      return priority;
   }
 }

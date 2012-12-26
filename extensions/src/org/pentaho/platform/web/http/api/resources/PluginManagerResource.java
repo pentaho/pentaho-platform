@@ -48,7 +48,7 @@ public class PluginManagerResource {
     List<XulOverlay> overlays = pluginManager.getOverlays();
     ArrayList<Overlay> result = new ArrayList<Overlay>();
     for (XulOverlay overlay : overlays) {
-      Overlay tempOverlay = new Overlay(overlay.getId(), overlay.getOverlayUri(), overlay.getSource(), overlay.getResourceBundleUri());
+      Overlay tempOverlay = new Overlay(overlay.getId(), overlay.getOverlayUri(), overlay.getSource(), overlay.getResourceBundleUri(), overlay.getPriority());
       result.add(tempOverlay);
     }
     return result;
@@ -73,7 +73,7 @@ public class PluginManagerResource {
       if (perspective.getOverlays() != null) {
         ArrayList<Overlay> safeOverlays = new ArrayList<Overlay>();
         for (XulOverlay orig : perspective.getOverlays()) {
-          Overlay tempOverlay = new Overlay(orig.getId(), orig.getOverlayUri(), orig.getSource(), orig.getResourceBundleUri());
+          Overlay tempOverlay = new Overlay(orig.getId(), orig.getOverlayUri(), orig.getSource(), orig.getResourceBundleUri(), orig.getPriority());
           safeOverlays.add(tempOverlay);
         }
         pp.setOverlays(safeOverlays);

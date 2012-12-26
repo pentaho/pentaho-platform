@@ -25,23 +25,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Overlay implements Serializable {
 
   private static final long serialVersionUID = 179177428881196678L;
-  
+
   private String id;
   private String resourceBundleUri;
   private String source;
   private String overlayXml;
   private String overlayUri;
+  private int priority;
 
   public Overlay() {
   }
 
-  public Overlay(String id, String overlayUri, String source, String resourceBundleUri) {
+  public Overlay(String id, String overlayUri, String source, String resourceBundleUri, int priority) {
     this.id = id;
     this.overlayUri = overlayUri;
     this.source = source;
     this.resourceBundleUri = resourceBundleUri;
-  }  
-  
+    this.priority = priority;
+  }
+
   public String getResourceBundleUri() {
     return resourceBundleUri;
   }
@@ -82,4 +84,11 @@ public class Overlay implements Serializable {
     this.id = id;
   }
 
+  public int getPriority() {
+      return priority;
+  }
+
+  public void setPriority(int priority) {
+      this.priority = priority;
+  }
 }

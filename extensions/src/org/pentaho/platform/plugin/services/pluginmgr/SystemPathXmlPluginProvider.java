@@ -296,14 +296,39 @@ public class SystemPathXmlPluginProvider implements IPluginProvider {
     List<?> nodes = doc.selectNodes("//overlays/overlay"); //$NON-NLS-1$
     for (Object obj : nodes) {
       Element node = (Element) obj;
-      String id = node.attributeValue("id"); //$NON-NLS-1$
-      String resourceBundleUri = node.attributeValue("resourcebundle"); //$NON-NLS-1$
-      String xml = node.asXML();
-      if (StringUtils.isNotEmpty(id) && StringUtils.isNotEmpty(xml)) {
-        XulOverlay overlay = new DefaultXulOverlay(id, null, xml, resourceBundleUri);
+      DefaultXulOverlay overlay = processOverlay(node);
+
+      if(overlay != null){
         plugin.addOverlay(overlay);
       }
     }
+  }
+
+  public static DefaultXulOverlay processOverlay(Element node){
+    DefaultXulOverlay overlay = null;
+
+    String id = node.attributeValue("id"); //$NON-NLS-1$
+    String resourceBundleUri = node.attributeValue("resourcebundle"); //$NON-NLS-1$
+    String priority = node.attributeValue("priority");
+
+    String xml = node.asXML();
+
+    if (StringUtils.isNotEmpty(id) && StringUtils.isNotEmpty(xml)) {
+      // check for overlay priority attribute. if not present, do not provide one
+      // so default will be used
+      if(StringUtils.isNotEmpty(priority)){
+        try{
+          overlay = new DefaultXulOverlay(id, null, xml, resourceBundleUri, Integer.parseInt(priority));
+        } catch (NumberFormatException e){
+          // don't fail if attribute value is invalid. just use alt constructor without priority
+          overlay = new DefaultXulOverlay(id, null, xml, resourceBundleUri);
+        }
+      } else {
+        overlay = new DefaultXulOverlay(id, null, xml, resourceBundleUri);
+      }
+    }
+
+    return overlay;
   }
 
   protected void processContentTypes(PlatformPlugin plugin, Document doc, IPentahoSession session) {
