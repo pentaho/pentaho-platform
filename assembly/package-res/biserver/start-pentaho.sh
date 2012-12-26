@@ -20,7 +20,7 @@ if [ -e "$DIR/promptuser.sh" ]; then
 fi
 if [ "$?" = 0 ]; then
   cd "$DIR/tomcat/bin"
-  export CATALINA_OPTS="-Xms256m -Xmx768m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000"
+  export CATALINA_OPTS="-Xmx2048m -Xmx2048m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000"
   JAVA_HOME=$_PENTAHO_JAVA_HOME
   sh startup.sh
 fi
