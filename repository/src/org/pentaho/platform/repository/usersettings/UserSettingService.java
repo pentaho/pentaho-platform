@@ -114,7 +114,7 @@ public class UserSettingService implements IUserSettingService {
     return userSetting;
   }
 
-  public void setUserSetting(String settingName, String settingValue) {
+  public synchronized void setUserSetting(String settingName, String settingValue) {
     Session hibsession = HibernateUtil.getSession();
     try {
     HibernateUtil.beginTransaction();
