@@ -465,9 +465,6 @@
       </move>
       <zip destfile="bi-server-ce-${project.revision}-all-sources.zip"
            basedir="${dist.dir}/bi-server-ce-${project.revision}-all-sources" />
-      <tar destfile="bi-server-ce-${project.revision}-all-sources.tar.gz"
-           basedir="${dist.dir}/bi-server-ce-${project.revision}-all-sources"
-           compression="gzip" />
       <delete dir="${dist.dir}/bi-server-ce-${project.revision}-all-sources" />
     </sequential>
   </target>
