@@ -113,19 +113,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <target name="package-zip">
     <zip destfile="${dist.dir}/${package.basename}.zip">
-      <zipfileset dir="${stage.dir}" />
+      <zipfileset dir="${stage.dir}" filemode="755" >
+        <include name="**/*.sh"/>
+       </zipfileset>
+      <zipfileset dir="${stage.dir}">
+         <exclude name="**/*.sh"/>
+      </zipfileset>
     </zip>
   </target>
 
   <target name="package-targz">
-    <tar destfile="${dist.dir}/${package.basename}.tar.gz" longfile="gnu" compression="gzip">
-      <tarfileset dir="${stage.dir}" mode="755">
-        <include name="**/*.sh" />
-      </tarfileset>
-      <tarfileset dir="${stage.dir}">
-        <exclude name="**/*.sh" />
-      </tarfileset>
-    </tar>
   </target>
 
   <!-- ============================================linuxPackage===================================================== -->
