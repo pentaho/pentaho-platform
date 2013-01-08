@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.action.IStreamingAction;
+import org.pentaho.platform.api.action.IVarArgsAction;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.PluginBeanException;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
@@ -36,6 +37,7 @@ import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.engine.services.solution.ActionSequenceCompatibilityFormatter;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.beans.ActionHarness;
+import org.pentaho.platform.util.beans.ActionHarness.VarArgsWrapperCallback;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -137,12 +139,17 @@ public class ActionAdapterQuartzJob implements Job {
         }
         actionHarness.setValues(actionParams, new ActionSequenceCompatibilityFormatter());
         if (streamProvider != null) {
-          actionParams.clear();
+          actionParams.remove("inputStream");
           if (actionBean instanceof IStreamingAction) {
             streamProvider.setStreamingAction((IStreamingAction)actionBean);
           }
           actionParams.put("outputStream", streamProvider.getOutputStream());
           actionHarness.setValues(actionParams);
+        }
+        
+        if (actionBean instanceof IVarArgsAction) {
+          actionParams.remove("outputStream");
+          ((IVarArgsAction) actionBean).setVarArgs(actionParams);
         }
         actionBean.execute();
         return null;
