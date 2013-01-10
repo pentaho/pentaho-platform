@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/ExportManifest/"
+	targetNamespace="http://www.example.org/ExportManifest/">
+	<element name="ExportManifestDto" type="tns:ExportManifestDto">
+	</element>
+
+	<complexType name="ExportManifestDto">
+		<sequence>
+			<element name="ManifestInformation">
+				<complexType>
+					<attribute name="exportDate" type="string" default="{date}"></attribute>
+					<attribute name="exportBy" type="string" default="{user}"></attribute>
+				</complexType>
+			</element>
+			<element name="ExportManifestEntity" minOccurs="1" maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="ExportManifestProperty" type="tns:ExportManifestPropertyDto"
+							minOccurs="1" maxOccurs="unbounded" />
+					</sequence>
+					<attribute name="path">
+						<simpleType>
+							<restriction base="string">
+								<minLength value="1"></minLength>
+								<maxLength value="255"></maxLength>
+							</restriction>
+						</simpleType>
+					</attribute>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="ExportManifestPropertyDto">
+		<choice minOccurs="1" maxOccurs="1">
+			<element name="RepositoryFileAclDto" type="tns:RepositoryFileAclDto" />
+			<element name="RepositoryFileDto" type="tns:RepositoryFileDto" />
+			<element name="CustomProperty" type="tns:CustomProperty" />
+		</choice>
+	</complexType>
+
+	<complexType name="CustomProperty">
+		<sequence>
+			<any processContents="skip" />
+		</sequence>
+		<anyAttribute />
+	</complexType>
+
+	<complexType name="RepositoryFileAclDto">
+		<sequence>
+			<element name="aces" maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="permissions" minOccurs="0" maxOccurs="unbounded"
+							type="integer" />
+						<element name="recipient" type="string" />
+						<element name="recipientType" type="string" />
+					</sequence>
+				</complexType>
+			</element>
+			<element name="entriesInheriting" type="boolean" />
+			<element name="owner" type="string" />
+			<element name="ownerType" type="integer" />
+		</sequence>
+	</complexType>
+
+	<complexType name="RepositoryFileDto">
+		<attribute name="name" use="required">
+			<simpleType>
+				<restriction base="string">
+					<minLength value="1"></minLength>
+					<maxLength value="255"></maxLength>
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="createdDate" type="dateTime" />
+		<attribute name="createdBy">
+			<simpleType>
+				<restriction base="string">
+					<minLength value="0"></minLength>
+					<maxLength value="32"></maxLength>
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="isFolder" default="false" use="optional">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="true"></enumeration>
+					<enumeration value="false"></enumeration>
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="path" use="required">
+			<simpleType>
+				<restriction base="string">
+					<minLength value="1"></minLength>
+					<maxLength value="255"></maxLength>
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="isHidden" default="false">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="true"></enumeration>
+					<enumeration value="false"></enumeration>
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="owner">
+			<simpleType>
+				<restriction base="string">
+					<minLength value="0"></minLength>
+					<maxLength value="32"></maxLength>
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="ownerTenantPath">
+			<simpleType>
+				<restriction base="string">
+					<minLength value="0"></minLength>
+					<maxLength value="255"></maxLength>
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="locale">
+			<simpleType>
+				<restriction base="string">
+					<minLength value="0"></minLength>
+					<maxLength value="10"></maxLength>
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="description">
+			<simpleType>
+				<restriction base="string">
+					<minLength value="0"></minLength>
+					<maxLength value="255"></maxLength>
+				</restriction>
+			</simpleType>
+		</attribute>
+		<attribute name="title">
+			<simpleType>
+				<restriction base="string">
+					<minLength value="0"></minLength>
+					<maxLength value="35"></maxLength>
+				</restriction>
+			</simpleType>
+		</attribute>
+	</complexType>
+</schema>
