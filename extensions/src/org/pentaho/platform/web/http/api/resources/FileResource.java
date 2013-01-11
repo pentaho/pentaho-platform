@@ -298,7 +298,7 @@ public class FileResource extends AbstractJaxRSResource {
 //  @GET
 //  @Path("{pathId : .+}")
 //  @Produces({ APPLICATION_ZIP })
-  public Response doGetDirAsZip(@PathParam("pathId") String pathId) {
+  public Response doGetDirAsZip(@PathParam("pathId") String pathId, @QueryParam("withManifest") boolean withManifest) {
     String path = idToPath(pathId);
     RepositoryFile repoFile = repository.getFile(path);
 
@@ -380,16 +380,23 @@ public class FileResource extends AbstractJaxRSResource {
 
   /**
    * Compatibility endpoint for browsers since you can't specify Accepts headers in browsers
+   * Added path param withManifest to indicate that manifest containing ACL and metadata
+   * should be included
    *
+   * @param pathId
+   * @param withManifest
+   * @return
    * @throws FileNotFoundException
    */
   @GET
   @Path("{pathId : .+}/download")
   @Produces(WILDCARD)
   //have to accept anything for browsers to work
-  public Response doGetFileOrDirAsDownload(@PathParam("pathId") String pathId) throws FileNotFoundException {
+  public Response doGetFileOrDirAsDownload(@PathParam("pathId") String pathId, @QueryParam("withManifest") boolean withManifest) throws FileNotFoundException {
     String path = idToPath(pathId);
     String quotedFileName = null;
+
+    Response origResponse = null;
 
     RepositoryFile repoFile = repository.getFile(path);
     if (repoFile == null) {
@@ -397,21 +404,19 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.status(NOT_FOUND).build();
     }
 
-    if (repoFile.isFolder()) {
+    // generate zip if manifest is requested, or item is a directory
+    if (repoFile.isFolder() || withManifest) {
       quotedFileName = "\"" + repoFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
-      Response origResponse = doGetDirAsZip(pathId);
+      origResponse = doGetDirAsZip(pathId, withManifest);
       return Response.fromResponse(origResponse)
-          .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
+               .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     quotedFileName = "\"" + repoFile.getName() + "\""; //$NON-NLS-1$ //$NON-NLS-2$
-    Response origResponse = doGetFileOrDir(pathId);
+    origResponse = doGetFileOrDir(pathId);
     return Response.fromResponse(origResponse)
-        .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
+             .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
   }
-
-  /////////
-  // UPDATE
 
   @PUT
   @Path("{pathId : .+}/acl")
