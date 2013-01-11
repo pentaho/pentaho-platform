@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  *
  *
  * @created 1/14/2011
@@ -81,6 +81,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
@@ -95,7 +96,7 @@ public class FileResource extends AbstractJaxRSResource {
   private static final Integer MODE_RENAME = 2;
   private static final Integer MODE_NO_OVERWRITE = 3;
 
-  public static final String PATH_SEPERATOR = "/"; //$NON-NLS-1$
+  public static final String PATH_SEPARATOR = "/"; //$NON-NLS-1$
 
   public static final String APPLICATION_ZIP = "application/zip"; //$NON-NLS-1$
 
@@ -122,13 +123,13 @@ public class FileResource extends AbstractJaxRSResource {
     String path = null;
     //slashes in pathId are illegal.. we scrub them out so the file will not be found
     //if the pathId was given in slash separated format
-    if (pathId.contains(PATH_SEPERATOR)) {
+    if (pathId.contains(PATH_SEPARATOR)) {
       logger.warn(Messages.getInstance().getString("FileResource.ILLEGAL_PATHID", pathId)); //$NON-NLS-1$
     }
-    path = pathId.replaceAll(PATH_SEPERATOR, ""); //$NON-NLS-1$
+    path = pathId.replaceAll(PATH_SEPARATOR, ""); //$NON-NLS-1$
     path = path.replace(':', '/');
-    if (!path.startsWith(PATH_SEPERATOR)) {
-      path = PATH_SEPERATOR + path;
+    if (!path.startsWith(PATH_SEPARATOR)) {
+      path = PATH_SEPARATOR + path;
     }
     return path;
   }
@@ -212,11 +213,11 @@ public class FileResource extends AbstractJaxRSResource {
           RepositoryFile sourceFile = repository.getFileById(sourceFileId);
           if (destDir != null && destDir.isFolder() && sourceFile != null && !sourceFile.isFolder()) {
             String fileName = sourceFile.getName();
-            String sourcePath = sourceFile.getPath().substring(0, sourceFile.getPath().lastIndexOf(PATH_SEPERATOR));
+            String sourcePath = sourceFile.getPath().substring(0, sourceFile.getPath().lastIndexOf(PATH_SEPARATOR));
             if (!sourcePath.equals(destDir.getPath())) { // We're saving to a different folder than we're copying from
               IRepositoryFileData data = repository.getDataForRead(sourceFileId, SimpleRepositoryFileData.class);
               RepositoryFileAcl acl = repository.getAcl(sourceFileId);
-              RepositoryFile destFile = repository.getFile(destDir.getPath() + PATH_SEPERATOR + fileName);
+              RepositoryFile destFile = repository.getFile(destDir.getPath() + PATH_SEPARATOR + fileName);
               if (destFile == null) { // destFile doesn't exist so we'll create it.
                 RepositoryFile duplicateFile = new RepositoryFile.Builder(fileName).build();
                 repository.createFile(destDir.getId(), duplicateFile, data, acl, null);
@@ -234,21 +235,21 @@ public class FileResource extends AbstractJaxRSResource {
             String fileName = sourceFile.getName();
             String nameNoExtension = fileName.substring(0, fileName.lastIndexOf('.'));
             String extension = fileName.substring(fileName.lastIndexOf('.'));
-            String sourcePath = sourceFile.getPath().substring(0, sourceFile.getPath().lastIndexOf(PATH_SEPERATOR));
-            RepositoryFileDto testFile = repoWs.getFile(path + PATH_SEPERATOR + nameNoExtension + Messages.getInstance().getString("FileResource.COPY_PREFIX") + extension); //$NON-NLS-1$
+            String sourcePath = sourceFile.getPath().substring(0, sourceFile.getPath().lastIndexOf(PATH_SEPARATOR));
+            RepositoryFileDto testFile = repoWs.getFile(path + PATH_SEPARATOR + nameNoExtension + Messages.getInstance().getString("FileResource.COPY_PREFIX") + extension); //$NON-NLS-1$
             if (sourcePath.equals(destDir.getPath()) && !nameNoExtension.endsWith(Messages.getInstance().getString("FileResource.COPY_PREFIX")) && testFile == null) { // We're trying to save to the same folder we copied from //$NON-NLS-1$
               fileName = nameNoExtension + Messages.getInstance().getString("FileResource.COPY_PREFIX") + extension;  //$NON-NLS-1$
             } else { // We're saving to a different folder than we're copying from or we've already copied here before
               if (testFile != null) {
                 nameNoExtension = testFile.getName().substring(0, testFile.getName().lastIndexOf('.'));
               }
-              testFile = repoWs.getFile(path + PATH_SEPERATOR + fileName);
+              testFile = repoWs.getFile(path + PATH_SEPARATOR + fileName);
               String testFileName = null;
               Integer nameCount = 1;
               while (testFile != null) {
                 nameCount++;
                 testFileName = nameNoExtension + Messages.getInstance().getString("FileResource.DUPLICATE_INDICATOR", nameCount) + extension;  //$NON-NLS-1$
-                testFile = repoWs.getFile(path + PATH_SEPERATOR + testFileName);
+                testFile = repoWs.getFile(path + PATH_SEPARATOR + testFileName);
               }
               if (nameCount > 1) {
                 fileName = testFileName;
@@ -271,20 +272,39 @@ public class FileResource extends AbstractJaxRSResource {
   /////////
   // READ
 
+  /**
+   * Overloaded this method to try and reduce calls to the repository
+   * @param pathId
+   * @return
+   * @throws FileNotFoundException
+   */
   @GET
   @Path("{pathId : .+}")
   @Produces({WILDCARD})
   public Response doGetFileOrDir(@PathParam("pathId") String pathId) throws FileNotFoundException {
     String path = idToPath(pathId);
-    if(path.startsWith("/etc")) {
-    	return Response.status(Status.FORBIDDEN).build();
+
+    if(!isPathValid(path)){
+      return Response.status(FORBIDDEN).build();
     }
+
     RepositoryFile repoFile = repository.getFile(path);
+
     if (repoFile == null) {
       //file does not exist or is not readable but we can't tell at this point
       return Response.status(NOT_FOUND).build();
     }
 
+    return doGetFileOrDir(repoFile);
+  }
+
+  /**
+   * Overloaded this method to try and reduce calls to the repository
+   * @param repoFile
+   * @return
+   * @throws FileNotFoundException
+   */
+  public Response doGetFileOrDir(RepositoryFile repoFile) throws FileNotFoundException{
     final RepositoryFileInputStream is = new RepositoryFileInputStream(repoFile);
     StreamingOutput streamingOutput = new StreamingOutput() {
       public void write(OutputStream output) throws IOException {
@@ -294,25 +314,51 @@ public class FileResource extends AbstractJaxRSResource {
     return Response.ok(streamingOutput, is.getMimeType()).build();
   }
 
+
+  // Overloaded this method to try and minimize calls to the repo
   //Had to unmap this method since browsers ask for resources with Accepts="*/*" which will default to this method
 //  @GET
 //  @Path("{pathId : .+}")
 //  @Produces({ APPLICATION_ZIP })
-  public Response doGetDirAsZip(@PathParam("pathId") String pathId, @QueryParam("withManifest") boolean withManifest) {
+  public Response doGetDirAsZip(@PathParam("pathId") String pathId) {
     String path = idToPath(pathId);
+
+    if(!isPathValid(path)){
+      return Response.status(FORBIDDEN).build();
+    }
+
     RepositoryFile repoFile = repository.getFile(path);
+
+    if (repoFile == null) {
+      //file does not exist or is not readable but we can't tell at this point
+      return Response.status(NOT_FOUND).build();
+    }
+
+    return doGetDirAsZip(repoFile, false);
+  }
+
+
+  /**
+   *
+   * @param repositoryFile
+   * @param withManifest
+   * @return
+   */
+  public Response doGetDirAsZip(RepositoryFile repositoryFile, boolean withManifest) {
+
+    String path = repositoryFile.getPath();
 
     final InputStream is;
     StreamingOutput streamingOutput = null;
     try {
-      if (repoFile.isFolder()) {
+      if (repositoryFile.isFolder()) {
         org.pentaho.platform.plugin.services.importexport.Exporter exporter = new org.pentaho.platform.plugin.services.importexport.Exporter(repository);
         exporter.setRepoPath(path);
         File zipFile = exporter.doExportAsZip();
         is = new FileInputStream(zipFile);
       } else {
         //we cannot service a request for a file as application/zip
-        logger.info(MessageFormat.format("Getting file [{0}] as a zip archive is not supported", pathId)); //$NON-NLS-1$
+        logger.info(MessageFormat.format("Getting file [{0}] as a zip archive is not supported", path)); //$NON-NLS-1$
         return Response.status(Status.NOT_ACCEPTABLE).build();
       }
     } catch (Exception e) {
@@ -327,6 +373,7 @@ public class FileResource extends AbstractJaxRSResource {
     response = Response.ok(streamingOutput, APPLICATION_ZIP).build();
     return response;
   }
+
 
   @GET
   @Path("{pathId : .+}/parameterizable")
@@ -398,22 +445,27 @@ public class FileResource extends AbstractJaxRSResource {
 
     Response origResponse = null;
 
+    if(!isPathValid(path)){
+      return Response.status(FORBIDDEN).build();
+    }
+
     RepositoryFile repoFile = repository.getFile(path);
+
     if (repoFile == null) {
       //file does not exist or is not readable but we can't tell at this point
       return Response.status(NOT_FOUND).build();
     }
 
-    // generate zip if manifest is requested, or item is a directory
+    // generate zip for directories, or if manifest is requested
     if (repoFile.isFolder() || withManifest) {
       quotedFileName = "\"" + repoFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
-      origResponse = doGetDirAsZip(pathId, withManifest);
+      origResponse = doGetDirAsZip(repoFile, withManifest);
       return Response.fromResponse(origResponse)
                .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     quotedFileName = "\"" + repoFile.getName() + "\""; //$NON-NLS-1$ //$NON-NLS-2$
-    origResponse = doGetFileOrDir(pathId);
+    origResponse = doGetFileOrDir(repoFile);
     return Response.fromResponse(origResponse)
              .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
   }
@@ -450,7 +502,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("/properties")
   @Produces({APPLICATION_XML, APPLICATION_JSON})
   public RepositoryFileDto doGetRootProperties() {
-    return repoWs.getFile(PATH_SEPERATOR);
+    return repoWs.getFile(PATH_SEPARATOR);
   }
 
   @GET
@@ -533,7 +585,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("/children")
   @Produces({APPLICATION_XML, APPLICATION_JSON})
   public RepositoryFileTreeDto doGetRootChildren(@QueryParam("depth") Integer depth, @QueryParam("filter") String filter, @QueryParam("showHidden") Boolean showHidden) {
-    return doGetChildren(PATH_SEPERATOR, depth, filter, showHidden);
+    return doGetChildren(PATH_SEPARATOR, depth, filter, showHidden);
   }
 
   @GET
@@ -549,10 +601,10 @@ public class FileResource extends AbstractJaxRSResource {
     if (depth == null) {
       depth = -1; //search all
     }
-    if (pathId == null || pathId.equals(PATH_SEPERATOR)) {
-      path = PATH_SEPERATOR;
+    if (pathId == null || pathId.equals(PATH_SEPARATOR)) {
+      path = PATH_SEPARATOR;
     } else {
-      if (!pathId.startsWith(PATH_SEPERATOR)) {
+      if (!pathId.startsWith(PATH_SEPARATOR)) {
         path = idToPath(pathId);
       }
     }
@@ -587,10 +639,10 @@ public class FileResource extends AbstractJaxRSResource {
   public List<StringKeyStringValueDto> doGetMetadata(@PathParam("pathId") String pathId) {
 
     String path = null;
-    if (pathId == null || pathId.equals(PATH_SEPERATOR)) {
-      path = PATH_SEPERATOR;
+    if (pathId == null || pathId.equals(PATH_SEPARATOR)) {
+      path = PATH_SEPARATOR;
     } else {
-      if (!pathId.startsWith(PATH_SEPERATOR)) {
+      if (!pathId.startsWith(PATH_SEPARATOR)) {
         path = idToPath(pathId);
       }
     }
@@ -599,5 +651,18 @@ public class FileResource extends AbstractJaxRSResource {
       return repoWs.getFileMetadata(file.getId());
     }
     return null;
+  }
+
+  /**
+   * Validate path and send appropriate response if necessary
+   * TODO: Add validation to IUnifiedRepository interface
+   * @param path
+   * @return
+   */
+  private boolean isPathValid(String path){
+    if(path.startsWith("/etc")||path.startsWith("/system")) {
+      return false;
+    }
+    return true;
   }
 }
