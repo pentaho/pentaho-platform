@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tns:ExportManifestDto xmlns:tns="http://www.example.org/ExportManifest/"
+<tns:ExportManifest xmlns:tns="http://www.example.org/ExportManifest/"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.example.org/ExportManifest/ ExportManifest.xsd ">
-	<ManifestInformation exportBy="{user}" exportDate="{date}" />
+	<ExportManifestInformation exportBy="{user}" exportDate="{date}" />
 	<ExportManifestEntity path="/dir1/dir2/file1">
 		<ExportManifestProperty>
-			<RepositoryFileAclDto>
+			<EntityMetaData createdBy="" createdDate="2001-12-31T12:00:00"
+				description="" isFolder="false" isHidden="false" locale="" name="Micky"
+				owner="" path="/dir1/dir2/file1" title="" />
+		</ExportManifestProperty>
+		<ExportManifestProperty>
+			<EntityAcl>
 				<aces>
 					<permissions>0</permissions>
 					<recipient>recipient</recipient>
@@ -13,13 +18,8 @@
 				</aces>
 				<entriesInheriting>true</entriesInheriting>
 				<owner>owner</owner>
-				<ownerType>0</ownerType>
-			</RepositoryFileAclDto>
-		</ExportManifestProperty>
-		<ExportManifestProperty>
-			<RepositoryFileDto createdBy="" createdDate="2001-12-31T12:00:00"
-				description="" isFolder="false" isHidden="false" locale="" name="Micky"
-				owner="" ownerTenantPath="" path="/dir1/dir2/file1" title="" />
+				<ownerType>USER</ownerType>
+			</EntityAcl>
 		</ExportManifestProperty>
 		<ExportManifestProperty>
 			<CustomProperty>
@@ -27,4 +27,4 @@
 			</CustomProperty>
 		</ExportManifestProperty>
 	</ExportManifestEntity>
-</tns:ExportManifestDto>
+</tns:ExportManifest>
