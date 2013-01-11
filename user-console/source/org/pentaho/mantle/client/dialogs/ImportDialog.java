@@ -96,28 +96,24 @@ public class ImportDialog extends PromptDialogBox {
     permission.setFormValue("ignoreACLS");
     
     CheckBox retainOwnership = new CheckBox(Messages.getString("retainOwnership"),true);
-    permission.setName("retainOwnership");
-    permission.setFormValue("retainOwnership");
+    retainOwnership.setName("retainOwnership");
+    retainOwnership.setFormValue("retainOwnership");
     
     
     upload = new FileUpload();
     upload.setName("fileUpload");
-   
-    
     rootPanel.add(upload);
-    //rootPanel.setSpacing(10);
+    
     rootPanel.add(overwrite);
-    //rootPanel.setSpacing(10);
     rootPanel.add(permission);
-    //rootPanel.setSpacing(10);
     rootPanel.add(retainOwnership);
+   
     
     importDir.setName("importDir");
     importDir.setText(repositoryFile.getPath());
     importDir.setVisible(false);
     
     rootPanel.add(importDir);
-    
     
     form.setEncoding(FormPanel.ENCODING_MULTIPART);
     form.setMethod(FormPanel.METHOD_POST);
@@ -133,7 +129,7 @@ public class ImportDialog extends PromptDialogBox {
 		String moduleBaseURL = GWT.getModuleBaseURL();
 	    String moduleName = GWT.getModuleName();
 	    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));   
-	    String importURL = contextURL + "api/repo/files/import";//?overwrite="+overwrite.getValue()+"&permission="+permission.getValue();
+	    String importURL = contextURL + "api/repo/files/import";
 	    form.setAction(importURL);
 	}
 
