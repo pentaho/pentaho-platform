@@ -29,4 +29,12 @@ public interface ImportProcessor {
    * @throws ImportException indicates an error in import processing
    */
   public void performImport() throws ImportException;
+  
+  /**
+   * Performs the import process 
+   * overwrite flag exposed as client selection 
+   *
+   * @throws ImportException indicates an error in import processing
+   */
+  public void performImport(boolean overwrite) throws ImportException;
 }
