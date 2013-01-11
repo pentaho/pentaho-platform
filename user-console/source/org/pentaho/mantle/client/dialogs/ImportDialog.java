@@ -26,15 +26,18 @@ import org.pentaho.mantle.client.messages.Messages;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -43,7 +46,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  *
  */
 public class ImportDialog extends PromptDialogBox {
-  private FormPanel form;
+  private FormPanel form; 
   protected PopupPanel indefiniteProgress;
   protected FileUpload upload;
   
@@ -83,28 +86,52 @@ public class ImportDialog extends PromptDialogBox {
     TextBox importDir = new TextBox();
     rootPanel.add(importLocationLabel);
     
+    //HorizontalPanel hpanel = new HorizontalPanel();
+    CheckBox overwrite = new CheckBox(Messages.getString("overwrite"),true);
+    overwrite.setName("overwrite");
+    overwrite.setFormValue("overwrite");
+    
+    CheckBox permission = new CheckBox(Messages.getString("permission"),true);
+    permission.setName("ignoreACLS");
+    permission.setFormValue("ignoreACLS");
+    
+    CheckBox retainOwnership = new CheckBox(Messages.getString("retainOwnership"),true);
+    retainOwnership.setName("retainOwnership");
+    retainOwnership.setFormValue("retainOwnership");
+    
+    
     upload = new FileUpload();
     upload.setName("fileUpload");
     rootPanel.add(upload);
     
+    rootPanel.add(overwrite);
+    rootPanel.add(permission);
+    rootPanel.add(retainOwnership);
+   
+    
     importDir.setName("importDir");
     importDir.setText(repositoryFile.getPath());
     importDir.setVisible(false);
+    
     rootPanel.add(importDir);
-
+    
     form.setEncoding(FormPanel.ENCODING_MULTIPART);
     form.setMethod(FormPanel.METHOD_POST);
     
-    String moduleBaseURL = GWT.getModuleBaseURL();
-    String moduleName = GWT.getModuleName();
-    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String importURL = contextURL + "api/repo/files/import";
-    form.setAction(importURL);
+    setFormAction();
     
     form.add(rootPanel);
     
     setContent(form);
   }
+
+	private void setFormAction() {
+		String moduleBaseURL = GWT.getModuleBaseURL();
+	    String moduleName = GWT.getModuleName();
+	    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));   
+	    String importURL = contextURL + "api/repo/files/import";
+	    form.setAction(importURL);
+	}
 
   public FormPanel getForm() {
     return form;
@@ -116,6 +143,7 @@ public class ImportDialog extends PromptDialogBox {
     if (validatorCallback == null || (validatorCallback != null && validatorCallback.validate())) {
       try {
         if (callback != null) {
+          setFormAction();
           callback.okPressed();
         }
       } catch (Throwable dontCare) {

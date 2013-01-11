@@ -17,9 +17,18 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.sql.DataSource;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
@@ -30,6 +39,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +48,16 @@ import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedRepositoryJaxwsWebService;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedRepositoryToWebServiceAdapter;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.WebResource.Builder;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import com.sun.jersey.api.json.JSONConfiguration;
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.xml.ws.developer.JAXWSProperties;
 
 /**
@@ -49,9 +69,9 @@ public class CommandLineProcessor {
   private static final Log log = LogFactory.getLog(CommandLineProcessor.class);
   private static final Options options = new Options();
   private static Exception exception;
-
   private static enum RequestType {HELP, IMPORT, EXPORT}
-
+  private static  boolean useRestService = true;
+  private static Client client = null;
   static {
     // create the Options
     options.addOption("h", "help", false, "print this message");
@@ -66,17 +86,25 @@ public class CommandLineProcessor {
     options.addOption("type", true, "The type of content being imported\nfiles (default), metadata");
     options.addOption("f", "file-path", true, "Path to directory of files");
     options.addOption("c", "charset", true, "charset to use for the repository (characters from external systems converted to this charset)");
+    options.addOption("l", "logfile", false, "full path and filename of logfile messages");
 
     // import only options
     options.addOption("m", "comment", true, "version comment (import only)");
     options.addOption("f", "path", true, "repository path to which to add imported files (e.g. /public) (import only)");
-
+    //import only ACL additions
+    options.addOption("o", "overwrite", false, "overwrite files (import only)");
+    options.addOption("p", "permission", false, "apply ACL manifest permissions to files and folders  (import only)");
+    
     // external
     options.addOption("ldrvr", "legacy-db-driver", true, "legacy database repository driver");
     options.addOption("lurl", "legacy-db-url", true, "legacy database repository url");
     options.addOption("luser", "legacy-db-username", true, "legacy database repository username");
     options.addOption("lpass", "legacy-db-password", true, "legacy database repository password");
     options.addOption("lchar", "legacy-db-charset", true, "legacy database repository character-set");
+ 
+     //REST Service
+    options.addOption("r", "rest", false, "Use the REST version (not local to BI Server)");
+    
   }
 
   /**
@@ -91,6 +119,11 @@ public class CommandLineProcessor {
       exception = null;
 
       final CommandLineProcessor commandLineProcessor = new CommandLineProcessor(args);
+      String rest = commandLineProcessor.getOptionValue("rest", false, false);
+	  useRestService =(rest == null)?false:true;
+	  if(useRestService){
+		  commandLineProcessor.initRestService();
+	  }
       switch (commandLineProcessor.getRequestType()) {
         case HELP:
           printHelp();
@@ -114,7 +147,18 @@ public class CommandLineProcessor {
     }
   }
 
-  /**
+  private void initRestService() throws ParseException{
+   // get information about the remote connection
+	  String username = getOptionValue("username", true, false);
+	  String password = getOptionValue("password", true, false);
+	  ClientConfig clientConfig = new DefaultClientConfig();
+	  clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
+	  client = Client.create(clientConfig);
+	  client.addFilter(new HTTPBasicAuthFilter(username, password));
+   }
+ 
+
+/**
    * Returns information about any exception encountered (if one was generated)
    *
    * @return the {@link Exception} that was generated, or {@code null} if none was generated
@@ -126,9 +170,8 @@ public class CommandLineProcessor {
 
   // ========================== Instance Members / Methods ==========================
   private CommandLine commandLine;
-  private IUnifiedRepository repository;
   private RequestType requestType;
-
+  private IUnifiedRepository repository;
 
   /**
    * Parses the command line and handles the situation where it isn't a valid import or export request
@@ -155,18 +198,117 @@ public class CommandLineProcessor {
     return requestType;
   }
 
-  protected void performImport() throws Exception, ImportException {
+  protected void performImport()  throws Exception, ImportException  {
+	  if(!useRestService){
+		  this.performImportLegacy();
+	  } else {
+		  performImportREST();
+	  }
+  }
+  /*
+   *    @FormDataParam("importDir") String uploadDir,
+		@FormDataParam("fileUpload") InputStream fileIS,
+		@FormDataParam("overwrite") String overwrite,
+		@FormDataParam("ignoreACLS") String ignoreACLS,
+		@FormDataParam("retainOwnership") String retainOwnership,
+		@FormDataParam("fileUpload") FormDataContentDisposition fileInfo) 
+   */
+    
+  private void performImportREST() throws ParseException, FileNotFoundException {
+	  String contextURL = getOptionValue("url", true, false);
+	  String path = getOptionValue("path",true,false);
+	  String filePath = getOptionValue("file-path",true,false);
+	  String importURL = contextURL +"api/repo/files/import";
+	  File fileIS = new File(filePath);
+	  InputStream in = new FileInputStream(fileIS);
+	  WebResource resource = client.resource(importURL);
+
+      FormDataMultiPart part = new FormDataMultiPart();
+      part.field("importDir", path, MediaType.MULTIPART_FORM_DATA_TYPE)
+      		.field("fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE);
+
+      // If the import service needs the file name do the following.
+      part.getField("fileUpload").setContentDisposition(
+          FormDataContentDisposition.name("fileUpload")
+          .fileName(fileIS.getName()).build());
+
+      //Response response 
+      Builder builder = resource
+      		.type(MediaType.MULTIPART_FORM_DATA)
+      		.accept(MediaType.TEXT_HTML_TYPE);
+      String response = builder.post(String.class, part);
+  }
+
+/**
+   * this process must run on the same box as the JCR repository 
+   * does not use REST 
+   * @throws Exception;
+   * @throws ImportException
+   */
+  protected void performImportLegacy() throws Exception, ImportException {
     final ImportProcessor importProcessor = getImportProcessor();
     importProcessor.setImportSource(createImportSource());
     addImportHandlers(importProcessor);
-    importProcessor.performImport();
+    String overwrite =  getOptionValue("overwrite", false, true);
+    importProcessor.performImport(Boolean.valueOf(overwrite == null?"true":overwrite).booleanValue());
+    //process ACL if permission is set (and ACL manifest found)
+    String permission =  getOptionValue("permission", false, true);
+    if(permission != null && !"".equals(permission)){
+    	if(Boolean.valueOf(permission == null?"false":permission).booleanValue()){
+    		//processACLFiles(); -- TO DO 
+    	}
+    }
   }
 
-  protected void performExport() throws ParseException {
-    throw new UnsupportedOperationException(); // TODO implement
+  protected void performExport() throws ParseException,ExportException, IOException {
+	  if(!useRestService){
+		  performExportLegacy();
+	  } else {
+		  performExportREST();
+	  }
+  }
+  
+  private void performExportREST() throws ParseException {
+	  String contextURL = getOptionValue("url", true, false);
+	  String path = getOptionValue("path",true,false);
+	  String exportURL = contextURL + "api/repo/files/" + path + "/download";
+	  WebResource resource = client.resource(exportURL);
+
+      //Response response 
+      Builder builder = resource
+      		.type(MediaType.MULTIPART_FORM_DATA)
+      		.accept(MediaType.TEXT_HTML_TYPE);
+      Response response = builder.get(Response.class);
+      
+      final InputStream is = (InputStream) response.getEntity();
+      StreamingOutput streamingOutput = new StreamingOutput() {
+          public void write(OutputStream output) throws IOException {
+            IOUtils.copy(is, output);
+          }
+        };
+   }
+
+/**
+   * 
+   * @throws ParseException
+   * @throws ExportException
+   * @throws IOException
+   */
+  protected void performExportLegacy() throws ParseException,ExportException, IOException {
+    final Exporter exportProcessor = getExportProcessor();
+    exportProcessor.doExport();    
+   // throw new UnsupportedOperationException(); // TODO implement
   }
 
-  /**
+  private Exporter getExportProcessor() throws ParseException {
+	final IUnifiedRepository repository = getRepository();
+	String path = getOptionValue("path", true, false);
+	String filepath = getOptionValue("file-path", true, false);
+	final Exporter exportProcess = new Exporter(repository, path, filepath);
+	return exportProcess;
+}
+
+/**
    * Determines the {@link ImportProcessor} to be used by evaluating the command line
    *
    * @return the @{link ImportProcessor} to be used for importing - or the {@link SimpleImportProcessor}
@@ -313,6 +455,15 @@ public class CommandLineProcessor {
             + "Example arguments for File System import:\n"
             + "--import --url=http://localhost:8080/pentaho --username=joe\n"
             + "--password=password --source=file-system --type=files --charset=UTF-8 --path=/public\n"
-            + "--file-path=/Users/wseyler/Desktop/steel-wheels\n");
+            + "--file-path=c:/Users/wseyler/Desktop/steel-wheels\n"
+            + "--logfile=c:/Users/wseyler/Desktop/logfile.log\n"
+            + "--permission=true\n"
+            + "--overwrite=true\n\n"
+            + "Example arguments for File System export:\n"
+            + "--export --url=http://localhost:8080/pentaho --username=joe --password=password \n"
+            + "--file-path=c:/temp/export.zip --charset=UTF-8 --path=/public\n"
+            + "--logfile=c:/Users/wseyler/Desktop/logfile.log\n"
+            + "Example add this to import or export to use REST Service :\n"
+            + "--rest");
   }
 }

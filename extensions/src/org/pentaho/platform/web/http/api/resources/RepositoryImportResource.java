@@ -75,8 +75,12 @@ public class RepositoryImportResource {
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_HTML)
-	public Response doPostImport(@FormDataParam("importDir") String uploadDir,
+	public Response doPostImport(
+			@FormDataParam("importDir") String uploadDir,
 			@FormDataParam("fileUpload") InputStream fileIS,
+			@FormDataParam("overwrite") String overwrite,
+			@FormDataParam("ignoreACLS") String ignoreACLS,
+			@FormDataParam("retainOwnership") String retainOwnership,
 			@FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
 		try {
 			validateAccess();
@@ -93,6 +97,9 @@ public class RepositoryImportResource {
 			importProcessor
 					.addImportHandler(new org.pentaho.platform.plugin.services.importexport.DefaultImportHandler(
 							repository));
+			boolean overwriteFileFlag = ("overwrite".equals(overwrite)?true:false);
+			boolean ignoreACLFlag = ("ignoreACLS".equals(ignoreACLS)?true:false);
+			boolean retainOwnershipFlag =("retainOwnership".equals(retainOwnership)?true:false);
 			if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) {
 				importProcessor
 						.setImportSource(new org.pentaho.platform.plugin.services.importexport.legacy.ZipSolutionRepositoryImportSource(
@@ -105,8 +112,8 @@ public class RepositoryImportResource {
 						.setImportSource(new org.pentaho.platform.plugin.services.importexport.legacy.FileSolutionRepositoryImportSource(
 								outFile, fileInfo.getFileName(), "UTF-8"));
 			}
-			importProcessor.performImport();
-
+			importProcessor.performImport(overwriteFileFlag);
+			
 			// Flush the Mondrian cache to show imported datasources.
 			IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(
 					IMondrianCatalogService.class, "IMondrianCatalogService",
