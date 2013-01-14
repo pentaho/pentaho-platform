@@ -21,31 +21,6 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.StreamingOutput;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,19 +43,21 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
-import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.repository2.unified.webservices.*;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static javax.ws.rs.core.MediaType.WILDCARD;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static javax.ws.rs.core.MediaType.*;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
@@ -350,20 +327,18 @@ public class FileResource extends AbstractJaxRSResource {
 
     final InputStream is;
     StreamingOutput streamingOutput = null;
+
     try {
-      if (repositoryFile.isFolder()) {
-        org.pentaho.platform.plugin.services.importexport.Exporter exporter = new org.pentaho.platform.plugin.services.importexport.Exporter(repository);
-        exporter.setRepoPath(path);
-        File zipFile = exporter.doExportAsZip();
-        is = new FileInputStream(zipFile);
-      } else {
-        //we cannot service a request for a file as application/zip
-        logger.info(MessageFormat.format("Getting file [{0}] as a zip archive is not supported", path)); //$NON-NLS-1$
-        return Response.status(Status.NOT_ACCEPTABLE).build();
-      }
+      org.pentaho.platform.plugin.services.importexport.Exporter exporter = new org.pentaho.platform.plugin.services.importexport.Exporter(repository);
+      exporter.setRepoPath(path);
+      exporter.setRepoWs(repoWs);
+
+      File zipFile = exporter.doExportAsZip(repositoryFile, withManifest);
+      is = new FileInputStream(zipFile);
     } catch (Exception e) {
       return Response.serverError().entity(e.toString()).build();
     }
+
     streamingOutput = new StreamingOutput() {
       public void write(OutputStream output) throws IOException {
         IOUtils.copy(is, output);
@@ -464,6 +439,7 @@ public class FileResource extends AbstractJaxRSResource {
                .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    // or, still send single files without compression
     quotedFileName = "\"" + repoFile.getName() + "\""; //$NON-NLS-1$ //$NON-NLS-2$
     origResponse = doGetFileOrDir(repoFile);
     return Response.fromResponse(origResponse)
