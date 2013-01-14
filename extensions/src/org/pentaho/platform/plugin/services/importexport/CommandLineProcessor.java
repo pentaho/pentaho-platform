@@ -94,6 +94,8 @@ public class CommandLineProcessor {
     //import only ACL additions
     options.addOption("o", "overwrite", false, "overwrite files (import only)");
     options.addOption("p", "permission", false, "apply ACL manifest permissions to files and folders  (import only)");
+    options.addOption("r", "retainOwnership", false, "Retain ownership information  (import only)");
+    
     
     // external
     options.addOption("ldrvr", "legacy-db-driver", true, "legacy database repository driver");
@@ -458,7 +460,8 @@ public class CommandLineProcessor {
             + "--file-path=c:/Users/wseyler/Desktop/steel-wheels\n"
             + "--logfile=c:/Users/wseyler/Desktop/logfile.log\n"
             + "--permission=true\n"
-            + "--overwrite=true\n\n"
+            + "--overwrite=true\n"
+            + "--retainOwnership=true\n\n"
             + "Example arguments for File System export:\n"
             + "--export --url=http://localhost:8080/pentaho --username=joe --password=password \n"
             + "--file-path=c:/temp/export.zip --charset=UTF-8 --path=/public\n"
