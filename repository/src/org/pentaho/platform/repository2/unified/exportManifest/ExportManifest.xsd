@@ -112,7 +112,7 @@
 				</restriction>
 			</simpleType>
 		</attribute>
-		<attribute name="isHidden" type="boolean" default="false" />
+		<attribute name="isHidden" type="boolean" default="false" use="optional" />
 		<attribute name="owner">
 			<simpleType>
 				<restriction base="string">

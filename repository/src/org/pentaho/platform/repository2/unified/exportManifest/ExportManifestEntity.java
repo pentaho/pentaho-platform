@@ -9,6 +9,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.CustomProperty;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.EntityAcl;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.EntityMetaData;
+import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestEntityDto;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestProperty;
 
@@ -34,24 +35,26 @@ public class ExportManifestEntity {
 	}
 	
 	private void createEntityMetaData(RepositoryFile repositoryFile){
-		EntityMetaData entityMetaData = new EntityMetaData();
+		entityMetaData = new EntityMetaData();
 		entityMetaData.setCreatedBy(repositoryFile.getCreatorId());
 		entityMetaData.setCreatedDate(XmlGregorianCalendarConverter.asXMLGregorianCalendar(repositoryFile.getCreatedDate()));
 		entityMetaData.setDescription(repositoryFile.getDescription());
+		entityMetaData.setIsHidden(repositoryFile.isHidden());
 		entityMetaData.setIsFolder(repositoryFile.isFolder());
 		entityMetaData.setLocale(repositoryFile.getLocale());
 		entityMetaData.setName(repositoryFile.getName());
 		entityMetaData.setPath(repositoryFile.getPath());
 		entityMetaData.setTitle(repositoryFile.getTitle());
+		setPath(repositoryFile.getPath());
 	}
 	
 	private void createEntityAcl(RepositoryFileAcl repositoryFileAcl) {
 		if (repositoryFileAcl == null) return;
-		EntityAcl EntityAcl = new EntityAcl();
-		EntityAcl.setEntriesInheriting(repositoryFileAcl.isEntriesInheriting());
-		EntityAcl.setOwner(repositoryFileAcl.getOwner().getName());
-		EntityAcl.setOwnerType(repositoryFileAcl.getOwner().getType().name());
-		List<EntityAcl.Aces> aces = EntityAcl.getAces();
+		entityAcl = new EntityAcl();
+		entityAcl.setEntriesInheriting(repositoryFileAcl.isEntriesInheriting());
+		entityAcl.setOwner(repositoryFileAcl.getOwner().getName());
+		entityAcl.setOwnerType(repositoryFileAcl.getOwner().getType().name());
+		List<EntityAcl.Aces> aces = entityAcl.getAces();
 		aces.clear();
 
 		for (RepositoryFileAce repositoryFileAce: repositoryFileAcl.getAces()) {
@@ -70,15 +73,28 @@ public class ExportManifestEntity {
 	 * Builds an ExportManifestEntityDto for use by the ExportManifest Package.
 	 * @return
 	 */
-	ExportManifestEntityDto getExportManifestEntityDto(){
-		List rawProperties = rawExportManifestEntity.getExportManifestProperty();
-		ExportManifestProperty exportManifestProperty = new ExportManifestProperty();
-		exportManifestProperty.setEntityMetaData(entityMetaData);
-		exportManifestProperty.setEntityAcl(entityAcl);
-		//more
+	ExportManifestEntityDto getExportManifestEntityDto() {
+		//Property list is not kept in sync.  Create it now
+		List<ExportManifestProperty> rawProperties = rawExportManifestEntity.getExportManifestProperty();
+		rawProperties.clear();
+		if (entityMetaData != null) {
+			ExportManifestProperty exportManifestProperty = new ExportManifestProperty();
+			exportManifestProperty.setEntityMetaData(entityMetaData);
+			rawProperties.add(exportManifestProperty);
+		}
 		
-		return null;
+		if (entityAcl != null) {
+			ExportManifestProperty exportManifestProperty = new ExportManifestProperty();
+			exportManifestProperty.setEntityAcl(entityAcl);
+			rawProperties.add(exportManifestProperty);
+		}
 		
+		if (customProperties != null && customProperties.size() > 0) {
+			ExportManifestProperty exportManifestProperty = new ExportManifestProperty();
+			exportManifestProperty.getCustomProperty().addAll(customProperties);
+			rawProperties.add(exportManifestProperty);
+		}
+		return rawExportManifestEntity;
 	}
 
 	/**

@@ -19,6 +19,7 @@ package org.pentaho.platform.plugin.services.importexport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,8 +28,6 @@ import java.net.URL;
 
 import javax.sql.DataSource;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
@@ -39,7 +38,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +48,7 @@ import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedReposit
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -92,8 +91,10 @@ public class CommandLineProcessor {
     options.addOption("m", "comment", true, "version comment (import only)");
     options.addOption("f", "path", true, "repository path to which to add imported files (e.g. /public) (import only)");
     //import only ACL additions
-    options.addOption("o", "overwrite", false, "overwrite files (import only)");
-    options.addOption("p", "permission", false, "apply ACL manifest permissions to files and folders  (import only)");
+    options.addOption("o", "overwrite", true, "overwrite files (import only)");
+    options.addOption("p", "permission", true, "apply ACL manifest permissions to files and folders  (import only)");
+    options.addOption("r", "retainOwnership", true, "Retain ownership information  (import only)");
+    
     
     // external
     options.addOption("ldrvr", "legacy-db-driver", true, "legacy database repository driver");
@@ -119,8 +120,8 @@ public class CommandLineProcessor {
       exception = null;
 
       final CommandLineProcessor commandLineProcessor = new CommandLineProcessor(args);
-      String rest = commandLineProcessor.getOptionValue("rest", false, false);
-	  useRestService =(rest == null)?false:true;
+      String rest = commandLineProcessor.getOptionValue("rest", false, true);
+	  useRestService = true;//(rest == null)?false:
 	  if(useRestService){
 		  commandLineProcessor.initRestService();
 	  }
@@ -218,13 +219,21 @@ public class CommandLineProcessor {
 	  String contextURL = getOptionValue("url", true, false);
 	  String path = getOptionValue("path",true,false);
 	  String filePath = getOptionValue("file-path",true,false);
-	  String importURL = contextURL +"api/repo/files/import";
+	  String importURL = contextURL +"/api/repo/files/import";
 	  File fileIS = new File(filePath);
 	  InputStream in = new FileInputStream(fileIS);
+	  
 	  WebResource resource = client.resource(importURL);
 
+	  String overwrite = getOptionValue("overwrite",true,false);
+	  String retainOwnership = getOptionValue("retainOwnership",true,false);
+	  String permission = getOptionValue("permission",true,false);
+	  
       FormDataMultiPart part = new FormDataMultiPart();
-      part.field("importDir", path, MediaType.MULTIPART_FORM_DATA_TYPE)
+       part.field("importDir", path, MediaType.MULTIPART_FORM_DATA_TYPE);
+       part.field("overwrite", overwrite==null?"":"overwrite", MediaType.MULTIPART_FORM_DATA_TYPE);
+       part.field("retainOwnership", retainOwnership==null?"":"retianOwnership", MediaType.MULTIPART_FORM_DATA_TYPE);
+       part.field("ignoreACLS", permission==null?"":"ignoreACLS", MediaType.MULTIPART_FORM_DATA_TYPE)
       		.field("fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE);
 
       // If the import service needs the file name do the following.
@@ -268,25 +277,59 @@ public class CommandLineProcessor {
 	  }
   }
   
+  /**
+   * REST Service Export
+   * @throws ParseException
+   */
   private void performExportREST() throws ParseException {
 	  String contextURL = getOptionValue("url", true, false);
 	  String path = getOptionValue("path",true,false);
-	  String exportURL = contextURL + "api/repo/files/" + path + "/download";
+	  String exportURL = contextURL + "/api/repo/files/" + path + "/download";
 	  WebResource resource = client.resource(exportURL);
 
       //Response response 
       Builder builder = resource
       		.type(MediaType.MULTIPART_FORM_DATA)
       		.accept(MediaType.TEXT_HTML_TYPE);
-      Response response = builder.get(Response.class);
-      
-      final InputStream is = (InputStream) response.getEntity();
-      StreamingOutput streamingOutput = new StreamingOutput() {
-          public void write(OutputStream output) throws IOException {
-            IOUtils.copy(is, output);
-          }
-        };
+      ClientResponse response = builder.get(ClientResponse.class);
+      String filename = getOptionValue("file-path",true,false);
+      final InputStream input = (InputStream) response.getEntityInputStream();
+      createZipFile(filename, input);
    }
+
+  private void createZipFile(String filename, final InputStream input) {
+	OutputStream output = null;
+      try {
+    	  output = new FileOutputStream(filename);
+    	  byte[] buffer = new byte[8 * 1024];
+    	  
+    	  try {
+    	    int bytesRead;
+    	    while ((bytesRead = input.read(buffer)) != -1) {
+    	      output.write(buffer, 0, bytesRead);
+    	    }
+    	  } catch (IOException e) {			
+			e.printStackTrace();
+		} finally {
+    	    if(output != null){
+				try {
+					output.close();
+				} catch (IOException e) {					
+					e.printStackTrace();
+				}
+    	    }
+    	  }
+    	} catch (FileNotFoundException e) {			
+			e.printStackTrace();
+		} finally {
+    	  try {
+			input.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+}
 
 /**
    * 
@@ -458,7 +501,8 @@ public class CommandLineProcessor {
             + "--file-path=c:/Users/wseyler/Desktop/steel-wheels\n"
             + "--logfile=c:/Users/wseyler/Desktop/logfile.log\n"
             + "--permission=true\n"
-            + "--overwrite=true\n\n"
+            + "--overwrite=true\n"
+            + "--retainOwnership=true\n\n"
             + "Example arguments for File System export:\n"
             + "--export --url=http://localhost:8080/pentaho --username=joe --password=password \n"
             + "--file-path=c:/temp/export.zip --charset=UTF-8 --path=/public\n"
