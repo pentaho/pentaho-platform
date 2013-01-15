@@ -53,6 +53,8 @@ public class Exporter {
   protected DefaultUnifiedRepositoryWebService repoWs;
 
   private static String EXPORT_MANIFEST_FILENAME = "exportManifest.xml";
+  private static String EXPORT_INFO_DATE_FORMAT = "dd-MM-yyyy";
+  private static String EXPORT_INFO_TIME_FORMAT = "hh:mm:ss z";
 
   /**
    * @param unifiedRepository
@@ -94,13 +96,14 @@ public class Exporter {
 
       // set created by and create date in manifest information
       IPentahoSession session = PentahoSessionHolder.getSession();
-      String username = session.getName();
+
       Date todaysDate = new Date();
-      SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-      SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss z");
+      SimpleDateFormat dateFormat = new SimpleDateFormat(EXPORT_INFO_DATE_FORMAT);
+      SimpleDateFormat timeFormat = new SimpleDateFormat(EXPORT_INFO_TIME_FORMAT);
+
       exportManifest.getManifestInformation().setExportBy(session.getName());
       exportManifest.getManifestInformation()
-          .setExportDate(dateFormat.format(todaysDate) + timeFormat.format(todaysDate));
+          .setExportDate(dateFormat.format(todaysDate) + " " + timeFormat.format(todaysDate));
     }
   }
 
@@ -169,12 +172,12 @@ public class Exporter {
       zos.putNextEntry(entry);
 
       // pass output stream to manifest class for writing
-/*      try{
-        exportManifest.writeManifest(zos);
+      try{
+        exportManifest.toXml(zos);
       }
       catch(Exception e){
 
-      }*/
+      }
 
       zos.closeEntry();
     }
@@ -206,7 +209,7 @@ public class Exporter {
 
     // get entity instance for this file and add to manifest
     if(this.withManifest){
-      RepositoryFileAcl fileAcl = unifiedRepository.getAcl(exportRepositoryFile);
+      RepositoryFileAcl fileAcl = unifiedRepository.getAcl(exportRepositoryFile.getId());
       this.exportManifest.add(new ExportManifestEntity(exportRepositoryFile, fileAcl));
     }
 

@@ -329,7 +329,7 @@ public class FileResource extends AbstractJaxRSResource {
     StreamingOutput streamingOutput = null;
 
     try {
-      org.pentaho.platform.plugin.services.importexport.Exporter exporter = new org.pentaho.platform.plugin.services.importexport.Exporter(repository);
+      org.pentaho.platform.plugin.services.importexport.Exporter exporter = new org.pentaho.platform.plugin.services.importexport.Exporter(repository, withManifest);
       exporter.setRepoPath(path);
       exporter.setRepoWs(repoWs);
 
