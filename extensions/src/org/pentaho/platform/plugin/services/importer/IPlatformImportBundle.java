@@ -1,7 +1,5 @@
 package org.pentaho.platform.plugin.services.importer;
 
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -53,7 +51,7 @@ public interface IPlatformImportBundle {
    * @return mime-type
    */
   String getMimeType();
-
+  
   /**
    * Convenience method for extra properties. A subclass would be preferred if there are a great number of properties
    * accessed from this method.
@@ -69,4 +67,6 @@ public interface IPlatformImportBundle {
    */
   boolean overwriteInRepossitory();
 
+  String getUploadDir();
+  
 }

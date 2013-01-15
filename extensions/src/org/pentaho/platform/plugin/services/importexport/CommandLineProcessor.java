@@ -67,8 +67,7 @@ import com.sun.xml.ws.developer.JAXWSProperties;
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class CommandLineProcessor {
-	private static final Log log = LogFactory
-			.getLog(CommandLineProcessor.class);
+	private static final Log log = LogFactory.getLog(CommandLineProcessor.class);
 	private static final Options options = new Options();
 	private static Exception exception;
 
@@ -87,48 +86,32 @@ public class CommandLineProcessor {
 
 		options.addOption("u", "username", true, "repository username");
 		options.addOption("p", "password", true, "repository password");
-		options.addOption("a", "url", true,
-				"url of repository (e.g. http://localhost:8080/pentaho)");
-		options.addOption("x", "source", true,
-				"external system type (e.g. legacy-db, file-system)");
-		options.addOption("type", true,
-				"The type of content being imported\nfiles (default), metadata");
+		options.addOption("a", "url", true, "url of repository (e.g. http://localhost:8080/pentaho)");
+		options.addOption("x", "source", true, "external system type (e.g. legacy-db, file-system)");
+		options.addOption("type", true, "The type of content being imported\nfiles (default), metadata");
 		options.addOption("f", "file-path", true, "Path to directory of files");
-		options.addOption(
-				"c",
-				"charset",
-				true,
+		options.addOption("c", "charset", true,
 				"charset to use for the repository (characters from external systems converted to this charset)");
-		options.addOption("l", "logfile", false,
-				"full path and filename of logfile messages");
+		options.addOption("l", "logfile", false, "full path and filename of logfile messages");
 
 		// import only options
 		options.addOption("m", "comment", true, "version comment (import only)");
 		options.addOption("f", "path", true,
 				"repository path to which to add imported files (e.g. /public) (import only)");
 		// import only ACL additions
-		options.addOption("o", "overwrite", true,
-				"overwrite files (import only)");
-		options.addOption("p", "permission", true,
-				"apply ACL manifest permissions to files and folders  (import only)");
-		options.addOption("r", "retainOwnership", true,
-				"Retain ownership information  (import only)");
+		options.addOption("o", "overwrite", true, "overwrite files (import only)");
+		options.addOption("p", "permission", true, "apply ACL manifest permissions to files and folders  (import only)");
+		options.addOption("r", "retainOwnership", true, "Retain ownership information  (import only)");
 
 		// external
-		options.addOption("ldrvr", "legacy-db-driver", true,
-				"legacy database repository driver");
-		options.addOption("lurl", "legacy-db-url", true,
-				"legacy database repository url");
-		options.addOption("luser", "legacy-db-username", true,
-				"legacy database repository username");
-		options.addOption("lpass", "legacy-db-password", true,
-				"legacy database repository password");
-		options.addOption("lchar", "legacy-db-charset", true,
-				"legacy database repository character-set");
+		options.addOption("ldrvr", "legacy-db-driver", true, "legacy database repository driver");
+		options.addOption("lurl", "legacy-db-url", true, "legacy database repository url");
+		options.addOption("luser", "legacy-db-username", true, "legacy database repository username");
+		options.addOption("lpass", "legacy-db-password", true, "legacy database repository password");
+		options.addOption("lchar", "legacy-db-charset", true, "legacy database repository character-set");
 
 		// REST Service
-		options.addOption("r", "rest", false,
-				"Use the REST version (not local to BI Server)");
+		options.addOption("r", "rest", false, "Use the REST version (not local to BI Server)");
 
 	}
 
@@ -144,11 +127,10 @@ public class CommandLineProcessor {
 			// reset the exception information
 			exception = null;
 
-			final CommandLineProcessor commandLineProcessor = new CommandLineProcessor(
-					args);
-			String rest = commandLineProcessor.getOptionValue("rest", false,
-					true);
-			useRestService = true;// (rest == null)?false:
+			final CommandLineProcessor commandLineProcessor = new CommandLineProcessor(args);
+			String rest = commandLineProcessor.getOptionValue("rest", false, true);
+			useRestService = true;// (rest == null)?false: NOT IMPLEMENTED - use
+									// new service only
 			if (useRestService) {
 				commandLineProcessor.initRestService();
 			}
@@ -180,8 +162,7 @@ public class CommandLineProcessor {
 		String username = getOptionValue("username", true, false);
 		String password = getOptionValue("password", true, false);
 		ClientConfig clientConfig = new DefaultClientConfig();
-		clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING,
-				Boolean.TRUE);
+		clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
 		client = Client.create(clientConfig);
 		client.addFilter(new HTTPBasicAuthFilter(username, password));
 	}
@@ -222,11 +203,9 @@ public class CommandLineProcessor {
 			final boolean importRequest = commandLine.hasOption("import");
 			final boolean exportRequest = commandLine.hasOption("export");
 			if (importRequest == exportRequest) {
-				throw new ParseException(
-						"exactly one of --import or --export is required");
+				throw new ParseException("exactly one of --import or --export is required");
 			}
-			requestType = (importRequest ? RequestType.IMPORT
-					: RequestType.EXPORT);
+			requestType = (importRequest ? RequestType.IMPORT : RequestType.EXPORT);
 		}
 	}
 
@@ -250,8 +229,7 @@ public class CommandLineProcessor {
 	 * --permission=true --overwrite=true --retainOwnership=true
 	 */
 
-	private void performImportREST() throws ParseException,
-			FileNotFoundException {
+	private void performImportREST() throws ParseException, FileNotFoundException {
 		String contextURL = getOptionValue("url", true, false);
 		String path = getOptionValue("path", true, false);
 		String filePath = getOptionValue("file-path", true, false);
@@ -267,22 +245,18 @@ public class CommandLineProcessor {
 
 		FormDataMultiPart part = new FormDataMultiPart();
 		part.field("importDir", path, MediaType.MULTIPART_FORM_DATA_TYPE);
-		part.field("overwrite", "true".equals(overwrite)? "true":"false",
+		part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
+		part.field("retainOwnership", "true".equals(retainOwnership) ? "true" : "false",
 				MediaType.MULTIPART_FORM_DATA_TYPE);
-		part.field("retainOwnership", "true".equals(retainOwnership)? "true":"false",
-				MediaType.MULTIPART_FORM_DATA_TYPE);
-		part.field("ignoreACLS", "true".equals(permission) ? "true":"false",
-				MediaType.MULTIPART_FORM_DATA_TYPE).field("fileUpload", in,
-				MediaType.MULTIPART_FORM_DATA_TYPE);
+		part.field("ignoreACLS", "true".equals(permission) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE)
+				.field("fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE);
 
 		// If the import service needs the file name do the following.
 		part.getField("fileUpload").setContentDisposition(
-				FormDataContentDisposition.name("fileUpload")
-						.fileName(fileIS.getName()).build());
+				FormDataContentDisposition.name("fileUpload").fileName(fileIS.getName()).build());
 
 		// Response response
-		Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(
-				MediaType.TEXT_HTML_TYPE);
+		Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(MediaType.TEXT_HTML_TYPE);
 		Response response = builder.post(Response.class, part);
 		// System.out.println(response.);
 	}
@@ -300,20 +274,10 @@ public class CommandLineProcessor {
 		importProcessor.setImportSource(createImportSource());
 		addImportHandlers(importProcessor);
 		String overwrite = getOptionValue("overwrite", false, true);
-		importProcessor.performImport(Boolean.valueOf(
-				overwrite == null ? "true" : overwrite).booleanValue());
-		// process ACL if permission is set (and ACL manifest found)
-		String permission = getOptionValue("permission", false, true);
-		if (permission != null && !"".equals(permission)) {
-			if (Boolean.valueOf(permission == null ? "false" : permission)
-					.booleanValue()) {
-				// processACLFiles(); -- TO DO
-			}
-		}
+		importProcessor.performImport(Boolean.valueOf(overwrite == null ? "true" : overwrite).booleanValue());
 	}
 
-	protected void performExport() throws ParseException, ExportException,
-			IOException {
+	protected void performExport() throws ParseException, ExportException, IOException {
 		if (!useRestService) {
 			performExportLegacy();
 		} else {
@@ -328,7 +292,7 @@ public class CommandLineProcessor {
 	 *             --export --url=http://localhost:8080/pentaho --username=joe
 	 *             --password=password --file-path=c:/temp/export.zip
 	 *             --charset=UTF-8 --path=home:joe
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private void performExportREST() throws ParseException, IOException {
 		String contextURL = getOptionValue("url", true, false);
@@ -337,8 +301,7 @@ public class CommandLineProcessor {
 		WebResource resource = client.resource(exportURL);
 
 		// Response response
-		Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(
-				MediaType.TEXT_HTML_TYPE);
+		Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(MediaType.TEXT_HTML_TYPE);
 		ClientResponse response = builder.get(ClientResponse.class);
 		String filename = getOptionValue("file-path", true, false);
 		final InputStream input = (InputStream) response.getEntityInputStream();
@@ -351,16 +314,16 @@ public class CommandLineProcessor {
 		try {
 			output = new FileOutputStream(filename);
 			byte[] buffer = new byte[8 * 1024];
-				int bytesRead;
-				while ((bytesRead = input.read(buffer)) != -1) {
-					output.write(buffer, 0, bytesRead);
-				}
+			int bytesRead;
+			while ((bytesRead = input.read(buffer)) != -1) {
+				output.write(buffer, 0, bytesRead);
+			}
 		} catch (IOException e) {
-				e.printStackTrace();			
+			e.printStackTrace();
 		} finally {
 			if (output != null) {
 				try {
-					output.close();					
+					output.close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -374,8 +337,7 @@ public class CommandLineProcessor {
 	 * @throws ExportException
 	 * @throws IOException
 	 */
-	protected void performExportLegacy() throws ParseException,
-			ExportException, IOException {
+	protected void performExportLegacy() throws ParseException, ExportException, IOException {
 		final Exporter exportProcessor = getExportProcessor();
 		exportProcessor.doExport();
 		// throw new UnsupportedOperationException(); // TODO implement
@@ -406,22 +368,16 @@ public class CommandLineProcessor {
 	 * Creates an instance of an {@link ImportSource} based off the command line
 	 * options
 	 */
-	protected ImportSource createImportSource() throws ParseException,
-			InitializationException {
+	protected ImportSource createImportSource() throws ParseException, InitializationException {
 		final String source = getOptionValue("source", true, false);
 		final String requiredCharset = getOptionValue("charset", true, false);
 		if (StringUtils.equals(source, "legacy-db")) {
-			final String driver = getOptionValue("legacy-db-driver", true,
-					false);
+			final String driver = getOptionValue("legacy-db-driver", true, false);
 			final String url = getOptionValue("legacy-db-url", true, false);
-			final String dbUsername = getOptionValue("legacy-db-username",
-					true, false);
-			final String dbPassword = getOptionValue("legacy-db-password",
-					true, true);
-			final String charset = getOptionValue("legacy-db-charset", true,
-					true);
-			final DataSource dataSource = new DriverManagerDataSource(driver,
-					url, dbUsername, dbPassword);
+			final String dbUsername = getOptionValue("legacy-db-username", true, false);
+			final String dbPassword = getOptionValue("legacy-db-password", true, true);
+			final String charset = getOptionValue("legacy-db-charset", true, true);
+			final DataSource dataSource = new DriverManagerDataSource(driver, url, dbUsername, dbPassword);
 
 			final String username = getOptionValue("username", true, false);
 			return new org.pentaho.platform.plugin.services.importexport.legacy.DbSolutionRepositoryImportSource(
@@ -447,8 +403,7 @@ public class CommandLineProcessor {
 	 *            the import processor in which the import handlers should be
 	 *            created
 	 */
-	protected void addImportHandlers(final ImportProcessor importProcessor)
-			throws ParseException {
+	protected void addImportHandlers(final ImportProcessor importProcessor) throws ParseException {
 		// TODO - Need a way to either (a) have all ImportProcessors use the
 		// same set or (b) use spring to initialize this
 		final IUnifiedRepository repository = getRepository();
@@ -457,10 +412,8 @@ public class CommandLineProcessor {
 		String password = getOptionValue("password", true, false);
 		String url = getOptionValue("url", true, false);
 
-		importProcessor.addImportHandler(new MondrianImportHandler(username,
-				password, url));
-		importProcessor.addImportHandler(new MetadataImportHandler(username,
-				password, url));
+		importProcessor.addImportHandler(new MondrianImportHandler(username, password, url));
+		importProcessor.addImportHandler(new MetadataImportHandler(username, password, url));
 		importProcessor.addImportHandler(new DefaultImportHandler(repository));
 	}
 
@@ -482,8 +435,7 @@ public class CommandLineProcessor {
 	 * <li>User must specify path to Jackrabbit files (i.e. system/jackrabbit).</li>
 	 * </ul>
 	 */
-	protected synchronized IUnifiedRepository getRepository()
-			throws ParseException {
+	protected synchronized IUnifiedRepository getRepository() throws ParseException {
 		if (repository != null) {
 			return repository;
 		}
@@ -504,27 +456,20 @@ public class CommandLineProcessor {
 			throw new IllegalArgumentException(e);
 		}
 
-		Service service = Service.create(url, new QName(NAMESPACE_URI,
-				SERVICE_NAME));
-		IUnifiedRepositoryJaxwsWebService port = service
-				.getPort(IUnifiedRepositoryJaxwsWebService.class);
+		Service service = Service.create(url, new QName(NAMESPACE_URI, SERVICE_NAME));
+		IUnifiedRepositoryJaxwsWebService port = service.getPort(IUnifiedRepositoryJaxwsWebService.class);
 		// http basic authentication
-		((BindingProvider) port).getRequestContext().put(
-				BindingProvider.USERNAME_PROPERTY,
+		((BindingProvider) port).getRequestContext().put(BindingProvider.USERNAME_PROPERTY,
 				getOptionValue("username", true, false));
-		((BindingProvider) port).getRequestContext().put(
-				BindingProvider.PASSWORD_PROPERTY,
+		((BindingProvider) port).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY,
 				getOptionValue("password", true, true));
 		// accept cookies to maintain session on server
-		((BindingProvider) port).getRequestContext().put(
-				BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
+		((BindingProvider) port).getRequestContext().put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
 		// support streaming binary data
 		// TODO mlowery this is not portable between JAX-WS implementations
 		// (uses com.sun)
-		((BindingProvider) port).getRequestContext().put(
-				JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192);
-		SOAPBinding binding = (SOAPBinding) ((BindingProvider) port)
-				.getBinding();
+		((BindingProvider) port).getRequestContext().put(JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192);
+		SOAPBinding binding = (SOAPBinding) ((BindingProvider) port).getBinding();
 		binding.setMTOMEnabled(true);
 		final UnifiedRepositoryToWebServiceAdapter unifiedRepositoryToWebServiceAdapter = new UnifiedRepositoryToWebServiceAdapter(
 				port);
@@ -547,53 +492,37 @@ public class CommandLineProcessor {
 	 * @throws ParseException
 	 *             indicates the required or non-blank value was not provided
 	 */
-	protected String getOptionValue(final String option,
-			final boolean required, final boolean emptyOk)
+	protected String getOptionValue(final String option, final boolean required, final boolean emptyOk)
 			throws ParseException {
-		final String value = StringUtils.trim(commandLine
-				.getOptionValue(option));
+		final String value = StringUtils.trim(commandLine.getOptionValue(option));
 		if (required && StringUtils.isEmpty(value)) {
-			throw new ParseException(Messages.getInstance().getString(
-					"Main.ERROR_0001_MISSING_ARG", option));
+			throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", option));
 		}
 		if (!emptyOk && StringUtils.isEmpty(value)) {
-			throw new ParseException(Messages.getInstance().getString(
-					"Main.ERROR_0001_MISSING_ARG", option));
+			throw new ParseException(Messages.getInstance().getString("Main.ERROR_0001_MISSING_ARG", option));
 		}
 		return value;
 	}
 
 	protected static void printHelp() {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter
-				.printHelp(
-						"importexport",
-						"Unified repository command line import/export tool",
-						options,
-						"Common options for legacy-db:\n"
-								+ "--legacy-db-driver=value\n"
-								+ "--legacy-db-url=value\n"
-								+ "--legacy-db-username=value\n"
-								+ "--legacy-db-password=value\n "
-								+ "--legacy-db-charset=value\n\n"
-								+ "Example arguments for legacy-db:\n"
-								+ "--import --url=http://localhost:8080/pentaho --username=joe --password=password "
-								+ "--source=legacy-db --charset=UTF-8 --path=/public --legacy-db-driver=com.mysql.jdbc.Driver "
-								+ "--legacy-db-url=jdbc:mysql://localhost/hibernate --legacy-db-username=hibuser "
-								+ "--legacy-db-password=password --legacy-db-charset=ISO-8859-1\n\n"
-								+ "Example arguments for File System import:\n"
-								+ "--import --url=http://localhost:8080/pentaho --username=joe\n"
-								+ "--password=password --source=file-system --type=files --charset=UTF-8 --path=/public\n"
-								+ "--file-path=c:/Users/wseyler/Desktop/steel-wheels\n"
-								+ "--logfile=c:/Users/wseyler/Desktop/logfile.log\n"
-								+ "--permission=true\n"
-								+ "--overwrite=true\n"
-								+ "--retainOwnership=true\n\n"
-								+ "Example arguments for File System export:\n"
-								+ "--export --url=http://localhost:8080/pentaho --username=joe --password=password \n"
-								+ "--file-path=c:/temp/export.zip --charset=UTF-8 --path=/public\n"
-								+ "--logfile=c:/Users/wseyler/Desktop/logfile.log\n"
-								+ "Example add this to import or export to use REST Service :\n"
-								+ "--rest=true (DEFAULT)");
+		formatter.printHelp("importexport", "Unified repository command line import/export tool", options,
+				"Common options for legacy-db:\n" + "--legacy-db-driver=value\n" + "--legacy-db-url=value\n"
+						+ "--legacy-db-username=value\n" + "--legacy-db-password=value\n "
+						+ "--legacy-db-charset=value\n\n" + "Example arguments for legacy-db:\n"
+						+ "--import --url=http://localhost:8080/pentaho --username=joe --password=password "
+						+ "--source=legacy-db --charset=UTF-8 --path=/public --legacy-db-driver=com.mysql.jdbc.Driver "
+						+ "--legacy-db-url=jdbc:mysql://localhost/hibernate --legacy-db-username=hibuser "
+						+ "--legacy-db-password=password --legacy-db-charset=ISO-8859-1\n\n"
+						+ "Example arguments for File System import:\n"
+						+ "--import --url=http://localhost:8080/pentaho --username=joe\n"
+						+ "--password=password --source=file-system --type=files --charset=UTF-8 --path=/public\n"
+						+ "--file-path=c:/Users/wseyler/Desktop/steel-wheels\n"
+						+ "--logfile=c:/Users/wseyler/Desktop/logfile.log\n" + "--permission=true\n"
+						+ "--overwrite=true\n" + "--retainOwnership=true\n\n"
+						+ "Example arguments for File System export:\n"
+						+ "--export --url=http://localhost:8080/pentaho --username=joe --password=password \n"
+						+ "--file-path=c:/temp/export.zip --charset=UTF-8 --path=/public\n"
+						+ "--logfile=c:/Users/wseyler/Desktop/logfile.log\n" + "");
 	}
 }
