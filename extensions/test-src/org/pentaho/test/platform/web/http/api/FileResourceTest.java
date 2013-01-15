@@ -418,7 +418,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     }
   }
 
-  @Ignore
+  @Test
   public void testBrowserDownload() {
     final String text = "abcdefg";
     // stub IUnifiedRepository start
@@ -447,7 +447,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     assertResponseIsZip(r2);
   }
 
-  @Ignore
+  @Test
   public void testGetDirChildren() {
     loginAsRepositoryAdmin();
     ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
