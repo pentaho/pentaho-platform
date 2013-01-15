@@ -186,8 +186,12 @@ public class MDXConnection implements IPentahoLoggingConnection {
 
     init(buffer.toString());
   }
-
+  
   protected void mapPlatformRolesToMondrianRoles(Util.PropertyList properties) throws PentahoAccessControlException {
+	  mapPlatformRolesToMondrianRolesHelper(properties);
+  }
+  
+  public static void mapPlatformRolesToMondrianRolesHelper(Util.PropertyList properties) throws PentahoAccessControlException {
     if (properties.get(RolapConnectionProperties.Role.name(), null) == null) {
       // Only if the action sequence/requester hasn't already injected a role in here do this.
 
