@@ -114,6 +114,7 @@ not directly from the PentahoObjectFactory. -->
         scope="prototype">
     <property name="useExtendedColumnNames" value="true"/>
   </bean>
+  <bean id="connection-MDXOlap4j" class="org.pentaho.platform.plugin.services.connections.mondrian.MDXOlap4jConnection" scope="prototype" />
   <bean id="connection-XML" class="org.pentaho.platform.plugin.services.connections.xquery.XQConnection"
         scope="prototype"/>
   <bean id="connection-HQL" class="org.pentaho.platform.plugin.services.connections.hql.HQLConnection"
