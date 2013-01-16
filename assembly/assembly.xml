@@ -282,6 +282,8 @@
         <exclude name="mysql-connector-*.jar" />
         <exclude name="h2-*.jar" />
         <exclude name="*-sources.jar" />
+        <!-- TODO: Remove the line below when we fix the circular dependency between kettle-engine and metadata -->
+        <exclude name="hibernate-3.2.6.ga.jar" />
       </fileset>
     </copy>
 
