@@ -448,7 +448,7 @@ public class FileResource extends AbstractJaxRSResource {
                .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
     catch(Exception e){
-      logger.error(Messages.getInstance().getString("FileResource.EXPORT_FAILED", e.getMessage()), e); //$NON-NLS-1$
+      logger.error(Messages.getInstance().getString("FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage()), e); //$NON-NLS-1$
       return Response.status(INTERNAL_SERVER_ERROR).build();
     }
   }
