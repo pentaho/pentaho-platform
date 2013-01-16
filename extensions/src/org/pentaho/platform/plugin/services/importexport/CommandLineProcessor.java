@@ -28,9 +28,10 @@ import java.net.URL;
 
 import javax.sql.DataSource;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Response;
+
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
@@ -67,10 +68,14 @@ import com.sun.xml.ws.developer.JAXWSProperties;
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class CommandLineProcessor {
+	private static final String API_REPO_FILES_IMPORT = "/api/repo/files/import";
 	private static final Log log = LogFactory.getLog(CommandLineProcessor.class);
 	private static final Options options = new Options();
 	private static Exception exception;
-
+	private CommandLine commandLine;
+	private RequestType requestType;
+	private IUnifiedRepository repository;
+	
 	private static enum RequestType {
 		HELP, IMPORT, EXPORT
 	}
@@ -129,7 +134,7 @@ public class CommandLineProcessor {
 
 			final CommandLineProcessor commandLineProcessor = new CommandLineProcessor(args);
 			String rest = commandLineProcessor.getOptionValue("rest", false, true);
-			useRestService = true;// (rest == null)?false: NOT IMPLEMENTED - use
+			useRestService = "false".equals(rest)?false:true;// default to new REST version if not provided
 									// new service only
 			if (useRestService) {
 				commandLineProcessor.initRestService();
@@ -157,6 +162,10 @@ public class CommandLineProcessor {
 		}
 	}
 
+	/**
+	 * Used only for REST Jersey calls
+	 * @throws ParseException
+	 */
 	private void initRestService() throws ParseException {
 		// get information about the remote connection
 		String username = getOptionValue("username", true, false);
@@ -177,12 +186,6 @@ public class CommandLineProcessor {
 	public static Exception getException() {
 		return exception;
 	}
-
-	// ========================== Instance Members / Methods
-	// ==========================
-	private CommandLine commandLine;
-	private RequestType requestType;
-	private IUnifiedRepository repository;
 
 	/**
 	 * Parses the command line and handles the situation where it isn't a valid
@@ -209,6 +212,9 @@ public class CommandLineProcessor {
 		}
 	}
 
+	// ========================== Instance Members / Methods
+    // ==========================
+		
 	protected RequestType getRequestType() {
 		return requestType;
 	}
@@ -227,13 +233,14 @@ public class CommandLineProcessor {
 	 * --path=:public --file-path=C:/Users/tband/Downloads/pentaho-solutions.zip
 	 * --rest=true --logfile=c:/Users/tband/Desktop/logfile.log
 	 * --permission=true --overwrite=true --retainOwnership=true
+	 *  (required fields- default is false)
 	 */
 
 	private void performImportREST() throws ParseException, FileNotFoundException {
 		String contextURL = getOptionValue("url", true, false);
 		String path = getOptionValue("path", true, false);
 		String filePath = getOptionValue("file-path", true, false);
-		String importURL = contextURL + "/api/repo/files/import";
+		String importURL = contextURL + API_REPO_FILES_IMPORT;
 		File fileIS = new File(filePath);
 		InputStream in = new FileInputStream(fileIS);
 
@@ -258,7 +265,7 @@ public class CommandLineProcessor {
 		// Response response
 		Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(MediaType.TEXT_HTML_TYPE);
 		Response response = builder.post(Response.class, part);
-		// System.out.println(response.);
+		System.out.println("done response="+response.getStatus());
 	}
 
 	/**
