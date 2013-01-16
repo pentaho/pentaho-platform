@@ -10,7 +10,6 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.plugin.services.importexport.ImportSource;
 import org.pentaho.platform.plugin.services.importexport.StreamConverter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
@@ -28,42 +27,15 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private static final Messages messages = Messages.getInstance();
   private static StreamConverter converter = new StreamConverter();
   
-  protected String computeBundlePath(final ImportSource.IRepositoryFileBundle bundle) {
-	    String bundlePath = bundle.getPath();
-	    bundlePath = RepositoryFilenameUtils.separatorsToRepository(bundlePath);
-	    if (bundlePath.startsWith(RepositoryFile.SEPARATOR)) {
-	      bundlePath = bundlePath.substring(1);
-	    }
-	    return bundlePath;
-  }
-  
-  protected static boolean isSystemPath(final String bundlePath) {
-	    final String[] split = StringUtils.split(bundlePath, RepositoryFile.SEPARATOR);
-	    return isSystemDir(split, 0) || isSystemDir(split, 1);
-  }
-  
-  protected static boolean isSystemDir(final String[] split, final int index) {
-	    return (split != null && index < split.length &&
-	        (StringUtils.equals(split[index], "system") || StringUtils.equals(split[index], "admin")));
-  }
-  
   public void importFile(IPlatformImportBundle bnd) throws PlatformImportException {
 
     if(bnd instanceof RepositoryFileImportBundle == false){
       throw new PlatformImportException("Error importing bundle. RepositoryFileImportBundle expected");
     }
     RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) bnd;
-    String repositoryFilePath = RepositoryFilenameUtils.concat(computeBundlePath(bundle), bundle.getName());
-    
-    // Validate against importing system related artifacts.
-    if (isSystemPath(repositoryFilePath)) {
-        log.trace("Skipping [" + repositoryFilePath + "], it is in admin / system folders");
-        return;
-    }
-    
-    repositoryFilePath = RepositoryFilenameUtils.concat(bnd.getUploadDir(), repositoryFilePath);
+    String repositoryFilePath = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getName());
     log.trace("Processing [" + repositoryFilePath + "]");
-
+    
     // Verify if destination already exists in the repository.
     final RepositoryFile file = repository.getFile(repositoryFilePath);
     if (file != null) {
@@ -88,15 +60,6 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         }
     }
 }
-
-  protected String computeBundlePath(final RepositoryFileImportBundle bundle) {
-    String bundlePath = bundle.getPath();
-    bundlePath = RepositoryFilenameUtils.separatorsToRepository(bundlePath);
-    if (bundlePath.startsWith(RepositoryFile.SEPARATOR)) {
-      bundlePath = bundlePath.substring(1);
-    }
-    return bundlePath;
-  }
 
   /**
    * Copies the file bundle into the repository
