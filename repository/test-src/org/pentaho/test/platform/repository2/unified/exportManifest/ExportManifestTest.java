@@ -1,5 +1,6 @@
 package org.pentaho.test.platform.repository2.unified.exportManifest;
 
+import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,6 +19,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
+import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
 
 public class ExportManifestTest extends TestCase {
@@ -70,6 +72,7 @@ public class ExportManifestTest extends TestCase {
 		assertEquals("Path value", "/dir1/dir2", entityR1.getPath());
 	}
 
+	@Test
 	public void testMarshal() {
 		try {
 			exportManifest.toXml(System.out);
@@ -77,7 +80,57 @@ public class ExportManifestTest extends TestCase {
 			fail("Could not marshal to XML " + e);
 		}
 	}
-
+	
+	@Test
+	public void testUnMarshal() {
+		String xml = XmlToString();
+		ExportManifest importManifest;
+		ByteArrayInputStream input = new ByteArrayInputStream (xml.getBytes());
+		try {
+		importManifest = ExportManifest.fromXml(input);
+		} catch (JAXBException e) {
+			fail("Could not un-marshal to object " + e);
+		}
+		ExportManifestEntity fileEntity = exportManifest
+				.getExportManifestEntity("/dir1/dir2/file1");
+		assertNotNull(fileEntity);
+		assertEquals("/dir1/dir2/file1", fileEntity.getPath());
+		assertNotNull(fileEntity.getEntityMetaData());
+		assertFalse(fileEntity.getEntityMetaData().getIsFolder());
+		
+		fileEntity = exportManifest
+				.getExportManifestEntity("/dir1");
+		assertNotNull(fileEntity);
+		assertNotNull(fileEntity.getEntityMetaData());
+		assertTrue(fileEntity.getEntityMetaData().getIsFolder());
+		
+		RepositoryFile r = fileEntity.getRepositoryFile();
+		try {
+			RepositoryFileAcl rfa = fileEntity.getRepositoryFileAcl();
+			assertNotNull(rfa.getAces());
+		} catch (ExportManifestFormatException e) {
+			e.printStackTrace();
+			fail("Could not un-marshal to RepositoryFileAcl");
+		}
+		
+	}
+	
+	@Test
+	public void testXmlToString() {
+		String s = XmlToString();
+		assertNotNull(s);
+	}
+	
+	private String XmlToString() {
+		String s = null;
+		try {
+			s = exportManifest.toXmlString();
+		} catch (JAXBException e) {
+			fail("Could not marshal to XML to string " + e);
+		}
+		return s;
+	}
+	
 	private RepositoryFile createMockRepositoryFile(String path, boolean isFolder) {
 		Date createdDate = new Date();
 		Date lastModeDate = new Date();
@@ -86,7 +139,7 @@ public class ExportManifestTest extends TestCase {
 		String baseName = path.substring(path.lastIndexOf("/") + 1);
 		RepositoryFile mockRepositoryFile = new RepositoryFile("12345", baseName,
 				isFolder, false, false, "versionId", path, createdDate, lastModeDate,
-				false, "lockOwner", "lockMessage", lockDate, "local", "title", null,
+				false, "lockOwner", "lockMessage", lockDate, "en_US", "title", null,
 				"description", null, "/original/parent/folder/path", deletedDate, 4096,
 				"creatorId");
 		return mockRepositoryFile;

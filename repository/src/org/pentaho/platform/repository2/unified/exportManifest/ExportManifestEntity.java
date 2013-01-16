@@ -1,31 +1,58 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU General Public License, version 2 as published by the Free Software 
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this 
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html 
+ * or from the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ */
 package org.pentaho.platform.repository2.unified.exportManifest;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.CustomProperty;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.EntityAcl;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.EntityMetaData;
-import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestEntityDto;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestProperty;
 
+/**
+ * This Object represents the information stored in the ExportManifest for one file or folder.
+ * The <code>ExportManifest</code> object contains a Hashmap of these objects keyed by the
+ * path.
+ * 
+ * @author tkafalas
+ */
 public class ExportManifestEntity {
 	private ExportManifestEntityDto rawExportManifestEntity;
-	private List<ExportManifestProperty> rawPropertyList;
 	private EntityMetaData entityMetaData;
 	private EntityAcl entityAcl;
 	private List<CustomProperty> customProperties;
 
 	public ExportManifestEntity() {
 		rawExportManifestEntity = new ExportManifestEntityDto();
-		rawPropertyList = rawExportManifestEntity.getExportManifestProperty();
 	}
-	
-	public ExportManifestEntity(RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl) {
+
+	public ExportManifestEntity(RepositoryFile repositoryFile,
+			RepositoryFileAcl repositoryFileAcl) {
 		this();
 		ExportManifestProperty rawExportManifestProperty = new ExportManifestProperty();
 		createEntityMetaData(repositoryFile);
@@ -33,11 +60,12 @@ public class ExportManifestEntity {
 		rawExportManifestProperty.setEntityMetaData(entityMetaData);
 		rawExportManifestProperty.setEntityAcl(entityAcl);
 	}
-	
-	private void createEntityMetaData(RepositoryFile repositoryFile){
+
+	private void createEntityMetaData(RepositoryFile repositoryFile) {
 		entityMetaData = new EntityMetaData();
 		entityMetaData.setCreatedBy(repositoryFile.getCreatorId());
-		entityMetaData.setCreatedDate(XmlGregorianCalendarConverter.asXMLGregorianCalendar(repositoryFile.getCreatedDate()));
+		entityMetaData.setCreatedDate(XmlGregorianCalendarConverter
+				.asXMLGregorianCalendar(repositoryFile.getCreatedDate()));
 		entityMetaData.setDescription(repositoryFile.getDescription());
 		entityMetaData.setIsHidden(repositoryFile.isHidden());
 		entityMetaData.setIsFolder(repositoryFile.isFolder());
@@ -47,9 +75,10 @@ public class ExportManifestEntity {
 		entityMetaData.setTitle(repositoryFile.getTitle());
 		setPath(repositoryFile.getPath());
 	}
-	
+
 	private void createEntityAcl(RepositoryFileAcl repositoryFileAcl) {
-		if (repositoryFileAcl == null) return;
+		if (repositoryFileAcl == null)
+			return;
 		entityAcl = new EntityAcl();
 		entityAcl.setEntriesInheriting(repositoryFileAcl.isEntriesInheriting());
 		entityAcl.setOwner(repositoryFileAcl.getOwner().getName());
@@ -57,38 +86,134 @@ public class ExportManifestEntity {
 		List<EntityAcl.Aces> aces = entityAcl.getAces();
 		aces.clear();
 
-		for (RepositoryFileAce repositoryFileAce: repositoryFileAcl.getAces()) {
+		for (RepositoryFileAce repositoryFileAce : repositoryFileAcl.getAces()) {
 			EntityAcl.Aces ace = new EntityAcl.Aces();
 			ace.setRecipient(repositoryFileAce.getSid().getName());
 			ace.setRecipientType(repositoryFileAce.getSid().getType().name());
 			List<String> permissions = ace.getPermissions();
-			for (RepositoryFilePermission permission: repositoryFileAce.getPermissions()) {
+			for (RepositoryFilePermission permission : repositoryFileAce
+					.getPermissions()) {
 				permissions.add(permission.toString());
 			}
 			aces.add(ace);
 		}
 	}
-	
+
+	/**
+	 * Helper method for importing. Returns a FileRepository object for the the
+	 * ExportManifestEntity. Will return null if there is no EntityMetaData
+	 * present although this should not happen if the manifest is present at all.
+	 * 
+	 * @return RepositoryFile
+	 */
+	public RepositoryFile getRepositoryFile() {
+		EntityMetaData emd = getEntityMetaData();
+		if (entityMetaData == null)
+			return null;
+		return new RepositoryFile(null, emd.getName(), emd.getIsFolder(),
+				emd.getIsHidden(), false, null, emd.getPath(),
+				XmlGregorianCalendarConverter.asDate(emd.getCreatedDate()), null,
+				false, null, null, null, "en-US", emd.getTitle(), null,
+				emd.getDescription(), null, null, null, 0, emd.getOwner());
+	}
+
+	/**
+	 * Helper method for importing. Returns a FileRepositoryAcl object for the the
+	 * ExportManifestEntity. Will return null if there is no EntityAcl present.
+	 * 
+	 * @return RepositoryFile
+	 */
+	public RepositoryFileAcl getRepositoryFileAcl()
+			throws ExportManifestFormatException {
+		RepositoryFileAcl repositoryFileAcl;
+		EntityAcl entityAcl = getEntityAcl();
+		if (entityAcl == null)
+			return null;
+
+		ArrayList<RepositoryFileAce> repositoryFileAces = new ArrayList<RepositoryFileAce>();
+		for (EntityAcl.Aces ace : entityAcl.getAces()) {
+			RepositoryFileSid rfs = getSid(ace.getRecipient(), ace.getRecipientType());
+			HashSet<RepositoryFilePermission> permissionSet = new HashSet<RepositoryFilePermission>();
+			for (String permission : ace.getPermissions()) {
+				permissionSet.add(getPermission(permission));
+			}
+			RepositoryFileAce repositoryFileAce = new RepositoryFileAce(rfs,
+					EnumSet.copyOf(permissionSet));
+			repositoryFileAces.add(repositoryFileAce);
+		}
+
+		repositoryFileAcl = new RepositoryFileAcl("", getSid(entityAcl.getOwner(),
+				entityAcl.getOwnerType()), entityAcl.isEntriesInheriting(),
+				repositoryFileAces);
+
+		return repositoryFileAcl;
+	}
+
+	/**
+	 * Creates a RepositoryFileSid object from the serialized values adding error
+	 * handling for enum values that may not exist
+	 * 
+	 * @param name
+	 * @param type
+	 * @return
+	 * @throws ExportManifestFormatException
+	 */
+	private RepositoryFileSid getSid(String name, String type)
+			throws ExportManifestFormatException {
+		RepositoryFileSid.Type typevalue;
+		try {
+			typevalue = RepositoryFileSid.Type.valueOf(type);
+		} catch (IllegalArgumentException e) {
+			throw new ExportManifestFormatException(Messages.getInstance().getString(
+					"ExportManifestFormatException.invalidRepositoryFileSidType", type),
+					e);
+		}
+		return new RepositoryFileSid(entityAcl.getOwner(), typevalue);
+	}
+
+	/**
+	 * Assigns Enum Permission value from string representation adding error
+	 * handling if the string is invalid
+	 * 
+	 * @param stringValue
+	 * @return integer value
+	 * @throws ExportManifestFormatException
+	 */
+	private RepositoryFilePermission getPermission(String stringValue)
+			throws ExportManifestFormatException {
+		RepositoryFilePermission value;
+		try {
+			value = RepositoryFilePermission.valueOf(stringValue);
+		} catch (IllegalArgumentException e) {
+			throw new ExportManifestFormatException(Messages.getInstance().getString(
+					"ExportManifestFormatException.invalidPermissionType", stringValue),
+					e);
+		}
+		return value;
+	}
+
 	/**
 	 * Builds an ExportManifestEntityDto for use by the ExportManifest Package.
+	 * 
 	 * @return
 	 */
 	ExportManifestEntityDto getExportManifestEntityDto() {
-		//Property list is not kept in sync.  Create it now
-		List<ExportManifestProperty> rawProperties = rawExportManifestEntity.getExportManifestProperty();
+		// Property list is not kept in sync. Create it now
+		List<ExportManifestProperty> rawProperties = rawExportManifestEntity
+				.getExportManifestProperty();
 		rawProperties.clear();
 		if (entityMetaData != null) {
 			ExportManifestProperty exportManifestProperty = new ExportManifestProperty();
 			exportManifestProperty.setEntityMetaData(entityMetaData);
 			rawProperties.add(exportManifestProperty);
 		}
-		
+
 		if (entityAcl != null) {
 			ExportManifestProperty exportManifestProperty = new ExportManifestProperty();
 			exportManifestProperty.setEntityAcl(entityAcl);
 			rawProperties.add(exportManifestProperty);
 		}
-		
+
 		if (customProperties != null && customProperties.size() > 0) {
 			ExportManifestProperty exportManifestProperty = new ExportManifestProperty();
 			exportManifestProperty.getCustomProperty().addAll(customProperties);
@@ -102,19 +227,21 @@ public class ExportManifestEntity {
 	 * 
 	 * @param exportManifestEntity
 	 */
-	public ExportManifestEntity(ExportManifestEntityDto exportManifestEntity){
+	public ExportManifestEntity(ExportManifestEntityDto exportManifestEntity) {
 		this.rawExportManifestEntity = exportManifestEntity;
-  	for (ExportManifestProperty exportManifestProperty : exportManifestEntity.getExportManifestProperty()){
-  		if (exportManifestProperty.getEntityMetaData() != null) {
-  			entityMetaData = exportManifestProperty.getEntityMetaData();
-  		} else if (exportManifestProperty.getEntityAcl() != null) {
-  			entityAcl = exportManifestProperty.getEntityAcl();
-  		} else if (exportManifestProperty.getCustomProperty() != null && exportManifestProperty.getCustomProperty().size() > 0) {
-  			customProperties = exportManifestProperty.getCustomProperty();
-  		}
-  	}
-  }
-	
+		for (ExportManifestProperty exportManifestProperty : exportManifestEntity
+				.getExportManifestProperty()) {
+			if (exportManifestProperty.getEntityMetaData() != null) {
+				entityMetaData = exportManifestProperty.getEntityMetaData();
+			} else if (exportManifestProperty.getEntityAcl() != null) {
+				entityAcl = exportManifestProperty.getEntityAcl();
+			} else if (exportManifestProperty.getCustomProperty() != null
+					&& exportManifestProperty.getCustomProperty().size() > 0) {
+				customProperties = exportManifestProperty.getCustomProperty();
+			}
+		}
+	}
+
 	public boolean isValid() {
 		if (entityMetaData == null) {
 			return false;
@@ -176,7 +303,8 @@ public class ExportManifestEntity {
 	}
 
 	/**
-	 * @param path the path to set
+	 * @param path
+	 *          the path to set
 	 */
 	public void setPath(String path) {
 		rawExportManifestEntity.setPath(path);

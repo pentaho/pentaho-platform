@@ -1,6 +1,22 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU General Public License, version 2 as published by the Free Software 
+ * Foundation.
+ *
+ * You should have received a copy of the GNU General Public License along with this 
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/gpl-2.0.html 
+ * or from the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ */
 package org.pentaho.platform.repository2.unified.exportManifest;
 
+import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
@@ -9,11 +25,18 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestEntityDto;
 
+/**
+ * The Primary Object which represents the ExportManifest XML file by the same name 
+ * stored in the Repository Export zip file during a repository export.
+ * 
+ * @author tkafalas
+ */
 public class ExportManifest {
 	private HashMap<String, ExportManifestEntity> exportManifestEntities;
 	private ExportManifestDto.ExportManifestInformation manifestInformation;
@@ -48,11 +71,45 @@ public class ExportManifest {
 	public void toXml(OutputStream outputStream) throws JAXBException {
 		final JAXBContext jaxbContext = JAXBContext
 				.newInstance(ExportManifestDto.class);
-		Marshaller marshaller = jaxbContext.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+		Marshaller marshaller = getMarshaller();
 		marshaller.marshal(new JAXBElement<ExportManifestDto>(new QName("",
 				"ExportManifest"), ExportManifestDto.class, getExportManifestDto()),
-				System.out);
+				outputStream);
+	}
+
+	public String toXmlString() throws JAXBException {
+		StringWriter sw = new StringWriter();
+		Marshaller marshaller = getMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+		marshaller.marshal(new JAXBElement<ExportManifestDto>(new QName(
+				"http://www.pentaho.com/schema/", "ExportManifest"),
+				ExportManifestDto.class, getExportManifestDto()), sw);
+		return sw.toString();
+	}
+
+	private Marshaller getMarshaller() throws JAXBException {
+		final JAXBContext jaxbContext = JAXBContext
+				.newInstance(ExportManifestDto.class);
+		Marshaller marshaller = jaxbContext.createMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+		return marshaller;
+	}
+
+	public static ExportManifest fromXml(ByteArrayInputStream input)
+			throws JAXBException {
+		JAXBContext jc = JAXBContext
+				.newInstance("org.pentaho.platform.repository2.unified.exportManifest.bindings");
+		Unmarshaller u = jc.createUnmarshaller();
+
+		try {
+			JAXBElement<ExportManifestDto> o = (JAXBElement) (u.unmarshal(input));
+			ExportManifestDto exportManifestDto = o.getValue();
+			ExportManifest exportManifest = new ExportManifest(exportManifestDto);
+			return exportManifest;
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			return null;
+		}
 	}
 
 	ExportManifestDto getExportManifestDto() {
