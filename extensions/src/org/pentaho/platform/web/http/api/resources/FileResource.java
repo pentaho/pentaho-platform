@@ -59,6 +59,7 @@ import java.util.Map;
 
 import static javax.ws.rs.core.MediaType.*;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
@@ -431,19 +432,25 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.status(NOT_FOUND).build();
     }
 
-    // generate zip for directories, or if manifest is requested
-    if (repoFile.isFolder() || withManifest) {
-      quotedFileName = "\"" + repoFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
-      origResponse = doGetDirAsZip(repoFile, withManifest);
+    try{
+      // generate zip for directories, or if manifest is requested
+      if (repoFile.isFolder() || withManifest) {
+        quotedFileName = "\"" + repoFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
+        origResponse = doGetDirAsZip(repoFile, withManifest);
+        return Response.fromResponse(origResponse)
+                 .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
+      }
+
+      // or, still send single files without compression
+      quotedFileName = "\"" + repoFile.getName() + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+      origResponse = doGetFileOrDir(repoFile);
       return Response.fromResponse(origResponse)
                .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
-
-    // or, still send single files without compression
-    quotedFileName = "\"" + repoFile.getName() + "\""; //$NON-NLS-1$ //$NON-NLS-2$
-    origResponse = doGetFileOrDir(repoFile);
-    return Response.fromResponse(origResponse)
-             .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
+    catch(Exception e){
+      logger.error(Messages.getInstance().getString("FileResource.EXPORT_FAILED", e.getMessage()), e); //$NON-NLS-1$
+      return Response.status(INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   @PUT
