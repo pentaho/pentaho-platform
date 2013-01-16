@@ -93,11 +93,11 @@ public class ImportDialog extends PromptDialogBox {
     
     CheckBox permission = new CheckBox(Messages.getString("permission"),true);
     permission.setName("ignoreACLS");
-    permission.setFormValue("ignoreACLS");
+    permission.setFormValue("true");
     
     CheckBox retainOwnership = new CheckBox(Messages.getString("retainOwnership"),true);
-    retainOwnership.setName("retainOwnership");
-    retainOwnership.setFormValue("retainOwnership");
+    retainOwnership.setName("true");
+    retainOwnership.setFormValue("true");
     
     
     upload = new FileUpload();

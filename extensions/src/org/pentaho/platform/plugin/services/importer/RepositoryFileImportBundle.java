@@ -1,5 +1,6 @@
 package org.pentaho.platform.plugin.services.importer;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 
 import java.io.IOException;
@@ -21,14 +22,14 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   private String charSet;
   private String mimeType;
   private String comment;
+  private String uploadDir;
   private boolean overwrite;
   private boolean hidden;
+  private RepositoryFile file;
   private Map<String, Object> properties = new HashMap<String, Object>();
   private List<IPlatformImportBundle> children = new ArrayList<IPlatformImportBundle>();
 
-
   private RepositoryFileImportBundle(){
-
   }
 
   /**
@@ -117,9 +118,33 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   public void setHidden(boolean hidden) {
     this.hidden = hidden;
   }
+  
+  public boolean isFolder() {
+	return this.mimeType != null && this.mimeType.equals("text/directory");
+  }
+  
+  public RepositoryFile getFile() {
+	  return this.file;
+  }
+  
+  public void setFile(RepositoryFile file) {
+	  this.file = file;
+  }
+  
+  public void setUploadDir(String uploadDir) {
+	  this.uploadDir = uploadDir;
+  }
+  
+  public String getUploadDir() {
+	  return this.uploadDir;
+  }
 
   private boolean validate(){
-    return this.inputStream != null;
+	if(this.mimeType != null && this.mimeType.equals("text/directory")) {
+		return this.inputStream == null;
+	} else {
+		return this.inputStream != null;
+	}  
   }
 
   private void addProperty(String prop, Object val){
@@ -163,11 +188,21 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
       bundle.setInputStream(in);
       return this;
     }
+    
+    public Builder file(RepositoryFile file){
+        bundle.setFile(file);
+        return this;
+    }
 
     public Builder hidden(boolean hidden){
       bundle.setHidden(hidden);
       return this;
     }
+    
+    public Builder uploadDir(String uploadDir){
+      bundle.setUploadDir(uploadDir);
+      return this;
+    }    
 
     public Builder charSet(String charSet){
       bundle.setCharSet(charSet);
@@ -176,6 +211,11 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
 
     public Builder name(String name){
       bundle.setName(name);
+      return this;
+    }
+    
+    public Builder path(String path){
+      bundle.setPath(path);
       return this;
     }
 

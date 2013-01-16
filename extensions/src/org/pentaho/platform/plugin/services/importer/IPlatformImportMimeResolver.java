@@ -8,4 +8,5 @@ package org.pentaho.platform.plugin.services.importer;
  */
 public interface IPlatformImportMimeResolver {
   String resolveMimeForBundle(IPlatformImportBundle bundle);
+  String resolveMimeForFileName(String fileName);
 }

@@ -23,6 +23,10 @@ public class NameBaseMimeResolver implements IPlatformImportMimeResolver {
   public String resolveMimeForBundle(IPlatformImportBundle bundle) {
     return (bundle.getMimeType() != null) ? bundle.getMimeType() : extensionToMimeMap.get(extractExtension(bundle.getName()));
   }
+  
+  public String resolveMimeForFileName(String fileName) {
+	return extensionToMimeMap.get(extractExtension(fileName));
+  }
 
   private String extractExtension(String name) {
     if( name == null ) {
