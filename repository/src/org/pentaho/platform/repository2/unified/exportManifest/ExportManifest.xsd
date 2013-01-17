@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/ExportManifest/"
-	targetNamespace="http://www.example.org/ExportManifest/">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.pentaho.com/schema/"
+	targetNamespace="http://www.pentaho.com/schema/">
 	<element name="ExportManifest" type="tns:ExportManifestDto">
 	</element>
 
