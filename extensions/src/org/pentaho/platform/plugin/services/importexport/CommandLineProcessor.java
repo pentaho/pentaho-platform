@@ -115,8 +115,8 @@ public class CommandLineProcessor {
 		options.addOption("lpass", "legacy-db-password", true, "legacy database repository password");
 		options.addOption("lchar", "legacy-db-charset", true, "legacy database repository character-set");
 
-		// REST Service
-		options.addOption("r", "rest", false, "Use the REST version (not local to BI Server)");
+		// Legacy Service
+		options.addOption("r", "rest", true, "Use the REST (Default) version (not local to BI Server)");
 
 	}
 
@@ -136,9 +136,6 @@ public class CommandLineProcessor {
 			String rest = commandLineProcessor.getOptionValue("rest", false, true);
 			useRestService = "false".equals(rest)?false:true;// default to new REST version if not provided
 									// new service only
-			if (useRestService) {
-				commandLineProcessor.initRestService();
-			}
 			switch (commandLineProcessor.getRequestType()) {
 			case HELP:
 				printHelp();
@@ -243,7 +240,7 @@ public class CommandLineProcessor {
 		String importURL = contextURL + API_REPO_FILES_IMPORT;
 		File fileIS = new File(filePath);
 		InputStream in = new FileInputStream(fileIS);
-
+		initRestService();
 		WebResource resource = client.resource(importURL);
 
 		String overwrite = getOptionValue("overwrite", true, false);
@@ -263,9 +260,11 @@ public class CommandLineProcessor {
 				FormDataContentDisposition.name("fileUpload").fileName(fileIS.getName()).build());
 
 		// Response response
-		Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(MediaType.TEXT_HTML_TYPE);
-		Response response = builder.post(Response.class, part);
-		System.out.println("done response="+response.getStatus());
+		Builder builder = resource
+				.type(MediaType.MULTIPART_FORM_DATA)
+				.accept(MediaType.TEXT_HTML_TYPE);
+		String response = builder.post(String.class, part);
+		System.out.println("done response="+response);
 	}
 
 	/**
@@ -305,6 +304,7 @@ public class CommandLineProcessor {
 		String contextURL = getOptionValue("url", true, false);
 		String path = getOptionValue("path", true, false);
 		String exportURL = contextURL + "/api/repo/files/" + path + "/download";
+		initRestService();
 		WebResource resource = client.resource(exportURL);
 
 		// Response response
