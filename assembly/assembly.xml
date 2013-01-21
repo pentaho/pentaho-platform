@@ -92,7 +92,9 @@
     <mkdir dir="${solution-archives.dir}" />
   </target>
 
-
+<target name="ce-build-all"
+        depends="clean-all,resolve,assemble,package,war-pentaho-tomcat,zip-pentaho-style-war,package,zip-pentaho-data,zip-pentaho-solutions"
+        description="Performs ce build process"/>
 
   <!-- ================================= 
           target: assemble
