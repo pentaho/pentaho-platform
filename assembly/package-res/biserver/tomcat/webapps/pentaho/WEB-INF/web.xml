@@ -453,11 +453,6 @@
     </servlet>
 
 	<servlet>
-		<servlet-name>AdhocWebService</servlet-name>
-		<servlet-class>org.pentaho.platform.web.servlet.AdhocWebService</servlet-class>
-	</servlet>
-
-	<servlet>
 		<servlet-name>AnalysisViewService</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.AnalysisViewService</servlet-class>
 	</servlet>
@@ -487,7 +482,7 @@
 		<jsp-file>/jsp/PUCLogin.jsp</jsp-file>
 		<init-param>
 			<param-name>send401List</param-name>
-			<param-value>AdhocWebService,AnalysisViewService,MondrianCatalogPublisher,SchedulerAdminService, PublishService,ResetRepositoryService,ServiceActionService,gwtrpc,ws/gwt,mantle/images/spacer.gif</param-value>
+			<param-value>AnalysisViewService,MondrianCatalogPublisher,SchedulerAdminService, PublishService,ResetRepositoryService,ServiceActionService,gwtrpc,ws/gwt,mantle/images/spacer.gif</param-value>
 			<description>List of things to throw a 401 to when seen in the login</description>
 		</init-param>
 	</servlet>
@@ -833,11 +828,6 @@
 	<servlet-mapping>
 		<servlet-name>ResetRepository</servlet-name>
 		<url-pattern>/ResetRepositoryService</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>AdhocWebService</servlet-name>
-		<url-pattern>/AdhocWebService</url-pattern>
 	</servlet-mapping>
 
     <servlet-mapping>
