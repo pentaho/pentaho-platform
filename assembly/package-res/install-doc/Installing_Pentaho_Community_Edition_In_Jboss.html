@@ -219,6 +219,7 @@ resource requirements.</p>
 <li> Open pentaho.war from the  &lt;JBossHome&gt;/standalone/deployment directory using 7zip or other zip utility </li>
 <li> Go to WEB-INF/lib folder and open the web.xml in an editor </li>
 <li> Add the section below to the list of context param in web.xml Save it and close the file </li>
+<pre class='brush: xml;'>
         <context-param>
              <param-name>resteasy.scan</param-name>
              <param-value>false</param-value>
@@ -231,7 +232,7 @@ resource requirements.</p>
              <param-name>resteasy.scan.providers</param-name>
              <param-value>false</param-value>
         </context-param>
-
+</pre>
 <li> The zip utility will confirm whether you want to update the file. Select "yes" </li>
 </ul>
 
