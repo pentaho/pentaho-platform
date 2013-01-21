@@ -21,15 +21,7 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -40,10 +32,13 @@ import javax.ws.rs.core.Response;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.action.mondrian.catalog.IMondrianCatalogService;
+import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
+import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
+import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
+import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.web.http.messages.Messages;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
@@ -51,12 +46,6 @@ import com.sun.jersey.multipart.FormDataParam;
 
 @Path("/repo/files/import")
 public class RepositoryImportResource {
-
-	private IUnifiedRepository repository;
-
-	public RepositoryImportResource() {
-		repository = PentahoSystem.get(IUnifiedRepository.class);
-	}
 
 	/**
 	 * @param uploadDir
@@ -83,77 +72,40 @@ public class RepositoryImportResource {
 			@FormDataParam("ignoreACLS") String ignoreACLS,
 			@FormDataParam("retainOwnership") String retainOwnership,
 			@FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
-		try {
-			validateAccess();
-			final org.pentaho.platform.plugin.services.importexport.ImportProcessor importProcessor = new org.pentaho.platform.plugin.services.importexport.SimpleImportProcessor(
-					uploadDir, null);
-			// TODO - create a SolutionRepositoryImportHandler which delegates
-			// to these three automatically
-			importProcessor
-					.addImportHandler(new org.pentaho.platform.plugin.services.importexport.MondrianImportHandler(
-							repository));
-			importProcessor
-					.addImportHandler(new org.pentaho.platform.plugin.services.importexport.MetadataImportHandler(
-							repository));
-			importProcessor
-					.addImportHandler(new org.pentaho.platform.plugin.services.importexport.DefaultImportHandler(
-							repository));
-			boolean overwriteFileFlag = ("overwrite".equals(overwrite)?true:false);
-			boolean ignoreACLFlag = ("ignoreACLS".equals(ignoreACLS)?true:false);
-			boolean retainOwnershipFlag =("retainOwnership".equals(retainOwnership)?true:false);
-			if (fileInfo.getFileName().toLowerCase().endsWith(".zip")) {
-				importProcessor
-						.setImportSource(new org.pentaho.platform.plugin.services.importexport.legacy.ZipSolutionRepositoryImportSource(
-								new ZipInputStream(fileIS), "UTF-8"));
-			} else {
-				final File outFile = File.createTempFile("import", null);
-				convertInputStreamToFile(outFile, fileIS);
-				outFile.deleteOnExit();
-				importProcessor
-						.setImportSource(new org.pentaho.platform.plugin.services.importexport.legacy.FileSolutionRepositoryImportSource(
-								outFile, fileInfo.getFileName(), "UTF-8"));
+		
+			try {
+				validateAccess();
+				
+				boolean overwriteFileFlag = ("overwrite".equals(overwrite) ? true : false);
+				boolean ignoreACLFlag = ("ignoreACLS".equals(ignoreACLS) ? true : false);
+				boolean retainOwnershipFlag = ("retainOwnership".equals(retainOwnership) ? true : false);
+	
+				RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
+				bundleBuilder.input(fileIS);
+				bundleBuilder.charSet("UTF-8");
+				bundleBuilder.hidden(false);
+				bundleBuilder.path(uploadDir);
+				bundleBuilder.overwrite(overwriteFileFlag);
+				bundleBuilder.name(fileInfo.getFileName());
+				IPlatformImportBundle bundle = bundleBuilder.build();
+	
+				NameBaseMimeResolver mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
+				bundleBuilder.mime(mimeResolver.resolveMimeForFileName(fileInfo.getFileName()));
+	
+				IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
+				importer.importFile(bundle);
+	
+				// Flush the Mondrian cache to show imported datasources.
+				IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(
+				IMondrianCatalogService.class, "IMondrianCatalogService",
+				PentahoSessionHolder.getSession());
+				mondrianCatalogService.reInit(PentahoSessionHolder.getSession());
+			} catch (PentahoAccessControlException e) {
+				return Response.serverError().entity(e.toString()).build();
+			} catch (Exception e) {
+				return Response.serverError().entity(e.toString()).build();
 			}
-			importProcessor.performImport(overwriteFileFlag);
-			
-			// Flush the Mondrian cache to show imported datasources.
-			IMondrianCatalogService mondrianCatalogService = PentahoSystem.get(
-					IMondrianCatalogService.class, "IMondrianCatalogService",
-					PentahoSessionHolder.getSession());
-			mondrianCatalogService.reInit(PentahoSessionHolder.getSession());
-		} catch (org.pentaho.platform.plugin.services.importexport.ImportException e) {
-			return Response.serverError().entity(e.toString()).build();
-		} catch (org.pentaho.platform.plugin.services.importexport.InitializationException e) {
-			return Response.serverError().entity(e.toString()).build();
-		} catch (IOException e) {
-			return Response.serverError().entity(e.toString()).build();
-		} catch (PentahoAccessControlException e) {
-			return Response.serverError().entity(e.toString()).build();
-		}
-
-		return Response
-				.ok(Messages.getInstance().getString(
-						"FileResource.IMPORT_SUCCESS")).build();
-	}
-
-	/**
-	 * Take the InputStream and convert to Output Stream
-	 * @param outFile
-	 * @param fileIS
-	 * @throws IOException
-	 */
-	private void convertInputStreamToFile(File outFile, InputStream fileIS)
-			throws IOException {		
-		OutputStream out = new FileOutputStream(outFile);
-
-		int read = 0;
-		byte[] bytes = new byte[1024];
-
-		while ((read = fileIS.read(bytes)) != -1) {
-			out.write(bytes, 0, read);
-		}
-		fileIS.close();
-		out.flush();
-		out.close();	
+			return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).build();
 	}
 
 	private void validateAccess() throws PentahoAccessControlException {

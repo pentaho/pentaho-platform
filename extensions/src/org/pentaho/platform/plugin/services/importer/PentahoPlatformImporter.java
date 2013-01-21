@@ -8,6 +8,8 @@ import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 
 /**
@@ -75,4 +77,12 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
     }
   }
+  
+  public static String computeBundlePath(String bundlePath) {
+	bundlePath = RepositoryFilenameUtils.separatorsToRepository(bundlePath);
+	if (bundlePath.startsWith(RepositoryFile.SEPARATOR)) {
+		bundlePath = bundlePath.substring(1);
+	}
+	return bundlePath;
+  }  
 }

@@ -22,7 +22,6 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   private String charSet;
   private String mimeType;
   private String comment;
-  private String uploadDir;
   private boolean overwrite;
   private boolean hidden;
   private RepositoryFile file;
@@ -131,14 +130,6 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
 	  this.file = file;
   }
   
-  public void setUploadDir(String uploadDir) {
-	  this.uploadDir = uploadDir;
-  }
-  
-  public String getUploadDir() {
-	  return this.uploadDir;
-  }
-
   private boolean validate(){
 	if(this.mimeType != null && this.mimeType.equals("text/directory")) {
 		return this.inputStream == null;
@@ -199,11 +190,6 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
       return this;
     }
     
-    public Builder uploadDir(String uploadDir){
-      bundle.setUploadDir(uploadDir);
-      return this;
-    }    
-
     public Builder charSet(String charSet){
       bundle.setCharSet(charSet);
       return this;

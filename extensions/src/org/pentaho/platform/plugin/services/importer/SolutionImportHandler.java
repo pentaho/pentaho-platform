@@ -29,6 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -55,27 +56,40 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
 	public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
 
+		RepositoryFileImportBundle importBundle = (RepositoryFileImportBundle) bundle;
 		ZipInputStream zipImportStream = new ZipInputStream(bundle.getInputStream());
 		SolutionRepositoryImportSource importSource = new SolutionRepositoryImportSource(zipImportStream);
 
 		IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
 		for (IRepositoryFileBundle file : importSource.getFiles()) {
-			InputStream bundleInputStream = null;
+			String fileName = file.getFile().getName();
 			RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
+			String repositoryFilePath = RepositoryFilenameUtils.concat(PentahoPlatformImporter.computeBundlePath(file.getPath()), fileName);
+
+			// Validate against importing system related artifacts.
+			if (isSystemPath(repositoryFilePath)) {
+				log.trace("Skipping [" + repositoryFilePath + "], it is in admin / system folders");
+				continue;
+			}
+
+			InputStream bundleInputStream = null;
 			if (file.getFile().isFolder()) {
 				bundleBuilder.mime("text/directory");
 				bundleBuilder.file(file.getFile());
+				fileName = repositoryFilePath;
+				repositoryFilePath = importBundle.getPath();
 			} else {
 				bundleInputStream = file.getInputStream();
 				bundleBuilder.input(bundleInputStream);
-				bundleBuilder.mime(mimeResolver.resolveMimeForFileName(file.getFile().getName()));
+				bundleBuilder.mime(mimeResolver.resolveMimeForFileName(fileName));
+				repositoryFilePath = RepositoryFilenameUtils.concat(importBundle.getPath(), file.getPath());
 			}
+
+			bundleBuilder.name(fileName);
+			bundleBuilder.path(repositoryFilePath);
 			bundleBuilder.charSet("UTF-8");
-			bundleBuilder.name(file.getFile().getName());
-			bundleBuilder.path(file.getPath());
-			bundleBuilder.uploadDir(bundle.getUploadDir());
-			bundleBuilder.overwrite(true);
-			bundleBuilder.hidden(isBlackListed(file.getFile().getName()));
+			bundleBuilder.overwrite(bundle.overwriteInRepossitory());
+			bundleBuilder.hidden(isBlackListed(fileName));
 			IPlatformImportBundle platformImportBundle = bundleBuilder.build();
 			importer.importFile(platformImportBundle);
 
@@ -84,6 +98,15 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				bundleInputStream = null;
 			}
 		}
+	}
+
+	private boolean isSystemPath(final String bundlePath) {
+		final String[] split = StringUtils.split(bundlePath, RepositoryFile.SEPARATOR);
+		return isSystemDir(split, 0) || isSystemDir(split, 1);
+	}
+
+	private boolean isSystemDir(final String[] split, final int index) {
+		return (split != null && index < split.length && (StringUtils.equals(split[index], "system") || StringUtils.equals(split[index], "admin")));
 	}
 
 	private boolean isBlackListed(String fileName) {

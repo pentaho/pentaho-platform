@@ -66,7 +66,4 @@ public interface IPlatformImportBundle {
    * @return boolean
    */
   boolean overwriteInRepossitory();
-
-  String getUploadDir();
-  
 }
