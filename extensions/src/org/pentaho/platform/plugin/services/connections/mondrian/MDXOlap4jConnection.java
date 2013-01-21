@@ -81,7 +81,7 @@ public class MDXOlap4jConnection implements IPentahoConnection {
 
 		} catch (Exception e) {
 			log.error(Messages.getInstance().getErrorString(
-		            "MDXConnection.ERROR_0002_INVALID_CONNECTION", "driver=" + driver + ";url=" + url));
+		            "MDXConnection.ERROR_0002_INVALID_CONNECTION", "driver=" + driver + ";url=" + url), e);
 			return false;
 		}
 
