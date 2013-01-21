@@ -169,11 +169,6 @@
 
 	<filter-mapping>
 		<filter-name>Proxy Trusting Filter</filter-name>
-		<url-pattern>/SubscriptionAdminService</url-pattern>
-	</filter-mapping>
-
-	<filter-mapping>
-		<filter-name>Proxy Trusting Filter</filter-name>
 		<url-pattern>/ServiceActionService</url-pattern>
 	</filter-mapping>
 
@@ -298,11 +293,6 @@
 	<servlet>
 		<servlet-name>GetImage</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.GetImage</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>SubscriptionAdmin</servlet-name>
-		<servlet-class>org.pentaho.platform.web.servlet.SubscriptionAdminServlet</servlet-class>
 	</servlet>
 
 	<servlet>
@@ -497,7 +487,7 @@
 		<jsp-file>/jsp/PUCLogin.jsp</jsp-file>
 		<init-param>
 			<param-name>send401List</param-name>
-			<param-value>AdhocWebService,AnalysisViewService,MondrianCatalogPublisher,SchedulerAdminService, SubscriptionAdminService, PublishService,ResetRepositoryService,ServiceActionService,gwtrpc,ws/gwt,mantle/images/spacer.gif</param-value>
+			<param-value>AdhocWebService,AnalysisViewService,MondrianCatalogPublisher,SchedulerAdminService, PublishService,ResetRepositoryService,ServiceActionService,gwtrpc,ws/gwt,mantle/images/spacer.gif</param-value>
 			<description>List of things to throw a 401 to when seen in the login</description>
 		</init-param>
 	</servlet>
@@ -818,16 +808,6 @@
 	<servlet-mapping>
 		<servlet-name>PropertiesEditor</servlet-name>
 		<url-pattern>/PropertiesEditor</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>SubscriptionAdmin</servlet-name>
-		<url-pattern>/SubscriptionAdmin</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>SubscriptionAdmin</servlet-name>
-		<url-pattern>/SubscriptionAdminService</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
