@@ -12,7 +12,6 @@
 
 	<!--
 		<context-param> <param-name>pentaho-system-cfg</param-name>
-		<param-value>c:/tmp/test_pentaho.xml</param-value> </context-param>
 	-->
 	<!--  This context parameter is being deprecated. We don't use this any more. We have added a new context parameter called fully-qualified-server-url -->
 	<context-param>
@@ -281,12 +280,6 @@
 		<servlet-name>ViewAction</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.ViewAction</servlet-class>
 	</servlet>
-
-	<servlet>
-		<servlet-name>SubscriptionContentAction</servlet-name>
-		<servlet-class>org.pentaho.platform.web.servlet.SubscriptionContentAction</servlet-class>
-	</servlet>
-
 	<servlet>
 		<servlet-name>SolutionEngineInteractivityService</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.SolutionEngineInteractivityService</servlet-class>
@@ -706,11 +699,6 @@
 	<servlet-mapping>
 		<servlet-name>ViewAction</servlet-name>
 		<url-pattern>/ViewAction</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>SubscriptionContentAction</servlet-name>
-		<url-pattern>/SubscriptionContentAction</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
