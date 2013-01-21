@@ -1,0 +1,76 @@
+package org.pentaho.platform.plugin.services.importexport;
+
+import java.io.OutputStream;
+import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
+import org.apache.log4j.WriterAppender;
+
+public class RepositoryImportLog {
+	
+	Logger logger; 
+	static final String FILE_KEY = "currentFile";
+	OutputStream outputStream;
+	String currentFilePath;
+	String logName;
+	String importRootPath;
+
+	/**
+	 * Constructs an object that keeps track of additional fields for Log4j
+	 * logging and writes/formats an html file to the output stream provided.
+	 * 
+	 * @param outputStream
+	 */
+	RepositoryImportLog(OutputStream outputStream, String importRootPath) {
+		this.outputStream = outputStream;
+		this.importRootPath = importRootPath;
+		init();
+	}
+
+	private void init() {
+		logName = "RepositoryImportLog." + getThreadName();
+		logger = Logger.getLogger(logName);
+		RepositoryImportHTMLLayout htmlLayout = new RepositoryImportHTMLLayout();
+		htmlLayout.setTitle("Repository Import Log");
+		htmlLayout.setLocationInfo(true);
+		WriterAppender writeAppender = new WriterAppender(htmlLayout, outputStream);
+		logger.addAppender(writeAppender);
+		setCurrentFilePath("");
+	}
+	
+	public Logger getLogger() {
+		return logger;
+	}
+
+	/**
+	 * @return the currentFilePath
+	 */
+	public String getCurrentFilePath() {
+		return currentFilePath;
+	}
+
+	/**
+	 * @param currentFilePath
+	 *          the currentFilePath to set
+	 */
+	public void setCurrentFilePath(String currentFilePath) {
+		this.currentFilePath = currentFilePath;
+		MDC.put(FILE_KEY, currentFilePath);
+	}
+	
+	/**
+	 * @return the importRootPath
+	 */
+	public String getImportRootPath() {
+		return importRootPath;
+	}
+	
+	protected void EndJob() {
+		logger.removeAppender(logName);
+	}
+	
+	private String getThreadName(){
+		return Thread.currentThread().getName();
+	}
+
+
+}
