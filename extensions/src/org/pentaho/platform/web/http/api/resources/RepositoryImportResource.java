@@ -76,9 +76,9 @@ public class RepositoryImportResource {
 			try {
 				validateAccess();
 				
-				boolean overwriteFileFlag = ("overwrite".equals(overwrite) ? true : false);
-				boolean ignoreACLFlag = ("ignoreACLS".equals(ignoreACLS) ? true : false);
-				boolean retainOwnershipFlag = ("retainOwnership".equals(retainOwnership) ? true : false);
+				boolean overwriteFileFlag = ("true".equals(overwrite) ? true : false);
+				boolean ignoreACLFlag = ("true".equals(ignoreACLS) ? true : false);
+				boolean retainOwnershipFlag = ("true".equals(retainOwnership) ? true : false);
 	
 				RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 				bundleBuilder.input(fileIS);

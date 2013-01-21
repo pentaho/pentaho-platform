@@ -303,19 +303,27 @@ public class CommandLineProcessor {
 	private void performExportREST() throws ParseException, IOException {
 		String contextURL = getOptionValue("url", true, false);
 		String path = getOptionValue("path", true, false);
-		String exportURL = contextURL + "/api/repo/files/" + path + "/download";
+		String effPath = path.replaceAll("/", ":");
+		String exportURL = contextURL + "/api/repo/files/" + effPath + "/download?withManifest=true";
 		initRestService();
 		WebResource resource = client.resource(exportURL);
 
 		// Response response
 		Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(MediaType.TEXT_HTML_TYPE);
 		ClientResponse response = builder.get(ClientResponse.class);
-		String filename = getOptionValue("file-path", true, false);
-		final InputStream input = (InputStream) response.getEntityInputStream();
-		createZipFile(filename, input);
-		input.close();
+		if(response != null && response.getStatus() == 200){  	
+  		String filename = getOptionValue("file-path", true, false);
+  		final InputStream input = (InputStream) response.getEntityInputStream();
+  		createZipFile(filename, input);
+  		input.close();
+		}  
 	}
 
+	/**
+	 * create the zip file from the input stream
+	 * @param filename
+	 * @param input InputStream
+	 */
 	private void createZipFile(String filename, final InputStream input) {
 		OutputStream output = null;
 		try {
