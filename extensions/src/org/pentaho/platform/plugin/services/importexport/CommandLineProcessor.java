@@ -237,6 +237,7 @@ public class CommandLineProcessor {
 		String contextURL = getOptionValue("url", true, false);
 		String path = getOptionValue("path", true, false);
 		String filePath = getOptionValue("file-path", true, false);
+  	String charSet = getOptionValue("charset",false,true);	
 		String importURL = contextURL + API_REPO_FILES_IMPORT;
 		File fileIS = new File(filePath);
 		InputStream in = new FileInputStream(fileIS);
@@ -252,6 +253,7 @@ public class CommandLineProcessor {
 		part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
 		part.field("retainOwnership", "true".equals(retainOwnership) ? "true" : "false",
 				MediaType.MULTIPART_FORM_DATA_TYPE);
+		part.field("charSet", charSet == null?"UTF-8":charSet);
 		part.field("ignoreACLS", "true".equals(permission) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE)
 				.field("fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE);
 

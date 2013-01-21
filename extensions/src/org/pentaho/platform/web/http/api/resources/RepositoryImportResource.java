@@ -71,6 +71,7 @@ public class RepositoryImportResource {
 			@FormDataParam("overwrite") String overwrite,
 			@FormDataParam("ignoreACLS") String ignoreACLS,
 			@FormDataParam("retainOwnership") String retainOwnership,
+			@FormDataParam("charSet") String charSet,
 			@FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
 		
 			try {
@@ -82,7 +83,7 @@ public class RepositoryImportResource {
 	
 				RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 				bundleBuilder.input(fileIS);
-				bundleBuilder.charSet("UTF-8");
+				bundleBuilder.charSet(charSet == null?"UTF-8":charSet);
 				bundleBuilder.hidden(false);
 				bundleBuilder.path(uploadDir);
 				bundleBuilder.overwrite(overwriteFileFlag);

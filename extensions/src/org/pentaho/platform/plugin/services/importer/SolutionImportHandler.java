@@ -87,7 +87,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
 			bundleBuilder.name(fileName);
 			bundleBuilder.path(repositoryFilePath);
-			bundleBuilder.charSet("UTF-8");
+			bundleBuilder.charSet(bundle.getCharset());
 			bundleBuilder.overwrite(bundle.overwriteInRepossitory());
 			bundleBuilder.hidden(isBlackListed(fileName));
 			IPlatformImportBundle platformImportBundle = bundleBuilder.build();
