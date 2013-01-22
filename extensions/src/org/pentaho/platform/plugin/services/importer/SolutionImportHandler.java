@@ -166,7 +166,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				while (entry != null) {
 					final String entryName = RepositoryFilenameUtils.separatorsToRepository(entry.getName());
 					File tempFile = null;
-					boolean isDir = entry.getSize() == 0;
+					boolean isDir = entry.isDirectory();
 					if (!isDir) {
 						if (!isWhiteListed(entryName)) {
 							zipInputStream.closeEntry();
