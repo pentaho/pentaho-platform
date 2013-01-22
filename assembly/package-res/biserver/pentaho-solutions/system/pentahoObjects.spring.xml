@@ -328,6 +328,10 @@ not directly from the PentahoObjectFactory. -->
     <property name="defaultHandler">
       <ref bean="defaultImportHandler"/>
     </property>
+    <property name="repositoryImportLogger">
+      <bean class="org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger"/>
+    </property>
+    
   </bean>
 
 </beans>
