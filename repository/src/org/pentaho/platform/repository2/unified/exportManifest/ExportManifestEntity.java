@@ -15,12 +15,10 @@
 package org.pentaho.platform.repository2.unified.exportManifest;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-
-import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.Locale;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
@@ -33,6 +31,8 @@ import org.pentaho.platform.repository2.unified.exportManifest.bindings.EntityAc
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.EntityMetaData;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestEntityDto;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestProperty;
+import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
 /**
  * This Object represents the information stored in the ExportManifest for one file or folder.
@@ -62,6 +62,9 @@ public class ExportManifestEntity {
 	}
 
 	private void createEntityMetaData(RepositoryFile repositoryFile) {
+    if (LocaleHelper.getLocale() == null) {
+      LocaleHelper.setLocale(Locale.getDefault());
+    }  
 		entityMetaData = new EntityMetaData();
 		entityMetaData.setCreatedBy(repositoryFile.getCreatorId());
 		entityMetaData.setCreatedDate(XmlGregorianCalendarConverter
@@ -69,7 +72,7 @@ public class ExportManifestEntity {
 		entityMetaData.setDescription(repositoryFile.getDescription());
 		entityMetaData.setIsHidden(repositoryFile.isHidden());
 		entityMetaData.setIsFolder(repositoryFile.isFolder());
-		entityMetaData.setLocale(repositoryFile.getLocale());
+		entityMetaData.setLocale(LocaleHelper.getLocale().toString());
 		entityMetaData.setName(repositoryFile.getName());
 		entityMetaData.setPath(repositoryFile.getPath());
 		entityMetaData.setTitle(repositoryFile.getTitle());
@@ -77,18 +80,20 @@ public class ExportManifestEntity {
 	}
 
 	private void createEntityAcl(RepositoryFileAcl repositoryFileAcl) {
+		DefaultTenantedPrincipleNameResolver nameResolver = new DefaultTenantedPrincipleNameResolver();
+		
 		if (repositoryFileAcl == null)
 			return;
 		entityAcl = new EntityAcl();
 		entityAcl.setEntriesInheriting(repositoryFileAcl.isEntriesInheriting());
-		entityAcl.setOwner(repositoryFileAcl.getOwner().getName());
+		entityAcl.setOwner(nameResolver.getPrincipleName(repositoryFileAcl.getOwner().getName()));
 		entityAcl.setOwnerType(repositoryFileAcl.getOwner().getType().name());
 		List<EntityAcl.Aces> aces = entityAcl.getAces();
 		aces.clear();
 
 		for (RepositoryFileAce repositoryFileAce : repositoryFileAcl.getAces()) {
 			EntityAcl.Aces ace = new EntityAcl.Aces();
-			ace.setRecipient(repositoryFileAce.getSid().getName());
+			ace.setRecipient(nameResolver.getPrincipleName(repositoryFileAce.getSid().getName()));
 			ace.setRecipientType(repositoryFileAce.getSid().getType().name());
 			List<String> permissions = ace.getPermissions();
 			for (RepositoryFilePermission permission : repositoryFileAce
