@@ -92,7 +92,9 @@
     <mkdir dir="${solution-archives.dir}" />
   </target>
 
-
+<target name="ce-build-all"
+        depends="clean-all,resolve,assemble,package,war-pentaho-tomcat,zip-pentaho-style-war,package,zip-pentaho-data,zip-pentaho-solutions"
+        description="Performs ce build process"/>
 
   <!-- ================================= 
           target: assemble
@@ -278,9 +280,7 @@
         <include name="*.jar" />
         <exclude name="servlet-api-*.jar" />
         <exclude name="gwt-user-*.jar" />
-        <exclude name="hsqldb-*.jar" />
         <exclude name="mysql-connector-*.jar" />
-        <exclude name="h2-*.jar" />
         <exclude name="*-sources.jar" />
         <!-- TODO: Remove the line below when we fix the circular dependency between kettle-engine and metadata -->
         <exclude name="hibernate-3.2.6.ga.jar" />

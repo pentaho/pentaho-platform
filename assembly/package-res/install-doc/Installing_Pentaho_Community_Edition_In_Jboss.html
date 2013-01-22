@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>Installing Pentaho Enterprise Edition in JBoss 7.0</title>
+<style type="text/css">#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style></head>
+<body class="webkit"><div id="MathJax_Message" style="display: none; "></div>
+
+<div id="wiki-wrapper" class="page">
+<div id="head">
+  <h1>Installing Pentaho Enterprise Edition in JBoss</h1>
+
+  </div>
+<div id="wiki-content">
+<div class="wrap  ">
+  <div id="wiki-body" class="gollum-markdown-content">
+    <div id="template">
+
+<p>Below are the steps to configure pentaho in Jboss </p>
+
+<ol>
+	<li>Create home folder for pentaho/biserver-ce.</li>
+	<li>Download and unpack <a href="http://download.jboss.org/jbossas/7.0/jboss-as-7.0.2.Final/jboss-as-7.0.2.Final.zip"> Jboss 7.0.2 zip</a> or <a href="http://download.jboss.org/jbossas/7.0/jboss-as-7.0.2.Final/jboss-as-7.0.2.Final.tar.gz"> Jboss 7.0.2 tar.gz</a> under pentaho/biserver-ce folder	
+	<li>Download pentaho.war from BISERVER-CE job on CI. Copy the pentaho.war file to the standalone/deployments subdirectory of your JBoss home directory.</li> 
+    <li>Download pentaho-style.war from BISERVER-CE job on CI. Copy the pentaho-style.war file to the standalone/deployments  subdirectory of your Tomcat home directory.</li> 
+    <li>Download pentaho-solutios.zip from BISERVER-CE job on CI. Unzip this under pentaho/biserver-ce folder</li> 
+    <li>If you want to install pentaho's sample data then download pentaho-data.zip from BISERVER-CE job on CI. Unzip this under pentaho/biserver-ce folder</li>
+    <li><a href="#Install_JDBC_driver_as_a_module" rel="nofollow">Install JDBC driver as a module</a></li>
+    <li><a href="#Enable_Jboss_Classloader" rel="nofollow">Enable JBoss classloader to load classes from Sun JDK</a></li>
+    <li><a href="#Define_JNDI_Data_Sources" rel="nofollow">Define JNDI data sources</a></li>
+    <li><a href="#Increase_default_memory_settings" rel="nofollow">Increase default memory settings</a></li>
+	<li><a href="#Update_web_xml" rel="nofollow">Update web.xml in pentaho.war</a></li>
+	<li><a href="#Disable_RESTEasy_Scan" rel="nofollow">Disable RESTEasy Scan</a></li>
+    <li><a href="#Update_jndi_datasources" rel="nofollow">Update JNDI datasource references to conform to jboss standards</a></li> 
+    <li>Now you can download any plugins that you have a license for and install under pentaho/biserver-ce/pentaho-solutions/system folder.</li> 
+</ol>
+
+<h2 id="Install_JDBC_driver_as_a_module">Installing JDBC driver as a module</h2>
+<ul>
+<li>Go to your JBoss home directory (called later &lt;JBossHome&gt;), then the modules folder.</li>
+<li>Create a simple nested folders structure: org\hsqldb\main</li>
+<li>Open &lt;JBossHome&gt;/modules/org/hsqldb/main</li>
+<li>Download the 1.8.0 version of hsqldb jar.</li>
+<li>Create a file named module.xml with following content</li>
+<div class="highlight">
+<pre class='brush: xml;'>
+&lt;module xmlns="urn:jboss:module:1.0" name="org.hsqldb"&gt;
+   &lt;resources&gt;
+      &lt;resource-root path="hsqldb-1.8.0.jar"/&gt;
+   &lt;/resources&gt;
+   &lt;dependencies&gt;
+      &lt;module name="javax.api"/&gt;
+      &lt;module name="javax.transaction.api"/&gt;  
+   &lt;/dependencies&gt;
+&lt;/module&gt;
+</pre>
+</div>
+<li>There should be two files in the main folder now.</li>
+<code>&lt;JBossHome&gt;/modules/org/hsqldb/main/hsqldb-1.8.0.jar<br />
+&lt;JBossHome&gt;/modules/org/hsqldb/main/module.xml</code></p>
+</ul>
+
+<h2 id="Enable_Jboss_Classloader">Enable JBoss classloader to load classes from Sun JDK</h2>
+
+<p> JBoss enables certain set of packages from jdk to be loaded by default. To configure pentaho platform in JBoss, we need to added to a list of packges for Sun JDK </p>
+<ul>
+<li>Go to your JBoss home directory (called later &lt;JBoss7&gt;), then the modules folder.
+<li>Open the module.xml under &lt;JBossHome&gt;/modules/sun/jdk/main subdirectory</li>
+<li>Add the two lines below to the list of packages in the module.xml</li>
+<div class="highlight">
+<pre class='brush: xml;'>
+   &lt;path name="sun/net/www/protocol/jar"/&gt;
+   &lt;path name="sun/net/www/protocol/jar/JarURLConnection"/&gt;         
+</pre>                              
+<li>The include-set should look like this after the addition of the two lines</li>
+<div class="highlight">
+<pre class='brush: xml;'>
+				<include-set>
+                    &lt;path name="com/sun/script/javascript"/&gt;
+                    &lt;path name="com/sun/jndi/dns"/&gt;
+                    &lt;path name="com/sun/jndi/ldap"/&gt;
+                    &lt;path name="com/sun/security/auth"/&gt;
+                    &lt;path name="com/sun/security/auth/module"/&gt;
+                    &lt;path name="sun/misc"/&gt;
+                    &lt;path name="sun/nio"/&gt;
+                    &lt;path name="sun/nio/ch"/&gt;
+                    &lt;path name="sun/util"/&gt;
+                    &lt;path name="sun/util/calendar"/&gt;
+                    &lt;path name="sun/net/www/protocol/jar"/&gt;
+                    &lt;path name="sun/net/www/protocol/jar/JarURLConnection"/&gt;                    
+                    &lt;path name="META-INF/services"/&gt;
+                 <include-set>
+</pre>
+</div>
+</ul>
+<h2 id="Define_JNDI_Data_Sources">Defining the DataSource</h2>
+<p> Pentaho has two JNDI datasource to be defined in JBoss. Hibernate and  Quartz</p>
+<ul>
+<li> Open standalone.xml from &lt;JBossHome&gt;/standalone/configuration subdirectory </li>
+<li> Insert the following lines after the definition of ExampleDS data source  </li>
+<div class="highlight">
+<pre class='brush: xml;'>
+                &lt;datasource jndi-name="java:jboss/datasources/Hibernate" pool-name="hibpool" enabled="true" jta="true" use-java-context="true" use-ccm="true"&gt;
+                    &lt;connection-url&gt;
+                        jdbc:hsqldb:hsql://localhost/hibernate
+                    &lt;/connection-url&gt;
+                    &lt;driver-class&gt;
+                        org.hsqldb.jdbcDriver
+                    &lt;/driver-class&gt;
+                    &lt;driver&gt;
+                        hsqldb
+                    &lt;/driver&gt;
+                    &lt;pool&gt;
+                        &lt;prefill&gt;
+                            false
+                        &lt;/prefill&gt;
+                        &lt;use-strict-min&gt;
+                            false
+                        &lt;/use-strict-min&gt;
+                        &lt;flush-strategy&gt;
+                            FailingConnectionOnly
+                        &lt;/flush-strategy&gt;
+                    &lt;/pool&gt;
+                    &lt;security&gt;
+                        &lt;user-name&gt;
+                            hibuser
+                        &lt;/user-name&gt;
+                        &lt;password&gt;
+                            password
+                        &lt;/password&gt;
+                    &lt;/security&gt;
+                &lt;/datasource&gt;
+                &lt;datasource jndi-name="java:jboss/datasources/Quartz" pool-name="quartzpool" enabled="true" jta="true" use-java-context="true" use-ccm="true"&gt;
+                    &lt;connection-url&gt;
+                        jdbc:hsqldb:hsql://localhost/quartz
+                    &lt;/connection-url&gt;
+                    &lt;driver-class&gt;
+                        org.hsqldb.jdbcDriver
+                    &lt;/driver-class&gt;
+                    &lt;driver&gt;
+                        hsqldb
+                    &lt;/driver&gt;
+                    &lt;pool&gt;
+                        &lt;prefill&gt;
+                            false
+                        &lt;/prefill&gt;
+                        &lt;use-strict-min&gt;
+                            false
+                        &lt;/use-strict-min&gt;
+                        &lt;flush-strategy&gt;
+                            FailingConnectionOnly
+                        &lt;/flush-strategy&gt;
+                    &lt;/pool&gt;
+                    &lt;security&gt;
+                        &lt;user-name&gt;
+                            pentaho_user
+                        &lt;/user-name&gt;
+                        &lt;password&gt;
+                            password
+                        &lt;/password&gt;
+                    &lt;/security&gt;
+                &lt;/datasource&gt;
+
+</pre>
+</div>
+<li> Now add the hsqldb driver definition in the driver section of the file. </li>
+<div class="highlight">
+<pre class='brush: xml;'>
+                    &lt;driver name="hsqldb" module="org.hsqldb"&gt;
+                        &lt;driver-class&gt;
+                            org.hsqldb.jdbcDriver
+                        &lt;/driver-class&gt;
+                    &lt;/driver&gt;
+</pre>
+</ul>
+</div>
+<h2 id="Increase_default_memory_settings">Modifying standalone.conf on Linux and Solaris</h2>
+<p>Before you proceed to deploying the pentaho, you must modify the JBoss startup script to match Pentaho's
+resource requirements. </p>
+<ul>
+<li>Using a text editor, open the standalone.conf file.</li>
+<li>Replace -Xms64m -Xmx512m -XX:MaxPermSize=256m with -Xms768m -Xmx1024m -XX:MaxPermSize=256m</li>
+</ul>
+
+<h2>Modifying standalone-conf.bat on Windows</h2>
+<p>Before you proceed to deploying the BI Suite, you must modify the JBoss startup script to match Pentaho's
+resource requirements.</p>
+<ul>
+<li>Using a text editor, open the standalone-conf.bat file.</li>
+<li>Replace -Xms64m -Xmx512m -XX:MaxPermSize=256m with -Xms768m -Xmx1024m -XX:MaxPermSize=256m</li> 
+</ul>
+
+
+<h2 id="Update_web_xml">Remove JNDI data source reference in web.xml</h2>
+<p> Since JBoss has its own machanism of referencing JNDI data sources, we need to remove the current references from web.xml in the war</p>
+<ul>
+<li> Open pentaho.war from the  &lt;JBossHome&gt;/standalone/deployment directory using 7zip or other zip utility </li>
+<li> Go to WEB-INF/lib folder and open the web.xml in an editor </li>
+<li> Remove resource-ref entries from web.xml. Save it and close the file </li>
+<li> The zip utility will confirm whether you want to update the file. Select "yes" </li>
+</ul>
+
+
+<h2 id="Disable_RESTEasy_Scan">Disable RESTEasy Scan</h2>
+<p> We need to disable the RESTEasy scan in JBoss, in order to load all pentaho REST services correctly.</p>
+<ul>
+<li> Open pentaho.war from the  &lt;JBossHome&gt;/standalone/deployment directory using 7zip or other zip utility </li>
+<li> Go to WEB-INF/lib folder and open the web.xml in an editor </li>
+<li> Add the section below to the list of context param in web.xml Save it and close the file </li>
+<pre class='brush: xml;'>
+        &lt;context-param&gt;
+             &lt;param-name&gt;resteasy.scan&lt;/param-name&gt;
+             &lt;param-value&gt;false&lt;/param-value&gt;
+        &lt;/context-param&gt;
+        &lt;context-param&gt;
+             &lt;param-name&gt;resteasy.scan.resources&lt;/param-name&gt;
+             &lt;param-value&gt;false&lt;/param-value&gt;
+        &lt;/context-param&gt;
+        &lt;context-param&gt;
+             &lt;param-name&gt;resteasy.scan.providers&lt;/param-name&gt;
+             &lt;param-value&gt;false&lt;/param-value&gt;
+        &lt;/context-param&gt;
+</pre>
+<li> The zip utility will confirm whether you want to update the file. Select "Ok" </li>
+</ul>
+
+
+<h2 id="Update_jndi_datasources">Update JNDI datasource references in pentaho-solutions</h2>
+<p> We need update following files to reference JNDI datasources to conform with JBoss standards.</p>
+<ul>
+<li>Open pentaho/biserver-ce/pentaho-solutions/system/quartz/quartz.properties and change the org.quartz.dataSource.myDS.jndiURL value to jboss/datasources/Quartz.</li>
+<li>Open pentaho/biserver-ce/pentaho-solutions/system/audit_sql.xml and change JNDI value to jboss/datasources/Hibernate.</li>
+<li>Open pentaho/biserver-ce/pentaho-solutions/system/data-access/settings.xml and change data-access-staging-jndi value to jboss/datasources/Hibernate.</li>
+</ul>
+
+
+
+
+    </div>
+  </div>
+  </div>
+
+</div>
+</div>
+</body></html>
