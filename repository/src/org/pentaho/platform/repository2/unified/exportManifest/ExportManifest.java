@@ -47,8 +47,12 @@ public class ExportManifest {
 	}
 
 	public ExportManifest(ExportManifestDto exportManifestDto) {
+		this();
 		this.manifestInformation = exportManifestDto.getExportManifestInformation();
-
+		List<ExportManifestEntityDto> exportManifestEntityList = exportManifestDto.getExportManifestEntity();
+		for(ExportManifestEntityDto exportManifestEntityDto : exportManifestEntityList) {
+			exportManifestEntities.put(exportManifestEntityDto.getPath(), new ExportManifestEntity(exportManifestEntityDto));
+		}
 	}
 
 	public void add(ExportManifestEntity exportManifestEntity) {
@@ -72,7 +76,7 @@ public class ExportManifest {
 		final JAXBContext jaxbContext = JAXBContext
 				.newInstance(ExportManifestDto.class);
 		Marshaller marshaller = getMarshaller();
-		marshaller.marshal(new JAXBElement<ExportManifestDto>(new QName("",
+		marshaller.marshal(new JAXBElement<ExportManifestDto>(new QName("http://www.pentaho.com/schema/",
 				"ExportManifest"), ExportManifestDto.class, getExportManifestDto()),
 				outputStream);
 	}

@@ -161,6 +161,8 @@ public class Exporter {
 
     ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
     if (exportRepositoryFile.isFolder()) {  // Handle recursive export
+      ZipEntry entry = new ZipEntry(exportRepositoryFile.getPath().substring(filePath.length() + 1) + File.separator);
+      zos.putNextEntry(entry);  	
       exportDirectoryAsZip(exportRepositoryFile, zos);
     } else {
       exportFileAsZip(exportRepositoryFile, zos);
@@ -194,6 +196,8 @@ public class Exporter {
     List<RepositoryFile> children = unifiedRepository.getChildren(repositoryDir.getId());
     for (RepositoryFile repoFile : children) {
       if (repoFile.isFolder()) {
+    	ZipEntry entry = new ZipEntry(repoFile.getPath().substring(filePath.length() + 1) + File.separator);
+    	zos.putNextEntry(entry);  
         exportDirectoryAsZip(repoFile, zos);
       } else {
         exportFileAsZip(repoFile, zos);
@@ -213,7 +217,7 @@ public class Exporter {
       this.exportManifest.add(new ExportManifestEntity(exportRepositoryFile, fileAcl));
     }
 
-    ZipEntry entry = new ZipEntry(exportRepositoryFile.getPath().substring(filePath.length()));
+    ZipEntry entry = new ZipEntry(exportRepositoryFile.getPath().substring(filePath.length() + 1));
     zos.putNextEntry(entry);
     SimpleRepositoryFileData repoFileData = unifiedRepository.getDataForRead(exportRepositoryFile.getId(), SimpleRepositoryFileData.class);
     InputStream is = repoFileData.getStream();

@@ -237,6 +237,7 @@ public class CommandLineProcessor {
 		String contextURL = getOptionValue("url", true, false);
 		String path = getOptionValue("path", true, false);
 		String filePath = getOptionValue("file-path", true, false);
+  	String charSet = getOptionValue("charset",false,true);	
 		String importURL = contextURL + API_REPO_FILES_IMPORT;
 		File fileIS = new File(filePath);
 		InputStream in = new FileInputStream(fileIS);
@@ -252,6 +253,7 @@ public class CommandLineProcessor {
 		part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
 		part.field("retainOwnership", "true".equals(retainOwnership) ? "true" : "false",
 				MediaType.MULTIPART_FORM_DATA_TYPE);
+		part.field("charSet", charSet == null?"UTF-8":charSet);
 		part.field("ignoreACLS", "true".equals(permission) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE)
 				.field("fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE);
 
@@ -303,19 +305,27 @@ public class CommandLineProcessor {
 	private void performExportREST() throws ParseException, IOException {
 		String contextURL = getOptionValue("url", true, false);
 		String path = getOptionValue("path", true, false);
-		String exportURL = contextURL + "/api/repo/files/" + path + "/download";
+		String effPath = path.replaceAll("/", ":");
+		String exportURL = contextURL + "/api/repo/files/" + effPath + "/download?withManifest=true";
 		initRestService();
 		WebResource resource = client.resource(exportURL);
 
 		// Response response
 		Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(MediaType.TEXT_HTML_TYPE);
 		ClientResponse response = builder.get(ClientResponse.class);
-		String filename = getOptionValue("file-path", true, false);
-		final InputStream input = (InputStream) response.getEntityInputStream();
-		createZipFile(filename, input);
-		input.close();
+		if(response != null && response.getStatus() == 200){  	
+  		String filename = getOptionValue("file-path", true, false);
+  		final InputStream input = (InputStream) response.getEntityInputStream();
+  		createZipFile(filename, input);
+  		input.close();
+		}  
 	}
 
+	/**
+	 * create the zip file from the input stream
+	 * @param filename
+	 * @param input InputStream
+	 */
 	private void createZipFile(String filename, final InputStream input) {
 		OutputStream output = null;
 		try {

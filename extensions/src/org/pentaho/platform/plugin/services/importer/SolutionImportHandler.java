@@ -19,6 +19,7 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,12 +37,15 @@ import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.legacy.WAQRFilesMigrationHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
+import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
+import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
 
 public class SolutionImportHandler implements IPlatformImportHandler {
 
@@ -49,11 +53,12 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 	private IPlatformImportMimeResolver mimeResolver;
 	private List<String> blackList;
 	private List<String> whiteList;
+	private ExportManifest manifest;
 
 	public SolutionImportHandler(IPlatformImportMimeResolver mimeResolver) {
 		this.mimeResolver = mimeResolver;
 	}
-
+	
 	public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
 
 		RepositoryFileImportBundle importBundle = (RepositoryFileImportBundle) bundle;
@@ -87,7 +92,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
 			bundleBuilder.name(fileName);
 			bundleBuilder.path(repositoryFilePath);
-			bundleBuilder.charSet("UTF-8");
+			bundleBuilder.acl(processAclForFile(repositoryFilePath, fileName));
+			bundleBuilder.charSet(bundle.getCharset());
 			bundleBuilder.overwrite(bundle.overwriteInRepossitory());
 			bundleBuilder.hidden(isBlackListed(fileName));
 			IPlatformImportBundle platformImportBundle = bundleBuilder.build();
@@ -100,11 +106,27 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 		}
 	}
 
+	private RepositoryFileAcl processAclForFile(String path, String name) {
+		RepositoryFileAcl acl = null;
+		try {
+			String filePath = RepositoryFilenameUtils.concat(path, name);
+			if(manifest != null) {
+				ExportManifestEntity entity = manifest.getExportManifestEntity(filePath);
+				if(entity != null) {
+					acl = entity.getRepositoryFileAcl();
+				}
+			}
+		} catch(Exception e) {
+			log.trace(e);
+		}
+		return acl;
+	}
+	
 	private boolean isSystemPath(final String bundlePath) {
 		final String[] split = StringUtils.split(bundlePath, RepositoryFile.SEPARATOR);
 		return isSystemDir(split, 0) || isSystemDir(split, 1);
 	}
-
+	
 	private boolean isSystemDir(final String[] split, final int index) {
 		return (split != null && index < split.length && (StringUtils.equals(split[index], "system") || StringUtils.equals(split[index], "admin")));
 	}
@@ -144,7 +166,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				while (entry != null) {
 					final String entryName = RepositoryFilenameUtils.separatorsToRepository(entry.getName());
 					File tempFile = null;
-					boolean isDir = entry.getSize() == 0;
+					boolean isDir = entry.isDirectory();
 					if (!isDir) {
 						if (!isWhiteListed(entryName)) {
 							zipInputStream.closeEntry();
@@ -167,7 +189,12 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 					RepositoryFile repoFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(file.getName())).folder(isDir).hidden(WAQRFilesMigrationHelper.hideFileCheck(file.getName())).build();
 					String parentDir = new File(entryName).getParent() == null ? RepositoryFile.SEPARATOR : new File(entryName).getParent() + RepositoryFile.SEPARATOR;
 					IRepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, parentDir, tempFile, "UTF-8", null);
-					files.add(repoFileBundle);
+					
+					if(file.getName().equals("exportManifest.xml")) {
+						initializeAclManifest(repoFileBundle);
+					} else {
+						files.add(repoFileBundle);
+					}
 					zipInputStream.closeEntry();
 					entry = zipInputStream.getNextEntry();
 				}
@@ -175,6 +202,16 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 			} catch (IOException exception) {
 				final String errorMessage = Messages.getInstance().getErrorString("", exception.getLocalizedMessage());
 				log.trace(errorMessage);
+			}
+		}
+		
+		private void initializeAclManifest(IRepositoryFileBundle file)  {
+			try { 
+				byte[] bytes = IOUtils.toByteArray(file.getInputStream());
+				ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+				manifest = ExportManifest.fromXml(in);
+			} catch (Exception e) {
+				log.trace(e);
 			}
 		}
 

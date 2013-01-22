@@ -71,18 +71,19 @@ public class RepositoryImportResource {
 			@FormDataParam("overwrite") String overwrite,
 			@FormDataParam("ignoreACLS") String ignoreACLS,
 			@FormDataParam("retainOwnership") String retainOwnership,
+			@FormDataParam("charSet") String charSet,
 			@FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
 		
 			try {
 				validateAccess();
 				
-				boolean overwriteFileFlag = ("overwrite".equals(overwrite) ? true : false);
-				boolean ignoreACLFlag = ("ignoreACLS".equals(ignoreACLS) ? true : false);
-				boolean retainOwnershipFlag = ("retainOwnership".equals(retainOwnership) ? true : false);
+				boolean overwriteFileFlag = ("true".equals(overwrite) ? true : false);
+				boolean ignoreACLFlag = ("true".equals(ignoreACLS) ? true : false);
+				boolean retainOwnershipFlag = ("true".equals(retainOwnership) ? true : false);
 	
 				RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 				bundleBuilder.input(fileIS);
-				bundleBuilder.charSet("UTF-8");
+				bundleBuilder.charSet(charSet == null?"UTF-8":charSet);
 				bundleBuilder.hidden(false);
 				bundleBuilder.path(uploadDir);
 				bundleBuilder.overwrite(overwriteFileFlag);
