@@ -31,13 +31,13 @@
     <li><a href="#Enable_Jboss_Classloader" rel="nofollow">Enable JBoss classloader to load classes from Sun JDK</a></li>
     <li><a href="#Define_JNDI_Data_Sources" rel="nofollow">Define JNDI data sources</a></li>
     <li><a href="#Increase_default_memory_settings" rel="nofollow">Increase default memory settings</a></li>
-	<li><a href="#Update_web_xml" rel="nofollow">Update web.xml in pentaho.war</a></li>
+	<li><a href="#Update_web_xml" rel="nofollow">Remove JNDI data source reference in web.xml</a></li>
 	<li><a href="#Disable_RESTEasy_Scan" rel="nofollow">Disable RESTEasy Scan</a></li>
     <li><a href="#Update_jndi_datasources" rel="nofollow">Update JNDI datasource references to conform to jboss standards</a></li> 
     <li>Now you can download any plugins that you have a license for and install under pentaho/biserver-ce/pentaho-solutions/system folder.</li> 
 </ol>
 
-<h2 id="Install_JDBC_driver_as_a_module">Installing JDBC driver as a module</h2>
+<h2 id="Install_JDBC_driver_as_a_module">7.  Installing JDBC driver as a module</h2>
 <ul>
 <li>Go to your JBoss home directory (called later &lt;JBossHome&gt;), then the modules folder.</li>
 <li>Create a simple nested folders structure: org\hsqldb\main</li>
@@ -62,11 +62,11 @@
 &lt;JBossHome&gt;/modules/org/hsqldb/main/module.xml</code></p>
 </ul>
 
-<h2 id="Enable_Jboss_Classloader">Enable JBoss classloader to load classes from Sun JDK</h2>
+<h2 id="Enable_Jboss_Classloader">8.  Enable JBoss classloader to load classes from Sun JDK</h2>
 
 <p> JBoss enables certain set of packages from jdk to be loaded by default. To configure pentaho platform in JBoss, we need to added to a list of packges for Sun JDK </p>
 <ul>
-<li>Go to your JBoss home directory (called later &lt;JBoss7&gt;), then the modules folder.
+<li>Go to your JBoss home directory (called later &lt;JBossHome&gt;), then the modules folder.
 <li>Open the module.xml under &lt;JBossHome&gt;/modules/sun/jdk/main subdirectory</li>
 <li>Add the two lines below to the list of packages in the module.xml</li>
 <div class="highlight">
@@ -95,7 +95,7 @@
 </pre>
 </div>
 </ul>
-<h2 id="Define_JNDI_Data_Sources">Defining the DataSource</h2>
+<h2 id="Define_JNDI_Data_Sources">9  Define JNDI data sources</h2>
 <p> Pentaho has two JNDI datasource to be defined in JBoss. Hibernate and  Quartz</p>
 <ul>
 <li> Open standalone.xml from &lt;JBossHome&gt;/standalone/configuration subdirectory </li>
@@ -176,7 +176,8 @@
 </pre>
 </ul>
 </div>
-<h2 id="Increase_default_memory_settings">Modifying standalone.conf on Linux and Solaris</h2>
+<h2 id="Increase_default_memory_settings">10.  Increase default memory settings</h2>
+<h3>Modifying standalone.conf on Linux and Solaris</h3>
 <p>Before you proceed to deploying the pentaho, you must modify the JBoss startup script to match Pentaho's
 resource requirements. </p>
 <ul>
@@ -184,7 +185,7 @@ resource requirements. </p>
 <li>Replace -Xms64m -Xmx512m -XX:MaxPermSize=256m with -Xms768m -Xmx1024m -XX:MaxPermSize=256m</li>
 </ul>
 
-<h2>Modifying standalone-conf.bat on Windows</h2>
+<h3>Modifying standalone-conf.bat on Windows</h3>
 <p>Before you proceed to deploying the BI Suite, you must modify the JBoss startup script to match Pentaho's
 resource requirements.</p>
 <ul>
@@ -193,7 +194,7 @@ resource requirements.</p>
 </ul>
 
 
-<h2 id="Update_web_xml">Remove JNDI data source reference in web.xml</h2>
+<h2 id="Update_web_xml">11.  Remove JNDI data source reference in web.xml</h2>
 <p> Since JBoss has its own machanism of referencing JNDI data sources, we need to remove the current references from web.xml in the war</p>
 <ul>
 <li> Open pentaho.war from the  &lt;JBossHome&gt;/standalone/deployment directory using 7zip or other zip utility </li>
@@ -203,7 +204,7 @@ resource requirements.</p>
 </ul>
 
 
-<h2 id="Disable_RESTEasy_Scan">Disable RESTEasy Scan</h2>
+<h2 id="Disable_RESTEasy_Scan">12. Disable RESTEasy Scan</h2>
 <p> We need to disable the RESTEasy scan in JBoss, in order to load all pentaho REST services correctly.</p>
 <ul>
 <li> Open pentaho.war from the  &lt;JBossHome&gt;/standalone/deployment directory using 7zip or other zip utility </li>
@@ -227,7 +228,7 @@ resource requirements.</p>
 </ul>
 
 
-<h2 id="Update_jndi_datasources">Update JNDI datasource references in pentaho-solutions</h2>
+<h2 id="Update_jndi_datasources">13.  Update JNDI datasource references to conform to jboss standards</h2>
 <p> We need update following files to reference JNDI datasources to conform with JBoss standards.</p>
 <ul>
 <li>Open pentaho/biserver-ce/pentaho-solutions/system/quartz/quartz.properties and change the org.quartz.dataSource.myDS.jndiURL value to jboss/datasources/Quartz.</li>
