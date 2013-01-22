@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin title="Plugin 1">
+  <content-generator scope="global" id="test1" type="test-type-3">
+    <classname>org.pentaho.test.platform.plugin.pluginmgr.ContentGenerator1</classname>
+    <title>Test Generator 1</title>
+  </content-generator>
+  
+  <overlays>
+    <overlay id="overlay1" resourcebundle="uri1">
+      <node1>
+        <node2></node2>
+      </node1>
+    </overlay>
+    <overlay id="overlay2" resourcebundle="uri2">
+      <node3>
+        <node4></node4>
+      </node3>
+    </overlay>
+    <overlay>
+      <bogus>
+      </bogus>
+    </overlay>
+    <overlay id="">
+      <bogus>
+      </bogus>
+    </overlay>
+    <overlay id="bogus">
+    </overlay>
+    <overlay>
+    </overlay>
+  </overlays>
+  
+  <bean id="TestClassForClassloader" class="org.pentaho.test.platform.engine.services.TestClassForClassloader"/>
+  <bean id="PluginOnlyClass" class="org.pentaho.nowhere.PluginOnlyClass"/>
+</plugin>
