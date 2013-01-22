@@ -13,6 +13,8 @@ import org.pentaho.platform.api.action.IStreamingAction;
  */
 
 public interface IBackgroundExecutionStreamProvider extends Serializable {
+  String getMimeType();
+  String getOutputPath();
   OutputStream getOutputStream() throws Exception;
   InputStream getInputStream() throws Exception;
   void setStreamingAction(IStreamingAction streamingAction);
