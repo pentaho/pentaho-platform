@@ -41,7 +41,7 @@ public class ExportFileCommand extends AbstractCommand {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String exportURL = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(path) + "/download";
+    String exportURL = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(path) + "/download?withManifest=true";
     Window.open(exportURL, "_new", "");
   }
 
