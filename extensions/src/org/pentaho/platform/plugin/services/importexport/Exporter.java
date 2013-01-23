@@ -19,19 +19,12 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import org.apache.commons.io.IOUtils;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -47,27 +40,20 @@ public class Exporter {
   
   private File exportDir;
 
-  private boolean withManifest;
-
-  private ExportManifest exportManifest;
   protected DefaultUnifiedRepositoryWebService repoWs;
-
-  private static String EXPORT_MANIFEST_FILENAME = "exportManifest.xml";
-  private static String EXPORT_INFO_DATE_FORMAT = "dd-MM-yyyy";
-  private static String EXPORT_INFO_TIME_FORMAT = "hh:mm:ss z";
 
   /**
    * @param unifiedRepository
    */
   public Exporter(IUnifiedRepository unifiedRepository) {
-    this(unifiedRepository, null, null, false);
+    this(unifiedRepository, null, null);
   }
 
   /**
    * @param unifiedRepository
    */
   public Exporter(IUnifiedRepository unifiedRepository, String path) {
-    this(unifiedRepository, path, null, false);
+    this(unifiedRepository, path, null);
   }
 
 
@@ -77,43 +63,9 @@ public class Exporter {
    * @param filePath
    */
   public Exporter(IUnifiedRepository unifiedRepository, String path, String filePath) {
-    this(unifiedRepository, path, filePath, false);
-  }
-
-  /**
-   * @param unifiedRepository
-   * @param path (repo)
-   * @param filePath
-   */
-  public Exporter(IUnifiedRepository unifiedRepository, String path, String filePath, boolean withManifest) {
     this.unifiedRepository = unifiedRepository;
     this.repoPath = path;
     this.filePath = filePath;
-    this.withManifest = withManifest;
-
-    if(withManifest){
-      this.exportManifest = new ExportManifest();
-
-      // set created by and create date in manifest information
-      IPentahoSession session = PentahoSessionHolder.getSession();
-
-      Date todaysDate = new Date();
-      SimpleDateFormat dateFormat = new SimpleDateFormat(EXPORT_INFO_DATE_FORMAT);
-      SimpleDateFormat timeFormat = new SimpleDateFormat(EXPORT_INFO_TIME_FORMAT);
-
-      exportManifest.getManifestInformation().setExportBy(session.getName());
-      exportManifest.getManifestInformation()
-          .setExportDate(dateFormat.format(todaysDate) + " " + timeFormat.format(todaysDate));
-    }
-  }
-
-  /**
-   *
-   * @param unifiedRepository
-   * @param withManifest
-   */
-  public Exporter(IUnifiedRepository unifiedRepository, boolean withManifest){
-    this(unifiedRepository, null, null, withManifest);
   }
 
   /**
@@ -142,15 +94,16 @@ public class Exporter {
    */
   public File doExportAsZip() throws IOException {
     RepositoryFile exportRepositoryFile = unifiedRepository.getFile(repoPath);
-    return doExportAsZip(exportRepositoryFile, false);
+    return doExportAsZip(exportRepositoryFile);
   }
 
   /**
-   * Create manifest and populate it while building zip
-   * @param withManifest
+   *
+   * @param exportRepositoryFile
    * @return
+   * @throws IOException
    */
-  public File doExportAsZip(RepositoryFile exportRepositoryFile, boolean withManifest) throws IOException{
+  public File doExportAsZip(RepositoryFile exportRepositoryFile) throws IOException{
     File zipFile = File.createTempFile("repoExport", ".zip");
     zipFile.deleteOnExit();
 
@@ -168,22 +121,6 @@ public class Exporter {
       exportFileAsZip(exportRepositoryFile, zos);
     }
 
-    // write manifest to zip output stream if requested
-    if(withManifest){
-      ZipEntry entry = new ZipEntry(EXPORT_MANIFEST_FILENAME);
-      zos.putNextEntry(entry);
-
-      // pass output stream to manifest class for writing
-      try{
-        exportManifest.toXml(zos);
-      }
-      catch(Exception e){
-
-      }
-
-      zos.closeEntry();
-    }
-    
     zos.close();
     return zipFile;
   }
@@ -210,13 +147,6 @@ public class Exporter {
    * @param zos
    */
   private void exportFileAsZip(RepositoryFile exportRepositoryFile, ZipOutputStream zos) throws IOException {
-
-    // get entity instance for this file and add to manifest
-    if(this.withManifest){
-      RepositoryFileAcl fileAcl = unifiedRepository.getAcl(exportRepositoryFile.getId());
-      this.exportManifest.add(new ExportManifestEntity(exportRepositoryFile, fileAcl));
-    }
-
     ZipEntry entry = new ZipEntry(exportRepositoryFile.getPath().substring(filePath.length() + 1));
     zos.putNextEntry(entry);
     SimpleRepositoryFileData repoFileData = unifiedRepository.getDataForRead(exportRepositoryFile.getId(), SimpleRepositoryFileData.class);

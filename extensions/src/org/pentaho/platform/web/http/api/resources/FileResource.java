@@ -40,11 +40,15 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
+import org.pentaho.platform.plugin.services.importexport.ExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.*;
 import org.pentaho.platform.web.http.messages.Messages;
+import org.pentaho.reporting.libraries.libsparklines.util.StringUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import javax.servlet.http.HttpServletResponse;
@@ -58,9 +62,7 @@ import java.util.List;
 import java.util.Map;
 
 import static javax.ws.rs.core.MediaType.*;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.*;
 
 /**
  * Represents a file node in the repository.  This api provides methods for discovering information
@@ -312,17 +314,16 @@ public class FileResource extends AbstractJaxRSResource {
       return Response.status(NOT_FOUND).build();
     }
 
-    return doGetDirAsZip(repoFile, false);
+    return doGetDirAsZip(repoFile);
   }
 
 
   /**
    *
    * @param repositoryFile
-   * @param withManifest
    * @return
    */
-  public Response doGetDirAsZip(RepositoryFile repositoryFile, boolean withManifest) {
+  public Response doGetDirAsZip(RepositoryFile repositoryFile) {
 
     String path = repositoryFile.getPath();
 
@@ -330,11 +331,11 @@ public class FileResource extends AbstractJaxRSResource {
     StreamingOutput streamingOutput = null;
 
     try {
-      org.pentaho.platform.plugin.services.importexport.Exporter exporter = new org.pentaho.platform.plugin.services.importexport.Exporter(repository, withManifest);
+      org.pentaho.platform.plugin.services.importexport.Exporter exporter = new org.pentaho.platform.plugin.services.importexport.Exporter(repository);
       exporter.setRepoPath(path);
       exporter.setRepoWs(repoWs);
 
-      File zipFile = exporter.doExportAsZip(repositoryFile, withManifest);
+      File zipFile = exporter.doExportAsZip(repositoryFile);
       is = new FileInputStream(zipFile);
     } catch (Exception e) {
       return Response.serverError().entity(e.toString()).build();
@@ -407,7 +408,6 @@ public class FileResource extends AbstractJaxRSResource {
    * should be included
    *
    * @param pathId
-   * @param withManifest
    * @return
    * @throws FileNotFoundException
    */
@@ -415,37 +415,78 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("{pathId : .+}/download")
   @Produces(WILDCARD)
   //have to accept anything for browsers to work
-  public Response doGetFileOrDirAsDownload(@PathParam("pathId") String pathId, @QueryParam("withManifest") boolean withManifest) throws FileNotFoundException {
-    String path = idToPath(pathId);
+  public Response doGetFileOrDirAsDownload(@PathParam("pathId") String pathId, @QueryParam("withManifest") String strWithManifest) throws FileNotFoundException {
     String quotedFileName = null;
 
     Response origResponse = null;
 
+    // send zip with manifest by default
+    boolean withManifest = "false".equals(strWithManifest)?false:true;
+
+    // change file id to path
+    String path = idToPath(pathId);
+
+    // if no path is sent, return bad request
+    if(StringUtils.isEmpty(pathId)){
+      return Response.status(BAD_REQUEST).build();
+    }
+
+    // check if path is valid
     if(!isPathValid(path)){
       return Response.status(FORBIDDEN).build();
     }
 
-    RepositoryFile repoFile = repository.getFile(path);
+    // check if entity exists in repo
+    RepositoryFile repositoryFile = repository.getFile(path);
 
-    if (repoFile == null) {
+    if (repositoryFile == null) {
       //file does not exist or is not readable but we can't tell at this point
       return Response.status(NOT_FOUND).build();
     }
 
     try{
-      // generate zip for directories, or if manifest is requested
-      if (repoFile.isFolder() || withManifest) {
-        quotedFileName = "\"" + repoFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
-        origResponse = doGetDirAsZip(repoFile, withManifest);
+      if(withManifest){
+        final InputStream is;
+        StreamingOutput streamingOutput;
+        Response response;
+
+        // create processor
+        ExportProcessor exportProcessor = new SimpleExportProcessor(path, this.repository);
+
+        // add export handlers for each expected file type
+        exportProcessor.addExportHandler(new DefaultExportHandler(this.repository));
+
+        File zipFile = exportProcessor.performExport(repositoryFile);
+        is = new FileInputStream(zipFile);
+
+        // copy streaming output
+        streamingOutput = new StreamingOutput() {
+          public void write(OutputStream output) throws IOException {
+            IOUtils.copy(is, output);
+          }
+        };
+
+        // create response
+        quotedFileName = "\"" + repositoryFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
+        response = Response.ok(streamingOutput, APPLICATION_ZIP).header("Content-Disposition", "attachment; filename=" + quotedFileName).build();
+
+        return response;
+      }
+      else{
+        // generate zip for directories, or if manifest is requested
+        if (repositoryFile.isFolder()) {
+          quotedFileName = "\"" + repositoryFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
+          origResponse = doGetDirAsZip(repositoryFile);
+          return Response.fromResponse(origResponse)
+                   .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+
+        // or, still send single files without compression
+        quotedFileName = "\"" + repositoryFile.getName() + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+        origResponse = doGetFileOrDir(repositoryFile);
         return Response.fromResponse(origResponse)
                  .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
       }
-
-      // or, still send single files without compression
-      quotedFileName = "\"" + repoFile.getName() + "\""; //$NON-NLS-1$ //$NON-NLS-2$
-      origResponse = doGetFileOrDir(repoFile);
-      return Response.fromResponse(origResponse)
-               .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
     catch(Exception e){
       logger.error(Messages.getInstance().getString("FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage()), e); //$NON-NLS-1$
@@ -453,7 +494,7 @@ public class FileResource extends AbstractJaxRSResource {
     }
   }
 
-  @PUT
+   @PUT
   @Path("{pathId : .+}/acl")
   @Consumes({APPLICATION_XML, APPLICATION_JSON})
   public Response setFileAcls(@PathParam("pathId") String pathId, RepositoryFileAclDto acl) {
