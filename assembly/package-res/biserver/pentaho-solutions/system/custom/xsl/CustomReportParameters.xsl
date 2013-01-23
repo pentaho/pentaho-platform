@@ -66,10 +66,12 @@
 							<tr>
 								<td>
 									<br/>
-									<input type="button" name="go" class="portlet-form-button">
-										<xsl:attribute name="value"><xsl:value-of select="msg:getString($messages, 'UI.USER_UPDATE')"/></xsl:attribute>
-										<xsl:attribute name="onClick">doRun("<xsl:value-of select="/filters/id" />", 'generatedContent?', '<xsl:value-of select="/filters/target"/>', false);</xsl:attribute>
-									</input>
+									<xsl:if test="/filters/@parameterView='false'">
+										<input type="button" name="go" class="portlet-form-button">
+											<xsl:attribute name="value"><xsl:value-of select="msg:getString($messages, 'UI.USER_UPDATE')"/></xsl:attribute>
+											<xsl:attribute name="onClick">doRun("<xsl:value-of select="/filters/id" />", 'generatedContent?', '<xsl:value-of select="/filters/target"/>', false);</xsl:attribute>
+										</input>									
+									</xsl:if> 
 								</td>
 							</tr>
 						</table>

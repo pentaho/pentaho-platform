@@ -16,6 +16,7 @@ import org.pentaho.platform.repository2.unified.fileio.IRepositoryFileOutputStre
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.pentaho.platform.util.web.MimeHelper;
 
 public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamProvider, IRepositoryFileOutputStreamListener {
 
@@ -49,6 +50,24 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
     this.streamingAction = streamingAction;
   }
 
+  public String getOutputPath() {
+    return outputFilePath;
+  }
+  
+  public String getMimeType() {
+	String mimeType = null;
+    if (streamingAction != null) {
+      mimeType = streamingAction.getMimeType(null);
+    }
+	if (mimeType == null) {
+      mimeType = MimeHelper.getMimeTypeFromFileName(outputFilePath);
+	}
+	if (mimeType == null) {
+      mimeType="binary/octet-stream";
+	}
+    return mimeType;  
+  }
+  
   public OutputStream getOutputStream() throws Exception {
     String tempOutputFilePath = outputFilePath;
     String extension = RepositoryFilenameUtils.getExtension(tempOutputFilePath);

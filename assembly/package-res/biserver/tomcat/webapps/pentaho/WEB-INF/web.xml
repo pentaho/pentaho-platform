@@ -12,7 +12,6 @@
 
 	<!--
 		<context-param> <param-name>pentaho-system-cfg</param-name>
-		<param-value>c:/tmp/test_pentaho.xml</param-value> </context-param>
 	-->
 	<!--  This context parameter is being deprecated. We don't use this any more. We have added a new context parameter called fully-qualified-server-url -->
 	<context-param>
@@ -170,11 +169,6 @@
 
 	<filter-mapping>
 		<filter-name>Proxy Trusting Filter</filter-name>
-		<url-pattern>/SubscriptionAdminService</url-pattern>
-	</filter-mapping>
-
-	<filter-mapping>
-		<filter-name>Proxy Trusting Filter</filter-name>
 		<url-pattern>/ServiceActionService</url-pattern>
 	</filter-mapping>
 
@@ -281,12 +275,6 @@
 		<servlet-name>ViewAction</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.ViewAction</servlet-class>
 	</servlet>
-
-	<servlet>
-		<servlet-name>SubscriptionContentAction</servlet-name>
-		<servlet-class>org.pentaho.platform.web.servlet.SubscriptionContentAction</servlet-class>
-	</servlet>
-
 	<servlet>
 		<servlet-name>SolutionEngineInteractivityService</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.SolutionEngineInteractivityService</servlet-class>
@@ -305,11 +293,6 @@
 	<servlet>
 		<servlet-name>GetImage</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.GetImage</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>SubscriptionAdmin</servlet-name>
-		<servlet-class>org.pentaho.platform.web.servlet.SubscriptionAdminServlet</servlet-class>
 	</servlet>
 
 	<servlet>
@@ -470,11 +453,6 @@
     </servlet>
 
 	<servlet>
-		<servlet-name>AdhocWebService</servlet-name>
-		<servlet-class>org.pentaho.platform.web.servlet.AdhocWebService</servlet-class>
-	</servlet>
-
-	<servlet>
 		<servlet-name>AnalysisViewService</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.AnalysisViewService</servlet-class>
 	</servlet>
@@ -504,7 +482,7 @@
 		<jsp-file>/jsp/PUCLogin.jsp</jsp-file>
 		<init-param>
 			<param-name>send401List</param-name>
-			<param-value>AdhocWebService,AnalysisViewService,MondrianCatalogPublisher,SchedulerAdminService, SubscriptionAdminService, PublishService,ResetRepositoryService,ServiceActionService,gwtrpc,ws/gwt,mantle/images/spacer.gif</param-value>
+			<param-value>AnalysisViewService,MondrianCatalogPublisher,SchedulerAdminService, PublishService,ResetRepositoryService,ServiceActionService,gwtrpc,ws/gwt,mantle/images/spacer.gif</param-value>
 			<description>List of things to throw a 401 to when seen in the login</description>
 		</init-param>
 	</servlet>
@@ -709,11 +687,6 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>SubscriptionContentAction</servlet-name>
-		<url-pattern>/SubscriptionContentAction</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
 		<servlet-name>SolutionEngineInteractivityService</servlet-name>
 		<url-pattern>/SolutionEngineInteractivityService</url-pattern>
 	</servlet-mapping>
@@ -833,16 +806,6 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>SubscriptionAdmin</servlet-name>
-		<url-pattern>/SubscriptionAdmin</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>SubscriptionAdmin</servlet-name>
-		<url-pattern>/SubscriptionAdminService</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
 		<servlet-name>Login</servlet-name>
 		<url-pattern>/Login</url-pattern>
 	</servlet-mapping>
@@ -865,11 +828,6 @@
 	<servlet-mapping>
 		<servlet-name>ResetRepository</servlet-name>
 		<url-pattern>/ResetRepositoryService</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>AdhocWebService</servlet-name>
-		<url-pattern>/AdhocWebService</url-pattern>
 	</servlet-mapping>
 
     <servlet-mapping>

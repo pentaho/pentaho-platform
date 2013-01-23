@@ -183,7 +183,7 @@ public class DefaultDeleteHelper implements IDeleteHelper {
    */
   private Node getOrCreateTrashInternalFolderNode(final Session session, final PentahoJcrConstants pentahoJcrConstants)
       throws RepositoryException {
-    Node userHomeFolderNode = (Node) session.getItem(ServerRepositoryPaths.getUserHomeFolderPath(userNameUtils.getTenant(PentahoSessionHolder.getSession().getId()), PentahoSessionHolder.getSession().getName()));
+    Node userHomeFolderNode = (Node) session.getItem(ServerRepositoryPaths.getUserHomeFolderPath(userNameUtils.getTenant(PentahoSessionHolder.getSession().getId()), userNameUtils.getPrincipleName(PentahoSessionHolder.getSession().getId())));
     if (userHomeFolderNode.hasNode(FOLDER_NAME_TRASH)) {
       return userHomeFolderNode.getNode(FOLDER_NAME_TRASH);
     } else {
