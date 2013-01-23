@@ -28,10 +28,12 @@ import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
+import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.security.userroledao.messages.Messages;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
@@ -119,8 +121,10 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
             }
         }
 
-        // add third option of getting default tenant
-        tenant = new Tenant(TenantUtils.getDefaultTenant(), true);
+        if(tenant == null ||  tenant.getId() == null) {
+          // add third option of getting default tenant
+          tenant = getDefaultTenant();
+        }
 
         // reconstruct the default role with tenant
 
@@ -202,5 +206,9 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
         Assert.notNull(defaultRole);
         this.defaultRoleString = defaultRole;
         this.defaultRole = new GrantedAuthorityImpl(defaultRole);
+    }
+    
+    protected ITenant getDefaultTenant() {
+      return new Tenant(ServerRepositoryPaths.getPentahoRootFolderPath() + RepositoryFile.SEPARATOR + TenantUtils.TENANTID_SINGLE_TENANT, true);
     }
 }
