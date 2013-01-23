@@ -107,6 +107,7 @@ public class CommandLineProcessor {
 		options.addOption("o", "overwrite", true, "overwrite files (import only)");
 		options.addOption("p", "permission", true, "apply ACL manifest permissions to files and folders  (import only)");
 		options.addOption("r", "retainOwnership", true, "Retain ownership information  (import only)");
+	  options.addOption("w", "withManifest", true, "Export Manifest ACL file included  (export only)");
 
 		// external
 		options.addOption("ldrvr", "legacy-db-driver", true, "legacy database repository driver");
@@ -305,8 +306,9 @@ public class CommandLineProcessor {
 	private void performExportREST() throws ParseException, IOException {
 		String contextURL = getOptionValue("url", true, false);
 		String path = getOptionValue("path", true, false);
+		String withManifest = getOptionValue("withManifest", false, true);
 		String effPath = path.replaceAll("/", ":");
-		String exportURL = contextURL + "/api/repo/files/" + effPath + "/download?withManifest=true";
+		String exportURL = contextURL + "/api/repo/files/" + effPath + "/download?withManifest="+("false".equals(withManifest)?"false":"true");
 		initRestService();
 		WebResource resource = client.resource(exportURL);
 
@@ -315,7 +317,7 @@ public class CommandLineProcessor {
 		ClientResponse response = builder.get(ClientResponse.class);
 		if(response != null && response.getStatus() == 200){  	
   		String filename = getOptionValue("file-path", true, false);
-  		final InputStream input = (InputStream) response.getEntityInputStream();
+  		final InputStream input = response.getEntityInputStream();
   		createZipFile(filename, input);
   		input.close();
 		}  
@@ -539,7 +541,7 @@ public class CommandLineProcessor {
 						+ "--overwrite=true\n" + "--retainOwnership=true\n\n"
 						+ "Example arguments for File System export:\n"
 						+ "--export --url=http://localhost:8080/pentaho --username=joe --password=password \n"
-						+ "--file-path=c:/temp/export.zip --charset=UTF-8 --path=/public\n"
+						+ "--file-path=c:/temp/export.zip --charset=UTF-8 --path=/public\n --withManifest=true"
 						+ "--logfile=c:/Users/wseyler/Desktop/logfile.log\n" + "");
 	}
 }
