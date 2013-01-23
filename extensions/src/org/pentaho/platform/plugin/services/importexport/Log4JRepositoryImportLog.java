@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
 import org.apache.log4j.WriterAppender;
 
-public class RepositoryImportLog {
+public class Log4JRepositoryImportLog {
 	
 	Logger logger; 
 	static final String FILE_KEY = "currentFile";
@@ -20,7 +20,7 @@ public class RepositoryImportLog {
 	 * 
 	 * @param outputStream
 	 */
-	RepositoryImportLog(OutputStream outputStream, String importRootPath) {
+	Log4JRepositoryImportLog(OutputStream outputStream, String importRootPath) {
 		this.outputStream = outputStream;
 		this.importRootPath = importRootPath;
 		init();
@@ -34,7 +34,6 @@ public class RepositoryImportLog {
 		htmlLayout.setLocationInfo(true);
 		WriterAppender writeAppender = new WriterAppender(htmlLayout, outputStream);
 		logger.addAppender(writeAppender);
-		setCurrentFilePath("");
 	}
 	
 	public Logger getLogger() {
@@ -72,5 +71,5 @@ public class RepositoryImportLog {
 		return Thread.currentThread().getName();
 	}
 
-
 }
+

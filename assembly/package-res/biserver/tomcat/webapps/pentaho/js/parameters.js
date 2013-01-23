@@ -32,9 +32,19 @@ window.initSchedulingParams = function(filepath, callback) {
  */
 window.getParams = function() {
 	try {
-		var id = pentaho_formId;
+		var id = null;
+		
+		if (typeof pentaho_formId !== 'undefined') {
+			id = pentaho_formId;
+		}		
+		
 		var params = new Array();
 		var form = document.forms['form_'+id];
+		
+		if (form == null && document.forms.length > 0) {
+			form = document.forms[0];
+		}
+		
 		var elements = form.elements;
 		var i;
 	

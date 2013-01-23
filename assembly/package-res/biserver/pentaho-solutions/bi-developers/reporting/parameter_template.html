@@ -84,11 +84,20 @@
 
                </tr>
                <tr>
-                  <td><br/><input type="button" name="go" class="portlet-form-button" value="Run..." onClick="doForm()"/></td>
+                  <td><br/><input type="button" name="go" id="go" class="portlet-form-button" value="Run..." onClick="doForm()"/></td>
                </tr>
             </table>
 		{path}
 	    </form>
       </div>
    </body>
+   
+
+	<script><![CDATA[
+		var inSchedulerDialog = window.location.pathname.indexOf('parameterUi') >= 0;
+		if (inSchedulerDialog) {
+			document.getElementById('go').style.display = 'none';
+		}
+	]]></script>
+   
 </html>

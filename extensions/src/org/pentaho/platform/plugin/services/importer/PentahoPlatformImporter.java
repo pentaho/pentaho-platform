@@ -9,6 +9,7 @@ import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 
@@ -27,6 +28,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   private Map<String, IPlatformImportHandler> importHandlers;
   private IPlatformImportHandler defaultHandler;
   private IPlatformImportMimeResolver mimeResolver;
+  private IRepositoryImportLogger repositoryImportLogger;
 
   public PentahoPlatformImporter(Map<String, IPlatformImportHandler> handlerMap, IPlatformImportMimeResolver mimeResolver){
     this.importHandlers = handlerMap;
@@ -84,5 +86,13 @@ public class PentahoPlatformImporter implements IPlatformImporter {
 		bundlePath = bundlePath.substring(1);
 	}
 	return bundlePath;
-  }  
+  }
+
+	public IRepositoryImportLogger getRepositoryImportLogger() {
+		return repositoryImportLogger;
+	}
+
+	public void setRepositoryImportLogger(IRepositoryImportLogger repositoryImportLogger) {
+		this.repositoryImportLogger = repositoryImportLogger;
+	}  
 }

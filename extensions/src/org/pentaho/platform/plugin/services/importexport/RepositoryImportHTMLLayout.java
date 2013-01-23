@@ -160,7 +160,7 @@ public class RepositoryImportHTMLLayout extends Layout {
     sbuf.append("</td>" + Layout.LINE_SEP);
     
 		sbuf.append("<td title=\"importFile\">");
-		sbuf.append(Transform.escapeTags(MDC.get(RepositoryImportLog.FILE_KEY)));
+		sbuf.append(Transform.escapeTags(MDC.get(Log4JRepositoryImportLog.FILE_KEY)));
 		sbuf.append("</td>" + Layout.LINE_SEP);
 
 		// String escapedThread = Transform.escapeTags(event.getThreadName());

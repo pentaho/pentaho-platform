@@ -109,7 +109,9 @@
 					<br/>
 				</div>
         <script>
-          initialStartup_form_<xsl:value-of select="/filters/id"/>();
+		  if (typeof initialStartup_form_<xsl:value-of select="/filters/id"/> !== 'undefined') {
+			initialStartup_form_<xsl:value-of select="/filters/id"/>();
+		  }
         </script>
 				</body>
 		</html>
