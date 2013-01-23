@@ -14,7 +14,6 @@
  * @author wseyler
  */
 
-
 package org.pentaho.mantle.client.dialogs;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
@@ -51,35 +50,42 @@ import com.google.gwt.user.client.ui.Widget;
  *
  */
 public class ImportDialog extends PromptDialogBox {
-  private FormPanel form; 
+  private FormPanel form;
+
   protected PopupPanel indefiniteProgress;
+
   protected FileUpload upload;
+
   protected CheckBox overwrite = null;
-  protected CheckBox permission = null; 
+
+  protected CheckBox permission = null;
+
   protected CheckBox retainOwnership = null;
+
   protected TextBox importDir = null;
+
   /**
    * @param repositoryFile
    */
   @SuppressWarnings("deprecation")
-public ImportDialog(RepositoryFile repositoryFile) {
+  public ImportDialog(RepositoryFile repositoryFile) {
     super(Messages.getString("import"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     indefiniteProgress = new PopupPanel(false, true);
     DOM.setStyleAttribute(indefiniteProgress.getElement(), "zIndex", "2000"); // Gets it to the front
     Image waitImage = new Image("mantle/large-loading.gif"); //$NON-NLS-1$
     indefiniteProgress.add(waitImage);
-    
+
     form = new FormPanel();
     form.addSubmitHandler(new SubmitHandler() {
       @Override
       public void onSubmit(SubmitEvent se) {
-    	//if no file is selected then do not proceed  
+        //if no file is selected then do not proceed  
         okButton.setEnabled(false);
         cancelButton.setEnabled(false);
         indefiniteProgress.center();
-      }      
+      }
     });
-    form.addSubmitCompleteHandler(new SubmitCompleteHandler() {     
+    form.addSubmitCompleteHandler(new SubmitCompleteHandler() {
       @Override
       public void onSubmitComplete(SubmitCompleteEvent sce) {
         new RefreshRepositoryCommand().execute(false);
@@ -90,102 +96,94 @@ public ImportDialog(RepositoryFile repositoryFile) {
         Window.alert(sce.getResults());
       }
     });
-    
-    VerticalPanel rootPanel = new VerticalPanel(); 
+
+    VerticalPanel rootPanel = new VerticalPanel();
     Label importLocationLabel = new Label(Messages.getString("importLocation") + " " + repositoryFile.getPath());
     importDir = new TextBox();
-    rootPanel.add(importLocationLabel);   
-  
+    rootPanel.add(importLocationLabel);
+
     //HorizontalPanel hpanel = new HorizontalPanel(); 
-    permission = new CheckBox(Messages.getString("permission"),true);
+    permission = new CheckBox(Messages.getString("permission"), true);
     permission.setName("ignoreACLS");
+    permission.setValue(Boolean.TRUE);
     permission.setFormValue("false");
-    permission.addClickListener(new ClickListener()
-    {
-        public void onClick(Widget sender)
-        {
-        	overwrite.setEnabled(permission.isChecked()?true:false);
-        	permission.setFormValue(permission.isChecked()?"true":"false");
-        	overwrite.setFormValue(overwrite.isChecked()?"true":"false");
-        }
-    });
+    ClickHandler phandler = new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        permission.setFormValue(permission.getValue() ? "false" : "true");//passes ignoreACL
+        overwrite.setFormValue(overwrite.getValue() ? "true" : "false");
+        overwrite.setEnabled(permission.getValue() ? true : false);
+      }
+    };
+    permission.addClickHandler(phandler);
     
-    overwrite = new CheckBox(Messages.getString("overwrite"),true);
+    overwrite = new CheckBox(Messages.getString("overwrite"), true);
     overwrite.setName("overwrite");
     overwrite.setFormValue("true");
     overwrite.setEnabled(true);
-    overwrite.setChecked(true);
-    ClickHandler handler = new ClickHandler(){
-		@Override
-		public void onClick(ClickEvent event) {			
-			overwrite.setFormValue(permission.isChecked()?"true":"false");
-		}    	
+    overwrite.setValue(Boolean.TRUE);
+    ClickHandler handler = new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        overwrite.setFormValue(permission.getValue() ? "true" : "false");
+      }
     };
     overwrite.addClickHandler(handler);
-    overwrite.addClickListener(new ClickListener()
-    {
-        public void onClick(Widget sender)
-        {        	
-        	overwrite.setFormValue(permission.isChecked()?"true":"false");
-        }
-    });
-    
-    retainOwnership = new CheckBox(Messages.getString("retainOwnership"),true);
+
+    retainOwnership = new CheckBox(Messages.getString("retainOwnership"), true);
     retainOwnership.setName("retainOwnership");
     retainOwnership.setFormValue("true");
-    retainOwnership.setChecked(true);
-    retainOwnership.addClickListener(new ClickListener()
-    {
-        public void onClick(Widget sender)
-        {        	
-        	retainOwnership.setFormValue(retainOwnership.isChecked()?"true":"false");
-        }
-    });
-    okButton.setEnabled(false);	
+    retainOwnership.setValue(Boolean.TRUE);
+    ClickHandler rhandler = new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        retainOwnership.setFormValue(retainOwnership.getValue() ? "true" : "false");
+      }
+    };
+    retainOwnership.addClickHandler(rhandler);
+    okButton.setEnabled(false);
     upload = new FileUpload();
     upload.setName("fileUpload");
-    ChangeHandler fileUploadHandler= new ChangeHandler(){
-		@Override
-		public void onChange(ChangeEvent event) {
-			if(!"".equals(importDir.getValue())){
-				okButton.setEnabled(true);
-			} else {
-				okButton.setEnabled(false);		
-			}
-		}	
+    ChangeHandler fileUploadHandler = new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent event) {
+        if (!"".equals(importDir.getValue())) {
+          okButton.setEnabled(true);
+        } else {
+          okButton.setEnabled(false);
+        }
+      }
     };
     upload.addChangeHandler(fileUploadHandler);
     rootPanel.add(upload);
-    
+
     rootPanel.add(permission);
-    rootPanel.add(overwrite);    
+    rootPanel.add(overwrite);
     rootPanel.add(retainOwnership);
-   
-    
+
     importDir.setName("importDir");
     importDir.setText(repositoryFile.getPath());
     importDir.setVisible(false);
-    
+
     rootPanel.add(importDir);
-    
+
     form.setEncoding(FormPanel.ENCODING_MULTIPART);
     form.setMethod(FormPanel.METHOD_POST);
-    
+
     setFormAction();
-    
+
     form.add(rootPanel);
-    
+
     setContent(form);
   }
 
-  
-	private void setFormAction() {
-		String moduleBaseURL = GWT.getModuleBaseURL();
-	    String moduleName = GWT.getModuleName();
-	    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));   
-	    String importURL = contextURL + "api/repo/files/import";
-	    form.setAction(importURL);
-	}
+  private void setFormAction() {
+    String moduleBaseURL = GWT.getModuleBaseURL();
+    String moduleName = GWT.getModuleName();
+    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+    String importURL = contextURL + "api/repo/files/import";
+    form.setAction(importURL);
+  }
 
   public FormPanel getForm() {
     return form;
