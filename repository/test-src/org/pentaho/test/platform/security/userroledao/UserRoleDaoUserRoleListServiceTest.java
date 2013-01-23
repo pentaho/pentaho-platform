@@ -542,11 +542,11 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     List<String> rolesForUser_3 = service.getRolesForUser(mainTenant_1, USER_3);
     List<String> rolesForUser_4 = service.getRolesForUser(mainTenant_1, USER_4);
     
-    assertTrue(rolesForUser_2.size() == 5);
-    assertTrue(rolesForUser_2_1.size() == 5);
-    assertTrue(rolesForUser_2_1_1.size() == 5);
-    assertTrue(rolesForUser_3.size() == 4);
-    assertTrue(rolesForUser_4.size() == 3);
+    assertTrue(rolesForUser_2.size() == 4);
+    assertTrue(rolesForUser_2_1.size() == 4);
+    assertTrue(rolesForUser_2_1_1.size() == 4);
+    assertTrue(rolesForUser_3.size() == 3);
+    assertTrue(rolesForUser_4.size() == 2);
     
     cleanupUserAndRoles("joe", mainTenant_1);
     cleanupUserAndRoles("joe", mainTenant_2);
