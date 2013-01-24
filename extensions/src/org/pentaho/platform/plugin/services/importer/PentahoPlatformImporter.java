@@ -64,6 +64,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0002_MISSING_IMPORT_HANDLER"),PlatformImportException.PUBLISH_GENERAL_ERROR); //replace with default handler?
     }
     try {
+      logImportFile(file);
       handler.importFile(file);
     } catch (DomainIdNullException e1) {
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_TO_SERVER_FAILED);
@@ -78,6 +79,12 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     }catch (Exception e1) {
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
     }
+  }
+  
+  private void logImportFile(IPlatformImportBundle file) {
+    RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;	
+	String repositoryFilePath = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getName());
+	repositoryImportLogger.setCurrentFilePath(repositoryFilePath);
   }
   
   public static String computeBundlePath(String bundlePath) {

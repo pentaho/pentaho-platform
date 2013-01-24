@@ -64,7 +64,7 @@ public class Log4JRepositoryImportLog {
 	}
 	
 	protected void EndJob() {
-		logger.removeAppender(logName);
+		//logger.removeAppender(logName);
 	}
 	
 	private String getThreadName(){

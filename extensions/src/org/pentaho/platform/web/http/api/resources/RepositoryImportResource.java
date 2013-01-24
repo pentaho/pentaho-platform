@@ -21,6 +21,7 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import javax.ws.rs.Consumes;
@@ -39,7 +40,7 @@ import org.pentaho.platform.plugin.services.importer.IPlatformImportBundle;
 import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
-import org.pentaho.platform.web.http.messages.Messages;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
@@ -73,7 +74,8 @@ public class RepositoryImportResource {
 			@FormDataParam("retainOwnership") String retainOwnership,
 			@FormDataParam("charSet") String charSet,
 			@FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
-		
+	        IRepositoryImportLogger importLogger = null;
+		    ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
 			try {
 				validateAccess();
 				
@@ -94,6 +96,9 @@ public class RepositoryImportResource {
 				bundleBuilder.mime(mimeResolver.resolveMimeForFileName(fileInfo.getFileName()));
 	
 				IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
+				importLogger = importer.getRepositoryImportLogger();
+				
+				importLogger.startJob(importLoggerStream, "/import/Path"); //TODO!!!!! PENDING!!!! SET RIGHT PATH!!!!
 				importer.importFile(bundle);
 	
 				// Flush the Mondrian cache to show imported datasources.
@@ -105,8 +110,11 @@ public class RepositoryImportResource {
 				return Response.serverError().entity(e.toString()).build();
 			} catch (Exception e) {
 				return Response.serverError().entity(e.toString()).build();
+			} finally {
+				importLogger.endJob();
 			}
-			return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).build();
+			//return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).build();
+			return Response.ok(importLoggerStream.toString()).build();
 	}
 
 	private void validateAccess() throws PentahoAccessControlException {
