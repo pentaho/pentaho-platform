@@ -20,10 +20,9 @@ package org.pentaho.platform.plugin.services.importexport;/*
  */
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
 
 import java.io.IOException;
-import java.util.zip.ZipOutputStream;
+import java.io.InputStream;
 
 /**
  * Contract with ExportProcessor to know how to perform export given the parameters
@@ -33,6 +32,6 @@ public interface ExportHandler {
   /**
    * Perform export with registered handlers
    */
-  public void doExport(RepositoryFile repositoryFile, ZipOutputStream outputStream, String filePath, ExportManifest exportManifest) throws ExportException, IOException;
+  public InputStream doExport(RepositoryFile repositoryFile, String filePath) throws ExportException, IOException;
 
 }

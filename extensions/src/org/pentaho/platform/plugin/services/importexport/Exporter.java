@@ -114,7 +114,7 @@ public class Exporter {
 
     ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
     if (exportRepositoryFile.isFolder()) {  // Handle recursive export
-      ZipEntry entry = new ZipEntry(exportRepositoryFile.getPath().substring(filePath.length() + 1) + File.separator);
+      ZipEntry entry = new ZipEntry(exportRepositoryFile.getPath().substring(filePath.length() + 1) + "/");
       zos.putNextEntry(entry);  	
       exportDirectoryAsZip(exportRepositoryFile, zos);
     } else {
@@ -133,7 +133,7 @@ public class Exporter {
     List<RepositoryFile> children = unifiedRepository.getChildren(repositoryDir.getId());
     for (RepositoryFile repoFile : children) {
       if (repoFile.isFolder()) {
-    	ZipEntry entry = new ZipEntry(repoFile.getPath().substring(filePath.length() + 1) + File.separator);
+    	ZipEntry entry = new ZipEntry(repoFile.getPath().substring(filePath.length() + 1) + "/");
     	zos.putNextEntry(entry);  
         exportDirectoryAsZip(repoFile, zos);
       } else {
