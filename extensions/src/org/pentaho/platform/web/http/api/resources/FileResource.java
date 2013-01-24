@@ -462,7 +462,7 @@ public class FileResource extends AbstractJaxRSResource {
       }
 
       // add export handlers for each expected file type
-      exportProcessor.addExportHandler(new DefaultExportHandler(this.repository));
+      exportProcessor.addExportHandler(PentahoSystem.get(DefaultExportHandler.class));
 
       File zipFile = exportProcessor.performExport(repositoryFile);
       is = new FileInputStream(zipFile);

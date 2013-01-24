@@ -24,81 +24,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.plugin.services.importexport.pdi.PDIImportUtil;
-import org.pentaho.platform.plugin.services.importexport.pdi.StreamToJobNodeConverter;
-import org.pentaho.platform.plugin.services.importexport.pdi.StreamToTransNodeConverter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultExportHandler implements ExportHandler {
   private static final Log log = LogFactory.getLog(SimpleImportProcessor.class);
-  private static final Map<String, Converter> converters = new HashMap<String, Converter>();
 
-  private final IUnifiedRepository unifiedRepository;
+  private Map<String, Converter> converters;
 
-
-  /**
-   *
-   * @param repository
-   */
-  public DefaultExportHandler(final IUnifiedRepository repository) {
-    // Validate and save the repository
-
-    // todo - check ezequiel's changes for checking file types using mime-type during import and use similar method
-    if (null == repository) {
-      throw new IllegalArgumentException();
-    }
-
-    this.unifiedRepository = repository;
-
-    final StreamConverter streamConverter = new StreamConverter(repository);
-    converters.put("prpt", streamConverter);
-    converters.put("prpti", streamConverter);
-    converters.put("mondrian.xml", streamConverter);
-    converters.put("report", streamConverter);
-    converters.put("rptdesign", streamConverter);
-    converters.put("svg", streamConverter);
-    converters.put("url", streamConverter);
-    converters.put("xaction", streamConverter);
-    converters.put("xanalyzer", streamConverter);
-    converters.put("xcdf", streamConverter);
-    converters.put("xdash", streamConverter);
-    converters.put("xreportspec", streamConverter);
-    converters.put("waqr.xaction", streamConverter);
-    converters.put("xwaqr", streamConverter);
-    converters.put("gif", streamConverter);
-    converters.put("css", streamConverter);
-    converters.put("html", streamConverter);
-    converters.put("htm", streamConverter);
-    converters.put("jpg", streamConverter);
-    converters.put("jpeg", streamConverter);
-    converters.put("js", streamConverter);
-    converters.put("cfg.xml", streamConverter);
-    converters.put("jrxml", streamConverter);
-    converters.put("png", streamConverter);
-    converters.put("properties", streamConverter);
-    converters.put("sql", streamConverter);
-    converters.put("xmi", streamConverter);
-    converters.put("xml", streamConverter);
-    converters.put("cda", streamConverter); //$NON-NLS-1$
-
-    try {
-      PDIImportUtil.connectToRepository(null);
-      final StreamToJobNodeConverter jobConverter = new StreamToJobNodeConverter(repository);
-      final StreamToTransNodeConverter transConverter = new StreamToTransNodeConverter(repository);
-      converters.put("kjb", jobConverter);
-      converters.put("ktr", transConverter);
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("No PDI Repository found, switching to standard converter.");
-      converters.put("kjb", streamConverter);
-      converters.put("ktr", streamConverter);
-    }
-  }
+  private IUnifiedRepository repository;
 
   /**
    * Perform export with registered handlers
@@ -114,7 +51,7 @@ public class DefaultExportHandler implements ExportHandler {
       log.debug("Skipping file without extension: " + name);
     }
 
-    // Find the converter
+    // Find the converter - defined in spring xml
     final Converter converter = converters.get(ext);
     if (converter == null) {
       log.debug("Skipping file without converter: " + name);
@@ -126,4 +63,11 @@ public class DefaultExportHandler implements ExportHandler {
     return converter.convert(repositoryFile.getId());
   }
 
+  public void setConverters(Map<String, Converter> converters) {
+    this.converters = converters;
+  }
+
+  public void setRepository(IUnifiedRepository repository) {
+    this.repository = repository;
+  }
 }

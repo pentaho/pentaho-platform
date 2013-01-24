@@ -12,9 +12,13 @@ Possible values for scope attribute:
 default-lazy-init is set to true since some of these object make calls into 
 PentahoSystem which is initialized after Spring
  -->
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
-       default-lazy-init="true">
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd"
+       default-lazy-init="true" >
 
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype"/>
   <!-- Uncomment the following line to use a filesystem-based repository. Note: does not support ACLs.  -->
@@ -214,48 +218,54 @@ not directly from the PentahoObjectFactory. -->
   <bean id="streamToTransNodeConverter" class="org.pentaho.platform.plugin.services.importexport.pdi.StreamToTransNodeConverter">
   	<constructor-arg ref="unifiedRepository"/>
   </bean>
-  <bean id="streamConverter" class="org.pentaho.platform.plugin.services.importexport.StreamConverter"/>
- 
+  <bean id="streamConverter" class="org.pentaho.platform.plugin.services.importexport.StreamConverter">
+    <constructor-arg ref="unifiedRepository"/>
+  </bean>
+
   <bean id="ITenant" class="org.pentaho.platform.core.mt.Tenant" scope="prototype"/>
+
+    <util:map id="convertersMap">
+        <entry key="kjb" value-ref="streamToJobNodeConverter"/>
+        <entry key="ktr" value-ref="streamToTransNodeConverter"/>
+        <entry key="prpt" value-ref="streamConverter"/>
+        <entry key="prpti" value-ref="streamConverter"/>
+        <entry key="mondrian.xml" value-ref="streamConverter"/>
+        <entry key="report" value-ref="streamConverter"/>
+        <entry key="rptdesign" value-ref="streamConverter"/>
+        <entry key="svg" value-ref="streamConverter"/>
+        <entry key="url" value-ref="streamConverter"/>
+        <entry key="xaction" value-ref="streamConverter"/>
+        <entry key="xanalyzer" value-ref="streamConverter"/>
+        <entry key="xcdf" value-ref="streamConverter"/>
+        <entry key="xdash" value-ref="streamConverter"/>
+        <entry key="xreportspec" value-ref="streamConverter"/>
+        <entry key="waqr.xaction" value-ref="streamConverter"/>
+        <entry key="xwaqr" value-ref="streamConverter"/>
+        <entry key="gif" value-ref="streamConverter"/>
+        <entry key="css" value-ref="streamConverter"/>
+        <entry key="html" value-ref="streamConverter"/>
+        <entry key="htm" value-ref="streamConverter"/>
+        <entry key="jpg" value-ref="streamConverter"/>
+        <entry key="jpeg" value-ref="streamConverter"/>
+        <entry key="js" value-ref="streamConverter"/>
+        <entry key="cfg.xml" value-ref="streamConverter"/>
+        <entry key="jrxml" value-ref="streamConverter"/>
+        <entry key="png" value-ref="streamConverter"/>
+        <entry key="properties" value-ref="streamConverter"/>
+        <entry key="sql" value-ref="streamConverter"/>
+        <entry key="xmi" value-ref="streamConverter"/>
+        <entry key="xml" value-ref="streamConverter"/>
+        <entry key="cda" value-ref="streamConverter"/>
+    </util:map>
+
+    <bean id="DefaultExportHandler" class="org.pentaho.platform.plugin.services.importexport.DefaultExportHandler">
+        <property name="repository" ref="unifiedRepository"/>
+        <property name="converters" ref="convertersMap"/>
+    </bean>
+
   <bean id="defaultImportHandler" class="org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler">
-    <property name="repository">
-      <ref bean="unifiedRepository"/>
-    </property>
-    <property name="converters">
-    	<map>
-    		<entry key="kjb" value-ref="streamToJobNodeConverter"/>
-    		<entry key="ktr" value-ref="streamToTransNodeConverter"/>
-		    <entry key="prpt" value-ref="streamConverter"/>
-		    <entry key="prpti" value-ref="streamConverter"/>
-		    <entry key="mondrian.xml" value-ref="streamConverter"/>
-		    <entry key="report" value-ref="streamConverter"/>
-		    <entry key="rptdesign" value-ref="streamConverter"/>
-		    <entry key="svg" value-ref="streamConverter"/>
-		    <entry key="url" value-ref="streamConverter"/>
-		    <entry key="xaction" value-ref="streamConverter"/>
-		    <entry key="xanalyzer" value-ref="streamConverter"/>
-		    <entry key="xcdf" value-ref="streamConverter"/>
-		    <entry key="xdash" value-ref="streamConverter"/>
-		    <entry key="xreportspec" value-ref="streamConverter"/>
-		    <entry key="waqr.xaction" value-ref="streamConverter"/>
-		    <entry key="xwaqr" value-ref="streamConverter"/>
-		    <entry key="gif" value-ref="streamConverter"/>
-		    <entry key="css" value-ref="streamConverter"/>
-		    <entry key="html" value-ref="streamConverter"/>
-		    <entry key="htm" value-ref="streamConverter"/>
-		    <entry key="jpg" value-ref="streamConverter"/>
-		    <entry key="jpeg" value-ref="streamConverter"/>
-		    <entry key="js" value-ref="streamConverter"/>
-		    <entry key="cfg.xml" value-ref="streamConverter"/>
-		    <entry key="jrxml" value-ref="streamConverter"/>
-		    <entry key="png" value-ref="streamConverter"/>
-		    <entry key="properties" value-ref="streamConverter"/>
-		    <entry key="sql" value-ref="streamConverter"/>
-		    <entry key="xmi" value-ref="streamConverter"/>
-		    <entry key="xml" value-ref="streamConverter"/>
-		    <entry key="cda" value-ref="streamConverter"/>    		
-    	</map>
-    </property>
+    <property name="repository" ref="unifiedRepository"/>
+    <property name="converters" ref="convertersMap"/>
   </bean>
 
   <bean id="NameBaseMimeResolver" class="org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver">
