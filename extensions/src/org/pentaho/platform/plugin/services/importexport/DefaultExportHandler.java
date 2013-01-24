@@ -19,33 +19,27 @@ package org.pentaho.platform.plugin.services.importexport;/*
  * Time: 4:52 PM
  */
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.plugin.services.importexport.pdi.PDIImportUtil;
 import org.pentaho.platform.plugin.services.importexport.pdi.StreamToJobNodeConverter;
 import org.pentaho.platform.plugin.services.importexport.pdi.StreamToTransNodeConverter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 public class DefaultExportHandler implements ExportHandler {
   private static final Log log = LogFactory.getLog(SimpleImportProcessor.class);
   private static final Map<String, Converter> converters = new HashMap<String, Converter>();
 
   private final IUnifiedRepository unifiedRepository;
-  private ExportManifest exportManifest;
+
 
   /**
    *
@@ -110,11 +104,8 @@ public class DefaultExportHandler implements ExportHandler {
    * Perform export with registered handlers
    */
   @Override
-  public void doExport(RepositoryFile repositoryFile, ZipOutputStream outputStream, String filePath, ExportManifest exportManifest) throws ExportException, IOException {
-    RepositoryFileAcl fileAcl = unifiedRepository.getAcl(repositoryFile.getId());
-    exportManifest.add(new ExportManifestEntity(repositoryFile, fileAcl));
-    ZipEntry entry = new ZipEntry(repositoryFile.getPath().substring(filePath.length() + 1));
-    outputStream.putNextEntry(entry);
+  public InputStream doExport(RepositoryFile repositoryFile, String filePath) throws ExportException, IOException {
+    InputStream is = null;
 
     // Compute the file extension
     final String name = repositoryFile.getName();
@@ -127,30 +118,12 @@ public class DefaultExportHandler implements ExportHandler {
     final Converter converter = converters.get(ext);
     if (converter == null) {
       log.debug("Skipping file without converter: " + name);
+      return null;
    }
 
     // just send the converter the file id and let it decide which type to get
     // since it is already based on the file extension
-    InputStream is = converter.convert(repositoryFile.getId());
-
-    IOUtils.copy(is, outputStream);
-    outputStream.closeEntry();
-    is.close();
+    return converter.convert(repositoryFile.getId());
   }
 
-    /**
-   *
-   * @return
-   */
-  public ExportManifest getExportManifest() {
-    return exportManifest;
-  }
-
-  /**
-   *
-   * @param exportManifest
-   */
-  public void setExportManifest(ExportManifest exportManifest) {
-    this.exportManifest = exportManifest;
-  }
 }

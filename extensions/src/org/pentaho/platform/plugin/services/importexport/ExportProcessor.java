@@ -23,7 +23,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.zip.ZipOutputStream;
+import java.io.OutputStream;
 
 public interface ExportProcessor {
 
@@ -48,7 +48,7 @@ public interface ExportProcessor {
    * @param outputStream
    * @throws ExportException
    */
-  public void exportFile(RepositoryFile repositoryFile, ZipOutputStream outputStream, String filePath) throws ExportException, IOException;
+  public void exportFile(RepositoryFile repositoryFile, OutputStream outputStream, String filePath) throws ExportException, IOException;
 
   /**
    *
@@ -56,6 +56,6 @@ public interface ExportProcessor {
    * @param outputStream
    * @throws ExportException
    */
-  public void exportDirectory(RepositoryFile repositoryFile, ZipOutputStream outputStream, String filePath) throws ExportException, IOException;
+  public void exportDirectory(RepositoryFile repositoryFile, OutputStream outputStream, String filePath) throws ExportException, IOException;
 
 }

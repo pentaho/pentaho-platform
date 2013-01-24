@@ -41,8 +41,8 @@ import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
-import org.pentaho.platform.plugin.services.importexport.ExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
+import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
@@ -50,6 +50,7 @@ import org.pentaho.platform.repository2.unified.webservices.*;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.pentaho.reporting.libraries.libsparklines.util.StringUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
@@ -445,56 +446,48 @@ public class FileResource extends AbstractJaxRSResource {
     }
 
     try{
-      if(withManifest){
-        final InputStream is;
-        StreamingOutput streamingOutput;
-        Response response;
+      final InputStream is;
+      StreamingOutput streamingOutput;
+      Response response;
+      BaseExportProcessor exportProcessor;
 
-        // create processor
-        ExportProcessor exportProcessor = new SimpleExportProcessor(path, this.repository);
-
-        // add export handlers for each expected file type
-        exportProcessor.addExportHandler(new DefaultExportHandler(this.repository));
-
-        File zipFile = exportProcessor.performExport(repositoryFile);
-        is = new FileInputStream(zipFile);
-
-        // copy streaming output
-        streamingOutput = new StreamingOutput() {
-          public void write(OutputStream output) throws IOException {
-            IOUtils.copy(is, output);
-          }
-        };
-
-        // create response
+      // create processor
+      if(repositoryFile.isFolder()||withManifest){
+        exportProcessor = new ZipExportProcessor(path, this.repository, withManifest);
         quotedFileName = "\"" + repositoryFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
-        response = Response.ok(streamingOutput, APPLICATION_ZIP).header("Content-Disposition", "attachment; filename=" + quotedFileName).build();
-
-        return response;
       }
       else{
-        // generate zip for directories, or if manifest is requested
-        if (repositoryFile.isFolder()) {
-          quotedFileName = "\"" + repositoryFile.getName() + ".zip\""; //$NON-NLS-1$//$NON-NLS-2$
-          origResponse = doGetDirAsZip(repositoryFile);
-          return Response.fromResponse(origResponse)
-                   .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-
-        // or, still send single files without compression
-        quotedFileName = "\"" + repositoryFile.getName() + "\""; //$NON-NLS-1$ //$NON-NLS-2$
-        origResponse = doGetFileOrDir(repositoryFile);
-        return Response.fromResponse(origResponse)
-                 .header("Content-Disposition", "attachment; filename=" + quotedFileName).build(); //$NON-NLS-1$ //$NON-NLS-2$
+        exportProcessor = new SimpleExportProcessor(path, this.repository, withManifest);
+        quotedFileName = "\"" + repositoryFile.getName() + "\""; //$NON-NLS-1$//$NON-NLS-2$
       }
+
+      // add export handlers for each expected file type
+      exportProcessor.addExportHandler(new DefaultExportHandler(this.repository));
+
+      File zipFile = exportProcessor.performExport(repositoryFile);
+      is = new FileInputStream(zipFile);
+
+      // copy streaming output
+      streamingOutput = new StreamingOutput() {
+        public void write(OutputStream output) throws IOException {
+          IOUtils.copy(is, output);
+        }
+      };
+
+      // create response
+
+      response = Response.ok(streamingOutput, APPLICATION_ZIP).header("Content-Disposition", "attachment; filename=" + quotedFileName).build();
+
+      return response;
     }
     catch(Exception e){
       logger.error(Messages.getInstance().getString("FileResource.EXPORT_FAILED", quotedFileName + " " + e.getMessage()), e); //$NON-NLS-1$
       return Response.status(INTERNAL_SERVER_ERROR).build();
     }
+
   }
 
-   @PUT
+  @PUT
   @Path("{pathId : .+}/acl")
   @Consumes({APPLICATION_XML, APPLICATION_JSON})
   public Response setFileAcls(@PathParam("pathId") String pathId, RepositoryFileAclDto acl) {
