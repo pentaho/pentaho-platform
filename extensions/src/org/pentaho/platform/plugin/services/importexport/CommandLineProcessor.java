@@ -40,6 +40,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -104,7 +106,7 @@ public class CommandLineProcessor {
     options.addOption("f", "file-path", true, "Path to directory of files");
     options.addOption("c", "charset", true,
         "charset to use for the repository (characters from external systems converted to this charset)");
-    options.addOption("l", "logfile", false, "full path and filename of logfile messages");
+    options.addOption("l", "logfile", true, "full path and filename of logfile messages");
 
     // import only options
     options.addOption("m", "comment", true, "version comment (import only)");
@@ -135,12 +137,14 @@ public class CommandLineProcessor {
    * @param args
    */
   public static void main(String[] args) throws Exception {
+    String logFile = null;
     try {
       // reset the exception information
       exception = null;
 
       final CommandLineProcessor commandLineProcessor = new CommandLineProcessor(args);
       String rest = commandLineProcessor.getOptionValue("rest", false, true);
+      logFile = commandLineProcessor.getOptionValue("logfile",false,true);
       useRestService = "false".equals(rest) ? false : true;// default to new REST version if not provided
       // new service only
       switch (commandLineProcessor.getRequestType()) {
@@ -162,7 +166,7 @@ public class CommandLineProcessor {
       printHelp();
     } catch (Exception e) {
       exception = e;
-      e.printStackTrace();
+      e.printStackTrace();          
     }
   }
 
@@ -245,6 +249,7 @@ public class CommandLineProcessor {
     String path = getOptionValue("path", true, false);
     String filePath = getOptionValue("file-path", true, false);
     String charSet = getOptionValue("charset", false, true);
+    String logFile = getOptionValue("logfile",false,true);
     String importURL = contextURL + API_REPO_FILES_IMPORT;
     File fileIS = new File(filePath);
     InputStream in = new FileInputStream(fileIS);
@@ -268,9 +273,26 @@ public class CommandLineProcessor {
         FormDataContentDisposition.name("fileUpload").fileName(fileIS.getName()).build());
 
     // Response response
-    Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(MediaType.TEXT_HTML_TYPE);
-    String response = builder.post(String.class, part);
-    System.out.println("done response=" + response);
+    ClientResponse  response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
+    if(response != null){
+      String message = response.getEntity(String.class);
+      System.out.println("done response=" + message);      
+      if(logFile != null && !"".equals(logFile)){
+          writeFile(message,logFile);
+      }
+    }
+  }
+
+  private void writeFile(String message, String logFile) {
+    try{
+      File file = new File(logFile);
+      FileOutputStream fout = FileUtils.openOutputStream(file);
+      IOUtils.copy(IOUtils.toInputStream(message), fout);
+      fout.close();
+    } catch(Exception ex){
+      ex.printStackTrace();
+    }
+    
   }
 
   /**
@@ -311,11 +333,12 @@ public class CommandLineProcessor {
     String path = getOptionValue("path", true, false);
     String withManifest = getOptionValue("withManifest", false, true);
     String effPath = path.replaceAll("/", ":");
+    String logFile = getOptionValue("logfile",false,true);
     String exportURL = contextURL + "/api/repo/files/" + effPath + "/download?withManifest="
         + ("false".equals(withManifest) ? "false" : "true");
     initRestService();
     WebResource resource = client.resource(exportURL);
-
+   
     // Response response
     Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(MediaType.TEXT_HTML_TYPE);
     ClientResponse response = builder.get(ClientResponse.class);
@@ -324,6 +347,14 @@ public class CommandLineProcessor {
       final InputStream input = response.getEntityInputStream();
       createZipFile(filename, input);
       input.close();
+      String message = "Export Completed \n";
+      message += "Response Status: "+response.getStatus(); 
+      message += "\n";
+      message +=  "Export File written to "+filename;
+      if(logFile !=null && !"".equals(logFile)){
+        System.out.println(message);
+        writeFile(message, logFile);
+      }
     }
   }
 
