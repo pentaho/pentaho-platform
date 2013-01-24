@@ -2,6 +2,7 @@ package org.pentaho.platform.plugin.services.importer;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -10,7 +11,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.plugin.services.importexport.StreamConverter;
+import org.pentaho.platform.plugin.services.importexport.Converter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.springframework.util.Assert;
@@ -25,7 +26,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   private static final Log log = LogFactory.getLog(RepositoryFileImportFileHandler.class);
   private static final Messages messages = Messages.getInstance();
-  private static StreamConverter converter = new StreamConverter();
+  private Map<String, Converter> converters;
   
   public void importFile(IPlatformImportBundle bnd) throws PlatformImportException {
 
@@ -88,6 +89,13 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     // Copy the file into the repository
     try {
       log.trace("copying file to repository: " + name);
+      
+      Converter converter = converters.get(ext);
+      if (converter == null) {
+          log.debug("Skipping file without converter: " + name);
+          return false;
+      }
+      
       IRepositoryFileData data = converter.convert(bundle.getInputStream(), bundle.getCharset(), mimeType);
       if (null == file) {
         createFile(bundle, repositoryPath, data);
@@ -157,6 +165,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     this.repository = repository;
   }
 
- 
-
+  public void setConverters(Map<String, Converter> converters) {
+	this.converters = converters;
+  } 
 }

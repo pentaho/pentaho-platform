@@ -18,7 +18,7 @@ public class RepositoryImportLogTest extends TestCase {
 
 	public void testMultiThreadLog() {
 		RepositoryImportLogTest.TestRun r1 = new RepositoryImportLogTest.TestRun("bin/logOutput1.html", "1", logger);
-		RepositoryImportLogTest.TestRun r2 = new RepositoryImportLogTest.TestRun("bin/logOutput1.html", "2", logger);		
+		RepositoryImportLogTest.TestRun r2 = new RepositoryImportLogTest.TestRun("bin/logOutput2.html", "2", logger);		
 		Thread t1 = new Thread(r1);
 		Thread t2 = new Thread(r2);
 		t1.start();

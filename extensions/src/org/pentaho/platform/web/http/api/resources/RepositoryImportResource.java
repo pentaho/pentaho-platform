@@ -41,6 +41,7 @@ import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.web.http.messages.Messages;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
@@ -98,7 +99,7 @@ public class RepositoryImportResource {
 				IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
 				importLogger = importer.getRepositoryImportLogger();
 				
-				importLogger.startJob(importLoggerStream, "/import/Path"); //TODO!!!!! PENDING!!!! SET RIGHT PATH!!!!
+				importLogger.startJob(importLoggerStream, "/import/Path"); 
 				importer.importFile(bundle);
 	
 				// Flush the Mondrian cache to show imported datasources.
@@ -113,8 +114,7 @@ public class RepositoryImportResource {
 			} finally {
 				importLogger.endJob();
 			}
-			//return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).build();
-			return Response.ok(importLoggerStream.toString()).build();
+			return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).entity("OK"+importLoggerStream.toString()).build();
 	}
 
 	private void validateAccess() throws PentahoAccessControlException {

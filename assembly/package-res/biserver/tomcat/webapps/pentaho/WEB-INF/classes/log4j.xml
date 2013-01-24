@@ -92,6 +92,14 @@
    <category name="org.jfree.JCommon">
       <priority value="ERROR"/>
    </category> 
+   
+   <!-- =========================== -->
+   <!-- Repository Import Log Level -->
+   <!-- =========================== -->
+   
+   <category name="RepositoryImportLog">
+      <priority value="INFO"/>
+   </category> 
 
    <!-- ======================= -->
    <!-- Setup the Root category -->
