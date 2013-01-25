@@ -60,18 +60,21 @@ public class Emailer {
   }
 
   public void setTo(String to) {
+    to = to.replaceAll(";", ",");
     if (to != null && !"".equals(to)) {
       props.put("to", to);
     }
   }
 
   public void setCc(String cc) {
+    cc = cc.replaceAll(";", ",");
     if (cc != null && !"".equals(cc)) {
       props.put("cc", cc);
     }
   }
 
   public void setBcc(String bcc) {
+    bcc = bcc.replaceAll(";", ",");
     if (bcc != null && !"".equals(bcc)) {
       props.put("bcc", bcc);
     }
