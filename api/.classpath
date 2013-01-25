@@ -4,4 +4,16 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=file%3A.%2Fivysettings.xml&amp;buildPropertyFiles=build.properties&amp;acceptedTypes=jar&amp;sourceTypes=source&amp;javadocTypes=javadoc&amp;sourceSuffixes=-source%2C-sources%2C-src&amp;javadocSuffixes=-javadoc%2C-javadocs%2C-doc%2C-docs&amp;doRetrieve=false&amp;retrievePattern=lib%2F%5Bconf%5D%2F%5Bartifact%5D.%5Bext%5D&amp;alphaOrder=true"/>
 	<classpathentry kind="output" path="eclipse-bin"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.jar" />
+	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar" />
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar" />
+	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar" />
+	<classpathentry kind="lib" path="lib/jaxen-1.1.jar" />
+	<classpathentry kind="lib" path="lib/pentaho-actionsequence-dom-TRUNK-SNAPSHOT.jar" />
+	<classpathentry kind="lib" path="lib/pentaho-connections-TRUNK-SNAPSHOT.jar" />
+	<classpathentry kind="lib" path="lib/pentaho-database-model-TRUNK-SNAPSHOT.jar" />
+	<classpathentry kind="lib" path="lib/pentaho-xul-core-TRUNK-SNAPSHOT.jar" />
+	<classpathentry kind="lib" path="lib/spring-beans-2.5.6.jar" />
+	<classpathentry kind="lib" path="lib/spring-security-core-2.0.5.RELEASE.jar" />
+	<classpathentry kind="lib" path="lib/xml-apis-1.0.b2.jar" />
 </classpath>

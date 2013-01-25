@@ -1,14 +1,17 @@
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.IOException;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
 import org.pentaho.metadata.repository.DomainIdNullException;
 import org.pentaho.metadata.repository.DomainStorageException;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
-
-import java.io.IOException;
-import java.util.Map;
 
 /**
  * Default implementation of IPlatformImporter. This class serves to route import requests to the appropriate
@@ -25,6 +28,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   private Map<String, IPlatformImportHandler> importHandlers;
   private IPlatformImportHandler defaultHandler;
   private IPlatformImportMimeResolver mimeResolver;
+  private IRepositoryImportLogger repositoryImportLogger;
 
   public PentahoPlatformImporter(Map<String, IPlatformImportHandler> handlerMap, IPlatformImportMimeResolver mimeResolver){
     this.importHandlers = handlerMap;
@@ -32,26 +36,35 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   }
 
   public IPlatformImportHandler getDefaultHandler() {
-    return defaultHandler;
+    return this.defaultHandler;
   }
 
   public void setDefaultHandler(IPlatformImportHandler defaultHandler) {
     this.defaultHandler = defaultHandler;
   }
-
+  
+  /**
+   * To be consumed mainly by platform plugins who want to treat importing artifacts different.
+   * */
+  public void addHandler(String key, IPlatformImportHandler handler) {
+	  this.importHandlers.put(key, handler);
+  }
+  
   /**
    * this is the main method that uses the mime time (from Spring) to determine which handler to invoke.
    */
   public void importFile(IPlatformImportBundle file) throws PlatformImportException {
-    String mime = mimeResolver.resolveMimeForBundle(file);
+    String mime = file.getMimeType() != null ? file.getMimeType() : mimeResolver.resolveMimeForBundle(file);
     if(mime == null){
-      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE"),PlatformImportException.PUBLISH_GENERAL_ERROR);
+      log.trace(messages.getString("PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE") + file.getName());
+      return;
     }
     IPlatformImportHandler handler = (importHandlers.containsKey(mime) == false) ? defaultHandler : importHandlers.get(mime);
     if(handler == null){
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0002_MISSING_IMPORT_HANDLER"),PlatformImportException.PUBLISH_GENERAL_ERROR); //replace with default handler?
     }
     try {
+      logImportFile(file);
       handler.importFile(file);
     } catch (DomainIdNullException e1) {
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_TO_SERVER_FAILED);
@@ -67,17 +80,26 @@ public class PentahoPlatformImporter implements IPlatformImporter {
       throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
     }
   }
-
-  private String extractExtension(String name) {
-    if( name == null ) {
-      return null;
-    }
-    int idx = name.lastIndexOf(".");
-    if(idx == -1){
-      return name;
-    }
-    return name.substring(idx+1);
+  
+  private void logImportFile(IPlatformImportBundle file) {
+    RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;	
+	String repositoryFilePath = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getName());
+	repositoryImportLogger.setCurrentFilePath(repositoryFilePath);
+  }
+  
+  public static String computeBundlePath(String bundlePath) {
+	bundlePath = RepositoryFilenameUtils.separatorsToRepository(bundlePath);
+	if (bundlePath.startsWith(RepositoryFile.SEPARATOR)) {
+		bundlePath = bundlePath.substring(1);
+	}
+	return bundlePath;
   }
 
+	public IRepositoryImportLogger getRepositoryImportLogger() {
+		return repositoryImportLogger;
+	}
 
+	public void setRepositoryImportLogger(IRepositoryImportLogger repositoryImportLogger) {
+		this.repositoryImportLogger = repositoryImportLogger;
+	}  
 }

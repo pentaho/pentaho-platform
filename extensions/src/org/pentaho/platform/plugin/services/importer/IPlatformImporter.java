@@ -1,5 +1,7 @@
 package org.pentaho.platform.plugin.services.importer;
 
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+
 /**
  * Implementations handle importing the given content into the Pentaho System.
  *
@@ -13,4 +15,6 @@ public interface IPlatformImporter {
    * @throws PlatformImportException
    */
   void importFile(IPlatformImportBundle bundle) throws PlatformImportException;
+  
+  IRepositoryImportLogger getRepositoryImportLogger();
 }

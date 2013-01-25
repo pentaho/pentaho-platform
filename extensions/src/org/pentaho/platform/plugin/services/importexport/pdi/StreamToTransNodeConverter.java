@@ -14,15 +14,19 @@
  */
 package org.pentaho.platform.plugin.services.importexport.pdi;
 
-import java.io.InputStream;
-
 import org.pentaho.di.repository.Repository;
+import org.pentaho.di.repository.RepositoryElementInterface;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.plugin.services.importexport.Converter;
 import org.w3c.dom.Document;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.Serializable;
 
 /**
  * Converts stream of binary or character data.
@@ -38,6 +42,42 @@ public class StreamToTransNodeConverter implements Converter {
   
   public InputStream convert(final IRepositoryFileData data) {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   *
+   * @param fileId
+   * @return
+   */
+  public InputStream convert(final Serializable fileId) {
+    InputStream is = null;
+
+    try{
+      // this will change in the future if PDI no longer has its
+      // own repository. For now, get the reference
+      Repository repository = PDIImportUtil.connectToRepository(null);
+
+      TransformationDelegate delegate = new TransformationDelegate(repository);
+
+      // get the node file data
+      NodeRepositoryFileData fileData = unifiedRepository.getDataForRead(fileId, NodeRepositoryFileData.class);
+
+      // get the actual node
+      DataNode node = fileData.getNode();
+
+      // use the transformation delegate to get the repo element
+      RepositoryElementInterface element = delegate.dataNodeToElement(node);
+
+      // just cast it to pdi transmeta
+      TransMeta transMeta = (TransMeta) element;
+
+      // send back the input stream using transmeta's getXML
+      return new ByteArrayInputStream(transMeta.getXML().getBytes());
+
+    } catch(Exception e){
+      e.printStackTrace();
+    }
+    return is;
   }
 
   public IRepositoryFileData convert(final InputStream inputStream, final String charset, final String mimeType) {

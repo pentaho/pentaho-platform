@@ -15,19 +15,42 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.InputStream;
+import java.io.Serializable;
 
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 
 /**
  * Implementations of this interface are responsible for converting between an {@code InputStream} and an 
  * {@link IRepositoryFileData}.
+ *
+ * Added support for using just fileId and assume converter encapsulates
+ * all necessary logic for getting file data and conversion
  * 
  * @author mlowery
  */
 public interface Converter {
 
+  /**
+   *
+   * @param inputStream
+   * @param charset
+   * @param mimeType
+   * @return
+   */
   IRepositoryFileData convert(final InputStream inputStream, final String charset, final String mimeType);
 
+  /**
+   *
+   * @param data
+   * @return
+   */
   InputStream convert(final IRepositoryFileData data);
+
+  /**
+   *
+   * @param fileId
+   * @return
+   */
+  InputStream convert(final Serializable fileId);
 
 }

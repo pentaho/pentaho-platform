@@ -15,8 +15,10 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.InputStream;
+import java.io.Serializable;
 
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 
 /**
@@ -25,9 +27,24 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
  * @author mlowery
  */
 public class StreamConverter implements Converter {
-  
+
+  IUnifiedRepository repository;
+
+  public StreamConverter(IUnifiedRepository repository){
+    this.repository = repository;
+  }
+
+  public StreamConverter(){
+
+  }
+
   public InputStream convert(final IRepositoryFileData data) {
     throw new UnsupportedOperationException();
+  }
+
+  public InputStream convert(final Serializable fileId){
+    SimpleRepositoryFileData fileData = repository.getDataForRead(fileId, SimpleRepositoryFileData.class);
+    return fileData.getStream();
   }
 
   public IRepositoryFileData convert(final InputStream inputStream, final String charset, final String mimeType) {
