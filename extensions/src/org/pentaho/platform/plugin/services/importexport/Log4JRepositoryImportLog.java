@@ -2,7 +2,6 @@ package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.OutputStream;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
 import org.apache.log4j.WriterAppender;

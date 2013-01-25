@@ -170,6 +170,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
       for (JobScheduleParam param : scheduleRequest.getJobParameters()) {
         parameterMap.put(param.getName(), param.getValue());
       }
+      
+      // remove this section once these are part of the job parameters
+      //parameterMap.put("_SCH_EMAIL_TO", "mdamour1976@gmail.com");
+      //parameterMap.put("_SCH_EMAIL_ATTACHMENT_NAME", "TestAttachment");
+      //parameterMap.put("_SCH_EMAIL_SUBJECT", "Test Subject");
+      //parameterMap.put("_SCH_EMAIL_MESSAGE", "This is the test message.");
+      
       job = scheduler.createJob(Integer.toString(Math.abs(random.nextInt())), actionId, parameterMap, jobTrigger, new RepositoryFileStreamProvider(
           scheduleRequest.getInputFile(), outputFile));
     } catch (SchedulerException e) {

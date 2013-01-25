@@ -24,7 +24,7 @@
 	<li>Create home folder for pentaho/biserver-ce.</li>
 	<li>Download and unpack <a href="http://download.jboss.org/jbossas/7.0/jboss-as-7.0.2.Final/jboss-as-7.0.2.Final.zip"> Jboss 7.0.2 zip</a> or <a href="http://download.jboss.org/jbossas/7.0/jboss-as-7.0.2.Final/jboss-as-7.0.2.Final.tar.gz"> Jboss 7.0.2 tar.gz</a> under pentaho/biserver-ce folder	
 	<li>Download pentaho.war from BISERVER-CE job on CI. Copy the pentaho.war file to the standalone/deployments subdirectory of your JBoss home directory.</li> 
-    <li>Download pentaho-style.war from BISERVER-CE job on CI. Copy the pentaho-style.war file to the standalone/deployments  subdirectory of your Tomcat home directory.</li> 
+    <li>Download pentaho-style.war from BISERVER-CE job on CI. Copy the pentaho-style.war file to the standalone/deployments  subdirectory of your JBoss home directory.</li> 
     <li>Download pentaho-solutios.zip from BISERVER-CE job on CI. Unzip this under pentaho/biserver-ce folder</li> 
     <li>If you want to install pentaho's sample data then download pentaho-data.zip from BISERVER-CE job on CI. Unzip this under pentaho/biserver-ce folder</li>
     <li><a href="#Install_JDBC_driver_as_a_module" rel="nofollow">Install JDBC driver as a module</a></li>
@@ -35,6 +35,7 @@
 	<li><a href="#Disable_RESTEasy_Scan" rel="nofollow">Disable RESTEasy Scan</a></li>
     <li><a href="#Update_jndi_datasources" rel="nofollow">Update JNDI datasource references to conform to jboss standards</a></li> 
     <li>Now you can download any plugins that you have a license for and install under pentaho/biserver-ce/pentaho-solutions/system folder.</li> 
+    <li>You can start pentaho by executing standalone.bat or standalone.sh in the bin folder under your Jboss home directory.</li>
 </ol>
 
 <h2 id="Install_JDBC_driver_as_a_module">7.  Installing JDBC driver as a module</h2>
