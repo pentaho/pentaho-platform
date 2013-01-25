@@ -180,7 +180,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     }  	
   }
   
-  @SuppressWarnings("deprecation")
   protected JSONObject getJsonSimpleTrigger(int repeatCount, int interval, Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     trigger.put("uiPassParam", new JSONString(scheduleEditorWizardPanel.getScheduleType().name()));  //$NON-NLS-1$
@@ -190,7 +189,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
 
-  @SuppressWarnings("deprecation")
   protected JSONObject getJsonCronTrigger(String cronString, Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     trigger.put("uiPassParam", new JSONString(scheduleEditorWizardPanel.getScheduleType().name()));  //$NON-NLS-1$
@@ -199,7 +197,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
 
-  @SuppressWarnings("deprecation")
   protected JSONObject getJsonComplexTrigger(ScheduleType scheduleType, MonthOfYear month, WeekOfMonth weekOfMonth, List<DayOfWeek> daysOfWeek, Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     trigger.put("uiPassParam", new JSONString(scheduleEditorWizardPanel.getScheduleType().name()));  //$NON-NLS-1$
@@ -225,7 +222,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
 
-  @SuppressWarnings("deprecation")
   protected JSONObject getJsonComplexTrigger(ScheduleType scheduleType, MonthOfYear month, int dayOfMonth, Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     trigger.put("uiPassParam", new JSONString(scheduleEditorWizardPanel.getScheduleType().name()));  //$NON-NLS-1$

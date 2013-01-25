@@ -19,10 +19,9 @@ package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
-import org.pentaho.gwt.widgets.client.ui.ICallback;
-import org.pentaho.gwt.widgets.client.ui.IChangeHandler;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
+import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -51,7 +50,7 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
   private TextArea messageTextArea = new TextArea();
 
   private String filePath;
-  
+
   public ScheduleEmailWizardPanel(String filePath) {
     super();
     this.filePath = filePath;
@@ -63,11 +62,11 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
    * 
    */
   private void init() {
-    ICallback<IChangeHandler> chHandler = new ICallback<IChangeHandler>() {
-      public void onHandle(IChangeHandler se) {
-        panelWidgetChanged(ScheduleEmailWizardPanel.this);
-      }
-    };
+    // ICallback<IChangeHandler> chHandler = new ICallback<IChangeHandler>() {
+    // public void onHandle(IChangeHandler se) {
+    // panelWidgetChanged(ScheduleEmailWizardPanel.this);
+    // }
+    // };
     // scheduleEditor.setOnChangeHandler( chHandler );
   }
 
@@ -121,7 +120,7 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
     final FlexTable emailSchedulePanel = new FlexTable();
     emailSchedulePanel.setVisible(false);
     HorizontalPanel emailYesNoPanel = new HorizontalPanel();
-    emailYesNoPanel.add((new Label("Would you like to Email a copy when the schedule runs?")));
+    emailYesNoPanel.add((new Label(Messages.getString("wouldYouLikeToEmail"))));
     no.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         emailSchedulePanel.setVisible(!no.getValue());
@@ -138,40 +137,40 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
     emailYesNoPanel.add(yes);
     this.add(emailYesNoPanel, NORTH);
 
-    toAddressTextBox.setVisibleLength(70);
-    subjectTextBox.setVisibleLength(70);
-    attachmentNameTextBox.setVisibleLength(70);
-    
+    toAddressTextBox.setVisibleLength(75);
+    subjectTextBox.setVisibleLength(75);
+    attachmentNameTextBox.setVisibleLength(75);
+
     boolean hasExtension = filePath.lastIndexOf(".") != -1;
     String friendlyFileName = filePath.substring(filePath.lastIndexOf("/") + 1);
     if (hasExtension) {
       // remove it
       friendlyFileName = friendlyFileName.substring(0, friendlyFileName.lastIndexOf("."));
     }
-    subjectTextBox.setText(friendlyFileName + " schedule has successfully run.");
+    subjectTextBox.setText(Messages.getString("scheduleDefaultSubject", friendlyFileName));
     attachmentNameTextBox.setText(friendlyFileName);
-    
-    Label toLabel = new Label("To:");
+
+    Label toLabel = new Label(Messages.getString("toColon"));
     toLabel.setWidth("130px");
     toLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
     emailSchedulePanel.setWidget(0, 0, toLabel);
     ((FlexCellFormatter) emailSchedulePanel.getCellFormatter()).setWidth(0, 0, "130px");
     emailSchedulePanel.setWidget(0, 1, toAddressTextBox);
-    emailSchedulePanel.setWidget(1, 1, new Label("Use a semi-colon or comma to separate multiple email addresses."));
+    emailSchedulePanel.setWidget(1, 1, new Label(Messages.getString("scheduleAddressSeparatorMessage")));
 
-    Label subjectLabel = new Label("Subject:");
+    Label subjectLabel = new Label(Messages.getString("subjectColon"));
     subjectLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
     emailSchedulePanel.setWidget(2, 0, subjectLabel);
     emailSchedulePanel.setWidget(2, 1, subjectTextBox);
 
-    Label attachmentLabel = new Label("Attachment Name:");
+    Label attachmentLabel = new Label(Messages.getString("attachmentNameColon"));
     attachmentLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
     emailSchedulePanel.setWidget(3, 0, attachmentLabel);
     emailSchedulePanel.setWidget(3, 1, attachmentNameTextBox);
 
     messageTextArea.setVisibleLines(5);
     messageTextArea.setWidth("100%");
-    emailSchedulePanel.setWidget(4, 0, new Label("Message (optional):"));
+    emailSchedulePanel.setWidget(4, 0, new Label(Messages.getString("scheduleEmailMessage")));
     emailSchedulePanel.setWidget(5, 0, messageTextArea);
     ((FlexCellFormatter) emailSchedulePanel.getCellFormatter()).setColSpan(5, 0, 2);
 
@@ -180,18 +179,12 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
     panelWidgetChanged(null);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.pentaho.gwt.widgets.client.wizards.IWizardPanel#getName()
-   */
   public String getName() {
     // TODO Auto-generated method stub
     return MSGS.scheduleEdit();
   }
 
   protected void panelWidgetChanged(Widget changedWidget) {
-    // System.out.println("Widget Changed: " + changedWidget + " can continue: " + scheduleEditorValidator.isValid());
     this.setCanContinue(true);
     this.setCanFinish(true);
   }

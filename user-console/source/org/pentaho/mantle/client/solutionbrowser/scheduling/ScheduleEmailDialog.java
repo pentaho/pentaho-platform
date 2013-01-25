@@ -106,11 +106,6 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
           if (response.getStatusCode() == 200) {
             setDone(true);
             ScheduleEmailDialog.this.hide();
-            MessageDialogBox dialogBox = new MessageDialogBox(
-                Messages.getString("schedule"), Messages.getString("fileScheduled", filePath.substring(filePath.lastIndexOf("/") + 1)), //$NON-NLS-1$ //$NON-NLS-2$
-                false, false, true);
-            dialogBox.center();
-
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(
                 Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
@@ -119,7 +114,6 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
             setDone(false);
           }
         }
-
       });
     } catch (RequestException e) {
       MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
