@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2011 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  *
  *
  * @created Apr 12, 2011 
@@ -53,19 +53,19 @@ public class DirectoryResource extends AbstractJaxRSResource {
   @Consumes( { WILDCARD })
   public Response createDirs(@PathParam("pathId") String pathId) {
       String path = FileResource.idToPath(pathId);
-      String[] folders = path.split("[" + FileResource.PATH_SEPERATOR + "]");  //$NON-NLS-1$//$NON-NLS-2$
-      RepositoryFileDto parentDir = repoWs.getFile(FileResource.PATH_SEPERATOR);
+      String[] folders = path.split("[" + FileResource.PATH_SEPARATOR + "]");  //$NON-NLS-1$//$NON-NLS-2$
+      RepositoryFileDto parentDir = repoWs.getFile(FileResource.PATH_SEPARATOR);
       for (String folder : folders) {
-        String currentFolderPath = (parentDir.getPath() + FileResource.PATH_SEPERATOR + folder).substring(1);
-        if (!currentFolderPath.startsWith(FileResource.PATH_SEPERATOR)) {
-          currentFolderPath = FileResource.PATH_SEPERATOR + currentFolderPath;
+        String currentFolderPath = (parentDir.getPath() + FileResource.PATH_SEPARATOR + folder).substring(1);
+        if (!currentFolderPath.startsWith(FileResource.PATH_SEPARATOR)) {
+          currentFolderPath = FileResource.PATH_SEPARATOR + currentFolderPath;
         }
         RepositoryFileDto currentFolder = repoWs.getFile(currentFolderPath);
         if (currentFolder == null) {
           currentFolder = new RepositoryFileDto();
           currentFolder.setFolder(true);
           currentFolder.setName(folder);
-          currentFolder.setPath(parentDir.getPath() + FileResource.PATH_SEPERATOR + folder);
+          currentFolder.setPath(parentDir.getPath() + FileResource.PATH_SEPARATOR + folder);
           currentFolder = repoWs.createFolder(parentDir.getId(), currentFolder, currentFolderPath);
         }
         parentDir = currentFolder;

@@ -1,24 +1,20 @@
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.metadata.repository.DomainAlreadyExistsException;
-import org.pentaho.metadata.repository.DomainIdNullException;
-import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.plugin.services.importexport.StreamConverter;
+import org.pentaho.platform.plugin.services.importexport.Converter;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.springframework.util.Assert;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * User: nbaker
@@ -30,9 +26,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   private static final Log log = LogFactory.getLog(RepositoryFileImportFileHandler.class);
   private static final Messages messages = Messages.getInstance();
-  private Map<String, Serializable> parentIdCache = new HashMap<String, Serializable>();
-  private static StreamConverter converter = new StreamConverter();
-
+  private Map<String, Converter> converters;
   
   public void importFile(IPlatformImportBundle bnd) throws PlatformImportException {
 
@@ -40,39 +34,33 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       throw new PlatformImportException("Error importing bundle. RepositoryFileImportBundle expected");
     }
     RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) bnd;
-    // Make sure we don't try to do anything in a system-defined folder
-    final String repositoryFilePath = bundle.getPath();
+    String repositoryFilePath = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getName());
     log.trace("Processing [" + repositoryFilePath + "]");
-
-    // See if the destination already exists in the repository
+    
+    // Verify if destination already exists in the repository.
     final RepositoryFile file = repository.getFile(repositoryFilePath);
     if (file != null) {
-//      if (file.isFolder() != bundle.getFile().isFolder()) {
-//        log.warn("Entry already exists in the repository - but it is a " + (file.isFolder() ? "folder" : "file")
-//            + " and the entry to be imported is a " + (bundle.getFile().isFolder() ? "folder" : "file"));
-//      }
-
-      if (!bundle.overwriteInRepossitory()) {
-        log.trace("File already exists in repository and overwrite is false - skipping");
-      } else if (file.isFolder()) {
-        log.trace("Folder already exists - skip");
-      } else {
-        // It is a file we can overwrite...
-        log.trace("Updating...");
-        copyFileToRepository(bundle, repositoryFilePath, file);
-      }
+    	// If file exists, overwrite is true and is not a folder then update it.
+    	if(bundle.overwriteInRepossitory() && !file.isFolder()) {
+    		copyFileToRepository(bundle, repositoryFilePath, file);
+    	}
+    } else {
+        if (bundle.isFolder()) {
+          // The file doesn't exist and it is a folder. Create folder.
+          log.trace("Creating folder [" + repositoryFilePath + "]");
+          final Serializable parentId = getParentId(repositoryFilePath);
+          if (bundle.getAcl() != null) {
+            repository.createFolder(parentId, bundle.getFile(), bundle.getAcl(), null);
+          } else {
+            repository.createFolder(parentId, bundle.getFile(), null);
+          }
+        } else {
+          // The file doesn't exist. Create file.
+          log.trace("Creating file [" + repositoryFilePath + "]");
+          copyFileToRepository(bundle, repositoryFilePath, null);
+        }
     }
-
 }
-
-  protected String computeBundlePath(final RepositoryFileImportBundle bundle) {
-    String bundlePath = bundle.getPath();
-    bundlePath = RepositoryFilenameUtils.separatorsToRepository(bundlePath);
-    if (bundlePath.startsWith(RepositoryFile.SEPARATOR)) {
-      bundlePath = bundlePath.substring(1);
-    }
-    return bundlePath;
-  }
 
   /**
    * Copies the file bundle into the repository
@@ -101,9 +89,16 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     // Copy the file into the repository
     try {
       log.trace("copying file to repository: " + name);
+      
+      Converter converter = converters.get(ext);
+      if (converter == null) {
+          log.debug("Skipping file without converter: " + name);
+          return false;
+      }
+      
       IRepositoryFileData data = converter.convert(bundle.getInputStream(), bundle.getCharset(), mimeType);
       if (null == file) {
-        createFile(bundle, data);
+        createFile(bundle, repositoryPath, data);
       } else {
         repository.updateFile(file, data, bundle.getComment());
       }
@@ -120,10 +115,11 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    * @param bundle
    * @param data
    */
-  protected RepositoryFile createFile(final RepositoryFileImportBundle bundle,
+  protected RepositoryFile createFile(final RepositoryFileImportBundle bundle, 
+		  							  final String repositoryPath,
                                       final IRepositoryFileData data) {
     final RepositoryFile file = new RepositoryFile.Builder(bundle.getName()).hidden(bundle.isHidden()).title(RepositoryFile.ROOT_LOCALE, getTitle(bundle.getName())).versioned(true).build();
-    final Serializable parentId = getParentId(bundle.getPath());
+    final Serializable parentId = getParentId(repositoryPath);
     final RepositoryFileAcl acl = bundle.getAcl();
     if (null == acl) {
       return repository.createFile(parentId, file, data, bundle.getComment());
@@ -153,17 +149,11 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    */
   protected Serializable getParentId(final String repositoryPath) {
     Assert.notNull(repositoryPath);
-    Assert.notNull(parentIdCache);
-
     final String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(repositoryPath);
-    Serializable parentFileId = parentIdCache.get(parentPath);
-    if (parentFileId == null) {
-      final RepositoryFile parentFile = repository.getFile(parentPath);
-      Assert.notNull(parentFile);
-      parentFileId = parentFile.getId();
-      Assert.notNull(parentFileId);
-      parentIdCache.put(parentPath, parentFileId);
-    }
+    final RepositoryFile parentFile = repository.getFile(parentPath);
+    Assert.notNull(parentFile);
+    Serializable parentFileId = parentFile.getId();
+    Assert.notNull(parentFileId);
     return parentFileId;
   }
 
@@ -175,6 +165,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     this.repository = repository;
   }
 
- 
-
+  public void setConverters(Map<String, Converter> converters) {
+	this.converters = converters;
+  } 
 }
