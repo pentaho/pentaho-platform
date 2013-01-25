@@ -114,7 +114,8 @@ public class RepositoryImportResource {
 			} finally {
 				importLogger.endJob();
 			}
-			return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).entity("OK"+importLoggerStream.toString()).build();
+			//return Response.ok(Messages.getInstance().getString("FileResource.IMPORT_SUCCESS")).entity("OK"+importLoggerStream.toString()).build();
+			return Response.ok(importLoggerStream.toString(), MediaType.TEXT_HTML).build();
 	}
 
 	private void validateAccess() throws PentahoAccessControlException {
