@@ -93,7 +93,8 @@ public class ImportDialog extends PromptDialogBox {
         okButton.setEnabled(false);
         cancelButton.setEnabled(true);
         ImportDialog.this.hide();
-        Window.alert(sce.getResults());
+        logWindow(sce.getResults());
+        //Window.alert(sce.getResults());
       }
     });
 
@@ -176,6 +177,11 @@ public class ImportDialog extends PromptDialogBox {
 
     setContent(form);
   }
+  
+  private static native void logWindow(String innerText) /*-{
+  	var logWindow = window.open('', 'Import Results', 'width=640, height=480');
+    logWindow.document.write(innerText);
+  }-*/;
 
   private void setFormAction() {
     String moduleBaseURL = GWT.getModuleBaseURL();
