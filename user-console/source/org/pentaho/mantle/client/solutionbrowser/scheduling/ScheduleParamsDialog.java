@@ -19,13 +19,14 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleParamsWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.login.client.MantleLoginDialog;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.Request;
@@ -35,7 +36,8 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * @author wseyler
@@ -49,6 +51,9 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   
   ScheduleParamsWizardPanel scheduleParamsWizardPanel;
   NewScheduleDialog parentDialog;
+  
+  ScheduleEmailDialog scheduleEmailDialog;
+  
   String filePath;
   JSONObject jobSchedule;
 
@@ -61,6 +66,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     this.filePath = parentDialog.filePath;
     this.jobSchedule = parentDialog.getSchedule();
     initDialog();
+    finishButton.setText(Messages.getString("nextStep"));
   }
 
   public ScheduleParamsDialog(String filePath, JSONObject schedule) {
@@ -68,6 +74,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     this.filePath = filePath;
     this.jobSchedule = schedule;
     initDialog();
+    finishButton.setText(Messages.getString("nextStep"));
  }
   
   private void initDialog() {
@@ -98,50 +105,49 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onFinish() {
-    JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(jobSchedule.toString());
-    scheduleRequest.put("jobParameters", getScheduleParams()); //$NON-NLS-1$    
-
-    RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
-    scheduleFileRequestBuilder.setHeader("Content-Type", "application/json");  //$NON-NLS-1$//$NON-NLS-2$
-
-    try {
-      scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
-
-        @Override
-        public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
-          dialogBox.center();
-          setDone(false);
-        }
-
-        @Override
-        public void onResponseReceived(Request request, Response response) {
-          if (response.getStatusCode() == 200) {
-            setDone(true);
-            ScheduleParamsDialog.this.hide();
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("schedule"), Messages.getString("fileScheduled", filePath.substring(filePath.lastIndexOf("/") + 1)), //$NON-NLS-1$ //$NON-NLS-2$
-                false, false, true);
-            dialogBox.center();
-
-          } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
-                false, false, true);
-            dialogBox.center();
-            setDone(false);
-          }                
-        }
-        
-      });
-    } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
-          false, false, true);
-      dialogBox.center();
-      setDone(false);
-    }
-    setDone(true);
+    JSONArray scheduleParams = getScheduleParams();
+    hide();
+    showScheduleEmailDialog(scheduleParams);
     return true;
   }
 
+  private void showScheduleEmailDialog(final JSONArray scheduleParams) {
+
+    try {
+      final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable caught) {
+          MantleLoginDialog.performLogin(new AsyncCallback<Boolean>() {
+
+            public void onFailure(Throwable caught) {
+            }
+
+            public void onSuccess(Boolean result) {
+              showScheduleEmailDialog(scheduleParams);
+            }
+          });
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          if (scheduleEmailDialog == null) {
+            //JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(jobSchedule.toString());
+            //scheduleRequest.put("jobParameters", ()); //$NON-NLS-1$    
+            scheduleEmailDialog = new ScheduleEmailDialog(ScheduleParamsDialog.this, filePath, jobSchedule, scheduleParams);
+          }
+          scheduleEmailDialog.center();
+        }
+
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+    }
+
+  }  
+  
+  
   public Boolean getDone() {
     return done;
   }
@@ -166,7 +172,6 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   protected void backClicked() {
     hide();
     parentDialog.center();  
-    
   }
 
   @Override
@@ -195,11 +200,16 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     return true;
   }
 
-  @Override
   protected boolean showNext(int index) {
+    // TODO Auto-generated method stub
     return false;
   }
-
+  
+  @Override
+  protected boolean enableNext(int index) {
+    return false;
+  }  
+  
   @Override
   protected boolean enableBack(int index) {
     return true;

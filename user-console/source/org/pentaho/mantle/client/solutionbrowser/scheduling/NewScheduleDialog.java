@@ -29,7 +29,6 @@ import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.Year
 import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.ScheduleType;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
@@ -76,6 +75,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
   ScheduleEditorWizardPanel scheduleEditorWizardPanel;
   ScheduleParamsDialog scheduleParamsDialog;
+  ScheduleEmailDialog scheduleEmailDialog;
 
   Boolean done = false;
   boolean hasParams;
@@ -100,9 +100,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     this.setWizardPanels(wizardPanels);
     setPixelSize(475, 465);
     center();
-    if (hasParams) {
-    	finishButton.setText(Messages.getString("nextStep"));
-    }
+  	finishButton.setText(Messages.getString("nextStep"));
     setupExisting(jsJob);
   }
   
@@ -491,62 +489,19 @@ public class NewScheduleDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onFinish() {
+    JsJobTrigger trigger = getJsJobTrigger();
+    JSONObject schedule = getSchedule();
     if (hasParams) {
       hide();
-      showScheduleParamsDialog();
+      showScheduleParamsDialog(trigger);
     } else {
-      JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(getSchedule().toString());
-
-      RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
-      scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
-
-      try {
-        scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
-
-          @Override
-          public void onError(Request request, Throwable exception) {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
-            dialogBox.center();
-            setDone(false);
-          }
-
-          @Override
-          public void onResponseReceived(Request request, Response response) {
-            if (response.getStatusCode() == 200) {
-              setDone(true);
-              NewScheduleDialog.this.hide();
-              MessageDialogBox dialogBox = new MessageDialogBox(
-                  Messages.getString("schedule"), Messages.getString("fileScheduled", filePath.substring(filePath.lastIndexOf("/") + 1)), //$NON-NLS-1$ //$NON-NLS-2$
-                  false, false, true);
-              dialogBox.center();
-
-              if (callback != null){
-              	callback.okPressed();
-              }
-
-            } else {
-              MessageDialogBox dialogBox = new MessageDialogBox(
-                  Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
-                  false, false, true);
-              dialogBox.center();
-              setDone(false);
-            }
-          }
-
-        });
-      } catch (RequestException e) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
-            false, false, true);
-        dialogBox.center();
-        setDone(false);
-      }
-      setDone(true);
+      hide();
+      showScheduleEmailDialog(schedule);
     }
     return true;
   }
 
-  private void showScheduleParamsDialog() {
-
+  private void showScheduleEmailDialog(final JSONObject schedule) {
     try {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
@@ -560,7 +515,41 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             }
 
             public void onSuccess(Boolean result) {
-              showScheduleParamsDialog();
+              showScheduleEmailDialog(schedule);
+            }
+          });
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          if (scheduleEmailDialog == null) {
+            JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
+            scheduleEmailDialog = new ScheduleEmailDialog(NewScheduleDialog.this, filePath, scheduleRequest, null);
+          }
+          scheduleEmailDialog.center();
+        }
+
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+    }
+
+  }
+
+  private void showScheduleParamsDialog(final JsJobTrigger trigger) {
+    try {
+      final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable caught) {
+          MantleLoginDialog.performLogin(new AsyncCallback<Boolean>() {
+
+            public void onFailure(Throwable caught) {
+            }
+
+            public void onSuccess(Boolean result) {
+              showScheduleParamsDialog(trigger);
             }
           });
         }
@@ -569,7 +558,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
           if (scheduleParamsDialog == null) {
             scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this);
           }
-          JsJobTrigger trigger = getJsJobTrigger();
           scheduleParamsDialog.setScheduleDescription(trigger.getDescription());
           scheduleParamsDialog.center();
         }
