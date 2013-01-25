@@ -18,6 +18,7 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStrea
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.util.web.MimeHelper;
 
+@SuppressWarnings("serial")
 public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamProvider, IRepositoryFileOutputStreamListener {
 
   public String outputFilePath;
