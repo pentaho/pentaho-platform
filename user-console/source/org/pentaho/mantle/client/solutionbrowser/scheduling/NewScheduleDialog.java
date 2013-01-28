@@ -554,7 +554,10 @@ public class NewScheduleDialog extends AbstractWizardDialog {
           if (scheduleParamsDialog == null) {
             scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this);
           }
-          scheduleParamsDialog.setScheduleDescription(trigger.getDescription());
+          if (trigger.getDescription() != null) {
+            String description = Messages.getString("scheduleWillRun", trigger.getDescription().toLowerCase());
+            scheduleParamsDialog.setScheduleDescription(description);
+          }
           scheduleParamsDialog.center();
         }
 
