@@ -25,9 +25,9 @@ public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
 	}
 
 	public void endJob() {
+	  getLog4JRepositoryImportLog().setCurrentFilePath(
+	      getLog4JRepositoryImportLog().getImportRootPath());
 		getLogger().info("End Import Job");
-		getLog4JRepositoryImportLog().setCurrentFilePath(
-				getLog4JRepositoryImportLog().getImportRootPath());
 		getLog4JRepositoryImportLog().EndJob();
 	}
 
