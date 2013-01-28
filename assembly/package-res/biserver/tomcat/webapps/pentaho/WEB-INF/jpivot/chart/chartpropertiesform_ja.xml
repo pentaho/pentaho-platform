@@ -266,7 +266,8 @@
   <td>グラフの高さ</td>
   <td>
    <textField type="posint" modelReference="chartHeight" size="5" title="ピクセルで高さを入力 - 初期値 300"/>
-   &#160;&#160;&#160;グラフ幅
+   &#160;&#160;&#160;グラフ幅
+
    <textField type="posint" modelReference="chartWidth" size="5" title="ピクセルで幅を入力 - 初期値 500"/>
   </td>
  </tr>

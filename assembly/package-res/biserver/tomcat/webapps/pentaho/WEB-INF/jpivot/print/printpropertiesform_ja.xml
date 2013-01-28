@@ -62,7 +62,8 @@
   </td>
  </tr>
   <tr >
-   <td colspan="2" align="left">グラフを分ける
+   <td colspan="2" align="left">グラフを分ける
+
    <checkBox modelReference="chartPageBreak"/>
    </td>
   </tr>
