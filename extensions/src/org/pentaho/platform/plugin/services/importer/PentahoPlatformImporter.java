@@ -84,6 +84,9 @@ public class PentahoPlatformImporter implements IPlatformImporter {
   private void logImportFile(IPlatformImportBundle file) {
     RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;	
 	String repositoryFilePath = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getName());
+	if(bundle.getMimeType().equals("application/vnd.pentaho.solution-repository")) {
+		return;
+	}
 	repositoryImportLogger.setCurrentFilePath(repositoryFilePath);
   }
   

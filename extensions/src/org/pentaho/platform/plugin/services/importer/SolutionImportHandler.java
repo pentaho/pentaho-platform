@@ -87,7 +87,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				bundleInputStream = file.getInputStream();
 				bundleBuilder.input(bundleInputStream);
 				bundleBuilder.mime(mimeResolver.resolveMimeForFileName(fileName));
-				repositoryFilePath = RepositoryFilenameUtils.concat(importBundle.getPath(), file.getPath());
+				String filePath = (file.getPath().equals("/") || file.getPath().equals("\\")) ? "" : file.getPath();
+				repositoryFilePath = RepositoryFilenameUtils.concat(importBundle.getPath(), filePath);
 			}
 
 			bundleBuilder.name(fileName);
