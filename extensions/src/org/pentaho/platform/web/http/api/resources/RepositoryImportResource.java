@@ -99,7 +99,7 @@ public class RepositoryImportResource {
 				IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
 				importLogger = importer.getRepositoryImportLogger();
 				
-				importLogger.startJob(importLoggerStream, "/import/Path"); 
+				importLogger.startJob(importLoggerStream, uploadDir); 
 				importer.importFile(bundle);
 	
 				// Flush the Mondrian cache to show imported datasources.
