@@ -68,7 +68,6 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#finish()
    */
   @Override
