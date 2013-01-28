@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it under the 
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
@@ -1326,4 +1325,3 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   }
 
 }
->>>>>>> de8744337ac191242bc8e037c83a17e3b02252b5
