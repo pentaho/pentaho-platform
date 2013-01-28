@@ -225,8 +225,8 @@ not directly from the PentahoObjectFactory. -->
   <bean id="ITenant" class="org.pentaho.platform.core.mt.Tenant" scope="prototype"/>
 
     <util:map id="convertersMap">
-        <entry key="kjb" value-ref="streamToJobNodeConverter"/>
-        <entry key="ktr" value-ref="streamToTransNodeConverter"/>
+        <entry key="kjb" value-ref="streamConverter"/>
+        <entry key="ktr" value-ref="streamConverter"/>
         <entry key="prpt" value-ref="streamConverter"/>
         <entry key="prpti" value-ref="streamConverter"/>
         <entry key="mondrian.xml" value-ref="streamConverter"/>

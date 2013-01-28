@@ -41,25 +41,24 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * @author wseyler
- *
+ * 
  */
 public class ScheduleParamsDialog extends AbstractWizardDialog {
   FileItem fileItem = null;
   String moduleBaseURL = GWT.getModuleBaseURL();
   String moduleName = GWT.getModuleName();
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-  
+
   ScheduleParamsWizardPanel scheduleParamsWizardPanel;
   NewScheduleDialog parentDialog;
-  
+
   ScheduleEmailDialog scheduleEmailDialog;
-  
+
   String filePath;
   JSONObject jobSchedule;
 
   Boolean done = false;
- 
-  
+
   public ScheduleParamsDialog(NewScheduleDialog parentDialog) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     this.parentDialog = parentDialog;
@@ -75,22 +74,22 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     this.jobSchedule = schedule;
     initDialog();
     finishButton.setText(Messages.getString("nextStep"));
- }
-  
+  }
+
   private void initDialog() {
     scheduleParamsWizardPanel = new ScheduleParamsWizardPanel(filePath);
-    IWizardPanel[] wizardPanels = {scheduleParamsWizardPanel};
+    IWizardPanel[] wizardPanels = { scheduleParamsWizardPanel };
     this.setWizardPanels(wizardPanels);
     setPixelSize(800, 465);
     String urlPath = filePath.replaceAll("/", ":"); //$NON-NLS-1$  //$NON-NLS-2$
     setParametersUrl("api/repos/" + urlPath + "/parameterUi"); //$NON-NLS-1$ //$NON-NLS-2$
     wizardDeckPanel.setHeight("100%"); //$NON-NLS-1$
-   }
-  
+  }
+
   void setScheduleDescription(String description) {
     scheduleParamsWizardPanel.setScheduleDescription(description);
   }
-  
+
   JSONArray getScheduleParams() {
     JsArray<JsSchedulingParameter> schedulingParams = scheduleParamsWizardPanel.getParams();
     JSONArray params = new JSONArray();
@@ -99,8 +98,10 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     }
     return params;
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#finish()
    */
   @Override
@@ -133,7 +134,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
 
         public void onResponseReceived(Request request, Response response) {
           if (scheduleEmailDialog == null) {
-            //JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(jobSchedule.toString());
+            // JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(jobSchedule.toString());
             //scheduleRequest.put("jobParameters", ()); //$NON-NLS-1$    
             scheduleEmailDialog = new ScheduleEmailDialog(ScheduleParamsDialog.this, filePath, jobSchedule, scheduleParams);
           }
@@ -145,9 +146,8 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
       Window.alert(e.getMessage());
     }
 
-  }  
-  
-  
+  }
+
   public Boolean getDone() {
     return done;
   }
@@ -156,8 +156,11 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     this.done = done;
   }
 
-  /* (non-Javadoc)
-   * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onNext(org.pentaho.gwt.widgets.client.wizards.IWizardPanel, org.pentaho.gwt.widgets.client.wizards.IWizardPanel)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onNext(org.pentaho.gwt.widgets.client.wizards.IWizardPanel,
+   * org.pentaho.gwt.widgets.client.wizards.IWizardPanel)
    */
   @Override
   protected boolean onNext(IWizardPanel nextPanel, IWizardPanel previousPanel) {
@@ -165,13 +168,16 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     return true;
   }
 
-  /* (non-Javadoc)
-   * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onPrevious(org.pentaho.gwt.widgets.client.wizards.IWizardPanel, org.pentaho.gwt.widgets.client.wizards.IWizardPanel)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog#onPrevious(org.pentaho.gwt.widgets.client.wizards.IWizardPanel,
+   * org.pentaho.gwt.widgets.client.wizards.IWizardPanel)
    */
   @Override
   protected void backClicked() {
     hide();
-    parentDialog.center();  
+    parentDialog.center();
   }
 
   @Override
@@ -204,12 +210,12 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     // TODO Auto-generated method stub
     return false;
   }
-  
+
   @Override
   protected boolean enableNext(int index) {
     return false;
-  }  
-  
+  }
+
   @Override
   protected boolean enableBack(int index) {
     return true;
