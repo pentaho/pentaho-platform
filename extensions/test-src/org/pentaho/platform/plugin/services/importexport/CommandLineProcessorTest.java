@@ -18,10 +18,10 @@
  */
 package org.pentaho.platform.plugin.services.importexport;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
-
-import junit.framework.TestCase;
 
 /**
  * Class Description
@@ -61,9 +61,6 @@ public class CommandLineProcessorTest extends TestCase {
     assertNull(CommandLineProcessor.getException());
 
     CommandLineProcessor.main(toStringArray(VALID_IMPORT_COMMAND_LINE.replace(VALID_URL_OPTION, "")));
-    assertEquals(ParseException.class, CommandLineProcessor.getException().getClass());
-
-    CommandLineProcessor.main(toStringArray(VALID_IMPORT_COMMAND_LINE.replace(FILE_SYSTEM_SOURCE_OPTION, "--source=unknown")));
     assertEquals(ParseException.class, CommandLineProcessor.getException().getClass());
 
     CommandLineProcessor.main(toStringArray(VALID_IMPORT_LEGACY_COMMAND_LINE.replace(VALID_LEGACY_DB_CHARSET_OPTION, "")));
