@@ -84,6 +84,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.VerticalSplitPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+@SuppressWarnings("deprecation")
 public class SolutionBrowserPanel extends HorizontalPanel {
 
   private static final String defaultSplitPosition = "220px"; //$NON-NLS-1$
@@ -484,9 +485,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
-            @SuppressWarnings("deprecation")
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("repositoryFileDto", (JSONObject) JSONParser.parse(response.getText()));
+            jsonObject.put("repositoryFileDto", (JSONObject) JSONParser.parseLenient(response.getText()));
             RepositoryFile repositoryFile = new RepositoryFile(jsonObject);
             openFile(repositoryFile, mode);
           } else {
@@ -566,7 +566,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
-            @SuppressWarnings("deprecation")
             JSONObject jsonObject = (JSONObject) JSONParser.parse(response.getText());
             JSONArray jsonList = (JSONArray) jsonObject.get("executableFileTypeDto");
             for (int i = 0; i < jsonList.size(); i++) {
@@ -739,7 +738,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   public void setNavigatorShowing(final boolean showSolutionBrowser) {
-    boolean prevVal = this.showSolutionBrowser;
     this.showSolutionBrowser = showSolutionBrowser;
     if (showSolutionBrowser) {
       solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);

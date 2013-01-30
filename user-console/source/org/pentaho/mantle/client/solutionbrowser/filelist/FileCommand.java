@@ -36,11 +36,11 @@ import org.pentaho.mantle.client.commands.RunInBackgroundCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
 import org.pentaho.mantle.client.solutionbrowser.IRepositoryFileProvider;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickItem;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.FavoritePickList;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog.Tabs;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.ScheduleHelper;
+
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 
