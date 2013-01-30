@@ -95,8 +95,11 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 			bundleBuilder.path(repositoryFilePath);
 			bundleBuilder.acl(processAclForFile(repositoryFilePath, fileName));
 			bundleBuilder.charSet(bundle.getCharset());
-			bundleBuilder.overwrite(bundle.overwriteInRepossitory());
+			bundleBuilder.overwriteFile(bundle.overwriteInRepossitory());
 			bundleBuilder.hidden(isBlackListed(fileName));
+			bundleBuilder.applyAclSettings(bundle.isApplyAclSettings());
+			bundleBuilder.retainOwnership(bundle.isRetainOwnership());
+			bundleBuilder.overwriteAclSettings(bundle.isOverwriteAclSettings());
 			IPlatformImportBundle platformImportBundle = bundleBuilder.build();
 			importer.importFile(platformImportBundle);
 
