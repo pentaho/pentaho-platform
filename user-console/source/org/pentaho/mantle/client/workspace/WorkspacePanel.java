@@ -1,3 +1,19 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this 
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html 
+ * or from the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ */
 package org.pentaho.mantle.client.workspace;
 
 import java.util.ArrayList;
@@ -16,7 +32,6 @@ import org.pentaho.mantle.client.commands.RefreshWorkspaceCommand;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.GeneratedContentPanel;
-import org.pentaho.mantle.client.solutionbrowser.scheduling.NewScheduleDialog;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
@@ -705,8 +720,8 @@ public class WorkspacePanel extends SimplePanel {
 
               public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_OK) {
-                	JsJob jsJob = parseJsonJob(JsonUtils.escapeJsonForEval(response.getText()));
-                	final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, false);
+                	//JsJob jsJob = parseJsonJob(JsonUtils.escapeJsonForEval(response.getText()));
+                	//final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, false);
                 } else {
                   MessageDialogBox dialogBox = new MessageDialogBox(
                       Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$

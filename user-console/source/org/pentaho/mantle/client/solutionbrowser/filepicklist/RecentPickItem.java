@@ -19,7 +19,6 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.filepicklist;
 
-import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;

@@ -38,6 +38,8 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 @XmlRootElement
 public class EmailConfigurationXml extends EmailConfiguration {
 
+  private static final long serialVersionUID = -3938443547757985845L;
+  
   private static final String ROOT_ELEMENT = "email-smtp";  //$NON-NLS-1$
   private static final String PASSWORD_XPATH = ROOT_ELEMENT + "/mail.password";  //$NON-NLS-1$
   private static final String AUTHENTICATE_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.auth";  //$NON-NLS-1$

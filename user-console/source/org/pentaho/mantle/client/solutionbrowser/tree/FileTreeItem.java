@@ -16,6 +16,7 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.tree;
 
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
@@ -36,7 +37,7 @@ public class FileTreeItem extends TreeItem {
    * @param string
    */
   public FileTreeItem(String string) {
-    super(string);
+    super((new SafeHtmlBuilder()).appendEscaped(string).toSafeHtml());
     getElement().setId(string);
   }
 

@@ -28,18 +28,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailService;
 
 @Path("/emailconfig/")
 public class EmailResource extends AbstractJaxRSResource {
-
-	/**
-	 * The logger for this class
-	 */
-	private static final Log logger = LogFactory.getLog(EmailResource.class);
 
 	private EmailService emailService = null;
 
@@ -98,4 +91,18 @@ public class EmailResource extends AbstractJaxRSResource {
 	public String sendEmailTest(EmailConfiguration emailConfiguration) throws Exception {
 		return emailService.sendEmailTest(emailConfiguration);
 	}
+	
+  @GET
+  @Path("/isValid")
+  @Produces({ MediaType.TEXT_PLAIN })
+  public Response isValid() {
+    try {
+      if (emailService.isValid()) {
+        return Response.ok("true").build();
+      }
+    } catch (Exception e) {
+    }
+    return Response.ok("false").build();
+  }	
+	
 }

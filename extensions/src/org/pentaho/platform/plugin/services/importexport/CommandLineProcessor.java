@@ -28,10 +28,8 @@ import java.net.URL;
 
 import javax.sql.DataSource;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
