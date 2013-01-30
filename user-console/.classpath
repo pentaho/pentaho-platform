@@ -28,4 +28,4 @@
 	<classpathentry kind="lib" path="codegen-lib/validation-api-1.0.0.GA-sources.jar"/>
 	<classpathentry kind="lib" path="codegen-lib/validation-api-1.0.0.GA.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
-</classpath>
+</classpath> 
