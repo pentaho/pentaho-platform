@@ -29,9 +29,10 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.pentaho.platform.api.email.IEmailConfiguration;
+import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.config.DtdEntityResolver;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.api.util.XmlParseException;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
 
@@ -154,7 +155,7 @@ public class EmailConfigurationXml extends EmailConfiguration {
     return EmailConfigurationXml.getDocument(this);
   }
 
-  public static Document getDocument(final EmailConfiguration emailConfiguration) {
+  public static Document getDocument(final IEmailConfiguration emailConfiguration) {
     final Document document = DocumentHelper.createDocument();
     document.addElement(ROOT_ELEMENT);
     setValue(document, SMTP_HOST_XPATH, ObjectUtils.toString(emailConfiguration.getSmtpHost()));

@@ -28,70 +28,83 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.pentaho.platform.api.email.IEmailConfiguration;
+import org.pentaho.platform.api.email.IEmailService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailService;
 
 @Path("/emailconfig/")
 public class EmailResource extends AbstractJaxRSResource {
 
-	private EmailService emailService = null;
+  private IEmailService emailService = null;
 
-	/**
-	 * Constructs an instance of this class using the default email service
-	 * 
-	 * @throws IllegalArgumentException
-	 *             Indicates that the default location for the email
-	 *             configuration file is invalid
-	 */
-	public EmailResource() throws IllegalArgumentException {
-		this(new EmailService());
-	}
+  /**
+   * Constructs an instance of this class using the default email service
+   * 
+   * @throws IllegalArgumentException
+   *           Indicates that the default location for the email configuration file is invalid
+   */
+  public EmailResource() throws IllegalArgumentException {
+    try {
+      emailService = PentahoSystem.get(IEmailService.class, "IEmailService", PentahoSessionHolder.getSession());
+    } catch (RuntimeException ex) {
+      //create default
+      emailService = new EmailService();
+    }
+    init(emailService);
+  }
 
-	/**
-	 * Constructs an instance of this class using the default email service
-	 * 
-	 * @throws IllegalArgumentException
-	 *             Indicates that the default location for the email
-	 *             configuration file is invalid
-	 */
-	public EmailResource(final EmailService emailService) throws IllegalArgumentException {
-		if (emailService == null) {
-			throw new IllegalArgumentException();
-		}
-		this.emailService = emailService;
-	}
+  /**
+   * Constructs an instance of this class using the default email service
+   * 
+   * @throws IllegalArgumentException
+   *           Indicates that the default location for the email configuration file is invalid
+   */
+  public EmailResource(final IEmailService emailService) throws IllegalArgumentException {
+    init(emailService);
+  }
+  
+  private void init(final IEmailService emailService) {
+    if (emailService == null) {
+      throw new IllegalArgumentException();
+    }
+    this.emailService = emailService;
+  }
+  
 
-	@PUT
-	@Path("/setEmailConfig")
-	@Consumes({ MediaType.APPLICATION_JSON })
-	public Response setEmailConfig(EmailConfiguration emailConfiguration) {
-		try {
-			emailService.setEmailConfig(emailConfiguration);
-		} catch (Exception e) {
-			return Response.serverError().build();
-		}
-		return Response.ok().build();
-	}
+  @PUT
+  @Path("/setEmailConfig")
+  @Consumes({ MediaType.APPLICATION_JSON })
+  public Response setEmailConfig(EmailConfiguration emailConfiguration) {
+    try {
+      emailService.setEmailConfig(emailConfiguration);
+    } catch (Exception e) {
+      return Response.serverError().build();
+    }
+    return Response.ok().build();
+  }
 
-	@GET
-	@Path("/getEmailConfig")
-	@Produces({ MediaType.APPLICATION_JSON })
-	public EmailConfiguration getEmailConfig() {
-		try {
-			return emailService.getEmailConfig();
-		} catch (Exception e) {
-			return new EmailConfiguration();
-		}
-	}
+  @GET
+  @Path("/getEmailConfig")
+  @Produces({ MediaType.APPLICATION_JSON })
+  public IEmailConfiguration getEmailConfig() {
+    try {
+      return emailService.getEmailConfig();
+    } catch (Exception e) {
+      return new EmailConfiguration();
+    }
+  }
 
-	@PUT
-	@Path("/sendEmailTest")
-	@Consumes({ MediaType.APPLICATION_JSON })
-	@Produces({ MediaType.TEXT_PLAIN })
-	public String sendEmailTest(EmailConfiguration emailConfiguration) throws Exception {
-		return emailService.sendEmailTest(emailConfiguration);
-	}
-	
+  @PUT
+  @Path("/sendEmailTest")
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.TEXT_PLAIN })
+  public String sendEmailTest(EmailConfiguration emailConfiguration) throws Exception {
+    return emailService.sendEmailTest(emailConfiguration);
+  }
+
   @GET
   @Path("/isValid")
   @Produces({ MediaType.TEXT_PLAIN })
@@ -103,6 +116,6 @@ public class EmailResource extends AbstractJaxRSResource {
     } catch (Exception e) {
     }
     return Response.ok("false").build();
-  }	
-	
+  }
+
 }

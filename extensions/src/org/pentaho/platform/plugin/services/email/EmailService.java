@@ -35,6 +35,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
+import org.pentaho.platform.api.email.IEmailConfiguration;
+import org.pentaho.platform.api.email.IEmailService;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
@@ -45,7 +47,7 @@ import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
  * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
-public class EmailService {
+public class EmailService implements IEmailService {
   /**
    * Messages class
    */
@@ -98,7 +100,7 @@ public class EmailService {
     setEmailConfigFile(emailConfigFile);
   }
 
-  public void setEmailConfig(final EmailConfiguration emailConfiguration) throws Exception {
+  public void setEmailConfig(final IEmailConfiguration emailConfiguration) {
     if (emailConfiguration == null) {
       throw new IllegalArgumentException(messages.getErrorString("EmailService.ERROR_0002_NULL_CONFIGURATION"));
     }
@@ -112,7 +114,6 @@ public class EmailService {
         fileOutputStream.close();
       } catch (IOException e) {
         logger.error(messages.getErrorString("EmailService.ERROR_0003_ERROR_CREATING_EMAIL_CONFIG_FILE", e.getLocalizedMessage()));
-        throw new Exception(); // TODO
       }
     }
   }
@@ -144,7 +145,7 @@ public class EmailService {
    * @throws Exception
    *           indicates an error running the test (as in an invalid configuration)
    */
-  public String sendEmailTest(final EmailConfiguration emailConfig) throws Exception {
+  public String sendEmailTest(final IEmailConfiguration emailConfig) {
     final Properties emailProperties = new Properties();
     emailProperties.setProperty("mail.smtp.host", emailConfig.getSmtpHost());
     emailProperties.setProperty("mail.smtp.port", ObjectUtils.toString(emailConfig.getSmtpPort()));

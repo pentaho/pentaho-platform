@@ -111,7 +111,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
         SimpleJobTrigger simpleJobTrigger = scheduleRequest.getSimpleJobTrigger();
         if (simpleJobTrigger.getStartTime() == null) {
           simpleJobTrigger.setStartTime(new Date());
-          simpleJobTrigger.setUiPassParam(scheduleRequest.getCronJobTrigger().getUiPassParam());
+          //simpleJobTrigger.setUiPassParam(scheduleRequest.getCronJobTrigger().getUiPassParam());
         }
         jobTrigger = simpleJobTrigger;
       } else if (scheduleRequest.getComplexJobTrigger() != null) {
