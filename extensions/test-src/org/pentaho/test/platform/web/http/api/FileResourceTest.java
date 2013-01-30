@@ -614,9 +614,9 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
   /**
    * Logs in with given username.
    *
-   * @param username
-   * @param tenant
-   * @param roles
+   * @param username username of user
+   * @param tenant tenant to which this user belongs
+   * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
   protected void login(final String username, final ITenant tenant, String[] roles) {
     StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
@@ -642,9 +642,9 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
   /**
    * Logs in with given username.
    *
-   * @param username
-   * @param tenant
-   * @param tenantAdmin
+   * @param username username of user
+   * @param tenant tenant to which this user belongs
+   * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
   protected void login(final String username, final ITenant tenant, final boolean tenantAdmin) {
     StandaloneSession pentahoSession = new StandaloneSession(username);
