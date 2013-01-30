@@ -28,8 +28,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.email.IEmailService;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
@@ -37,8 +40,13 @@ import org.pentaho.platform.plugin.services.email.EmailService;
 
 @Path("/emailconfig/")
 public class EmailResource extends AbstractJaxRSResource {
+  /**
+   * The logger for this class
+   */
+  private static final Log logger = LogFactory.getLog(EmailResource.class);
 
   private IEmailService emailService = null;
+  private IAuthorizationPolicy policy;
 
   /**
    * Constructs an instance of this class using the default email service
@@ -50,7 +58,7 @@ public class EmailResource extends AbstractJaxRSResource {
     try {
       emailService = PentahoSystem.get(IEmailService.class, "IEmailService", PentahoSessionHolder.getSession());
     } catch (RuntimeException ex) {
-      //create default
+      // create default
       emailService = new EmailService();
     }
     init(emailService);
@@ -65,23 +73,29 @@ public class EmailResource extends AbstractJaxRSResource {
   public EmailResource(final IEmailService emailService) throws IllegalArgumentException {
     init(emailService);
   }
-  
+
   private void init(final IEmailService emailService) {
     if (emailService == null) {
       throw new IllegalArgumentException();
     }
     this.emailService = emailService;
+    try {
+      policy = PentahoSystem.get(IAuthorizationPolicy.class);
+    } catch (Exception ex) {
+      logger.warn("Unable to get IAuthorizationPolicy: " + ex.getMessage());
+    }
   }
-  
 
   @PUT
   @Path("/setEmailConfig")
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response setEmailConfig(EmailConfiguration emailConfiguration) {
-    try {
-      emailService.setEmailConfig(emailConfiguration);
-    } catch (Exception e) {
-      return Response.serverError().build();
+    if (policy == null || policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+      try {
+        emailService.setEmailConfig(emailConfiguration);
+      } catch (Exception e) {
+        return Response.serverError().build();
+      }
     }
     return Response.ok().build();
   }
@@ -90,9 +104,13 @@ public class EmailResource extends AbstractJaxRSResource {
   @Path("/getEmailConfig")
   @Produces({ MediaType.APPLICATION_JSON })
   public IEmailConfiguration getEmailConfig() {
-    try {
-      return emailService.getEmailConfig();
-    } catch (Exception e) {
+    if (policy == null || policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+      try {
+        return emailService.getEmailConfig();
+      } catch (Exception e) {
+        return new EmailConfiguration();
+      }
+    } else {
       return new EmailConfiguration();
     }
   }

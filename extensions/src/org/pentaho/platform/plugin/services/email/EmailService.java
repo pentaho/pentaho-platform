@@ -37,7 +37,6 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.email.IEmailService;
-import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.util.xml.dom4j.XmlDom4JHelper;
@@ -68,8 +67,6 @@ public class EmailService implements IEmailService {
    */
   private File emailConfigFile;
 
-  protected IAuthorizationPolicy policy;
-
   /**
    * Constructs an instance of this class using the default settings location as defined by PentahoSystem
    * 
@@ -78,11 +75,6 @@ public class EmailService implements IEmailService {
    */
   public EmailService() throws IllegalArgumentException {
     logger.debug("Using the default email configuration filename [" + DEFAULT_EMAIL_CONFIG_PATH + "]");
-    try {
-      policy = PentahoSystem.get(IAuthorizationPolicy.class);
-    } catch (Exception ex) {
-      logger.warn("Unable to get IAuthorizationPolicy: " + ex.getMessage());
-    }
     final String emailConfigFilePath = PentahoSystem.getApplicationContext().getSolutionPath(DEFAULT_EMAIL_CONFIG_PATH);
     logger.debug("System converted default email configuration filename to [" + emailConfigFilePath + "]");
     setEmailConfigFile(new File(emailConfigFilePath));
@@ -105,16 +97,14 @@ public class EmailService implements IEmailService {
       throw new IllegalArgumentException(messages.getErrorString("EmailService.ERROR_0002_NULL_CONFIGURATION"));
     }
 
-    if (policy == null || policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
-      final Document document = EmailConfigurationXml.getDocument(emailConfiguration);
-      try {
-        emailConfigFile.createNewFile();
-        final FileOutputStream fileOutputStream = new FileOutputStream(emailConfigFile);
-        XmlDom4JHelper.saveDom(document, fileOutputStream, "UTF-8");
-        fileOutputStream.close();
-      } catch (IOException e) {
-        logger.error(messages.getErrorString("EmailService.ERROR_0003_ERROR_CREATING_EMAIL_CONFIG_FILE", e.getLocalizedMessage()));
-      }
+    final Document document = EmailConfigurationXml.getDocument(emailConfiguration);
+    try {
+      emailConfigFile.createNewFile();
+      final FileOutputStream fileOutputStream = new FileOutputStream(emailConfigFile);
+      XmlDom4JHelper.saveDom(document, fileOutputStream, "UTF-8");
+      fileOutputStream.close();
+    } catch (IOException e) {
+      logger.error(messages.getErrorString("EmailService.ERROR_0003_ERROR_CREATING_EMAIL_CONFIG_FILE", e.getLocalizedMessage()));
     }
   }
 
@@ -124,14 +114,10 @@ public class EmailService implements IEmailService {
    * @return
    */
   public EmailConfiguration getEmailConfig() {
-    if (policy == null || policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
-      try {
-        return new EmailConfigurationXml(emailConfigFile);
-      } catch (Exception e) {
-        logger.error(messages.getErrorString("EmailService.ERROR_0004_LOADING_EMAIL_CONFIG_FILE", e.getLocalizedMessage()));
-        return new EmailConfiguration();
-      }
-    } else {
+    try {
+      return new EmailConfigurationXml(emailConfigFile);
+    } catch (Exception e) {
+      logger.error(messages.getErrorString("EmailService.ERROR_0004_LOADING_EMAIL_CONFIG_FILE", e.getLocalizedMessage()));
       return new EmailConfiguration();
     }
   }
