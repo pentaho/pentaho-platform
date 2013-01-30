@@ -100,22 +100,25 @@ public class ImportDialog extends PromptDialogBox {
     rootPanel.add(importLocationLabel);
 
     //HorizontalPanel hpanel = new HorizontalPanel(); 
-    permission = new CheckBox(Messages.getString("permission"), true);
-    permission.setName("ignoreACLS");
+    permission = new CheckBox(Messages.getString("applyAclPermissions"), true);
+    permission.setName("applyAclPermissions");
     permission.setValue(Boolean.TRUE);
-    permission.setFormValue("false");
+    permission.setFormValue("true");
     ClickHandler phandler = new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
-        permission.setFormValue(permission.getValue() ? "false" : "true");//passes ignoreACL
+        permission.setFormValue(permission.getValue() ? "true" : "false");
         overwrite.setFormValue(overwrite.getValue() ? "true" : "false");
         overwrite.setEnabled(permission.getValue() ? true : false);
+        if(!permission.getValue()){
+          overwrite.setFormValue("false");
+        }
       }
     };
     permission.addClickHandler(phandler);
     
-    overwrite = new CheckBox(Messages.getString("overwrite"), true);
-    overwrite.setName("overwrite");
+    overwrite = new CheckBox(Messages.getString("overwriteAclPermissions"), true);
+    overwrite.setName("overwriteAclPermissions");
     overwrite.setFormValue("true");
     overwrite.setEnabled(true);
     overwrite.setValue(Boolean.TRUE);

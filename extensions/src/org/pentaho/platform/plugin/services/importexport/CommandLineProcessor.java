@@ -83,7 +83,7 @@ public class CommandLineProcessor {
   private IUnifiedRepository repository;
 
   private static enum RequestType {
-    HELP, IMPORT, EXPORT
+    HELP, IMPORT, EXPORT, REST
   }
 
   private static boolean useRestService = true;
@@ -122,8 +122,13 @@ public class CommandLineProcessor {
     options.addOption("lpass", "legacy-db-password", true, "legacy database repository password");
     options.addOption("lchar", "legacy-db-charset", true, "legacy database repository character-set");
 
+  
     // Legacy Service
-    options.addOption("r", "rest", true, "Use the REST (Default) version (not local to BI Server)");
+    options.addOption("s", "legacy", true, "If True - Use the legacy import/export on local to BI Server)");
+   
+    //rest services
+    options.addOption("r", "rest", false, "Use the REST (Default) version (not local to BI Server)");
+    options.addOption("v", "service", true, "this is the REST service call e.g. acl, children, properties");
 
   }
 
@@ -141,9 +146,9 @@ public class CommandLineProcessor {
       exception = null;
 
       final CommandLineProcessor commandLineProcessor = new CommandLineProcessor(args);
-      String rest = commandLineProcessor.getOptionValue("rest", false, true);
+      String legacy = commandLineProcessor.getOptionValue("legacy", false, true);
       logFile = commandLineProcessor.getOptionValue("logfile",false,true);
-      useRestService = "false".equals(rest) ? false : true;// default to new REST version if not provided
+      useRestService = "false".equals(legacy) ? false : true;// default to new REST version if not provided
       // new service only
       switch (commandLineProcessor.getRequestType()) {
         case HELP:
@@ -157,6 +162,9 @@ public class CommandLineProcessor {
         case EXPORT:
           commandLineProcessor.performExport();
           break;
+        case REST:
+          commandLineProcessor.performREST();
+          break;
       }
     } catch (ParseException parseException) {
       exception = parseException;
@@ -164,8 +172,57 @@ public class CommandLineProcessor {
       printHelp();
     } catch (Exception e) {
       exception = e;
-      e.printStackTrace();          
+      e.printStackTrace();  
+      log.error(e.getMessage(),e);
     }
+  }
+
+  /**
+   * call FileResource REST service 
+   * example: {path+}/children 
+   * example: {path+}/parameterizable
+   * example: {path+}/properties
+   * example: /delete?params={fileid1, fileid2}
+   * @throws ParseException
+   */
+  private void performREST() throws ParseException {
+  
+    String contextURL = getOptionValue("url", true, false);
+    String path = getOptionValue("path", true, false);    
+    String logFile = getOptionValue("logfile",false,true);    
+    String exportURL = contextURL + "/api/repo/files/";
+    if(path != null){
+      String effPath = path.replaceAll("/", ":");
+      exportURL += effPath;
+    }
+    String service = getOptionValue("service",true,false);
+    String params = getOptionValue("params",false,true);
+    exportURL +=  "/"+service;
+    if(params != null){
+      exportURL += "?params="+params;
+    }
+   
+    initRestService();
+    WebResource resource = client.resource(exportURL);
+   
+    // Response response
+    Builder builder = resource.type(MediaType.APPLICATION_JSON).type(MediaType.TEXT_XML_TYPE);
+    ClientResponse response = builder.put(ClientResponse.class);
+    if (response != null && response.getStatus() == 200) {
+      String filename = getOptionValue("file-path", true, false);
+      
+      String message = "REST Completed \n";
+      message += "Response Status: "+response.getStatus(); 
+      message += "\n";
+    
+        if(logFile !=null && !"".equals(logFile)){
+          message +=  "REST File written to "+logFile;
+          System.out.println(message);
+          writeFile(message, logFile);
+        } 
+      }else {
+        System.out.println("Response: "+response+ " status=" + response.getStatus());
+      }
   }
 
   /**
@@ -195,7 +252,7 @@ public class CommandLineProcessor {
 
   /**
    * Parses the command line and handles the situation where it isn't a valid
-   * import or export request
+   * import or export or rest request
    * 
    * @param args
    *            the command line arguments
@@ -209,12 +266,16 @@ public class CommandLineProcessor {
     if (commandLine.hasOption("help")) {
       requestType = RequestType.HELP;
     } else {
-      final boolean importRequest = commandLine.hasOption("import");
-      final boolean exportRequest = commandLine.hasOption("export");
-      if (importRequest == exportRequest) {
-        throw new ParseException("exactly one of --import or --export is required");
+      if(commandLine.hasOption("rest")){
+        requestType = RequestType.REST;
+      } else {
+        final boolean importRequest = commandLine.hasOption("import");
+        final boolean exportRequest = commandLine.hasOption("export");
+        if (importRequest == exportRequest) {
+          throw new ParseException("exactly one of --import or --export is required");
+        }
+        requestType = (importRequest ? RequestType.IMPORT : RequestType.EXPORT);
       }
-      requestType = (importRequest ? RequestType.IMPORT : RequestType.EXPORT);
     }
   }
 
@@ -234,11 +295,16 @@ public class CommandLineProcessor {
   }
 
   /*
-   * --import --url=http://localhost:8080/pentaho --username=joe
-   * --password=password --source=file-system --type=files --charset=UTF-8
-   * --path=:public --file-path=C:/Users/tband/Downloads/pentaho-solutions.zip
-   * --rest=true --logfile=c:/Users/tband/Desktop/logfile.log
-   * --permission=true --overwrite=true --retainOwnership=true
+   * --import --url=http://localhost:8080/pentaho -
+   *  -username=joe
+   *  --password=password 
+   *  --source=file-system --charset=UTF-8
+   *  --path=:public 
+   *  --file-path=C:/Users/tband/Downloads/pentaho-solutions.zip
+   *  --logfile=c:/Users/tband/Desktop/logfile.log
+   *  --permission=true 
+   *  --overwrite=true 
+   *  --retainOwnership=true
    *  (required fields- default is false)
    */
 
@@ -260,10 +326,10 @@ public class CommandLineProcessor {
 
     FormDataMultiPart part = new FormDataMultiPart();
     part.field("importDir", path, MediaType.MULTIPART_FORM_DATA_TYPE);
-    part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
+    part.field("overwriteAclPermissions", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
     part.field("retainOwnership", "true".equals(retainOwnership) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
     part.field("charSet", charSet == null ? "UTF-8" : charSet);
-    part.field("ignoreACLS", "true".equals(permission) ? "false" : "true", MediaType.MULTIPART_FORM_DATA_TYPE).field(
+    part.field("applyAclPermissions", "true".equals(permission) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE).field(
         "fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE);
 
     // If the import service needs the file name do the following.
@@ -271,7 +337,7 @@ public class CommandLineProcessor {
         FormDataContentDisposition.name("fileUpload").fileName(fileIS.getName()).build());
 
     // Response response
-    ClientResponse  response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
+    ClientResponse  response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class,part);
     if(response != null){
       String message = response.getEntity(String.class);
       System.out.println("done response=" + message);      
@@ -281,17 +347,6 @@ public class CommandLineProcessor {
     }
   }
 
-  private void writeFile(String message, String logFile) {
-    try{
-      File file = new File(logFile);
-      FileOutputStream fout = FileUtils.openOutputStream(file);
-      IOUtils.copy(IOUtils.toInputStream(message), fout);
-      fout.close();
-    } catch(Exception ex){
-      ex.printStackTrace();
-    }
-    
-  }
 
   /**
    * this process must run on the same box as the JCR repository does not use
@@ -323,7 +378,8 @@ public class CommandLineProcessor {
    * @throws ParseException
    *             --export --url=http://localhost:8080/pentaho --username=joe
    *             --password=password --file-path=c:/temp/export.zip
-   *             --charset=UTF-8 --path=home:joe
+   *             --charset=UTF-8 --path=public/pentaho-solutions/steel-wheels
+   *             --logfile=c:/temp/steel-wheels.log --withManifest=true
    * @throws IOException
    */
   private void performExportREST() throws ParseException, IOException {
@@ -556,6 +612,25 @@ public class CommandLineProcessor {
     return value;
   }
 
+  /**
+   * internal helper to write output file
+   * @param message
+   * @param logFile
+   */
+  private void writeFile(String message, String logFile) {
+    try{
+      File file = new File(logFile);
+      FileOutputStream fout = FileUtils.openOutputStream(file);
+      IOUtils.copy(IOUtils.toInputStream(message), fout);
+      fout.close();
+    } catch(Exception ex){
+      ex.printStackTrace();
+    }
+   
+  }
+  /**
+   * 
+   */
   protected static void printHelp() {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("importexport", "Unified repository command line import/export tool", options,
@@ -563,14 +638,21 @@ public class CommandLineProcessor {
             + "Example arguments for import:\n"
             + "--import --url=http://localhost:8080/pentaho --username=joe\n"
             + "--password=password --source=file-system --type=files --charset=UTF-8 --path=/public\n"
-            + "--file-path=c:/Users/wseyler/Desktop/steel-wheels\n"
-            + "--logfile=c:/Users/wseyler/Desktop/logfile.log\n" 
+            + "--file-path=c:/temp/steel-wheels\n"
+            + "--logfile=c:/temp/logfile.log\n" 
             + "--permission=true\n" + "--overwrite=true\n"
             + "--retainOwnership=true\n\n"      
              + "\n\n"
             + "Example arguments for export:\n"
             + "--export --url=http://localhost:8080/pentaho --username=joe --password=password \n"
             + "--file-path=c:/temp/export.zip --charset=UTF-8 --path=/public\n --withManifest=true"
-            + "--logfile=c:/Users/wseyler/Desktop/logfile.log\n" + "");
+            + "--logfile=c:/temp/logfile.log\n"
+            + "Example arguments for running REST services:\n"
+            + "--rest --url=http://localhost:8080/pentaho --username=joe --password=password \n"
+            + " -path=/public/pentaho-solutions/steel-wheels/reports\n "
+            + " --logfile=c:/temp/logfile.log --service=acl\n"
+            + "Using the legacy import/export (on BI Server) - default uses REST\n"
+            +" --legacy=true\n"
+            + "");
   }
 }
