@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+
 /**
  * A struct-like object for bundling related objects together for import into the platform. Bundles contain all
  * information necessary for import into the system. While this interface includes a hash-map optional parameters
  * function, it should be subclassed if many properties are accessed this way.
  *
- * @author mlowery, nbaker
+ * @author mlowery, nbaker, tband
  */
 public interface IPlatformImportBundle {
 
@@ -66,4 +68,38 @@ public interface IPlatformImportBundle {
    * @return boolean
    */
   boolean overwriteInRepossitory();
+  
+  /**
+   * Ability to use the export manifest during import to apply ACL and File settings
+   * @return
+   */
+  RepositoryFileAcl getAcl();
+
+  void setAcl(RepositoryFileAcl acl);
+
+  boolean isOverwriteAclSettings();
+
+  /**
+   * use the import manifest ACL settings and overwrite existing settings
+   * @param overwriteAclSettings
+   */
+  void setOverwriteAclSettings(boolean overwriteAclSettings);
+
+  boolean isRetainOwnership();
+
+  /**
+   * retain the file metadata ownership
+   * @param retainOwnership
+   */
+  public abstract void setRetainOwnership(boolean retainOwnership);
+  
+  boolean isApplyAclSettings() ;
+
+  /**
+   * use the import manfiest file to apply ACL settings to files and folders
+   * @param applyAclSettings
+   */
+  void setApplyAclSettings(boolean applyAclSettings) ;
+
+
 }
