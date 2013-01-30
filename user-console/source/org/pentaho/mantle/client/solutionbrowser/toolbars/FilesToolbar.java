@@ -225,10 +225,10 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
       }
 
       if (selectedFileItem != null && selectedFileItem.isCommandEnabled(menuCommands[i])) {
-        menuItems[i].setCommand(menuFileCommands[i]);
+        menuItems[i].setScheduledCommand(menuFileCommands[i]);
         menuItems[i].setStyleName("gwt-MenuItem"); //$NON-NLS-1$
       } else {
-        menuItems[i].setCommand(null);
+        menuItems[i].setScheduledCommand(null);
         menuItems[i].setStyleName("disabledMenuItem"); //$NON-NLS-1$
       }
     }
