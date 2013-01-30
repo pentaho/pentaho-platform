@@ -1,15 +1,14 @@
 package org.pentaho.platform.plugin.services.importer;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Test;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.junit.Test;
+import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
 
 /**
  * User: nbaker
@@ -21,7 +20,6 @@ public class MetadataImportHandlerTest {
     Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
 
     Mockery context = new Mockery();
-    IUnifiedRepository mockRepo = context.mock(IUnifiedRepository.class);
     final IPentahoMetadataDomainRepositoryImporter metadataImporter = context.mock(IPentahoMetadataDomainRepositoryImporter.class);
 
     final MetadataImportHandler metadataHandler = new MetadataImportHandler(metadataImporter);
@@ -34,7 +32,7 @@ public class MetadataImportHandlerTest {
     FileInputStream in = new FileInputStream(new File("test-res/ImportTest/steel-wheels.xmi"));
 
     // With custom domain id
-    final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").hidden(false).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
+    final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").mime("text/xmi+xml").hidden(false).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
 
 
     context.checking(new Expectations() {{
@@ -52,7 +50,6 @@ public class MetadataImportHandlerTest {
     Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
 
     Mockery context = new Mockery();
-    IUnifiedRepository mockRepo = context.mock(IUnifiedRepository.class);
     final IPentahoMetadataDomainRepositoryImporter metadataImporter = context.mock(IPentahoMetadataDomainRepositoryImporter.class);
 
     final MetadataImportHandler metadataHandler = new MetadataImportHandler(metadataImporter);
@@ -83,6 +80,7 @@ public class MetadataImportHandlerTest {
         .input(in)
         .charSet("UTF-8")
         .hidden(false)
+        .mime("text/xmi+xml")
         .name("steel-wheels.xmi")
         .comment("Test Metadata Import")
         .withParam("domain-id", "steel-wheels")
