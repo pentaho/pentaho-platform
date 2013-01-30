@@ -1,48 +1,17 @@
 package org.pentaho.test.platform.web.http.api;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static junit.framework.Assert.assertNotNull;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.hasData;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeAcl;
-import static org.pentaho.platform.repository2.unified.UnifiedRepositoryTestUtils.isLikeFile;
-import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
-import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponseIsZip;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.jcr.Repository;
-import javax.ws.rs.core.MediaType;
-
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.test.framework.AppDescriptor;
+import com.sun.jersey.test.framework.JerseyTest;
+import com.sun.jersey.test.framework.WebAppDescriptor;
+import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
+import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
+import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
 import junit.framework.Assert;
-
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -50,31 +19,22 @@ import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
-import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
-import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
+import org.pentaho.platform.api.repository2.unified.*;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.plugin.services.importexport.Converter;
+import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
+import org.pentaho.platform.plugin.services.importexport.StreamConverter;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
-import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
-import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
@@ -100,15 +60,21 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.test.framework.AppDescriptor;
-import com.sun.jersey.test.framework.JerseyTest;
-import com.sun.jersey.test.framework.WebAppDescriptor;
-import com.sun.jersey.test.framework.spi.container.TestContainerFactory;
-import com.sun.jersey.test.framework.spi.container.grizzly.GrizzlyTestContainerFactory;
-import com.sun.jersey.test.framework.spi.container.grizzly.web.GrizzlyWebTestContainerFactory;
+import javax.jcr.Repository;
+import javax.ws.rs.core.MediaType;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.util.*;
+
+import static javax.ws.rs.core.MediaType.*;
+import static junit.framework.Assert.*;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponse;
+import static org.pentaho.test.platform.web.http.api.JerseyTestUtil.assertResponseIsZip;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/repository.spring.xml", "classpath:/repository-test-override.spring.xml" })
@@ -119,9 +85,9 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
   private static MicroPlatform mp = new MicroPlatform();
 
   private static WebAppDescriptor webAppDescriptor = new WebAppDescriptor.Builder("org.pentaho.platform.web.http.api.resources").contextPath("api").build();
-  
+
   public static final String MAIN_TENANT_1 = "maintenant1";
-  
+
   private IUnifiedRepository repo;
 
   private IUserRoleListService userRoleListService;
@@ -131,7 +97,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
   private String repositoryAdminUsername;
 
   private String sysAdminRoleName;
-  
+
   private String tenantAdminAuthorityNamePattern;
 
   private String tenantAuthenticatedAuthorityNamePattern;
@@ -145,20 +111,20 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
   private IAuthorizationPolicy authorizationPolicy;
 
   IUserRoleDao userRoleDao;
-  
+
   private ITenantManager tenantManager;
   private String sysAdminAuthorityName;
   private String sysAdminUserName;
   private IRepositoryFileDao repositoryFileDao;
   private Repository repository = null;
-  private ITenant systemTenant = null; 
+  private ITenant systemTenant = null;
   private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
   private IRoleAuthorizationPolicyRoleBindingDao roleAuthorizationPolicyRoleBindingDao;
   private static TransactionTemplate jcrTransactionTemplate;
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
   public static final String SYSTEM_PROPERTY = "spring.security.strategy";
-  
+
   public FileResourceTest() throws Exception {
     super();
     this.setTestContainerFactory(new GrizzlyTestContainerFactory());
@@ -168,18 +134,18 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
   protected AppDescriptor configure() {
     return webAppDescriptor;
   }
-  
+
   protected TestContainerFactory getTestContainerFactory() {
     return new GrizzlyWebTestContainerFactory();
   }
-	
+
   @BeforeClass
   public static void beforeClass() throws Exception {
     System.setProperty(SYSTEM_PROPERTY, "MODE_GLOBAL");
     PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
-    
+
     FileUtils.deleteDirectory(new File("/tmp/jackrabbit-test-TRUNK"));
-	SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_GLOBAL);
+    SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_GLOBAL);
   }
 
   @AfterClass
@@ -197,12 +163,12 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
       userRoleDao.deleteUser(user);
     }
   }
-  
+
   @Before
   public void beforeTest() {
-	mp = new MicroPlatform();
-	// used by DefaultPentahoJackrabbitAccessControlHelper
-	mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
+    mp = new MicroPlatform();
+    // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance(ITenantManager.class, tenantManager);
     mp.define(ITenant.class, Tenant.class);
     mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
@@ -210,44 +176,44 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils, tenantedRoleNameUtils);
     userDetailsService.setUserRoleDao(userRoleDao);
-    
+
     userRoleListService = new UserRoleDaoUserRoleListService(tenantedUserNameUtils, tenantedRoleNameUtils, userRoleDao, userDetailsService);
     ((UserRoleDaoUserRoleListService)userRoleListService).setUserRoleDao(userRoleDao);
     ((UserRoleDaoUserRoleListService)userRoleListService).setUserDetailsService(userDetailsService);
 
     mp.defineInstance(IUserRoleListService.class, userRoleListService);
 
-	logout();
-	startupCalled = true;
+    logout();
+    startupCalled = true;
   }
 
   @After
   public void afterTest() throws Exception {
-	clearRoleBindings();
-	// null out fields to get back memory
-	authorizationPolicy = null;
-	loginAsRepositoryAdmin();
-	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
-	logout();
-	repositoryAdminUsername = null;
-	tenantAdminAuthorityNamePattern = null;
-	tenantAuthenticatedAuthorityNamePattern = null;
-	roleBindingDao = null;
-	authorizationPolicy = null;
-	testJcrTemplate = null;
-	if (startupCalled) {
-		manager.shutdown();
-	}
+    clearRoleBindings();
+    // null out fields to get back memory
+    authorizationPolicy = null;
+    loginAsRepositoryAdmin();
+    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
+    logout();
+    repositoryAdminUsername = null;
+    tenantAdminAuthorityNamePattern = null;
+    tenantAuthenticatedAuthorityNamePattern = null;
+    roleBindingDao = null;
+    authorizationPolicy = null;
+    testJcrTemplate = null;
+    if (startupCalled) {
+      manager.shutdown();
+    }
 
-	// null out fields to get back memory
-	repo = null;
+    // null out fields to get back memory
+    repo = null;
   }
-  
+
   protected void clearRoleBindings() throws Exception {
-		loginAsRepositoryAdmin();
+    loginAsRepositoryAdmin();
 //		SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath("duff") + ".authz");
 //		SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath("duff") + ".authz");
-	}
+  }
 
   protected void createTestFile(String pathId, String text) {
     WebResource webResource = resource();
@@ -270,9 +236,9 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
 
   @Test
   public void testDummy() {
-    
+
   }
-  
+
   @Ignore
   public void testWriteBinaryFile() throws InterruptedException {
     final String str = "some binary text";
@@ -280,7 +246,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
 
     // set object in PentahoSystem
     mp.defineInstance(IUnifiedRepository.class, repo);
-    
+
     loginAsRepositoryAdmin();
     ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
     IPentahoUser systemTenantUser = userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
@@ -303,7 +269,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
 
     byte[] data = response.getEntity(byte[].class);
     assertEquals("contents of file incorrect/missing", str, new String(data));
-    
+
     cleanupUserAndRoles(mainTenant_1);
     cleanupUserAndRoles(systemTenant);
   }
@@ -311,7 +277,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
   @Ignore
   public void testWriteTextFile() throws Exception{
     final String text = "sometext";
-    
+
     mp.defineInstance(IUnifiedRepository.class, repo);
     final String publicFolderId = "123";
     final String fileName = "file.txt";
@@ -324,7 +290,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
     IPentahoUser tenantUser = userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
     login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
-    
+
     WebResource webResource = resource();
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + fileName, text);
@@ -332,7 +298,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     ClientResponse response = webResource.path("repo/files/:public:" + fileName).accept(TEXT_PLAIN).get(ClientResponse.class);
     assertResponse(response, Status.OK, TEXT_PLAIN);
     assertEquals("contents of file incorrect/missing", text, response.getEntity(String.class));
-    
+
     cleanupUserAndRoles(mainTenant_1);
     cleanupUserAndRoles(systemTenant);
   }
@@ -349,10 +315,10 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
     IPentahoUser tenantUser = userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
     login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
-    
+
     final String publicFolderId = "123";
     final String fileName = "file.txt";
-    
+
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + fileName, "abcdefg");
     WebResource webResource = resource();
@@ -360,7 +326,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     ClientResponse r1 = webResource.path("repo/files/:public:" + fileName).accept(TEXT_PLAIN).get(ClientResponse.class);
     assertResponse(r1, Status.OK, MediaType.TEXT_PLAIN);
     assertEquals(text, r1.getEntity(String.class));
-    
+
     // check again but with no Accept header
     ClientResponse r2 = webResource.path("repo/files/:public:" + fileName).get(ClientResponse.class);
     assertResponse(r2, Status.OK, MediaType.TEXT_PLAIN);
@@ -370,7 +336,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     ClientResponse r3 = webResource.path("repo/files/:public:" + fileName).accept(TEXT_PLAIN).accept(MediaType.WILDCARD).get(ClientResponse.class);
     assertResponse(r3, Status.OK, MediaType.TEXT_PLAIN);
     assertEquals(text, r3.getEntity(String.class));
-    
+
     cleanupUserAndRoles(mainTenant_1);
     cleanupUserAndRoles(systemTenant);
   }
@@ -386,14 +352,14 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
     IPentahoUser tenantUser = userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
     login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
-    
+
     final String srcFolderServerPath = "/public/folder1/folder2";
     final String destFolderPath = "public:folder3:folder4";
     final String destFolderServerPath = "/public/folder3/folder4";
     final String fileId = "456";
     final String fileName = "file.txt";
     final String destFolderId = "789";
-    
+
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + fileName, "abcdefg");
     WebResource webResource = resource();
@@ -409,10 +375,10 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
   public void testGetWhenFileDNE() {
     mp.defineInstance(IUnifiedRepository.class, repo);
     loginAsRepositoryAdmin();
-    
+
     WebResource webResource = resource();
     try {
-    ClientResponse r = webResource.path("repo/files/public:thisfiledoesnotexist.txt").accept(TEXT_PLAIN).get(ClientResponse.class);
+      ClientResponse r = webResource.path("repo/files/public:thisfiledoesnotexist.txt").accept(TEXT_PLAIN).get(ClientResponse.class);
     } catch(UnifiedRepositoryException ure) {
       assertNotNull(ure);
     }
@@ -423,23 +389,38 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     final String text = "abcdefg";
     // stub IUnifiedRepository start
     IUnifiedRepository repo = mock(IUnifiedRepository.class);
+
+    // mock converters map
+    StreamConverter streamConverter = new StreamConverter(repo);
+    Map<String,Converter> converterMap = new HashMap();
+    converterMap.put("txt", streamConverter);
+
+    // stub DefaultExportProcessor
+    DefaultExportHandler defaultExportHandler = new DefaultExportHandler();
+    defaultExportHandler.setConverters(converterMap);
+    defaultExportHandler.setRepository(repo);
+
+    // mock session for getting name to populate manifest info
+    IPentahoSession pentahoSession = mock(IPentahoSession.class);
+    when(pentahoSession.getName()).thenReturn("joe");
+    PentahoSessionHolder.setSession(pentahoSession);
+
     final String fileId = "456";
     final String fileName = "file.txt";
     final String path = "/public/" + fileName;
     doReturn(new RepositoryFile.Builder(fileId, fileName).path(path).build()).when(repo).getFile(path);
     when(repo.getDataForRead(fileId, SimpleRepositoryFileData.class)).thenReturn(new SimpleRepositoryFileData(
-        new ByteArrayInputStream(text.getBytes()), null, APPLICATION_OCTET_STREAM)).thenReturn(
-            new SimpleRepositoryFileData(new ByteArrayInputStream(text.getBytes()), null, APPLICATION_OCTET_STREAM));
+                                                                                                               new ByteArrayInputStream(text.getBytes()), null, APPLICATION_OCTET_STREAM)).thenReturn(
+                                                                                                                                                                                                       new SimpleRepositoryFileData(new ByteArrayInputStream(text.getBytes()), null, APPLICATION_OCTET_STREAM));
     // stub IUnifiedRepository end
-    
+
     // set object in PentahoSystem
     mp.defineInstance(IUnifiedRepository.class, repo);
+    mp.defineInstance(DefaultExportHandler.class, defaultExportHandler);
 
     // test download of file
     WebResource webResource = resource();
     ClientResponse r = webResource.path("repo/files/public:file.txt/download").get(ClientResponse.class);
-    assertResponse(r, Status.OK);
-    assertEquals("abcdefg", r.getEntity(String.class));
 
     // test download of dir as a zip file
     ClientResponse r2 = webResource.path("repo/files/public:file.txt/download").get(ClientResponse.class);
@@ -457,11 +438,11 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
     // stub IUnifiedRepository start
     IUnifiedRepository repo = mock(IUnifiedRepository.class);
-    RepositoryFileTree tree = new RepositoryFileTree(new RepositoryFile.Builder("123", "public").build(), 
-        Arrays.asList(new RepositoryFileTree(new RepositoryFile.Builder("123", "public").build(), new ArrayList<RepositoryFileTree>(0))));
+    RepositoryFileTree tree = new RepositoryFileTree(new RepositoryFile.Builder("123", "public").build(),
+                                                      Arrays.asList(new RepositoryFileTree(new RepositoryFile.Builder("123", "public").build(), new ArrayList<RepositoryFileTree>(0))));
     doReturn(tree).when(repo).getTree(eq(ClientRepositoryPaths.getPublicFolderPath()), anyInt(), anyString(), anyBoolean());
     // stub IUnifiedRepository end
-    
+
     // set object in PentahoSystem
     mp.defineInstance(IUnifiedRepository.class, repo);
 
@@ -501,7 +482,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     Assert.assertTrue(permissions.contains(new Integer(0)) && permissions.contains(new Integer(1)));
 
     String authenticated = tenantedRoleNameUtils.getPrincipleId(mainTenant_1, tenantAuthenticatedAuthorityNamePattern);
-    
+
     aces = new ArrayList<RepositoryFileAclAceDto>();
     ace = new RepositoryFileAclAceDto();
     ace.setRecipient(authenticated);
@@ -526,13 +507,13 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
     userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
     login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
-    
+
     String testFile1Id = "abc.txt";
     String testFile2Id = "def.txt";
 
     // set object in PentahoSystem
     mp.defineInstance(IUnifiedRepository.class, repo);
-    
+
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + testFile1Id, "abcdefg");
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + testFile2Id, "abcdefg");
@@ -544,7 +525,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
 
     RepositoryFileDto[] deletedFiles = webResource.path("repo/files/deleted").accept(APPLICATION_XML).get(RepositoryFileDto[].class);
     assertEquals(2, deletedFiles.length);
-    
+
     webResource.path("repo/files/deletepermanent").entity(file2.getId()).put();
     cleanupUserAndRoles(mainTenant_1);
     cleanupUserAndRoles(systemTenant);
@@ -559,11 +540,11 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
     login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
 
-    
+
     // set object in PentahoSystem
     mp.defineInstance(IUnifiedRepository.class, repo);
-    
-    
+
+
     WebResource webResource = resource();
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "file1.txt", "abcdefg");
@@ -582,20 +563,20 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     assertTrue(userWorkspaceDir != null);
     assertTrue(userWorkspaceDir.length() > 0);
   }
-  
+
   @Ignore
   public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-	manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");
-	SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean("jcrSessionFactory");
-	testJcrTemplate = new JcrTemplate(jcrSessionFactory);
-	testJcrTemplate.setAllowCreate(true);
-	testJcrTemplate.setExposeNativeSession(true);
-	repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
-	tenantAuthenticatedAuthorityNamePattern = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
-	tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");
+    SessionFactory jcrSessionFactory = (SessionFactory) applicationContext.getBean("jcrSessionFactory");
+    testJcrTemplate = new JcrTemplate(jcrSessionFactory);
+    testJcrTemplate.setAllowCreate(true);
+    testJcrTemplate.setExposeNativeSession(true);
+    repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
+    tenantAuthenticatedAuthorityNamePattern = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
+    tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
     sysAdminAuthorityName = (String) applicationContext.getBean("superAdminAuthorityName");
     sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
-	authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
+    authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
     roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTarget");
     tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrTxn");
     repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean("repositoryFileDao");
@@ -603,39 +584,39 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedUserNameUtils");
     tenantedRoleNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedRoleNameUtils");
     jcrTransactionTemplate = (TransactionTemplate) applicationContext.getBean("jcrTransactionTemplate");
-	repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
+    repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
     TestPrincipalProvider.userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDaoTxn");
     TestPrincipalProvider.adminCredentialsStrategy = (CredentialsStrategy) applicationContext.getBean("jcrAdminCredentialsStrategy");
     TestPrincipalProvider.repository = (Repository)applicationContext.getBean("jcrRepository");
- }
+  }
 
   protected void loginAsRepositoryAdmin() {
-	StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
-	pentahoSession.setAuthenticated(repositoryAdminUsername);
-  final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[]{new GrantedAuthorityImpl(sysAdminAuthorityName)};
-	final String password = "ignored";
-	UserDetails repositoryAdminUserDetails = new User(repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities);
-	Authentication repositoryAdminAuthentication = new UsernamePasswordAuthenticationToken(repositoryAdminUserDetails, password, repositoryAdminAuthorities);
-	PentahoSessionHolder.setSession(pentahoSession);
-	// this line necessary for Spring Security's MethodSecurityInterceptor
-	SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
+    StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
+    pentahoSession.setAuthenticated(repositoryAdminUsername);
+    final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[]{new GrantedAuthorityImpl(sysAdminAuthorityName)};
+    final String password = "ignored";
+    UserDetails repositoryAdminUserDetails = new User(repositoryAdminUsername, password, true, true, true, true, repositoryAdminAuthorities);
+    Authentication repositoryAdminAuthentication = new UsernamePasswordAuthenticationToken(repositoryAdminUserDetails, password, repositoryAdminAuthorities);
+    PentahoSessionHolder.setSession(pentahoSession);
+    // this line necessary for Spring Security's MethodSecurityInterceptor
+    SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
   }
 
   protected void logout() {
-	PentahoSessionHolder.removeSession();
-	SecurityContextHolder.getContext().setAuthentication(null);
+    PentahoSessionHolder.removeSession();
+    SecurityContextHolder.getContext().setAuthentication(null);
   }
 
   protected void login(final String username, final ITenant tenant) {
     login(username, tenant, false);
-  }  
+  }
 
   /**
    * Logs in with given username.
    *
-   * @param username username of user
-   * @param tenantId tenant to which this user belongs
-   * @tenantAdmin true to add the tenant admin authority to the user's roles
+   * @param username
+   * @param tenant
+   * @param roles
    */
   protected void login(final String username, final ITenant tenant, String[] roles) {
     StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
@@ -658,13 +639,12 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     SecurityHelper.getInstance().becomeUser(tenantedUserNameUtils.getPrincipleId(tenant, username));
   }
 
-  
   /**
    * Logs in with given username.
    *
-   * @param username username of user
-   * @param tenantId tenant to which this user belongs
-   * @tenantAdmin true to add the tenant admin authority to the user's roles
+   * @param username
+   * @param tenant
+   * @param tenantAdmin
    */
   protected void login(final String username, final ITenant tenant, final boolean tenantAdmin) {
     StandaloneSession pentahoSession = new StandaloneSession(username);
