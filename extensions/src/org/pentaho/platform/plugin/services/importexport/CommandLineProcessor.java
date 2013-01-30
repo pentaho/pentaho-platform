@@ -339,7 +339,7 @@ public class CommandLineProcessor {
         FormDataContentDisposition.name("fileUpload").fileName(fileIS.getName()).build());
 
     // Response response
-    ClientResponse  response = resource.type(MediaType.MULTIPART_FORM_DATA).put(ClientResponse.class,part);
+    ClientResponse  response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class,part);
     if(response != null){
       String message = response.getEntity(String.class);
       System.out.println("done response=" + message);      

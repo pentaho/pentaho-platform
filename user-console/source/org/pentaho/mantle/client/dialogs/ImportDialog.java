@@ -107,7 +107,7 @@ public class ImportDialog extends PromptDialogBox {
     permission = new CheckBox(Messages.getString("applyAclPermissions"), true);
     permission.setName("applyAclPermissions");
     permission.setValue(Boolean.TRUE);
-    permission.setFormValue("false");
+    permission.setFormValue("true");
     ClickHandler phandler = new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
