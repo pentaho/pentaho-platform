@@ -76,7 +76,11 @@ public class EmailService {
    */
   public EmailService() throws IllegalArgumentException {
     logger.debug("Using the default email configuration filename [" + DEFAULT_EMAIL_CONFIG_PATH + "]");
-    policy = PentahoSystem.get(IAuthorizationPolicy.class);
+    try {
+      policy = PentahoSystem.get(IAuthorizationPolicy.class);
+    } catch (Exception ex) {
+      logger.warn("Unable to get IAuthorizationPolicy: " + ex.getMessage());
+    }
     final String emailConfigFilePath = PentahoSystem.getApplicationContext().getSolutionPath(DEFAULT_EMAIL_CONFIG_PATH);
     logger.debug("System converted default email configuration filename to [" + emailConfigFilePath + "]");
     setEmailConfigFile(new File(emailConfigFilePath));
@@ -99,7 +103,7 @@ public class EmailService {
       throw new IllegalArgumentException(messages.getErrorString("EmailService.ERROR_0002_NULL_CONFIGURATION"));
     }
 
-    if (policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+    if (policy == null || policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
       final Document document = EmailConfigurationXml.getDocument(emailConfiguration);
       try {
         emailConfigFile.createNewFile();
@@ -119,7 +123,7 @@ public class EmailService {
    * @return
    */
   public EmailConfiguration getEmailConfig() {
-    if (policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+    if (policy == null || policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
       try {
         return new EmailConfigurationXml(emailConfigFile);
       } catch (Exception e) {
