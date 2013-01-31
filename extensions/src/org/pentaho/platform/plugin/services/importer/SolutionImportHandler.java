@@ -93,7 +93,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
 			bundleBuilder.name(fileName);
 			bundleBuilder.path(repositoryFilePath);
-			bundleBuilder.acl(processAclForFile(repositoryFilePath, fileName));
+			String sourceFolder = file.getPath().startsWith("/") ? file.getPath().substring(1) : file.getPath();
+			bundleBuilder.acl(processAclForFile(sourceFolder, fileName));
 			bundleBuilder.charSet(bundle.getCharset());
 			bundleBuilder.overwriteFile(bundle.overwriteInRepossitory());
 			bundleBuilder.hidden(isBlackListed(fileName));
@@ -110,10 +111,10 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 		}
 	}
 
-	private RepositoryFileAcl processAclForFile(String path, String name) {
+	private RepositoryFileAcl processAclForFile(String sourcePath, String name) {
 		RepositoryFileAcl acl = null;
 		try {
-			String filePath = RepositoryFilenameUtils.concat(path, name);
+			String filePath = RepositoryFilenameUtils.concat(sourcePath, name);
 			if(manifest != null) {
 				ExportManifestEntity entity = manifest.getExportManifestEntity(filePath);
 				if(entity != null) {

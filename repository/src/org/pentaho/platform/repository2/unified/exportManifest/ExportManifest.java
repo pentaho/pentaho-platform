@@ -28,6 +28,8 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestDto;
 import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportManifestEntityDto;
 
@@ -38,137 +40,152 @@ import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportMa
  * @author tkafalas
  */
 public class ExportManifest {
-	private HashMap<String, ExportManifestEntity> exportManifestEntities;
-	private ExportManifestDto.ExportManifestInformation manifestInformation;
+  private HashMap<String, ExportManifestEntity> exportManifestEntities;
 
-	public ExportManifest() {
-		this.exportManifestEntities = new HashMap<String, ExportManifestEntity>();
-		this.manifestInformation = new ExportManifestDto.ExportManifestInformation();
-	}
+  private ExportManifestDto.ExportManifestInformation manifestInformation;
 
-	public ExportManifest(ExportManifestDto exportManifestDto) {
-		this();
-		this.manifestInformation = exportManifestDto.getExportManifestInformation();
-		List<ExportManifestEntityDto> exportManifestEntityList = exportManifestDto.getExportManifestEntity();
-		for(ExportManifestEntityDto exportManifestEntityDto : exportManifestEntityList) {
-			exportManifestEntities.put(exportManifestEntityDto.getPath(), new ExportManifestEntity(exportManifestEntityDto));
-		}
-	}
+  public ExportManifest() {
+    this.exportManifestEntities = new HashMap<String, ExportManifestEntity>();
+    this.manifestInformation = new ExportManifestDto.ExportManifestInformation();
+  }
 
-	public void add(ExportManifestEntity exportManifestEntity) {
-		if (exportManifestEntity.isValid()) {
-			exportManifestEntities.put(exportManifestEntity.getPath(),
-					exportManifestEntity);
-		}
-	}
+  public ExportManifest(ExportManifestDto exportManifestDto) {
+    this();
+    this.manifestInformation = exportManifestDto.getExportManifestInformation();
+    List<ExportManifestEntityDto> exportManifestEntityList = exportManifestDto.getExportManifestEntity();
+    for (ExportManifestEntityDto exportManifestEntityDto : exportManifestEntityList) {
+      exportManifestEntities.put(exportManifestEntityDto.getPath(), new ExportManifestEntity(exportManifestEntityDto));
+    }
+  }
 
-	public ExportManifestEntity getExportManifestEntity(String path) {
-		return exportManifestEntities.get(path);
-	}
+  /**
+   * 
+   * @param repositoryFile
+   * @param repositoryFileAcl
+   * @throws ExportManifestFormatException if the RepositoryFile path does not start with the manifest's rootFolder of manifest is 
+   */
+  public void add(RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl)
+      throws ExportManifestFormatException {
+    ExportManifestEntity exportManifestEntity = new ExportManifestEntity(manifestInformation.getRootFolder(),
+        repositoryFile, repositoryFileAcl);
+    this.add(exportManifestEntity);
+  }
 
-	/**
-	 * Mashalls the manifest object into xml on the given output stream
-	 * 
-	 * @param outputStream
-	 * @throws JAXBException
-	 */
-	public void toXml(OutputStream outputStream) throws JAXBException {
-		final JAXBContext jaxbContext = JAXBContext
-				.newInstance(ExportManifestDto.class);
-		Marshaller marshaller = getMarshaller();
-		marshaller.marshal(new JAXBElement<ExportManifestDto>(new QName("http://www.pentaho.com/schema/",
-				"ExportManifest"), ExportManifestDto.class, getExportManifestDto()),
-				outputStream);
-	}
+  private void add(ExportManifestEntity exportManifestEntity) throws ExportManifestFormatException {
+    if (exportManifestEntity.isValid()) {
+      exportManifestEntities.put(exportManifestEntity.getPath(), exportManifestEntity);
+    } else {
+      throw new ExportManifestFormatException("Invalid Manifest Entry");
+    }
+  }
 
-	public String toXmlString() throws JAXBException {
-		StringWriter sw = new StringWriter();
-		Marshaller marshaller = getMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-		marshaller.marshal(new JAXBElement<ExportManifestDto>(new QName(
-				"http://www.pentaho.com/schema/", "ExportManifest"),
-				ExportManifestDto.class, getExportManifestDto()), sw);
-		return sw.toString();
-	}
+  public ExportManifestEntity getExportManifestEntity(String path) {
+    return exportManifestEntities.get(path);
+  }
 
-	private Marshaller getMarshaller() throws JAXBException {
-		final JAXBContext jaxbContext = JAXBContext
-				.newInstance(ExportManifestDto.class);
-		Marshaller marshaller = jaxbContext.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-		return marshaller;
-	}
+  /**
+   * Marshals the manifest object into xml on the given output stream
+   * 
+   * @param outputStream
+   * @throws JAXBException
+   * @throws ExportManifestFormatException 
+   */
+  public void toXml(OutputStream outputStream) throws JAXBException, ExportManifestFormatException {
+    if (!isValid()) {
+      throw new ExportManifestFormatException("Invalid root Folder for manifest");
+    }
+    final JAXBContext jaxbContext = JAXBContext.newInstance(ExportManifestDto.class);
+    Marshaller marshaller = getMarshaller();
+    marshaller.marshal(
+        new JAXBElement<ExportManifestDto>(new QName("http://www.pentaho.com/schema/", "ExportManifest"),
+            ExportManifestDto.class, getExportManifestDto()), outputStream);
+  }
 
-	public static ExportManifest fromXml(ByteArrayInputStream input)
-			throws JAXBException {
-		JAXBContext jc = JAXBContext
-				.newInstance("org.pentaho.platform.repository2.unified.exportManifest.bindings");
-		Unmarshaller u = jc.createUnmarshaller();
+  public String toXmlString() throws JAXBException {
+    StringWriter sw = new StringWriter();
+    Marshaller marshaller = getMarshaller();
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+    marshaller.marshal(
+        new JAXBElement<ExportManifestDto>(new QName("http://www.pentaho.com/schema/", "ExportManifest"),
+            ExportManifestDto.class, getExportManifestDto()), sw);
+    return sw.toString();
+  }
 
-		try {
-			JAXBElement<ExportManifestDto> o = (JAXBElement) (u.unmarshal(input));
-			ExportManifestDto exportManifestDto = o.getValue();
-			ExportManifest exportManifest = new ExportManifest(exportManifestDto);
-			return exportManifest;
-		} catch (Exception e) {
-			System.out.println(e.toString());
-			return null;
-		}
-	}
+  private Marshaller getMarshaller() throws JAXBException {
+    final JAXBContext jaxbContext = JAXBContext.newInstance(ExportManifestDto.class);
+    Marshaller marshaller = jaxbContext.createMarshaller();
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+    return marshaller;
+  }
 
-	ExportManifestDto getExportManifestDto() {
-		ExportManifestDto rawExportManifest = new ExportManifestDto();
-		List<ExportManifestEntityDto> rawEntityList = rawExportManifest
-				.getExportManifestEntity();
-		rawExportManifest.setExportManifestInformation(manifestInformation);
-		TreeSet<String> ts = new TreeSet<String>(exportManifestEntities.keySet());
-		for (String path : ts) {
-			rawEntityList.add(exportManifestEntities.get(path)
-					.getExportManifestEntityDto());
-		}
-		return rawExportManifest;
-	}
+  public static ExportManifest fromXml(ByteArrayInputStream input) throws JAXBException {
+    JAXBContext jc = JAXBContext.newInstance("org.pentaho.platform.repository2.unified.exportManifest.bindings");
+    Unmarshaller u = jc.createUnmarshaller();
 
-	/**
-	 * Factory method to deliver one ExportManifestEntity. The Manifest is built
-	 * by adding one ExportManifestEntity object for each file and folder in the
-	 * export set.
-	 * 
-	 * @return
-	 */
-	public ExportManifestEntity createExportManifestEntry() {
-		return new ExportManifestEntity();
-	}
+    try {
+      JAXBElement<ExportManifestDto> o = (JAXBElement) (u.unmarshal(input));
+      ExportManifestDto exportManifestDto = o.getValue();
+      ExportManifest exportManifest = new ExportManifest(exportManifestDto);
+      return exportManifest;
+    } catch (Exception e) {
+      System.out.println(e.toString());
+      return null;
+    }
+  }
 
-	public boolean isValid() {
-		if (this.exportManifestEntities.size() > 0) {
-			for (ExportManifestEntity manEntity : exportManifestEntities.values()) {
-				if (!manEntity.isValid()) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
+  ExportManifestDto getExportManifestDto() {
+    ExportManifestDto rawExportManifest = new ExportManifestDto();
+    List<ExportManifestEntityDto> rawEntityList = rawExportManifest.getExportManifestEntity();
+    rawExportManifest.setExportManifestInformation(manifestInformation);
+    TreeSet<String> ts = new TreeSet<String>(exportManifestEntities.keySet());
+    for (String path : ts) {
+      rawEntityList.add(exportManifestEntities.get(path).getExportManifestEntityDto());
+    }
+    return rawExportManifest;
+  }
 
-	/**
-	 * @return the manifestInformation
-	 */
-	public ExportManifestDto.ExportManifestInformation getManifestInformation() {
-		return manifestInformation;
-	}
+  /**
+   * Factory method to deliver one ExportManifestEntity. The Manifest is built
+   * by adding one ExportManifestEntity object for each file and folder in the
+   * export set.
+   * 
+   * @return
+   */
+  public ExportManifestEntity createExportManifestEntry() {
+    return new ExportManifestEntity();
+  }
 
-	/**
-	 * @param manifestInformation
-	 *          the manifestInformation to set
-	 */
-	public void setManifestInformation(
-			ExportManifestDto.ExportManifestInformation manifestInformation) {
-		this.manifestInformation = manifestInformation;
-	}
+  public boolean isValid() {
+    if (this.exportManifestEntities.size() > 0) {
+      for (ExportManifestEntity manEntity : exportManifestEntities.values()) {
+        if (!manEntity.isValid()) {
+          return false;
+        }
+      }
+      if (manifestInformation.getRootFolder() == null || manifestInformation.getRootFolder().length() == 0) {
+        return false;
+      }
+    }
+    return true;
+  }
 
-	public ExportManifestDto.ExportManifestInformation createExportManifestInformation() {
-		return new ExportManifestDto.ExportManifestInformation();
-	}
+  /**
+   * @return the manifestInformation
+   */
+  public ExportManifestDto.ExportManifestInformation getManifestInformation() {
+    return manifestInformation;
+  }
+
+  /**
+   * @param manifestInformation
+   *          the manifestInformation to set
+   */
+  public void setManifestInformation(ExportManifestDto.ExportManifestInformation manifestInformation) {
+    this.manifestInformation = manifestInformation;
+  }
+
+  public ExportManifestDto.ExportManifestInformation createExportManifestInformation() {
+    return new ExportManifestDto.ExportManifestInformation();
+  }
 
 }
