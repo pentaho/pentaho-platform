@@ -11,6 +11,7 @@
 				<complexType>
 					<attribute name="exportDate" type="string" default="{date}"></attribute>
 					<attribute name="exportBy" type="string" default="{user}"></attribute>
+					<attribute name="rootFolder" type="string" use="required"></attribute>
 				</complexType>
 			</element>
 			<element name="ExportManifestEntity" type="tns:ExportManifestEntityDto"
