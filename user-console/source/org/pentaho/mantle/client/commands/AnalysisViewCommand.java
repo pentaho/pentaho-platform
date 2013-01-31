@@ -50,11 +50,11 @@ public class AnalysisViewCommand extends AbstractCommand {
           public void run() {
             String actionName = System.currentTimeMillis() + ".analysisview.xaction"; //$NON-NLS-1$
             String newAnalysisViewURL = "AnalysisViewService?component=createNewView&name=" + //$NON-NLS-1$ 
-              URL.encodeComponent(actionName) + "&descr=" + //$NON-NLS-1$
-              URL.encodeComponent(actionName) + "&actionName=" + //$NON-NLS-1$ 
-              URL.encodeComponent(actionName) + "&textfield=&schema=" + //$NON-NLS-1$
-              URL.encodeComponent(analysisDialog.getSchema()) + "&cube=" + //$NON-NLS-1$
-              URL.encodeComponent(analysisDialog.getCube()) + "&solution=system&actionPath=tmp"; //$NON-NLS-1$ 
+              URL.encodeQueryString(actionName) + "&descr=" + //$NON-NLS-1$
+              URL.encodeQueryString(actionName) + "&actionName=" + //$NON-NLS-1$ 
+              URL.encodeQueryString(actionName) + "&textfield=&schema=" + //$NON-NLS-1$
+              URL.encodeQueryString(analysisDialog.getSchema()) + "&cube=" + //$NON-NLS-1$
+              URL.encodeQueryString(analysisDialog.getCube()) + "&solution=system&actionPath=tmp"; //$NON-NLS-1$ 
             navigatorPerspective.getContentTabPanel().showNewURLTab(
                 Messages.getString("newAnalysisView"), Messages.getString("newAnalysisView"), newAnalysisViewURL, false); //$NON-NLS-1$ //$NON-NLS-2$
 

@@ -13,28 +13,36 @@
  * See the GNU General Public License for more details.
  *
  * 
- * Copyright 2008 Pentaho Corporation.  All rights reserved. 
+ * Copyright 2013 Pentaho Corporation.  All rights reserved. 
  * 
  */
 package org.pentaho.platform.repository.usersettings;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.hibernate.Session;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
-import org.pentaho.platform.repository.hibernate.HibernateUtil;
-import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository.usersettings.pojo.UserSetting;
+import org.pentaho.platform.repository2.ClientRepositoryPaths;
 
 public class UserSettingService implements IUserSettingService {
 
-  public static final String GLOBAL_SETTING = "_GLOBAL"; //$NON-NLS-1$
-  IPentahoSession            session        = null;
+  public static final String SETTING_PREFIX = "_USERSETTING"; //$NON-NLS-1$
+  IPentahoSession session = null;
+
+  protected IUnifiedRepository repository;
 
   public UserSettingService() {
+    repository = PentahoSystem.get(IUnifiedRepository.class);
   }
 
   public void init(IPentahoSession session) {
@@ -47,22 +55,17 @@ public class UserSettingService implements IUserSettingService {
 
   // delete all settings for a given user
   public void deleteUserSettings() {
-    Session hibsession = HibernateUtil.getSession();
-    try {
-    HibernateUtil.beginTransaction();
-      try {
-    List<IUserSetting> settings = UserSettingDAO.getUserSettings(hibsession, session.getName());
-    if (settings != null) {
-      for (IUserSetting setting : settings) {
-        hibsession.delete(setting);
+    String homePath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
+    Serializable id = repository.getFile(homePath).getId();
+
+    Map<String, Serializable> fileMetadata = repository.getFileMetadata(id);
+    Map<String, Serializable> finalMetadata = new HashMap<String, Serializable>();
+    for (String key : fileMetadata.keySet()) {
+      if (!key.startsWith(SETTING_PREFIX)) {
+        finalMetadata.put(key, fileMetadata.get(key));
       }
     }
-      } finally {
-    HibernateUtil.commitTransaction();
-      }
-    } finally {
-    HibernateUtil.closeSession();
-  }
+    repository.setFileMetadata(id, finalMetadata);
   }
 
   // ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,60 +75,92 @@ public class UserSettingService implements IUserSettingService {
   public List<IUserSetting> getUserSettings() {
     // get the global settings and the user settings
     // merge unseen global settings into the user settings list
-    List<IUserSetting> userSettings = null;
-    Session hibsession = HibernateUtil.getSession();
-    try {
-      HibernateUtil.beginTransaction();
-      try {
-        userSettings = UserSettingDAO.getUserSettings(hibsession, session.getName());
-    List<IUserSetting> globalSettings = UserSettingDAO.getUserSettings(hibsession, GLOBAL_SETTING);
-    // merge the two lists (add unseen global settings)
-    for (IUserSetting globalSetting : globalSettings) {
-      if (!userSettings.contains(globalSetting)) {
-        userSettings.add(globalSetting);
+    List<IUserSetting> userSettings = new ArrayList<IUserSetting>();
+
+    String tentantHomePath = ClientRepositoryPaths.getEtcFolderPath();
+    Serializable tenantHomeId = repository.getFile(tentantHomePath).getId();
+    Map<String, Serializable> tenantMetadata = repository.getFileMetadata(tenantHomeId);
+
+    for (String key : tenantMetadata.keySet()) {
+      if (key.startsWith(SETTING_PREFIX)) {
+        UserSetting setting = new UserSetting();
+        setting.setSettingName(key.substring(SETTING_PREFIX.length()));
+        setting.setSettingValue(tenantMetadata.get(key).toString());
+        userSettings.add(setting);
       }
     }
-      } finally {
-        HibernateUtil.commitTransaction();
+
+    String homePath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
+    Serializable userHomeId = repository.getFile(homePath).getId();
+    Map<String, Serializable> userMetadata = repository.getFileMetadata(userHomeId);
+
+    for (String key : userMetadata.keySet()) {
+      if (key.startsWith(SETTING_PREFIX)) {
+        UserSetting setting = new UserSetting();
+        setting.setSettingName(key.substring(SETTING_PREFIX.length()));
+        setting.setSettingValue(userMetadata.get(key).toString());
+        // see if a global setting exists which will be overridden
+        if (userSettings.contains(setting)) {
+          userSettings.remove(setting);
+        }
+        userSettings.add(setting);
       }
-    } finally {
-    HibernateUtil.closeSession();
     }
     return userSettings;
   }
 
   public IUserSetting getUserSetting(String settingName, String defaultValue) {
     // if the user does not have the setting, check if a global setting exists
-    IUserSetting userSetting = null; 
-    Session hibsession = HibernateUtil.getSession();
-    try {
-      HibernateUtil.beginTransaction();
-      try {
-        userSetting = UserSettingDAO.getUserSetting(hibsession, session.getName(), settingName);
-    if (userSetting == null) {
-      userSetting = getGlobalUserSetting(settingName, defaultValue);
-    }
-      } finally {
-        HibernateUtil.commitTransaction();
+    String homePath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
+    System.out.println("homePath:" + homePath);
+    System.out.println("file:" + repository.getFile(homePath));
+    System.out.println("sessionName:" + PentahoSessionHolder.getSession().getName());
+    
+    Serializable userHomeId = repository.getFile(homePath).getId();
+    Map<String, Serializable> userMetadata = repository.getFileMetadata(userHomeId);
+
+    for (String key : userMetadata.keySet()) {
+      if (key.startsWith(SETTING_PREFIX)) {
+        UserSetting setting = new UserSetting();
+        setting.setSettingName(key.substring(SETTING_PREFIX.length()));
+        setting.setSettingValue(userMetadata.get(key).toString());
+        if (setting.getSettingValue().equals(settingName)) {
+          return setting;
+        }
       }
-    } finally {
-    HibernateUtil.closeSession();
     }
-    return userSetting;
+
+    String tentantHomePath = ClientRepositoryPaths.getEtcFolderPath();
+    Serializable tenantHomeId = repository.getFile(tentantHomePath).getId();
+    Map<String, Serializable> tenantMetadata = repository.getFileMetadata(tenantHomeId);
+
+    for (String key : tenantMetadata.keySet()) {
+      if (key.startsWith(SETTING_PREFIX)) {
+        UserSetting setting = new UserSetting();
+        setting.setSettingName(key.substring(SETTING_PREFIX.length()));
+        setting.setSettingValue(tenantMetadata.get(key).toString());
+        if (setting.getSettingValue().equals(settingName)) {
+          return setting;
+        }
+      }
+    }
+
+    UserSetting defaultSetting = new UserSetting();
+    defaultSetting.setSettingName(settingName);
+    defaultSetting.setSettingValue(defaultValue);
+    return defaultSetting;
   }
 
   public synchronized void setUserSetting(String settingName, String settingValue) {
-    Session hibsession = HibernateUtil.getSession();
-    try {
-    HibernateUtil.beginTransaction();
-      try {
-    UserSettingDAO.setUserSetting(hibsession, session.getName(), settingName, settingValue);
-      } finally {
-    HibernateUtil.commitTransaction();
-      }
-    } finally {
-    HibernateUtil.closeSession();
-  }
+    String homePath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
+    Serializable id = repository.getFile(homePath).getId();
+
+    Map<String, Serializable> fileMetadata = repository.getFileMetadata(id);
+    if (fileMetadata.containsKey(SETTING_PREFIX + settingName)) {
+      fileMetadata.remove(SETTING_PREFIX + settingName);
+    }
+    fileMetadata.put(SETTING_PREFIX + settingName, settingValue);
+    repository.setFileMetadata(id, fileMetadata);
   }
 
   // ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,59 +168,51 @@ public class UserSettingService implements IUserSettingService {
   // ////////////////////////////////////////////////////////////////////////////////////////////////
 
   public IUserSetting getGlobalUserSetting(String settingName, String defaultValue) {
-    IUserSetting userSetting = null;
-    Session hibsession = HibernateUtil.getSession();
-    try {
-      HibernateUtil.beginTransaction();
-      try {
-        userSetting = UserSettingDAO.getUserSetting(hibsession, GLOBAL_SETTING, settingName);
-    if (userSetting == null && defaultValue != null) {
-      // pass out default value
-      userSetting = new UserSetting();
-      userSetting.setUsername(session.getName());
-      userSetting.setSettingName(settingName);
-      userSetting.setSettingValue(defaultValue);
+    String tentantHomePath = ClientRepositoryPaths.getEtcFolderPath();
+    Serializable tenantHomeId = repository.getFile(tentantHomePath).getId();
+    Map<String, Serializable> tenantMetadata = repository.getFileMetadata(tenantHomeId);
+
+    if (tenantMetadata.containsKey(SETTING_PREFIX + settingName)) {
+      UserSetting setting = new UserSetting();
+      setting.setSettingName(settingName);
+      setting.setSettingValue(tenantMetadata.get(SETTING_PREFIX + settingName).toString());
+      return setting;
     }
-      } finally {
-        HibernateUtil.commitTransaction();
-      }
-    } finally {
-    HibernateUtil.closeSession();
-    }
-    return userSetting;
+
+    UserSetting defaultSetting = new UserSetting();
+    defaultSetting.setSettingName(settingName);
+    defaultSetting.setSettingValue(defaultValue);
+    return defaultSetting;
   }
 
   public List<IUserSetting> getGlobalUserSettings() {
-    List<IUserSetting> settings = null;
-    Session hibsession = HibernateUtil.getSession();
-    try {
-      HibernateUtil.beginTransaction();
-      try {
-        settings = UserSettingDAO.getUserSettings(hibsession, GLOBAL_SETTING);
-      } finally {
-        HibernateUtil.commitTransaction();
+    List<IUserSetting> userSettings = new ArrayList<IUserSetting>();
+
+    String tentantHomePath = ClientRepositoryPaths.getEtcFolderPath();
+    Serializable tenantHomeId = repository.getFile(tentantHomePath).getId();
+    Map<String, Serializable> tenantMetadata = repository.getFileMetadata(tenantHomeId);
+
+    for (String key : tenantMetadata.keySet()) {
+      if (key.startsWith(SETTING_PREFIX)) {
+        UserSetting setting = new UserSetting();
+        setting.setSettingName(key.substring(SETTING_PREFIX.length()));
+        setting.setSettingValue(tenantMetadata.get(key).toString());
+        userSettings.add(setting);
       }
-    } finally {
-    HibernateUtil.closeSession();
     }
-    return settings;
+    return userSettings;
   }
 
   public void setGlobalUserSetting(String settingName, String settingValue) {
     if (SecurityHelper.getInstance().isPentahoAdministrator(session)) {
-      Session hibsession = HibernateUtil.getSession();
-      try {
-      HibernateUtil.beginTransaction();
-        try {
-      UserSettingDAO.setUserSetting(hibsession, GLOBAL_SETTING, settingName, settingValue);
-        } finally {
-      HibernateUtil.commitTransaction();
-        }
-      } finally {
-      HibernateUtil.closeSession();
+      String tentantHomePath = ClientRepositoryPaths.getEtcFolderPath();
+      Serializable tenantHomeId = repository.getFile(tentantHomePath).getId();
+      Map<String, Serializable> tenantMetadata = repository.getFileMetadata(tenantHomeId);
+      if (tenantMetadata.containsKey(SETTING_PREFIX + settingName)) {
+        tenantMetadata.remove(SETTING_PREFIX + settingName);
       }
-    } else {
-      throw new UnsupportedOperationException(Messages.getInstance().getErrorString("UserSettingService.ERROR_0001_INSUFFICIENT_PRIVILEGES")); //$NON-NLS-1$
+      tenantMetadata.put(SETTING_PREFIX + settingName, settingValue);
+      repository.setFileMetadata(tenantHomeId, tenantMetadata);
     }
   }
 

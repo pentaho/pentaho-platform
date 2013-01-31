@@ -17,16 +17,18 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import java.io.File;
-import javax.ws.rs.core.Response;
 
-import org.pentaho.platform.plugin.services.email.EmailConfiguration;
-import org.pentaho.platform.plugin.services.email.EmailService;
+import javax.ws.rs.core.Response;
 
 import junit.framework.TestCase;
 
+import org.pentaho.platform.api.email.IEmailConfiguration;
+import org.pentaho.platform.plugin.services.email.EmailConfiguration;
+import org.pentaho.platform.plugin.services.email.EmailService;
+
 /**
  * Class Description
- *
+ * 
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class EmailResourceTest extends TestCase {
@@ -60,25 +62,24 @@ public class EmailResourceTest extends TestCase {
     }
 
     {
-      final EmailConfiguration emptyConfig = emailResource.getEmailConfig();
+      final IEmailConfiguration emptyConfig = emailResource.getEmailConfig();
       assertTrue(BLANK_CONFIG.equals(emptyConfig));
     }
 
     {
       final Response response = emailResource.setEmailConfig(new EmailConfiguration());
       assertEquals(OK_STATUS, response.getStatus());
-      final EmailConfiguration emptyConfig = emailResource.getEmailConfig();
+      final IEmailConfiguration emptyConfig = emailResource.getEmailConfig();
       assertTrue(BLANK_CONFIG.equals(emptyConfig));
     }
 
     {
-      final EmailConfiguration emailConfigOriginal =
-          new EmailConfiguration(true, false, "test@pentaho.com", null, new Short((short) 36), "",
-              true, "user", null, false, true);
+      final EmailConfiguration emailConfigOriginal = new EmailConfiguration(true, false, "test@pentaho.com", null, new Short((short) 36), "", true, "user",
+          null, false, true);
       final Response response = emailResource.setEmailConfig(emailConfigOriginal);
       assertEquals(OK_STATUS, response.getStatus());
 
-      final EmailConfiguration emailConfigNew = emailResource.getEmailConfig();
+      final IEmailConfiguration emailConfigNew = emailResource.getEmailConfig();
       assertTrue(emailConfigOriginal.equals(emailConfigNew));
     }
 

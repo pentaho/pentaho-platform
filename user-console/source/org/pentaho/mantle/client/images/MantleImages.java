@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  */
 package org.pentaho.mantle.client.images;
 
@@ -23,6 +23,7 @@ import com.google.gwt.user.client.ui.HorizontalSplitPanel;
 import com.google.gwt.user.client.ui.Tree.Resources;
 import com.google.gwt.user.client.ui.VerticalSplitPanel;
 
+@SuppressWarnings("deprecation")
 public interface MantleImages extends ClientBundle, Resources, HorizontalSplitPanel.Resources, VerticalSplitPanel.Resources {
 
   public static final MantleImages images = (MantleImages) GWT.create(MantleImages.class);

@@ -18,10 +18,12 @@ package org.pentaho.platform.plugin.services.email;
 
 import java.io.Serializable;
 import java.util.Properties;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.email.IEmailConfiguration;
 
 /**
  * Bean which contains all the information for the email configuration
@@ -29,7 +31,7 @@ import org.apache.commons.lang.StringUtils;
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 @XmlRootElement
-public class EmailConfiguration implements Serializable {
+public class EmailConfiguration implements Serializable, IEmailConfiguration {
 
   private static final long serialVersionUID = -7765357320116118032L;
   

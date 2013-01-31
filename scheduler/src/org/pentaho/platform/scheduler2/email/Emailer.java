@@ -19,8 +19,6 @@ package org.pentaho.platform.scheduler2.email;
 
 import java.io.InputStream;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -40,8 +38,8 @@ import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.dom4j.Node;
+import org.pentaho.platform.api.email.IEmailService;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
@@ -150,16 +148,27 @@ public class Emailer {
 
   public boolean setup() {
     try {
-      Document configDocument = PentahoSystem.getSystemSettings().getSystemSettingsDocument("smtp-email/email_config.xml"); //$NON-NLS-1$
-      List<?> properties = configDocument.selectNodes("/email-smtp/properties/*"); //$NON-NLS-1$
-      Iterator<?> propertyIterator = properties.iterator();
-      while (propertyIterator.hasNext()) {
-        Node propertyNode = (Node) propertyIterator.next();
-        String propertyName = propertyNode.getName();
-        String propertyValue = propertyNode.getText();
-        props.put(propertyName, propertyValue);
+      final IEmailService service = PentahoSystem.get(IEmailService.class, "IEmailService", PentahoSessionHolder.getSession());
+      props.put("mail.smtp.host", service.getEmailConfig().getSmtpHost());
+      props.put("mail.smtp.port", service.getEmailConfig().getSmtpPort());
+      props.put("mail.transport.protocol", service.getEmailConfig().getSmtpProtocol());
+      props.put("mail.smtp.starttls.enable", "" + service.getEmailConfig().isUseStartTls());
+      props.put("mail.smtp.auth", "" + service.getEmailConfig().isAuthenticate());
+      props.put("mail.smtp.ssl", "" + service.getEmailConfig().isUseSsl());
+      props.put("mail.smtp.quitwait", "" + service.getEmailConfig().isSmtpQuitWait());
+      props.put("mail.from.default", service.getEmailConfig().getDefaultFrom());
+      props.put("mail.debug", "" + service.getEmailConfig().isDebug());
+
+      if (service.getEmailConfig().isAuthenticate()) {
+        props.put("mail.userid", service.getEmailConfig().getUserId());
+        props.put("mail.password", service.getEmailConfig().getPassword());
+        setAuthenticator(new Authenticator() {
+          protected PasswordAuthentication getPasswordAuthentication() {
+            return new PasswordAuthentication(service.getEmailConfig().getUserId(), service.getEmailConfig().getPassword());
+          }
+        });
       }
-      props.put("mail.from.default", PentahoSystem.getSystemSetting("smtp-email/email_config.xml", "mail.from.default", ""));
+
       return true;
     } catch (Exception e) {
       logger.error("Email.ERROR_0013_CONFIG_FILE_INVALID", e); //$NON-NLS-1$
@@ -184,9 +193,6 @@ public class Emailer {
       Session session;
 
       if (authenticate) {
-        if (authenticator == null) {
-          authenticator = new EmailAuthenticator();
-        }
         session = Session.getInstance(props, authenticator);
       } else {
         session = Session.getInstance(props);
@@ -258,15 +264,6 @@ public class Emailer {
       logger.error("Email.ERROR_0011_SEND_FAILED - " + to, e); //$NON-NLS-1$
     }
     return false;
-  }
-
-  private class EmailAuthenticator extends Authenticator {
-    @Override
-    protected PasswordAuthentication getPasswordAuthentication() {
-      String user = PentahoSystem.getSystemSetting("smtp-email/email_config.xml", "mail.userid", null); //$NON-NLS-1$ //$NON-NLS-2$
-      String password = PentahoSystem.getSystemSetting("smtp-email/email_config.xml", "mail.password", null); //$NON-NLS-1$ //$NON-NLS-2$
-      return new PasswordAuthentication(user, password);
-    }
   }
 
 }
