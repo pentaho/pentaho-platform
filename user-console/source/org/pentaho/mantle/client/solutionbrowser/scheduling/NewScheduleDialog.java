@@ -506,7 +506,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       showScheduleEmailDialog(schedule);
     } else {
       // submit
-      JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(getSchedule().toString());
+      JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
 
       RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
       scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$

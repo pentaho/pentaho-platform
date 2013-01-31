@@ -130,7 +130,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
       showScheduleEmailDialog(scheduleParams);
     } else {
       JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(jobSchedule.toString());
-      scheduleRequest.put("jobParameters", getScheduleParams()); //$NON-NLS-1$    
+      scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$    
 
       RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
       scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
