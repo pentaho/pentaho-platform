@@ -202,7 +202,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
         file = new RepositoryFile.Builder(RepositoryFilenameUtils.getName(path)).versioned(true).build(); // Default
         // versioned to true so that we're keeping history
         file = repository.createFile(parentFolder.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
-        for (IRepositoryFileOutputStreamListener listener : listeners) {
+        for (IStreamListener listener : listeners) {
           listener.fileCreated(path);
         }
       } else if (file.isFolder()) {
@@ -223,7 +223,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
           file = new RepositoryFile.Builder(newFileName).versioned(true).build(); // Default versioned to true so that we're keeping history
           file = repository.createFile(parentFolder.getId(), file, payload, "New File"); //$NON-NLS-1$
           path = file.getPath();
-          for (IRepositoryFileOutputStreamListener listener : listeners) {
+          for (IStreamListener listener : listeners) {
             listener.fileCreated(path);
           }
         } else {
