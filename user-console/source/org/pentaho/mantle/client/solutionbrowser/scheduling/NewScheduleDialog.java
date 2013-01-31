@@ -76,8 +76,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   IDialogCallback callback;
 
   ScheduleEditorWizardPanel scheduleEditorWizardPanel;
-  ScheduleParamsDialog scheduleParamsDialog;
-  ScheduleEmailDialog scheduleEmailDialog;
 
   Boolean done = false;
   boolean hasParams = false;
@@ -576,10 +574,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         }
 
         public void onResponseReceived(Request request, Response response) {
-          if (scheduleEmailDialog == null) {
-            JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
-            scheduleEmailDialog = new ScheduleEmailDialog(NewScheduleDialog.this, filePath, scheduleRequest, null);
-          }
+          JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
+          ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(NewScheduleDialog.this, filePath, scheduleRequest, null);
+          scheduleEmailDialog.setCallback(callback);
           scheduleEmailDialog.center();
         }
 
@@ -610,9 +607,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         }
 
         public void onResponseReceived(Request request, Response response) {
-          if (scheduleParamsDialog == null) {
-            scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this, isEmailConfValid);
-          }
+          ScheduleParamsDialog scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this, isEmailConfValid);
+          scheduleParamsDialog.setCallback(callback);
           if (trigger.getDescription() != null) {
             String description = Messages.getString("scheduleWillRun", trigger.getDescription().toLowerCase());
             scheduleParamsDialog.setScheduleDescription(description);

@@ -17,6 +17,7 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
@@ -41,6 +42,8 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
   String moduleBaseURL = GWT.getModuleBaseURL();
   String moduleName = GWT.getModuleName();
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+
+  IDialogCallback callback;
 
   ScheduleEmailWizardPanel scheduleEmailWizardPanel;
   AbstractWizardDialog parentDialog;
@@ -114,6 +117,9 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
           if (response.getStatusCode() == 200) {
             setDone(true);
             ScheduleEmailDialog.this.hide();
+            if (callback != null) {
+              callback.okPressed();
+            }
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(
                 Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
@@ -194,5 +200,13 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
   @Override
   protected boolean enableBack(int index) {
     return true;
+  }
+
+  public void setCallback(IDialogCallback callback) {
+    this.callback = callback;
+  }
+
+  public IDialogCallback getCallback() {
+    return callback;
   }
 }

@@ -19,6 +19,7 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
@@ -52,10 +53,10 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   String moduleName = GWT.getModuleName();
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
+  IDialogCallback callback;
+
   ScheduleParamsWizardPanel scheduleParamsWizardPanel;
   NewScheduleDialog parentDialog;
-
-  ScheduleEmailDialog scheduleEmailDialog;
 
   String filePath;
   JSONObject jobSchedule;
@@ -152,6 +153,10 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
                   false, false, true);
               dialogBox.center();
 
+              if (callback != null) {
+                callback.okPressed();
+              }
+
             } else {
               MessageDialogBox dialogBox = new MessageDialogBox(
                   Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
@@ -194,11 +199,10 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
         }
 
         public void onResponseReceived(Request request, Response response) {
-          if (scheduleEmailDialog == null) {
-            // JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(jobSchedule.toString());
-            //scheduleRequest.put("jobParameters", ()); //$NON-NLS-1$    
-            scheduleEmailDialog = new ScheduleEmailDialog(ScheduleParamsDialog.this, filePath, jobSchedule, scheduleParams);
-          }
+          // JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(jobSchedule.toString());
+          //scheduleRequest.put("jobParameters", ()); //$NON-NLS-1$    
+          ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(ScheduleParamsDialog.this, filePath, jobSchedule, scheduleParams);
+          scheduleEmailDialog.setCallback(callback);
           scheduleEmailDialog.center();
         }
 
@@ -254,7 +258,6 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   @Override
   protected boolean onPrevious(IWizardPanel previousPanel, IWizardPanel currentPanel) {
     return true;
-
   }
 
   @Override
@@ -281,4 +284,13 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   protected boolean enableBack(int index) {
     return true;
   }
+
+  public void setCallback(IDialogCallback callback) {
+    this.callback = callback;
+  }
+
+  public IDialogCallback getCallback() {
+    return callback;
+  }
+
 }
