@@ -52,6 +52,7 @@ public class ScheduleHelper {
   private static void showScheduleDialog(final String fileNameWithPath) {
 
     try {
+
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "text/plain");
@@ -73,7 +74,7 @@ public class ScheduleHelper {
         public void onResponseReceived(Request request, Response response) {
           String moduleBaseURL = GWT.getModuleBaseURL();
           String moduleName = GWT.getModuleName();
-          String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+          final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
           String urlPath = fileNameWithPath.replaceAll("/", ":");
           RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath + "/parameterizable");
           scheduleFileRequestBuilder.setHeader("accept", "text/plain");
@@ -87,8 +88,31 @@ public class ScheduleHelper {
 
               public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_OK) {
-                  final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, null, Boolean.parseBoolean(response.getText()));
-                  dialog.center();
+                  final boolean hasParams = Boolean.parseBoolean(response.getText());
+
+                  RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, contextURL + "api/emailconfig/isValid");
+                  emailValidRequest.setHeader("accept", "text/plain");
+                  try {
+                    emailValidRequest.sendRequest(null, new RequestCallback() {
+
+                      public void onError(Request request, Throwable exception) {
+                        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+                        dialogBox.center();
+                      }
+
+                      public void onResponseReceived(Request request, Response response) {
+                        if (response.getStatusCode() == Response.SC_OK) {
+                          final boolean isEmailConfValid = Boolean.parseBoolean(response.getText());
+                          final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, null, hasParams, isEmailConfValid);
+                          dialog.center();
+                        }
+                      }
+                    });
+                  } catch (RequestException e) {
+                    MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), false, false, true); //$NON-NLS-1$
+                    dialogBox.center();
+                  }
+
                 } else {
                   MessageDialogBox dialogBox = new MessageDialogBox(
                       Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$

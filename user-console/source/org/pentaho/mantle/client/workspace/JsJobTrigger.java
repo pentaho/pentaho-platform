@@ -355,7 +355,7 @@ public final native void setDayOfWeekRecurrences(JsArrayInteger days)
       		intervalUnits = timeUnitText(intervalSeconds, "day");
         	DateTimeFormat timeFormat = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM);
         	if (getRepeatInterval() == intervalSeconds) {
-        		intervalUnits = Messages.getString("dailyAt");
+        		intervalUnits = Messages.getString("dayLowercase");
         	} else {
         		intervalUnits += " " + Messages.getString("at");
         	}

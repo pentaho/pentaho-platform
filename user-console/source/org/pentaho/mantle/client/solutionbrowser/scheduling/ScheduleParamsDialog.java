@@ -19,6 +19,7 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
@@ -29,6 +30,7 @@ import org.pentaho.mantle.login.client.MantleLoginDialog;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -36,6 +38,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -58,22 +61,36 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   JSONObject jobSchedule;
 
   Boolean done = false;
+  boolean isEmailConfValid = false;
 
-  public ScheduleParamsDialog(NewScheduleDialog parentDialog) {
+  public ScheduleParamsDialog(NewScheduleDialog parentDialog, boolean isEmailConfValid) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     this.parentDialog = parentDialog;
     this.filePath = parentDialog.filePath;
     this.jobSchedule = parentDialog.getSchedule();
+    this.isEmailConfValid = isEmailConfValid;
     initDialog();
-    finishButton.setText(Messages.getString("nextStep"));
+    if (isEmailConfValid) {
+      finishButton.setText(Messages.getString("nextStep"));
+    }
   }
 
-  public ScheduleParamsDialog(String filePath, JSONObject schedule) {
+  public ScheduleParamsDialog(String filePath, JSONObject schedule, boolean isEmailConfValid) {
     super(Messages.getString("runInBackground"), null, false, true); //$NON-NLS-1$
     this.filePath = filePath;
     this.jobSchedule = schedule;
+    this.isEmailConfValid = isEmailConfValid;
     initDialog();
-    finishButton.setText(Messages.getString("nextStep"));
+    if (isEmailConfValid) {
+      finishButton.setText(Messages.getString("nextStep"));
+    }
+  }
+
+  public boolean onKeyDownPreview(char key, int modifiers) {
+    if (key == KeyCodes.KEY_ESCAPE) {
+      hide();
+    }
+    return true;
   }
 
   private void initDialog() {
@@ -108,7 +125,51 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   protected boolean onFinish() {
     JSONArray scheduleParams = getScheduleParams();
     hide();
-    showScheduleEmailDialog(scheduleParams);
+    if (isEmailConfValid) {
+      showScheduleEmailDialog(scheduleParams);
+    } else {
+      JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(jobSchedule.toString());
+      scheduleRequest.put("jobParameters", getScheduleParams()); //$NON-NLS-1$    
+
+      RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
+      scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+
+      try {
+        scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
+
+          public void onError(Request request, Throwable exception) {
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+            dialogBox.center();
+            setDone(false);
+          }
+
+          public void onResponseReceived(Request request, Response response) {
+            if (response.getStatusCode() == 200) {
+              setDone(true);
+              ScheduleParamsDialog.this.hide();
+              MessageDialogBox dialogBox = new MessageDialogBox(
+                  Messages.getString("schedule"), Messages.getString("fileScheduled", filePath.substring(filePath.lastIndexOf("/") + 1)), //$NON-NLS-1$ //$NON-NLS-2$
+                  false, false, true);
+              dialogBox.center();
+
+            } else {
+              MessageDialogBox dialogBox = new MessageDialogBox(
+                  Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
+                  false, false, true);
+              dialogBox.center();
+              setDone(false);
+            }
+          }
+
+        });
+      } catch (RequestException e) {
+        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
+            false, false, true);
+        dialogBox.center();
+        setDone(false);
+      }
+      setDone(true);
+    }
     return true;
   }
 

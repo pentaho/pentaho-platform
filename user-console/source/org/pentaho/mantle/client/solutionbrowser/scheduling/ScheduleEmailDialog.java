@@ -26,6 +26,7 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -64,6 +65,13 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
     this.setWizardPanels(wizardPanels);
     setPixelSize(650, 360);
     wizardDeckPanel.setHeight("100%"); //$NON-NLS-1$
+  }
+
+  public boolean onKeyDownPreview(char key, int modifiers) {
+    if (key == KeyCodes.KEY_ESCAPE) {
+      hide();
+    }
+    return true;
   }
 
   /*
