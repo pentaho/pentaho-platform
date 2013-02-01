@@ -199,7 +199,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
       Job job = scheduler.getJob(jobRequest.getJobId());
       if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.triggerNow(jobRequest.getJobId());
       } else {
@@ -224,7 +223,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
         public boolean accept(Job job) {
           if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
                   policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-                  policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
                   policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
             return true;
           }
@@ -259,7 +257,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
     try {
       if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.start();
       }
@@ -276,7 +273,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
     try {
       if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.pause();
       }
@@ -293,7 +289,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
     try {
       if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.shutdown();
       }
@@ -312,7 +307,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
       Job job = scheduler.getJob(jobRequest.getJobId());
       if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
       } else {
@@ -335,7 +329,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
       Job job = scheduler.getJob(jobRequest.getJobId());
       if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.pauseJob(jobRequest.getJobId());
       } else {
@@ -360,7 +353,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
       Job job = scheduler.getJob(jobRequest.getJobId());
       if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.resumeJob(jobRequest.getJobId());
       } else {
@@ -385,7 +377,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
       Job job = scheduler.getJob(jobRequest.getJobId());
       if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
               policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.removeJob(jobRequest.getJobId());
         return Response.ok("REMOVED").type(MediaType.TEXT_PLAIN).build();
