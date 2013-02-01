@@ -21,12 +21,16 @@ package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleParamsWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.workspace.JsJob;
+import org.pentaho.mantle.client.workspace.JsJobParam;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 
 import com.google.gwt.core.client.GWT;
@@ -60,16 +64,18 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
 
   String filePath;
   JSONObject jobSchedule;
+  JsJob editJob;
 
   Boolean done = false;
   boolean isEmailConfValid = false;
 
-  public ScheduleParamsDialog(NewScheduleDialog parentDialog, boolean isEmailConfValid) {
+  public ScheduleParamsDialog(NewScheduleDialog parentDialog, boolean isEmailConfValid, JsJob editJob) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     this.parentDialog = parentDialog;
     this.filePath = parentDialog.filePath;
     this.jobSchedule = parentDialog.getSchedule();
     this.isEmailConfValid = isEmailConfValid;
+    this.editJob = editJob;
     initDialog();
     if (isEmailConfValid) {
       finishButton.setText(Messages.getString("nextStep"));
@@ -100,7 +106,34 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     this.setWizardPanels(wizardPanels);
     setPixelSize(800, 465);
     String urlPath = filePath.replaceAll("/", ":"); //$NON-NLS-1$  //$NON-NLS-2$
-    setParametersUrl("api/repos/" + urlPath + "/parameterUi"); //$NON-NLS-1$ //$NON-NLS-2$
+
+    String urlParams = "";
+    if (editJob != null) {
+      // add all edit params to URL
+      JsArray<JsJobParam> jparams = editJob.getJobParams();
+      for (int i = 0; i < jparams.length(); i++) {
+        urlParams += i == 0 ? "?" : "&";
+        if (jparams.get(i).getValue().startsWith("[")) {
+          // it's an array!
+          StringTokenizer st = new StringTokenizer(jparams.get(i).getValue(), "[], ");
+          int tokens = st.countTokens();
+          int numParamsAdded = 0;
+          for (int j = 0; j < tokens; j++) {
+            String token = st.tokenAt(j);
+            if (!StringUtils.isEmpty(token)) {
+              if (numParamsAdded > 0) {
+                urlParams += "&";
+              }
+              numParamsAdded++;
+              urlParams += jparams.get(i).getName() + "=" + st.tokenAt(j);
+            }
+          }
+        } else {
+          urlParams += jparams.get(i).getName() + "=" + jparams.get(i).getValue();
+        }
+      }
+    }
+    setParametersUrl("api/repos/" + urlPath + "/parameterUi" + urlParams); //$NON-NLS-1$ //$NON-NLS-2$
     wizardDeckPanel.setHeight("100%"); //$NON-NLS-1$
   }
 
@@ -148,11 +181,6 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
             if (response.getStatusCode() == 200) {
               setDone(true);
               ScheduleParamsDialog.this.hide();
-              MessageDialogBox dialogBox = new MessageDialogBox(
-                  Messages.getString("schedule"), Messages.getString("fileScheduled", filePath.substring(filePath.lastIndexOf("/") + 1)), //$NON-NLS-1$ //$NON-NLS-2$
-                  false, false, true);
-              dialogBox.center();
-
               if (callback != null) {
                 callback.okPressed();
               }
@@ -201,7 +229,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
         public void onResponseReceived(Request request, Response response) {
           // JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(jobSchedule.toString());
           //scheduleRequest.put("jobParameters", ()); //$NON-NLS-1$    
-          ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(ScheduleParamsDialog.this, filePath, jobSchedule, scheduleParams);
+          ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(ScheduleParamsDialog.this, filePath, jobSchedule, scheduleParams, editJob);
           scheduleEmailDialog.setCallback(callback);
           scheduleEmailDialog.center();
         }

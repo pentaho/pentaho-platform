@@ -113,7 +113,7 @@ public class RunInBackgroundCommand extends AbstractCommand {
                       ScheduleParamsDialog dialog = new ScheduleParamsDialog(repositoryFile.getPath(), scheduleRequest, isEmailConfValid);
                       dialog.center();
                     } else if (isEmailConfValid) {
-                      ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(null, repositoryFile.getPath(), scheduleRequest, null);
+                      ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(null, repositoryFile.getPath(), scheduleRequest, null, null);
                       scheduleEmailDialog.center();
                     } else {
                       // just run it

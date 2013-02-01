@@ -24,6 +24,7 @@ import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.workspace.JsJob;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -50,20 +51,22 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
   String filePath;
   JSONObject jobSchedule;
   JSONArray scheduleParams;
-
+  JsJob editJob;
+  
   Boolean done = false;
 
-  public ScheduleEmailDialog(AbstractWizardDialog parentDialog, String filePath, JSONObject jobSchedule, JSONArray scheduleParams) {
+  public ScheduleEmailDialog(AbstractWizardDialog parentDialog, String filePath, JSONObject jobSchedule, JSONArray scheduleParams, JsJob editJob) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     this.parentDialog = parentDialog;
     this.filePath = filePath;
     this.jobSchedule = jobSchedule;
     this.scheduleParams = scheduleParams;
+    this.editJob = editJob;
     initDialog();
   }
 
   private void initDialog() {
-    scheduleEmailWizardPanel = new ScheduleEmailWizardPanel(filePath);
+    scheduleEmailWizardPanel = new ScheduleEmailWizardPanel(filePath, editJob);
     IWizardPanel[] wizardPanels = { scheduleEmailWizardPanel };
     this.setWizardPanels(wizardPanels);
     setPixelSize(650, 360);

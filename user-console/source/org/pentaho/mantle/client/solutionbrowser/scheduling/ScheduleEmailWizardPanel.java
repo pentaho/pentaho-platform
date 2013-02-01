@@ -22,6 +22,8 @@ import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.workspace.JsJob;
+import org.pentaho.mantle.client.workspace.JsJobParam;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -51,23 +53,10 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
 
   private String filePath;
 
-  public ScheduleEmailWizardPanel(String filePath) {
+  public ScheduleEmailWizardPanel(String filePath, JsJob job) {
     super();
     this.filePath = filePath;
-    init();
-    layout();
-  }
-
-  /**
-   * 
-   */
-  private void init() {
-    // ICallback<IChangeHandler> chHandler = new ICallback<IChangeHandler>() {
-    // public void onHandle(IChangeHandler se) {
-    // panelWidgetChanged(ScheduleEmailWizardPanel.this);
-    // }
-    // };
-    // scheduleEditor.setOnChangeHandler( chHandler );
+    layout(job);
   }
 
   private native JsArray<JsSchedulingParameter> getParams(String to, String cc, String bcc, String subject, String message, String attachmentName)
@@ -114,7 +103,7 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
     }
   }
 
-  private void layout() {
+  private void layout(JsJob job) {
     this.addStyleName(PENTAHO_SCHEDULE);
 
     final FlexTable emailSchedulePanel = new FlexTable();
@@ -173,6 +162,24 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
     emailSchedulePanel.setWidget(4, 0, new Label(Messages.getString("scheduleEmailMessage")));
     emailSchedulePanel.setWidget(5, 0, messageTextArea);
     ((FlexCellFormatter) emailSchedulePanel.getCellFormatter()).setColSpan(5, 0, 2);
+
+    if (job != null) {
+      JsArray<JsJobParam> jparams = job.getJobParams();
+      for (int i = 0; i < jparams.length(); i++) {
+        if ("_SCH_EMAIL_TO".equals(jparams.get(i).getName())) {
+          yes.setValue(true);
+          no.setValue(false);
+          emailSchedulePanel.setVisible(true);
+          toAddressTextBox.setText(jparams.get(i).getValue());
+        } else if ("_SCH_EMAIL_SUBJECT".equals(jparams.get(i).getName())) {
+          subjectTextBox.setText(jparams.get(i).getValue());
+        } else if ("_SCH_EMAIL_MESSAGE".equals(jparams.get(i).getName())) {
+          messageTextArea.setText(jparams.get(i).getValue());
+        } else if ("_SCH_EMAIL_ATTACHMENT_NAME".equals(jparams.get(i).getName())) {
+          attachmentNameTextBox.setText(jparams.get(i).getValue());
+        }
+      }
+    }
 
     this.add(emailSchedulePanel, CENTER);
 

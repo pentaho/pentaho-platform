@@ -76,7 +76,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   IDialogCallback callback;
 
   ScheduleEditorWizardPanel scheduleEditorWizardPanel;
-
+  JsJob editJob;
+  
   Boolean done = false;
   boolean hasParams = false;
   boolean isEmailConfValid = false;
@@ -84,6 +85,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
     super(Messages.getString("editSchedule"), null, false, true); //$NON-NLS-1$
     setCallback(callback);
+    this.editJob = jsJob;
     constructDialog(jsJob.getFullResourceName(), hasParams, isEmailConfValid, jsJob);
   }
 
@@ -575,7 +577,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
         public void onResponseReceived(Request request, Response response) {
           JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
-          ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(NewScheduleDialog.this, filePath, scheduleRequest, null);
+          ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(NewScheduleDialog.this, filePath, scheduleRequest, null, editJob);
           scheduleEmailDialog.setCallback(callback);
           scheduleEmailDialog.center();
         }
@@ -607,7 +609,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         }
 
         public void onResponseReceived(Request request, Response response) {
-          ScheduleParamsDialog scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this, isEmailConfValid);
+          ScheduleParamsDialog scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this, isEmailConfValid, editJob);
           scheduleParamsDialog.setCallback(callback);
           if (trigger.getDescription() != null) {
             String description = Messages.getString("scheduleWillRun", trigger.getDescription().toLowerCase());
