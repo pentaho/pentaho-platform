@@ -19,6 +19,19 @@ package org.pentaho.platform.plugin.services.importexport;/*
  * Time: 4:41 PM
  */
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,16 +41,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
-import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestEntity;
+import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestFormatException;
 import org.pentaho.reporting.libraries.libsparklines.util.StringUtils;
-
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  *
@@ -111,10 +116,12 @@ public class ZipExportProcessor extends BaseExportProcessor {
     ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(exportFile));
 
     if (exportRepositoryFile.isFolder()) {  // Handle recursive export
+      exportManifest.getManifestInformation().setRootFolder(path.substring(0,path.lastIndexOf("/") + 1));
       ZipEntry entry = new ZipEntry(exportRepositoryFile.getPath().substring(filePath.length() + 1) + "/");
       zos.putNextEntry(entry);
       exportDirectory(exportRepositoryFile, zos, filePath);
     } else {
+      exportManifest.getManifestInformation().setRootFolder(path.substring(0,path.lastIndexOf("/") + 1));
       exportFile(exportRepositoryFile, zos, filePath);
     }
 
@@ -148,8 +155,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
    *
    * @param repositoryFile
    * @param outputStream
+   * @throws ExportManifestFormatException 
    */
-  public void exportFile(RepositoryFile repositoryFile, OutputStream outputStream, String filePath) throws ExportException, IOException{
+  public void exportFile(RepositoryFile repositoryFile, OutputStream outputStream, String filePath)
+      throws ExportException, IOException {
 
     // we need a zip
     ZipOutputStream zos = (ZipOutputStream) outputStream;
@@ -165,7 +174,11 @@ public class ZipExportProcessor extends BaseExportProcessor {
         if(this.withManifest){
           // add this entity to the manifest
           RepositoryFileAcl fileAcl = unifiedRepository.getAcl(repositoryFile.getId());
-          exportManifest.add(new ExportManifestEntity(repositoryFile, fileAcl));
+          try {
+          exportManifest.add(repositoryFile, fileAcl);
+          } catch (ExportManifestFormatException e){
+            throw new ExportException(e.getMessage());
+          }
         }
 
         ZipEntry entry = new ZipEntry(repositoryFile.getPath().substring(filePath.length() + 1));

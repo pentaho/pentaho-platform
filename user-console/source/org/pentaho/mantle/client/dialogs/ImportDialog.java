@@ -1,19 +1,19 @@
 /*
- * Copyright 2007 Pentaho Corporation.  All rights reserved. 
- * This software was developed by Pentaho Corporation and is provided under the terms 
- * of the Mozilla Public License, Version 1.1, or any later version. You may not use 
- * this file except in compliance with the license. If you need a copy of the license, 
- * please go to http://www.mozilla.org/MPL/MPL-1.1.txt. The Original Code is the Pentaho 
- * BI Platform.  The Initial Developer is Pentaho Corporation.
+ * This program is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
+ * Foundation.
  *
- * Software distributed under the Mozilla Public License is distributed on an "AS IS" 
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to 
- * the license for the specific language governing your rights and limitations.
+ * You should have received a copy of the GNU Lesser General Public License along with this 
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html 
+ * or from the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * @created Jan 19, 2011 
- * @author wseyler
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  */
-
 package org.pentaho.mantle.client.dialogs;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
@@ -29,9 +29,7 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
@@ -43,7 +41,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author wseyler/modifed for Import parameters by tband
@@ -67,7 +64,6 @@ public class ImportDialog extends PromptDialogBox {
   /**
    * @param repositoryFile
    */
-  @SuppressWarnings("deprecation")
   public ImportDialog(RepositoryFile repositoryFile) {
     super(Messages.getString("import"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     indefiniteProgress = new PopupPanel(false, true);
@@ -104,22 +100,25 @@ public class ImportDialog extends PromptDialogBox {
     rootPanel.add(importLocationLabel);
 
     //HorizontalPanel hpanel = new HorizontalPanel(); 
-    permission = new CheckBox(Messages.getString("permission"), true);
-    permission.setName("ignoreACLS");
+    permission = new CheckBox(Messages.getString("applyAclPermissions"), true);
+    permission.setName("applyAclPermissions");
     permission.setValue(Boolean.TRUE);
-    permission.setFormValue("false");
+    permission.setFormValue("true");
     ClickHandler phandler = new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
-        permission.setFormValue(permission.getValue() ? "false" : "true");//passes ignoreACL
+        permission.setFormValue(permission.getValue() ? "true" : "false");
         overwrite.setFormValue(overwrite.getValue() ? "true" : "false");
         overwrite.setEnabled(permission.getValue() ? true : false);
+        if(!permission.getValue()){
+          overwrite.setFormValue("false");
+        }
       }
     };
     permission.addClickHandler(phandler);
     
-    overwrite = new CheckBox(Messages.getString("overwrite"), true);
-    overwrite.setName("overwrite");
+    overwrite = new CheckBox(Messages.getString("overwriteAclPermissions"), true);
+    overwrite.setName("overwriteAclPermissions");
     overwrite.setFormValue("true");
     overwrite.setEnabled(true);
     overwrite.setValue(Boolean.TRUE);

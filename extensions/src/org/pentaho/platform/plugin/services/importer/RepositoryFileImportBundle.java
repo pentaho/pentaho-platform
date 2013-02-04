@@ -15,16 +15,22 @@ import java.util.*;
  * Date: 6/13/12
  */
 public class RepositoryFileImportBundle implements IPlatformImportBundle {
-  private RepositoryFileAcl acl;
+  
   private InputStream inputStream;
   private String path = "/";
   private String name;
   private String charSet;
   private String mimeType;
   private String comment;
-  private boolean overwrite;
+  private boolean overwriteInRepository;//file or folder overwrite
   private boolean hidden;
   private RepositoryFile file;
+  //BIServer 8158 - ACL import handling properties
+  private RepositoryFileAcl acl;
+  private boolean applyAclSettings;
+  private boolean overwriteAclSettings;
+  private boolean retainOwnership;  
+  // end 8158
   private Map<String, Object> properties = new HashMap<String, Object>();
   private List<IPlatformImportBundle> children = new ArrayList<IPlatformImportBundle>();
 
@@ -103,11 +109,11 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
   }
 
   public boolean overwriteInRepossitory() {
-    return overwrite;
+    return overwriteInRepository;
   }
 
   public void setOverwriteInRepossitory(boolean overwrite) {
-    this.overwrite = overwrite;
+    this.overwriteInRepository = overwrite;
   }
 
   public boolean isHidden() {
@@ -130,6 +136,42 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
 	  this.file = file;
   }
   
+  public boolean isOverwriteInRepository() {
+    return overwriteInRepository;
+  }
+
+  public void setOverwriteInRepository(boolean overwriteInRepository) {
+    this.overwriteInRepository = overwriteInRepository;
+  }
+
+  public boolean isApplyAclSettings() {
+    return applyAclSettings;
+  }
+
+  public void setApplyAclSettings(boolean applyAclSettings) {
+    this.applyAclSettings = applyAclSettings;
+  }
+
+  public boolean isOverwriteAclSettings() {
+    return overwriteAclSettings;
+  }
+
+  public void setOverwriteAclSettings(boolean overwriteAclSettings) {
+    this.overwriteAclSettings = overwriteAclSettings;
+  }
+
+  public boolean isRetainOwnership() {
+    return retainOwnership;
+  }
+
+  public void setRetainOwnership(boolean retainOwnership) {
+    this.retainOwnership = retainOwnership;
+  }
+
+  public String getCharSet() {
+    return charSet;
+  }
+
   private boolean validate(){
 	if(this.mimeType != null && this.mimeType.equals("text/directory")) {
 		return this.inputStream == null;
@@ -160,7 +202,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
       throw new IllegalStateException("Bundle is not valid, check your inputs");
     }
 
-    public Builder overwrite(boolean overwrite){
+    public Builder overwriteFile(boolean overwrite){
       bundle.setOverwriteInRepossitory(overwrite);
       return this;
     }
@@ -213,6 +255,32 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     public Builder mime(String mime){
       bundle.setMimeType(mime);
       return this;
+    }
+
+    
+    
+    /**
+     * @param applyAclSettings
+     * @see org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle#setApplyAclSettings(boolean)
+     */
+    public void applyAclSettings(boolean applyAclSettings) {
+      bundle.setApplyAclSettings(applyAclSettings);
+    }
+
+    /**
+     * @param overwriteAclSettings
+     * @see org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle#setOverwriteAclSettings(boolean)
+     */
+    public void overwriteAclSettings(boolean overwriteAclSettings) {
+      bundle.setOverwriteAclSettings(overwriteAclSettings);
+    }
+
+    /**
+     * @param retainOwnership
+     * @see org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle#setRetainOwnership(boolean)
+     */
+    public void retainOwnership(boolean retainOwnership) {
+      bundle.setRetainOwnership(retainOwnership);
     }
 
     public Builder addChildBundle(IPlatformImportBundle childBundle) {

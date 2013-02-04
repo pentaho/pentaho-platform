@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/api/api.iml" filepath="$PROJECT_DIR$/api/api.iml" group="pentaho-platform" />
+      <module fileurl="file://$PROJECT_DIR$/assembly/assembly.iml" filepath="$PROJECT_DIR$/assembly/assembly.iml" group="pentaho-platform" />
+      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" group="pentaho-platform" />
+      <module fileurl="file://$PROJECT_DIR$/extensions/extensions.iml" filepath="$PROJECT_DIR$/extensions/extensions.iml" group="pentaho-platform" />
+      <module fileurl="file://$PROJECT_DIR$/repository/repository.iml" filepath="$PROJECT_DIR$/repository/repository.iml" group="pentaho-platform" />
+      <module fileurl="file://$PROJECT_DIR$/scheduler/scheduler.iml" filepath="$PROJECT_DIR$/scheduler/scheduler.iml" group="pentaho-platform" />
+      <module fileurl="file://$PROJECT_DIR$/user-console/user-console.iml" filepath="$PROJECT_DIR$/user-console/user-console.iml" group="pentaho-platform" />
+    </modules>
+  </component>
+</project>
+

@@ -71,7 +71,7 @@ public class NewFolderCommand extends AbstractCommand {
       }
 
       public void okPressed() {
-        String createDirUrl = contextURL + "api/repo/dirs/" + SolutionBrowserPanel.pathToId(parentFolder.getPath() + "/" + URL.encodeComponent(folderNameTextBox.getText())); //$NON-NLS-1$
+        String createDirUrl = contextURL + "api/repo/dirs/" + SolutionBrowserPanel.pathToId(parentFolder.getPath() + "/" + URL.encodeQueryString(folderNameTextBox.getText())); //$NON-NLS-1$
         RequestBuilder createDirRequestBuilder = new RequestBuilder(RequestBuilder.PUT, createDirUrl);
 
         try {

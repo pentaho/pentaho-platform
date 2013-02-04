@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.repository2.unified.ISourcesStreamEvents;
+import org.pentaho.platform.api.repository2.unified.IStreamListener;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
@@ -31,7 +33,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.util.web.MimeHelper;
 
-public class RepositoryFileOutputStream extends ByteArrayOutputStream {
+public class RepositoryFileOutputStream extends ByteArrayOutputStream implements ISourcesStreamEvents {
 
   protected String path = null;
   protected IUnifiedRepository repository;
@@ -40,7 +42,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
   protected boolean autoCreateDirStructure = false;
   protected boolean closed = false;
   protected boolean flushed = false;
-  protected ArrayList<IRepositoryFileOutputStreamListener> listeners = new ArrayList<IRepositoryFileOutputStreamListener>();
+  protected ArrayList<IStreamListener> listeners = new ArrayList<IStreamListener>();
 
   public RepositoryFileOutputStream(final String path,
                                     final boolean autoCreateUniqueFileName,
@@ -200,7 +202,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
         file = new RepositoryFile.Builder(RepositoryFilenameUtils.getName(path)).versioned(true).build(); // Default
         // versioned to true so that we're keeping history
         file = repository.createFile(parentFolder.getId(), file, payload, "commit from " + RepositoryFileOutputStream.class.getName()); //$NON-NLS-1$
-        for (IRepositoryFileOutputStreamListener listener : listeners) {
+        for (IStreamListener listener : listeners) {
           listener.fileCreated(path);
         }
       } else if (file.isFolder()) {
@@ -221,7 +223,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
           file = new RepositoryFile.Builder(newFileName).versioned(true).build(); // Default versioned to true so that we're keeping history
           file = repository.createFile(parentFolder.getId(), file, payload, "New File"); //$NON-NLS-1$
           path = file.getPath();
-          for (IRepositoryFileOutputStreamListener listener : listeners) {
+          for (IStreamListener listener : listeners) {
             listener.fileCreated(path);
           }
         } else {
@@ -256,7 +258,7 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream {
     return autoCreateDirStructure;
   }
 
-  public void addListener(IRepositoryFileOutputStreamListener listener) {
+  public void addListener(IStreamListener listener) {
     listeners.add(listener);
   }
 

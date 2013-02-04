@@ -38,11 +38,11 @@ import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.toolbars.FilesToolbar;
 import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTree;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.DialogBox;

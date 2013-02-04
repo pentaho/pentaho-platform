@@ -16,15 +16,13 @@
  */
 package org.pentaho.platform.scheduler2.quartz;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +31,11 @@ import org.pentaho.platform.api.action.IStreamingAction;
 import org.pentaho.platform.api.action.IVarArgsAction;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.PluginBeanException;
+import org.pentaho.platform.api.repository2.unified.ISourcesStreamEvents;
+import org.pentaho.platform.api.repository2.unified.IStreamListener;
+import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -120,7 +123,7 @@ public class ActionAdapterQuartzJob implements Job {
     params.remove(QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_ACTIONID);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_ACTIONUSER);
-    final IBackgroundExecutionStreamProvider streamProvider = (IBackgroundExecutionStreamProvider)params.get(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
+    final IBackgroundExecutionStreamProvider streamProvider = (IBackgroundExecutionStreamProvider) params.get(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_STREAMPROVIDER);
     params.remove(QuartzScheduler.RESERVEDMAPKEY_UIPASSPARAM);
 
@@ -135,39 +138,44 @@ public class ActionAdapterQuartzJob implements Job {
         // sync job params to the action bean
         ActionHarness actionHarness = new ActionHarness(actionBean);
 
-        Map<String, Object> actionParams = new HashMap<String, Object>();
+        final Map<String, Object> actionParams = new HashMap<String, Object>();
         actionParams.putAll(params);
         if (streamProvider != null) {
           actionParams.put("inputStream", streamProvider.getInputStream());
         }
         actionHarness.setValues(actionParams, new ActionSequenceCompatibilityFormatter());
-        
-        ByteArrayOutputStream capturedStream = new ByteArrayOutputStream();
-        TeeOutputStream tos = null;
 
         if (streamProvider != null) {
           actionParams.remove("inputStream");
           if (actionBean instanceof IStreamingAction) {
-            streamProvider.setStreamingAction((IStreamingAction)actionBean);
+            streamProvider.setStreamingAction((IStreamingAction) actionBean);
           }
-          tos = new TeeOutputStream(capturedStream, streamProvider.getOutputStream());
-          actionParams.put("outputStream", tos);
+          OutputStream stream = streamProvider.getOutputStream();
+          if (stream instanceof ISourcesStreamEvents) {
+            ((ISourcesStreamEvents) stream).addListener(new IStreamListener() {
+              public void fileCreated(String filePath) {
+                IUnifiedRepository repo = PentahoSystem.get(IUnifiedRepository.class);
+                RepositoryFile sourceFile = repo.getFile(filePath);
+                SimpleRepositoryFileData data = repo.getDataForRead(sourceFile.getId(), SimpleRepositoryFileData.class);
+                sendEmail(actionParams, filePath, data);
+              }
+            });
+          }
+          actionParams.put("outputStream", stream);
           actionHarness.setValues(actionParams);
         }
-        
+
         if (actionBean instanceof IVarArgsAction) {
           actionParams.remove("outputStream");
           ((IVarArgsAction) actionBean).setVarArgs(actionParams);
         }
         actionBean.execute();
-        
-        sendEmail(actionParams, streamProvider, capturedStream.toByteArray());
-        
+
         return null;
       }
     };
 
-    if ( (actionUser == null) || (actionUser.equals("system session")) ) { //$NON-NLS-1$
+    if ((actionUser == null) || (actionUser.equals("system session"))) { //$NON-NLS-1$
       // For now, don't try to run quartz jobs as authenticated if the user
       // that created the job is a system user. See PPP-2350
       SecurityHelper.getInstance().runAsUnauthenticated(actionBeanRunner);
@@ -184,68 +192,67 @@ public class ActionAdapterQuartzJob implements Job {
 
   }
 
-  private void sendEmail(Map<String, Object> actionParams, IBackgroundExecutionStreamProvider streamProvider, byte[]attachment) {
-      // if email is setup and we have tos, then do it
-      Emailer emailer = new Emailer();
-      if (!emailer.setup()) {
-        // email not configured
-        return;
+  private void sendEmail(Map<String, Object> actionParams, String filePath, SimpleRepositoryFileData data) {
+    // if email is setup and we have tos, then do it
+    Emailer emailer = new Emailer();
+    if (!emailer.setup()) {
+      // email not configured
+      return;
+    }
+    String to = (String) actionParams.get("_SCH_EMAIL_TO");
+    String cc = (String) actionParams.get("_SCH_EMAIL_CC");
+    String bcc = (String) actionParams.get("_SCH_EMAIL_BCC");
+    if ((to == null || "".equals(to)) && (cc == null || "".equals(cc)) && (bcc == null || "".equals(bcc))) {
+      // no destination
+      return;
+    }
+    emailer.setTo(to);
+    emailer.setCc(cc);
+    emailer.setBcc(bcc);
+    emailer.setAttachment(data.getStream());
+    emailer.setAttachmentName("attachment");
+    String attachmentName = (String) actionParams.get("_SCH_EMAIL_ATTACHMENT_NAME");
+    if (attachmentName != null && !"".equals(attachmentName)) {
+      String path = filePath;
+      if (path.endsWith(".*")) {
+        path = path.replace(".*", "");
       }
-      String to = (String)actionParams.get("_SCH_EMAIL_TO");
-      String cc = (String)actionParams.get("_SCH_EMAIL_CC");
-      String bcc = (String)actionParams.get("_SCH_EMAIL_BCC");
-      if ((to==null||"".equals(to)) && (cc==null||"".equals(cc)) && (bcc==null||"".equals(bcc))) {
-        // no destination
-        return;
+      String extension = MimeHelper.getExtension(data.getMimeType());
+      if (extension == null) {
+        extension = ".bin";
       }
-      emailer.setTo(to);
-      emailer.setCc(cc);
-      emailer.setBcc(bcc);
-      emailer.setAttachment(new ByteArrayInputStream(attachment));
-      String attachmentName = (String)actionParams.get("_SCH_EMAIL_ATTACHMENT_NAME");
-      if (attachmentName != null && !"".equals(attachmentName)) {
-       	String path = streamProvider.getOutputPath();
-       	if (path.endsWith(".*")) {
-       	  path = path.replace(".*", "");
-       	}
-       	String extension = MimeHelper.getExtension(streamProvider.getMimeType());
-       	if (extension == null) {
-       	  extension = ".bin";
-       	}    	  
-      	emailer.setAttachmentName(attachmentName + extension);
-      } else if (streamProvider != null) {
-      	String path = streamProvider.getOutputPath();
-      	if (path.endsWith(".*")) {
-      	  path = path.replace(".*", "");
-      	}
-      	String extension = MimeHelper.getExtension(streamProvider.getMimeType());
-      	if (extension == null) {
-      	  extension = ".bin";
-      	}
-      	path = path.substring(path.lastIndexOf("/")+1, path.length()) + extension;
-      	emailer.setAttachmentName(path);
-      } else {
-          emailer.setAttachmentName("attachment");
+      emailer.setAttachmentName(attachmentName + extension);
+    } else if (data != null) {
+      String path = filePath;
+      if (path.endsWith(".*")) {
+        path = path.replace(".*", "");
       }
-      if (streamProvider == null || streamProvider.getMimeType() == null || "".equals(streamProvider.getMimeType())) {
-          emailer.setAttachmentMimeType("binary/octet-stream");
-      } else {
-      	emailer.setAttachmentMimeType(streamProvider.getMimeType());
+      String extension = MimeHelper.getExtension(data.getMimeType());
+      if (extension == null) {
+        extension = ".bin";
       }
-      String subject = (String)actionParams.get("_SCH_EMAIL_SUBJECT");
-      if (subject != null && !"".equals(subject)) {
-        emailer.setSubject(subject);
-      } else {
-        emailer.setSubject("Pentaho Scheduler: " + emailer.getAttachmentName());
-      }
-      emailer.setFromName("Pentaho Scheduler");
-      String message = (String)actionParams.get("_SCH_EMAIL_MESSAGE");
-      if (subject != null && !"".equals(subject)) {
-        emailer.setBody(message);
-      }
-      emailer.send();
+      path = path.substring(path.lastIndexOf("/") + 1, path.length()) + extension;
+      emailer.setAttachmentName(path);
+    }
+    if (data == null || data.getMimeType() == null || "".equals(data.getMimeType())) {
+      emailer.setAttachmentMimeType("binary/octet-stream");
+    } else {
+      emailer.setAttachmentMimeType(data.getMimeType());
+    }
+    String subject = (String) actionParams.get("_SCH_EMAIL_SUBJECT");
+    if (subject != null && !"".equals(subject)) {
+      emailer.setSubject(subject);
+    } else {
+      emailer.setSubject("Pentaho Scheduler: " + emailer.getAttachmentName());
+    }
+    emailer.setFromName("Pentaho Scheduler");
+    String message = (String) actionParams.get("_SCH_EMAIL_MESSAGE");
+    if (subject != null && !"".equals(subject)) {
+      emailer.setBody(message);
+    }
+    emailer.send();
   }
-  
+
   class LoggingJobExecutionException extends JobExecutionException {
     private static final long serialVersionUID = -4124907454208034326L;
 
