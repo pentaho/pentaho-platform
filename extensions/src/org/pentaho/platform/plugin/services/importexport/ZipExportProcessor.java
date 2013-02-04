@@ -170,17 +170,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
       // if we don't get a valid input stream back, skip it
       if(is != null){
-
-        if(this.withManifest){
-          // add this entity to the manifest
-          RepositoryFileAcl fileAcl = unifiedRepository.getAcl(repositoryFile.getId());
-          try {
-          exportManifest.add(repositoryFile, fileAcl);
-          } catch (ExportManifestFormatException e){
-            throw new ExportException(e.getMessage());
-          }
-        }
-
+        addToManifest(repositoryFile);
         ZipEntry entry = new ZipEntry(repositoryFile.getPath().substring(filePath.length() + 1));
 
         zos.putNextEntry(entry);
@@ -188,6 +178,18 @@ public class ZipExportProcessor extends BaseExportProcessor {
         IOUtils.copy(is, outputStream);
         zos.closeEntry();
         is.close();
+      }
+    }
+  }
+  
+  private void addToManifest(RepositoryFile repositoryFile) throws ExportException {
+    if(this.withManifest){
+      // add this entity to the manifest
+      RepositoryFileAcl fileAcl = unifiedRepository.getAcl(repositoryFile.getId());
+      try {
+      exportManifest.add(repositoryFile, fileAcl);
+      } catch (ExportManifestFormatException e){
+        throw new ExportException(e.getMessage());
       }
     }
   }
@@ -199,6 +201,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
    */
   @Override
   public void exportDirectory(RepositoryFile repositoryDir, OutputStream outputStream, String filePath) throws ExportException, IOException{
+    addToManifest(repositoryDir);
     List<RepositoryFile> children = this.unifiedRepository.getChildren(repositoryDir.getId());
     for (RepositoryFile repositoryFile : children) {
       if (repositoryFile.isFolder()) {
