@@ -18,7 +18,6 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
 import java.util.ArrayList;
 import java.util.List;

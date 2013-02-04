@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class JobScheduleParam implements Serializable {
+  
+  private static final long serialVersionUID = -4214459740606299083L;
+
   private static final SimpleDateFormat isodatetime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZ");  
 
   String name;

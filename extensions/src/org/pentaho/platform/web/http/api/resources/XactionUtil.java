@@ -132,7 +132,7 @@ public class XactionUtil {
   }
 
   public static String postExecute(IRuntimeContext runtime, boolean debugMessages, boolean doWrapper,
-      IOutputHandler outputHandler, Map<String, IParameterProvider> parameterProviders, HttpServletRequest request, HttpServletResponse response, List messages)
+      IOutputHandler outputHandler, Map<String, IParameterProvider> parameterProviders, HttpServletRequest request, HttpServletResponse response, List<?> messages)
       throws Exception {
     StringBuffer buffer = new StringBuffer();
 

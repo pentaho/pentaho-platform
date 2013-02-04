@@ -52,8 +52,7 @@ public abstract class FileResourceContentGenerator extends SimpleContentGenerato
     
     ActionHarness harness = new ActionHarness(this);
     
-    @SuppressWarnings("unchecked")
-    Iterator iter = requestParams.getParameterNames();
+    Iterator<?> iter = requestParams.getParameterNames();
     
     while(iter.hasNext()) {
       String paramName = (String) iter.next();

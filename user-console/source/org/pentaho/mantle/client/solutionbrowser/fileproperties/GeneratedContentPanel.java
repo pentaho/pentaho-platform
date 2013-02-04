@@ -64,9 +64,15 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
   private String repositoryFilePath;
   private FixedWidthGrid dataTable;
   protected HistoryToolbar toolbar;
-  
+  protected String user;
+
   public GeneratedContentPanel(final String repositoryFilePath) {
+    this(repositoryFilePath, null);
+  }
+  
+  public GeneratedContentPanel(final String repositoryFilePath, final String user) {
     this.repositoryFilePath = repositoryFilePath;
+    this.user = user;
 
     toolbar = new HistoryToolbar();
     toolbar.getRunButton().setEnabled(false);
@@ -111,6 +117,9 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
     String url = contextURL + "api/repo/files/" + fileSummaryPath + "/generatedcontent"; //$NON-NLS-1$ //$NON-NLS-2$
+    if (user != null) {
+      url = contextURL + "api/repo/files/" + fileSummaryPath + "/generatedcontentForUser?user=" + user; //$NON-NLS-1$ //$NON-NLS-2$
+    }
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     builder.setHeader("Accept", "application/json");
     try {

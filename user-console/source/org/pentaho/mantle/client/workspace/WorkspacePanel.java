@@ -311,7 +311,7 @@ public class WorkspacePanel extends SimplePanel {
           PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
           String resource = event.getValue().getFullResourceName();
           resource = resource.replace("/", ":");
-          dialog.setContent(new GeneratedContentPanel(resource));
+          dialog.setContent(new GeneratedContentPanel(resource, event.getValue().getUserName()));
           dialog.setSize("600px", "300px");
           dialog.center();
         }
