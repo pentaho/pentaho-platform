@@ -101,6 +101,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private MantleTabPanel contentTabPanel = new MantleTabPanel(true);
   private boolean showSolutionBrowser = true;
   private boolean isAdministrator = false;
+  private boolean isScheduler = false;
   private ArrayList<SolutionBrowserListener> listeners = new ArrayList<SolutionBrowserListener>();
   private PickupDragController dragController;
   private List<String> executableFileExtensions = new ArrayList<String>();
@@ -732,6 +733,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     this.isAdministrator = isAdministrator;
     solutionTree.setAdministrator(isAdministrator);
   }
+    public boolean isScheduler() {
+        return isScheduler;
+    }
+
+    public void setScheduler(boolean isScheduler) {
+        this.isScheduler = isScheduler;
+    }
 
   public boolean isNavigatorShowing() {
     return showSolutionBrowser;
