@@ -44,6 +44,8 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -60,11 +62,14 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   IDialogCallback callback;
 
   ScheduleParamsWizardPanel scheduleParamsWizardPanel;
+  ScheduleEmailDialog scheduleEmailDialog;
   NewScheduleDialog parentDialog;
 
   String filePath;
+
   JSONObject jobSchedule;
   JsJob editJob;
+  JSONArray scheduleParams;
 
   Boolean done = false;
   boolean isEmailConfValid = false;
@@ -100,7 +105,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     return true;
   }
 
-  private void initDialog() {
+  public void initDialog() {
     scheduleParamsWizardPanel = new ScheduleParamsWizardPanel(filePath);
     IWizardPanel[] wizardPanels = { scheduleParamsWizardPanel };
     this.setWizardPanels(wizardPanels);
@@ -157,7 +162,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onFinish() {
-    JSONArray scheduleParams = getScheduleParams();
+    scheduleParams = getScheduleParams();
     hide();
     if (isEmailConfValid) {
       showScheduleEmailDialog(scheduleParams);
@@ -227,10 +232,13 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
         }
 
         public void onResponseReceived(Request request, Response response) {
-          // JSONObject scheduleRequest = (JSONObject)JSONParser.parseStrict(jobSchedule.toString());
-          //scheduleRequest.put("jobParameters", ()); //$NON-NLS-1$    
-          ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(ScheduleParamsDialog.this, filePath, jobSchedule, scheduleParams, editJob);
-          scheduleEmailDialog.setCallback(callback);
+          if (scheduleEmailDialog == null) {
+            scheduleEmailDialog = new ScheduleEmailDialog(ScheduleParamsDialog.this, filePath, jobSchedule, scheduleParams, editJob);
+            scheduleEmailDialog.setCallback(callback);
+          } else {
+            scheduleEmailDialog.setScheduleParams(scheduleParams);
+            scheduleEmailDialog.setJobSchedule(jobSchedule);
+          }
           scheduleEmailDialog.center();
         }
 
@@ -269,13 +277,30 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
    */
   @Override
   protected void backClicked() {
+    scheduleParams = getScheduleParams();
     hide();
     parentDialog.center();
   }
 
   @Override
   public void center() {
-    // TODO Auto-generated method stub
+    if (scheduleParams != null) {
+      // we have saved params from back/next
+      String urlPath = filePath.replaceAll("/", ":"); //$NON-NLS-1$  //$NON-NLS-2$
+      String urlParams = "";
+      for (int i = 0; i < scheduleParams.size(); i++) {
+        JSONObject o = ((JSONValue) scheduleParams.get(i)).isObject();
+        // keys: name, stringValue, type
+        JSONString name = o.get("name").isString();
+        JSONArray stringValueArr = o.get("stringValue").isArray();
+
+        for (int j = 0; j < stringValueArr.size(); j++) {
+          urlParams += (i == 0 && j == 0) ? "?" : "&";
+          urlParams += name.stringValue().replace("\"", "") + "=" + stringValueArr.get(j).toString().replace("\"", "");
+        }
+      }
+      setParametersUrl("api/repos/" + urlPath + "/parameterUi" + urlParams); //$NON-NLS-1$ //$NON-NLS-2$
+    }
     super.center();
   }
 
@@ -299,7 +324,6 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   }
 
   protected boolean showNext(int index) {
-    // TODO Auto-generated method stub
     return false;
   }
 
@@ -321,4 +345,47 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     return callback;
   }
 
+  public NewScheduleDialog getParentDialog() {
+    return parentDialog;
+  }
+
+  public void setParentDialog(NewScheduleDialog parentDialog) {
+    this.parentDialog = parentDialog;
+  }
+
+  public String getFilePath() {
+    return filePath;
+  }
+
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
+  }
+
+  public JSONObject getJobSchedule() {
+    return jobSchedule;
+  }
+
+  public void setJobSchedule(JSONObject jobSchedule) {
+    this.jobSchedule = jobSchedule;
+  }
+
+  public JsJob getEditJob() {
+    return editJob;
+  }
+
+  public void setEditJob(JsJob editJob) {
+    this.editJob = editJob;
+  }
+
+  public boolean isEmailConfValid() {
+    return isEmailConfValid;
+  }
+
+  public void setEmailConfValid(boolean isEmailConfValid) {
+    this.isEmailConfValid = isEmailConfValid;
+  }
+
+  public void setScheduleParams(JSONArray scheduleParams) {
+    this.scheduleParams = scheduleParams;
+  }
 }

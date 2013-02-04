@@ -75,9 +75,11 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   String filePath;
   IDialogCallback callback;
 
+  ScheduleEmailDialog scheduleEmailDialog;
+  ScheduleParamsDialog scheduleParamsDialog;
   ScheduleEditorWizardPanel scheduleEditorWizardPanel;
   JsJob editJob;
-  
+
   Boolean done = false;
   boolean hasParams = false;
   boolean isEmailConfValid = false;
@@ -502,7 +504,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     JSONObject schedule = getSchedule();
     if (hasParams) {
       hide();
-      showScheduleParamsDialog(trigger);
+      showScheduleParamsDialog(trigger, schedule);
     } else if (isEmailConfValid) {
       hide();
       showScheduleEmailDialog(schedule);
@@ -577,8 +579,12 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
         public void onResponseReceived(Request request, Response response) {
           JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
-          ScheduleEmailDialog scheduleEmailDialog = new ScheduleEmailDialog(NewScheduleDialog.this, filePath, scheduleRequest, null, editJob);
-          scheduleEmailDialog.setCallback(callback);
+          if (scheduleEmailDialog == null) {
+            scheduleEmailDialog = new ScheduleEmailDialog(NewScheduleDialog.this, filePath, scheduleRequest, null, editJob);
+            scheduleEmailDialog.setCallback(callback);
+          } else {
+            scheduleEmailDialog.setJobSchedule(scheduleRequest);
+          }
           scheduleEmailDialog.center();
         }
 
@@ -589,7 +595,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
   }
 
-  private void showScheduleParamsDialog(final JsJobTrigger trigger) {
+  private void showScheduleParamsDialog(final JsJobTrigger trigger, final JSONObject schedule) {
     try {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
@@ -603,14 +609,18 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             }
 
             public void onSuccess(Boolean result) {
-              showScheduleParamsDialog(trigger);
+              showScheduleParamsDialog(trigger, schedule);
             }
           });
         }
 
         public void onResponseReceived(Request request, Response response) {
-          ScheduleParamsDialog scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this, isEmailConfValid, editJob);
-          scheduleParamsDialog.setCallback(callback);
+          if (scheduleParamsDialog == null) {
+            scheduleParamsDialog = new ScheduleParamsDialog(NewScheduleDialog.this, isEmailConfValid, editJob);
+            scheduleParamsDialog.setCallback(callback);
+          } else {
+            scheduleParamsDialog.setJobSchedule(schedule);
+          }
           if (trigger.getDescription() != null) {
             String description = Messages.getString("scheduleWillRun", trigger.getDescription().toLowerCase());
             scheduleParamsDialog.setScheduleDescription(description);
