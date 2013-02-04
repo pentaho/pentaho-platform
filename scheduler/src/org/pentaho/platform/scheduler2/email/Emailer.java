@@ -150,7 +150,7 @@ public class Emailer {
     try {
       final IEmailService service = PentahoSystem.get(IEmailService.class, "IEmailService", PentahoSessionHolder.getSession());
       props.put("mail.smtp.host", service.getEmailConfig().getSmtpHost());
-      props.put("mail.smtp.port", service.getEmailConfig().getSmtpPort());
+      props.put("mail.smtp.port", "" + service.getEmailConfig().getSmtpPort());
       props.put("mail.transport.protocol", service.getEmailConfig().getSmtpProtocol());
       props.put("mail.smtp.starttls.enable", "" + service.getEmailConfig().isUseStartTls());
       props.put("mail.smtp.auth", "" + service.getEmailConfig().isAuthenticate());
