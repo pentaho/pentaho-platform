@@ -93,14 +93,16 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
 			bundleBuilder.name(fileName);
 			bundleBuilder.path(repositoryFilePath);
-			String sourceFolder = file.getPath().startsWith("/") ? file.getPath().substring(1) : file.getPath();
-			bundleBuilder.acl(processAclForFile(sourceFolder, fileName));
+			String sourcePath = file.getPath().startsWith("/") ? file.getPath().substring(1) : file.getPath();
+			sourcePath = RepositoryFilenameUtils.concat(sourcePath, fileName);
+			
 			bundleBuilder.charSet(bundle.getCharset());
 			bundleBuilder.overwriteFile(bundle.overwriteInRepossitory());
 			bundleBuilder.hidden(isBlackListed(fileName));
 			bundleBuilder.applyAclSettings(bundle.isApplyAclSettings());
 			bundleBuilder.retainOwnership(bundle.isRetainOwnership());
 			bundleBuilder.overwriteAclSettings(bundle.isOverwriteAclSettings());
+			bundleBuilder.acl(processAclForFile(bundle, sourcePath));
 			IPlatformImportBundle platformImportBundle = bundleBuilder.build();
 			importer.importFile(platformImportBundle);
 
@@ -111,19 +113,23 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 		}
 	}
 
-	private RepositoryFileAcl processAclForFile(String sourcePath, String name) {
+	private RepositoryFileAcl processAclForFile(IPlatformImportBundle bundle, String filePath) {
+	  // If we are not overwriting ACL's or owners then make sure a null gets in the bundle.
+	  // If we are writing ACL's we'll have to check later in RepositoryFileImportHandler whether to overwrite
+	  // based on the isOverwriteAcl setting and whether we are creating or updating the RepositoryFile.
 		RepositoryFileAcl acl = null;
-		try {
-			String filePath = RepositoryFilenameUtils.concat(sourcePath, name);
-			if(manifest != null) {
-				ExportManifestEntity entity = manifest.getExportManifestEntity(filePath);
-				if(entity != null) {
-					acl = entity.getRepositoryFileAcl();
-				}
-			}
-		} catch(Exception e) {
-			log.trace(e);
-		}
+		if (bundle.isApplyAclSettings() || !bundle.isRetainOwnership()) {
+  		try {
+  			if(manifest != null) {
+  				ExportManifestEntity entity = manifest.getExportManifestEntity(filePath);
+  				if(entity != null) {
+  					acl = entity.getRepositoryFileAcl();
+  				}
+  			}
+  		} catch(Exception e) {
+  			log.trace(e);
+  		}
+		} 
 		return acl;
 	}
 	
