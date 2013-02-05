@@ -18,19 +18,19 @@ package org.pentaho.platform.plugin.services.email;
 
 import java.io.File;
 import java.io.IOException;
+
 import javax.ws.rs.core.Response;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.io.FilenameUtils;
+import org.pentaho.platform.api.email.IEmailConfiguration;
 import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemEntryPoint;
 import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.plugin.services.email.EmailConfiguration;
-import org.pentaho.platform.plugin.services.email.EmailService;
 import org.pentaho.platform.web.http.api.resources.EmailResource;
-
-import junit.framework.TestCase;
 
 /**
  * Unit tests the EmailResource REST services
@@ -38,7 +38,6 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dkincade@pentaho.com">David M. Kincade</a>
  */
 public class EmailServiceTest extends TestCase {
-  private MockApplicationContext mockApplicationContext = null;
 
   private File tempDir = null;
   private File defaultConfigFile = null;
@@ -116,7 +115,7 @@ public class EmailServiceTest extends TestCase {
     assertFalse(defaultConfigFile.exists());
 
     final EmailResource emailResource = new EmailResource();
-    final EmailConfiguration emptyEmailConfig = emailResource.getEmailConfig();
+    final IEmailConfiguration emptyEmailConfig = emailResource.getEmailConfig();
     assertTrue(new EmailConfiguration().equals(emptyEmailConfig));
 
     // Create an email config to save
@@ -132,7 +131,7 @@ public class EmailServiceTest extends TestCase {
 
     // Get the email config and compare the values
     assertTrue(defaultConfigFile.exists());
-    final EmailConfiguration actualEmailConfig = emailResource.getEmailConfig();
+    final IEmailConfiguration actualEmailConfig = emailResource.getEmailConfig();
     assertTrue(newEmailConfig.equals(actualEmailConfig));
 
     // Update the config

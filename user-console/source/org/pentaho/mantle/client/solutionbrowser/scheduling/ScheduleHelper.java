@@ -1,3 +1,19 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this 
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html 
+ * or from the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ */
 package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
@@ -36,6 +52,7 @@ public class ScheduleHelper {
   private static void showScheduleDialog(final String fileNameWithPath) {
 
     try {
+
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "text/plain");
@@ -57,7 +74,7 @@ public class ScheduleHelper {
         public void onResponseReceived(Request request, Response response) {
           String moduleBaseURL = GWT.getModuleBaseURL();
           String moduleName = GWT.getModuleName();
-          String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+          final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
           String urlPath = fileNameWithPath.replaceAll("/", ":");
           RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, contextURL + "api/repo/files/" + urlPath + "/parameterizable");
           scheduleFileRequestBuilder.setHeader("accept", "text/plain");
@@ -71,8 +88,31 @@ public class ScheduleHelper {
 
               public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_OK) {
-                  final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, null, Boolean.parseBoolean(response.getText()));
-                  dialog.center();
+                  final boolean hasParams = Boolean.parseBoolean(response.getText());
+
+                  RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, contextURL + "api/emailconfig/isValid");
+                  emailValidRequest.setHeader("accept", "text/plain");
+                  try {
+                    emailValidRequest.sendRequest(null, new RequestCallback() {
+
+                      public void onError(Request request, Throwable exception) {
+                        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+                        dialogBox.center();
+                      }
+
+                      public void onResponseReceived(Request request, Response response) {
+                        if (response.getStatusCode() == Response.SC_OK) {
+                          final boolean isEmailConfValid = Boolean.parseBoolean(response.getText());
+                          final NewScheduleDialog dialog = new NewScheduleDialog(fileNameWithPath, null, hasParams, isEmailConfValid);
+                          dialog.center();
+                        }
+                      }
+                    });
+                  } catch (RequestException e) {
+                    MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), false, false, true); //$NON-NLS-1$
+                    dialogBox.center();
+                  }
+
                 } else {
                   MessageDialogBox dialogBox = new MessageDialogBox(
                       Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$

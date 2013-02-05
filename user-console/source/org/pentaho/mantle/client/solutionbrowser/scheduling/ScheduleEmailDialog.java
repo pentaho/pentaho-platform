@@ -17,15 +17,18 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
+import org.pentaho.mantle.client.workspace.JsJob;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -41,29 +44,40 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
   String moduleName = GWT.getModuleName();
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
+  IDialogCallback callback;
+
   ScheduleEmailWizardPanel scheduleEmailWizardPanel;
   AbstractWizardDialog parentDialog;
   String filePath;
   JSONObject jobSchedule;
   JSONArray scheduleParams;
-
+  JsJob editJob;
+  
   Boolean done = false;
 
-  public ScheduleEmailDialog(AbstractWizardDialog parentDialog, String filePath, JSONObject jobSchedule, JSONArray scheduleParams) {
+  public ScheduleEmailDialog(AbstractWizardDialog parentDialog, String filePath, JSONObject jobSchedule, JSONArray scheduleParams, JsJob editJob) {
     super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     this.parentDialog = parentDialog;
     this.filePath = filePath;
     this.jobSchedule = jobSchedule;
     this.scheduleParams = scheduleParams;
+    this.editJob = editJob;
     initDialog();
   }
 
   private void initDialog() {
-    scheduleEmailWizardPanel = new ScheduleEmailWizardPanel(filePath);
+    scheduleEmailWizardPanel = new ScheduleEmailWizardPanel(filePath, editJob);
     IWizardPanel[] wizardPanels = { scheduleEmailWizardPanel };
     this.setWizardPanels(wizardPanels);
     setPixelSize(650, 360);
     wizardDeckPanel.setHeight("100%"); //$NON-NLS-1$
+  }
+
+  public boolean onKeyDownPreview(char key, int modifiers) {
+    if (key == KeyCodes.KEY_ESCAPE) {
+      hide();
+    }
+    return true;
   }
 
   /*
@@ -106,6 +120,9 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
           if (response.getStatusCode() == 200) {
             setDone(true);
             ScheduleEmailDialog.this.hide();
+            if (callback != null) {
+              callback.okPressed();
+            }
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(
                 Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
@@ -186,5 +203,13 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
   @Override
   protected boolean enableBack(int index) {
     return true;
+  }
+
+  public void setCallback(IDialogCallback callback) {
+    this.callback = callback;
+  }
+
+  public IDialogCallback getCallback() {
+    return callback;
   }
 }

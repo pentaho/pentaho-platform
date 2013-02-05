@@ -1,3 +1,19 @@
+/*
+ * This program is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
+ * Foundation.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this 
+ * program; if not, you can obtain a copy at http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html 
+ * or from the Free Software Foundation, Inc., 
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ */
 package org.pentaho.mantle.client.workspace;
 
 import java.util.ArrayList;
@@ -593,7 +609,7 @@ public class WorkspacePanel extends SimplePanel {
         editButton.setEnabled(WorkspacePanel.this.isScheduler);
         if ("NORMAL".equalsIgnoreCase(jobs[0].getState())) {
           controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
-          } else {
+        } else {
           controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
         }
         controlScheduleButton.setEnabled(jobs != null && WorkspacePanel.this.isScheduler);
@@ -714,7 +730,7 @@ public class WorkspacePanel extends SimplePanel {
       public void execute() {
         if (selectedJobs != null) {
           JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
-          
+
           final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + jobs[0].getJobId();
           RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
           executableTypesRequestBuilder.setHeader("accept", "application/json");
@@ -722,13 +738,60 @@ public class WorkspacePanel extends SimplePanel {
             executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
               public void onError(Request request, Throwable exception) {
-                //showError(exception);
+                // showError(exception);
               }
 
               public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_OK) {
-                  JsJob jsJob = parseJsonJob(JsonUtils.escapeJsonForEval(response.getText()));
-                  final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, false);
+                  final JsJob jsJob = parseJsonJob(JsonUtils.escapeJsonForEval(response.getText()));
+
+                  // check email is setup
+                  RequestBuilder emailValidRequest = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/emailconfig/isValid");
+                  emailValidRequest.setHeader("accept", "text/plain");
+                  try {
+                    emailValidRequest.sendRequest(null, new RequestCallback() {
+
+                      public void onError(Request request, Throwable exception) {
+                        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+                        dialogBox.center();
+                      }
+
+                      public void onResponseReceived(Request request, Response response) {
+                        if (response.getStatusCode() == Response.SC_OK) {
+                          final boolean isEmailConfValid = Boolean.parseBoolean(response.getText());
+
+                          // check if has parameterizable
+                          String urlPath = jsJob.getFullResourceName().replaceAll("/", ":");
+                          RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/repo/files/"
+                              + urlPath + "/parameterizable");
+                          scheduleFileRequestBuilder.setHeader("accept", "text/plain");
+                          try {
+                            scheduleFileRequestBuilder.sendRequest(null, new RequestCallback() {
+
+                              public void onError(Request request, Throwable exception) {
+                                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+                                dialogBox.center();
+                              }
+
+                              public void onResponseReceived(Request request, Response response) {
+                                if (response.getStatusCode() == Response.SC_OK) {
+                                  final boolean hasParams = Boolean.parseBoolean(response.getText());
+                                  final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, hasParams, isEmailConfValid);
+                                  schedDialog.center();
+                                }
+                              }
+                            });
+                          } catch (RequestException e) {
+                            // showError(e);
+                          }
+
+                        }
+                      }
+                    });
+                  } catch (RequestException e) {
+                    // showError(e);
+                  }
+
                 } else {
                   MessageDialogBox dialogBox = new MessageDialogBox(
                       Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -850,7 +913,7 @@ public class WorkspacePanel extends SimplePanel {
     var obj = eval('(' + json + ')');
     return obj.job;
   }-*/;
-  
+
   private final native JsJob parseJsonJob(String json)
   /*-{
     var obj = eval('(' + json + ')');

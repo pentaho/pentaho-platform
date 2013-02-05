@@ -21,6 +21,9 @@ import org.pentaho.gwt.widgets.client.utils.ElementUtils;
 import org.pentaho.gwt.widgets.client.utils.FrameUtils;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
+
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Frame;
@@ -86,13 +89,16 @@ public class MantleMenuBar extends MenuBar {
 
   @Override
   public void onPopupClosed(PopupPanel sender, boolean autoClosed) {
-    super.onPopupClosed(sender, autoClosed);
+    super.addCloseHandler(new CloseHandler<PopupPanel>() {
 
-    Frame frame = getActiveBrowserPerspectiveFrame();
-    if (frame == null) {
-      return;
-    }
-    FrameUtils.setEmbedVisibility(getActiveBrowserPerspectiveFrame(), true);
+      public void onClose(CloseEvent<PopupPanel> event) {
+        Frame frame = getActiveBrowserPerspectiveFrame();
+        if (frame == null) {
+          return;
+        }
+        FrameUtils.setEmbedVisibility(getActiveBrowserPerspectiveFrame(), true);
+      }
+    });
 
   }
 }

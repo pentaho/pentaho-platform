@@ -30,7 +30,6 @@ import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.user.client.Window;
 
 public class JsJobTrigger extends JavaScriptObject {
 
@@ -356,7 +355,7 @@ public final native void setDayOfWeekRecurrences(JsArrayInteger days)
       		intervalUnits = timeUnitText(intervalSeconds, "day");
         	DateTimeFormat timeFormat = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM);
         	if (getRepeatInterval() == intervalSeconds) {
-        		intervalUnits = Messages.getString("dailyAt");
+        		intervalUnits = Messages.getString("dayAtLowercase");
         	} else {
         		intervalUnits += " " + Messages.getString("at");
         	}

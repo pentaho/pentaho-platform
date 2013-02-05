@@ -70,8 +70,9 @@ public class RepositoryImportResource {
 	public Response doPostImport(
 			@FormDataParam("importDir") String uploadDir,
 			@FormDataParam("fileUpload") InputStream fileIS,
-			@FormDataParam("overwrite") String overwrite,
-			@FormDataParam("ignoreACLS") String ignoreACLS,
+			@FormDataParam("overwriteFile") String overwriteFile,
+			@FormDataParam("overwriteAclPermissions") String overwriteAclPermissions,
+			@FormDataParam("applyAclPermissions") String applyAclPermission,
 			@FormDataParam("retainOwnership") String retainOwnership,
 			@FormDataParam("charSet") String charSet,
 			@FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
@@ -80,8 +81,9 @@ public class RepositoryImportResource {
 			try {
 				validateAccess();
 				
-				boolean overwriteFileFlag = ("true".equals(overwrite) ? true : false);
-				boolean ignoreACLFlag = ("true".equals(ignoreACLS) ? true : false);
+				boolean overwriteFileFlag = ("false".equals(overwriteFile) ? false : true);
+				boolean overwriteAclSettingsFlag = ("true".equals(overwriteAclPermissions) ? true : false);
+				boolean applyAclSettingsFlag = ("true".equals(applyAclPermission) ? true : false);
 				boolean retainOwnershipFlag = ("true".equals(retainOwnership) ? true : false);
 	
 				RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
@@ -89,7 +91,10 @@ public class RepositoryImportResource {
 				bundleBuilder.charSet(charSet == null?"UTF-8":charSet);
 				bundleBuilder.hidden(false);
 				bundleBuilder.path(uploadDir);
-				bundleBuilder.overwrite(overwriteFileFlag);
+				bundleBuilder.overwriteFile(overwriteFileFlag);
+				bundleBuilder.applyAclSettings(applyAclSettingsFlag);
+				bundleBuilder.overwriteAclSettings(overwriteAclSettingsFlag);
+				bundleBuilder.retainOwnership(retainOwnershipFlag);
 				bundleBuilder.name(fileInfo.getFileName());
 				IPlatformImportBundle bundle = bundleBuilder.build();
 	

@@ -24,7 +24,6 @@ import org.pentaho.platform.repository2.unified.exportManifest.bindings.ExportMa
 
 public class ExportManifestTest extends TestCase {
 	ExportManifest exportManifest;
-	RepositoryFile repoDir1;
 	RepositoryFile repoDir2;
 	RepositoryFile repoFile3;
 	RepositoryFileAcl repoDir1Acl;
@@ -35,48 +34,61 @@ public class ExportManifestTest extends TestCase {
 	ExportManifestEntity entity3;
 
 	public ExportManifestTest() {
-		repoDir1 = createMockRepositoryFile("/dir1", true);
+	  String rootFolder = "/dir1/";
+	  exportManifest = new ExportManifest();
+	  ExportManifestDto.ExportManifestInformation exportManifestInformation = exportManifest
+	      .getManifestInformation();
+	  exportManifestInformation.setExportBy("MickeyMouse");
+	  exportManifestInformation.setExportDate("2013-01-01");
+	  exportManifestInformation.setRootFolder(rootFolder);
+	  
 		List<RepositoryFileAce> aces1 = new ArrayList<RepositoryFileAce>();
 		aces1.add(createMockAce("joe-/pentaho/tenant0", "USER",
 				RepositoryFilePermission.READ, RepositoryFilePermission.WRITE));
 		aces1.add(createMockAce("TenantAdmin-/pentaho/tenant0", "ROLE",
 				RepositoryFilePermission.READ));
-		repoDir1Acl = createMockRepositoryAcl("acl1", "joe", false, aces1);
-		entity1 = new ExportManifestEntity(repoDir1, repoDir1Acl);
-		assertNotNull(entity1);
-
 		repoDir2 = createMockRepositoryFile("/dir1/dir2", true);
-		entity2 = new ExportManifestEntity(repoDir2, null);
-		assertNotNull(entity2);
-
+		repoDir2Acl = createMockRepositoryAcl("acl2", "joe", false, aces1);
 		repoFile3 = createMockRepositoryFile("/dir1/dir2/file1", false);
-		entity3 = new ExportManifestEntity(repoFile3, null);
+		RepositoryFile badRepoFile = createMockRepositoryFile("/baddir/dir2/file1", false);
+		
+		try {
+  		exportManifest.add(repoDir2, repoDir2Acl);
+  		exportManifest.add(repoFile3, null);
+		}
+  	catch (Exception e) {
+  	  fail(e.getStackTrace().toString());
+  	}
+		
+		try {
+		  exportManifest.add(badRepoFile, null);
+		  fail("Bad path did not generate a ExportManifestFormatException");
+		} catch (ExportManifestFormatException e) {
+		  
+		}
+		
+		//entity1 = exportManifest.getExportManifestEntity("dir1");
+		//assertNotNull(entity1);
+		entity2 = exportManifest.getExportManifestEntity("dir2");
+		assertNotNull(entity2);
+		entity3 = exportManifest.getExportManifestEntity("dir2/file1");
 		assertNotNull(entity3);
 
-		exportManifest = new ExportManifest();
-		ExportManifestDto.ExportManifestInformation exportManifestInformation = exportManifest
-				.getManifestInformation();
-		exportManifestInformation.setExportBy("MickeyMouse");
-		exportManifestInformation.setExportDate("2013-01-01");
-
-		exportManifest.add(entity1);
-		exportManifest.add(entity2);
-		exportManifest.add(entity3);
 	}
 
 	@Test
 	public void testEntityAccess() {
 		ExportManifestEntity entityR1 = exportManifest
-				.getExportManifestEntity("/dir1/dir2");
+				.getExportManifestEntity("dir2");
 		assertNotNull(entityR1);
-		assertEquals("Path value", "/dir1/dir2", entityR1.getPath());
+		assertEquals("Path value", "dir2", entityR1.getPath());
 	}
 
 	@Test
 	public void testMarshal() {
 		try {
 			exportManifest.toXml(System.out);
-		} catch (JAXBException e) {
+		} catch (Exception e) {
 			fail("Could not marshal to XML " + e);
 		}
 	}
@@ -92,14 +104,14 @@ public class ExportManifestTest extends TestCase {
 			fail("Could not un-marshal to object " + e);
 		}
 		ExportManifestEntity fileEntity = exportManifest
-				.getExportManifestEntity("/dir1/dir2/file1");
+				.getExportManifestEntity("dir2/file1");
 		assertNotNull(fileEntity);
-		assertEquals("/dir1/dir2/file1", fileEntity.getPath());
+		assertEquals("dir2/file1", fileEntity.getPath());
 		assertNotNull(fileEntity.getEntityMetaData());
 		assertFalse(fileEntity.getEntityMetaData().getIsFolder());
 		
 		fileEntity = exportManifest
-				.getExportManifestEntity("/dir1");
+				.getExportManifestEntity("dir2");
 		assertNotNull(fileEntity);
 		assertNotNull(fileEntity.getEntityMetaData());
 		assertTrue(fileEntity.getEntityMetaData().getIsFolder());

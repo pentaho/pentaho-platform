@@ -47,21 +47,21 @@ public class ExportManifestEntity {
 	private EntityAcl entityAcl;
 	private List<CustomProperty> customProperties;
 
-	public ExportManifestEntity() {
+	protected ExportManifestEntity() {
 		rawExportManifestEntity = new ExportManifestEntityDto();
 	}
 
-	public ExportManifestEntity(RepositoryFile repositoryFile,
-			RepositoryFileAcl repositoryFileAcl) {
+	protected ExportManifestEntity(String rootFolder, RepositoryFile repositoryFile,
+			RepositoryFileAcl repositoryFileAcl) throws ExportManifestFormatException {
 		this();
 		ExportManifestProperty rawExportManifestProperty = new ExportManifestProperty();
-		createEntityMetaData(repositoryFile);
+		createEntityMetaData(rootFolder, repositoryFile);
 		createEntityAcl(repositoryFileAcl);
 		rawExportManifestProperty.setEntityMetaData(entityMetaData);
 		rawExportManifestProperty.setEntityAcl(entityAcl);
 	}
 
-	private void createEntityMetaData(RepositoryFile repositoryFile) {
+	private void createEntityMetaData(String rootFolder, RepositoryFile repositoryFile) throws ExportManifestFormatException {
     if (LocaleHelper.getLocale() == null) {
       LocaleHelper.setLocale(Locale.getDefault());
     }  
@@ -74,9 +74,13 @@ public class ExportManifestEntity {
 		entityMetaData.setIsFolder(repositoryFile.isFolder());
 		entityMetaData.setLocale(LocaleHelper.getLocale().toString());
 		entityMetaData.setName(repositoryFile.getName());
-		entityMetaData.setPath(repositoryFile.getPath());
+		if (!repositoryFile.getPath().startsWith(rootFolder)) {
+		  throw new ExportManifestFormatException("File path does not start with rootFolder");
+		}
+		String adjustedPath = repositoryFile.getPath().substring(rootFolder.length());
+		entityMetaData.setPath(adjustedPath);
 		entityMetaData.setTitle(repositoryFile.getTitle());
-		setPath(repositoryFile.getPath());
+		setPath(adjustedPath);
 	}
 
 	private void createEntityAcl(RepositoryFileAcl repositoryFileAcl) {
@@ -136,8 +140,9 @@ public class ExportManifestEntity {
 			return null;
 
 		ArrayList<RepositoryFileAce> repositoryFileAces = new ArrayList<RepositoryFileAce>();
+		RepositoryFileSid rfs;
 		for (EntityAcl.Aces ace : entityAcl.getAces()) {
-			RepositoryFileSid rfs = getSid(ace.getRecipient(), ace.getRecipientType());
+			rfs = getSid(ace.getRecipient(), ace.getRecipientType());
 			HashSet<RepositoryFilePermission> permissionSet = new HashSet<RepositoryFilePermission>();
 			for (String permission : ace.getPermissions()) {
 				permissionSet.add(getPermission(permission));
@@ -173,7 +178,7 @@ public class ExportManifestEntity {
 					"ExportManifestFormatException.invalidRepositoryFileSidType", type),
 					e);
 		}
-		return new RepositoryFileSid(entityAcl.getOwner(), typevalue);
+		return new RepositoryFileSid(name, typevalue);
 	}
 
 	/**

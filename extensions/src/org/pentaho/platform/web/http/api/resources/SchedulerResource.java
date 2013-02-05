@@ -116,7 +116,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
         SimpleJobTrigger simpleJobTrigger = scheduleRequest.getSimpleJobTrigger();
         if (simpleJobTrigger.getStartTime() == null) {
           simpleJobTrigger.setStartTime(new Date());
-          simpleJobTrigger.setUiPassParam(scheduleRequest.getCronJobTrigger().getUiPassParam());
+          // simpleJobTrigger.setUiPassParam(scheduleRequest.getCronJobTrigger().getUiPassParam());
         }
         jobTrigger = simpleJobTrigger;
       } else if (scheduleRequest.getComplexJobTrigger() != null) {
@@ -175,13 +175,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
       for (JobScheduleParam param : scheduleRequest.getJobParameters()) {
         parameterMap.put(param.getName(), param.getValue());
       }
-      
+
       // remove this section once these are part of the job parameters
-      //parameterMap.put("_SCH_EMAIL_TO", "mdamour1976@gmail.com");
-      //parameterMap.put("_SCH_EMAIL_ATTACHMENT_NAME", "TestAttachment");
-      //parameterMap.put("_SCH_EMAIL_SUBJECT", "Test Subject");
-      //parameterMap.put("_SCH_EMAIL_MESSAGE", "This is the test message.");
-      
+      // parameterMap.put("_SCH_EMAIL_TO", "mdamour1976@gmail.com");
+      // parameterMap.put("_SCH_EMAIL_ATTACHMENT_NAME", "TestAttachment");
+      // parameterMap.put("_SCH_EMAIL_SUBJECT", "Test Subject");
+      // parameterMap.put("_SCH_EMAIL_MESSAGE", "This is the test message.");
+
       job = scheduler.createJob(Integer.toString(Math.abs(random.nextInt())), actionId, parameterMap, jobTrigger, new RepositoryFileStreamProvider(
           scheduleRequest.getInputFile(), outputFile));
     } catch (SchedulerException e) {
@@ -197,10 +197,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response triggerNow(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.triggerNow(jobRequest.getJobId());
       } else {
         if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
@@ -214,7 +212,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
+
   @GET
   @Path("/jobs")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
@@ -222,16 +220,15 @@ public class SchedulerResource extends AbstractJaxRSResource {
     try {
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
-          if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
-                  policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-                  policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
-                  policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+          if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+              && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
             return true;
           }
           return PentahoSessionHolder.getSession().getName().equals(job.getUserName());
         }
       });
-      ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", PentahoSessionHolder.getSession());
+      ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils",
+          PentahoSessionHolder.getSession());
       for (Job job : jobs) {
         job.setUserName(tenantedUserNameUtils.getPrincipleName(job.getUserName()));
       }
@@ -257,10 +254,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response start() {
     try {
-      if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.start();
       }
       return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
@@ -274,10 +269,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response pause() {
     try {
-      if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.pause();
       }
       return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
@@ -291,10 +284,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response shutdown() {
     try {
-      if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.shutdown();
       }
       return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
@@ -310,10 +301,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response getJobState(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
       } else {
         if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
@@ -324,8 +313,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
-  }  
-  
+  }
+
   @POST
   @Path("/pauseJob")
   @Produces("text/plain")
@@ -333,10 +322,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response pauseJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.pauseJob(jobRequest.getJobId());
       } else {
         if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
@@ -358,10 +345,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response resumeJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.resumeJob(jobRequest.getJobId());
       } else {
         if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
@@ -383,10 +368,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response removeJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if(policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) &&
-              policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.removeJob(jobRequest.getJobId());
         return Response.ok("REMOVED").type(MediaType.TEXT_PLAIN).build();
       } else {
@@ -400,18 +383,29 @@ public class SchedulerResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
+
   @GET
   @Path("/jobinfo")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public Job getJob( @QueryParam("jobId") String jobId, @DefaultValue("false") @QueryParam("asCronString") String asCronString) {
+  public Job getJob(@QueryParam("jobId") String jobId, @DefaultValue("false") @QueryParam("asCronString") String asCronString) {
     try {
-    	Job job = scheduler.getJob(jobId); 
+      Job job = scheduler.getJob(jobId);
       if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())
-      		|| PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
-      	return job; 
+          || PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
+        for (String key : job.getJobParams().keySet()) {
+          Serializable value = job.getJobParams().get(key);
+          if (value.getClass().isArray()) {
+            String[] sa = (new String[0]).getClass().cast(value);
+            ArrayList<String> list = new ArrayList<String>();
+            for (int i = 0; i < sa.length; i++) {
+              list.add(sa[i]);
+            }
+            job.getJobParams().put(key, list);
+          }
+        }
+        return job;
       } else {
-      	throw new RuntimeException("Job not found or improper credentials for access");
+        throw new RuntimeException("Job not found or improper credentials for access");
       }
     } catch (SchedulerException e) {
       throw new RuntimeException(e);

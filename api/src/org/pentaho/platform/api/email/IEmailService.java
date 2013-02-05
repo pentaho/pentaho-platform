@@ -12,34 +12,17 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
+ *
  */
-package org.pentaho.mantle.client.objects;
+package org.pentaho.platform.api.email;
 
-import java.io.Serializable;
+public interface IEmailService {
+  public void setEmailConfig(final IEmailConfiguration emailConfiguration);
 
-public class SimpleMessageException extends Exception implements Serializable {
-  private static final long serialVersionUID = 8230188785861011214L;
-  public String message;
+  public IEmailConfiguration getEmailConfig();
 
-  public SimpleMessageException() {
+  public String sendEmailTest(final IEmailConfiguration emailConfig);
 
-  }
-
-  public SimpleMessageException(String message) {
-    this.message = message;
-  }
-
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-  
-  public String toString() {
-    return message;
-  }
-  
+  public boolean isValid();
 }

@@ -7,19 +7,19 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.pentaho.platform.api.action.IStreamingAction;
+import org.pentaho.platform.api.repository2.unified.IStreamListener;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository2.unified.fileio.IRepositoryFileOutputStreamListener;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.util.web.MimeHelper;
 
 @SuppressWarnings("serial")
-public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamProvider, IRepositoryFileOutputStreamListener {
+public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamProvider, IStreamListener {
 
   public String outputFilePath;
   public String inputFilePath;

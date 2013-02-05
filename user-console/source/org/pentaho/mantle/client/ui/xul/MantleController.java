@@ -397,7 +397,7 @@ public class MantleController extends AbstractXulEventHandler {
 							if ("favorites".equalsIgnoreCase(setting.getName())) {
 								try {
 									// handle favorite
-									JSONArray favorites = JSONParser.parse(setting.getValue()).isArray();
+									JSONArray favorites = JSONParser.parseLenient(setting.getValue()).isArray();
 									if (favorites != null) {
 										// Create the FavoritePickList object from the JSONArray
 										favoritePickList = FavoritePickList.getInstanceFromJSON(favorites);
@@ -409,7 +409,7 @@ public class MantleController extends AbstractXulEventHandler {
 							} else if ("recent".equalsIgnoreCase(setting.getName())) {
 								try {
 									// handle recent
-									JSONArray recents = JSONParser.parse(setting.getValue()).isArray();
+									JSONArray recents = JSONParser.parseLenient(setting.getValue()).isArray();
 									if (recents != null) {
 										// Create the RecentPickList object from the JSONArray
 										recentPickList = RecentPickList.getInstanceFromJSON(recents);
