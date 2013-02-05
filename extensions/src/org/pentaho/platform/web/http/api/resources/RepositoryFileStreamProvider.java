@@ -28,6 +28,7 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
   public static final String MIME_TYPE_HTML = "text/html"; //$NON-NLS-1$
   public static final String MIME_TYPE_PDF = "application/pdf"; //$NON-NLS-1$
   public static final String MIME_TYPE_XLS = "application/vnd.ms-excel"; //$NON-NLS-1$
+  public static final String MIME_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; //$NON-NLS-1$
   public static final String MIME_TYPE_RTF = "application/rtf"; //$NON-NLS-1$
   public static final String MIME_TYPE_CSV = "text/csv"; //$NON-NLS-1$
   public static final String MIME_TYPE_TXT = "text/plain"; //$NON-NLS-1$
@@ -80,6 +81,8 @@ public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamP
           extension = "html"; //$NON-NLS-1$
         } else if (MIME_TYPE_XLS.equals(mimeType)) {
           extension = "xls"; //$NON-NLS-1$
+        } else if (MIME_TYPE_XLSX.equals(mimeType)) {
+          extension = "xlsx"; //$NON-NLS-1$
         } else if (MIME_TYPE_CSV.equals(mimeType)) {
           extension = "csv"; //$NON-NLS-1$
         } else if (MIME_TYPE_RTF.equals(mimeType)) {
