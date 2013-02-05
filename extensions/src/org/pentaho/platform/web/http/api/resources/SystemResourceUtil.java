@@ -122,15 +122,14 @@ public class SystemResourceUtil {
   /**
    * Returns XML for list of Permission.
    */
-  @SuppressWarnings("unchecked")
   public static Document getPermissions()
       throws ServletException, IOException {
-    Map validPermissionsNameMap = PentahoAclEntry.getValidPermissionsNameMap(IPentahoAclEntry.PERMISSIONS_LIST_ALL);
+    Map<?, ?> validPermissionsNameMap = PentahoAclEntry.getValidPermissionsNameMap(IPentahoAclEntry.PERMISSIONS_LIST_ALL);
     Element rootElement = new DefaultElement("acls"); //$NON-NLS-1$
     Document doc = DocumentHelper.createDocument(rootElement);
     if (validPermissionsNameMap != null) {
-      Set aclsKeySet = validPermissionsNameMap.keySet();
-      for (Iterator aclsIterator = aclsKeySet.iterator(); aclsIterator.hasNext();) {
+      Set<?> aclsKeySet = validPermissionsNameMap.keySet();
+      for (Iterator<?> aclsIterator = aclsKeySet.iterator(); aclsIterator.hasNext();) {
         String aclName = aclsIterator.next().toString();
         String aclMask = null != validPermissionsNameMap.get(aclName) ? validPermissionsNameMap.get(aclName).toString()
             : null;

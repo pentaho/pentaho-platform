@@ -21,7 +21,41 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static javax.ws.rs.core.MediaType.WILDCARD;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -40,30 +74,21 @@ import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-import org.pentaho.platform.repository2.unified.webservices.*;
+import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
+import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 import org.pentaho.platform.web.http.messages.Messages;
-import org.pentaho.reporting.libraries.libsparklines.util.StringUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static javax.ws.rs.core.MediaType.*;
-import static javax.ws.rs.core.Response.Status.*;
 
 /**
  * Represents a file node in the repository.  This api provides methods for discovering information
@@ -419,8 +444,6 @@ public class FileResource extends AbstractJaxRSResource {
   public Response doGetFileOrDirAsDownload(@PathParam("pathId") String pathId, @QueryParam("withManifest") String strWithManifest) throws FileNotFoundException {
     String quotedFileName = null;
 
-    Response origResponse = null;
-
     // send zip with manifest by default
     boolean withManifest = "false".equals(strWithManifest)?false:true;
 
@@ -585,6 +608,7 @@ public class FileResource extends AbstractJaxRSResource {
     if (targetFile != null) {
       String targetFileId = targetFile.getId();
       SessionResource sessionResource = new SessionResource();
+      
       RepositoryFileDto workspaceFolder = repoWs.getFile(sessionResource.doGetCurrentUserDir());
       if (workspaceFolder != null) {
         List<RepositoryFileDto> children = repoWs.getChildren(workspaceFolder.getId());
@@ -602,7 +626,32 @@ public class FileResource extends AbstractJaxRSResource {
     return content;
   }
 
-
+  @GET
+  @Path("{pathId : .+}/generatedcontentForUser")
+  @Produces({APPLICATION_XML, APPLICATION_JSON})
+  public List<RepositoryFileDto> doGetGeneratedContentForUser(@PathParam("pathId") String pathId, @QueryParam("user") String user) {
+    RepositoryFileDto targetFile = doGetProperties(pathId);
+    List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
+    if (targetFile != null) {
+      String targetFileId = targetFile.getId();
+      SessionResource sessionResource = new SessionResource();
+      
+      RepositoryFileDto workspaceFolder = repoWs.getFile(sessionResource.doGetUserDir(user));
+      if (workspaceFolder != null) {
+        List<RepositoryFileDto> children = repoWs.getChildren(workspaceFolder.getId());
+        for (RepositoryFileDto child : children) {
+          if (!child.isFolder()) {
+            Map<String, Serializable> fileMetadata = repository.getFileMetadata(child.getId());
+            String creatorId = (String) fileMetadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
+            if (creatorId != null && creatorId.equals(targetFileId)) {
+              content.add(child);
+            }
+          }
+        }
+      }
+    }
+    return content;
+  }
   /////////
   // BROWSE
 
@@ -637,7 +686,7 @@ public class FileResource extends AbstractJaxRSResource {
       showHidden = Boolean.FALSE;
     }
     
-    List<RepositoryFileTreeDto> filteredChildren = new ArrayList();
+    List<RepositoryFileTreeDto> filteredChildren = new ArrayList<RepositoryFileTreeDto>();
     RepositoryFileTreeDto tree = repoWs.getTree(path, depth, filter, showHidden.booleanValue());
     for(RepositoryFileTreeDto child : tree.getChildren()) {
   	  RepositoryFileDto file = child.getFile();

@@ -238,10 +238,9 @@ public class GeneratorStreamingOutput {
     return new HttpSessionParameterProvider(PentahoSessionHolder.getSession());
   }
 
-  @SuppressWarnings("unchecked")
   protected IParameterProvider createHeaderParamProvider() {
     SimpleParameterProvider headerParams = new SimpleParameterProvider();
-    Enumeration names = httpServletRequest.getHeaderNames();
+    Enumeration<?> names = httpServletRequest.getHeaderNames();
     while (names.hasMoreElements()) {
       String name = (String) names.nextElement();
       String value = httpServletRequest.getHeader(name);

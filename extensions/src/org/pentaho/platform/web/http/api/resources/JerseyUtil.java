@@ -30,7 +30,6 @@ import javax.ws.rs.core.MultivaluedMap;
 
 public class JerseyUtil {
 
-  @SuppressWarnings("unchecked")
   public static HttpServletRequest correctPostRequest(final MultivaluedMap<String, String> formParams,
       HttpServletRequest httpServletRequest) {
     final HashMap<String, Object> formParamsHashMap = new HashMap<String, Object>();
@@ -38,7 +37,7 @@ public class JerseyUtil {
     for (String key : formParams.keySet()) {
       Object value = formParams.get(key);
       if (value instanceof List) {
-        Object[] valueArray = ((List) value).toArray();
+        Object[] valueArray = ((List<?>) value).toArray();
         formParamsHashMap.put(key, valueArray);
       } else {
         formParamsHashMap.put(key, value);
@@ -47,7 +46,7 @@ public class JerseyUtil {
 
     HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(httpServletRequest) {
       @Override
-      public Map getParameterMap() {
+      public Map<String, Object> getParameterMap() {
         return formParamsHashMap;
       }
 

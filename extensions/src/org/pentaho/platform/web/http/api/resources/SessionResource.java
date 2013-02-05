@@ -17,18 +17,15 @@
 
 package org.pentaho.platform.web.http.api.resources;
 
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 /**
  * @author wseyler
@@ -43,4 +40,12 @@ public class SessionResource extends AbstractJaxRSResource {
   public String doGetCurrentUserDir() {
     return ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName()) + "/workspace";
   }
+  
+  @GET
+  @Path("/workspaceDirForUser")
+  @Produces(TEXT_PLAIN)
+  public String doGetUserDir(@PathParam("user") String user) {
+    return ClientRepositoryPaths.getUserHomeFolderPath(user) + "/workspace";
+  }
+  
 }

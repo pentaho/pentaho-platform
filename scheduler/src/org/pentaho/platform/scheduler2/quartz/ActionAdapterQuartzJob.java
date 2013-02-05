@@ -145,6 +145,12 @@ public class ActionAdapterQuartzJob implements Job {
         }
         actionHarness.setValues(actionParams, new ActionSequenceCompatibilityFormatter());
 
+        if (actionBean instanceof IVarArgsAction) {
+          actionParams.remove("inputStream");
+          actionParams.remove("outputStream");
+          ((IVarArgsAction) actionBean).setVarArgs(actionParams);
+        }
+        
         if (streamProvider != null) {
           actionParams.remove("inputStream");
           if (actionBean instanceof IStreamingAction) {
@@ -157,7 +163,11 @@ public class ActionAdapterQuartzJob implements Job {
                 IUnifiedRepository repo = PentahoSystem.get(IUnifiedRepository.class);
                 RepositoryFile sourceFile = repo.getFile(filePath);
                 SimpleRepositoryFileData data = repo.getDataForRead(sourceFile.getId(), SimpleRepositoryFileData.class);
-                sendEmail(actionParams, filePath, data);
+                try {
+                  sendEmail(actionParams, filePath, data);
+                } catch (Throwable t) {
+                  log.warn(t.getMessage(), t);
+                }
               }
             });
           }
@@ -165,10 +175,6 @@ public class ActionAdapterQuartzJob implements Job {
           actionHarness.setValues(actionParams);
         }
 
-        if (actionBean instanceof IVarArgsAction) {
-          actionParams.remove("outputStream");
-          ((IVarArgsAction) actionBean).setVarArgs(actionParams);
-        }
         actionBean.execute();
 
         return null;

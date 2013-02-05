@@ -50,9 +50,10 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
   AbstractWizardDialog parentDialog;
   String filePath;
   JSONObject jobSchedule;
+
   JSONArray scheduleParams;
   JsJob editJob;
-  
+
   Boolean done = false;
 
   public ScheduleEmailDialog(AbstractWizardDialog parentDialog, String filePath, JSONObject jobSchedule, JSONArray scheduleParams, JsJob editJob) {
@@ -65,7 +66,7 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
     initDialog();
   }
 
-  private void initDialog() {
+  public void initDialog() {
     scheduleEmailWizardPanel = new ScheduleEmailWizardPanel(filePath, editJob);
     IWizardPanel[] wizardPanels = { scheduleEmailWizardPanel };
     this.setWizardPanels(wizardPanels);
@@ -212,4 +213,45 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
   public IDialogCallback getCallback() {
     return callback;
   }
+
+  public AbstractWizardDialog getParentDialog() {
+    return parentDialog;
+  }
+
+  public void setParentDialog(AbstractWizardDialog parentDialog) {
+    this.parentDialog = parentDialog;
+  }
+
+  public String getFilePath() {
+    return filePath;
+  }
+
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
+  }
+
+  public JSONObject getJobSchedule() {
+    return jobSchedule;
+  }
+
+  public void setJobSchedule(JSONObject jobSchedule) {
+    this.jobSchedule = jobSchedule;
+  }
+
+  public JSONArray getScheduleParams() {
+    return scheduleParams;
+  }
+
+  public void setScheduleParams(JSONArray scheduleParams) {
+    this.scheduleParams = scheduleParams;
+  }
+
+  public JsJob getEditJob() {
+    return editJob;
+  }
+
+  public void setEditJob(JsJob editJob) {
+    this.editJob = editJob;
+  }
+
 }

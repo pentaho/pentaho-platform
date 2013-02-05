@@ -28,6 +28,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -218,17 +219,22 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
   public List<Job> getJobs(@DefaultValue("false") @QueryParam("asCronString") Boolean asCronString) {
     try {
+      IPentahoSession session = PentahoSessionHolder.getSession();
+      Principal p = SecurityHelper.getInstance().getAuthentication();
+      final String principalName = (p==null)?session.getName():p.getName();
+      
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
           if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
               && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
             return true;
           }
-          return PentahoSessionHolder.getSession().getName().equals(job.getUserName());
+          System.out.println("PRINCIPAL NAME: " + principalName);
+          return principalName.equals(job.getUserName());
         }
       });
       ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils",
-          PentahoSessionHolder.getSession());
+          session);
       for (Job job : jobs) {
         job.setUserName(tenantedUserNameUtils.getPrincipleName(job.getUserName()));
       }
