@@ -22,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
+import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 
 import java.io.*;
@@ -70,14 +71,14 @@ public class Exporter {
 
   /**
    *
-   * @throws IOException
+   * @throws java.io.IOException
    */
   public void doExport() throws IOException {
     exportDir = new File(filePath);
     RepositoryFile exportRepositoryFile = unifiedRepository.getFile(repoPath);
     
     if (exportRepositoryFile == null) {
-      throw new FileNotFoundException("JCR file not found: " + repoPath);
+      throw new FileNotFoundException(Messages.getInstance().getErrorString("Exporter.ERROR_0001_INVALID_SOURCE_DIRECTORY", repoPath));
     }
     
     if (exportRepositoryFile.isFolder()) {  // Handle recursive export
@@ -90,7 +91,7 @@ public class Exporter {
   /**
    *
    * @return
-   * @throws IOException
+   * @throws java.io.IOException
    */
   public File doExportAsZip() throws IOException {
     RepositoryFile exportRepositoryFile = unifiedRepository.getFile(repoPath);
@@ -101,7 +102,7 @@ public class Exporter {
    *
    * @param exportRepositoryFile
    * @return
-   * @throws IOException
+   * @throws java.io.IOException
    */
   public File doExportAsZip(RepositoryFile exportRepositoryFile) throws IOException{
     File zipFile = File.createTempFile("repoExport", ".zip");
@@ -109,7 +110,7 @@ public class Exporter {
 
     filePath = new File(repoPath).getParent();
     if (exportRepositoryFile == null) {
-      throw new FileNotFoundException("JCR file not found: " + repoPath);
+      throw new FileNotFoundException(Messages.getInstance().getErrorString("Exporter.ERROR_0001_INVALID_SOURCE_DIRECTORY", repoPath));
     }
 
     ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
@@ -159,17 +160,27 @@ public class Exporter {
   /**
    * @param repositoryDir
    * @param parentDir
-   * @throws IOException 
+   * @throws java.io.IOException
    */
   public void exportDirectory(RepositoryFile repositoryDir, File parentDir) throws IOException {
     if (repositoryDir == null || !repositoryDir.isFolder()) {
-      throw new IllegalArgumentException("Source must be a valid directory: " + repositoryDir == null ? "Null" : repositoryDir.getPath());
+      throw new IllegalArgumentException(
+        Messages.getInstance().getErrorString("Exporter.ERROR_0001_INVALID_SOURCE_DIRECTORY",
+          repositoryDir == null ? "Null" : repositoryDir.getPath()
+        )
+      );
     }
     if (parentDir == null) {
-      throw new FileNotFoundException("Destination must be specified");
+      throw new FileNotFoundException(
+        Messages.getInstance().getErrorString("Exporter.ERROR_0002_MISSING_DESTINATION")
+      );
     }
     parentDir = new File(parentDir, repositoryDir.getName());
-    parentDir.mkdirs();
+
+    if(!parentDir.mkdirs()){
+      throw(new IOException());
+    }
+
     List<RepositoryFile> children = unifiedRepository.getChildren(repositoryDir.getId());
     for (RepositoryFile repoFile : children) {
       if (repoFile.isFolder()) {
@@ -184,19 +195,29 @@ public class Exporter {
    *
    * @param exportRepositoryFile
    * @param exportDirectory
-   * @throws IOException
+   * @throws java.io.IOException
    */
   public void exportFile(RepositoryFile exportRepositoryFile, File exportDirectory) throws IOException {
     if (exportDirectory.exists()) {
       if (!exportDirectory.isDirectory()) {
-        throw new IllegalArgumentException("Dest must be a directory: " + exportDirectory.getAbsolutePath());
+        throw new IllegalArgumentException(
+          Messages.getInstance().getErrorString(
+            "Exporter.ERROR_0004_INVALID_DESTINATION_DIRECTORY", exportDirectory.getAbsolutePath()
+          )
+        );
       }
     } else {  // Directory doesn't exist so create it
-      exportDirectory.mkdirs();
+      if(!exportDirectory.mkdirs()){
+        throw(new IOException());
+      }
     }
     
     if (exportRepositoryFile == null) {
-      throw new FileNotFoundException("JCR file not found: " + repoPath);
+      throw new FileNotFoundException(
+        Messages.getInstance().getErrorString(
+          "Exporter.ERROR_0001_INVALID_SOURCE_DIRECTORY", repoPath
+        )
+      );
     }
 
     SimpleRepositoryFileData repoFileData = unifiedRepository.getDataForRead(exportRepositoryFile.getId(), SimpleRepositoryFileData.class);

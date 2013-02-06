@@ -41,8 +41,8 @@ import org.slf4j.MDC;
  */
 public class RepositoryImportHTMLLayout extends Layout {
 
-  protected final int BUF_SIZE = 256;
-  protected final int MAX_CAPACITY = 1024;
+  static protected final int BUF_SIZE = 256;
+  static protected final int MAX_CAPACITY = 1024;
 
   static String TRACE_PREFIX = "<br>&nbsp;&nbsp;&nbsp;&nbsp;";
 
@@ -252,7 +252,7 @@ public class RepositoryImportHTMLLayout extends Layout {
     sbuf.append("</head>" + Layout.LINE_SEP);
     sbuf.append("<body bgcolor=\"#FFFFFF\" topmargin=\"6\" leftmargin=\"6\">" + Layout.LINE_SEP);
     sbuf.append("<hr size=\"1\" noshade>" + Layout.LINE_SEP);
-    sbuf.append("Log session start time " + new java.util.Date() + "<br>" + Layout.LINE_SEP);
+    sbuf.append("Log session start time " + new Date() + "<br>" + Layout.LINE_SEP);
     sbuf.append("<br>" + Layout.LINE_SEP);
     sbuf.append("<table cellspacing=\"0\" cellpadding=\"4\" border=\"1\" bordercolor=\"#224466\" width=\"100%\">" + Layout.LINE_SEP);
     sbuf.append("<tr>" + Layout.LINE_SEP);

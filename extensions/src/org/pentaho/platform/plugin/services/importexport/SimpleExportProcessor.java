@@ -65,7 +65,7 @@ public class SimpleExportProcessor extends BaseExportProcessor {
     /**
      * Performs the export process, returns a File object
      *
-     * @throws org.pentaho.platform.plugin.services.importexport.ExportException
+     * @throws ExportException
      *          indicates an error in import processing
      */
   public File performExport(RepositoryFile exportRepositoryFile) throws ExportException, IOException {
@@ -87,9 +87,17 @@ public class SimpleExportProcessor extends BaseExportProcessor {
 
     os = new FileOutputStream(exportFile);
 
-    exportFile(exportRepositoryFile, os, filePath);
-
-    os.close();
+    try{
+      exportFile(exportRepositoryFile, os, filePath);
+    }
+    catch (Exception e){
+      log.error(e.getMessage());
+      throw(new ExportException());
+    }
+    finally {
+      // make sure to close output stream
+      os.close();
+    }
 
     // clean up
     os = null;
