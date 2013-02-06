@@ -60,8 +60,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   public static final int ROLE_TYPE = 1;
   public static final int PERM_READ = 0;
   public static final int PERM_WRITE = 1;
-  public static final int PERM_ACE_WRITE = 2;
-  public static final int PERM_ACE_READ = 3;
+  public static final int PERM_ACE_READ = 2;
+  public static final int PERM_ACE_WRITE = 3;
   private static final String INHERITS_ELEMENT_NAME = "entriesInheriting"; //$NON-NLS-1$
 
   boolean dirty = false;
