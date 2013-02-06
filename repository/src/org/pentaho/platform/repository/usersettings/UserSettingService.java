@@ -20,12 +20,14 @@ package org.pentaho.platform.repository.usersettings;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -111,40 +113,45 @@ public class UserSettingService implements IUserSettingService {
 
   public IUserSetting getUserSetting(String settingName, String defaultValue) {
     // if the user does not have the setting, check if a global setting exists
-    String homePath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
-    System.out.println("homePath:" + homePath);
-    System.out.println("file:" + repository.getFile(homePath));
-    System.out.println("sessionName:" + PentahoSessionHolder.getSession().getName());
-    
-    Serializable userHomeId = repository.getFile(homePath).getId();
-    Map<String, Serializable> userMetadata = repository.getFileMetadata(userHomeId);
+    boolean hasAuth = PentahoSessionHolder.getSession().getAttribute("SPRING_SECURITY_CONTEXT") != null;
+    if (hasAuth) {
+      try {
+        String homePath = ClientRepositoryPaths.getUserHomeFolderPath(PentahoSessionHolder.getSession().getName());
 
-    for (String key : userMetadata.keySet()) {
-      if (key.startsWith(SETTING_PREFIX)) {
-        UserSetting setting = new UserSetting();
-        setting.setSettingName(key.substring(SETTING_PREFIX.length()));
-        setting.setSettingValue(userMetadata.get(key).toString());
-        if (setting.getSettingValue().equals(settingName)) {
-          return setting;
+        Serializable userHomeId = repository.getFile(homePath).getId();
+        Map<String, Serializable> userMetadata = repository.getFileMetadata(userHomeId);
+
+        for (String key : userMetadata.keySet()) {
+          if (key.startsWith(SETTING_PREFIX)) {
+            UserSetting setting = new UserSetting();
+            setting.setSettingName(key.substring(SETTING_PREFIX.length()));
+            setting.setSettingValue(userMetadata.get(key).toString());
+            if (setting.getSettingValue().equals(settingName)) {
+              return setting;
+            }
+          }
         }
+
+        String tentantHomePath = ClientRepositoryPaths.getEtcFolderPath();
+        Serializable tenantHomeId = repository.getFile(tentantHomePath).getId();
+        Map<String, Serializable> tenantMetadata = repository.getFileMetadata(tenantHomeId);
+
+        for (String key : tenantMetadata.keySet()) {
+          if (key.startsWith(SETTING_PREFIX)) {
+            UserSetting setting = new UserSetting();
+            setting.setSettingName(key.substring(SETTING_PREFIX.length()));
+            setting.setSettingValue(tenantMetadata.get(key).toString());
+            if (setting.getSettingValue().equals(settingName)) {
+              return setting;
+            }
+          }
+        }
+      } catch (Throwable ignored) {
+        // if anything goes wrong with authentication (anonymous user) or permissions
+        // just return the default value, if we continue to log these errors (like on before Login)
+        // we'll see *many* errors in the logs which are not helpful
       }
     }
-
-    String tentantHomePath = ClientRepositoryPaths.getEtcFolderPath();
-    Serializable tenantHomeId = repository.getFile(tentantHomePath).getId();
-    Map<String, Serializable> tenantMetadata = repository.getFileMetadata(tenantHomeId);
-
-    for (String key : tenantMetadata.keySet()) {
-      if (key.startsWith(SETTING_PREFIX)) {
-        UserSetting setting = new UserSetting();
-        setting.setSettingName(key.substring(SETTING_PREFIX.length()));
-        setting.setSettingValue(tenantMetadata.get(key).toString());
-        if (setting.getSettingValue().equals(settingName)) {
-          return setting;
-        }
-      }
-    }
-
     UserSetting defaultSetting = new UserSetting();
     defaultSetting.setSettingName(settingName);
     defaultSetting.setSettingValue(defaultValue);

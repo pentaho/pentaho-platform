@@ -18,9 +18,11 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStrea
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.util.web.MimeHelper;
 
-@SuppressWarnings("serial")
 public class RepositoryFileStreamProvider implements IBackgroundExecutionStreamProvider, IStreamListener {
 
+  // providing a serialVersionUID will help prevent quartz from throwing incompatible class exceptions
+  private static final long serialVersionUID = 2812310908328498989L;
+  
   public String outputFilePath;
   public String inputFilePath;
   private IStreamingAction streamingAction;

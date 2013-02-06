@@ -64,6 +64,12 @@ public class IFrameTabPanel extends VerticalPanel {
     add(frame);
   }
 
+  public void setName(String name) {
+    this.name = name;
+    frame.getElement().setAttribute("name", name);
+    frame.getElement().setAttribute("id", name + System.currentTimeMillis()); //$NON-NLS-1$
+  }
+  
   public void reload() {
     if (form != null) {
       form.submit();
@@ -181,6 +187,22 @@ public class IFrameTabPanel extends VerticalPanel {
       attachEventListeners(frame.getElement(), this);
     }
 
+    public native void removeEventListeners(Element ele)
+    /*-{
+        var wind = ele.contentWindow;
+        wind.onmouseup = null;
+        wind.onmousedown = null;
+        wind.onmousemove = null;          
+        wind.onunload = null;
+        $wnd.watchWindow = null; 
+        try {
+          $wnd.purge(ele.contentDocument.body);
+        } catch (ignoredxss) {}
+        try {
+          $wnd.removeChildrenFromNode(ele.contentDocument.body);     
+        } catch (ignoredxss) {}
+    }-*/;
+    
     public native void attachEventListeners(Element ele, CustomFrame frame)
     /*-{
       var iwind = ele.contentWindow; //IFrame's window instance
