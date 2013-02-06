@@ -41,6 +41,24 @@ public class DatabaseHelper {
 
   private static final String NODE_ATTRIBUTES = "attributes"; //$NON-NLS-1$
   
+  private static final String NODE_POOLING_PROPS = "poolProps"; //$NON-NLS-1$
+  
+  private static final String PROP_CONNECT_SQL = "connectionSQL"; //$NON-NLS-1$
+  
+  private static final String PROP_INITIAL_POOL_SIZE = "initialPoolSize"; //$NON-NLS-1$
+  
+  private static final String PROP_MAX_POOL_SIZE = "maxPoolSize"; //$NON-NLS-1$
+  
+  private static final String PROP_IS_POOLING = "isPooling"; //$NON-NLS-1$
+  
+  private static final String PROP_IS_FORCING_TO_LOWER = "isForcingLower"; //$NON-NLS-1$
+  
+  private static final String PROP_IS_FORCING_TO_UPPER = "isForcingUpper"; //$NON-NLS-1$
+  
+  private static final String PROP_IS_QUOTE_FIELDS = "isQuoteFields"; //$NON-NLS-1$
+  
+  private static final String PROP_IS_DECIMAL_SEPERATOR = "isUsingDecimalSeperator";//$NON-NLS-1$
+  
   private DatabaseTypeHelper databaseTypeHelper;
   
   public DatabaseHelper(IDatabaseDialectService databaseDialectService) {
@@ -64,16 +82,32 @@ public class DatabaseHelper {
     rootNode.setProperty(PROP_SERVERNAME, setNull(databaseConnection.getInformixServername()));
     rootNode.setProperty(PROP_DATA_TBS, setNull(databaseConnection.getDataTablespace()));
     rootNode.setProperty(PROP_INDEX_TBS, setNull(databaseConnection.getIndexTablespace()));
+    rootNode.setProperty(PROP_CONNECT_SQL, setNull(databaseConnection.getConnectSql()));
+    rootNode.setProperty(PROP_INITIAL_POOL_SIZE, databaseConnection.getInitialPoolSize());
+    rootNode.setProperty(PROP_MAX_POOL_SIZE, databaseConnection.getMaximumPoolSize());
+    rootNode.setProperty(PROP_IS_POOLING, databaseConnection.isUsingConnectionPool());
+    rootNode.setProperty(PROP_IS_FORCING_TO_LOWER, databaseConnection.isForcingIdentifiersToLowerCase());
+    rootNode.setProperty(PROP_IS_FORCING_TO_UPPER, databaseConnection.isForcingIdentifiersToUpperCase());
+    rootNode.setProperty(PROP_IS_QUOTE_FIELDS, databaseConnection.isQuoteAllFields());
+    rootNode.setProperty(PROP_IS_DECIMAL_SEPERATOR, databaseConnection.isUsingDoubleDecimalAsSchemaTableSeparator());
+    
+    // Now store all the attributes set on the database connection...
     DataNode attrNode = rootNode.addNode(NODE_ATTRIBUTES);
-
-  // Now store all the attributes set on the database connection...
-  // 
-  Map<String, String> attributes = databaseConnection.getAttributes();
-  Set<String> keys = attributes.keySet();
-  for(String key:keys) {
+    Map<String, String> attributes = databaseConnection.getAttributes();
+    Set<String> keys = attributes.keySet();
+    for(String key:keys) {
+        String value = attributes.get(key);
+        attrNode.setProperty(key, value);
+    }
+    
+    // Now store the pooling parameters
+    attrNode = rootNode.addNode(NODE_POOLING_PROPS);
+    attributes = databaseConnection.getConnectionPoolingProperties();
+    keys = attributes.keySet();
+    for(String key:keys) {
       String value = attributes.get(key);
       attrNode.setProperty(key, value);
-  }
+    }
     return rootNode;
   }
   
@@ -102,19 +136,54 @@ public class DatabaseHelper {
     databaseConnection.setInformixServername(getString(rootNode, PROP_SERVERNAME));
     databaseConnection.setDataTablespace(getString(rootNode, PROP_DATA_TBS));
     databaseConnection.setIndexTablespace(getString(rootNode, PROP_INDEX_TBS));
-
+    databaseConnection.setConnectSql(getString(rootNode, PROP_CONNECT_SQL));
+    databaseConnection.setInitialPoolSize(getInt(rootNode, PROP_INITIAL_POOL_SIZE));
+    databaseConnection.setMaximumPoolSize(getInt(rootNode, PROP_MAX_POOL_SIZE));
+    databaseConnection.setUsingConnectionPool(getBoolean(rootNode, PROP_IS_POOLING));
+    databaseConnection.setForcingIdentifiersToLowerCase(getBoolean(rootNode, PROP_IS_FORCING_TO_LOWER));
+    databaseConnection.setForcingIdentifiersToUpperCase(getBoolean(rootNode, PROP_IS_FORCING_TO_UPPER));
+    databaseConnection.setQuoteAllFields(getBoolean(rootNode, PROP_IS_QUOTE_FIELDS));
+    databaseConnection.setUsingDoubleDecimalAsSchemaTableSeparator(getBoolean(rootNode, PROP_IS_DECIMAL_SEPERATOR));
+    
     // Also, load all the properties we can find...
-
     DataNode attrNode = rootNode.getNode(NODE_ATTRIBUTES);
-    for (DataProperty property : attrNode.getProperties()) {
-      String code = property.getName();
-      String attribute = property.getString();
-      databaseConnection.getAttributes().put(code, (attribute == null || attribute.length() ==0) ? "": attribute); //$NON-NLS-1$
+    if (attrNode != null) {
+      for (DataProperty property : attrNode.getProperties()) {
+        String code = property.getName();
+        String attribute = property.getString();
+        databaseConnection.getAttributes().put(code, (attribute == null || attribute.length() ==0) ? "": attribute); //$NON-NLS-1$
+      }
     }
     
+    // Also, load any pooling params
+    attrNode = rootNode.getNode(NODE_POOLING_PROPS);
+    if (attrNode != null) {
+      for (DataProperty property : attrNode.getProperties()) {
+        String code = property.getName();
+        String attribute = property.getString();
+        databaseConnection.getConnectionPoolingProperties().put(code, (attribute == null || attribute.length() ==0) ? "": attribute); //$NON-NLS-1$
+      }
+    }
+
     return databaseConnection;
   }
 
+  private boolean getBoolean(DataNode node, String name) {
+    if (node.hasProperty(name)) {
+      return node.getProperty(name).getBoolean();
+    } else {
+      return false;
+    }
+  }
+  
+  private int getInt(DataNode node, String name) {
+    if (node.hasProperty(name)) {
+      return (int) node.getProperty(name).getLong();
+    } else {
+      return 0;
+    }
+  }
+  
   private String getString(DataNode node, String name) {
     if (node.hasProperty(name)) {
       return node.getProperty(name).getString();
