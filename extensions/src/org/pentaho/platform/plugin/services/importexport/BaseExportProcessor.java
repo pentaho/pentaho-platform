@@ -44,11 +44,11 @@ public abstract class BaseExportProcessor{
 
   IUnifiedRepository unifiedRepository;
 
-  protected static String EXPORT_MANIFEST_FILENAME = "exportManifest.xml";
-  protected static String EXPORT_INFO_DATE_FORMAT = "dd-MM-yyyy";
-  protected static String EXPORT_INFO_TIME_FORMAT = "hh:mm:ss z";
-  protected static String EXPORT_TEMP_FILENAME_PREFIX = "repoExport";
-  protected static String EXPORT_TEMP_FILENAME_EXT = ".zip";
+  final protected static String EXPORT_MANIFEST_FILENAME = "exportManifest.xml";
+  final protected static String EXPORT_INFO_DATE_FORMAT = "dd-MM-yyyy";
+  final protected static String EXPORT_INFO_TIME_FORMAT = "hh:mm:ss z";
+  final protected static String EXPORT_TEMP_FILENAME_PREFIX = "repoExport";
+  final protected static String EXPORT_TEMP_FILENAME_EXT = ".zip";
 
   /**
    *
