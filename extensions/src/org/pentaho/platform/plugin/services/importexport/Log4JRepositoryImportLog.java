@@ -66,7 +66,7 @@ public class Log4JRepositoryImportLog {
 		return importRootPath;
 	}
 	
-	protected void EndJob() {
+	protected void endJob() {
 		try {
 			outputStream.write(writeAppender.getLayout().getFooter().getBytes());
 		} catch (Exception e) {
