@@ -136,14 +136,30 @@ public class DatabaseHelper {
     databaseConnection.setInformixServername(getString(rootNode, PROP_SERVERNAME));
     databaseConnection.setDataTablespace(getString(rootNode, PROP_DATA_TBS));
     databaseConnection.setIndexTablespace(getString(rootNode, PROP_INDEX_TBS));
-    databaseConnection.setConnectSql(getString(rootNode, PROP_CONNECT_SQL));
-    databaseConnection.setInitialPoolSize(getInt(rootNode, PROP_INITIAL_POOL_SIZE));
-    databaseConnection.setMaximumPoolSize(getInt(rootNode, PROP_MAX_POOL_SIZE));
-    databaseConnection.setUsingConnectionPool(getBoolean(rootNode, PROP_IS_POOLING));
-    databaseConnection.setForcingIdentifiersToLowerCase(getBoolean(rootNode, PROP_IS_FORCING_TO_LOWER));
-    databaseConnection.setForcingIdentifiersToUpperCase(getBoolean(rootNode, PROP_IS_FORCING_TO_UPPER));
-    databaseConnection.setQuoteAllFields(getBoolean(rootNode, PROP_IS_QUOTE_FIELDS));
-    databaseConnection.setUsingDoubleDecimalAsSchemaTableSeparator(getBoolean(rootNode, PROP_IS_DECIMAL_SEPERATOR));
+    if (rootNode.hasProperty(PROP_CONNECT_SQL)) {
+      databaseConnection.setConnectSql(getString(rootNode, PROP_CONNECT_SQL));
+    }
+    if (rootNode.hasProperty(PROP_INITIAL_POOL_SIZE)) {
+      databaseConnection.setInitialPoolSize((int) rootNode.getProperty(PROP_INITIAL_POOL_SIZE).getLong());
+    }
+    if (rootNode.hasProperty(PROP_MAX_POOL_SIZE)) {
+      databaseConnection.setMaximumPoolSize((int) rootNode.getProperty(PROP_MAX_POOL_SIZE).getLong());
+    }
+    if (rootNode.hasProperty(PROP_IS_POOLING)) {
+      databaseConnection.setUsingConnectionPool(rootNode.getProperty(PROP_IS_POOLING).getBoolean());
+    }
+    if (rootNode.hasProperty(PROP_IS_FORCING_TO_LOWER)) {
+      databaseConnection.setForcingIdentifiersToLowerCase(rootNode.getProperty(PROP_IS_FORCING_TO_LOWER).getBoolean());
+    }
+    if (rootNode.hasProperty(PROP_IS_FORCING_TO_UPPER)) {
+      databaseConnection.setForcingIdentifiersToUpperCase(rootNode.getProperty(PROP_IS_FORCING_TO_UPPER).getBoolean());
+    }
+    if (rootNode.hasProperty(PROP_IS_QUOTE_FIELDS)) {
+      databaseConnection.setQuoteAllFields(rootNode.getProperty(PROP_IS_QUOTE_FIELDS).getBoolean());
+    }
+    if (rootNode.hasProperty(PROP_IS_DECIMAL_SEPERATOR)) {
+      databaseConnection.setUsingDoubleDecimalAsSchemaTableSeparator(rootNode.getProperty(PROP_IS_DECIMAL_SEPERATOR).getBoolean());
+    }
     
     // Also, load all the properties we can find...
     DataNode attrNode = rootNode.getNode(NODE_ATTRIBUTES);
@@ -166,22 +182,6 @@ public class DatabaseHelper {
     }
 
     return databaseConnection;
-  }
-
-  private boolean getBoolean(DataNode node, String name) {
-    if (node.hasProperty(name)) {
-      return node.getProperty(name).getBoolean();
-    } else {
-      return false;
-    }
-  }
-  
-  private int getInt(DataNode node, String name) {
-    if (node.hasProperty(name)) {
-      return (int) node.getProperty(name).getLong();
-    } else {
-      return 0;
-    }
   }
   
   private String getString(DataNode node, String name) {
