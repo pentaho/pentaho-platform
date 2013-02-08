@@ -225,8 +225,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
-          if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-              && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+          if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)) {
             return true;
           }
           System.out.println("PRINCIPAL NAME: " + principalName);
