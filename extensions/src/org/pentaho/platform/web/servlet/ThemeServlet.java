@@ -2,6 +2,7 @@ package org.pentaho.platform.web.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,9 +27,10 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
  */
 public class ThemeServlet extends ServletBase {
 
+  private static final long serialVersionUID = -7408362317719420602L;
+  
   private static final Log logger = LogFactory.getLog(UIServlet.class);
   private IThemeManager themeManager = (IThemeManager) PentahoSystem.get(IThemeManager.class, null);
-
 
   @Override
   public Log getLogger() {

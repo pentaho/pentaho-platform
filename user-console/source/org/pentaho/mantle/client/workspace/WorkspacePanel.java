@@ -175,6 +175,8 @@ public class WorkspacePanel extends SimplePanel {
       final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
+      
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable caught) {
@@ -227,6 +229,7 @@ public class WorkspacePanel extends SimplePanel {
 
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobs"; //$NON-NLS-1$
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     executableTypesRequestBuilder.setHeader("accept", "application/json");
     try {
       executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -270,6 +273,7 @@ public class WorkspacePanel extends SimplePanel {
   private void updateControlSchedulerButtonState(final ToolbarButton controlSchedulerButton) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/state"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       builder.sendRequest(null, new RequestCallback() {
 
@@ -299,6 +303,7 @@ public class WorkspacePanel extends SimplePanel {
   private void toggleSchedulerOnOff(final ToolbarButton controlSchedulerButton) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/state"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       builder.sendRequest(null, new RequestCallback() {
 
@@ -845,6 +850,7 @@ public class WorkspacePanel extends SimplePanel {
     for (final JsJob job : jobs) {
       final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
       RequestBuilder builder = new RequestBuilder(method, url);
+      builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
       builder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
 
       JSONObject startJobRequest = new JSONObject();
@@ -882,6 +888,7 @@ public class WorkspacePanel extends SimplePanel {
   private void controlScheduler(final ToolbarButton controlSchedulerButton, final String function) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+    builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     try {
       builder.sendRequest(null, new RequestCallback() {
 

@@ -36,6 +36,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.email.IEmailService;
@@ -91,7 +92,7 @@ public class Emailer {
   }
 
   public void setUseAuthentication(boolean useAuthentication) {
-    props.put("mail.smtp.auth", "" + useAuthentication);
+    props.put("mail.smtp.auth", ObjectUtils.toString(useAuthentication));
   }
 
   public void setSmtpHost(String smtpHost) {
@@ -99,7 +100,7 @@ public class Emailer {
   }
 
   public void setSmtpPort(int port) {
-    props.put("mail.smtp.port", "" + port);
+    props.put("mail.smtp.port", ObjectUtils.toString(port));
   }
 
   public void setTransportProtocol(String protocol) {
@@ -107,15 +108,15 @@ public class Emailer {
   }
 
   public void setUseSSL(boolean useSSL) {
-    props.put("mail.smtp.ssl", "" + useSSL);
+    props.put("mail.smtp.ssl", ObjectUtils.toString(useSSL));
   }
 
   public void setStartTLS(boolean startTLS) {
-    props.put("mail.smtp.starttls.enable", "" + startTLS);
+    props.put("mail.smtp.starttls.enable", ObjectUtils.toString(startTLS));
   }
 
   public void setQuitWait(boolean quitWait) {
-    props.put("mail.smtp.quitwait", "" + quitWait);
+    props.put("mail.smtp.quitwait", ObjectUtils.toString(quitWait));
   }
 
   public void setAttachment(InputStream attachment) {
@@ -150,14 +151,14 @@ public class Emailer {
     try {
       final IEmailService service = PentahoSystem.get(IEmailService.class, "IEmailService", PentahoSessionHolder.getSession());
       props.put("mail.smtp.host", service.getEmailConfig().getSmtpHost());
-      props.put("mail.smtp.port", "" + service.getEmailConfig().getSmtpPort());
+      props.put("mail.smtp.port", ObjectUtils.toString(service.getEmailConfig().getSmtpPort()));
       props.put("mail.transport.protocol", service.getEmailConfig().getSmtpProtocol());
-      props.put("mail.smtp.starttls.enable", "" + service.getEmailConfig().isUseStartTls());
-      props.put("mail.smtp.auth", "" + service.getEmailConfig().isAuthenticate());
-      props.put("mail.smtp.ssl", "" + service.getEmailConfig().isUseSsl());
-      props.put("mail.smtp.quitwait", "" + service.getEmailConfig().isSmtpQuitWait());
+      props.put("mail.smtp.starttls.enable", ObjectUtils.toString(service.getEmailConfig().isUseStartTls()));
+      props.put("mail.smtp.auth", ObjectUtils.toString(service.getEmailConfig().isAuthenticate()));
+      props.put("mail.smtp.ssl", ObjectUtils.toString(service.getEmailConfig().isUseSsl()));
+      props.put("mail.smtp.quitwait", ObjectUtils.toString(service.getEmailConfig().isSmtpQuitWait()));
       props.put("mail.from.default", service.getEmailConfig().getDefaultFrom());
-      props.put("mail.debug", "" + service.getEmailConfig().isDebug());
+      props.put("mail.debug", ObjectUtils.toString(service.getEmailConfig().isDebug()));
 
       if (service.getEmailConfig().isAuthenticate()) {
         props.put("mail.userid", service.getEmailConfig().getUserId());

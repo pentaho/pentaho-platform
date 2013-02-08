@@ -41,6 +41,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -120,7 +121,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
         urlParams += i == 0 ? "?" : "&";
         if (jparams.get(i).getValue().startsWith("[")) {
           // it's an array!
-          StringTokenizer st = new StringTokenizer(jparams.get(i).getValue(), "[], ");
+          StringTokenizer st = new StringTokenizer(jparams.get(i).getValue(), "[],");
           int tokens = st.countTokens();
           int numParamsAdded = 0;
           for (int j = 0; j < tokens; j++) {
@@ -130,11 +131,11 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
                 urlParams += "&";
               }
               numParamsAdded++;
-              urlParams += jparams.get(i).getName() + "=" + st.tokenAt(j);
+              urlParams += jparams.get(i).getName() + "=" + URL.encodeQueryString(token.trim());
             }
           }
         } else {
-          urlParams += jparams.get(i).getName() + "=" + jparams.get(i).getValue();
+          urlParams += jparams.get(i).getName() + "=" + URL.encodeQueryString(jparams.get(i).getValue().trim());
         }
       }
     }

@@ -21,12 +21,13 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 
 /**
- * An {@link IRepositoryFileBundle} that uses temporary files.
+ * An {@link org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle} that uses temporary files.
  * 
  * @author mlowery
  */
@@ -99,4 +100,7 @@ public class RepositoryFileBundle implements IRepositoryFileBundle, Serializable
     return true;
   }
 
+  public int hashCode(){
+    return new HashCodeBuilder(47, 53).append(path).append(file.getName()).toHashCode();
+  }
 }
