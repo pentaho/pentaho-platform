@@ -35,6 +35,8 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -83,6 +85,7 @@ public class ImportDialog extends PromptDialogBox {
     });
 
     VerticalPanel rootPanel = new VerticalPanel();
+    rootPanel.add(new HTML("&nbsp;"));
     
     Label fileLabel = new Label(Messages.getString("file") + ":");
     final TextBox importDir = new TextBox();
@@ -122,9 +125,13 @@ public class ImportDialog extends PromptDialogBox {
     rootPanel.add(overwriteAclPermissions);
     
     DisclosurePanel disclosurePanel = new DisclosurePanel(Messages.getString("advancedOptions"));
-    VerticalPanel disclosureContent = new VerticalPanel();    
+    disclosurePanel.getHeader().setStyleName("gwt-Label");
+    HorizontalPanel mainPanel = new HorizontalPanel();
+    mainPanel.add(new HTML("&nbsp;"));
+    VerticalPanel disclosureContent = new VerticalPanel();
     
-    Label replaceLabel = new Label(Messages.getString("fileExists"));
+    HTML replaceLabel = new HTML("&nbsp;" + Messages.getString("fileExists"));
+    replaceLabel.setStyleName("gwt-Label");
     disclosureContent.add(replaceLabel);
     
     final ListBox overwriteFile = new ListBox();    
@@ -135,7 +142,8 @@ public class ImportDialog extends PromptDialogBox {
     overwriteFile.setVisibleItemCount(1);
     disclosureContent.add(overwriteFile);
     
-    Label filePermissionsLabel = new Label(Messages.getString("filePermissions"));
+    HTML filePermissionsLabel = new HTML("&nbsp;" + Messages.getString("filePermissions"));
+    filePermissionsLabel.setStyleName("gwt-Label");
     disclosureContent.add(filePermissionsLabel);
     
     final ListBox filePermissionsDropDown = new ListBox();
@@ -163,7 +171,8 @@ public class ImportDialog extends PromptDialogBox {
     filePermissionsDropDown.setVisibleItemCount(1);
     disclosureContent.add(filePermissionsDropDown);
     
-    Label fileOwnershipLabel = new Label(Messages.getString("fileOwnership"));
+    HTML fileOwnershipLabel = new HTML("&nbsp;" + Messages.getString("fileOwnership"));
+    fileOwnershipLabel.setStyleName("gwt-Label");
     disclosureContent.add(fileOwnershipLabel);
     
     final ListBox retainOwnership = new ListBox();
@@ -192,7 +201,8 @@ public class ImportDialog extends PromptDialogBox {
     };
     overwriteFile.addChangeHandler(overwriteFileHandler);
     
-    Label loggingLabel = new Label(Messages.getString("logging"));
+    HTML loggingLabel = new HTML("&nbsp;" + Messages.getString("logging"));
+    loggingLabel.setStyleName("gwt-Label");
     disclosureContent.add(loggingLabel);
     
     ListBox loggingDropDown = new ListBox();
@@ -203,7 +213,8 @@ public class ImportDialog extends PromptDialogBox {
     loggingDropDown.setVisibleItemCount(1);
     disclosureContent.add(loggingDropDown);   
     
-    disclosurePanel.setContent(disclosureContent);
+    mainPanel.add(disclosureContent);
+    disclosurePanel.setContent(mainPanel);
     rootPanel.add(disclosurePanel);
 
     importDir.setName("importDir");
