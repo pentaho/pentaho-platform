@@ -206,10 +206,10 @@ public class ImportDialog extends PromptDialogBox {
     disclosureContent.add(loggingLabel);
     
     ListBox loggingDropDown = new ListBox();
-    loggingDropDown.setName("logging");
-    loggingDropDown.addItem(Messages.getString("none"));
-    loggingDropDown.addItem(Messages.getString("short"));
-    loggingDropDown.addItem(Messages.getString("verbose"));
+    loggingDropDown.setName("logLevel");
+    loggingDropDown.addItem(Messages.getString("none"), "WARN");
+    loggingDropDown.addItem(Messages.getString("short"), "INFO");
+    loggingDropDown.addItem(Messages.getString("verbose", "DEBUG"));
     loggingDropDown.setVisibleItemCount(1);
     disclosureContent.add(loggingDropDown);   
     
