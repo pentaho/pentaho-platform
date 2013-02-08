@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Level;
+
 /**
  * This test creates two mock import logs in two threads to test thread safety.
  * Html output is sent to a ByteArrayOutputStream rather than a FileOutput
@@ -70,7 +72,7 @@ public class RepositoryImportLogTest extends TestCase {
 				//FileOutputStream fileStream = new FileOutputStream(outputFile);
 
 				// You must call this method to start posting the log.
-				logger.startJob(fileStream, mainDir());
+				logger.startJob(fileStream, mainDir(), Level.DEBUG);
 
 				logger.setCurrentFilePath(mainDir() + "/dir2/file1");
 				logger.info("Success");

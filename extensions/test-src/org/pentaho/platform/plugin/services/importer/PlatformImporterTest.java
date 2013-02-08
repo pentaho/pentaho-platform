@@ -1,16 +1,17 @@
 package org.pentaho.platform.plugin.services.importer;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Assert;
-import org.junit.Test;
-import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.log4j.Level;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.junit.Assert;
+import org.junit.Test;
+import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 
 /**
  * User: nbaker
@@ -32,7 +33,7 @@ public class PlatformImporterTest {
     
     Log4JRepositoryImportLogger importLogger = new Log4JRepositoryImportLogger();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    importLogger.startJob(outputStream, "");
+    importLogger.startJob(outputStream, "", Level.DEBUG);
 
     // With custom domain id
     final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").hidden(false).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
