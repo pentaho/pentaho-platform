@@ -1,6 +1,8 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.OutputStream;
+
+import org.apache.log4j.Level;
 /**
  *  * Below is a sample of how to use this class to generate a log file.
  *   1) You must use startJob(OutputStream, ImportPath) to instantiate
@@ -49,8 +51,9 @@ public interface IRepositoryImportLogger {
 	 * with the current thread.
 	 * @param outputStream	Will receive the html content of the log
 	 * @param importRootPath The root import dir receiving the import
+	 * @param logLevel The log level to be logged.
 	 */
-	void startJob(OutputStream outputStream, String importRootPath);
+	void startJob(OutputStream outputStream, String importRootPath, Level logLevel);
 
 	/**
 	 * Registers the file being worked on.  Each log entry will list

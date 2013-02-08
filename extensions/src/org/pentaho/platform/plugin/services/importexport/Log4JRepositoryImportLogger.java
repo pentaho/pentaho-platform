@@ -1,6 +1,8 @@
 package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.OutputStream;
+
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -16,9 +18,9 @@ public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
 	public Log4JRepositoryImportLogger() {
 	}
 
-	public void startJob(OutputStream outputStream, String importRootPath) {
+	public void startJob(OutputStream outputStream, String importRootPath, Level logLevel) {
 		repositoryImportLog.set(new Log4JRepositoryImportLog(outputStream,
-				importRootPath));
+				importRootPath, logLevel));
 		getLog4JRepositoryImportLog().setCurrentFilePath(
 				getLog4JRepositoryImportLog().getImportRootPath());
 		getLogger().info("Start Import Job");
