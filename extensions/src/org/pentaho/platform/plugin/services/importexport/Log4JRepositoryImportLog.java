@@ -2,6 +2,7 @@ package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.OutputStream;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
 import org.apache.log4j.WriterAppender;
@@ -14,6 +15,7 @@ public class Log4JRepositoryImportLog {
 	String currentFilePath;
 	String logName;
 	String importRootPath;
+	Level logLevel;
 	WriterAppender writeAppender;
 
 	/**
@@ -22,7 +24,7 @@ public class Log4JRepositoryImportLog {
 	 * 
 	 * @param outputStream
 	 */
-	Log4JRepositoryImportLog(OutputStream outputStream, String importRootPath) {
+	Log4JRepositoryImportLog(OutputStream outputStream, String importRootPath, Level logLevel) {
 		this.outputStream = outputStream;
 		this.importRootPath = importRootPath;
 		init();
@@ -31,7 +33,7 @@ public class Log4JRepositoryImportLog {
 	private void init() {
 		logName = "RepositoryImportLog." + getThreadName();
 		logger = Logger.getLogger(logName);
-		//logger.setLevel((Level) Level.INFO);
+		logger.setLevel(logLevel);
 		RepositoryImportHTMLLayout htmlLayout = new RepositoryImportHTMLLayout();
 		htmlLayout.setTitle("Repository Import Log");
 		htmlLayout.setLocationInfo(true);

@@ -31,6 +31,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.log4j.Level;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.PentahoAccessControlException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -74,6 +75,7 @@ public class RepositoryImportResource {
 			@FormDataParam("applyAclPermissions") String applyAclPermission,
 			@FormDataParam("retainOwnership") String retainOwnership,
 			@FormDataParam("charSet") String charSet,
+			@FormDataParam("logLevel") String logLevel,
 			@FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
 	        IRepositoryImportLogger importLogger = null;
 		    ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
@@ -84,6 +86,7 @@ public class RepositoryImportResource {
 				boolean overwriteAclSettingsFlag = ("true".equals(overwriteAclPermissions) ? true : false);
 				boolean applyAclSettingsFlag = ("true".equals(applyAclPermission) ? true : false);
 				boolean retainOwnershipFlag = ("true".equals(retainOwnership) ? true : false);
+				Level level = Level.toLevel(logLevel);
 	
 				RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 				bundleBuilder.input(fileIS);
@@ -103,7 +106,7 @@ public class RepositoryImportResource {
 				IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
 				importLogger = importer.getRepositoryImportLogger();
 				
-				importLogger.startJob(importLoggerStream, uploadDir); 
+				importLogger.startJob(importLoggerStream, uploadDir, level); 
 				importer.importFile(bundle);
 	
 				// Flush the Mondrian cache to show imported datasources.
