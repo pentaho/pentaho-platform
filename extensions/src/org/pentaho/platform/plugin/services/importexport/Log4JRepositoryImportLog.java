@@ -27,6 +27,7 @@ public class Log4JRepositoryImportLog {
 	Log4JRepositoryImportLog(OutputStream outputStream, String importRootPath, Level logLevel) {
 		this.outputStream = outputStream;
 		this.importRootPath = importRootPath;
+		this.logLevel = logLevel;
 		init();
 	}
 
@@ -34,9 +35,8 @@ public class Log4JRepositoryImportLog {
 		logName = "RepositoryImportLog." + getThreadName();
 		logger = Logger.getLogger(logName);
 		logger.setLevel(logLevel);
-		RepositoryImportHTMLLayout htmlLayout = new RepositoryImportHTMLLayout();
+		RepositoryImportHTMLLayout htmlLayout = new RepositoryImportHTMLLayout(logLevel);
 		htmlLayout.setTitle("Repository Import Log");
-		htmlLayout.setLocationInfo(true);
 		writeAppender = new WriterAppender(htmlLayout, outputStream);
 		logger.addAppender(writeAppender);
 	}
