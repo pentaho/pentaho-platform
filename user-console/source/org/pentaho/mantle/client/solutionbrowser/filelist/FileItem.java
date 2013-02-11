@@ -67,6 +67,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   public static final String URL_SUFFIX = ".url"; //$NON-NLS-1$
 
   private static String SEPARATOR = "separator"; //$NON-NLS-1$
+  private static String SCHEDULE = "scheduleEllipsis";
 
   private static final MenuGlue adminMenuItems[] = { new MenuGlue("open", COMMAND.RUN), //$NON-NLS-1$
     new MenuGlue("openInNewWindow", COMMAND.NEWWINDOW), //$NON-NLS-1$
@@ -80,7 +81,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     new MenuGlue("share", COMMAND.SHARE), //$NON-NLS-1$
     new MenuGlue("addToFavorites",COMMAND.FAVORITE), //$NON-NLS-1$
     new MenuGlue("removeFromFavorites",COMMAND.FAVORITE_REMOVE), //$NON-NLS-1$
-    new MenuGlue("scheduleEllipsis", COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
+    new MenuGlue(SCHEDULE, COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
     new MenuGlue(SEPARATOR, null),
     new MenuGlue("cut", COMMAND.CUT), //$NON-NLS-1$
     new MenuGlue("copy", COMMAND.COPY), //$NON-NLS-1$
@@ -101,7 +102,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     new MenuGlue("share", COMMAND.SHARE), //$NON-NLS-1$
     new MenuGlue("addToFavorites",COMMAND.FAVORITE), //$NON-NLS-1$
     new MenuGlue("removeFromFavorites",COMMAND.FAVORITE_REMOVE), //$NON-NLS-1$
-    new MenuGlue("scheduleEllipsis", COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
+    new MenuGlue(SCHEDULE, COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
     new MenuGlue(SEPARATOR, null),
     new MenuGlue("cut", COMMAND.CUT), //$NON-NLS-1$
     new MenuGlue("copy", COMMAND.COPY), //$NON-NLS-1$
@@ -300,6 +301,14 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
 
       if (menuItems[i].getTitle().equals(SEPARATOR)) {
         menuBar.addSeparator();
+      } else if(menuItems[i].getTitle().equals(SCHEDULE)) {
+        if(SolutionBrowserPanel.getInstance().isScheduler()){
+          menuBar.addItem(new MenuItem(Messages.getString(menuItems[i].getTitle()), new FileCommand(menuItems[i].getCommand(), popupMenu, getRepositoryFile())));
+        } else {
+          MenuItem item = new MenuItem(Messages.getString(menuItems[i].getTitle()), (Command) null);
+          item.setStyleName("disabledMenuItem"); //$NON-NLS-1$
+          menuBar.addItem(item);
+        }
       } else if (options != null && options.isCommandEnabled(menuItems[i].getCommand())) {
         menuBar.addItem(new MenuItem(Messages.getString(menuItems[i].getTitle()), new FileCommand(menuItems[i].getCommand(), popupMenu, getRepositoryFile())));
       } else {

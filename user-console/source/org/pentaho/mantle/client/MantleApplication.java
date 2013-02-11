@@ -202,56 +202,72 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
     String submitOnEnterSetting = settings.get("submit-on-enter-key");
     submitOnEnter = submitOnEnterSetting == null ? submitOnEnter : Boolean.parseBoolean(submitOnEnterSetting);
 
-    String moduleBaseURL = GWT.getModuleBaseURL();
-    String moduleName = GWT.getModuleName();
-    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String restUrl = contextURL + "api/repo/files/canAdminister"; //$NON-NLS-1$
-    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, restUrl);
-    builder.setCallback(new RequestCallback() {
-
-      @Override
-      public void onError(Request arg0, Throwable arg1) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
-        dialogBox.center();
-      }
-
-      @SuppressWarnings("deprecation")
-      @Override
-      public void onResponseReceived(Request arg0, Response response) {
-        Boolean isAdministrator = Boolean.parseBoolean(response.getText());
-        SolutionBrowserPanel.getInstance().setAdministrator(isAdministrator);
-        // menuBar.buildMenuBar(settings, isAdministrator);
-
-        String numStartupURLsSetting = settings.get("num-startup-urls");
-        if (numStartupURLsSetting != null) {
-          int numStartupURLs = Integer.parseInt(numStartupURLsSetting); //$NON-NLS-1$
-          for (int i = 0; i < numStartupURLs; i++) {
-            String url = settings.get("startup-url-" + (i + 1)); //$NON-NLS-1$
-            String name = settings.get("startup-name-" + (i + 1)); //$NON-NLS-1$
-            if (url != null && !"".equals(url)) { //$NON-NLS-1$
-              SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(name != null ? name : url, url, url, false);
-            }
-          }
-        }
-        if (SolutionBrowserPanel.getInstance().getContentTabPanel().getWidgetCount() > 0) {
-          SolutionBrowserPanel.getInstance().getContentTabPanel().selectTab(0);
-        }
-
-        // startup-url on the URL for the app, wins over settings
-        String startupURL = Window.Location.getParameter("startup-url"); //$NON-NLS-1$
-        if (startupURL != null && !"".equals(startupURL)) { //$NON-NLS-1$
-          String title = Window.Location.getParameter("name"); //$NON-NLS-1$
-          startupURL = URL.decodeComponent(startupURL);
-          SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(title, title, startupURL, false);
-        }
-      }
-    });
-
     try {
-      builder.send();
-    } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
-      dialogBox.center();
+        String restUrl = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, restUrl);
+        requestBuilder.sendRequest(null, new RequestCallback(){
+
+          @Override
+          public void onError(Request arg0, Throwable arg1) {
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
+            dialogBox.center();
+          }
+
+          @SuppressWarnings("deprecation")
+          @Override
+          public void onResponseReceived(Request arg0, Response response) {
+              Boolean isAdministrator = Boolean.parseBoolean(response.getText());
+              SolutionBrowserPanel.getInstance().setAdministrator(isAdministrator);
+
+              try {
+                  String restUrl2 = GWT.getHostPageBaseURL() + "api/repo/files/canSchedule"; //$NON-NLS-1$
+                  RequestBuilder requestBuilder2 = new RequestBuilder(RequestBuilder.GET, restUrl2);
+                  requestBuilder2.sendRequest(null, new RequestCallback() {
+                    @Override
+                    public void onError(Request arg0, Throwable arg1) {
+                        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
+                        dialogBox.center();
+                    }
+
+                    @SuppressWarnings("deprecation")
+                    @Override
+                    public void onResponseReceived(Request arg0, Response response) {
+                        Boolean isScheduler = Boolean.parseBoolean(response.getText());
+                        SolutionBrowserPanel.getInstance().setScheduler(isScheduler);
+
+                        String numStartupURLsSetting = settings.get("num-startup-urls");
+                        if (numStartupURLsSetting != null) {
+                            int numStartupURLs = Integer.parseInt(numStartupURLsSetting); //$NON-NLS-1$
+                            for (int i = 0; i < numStartupURLs; i++) {
+                                String url = settings.get("startup-url-" + (i + 1)); //$NON-NLS-1$
+                                String name = settings.get("startup-name-" + (i + 1)); //$NON-NLS-1$
+                                if (url != null && !"".equals(url)) { //$NON-NLS-1$
+                                    SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(name != null ? name : url, url, url, false);
+                                }
+                            }
+                        }
+                        if (SolutionBrowserPanel.getInstance().getContentTabPanel().getWidgetCount() > 0) {
+                            SolutionBrowserPanel.getInstance().getContentTabPanel().selectTab(0);
+                        }
+
+                        // startup-url on the URL for the app, wins over settings
+                        String startupURL = Window.Location.getParameter("startup-url"); //$NON-NLS-1$
+                        if (startupURL != null && !"".equals(startupURL)) { //$NON-NLS-1$
+                            String title = Window.Location.getParameter("name"); //$NON-NLS-1$
+                            startupURL = URL.decodeComponent(startupURL);
+                            SolutionBrowserPanel.getInstance().getContentTabPanel().showNewURLTab(title, title, startupURL, false);
+                        }
+                    }
+                  });
+              } catch(RequestException e){
+                  MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
+                  dialogBox.center();
+              }
+          }
+        });
+    } catch (RequestException e){
+        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
+        dialogBox.center();
     }
 
     if (!StringUtils.isEmpty(startupPerspective)) {

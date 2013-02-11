@@ -156,19 +156,19 @@ public class WorkspacePanel extends SimplePanel {
     public void cancelPressed() {
     }
   };
-
+  
   private IDialogCallback scheduleDialogCallback = new IDialogCallback() {
     public void okPressed() {
       // Remove Next Line to disable deletion of old job
       controlJobs(selectedJobs, "removeJob", RequestBuilder.DELETE, true);
       refresh();
     }
-
     public void cancelPressed() {
     }
-  };
+  };  
 
   private boolean isAdmin = false;
+  private boolean isScheduler = false;
 
   private WorkspacePanel() {
     try {
@@ -185,10 +185,28 @@ public class WorkspacePanel extends SimplePanel {
 
         public void onResponseReceived(Request request, Response response) {
           WorkspacePanel.this.isAdmin = "true".equalsIgnoreCase(response.getText());
-          createUI(isAdmin);
-          refresh(isAdmin);
-        }
 
+          try {
+            final String url2 = GWT.getHostPageBaseURL() + "api/repo/files/canSchedule"; //$NON-NLS-1$
+            RequestBuilder requestBuilder2 = new RequestBuilder(RequestBuilder.GET, url2);
+            requestBuilder2.setHeader("accept", "text/plain");
+            requestBuilder2.sendRequest(null, new RequestCallback() {
+              public void onError(Request request, Throwable caught) {
+                createUI(isAdmin, false);
+                refresh(isAdmin);
+              }
+
+              public void onResponseReceived(Request request, Response response) {
+                WorkspacePanel.this.isScheduler = "true".equalsIgnoreCase(response.getText());
+                createUI(isAdmin, isScheduler);
+                refresh(isAdmin);
+              }
+
+            });
+          } catch (RequestException e){
+            Window.alert(e.getMessage());
+          }
+        }
       });
     } catch (RequestException e) {
       Window.alert(e.getMessage());
@@ -272,6 +290,9 @@ public class WorkspacePanel extends SimplePanel {
             controlSchedulerButton.setToolTip(Messages.getString("startScheduler"));
             controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
           }
+
+          if(!WorkspacePanel.this.isScheduler) controlSchedulerButton.setEnabled(false);
+          else controlSchedulerButton.setEnabled(true);
         }
       });
     } catch (RequestException e) {
@@ -304,7 +325,7 @@ public class WorkspacePanel extends SimplePanel {
     }
   }
 
-  private void createUI(boolean isAdmin) {
+  private void createUI(boolean isAdmin, final boolean isScheduler) {
 
     table.getElement().setId("schedule-table");
 
@@ -590,18 +611,18 @@ public class WorkspacePanel extends SimplePanel {
       public void onSelectionChange(SelectionChangeEvent event) {
         selectedJobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
         JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
-        editButton.setEnabled(true);
+        editButton.setEnabled(WorkspacePanel.this.isScheduler);
         if ("NORMAL".equalsIgnoreCase(jobs[0].getState())) {
           controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
         } else {
           controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
         }
-        controlScheduleButton.setEnabled(jobs != null);
+        controlScheduleButton.setEnabled(jobs != null && WorkspacePanel.this.isScheduler);
 
         boolean isRunning = "NORMAL".equalsIgnoreCase(jobs[0].getState());
         controlScheduleButton.setToolTip(isRunning ? Messages.getString("stop") : Messages.getString("start"));
-        scheduleRemoveButton.setEnabled(jobs != null);
-        triggerNowButton.setEnabled(jobs != null);
+        scheduleRemoveButton.setEnabled(jobs != null && WorkspacePanel.this.isScheduler);
+        triggerNowButton.setEnabled(jobs != null && WorkspacePanel.this.isScheduler);
       }
     });
 
@@ -884,6 +905,9 @@ public class WorkspacePanel extends SimplePanel {
             controlSchedulerButton.setToolTip(Messages.getString("startScheduler"));
             controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
           }
+
+          if(!WorkspacePanel.this.isScheduler) controlSchedulerButton.setEnabled(false);
+          else controlSchedulerButton.setEnabled(true);
         }
       });
     } catch (RequestException e) {
