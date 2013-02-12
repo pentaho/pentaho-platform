@@ -2,6 +2,7 @@ package org.pentaho.platform.plugin.services.importexport;
 
 import java.io.OutputStream;
 
+import org.apache.commons.logging.Log;
 import org.apache.log4j.Level;
 /**
  *  * Below is a sample of how to use this class to generate a log file.
@@ -44,7 +45,7 @@ import org.apache.log4j.Level;
  * @author TKafalas
  *
  */
-public interface IRepositoryImportLogger {
+public interface IRepositoryImportLogger extends Log {
 
 	/**
 	 * Initiates an import job.  Each call creates a new log associated
@@ -96,4 +97,11 @@ public interface IRepositoryImportLogger {
 	 * @param e  The exception to be logged.
 	 */
 	void error(Exception e);
+	
+	 /**
+   * Allows a class to check if an ImportLogger has been instantiated for
+   * the current thread. 
+   * @return true if the logger is present.
+   */
+  boolean hasLogger();
 }

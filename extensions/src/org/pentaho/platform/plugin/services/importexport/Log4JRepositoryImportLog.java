@@ -9,14 +9,14 @@ import org.apache.log4j.WriterAppender;
 
 public class Log4JRepositoryImportLog {
 	
-	Logger logger; 
-	static final String FILE_KEY = "currentFile";
-	OutputStream outputStream;
-	String currentFilePath;
-	String logName;
-	String importRootPath;
-	Level logLevel;
-	WriterAppender writeAppender;
+	private Logger logger; 
+	static final String FILE_KEY = "currentFile"; //Intentionally scoped as default
+	private OutputStream outputStream;
+	private String currentFilePath;
+	private String logName;
+	private String importRootPath;
+	private Level logLevel;
+	private WriterAppender writeAppender;
 
 	/**
 	 * Constructs an object that keeps track of additional fields for Log4j
@@ -83,4 +83,3 @@ public class Log4JRepositoryImportLog {
 	}
 
 }
-

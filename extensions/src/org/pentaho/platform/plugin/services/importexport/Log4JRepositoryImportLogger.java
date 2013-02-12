@@ -71,5 +71,104 @@ public class Log4JRepositoryImportLogger implements IRepositoryImportLogger {
 	private Logger getLogger() {
 		return getLog4JRepositoryImportLog().getLogger();
 	}
+	
+	public boolean hasLogger() {
+	  return (repositoryImportLog.get() == null) ? false: true;
+	}
+
+  @Override
+  public void debug(Object arg0) {
+    getLogger().debug(arg0);
+  }
+
+  @Override
+  public void debug(Object arg0, Throwable arg1) {
+    getLogger().debug(arg0, arg1);
+  }
+
+  @Override
+  public void error(Object arg0) {
+    getLogger().error(arg0);
+  }
+
+  @Override
+  public void error(Object arg0, Throwable arg1) {
+    getLogger().error(arg0, arg1);
+    
+  }
+
+  @Override
+  public void fatal(Object arg0) {
+    getLogger().fatal(arg0);
+    
+  }
+
+  @Override
+  public void fatal(Object arg0, Throwable arg1) {
+    getLogger().fatal(arg0, arg1);
+    
+  }
+
+  @Override
+  public void info(Object arg0) {
+    getLogger().info(arg0);
+    
+  }
+
+  @Override
+  public void info(Object arg0, Throwable arg1) {
+    getLogger().info(arg0, arg1);
+    
+  }
+
+  @Override
+  public boolean isDebugEnabled() {
+    return getLogger().isDebugEnabled();
+  }
+
+  @Override
+  public boolean isErrorEnabled() {
+    return Level.ERROR.isGreaterOrEqual(getLogger().getLevel());
+  }
+
+  @Override
+  public boolean isFatalEnabled() {
+    return Level.FATAL.isGreaterOrEqual(getLogger().getLevel());
+  }
+
+  @Override
+  public boolean isInfoEnabled() {
+    return getLogger().isInfoEnabled();
+  }
+
+  @Override
+  public boolean isTraceEnabled() {
+    return getLogger().isTraceEnabled();
+  }
+
+  @Override
+  public boolean isWarnEnabled() {
+    return Level.WARN.isGreaterOrEqual(getLogger().getLevel());
+  }
+
+  @Override
+  public void trace(Object arg0) {
+    getLogger().trace(arg0);
+  }
+
+  @Override
+  public void trace(Object arg0, Throwable arg1) {
+    getLogger().trace(arg0, arg1);
+  }
+
+  @Override
+  public void warn(Object arg0) {
+    getLogger().warn(arg0);
+  }
+
+  @Override
+  public void warn(Object arg0, Throwable arg1) {
+    getLogger().warn(arg0,arg1);
+  }
 
 }

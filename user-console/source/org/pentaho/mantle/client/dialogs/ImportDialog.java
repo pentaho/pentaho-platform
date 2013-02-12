@@ -209,7 +209,7 @@ public class ImportDialog extends PromptDialogBox {
     loggingDropDown.setName("logLevel");
     loggingDropDown.addItem(Messages.getString("none"), "WARN");
     loggingDropDown.addItem(Messages.getString("short"), "INFO");
-    loggingDropDown.addItem(Messages.getString("verbose", "DEBUG"));
+    loggingDropDown.addItem(Messages.getString("verbose"), "TRACE");
     loggingDropDown.setVisibleItemCount(1);
     disclosureContent.add(loggingDropDown);   
     
