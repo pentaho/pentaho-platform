@@ -2,21 +2,21 @@ package org.pentaho.platform.plugin.services.importer;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.Converter;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLog;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.springframework.util.Assert;
@@ -28,21 +28,30 @@ import org.springframework.util.Assert;
 public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   private IUnifiedRepository repository;
-
-  private static final Log log = LogFactory.getLog(RepositoryFileImportFileHandler.class);
-
+  private ThreadLocal<Log> log = new ThreadLocal<Log>();
+  //private static final Log log = LogFactory.getLog(RepositoryFileImportFileHandler.class);
+ 
   private static final Messages messages = Messages.getInstance();
 
   private Map<String, Converter> converters;
+  
+  public Log getLogger() {
+    if (log.get() == null) {
+        log.set((PentahoSystem.get(IPlatformImporter.class).getRepositoryImportLogger() != null &&
+            PentahoSystem.get(IPlatformImporter.class).getRepositoryImportLogger().hasLogger())
+            ? PentahoSystem.get(IPlatformImporter.class).getRepositoryImportLogger()
+                : LogFactory.getLog(RepositoryFileImportFileHandler.class));
+    }
+    return log.get();
+  }
 
   public void importFile(IPlatformImportBundle bnd) throws PlatformImportException {
-
     if (bnd instanceof RepositoryFileImportBundle == false) {
       throw new PlatformImportException("Error importing bundle. RepositoryFileImportBundle expected");
     }
     RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) bnd;
     String repositoryFilePath = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getName());
-    log.trace("Processing [" + repositoryFilePath + "]");
+    getLogger().trace("Processing [" + repositoryFilePath + "]");
 
     // Verify if destination already exists in the repository.
     final RepositoryFile file = repository.getFile(repositoryFilePath);
@@ -54,7 +63,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     } else {
       if (bundle.isFolder()) {
         // The file doesn't exist and it is a folder. Create folder.
-        log.trace("Creating folder [" + repositoryFilePath + "]");
+        getLogger().trace("Creating folder [" + repositoryFilePath + "]");
         final Serializable parentId = getParentId(repositoryFilePath);
         if (bundle.getAcl() != null) {
           RepositoryFile repositoryFile = repository.createFolder(parentId, bundle.getFile(), bundle.getAcl(), null);
@@ -64,7 +73,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         }
       } else {
         // The file doesn't exist. Create file.
-        log.trace("Creating file [" + repositoryFilePath + "]");
+        getLogger().trace("Creating file [" + repositoryFilePath + "]");
         copyFileToRepository(bundle, repositoryFilePath, null);
       }
     }
@@ -79,28 +88,29 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    */
   protected boolean copyFileToRepository(final RepositoryFileImportBundle bundle, final String repositoryPath,
       final RepositoryFile file) {
+    Log log = getLogger();
     // Compute the file extension
     final String name = bundle.getName();
     final String ext = RepositoryFilenameUtils.getExtension(name);
     if (StringUtils.isEmpty(ext)) {
-      log.debug("Skipping file without extension: " + name);
+      getLogger().debug("Skipping file without extension: " + name);
       return false;
     }
 
     // Check the mime type
     final String mimeType = bundle.getMimeType();
     if (mimeType == null) {
-      log.debug("Skipping file without mime-type: " + name);
+      getLogger().debug("Skipping file without mime-type: " + name);
       return false;
     }
 
     // Copy the file into the repository
     try {
-      log.trace("copying file to repository: " + name);
+      getLogger().trace("copying file to repository: " + name);
 
       Converter converter = converters.get(ext);
       if (converter == null) {
-        log.debug("Skipping file without converter: " + name);
+        getLogger().debug("Skipping file without converter: " + name);
         return false;
       }
 
@@ -115,13 +125,14 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
       return true;
     } catch (IOException e) {
-      log.warn(messages.getString("DefaultImportHandler.WARN_0003_IOEXCEPTION", name), e); // TODO make sure string exists
+      getLogger().warn(messages.getString("DefaultImportHandler.WARN_0003_IOEXCEPTION", name), e); // TODO make sure string exists
       return false;
     }
   }
 
   //Create a formal RepositoryFileAcl object from the one in the manifest.
   private void updateAclFromBundle(boolean newFile, RepositoryFileImportBundle bundle, RepositoryFile repositoryFile) {
+    getLogger().debug("File " + (newFile ? "is new": "already exists"));
     if (bundle.getAcl() != null && (bundle.isApplyAclSettings() || !bundle.isRetainOwnership())) {
       RepositoryFileAcl manifestAcl = bundle.getAcl();
       RepositoryFileAcl originalAcl = repository.getAcl(repositoryFile.getId());
@@ -130,22 +141,28 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       RepositoryFileSid newOwner;
       if (bundle.isRetainOwnership()) {
         if (newFile) {
+          getLogger().debug("Getting Owner from Session");
           newOwner = new RepositoryFileSid(PentahoSessionHolder.getSession().getName(), RepositoryFileSid.Type.USER);
         } else {
+          getLogger().debug("Getting Owner from existing file");
           newOwner = originalAcl.getOwner();
         }
       } else {
+        getLogger().debug("Getting Owner from Manifest");
         newOwner = manifestAcl.getOwner();
       }
       
       //Determine the Aces we will use for this file
       RepositoryFileAcl useAclForPermissions; //The ACL we will use the permissions from
       if (bundle.isApplyAclSettings() && (bundle.isOverwriteAclSettings() || newFile)){
+        getLogger().debug("Getting permissions from Manifest");
         useAclForPermissions = manifestAcl;
       } else {
         if (newFile) {
+          getLogger().debug("Getting permissions from Default settings");
           useAclForPermissions = getDefaultAcl(repositoryFile);
         } else {
+          getLogger().debug("Getting permissions from existing file");
           useAclForPermissions = originalAcl;
         }
       }

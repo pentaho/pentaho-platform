@@ -85,11 +85,10 @@ public class PentahoPlatformImporter implements IPlatformImporter {
 	private void logImportFile(IPlatformImportBundle file) {
 		RepositoryFileImportBundle bundle = (RepositoryFileImportBundle) file;
 		String repositoryFilePath = RepositoryFilenameUtils.concat(bundle.getPath(), bundle.getName());
-		// Excluding mondrian, metadata and solution files from being logged.
-		if (bundle.getMimeType().equals("application/vnd.pentaho.solution-repository") || bundle.getMimeType().equals("text/xmi+xml") || bundle.getMimeType().equals("application/vnd.pentaho.mondrian+xml")) {
-			return;
+		//If doing a mondrian publish then there will be no active logger
+		if (repositoryImportLogger.hasLogger()){
+				repositoryImportLogger.setCurrentFilePath(repositoryFilePath);
 		}
-		repositoryImportLogger.setCurrentFilePath(repositoryFilePath);
 	}
   
   public static String computeBundlePath(String bundlePath) {
