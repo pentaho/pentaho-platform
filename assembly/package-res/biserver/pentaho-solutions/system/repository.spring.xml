@@ -584,6 +584,8 @@
     </constructor-arg>
     <constructor-arg ref="pathConversionHelper"/>
     <constructor-arg ref="repositoryFileAclDao"/>
+    <constructor-arg ref="defaultAclHandler" />
+
   </bean>
 
   <util:list id="transformers">
@@ -600,7 +602,9 @@
   <bean class="org.pentaho.platform.repository2.unified.spring.BackingRepositoryLifecycleManagerAuthenticationSuccessListener">
   	<constructor-arg ref="tenantedUserNameUtils"/>
   </bean>
-  
+
+  <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.InheritDefaultAclHandler" />
+
   <bean id="repositoryFileAclDao"
         class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclDao">
     <constructor-arg ref="jcrTemplate"/>
