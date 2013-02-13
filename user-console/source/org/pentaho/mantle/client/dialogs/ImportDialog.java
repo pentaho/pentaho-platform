@@ -20,13 +20,20 @@ import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogValidatorCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.listbox.CustomListBox;
+import org.pentaho.gwt.widgets.client.listbox.DefaultListItem;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FileUpload;
@@ -39,10 +46,10 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author wseyler/modifed for Import parameters by tband
@@ -77,7 +84,7 @@ public class ImportDialog extends PromptDialogBox {
       public void onSubmitComplete(SubmitCompleteEvent sce) {
         new RefreshRepositoryCommand().execute(false);
         indefiniteProgress.hide();
-        okButton.setEnabled(false);
+        okButton.setEnabled(false); 
         cancelButton.setEnabled(true);
         ImportDialog.this.hide();
         logWindow(sce.getResults());
@@ -90,7 +97,48 @@ public class ImportDialog extends PromptDialogBox {
     Label fileLabel = new Label(Messages.getString("file") + ":");
     final TextBox importDir = new TextBox();
     rootPanel.add(fileLabel);
+    
+    okButton.setEnabled(false);
+    
+    final TextBox fileTextBox = new TextBox();
+    fileTextBox.setEnabled(false);
+    
+    final FileUpload upload = new FileUpload();
+    upload.setName("fileUpload");
+    ChangeHandler fileUploadHandler = new ChangeHandler() {
+      @Override
+      public void onChange(ChangeEvent event) {
+    	fileTextBox.setText(upload.getFilename());
+        if (!"".equals(importDir.getValue())) {
+          okButton.setEnabled(true);
+        } else {
+          okButton.setEnabled(false);
+        }
+      }
+    };
+    upload.addChangeHandler(fileUploadHandler);
+    upload.setVisible(false);
+    
+    HorizontalPanel fileUploadPanel = new HorizontalPanel();
+    fileUploadPanel.add(fileTextBox);
+    fileUploadPanel.add(new HTML("&nbsp;")); 
+    
+    Button browseButton = new Button(Messages.getString("browse") +  "...");
+    browseButton.getElement().setId("addFileButton");
+    browseButton.setStyleName("pentaho-button");
+    fileUploadPanel.add(browseButton);
+    browseButton.addClickHandler(
+      new ClickHandler() {
+		@Override
+		public void onClick(ClickEvent event) {
+		  jsClickUpload(upload.getElement());
+		}
+	  }
+	);
 
+    rootPanel.add(fileUploadPanel);
+    rootPanel.add(upload);
+    
     final CheckBox applyAclPermissions = new CheckBox(Messages.getString("applyAclPermissions"), true);
     applyAclPermissions.setName("applyAclPermissions");
     applyAclPermissions.setValue(Boolean.TRUE);
@@ -103,26 +151,14 @@ public class ImportDialog extends PromptDialogBox {
     overwriteAclPermissions.setValue(Boolean.TRUE);
     overwriteAclPermissions.setFormValue("true");
     overwriteAclPermissions.setEnabled(true);
-    overwriteAclPermissions.setVisible(false);
-
-    okButton.setEnabled(false);
-    FileUpload upload = new FileUpload();
-    upload.setName("fileUpload");
-    ChangeHandler fileUploadHandler = new ChangeHandler() {
-      @Override
-      public void onChange(ChangeEvent event) {
-        if (!"".equals(importDir.getValue())) {
-          okButton.setEnabled(true);
-        } else {
-          okButton.setEnabled(false);
-        }
-      }
-    };
-    upload.addChangeHandler(fileUploadHandler);
-    rootPanel.add(upload);
+    overwriteAclPermissions.setVisible(false);    
 
     rootPanel.add(applyAclPermissions);
     rootPanel.add(overwriteAclPermissions);
+    
+    VerticalPanel spacer = new VerticalPanel();
+    spacer.setHeight("10px");
+    rootPanel.add(spacer);
     
     DisclosurePanel disclosurePanel = new DisclosurePanel(Messages.getString("advancedOptions"));
     disclosurePanel.getHeader().setStyleName("gwt-Label");
@@ -130,30 +166,45 @@ public class ImportDialog extends PromptDialogBox {
     mainPanel.add(new HTML("&nbsp;"));
     VerticalPanel disclosureContent = new VerticalPanel();
     
-    HTML replaceLabel = new HTML("&nbsp;" + Messages.getString("fileExists"));
+    HTML replaceLabel = new HTML(Messages.getString("fileExists"));
     replaceLabel.setStyleName("gwt-Label");
     disclosureContent.add(replaceLabel);
     
-    final ListBox overwriteFile = new ListBox();    
-
-    overwriteFile.setName("overwriteFile");
-    overwriteFile.addItem(Messages.getString("replaceFile"), "true");
-    overwriteFile.addItem(Messages.getString("doNotImport"), "false");
-    overwriteFile.setVisibleItemCount(1);
+    final CustomListBox overwriteFile = new CustomListBox();    
+    overwriteFile.getElement().getElementsByTagName("input").getItem(0).setPropertyString("name", "overwriteFile");
+    DefaultListItem replaceListItem = new DefaultListItem(Messages.getString("replaceFile"));
+    replaceListItem.setValue("true");
+    overwriteFile.addItem(replaceListItem);
+    DefaultListItem doNotImportListItem = new DefaultListItem(Messages.getString("doNotImport"));
+    doNotImportListItem.setValue("false");
+    overwriteFile.addItem(doNotImportListItem);
+    overwriteFile.setVisibleRowCount(1);
     disclosureContent.add(overwriteFile);
     
-    HTML filePermissionsLabel = new HTML("&nbsp;" + Messages.getString("filePermissions"));
+    spacer = new VerticalPanel();
+    spacer.setHeight("10px");
+    disclosureContent.add(spacer);
+    
+    HTML filePermissionsLabel = new HTML(Messages.getString("filePermissions"));
     filePermissionsLabel.setStyleName("gwt-Label");
     disclosureContent.add(filePermissionsLabel);
     
-    final ListBox filePermissionsDropDown = new ListBox();
-    filePermissionsDropDown.addItem(Messages.getString("retainPermissions"), "true"); //If selected set "overwriteAclPermissions" to true.
-    filePermissionsDropDown.addItem(Messages.getString("usePermissions"), "false"); //If selected set "overwriteAclPermissions" to false.
-    filePermissionsDropDown.addItem(Messages.getString("removePermissions"), "none"); //If selected then set "applyAclPermissions" to false else true.
-    ChangeHandler filePermissionsHandler = new ChangeHandler() {
+    final CustomListBox filePermissionsDropDown = new CustomListBox();
+    DefaultListItem retainPermissionsListItem = new DefaultListItem(Messages.getString("retainPermissions"));
+    retainPermissionsListItem.setValue("true");
+    filePermissionsDropDown.addItem(retainPermissionsListItem); //If selected set "overwriteAclPermissions" to true.
+    DefaultListItem usePermissionsListItem = new DefaultListItem(Messages.getString("usePermissions"));
+    usePermissionsListItem.setValue("false");
+    filePermissionsDropDown.addItem(usePermissionsListItem); //If selected set "overwriteAclPermissions" to false.
+    DefaultListItem removePermissionsListItem = new DefaultListItem(Messages.getString("removePermissions"));
+    removePermissionsListItem.setValue("none");
+    filePermissionsDropDown.addItem(removePermissionsListItem); //If selected then set "applyAclPermissions" to false else true.    
+    
+    ChangeListener filePermissionsHandler = new ChangeListener() {
         @Override
-        public void onChange(ChangeEvent event) {
-          String value = filePermissionsDropDown.getValue(filePermissionsDropDown.getSelectedIndex());
+        public void onChange(Widget sender) {
+          String value = filePermissionsDropDown.getSelectedItem().getValue().toString();
+          filePermissionsDropDown.getElement().getElementsByTagName("input").getItem(0).setPropertyString("value", value);
           
           applyAclPermissions.setValue(Boolean.TRUE);
           applyAclPermissions.setFormValue("true");
@@ -167,25 +218,44 @@ public class ImportDialog extends PromptDialogBox {
           }
         }
     };
-    filePermissionsDropDown.addChangeHandler(filePermissionsHandler);
-    filePermissionsDropDown.setVisibleItemCount(1);
+    filePermissionsDropDown.addChangeListener(filePermissionsHandler);
+    filePermissionsDropDown.setVisibleRowCount(1);
     disclosureContent.add(filePermissionsDropDown);
     
-    HTML fileOwnershipLabel = new HTML("&nbsp;" + Messages.getString("fileOwnership"));
+    spacer = new VerticalPanel();
+    spacer.setHeight("10px");
+    disclosureContent.add(spacer);
+    
+    HTML fileOwnershipLabel = new HTML(Messages.getString("fileOwnership"));
     fileOwnershipLabel.setStyleName("gwt-Label");
     disclosureContent.add(fileOwnershipLabel);
     
-    final ListBox retainOwnership = new ListBox();
-    retainOwnership.setName("retainOwnership");
-    retainOwnership.addItem(Messages.getString("keepOwnership"), "true");
-    retainOwnership.addItem(Messages.getString("assignOwnership"), "false");
-    retainOwnership.setVisibleItemCount(1);
+    final CustomListBox retainOwnership = new CustomListBox();
+    retainOwnership.getElement().getElementsByTagName("input").getItem(0).setPropertyString("name", "retainOwnership");
+    retainOwnership.addChangeListener(new ChangeListener() {
+		public void onChange(Widget sender) {
+			retainOwnership.getElement().getElementsByTagName("input").getItem(0).setPropertyString("value", retainOwnership.getSelectedItem().getValue().toString());
+		}
+	});
+    DefaultListItem keepOwnershipListItem = new DefaultListItem(Messages.getString("keepOwnership"));
+    keepOwnershipListItem.setValue("true");
+    retainOwnership.addItem(keepOwnershipListItem);    
+    DefaultListItem assignOwnershipListItem = new DefaultListItem(Messages.getString("assignOwnership"));
+    assignOwnershipListItem.setValue("false");
+    retainOwnership.addItem(assignOwnershipListItem); 
+    
+    retainOwnership.setVisibleRowCount(1);
     disclosureContent.add(retainOwnership);
     
-    ChangeHandler overwriteFileHandler = new ChangeHandler() {
+    spacer = new VerticalPanel();
+    spacer.setHeight("10px");
+    disclosureContent.add(spacer);
+    
+    ChangeListener overwriteFileHandler = new ChangeListener() {
         @Override
-        public void onChange(ChangeEvent event) {
-        	String value = overwriteFile.getValue(overwriteFile.getSelectedIndex());
+        public void onChange(Widget sender) {
+        	String value = overwriteFile.getSelectedItem().getValue().toString();
+        	overwriteFile.getElement().getElementsByTagName("input").getItem(0).setPropertyString("value", value);
         	if(value.equals("false")) {
         		filePermissionsDropDown.setSelectedIndex(1);
         		filePermissionsDropDown.setEnabled(false);
@@ -199,19 +269,30 @@ public class ImportDialog extends PromptDialogBox {
         	
         }
     };
-    overwriteFile.addChangeHandler(overwriteFileHandler);
+    overwriteFile.addChangeListener(overwriteFileHandler);
     
-    HTML loggingLabel = new HTML("&nbsp;" + Messages.getString("logging"));
+    HTML loggingLabel = new HTML(Messages.getString("logging"));
     loggingLabel.setStyleName("gwt-Label");
     disclosureContent.add(loggingLabel);
     
-    ListBox loggingDropDown = new ListBox();
-    loggingDropDown.setName("logLevel");
-    loggingDropDown.addItem(Messages.getString("none"), "WARN");
-    loggingDropDown.addItem(Messages.getString("short"), "INFO");
-    loggingDropDown.addItem(Messages.getString("verbose"), "TRACE");
-    loggingDropDown.setVisibleItemCount(1);
-    disclosureContent.add(loggingDropDown);   
+    final CustomListBox loggingDropDown = new CustomListBox();
+    loggingDropDown.getElement().getElementsByTagName("input").getItem(0).setPropertyString("name", "logLevel");
+    loggingDropDown.addChangeListener(new ChangeListener() {
+		public void onChange(Widget sender) {
+			loggingDropDown.getElement().getElementsByTagName("input").getItem(0).setPropertyString("value", loggingDropDown.getSelectedItem().getValue().toString());
+		}
+	});
+    DefaultListItem noneListItem = new DefaultListItem(Messages.getString("none"));
+    noneListItem.setValue("WARN");
+    loggingDropDown.addItem(noneListItem);
+    DefaultListItem shortListItem = new DefaultListItem(Messages.getString("short"));
+    shortListItem.setValue("INFO");
+    loggingDropDown.addItem(shortListItem);
+    DefaultListItem debugListItem = new DefaultListItem(Messages.getString("verbose"));
+    debugListItem.setValue("TRACE");
+    loggingDropDown.addItem(debugListItem);
+    loggingDropDown.setVisibleRowCount(1);
+    disclosureContent.add(loggingDropDown);    
     
     mainPanel.add(disclosureContent);
     disclosurePanel.setContent(mainPanel);
@@ -232,6 +313,10 @@ public class ImportDialog extends PromptDialogBox {
 
     setContent(form);
   }
+  
+  native void jsClickUpload(Element uploadElement) /*-{
+    uploadElement.click();
+  }-*/;
   
   private static native void logWindow(String innerText) /*-{
   	var logWindow = window.open('', 'Import Results', 'width=640, height=480');
