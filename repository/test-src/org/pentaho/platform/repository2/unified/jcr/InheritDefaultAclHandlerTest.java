@@ -19,5 +19,29 @@ package org.pentaho.platform.repository2.unified.jcr;/*
  * Time: 12:58 PM
  */
 
+import org.junit.Before;
+import org.junit.Test;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.StandaloneSession;
+
+import static org.junit.Assert.assertTrue;
+
 public class InheritDefaultAclHandlerTest {
+
+  InheritDefaultAclHandler inheritDefaultAclHandler;
+
+  @Before
+  public void setUp(){
+    StandaloneSession pentahoSession = new StandaloneSession("test","test");
+    PentahoSessionHolder.setSession(pentahoSession);
+
+    inheritDefaultAclHandler = new InheritDefaultAclHandler();
+  }
+
+  @Test
+  public void testCreateDefaultAcl(){
+    RepositoryFileAcl repositoryFileAcl = inheritDefaultAclHandler.createDefaultAcl(true, "test.xanalyzer");
+    assertTrue(repositoryFileAcl.isEntriesInheriting());
+  }
 }

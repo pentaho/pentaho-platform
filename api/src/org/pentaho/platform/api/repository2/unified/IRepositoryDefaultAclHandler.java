@@ -19,6 +19,9 @@ package org.pentaho.platform.api.repository2.unified;/*
  * Time: 4:02 PM
  */
 
+/**
+ * Supply the default ACL intended to be used when none exist
+ */
 public interface IRepositoryDefaultAclHandler
 {
   /**
