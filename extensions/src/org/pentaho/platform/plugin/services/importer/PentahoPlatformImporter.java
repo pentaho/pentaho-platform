@@ -55,30 +55,45 @@ public class PentahoPlatformImporter implements IPlatformImporter {
    */
   public void importFile(IPlatformImportBundle file) throws PlatformImportException {
     String mime = file.getMimeType() != null ? file.getMimeType() : mimeResolver.resolveMimeForBundle(file);
-    if(mime == null){
-      log.trace(messages.getString("PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE") + file.getName());
-      repositoryImportLogger.error(messages.getString("PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE") + file.getName());
-      return;
-    }
-    IPlatformImportHandler handler = (importHandlers.containsKey(mime) == false) ? defaultHandler : importHandlers.get(mime);
-    if(handler == null){
-      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0002_MISSING_IMPORT_HANDLER"),PlatformImportException.PUBLISH_GENERAL_ERROR); //replace with default handler?
-    }
     try {
-      logImportFile(file);
-      handler.importFile(file);
-    } catch (DomainIdNullException e1) {
-      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_TO_SERVER_FAILED);
-    } catch (DomainAlreadyExistsException e1) {
-      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR"),PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR);
-    } catch (DomainStorageException e1) {
-      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_DATASOURCE_ERROR);
-    } catch (IOException e1) {
-      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
-    } catch (PlatformImportException pe){
-      throw pe; // if already converted - just rethrow
-    }catch (Exception e1) {
-      throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
+      if(mime == null){
+        log.trace(messages.getString("PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE") + file.getName());
+        repositoryImportLogger.error(messages.getString("PentahoPlatformImporter.ERROR_0001_INVALID_MIME_TYPE") + file.getName());
+        return;
+      }
+      IPlatformImportHandler handler = (importHandlers.containsKey(mime) == false) ? defaultHandler : importHandlers.get(mime);
+      if(handler == null){
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0002_MISSING_IMPORT_HANDLER"),PlatformImportException.PUBLISH_GENERAL_ERROR); //replace with default handler?
+      }
+      try {
+        logImportFile(file);
+        handler.importFile(file);
+      } catch (DomainIdNullException e1) {
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_TO_SERVER_FAILED);
+      } catch (DomainAlreadyExistsException e1) {
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0007_PUBLISH_SCHEMA_EXISTS_ERROR"),PlatformImportException.PUBLISH_SCHEMA_EXISTS_ERROR);
+      } catch (DomainStorageException e1) {
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0004_PUBLISH_TO_SERVER_FAILED"),PlatformImportException.PUBLISH_DATASOURCE_ERROR);
+      } catch (IOException e1) {
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
+      } catch (PlatformImportException pe){
+        throw pe; // if already converted - just rethrow
+      }catch (Exception e1) {
+        throw new PlatformImportException(messages.getString("PentahoPlatformImporter.ERROR_0005_PUBLISH_GENERAL_ERRORR"),PlatformImportException.PUBLISH_GENERAL_ERROR);
+      }
+    } catch (Exception e) {
+      //If we are doing a logged import then we do not want to fail on a single file
+      //so log the error and keep going.
+      if (repositoryImportLogger.hasLogger()){
+        repositoryImportLogger.error(e);
+      } else {
+        if (e instanceof PlatformImportException) {
+          throw (PlatformImportException) e;
+        } else {
+          //shouldn't happen but just in case
+          throw new PlatformImportException(e.getMessage());
+        }
+      }
     }
   }
   
