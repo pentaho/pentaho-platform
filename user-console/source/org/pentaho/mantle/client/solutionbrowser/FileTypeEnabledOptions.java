@@ -53,7 +53,8 @@ public class FileTypeEnabledOptions {
     enabledOptions.put(command, true);
   }
   
-  public boolean isCommandEnabled(COMMAND command) {    
+  public boolean isCommandEnabled(COMMAND command, HashMap<String, String> metadataPerms) {    
+    
     boolean validSelectionCount = true;
     switch (command) {
       case CUT:
@@ -67,6 +68,9 @@ public class FileTypeEnabledOptions {
       case FAVORITE_REMOVE:
       	validSelectionCount = isFavorite() && SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() > 0;
       	break;
+      case SCHEDULE_NEW:
+        validSelectionCount = (SolutionBrowserPanel.getInstance().isScheduler() && SolutionBrowserPanel.getInstance().getFilesListPanel().getSelectedFileItems().size() == 1 && (metadataPerms == null || (metadataPerms != null && Boolean.parseBoolean(metadataPerms.get("_PERM_SCHEDULABLE")))));
+        break;
       case BACKGROUND:
       case CREATE_FOLDER:
       case EDIT:
@@ -79,7 +83,6 @@ public class FileTypeEnabledOptions {
       case RESTORE:
       case RUN:
       case SCHEDULE_CUSTOM:
-      case SCHEDULE_NEW:
       case SHARE:
       case SUBSCRIBE:
       case GENERATED_CONTENT:
@@ -90,9 +93,9 @@ public class FileTypeEnabledOptions {
         command == COMMAND.DELETEPERMANENT || command == COMMAND.RESTORE) {
       return validSelectionCount;
     }
-    
+
     if (enabledOptions.containsKey(command)) {
-      return true && validSelectionCount;
+      return validSelectionCount;
     }
     
     return false;

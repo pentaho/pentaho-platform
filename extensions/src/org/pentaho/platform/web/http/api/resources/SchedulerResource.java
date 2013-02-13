@@ -25,6 +25,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -34,6 +35,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.ws.rs.Consumes;
@@ -106,6 +108,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
       return Response.status(NOT_FOUND).build();
     }
 
+    Map<String, Serializable> metadata = repository.getFileMetadata(file.getId());
+    if (metadata.containsKey("_PERM_SCHEDULABLE")) {
+      boolean schedulable = Boolean.parseBoolean((String)metadata.get("_PERM_SCHEDULABLE"));
+      if (!schedulable) {
+        return Response.status(FORBIDDEN).build();
+      }
+    }
+    
     Job job = null;
     try {
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
@@ -176,12 +186,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
       for (JobScheduleParam param : scheduleRequest.getJobParameters()) {
         parameterMap.put(param.getName(), param.getValue());
       }
-
-      // remove this section once these are part of the job parameters
-      // parameterMap.put("_SCH_EMAIL_TO", "mdamour1976@gmail.com");
-      // parameterMap.put("_SCH_EMAIL_ATTACHMENT_NAME", "TestAttachment");
-      // parameterMap.put("_SCH_EMAIL_SUBJECT", "Test Subject");
-      // parameterMap.put("_SCH_EMAIL_MESSAGE", "This is the test message.");
 
       job = scheduler.createJob(Integer.toString(Math.abs(random.nextInt())), actionId, parameterMap, jobTrigger, new RepositoryFileStreamProvider(
           scheduleRequest.getInputFile(), outputFile));

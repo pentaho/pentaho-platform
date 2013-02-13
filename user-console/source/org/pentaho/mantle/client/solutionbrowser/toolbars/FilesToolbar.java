@@ -214,8 +214,8 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
    */
   private void updateMenus(FileItem selectedFileItem) {
     setEnabled(selectedFileItem != null);
-    runBtn.setEnabled(selectedFileItem != null && selectedFileItem.isCommandEnabled(COMMAND.RUN)); //$NON-NLS-1$
-    editBtn.setEnabled(selectedFileItem != null && selectedFileItem.isCommandEnabled(COMMAND.EDIT)); //$NON-NLS-1$
+    runBtn.setEnabled(selectedFileItem != null && selectedFileItem.isCommandEnabled(COMMAND.RUN, null)); //$NON-NLS-1$
+    editBtn.setEnabled(selectedFileItem != null && selectedFileItem.isCommandEnabled(COMMAND.EDIT, null)); //$NON-NLS-1$
 
     // iterate over the commands and enable / disable appropriately
     for (int i = 0; i < menuCommands.length; i++) {
@@ -224,7 +224,7 @@ public class FilesToolbar extends Toolbar implements IFileItemListener {
         continue;
       }
 
-      if (selectedFileItem != null && selectedFileItem.isCommandEnabled(menuCommands[i])) {
+      if (selectedFileItem != null && selectedFileItem.isCommandEnabled(menuCommands[i], null)) {
         menuItems[i].setScheduledCommand(menuFileCommands[i]);
         menuItems[i].setStyleName("gwt-MenuItem"); //$NON-NLS-1$
       } else {

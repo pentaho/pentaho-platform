@@ -709,9 +709,9 @@ public class FileResource extends AbstractJaxRSResource {
 
   @GET
   @Path("{pathId : .+}/metadata")
-  @Produces({APPLICATION_XML, APPLICATION_JSON})
+  @Produces({APPLICATION_JSON})
   public List<StringKeyStringValueDto> doGetMetadata(@PathParam("pathId") String pathId) {
-
+    List<StringKeyStringValueDto> list = null;
     String path = null;
     if (pathId == null || pathId.equals(PATH_SEPARATOR)) {
       path = PATH_SEPARATOR;
@@ -722,11 +722,41 @@ public class FileResource extends AbstractJaxRSResource {
     }
     final RepositoryFileDto file = repoWs.getFile(path);
     if (file != null) {
-      return repoWs.getFileMetadata(file.getId());
+      list = repoWs.getFileMetadata(file.getId());
     }
-    return null;
+    if (list != null) {
+      boolean hasSchedulable = false;
+      for (StringKeyStringValueDto value : list) {
+        if (value.getKey().equals("_PERM_SCHEDULABLE")) {
+          hasSchedulable = true;
+          break;
+        }
+      }
+      if (!hasSchedulable) {
+        StringKeyStringValueDto schedPerm = new StringKeyStringValueDto("_PERM_SCHEDULABLE", "true");
+        list.add(schedPerm);
+      }
+    }
+    return list;
   }
 
+  @PUT
+  @Path("{pathId : .+}/metadata")
+  @Produces({APPLICATION_XML, APPLICATION_JSON})
+  public Response doSetMetadata(@PathParam("pathId") String pathId, List<StringKeyStringValueDto> metadata) {
+    try {
+      RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
+      Map<String, Serializable> fileMetadata = repository.getFileMetadata(file.getId());
+      for (StringKeyStringValueDto nv : metadata) {
+        fileMetadata.put(nv.getKey(), nv.getValue());
+      }
+      repository.setFileMetadata(file.getId(), fileMetadata);
+      return Response.ok().build();
+    } catch (Throwable t) {
+      return Response.serverError().build();
+    }
+  }   
+  
   /**
    * Validate path and send appropriate response if necessary
    * TODO: Add validation to IUnifiedRepository interface

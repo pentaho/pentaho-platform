@@ -21,11 +21,13 @@ package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -34,12 +36,18 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -53,8 +61,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   private static final String PERMISSIONS_ELEMENT_NAME = "permissions"; //$NON-NLS-1$
   private static final String RECIPIENT_ELEMENT_NAME = "recipient"; //$NON-NLS-1$
   private static final String ACES_ELEMENT_NAME = "aces"; //$NON-NLS-1$
-  private static final String OWNER_NAME_ELEMENT_NAME = "owner";  //$NON-NLS-1$
-  private static final String OWNER_TYPE_ELEMENT_NAME = "ownerType";  //$NON-NLS-1$
+  private static final String OWNER_NAME_ELEMENT_NAME = "owner"; //$NON-NLS-1$
+  private static final String OWNER_TYPE_ELEMENT_NAME = "ownerType"; //$NON-NLS-1$
+
+  private static final String METADATA_PERM_PREFIX = "_PERM_"; //$NON-NLS-1$
 
   public static final int USER_TYPE = 0;
   public static final int ROLE_TYPE = 1;
@@ -65,8 +75,9 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   private static final String INHERITS_ELEMENT_NAME = "entriesInheriting"; //$NON-NLS-1$
 
   boolean dirty = false;
-  
+
   ArrayList<String> existingUsersAndRoles = new ArrayList<String>();
+  ArrayList<JSONObject> metadataPerms = new ArrayList<JSONObject>();
 
   RepositoryFile fileSummary;
   Document fileInfo;
@@ -81,18 +92,20 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   final CheckBox readAcePermissionCheckBox = new CheckBox(Messages.getString("readAcl")); //$NON-NLS-1$
   final CheckBox writePermissionCheckBox = new CheckBox(Messages.getString("write")); //$NON-NLS-1$
   final CheckBox writeAcePermissionCheckBox = new CheckBox(Messages.getString("writeAcl")); //$NON-NLS-1$
-    
+
   final CheckBox inheritsCheckBox = new CheckBox(Messages.getString("inherits")); //$NON-NLS-1$
+
+  VerticalPanel metadataPermsPanel = new VerticalPanel();
 
   public PermissionsPanel(RepositoryFile fileSummary) {
     this.fileSummary = fileSummary;
-    
+
     removeButton.setStylePrimaryName("pentaho-button");
     addButton.setStylePrimaryName("pentaho-button");
     usersAndRolesList.getElement().setId("sharePanelUsersAndRolesList");
     addButton.getElement().setId("sharePanelAddButton");
     removeButton.getElement().setId("sharePanelRemoveButton");
-    
+
     removeButton.addClickHandler(new ClickHandler() {
 
       public void onClick(ClickEvent clickEvent) {
@@ -175,10 +188,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         updatePermissionMask(writeAcePermissionCheckBox.getValue(), PERM_ACE_WRITE);
       }
     });
-    
+
     readPermissionCheckBox.setEnabled(false);
     readAcePermissionCheckBox.setEnabled(false);
-    
+
     inheritsCheckBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent clickEvent) {
         dirty = true;
@@ -197,6 +210,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     setWidget(row++, 0, permissionsLabel);
     setWidget(row++, 0, permissionsTable);
     setWidget(row++, 0, inheritsCheckBox);
+    setWidget(row++, 0, metadataPermsPanel);
+
     setWidth("100%"); //$NON-NLS-1$
 
     permissionsTable.setWidget(0, 0, readPermissionCheckBox);
@@ -220,7 +235,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       userOrRoleString = usersAndRolesList.getValue(usersAndRolesList.getSelectedIndex());
       permissionsLabel.setText(Messages.getString("permissionsFor", userOrRoleString)); //$NON-NLS-1$
     }
-    
+
     List<Integer> perms = getPermissionsForUserOrRole(userOrRoleString);
 
     // create checkboxes, with listeners who update the fileInfo lists
@@ -228,28 +243,28 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     if ("".equals(userOrRoleString)) { //$NON-NLS-1$
       writePermissionCheckBox.setEnabled(false);
       writeAcePermissionCheckBox.setEnabled(false);
-      }
+    }
 
     readPermissionCheckBox.setValue(perms.contains(PERM_READ));
     readAcePermissionCheckBox.setValue(perms.contains(PERM_ACE_READ));
     writePermissionCheckBox.setValue(perms.contains(PERM_WRITE));
     writeAcePermissionCheckBox.setValue(perms.contains(PERM_ACE_WRITE));
     inheritsCheckBox.setValue(isInheritsAcls());
-    
+
     writePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
     writeAcePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
-    
+
     addButton.setEnabled(!inheritsCheckBox.getValue());
     removeButton.setEnabled(!(isOwner(userOrRoleString, USER_TYPE) || isOwner(userOrRoleString, ROLE_TYPE)) && !inheritsCheckBox.getValue());
-    }
+  }
 
   public void updatePermissionMask(boolean grant, int perm) {
     if (usersAndRolesList.getSelectedIndex() >= 0) {
       dirty = true;
       final String userOrRoleString = usersAndRolesList.getValue(usersAndRolesList.getSelectedIndex());
       updatePermissionForUserOrRole(userOrRoleString, grant, perm);
-      }
     }
+  }
 
   public void apply() {
     if (!dirty) {
@@ -259,7 +274,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/acl";  //$NON-NLS-1$//$NON-NLS-2$
+    String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/acl"; //$NON-NLS-1$//$NON-NLS-2$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, url);
     builder.setHeader("Content-Type", "application/xml");
 
@@ -270,7 +285,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
         dialogBox.center();
         // invoke the next
-    }
+      }
 
       @Override
       public void onResponseReceived(Request arg0, Response arg1) {
@@ -278,9 +293,9 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
           dirty = false;
         } else {
           MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
-          dialogBox.center();          
+          dialogBox.center();
         }
-    }
+      }
     };
 
     try {
@@ -292,8 +307,49 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     } catch (RequestException e) {
 
     }
+
+    String setMetadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$//$NON-NLS-2$
+    RequestBuilder setMetadataBuilder = new RequestBuilder(RequestBuilder.PUT, setMetadataUrl);
+    setMetadataBuilder.setHeader("Content-Type", "application/json");
+
+    // send the fileInfo back to the server, we've updated it
+    RequestCallback setMetadataCallback = new RequestCallback() {
+      @Override
+      public void onError(Request arg0, Throwable arg1) {
+        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
+        dialogBox.center();
+      }
+
+      @Override
+      public void onResponseReceived(Request arg0, Response arg1) {
+        if (arg1.getStatusCode() == Response.SC_OK) {
+          dirty = false;
+        } else {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+        }
+      }
+    };
+
+    try {
+      JSONArray arr = new JSONArray();
+      JSONObject metadata = new JSONObject();
+      metadata.put("stringKeyStringValueDto", arr);
+      for (int i = 0; i < metadataPerms.size(); i++) {
+        Set<String> keys = metadataPerms.get(i).keySet();
+        for (String key : keys) {
+          JSONObject obj = new JSONObject();
+          obj.put("key", new JSONString(key));
+          obj.put("value", metadataPerms.get(i).get(key).isString());
+          arr.set(i, obj);
+        }
+      }
+      setMetadataBuilder.sendRequest(metadata.toString(), setMetadataCallback);
+    } catch (RequestException e) {
+    }
+
   }
-    
+
   public void init(RepositoryFile fileSummary, Document fileInfo) {
     this.fileInfo = fileInfo;
     addOwnerAcls();
@@ -303,18 +359,17 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     for (String name : getNames(USER_TYPE)) {
       usersAndRolesList.addItem(name, name); //$NON-NLS-1$
       existingUsersAndRoles.add(name);
-      }
+    }
     for (String name : getNames(ROLE_TYPE)) {
       usersAndRolesList.addItem(name, name); //$NON-NLS-1$
       existingUsersAndRoles.add(name);
-      }
+    }
     if (usersAndRolesList.getItemCount() > 0) {
       usersAndRolesList.setSelectedIndex(0);
-      }
+    }
 
     buildPermissionsTable();
-      }
-
+  }
 
   /**
    * @param fileSummary
@@ -329,44 +384,97 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       builder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(
-              Messages.getString("error"), exception.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
           dialogBox.center();
-      }
+        }
 
         public void onResponseReceived(Request request, Response response) {
           if (response.getStatusCode() == Response.SC_OK) {
             Document permissions = XMLParser.parse(response.getText());
-//            Window.alert("Received perms:\n" + permissions.toString());
+            // Window.alert("Received perms:\n" + permissions.toString());
             init(fileSummary, permissions);
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(
-                Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true);   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             dialogBox.center();
-      }
-      }
-    });
+          }
+        }
+      });
     } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(
-          Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
       dialogBox.center();
+    }
+
+    String metadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$ //$NON-NLS-2$
+    RequestBuilder metadataBuilder = new RequestBuilder(RequestBuilder.GET, metadataUrl);
+    metadataBuilder.setHeader("accept", "application/json");
+    try {
+      metadataBuilder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
+            if (response.getText() != null && !"".equals(response.getText()) && !response.getText().equals("null")) {
+              JSONObject json = (JSONObject) JSONParser.parseLenient(response.getText());
+              if (json != null) {
+                JSONArray arr = (JSONArray) json.get("stringKeyStringValueDto");
+                for (int i = 0; i < arr.size(); i++) {
+                  JSONValue arrVal = arr.get(i);
+                  String key = arrVal.isObject().get("key").isString().stringValue();
+                  String value = arrVal.isObject().get("value").isString().stringValue();
+                  if (key.startsWith(METADATA_PERM_PREFIX)) {
+                    JSONObject nv = new JSONObject();
+                    nv.put(key, new JSONString(value));
+                    metadataPerms.add(nv);
+                  }
+                }
+                for (final JSONObject nv : metadataPerms) {
+                  Set<String> keys = nv.keySet();
+                  for (final String key : keys) {
+                    final CheckBox cb = new CheckBox(Messages.getString(key.substring(METADATA_PERM_PREFIX.length()).toLowerCase()));
+                    cb.setValue(Boolean.parseBoolean(nv.get(key).isString().stringValue()));
+                    cb.addClickHandler(new ClickHandler() {
+                      public void onClick(ClickEvent event) {
+                        dirty = true;
+                        nv.put(key, new JSONString(cb.getValue().toString()));
+                      }
+                    });
+                    metadataPermsPanel.add(cb);
+                  }
+                }
+              }
+            }
+          } else {
+            MessageDialogBox dialogBox = new MessageDialogBox(
+                Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            dialogBox.center();
+          }
+        }
+      });
+    } catch (RequestException e) {
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
+      dialogBox.center();
+    }
+
   }
 
-          }
-  
   // *********************
   // Document manipulation
   // *********************
   void removeRecipient(String recipient) {
     NodeList aces = fileInfo.getElementsByTagName(ACES_ELEMENT_NAME);
-    for(int i=0; i<aces.getLength(); i++) {
-      Element ace = (Element)aces.item(i);
+    for (int i = 0; i < aces.getLength(); i++) {
+      Element ace = (Element) aces.item(i);
       if (ace.getElementsByTagName(RECIPIENT_ELEMENT_NAME).item(0).getFirstChild().getNodeValue().equals(recipient)) {
         ace.getParentNode().removeChild(ace);
-          break;
-        }
+        break;
       }
-          }
+    }
+  }
 
   /**
    * 
@@ -375,31 +483,31 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     // First get the owners name and type
     String ownerName = getOwnerName();
     Integer ownerType = getOwnerType();
-    
+
     // Now see if we have the owner in the aces
     Boolean foundOwner = getNames(ownerType).contains(ownerName);
-    if (!foundOwner) {  // We don't have the owner in the aces so we'll create one. Otherwise use whats there.
+    if (!foundOwner) { // We don't have the owner in the aces so we'll create one. Otherwise use whats there.
       addRecipient(ownerName, ownerType);
       // by default the owner gets everything
       updatePermissionForUserOrRole(ownerName, true, PERM_READ);
       updatePermissionForUserOrRole(ownerName, true, PERM_ACE_READ);
       updatePermissionForUserOrRole(ownerName, true, PERM_WRITE);
       updatePermissionForUserOrRole(ownerName, true, PERM_ACE_WRITE);
-        }
-      }
-  
+    }
+  }
+
   private Boolean isOwner(String name, Integer type) {
     return name == getOwnerName() && type == getOwnerType();
   }
-  
+
   private String getOwnerName() {
     return fileInfo.getElementsByTagName(OWNER_NAME_ELEMENT_NAME).item(0).getFirstChild().getNodeValue();
   }
 
   private Integer getOwnerType() {
     return Integer.parseInt(fileInfo.getElementsByTagName(OWNER_TYPE_ELEMENT_NAME).item(0).getFirstChild().getNodeValue());
-    }
-  
+  }
+
   void addRecipient(String recipientName, int recipientType) {
     Element newAces = fileInfo.createElement(ACES_ELEMENT_NAME);
     Element newPermission = fileInfo.createElement(PERMISSIONS_ELEMENT_NAME);
@@ -412,7 +520,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     newAces.appendChild(newPermission);
     newAces.appendChild(newRecipient);
     newAces.appendChild(newRecipientType);
-    
+
     fileInfo.getDocumentElement().appendChild(newAces);
     // Base recipient is created at this point.
     // Now give them the default perms.
@@ -422,8 +530,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   private void addPermission(String recipient, int permission) {
     NodeList aces = fileInfo.getElementsByTagName(ACES_ELEMENT_NAME);
-    for(int i=0; i<aces.getLength(); i++) {
-      Element ace = (Element)aces.item(i);
+    for (int i = 0; i < aces.getLength(); i++) {
+      Element ace = (Element) aces.item(i);
       if (ace.getElementsByTagName(RECIPIENT_ELEMENT_NAME).item(0).getFirstChild().getNodeValue().equals(recipient)) {
         Element newPerm = fileInfo.createElement(PERMISSIONS_ELEMENT_NAME);
         Text textNode = fileInfo.createTextNode(Integer.toString(permission));
@@ -440,8 +548,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   private List<String> getNames(int type) {
     List<String> names = new ArrayList<String>();
     NodeList aces = fileInfo.getElementsByTagName(ACES_ELEMENT_NAME);
-    for(int i=0; i<aces.getLength(); i++) {
-      Element ace = (Element)aces.item(i);
+    for (int i = 0; i < aces.getLength(); i++) {
+      Element ace = (Element) aces.item(i);
       NodeList recipientTypeList = ace.getElementsByTagName(RECIPIENT_TYPE_ELEMENT_NAME);
       Node recipientNode = recipientTypeList.item(0);
       String nodeValue = recipientNode.getFirstChild().getNodeValue();
@@ -451,7 +559,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       }
     }
     return names;
-    }
+  }
 
   /**
    * @param recipient
@@ -460,11 +568,11 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   private List<Integer> getPermissionsForUserOrRole(String recipient) {
     List<Integer> values = new ArrayList<Integer>();
     NodeList aces = fileInfo.getElementsByTagName(ACES_ELEMENT_NAME);
-    for(int i=0; i<aces.getLength(); i++) {
-      Element ace = (Element)aces.item(i);
+    for (int i = 0; i < aces.getLength(); i++) {
+      Element ace = (Element) aces.item(i);
       if (ace.getElementsByTagName(RECIPIENT_ELEMENT_NAME).item(0).getFirstChild().getNodeValue().equals(recipient)) {
         NodeList permissions = ace.getElementsByTagName(PERMISSIONS_ELEMENT_NAME);
-        for(int j=0; j<permissions.getLength(); j++) {
+        for (int j = 0; j < permissions.getLength(); j++) {
           if (permissions.item(j).getFirstChild() != null) {
             values.add(new Integer(permissions.item(j).getFirstChild().getNodeValue()));
           }
@@ -473,7 +581,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       }
     }
     return values;
-      }
+  }
 
   /**
    * @param recipient
@@ -483,11 +591,11 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     // first let's see if this node exists
     Node foundPermission = null;
     NodeList aces = fileInfo.getElementsByTagName(ACES_ELEMENT_NAME);
-    for(int i=0; i<aces.getLength(); i++) {
-      Element ace = (Element)aces.item(i);
+    for (int i = 0; i < aces.getLength(); i++) {
+      Element ace = (Element) aces.item(i);
       if (ace.getElementsByTagName(RECIPIENT_ELEMENT_NAME).item(0).getFirstChild().getNodeValue().equals(recipient)) {
         NodeList permissions = ace.getElementsByTagName(PERMISSIONS_ELEMENT_NAME);
-        for(int j=0; j<permissions.getLength(); j++) {
+        for (int j = 0; j < permissions.getLength(); j++) {
           Node testNode = permissions.item(j);
           if (testNode.getFirstChild() != null && Integer.parseInt(testNode.getFirstChild().getNodeValue()) == perm) {
             foundPermission = testNode;
@@ -496,10 +604,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         }
         break;
       }
-      }
+    }
 
     if (grant) {
-      if (foundPermission != null) {  // This permission already exists.
+      if (foundPermission != null) { // This permission already exists.
         return;
       }
       addPermission(recipient, perm);
@@ -512,20 +620,20 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
    * 
    */
   private void removeAllAces() {
-//    Window.alert("removeAllAces() called with: \n" + fileInfo.toString());
+    // Window.alert("removeAllAces() called with: \n" + fileInfo.toString());
     NodeList aces = fileInfo.getElementsByTagName(ACES_ELEMENT_NAME);
     while (aces != null && aces.getLength() > 0) {
-      for (int i=0; i<aces.getLength(); i++) {
+      for (int i = 0; i < aces.getLength(); i++) {
         Node ace = aces.item(i);
         ace.getParentNode().removeChild(ace);
       }
       aces = fileInfo.getElementsByTagName(ACES_ELEMENT_NAME);
     }
-    }
+  }
 
   Boolean isInheritsAcls() {
     return Boolean.valueOf(fileInfo.getElementsByTagName(INHERITS_ELEMENT_NAME).item(0).getFirstChild().getNodeValue());
-    }
+  }
 
   void setInheritsAcls(Boolean inherits) {
     fileInfo.getElementsByTagName(INHERITS_ELEMENT_NAME).item(0).getFirstChild().setNodeValue(inherits.toString());

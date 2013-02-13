@@ -21,6 +21,7 @@ package org.pentaho.mantle.client.solutionbrowser.filelist;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.utils.ElementUtils;
@@ -32,6 +33,7 @@ import org.pentaho.mantle.client.solutionbrowser.IFileSummary;
 import org.pentaho.mantle.client.solutionbrowser.MantlePopupPanel;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.HasAllMouseHandlers;
@@ -48,6 +50,15 @@ import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.dom.client.MouseWheelEvent;
 import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -70,49 +81,40 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   private static String SCHEDULE = "scheduleEllipsis";
 
   private static final MenuGlue adminMenuItems[] = { new MenuGlue("open", COMMAND.RUN), //$NON-NLS-1$
-    new MenuGlue("openInNewWindow", COMMAND.NEWWINDOW), //$NON-NLS-1$
-    new MenuGlue("runInBackground", COMMAND.BACKGROUND), //$NON-NLS-1$
-    new MenuGlue("edit", COMMAND.EDIT), //$NON-NLS-1$
-    new MenuGlue("editAction", COMMAND.EDIT_ACTION), //$NON-NLS-1$
-    new MenuGlue("delete", COMMAND.DELETE), //$NON-NLS-1$
-    new MenuGlue(SEPARATOR, null),
-    new MenuGlue("showHistoryEllipsis", COMMAND.GENERATED_CONTENT), //$NON-NLS-1$
-    new MenuGlue(SEPARATOR, null),
-    new MenuGlue("share", COMMAND.SHARE), //$NON-NLS-1$
-    new MenuGlue("addToFavorites",COMMAND.FAVORITE), //$NON-NLS-1$
-    new MenuGlue("removeFromFavorites",COMMAND.FAVORITE_REMOVE), //$NON-NLS-1$
-    new MenuGlue(SCHEDULE, COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
-    new MenuGlue(SEPARATOR, null),
-    new MenuGlue("cut", COMMAND.CUT), //$NON-NLS-1$
-    new MenuGlue("copy", COMMAND.COPY), //$NON-NLS-1$
-    new MenuGlue(SEPARATOR, null),
-    new MenuGlue("exportRepositoryFiles", COMMAND.EXPORT), //$NON-NLS-1$
-    new MenuGlue(SEPARATOR, null),
-    new MenuGlue("propertiesEllipsis", COMMAND.PROPERTIES) }; //$NON-NLS-1$
-  
+      new MenuGlue("openInNewWindow", COMMAND.NEWWINDOW), //$NON-NLS-1$
+      new MenuGlue("runInBackground", COMMAND.BACKGROUND), //$NON-NLS-1$
+      new MenuGlue("edit", COMMAND.EDIT), //$NON-NLS-1$
+      new MenuGlue("editAction", COMMAND.EDIT_ACTION), //$NON-NLS-1$
+      new MenuGlue("delete", COMMAND.DELETE), //$NON-NLS-1$
+      new MenuGlue(SEPARATOR, null), new MenuGlue("showHistoryEllipsis", COMMAND.GENERATED_CONTENT), //$NON-NLS-1$
+      new MenuGlue(SEPARATOR, null), new MenuGlue("share", COMMAND.SHARE), //$NON-NLS-1$
+      new MenuGlue("addToFavorites", COMMAND.FAVORITE), //$NON-NLS-1$
+      new MenuGlue("removeFromFavorites", COMMAND.FAVORITE_REMOVE), //$NON-NLS-1$
+      new MenuGlue(SCHEDULE, COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
+      new MenuGlue(SEPARATOR, null), new MenuGlue("cut", COMMAND.CUT), //$NON-NLS-1$
+      new MenuGlue("copy", COMMAND.COPY), //$NON-NLS-1$
+      new MenuGlue(SEPARATOR, null), new MenuGlue("exportRepositoryFiles", COMMAND.EXPORT), //$NON-NLS-1$
+      new MenuGlue(SEPARATOR, null), new MenuGlue("propertiesEllipsis", COMMAND.PROPERTIES) }; //$NON-NLS-1$
+
   private static final MenuGlue nonAdminMenuItems[] = { new MenuGlue("open", COMMAND.RUN), //$NON-NLS-1$
-    new MenuGlue("openInNewWindow", COMMAND.NEWWINDOW), //$NON-NLS-1$
-    new MenuGlue("runInBackground", COMMAND.BACKGROUND), //$NON-NLS-1$
-    new MenuGlue("edit", COMMAND.EDIT), //$NON-NLS-1$
-    new MenuGlue("editAction", COMMAND.EDIT_ACTION), //$NON-NLS-1$
-    new MenuGlue("delete", COMMAND.DELETE), //$NON-NLS-1$
-    new MenuGlue(SEPARATOR, null),
-    new MenuGlue("showHistoryEllipsis", COMMAND.GENERATED_CONTENT), //$NON-NLS-1$
-    new MenuGlue(SEPARATOR, null),
-    new MenuGlue("share", COMMAND.SHARE), //$NON-NLS-1$
-    new MenuGlue("addToFavorites",COMMAND.FAVORITE), //$NON-NLS-1$
-    new MenuGlue("removeFromFavorites",COMMAND.FAVORITE_REMOVE), //$NON-NLS-1$
-    new MenuGlue(SCHEDULE, COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
-    new MenuGlue(SEPARATOR, null),
-    new MenuGlue("cut", COMMAND.CUT), //$NON-NLS-1$
-    new MenuGlue("copy", COMMAND.COPY), //$NON-NLS-1$
-    new MenuGlue(SEPARATOR, null),
-    new MenuGlue("propertiesEllipsis", COMMAND.PROPERTIES) }; //$NON-NLS-1$
-  
+      new MenuGlue("openInNewWindow", COMMAND.NEWWINDOW), //$NON-NLS-1$
+      new MenuGlue("runInBackground", COMMAND.BACKGROUND), //$NON-NLS-1$
+      new MenuGlue("edit", COMMAND.EDIT), //$NON-NLS-1$
+      new MenuGlue("editAction", COMMAND.EDIT_ACTION), //$NON-NLS-1$
+      new MenuGlue("delete", COMMAND.DELETE), //$NON-NLS-1$
+      new MenuGlue(SEPARATOR, null), new MenuGlue("showHistoryEllipsis", COMMAND.GENERATED_CONTENT), //$NON-NLS-1$
+      new MenuGlue(SEPARATOR, null), new MenuGlue("share", COMMAND.SHARE), //$NON-NLS-1$
+      new MenuGlue("addToFavorites", COMMAND.FAVORITE), //$NON-NLS-1$
+      new MenuGlue("removeFromFavorites", COMMAND.FAVORITE_REMOVE), //$NON-NLS-1$
+      new MenuGlue(SCHEDULE, COMMAND.SCHEDULE_NEW), //$NON-NLS-1$
+      new MenuGlue(SEPARATOR, null), new MenuGlue("cut", COMMAND.CUT), //$NON-NLS-1$
+      new MenuGlue("copy", COMMAND.COPY), //$NON-NLS-1$
+      new MenuGlue(SEPARATOR, null), new MenuGlue("propertiesEllipsis", COMMAND.PROPERTIES) }; //$NON-NLS-1$
+
   private static final MenuGlue trashMenuItems[] = { new MenuGlue("restore", COMMAND.RESTORE), //$NON-NLS-1$
-    new MenuGlue("delete", COMMAND.DELETEPERMANENT), //$NON-NLS-1$
-    new MenuGlue("properties", COMMAND.PROPERTIES), //$NON-NLS-1$
-    
+      new MenuGlue("delete", COMMAND.DELETEPERMANENT), //$NON-NLS-1$
+      new MenuGlue("properties", COMMAND.PROPERTIES), //$NON-NLS-1$
+
   };
 
   // by creating a single popupMenu, we're reducing total # of widgets used
@@ -128,7 +130,6 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   private String iconStr;
   private Image dropIndicator = new Image();
   private boolean canDrop = false;
-
 
   public FileItem(RepositoryFile repositoryFile, FilesListPanel filesListPanel, FileTypeEnabledOptions options, boolean supportsACLs, String fileIconStr) {
 
@@ -179,10 +180,10 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       } else {
         this.setStyleName("fileLabelSelected"); // Toggle this files style to selected //$NON-NLS-1$
       }
-      filesListPanel.getSelectedFileItems().add(this);  // and add it to the list of selected files.      
+      filesListPanel.getSelectedFileItems().add(this); // and add it to the list of selected files.
     }
   }
-  
+
   public void deselect() {
     if (!filesListPanel.getSelectedFileItems().contains(this)) {
       return;
@@ -192,10 +193,10 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       } else {
         this.setStyleName("fileLabel"); // Toggle this files style to unselected //$NON-NLS-1$
       }
-      filesListPanel.getSelectedFileItems().remove(this); // Remove it from the selected list      
+      filesListPanel.getSelectedFileItems().remove(this); // Remove it from the selected list
     }
   }
-  
+
   public void toggleSelect(Boolean addSelection, Boolean extendSelection) {
     if (extendSelection) {
       extendSelection();
@@ -212,26 +213,26 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       for (FileItem fileItem : filesListPanel.getAllFileItems()) { // Set all the file Items to a unselected style
         fileItem.deselect();
       }
-      filesListPanel.getSelectedFileItems().clear();  // Remove all the files from the selected list
+      filesListPanel.getSelectedFileItems().clear(); // Remove all the files from the selected list
       select();
     }
-    }
+  }
 
   private void extendSelection() {
-    if (filesListPanel.getSelectedFileItems() == null || filesListPanel.getSelectedFileItems().size() < 1) {  // nothing is selected so do a simple select
+    if (filesListPanel.getSelectedFileItems() == null || filesListPanel.getSelectedFileItems().size() < 1) { // nothing is selected so do a simple select
       toggleSelect(false, false);
     } else {
       int currentItemIndex = filesListPanel.getFileItemIndex(this);
       int maxSelectedIndex = -1;
-      int minSelectedIndex = filesListPanel.getFileCount() -1;
-      
-      for (int i = 0; i<filesListPanel.getSelectedFileItems().size(); i++) {
+      int minSelectedIndex = filesListPanel.getFileCount() - 1;
+
+      for (int i = 0; i < filesListPanel.getSelectedFileItems().size(); i++) {
         FileItem testItem = filesListPanel.getSelectedFileItems().get(i);
         int textIdx = filesListPanel.getFileItemIndex(testItem);
         maxSelectedIndex = Math.max(maxSelectedIndex, textIdx);
         minSelectedIndex = Math.min(minSelectedIndex, textIdx);
       }
-      
+
       boolean forwardSelect = currentItemIndex > maxSelectedIndex;
       int startIdx;
       int endIdx;
@@ -240,12 +241,12 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
         endIdx = currentItemIndex;
       } else {
         startIdx = currentItemIndex;
-        endIdx = minSelectedIndex-1;
+        endIdx = minSelectedIndex - 1;
       }
-      for (int i=startIdx; i<=endIdx; i++) {
+      for (int i = startIdx; i <= endIdx; i++) {
         filesListPanel.getFileItem(i).toggleSelect(true, false);
       }
-    }   
+    }
   }
 
   public void onBrowserEvent(Event event) {
@@ -256,11 +257,11 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       FileItem selectedFileItem = filesListPanel.getSelectedFileItems().get(0);
       if (!selectedFileItem.isInTrash()) {
         SolutionBrowserPanel.getInstance().openFile(filesListPanel.getSelectedFileItems().get(0).getRepositoryFile(), COMMAND.RUN);
-      }  
+      }
     } else if ((DOM.eventGetType(event) & Event.ONCLICK) == Event.ONCLICK) {
       toggleSelect(metaKeyDown, shiftKeyDown);
-      fireFileSelectionEvent();      
-    } else if ((DOM.eventGetType(event) & Event.ONMOUSEUP) == Event.ONMOUSEUP && DOM.eventGetButton(event) == NativeEvent.BUTTON_RIGHT){
+      fireFileSelectionEvent();
+    } else if ((DOM.eventGetType(event) & Event.ONMOUSEUP) == Event.ONMOUSEUP && DOM.eventGetButton(event) == NativeEvent.BUTTON_RIGHT) {
       final int left = Window.getScrollLeft() + DOM.eventGetClientX(event);
       final int top = Window.getScrollTop() + DOM.eventGetClientY(event);
       handleRightClick(left, top, metaKeyDown);
@@ -268,18 +269,18 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     super.onBrowserEvent(event);
   }
 
-  public boolean isCommandEnabled(COMMAND command) {
-    return options != null && options.isCommandEnabled(command);
+  public boolean isCommandEnabled(COMMAND command, HashMap<String, String> metadataPerms) {
+    return options != null && options.isCommandEnabled(command, metadataPerms);
   }
 
   public void handleRightClick(final int left, final int top, final Boolean metaKeyDown) {
     Boolean isSelected = filesListPanel.getSelectedFileItems().contains(this);
     if (!isSelected) {
       toggleSelect(metaKeyDown, false);
-    fireFileSelectionEvent();
+      fireFileSelectionEvent();
     }
 
-    MenuGlue menuItems[];
+    final MenuGlue menuItems[];
     if (isInTrash()) {
       menuItems = trashMenuItems;
     } else {
@@ -290,6 +291,46 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       }
     }
 
+    // get file metadata (for perms like schedulable)
+    final HashMap<String, String> metadataPerms = new HashMap<String, String>();
+    String moduleBaseURL = GWT.getModuleBaseURL();
+    String moduleName = GWT.getModuleName();
+    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+    String metadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(getRepositoryFile().getPath()) + "/metadata"; //$NON-NLS-1$ //$NON-NLS-2$
+    RequestBuilder metadataBuilder = new RequestBuilder(RequestBuilder.GET, metadataUrl);
+    metadataBuilder.setHeader("accept", "application/json");
+    try {
+      metadataBuilder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          showMenu(left, top, menuItems, metadataPerms);
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
+            if (response.getText() != null && !"".equals(response.getText()) && !response.getText().equals("null")) {
+              JSONObject json = (JSONObject) JSONParser.parseLenient(response.getText());
+              if (json != null) {
+                JSONArray arr = (JSONArray) json.get("stringKeyStringValueDto");
+                for (int i = 0; i < arr.size(); i++) {
+                  JSONValue arrVal = arr.get(i);
+                  String key = arrVal.isObject().get("key").isString().stringValue();
+                  String value = arrVal.isObject().get("value").isString().stringValue();
+                  metadataPerms.put(key, value);
+                }
+              }
+            }
+          }
+          showMenu(left, top, menuItems, metadataPerms);
+        }
+      });
+    } catch (RequestException e) {
+      showMenu(left, top, menuItems, metadataPerms);
+    }
+
+  }
+
+  private void showMenu(final int left, final int top, MenuGlue menuItems[], HashMap<String, String> metadataPerms) {
     popupMenu.setPopupPosition(left, top);
     final MenuBar menuBar = new MenuBar(true);
     menuBar.setAutoOpen(true);
@@ -301,20 +342,14 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
 
       if (menuItems[i].getTitle().equals(SEPARATOR)) {
         menuBar.addSeparator();
-      } else if(menuItems[i].getTitle().equals(SCHEDULE)) {
-        if(SolutionBrowserPanel.getInstance().isScheduler()){
-          menuBar.addItem(new MenuItem(Messages.getString(menuItems[i].getTitle()), new FileCommand(menuItems[i].getCommand(), popupMenu, getRepositoryFile())));
-        } else {
+      } else if (isCommandEnabled(menuItems[i].getCommand(), metadataPerms)) {
+        menuBar.addItem(new MenuItem(Messages.getString(menuItems[i].getTitle()), new FileCommand(menuItems[i].getCommand(), popupMenu, getRepositoryFile())));
+      } else {
+        if (menuItems[i].getCommand() != COMMAND.SCHEDULE_NEW) {
           MenuItem item = new MenuItem(Messages.getString(menuItems[i].getTitle()), (Command) null);
           item.setStyleName("disabledMenuItem"); //$NON-NLS-1$
           menuBar.addItem(item);
         }
-      } else if (options != null && options.isCommandEnabled(menuItems[i].getCommand())) {
-        menuBar.addItem(new MenuItem(Messages.getString(menuItems[i].getTitle()), new FileCommand(menuItems[i].getCommand(), popupMenu, getRepositoryFile())));
-      } else {
-        MenuItem item = new MenuItem(Messages.getString(menuItems[i].getTitle()), (Command) null);
-        item.setStyleName("disabledMenuItem"); //$NON-NLS-1$
-        menuBar.addItem(item);
       }
     }
 
@@ -333,6 +368,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       }
     };
     t.schedule(250);
+
   }
 
   public String getName() {
@@ -350,6 +386,7 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   public void setLastModifiedDate(Date lastModifiedDate) {
     this.repositoryFile.setLastModifiedDate(lastModifiedDate);
   }
+
   // TODO LocalizedName and NonLocalizedName is the same. Do we need this extra method in there
 
   public String getLocalizedName() {
@@ -367,7 +404,6 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   public void setRepositoryFile(RepositoryFile repositoryFile) {
     this.repositoryFile = repositoryFile;
   }
-
 
   public void fireFileSelectionEvent() {
     for (IFileItemListener listener : listeners) {
@@ -395,54 +431,55 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
     this.url = url;
   }
 
-  public String getIcon(){
+  public String getIcon() {
     return this.iconStr;
   }
+
   /**
    * DND required methods below
    */
-  public HandlerRegistration addMouseUpHandler( MouseUpHandler handler ) {
+  public HandlerRegistration addMouseUpHandler(MouseUpHandler handler) {
     return addDomHandler(handler, MouseUpEvent.getType());
   }
 
-  public HandlerRegistration addMouseOutHandler( MouseOutHandler handler ) {
+  public HandlerRegistration addMouseOutHandler(MouseOutHandler handler) {
     return addDomHandler(handler, MouseOutEvent.getType());
   }
 
-  public HandlerRegistration addMouseMoveHandler( MouseMoveHandler handler ) {
+  public HandlerRegistration addMouseMoveHandler(MouseMoveHandler handler) {
     return addDomHandler(handler, MouseMoveEvent.getType());
   }
 
-  public HandlerRegistration addMouseWheelHandler( MouseWheelHandler handler ) {
+  public HandlerRegistration addMouseWheelHandler(MouseWheelHandler handler) {
     return addDomHandler(handler, MouseWheelEvent.getType());
   }
 
-  public HandlerRegistration addMouseOverHandler( MouseOverHandler handler ) {
+  public HandlerRegistration addMouseOverHandler(MouseOverHandler handler) {
     return addDomHandler(handler, MouseOverEvent.getType());
   }
 
-  public HandlerRegistration addMouseDownHandler( MouseDownHandler handler ) {
+  public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
     return addDomHandler(handler, MouseDownEvent.getType());
   }
 
-  public FileItem makeDragProxy(){
+  public FileItem makeDragProxy() {
     FileItem f = new FileItem(getRepositoryFile(), filesListPanel, options, false, getIcon());
     f.enableDrag();
     return f;
   }
 
-  public void enableDrag(){
+  public void enableDrag() {
     setWidget(0, 0, dropIndicator);
     addStyleName("fileItemDragProxy");//$NON-NLS-1$
     setDroppable(false);
     dropIndicator.setResource(MantleImages.images.drop_invalid());
   }
 
-  public void setDroppable(boolean canDrop){
-    if(this.canDrop == canDrop){
+  public void setDroppable(boolean canDrop) {
+    if (this.canDrop == canDrop) {
       return;
     }
-    if(canDrop){
+    if (canDrop) {
 
       dropIndicator.setResource(MantleImages.images.drop_valid());
       addStyleName("validDrop");//$NON-NLS-1$
@@ -457,13 +494,13 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
   public boolean isInTrash() {
     return repositoryFile.getPath().contains("/.trash/pho:");
   }
-  
+
 }
 
 final class MenuGlue {
   private String title;
   private FileCommand.COMMAND command;
-  
+
   public MenuGlue(String title, COMMAND command) {
     super();
     this.title = title;
@@ -479,4 +516,3 @@ final class MenuGlue {
   }
 
 }
-
