@@ -32,6 +32,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -87,7 +88,13 @@ public class ImportDialog extends PromptDialogBox {
         okButton.setEnabled(false); 
         cancelButton.setEnabled(true);
         ImportDialog.this.hide();
-        logWindow(sce.getResults());
+        String result = sce.getResults();
+        if (result.length() > 5) {
+          logWindow(result,Messages.getString("importLogWindowTitle"));
+        } else {
+          Window.alert (Messages.getString("importSuccessMessage"));
+        }
+        
       }
     });
 
@@ -318,9 +325,12 @@ public class ImportDialog extends PromptDialogBox {
     uploadElement.click();
   }-*/;
   
-  private static native void logWindow(String innerText) /*-{
-  	var logWindow = window.open('', 'Import Results', 'width=640, height=480');
-    logWindow.document.write(innerText);
+  private static native void logWindow(String innerText, String windowTitle) /*-{
+  	var logWindow = window.open('', '', 'width=640, height=480, location=no, menubar=yes, toolbar=yes', false);
+  	var htmlText = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\
+  	  <html><head><title>' + windowTitle + '</title></head><body bgcolor="#FFFFFF" topmargin="6" leftmargin="6">'
+  	  + innerText + "</body></html>";
+    logWindow.document.write(htmlText);
   }-*/;
 
   private void setFormAction() {
