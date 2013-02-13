@@ -209,7 +209,9 @@ public class RepositoryImportHTMLLayout extends Layout {
       sbuf.append("<th>Time</th>" + Layout.LINE_SEP);
     }
     sbuf.append("<th>Import File</th>" + Layout.LINE_SEP);
+    if (showLevelColumn()) {
     sbuf.append("<th>Level</th>" + Layout.LINE_SEP);
+    }
     if(showCodeLineColumn()) {
       sbuf.append("<th>File:Line</th>" + Layout.LINE_SEP);
     }
@@ -245,6 +247,6 @@ public class RepositoryImportHTMLLayout extends Layout {
   }
   
   private boolean showLevelColumn() {
-    return Level.DEBUG.isGreaterOrEqual(loggerLogLevel) ? true : false; 
+    return true;
   }
 }
