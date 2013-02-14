@@ -65,7 +65,7 @@ public class AuthorizationPolicyClient {
   @Test
   public void testEverything() {
     final String RUNTIME_ROLE_AUTHENTICATED = "Authenticated";
-    roleBindingDaoWebService.setRoleBindings(RUNTIME_ROLE_AUTHENTICATED, Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION }));
+    roleBindingDaoWebService.setRoleBindings(RUNTIME_ROLE_AUTHENTICATED, Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING }));
 
     List<String> allowedActions = policy.getAllowedActions("org.pentaho");
     assertEquals(2, allowedActions.size());
