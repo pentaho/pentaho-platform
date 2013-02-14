@@ -20,6 +20,7 @@ package org.pentaho.platform.repository2.unified.jcr;/*
  */
 
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 
@@ -31,7 +32,7 @@ public class InheritDefaultAclHandler implements IRepositoryDefaultAclHandler {
    * @return
    */
   @Override
-  public RepositoryFileAcl createDefaultAcl(boolean isFolder, String fileExtension) {
+  public RepositoryFileAcl createDefaultAcl(RepositoryFile repositoryFile) {
     return new RepositoryFileAcl.Builder(PentahoSessionHolder.getSession().getId()).entriesInheriting(true).build();
   }
 }

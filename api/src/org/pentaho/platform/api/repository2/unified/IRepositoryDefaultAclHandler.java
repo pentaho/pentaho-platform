@@ -26,10 +26,9 @@ public interface IRepositoryDefaultAclHandler
 {
   /**
    *
-   * @param isFolder
-   * @param fileExtension
+   * @param repositoryFile
    * @return
    */
-  public RepositoryFileAcl createDefaultAcl(boolean isFolder, String fileExtension);
+  public RepositoryFileAcl createDefaultAcl(RepositoryFile repositoryFile);
 
 }
