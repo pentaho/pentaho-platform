@@ -58,8 +58,21 @@ public class SimpleRepositoryFileData implements IRepositoryFileData {
    * Returns a stream for reading the data in this file.
    * 
    * @return stream (may be {@code null})
+   * @deprecated
+   * Use {@link #getInputStream()} instead. Proguard likes to obfuscate any method named getStream that returns an InputStream,
+   * even if you tell it not to via keep rules.
    */
+  @Deprecated
   public InputStream getStream() {
+    return stream;
+  }
+
+  /**
+   * Returns a stream for reading the data in this file.
+   *
+   * @return stream (may be {@code null})
+  */
+  public InputStream getInputStream() {
     return stream;
   }
 
