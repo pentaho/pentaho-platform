@@ -46,7 +46,12 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     this(new File(baseDir));
   }
 
-  public FileSystemRepositoryFileDao(final File baseDir) {
+  public FileSystemRepositoryFileDao(File baseDir) {
+    //Detect OS
+    final String os = System.getProperty("os.name").toLowerCase();
+    if(os.contains("win")&& baseDir.getPath().equals("\\")){
+      baseDir=new File("C:\\");
+    }
     assert (baseDir.exists() && baseDir.isDirectory());
     this.rootDir = baseDir;
   }
