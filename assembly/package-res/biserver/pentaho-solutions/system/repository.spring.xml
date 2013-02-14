@@ -643,6 +643,7 @@
       <util:list>
         <value>org.pentaho.repository.read</value>
         <value>org.pentaho.repository.create</value>
+        <value>org.pentaho.scheduler.manage</value>
       </util:list>
     </entry>
     <!-- for single tenant mode -->

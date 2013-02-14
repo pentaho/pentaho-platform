@@ -190,7 +190,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     userRoleDao.createRole(newTenant, tenantAdminRoleName, "", new String[0]);
     userRoleDao.createRole(newTenant, authenticatedRoleName, "", new String[0]);
     userRoleDao.createRole(newTenant, anonymousRoleName, "", new String[0]);
-    roleBindingDao.setRoleBindings(newTenant, authenticatedRoleName, Arrays.asList(new String[]{IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION}));    
+    roleBindingDao.setRoleBindings(newTenant, authenticatedRoleName, Arrays.asList(new String[]{IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING}));    
     
     String tenantAdminRoleId = tenantedRoleNameResolver.getPrincipleId(newTenant, tenantAdminRoleName);
     RepositoryFileSid tenantAdminRoleSid = new RepositoryFileSid(tenantAdminRoleId, Type.ROLE);
