@@ -14,32 +14,9 @@
  */
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.jcr.Item;
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.lock.Lock;
-
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
-import org.pentaho.platform.api.repository2.unified.VersionSummary;
+import org.pentaho.platform.api.repository2.unified.*;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
@@ -48,6 +25,12 @@ import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import javax.jcr.*;
+import javax.jcr.lock.Lock;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
 
 
 /**
@@ -72,13 +55,16 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   private IPathConversionHelper pathConversionHelper;
 
   private IRepositoryFileAclDao aclDao;
+
+  private IRepositoryDefaultAclHandler defaultAclHandler;
   
   // ~ Constructors ====================================================================================================
 
   public JcrRepositoryFileDao(final JcrTemplate jcrTemplate,
                               final List<ITransformer<IRepositoryFileData>> transformers, 
                               final ILockHelper lockHelper, final IDeleteHelper deleteHelper, final IPathConversionHelper pathConversionHelper,
-                              final IRepositoryFileAclDao aclDao) {
+                              final IRepositoryFileAclDao aclDao,
+                              final IRepositoryDefaultAclHandler defaultAclHandler) {
     super();
     Assert.notNull(jcrTemplate);
     Assert.notNull(transformers);
@@ -88,6 +74,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     this.deleteHelper = deleteHelper;
     this.pathConversionHelper = pathConversionHelper;
     this.aclDao = aclDao;
+    this.defaultAclHandler = defaultAclHandler;
   }
 
   // ~ Methods =========================================================================================================
@@ -98,7 +85,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
     Node folderNode = JcrRepositoryFileUtils.createFolderNode(session, pentahoJcrConstants, parentFolderId, folder);
     // we must create the acl during checkout
-    JcrRepositoryFileAclUtils.createAcl(session, pentahoJcrConstants, folderNode.getIdentifier(), acl == null ? createDefaultAcl() : acl);
+    JcrRepositoryFileAclUtils.createAcl(session, pentahoJcrConstants, folderNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl(true,folder.getName()) : acl);
     session.save();
     if (folder.isVersioned()) {
       JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, folderNode,
@@ -139,7 +126,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         Node fileNode = JcrRepositoryFileUtils.createFileNode(session, pentahoJcrConstants, 
             parentFolderId, file, content==null?emptyContent:content, findTransformerForWrite(content==null?emptyContent.getClass():content.getClass()));
         // we must create the acl during checkout
-        aclDao.createAcl(fileNode.getIdentifier(), acl == null ? createDefaultAcl() : acl);
+        aclDao.createAcl(fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl(false, file.getName()) : acl);
         session.save();
         if (file.isVersioned()) {
           JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, fileNode,
@@ -555,7 +542,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
             if (StringUtils.hasLength(segment)) {
               RepositoryFile tmp = internalGetFile(session, pathConversionHelper.relToAbs((lastParentFolder.getPath().equals(RepositoryFile.SEPARATOR) ? "" : lastParentFolder.getPath()) + RepositoryFile.SEPARATOR + segment), false); //$NON-NLS-1$
               if (tmp == null) {
-                lastParentFolder = internalCreateFolder(session, lastParentFolder.getId(), new RepositoryFile.Builder(segment).folder(true).build(), createDefaultAcl(), null);
+                lastParentFolder = internalCreateFolder(session, lastParentFolder.getId(), new RepositoryFile.Builder(segment).folder(true).build(), defaultAclHandler.createDefaultAcl(true, tmp.getName() ), null);
               } else {
                 lastParentFolder = tmp;
               }
@@ -573,10 +560,6 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     });
   }
 
-  public RepositoryFileAcl createDefaultAcl() {
-    return new RepositoryFileAcl.Builder(PentahoSessionHolder.getSession().getId()).entriesInheriting(true).build();
-  }
-  
   private void internalCopyOrMove(final Serializable fileId, final String destRelPath, final String versionMessage, final boolean copy) {
     Assert.notNull(fileId);
     jcrTemplate.execute(new JcrCallback() {
@@ -819,4 +802,11 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     return JcrRepositoryFileUtils.getReservedChars();
   }
 
+  public IRepositoryDefaultAclHandler getDefaultAclHandler() {
+    return defaultAclHandler;
+  }
+
+  public void setDefaultAclHandler(IRepositoryDefaultAclHandler defaultAclHandler) {
+    this.defaultAclHandler = defaultAclHandler;
+  }
 }
