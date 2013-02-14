@@ -21,27 +21,31 @@ package org.pentaho.platform.repository2.unified.jcr;/*
 
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class InheritDefaultAclHandlerTest {
 
   InheritDefaultAclHandler inheritDefaultAclHandler;
+  RepositoryFile repositoryFile;
 
   @Before
   public void setUp(){
     StandaloneSession pentahoSession = new StandaloneSession("test","test");
     PentahoSessionHolder.setSession(pentahoSession);
+    repositoryFile = mock(RepositoryFile.class);
 
     inheritDefaultAclHandler = new InheritDefaultAclHandler();
   }
 
   @Test
   public void testCreateDefaultAcl(){
-    RepositoryFileAcl repositoryFileAcl = inheritDefaultAclHandler.createDefaultAcl(true, "test.xanalyzer");
+    RepositoryFileAcl repositoryFileAcl = inheritDefaultAclHandler.createDefaultAcl(repositoryFile);
     assertTrue(repositoryFileAcl.isEntriesInheriting());
   }
 }
