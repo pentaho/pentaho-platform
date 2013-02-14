@@ -384,6 +384,8 @@
     <property name="exposeNativeSession" value="true"/>
   </bean>
 
+  <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.InheritDefaultAclHandler" />
+
   <bean id="repositoryFileDao" class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileDao">
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="transformers"/>
@@ -397,6 +399,7 @@
     </constructor-arg>
     <constructor-arg ref="pathConversionHelper"/>
     <constructor-arg ref="repositoryFileAclDao"/>
+    <constructor-arg ref="defaultAclHandler" />
   </bean>
 
   <util:list id="transformers">
