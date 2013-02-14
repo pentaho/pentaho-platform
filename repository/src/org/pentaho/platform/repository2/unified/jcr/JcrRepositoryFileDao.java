@@ -85,7 +85,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
     Node folderNode = JcrRepositoryFileUtils.createFolderNode(session, pentahoJcrConstants, parentFolderId, folder);
     // we must create the acl during checkout
-    JcrRepositoryFileAclUtils.createAcl(session, pentahoJcrConstants, folderNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl(true,folder.getName()) : acl);
+    JcrRepositoryFileAclUtils.createAcl(session, pentahoJcrConstants, folderNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl(folder) : acl);
     session.save();
     if (folder.isVersioned()) {
       JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, folderNode,
@@ -126,7 +126,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         Node fileNode = JcrRepositoryFileUtils.createFileNode(session, pentahoJcrConstants, 
             parentFolderId, file, content==null?emptyContent:content, findTransformerForWrite(content==null?emptyContent.getClass():content.getClass()));
         // we must create the acl during checkout
-        aclDao.createAcl(fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl(false, file.getName()) : acl);
+        aclDao.createAcl(fileNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl(file) : acl);
         session.save();
         if (file.isVersioned()) {
           JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, fileNode,
@@ -542,7 +542,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
             if (StringUtils.hasLength(segment)) {
               RepositoryFile tmp = internalGetFile(session, pathConversionHelper.relToAbs((lastParentFolder.getPath().equals(RepositoryFile.SEPARATOR) ? "" : lastParentFolder.getPath()) + RepositoryFile.SEPARATOR + segment), false); //$NON-NLS-1$
               if (tmp == null) {
-                lastParentFolder = internalCreateFolder(session, lastParentFolder.getId(), new RepositoryFile.Builder(segment).folder(true).build(), defaultAclHandler.createDefaultAcl(true, tmp.getName() ), null);
+                lastParentFolder = internalCreateFolder(session, lastParentFolder.getId(), new RepositoryFile.Builder(segment).folder(true).build(), defaultAclHandler.createDefaultAcl(lastParentFolder), null);
               } else {
                 lastParentFolder = tmp;
               }
