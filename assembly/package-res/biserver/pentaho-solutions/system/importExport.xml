@@ -55,6 +55,7 @@
     <bean id="defaultImportHandler" class="org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler">
         <property name="repository" ref="unifiedRepository"/>
         <property name="converters" ref="convertersMap"/>
+		<property name="defaultAclHandler" ref="defaultAclHandler"/>
     </bean>
 
     <bean id="NameBaseMimeResolver" class="org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver">
@@ -176,5 +177,4 @@
         </property>
 
     </bean>
-
 </beans>

@@ -546,5 +546,12 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       return false;
     return true;
   }
+  
+  public RepositoryFile clone() {
+    RepositoryFile.Builder builder = new RepositoryFile.Builder(this);
+    builder.titleMap(titleMap != null ? new HashMap<String, String>(titleMap) : null);
+    builder.descriptionMap(descriptionMap != null ? new HashMap<String, String>(descriptionMap) : null);
+    return builder.build();
+  }  
 
 }
