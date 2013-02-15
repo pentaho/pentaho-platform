@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -15,8 +16,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.Converter;
-import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
-import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLog;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.springframework.util.Assert;
@@ -34,6 +33,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private static final Messages messages = Messages.getInstance();
 
   private Map<String, Converter> converters;
+  IRepositoryDefaultAclHandler defaultAclHandler;
   
   public Log getLogger() {
     if (log.get() == null) {
@@ -179,7 +179,8 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   private RepositoryFileAcl getDefaultAcl(RepositoryFile repositoryFile) {
     // ToDo: call default Acl creator when implemented.  For now just return
     // whatever is stored
-    return repository.getAcl(repositoryFile.getId());
+    //return repository.getAcl(repositoryFile.getId());
+    return defaultAclHandler.createDefaultAcl(repositoryFile.clone());
   }
 
   /**
@@ -240,5 +241,9 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   public void setConverters(Map<String, Converter> converters) {
     this.converters = converters;
+  }
+  
+  public void setDefaultAclHandler(IRepositoryDefaultAclHandler defaultAclHandler) {
+    this.defaultAclHandler = defaultAclHandler;
   }
 }
