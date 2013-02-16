@@ -124,7 +124,7 @@ public class UserSettingService implements IUserSettingService {
             UserSetting setting = new UserSetting();
             setting.setSettingName(key.substring(SETTING_PREFIX.length()));
             setting.setSettingValue(userMetadata.get(key).toString());
-            if (setting.getSettingValue().equals(settingName)) {
+            if (setting.getSettingName().equals(settingName)) {
               return setting;
             }
           }

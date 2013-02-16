@@ -111,8 +111,6 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
     getElement().setId("filesListPanel");
 
     setupNativeHooks(this);
-    
-    RepositoryFileTreeManager.getInstance().addRepositoryFileTreeListener(this, null, null, showHiddenFiles);
   }
 
   public void beforeFetchRepositoryFileTree() {

@@ -220,7 +220,12 @@ public class MantleController extends AbstractXulEventHandler {
 					      	}
 					      }
 					      
-								break;
+              } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
+                boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
+                ((PentahoMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(checked);
+			        } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
+                boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
+			          ((PentahoMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(checked);
 			        }
 			      } catch (Exception e) {
 			        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$

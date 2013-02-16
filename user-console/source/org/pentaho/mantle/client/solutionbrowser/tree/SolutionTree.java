@@ -121,7 +121,6 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     getElement().setId("solutionTree"); //$NON-NLS-1$
     getElement().getStyle().setProperty("margin", "29px 0px 10px 0px"); //$NON-NLS-1$ //$NON-NLS-2$
 
-    RepositoryFileTreeManager.getInstance().addRepositoryFileTreeListener(this, null, null, showHiddenFiles);
     UserSettingsManager.getInstance().addUserSettingsListener(this);
   }
 
@@ -139,11 +138,11 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
         boolean useDescriptions = "true".equals(setting.getValue()); //$NON-NLS-1$
         setUseDescriptionsForTooltip(useDescriptions);
       } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
-        boolean showHiddenFiles = "true".equals(setting.getName()); //$NON-NLS-1$
+        boolean showHiddenFiles = "true".equals(setting.getValue()); //$NON-NLS-1$
         setShowHiddenFiles(showHiddenFiles);
       }
     }
-
+    RepositoryFileTreeManager.getInstance().addRepositoryFileTreeListener(this, null, null, showHiddenFiles);
   }
 
   public void onBrowserEvent(Event event) {
@@ -544,7 +543,6 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
 
   public void setShowHiddenFiles(boolean showHiddenFiles) {
     this.showHiddenFiles = showHiddenFiles;
-    RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(true,null, null,showHiddenFiles);
   }
 
   public boolean isShowLocalizedFileNames() {
