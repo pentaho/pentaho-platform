@@ -70,7 +70,7 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
     scheduleEmailWizardPanel = new ScheduleEmailWizardPanel(filePath, editJob);
     IWizardPanel[] wizardPanels = { scheduleEmailWizardPanel };
     this.setWizardPanels(wizardPanels);
-    setPixelSize(650, 360);
+    setPixelSize(635, 375);
     wizardDeckPanel.setHeight("100%"); //$NON-NLS-1$
   }
 

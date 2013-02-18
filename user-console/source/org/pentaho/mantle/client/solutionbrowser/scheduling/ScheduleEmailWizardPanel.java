@@ -26,10 +26,10 @@ import org.pentaho.mantle.client.workspace.JsJob;
 import org.pentaho.mantle.client.workspace.JsJobParam;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -126,9 +126,9 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
     emailYesNoPanel.add(yes);
     this.add(emailYesNoPanel, NORTH);
 
-    toAddressTextBox.setVisibleLength(75);
-    subjectTextBox.setVisibleLength(75);
-    attachmentNameTextBox.setVisibleLength(75);
+    toAddressTextBox.setVisibleLength(95);
+    subjectTextBox.setVisibleLength(95);
+    attachmentNameTextBox.setVisibleLength(95);
 
     boolean hasExtension = filePath.lastIndexOf(".") != -1;
     String friendlyFileName = filePath.substring(filePath.lastIndexOf("/") + 1);
@@ -138,30 +138,41 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
     }
     subjectTextBox.setText(Messages.getString("scheduleDefaultSubject", friendlyFileName));
     attachmentNameTextBox.setText(friendlyFileName);
-
+    
     Label toLabel = new Label(Messages.getString("toColon"));
-    toLabel.setWidth("130px");
-    toLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-    emailSchedulePanel.setWidget(0, 0, toLabel);
-    ((FlexCellFormatter) emailSchedulePanel.getCellFormatter()).setWidth(0, 0, "130px");
-    emailSchedulePanel.setWidget(0, 1, toAddressTextBox);
-    emailSchedulePanel.setWidget(1, 1, new Label(Messages.getString("scheduleAddressSeparatorMessage")));
+    //toLabel.setWidth("130px");
+    toLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+    Label toAddressLabel = new Label(Messages.getString("scheduleAddressSeparatorMessage"));
+    toAddressLabel.setStyleName("msg-Label");
+    
+    HorizontalPanel toLabelPanel = new HorizontalPanel();
+    toLabelPanel.add(toLabel);
+    toLabelPanel.add(toAddressLabel);
+    
+    emailSchedulePanel.setWidget(0, 0, toLabelPanel);
+    toAddressTextBox.getElement().getStyle().setHeight(25, Unit.PX);
+    toAddressTextBox.getElement().getStyle().setPaddingLeft(5, Unit.PX);
+    emailSchedulePanel.setWidget(1, 0, toAddressTextBox);
 
     Label subjectLabel = new Label(Messages.getString("subjectColon"));
-    subjectLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-    emailSchedulePanel.setWidget(2, 0, subjectLabel);
-    emailSchedulePanel.setWidget(2, 1, subjectTextBox);
+    subjectLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+    subjectTextBox.getElement().getStyle().setHeight(25, Unit.PX);
+    subjectTextBox.getElement().getStyle().setPaddingLeft(5, Unit.PX);
+    emailSchedulePanel.setWidget(3, 0, subjectLabel);
+    emailSchedulePanel.setWidget(4, 0, subjectTextBox);
 
     Label attachmentLabel = new Label(Messages.getString("attachmentNameColon"));
-    attachmentLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-    emailSchedulePanel.setWidget(3, 0, attachmentLabel);
-    emailSchedulePanel.setWidget(3, 1, attachmentNameTextBox);
+    attachmentLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+    attachmentNameTextBox.getElement().getStyle().setHeight(25, Unit.PX);
+    attachmentNameTextBox.getElement().getStyle().setPaddingLeft(5, Unit.PX);
+    emailSchedulePanel.setWidget(5, 0, attachmentLabel);
+    emailSchedulePanel.setWidget(6, 0, attachmentNameTextBox);
 
     messageTextArea.setVisibleLines(5);
     messageTextArea.setWidth("100%");
-    emailSchedulePanel.setWidget(4, 0, new Label(Messages.getString("scheduleEmailMessage")));
-    emailSchedulePanel.setWidget(5, 0, messageTextArea);
-    ((FlexCellFormatter) emailSchedulePanel.getCellFormatter()).setColSpan(5, 0, 2);
+    Label messageLabel = new Label(Messages.getString("scheduleEmailMessage"));
+    emailSchedulePanel.setWidget(7, 0, messageLabel);
+    emailSchedulePanel.setWidget(8, 0, messageTextArea);
 
     if (job != null) {
       JsArray<JsJobParam> jparams = job.getJobParams();
