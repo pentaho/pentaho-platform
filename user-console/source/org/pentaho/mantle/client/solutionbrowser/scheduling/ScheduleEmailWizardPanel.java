@@ -183,6 +183,9 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
 
     this.add(emailSchedulePanel, CENTER);
 
+    toAddressTextBox.setFocus(true);
+    toAddressTextBox.getElement().focus();
+    
     panelWidgetChanged(null);
   }
 
