@@ -84,7 +84,7 @@ public class PentahoPlatformImporter implements IPlatformImporter {
     } catch (Exception e) {
       //If we are doing a logged import then we do not want to fail on a single file
       //so log the error and keep going.
-      if (repositoryImportLogger.hasLogger()){
+      if (repositoryImportLogger != null && repositoryImportLogger.hasLogger()){
         repositoryImportLogger.error(e);
       } else {
         if (e instanceof PlatformImportException) {
