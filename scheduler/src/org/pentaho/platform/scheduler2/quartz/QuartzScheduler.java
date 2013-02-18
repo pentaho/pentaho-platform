@@ -22,6 +22,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -328,6 +329,17 @@ public class QuartzScheduler implements IScheduler {
     try {
       QuartzJobKey jobKey = QuartzJobKey.parse(jobId);
       Scheduler scheduler = getQuartzScheduler();
+      String groupName = jobKey.getUserName();
+      for (Trigger trigger : scheduler.getTriggersOfJob(jobId, groupName)) {
+        if (trigger instanceof SimpleTrigger) {
+          ((SimpleTrigger)trigger).setPreviousFireTime(new Date());
+        } else if (trigger instanceof CronTrigger) {
+          ((CronTrigger)trigger).setPreviousFireTime(new Date());
+        }
+        // force the trigger to be updated with the previous fire time
+        scheduler.rescheduleJob(jobId, jobKey.getUserName(), trigger);
+      }
+      
       scheduler.triggerJob(jobId, jobKey.getUserName());
     } catch (org.quartz.SchedulerException e) {
       throw new SchedulerException(Messages.getInstance().getString("QuartzScheduler.ERROR_0007_FAILED_TO_GET_JOB", jobId), e); //$NON-NLS-1$

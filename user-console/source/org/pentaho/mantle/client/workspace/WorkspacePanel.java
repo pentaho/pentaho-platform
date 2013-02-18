@@ -227,7 +227,10 @@ public class WorkspacePanel extends SimplePanel {
     scheduleRemoveButton.setEnabled(false);
     editButton.setEnabled(false);
 
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobs"; //$NON-NLS-1$
+    String moduleBaseURL = GWT.getModuleBaseURL();
+    String moduleName = GWT.getModuleName();
+    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+    final String url = contextURL + "api/scheduler/jobs"; //$NON-NLS-1$
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     executableTypesRequestBuilder.setHeader("accept", "application/json");
