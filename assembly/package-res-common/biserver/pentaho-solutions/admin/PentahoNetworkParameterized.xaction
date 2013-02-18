@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>PentahoNetwork.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Report Design Wizard</author>  
+    <description>%description</description>  
+    <icon>pentahonetwork.png</icon>  
+    <help>Select The Release Types you would like to see updates for.</help>  
+    <result-type>none</result-type> 
+  </documentation>
+
+  <inputs> 
+    <output-type type="string"> 
+      <default-value><![CDATA[html]]></default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </output-type>
+    
+    <releaseFlags type="string"> 
+      <default-value>Minor, GA</default-value>  
+      <sources> 
+        <request>releaseFlags</request> 
+      </sources> 
+    </releaseFlags> 
+    
+    <releaseFlagList type="property-map-list"> 
+      <sources> 
+        <runtime>releaseFlagList</runtime> 
+      </sources>  
+      <default-value type="property-map-list"> 
+        <property-map> 
+          <entry key="release-type-desc">Major</entry>  
+        </property-map>  
+        <property-map> 
+          <entry key="release-type-desc">Minor</entry>  
+        </property-map>  
+        <property-map> 
+          <entry key="release-type-desc">GA</entry>  
+        </property-map>
+        <property-map> 
+          <entry key="release-type-desc">RC</entry>  
+        </property-map>
+        <property-map> 
+          <entry key="release-type-desc">Milestone</entry>  
+        </property-map>
+      </default-value> 
+    </releaseFlagList>
+   
+    <more type="string">
+      <sources>
+        <request>more</request>
+      </sources>
+      <default-value><![CDATA[ ]]></default-value>
+    </more>
+
+    <morelink type="string">
+      <sources>
+        <request>morelink</request>
+      </sources>
+      <default-value><![CDATA[ ]]></default-value>
+    </morelink>
+
+  </inputs>
+
+  <outputs> 
+    <report type="content"> 
+      <destinations> 
+        <response>content</response> 
+      </destinations> 
+    </report> 
+  </outputs>
+
+  <resources> 
+    <!-- use this section to identify any files that the component needs to execute the report -->  
+    <report-definition> 
+      <solution-file> 
+        <location>PentahoNetwork.xml</location>  
+        <mime-type>text/xml</mime-type> 
+      </solution-file> 
+    </report-definition> 
+  </resources>
+  
+  <actions>
+ 
+	<action-definition>
+	  <component-name>SecureFilterComponent</component-name>
+	   <action-type>Prompt for Updated Release Types:</action-type>
+	   <action-inputs>
+	     <releaseFlags type="string"/>
+	     <releaseFlagList type="result-set"/>
+	   </action-inputs>
+	   <component-definition>
+	     <selections>
+	       <releaseFlags style="list-multi">
+	         <title>Filter on Release Types:</title>
+	         <filter value-col-name="release-type-desc" display-col-name="release-type-desc">releaseFlagList</filter>
+	       </releaseFlags>
+	     </selections>
+	   </component-definition>
+	</action-definition>
+ 
+    <action-definition>
+      <component-name>org.pentaho.plugin.versionchecker.PentahoVersionCheckComponent</component-name>
+      <action-type>rule</action-type>
+      <action-inputs>
+      	<releaseFlags type="string"/>
+      </action-inputs>
+      <action-outputs>
+          <document type="string"/>
+      </action-outputs>
+      <component-definition>
+         <ignoreExistingUpdates>false</ignoreExistingUpdates>
+      </component-definition>
+    </action-definition>
+
+    <action-definition> 
+      <component-name>XQueryLookupRule</component-name>
+      <action-type>rule</action-type>
+      <action-inputs> 
+        <document type="string"/> 
+        <releaseFlags type="string"/>
+      </action-inputs>
+      <action-outputs> 
+        <result-set type="list"/> 
+      </action-outputs>
+      <component-definition> 
+        <live>false</live>  
+        <query><![CDATA[for $x in doc("{XML_DOCUMENT}")//update|doc("{XML_DOCUMENT}")//error return <row> <prodid>{string($x/../@id)}</prodid> <title>{string($x/@title)}</title> <version>{string($x/@version)}</version> <type>{string($x/@type)}</type> <os>{string($x/@os)}</os> <downloadurl>{string($x/downloadurl)}</downloadurl> <error>{$x/text()}</error> </row>]]></query> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JFreeReportComponent</component-name>
+      <action-type>report</action-type>
+      <action-inputs> 
+        <output-type type="string"/>  
+        <data type="list" mapping="result-set"/>
+        <more type="string"/>
+        <morelink type="string"/>
+      </action-inputs>
+      <action-resources> 
+        <report-definition type="resource"/> 
+      </action-resources>
+      <action-outputs> 
+        <report type="content"/> 
+      </action-outputs>
+      <component-definition/>
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

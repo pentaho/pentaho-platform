@@ -1,0 +1,49 @@
+<email-smtp>
+
+  <!-- The values within <properties> are passed directly to the JavaMail API.
+       For a list of valid properties see http://java.sun.com/products/javamail/javadocs/index.html -->
+	<properties>
+		<!-- This is the address of your SMTP email server for sending email. e.g. smtp.pentaho.org -->
+		<mail.smtp.host></mail.smtp.host>
+
+		<!--  This is the port of your SMTP email server. Usually this is 25. For GMail this is 587 -->
+		<mail.smtp.port>25</mail.smtp.port>
+		
+		<!--  The transport for accessing the email server. Usually this is smtp. For GMail this is smtps -->
+		<mail.transport.protocol>smtp</mail.transport.protocol>
+		
+		<!--  Usually this is 'false'. For GMail it is 'true' -->
+		<mail.smtp.starttls.enable>false</mail.smtp.starttls.enable>
+		
+		<!-- Set to true if the email server requires the sender to authenticate -->
+		<mail.smtp.auth>true</mail.smtp.auth>
+		
+		<!--  This is true if the email server requires an SSL connection. Usually 'false'. For GMail this is 'true' -->
+		<mail.smtp.ssl>false</mail.smtp.ssl>
+
+   	<!--  Output debug information from the JavaMail API -->
+   	<mail.debug>false</mail.debug>
+
+    <!-- For GMail this is 'false' -->
+    <!--mail.smtp.quitwait>false</mail.smtp.quitwait-->
+
+	</properties>
+
+	<!-- The is the address of your POP3 email server for receiving email. e.g. pop.pentaho.org -->
+	<!-- It is currently not used -->
+	<mail.pop3></mail.pop3>
+
+	<!-- This is the default 'from' address that emails from the Pentaho BI Platform will appear to come from e.g. joe.pentaho@pentaho.org -->
+	<mail.from.default></mail.from.default>
+
+	<!-- This is the user id used to connect to the email server for sending email
+       It is only required if email-authenticate is set to true
+       This is never sent or shown to anyone -->
+	<mail.userid></mail.userid>
+	
+	<!-- This is the password used to connect to the email server for sending email 
+       It is only required if email-authenticate is set to true
+       This is never sent or shown to anyone -->
+	<mail.password></mail.password>
+
+</email-smtp>

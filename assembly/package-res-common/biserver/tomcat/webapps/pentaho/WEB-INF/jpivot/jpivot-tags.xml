@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!DOCTYPE taglib [
+
+<!ENTITY id.attr
+"<attr rtexpr='true' required='true' name='id' type='String'>
+  <descr lang='de'>Name des Session Attributes, das durch dieses Tag erzeugt wird</descr>
+  <descr lang='en'>Name of the Session Attribute that is created by this tag</descr>
+</attr>">
+
+<!ENTITY visible.attr
+"<attr rtexpr='true' required='false' name='visible' type='boolean'>
+  <descr lang='de'>Entscheidet, ob die Komponenente sichtbar ist oder nicht. Das WCF Render Tag zeigt eine Komponente mit visible == false nicht an</descr>
+  <descr lang='en'>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</descr>
+</attr>">
+
+<!ENTITY role.attr
+"<attr rtexpr='true' required='false' name='role' type='String'>
+  <descr lang='de'>
+    Name einer Rolle, optional mit vorangestelltem '!'.
+    Beispiel role='tomcat' erlaubt allen Mitgliedern der Rolle 'tomcat' den Zugriff,
+    role='!tomcat' erlaubt allen ausser den Mitgliedern der Rolle 'tomcat' den Zugriff.
+  </descr>
+  <descr lang='en'>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </descr>
+</attr>">
+
+<!ENTITY query.attr
+"<attr rtexpr='true' required='true' name='query' type='OlapModel'>
+  <descr lang='en'>
+    Name of the Session Attribute that contains the OLAP Data (query and result) for this tag.
+  </descr>
+  <descr lang='de'>
+    Name des Session Attributes, das die OLAP Daten (Query und Ergebnis) für dieses Tag enthält.
+    Bei Reports, die vom SironDWH Builder erzeugt werden, wird die Query
+    beim Start des Reports aus dem Repository geladen und unter dem Namen
+    <tt>query01</tt> in der Session abgelegt. Alternativ kann die Query
+    auch über das Tag <tt>mondrian</tt> erzeugt werden.
+  </descr>
+</attr>">
+
+<!ENTITY xmluri.attr
+"<attr type='true' rtexpr='false' required='true' name='xmlUri'>
+  <descr lang='en'>
+    Path of an XML config file that describes the HTML form.
+  </descr>
+  <descr lang='de'>
+    Pfad einer XML Datei, die das HTML Formular beschreibt.
+  </descr>
+</attr>">
+
+<!ENTITY renderable.en "This component does not produce visible output directly, it must be rendered via the WCF <tt>render</tt> tag.">
+<!ENTITY renderable.de "Diese Komponente erzeugt selbst keinen sichtbaren Output, sie wird durch das WCF <tt>render</tt> Tag dargestellt.">
+
+]>
+
+
+<taglib uri="http://www.tonbeller.com/jpivot" name="jpivot">
+
+  <descr lang="en">
+    JPivot Tag Library.
+  </descr>
+
+  <descr lang="de">
+  </descr>
+
+  <!-- ******************************************************************** -->
+
+  <tag body="JSP" class="com.tonbeller.jpivot.table.TableComponentTag" name="table">
+    <descr lang="en">
+      Creates a Pivot Table component. &renderable.en;
+    </descr>
+    <descr lang="de">
+      Erzeugt eine Tabellenkomponente. &renderable.de;
+    </descr>
+    &id.attr;
+    &visible.attr;
+    &role.attr;
+    &query.attr;
+    <attr rtexpr="true" required="false" name="configXml" type="String">
+      <descr lang="en">Path for a config file that allows to add customer specific code</descr>
+      <descr lang="de">Pfad einer Konfigurationsdatei mit der kundenspezifischer Code eingebunden werden kann</descr>
+    </attr>
+    <example>&lt;jp:table id="table01" query="#{query01}" visible="true"/&gt;</example>
+  </tag>
+
+  <!-- ******************************************************************** -->
+
+  <tag body="EMPTY" class="com.tonbeller.jpivot.table.navi.ClickableMemberTag" name="clickable">
+    <descr lang="en">
+      Makes all members of a dimension or level clickable (i.e. generates an anchor).
+      The generated URL contains the unique name of the member.
+      Must be nested inside a table or query tag.
+      <p />
+      The behaviour depends on the sessionParam attribute. If its present, then the parameter
+      value will be written into the com.tonbeller.jpivot.param.SessionParamPool before the
+      new page is shown. If its not present, the parameter will be coded into the hyperlink
+      and must be treated in some way by the receiving page.
+      <p />
+      This tag must be nested either inside a table tag or inside a query tag. Inside the table
+      tag the clickable is available for all queries, inside the query tag its only available
+      for that query.
+    </descr>
+    <descr lang="de">
+      Alle Member einer Dimension oder Level werden mit einem anchor gerenderd, d.h.
+      sie sind anklickbar. In der URL ist der Name des angeklickten Member enthalten.
+      Kann nur innerhalb eines table Tags verwendet werden.
+      <p />
+      Das Verhalten ist abhänig davon, ob das Attribut sessionParam gesetzt ist oder nicht.
+      Wenn sessionParam gesetzt ist, wird der Parameterwert nicht in die URL codiert, sondern
+      in den com.tonbeller.jpivot.param.SessionParamPool geschrieben, bevor auf die neue Seite verzweigt wird. Ist sessionParam
+      nicht gesetzt, wird der unique name in die Url codiert und muss auf Empfängerseite
+      ausgewertet werden.
+      <p />
+      Das Tag muss innerhalb eines table tags oder eines query tags verwendet werden. Innerhalb
+      eines table tags ist das clickable fuer alle queries vorhanden, innerhalb eines query-tags
+      nur fuer die jeweilige query.
+    </descr>
+    <attr rtexpr="true" required="false" name="urlPattern" type="String">
+      <descr lang="en">
+        DEPRECATED - do not use in conjunction with session parameters because the browser
+        back button does not work as expected. Use <tt>page</tt> attribute instead.
+        <p/>
+        The pattern to construct the url. If sessionParam attribute is NOT present, then "{0}" will be replaced
+        with the unique name of the member. If urlPattern starts with "/" its relative to
+        the application context, otherwise its absolute
+      </descr>
+      <descr lang="de">
+        DEPRECATED - sollte nicht in Verbindung mit session Parametern verwendet werden,
+        da der Browser Back Button nicht wie erwartet funktioniert. Verwenden Sie statt
+        dessen das <tt>page</tt> Attribute.
+        <p/>
+        Pattern aus dem die URL konstruiert wird.
+        Ist das Attribut sessionParam NICHT gesetzt, wird {0} durch den unique name
+        des members ersetzt. Wenn urlPattern mit "/" beginnt, ist die URL relativ zum
+        Application context (d.h. der Kontext wird vorangestellt), ansonsten ist sie absolut.
+      </descr>
+    </attr>
+    <attr rtexpr="true" required="false" name="page" type="String">
+      <descr lang="en">Name of the target page, must start with "/". If not set
+        the current page is re-displayed.
+      </descr>
+      <descr lang="de">Name der Ziel JSP, muss mit "/" beginnen. Wenn nicht angegeben,
+        wird die gleiche Seite wieder angezeigt.
+      </descr>
+    </attr>
+    <attr rtexpr="true" required="true" name="uniqueName" type="String">
+      <descr lang="en">unique name of a dimension, hierarchy or level, whose members will be clickable</descr>
+      <descr lang="de">unique name einer Dimension, Hierarchy oder Level, deren Elemente angeklickt werden können.</descr>
+    </attr>
+    <attr rtexpr="true" required="false" name="menuLabel" type="String">
+      <descr lang="en">if there are multiple clickables specified, they will be displayed in a popup menu, this text will be the label for the menu entry</descr>
+      <descr lang="de">Werden mehrere Clickables definiert, dann werden diese in einem Popup Menu zur Auswahl angeboten, dabei wird dieser Text im Menu Eintrag angezeigt.</descr>
+    </attr>
+    <attr rtexpr="true" required="false" name="sessionParam" type="String">
+      <descr lang="en">name of the parameter, that will be placed into the com.tonbeller.jpivot.param.SessionParamPool</descr>
+      <descr lang="de">Name des Parameters, der in den com.tonbeller.jpivot.param.SessionParamPool gestellt wird</descr>
+    </attr>
+    <attr rtexpr="true" required="false" name="propertyName" type="String">
+      <descr lang="en">if present, the value of that member property will be taken for the com.tonbeller.jpivot.param.Parameter sqlValue property</descr>
+      <descr lang="de">Wenn vorhanden wird der Wert der Elementeigenschaft als sqlValue des com.tonbeller.jpivot.param.Parameter genommen</descr>
+    </attr>
+    <attr rtexpr="true" required="false" name="propertyPrefix" type="String">
+      <descr lang="en">if present, multiple SessionParam will be created, one for each
+      member property whose name starts with propertyPrefix. The name of the SessionParam will be
+      the name of the reminder of the member properties name after the prefix. If present,
+      the attributes sessionParam and propertyName are not allowed.</descr>
+      <descr lang="de">Wenn vorhanden, wird fuer jedes Member Property ein SessionParam erzeugt.
+      Der Name des SessionParam ist der Name des Member Property ohne das propertyPrefix. Wenn
+      vorhanden, dürfen die Attribute sessionParam und propertyName nicht gesetzt sein.</descr>
+    </attr>
+    <attr rtexpr="true" required="false" name="providerClass" type="String">
+      <descr lang="en">if present, an instance of this class will extract the SessionParam instances
+      from the member. The class must implement com.tonbeller.jpivot.table.navi.ClickableMember.ParameterProvider.
+      The attributes sessionParam, propertyName, propertyPrefix are not allowed in this case.</descr>
+      <descr lang="de">Wenn vorhanden wird eine Instanz dieser Klasse die SessionParam aus einem
+      Member erzeugen. Die Klasse muss das Interface com.tonbeller.jpivot.table.navi.ClickableMember.ParameterProvider
+      implementieren</descr>
+    </attr>
+    <example><![CDATA[
+<jp:mondrianQuery ...>
+  select .. from Sales
+  <jp:clickable urlPattern="/otherpage.jsp?param={0}" uniqueName="[Customers]"/>
+  <jp:clickable page="/yetotherpage.jsp" uniqueName="[Products].[Category]" sessionParam="Category"/>
+</jp:mondrianQuery>
+    ]]></example>
+  </tag>
+
+  <!-- ******************************************************************** -->
+
+  <tag body="JSP" class="com.tonbeller.jpivot.param.SetParameterTag" name="setParam">
+    <descr lang="en">
+      Sets a mdx query parameter from an http parameter or from a session parameter.
+      The body is evaluated only if the http parameter is present, so
+      its a good place to contain a mondrian query.
+      If you use the session Parameter, the body is never evaluated.
+      Exactly one attribute either httpParam or sessionParam must be set.
+    </descr>
+    <descr lang="de">
+      Setzt einen MDX Parameter aus einem HTTP Parameter oder einem Session Parameter.
+      Der Body wird nur dann evaluiert, wenn der HTTP Parameter vorhanden
+      ist. Wird hier eine Mondrian Query hingeschrieben, dann wird
+      diese immer dann neu initialisiert, wenn der HTTP Parameter vorhanden ist.
+      Bei Verwendung von Session Parameter wird der body nie ausgeführt.
+      Genau eines der Attribute httpParam oder sessionParam muss gesetzt sein.
+    </descr>
+    &query.attr;
+    <attr rtexpr="true" required="false" name="httpParam" type="String">
+      <descr lang="en">Name of a http parameter. If present, its value will be parsed
+      and set into the mdx parameter</descr>
+      <descr lang="de">Name des HTTP Parameters. Wenn der Parameter vorhanden ist,
+      wird sein Wert in die MDX Query als Parameterwert eingetragen.</descr>
+    </attr>
+    <attr rtexpr="true" required="false" name="sessionParam" type="String">
+      <descr lang="en">name of the session parameter</descr>
+      <descr lang="de">Name des Session Parameters</descr>
+    </attr>
+    <attr rtexpr="true" required="true" name="mdxParam" type="String">
+      <descr lang="en">Name of the MDX Parameter in the query to modify</descr>
+      <descr lang="de">Name des zu setzenden MDX Parameters in der Query</descr>
+    </attr>
+    <example>
+&lt;jp:mondrianQuery id="query01"...&gt;
+  SELECT ... Parameter("Param01", ...)
+  WHERE ...
+&lt;/jp:mondrianQuery/&gt;
+
+&lt;jp:setParam query="query01" httpParam="param" mdxParam="Param01"/&gt;
+or
+&lt;jp:setParam query="query01" sessionParam="CUSTOMER" mdxParam="Param01"/&gt;
+    </example>
+  </tag>
+
+
+  <!-- ******************************************************************** -->
+
+  <tag body="JSP" class="com.tonbeller.jpivot.navigator.NavigatorTag" name="navigator">
+    <descr lang="en">
+      Creates the Navigator component. &renderable.en;
+    </descr>
+    <descr lang="de">
+      Erzeugt eine Navigator Komponente. &renderable.de;
+    </descr>
+    &id.attr;
+    &query.attr;
+    &visible.attr;
+    &role.attr;
+    <example><![CDATA[
+<jp:navigator id="navi01" query="#{query01}" visible="false"/>
+<wcf:render ref="navi01" xslUri="/WEB-INF/jpivot/navi/navigator.xsl" xslCache="true"/>
+    ]]></example>
+  </tag>
+
+  <!-- ******************************************************************** -->
+
+  <tag body="JSP" class="com.tonbeller.jpivot.tags.MondrianOlapModelTag" name="mondrianQuery">
+    <descr lang="en">
+      Creates a session attribute that allows access to a Mondrian query, its result and navigations.
+      <em>The attribute is always created, if the attribute already existst it will be replaced.</em>
+      So one has to take care that this tag creates the attribute only if it should, e.g. by
+      using JSTL &lt;c:if ... &gt; tags or similar.
+      <p/>
+      Its possible to use a predefined JSBC DataSource from the application server or to
+      specify the individual JDBC parameters with this tag.
+    </descr>
+
+    <descr lang="de">
+      Erzeugt ein neues Session Attribut, das eine Mondrian Query enthält und anderen Komponenten
+      wie Tabelle und Chart den Zugriff auf das Ergebnis sowie die Navigationsmöglichkeiten
+      erlaubt. <em>Anders als die übrigen Tags dieser Bibiliothek (und z.B. &lt;jsp:useBean&gt;)
+      wird das Session Attribut in jedem Fall erzeugt, ein evtl vorhandenes Attribut wird
+      dabei ersetzt.</em> Es muss also z.B. durch Verwendung des JPivot <tt>include</tt> Tags oder
+      durch JSTL &lt;c:if&gt; sichergestellt werden, dass die Query nur dann neu erzeugt wird,
+      wenn dies auch gewünscht ist.
+      <p/>
+      Wenn der Application Server eine vorkonfigurierte JDBC DataSource bereitstellt, kann diese
+      über das Attribut <tt>dataSource</tt> verwendet werden. Wenn nicht, können die
+      JDBC Verbindungsparameter einzeln eingestellt werden.
+    </descr>
+
+    <example><![CDATA[<jp:mondrianQuery id="query01"
+  jdbcDriver="com.mysql.jdbc.Driver"
+  jdbcUrl="jdbc:mysql://localhost/foodmart"
+  catalogUri="/WEB-INF/test/FoodMart.xml">
+select
+  {[Measures].[Unit Sales], [Measures].[Store Cost], [Measures].[Store Sales]} on columns,
+  {[Product].[All Products]} ON rows
+from Sales
+where ([Time].[1997])
+</jp:mondrianQuery>]]></example>
+
+    &id.attr;
+    <attr type="String" rtexpr="true" required="false" name="jdbcDriver">
+      <descr lang="en">Java class name of the JDBC driver</descr>
+      <descr lang="de">Java Klassenname des JDBC Treibers</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="jdbcUrl">
+      <descr lang="en">Connection parameters, these are database specific</descr>
+      <descr lang="de">Verbindungsparameter, diese sind Datenbankspezifisch</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="jdbcUser">
+      <descr lang="en">user name to connect to the database</descr>
+      <descr lang="de">user Kennung für Verbindung zur Datenbank</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="jdbcPassword">
+      <descr lang="en">password to connect to the database</descr>
+      <descr lang="de">Passwort für Verbindung zur Datenbank</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="dataSource">
+      <descr lang="en">JNDI name of a preconfigured JDBC DataSource, e.g. jdbc/SironTDI. Must not be used with the other JDBC attributes</descr>
+      <descr lang="de">JNDI Name einer vorkonfigurierten JDBC DataSource, e.g. jdbc/SironTDI. Kann nicht zusammen mit den anderen JDBC Attributen verwendet werden.</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="true" name="catalogUri">
+      <descr lang="en">Path of the Mondrian schema, relative to the application context, e.g. <tt>/WEB-INF/FoodMart.xml</tt></descr>
+      <descr lang="de">Pfad des Mondrian Schemas, relativ zum Application Context, z.B.<tt>/WEB-INF/FoodMart.xml</tt></descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="config">
+      <descr lang="en">internal use only</descr>
+      <descr lang="de">internal use only</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="role">
+      <descr lang="en">Role from Mondrian Schema</descr>
+      <descr lang="de">Rolle aus dem Mondrian Schema</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="dynResolver">
+      <descr lang="en">class resolving Mondrian Schema dynamic variables</descr>
+      <descr lang="de">Klasse zum dynamischen Auflösen von Variablen im Mondrian Schema</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="dynLocale">
+       <descr lang="en">Locale for dynamic Mondrian Schema Resolver </descr>
+       <descr lang="de">Klasse zum dynamischen Auflösen von Variablen im Mondrian Schema</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="connectionPooling">
+      <descr lang="en">"false" will prevent Mondrian from Connection Pooling</descr>
+      <descr lang="de">"false" verhindert Mondrian Connection Pooling</descr>
+   </attr>
+
+    <attr type="String" rtexpr="true" required="false" name="dataSourceChangeListener">
+      <descr lang="en">class to detect changes in datasource</descr>
+      <descr lang="de">Klasse zum änderungen im DataSource zu ermitteln</descr>
+    </attr>
+
+    <attr type="String" rtexpr="true" required="false" name="queryName">
+      <descr lang="en">
+        Allows to keep multiple queries within this session attribute. For every
+        queryName, the last query will be stored. Use chooseQuery tag to switch
+        between queryName's or queries.
+      </descr>
+      <descr lang="de">
+        Je queryName kann eine Query in diesem Session Attribut gehalten werden.
+        Es wird jeweils die letzte Query gespeichert. Mit dem chooseQuery tag
+        kann zwischen den queryName's bzw queries.
+      </descr>
+    </attr>
+    <attr type="boolean" rtexpr="true" required="false" name="stackMode">
+      <descr lang="en">
+        If set to false, all queryNames are treated equally, independent of the
+        order they are created or shown using the chooseQuery tag.
+        <p />
+        If set to true it will keep the different queryName's in a stack. Example:
+        <ul>
+          <li>A query with queryName <tt>qn1</tt> is created. Then this tag will
+              display that query</li>
+          <li>A query with queryName <tt>qn2</tt> is created next. Now there is
+              a stack containing <tt>qn1</tt> and <tt>qn2</tt>. <tt>qn2</tt> will
+              be the visible query.</li>
+          <li>At this point, for example, if the user switches back to <tt>qn1</tt> using
+              the chooseQuery tag, then <tt>qn2</tt> will be destroyed in stack mode. It would
+              not be destroyed in non-stackMode.</li>
+        </ul>
+        So in non-stackMode the user can arbitrary choose one of the different queries.
+        In stackMode, if the user goes back to a previously seen query, all "younger" queries
+        will be destroyed.
+      </descr>
+      <descr lang="de">
+        Wenn dieses Feld auf "false" gesetzt wird, dann werden alle queryName Attribute gleich
+        behandelt, unabhängig von der Reihenfolge, in der die Queries ausgeführt werden.
+        Wenn dieses Feld auf "true" gesetzt wird, werden die verschiedenen queryNames in
+        einem Stack gehalten. Beispiel:
+        <ul>
+          <li>Eine query mit queryName <tt>qn1</tt> wird erzeugt und angezeigt</li>
+          <li>Eine query mit queryName <tt>qn2</tt> wird erzeugt und angezeigt.
+              Nun enthält der Stack <tt>qn1</tt> und <tt>qn2</tt>. <tt>qn2</tt> ist
+              die sichtbare Query, d.h. eine Tabelle wird die Daten von <tt>qn2</tt>
+              anzeigen.</li>
+          <li>Wenn jetzt z.B. der Benutzer auf <tt>qn1</tt> zurückgeht, indem er eine Seite
+              mit dem chooseQuery Tag aufruft, dann wird <tt>qn2</tt> beendet und der Speicher
+              freigegeben. Dies passiert nur im Stack Mode, im Nicht-Stack-Mode würde
+              <tt>qn2</tt> weiterhin erhalten bleiben und könnte über chooseQuery wiederum
+              zur Anzeige gebracht werden.</li>
+        </ul>
+        Im Nicht-Stack-Modus kann der Benutzer zwischen den verschiedenen Queries beliebig
+        wechseln. Im Stack Modus kann er das nicht, wenn er zu einer "früheren" Query zurückgeht,
+        werden alle danach gestarteten Queries gelöscht.
+      </descr>
+    </attr>
+
+  </tag>
+
+
+  <tag body="JSP" class="com.tonbeller.jpivot.tags.ChooseQueryTag" name="chooseQuery">
+    <descr lang="en">
+      chooses a query that has been previously created with a queryName attribute.
+    </descr>
+    <descr lang="de">
+      Wählt eine query aus, die vorher mit einem queryName attribut erzeugt wurde.
+    </descr>
+    &id.attr;
+    <attr type="String" rtexpr="true" required="false" name="queryName">
+      <descr lang="en">name of the query to choose</descr>
+      <descr lang="de">name der query die aktiviert werden soll</descr>
+    </attr>
+    <example><![CDATA[
+<jp:mondrianQuery id="query01" queryName="name1">
+   SELECT ...
+</jp:mondrianQuery>
+<jp:mondrianQuery id="query01" queryName="name2">
+   SELECT ...
+</jp:mondrianQuery>
+...
+<jp:chooseQuery id="query01" queryName="name1"/>
+]]></example>
+  </tag>
+
+  <tag body="JSP" class="com.tonbeller.jpivot.tags.DestroyQueryTag" name="destroyQuery">
+    <descr lang="en">
+      destroys all queries stored with this id
+    </descr>
+    <descr lang="de">
+      löscht alle queries mit dieser id
+    </descr>
+    &id.attr;
+    <example><![CDATA[<jp:destroyQuery id="query01"/>]]></example>
+  </tag>
+
+
+  <!-- ******************************************************************** -->
+
+  <tag body="JSP" class="com.tonbeller.jpivot.xmla.XMLA_OlapModelTag" name="xmlaQuery">
+
+    <descr lang="en">
+      Creates a session attribute for an XMLA query. It will be used by components like table
+      or navigator to display the result and navigate the cube.
+      <em>The attribute is always created, if the attribute already exists it will be replaced.</em>
+      So one has to take care that this tag creates the attribute only if it should, e.g. by
+      using JSTL &lt;c:if ... &gt; tags or similar.
+    </descr>
+
+    <descr lang="de">
+      Erzeugt ein neues Session Attribut, das eine XMLA Query enthält. Es erlaubt anderen Komponenten
+      wie Tabelle und Navigator das Ergebnis darzustellen und in dem Cube zu navigieren.
+      <em>Anders als die übrigen Tags dieser Bibiliothek (und z.B. &lt;jsp:useBean&gt;)
+      wird das Session Attribut in jedem Fall erzeugt, ein evtl. vorhandenes Attribut wird
+      dabei ersetzt.</em> Es muss also z.B. durch Verwendung des JPivot <tt>include</tt> Tags oder
+      durch JSTL &lt;c:if&gt; sichergestellt werden, dass die Query nur dann neu erzeugt wird,
+      wenn dies auch gewünscht ist.
+    </descr>
+
+   <example><![CDATA[<jp:xmlaQuery id="query01"
+  uri="http://MYSERVER/XML4A/msxisapi.dll"
+  catalog="Foodmart 2000">
+select
+  {[Measures].[Unit Sales], [Measures].[Store Cost], [Measures].[Store Sales]} on columns,
+  {[Product].[All Products]} ON rows
+from Sales
+where ([Time].[1997])
+</jp:xmlaQuery>]]></example>
+
+    &id.attr;
+    <attr type="String" rtexpr="true" required="true" name="uri">
+      <descr lang="en">The URI used to access the XMLA server</descr>
+      <descr lang="de">Die URI des XMLA Servers</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="dataSource">
+      <descr lang="en">DataSourceInfo specification like &quot;Provider=MSOLAP;Data Source=local&quot;</descr>
+      <descr lang="de">DataSourceInfo Spezifikation, etwa &quot;Provider=MSOLAP;Data Source=local&quot;</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="true" name="catalog">
+      <descr lang="en">Catalog spezification like &quot;Foodmart 2000&quot;</descr>
+      <descr lang="de">Catalog Spezification, etwa &quot;Foodmart 2000&quot;</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="config">
+      <descr lang="en">Path to a config file that allows to integrat customer specific code</descr>
+      <descr lang="de">Pfad zu einer Konfigurationsdatei, relativ zum Application Context, über
+        die Kundenspezifischer Code eingebunden werden kann</descr>
+    </attr>
+  </tag>
+
+  <!-- ******************************************************************** -->
+
+  <tag body="JSP" class="com.tonbeller.jpivot.tags.TestOlapModelTag" name="testQuery">
+    <descr lang="en">Creates test data that can be displayed by the table or chart components</descr>
+    <descr lang="de">Erzeugt Testdaten, die mit Tabelle / Chart usw angezeigt werden können</descr>
+    &id.attr;
+    <attr type="String" rtexpr="true" required="false" name="onRows">
+      <descr lang="en">Whitespace separated list of dimensions to show on rows. Possible values are: Measures, Region, Products, Advertising, Material</descr>
+      <descr lang="de">Namen der anzuzeigenden Dimensionen in den Zeilen, durch Leerzeichen getrennt. Mögliche Werte: Measures, Region, Products, Advertising, Material</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="onColumns">
+      <descr lang="en">Whitespace separated list of dimensions to show on columns. Possible values are: Measures, Region, Products, Advertising, Material</descr>
+      <descr lang="de">Namen der anzuzeigenden Dimensionen in den Spalten, durch Leerzeichen getrennt. Mögliche Werte: Measures, Region, Products, Advertising, Material</descr>
+    </attr>
+    <example>
+&lt;jp:testQuery id="query01" onColumns="Measures" onRows="Products Region"&gt;
+  for some reason, the body must not be empty
+&lt;/jp:testQuery&gt;
+    </example>
+  </tag>
+
+
+  <!-- ******************************************************************** -->
+
+  <tag body="JSP" class="com.tonbeller.jpivot.chart.ChartComponentTag" name="chart">
+    <descr lang="en">
+      Creates a Chart component. &renderable.en;
+    </descr>
+    <descr lang="de">
+      Erzeugt einen Chart. &renderable.de;
+    </descr>
+    &id.attr;
+    &visible.attr;
+    &role.attr;
+    &query.attr;
+    <attr type="String" rtexpr="true" required="false" name="baseDisplayURL">
+      <descr lang="en">Base link to chart display servlet. Will be parameterized with '?filename=&lt;temp chart image file name&gt;'</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="controllerURL">
+      <descr lang="en">Base link to web application controller for JPivot.
+      Useful for complicated environments like a portal, where you would use
+      a portlet:renderURL</descr>
+    </attr>
+  </tag>
+    <example><![CDATA[
+<jp:chart id="chart01" query="#{query01}" visible="false"/>
+<wcf:render ref="chart01" xslUri="/WEB-INF/jpivot/chart/chart.xsl" xslCache="true"/>
+    ]]></example>
+
+  <!-- ******************************************************************** -->
+
+  <tag body="JSP" class="com.tonbeller.jpivot.print.PrintComponentTag" name="print">
+    <descr lang="en">
+      Creates the Print component. This component does not produce visible output directly,
+      you must create a WCF form to configure and call the print servlet to render to XLS/PDF
+    </descr>
+    <descr lang="de">
+      Erzeugt einen Print. &renderable.de;
+    </descr>
+    &id.attr;
+  </tag>
+    <example><![CDATA[
+<jp:print id="print01"/>
+<wcf:form id="printform01" xmlUri="/WEB-INF/jpivot/print/printpropertiesform.xml" model="#{print01}" visible="false"/>
+    ]]></example>
+
+  <!-- ******************************************************************** -->
+
+  <tag body="JSP" class="com.tonbeller.jpivot.tags.ScalarOlapModelTag" name="scalarQuery">
+    <descr lang="en">
+      Creates a session attribute that contains an OLAP result consisting of
+      a single cell. The values are provide through tag attributes.
+    </descr>
+    <descr lang="de">
+      Erzeugt ein neues Session Attribut, das eine OLAP Ergebnis enthält, das
+      aus einer einzelnen Zelle besteht. Die Werte werden über die Attribute
+      des Tags bereitgestellt.
+    </descr>
+    &id.attr;
+    <attr type="String" rtexpr="true" required="true" name="value">
+      <descr lang="en">EL expression evaluating to the value (number)</descr>
+      <descr lang="de">EL expression evaluating to the value (number)</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="formattedValue">
+      <descr lang="en">EL expression evaluating to the formatted value (String)</descr>
+      <descr lang="de">EL expression evaluating to the formatted value (String)</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="caption">
+      <descr lang="en">EL expression evaluating to the caption (String)</descr>
+      <descr lang="de">EL expression evaluating to the caption (String)</descr>
+    </attr>
+    <attr type="String" rtexpr="true" required="false" name="queryName">
+      <descr lang="en">see mondrianQuery</descr>
+      <descr lang="de">see mondrianQuery</descr>
+    </attr>
+    <attr type="boolean" rtexpr="true" required="false" name="stackMode">
+      <descr lang="en">see mondrianQuery</descr>
+      <descr lang="de">see mondrianQuery</descr>
+    </attr>
+    <example><![CDATA[
+<jp:scalarQuery
+  id="query01"
+  value="#{some.bean.property}">
+  formattedValue="#{some.bean.otherProperty}"
+  caption="Some Caption" />
+ ]]></example>
+  </tag>
+
+</taglib>

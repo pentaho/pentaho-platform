@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin title="Url" name="url">
+
+   	<static-paths>
+	     <static-path url="/url/resources" localFolder="resources"/>
+	</static-paths>
+
+	<content-types>
+		<content-type type="url" mime-type="text/html">
+			<title>URL</title>
+			<description></description>
+			<meta-provider></meta-provider>
+			<icon-url>api/repos/url/resources/images/file_url.png</icon-url>
+			<operations>
+				<operation>
+					<id>RUN</id>
+				</operation>
+				<operation>
+					<id>NEWWINDOW</id>
+				</operation>        		
+			</operations>
+	    	</content-type>
+	</content-types>
+</plugin>

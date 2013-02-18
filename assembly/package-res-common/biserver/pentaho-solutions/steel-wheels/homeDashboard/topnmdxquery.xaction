@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title/>
+  <version>1</version>
+  <logging-level>ERROR</logging-level>
+  <documentation> 
+    <author/>  
+    <description>Empty blank action sequence document</description>  
+    <help/>  
+    <result-type/>  
+    <icon/> 
+  </documentation>
+
+  <inputs> 
+    <territory type="string"> 
+      <sources> 
+        <request>territory</request> 
+      </sources>  
+      <default-value>null</default-value>
+    </territory>  
+    <productline type="string"> 
+      <sources> 
+        <request>productline</request> 
+      </sources>  
+      <default-value>null</default-value>
+    </productline> 
+  </inputs>
+
+  <outputs> 
+    <swresult type="string-list"/> 
+  </outputs>
+
+  <resources> 
+  </resources>
+  
+  <actions> 
+    <actions> 
+      <condition><![CDATA[territory == "null" && productline == "null"]]></condition>  
+      <action-definition> 
+        <component-name>MDXLookupRule</component-name>
+        <action-type>Qry All Territories and Productlines</action-type>
+        <action-inputs/>
+        <action-resources> 
+        </action-resources>
+        <action-outputs> 
+          <query-results type="string-list" mapping="swresult"/> 
+        </action-outputs>
+        <component-definition> 
+          <catalog>SteelWheels</catalog>  
+          <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS, NON EMPTY TopCount([Customers].[All Customers].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales]]]></query>  
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[territory != "null" && (productline == "null")]]></condition>  
+      <action-definition> 
+        <component-name>MDXLookupRule</component-name>
+        <action-type>Qry Selected Territory and All Productlines</action-type>
+        <action-inputs> 
+          <territory type="string"/> 
+        </action-inputs>
+        <action-resources> 
+        </action-resources>
+        <action-outputs> 
+          <query-results type="string-list" mapping="swresult"/> 
+        </action-outputs>
+        <component-definition> 
+          <catalog>SteelWheels</catalog>  
+          <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS,NON EMPTY TopCount([Customers].[All Customers].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales] where ([Markets].[All Markets].[{territory}])]]></query>  
+        </component-definition> 
+      </action-definition>
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[(territory == "null")  && productline != "null"]]></condition>  
+      <action-definition> 
+        <component-name>MDXLookupRule</component-name>
+        <action-type>Qry All Territories and Selected Productline</action-type>
+        <action-inputs> 
+          <productline type="string"/> 
+        </action-inputs>
+        <action-resources> 
+        </action-resources>
+        <action-outputs> 
+          <query-results type="result-set" mapping="swresult"/> 
+        </action-outputs>
+        <component-definition> 
+          <catalog>SteelWheels</catalog>  
+          <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS, NON EMPTY TopCount([Customers].[All Customers].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales] where ([Product].[All Products].[{productline}] )]]></query>  
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+  
+    <actions> 
+      <condition><![CDATA[territory != "null" && productline != "null"]]></condition>  
+      <action-definition> 
+        <component-name>MDXLookupRule</component-name>
+        <action-type>Qry Selected Territory and Selected Productline</action-type>
+        <action-inputs> 
+          <territory type="string"/>  
+          <productline type="string"/> 
+        </action-inputs>
+        <action-resources> 
+        </action-resources>
+        <action-outputs> 
+          <query-results type="string-list" mapping="swresult"/> 
+        </action-outputs>
+        <component-definition> 
+          <catalog>SteelWheels</catalog>  
+          <query><![CDATA[select NON EMPTY {[Measures].[Sales]} ON COLUMNS, NON EMPTY TopCount([Customers].[All Customers].Children, 10.0, [Measures].[Sales]) ON ROWS from [SteelWheelsSales] where ([Product].[All Products].[{productline}], [Markets].[All Markets].[{territory}] )]]></query>  
+        </component-definition> 
+      </action-definition>
+ 
+    </actions>
+ 
+  </actions> 
+</action-sequence>

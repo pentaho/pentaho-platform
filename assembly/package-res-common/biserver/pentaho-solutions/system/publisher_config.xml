@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+	This file must be configured before client tools can publish content to
+the server. Publishing involves accepting a file (action sequence, XML
+document, etc.) and placing it into a solution. This action should only be
+allowed if the tool is configured with a server/deployment-specific password.
+The RepositoryFilePublisher is now coded to expect an MD5 hash of the password
+entered here before it will allow publish into the server. The BI Platform
+handles the MD5 hash; the password you type into this file must be in clear
+text.
+	
+	This is a critical security measure designed to prevent malicious
+actions from being published to your server.  Please take care to make the
+password sufficiently difficult to guess. Also take care that the contents of
+this file are not generally available.
+-->
+<publisher-config>
+	<publisher-password></publisher-password>
+</publisher-config>

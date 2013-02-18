@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE hibernate-configuration
+  PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN"
+  "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+  
+  	<property name="cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</property>
+
+    <property name="hibernate.generate_statistics">true</property>
+    <property name="hibernate.cache.use_query_cache">true</property>
+
+    <!--  Oracle 10g Configuration -->
+    <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+    <property name="connection.url">jdbc:oracle:thin:@localhost:1521:pentaho</property>
+    <property name="dialect">org.hibernate.dialect.Oracle10gDialect</property>
+    <property name="connection.username">hibuser</property>
+    <property name="connection.password">password</property>
+    <property name="connection.pool_size">10</property>
+    <property name="show_sql">false</property>
+    <property name="hibernate.jdbc.use_streams_for_binary">true</property>
+    <!-- replaces DefinitionVersionManager -->
+    <property name="hibernate.hbm2ddl.auto">update</property>
+    <!-- load resource from classpath -->
+    <mapping resource="hibernate/oracle10g.hbm.xml" />
+  </session-factory>
+</hibernate-configuration>

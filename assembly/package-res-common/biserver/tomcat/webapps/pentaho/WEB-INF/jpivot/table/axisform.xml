@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!DOCTYPE xform [
+<!ENTITY nbsp "&#160;">
+<!ENTITY euro "&#8364;">
+]>
+
+<xform style="manual">
+
+<table border="1" cellspacing="0">
+  <tr>
+    <th>&nbsp;</th>
+    <th>Row Axis</th>
+    <th>Column Axis</th>
+  </tr>
+  <tr>
+    <th align="left">Show Parents</th>
+    <td><checkBox modelReference="rowAxisBuilder.axisConfig.showParentMembers"/></td>
+    <td><checkBox modelReference="columnAxisBuilder.axisConfig.showParentMembers"/></td>
+  </tr>
+  <tr>
+    <th align="left">Indent Members</th>
+    <td><checkBox modelReference="rowAxisBuilder.axisConfig.memberIndent"/></td>
+    <td><checkBox modelReference="columnAxisBuilder.axisConfig.memberIndent"/></td>
+  </tr>
+
+  <tr>
+    <th align="left">Hierarchy Header</th>
+    <td>
+      <listBox1 type="int" modelReference="rowAxisBuilder.axisConfig.hierarchyHeader">
+		<listItem value="0" label="nothing"/>
+		<listItem value="1" label="hierarchies"/>
+		<listItem value="2" label="levels"/>
+      </listBox1>
+    </td>
+    <td>
+      <listBox1 type="int" modelReference="columnAxisBuilder.axisConfig.hierarchyHeader">
+		<listItem value="0" label="nothing"/>
+		<listItem value="1" label="hierarchies"/>
+		<listItem value="2" label="levels"/>
+      </listBox1>
+    </td>
+  </tr>
+
+  <tr>
+    <th align="left">Row Header</th>
+    <td>
+      <listBox1 type="int" modelReference="rowAxisBuilder.axisConfig.positionHeader">
+		<listItem value="0" label="nothing"/>
+		<listItem value="1" label="hierarchies"/>
+		<listItem value="2" label="levels"/>
+      </listBox1>
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+
+  <tr>
+    <th align="left">Member Span</th>
+    <td>
+      <listBox1 type="int" modelReference="rowAxisBuilder.axisConfig.memberSpan">
+		<listItem value="0" label="nothing"/>
+		<listItem value="1" label="hierarchies only"/>
+		<listItem value="2" label="positions only"/>
+		<listItem value="3" label="hierarchies then position"/>
+		<listItem value="4" label="positions then hierarchies"/>
+      </listBox1>
+    </td>
+    <td>
+      <listBox1 type="int" modelReference="columnAxisBuilder.axisConfig.memberSpan">
+		<listItem value="0" label="nothing"/>
+		<listItem value="1" label="hierarchies only"/>
+		<listItem value="2" label="positions only"/>
+		<listItem value="3" label="hierarchies then position"/>
+		<listItem value="4" label="positions then hierarchies"/>
+      </listBox1>
+    </td>
+  </tr>
+
+
+  <tr>
+    <th align="left">Header Span</th>
+    <td>
+      <listBox1 type="int" modelReference="rowAxisBuilder.axisConfig.headerSpan">
+		<listItem value="0" label="nothing"/>
+		<listItem value="1" label="hierarchies only"/>
+		<listItem value="2" label="positions only"/>
+		<listItem value="3" label="hierarchies then position"/>
+		<listItem value="4" label="positions then hierarchies"/>
+      </listBox1>
+    </td>
+    <td>
+      <listBox1 type="int" modelReference="columnAxisBuilder.axisConfig.headerSpan">
+		<listItem value="0" label="nothing"/>
+		<listItem value="1" label="hierarchies only"/>
+		<listItem value="2" label="positions only"/>
+		<listItem value="3" label="hierarchies then position"/>
+		<listItem value="4" label="positions then hierarchies"/>
+      </listBox1>
+    </td>
+  </tr>
+
+  <tr>
+    <td align="right" colspan="3">
+      <button action="revert" label="Cancel" handler="com.tonbeller.wcf.form.ButtonHandler" hide="true"/>
+      <button action="validate" label="OK" handler="com.tonbeller.wcf.form.ButtonHandler" hide="true"/>
+      <button action="revert" label="Revert" handler="com.tonbeller.wcf.form.ButtonHandler"/>
+      <button action="validate" label="Apply" handler="com.tonbeller.wcf.form.ButtonHandler"/>
+    </td>
+  </tr>
+
+</table>
+
+</xform>

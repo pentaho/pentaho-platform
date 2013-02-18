@@ -1,0 +1,116 @@
+<chart xmlns="http://reporting.pentaho.org/namespaces/charting/1.0">
+
+  <stylesheet>
+
+.seriesA {
+  color: #f2b807;
+  -x-pentaho-chart-line-width: 2px;
+}
+
+.seriesB {
+	color: #707329;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesC {
+	color: #d93d04;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesD {
+	color: #9f9f90;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesE {
+	color: #a60505;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesF {
+	color: #f27507;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesG {
+	color: #cb9b09;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesH {
+	color: #4f511d;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesI {
+	color: #a32e03;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesJ {
+	color: #6c6c61;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesK {
+	color: #710404;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesL {
+	color: #bf5d06;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesM {
+	color: #f2cd5d;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesN {
+	color: #838551;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesO {
+	color: #dc8160;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesP {
+	color: #c9c9b7;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesQ {
+	color: #b95151;
+	-x-pentaho-chart-line-width: 2px;
+}
+
+.seriesR {
+	color: #e2aa79;
+	-x-pentaho-chart-line-width: 2px;
+}
+  </stylesheet>
+
+  <series class="seriesA"/>
+  <series class="seriesB"/>
+  <series class="seriesC"/>
+  <series class="seriesD"/>
+  <series class="seriesE"/>
+  <series class="seriesF"/>
+  <series class="seriesG"/>
+  <series class="seriesH"/>
+  <series class="seriesI"/>
+  <series class="seriesJ"/>
+  <series class="seriesK"/>
+  <series class="seriesL"/>
+  <series class="seriesM"/>
+  <series class="seriesN"/>
+  <series class="seriesO"/>
+  <series class="seriesP"/>
+  <series class="seriesQ"/>
+  <series class="seriesR"/>
+  
+  <plot style="-x-pentaho-chart-orientation: vertical; -x-pentaho-chart-drill-url-template: url(http://localhost:8080/Pentaho/JPivot); -x-pentaho-chart-scale: 1"/>
+</chart>
