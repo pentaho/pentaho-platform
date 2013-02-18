@@ -164,10 +164,10 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   @Override
   protected boolean onFinish() {
     scheduleParams = getScheduleParams();
-    hide();
     if (isEmailConfValid) {
       showScheduleEmailDialog(scheduleParams);
     } else {
+      hide();
       JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(jobSchedule.toString());
       scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$    
 
@@ -209,7 +209,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
       }
       setDone(true);
     }
-    return true;
+    return false;
   }
 
   private void showScheduleEmailDialog(final JSONArray scheduleParams) {
@@ -241,6 +241,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
             scheduleEmailDialog.setJobSchedule(jobSchedule);
           }
           scheduleEmailDialog.center();
+          hide();
         }
 
       });
@@ -279,8 +280,8 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   @Override
   protected void backClicked() {
     scheduleParams = getScheduleParams();
-    hide();
     parentDialog.center();
+    hide();
   }
 
   @Override

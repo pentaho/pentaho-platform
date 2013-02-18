@@ -171,8 +171,8 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
    */
   @Override
   protected void backClicked() {
-    hide();
     parentDialog.center();
+    hide();
   }
 
   @Override
