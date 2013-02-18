@@ -99,7 +99,10 @@ public class ImportDialog extends PromptDialogBox {
     });
 
     VerticalPanel rootPanel = new VerticalPanel();
-    rootPanel.add(new HTML("&nbsp;"));
+    
+    VerticalPanel spacer = new VerticalPanel();
+    spacer.setHeight("10px");
+    rootPanel.add(spacer);
     
     Label fileLabel = new Label(Messages.getString("file") + ":");
     final TextBox importDir = new TextBox();
@@ -163,8 +166,8 @@ public class ImportDialog extends PromptDialogBox {
     rootPanel.add(applyAclPermissions);
     rootPanel.add(overwriteAclPermissions);
     
-    VerticalPanel spacer = new VerticalPanel();
-    spacer.setHeight("10px");
+    spacer = new VerticalPanel();
+    spacer.setHeight("4px");
     rootPanel.add(spacer);
     
     DisclosurePanel disclosurePanel = new DisclosurePanel(Messages.getString("advancedOptions"));
@@ -189,7 +192,7 @@ public class ImportDialog extends PromptDialogBox {
     disclosureContent.add(overwriteFile);
     
     spacer = new VerticalPanel();
-    spacer.setHeight("10px");
+    spacer.setHeight("4px");
     disclosureContent.add(spacer);
     
     HTML filePermissionsLabel = new HTML(Messages.getString("filePermissions"));
@@ -230,7 +233,7 @@ public class ImportDialog extends PromptDialogBox {
     disclosureContent.add(filePermissionsDropDown);
     
     spacer = new VerticalPanel();
-    spacer.setHeight("10px");
+    spacer.setHeight("4px");
     disclosureContent.add(spacer);
     
     HTML fileOwnershipLabel = new HTML(Messages.getString("fileOwnership"));
@@ -255,7 +258,7 @@ public class ImportDialog extends PromptDialogBox {
     disclosureContent.add(retainOwnership);
     
     spacer = new VerticalPanel();
-    spacer.setHeight("10px");
+    spacer.setHeight("4px");
     disclosureContent.add(spacer);
     
     ChangeListener overwriteFileHandler = new ChangeListener() {
