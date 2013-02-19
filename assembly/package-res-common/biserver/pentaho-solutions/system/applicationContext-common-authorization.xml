@@ -11,7 +11,6 @@
     <!--  TenantedRoleNameUtils is passed here for the purpose for Single Tenant Environment. This logic strips the tenant information from the roles -->
     <bean id="roleVoter" class="org.pentaho.platform.engine.security.PentahoSubstringRoleVoter">
         <constructor-arg value="" />
-        <constructor-arg ref="tenantedRoleNameUtils"/>
-    </bean>
+        </bean>
 
 </beans>

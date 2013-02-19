@@ -14,8 +14,7 @@ PentahoSystem which is initialized after Spring
  -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
        default-lazy-init="true" >
 
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype"/>
@@ -34,13 +33,7 @@ PentahoSystem which is initialized after Spring
     <constructor-arg>
       <ref bean="unifiedRepository"/>
     </constructor-arg>
-	<constructor-arg>
-      <ref bean="tenantedUserNameUtils"/>
-  	</constructor-arg>
-	<constructor-arg>
-      <ref bean="tenantedRoleNameUtils"/>
-  	</constructor-arg>
-  </bean>
+	</bean>
   <!-- Wrap the concrete IMetadataDomainRepository implementation with one that caches domains per session -->
   <bean id="IMetadataDomainRepository"
         class="org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomainRepository" scope="singleton">
@@ -51,7 +44,9 @@ PentahoSystem which is initialized after Spring
   <!--  Use this schema factory to disable PMD security -->
   <!--  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.plugin.services.metadata.CachingPentahoMetadataDomainRepository" scope="singleton"/>-->
   <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService"
-        scope="session"/>
+        scope="session">
+      <constructor-arg ref="unifiedRepository"/>
+  </bean>
   <bean id="IEmailService" class="org.pentaho.platform.plugin.services.email.EmailService" scope="session"/>
   <bean id="file" class="org.pentaho.platform.plugin.outputs.FileOutputHandler" scope="session"/>
   <bean id="contentrepo" class="org.pentaho.platform.repository2.unified.fileio.RepositoryContentOutputHandler"
@@ -159,7 +154,6 @@ not directly from the PentahoObjectFactory. -->
 
   <!--
   Disabled by default in 3.5.2. In trunk, this should be enabled. 
-  
   <bean id="Mondrian-UserRoleMapper" 
         name="Mondrian-One-To-One-UserRoleMapper"  
         class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianOneToOneUserRoleListMapper" 
@@ -188,14 +182,12 @@ not directly from the PentahoObjectFactory. -->
 
   <!--  
   This sample mapper assumes that every user has their mondrian roles in their session under then named session variable
-  
   <bean id="Mondrian-UserRoleMapper" 
         name="Mondrian-SampleUserSession-UserRoleMapper" 
         class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianUserSessionUserRoleListMapper" 
         scope="singleton">
     <property name="sessionProperty" value="MondrianUserRoles" />
   </bean>
-  
   -->
   <bean id="ReportCache" class="org.pentaho.reporting.platform.plugin.cache.NullReportCache" scope="singleton"/>
   <bean id="PentahoNameGenerator" class="org.pentaho.reporting.platform.plugin.repository.TempDirectoryNameGenerator"

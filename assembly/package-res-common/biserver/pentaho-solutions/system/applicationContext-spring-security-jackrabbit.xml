@@ -19,8 +19,6 @@
 
   <!-- UserDetailsService that delegates to an IUserRoleDao -->
   <bean id="userDetailsService" class="org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService">
-    <constructor-arg ref="tenantedUserNameUtils"/>
-    <constructor-arg ref="tenantedRoleNameUtils"/>
     <property name="userRoleDao">
       <ref bean="userRoleDaoTxn" />
     </property>

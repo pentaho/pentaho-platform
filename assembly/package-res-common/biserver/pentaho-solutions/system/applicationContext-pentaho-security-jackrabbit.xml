@@ -9,8 +9,6 @@
 <beans>
 
 	<bean id="userRoleListService0" class="org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService">
-		<constructor-arg ref="tenantedUserNameUtils"/>
-		<constructor-arg ref="tenantedRoleNameUtils"/>
 		<constructor-arg ref="userRoleDaoProxy"/>
 		<constructor-arg ref="userDetailsService"/>
 	</bean>
