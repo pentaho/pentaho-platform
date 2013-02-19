@@ -172,6 +172,11 @@ public class UserRoleWebServiceTest {
       }
     }
 
+    private RepositoryFile createUserHomeFolder(ITenant tenant, String username) {
+      // TODO Auto-generated method stub
+      return null;
+    } 
+    
     @Override
     public void setRoleMembers(ITenant tenant, String roleName, String[] memberUserNames) throws NotFoundException, UncategorizedUserRoleDaoException {
       
@@ -375,12 +380,6 @@ public class UserRoleWebServiceTest {
       }
       return result;
     }
-
-    @Override
-    public RepositoryFile createUserHomeFolder(ITenant tenant, String username) {
-      // TODO Auto-generated method stub
-      return null;
-    }  
   }
   
   public static class AclVoterMock implements IAclVoter {

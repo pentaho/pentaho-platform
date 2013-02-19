@@ -18,9 +18,7 @@
 package org.pentaho.platform.plugin.services.metadata;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +28,6 @@ import org.pentaho.metadata.model.concept.security.RowLevelSecurity;
 import org.pentaho.metadata.util.RowLevelSecurityHelper;
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -49,20 +46,11 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
   public static final int[] ACCESS_TYPE_MAP = new int[]{IAclHolder.ACCESS_TYPE_READ, IAclHolder.ACCESS_TYPE_WRITE,
       IAclHolder.ACCESS_TYPE_UPDATE, IAclHolder.ACCESS_TYPE_DELETE, IAclHolder.ACCESS_TYPE_ADMIN,
       IAclHolder.ACCESS_TYPE_ADMIN};
-  private ITenantedPrincipleNameResolver roleNameResolver;
-  private ITenantedPrincipleNameResolver userNameResolver;
 
   public SecurityAwarePentahoMetadataDomainRepository(final IUnifiedRepository repository) {
     super(repository);
   }
 
-  // This constructor is intended for use in a single tenanted environment.
-  public SecurityAwarePentahoMetadataDomainRepository(final IUnifiedRepository repository, final ITenantedPrincipleNameResolver roleNameResolver, final ITenantedPrincipleNameResolver userNameResolver) {
-    super(repository);
-    this.roleNameResolver = roleNameResolver;
-    this.userNameResolver = userNameResolver;
-  }
-  
   public IPentahoSession getSession() {
     return PentahoSessionHolder.getSession();
   }
@@ -81,8 +69,7 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
     String username = auth.getName();
     HashSet<String> roles = new HashSet<String>();
     for (GrantedAuthority role : auth.getAuthorities()) {
-      String roleName = roleNameResolver != null ? roleNameResolver.getPrincipleName(role.getAuthority()) : role.getAuthority();
-      roles.add(roleName);
+      roles.add(role.getAuthority());
     }
 
     RowLevelSecurityHelper helper = new SessionAwareRowLevelSecurityHelper();
@@ -93,7 +80,7 @@ public class SecurityAwarePentahoMetadataDomainRepository extends PentahoMetadat
   public boolean hasAccess(final int accessType, final IConcept aclHolder) {
     boolean result = true;
     if (aclHolder != null) {
-      PentahoMetadataAclHolder newHolder = new PentahoMetadataAclHolder(aclHolder, userNameResolver, roleNameResolver);
+      PentahoMetadataAclHolder newHolder = new PentahoMetadataAclHolder(aclHolder);
       int mappedActionOperation = ACCESS_TYPE_MAP[accessType];
       result = SecurityHelper.getInstance().hasAccess(newHolder, mappedActionOperation, getSession());
     } else if (accessType == ACCESS_TYPE_SCHEMA_ADMIN) {

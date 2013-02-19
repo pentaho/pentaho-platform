@@ -27,7 +27,6 @@ import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.engine.security.userroledao.UncategorizedUserRoleDaoException;
 import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -35,6 +34,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.security.userroledao.messages.Messages;
+import org.pentaho.reporting.libraries.base.util.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -66,15 +66,7 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
 
     private String defaultRoleString;
 
-    ITenantedPrincipleNameResolver tenantedUserNameUtils;
-
-    ITenantedPrincipleNameResolver tenantedRoleNameUtils;
-
     // ~ Constructors ====================================================================================================
-    public UserRoleDaoUserDetailsService(final ITenantedPrincipleNameResolver tenantedUserNameUtils, final ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
-        this.tenantedRoleNameUtils = tenantedRoleNameUtils;
-        this.tenantedUserNameUtils = tenantedUserNameUtils;
-    }
 
     // ~ Methods =========================================================================================================
 
@@ -103,32 +95,23 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
         GrantedAuthority[] auths = new GrantedAuthority[authsSize];
         int i = 0;
         for (IPentahoRole role : userRoles) {
-            auths[i++] = new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(role.getTenant(), role.getName()));
+            auths[i++] = new GrantedAuthorityImpl(role.getName());
         }
 
         List<GrantedAuthority> dbAuths = new ArrayList<GrantedAuthority>(Arrays.asList(auths));
-        addCustomAuthorities(tenantedUserNameUtils.getPrincipleId(user.getTenant(), user.getUsername()), dbAuths);
+        addCustomAuthorities(user.getUsername(), dbAuths);
 
-        // Get the tenant information from the username first
-        ITenant tenant = tenantedUserNameUtils.getTenant(username);
-
-        // If the tenant information is not present then get the tenant information from session
-        if(tenant == null || tenant.getId() == null) {
-            IPentahoSession session = PentahoSessionHolder.getSession();
-            String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
-            if(tenantId != null) {
-                tenant = new Tenant(tenantId, true);
-            }
+        // Store the Tenant ID in the session
+        IPentahoSession session = PentahoSessionHolder.getSession();
+        String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
+        if(tenantId == null) {
+          ITenant tenant = getDefaultTenant();
+          session.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
         }
-
-        if(tenant == null ||  tenant.getId() == null) {
-          // add third option of getting default tenant
-          tenant = getDefaultTenant();
+        
+        if(!StringUtils.isEmpty(defaultRoleString)) {
+          defaultRole = new GrantedAuthorityImpl(defaultRoleString);          
         }
-
-        // reconstruct the default role with tenant
-
-        defaultRole = new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, defaultRoleString));
 
         if (defaultRole != null && !dbAuths.contains(defaultRole)) {
             dbAuths.add(defaultRole);
@@ -141,7 +124,7 @@ public class UserRoleDaoUserDetailsService implements UserDetailsService {
 
         GrantedAuthority[] arrayAuths = dbAuths.toArray(new GrantedAuthority[dbAuths.size()]);
 
-        return new User(tenantedUserNameUtils.getPrincipleId(user.getTenant(), user.getUsername()), user.getPassword(), user.isEnabled(), ACCOUNT_NON_EXPIRED, CREDS_NON_EXPIRED,
+        return new User(user.getUsername(), user.getPassword(), user.isEnabled(), ACCOUNT_NON_EXPIRED, CREDS_NON_EXPIRED,
                 ACCOUNT_NON_LOCKED, arrayAuths);
     }
 

@@ -53,7 +53,6 @@ import javax.ws.rs.core.Response.Status;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
@@ -236,11 +235,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
           return principalName.equals(job.getUserName());
         }
       });
-      ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils",
-          session);
-      for (Job job : jobs) {
-        job.setUserName(tenantedUserNameUtils.getPrincipleName(job.getUserName()));
-      }
       return jobs;
     } catch (SchedulerException e) {
       throw new RuntimeException(e);

@@ -17,7 +17,6 @@ import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository.datasource.DatasourceMgmtServiceException;
 import org.pentaho.platform.api.repository.datasource.IDatasourceMgmtService;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
@@ -53,9 +52,7 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
   private static final String DBMETA_ATTR_MAX_WAIT_VALUE = "1000"; //$NON-NLS-1$
   private static final String DBMETA_ATTR_QUERY_VALUE = "select count(*) from INFORMATION_SCHEMA.SYSTEM_SEQUENCES"; //$NON-NLS-1$
   private PathBasedSystemSettings settings = null;
-  
-  ITenantedPrincipleNameResolver tenantedUserNameUtils;  
-  ITenantedPrincipleNameResolver tenantedRoleNameUtils;
+
   ITenantManager tenantManager;
   IUserRoleDao userRoleDao;
   String singleTenantAdminUserName;
@@ -68,9 +65,7 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
                                               final String repositoryAdminUsername,
                                               final String singleTenantAdminUserName,
                                               final String tenantAdminRoleName,
-                                              final String authenticatedRoleName,
-                                              final ITenantedPrincipleNameResolver tenantedUserNameUtils, 
-                                              final ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
+                                              final String authenticatedRoleName) {
     super();
     this.databaseTypeHelper = new DatabaseTypeHelper(databaseDialectService.getDatabaseTypes());
     this.datasourceMgmtService = datasourceMgmtService;
@@ -78,8 +73,6 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
     this.singleTenantAdminUserName = singleTenantAdminUserName;
     this.tenantAdminRoleName = tenantAdminRoleName;
     this.authenticatedRoleName = authenticatedRoleName;
-    this.tenantedUserNameUtils = tenantedUserNameUtils;
-    this.tenantedRoleNameUtils = tenantedRoleNameUtils;
     settings = new PathBasedSystemSettings();
   }
 
@@ -175,8 +168,8 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
    * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
   private void login(final String username, final ITenant tenant, final String[] roles) {
-    StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
-    pentahoSession.setAuthenticated(tenant.getId(), tenantedUserNameUtils.getPrincipleId(tenant, username));
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(tenant.getId(), username);
     PentahoSessionHolder.setSession(pentahoSession);
     pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
     final String password = "password";
@@ -184,7 +177,7 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
     for (String role : roles) {
-      authList.add(new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, role)));
+      authList.add(new GrantedAuthorityImpl(role));
     }
     GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
     UserDetails userDetails = new User(username, password, true, true, true, true, authorities);

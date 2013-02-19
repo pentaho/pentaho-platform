@@ -24,6 +24,7 @@ import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
@@ -75,13 +76,19 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
       
       // Execute new tenant with the tenant id from the logged in user
       AbstractAuthenticationEvent aEvent = (AbstractAuthenticationEvent) event;
-      final String principalName = aEvent.getAuthentication().getName();
+      String principalName = aEvent.getAuthentication().getName();
+      // Check if the principal contain tenant information. If not append default tenant information to it
+      ITenant tenant = tenantedUserNameUtils.getTenant(principalName);
+      if(tenant == null || tenant.getId() == null) {
+        tenant = JcrTenantUtils.getDefaultTenant();
+      }
+      final String tenantId = tenant.getId();
+      
       try {
         getSecurityHelper().runAsUser(principalName, new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            ITenant tenant = tenantedUserNameUtils.getTenant(principalName);
-            lifecycleManager.newTenant(tenant.getId());
+            lifecycleManager.newTenant(tenantId);
             return null;
           }
         });
@@ -108,9 +115,7 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
       try {
         // run as user to populate SecurityContextHolder and PentahoSessionHolder since Spring Security events are fired
         //   before SecurityContextHolder is set
-        aEvent = (AbstractAuthenticationEvent) event;
-        final String principal = aEvent.getAuthentication().getName();
-        getSecurityHelper().runAsUser(principal, new Callable<Void>() {
+        getSecurityHelper().runAsUser(principalName, new Callable<Void>() {
           @Override
           public Void call() throws Exception {
             lifecycleManager.newUser();
@@ -165,5 +170,4 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListener impl
   public void setSecurityHelper(final ISecurityHelper securityHelper) {
     this.securityHelper = securityHelper;
   }
-
 }

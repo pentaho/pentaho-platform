@@ -26,7 +26,6 @@ import java.util.Locale;
 
 import org.pentaho.platform.api.engine.ILogger;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.messages.Messages;
 
 public abstract class BaseSession extends PentahoBase implements IPentahoSession {
@@ -50,7 +49,6 @@ public abstract class BaseSession extends PentahoBase implements IPentahoSession
   private boolean authenticated;
 
   private volatile boolean backgroundExecutionAlert;
-  private ITenantedPrincipleNameResolver tenantedUserNameUtils; 
 
   public BaseSession(final String name, final String id, final Locale locale) {
     this.name = name;
@@ -65,19 +63,14 @@ public abstract class BaseSession extends PentahoBase implements IPentahoSession
     return authenticated;
   }
 
-  public void setAuthenticated(final String id) {
-    setAuthenticated(null, id);
+  public void setAuthenticated(final String name) {
+    setAuthenticated(null, name);
   }
 
-  public void setAuthenticated(final String tenantId, final String id) {
-    if(PentahoSystem.getInitializedOK()) {
-      tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null);  
-    }
-    
-    if (id != null) {
+  public void setAuthenticated(final String tenantId, final String name) {
+    if (name != null) {
       authenticated = true;
-      this.id = id;
-      this.name = (tenantedUserNameUtils != null) ? tenantedUserNameUtils.getPrincipleName(id): id;
+      this.name = name;
       if (tenantId != null) {
         setAttribute(TENANT_ID_KEY, tenantId);
       } else {
@@ -90,7 +83,6 @@ public abstract class BaseSession extends PentahoBase implements IPentahoSession
 
   public void setNotAuthenticated() {
     name = null;
-    id = null;
     authenticated = false;
   }
 
