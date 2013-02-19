@@ -11,6 +11,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Assert;
 import org.junit.Test;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 
 /**
@@ -60,9 +61,13 @@ public class PlatformImporterTest {
     final IPlatformImportHandler Handler = context.mock(IPlatformImportHandler.class);
     handlers.put("text/xmi+xml", Handler);
 
+    // mock logger to prevent npe
+    IRepositoryImportLogger importLogger = new Log4JRepositoryImportLogger();
+
     Map<String, String> mimes = new HashMap<String, String>();
     mimes.put("xmi", "text/xmi+xml");
     PentahoPlatformImporter importer = new PentahoPlatformImporter(handlers, new NameBaseMimeResolver(mimes));
+    importer.setRepositoryImportLogger(importLogger);
 
     FileInputStream in = new FileInputStream(new File("test-res/ImportTest/steel-wheels.xmi"));
 
