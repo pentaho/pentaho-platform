@@ -7,7 +7,10 @@ import java.util.Map;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepositoryImporter;
 
 /**
@@ -15,25 +18,42 @@ import org.pentaho.platform.plugin.services.metadata.IPentahoMetadataDomainRepos
  * Date: 6/25/12
  */
 public class MetadataImportHandlerTest {
-  @Test
-  public void testDomainOnlyImport() throws Exception {
-    Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
 
-    Mockery context = new Mockery();
-    final IPentahoMetadataDomainRepositoryImporter metadataImporter = context.mock(IPentahoMetadataDomainRepositoryImporter.class);
+  IRepositoryImportLogger importLogger;
 
-    final MetadataImportHandler metadataHandler = new MetadataImportHandler(metadataImporter);
+  Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
+
+  Mockery context;
+
+  IPentahoMetadataDomainRepositoryImporter metadataImporter;
+
+  MetadataImportHandler metadataHandler;
+
+  PentahoPlatformImporter importer;
+
+  @Before
+  public void setUp() throws Exception {
+    // mock logger to prevent npe
+    importLogger = new Log4JRepositoryImportLogger();
+
+    context = new Mockery();
+    metadataImporter = context.mock(IPentahoMetadataDomainRepositoryImporter.class);
+
+    metadataHandler = new MetadataImportHandler(metadataImporter);
     handlers.put("text/xmi+xml", metadataHandler);
 
     Map<String, String> mimes = new HashMap<String, String>();
     mimes.put("xmi", "text/xmi+xml");
-    PentahoPlatformImporter importer = new PentahoPlatformImporter(handlers, new NameBaseMimeResolver(mimes));
+    importer = new PentahoPlatformImporter(handlers, new NameBaseMimeResolver(mimes));
+    importer.setRepositoryImportLogger(importLogger);
+  }
 
+  @Test
+  public void testDomainOnlyImport() throws Exception {
     FileInputStream in = new FileInputStream(new File("test-res/ImportTest/steel-wheels.xmi"));
 
     // With custom domain id
     final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").mime("text/xmi+xml").hidden(false).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
-
 
     context.checking(new Expectations() {{
       oneOf(metadataImporter).storeDomain(bundle1.getInputStream(), "parameterized-domain-id", true);
@@ -42,24 +62,10 @@ public class MetadataImportHandlerTest {
     importer.importFile(bundle1);
 
     context.assertIsSatisfied();
-
   }
 
   @Test
   public void testDomainWithLocaleFiles() throws Exception {
-    Map<String, IPlatformImportHandler> handlers = new HashMap<String, IPlatformImportHandler>();
-
-    Mockery context = new Mockery();
-    final IPentahoMetadataDomainRepositoryImporter metadataImporter = context.mock(IPentahoMetadataDomainRepositoryImporter.class);
-
-    final MetadataImportHandler metadataHandler = new MetadataImportHandler(metadataImporter);
-    handlers.put("text/xmi+xml", metadataHandler);
-
-    Map<String, String> mimes = new HashMap<String, String>();
-    mimes.put("xmi", "text/xmi+xml");
-    PentahoPlatformImporter importer = new PentahoPlatformImporter(handlers, new NameBaseMimeResolver(mimes));
-
-
     final FileInputStream propIn = new FileInputStream(new File("test-res/ImportTest/steel-wheels_en.properties"));
     final IPlatformImportBundle localizationBundle = new RepositoryFileImportBundle.Builder()
         .input(propIn)
@@ -97,7 +103,5 @@ public class MetadataImportHandlerTest {
     importer.importFile(bundle);
 
     context.assertIsSatisfied();
-
   }
-
 }
