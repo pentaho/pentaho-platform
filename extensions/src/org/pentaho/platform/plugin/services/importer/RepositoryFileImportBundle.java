@@ -112,7 +112,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     return overwriteInRepository;
   }
 
-  public void setOverwriteInRepossitory(boolean overwrite) {
+  public void setOverwriteInRepository(boolean overwrite) {
     this.overwriteInRepository = overwrite;
   }
 
@@ -140,9 +140,6 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     return overwriteInRepository;
   }
 
-  public void setOverwriteInRepository(boolean overwriteInRepository) {
-    this.overwriteInRepository = overwriteInRepository;
-  }
 
   public boolean isApplyAclSettings() {
     return applyAclSettings;
@@ -203,7 +200,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     }
 
     public Builder overwriteFile(boolean overwrite){
-      bundle.setOverwriteInRepossitory(overwrite);
+      bundle.setOverwriteInRepository(overwrite);
       return this;
     }
 
@@ -255,9 +252,7 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
     public Builder mime(String mime){
       bundle.setMimeType(mime);
       return this;
-    }
-
-    
+    }    
     
     /**
      * @param applyAclSettings
@@ -287,5 +282,10 @@ public class RepositoryFileImportBundle implements IPlatformImportBundle {
       bundle.children.add(childBundle);
       return this;
     }
+  }
+
+  @Override
+  public boolean overwriteInRepository() { 
+    return overwriteInRepository;
   }
 }
