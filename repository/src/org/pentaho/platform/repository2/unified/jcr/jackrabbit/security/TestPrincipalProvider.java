@@ -223,26 +223,26 @@ public class TestPrincipalProvider implements PrincipalProvider {
         try {
           roles = userRoleDao.getUserRoles(null, principal.getName());
           for(IPentahoRole role:roles) {
-            principals.add(new SpringSecurityRolePrincipal(role.getName() + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + role.getTenant().getRootFolderAbsolutePath()));  
+            principals.add(new SpringSecurityRolePrincipal(tenantedRoleNameUtils.getPrincipleId(role.getTenant(), role.getName())));  
           }
         } catch (Exception e) {
             roles = userRoleDao.getUserRoles(null, principal.getName());
         for(IPentahoRole role:roles) {
-              principals.add(new SpringSecurityRolePrincipal(role.getName() + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + role.getTenant().getRootFolderAbsolutePath()));  
+              principals.add(new SpringSecurityRolePrincipal(tenantedRoleNameUtils.getPrincipleId(role.getTenant(), role.getName())));    
             }
         }
       } else {
         if(principal.getName() != null && (principal.getName().startsWith("joe") || principal.getName().startsWith("suzy") || principal.getName().startsWith("tiffany"))) {
           ITenant tenant = tenantedUserNameUtils.getTenant(principal.getName());
-          principals.add(new SpringSecurityRolePrincipal("Authenticated" + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + tenant.getRootFolderAbsolutePath()));
+          principals.add(new SpringSecurityRolePrincipal(tenantedRoleNameUtils.getPrincipleId(tenant, "Authenticated")));
         }
         if(principal.getName() != null && principal.getName().startsWith("joe")) {
           ITenant tenant = tenantedUserNameUtils.getTenant(principal.getName());
-          principals.add(new SpringSecurityRolePrincipal("TenantAdmin" + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + tenant.getRootFolderAbsolutePath()));
+          principals.add(new SpringSecurityRolePrincipal(tenantedRoleNameUtils.getPrincipleId(tenant, "TenantAdmin")));
         }
         if(principal.getName() != null && principal.getName().startsWith("super")) {
           ITenant tenant = tenantedUserNameUtils.getTenant(principal.getName());
-          principals.add(new SpringSecurityRolePrincipal("SysAdmin" + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + tenant.getRootFolderAbsolutePath()));
+          principals.add(new SpringSecurityRolePrincipal(tenantedRoleNameUtils.getPrincipleId(tenant, "SysAdmin")));
         }      
       }
     }

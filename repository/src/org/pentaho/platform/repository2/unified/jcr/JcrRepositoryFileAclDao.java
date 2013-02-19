@@ -36,11 +36,11 @@ import javax.jcr.security.Privilege;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.jcr.IAclMetadataStrategy.AclMetadata;
@@ -76,31 +76,17 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
   private IPermissionConversionHelper permissionConversionHelper;
 
   private IPathConversionHelper pathConversionHelper;
-  
-  private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
-  
-  private ITenantedPrincipleNameResolver tenantedUserNameUtils;
-  
-  
   // ~ Constructors ====================================================================================================
 
   public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper) {
-    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper(), null, null);
+    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper());
   }
 
-  public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper,final ITenantedPrincipleNameResolver tenantedUserNameUtils , final ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
-    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper(), tenantedUserNameUtils, tenantedRoleNameUtils);
-  }
-
-  public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper,
-      final IPermissionConversionHelper permissionConversionHelper,final ITenantedPrincipleNameResolver tenantedUserNameUtils, final ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
+  public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper, final IPermissionConversionHelper permissionConversionHelper) {
     super();
     this.jcrTemplate = jcrTemplate;
     this.pathConversionHelper = pathConversionHelper;
     this.permissionConversionHelper = permissionConversionHelper;
-    this.tenantedUserNameUtils = tenantedUserNameUtils;
-    this.tenantedRoleNameUtils = tenantedRoleNameUtils;
-    
   }
 
   // ~ Methods =========================================================================================================
@@ -212,10 +198,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
     if (ownerString != null) {
       // for now, just assume all owners are users; only has UI impact
-      if(tenantedUserNameUtils != null) {
-        ownerString = tenantedUserNameUtils.getPrincipleName(ownerString);
-      }
-      owner = new RepositoryFileSid(ownerString, RepositoryFileSid.Type.USER);
+      owner = new RepositoryFileSid(JcrTenantUtils.getUserNameUtils().getPrincipleName(ownerString), RepositoryFileSid.Type.USER);
     }
 
     RepositoryFileAcl.Builder aclBuilder = new RepositoryFileAcl.Builder(id, owner);
@@ -238,15 +221,9 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     RepositoryFileSid sid = null;
     String name = principal.getName();
     if (principal instanceof Group) {
-      if(tenantedRoleNameUtils != null) {
-        name = tenantedRoleNameUtils.getPrincipleName(name);
-      }
-      sid = new RepositoryFileSid(name, RepositoryFileSid.Type.ROLE);
+      sid = new RepositoryFileSid(JcrTenantUtils.getRoleNameUtils().getPrincipleName(name), RepositoryFileSid.Type.ROLE);
     } else {
-      if(tenantedUserNameUtils != null) {
-        name = tenantedUserNameUtils.getPrincipleName(name);
-      }
-      sid = new RepositoryFileSid(name, RepositoryFileSid.Type.USER);
+      sid = new RepositoryFileSid(JcrTenantUtils.getUserNameUtils().getPrincipleName(name), RepositoryFileSid.Type.USER);
     }
     logger.debug(String.format("principal class [%s]", principal.getClass().getName())); //$NON-NLS-1$
     Privilege[] privileges = acEntry.getPrivileges();
@@ -278,7 +255,17 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     RepositoryFileAcl acl = getAcl(id);
     Assert.notNull(acl);
     // TODO mlowery find an ACE with the recipient and update that rather than adding a new ACE
-    RepositoryFileAcl updatedAcl = new RepositoryFileAcl.Builder(acl).ace(recipient, permission).build();
+    RepositoryFileSid newRecipient = recipient;
+    if(recipient.getType().equals(Type.USER)) {
+      if(JcrTenantUtils.getUserNameUtils().getTenant(recipient.getName()) == null) {
+        newRecipient = new RepositoryFileSid(JcrTenantUtils.getTenantedUser(recipient.getName()), recipient.getType());
+      }
+    } else {
+      if(JcrTenantUtils.getRoleNameUtils().getTenant(recipient.getName()) == null) {
+        newRecipient = new RepositoryFileSid(JcrTenantUtils.getTenantedRole(recipient.getName()), recipient.getType());
+      }
+    }
+    RepositoryFileAcl updatedAcl = new RepositoryFileAcl.Builder(acl).ace(newRecipient, permission).build();
     updateAcl(updatedAcl);
     logger.debug("added ace: id=" + id + ", sid=" + recipient + ", permission=" + permission); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   }
@@ -393,21 +380,4 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     return getAcl(fileId);
 
   }
-  
-  public void setTenantedRoleNameUtils(ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
-    this.tenantedRoleNameUtils = tenantedRoleNameUtils;
-  }
-
-  public ITenantedPrincipleNameResolver getTenantedRoleNameUtils() {
-    return tenantedRoleNameUtils;
-  }
-  
-  public ITenantedPrincipleNameResolver getTenantedUserNameUtils() {
-    return tenantedUserNameUtils;
-  }
-
-  public void setTenantedUserNameUtils(ITenantedPrincipleNameResolver tenantedUserNameUtils) {
-    this.tenantedUserNameUtils = tenantedUserNameUtils;
-  }
-
 }

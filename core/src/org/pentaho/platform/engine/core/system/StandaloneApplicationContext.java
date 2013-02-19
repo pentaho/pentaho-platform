@@ -32,11 +32,7 @@ import org.pentaho.platform.api.engine.IApplicationContext;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPentahoSystemEntryPoint;
 import org.pentaho.platform.api.engine.IPentahoSystemExitPoint;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.util.ITempFileDeleter;
-import org.pentaho.platform.engine.core.system.PentahoRequestContextHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.TenantUtils;
 
 public class StandaloneApplicationContext implements IApplicationContext {
 

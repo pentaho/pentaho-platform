@@ -30,13 +30,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 public interface IUserRoleDao {
 
   
-  /** Creates users home folder. If the user is joe, this method will create home/joe folder
-   * @param tenantPath
-   * @param username
-   * @return home folder
-   */
-  RepositoryFile createUserHomeFolder(final ITenant tenant, final String username);
-  
   /**
    * Creates user under a specified tenant. If the tenant is null then it will create
    * the user under a default tenant.

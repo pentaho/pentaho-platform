@@ -43,6 +43,7 @@
         org.pentaho.platform.api.mt.ITenantManager.isSubTenant=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.mt.ITenantManager.getTenantRootFolder=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.mt.ITenantManager.getTenant=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.mt.ITenantManager.createUserHomeFolder=PROPAGATION_REQUIRED
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFile=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileAtVersion=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileById=PROPAGATION_REQUIRED,readOnly
@@ -210,6 +211,7 @@
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
     <constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+    <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
     <constructor-arg ref="tenantAdminAuthorityNamePattern"/>
   </bean>
@@ -223,8 +225,6 @@
 	<constructor-arg ref="singleTenantAdminUserName"/>
 	<constructor-arg ref="tenantAdminAuthorityNamePattern"/>	
 	<constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
-	<constructor-arg ref="tenantedUserNameUtils"/>            
-	<constructor-arg ref="tenantedRoleNameUtils"/>            
 	<property name="tenantManager" ref="tenantMgrTxn"/>
 	<property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
@@ -354,6 +354,7 @@
     <constructor-arg>
       <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.PentahoSessionCredentialsStrategy">
         <constructor-arg ref="jcrPreAuthenticationToken"/>
+        <constructor-arg ref="tenantedUserNameUtils"/>        
       </bean>
     </constructor-arg>
     <constructor-arg ref="jcrAdminCredentialsStrategy"/>
@@ -384,8 +385,6 @@
     <property name="exposeNativeSession" value="true"/>
   </bean>
 
-  <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.InheritDefaultAclHandler" />
-
   <bean id="repositoryFileDao" class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileDao">
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="transformers"/>
@@ -394,13 +393,14 @@
       <bean class="org.pentaho.platform.repository2.unified.jcr.DefaultDeleteHelper">
         <constructor-arg ref="lockHelper"/>
         <constructor-arg ref="pathConversionHelper"/>
-	<constructor-arg ref="tenantedUserNameUtils"/>        
       </bean>
     </constructor-arg>
     <constructor-arg ref="pathConversionHelper"/>
     <constructor-arg ref="repositoryFileAclDao"/>
     <constructor-arg ref="defaultAclHandler" />
   </bean>
+
+  <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.InheritDefaultAclHandler" />
 
   <util:list id="transformers">
     <bean class="org.pentaho.platform.repository2.unified.jcr.transform.SampleRepositoryFileDataTransformer"/>
@@ -460,6 +460,7 @@
       <util:list>
         <value>org.pentaho.repository.read</value>
         <value>org.pentaho.repository.create</value>
+        <value>org.pentaho.scheduler.manage</value>
         <value>org.pentaho.security.administerSecurity</value>
       </util:list>
     </entry>
@@ -467,6 +468,7 @@
       <util:list>
         <value>org.pentaho.repository.read</value>
         <value>org.pentaho.repository.create</value>
+		<value>org.pentaho.scheduler.manage</value>        
         <value>org.pentaho.security.administerSecurity</value>
 		<value>org.pentaho.security.administerSystem</value>      
 	  </util:list>
@@ -559,6 +561,7 @@
         org.pentaho.platform.api.mt.ITenantManager.isSubTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
         org.pentaho.platform.api.mt.ITenantManager.getTenantRootFolder=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
         org.pentaho.platform.api.mt.ITenantManager.getTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.createUserHomeFolder=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity                
       </value>
     </property>
   </bean>
@@ -568,7 +571,6 @@
     <property name="transactionManager" ref="jcrAdminTransactionManager"/>
     <property name="transactionAttributeSource">
       <value>
-        org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createUserHomeFolder=PROPAGATION_REQUIRED
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.createUser=PROPAGATION_REQUIRED
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setPassword=PROPAGATION_REQUIRED
         org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao.setUserDescription=PROPAGATION_REQUIRED
@@ -649,6 +651,9 @@
   	<constructor-arg ref="repositoryAdminUsername"/>
   	<constructor-arg ref="repositoryFileAclDao"/>
   	<constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="pathConversionHelper"/>
+    <constructor-arg ref="lockHelper"/>        
+   	<constructor-arg ref="defaultAclHandler" />    	  	
   </bean>
 
   <!-- IUserRoleDao implementation -->

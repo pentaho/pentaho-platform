@@ -27,7 +27,6 @@ import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
-import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -59,11 +58,12 @@ public class MondrianBackingRepositoryLifecycleManager implements IBackingReposi
 
   private static final String FOLDER_MONDRIAN = "mondrian"; //$NON-NLS-1$
   
-  private ITenantedPrincipleNameResolver nameUtils = new DefaultTenantedPrincipleNameResolver();
+  private ITenantedPrincipleNameResolver userNameUtils;
 
   public MondrianBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
                                                    final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-                                                   final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern) {
+                                                   final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
+                                                   final ITenantedPrincipleNameResolver userNameUtils) {
 
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
@@ -75,6 +75,7 @@ public class MondrianBackingRepositoryLifecycleManager implements IBackingReposi
     this.txnTemplate = txnTemplate;
     this.repositoryAdminUsername = repositoryAdminUsername;
     this.tenantAuthenticatedAuthorityNamePattern = tenantAuthenticatedAuthorityNamePattern;
+    this.userNameUtils = userNameUtils;
     initTransactionTemplate();
   }
 
@@ -91,7 +92,7 @@ public class MondrianBackingRepositoryLifecycleManager implements IBackingReposi
         @Override
         public void doInTransactionWithoutResult(final TransactionStatus status) {
           ITenant tenant = new Tenant(tenantPath, true);
-          final RepositoryFileSid repositoryAdminUserSid = new RepositoryFileSid(nameUtils.getPrincipleId(tenant, repositoryAdminUsername));
+          final RepositoryFileSid repositoryAdminUserSid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenant, repositoryAdminUsername));
           RepositoryFile tenantEtcFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
               .getTenantEtcFolderPath(tenant));
           Assert.notNull(tenantEtcFolder);

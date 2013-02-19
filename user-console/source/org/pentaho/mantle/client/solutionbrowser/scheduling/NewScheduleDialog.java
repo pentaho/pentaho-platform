@@ -503,10 +503,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     JsJobTrigger trigger = getJsJobTrigger();
     JSONObject schedule = getSchedule();
     if (hasParams) {
-      hide();
       showScheduleParamsDialog(trigger, schedule);
     } else if (isEmailConfValid) {
-      hide();
       showScheduleEmailDialog(schedule);
     } else {
       // submit
@@ -555,7 +553,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       }
       setDone(true);
     }
-    return true;
+    return false;
   }
 
   private void showScheduleEmailDialog(final JSONObject schedule) {
@@ -586,6 +584,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             scheduleEmailDialog.setJobSchedule(scheduleRequest);
           }
           scheduleEmailDialog.center();
+          hide();
         }
 
       });
@@ -626,6 +625,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             scheduleParamsDialog.setScheduleDescription(description);
           }
           scheduleParamsDialog.center();
+          hide();
         }
 
       });

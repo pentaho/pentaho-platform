@@ -248,6 +248,8 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance(ITenantManager.class, tenantManager);
     mp.define(ITenant.class, Tenant.class);
+    mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
+    mp.defineInstance("tenantedRoleNameUtils", tenantedRoleNameUtils);
     mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
 
     // Start the micro-platform
@@ -334,8 +336,8 @@ public class UserRoleDaoTest implements ApplicationContextAware {
 
 
   protected void login(final String username, final ITenant tenant, String[] roles) {
-    StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
-    pentahoSession.setAuthenticated(tenant.getId(), tenantedUserNameUtils.getPrincipleId(tenant, username));
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(tenant.getId(), username);
     PentahoSessionHolder.setSession(pentahoSession);
     pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
     final String password = "password";
@@ -343,7 +345,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
     for (String roleName : roles) {
-      authList.add(new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, roleName)));
+      authList.add(new GrantedAuthorityImpl(roleName));
     }
     GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
     UserDetails userDetails = new User(username, password, true, true, true, true, authorities);

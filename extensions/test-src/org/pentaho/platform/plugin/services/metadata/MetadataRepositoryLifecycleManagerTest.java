@@ -178,11 +178,10 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
     mp.defineInstance(IRoleAuthorizationPolicyRoleBindingDao.class, roleBindingDaoTarget);
     mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
-    UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils,
-        tenantedRoleNameUtils);
+    mp.defineInstance("tenantedRoleNameUtils", tenantedRoleNameUtils);
+    UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
-    userRoleListService = new UserRoleDaoUserRoleListService(tenantedUserNameUtils, tenantedRoleNameUtils, userRoleDao,
-        userDetailsService);
+    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao,userDetailsService);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserRoleDao(userRoleDao);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserDetailsService(userDetailsService);
     mp.defineInstance(IUserRoleListService.class, userRoleListService);
@@ -332,8 +331,8 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
    * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
   protected void login(final String username, final ITenant tenant, String[] roles) {
-    StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
-    pentahoSession.setAuthenticated(tenant.getId(), tenantedUserNameUtils.getPrincipleId(tenant, username));
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(tenant.getId(), username);
     PentahoSessionHolder.setSession(pentahoSession);
     pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
     final String password = "password";
@@ -341,15 +340,13 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
     for (String roleName : roles) {
-      authList.add(new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, roleName)));
+      authList.add(new GrantedAuthorityImpl(roleName));
     }
     GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
     UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
     Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
     PentahoSessionHolder.setSession(pentahoSession);
     // this line necessary for Spring Security's MethodSecurityInterceptor
-    SecurityContextHolder.getContext().setAuthentication(auth);
-    SecurityHelper.getInstance().becomeUser(tenantedUserNameUtils.getPrincipleId(tenant, username));
     SecurityContextHolder.getContext().setAuthentication(auth);
   }
 

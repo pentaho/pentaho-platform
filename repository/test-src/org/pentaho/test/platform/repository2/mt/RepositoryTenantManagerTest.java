@@ -328,6 +328,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
   public void setUp() throws Exception {
     mp = new MicroPlatform();
     // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
+    mp.defineInstance("tenantedRoleNameUtils", tenantedRoleNameUtils);
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance(ITenantManager.class, tenantManager);
     mp.define(ITenant.class, Tenant.class);
@@ -395,8 +397,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
    * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
   protected void login(final String username, final ITenant tenant, String[] roles) {
-    StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
-    pentahoSession.setAuthenticated(tenant.getId(), tenantedUserNameUtils.getPrincipleId(tenant, username));
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(tenant.getId(), username);
     PentahoSessionHolder.setSession(pentahoSession);
     pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
     final String password = "password";
@@ -404,7 +406,7 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
     for (String roleName : roles) {
-      authList.add(new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, roleName)));
+      authList.add(new GrantedAuthorityImpl(roleName));
     }
     GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
     UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
@@ -413,7 +415,7 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication(auth);
   }
-
+  
   @Override
   public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
     manager = (IBackingRepositoryLifecycleManager) applicationContext.getBean("backingRepositoryLifecycleManager");

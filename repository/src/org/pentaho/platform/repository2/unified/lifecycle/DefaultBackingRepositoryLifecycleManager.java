@@ -14,31 +14,17 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.io.FilenameUtils;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
-import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl.Builder;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -55,8 +41,6 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
@@ -93,10 +77,6 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
   protected IRepositoryFileDao repositoryFileDao;
 
   protected IRepositoryFileAclDao repositoryFileAclDao;
-  
-  ITenantedPrincipleNameResolver tenantedUserNameUtils;  
-  ITenantedPrincipleNameResolver tenantedRoleNameUtils;
-
 
   // ~ Constructors ====================================================================================================
 
@@ -107,9 +87,7 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
                                                   final String systemTenantAdminUserName,
                                                   final String singleTenantAdminUserName,
                                                   final String tenantAdminRoleName,
-                                                  final String tenantAuthenticatedRoleName, 
-                                                  final ITenantedPrincipleNameResolver tenantedUserNameUtils, 
-                                                  final ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
+                                                  final String tenantAuthenticatedRoleName) {
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
     Assert.notNull(txnTemplate);
@@ -120,8 +98,6 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
     this.txnTemplate = txnTemplate;
     this.repositoryAdminUsername = repositoryAdminUsername;
     this.tenantAuthenticatedRoleName = tenantAuthenticatedRoleName;
-    this.tenantedUserNameUtils = tenantedUserNameUtils;
-    this.tenantedRoleNameUtils = tenantedRoleNameUtils;
     this.tenantAdminRoleName = tenantAdminRoleName;
     this.systemTenantAdminUserName = systemTenantAdminUserName;
     this.singleTenantAdminUserName = singleTenantAdminUserName;
@@ -143,7 +119,7 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
 
   @Override
   public synchronized void newUser(final String tenantId, final String username) {
-    userRoleDao.createUserHomeFolder(new Tenant(tenantId, true), username);
+    getTenantManager().createUserHomeFolder(new Tenant(tenantId, true), username);
   }
 
 
@@ -224,8 +200,8 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
    * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
   private void login(final String username, final ITenant tenant, final String[] roles) {
-    StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
-    pentahoSession.setAuthenticated(tenant.getId(), tenantedUserNameUtils.getPrincipleId(tenant, username));
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(tenant.getId(), username);
     PentahoSessionHolder.setSession(pentahoSession);
     pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
     final String password = "password";
@@ -233,7 +209,7 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
     for (String role : roles) {
-      authList.add(new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, role)));
+      authList.add(new GrantedAuthorityImpl(role));
     }
     GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
     UserDetails userDetails = new User(username, password, true, true, true, true, authorities);

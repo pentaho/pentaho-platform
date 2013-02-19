@@ -60,7 +60,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
   public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException,
       DomainAlreadyExistsException, DomainStorageException, IOException {
-    boolean overwriteInRepossitory = bundle.overwriteInRepossitory();
+    boolean overwriteInRepossitory = bundle.overwriteInRepository();
     boolean xmla = "true".equalsIgnoreCase(findParameterPropertyValue(bundle, ENABLE_XMLA)) ? true : false;
     final String domainId = (String) bundle.getProperty(DOMAIN_ID);
 
