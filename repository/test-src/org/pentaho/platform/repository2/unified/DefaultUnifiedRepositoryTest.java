@@ -84,6 +84,7 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
@@ -222,17 +223,17 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
     mp = new MicroPlatform();
     // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance("tenantedUserNameUtils", userNameUtils);
+    mp.defineInstance("tenantedRoleNameUtils", roleNameUtils);    
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance(ITenantManager.class, tenantManager);
     mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
 
     // Start the micro-platform
-    //    mp.start();
+    mp.start();
+    loginAsRepositoryAdmin();
     systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
     userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
-    JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
-        repositoryAdminUsername, "c:/build/testrepo_7", Mode.CUSTOM);
-    dumpToFile.execute();
     logout();
   }
 
@@ -1802,7 +1803,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull(versionSummaries);
     assertTrue(versionSummaries.size() >= 3);
     assertEquals("update 3", versionSummaries.get(versionSummaries.size() - 1).getMessage());
-    assertEquals(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), versionSummaries.get(0).getAuthor());
+    assertEquals(USERNAME_SUZY, versionSummaries.get(0).getAuthor());
     System.out.println(versionSummaries);
     System.out.println(versionSummaries.size());
   }
@@ -1852,7 +1853,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     VersionSummary v1 = repo.getVersionSummary(newFile.getId(), newFile.getVersionId());
     assertNotNull(v1);
-    assertEquals(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), v1.getAuthor());
+    assertEquals(USERNAME_SUZY, v1.getAuthor());
     assertEquals(new Date().getDate(), v1.getDate().getDate());
 
     repo.updateFile(newFile, newContent, null);
@@ -1861,7 +1862,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     VersionSummary v2 = repo.getVersionSummary(newFile.getId(), null);
 
     assertNotNull(v2);
-    assertEquals(userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), v2.getAuthor());
+    assertEquals(USERNAME_SUZY, v2.getAuthor());
     assertEquals(new Date().getDate(), v2.getDate().getDate());
     assertFalse(v1.equals(v2));
     List<VersionSummary> sums = repo.getVersionSummaries(newFile.getId());
@@ -3008,10 +3009,10 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull(struct.bindingMap);
     assertEquals(3, struct.bindingMap.size());
     assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
-        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION, IAuthorizationPolicy.CREATE_TENANTS_ACTION}),
+        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING, IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION, IAuthorizationPolicy.CREATE_TENANTS_ACTION}),
         struct.bindingMap.get(superAdminRoleName));
     assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
-        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION }),
+        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING, IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION }),
         struct.bindingMap.get(tenantAdminRoleName));
     assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
         IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING }), struct.bindingMap
@@ -3106,26 +3107,33 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName});
   }
 
-  protected void login(String userName, ITenant tenant, String[] roles) {
-    StandaloneSession pentahoSession = new StandaloneSession(userNameUtils.getPrincipleId(tenant, userName));
+  /**
+   * Logs in with given username.
+   *
+   * @param username username of user
+   * @param tenantId tenant to which this user belongs
+   * @tenantAdmin true to add the tenant admin authority to the user's roles
+   */
+  protected void login(final String username, final ITenant tenant, String[] roles) {
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(tenant.getId(), username);
+    PentahoSessionHolder.setSession(pentahoSession);
     pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
-    pentahoSession.setAuthenticated(tenant.getId(), userNameUtils.getPrincipleId(tenant, userName));
-    final String password = "ignored";
-       
+    final String password = "password";
+
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-    authList.add(new GrantedAuthorityImpl(roleNameUtils.getPrincipleId(tenant, tenantAuthenticatedRoleName)));
-    for (String role : roles) {
-      authList.add(new GrantedAuthorityImpl(roleNameUtils.getPrincipleId(tenant, role)));
+
+    for (String roleName : roles) {
+      authList.add(new GrantedAuthorityImpl(roleName));
     }
-    
-    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);    
-    UserDetails repositoryAdminUserDetails = new User(userNameUtils.getPrincipleId(tenant, userName), password, true, true, true, true, authorities);
-    Authentication repositoryAdminAuthentication = new UsernamePasswordAuthenticationToken(repositoryAdminUserDetails, password, authorities);
+    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
+    UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
+    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
     PentahoSessionHolder.setSession(pentahoSession);
     // this line necessary for Spring Security's MethodSecurityInterceptor
-    SecurityContextHolder.getContext().setAuthentication(repositoryAdminAuthentication);
+    SecurityContextHolder.getContext().setAuthentication(auth);
     
-    createUserHomeFolder(tenant, userName);
+    createUserHomeFolder(tenant, username);
   }
   
   protected void logout() {
@@ -3154,10 +3162,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     } else return null;
   }
 
-  protected ITenant getDefaultTenant() {
-    return new Tenant(ServerRepositoryPaths.getPentahoRootFolderPath() + RepositoryFile.SEPARATOR + TenantUtils.TENANTID_SINGLE_TENANT, true);
-  }
-  
+
   protected ITenant getTenant(String principalId, boolean isUser) {
     ITenant tenant = null;
     ITenantedPrincipleNameResolver nameUtils = isUser ? userNameUtils : roleNameUtils;
@@ -3204,7 +3209,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
             tenant = getCurrentTenant();
           }
           if(tenant == null || tenant.getId() == null) {
-            tenant = getDefaultTenant();
+            tenant = JcrTenantUtils.getDefaultTenant();
           }
           RepositoryFile userHomeFolder = null;
           String userId = userNameUtils.getPrincipleId(theTenant, username);

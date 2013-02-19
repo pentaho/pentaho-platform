@@ -55,7 +55,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   private IPathConversionHelper pathConversionHelper;
 
   private IRepositoryFileAclDao aclDao;
-
+  
   private IRepositoryDefaultAclHandler defaultAclHandler;
   
   // ~ Constructors ====================================================================================================

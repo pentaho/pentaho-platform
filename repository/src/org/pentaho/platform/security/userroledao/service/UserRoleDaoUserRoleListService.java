@@ -26,7 +26,6 @@ import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
@@ -48,10 +47,6 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
 
   private UserDetailsService userDetailsService;
   
-  private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
-  
-  private ITenantedPrincipleNameResolver tenantedUserNameUtils;
-
   // ~ Constructors ====================================================================================================
   public UserRoleDaoUserRoleListService() {
     super();
@@ -62,14 +57,6 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
     this.userRoleDao = userRoleDao;
     this.userDetailsService = userDetailsService;
   }
-  public UserRoleDaoUserRoleListService(ITenantedPrincipleNameResolver tenantedUserNameUtils, ITenantedPrincipleNameResolver tenantedRoleNameUtils, IUserRoleDao userRoleDao, UserDetailsService userDetailsService) {
-    super();
-    this.tenantedUserNameUtils = tenantedUserNameUtils;
-    this.tenantedRoleNameUtils = tenantedRoleNameUtils;
-    this.userRoleDao = userRoleDao;
-    this.userDetailsService = userDetailsService;
-  }
-  
   // ~ Methods =========================================================================================================
 
   private List<String> getAllRoles(List<IPentahoRole> roles) {
@@ -115,13 +102,10 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
   @Override
   public List<String> getRolesForUser(ITenant tenant, String username) throws UsernameNotFoundException,
       DataAccessException {
-    UserDetails user = userDetailsService.loadUserByUsername(tenantedUserNameUtils.getPrincipleId(tenant, username));
+    UserDetails user = userDetailsService.loadUserByUsername(username);
     List<String> roles = new ArrayList<String>(user.getAuthorities().length);
     for (GrantedAuthority role : user.getAuthorities()) {
       String principalName = role.getAuthority(); 
-      if(tenantedRoleNameUtils != null) {
-        principalName = tenantedRoleNameUtils.getPrincipleName(principalName);
-      }
       roles.add(principalName);
     }
     return roles;
@@ -156,21 +140,5 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
 
   public void setUserDetailsService(UserDetailsService userDetailsService) {
     this.userDetailsService = userDetailsService;
-  }
-
-  public void setTenantedRoleNameUtils(ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
-    this.tenantedRoleNameUtils = tenantedRoleNameUtils;
-  }
-
-  public ITenantedPrincipleNameResolver getTenantedRoleNameUtils() {
-    return tenantedRoleNameUtils;
-  }
-  
-  public ITenantedPrincipleNameResolver getTenantedUserNameUtils() {
-    return tenantedUserNameUtils;
-  }
-
-  public void setTenantedUserNameUtils(ITenantedPrincipleNameResolver tenantedUserNameUtils) {
-    this.tenantedUserNameUtils = tenantedUserNameUtils;
   }
 }

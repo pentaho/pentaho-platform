@@ -31,7 +31,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IParameterProvider;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.audit.AuditHelper;
 import org.pentaho.platform.engine.core.audit.MessageTypes;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
@@ -45,7 +44,6 @@ public class PentahoHttpSession extends BaseSession {
   private HttpSession session;
 
   private static final Log logger = LogFactory.getLog(PentahoHttpSession.class);
-  private static ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null);
 
   @Override
   public Log getLogger() {
@@ -53,7 +51,7 @@ public class PentahoHttpSession extends BaseSession {
   }
 
   public PentahoHttpSession(final String userName, final HttpSession session, final Locale locale, final IPentahoSession userSession) {
-    super(((tenantedUserNameUtils != null && userName != null) ? tenantedUserNameUtils.getPrincipleName(userName): userName), (userName != null ? userName: session.getId()), locale);
+    super(userName, session.getId(), locale);
 
     this.session = session;
     

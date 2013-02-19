@@ -27,10 +27,6 @@ import org.pentaho.metadata.model.concept.security.Security;
 import org.pentaho.metadata.model.concept.security.SecurityOwner;
 import org.pentaho.platform.api.engine.IAclHolder;
 import org.pentaho.platform.api.engine.IPentahoAclEntry;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
 import org.springframework.security.GrantedAuthorityImpl;
 
@@ -38,30 +34,6 @@ public class PentahoMetadataAclHolder implements IAclHolder {
 
   private List<IPentahoAclEntry> accessControls = new ArrayList<IPentahoAclEntry>();
 
-  public PentahoMetadataAclHolder(final IConcept aclHolder, final ITenantedPrincipleNameResolver userNameResolver, final ITenantedPrincipleNameResolver roleNameResolver) {
-    try {
-      Security sec = (Security) aclHolder.getProperty(Concept.SECURITY_PROPERTY);
-      if (sec != null) {
-        Map<SecurityOwner, Integer> securityMap = sec.getOwnerAclMap();
-        SecurityOwner secOwn = null;
-        IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-        String tenantId = (String) pentahoSession.getAttribute(IPentahoSession.TENANT_ID_KEY);
-        for (Map.Entry<SecurityOwner, Integer> entry : securityMap.entrySet()) {
-          // We now have the SecurityOwner and the Rights in there.
-          secOwn = entry.getKey();
-          int rights = entry.getValue().intValue();
-          if (secOwn.getOwnerType() == SecurityOwner.OwnerType.USER) {
-            accessControls.add(new PentahoAclEntry(userNameResolver.getPrincipleId(new Tenant(tenantId, true), secOwn.getOwnerName()), rights));
-          } else {
-            accessControls.add(new PentahoAclEntry(new GrantedAuthorityImpl(roleNameResolver.getPrincipleId(new Tenant(tenantId, true), secOwn.getOwnerName())), rights));
-          }
-        }
-      }
-    } catch (Throwable th) {
-      // Just being paranoid here in case something doesn't support it.
-    }
-  }
-  
   public PentahoMetadataAclHolder(final IConcept aclHolder) {
     try {
       Security sec = (Security) aclHolder.getProperty(Concept.SECURITY_PROPERTY);

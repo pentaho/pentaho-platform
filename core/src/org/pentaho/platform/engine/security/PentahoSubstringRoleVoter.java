@@ -4,12 +4,10 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.vote.AccessDecisionVoter;
 
 /**
@@ -38,14 +36,7 @@ public class PentahoSubstringRoleVoter implements AccessDecisionVoter {
     // ~ Instance fields =================================================================================================
 
     private String processConfigAttributePrefix;
-    private ITenantedPrincipleNameResolver tenantedPrincipleRoleNameResolver;
-
     // ~ Constructors ====================================================================================================
-
-    public PentahoSubstringRoleVoter(final String processConfigAttributePrefix, final ITenantedPrincipleNameResolver tenantedPrincipleRoleNameResolver) {
-        this(processConfigAttributePrefix);
-        this.tenantedPrincipleRoleNameResolver = tenantedPrincipleRoleNameResolver;
-    }
 
     public PentahoSubstringRoleVoter(final String processConfigAttributePrefix) {
         super();
@@ -99,16 +90,6 @@ public class PentahoSubstringRoleVoter implements AccessDecisionVoter {
     }
 
     private GrantedAuthority[] extractAuthorities(Authentication authentication) {
-        GrantedAuthority[] authorities = null;
-        int index = 0;
-        if(tenantedPrincipleRoleNameResolver != null) {
-            authorities = new GrantedAuthorityImpl[authentication.getAuthorities().length];
-            for(GrantedAuthority authority:authentication.getAuthorities()) {
-                authorities[index++] = new GrantedAuthorityImpl(tenantedPrincipleRoleNameResolver.getPrincipleName(authority.getAuthority()));
-            }
-            return authorities;
-        } else {
             return authentication.getAuthorities();
-        }
     }
 }

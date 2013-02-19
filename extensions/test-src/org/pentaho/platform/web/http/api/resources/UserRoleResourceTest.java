@@ -200,6 +200,12 @@ public class UserRoleResourceTest extends TestCase {
       // TODO Auto-generated method stub
       return null;
     }
+
+    @Override
+    public RepositoryFile createUserHomeFolder(ITenant tenant, String username) {
+      // TODO Auto-generated method stub
+      return null;
+    }
     
   }
 }

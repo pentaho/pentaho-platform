@@ -36,61 +36,71 @@ import org.apache.jackrabbit.core.security.principal.PrincipalIteratorAdapter;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.jcr.JcrAclMetadataStrategy.AclMetadataPrincipal;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.messages.Messages;
-import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.dao.UserCache;
-import org.springframework.security.providers.dao.cache.EhCacheBasedUserCache;
+import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 /**
- * A Jackrabbit {@code PrincipalProvider} that delegates to a Pentaho {@link UserDetailsService}.
+ * A Jackrabbit {@code PrincipalProvider} that delegates to a Pentaho
+ * {@link UserDetailsService}.
  * 
  * <p>
- * A {@code java.security.Principal} represents a user. A {@code java.security.acl.Group} represents a group. In Spring
- * Security, a group is called a role or authority or granted authority. Arguments to the method 
- * {@link #providePrincipal(String)} can either be a Principal or Group. In other words, 
- * {@link #providePrincipal(String)} might be called with an argument of a Spring Security granted authority. This 
- * happens when access control entries (ACEs) grant access to roles and the system needs to verify the role is 
- * known.
+ * A {@code java.security.Principal} represents a user. A
+ * {@code java.security.acl.Group} represents a group. In Spring Security, a
+ * group is called a role or authority or granted authority. Arguments to the
+ * method {@link #providePrincipal(String)} can either be a Principal or Group.
+ * In other words, {@link #providePrincipal(String)} might be called with an
+ * argument of a Spring Security granted authority. This happens when access
+ * control entries (ACEs) grant access to roles and the system needs to verify
+ * the role is known.
  * </p>
  * 
  * <p>
- * Jackrabbit assumes a unified space of all user and role names. The PrincipalProvider is responsible for determining
- * the type of a principal/group from its name.
+ * Jackrabbit assumes a unified space of all user and role names. The
+ * PrincipalProvider is responsible for determining the type of a
+ * principal/group from its name.
  * </p>
  * 
  * <p>
- * This implementation caches users and roles, but not passwords.  Optionally, this implementation can take advantage of
- * a Spring Security UserCache.  If available, it will use said cache for role membership lookups.  Also note that the 
- * removal of a role or user from the system will not be noticed by this implementation. (A restart of Jackrabbit is 
- * required.)
+ * This implementation caches users and roles, but not passwords. Optionally,
+ * this implementation can take advantage of a Spring Security UserCache. If
+ * available, it will use said cache for role membership lookups. Also note that
+ * the removal of a role or user from the system will not be noticed by this
+ * implementation. (A restart of Jackrabbit is required.)
  * </p>
  * 
  * <p>
- * There are users and roles that are never expected to be in any backing store.  By default, these are "everyone" (a 
- * role), "anonymous" (a user), "administrators" (a role), and "admin" (a user). 
+ * There are users and roles that are never expected to be in any backing store.
+ * By default, these are "everyone" (a role), "anonymous" (a user),
+ * "administrators" (a role), and "admin" (a user).
  * </p>
  * 
  * <p>
- * This implementation never returns null from {@link #getPrincipal(String)}.  As a result, a 
- * {@code NoSuchPrincipalException} is never thrown. See the method for details.
+ * This implementation never returns null from {@link #getPrincipal(String)}. As
+ * a result, a {@code NoSuchPrincipalException} is never thrown. See the method
+ * for details.
  * </p>
  * 
  * @author mlowery
  */
 public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
-  // ~ Static fields/initializers ======================================================================================
+  // ~ Static fields/initializers
+  // ======================================================================================
 
   private static final Log logger = LogFactory.getLog(SpringSecurityPrincipalProvider.class);
 
-  // ~ Instance fields =================================================================================================
+  // ~ Instance fields
+  // =================================================================================================
 
   private UserDetailsService userDetailsService;
 
@@ -107,6 +117,14 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   private AnonymousPrincipal anonymousPrincipal = new AnonymousPrincipal();
 
+
+
+  final boolean ACCOUNT_NON_EXPIRED = true;
+
+  final boolean CREDS_NON_EXPIRED = true;
+
+  final boolean ACCOUNT_NON_LOCKED = true;
+
   /** flag indicating if the instance has not been {@link #close() closed} */
   private boolean initialized;
 
@@ -114,13 +132,15 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   private LRUMap roleCache = new LRUMap();
 
-  // ~ Constructors ====================================================================================================
+  // ~ Constructors
+  // ====================================================================================================
 
   public SpringSecurityPrincipalProvider() {
     super();
   }
 
-  // ~ Methods =========================================================================================================
+  // ~ Methods
+  // =========================================================================================================
 
   /**
    * {@inheritDoc}
@@ -140,11 +160,11 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     if (logger.isTraceEnabled()) {
       logger.trace(String.format("using anonymousId [%s]", anonymousId)); //$NON-NLS-1$
     }
-    if(PentahoSystem.getInitializedOK()) {
-    userDetailsService = PentahoSystem.get(UserDetailsService.class);
-    springSecurityUserCache = PentahoSystem.get(UserCache.class);
+    if (PentahoSystem.getInitializedOK()) {
+      userDetailsService = PentahoSystem.get(UserDetailsService.class);
+      springSecurityUserCache = PentahoSystem.get(UserCache.class);
     }
-    
+
     initialized = true;
   }
 
@@ -172,14 +192,16 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Attempts to load user using given {@code principalName} using a Pentaho {@code UserDetailsService}. If it 
-   * fails to find user, it returns a {@link Group} which will be caught by {@code SpringSecurityLoginModule}.
+   * Attempts to load user using given {@code principalName} using a Pentaho
+   * {@code UserDetailsService}. If it fails to find user, it returns a
+   * {@link Group} which will be caught by {@code SpringSecurityLoginModule}.
    * </p>
    */
   public synchronized Principal getPrincipal(final String principalName) {
     checkInitialized();
     Assert.notNull(principalName);
-    // first handle AclMetadataPrincipal, admin, anonymous, and everyone specially
+    // first handle AclMetadataPrincipal, admin, anonymous, and everyone
+    // specially
     if (AclMetadataPrincipal.isAclMetadataPrincipal(principalName)) {
       return new AclMetadataPrincipal(principalName);
     } else if (adminId.equals(principalName)) {
@@ -190,7 +212,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       return EveryonePrincipal.getInstance();
     } else {
       // 1. first try the role cache
-      Principal roleFromCache = (Principal) roleCache.get(principalName);
+      Principal roleFromCache = (Principal) roleCache.get(JcrTenantUtils.getTenantedRole(principalName));
       if (roleFromCache != null) {
         if (logger.isTraceEnabled()) {
           logger.trace("role " + principalName + " found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -203,7 +225,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       }
 
       // 2. then try the user cache
-      Principal userFromUserCache = (Principal) userCache.get(principalName);
+      Principal userFromUserCache = (Principal) userCache.get(JcrTenantUtils.getTenantedUser(principalName));
       if (userFromUserCache != null) {
         if (logger.isTraceEnabled()) {
           logger.trace("user " + principalName + " found in cache"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -215,20 +237,24 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         }
       }
 
-      // 3. then try the springSecurityUserCache and, failing that, actual back-end user lookup
+      // 3. then try the springSecurityUserCache and, failing that, actual
+      // back-end user lookup
       UserDetails userDetails = internalGetUserDetails(principalName);
       if (userDetails != null) {
-        Principal user = new UserPrincipal(userDetails.getUsername());
+        Principal user = new UserPrincipal(principalName);
         if (userDetails != null) {
           userCache.put(principalName, user);
         }
         return user;
       }
 
-      // 4. finally just assume role; this assumption serves two purposes: (1) avoid any role search config by the user
-      //    and (2) performance (if we don't care that a role is not present--why look it up); finally, a Group returned
-      //    by this class will be caught in SpringSecurityLoginModule.getPrincipal and the login will fail
-      roleFromCache = new SpringSecurityRolePrincipal(principalName);
+      // 4. finally just assume role; this assumption serves two purposes:
+      // (1) avoid any role search config by the user
+      // and (2) performance (if we don't care that a role is not
+      // present--why look it up); finally, a Group returned
+      // by this class will be caught in
+      // SpringSecurityLoginModule.getPrincipal and the login will fail
+      roleFromCache = createSpringSecurityRolePrincipal(principalName);
       roleCache.put(principalName, roleFromCache);
       if (logger.isTraceEnabled()) {
         logger.trace("assuming " + principalName + " is a role"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -255,7 +281,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       return PrincipalIteratorAdapter.EMPTY;
     }
 
-    // make sure it's a user; also, repo admins are never in back-end--no need to attempt to look them up; also acl
+    // make sure it's a user; also, repo admins are never in back-end--no
+    // need to attempt to look them up; also acl
     // metadata principals never have group membership
     if (!(principal instanceof Group) && !(principal instanceof AdminPrincipal)
         && !(principal instanceof AclMetadataPrincipal)) {
@@ -264,7 +291,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         return new PrincipalIteratorAdapter(groups);
       }
       for (GrantedAuthority role : user.getAuthorities()) {
-        groups.add(new SpringSecurityRolePrincipal(role));
+        groups.add(createSpringSecurityRolePrincipal(role.getAuthority()));
       }
     }
     groups.add(EveryonePrincipal.getInstance());
@@ -275,13 +302,13 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   }
 
   /**
-   * Gets user details.  Checks cache first.
+   * Gets user details. Checks cache first.
    */
   protected UserDetails internalGetUserDetails(final String username) {
 
-    if(username != null && username.equals("administrators")) {
+    if (username != null && username.equals("administrators")) {
       return null;
-    } 
+    }
     // optimization for when running in pre-authenticated mode (i.e. Spring Security filters have setup holder with
     //   current user meaning we don't have to hit the back-end again)
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -297,7 +324,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     UserDetails user = null;
     // first try user cache
     if (getSpringSecurityUserCache() != null) {
-      user = getSpringSecurityUserCache().getUserFromCache(username);
+      user = getSpringSecurityUserCache().getUserFromCache(JcrTenantUtils.getTenantedUser(username));
       if (user != null) {
         if (logger.isTraceEnabled()) {
           logger.trace("user " + username + " found in spring security cache"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -314,11 +341,15 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
       }
     }
     // user cache not available or user not in cache; do lookup
+    GrantedAuthority[] auths = null;
+    int index = 0;
     try {
       user = getUserDetailsService().loadUserByUsername(username);
+      auths = new GrantedAuthority[user.getAuthorities().length];
       // cache the roles while we're here
       for (GrantedAuthority grantedAuth : user.getAuthorities()) {
-        roleCache.put(grantedAuth.getAuthority(), new SpringSecurityRolePrincipal(grantedAuth));
+        roleCache.put(grantedAuth.getAuthority(), createSpringSecurityRolePrincipal(grantedAuth.getAuthority()));
+        auths[index++] = new GrantedAuthorityImpl(JcrTenantUtils.getTenantedRole(grantedAuth.getAuthority()));
       }
       if (logger.isTraceEnabled()) {
         logger.trace("found user in back-end " + user.getUsername()); //$NON-NLS-1$
@@ -328,11 +359,16 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
         logger.trace("username " + username + " not in cache or back-end; returning null"); //$NON-NLS-1$ //$NON-NLS-2$
       }
     }
-
-    if (getSpringSecurityUserCache() != null && user != null) {
-      getSpringSecurityUserCache().putUserInCache(user);
+    UserDetails newUser = null;
+    if (user != null) {
+      newUser = new User(user.getUsername(), user.getPassword(), user.isEnabled(), ACCOUNT_NON_EXPIRED,
+          CREDS_NON_EXPIRED, ACCOUNT_NON_LOCKED, auths);
     }
-    return user;
+
+    if (getSpringSecurityUserCache() != null && newUser != null) {
+      getSpringSecurityUserCache().putUserInCache(newUser);
+    }
+    return newUser;
   }
 
   protected void checkInitialized() {
@@ -346,8 +382,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is never 
-   * called.
+   * Not implemented. This method only ever called from method in
+   * {@code PrincipalManagerImpl} and that method is never called.
    * </p>
    */
   public PrincipalIterator findPrincipals(final String simpleFilter) {
@@ -358,8 +394,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is never 
-   * called.
+   * Not implemented. This method only ever called from method in
+   * {@code PrincipalManagerImpl} and that method is never called.
    * </p>
    */
   public PrincipalIterator findPrincipals(final String simpleFilter, final int searchType) {
@@ -370,8 +406,8 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
    * {@inheritDoc}
    * 
    * <p>
-   * Not implemented. This method only ever called from method in {@code PrincipalManagerImpl} and that method is never 
-   * called.
+   * Not implemented. This method only ever called from method in
+   * {@code PrincipalManagerImpl} and that method is never called.
    * </p>
    */
   public PrincipalIterator getPrincipals(final int searchType) {
@@ -379,7 +415,7 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   }
 
   protected UserDetailsService getUserDetailsService() {
-    if(PentahoSystem.getInitializedOK()) {
+    if (PentahoSystem.getInitializedOK()) {
       userDetailsService = PentahoSystem.get(UserDetailsService.class);
       return userDetailsService;
     } else {
@@ -388,12 +424,16 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
   }
 
   protected UserCache getSpringSecurityUserCache() {
-    if(PentahoSystem.getInitializedOK()) {
+    if (PentahoSystem.getInitializedOK()) {
       springSecurityUserCache = PentahoSystem.get(UserCache.class);
       return springSecurityUserCache;
     } else {
       return null;
     }
   }
-  
+
+  private SpringSecurityRolePrincipal createSpringSecurityRolePrincipal(String principal) {
+    return new SpringSecurityRolePrincipal(JcrTenantUtils.getTenantedRole(principal));
+  }
+
 }

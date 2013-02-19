@@ -29,7 +29,6 @@ import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.usersettings.IUserSettingService;
 import org.pentaho.platform.api.usersettings.pojo.IUserSetting;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.usersettings.pojo.UserSetting;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
@@ -41,8 +40,8 @@ public class UserSettingService implements IUserSettingService {
 
   protected IUnifiedRepository repository;
 
-  public UserSettingService() {
-    repository = PentahoSystem.get(IUnifiedRepository.class);
+  public UserSettingService(IUnifiedRepository repository) {
+    this.repository = repository;
   }
 
   public void init(IPentahoSession session) {

@@ -155,8 +155,12 @@ public class JcrRepositoryFileAclUtils {
 
   public static void setOwner(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final RepositoryFile file, final RepositoryFileSid owner) throws RepositoryException {
+    RepositoryFileSid newOwnerSid = owner;
+    if(JcrTenantUtils.getUserNameUtils().getTenant(owner.getName()) == null)  {
+      newOwnerSid = new RepositoryFileSid(JcrTenantUtils.getTenantedUser(owner.getName()), owner.getType());
+    }
     RepositoryFileAcl acl = getAcl(session, pentahoJcrConstants, file.getId());
-    RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).owner(owner).build();
+    RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(acl).owner(newOwnerSid).build();
     updateAcl(session, newAcl);
   }
 
@@ -167,8 +171,12 @@ public class JcrRepositoryFileAclUtils {
 
   public static void addAce(final Session session, final PentahoJcrConstants pentahoJcrConstants, final Serializable id,
       final RepositoryFileSid recipient, final EnumSet<RepositoryFilePermission> permission) throws RepositoryException {
+    RepositoryFileSid newRecipient = recipient;
+    if(JcrTenantUtils.getUserNameUtils().getTenant(recipient.getName()) == null)  {
+      newRecipient = new RepositoryFileSid(JcrTenantUtils.getTenantedUser(recipient.getName()), recipient.getType());
+    }
     RepositoryFileAcl acl = getAcl(session, pentahoJcrConstants, id);
-    RepositoryFileAcl updatedAcl = new RepositoryFileAcl.Builder(acl).ace(recipient, permission).build();
+    RepositoryFileAcl updatedAcl = new RepositoryFileAcl.Builder(acl).ace(newRecipient, permission).build();
     updateAcl(session, updatedAcl);
   }
 
@@ -196,9 +204,9 @@ public class JcrRepositoryFileAclUtils {
       for (RepositoryFileAce ace : acl.getAces()) {
         Principal principal = null;
         if (RepositoryFileSid.Type.ROLE == ace.getSid().getType()) {
-          principal = new SpringSecurityRolePrincipal(ace.getSid().getName());
+          principal = new SpringSecurityRolePrincipal(JcrTenantUtils.getTenantedRole(ace.getSid().getName()));
         } else {
-          principal = new SpringSecurityUserPrincipal(ace.getSid().getName());
+          principal = new SpringSecurityUserPrincipal(JcrTenantUtils.getTenantedUser(ace.getSid().getName()));
         }
         IPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper();
         acList.addAccessControlEntry(principal,
@@ -231,7 +239,7 @@ public class JcrRepositoryFileAclUtils {
     AccessControlList acList = getAccessControlList(acMgr, absPath);
 
     RepositoryFileSid owner = null;
-    String ownerString = getOwner(session, absPath, acList);
+    String ownerString = JcrTenantUtils.getUserNameUtils().getPrincipleName(getOwner(session, absPath, acList));
 
     if (ownerString != null) {
       // for now, just assume all owners are users; only has UI impact
