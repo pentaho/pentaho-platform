@@ -67,7 +67,7 @@ public interface IPlatformImportBundle {
    * pass in flag to allow overwrite in repository (if exists)
    * @return boolean
    */
-  boolean overwriteInRepossitory();
+  boolean overwriteInRepository();
   
   /**
    * Ability to use the export manifest during import to apply ACL and File settings
