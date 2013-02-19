@@ -19,17 +19,16 @@ import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
 import org.apache.jackrabbit.core.id.NodeId;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.unified.jcr.IAclMetadataStrategy.AclMetadata;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclUtils;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.security.policy.rolebased.AbstractJcrBackedRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.slf4j.Logger;
@@ -269,7 +268,7 @@ public class PentahoEntryCollector extends EntryCollector {
         }
       }
       if (match) {
-        Principal principal = new MagicPrincipal(PentahoSessionHolder.getSession().getId());
+        Principal principal = new MagicPrincipal(JcrTenantUtils.getTenantedUser(PentahoSessionHolder.getSession().getName()));
         // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully later; changed never persisted
         acl.addAccessControlEntry(principal, def.privileges);
       }
@@ -331,9 +330,9 @@ public class PentahoEntryCollector extends EntryCollector {
     if (ownerPrincipal != null) {
       Principal magicPrincipal = null;
       if (ownerPrincipal instanceof Group) {
-        magicPrincipal = new MagicGroup(ownerPrincipal.getName());
+        magicPrincipal = new MagicGroup(JcrTenantUtils.getTenantedUser(ownerPrincipal.getName()));
       } else {
-        magicPrincipal = new MagicPrincipal(ownerPrincipal.getName());
+        magicPrincipal = new MagicPrincipal(JcrTenantUtils.getTenantedUser(ownerPrincipal.getName()));
       }
       // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully later; changed never persisted
       acl.addAccessControlEntry(magicPrincipal, new Privilege[] { systemSession.getAccessControlManager()

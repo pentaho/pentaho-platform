@@ -223,6 +223,8 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
   public void setUp() throws Exception {
     mp = new MicroPlatform();
     // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
+    mp.defineInstance("tenantedRoleNameUtils", tenantedRoleNameUtils);
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance(ITenantManager.class, tenantManager);
     mp.define(ITenant.class, Tenant.class);
@@ -311,8 +313,8 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
   }
 
   protected void login(final String username, final ITenant tenant, String[] roles) {
-    StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
-    pentahoSession.setAuthenticated(tenant.getId(), tenantedUserNameUtils.getPrincipleId(tenant, username));
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(tenant.getId(), username);
     PentahoSessionHolder.setSession(pentahoSession);
     pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
     final String password = "password";
@@ -320,7 +322,7 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
     for (String roleName : roles) {
-      authList.add(new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, roleName)));
+      authList.add(new GrantedAuthorityImpl(roleName));
     }
     GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
     UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
@@ -358,7 +360,7 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
 
   @Test(expected = UsernameNotFoundException.class)
   public void testLoadUserByUsernameUsernameNotFound() {
-    UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils, tenantedRoleNameUtils);
+    UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
     userDetailsService.loadUserByUsername(USERNAME);
   }
@@ -378,20 +380,20 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
     pentahoRole = userRoleDao.createRole(mainTenant_1, ROLE_3, ROLE_DESCRIPTION_3, null);
     userRoleDao.setUserRoles(mainTenant_1,USER_2, new String[] {ROLE_1,ROLE_2, ROLE_3});
 
-    UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils, tenantedRoleNameUtils);
+    UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
     userDetailsService.setDefaultRole(tenantAuthenticatedAuthorityNamePattern);
-    UserDetails userFromService = userDetailsService.loadUserByUsername(tenantedUserNameUtils.getPrincipleId(mainTenant_1, USER_2));
+    UserDetails userFromService = userDetailsService.loadUserByUsername(USER_2);
 
-    assertTrue(userFromService.getUsername().equals(tenantedUserNameUtils.getPrincipleId(mainTenant_1, USER_2)));
+    assertTrue(userFromService.getUsername().equals(USER_2));
     assertTrue(userFromService.getPassword() != null);
     assertTrue(userFromService.isEnabled() == true);
     assertTrue(userFromService.getAuthorities().length == 4);
     
-    assertTrue(userFromService.getAuthorities()[0].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_0)) || userFromService.getAuthorities()[0].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_3)) || userFromService.getAuthorities()[0].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_2)) || userFromService.getAuthorities()[0].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_1)));
-    assertTrue(userFromService.getAuthorities()[1].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_0)) || userFromService.getAuthorities()[1].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_3)) || userFromService.getAuthorities()[1].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_2)) || userFromService.getAuthorities()[1].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_1)));
-    assertTrue(userFromService.getAuthorities()[2].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_0)) || userFromService.getAuthorities()[2].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_3)) || userFromService.getAuthorities()[2].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_2)) || userFromService.getAuthorities()[2].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_1)));
-    assertTrue(userFromService.getAuthorities()[3].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_0)) || userFromService.getAuthorities()[3].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_3)) || userFromService.getAuthorities()[3].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_2)) || userFromService.getAuthorities()[3].getAuthority().equals(tenantedRoleNameUtils.getPrincipleId(mainTenant_1, ROLE_1)));
+    assertTrue(userFromService.getAuthorities()[0].getAuthority().equals(ROLE_0) || userFromService.getAuthorities()[0].getAuthority().equals(ROLE_3) || userFromService.getAuthorities()[0].getAuthority().equals(ROLE_2) || userFromService.getAuthorities()[0].getAuthority().equals(ROLE_1));
+    assertTrue(userFromService.getAuthorities()[1].getAuthority().equals(ROLE_0) || userFromService.getAuthorities()[1].getAuthority().equals(ROLE_3) || userFromService.getAuthorities()[1].getAuthority().equals(ROLE_2) || userFromService.getAuthorities()[1].getAuthority().equals(ROLE_1));
+    assertTrue(userFromService.getAuthorities()[2].getAuthority().equals(ROLE_0) || userFromService.getAuthorities()[2].getAuthority().equals(ROLE_3) || userFromService.getAuthorities()[2].getAuthority().equals(ROLE_2) || userFromService.getAuthorities()[2].getAuthority().equals(ROLE_1));
+    assertTrue(userFromService.getAuthorities()[3].getAuthority().equals(ROLE_0) || userFromService.getAuthorities()[3].getAuthority().equals(ROLE_3) || userFromService.getAuthorities()[3].getAuthority().equals(ROLE_2) || userFromService.getAuthorities()[3].getAuthority().equals(ROLE_1));
 
     cleanupUserAndRoles("joe", mainTenant_1);
     cleanupUserAndRoles(sysAdminUserName, systemTenant);
@@ -408,10 +410,10 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
     login("joe", mainTenant_1, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
     IPentahoUser pentahoUser = userRoleDao.createUser(mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
 
-    UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils, tenantedRoleNameUtils);
+    UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
     try {
-      userDetailsService.loadUserByUsername(tenantedUserNameUtils.getPrincipleId(mainTenant_1, USER_2));
+      userDetailsService.loadUserByUsername(USER_2);
     } catch(UsernameNotFoundException unnf) {
       assertNotNull(unnf);
     }

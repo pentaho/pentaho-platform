@@ -38,16 +38,16 @@ import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl.Builder;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl.Builder;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -95,8 +95,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
   
   protected JcrTemplate jcrTemplate;
 
-  public RepositoryTenantManager(final IRepositoryFileDao contentDao, final IUserRoleDao userRoleDao, final IRepositoryFileAclDao repositoryFileAclDao, IRoleAuthorizationPolicyRoleBindingDao roleBindingDao, final JcrTemplate jcrTemplate, final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern, final ITenantedPrincipleNameResolver tenantedRoleUtils, final String tenantAdminRoleName) {
-    super(contentDao, userRoleDao, repositoryFileAclDao, roleBindingDao, repositoryAdminUsername, tenantAuthenticatedAuthorityNamePattern, tenantedRoleUtils, tenantAdminRoleName);
+  public RepositoryTenantManager(final IRepositoryFileDao contentDao, final IUserRoleDao userRoleDao, final IRepositoryFileAclDao repositoryFileAclDao, IRoleAuthorizationPolicyRoleBindingDao roleBindingDao, final JcrTemplate jcrTemplate, final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern, final ITenantedPrincipleNameResolver tenantedUserNameResolver, final ITenantedPrincipleNameResolver tenantedRoleNameResolver, final String tenantAdminRoleName) {
+    super(contentDao, userRoleDao, repositoryFileAclDao, roleBindingDao, repositoryAdminUsername, tenantAuthenticatedAuthorityNamePattern, tenantedUserNameResolver, tenantedRoleNameResolver, tenantAdminRoleName);
     this.jcrTemplate = jcrTemplate;
   }
 

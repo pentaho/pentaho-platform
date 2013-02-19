@@ -215,10 +215,10 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
       mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
       mp.defineInstance(IRoleAuthorizationPolicyRoleBindingDao.class, roleBindingDaoTarget);
       mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
-      UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService(tenantedUserNameUtils, tenantedRoleNameUtils);
+      UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
       userDetailsService.setUserRoleDao(userRoleDao);
       
-      userRoleListService = new UserRoleDaoUserRoleListService(tenantedUserNameUtils, tenantedRoleNameUtils, userRoleDao, userDetailsService);
+      userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService);
       ((UserRoleDaoUserRoleListService)userRoleListService).setUserRoleDao(userRoleDao);
       ((UserRoleDaoUserRoleListService)userRoleListService).setUserDetailsService(userDetailsService);
 

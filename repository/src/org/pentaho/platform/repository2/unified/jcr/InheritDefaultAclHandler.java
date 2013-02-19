@@ -33,6 +33,6 @@ public class InheritDefaultAclHandler implements IRepositoryDefaultAclHandler {
    */
   @Override
   public RepositoryFileAcl createDefaultAcl(RepositoryFile repositoryFile) {
-    return new RepositoryFileAcl.Builder(PentahoSessionHolder.getSession().getId()).entriesInheriting(true).build();
+    return new RepositoryFileAcl.Builder(PentahoSessionHolder.getSession().getName()).entriesInheriting(true).build();
   }
 }

@@ -104,7 +104,7 @@ public class SecurityHelper implements ISecurityHelper {
     UserSession session = null;
     ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null);
     if(tenantedUserNameUtils != null) {
-      session = new UserSession(tenantedUserNameUtils.getPrincipleName(principalName), principalName, null, false, paramProvider);
+      session = new UserSession(principalName, null, false, paramProvider);
       ITenant tenant = tenantedUserNameUtils.getTenant(principalName);
       session.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
       session.setAuthenticated(tenant.getId(), principalName);

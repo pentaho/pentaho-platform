@@ -146,6 +146,8 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
     mp = new MicroPlatform();
     // used by DefaultPentahoJackrabbitAccessControlHelper
+    mp.defineInstance("tenantedUserNameUtils", userNameUtils);
+    mp.defineInstance("tenantedRoleNameUtils", roleNameUtils);    
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance(ITenantManager.class, tenantManager);
     mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
@@ -243,8 +245,8 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
    * @tenantAdmin true to add the tenant admin authority to the user's roles
    */
   protected void login(final String username, final ITenant tenant, String[] roles) {
-    StandaloneSession pentahoSession = new StandaloneSession(tenantedUserNameUtils.getPrincipleId(tenant, username));
-    pentahoSession.setAuthenticated(tenant.getId(), tenantedUserNameUtils.getPrincipleId(tenant, username));
+    StandaloneSession pentahoSession = new StandaloneSession(username);
+    pentahoSession.setAuthenticated(tenant.getId(), username);
     PentahoSessionHolder.setSession(pentahoSession);
     pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
     final String password = "password";
@@ -252,7 +254,7 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
     for (String roleName : roles) {
-      authList.add(new GrantedAuthorityImpl(tenantedRoleNameUtils.getPrincipleId(tenant, roleName)));
+      authList.add(new GrantedAuthorityImpl(roleName));
     }
     GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
     UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
@@ -261,7 +263,6 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     // this line necessary for Spring Security's MethodSecurityInterceptor
     SecurityContextHolder.getContext().setAuthentication(auth);
   }
-
 
   @Override
   public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
