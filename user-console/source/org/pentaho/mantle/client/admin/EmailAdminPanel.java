@@ -59,6 +59,15 @@ public class EmailAdminPanel extends SimplePanel {
 	protected ActionBar actionBar;
 	protected DockPanel dockPanel;
 
+	public static native String getUserAgent() 
+	/*-{
+	  return navigator.userAgent.toLowerCase();
+	}-*/;
+
+	public static boolean isIE() {
+	  return getUserAgent().contains("msie");
+	}
+	
 	public EmailAdminPanel() {
 		dockPanel = new DockPanel();
 		actionBar = new ActionBar();
@@ -89,7 +98,11 @@ public class EmailAdminPanel extends SimplePanel {
 		dockPanel.setWidth("100%");
 		this.setWidth("100%");
 		this.setHeight("100%");
-		actionBar.collapse(1);
+		if (isIE()) {
+		  saveButton.setEnabled(false);
+		} else {
+	    actionBar.collapse(1);
+		}
 	}
 
 	private Widget createEmailPanel() {
