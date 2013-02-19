@@ -26,6 +26,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -224,13 +225,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public List<Job> getJobs(@DefaultValue("false") @QueryParam("asCronString") Boolean asCronString) {
     try {
       IPentahoSession session = PentahoSessionHolder.getSession();
-      Principal p = SecurityHelper.getInstance().getAuthentication();
-      final String principalName = (p==null)?session.getName():p.getName();
+      final String principalName = session.getName(); //this authentication wasn't matching with the job user name, changed to get name via the current session
+      final Boolean canAdminister = canAdminister(session);
       
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
-          if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)) {
-            return true;
+          if(canAdminister){
+              return true;
           }
           System.out.println("PRINCIPAL NAME: " + principalName);
           return principalName.equals(job.getUserName());
@@ -246,7 +247,22 @@ public class SchedulerResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
+  
+  private Boolean canAdminister(IPentahoSession session){
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+        return true;
+      }
+      return false;
+  }
 
+  @GET
+  @Path("/canSchedule")
+  @Produces(TEXT_PLAIN)
+  public String doGetCanSchedule() {
+    Boolean isAllowed =  policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING);
+    return isAllowed ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+  }
+  
   @GET
   @Path("/state")
   @Produces("text/plain")
