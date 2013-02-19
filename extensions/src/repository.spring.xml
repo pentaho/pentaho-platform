@@ -460,6 +460,7 @@
       <util:list>
         <value>org.pentaho.repository.read</value>
         <value>org.pentaho.repository.create</value>
+        <value>org.pentaho.scheduler.manage</value>
         <value>org.pentaho.security.administerSecurity</value>
       </util:list>
     </entry>
@@ -467,6 +468,7 @@
       <util:list>
         <value>org.pentaho.repository.read</value>
         <value>org.pentaho.repository.create</value>
+		<value>org.pentaho.scheduler.manage</value>        
         <value>org.pentaho.security.administerSecurity</value>
 		<value>org.pentaho.security.administerSystem</value>      
 	  </util:list>
@@ -649,6 +651,9 @@
   	<constructor-arg ref="repositoryAdminUsername"/>
   	<constructor-arg ref="repositoryFileAclDao"/>
   	<constructor-arg ref="repositoryFileDao"/>
+    <constructor-arg ref="pathConversionHelper"/>
+    <constructor-arg ref="lockHelper"/>        
+   	<constructor-arg ref="defaultAclHandler" />    	  	
   </bean>
 
   <!-- IUserRoleDao implementation -->
