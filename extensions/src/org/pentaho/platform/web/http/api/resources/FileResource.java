@@ -317,7 +317,7 @@ public class FileResource extends AbstractJaxRSResource {
         IOUtils.copy(is, output);
       }
     };
-    return Response.ok(streamingOutput, is.getMimeType()).header("Content-Disposition", "inline; filename=" + repoFile.getName()).build();
+    return Response.ok(streamingOutput, is.getMimeType()).header("Content-Disposition", "inline; filename=\"" + repoFile.getName() + "\"").build();
   }
 
 
