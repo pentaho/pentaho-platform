@@ -554,14 +554,6 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   @GET
-  @Path("/canSchedule")
-  @Produces(TEXT_PLAIN)
-  public String doGetCanSchedule() {
-    Boolean isAllowed =  policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING);
-    return isAllowed ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
-  }
-
-  @GET
   @Path("{pathId : .+}/acl")
   @Produces({APPLICATION_XML, APPLICATION_JSON})
   public RepositoryFileAclDto doGetFileAcl(@PathParam("pathId") String pathId) {

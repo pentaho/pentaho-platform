@@ -187,7 +187,7 @@ public class WorkspacePanel extends SimplePanel {
           WorkspacePanel.this.isAdmin = "true".equalsIgnoreCase(response.getText());
 
           try {
-            final String url2 = GWT.getHostPageBaseURL() + "api/repo/files/canSchedule"; //$NON-NLS-1$
+            final String url2 = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule"; //$NON-NLS-1$
             RequestBuilder requestBuilder2 = new RequestBuilder(RequestBuilder.GET, url2);
             requestBuilder2.setHeader("accept", "text/plain");
             requestBuilder2.sendRequest(null, new RequestCallback() {
