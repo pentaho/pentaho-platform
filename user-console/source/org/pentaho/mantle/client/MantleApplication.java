@@ -219,7 +219,7 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
           SolutionBrowserPanel.getInstance().setAdministrator(isAdministrator);
 
           try {
-            String restUrl2 = GWT.getHostPageBaseURL() + "api/repo/files/canSchedule"; //$NON-NLS-1$
+            String restUrl2 = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule"; //$NON-NLS-1$
             RequestBuilder requestBuilder2 = new RequestBuilder(RequestBuilder.GET, restUrl2);
             requestBuilder2.sendRequest(null, new RequestCallback() {
               @Override
