@@ -227,6 +227,9 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     init();
   }
 
+  /**
+   * Set the widgets according to what is currently in the DOM.
+   */
   public void buildPermissionsTable() {
     String userOrRoleString = ""; //$NON-NLS-1$
     if (usersAndRolesList.getItemCount() == 0) {
@@ -585,7 +588,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   /**
    * @param recipient
-   * @param perm
+   * @param grant true = grant the Permission, false = deny the Permission (remove it if present)
+   * @param perm The integer value of the Permission as defined in <code>RepositoryFilePermissions</code>
    */
   private void updatePermissionForUserOrRole(String recipient, boolean grant, int perm) {
     // first let's see if this node exists

@@ -55,8 +55,6 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   private static final String FRAME_ID_PRE = "frame_"; //$NON-NLS-1$
   private static int frameIdCount = 0;
 
-  private HashSet<IFrameTabPanel> freeFrames = new HashSet<IFrameTabPanel>();
-  
   public MantleTabPanel() {
     this(false);
   }
@@ -133,15 +131,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       }
     }
 
-    IFrameTabPanel panel = null;
-    if (freeFrames.size() > 0) {
-      panel = freeFrames.iterator().next();
-      panel.setName(frameName);
-      // mark as no longer free by removing from set
-      freeFrames.remove(panel);
-    } else {
-      panel = new IFrameTabPanel(frameName);
-    }
+    IFrameTabPanel panel = new IFrameTabPanel(frameName);
     addTab(tabName, tabTooltip, true, panel);
     selectTab(elementId);
 
@@ -247,40 +237,6 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
   private native void setupNativeHooks(MantleTabPanel tabPanel)
   /*-{  
-
-    $wnd.removedAttributes = 0;
-
-    $wnd.purge = function(d) {
-      var a = d.attributes, i, l, n;
-      if (a) {
-          for (i = a.length - 1; i >= 0; i -= 1) {
-              n = a[i].name;
-              d[n] = null;
-              $wnd.removedAttributes++;
-          }
-      }
-      a = d.childNodes;
-      if (a) {
-          l = a.length;
-          for (i = 0; i < l; i += 1) {
-              $wnd.purge(d.childNodes[i]);
-          }
-      }
-    }    
-
-    $wnd.removedChildren = 0;
-    
-    $wnd.removeChildrenFromNode = function(node) {
-      if(typeof node == 'undefined' || node == null) {  
-        return;
-      }
-
-      while (node.hasChildNodes()) {
-        $wnd.removeChildrenFromNode(node.firstChild);        
-        node.removeChild(node.firstChild);
-        $wnd.removedChildren++;
-      }
-    }    
     
     $wnd.enableContentEdit = function(enable) { 
       tabPanel.@org.pentaho.mantle.client.ui.tabs.MantleTabPanel::enableContentEdit(Z)(enable);      
@@ -467,7 +423,6 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
           }
 
           public void okPressed() {
-            ((CustomFrame)((IFrameTabPanel) closeTab.getContent()).getFrame()).removeEventListeners(frameElement);
             clearClosingFrame(frameElement);
             MantleTabPanel.super.closeTab(closeTab, invokePreTabCloseHook);
             if (getTabCount() == 0) {
@@ -480,19 +435,9 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
         return;
       }
 
-      ((CustomFrame)((IFrameTabPanel) closeTab.getContent()).getFrame()).removeEventListeners(frameElement);
       clearClosingFrame(frameElement);
     }
-    MantleTabPanel.super.closeTab(closeTab, invokePreTabCloseHook);
-
-    // since we can't entirely reclaim the frame resources held, keep some around
-    // so we can minimize the extra leakage caused by constantly created more
-    // let's only keep 5 of these guys around so at least some of the resources
-    // can be cleaned up (maybe just wishful thinking)
-    Widget w = closeTab.getContent();
-    if (w instanceof IFrameTabPanel && freeFrames.size() < 5) {
-      freeFrames.add((IFrameTabPanel)w);      
-    }
+    super.closeTab(closeTab, invokePreTabCloseHook);
 
     if (getTabCount() == 0) {
       SolutionBrowserPanel.getInstance().showContent();
@@ -502,17 +447,9 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
   public static native void clearClosingFrame(Element frame)/*-{
     try{
-      frame.contentWindow.dijit.byId('borderContainer').destroy();
-    } catch (e) {
-    }
-    try{
       frame.contentWindow.document.write("");
     } catch(e){
       // ignore XSS
-    }
-    try {
-      frame.contentWindow.location.href = "about:blank";
-    } catch (e) {
     }
   }-*/;
 
