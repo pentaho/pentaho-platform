@@ -20,6 +20,7 @@ import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths.IServerRepositoryPathsStrategy;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 
 
 /**
@@ -59,15 +60,17 @@ public class DefaultServerRepositoryPathsStrategy implements IServerRepositoryPa
   }
 
   public String getTenantHomeFolderPath(final ITenant tenant) {
-    return MessageFormat.format(PATTERN_TENANT_HOME_PATH, tenant.getRootFolderAbsolutePath());
+    return MessageFormat.format(PATTERN_TENANT_HOME_PATH,
+        (tenant == null || tenant.getId() == null) ? JcrTenantUtils.getDefaultTenant().getRootFolderAbsolutePath() : tenant.getRootFolderAbsolutePath());
   }
 
   public String getTenantPublicFolderPath(final ITenant tenant) {
-    return MessageFormat.format(PATTERN_TENANT_PUBLIC_PATH, tenant.getRootFolderAbsolutePath());
+    return MessageFormat.format(PATTERN_TENANT_PUBLIC_PATH,
+        (tenant == null || tenant.getId() == null) ? JcrTenantUtils.getDefaultTenant().getRootFolderAbsolutePath() : tenant.getRootFolderAbsolutePath());
   }
 
   public String getTenantRootFolderPath(final ITenant tenant) {
-    return tenant.getRootFolderAbsolutePath();
+    return (tenant == null || tenant.getId() == null) ? JcrTenantUtils.getDefaultTenant().getRootFolderAbsolutePath() : tenant.getRootFolderAbsolutePath();
   }
 
   public String getUserHomeFolderPath(ITenant tenant, final String username) {
@@ -91,7 +94,8 @@ public class DefaultServerRepositoryPathsStrategy implements IServerRepositoryPa
   }
 
   public String getTenantEtcFolderPath(final ITenant tenant) {
-    return MessageFormat.format(PATTERN_TENANT_ETC_PATH, tenant.getRootFolderAbsolutePath());
+    return MessageFormat.format(PATTERN_TENANT_ETC_PATH,
+        (tenant == null || tenant.getId() == null) ? JcrTenantUtils.getDefaultTenant().getRootFolderAbsolutePath() : tenant.getRootFolderAbsolutePath());
   }
 
   public String getTenantId(final String absPath) {
