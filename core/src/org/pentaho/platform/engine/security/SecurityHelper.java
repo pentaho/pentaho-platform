@@ -93,7 +93,7 @@ public class SecurityHelper implements ISecurityHelper {
   public void becomeUser(final String principalName) {
     becomeUser(principalName, null);
   }
-  
+
   /**
    * Hi-jacks the system for the named user.
    * 
@@ -102,8 +102,9 @@ public class SecurityHelper implements ISecurityHelper {
   @Override
   public void becomeUser(final String principalName, final IParameterProvider paramProvider) {
     UserSession session = null;
-    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils", null);
-    if(tenantedUserNameUtils != null) {
+    ITenantedPrincipleNameResolver tenantedUserNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class,
+        "tenantedUserNameUtils", null);
+    if (tenantedUserNameUtils != null) {
       session = new UserSession(principalName, null, false, paramProvider);
       ITenant tenant = tenantedUserNameUtils.getTenant(principalName);
       session.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
@@ -116,12 +117,12 @@ public class SecurityHelper implements ISecurityHelper {
     Authentication auth = createAuthentication(principalName);
     // TODO We need to figure out how to inject this
     // Get the tenant id from the principle name and set it as an attribute of the pentaho session
-    
+
     PentahoSessionHolder.setSession(session);
     SecurityContextHolder.getContext().setAuthentication(auth);
     PentahoSystem.sessionStartup(PentahoSessionHolder.getSession(), paramProvider);
   }
-  
+
   /**
    * Utility method that allows you to run a block of code as the given user.  
    * Regardless of success or exception situation, the original session and 
@@ -140,9 +141,10 @@ public class SecurityHelper implements ISecurityHelper {
   public <T> T runAsUser(final String principalName, final Callable<T> callable) throws Exception {
     return runAsUser(principalName, null, callable);
   }
-  
+
   @Override
-  public <T> T runAsUser(final String principalName, final IParameterProvider paramProvider, final Callable<T> callable) throws Exception {
+  public <T> T runAsUser(final String principalName, final IParameterProvider paramProvider, final Callable<T> callable)
+      throws Exception {
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
@@ -189,7 +191,7 @@ public class SecurityHelper implements ISecurityHelper {
       SecurityContextHolder.getContext().setAuthentication(origAuth);
     }
   }
-  
+
   /**
    * Utility method that communicates with the installed ACLVoter to determine
    * administrator status
@@ -352,12 +354,12 @@ public class SecurityHelper implements ISecurityHelper {
     Authentication auth = new UsernamePasswordAuthenticationToken(principalName, null, grantedAuthorities);
     return auth;
   }
-  
+
   @Override
   public Authentication getAuthentication() {
     return SecurityContextHolder.getContext().getAuthentication();
   }
-  
+
   /**
    * Remove this method when data-access is JCR-branched
    * @param ignoredSession
@@ -368,7 +370,7 @@ public class SecurityHelper implements ISecurityHelper {
   public Authentication getAuthentication(IPentahoSession ignoredSession, boolean ignoredAllowAnonymous) {
     return getAuthentication();
   }
-  
+
   /**
    * Runs code as system with full privileges.
    */
@@ -376,40 +378,19 @@ public class SecurityHelper implements ISecurityHelper {
   public <T> T runAsSystem(final Callable<T> callable) throws Exception {
     // TODO Substitute the tennant admin user name using the pattern {0}_adminUser
     // final String name = MessageFormat.format("{0}_adminUser", TenantUtils.getTenantId());
-    
-    String name = "joe"; //$NON-NLS-1$
+    String singleTenantAdmin = PentahoSystem.get(String.class, "singleTenantAdminUserName", null);
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
       StandaloneSession session;
       GrantedAuthority[] roles;
-      if (origSession != null && origSession.getAttribute(IPentahoSession.TENANT_ID_KEY) != null) {
-    // create pentaho session
-        name = "jim_" + origSession.getAttribute(IPentahoSession.TENANT_ID_KEY);        
-        session = new StandaloneSession(name);
-        session.setAuthenticated(name);
-        roles = new GrantedAuthority[1];
-        roles[0] = new GrantedAuthorityImpl(origSession.getAttribute(IPentahoSession.TENANT_ID_KEY) + "_Admin");
-      } else {
-        name = "joe";        
-        session = new StandaloneSession(name);
-    session.setAuthenticated(name);
-    // create authentication
-    
-    IAclVoter aclVoter = PentahoSystem.get(IAclVoter.class, null);
-    if (aclVoter != null) {
-      roles = new GrantedAuthority[1];
-      roles[0] = aclVoter.getAdminRole();
-    } else {
-      // silently ignore a missing IAclVoter (access will be denied for lack of roles)
-      roles = new GrantedAuthority[0];
-    }
-      }
-    Authentication auth = new UsernamePasswordAuthenticationToken(name, "", roles); //$NON-NLS-1$
-
-    // set holders
-    PentahoSessionHolder.setSession(session);
-    SecurityContextHolder.getContext().setAuthentication(auth);
+      session = new StandaloneSession(singleTenantAdmin);
+      session.setAuthenticated(singleTenantAdmin);
+      // create authentication
+      Authentication auth = createAuthentication(singleTenantAdmin); //$NON-NLS-1$
+      // set holders
+      PentahoSessionHolder.setSession(session);
+      SecurityContextHolder.getContext().setAuthentication(auth);
       return callable.call();
     } finally {
       IPentahoSession sessionToDestroy = PentahoSessionHolder.getSession();
@@ -424,5 +405,5 @@ public class SecurityHelper implements ISecurityHelper {
       SecurityContextHolder.getContext().setAuthentication(origAuth);
     }
   }
-  
+
 }
