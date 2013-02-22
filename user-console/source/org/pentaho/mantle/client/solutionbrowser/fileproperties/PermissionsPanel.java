@@ -227,6 +227,9 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     init();
   }
 
+  /**
+   * Set the widgets according to what is currently in the DOM.
+   */
   public void buildPermissionsTable() {
     String userOrRoleString = ""; //$NON-NLS-1$
     if (usersAndRolesList.getItemCount() == 0) {
@@ -405,59 +408,61 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       dialogBox.center();
     }
 
-    String metadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$ //$NON-NLS-2$
-    RequestBuilder metadataBuilder = new RequestBuilder(RequestBuilder.GET, metadataUrl);
-    metadataBuilder.setHeader("accept", "application/json");
-    try {
-      metadataBuilder.sendRequest(null, new RequestCallback() {
+    if (SolutionBrowserPanel.getInstance().isAdministrator() && !fileSummary.isFolder()) {
+      String metadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$ //$NON-NLS-2$
+      RequestBuilder metadataBuilder = new RequestBuilder(RequestBuilder.GET, metadataUrl);
+      metadataBuilder.setHeader("accept", "application/json");
+      try {
+        metadataBuilder.sendRequest(null, new RequestCallback() {
 
-        public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
-          dialogBox.center();
-        }
+          public void onError(Request request, Throwable exception) {
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
+            dialogBox.center();
+          }
 
-        public void onResponseReceived(Request request, Response response) {
-          if (response.getStatusCode() == Response.SC_OK) {
-            if (response.getText() != null && !"".equals(response.getText()) && !response.getText().equals("null")) {
-              JSONObject json = (JSONObject) JSONParser.parseLenient(response.getText());
-              if (json != null) {
-                JSONArray arr = (JSONArray) json.get("stringKeyStringValueDto");
-                for (int i = 0; i < arr.size(); i++) {
-                  JSONValue arrVal = arr.get(i);
-                  String key = arrVal.isObject().get("key").isString().stringValue();
-                  String value = arrVal.isObject().get("value").isString().stringValue();
-                  if (key.startsWith(METADATA_PERM_PREFIX)) {
-                    JSONObject nv = new JSONObject();
-                    nv.put(key, new JSONString(value));
-                    metadataPerms.add(nv);
+          public void onResponseReceived(Request request, Response response) {
+            if (response.getStatusCode() == Response.SC_OK) {
+              if (response.getText() != null && !"".equals(response.getText()) && !response.getText().equals("null")) {
+                JSONObject json = (JSONObject) JSONParser.parseLenient(response.getText());
+                if (json != null) {
+                  JSONArray arr = (JSONArray) json.get("stringKeyStringValueDto");
+                  for (int i = 0; i < arr.size(); i++) {
+                    JSONValue arrVal = arr.get(i);
+                    String key = arrVal.isObject().get("key").isString().stringValue();
+                    String value = arrVal.isObject().get("value").isString().stringValue();
+                    if (key.startsWith(METADATA_PERM_PREFIX)) {
+                      JSONObject nv = new JSONObject();
+                      nv.put(key, new JSONString(value));
+                      metadataPerms.add(nv);
+                    }
                   }
-                }
-                for (final JSONObject nv : metadataPerms) {
-                  Set<String> keys = nv.keySet();
-                  for (final String key : keys) {
-                    final CheckBox cb = new CheckBox(Messages.getString(key.substring(METADATA_PERM_PREFIX.length()).toLowerCase()));
-                    cb.setValue(Boolean.parseBoolean(nv.get(key).isString().stringValue()));
-                    cb.addClickHandler(new ClickHandler() {
-                      public void onClick(ClickEvent event) {
-                        dirty = true;
-                        nv.put(key, new JSONString(cb.getValue().toString()));
-                      }
-                    });
-                    metadataPermsPanel.add(cb);
+                  for (final JSONObject nv : metadataPerms) {
+                    Set<String> keys = nv.keySet();
+                    for (final String key : keys) {
+                      final CheckBox cb = new CheckBox(Messages.getString(key.substring(METADATA_PERM_PREFIX.length()).toLowerCase()));
+                      cb.setValue(Boolean.parseBoolean(nv.get(key).isString().stringValue()));
+                      cb.addClickHandler(new ClickHandler() {
+                        public void onClick(ClickEvent event) {
+                          dirty = true;
+                          nv.put(key, new JSONString(cb.getValue().toString()));
+                        }
+                      });
+                      metadataPermsPanel.add(cb);
+                    }
                   }
                 }
               }
+            } else {
+              MessageDialogBox dialogBox = new MessageDialogBox(
+                  Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+              dialogBox.center();
             }
-          } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(
-                Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-            dialogBox.center();
           }
-        }
-      });
-    } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
-      dialogBox.center();
+        });
+      } catch (RequestException e) {
+        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
+        dialogBox.center();
+      }
     }
 
   }
@@ -585,7 +590,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   /**
    * @param recipient
-   * @param perm
+   * @param grant true = grant the Permission, false = deny the Permission (remove it if present)
+   * @param perm The integer value of the Permission as defined in <code>RepositoryFilePermissions</code>
    */
   private void updatePermissionForUserOrRole(String recipient, boolean grant, int perm) {
     // first let's see if this node exists
