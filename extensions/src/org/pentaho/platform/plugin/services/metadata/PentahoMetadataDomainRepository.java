@@ -263,13 +263,24 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
       final RepositoryFile file = getMetadataRepositoryFile(domainId);
       if (file != null) {
         SimpleRepositoryFileData data = repository.getDataForRead(file.getId(), SimpleRepositoryFileData.class);
-        domain = xmiParser.parseXmi(data.getStream());
-        domain.setId(domainId);
-        logger.debug("loaded domain");
+        if(data != null) {
+          domain = xmiParser.parseXmi(data.getStream());
+          domain.setId(domainId);
+          logger.debug("loaded domain");
+  
+          // Load any I18N bundles
+          loadLocaleStrings(domainId, domain);
+          logger.debug("loaded I18N bundles");
+        } else {
+          throw new UnifiedRepositoryException(
+              messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN",
+                  domainId, "not found"));
 
-        // Load any I18N bundles
-        loadLocaleStrings(domainId, domain);
-        logger.debug("loaded I18N bundles");
+        }
+      } else {
+        throw new UnifiedRepositoryException(
+            messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN",
+                domainId, "not found"));
       }
     } catch (Exception e) {
       throw new UnifiedRepositoryException(

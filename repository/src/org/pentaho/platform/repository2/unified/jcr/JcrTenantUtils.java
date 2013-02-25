@@ -14,29 +14,30 @@ public class JcrTenantUtils {
   
   private static ITenantedPrincipleNameResolver userNameUtils;
   private static ITenantedPrincipleNameResolver roleNameUtils;
-
+  private static String repositoryAdminUsername;
   public static ITenantedPrincipleNameResolver getUserNameUtils() {
-    if (PentahoSystem.getInitializedOK()) {
+    if (userNameUtils == null && PentahoSystem.getInitializedOK()) {
       userNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedUserNameUtils",
           PentahoSessionHolder.getSession());
-      return userNameUtils;
-    } else {
-      return null;
     }
-  }
+    return userNameUtils;
+   }
 
   public static ITenantedPrincipleNameResolver getRoleNameUtils() {
-    if (PentahoSystem.getInitializedOK()) {
+    if (roleNameUtils == null && PentahoSystem.getInitializedOK()) {
       roleNameUtils = PentahoSystem.get(ITenantedPrincipleNameResolver.class, "tenantedRoleNameUtils",
           PentahoSessionHolder.getSession());
-      return roleNameUtils;
-    } else {
-      return null;
-    }
-
+    } 
+    return roleNameUtils;
   }
 
-
+  private static String getRepositoryAdminUserName() {
+    
+    if (repositoryAdminUsername == null && PentahoSystem.getInitializedOK()) {
+      repositoryAdminUsername = PentahoSystem.get(String.class, "repositoryAdminUsername", PentahoSessionHolder.getSession());
+    }
+    return repositoryAdminUsername;
+  }
   public static String getTenantedRole(String principal) {
     if (principal != null && !principal.equals("administrators") && getRoleNameUtils() != null) {
       ITenant tenant = getRoleNameUtils().getTenant(principal);
@@ -57,7 +58,7 @@ public class JcrTenantUtils {
   }
 
   public static String getTenantedUser(String username) {
-    if (username != null && !username.equals("system") && getUserNameUtils() != null) {
+    if (username != null && !username.equals("system") && !username.equals(getRepositoryAdminUserName()) && getUserNameUtils() != null) {
       ITenant tenant = getUserNameUtils().getTenant(username);
       if (tenant == null || tenant.getId() == null) {
         IPentahoSession pentahoSession = PentahoSessionHolder.getSession();

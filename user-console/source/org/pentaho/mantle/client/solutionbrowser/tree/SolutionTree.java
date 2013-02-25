@@ -70,7 +70,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
   public RepositoryFileTree repositoryFileTree;
   public List<RepositoryFile> trashItems;
   public FileTreeItem trashItem;
-  
+
   private TreeItem selectedItem = null;
 
   FocusPanel focusable = new FocusPanel();
@@ -92,25 +92,25 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     DOM.appendChild(getElement(), focusable.getElement());
     DOM.sinkEvents(focusable.getElement(), Event.FOCUSEVENTS);
 
-    this.addSelectionHandler(new SelectionHandler<TreeItem>(){
+    this.addSelectionHandler(new SelectionHandler<TreeItem>() {
 
       @Override
       public void onSelection(SelectionEvent<TreeItem> event) {
         if (selectedItem != null) {
           Widget treeItemWidget = selectedItem.getWidget();
           if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-            ((LeafItemWidget)treeItemWidget).getLeafLabel().removeStyleDependentName("selected"); //$NON-NLS-1$
+            ((LeafItemWidget) treeItemWidget).getLeafLabel().removeStyleDependentName("selected"); //$NON-NLS-1$
           }
         }
         selectedItem = event.getSelectedItem();
         if (selectedItem != null) {
           Widget treeItemWidget = selectedItem.getWidget();
           if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-            ((LeafItemWidget)treeItemWidget).getLeafLabel().addStyleDependentName("selected"); //$NON-NLS-1$
+            ((LeafItemWidget) treeItemWidget).getLeafLabel().addStyleDependentName("selected"); //$NON-NLS-1$
           }
         }
       }
-      
+
     });
     // By default, expanding a node does not select it. Add that in here
     this.addOpenHandler(new OpenHandler<TreeItem>() {
@@ -125,21 +125,19 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
   }
 
   public void onFetchUserSettings(JsArray<JsSetting> settings) {
-    if (settings == null) {
-      return;
-    }
-
-    for (int i=0;i<settings.length();i++) {
-      JsSetting setting = settings.get(i);
-      if (IMantleUserSettingsConstants.MANTLE_SHOW_LOCALIZED_FILENAMES.equals(setting.getName())) {
-        boolean showLocalizedFileNames = "true".equals(setting.getName()); //$NON-NLS-1$
-        setShowLocalizedFileNames(showLocalizedFileNames);
-      } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
-        boolean useDescriptions = "true".equals(setting.getValue()); //$NON-NLS-1$
-        setUseDescriptionsForTooltip(useDescriptions);
-      } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
-        boolean showHiddenFiles = "true".equals(setting.getValue()); //$NON-NLS-1$
-        setShowHiddenFiles(showHiddenFiles);
+    if (settings != null) {
+      for (int i = 0; i < settings.length(); i++) {
+        JsSetting setting = settings.get(i);
+        if (IMantleUserSettingsConstants.MANTLE_SHOW_LOCALIZED_FILENAMES.equals(setting.getName())) {
+          boolean showLocalizedFileNames = "true".equals(setting.getName()); //$NON-NLS-1$
+          setShowLocalizedFileNames(showLocalizedFileNames);
+        } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
+          boolean useDescriptions = "true".equals(setting.getValue()); //$NON-NLS-1$
+          setUseDescriptionsForTooltip(useDescriptions);
+        } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
+          boolean showHiddenFiles = "true".equals(setting.getValue()); //$NON-NLS-1$
+          setShowHiddenFiles(showHiddenFiles);
+        }
       }
     }
     RepositoryFileTreeManager.getInstance().addRepositoryFileTreeListener(this, null, null, showHiddenFiles);
@@ -172,18 +170,28 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
         MenuBar menuBar = new MenuBar(true);
         menuBar.setAutoOpen(true);
         if (getSelectedItem() != trashItem) {
-          menuBar.addItem(new MenuItem(Messages.getString("createNewFolderEllipsis"), new FolderCommand(FolderCommand.COMMAND.CREATE_FOLDER, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile())));//$NON-NLS-1$
+          menuBar
+              .addItem(new MenuItem(
+                  Messages.getString("createNewFolderEllipsis"), new FolderCommand(FolderCommand.COMMAND.CREATE_FOLDER, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile())));//$NON-NLS-1$
           menuBar.addItem(new MenuItem(Messages.getString("delete"), new FolderCommand(FolderCommand.COMMAND.DELETE, popupMenu, getRepositoryFiles().get(0)))); //$NON-NLS-1$
           menuBar.addSeparator();
-          MenuItem pasteMenuItem = menuBar.addItem(new MenuItem(Messages.getString("paste"), new FolderCommand(FolderCommand.COMMAND.PASTE, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-          pasteMenuItem.setStyleName( SolutionBrowserPanel.getInstance().getClipboard().hasContent() ? "gwt-MenuItem" : "disabledMenuItem");  //$NON-NLS-1$//$NON-NLS-2$
+          MenuItem pasteMenuItem = menuBar
+              .addItem(new MenuItem(
+                  Messages.getString("paste"), new FolderCommand(FolderCommand.COMMAND.PASTE, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
+          pasteMenuItem.setStyleName(SolutionBrowserPanel.getInstance().getClipboard().hasContent() ? "gwt-MenuItem" : "disabledMenuItem"); //$NON-NLS-1$//$NON-NLS-2$
           menuBar.addSeparator();
           if (SolutionBrowserPanel.getInstance().isAdministrator()) {
-            menuBar.addItem(new MenuItem(Messages.getString("exportRepositoryFiles"), new FolderCommand(FolderCommand.COMMAND.EXPORT, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
-            menuBar.addItem(new MenuItem(Messages.getString("importRepositoryFilesElipsis"), new FolderCommand(FolderCommand.COMMAND.IMPORT, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
+            menuBar
+                .addItem(new MenuItem(
+                    Messages.getString("exportRepositoryFiles"), new FolderCommand(FolderCommand.COMMAND.EXPORT, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
+            menuBar
+                .addItem(new MenuItem(
+                    Messages.getString("importRepositoryFilesElipsis"), new FolderCommand(FolderCommand.COMMAND.IMPORT, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
             menuBar.addSeparator();
           }
-          menuBar.addItem(new MenuItem(Messages.getString("propertiesEllipsis"), new FolderCommand(FolderCommand.COMMAND.PROPERTIES, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
+          menuBar
+              .addItem(new MenuItem(
+                  Messages.getString("propertiesEllipsis"), new FolderCommand(FolderCommand.COMMAND.PROPERTIES, popupMenu, ((RepositoryFileTree) this.getSelectedItem().getUserObject()).getFile()))); //$NON-NLS-1$
         } else {
           menuBar.addItem(new MenuItem(Messages.getString("emptyTrashElipsis"), new FolderCommand(FolderCommand.COMMAND.EMPTY_TRASH, popupMenu, null))); //$NON-NLS-1$
         }
@@ -208,12 +216,12 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     super.onLoad();
     try {
       fixLeafNodes();
-      DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px");  //$NON-NLS-1$//$NON-NLS-2$
+      DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$//$NON-NLS-2$
     } catch (NullPointerException e) {
       // This is sometimes thrown because the dom does not yet contain the trash items or the leaf nodes.
     }
   }
-  
+
   public void beforeFetchRepositoryFileTree() {
     WaitPopup.getInstance().setVisible(true);
     if (getSelectedItem() != null) {
@@ -239,8 +247,8 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     FileTreeItem rootItem = null;
     if (createRootNode) {
       rootItem = new FileTreeItem();
-      rootItem.setText(rootRepositoryFile.getPath()); 
-      rootItem.setTitle(rootRepositoryFile.getPath()); 
+      rootItem.setText(rootRepositoryFile.getPath());
+      rootItem.setTitle(rootRepositoryFile.getPath());
       rootItem.getElement().setId(rootRepositoryFile.getPath());
       // added so we can traverse the true names
       rootItem.setFileName("/"); //$NON-NLS-1$
@@ -287,20 +295,20 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
   private void fixLeafNodes() {
     List<FileTreeItem> allNodes = getAllNodes();
     for (FileTreeItem treeItem : allNodes) {
-      RepositoryFileTree userObject = (RepositoryFileTree)treeItem.getUserObject();
+      RepositoryFileTree userObject = (RepositoryFileTree) treeItem.getUserObject();
       if (userObject != null && userObject.getChildren().size() == 0) { // This is a leaf node so change the widget
         treeItem.setWidget(new LeafItemWidget(treeItem.getText(), "mantle/images/treeLeaf.png")); //$NON-NLS-1$
         DOM.setStyleAttribute(treeItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
       }
     }
   }
-  
+
   private void buildTrash() {
     trashItem = new FileTreeItem(new LeafItemWidget("Recycle Bin", "mantle/images/recycle_bin.png")); //$NON-NLS-1$ //$NON-NLS-2$
     this.addItem(trashItem);
-    DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px");  //$NON-NLS-1$//$NON-NLS-2$
+    DOM.setStyleAttribute(trashItem.getElement(), "paddingLeft", "0px"); //$NON-NLS-1$//$NON-NLS-2$
   }
-  
+
   public List<FileTreeItem> getAllNodes() {
     ArrayList<FileTreeItem> nodeList = new ArrayList<FileTreeItem>();
     for (int i = 0; i < this.getItemCount(); i++) {
@@ -321,7 +329,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
   public FileTreeItem getTrashItem() {
     return trashItem;
   }
-  
+
   public List<RepositoryFile> getTrashItems() {
     return trashItems;
   }
@@ -373,7 +381,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     // let's check if the currentItem matches our segments (it might point to the last item before
     // we eventually failed to find the complete match)
     FileTreeItem tmpItem = currentItem;
-    depth = pathSegments.size()-1;
+    depth = pathSegments.size() - 1;
     while (tmpItem != null && depth >= 0) {
       if (tmpItem.getFileName().equalsIgnoreCase(pathSegments.get(depth))) {
         tmpItem = (FileTreeItem) tmpItem.getParentItem();
@@ -394,7 +402,8 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       if (pathDown == null) {
         for (int j = 0; j < getItemCount(); j++) {
           TreeItem possibleItem = getItem(j);
-          if ((possibleItem instanceof FileTreeItem) && (parent instanceof FileTreeItem) && ((FileTreeItem)parent).getFileName().equals(((FileTreeItem)possibleItem).getFileName())) {
+          if ((possibleItem instanceof FileTreeItem) && (parent instanceof FileTreeItem)
+              && ((FileTreeItem) parent).getFileName().equals(((FileTreeItem) possibleItem).getFileName())) {
             pathDown = possibleItem;
             pathDown.setState(true, true);
             pathDown.setSelected(true);
@@ -404,7 +413,8 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       } else {
         for (int j = 0; j < pathDown.getChildCount(); j++) {
           TreeItem possibleItem = pathDown.getChild(j);
-          if ((possibleItem instanceof FileTreeItem) && (parent instanceof FileTreeItem) && ((FileTreeItem)parent).getFileName().equals(((FileTreeItem)possibleItem).getFileName())) {
+          if ((possibleItem instanceof FileTreeItem) && (parent instanceof FileTreeItem)
+              && ((FileTreeItem) parent).getFileName().equals(((FileTreeItem) possibleItem).getFileName())) {
             pathDown = possibleItem;
             pathDown.setState(true, true);
             break;
@@ -420,12 +430,12 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
 
   private void buildSolutionTree(FileTreeItem parentTreeItem, RepositoryFileTree repositoryFileTree) {
     List<RepositoryFileTree> children = repositoryFileTree.getChildren();
-    for (RepositoryFileTree treeItem:children) {
+    for (RepositoryFileTree treeItem : children) {
       RepositoryFile file = treeItem.getFile();
       boolean isDirectory = file.isFolder();
       String fileName = file.getName();
       if (!StringUtils.isEmpty(fileName)) {
-        
+
         // TODO Mapping Title to LocalizedName
         String localizedName = file.getTitle();
         String description = file.getDescription();
@@ -433,7 +443,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
         childTreeItem.getElement().setAttribute("id", file.getPath());//$NON-NLS-1$
         childTreeItem.setUserObject(treeItem);
         ElementUtils.killAllTextSelection(childTreeItem.getElement());
-        childTreeItem.setURL(fileName); 
+        childTreeItem.setURL(fileName);
         if (showLocalizedFileNames) {
           childTreeItem.setText(localizedName);
           if (isUseDescriptionsForTooltip() && !StringUtils.isEmpty(description)) {
@@ -518,7 +528,6 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     }
   }
 
-  
   public void setShowLocalizedFileNames(boolean showLocalizedFileNames) {
     this.showLocalizedFileNames = showLocalizedFileNames;
     // use existing tree and switch text/title

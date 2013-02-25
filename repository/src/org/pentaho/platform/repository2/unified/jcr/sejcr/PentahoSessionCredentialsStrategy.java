@@ -19,8 +19,8 @@ import javax.jcr.SimpleCredentials;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -62,8 +62,6 @@ public class PentahoSessionCredentialsStrategy implements CredentialsStrategy {
   private String getUserId() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
     Assert.state(pentahoSession != null, "this method cannot be called with a null IPentahoSession");
-    // Create a composite key tenant + username for JCR 
-    String tenantId = (String) pentahoSession.getAttribute(IPentahoSession.TENANT_ID_KEY);
-    return tenantedUserNameUtils.getPrincipleId(new Tenant(tenantId, true), pentahoSession.getName());
+    return JcrTenantUtils.getTenantedUser(pentahoSession.getName());
   }
 }

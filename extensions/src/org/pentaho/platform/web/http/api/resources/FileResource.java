@@ -317,7 +317,7 @@ public class FileResource extends AbstractJaxRSResource {
         IOUtils.copy(is, output);
       }
     };
-    return Response.ok(streamingOutput, is.getMimeType()).header("Content-Disposition", "inline; filename=" + repoFile.getName()).build();
+    return Response.ok(streamingOutput, is.getMimeType()).header("Content-Disposition", "inline; filename=\"" + repoFile.getName() + "\"").build();
   }
 
 
@@ -551,14 +551,6 @@ public class FileResource extends AbstractJaxRSResource {
   public String doGetCanAdminister() {
     return policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
         && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
-  }
-
-  @GET
-  @Path("/canSchedule")
-  @Produces(TEXT_PLAIN)
-  public String doGetCanSchedule() {
-    Boolean isAllowed =  policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING);
-    return isAllowed ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
   @GET

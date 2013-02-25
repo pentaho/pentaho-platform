@@ -119,7 +119,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
       JsArray<JsJobParam> jparams = editJob.getJobParams();
       for (int i = 0; i < jparams.length(); i++) {
         urlParams += i == 0 ? "?" : "&";
-        if (jparams.get(i).getValue().startsWith("[")) {
+        if (jparams.get(i).getValue().startsWith("[") && jparams.get(i).getValue().indexOf(",") >= 0) {
           // it's an array!
           StringTokenizer st = new StringTokenizer(jparams.get(i).getValue(), "[],");
           int tokens = st.countTokens();

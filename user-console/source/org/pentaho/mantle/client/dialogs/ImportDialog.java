@@ -111,6 +111,7 @@ public class ImportDialog extends PromptDialogBox {
     okButton.setEnabled(false);
     
     final TextBox fileTextBox = new TextBox();
+    fileTextBox.setHeight("26px");
     fileTextBox.setEnabled(false);
     
     final FileUpload upload = new FileUpload();
@@ -134,7 +135,6 @@ public class ImportDialog extends PromptDialogBox {
     fileUploadPanel.add(new HTML("&nbsp;")); 
     
     Button browseButton = new Button(Messages.getString("browse") +  "...");
-    browseButton.getElement().setId("addFileButton");
     browseButton.setStyleName("pentaho-button");
     fileUploadPanel.add(browseButton);
     browseButton.addClickHandler(

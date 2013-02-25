@@ -196,11 +196,19 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		}
 		if (smtpHostValid && portValid && smtpValid && fromAddressValid && authenticationValid) {
 			if(isDirty) {
-				actionBar.expand(1);
+		    if (isIE()) {
+		      saveButton.setEnabled(true);
+		    } else {
+	        actionBar.expand(1);
+		    }
 			}
 			testButton.setEnabled(true);
 		} else {
-			actionBar.collapse(1);
+      if (isIE()) {
+        saveButton.setEnabled(false);
+      } else {
+        actionBar.collapse(1);
+      }
 			testButton.setEnabled(false);
 		}
 	}
@@ -219,7 +227,11 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-					actionBar.collapse(500);
+		      if (isIE()) {
+		        saveButton.setEnabled(false);
+		      } else {
+            actionBar.collapse(500);
+		      }
 					progressIndicator.inProgress(false);
 					isDirty = false;
 				}
@@ -320,7 +332,11 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 				public void onClose(XulComponent component, XulDialogCallback.Status status, String value) {
 					if (status == XulDialogCallback.Status.ACCEPT) {
-						actionBar.collapse(1);
+		        if (isIE()) {
+		          saveButton.setEnabled(false);
+		        } else {
+              actionBar.collapse(1);
+		        }
 						callback.onSuccess(true);
 					}
 					if (status == XulDialogCallback.Status.CANCEL) {
