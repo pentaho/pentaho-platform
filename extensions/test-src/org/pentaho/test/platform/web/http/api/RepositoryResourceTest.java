@@ -215,6 +215,7 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
       mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
       mp.defineInstance(IRoleAuthorizationPolicyRoleBindingDao.class, roleBindingDaoTarget);
       mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
+      mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
       UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
       userDetailsService.setUserRoleDao(userRoleDao);
       
@@ -234,6 +235,9 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 	clearRoleBindings();
 	// null out fields to get back memory
 	authorizationPolicy = null;
+	loginAsRepositoryAdmin();
+	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
+	logout();
 	repositoryAdminUsername = null;
 	tenantAdminAuthorityNamePattern = null;
 	tenantAuthenticatedAuthorityNamePattern = null;

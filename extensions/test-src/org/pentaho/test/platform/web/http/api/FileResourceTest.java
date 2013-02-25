@@ -176,6 +176,7 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     mp.defineInstance(IRoleAuthorizationPolicyRoleBindingDao.class, roleBindingDaoTarget);
     mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
     mp.defineInstance("tenantedRoleNameUtils", tenantedRoleNameUtils);
+    mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);    
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
 
