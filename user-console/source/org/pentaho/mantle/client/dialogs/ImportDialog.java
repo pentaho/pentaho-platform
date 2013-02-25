@@ -200,12 +200,12 @@ public class ImportDialog extends PromptDialogBox {
     disclosureContent.add(filePermissionsLabel);
     
     final CustomListBox filePermissionsDropDown = new CustomListBox();
-    DefaultListItem retainPermissionsListItem = new DefaultListItem(Messages.getString("retainPermissions"));
-    retainPermissionsListItem.setValue("true");
-    filePermissionsDropDown.addItem(retainPermissionsListItem); //If selected set "overwriteAclPermissions" to true.
     DefaultListItem usePermissionsListItem = new DefaultListItem(Messages.getString("usePermissions"));
     usePermissionsListItem.setValue("false");
     filePermissionsDropDown.addItem(usePermissionsListItem); //If selected set "overwriteAclPermissions" to false.
+    DefaultListItem retainPermissionsListItem = new DefaultListItem(Messages.getString("retainPermissions"));
+    retainPermissionsListItem.setValue("true");
+    filePermissionsDropDown.addItem(retainPermissionsListItem); //If selected set "overwriteAclPermissions" to true.
     DefaultListItem removePermissionsListItem = new DefaultListItem(Messages.getString("removePermissions"));
     removePermissionsListItem.setValue("none");
     filePermissionsDropDown.addItem(removePermissionsListItem); //If selected then set "applyAclPermissions" to false else true.    
