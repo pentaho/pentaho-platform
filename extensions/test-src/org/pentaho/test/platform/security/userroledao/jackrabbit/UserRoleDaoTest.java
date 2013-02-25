@@ -262,11 +262,6 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   public void tearDown() throws Exception {
     // null out fields to get back memory
     authorizationPolicy = null;
-    loginAsRepositoryAdmin();
-    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
-    logout();
-    
-    
     pPrincipalName = null;
     userRoleDaoProxy = null;
     userRoleDaoTestProxy = null;
