@@ -228,7 +228,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance(ITenantManager.class, tenantManager);
     mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
-
+    mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();
