@@ -56,9 +56,17 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     // Verify if destination already exists in the repository.
     final RepositoryFile file = repository.getFile(repositoryFilePath);
     if (file != null) {
-      // If file exists, overwrite is true and is not a folder then update it.
-      if (bundle.overwriteInRepossitory() && !file.isFolder()) {
-        copyFileToRepository(bundle, repositoryFilePath, file);
+      if (bundle.overwriteInRepossitory()) {
+        // If file exists, overwrite is true and is not a folder then update it.
+        if (!file.isFolder()) {
+          copyFileToRepository(bundle, repositoryFilePath, file);
+        } else {
+          // The folder exists. Possible ACL changes.
+          getLogger().trace("Existing folder [" + repositoryFilePath + "]");
+          if (bundle.getAcl() != null) {
+            updateAclFromBundle(false, bundle, file);
+          }
+        }
       }
     } else {
       if (bundle.isFolder()) {
