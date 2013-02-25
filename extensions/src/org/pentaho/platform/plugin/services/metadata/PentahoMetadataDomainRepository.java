@@ -277,11 +277,7 @@ public class PentahoMetadataDomainRepository implements IMetadataDomainRepositor
                   domainId, "not found"));
 
         }
-      } else {
-        throw new UnifiedRepositoryException(
-            messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN",
-                domainId, "not found"));
-      }
+      } 
     } catch (Exception e) {
       throw new UnifiedRepositoryException(
           messages.getErrorString("PentahoMetadataDomainRepository.ERROR_0005_ERROR_RETRIEVING_DOMAIN",

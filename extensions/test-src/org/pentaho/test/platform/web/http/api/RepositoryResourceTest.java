@@ -234,9 +234,6 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 	clearRoleBindings();
 	// null out fields to get back memory
 	authorizationPolicy = null;
-	loginAsRepositoryAdmin();
-	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
-	logout();
 	repositoryAdminUsername = null;
 	tenantAdminAuthorityNamePattern = null;
 	tenantAuthenticatedAuthorityNamePattern = null;
