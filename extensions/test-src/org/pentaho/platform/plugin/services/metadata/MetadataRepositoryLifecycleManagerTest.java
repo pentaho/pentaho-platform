@@ -29,8 +29,6 @@ import java.util.List;
 import javax.jcr.Repository;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -152,10 +150,6 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
   @BeforeClass
   public static void beforeClass() throws Exception {
     System.setProperty(SYSTEM_PROPERTY, "MODE_GLOBAL");
-    Logger.getLogger("org").setLevel(Level.WARN);
-    Logger.getLogger("org.pentaho").setLevel(Level.WARN);
-    Logger.getLogger(RepositoryResource.class).setLevel(Level.DEBUG);
-    Logger.getLogger("MIME_TYPE").setLevel(Level.TRACE);
     PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
     FileUtils.deleteDirectory(new File("/tmp/jackrabbit-test-TRUNK"));
     SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_GLOBAL);
@@ -179,6 +173,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     mp.defineInstance(IRoleAuthorizationPolicyRoleBindingDao.class, roleBindingDaoTarget);
     mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
     mp.defineInstance("tenantedRoleNameUtils", tenantedRoleNameUtils);
+    mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
     userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao,userDetailsService);
@@ -193,10 +188,10 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
   @After
   public void afterTest() throws Exception {
     // null out fields to get back memory
-    authorizationPolicy = null;
     loginAsRepositoryAdmin();
     SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
     logout();
+
     repositoryAdminUsername = null;
     tenantAdminAuthorityNamePattern = null;
     tenantAuthenticatedAuthorityNamePattern = null;

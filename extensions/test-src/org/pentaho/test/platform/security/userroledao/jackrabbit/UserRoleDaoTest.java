@@ -251,7 +251,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
     mp.defineInstance("tenantedRoleNameUtils", tenantedRoleNameUtils);
     mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
-
+    mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
     // Start the micro-platform
     mp.start();
     logout();
@@ -262,6 +262,11 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   public void tearDown() throws Exception {
     // null out fields to get back memory
     authorizationPolicy = null;
+    loginAsRepositoryAdmin();
+    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
+    logout();
+    
+    
     pPrincipalName = null;
     userRoleDaoProxy = null;
     userRoleDaoTestProxy = null;
