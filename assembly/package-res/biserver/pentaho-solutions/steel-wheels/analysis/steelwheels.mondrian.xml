@@ -8,7 +8,7 @@
 				</Table>
         <Level name="Territory" column="TERRITORY" type="String" uniqueMembers="true" levelType="Regular"
                hideMemberIf="Never">
-          <Property name="FORE_COLOR" column="TERRITORY_COLOR" type="Integer">
+          <Property name="CHART_SERIES_COLOR" column="TERRITORY_COLOR" type="Integer">
           </Property>
 				</Level>
         <Level name="Country" column="COUNTRY" levelType="Regular"
@@ -103,13 +103,13 @@
       <Annotations>
         <Annotation name="AnalyzerBusinessGroup">Measures</Annotation>
       </Annotations>
-      <CalculatedMemberProperty name="FORE_COLOR" value="#0000cc" />      
+      <CalculatedMemberProperty name="CHART_SERIES_COLOR" value="#0000cc" />      
 		</Measure>
 		<Measure name="Sales" column="TOTALPRICE" formatString="#,###" aggregator="sum">
       <Annotations>
         <Annotation name="AnalyzerBusinessGroup">Measures</Annotation>
       </Annotations>
-      <CalculatedMemberProperty name="FORE_COLOR" value="#0d8ecf" />      
+      <CalculatedMemberProperty name="CHART_SERIES_COLOR" value="#0d8ecf" />      
 		</Measure>
 	</Cube>
 </Schema>
