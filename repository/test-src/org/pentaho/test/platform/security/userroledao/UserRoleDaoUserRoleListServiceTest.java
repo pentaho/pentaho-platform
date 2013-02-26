@@ -222,7 +222,7 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     mp.defineInstance(ITenantManager.class, tenantManager);
     mp.define(ITenant.class, Tenant.class);
     mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleAuthorizationPolicyRoleBindingDao);
-
+    mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
 
     // Start the micro-platform
     mp.start();
