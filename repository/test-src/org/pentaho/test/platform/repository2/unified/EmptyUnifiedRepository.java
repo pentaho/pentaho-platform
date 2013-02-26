@@ -250,5 +250,8 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
     throw new UnsupportedOperationException();
   }
 
-
+  @Override
+  public String getProductID() {
+	return null;
+  }
 }

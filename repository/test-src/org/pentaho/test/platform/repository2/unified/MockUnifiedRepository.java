@@ -67,6 +67,7 @@ import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPrope
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
+import org.pentaho.platform.util.VersionHelper;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
@@ -1285,6 +1286,11 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   @Override
   public List<Character> getReservedChars() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public String getProductID() {
+     return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }
 
 //  public static void main(final String[] args) throws Exception {

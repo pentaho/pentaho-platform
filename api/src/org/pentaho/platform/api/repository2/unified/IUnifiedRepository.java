@@ -453,4 +453,9 @@ public interface IUnifiedRepository {
    * @return list of reserved characters
    */
   List<Character> getReservedChars();
+  
+  /**
+   * Returns the product ID that was set in the pentaho-platform jar manifests.
+   */
+  String getProductID();
 }

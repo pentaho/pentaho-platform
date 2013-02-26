@@ -16,6 +16,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
+import org.pentaho.platform.util.VersionHelper;
 
 public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   private FileSystemRepositoryFileDao repositoryFileDao;
@@ -235,5 +236,8 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     return Collections.emptyList();
   }
 
-
+  @Override
+  public String getProductID() {
+	  return VersionHelper.getVersionInfo(this.getClass()).getProductID();
+  }
 }

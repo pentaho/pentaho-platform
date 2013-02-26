@@ -430,4 +430,8 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
     }
     return cachedReservedChars;
   }
+
+  public String getProductID() {
+	  return repoWebService.getProductID();
+  }
 }

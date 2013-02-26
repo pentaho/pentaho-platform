@@ -21,6 +21,7 @@ import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.util.VersionHelper;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
@@ -808,5 +809,10 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   public void setDefaultAclHandler(IRepositoryDefaultAclHandler defaultAclHandler) {
     this.defaultAclHandler = defaultAclHandler;
+  }
+
+  @Override
+  public String getProductID() {
+	return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }
 }
