@@ -288,7 +288,6 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
   private String tenantAdminAuthorityNamePattern;
 
   private String tenantAuthenticatedAuthorityNamePattern;
-
   private String superAdminRoleName;
 
   private String sysAdminUserName;
@@ -335,7 +334,7 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     mp.define(ITenant.class, Tenant.class);
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
-
+    mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
     // Start the micro-platform
     mp.start();
     logout();
