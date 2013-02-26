@@ -29,7 +29,11 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.util.IVersionHelper;
+import org.pentaho.platform.engine.core.system.BaseSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.versionchecker.util.VersionHelper;
+import org.pentaho.versionchecker.util.VersionInfo;
 
 /**
  * Implementation of {@link IUnifiedRepositoryWebService} that delegates to an {@link IUnifiedRepository} instance.
@@ -331,5 +335,9 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 	  if(!isAdmin && path.startsWith("/etc")) {
 		  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
 	  }
+  }
+
+  public String getProductID() {
+	  return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }
 }

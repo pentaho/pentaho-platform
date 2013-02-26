@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>clean_repository.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>William E. Seyler</author>  
+    <description>%description</description>  
+    <icon>btn_clean.png</icon>  
+    <help/>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <inputs> 
+    <days_old type="string"> 
+      <default-value>180</default-value> 
+    </days_old> 
+  </inputs>
+
+  <outputs> 
+    <delete_count> 
+      <type>string</type> 
+    </delete_count> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>org.pentaho.plugin.core.ContentRepositoryCleaner</component-name>
+      <action-type>rule</action-type>
+      <action-inputs> 
+        <days_old type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <delete_count type="string"/> 
+      </action-outputs>
+      <component-definition/> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

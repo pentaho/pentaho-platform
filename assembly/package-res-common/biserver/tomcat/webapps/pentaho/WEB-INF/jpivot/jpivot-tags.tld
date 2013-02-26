@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN" "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+<tlib-version>1.0</tlib-version>
+<jsp-version>1.2</jsp-version>
+<short-name>jpivot</short-name>
+<uri>http://www.tonbeller.com/jpivot</uri>
+<display-name>jpivot</display-name>
+<description>
+    JPivot Tag Library.
+  </description>
+<tag>
+<name>chart</name>
+<tag-class>com.tonbeller.jpivot.chart.ChartComponentTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Creates a Chart component. This component does not produce visible output directly, it must be rendered via the WCF render tag.
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>query</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of the Session Attribute that contains the OLAP Data (query and result) for this tag.
+  </description>
+</attribute>
+<attribute>
+<name>baseDisplayURL</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Base link to chart display servlet. Will be parameterized with '?filename=&lt;temp chart image file name&gt;'</description>
+</attribute>
+<attribute>
+<name>controllerURL</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Base link to web application controller for JPivot.
+      Useful for complicated environments like a portal, where you would use
+      a portlet:renderURL</description>
+</attribute>
+</tag>
+<tag>
+<name>chooseQuery</name>
+<tag-class>com.tonbeller.jpivot.tags.ChooseQueryTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      chooses a query that has been previously created with a queryName attribute.
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>queryName</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>name of the query to choose</description>
+</attribute>
+</tag>
+<tag>
+<name>clickable</name>
+<tag-class>com.tonbeller.jpivot.table.navi.ClickableMemberTag</tag-class>
+<body-content>empty</body-content>
+<description>
+      Makes all members of a dimension or level clickable (i.e. generates an anchor).
+      The generated URL contains the unique name of the member.
+      Must be nested inside a table or query tag.
+      
+      The behaviour depends on the sessionParam attribute. If its present, then the parameter
+      value will be written into the com.tonbeller.jpivot.param.SessionParamPool before the
+      new page is shown. If its not present, the parameter will be coded into the hyperlink
+      and must be treated in some way by the receiving page.
+      
+      This tag must be nested either inside a table tag or inside a query tag. Inside the table
+      tag the clickable is available for all queries, inside the query tag its only available
+      for that query.
+    </description>
+<attribute>
+<name>urlPattern</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+        DEPRECATED - do not use in conjunction with session parameters because the browser
+        back button does not work as expected. Use page attribute instead.
+        
+        The pattern to construct the url. If sessionParam attribute is NOT present, then "{0}" will be replaced
+        with the unique name of the member. If urlPattern starts with "/" its relative to
+        the application context, otherwise its absolute
+      </description>
+</attribute>
+<attribute>
+<name>page</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the target page, must start with "/". If not set
+        the current page is re-displayed.
+      </description>
+</attribute>
+<attribute>
+<name>uniqueName</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>unique name of a dimension, hierarchy or level, whose members will be clickable</description>
+</attribute>
+<attribute>
+<name>menuLabel</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if there are multiple clickables specified, they will be displayed in a popup menu, this text will be the label for the menu entry</description>
+</attribute>
+<attribute>
+<name>sessionParam</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>name of the parameter, that will be placed into the com.tonbeller.jpivot.param.SessionParamPool</description>
+</attribute>
+<attribute>
+<name>propertyName</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if present, the value of that member property will be taken for the com.tonbeller.jpivot.param.Parameter sqlValue property</description>
+</attribute>
+<attribute>
+<name>propertyPrefix</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if present, multiple SessionParam will be created, one for each
+      member property whose name starts with propertyPrefix. The name of the SessionParam will be
+      the name of the reminder of the member properties name after the prefix. If present,
+      the attributes sessionParam and propertyName are not allowed.</description>
+</attribute>
+<attribute>
+<name>providerClass</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>if present, an instance of this class will extract the SessionParam instances
+      from the member. The class must implement com.tonbeller.jpivot.table.navi.ClickableMember.ParameterProvider.
+      The attributes sessionParam, propertyName, propertyPrefix are not allowed in this case.</description>
+</attribute>
+</tag>
+<tag>
+<name>destroyQuery</name>
+<tag-class>com.tonbeller.jpivot.tags.DestroyQueryTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      destroys all queries stored with this id
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+</tag>
+<tag>
+<name>mondrianQuery</name>
+<tag-class>com.tonbeller.jpivot.tags.MondrianOlapModelTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Creates a session attribute that allows access to a Mondrian query, its result and navigations.
+      The attribute is always created, if the attribute already existst it will be replaced.
+      So one has to take care that this tag creates the attribute only if it should, e.g. by
+      using JSTL &lt;c:if ... &gt; tags or similar.
+      
+      Its possible to use a predefined JSBC DataSource from the application server or to
+      specify the individual JDBC parameters with this tag.
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>jdbcDriver</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Java class name of the JDBC driver</description>
+</attribute>
+<attribute>
+<name>jdbcUrl</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Connection parameters, these are database specific</description>
+</attribute>
+<attribute>
+<name>jdbcUser</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>user name to connect to the database</description>
+</attribute>
+<attribute>
+<name>jdbcPassword</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>password to connect to the database</description>
+</attribute>
+<attribute>
+<name>dataSource</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>JNDI name of a preconfigured JDBC DataSource, e.g. jdbc/SironTDI. Must not be used with the other JDBC attributes</description>
+</attribute>
+<attribute>
+<name>catalogUri</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Path of the Mondrian schema, relative to the application context, e.g. /WEB-INF/FoodMart.xml</description>
+</attribute>
+<attribute>
+<name>config</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>internal use only</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Role from Mondrian Schema</description>
+</attribute>
+<attribute>
+<name>dynResolver</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>class resolving Mondrian Schema dynamic variables</description>
+</attribute>
+<attribute>
+<name>dynLocale</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Locale for dynamic Mondrian Schema Resolver </description>
+</attribute>
+<attribute>
+<name>connectionPooling</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>"false" will prevent Mondrian from Connection Pooling</description>
+</attribute>
+<attribute>
+<name>dataSourceChangeListener</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>class to detect changes in datasource</description>
+</attribute>
+<attribute>
+<name>queryName</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+        Allows to keep multiple queries within this session attribute. For every
+        queryName, the last query will be stored. Use chooseQuery tag to switch
+        between queryName's or queries.
+      </description>
+</attribute>
+<attribute>
+<name>stackMode</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+        If set to false, all queryNames are treated equally, independent of the
+        order they are created or shown using the chooseQuery tag.
+        
+        If set to true it will keep the different queryName's in a stack. Example:
+        
+          A query with queryName qn1 is created. Then this tag will
+              display that query
+          A query with queryName qn2 is created next. Now there is
+              a stack containing qn1 and qn2. qn2 will
+              be the visible query.
+          At this point, for example, if the user switches back to qn1 using
+              the chooseQuery tag, then qn2 will be destroyed in stack mode. It would
+              not be destroyed in non-stackMode.
+        
+        So in non-stackMode the user can arbitrary choose one of the different queries.
+        In stackMode, if the user goes back to a previously seen query, all "younger" queries
+        will be destroyed.
+      </description>
+</attribute>
+</tag>
+<tag>
+<name>navigator</name>
+<tag-class>com.tonbeller.jpivot.navigator.NavigatorTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Creates the Navigator component. This component does not produce visible output directly, it must be rendered via the WCF render tag.
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>query</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of the Session Attribute that contains the OLAP Data (query and result) for this tag.
+  </description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+</tag>
+<tag>
+<name>print</name>
+<tag-class>com.tonbeller.jpivot.print.PrintComponentTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Creates the Print component. This component does not produce visible output directly,
+      you must create a WCF form to configure and call the print servlet to render to XLS/PDF
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+</tag>
+<tag>
+<name>scalarQuery</name>
+<tag-class>com.tonbeller.jpivot.tags.ScalarOlapModelTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Creates a session attribute that contains an OLAP result consisting of
+      a single cell. The values are provide through tag attributes.
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>value</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression evaluating to the value (number)</description>
+</attribute>
+<attribute>
+<name>formattedValue</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression evaluating to the formatted value (String)</description>
+</attribute>
+<attribute>
+<name>caption</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>EL expression evaluating to the caption (String)</description>
+</attribute>
+<attribute>
+<name>queryName</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>see mondrianQuery</description>
+</attribute>
+<attribute>
+<name>stackMode</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>see mondrianQuery</description>
+</attribute>
+</tag>
+<tag>
+<name>setParam</name>
+<tag-class>com.tonbeller.jpivot.param.SetParameterTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Sets a mdx query parameter from an http parameter or from a session parameter.
+      The body is evaluated only if the http parameter is present, so
+      its a good place to contain a mondrian query.
+      If you use the session Parameter, the body is never evaluated.
+      Exactly one attribute either httpParam or sessionParam must be set.
+    </description>
+<attribute>
+<name>query</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of the Session Attribute that contains the OLAP Data (query and result) for this tag.
+  </description>
+</attribute>
+<attribute>
+<name>httpParam</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of a http parameter. If present, its value will be parsed
+      and set into the mdx parameter</description>
+</attribute>
+<attribute>
+<name>sessionParam</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>name of the session parameter</description>
+</attribute>
+<attribute>
+<name>mdxParam</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the MDX Parameter in the query to modify</description>
+</attribute>
+</tag>
+<tag>
+<name>table</name>
+<tag-class>com.tonbeller.jpivot.table.TableComponentTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Creates a Pivot Table component. This component does not produce visible output directly, it must be rendered via the WCF render tag.
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>visible</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Sets the visible property of the component. The WCF Render tag will not show a component whose visible flag is false</description>
+</attribute>
+<attribute>
+<name>role</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of a role, optionally prefixed by '!'.
+    Example: role='tomcat' allows members of the role tomcat to access
+    this component, role='!tomcat' grants access to everybody except tomcat members.
+  </description>
+</attribute>
+<attribute>
+<name>query</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>
+    Name of the Session Attribute that contains the OLAP Data (query and result) for this tag.
+  </description>
+</attribute>
+<attribute>
+<name>configXml</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Path for a config file that allows to add customer specific code</description>
+</attribute>
+</tag>
+<tag>
+<name>testQuery</name>
+<tag-class>com.tonbeller.jpivot.tags.TestOlapModelTag</tag-class>
+<body-content>JSP</body-content>
+<description>Creates test data that can be displayed by the table or chart components</description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>onRows</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Whitespace separated list of dimensions to show on rows. Possible values are: Measures, Region, Products, Advertising, Material</description>
+</attribute>
+<attribute>
+<name>onColumns</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Whitespace separated list of dimensions to show on columns. Possible values are: Measures, Region, Products, Advertising, Material</description>
+</attribute>
+</tag>
+<tag>
+<name>xmlaQuery</name>
+<tag-class>com.tonbeller.jpivot.xmla.XMLA_OlapModelTag</tag-class>
+<body-content>JSP</body-content>
+<description>
+      Creates a session attribute for an XMLA query. It will be used by components like table
+      or navigator to display the result and navigate the cube.
+      The attribute is always created, if the attribute already exists it will be replaced.
+      So one has to take care that this tag creates the attribute only if it should, e.g. by
+      using JSTL &lt;c:if ... &gt; tags or similar.
+    </description>
+<attribute>
+<name>id</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Name of the Session Attribute that is created by this tag</description>
+</attribute>
+<attribute>
+<name>uri</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>The URI used to access the XMLA server</description>
+</attribute>
+<attribute>
+<name>dataSource</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>DataSourceInfo specification like "Provider=MSOLAP;Data Source=local"</description>
+</attribute>
+<attribute>
+<name>catalog</name>
+<required>true</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Catalog spezification like "Foodmart 2000"</description>
+</attribute>
+<attribute>
+<name>config</name>
+<required>false</required>
+<rtexprvalue>true</rtexprvalue>
+<description>Path to a config file that allows to integrat customer specific code</description>
+</attribute>
+</tag>
+</taglib>

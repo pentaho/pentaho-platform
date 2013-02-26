@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>CurrentPositionTitles.xaction</name>
+  <title>data for map</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description></description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon></icon> 
+  </documentation>
+
+  <inputs> 
+    <dept type="string"> 
+      <default-value>Product Development</default-value>  
+      <sources> 
+        <request>dept</request> 
+      </sources> 
+    </dept> 
+  </inputs>
+
+  <outputs> 
+    <data type="result-set"/>
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Perform SQL Query</action-type>
+      <action-inputs> 
+        <dept type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="data"/> 
+      </action-outputs>
+      <component-definition> 
+        <jndi>SampleData</jndi>  
+        <query><![CDATA[select CUSTOMERS.CUSTOMERNUMBER, CUSTOMERNAME, CITY, STATE, POSTALCODE, SUM(QUANTITYORDERED * PRICEEACH) as VALUE from CUSTOMERS, ORDERS, ORDERDETAILS where CUSTOMERS.CUSTOMERNUMBER = ORDERS.CUSTOMERNUMBER and ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER and COUNTRY='USA' GROUP BY CUSTOMERS.CUSTOMERNUMBER, CUSTOMERNAME, CITY, STATE, POSTALCODE]]></query> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

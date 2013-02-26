@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <title>Regions and departments</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>Kurtis Cruzada</author>  
+    <description>Returns productline total for a Territory</description>  
+    <help/>  
+    <result-type>none</result-type> 
+  </documentation>
+
+  <inputs> 
+    <TERRITORY type="string"> 
+      <sources> 
+        <request>TERRITORY</request> 
+      </sources>  
+      <default-value><![CDATA[NA]]></default-value> 
+    </TERRITORY> 
+  </inputs>
+
+  <outputs> 
+    <rule-result type="result-set"/> 
+  </outputs>
+
+  <resources/>
+  
+  <visible>false</visible>  
+  <!-- Define an input called 'REGION'. This will be passed in when the user clicks on a slice of the pie chart -->  
+  <!-- Define an output called 'rule-result' -->  
+  <!-- This action sequence does not require any external resources -->  
+  <actions> 
+    <action-definition> 
+      <!-- Define a local input called 'REGION' -->  
+      <component-name>SQLLookupRule</component-name>
+      <action-type>Get Data from</action-type>
+      <action-inputs> 
+        <TERRITORY type="string"/> 
+      </action-inputs>
+      <action-outputs> 
+        <query-result type="result-set" mapping="rule-result"/> 
+      </action-outputs>
+      <component-definition> 
+        <!-- Define the datasource for the query -->  
+        <jndi>SampleData</jndi>  
+        <source>sql</source>  
+        <!-- Define the query to execute. Note the parameter {TERRITORY} in the query -->  
+        <query><![CDATA[SELECT PRODUCTS.PRODUCTLINE, SUM(ORDERDETAILS.QUANTITYORDERED*ORDERDETAILS.PRICEEACH) REVENUE FROM ORDERS INNER JOIN ORDERDETAILS ON ORDERS.ORDERNUMBER = ORDERDETAILS.ORDERNUMBER INNER JOIN PRODUCTS ON ORDERDETAILS.PRODUCTCODE =PRODUCTS.PRODUCTCODE  INNER JOIN CUSTOMERS ON ORDERS.CUSTOMERNUMBER =CUSTOMERS.CUSTOMERNUMBER  INNER JOIN EMPLOYEES ON CUSTOMERS.SALESREPEMPLOYEENUMBER = EMPLOYEES.EMPLOYEENUMBER INNER JOIN OFFICES ON EMPLOYEES.OFFICECODE=OFFICES.OFFICECODE WHERE TERRITORY={PREPARE:TERRITORY} GROUP BY PRODUCTS.PRODUCTLINE ORDER BY 2 DESC]]></query> 
+      </component-definition>  
+      <!-- Define a local output called 'rule-result' -->  
+      <!-- Specify the component to execute -->  
+      <!-- Define the settings for the component --> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

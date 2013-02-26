@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin title="Pentaho Action Sequence" name="xaction">
+
+   <static-paths>
+     <static-path url="/xaction/resources" localFolder="resources"/>
+   </static-paths>
+	<content-types>
+		<content-type type="xaction" mime-type="text/html">
+			<title>Action Sequence</title>
+			<description></description>
+			<meta-provider>org.pentaho.platform.engine.services.solution.ActionSequenceFileInfo</meta-provider>
+			<icon-url>api/repos/xaction/resources/images/xaction_file_image.png</icon-url>
+			<operations>
+				<operation>
+					<id>RUN</id>
+				</operation>
+				<operation>
+					<id>NEWWINDOW</id>
+				</operation>        		
+      			<operation>
+        			<id>SCHEDULE_NEW</id>
+        			<perspective>viewer</perspective>
+      			</operation>
+      			<operation>
+        			<id>SCHEDULE_EDIT</id>
+        			<perspective>viewer</perspective>
+      			</operation>
+      			<operation>
+        			<id>BACKGROUND</id>
+      			</operation>
+			</operations>
+	    	</content-type>
+	</content-types>
+</plugin>

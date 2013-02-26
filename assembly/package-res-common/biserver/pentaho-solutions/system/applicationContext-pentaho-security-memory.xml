@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springsource.org/dtd/spring-beans.dtd">
+
+<!--+
+	| Application context containing "in memory" UserRoleListService
+	| implementation.
+	+-->
+
+<beans>
+
+	<bean id="userRoleListEnhancedUserMapFactoryBean"
+		class="org.pentaho.platform.plugin.services.security.userrole.memory.UserRoleListEnhancedUserMapFactoryBean">
+		<property name="userMap" ref="userMap" />
+	</bean>
+
+	<bean id="userRoleListService"
+		class="org.pentaho.platform.plugin.services.security.userrole.memory.InMemoryUserRoleListService">
+		<property name="userRoleListEnhancedUserMap">
+			<ref local="userRoleListEnhancedUserMapFactoryBean" />
+		</property>
+		<property name="userDetailsService" ref="userDetailsService" />
+		<property name="allAuthorities">
+			<list>
+				<bean class="org.springframework.security.GrantedAuthorityImpl">
+					<constructor-arg value="Authenticated" />
+				</bean>
+				<bean class="org.springframework.security.GrantedAuthorityImpl">
+					<constructor-arg value="Admin" />
+				</bean>
+				<bean class="org.springframework.security.GrantedAuthorityImpl">
+					<constructor-arg value="ceo" />
+				</bean>
+				<bean class="org.springframework.security.GrantedAuthorityImpl">
+					<constructor-arg value="cto" />
+				</bean>
+				<bean class="org.springframework.security.GrantedAuthorityImpl">
+					<constructor-arg value="is" />
+				</bean>
+				<bean class="org.springframework.security.GrantedAuthorityImpl">
+					<constructor-arg value="dev" />
+				</bean>
+				<bean class="org.springframework.security.GrantedAuthorityImpl">
+					<constructor-arg value="devmgr" />
+				</bean>
+				<bean class="org.springframework.security.GrantedAuthorityImpl">
+					<constructor-arg value="Anonymous" />
+				</bean>
+			</list>
+		</property>
+    <property name="usernameComparator">
+      <bean class="org.pentaho.platform.engine.security.DefaultUsernameComparator" />
+    </property>
+    <property name="roleComparator">
+      <bean class="org.pentaho.platform.engine.security.DefaultRoleComparator" />
+    </property>
+	</bean>
+
+</beans>

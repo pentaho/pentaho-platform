@@ -35,6 +35,7 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.repository2.messages.Messages;
+import org.pentaho.platform.util.VersionHelper;
 import org.springframework.util.Assert;
 
 /**
@@ -496,4 +497,8 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
 
   }
 
+  @Override
+  public String getProductID() {
+	return VersionHelper.getVersionInfo(this.getClass()).getProductID();  	
+  }
 }

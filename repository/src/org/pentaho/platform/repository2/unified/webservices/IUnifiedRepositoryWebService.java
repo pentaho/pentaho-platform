@@ -17,6 +17,8 @@ package org.pentaho.platform.repository2.unified.webservices;
 import java.util.List;
 import javax.jws.WebService;
 
+import org.pentaho.versionchecker.util.VersionInfo;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 
 /**
@@ -33,6 +35,8 @@ import com.google.gwt.user.client.rpc.RemoteService;
 @WebService
 public interface IUnifiedRepositoryWebService extends RemoteService {
 
+  String getProductID();
+	
   RepositoryFileDto getFile(final String path);
 
   RepositoryFileDto getFileById(final String fileId);

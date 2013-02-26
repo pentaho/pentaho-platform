@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<subscription-schedules>
+  <schedules>
+    <schedule group="Monthly" name="1st day of the month" description="1st day of the month" ref="monthly01-schedule">0 0 4 1 * ?</schedule> 
+    <schedule group="Monthly" name="2nd day of the month" description="2nd day of the month" ref="monthly02-schedule">0 0 4 2 * ?</schedule> 
+    <schedule group="Monthly" name="3rd day of the month" description="3rd day of the month" ref="monthly03-schedule">0 0 4 3 * ?</schedule> 
+    <schedule group="Monthly" name="4th day of the month" description="4th day of the month" ref="monthly04-schedule">0 0 4 4 * ?</schedule> 
+    <schedule group="Monthly" name="5th day of the month" description="5th day of the month" ref="monthly05-schedule">0 0 4 5 * ?</schedule> 
+    <schedule group="Monthly" name="6th day of the month" description="6th day of the month" ref="monthly06-schedule">0 0 4 6 * ?</schedule> 
+    <schedule group="Monthly" name="7th day of the month" description="7th day of the month" ref="monthly07-schedule">0 0 4 7 * ?</schedule> 
+    <schedule group="Monthly" name="8th day of the month" description="8th day of the month" ref="monthly08-schedule">0 0 4 8 * ?</schedule> 
+    <schedule group="Monthly" name="9th day of the month" description="9th day of the month" ref="monthly09-schedule">0 0 4 9 * ?</schedule> 
+    <schedule group="Monthly" name="10th day of the month" description="10th day of the month" ref="monthly10-schedule">0 0 4 10 * ?</schedule> 
+    <schedule group="Monthly" name="11th day of the month" description="11th day of the month" ref="monthly11-schedule">0 0 4 11 * ?</schedule> 
+    <schedule group="Monthly" name="12th day of the month" description="12th day of the month" ref="monthly12-schedule">0 0 4 12 * ?</schedule> 
+    <schedule group="Monthly" name="13th day of the month" description="13th day of the month" ref="monthly13-schedule">0 0 4 13 * ?</schedule> 
+    <schedule group="Monthly" name="14th day of the month" description="14th day of the month" ref="monthly14-schedule">0 0 4 14 * ?</schedule> 
+    <schedule group="Monthly" name="15th day of the month" description="15th day of the month" ref="monthly15-schedule">0 0 4 15 * ?</schedule> 
+    <schedule group="Monthly" name="16th day of the month" description="16th day of the month" ref="monthly16-schedule">0 0 4 16 * ?</schedule> 
+    <schedule group="Monthly" name="17th day of the month" description="17th day of the month" ref="monthly17-schedule">0 0 4 17 * ?</schedule> 
+    <schedule group="Monthly" name="18th day of the month" description="18th day of the month" ref="monthly18-schedule">0 0 4 18 * ?</schedule> 
+    <schedule group="Monthly" name="19th day of the month" description="19th day of the month" ref="monthly19-schedule">0 0 4 19 * ?</schedule> 
+    <schedule group="Monthly" name="20th day of the month" description="20th day of the month" ref="monthly20-schedule">0 0 4 20 * ?</schedule> 
+    <schedule group="Monthly" name="21st day of the month" description="21st day of the month" ref="monthly21-schedule">0 0 4 21 * ?</schedule> 
+    <schedule group="Monthly" name="22nd day of the month" description="22nd day of the month" ref="monthly22-schedule">0 0 4 22 * ?</schedule> 
+    <schedule group="Monthly" name="23rd day of the month" description="23rd day of the month" ref="monthly23-schedule">0 0 4 23 * ?</schedule> 
+    <schedule group="Monthly" name="24th day of the month" description="24th day of the month" ref="monthly24-schedule">0 0 4 24 * ?</schedule> 
+    <schedule group="Monthly" name="25th day of the month" description="25th day of the month" ref="monthly25-schedule">0 0 4 25 * ?</schedule> 
+    <schedule group="Monthly" name="26th day of the month" description="26th day of the month" ref="monthly26-schedule">0 0 4 26 * ?</schedule> 
+    <schedule group="Monthly" name="27th day of the month" description="27th day of the month" ref="monthly27-schedule">0 0 4 27 * ?</schedule> 
+    <schedule group="Monthly" name="28th day of the month" description="28th day of the month" ref="monthly28-schedule">0 0 4 28 * ?</schedule> 
+    <schedule group="Monthly" name="Last day of the month" description="Last day of the month" ref="monthly-last-schedule">0 0 4 L * ?</schedule> 
+  </schedules>
+  <subscription-content>
+    <content action="samples/getting-started/HelloEmail.xaction" type="email" allowAllSchedules="true" />
+    <content action="samples/steel-wheels/reports/invent_subscribe.xaction" type="email" allowAllSchedules="true" />
+    <content action="samples/steel-wheels/analysis/analysis_default.xaction" type="email" allowAllSchedules="true" />
+  </subscription-content>
+  
+</subscription-schedules>
+
+<!-- Cron-Expressions are strings that have seven sub-expressions, they describe individual details of the schedule. 
+  These sub-expressions are separated with white-space, and represent:
+  
+  1. Seconds
+  2. Minutes
+  3. Hours
+  4. Day-of-Month
+  5. Month
+  6. Day-of-Week
+  7. Year (optional field)
+  
+  Values Allowed
+  Seconds - (mandatory) 0-59 , - * /
+  Minutes - (mandatory) 0-59 , - * /
+  Hours   - (mandatory) 0-23 , - * /
+  Day of month - (mandatory)  1-31 , - * ? / L W C
+  Month   - (mandatory) 1-12 or JAN-DEC , - * /
+  Day of week - (mandatory)  1-7 or SUN-SAT , - * ? / L C #
+  Year    - (not mandatory) empty, 1970-2099 , - * /
+  
+  For example, a complete cron-expression, "0 0 12 ? * WED" means "every Wednesday at 12:00 pm".
+  
+  See the Pentaho Subscriptions User Guide for more information on defining Cron-Expressions..
+-->

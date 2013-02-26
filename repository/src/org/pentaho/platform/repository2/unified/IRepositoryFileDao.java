@@ -33,6 +33,8 @@ import org.pentaho.platform.api.repository2.unified.VersionSummary;
  * @author mlowery
  */
 public interface IRepositoryFileDao {
+	
+  String getProductID();
 
   RepositoryFile getFileByAbsolutePath(final String absPath);
 

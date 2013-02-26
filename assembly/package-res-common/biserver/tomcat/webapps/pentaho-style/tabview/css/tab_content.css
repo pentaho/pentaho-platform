@@ -1,0 +1,124 @@
+.style40 {font-family: "Arial"; font-size: 10px; }
+
+.style49 {
+font-family: "Arial"; font-size: 14px;
+color:#000000;
+ 
+ }
+.style51 {
+	color: #666666;
+	font-size: 18px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+.style53 {font-family: "Arial"; font-size: 10px; font-weight: bold; color:#000000 }
+
+.styleMessage {padding: 5px}
+
+
+.sliderInput {
+  	height:20;
+    width:30;
+  	font-family : Arial, Helvetica, sans-serif;
+  	font-size : 12px;
+  }
+	
+body {
+	background-color: #FFFFFF;
+	
+}
+	
+
+.smallfieldcell {
+	width: auto;
+	background-color: #F5F6EA;
+	color: #000000;
+	border: thin solid #284279;
+	font-family: Arial;
+	font-size: 12px;
+	letter-spacing: normal;
+	word-spacing: normal;
+	text-align: left;
+	white-space: normal;
+	text-indent: 2px;
+} 
+
+.smallfieldcell2 {
+	background-color: #D7E5F2;
+	color: #FFFFFF;
+	border: thin solid #284279;
+	font-family: Arial;
+	font-size: 12px;
+	letter-spacing: normal;
+	word-spacing: normal;
+	text-align: left;
+	white-space: normal;
+	text-indent: 5px;
+} 
+
+.smallfieldcell3 {
+	background-color: #D7E5F2;
+	color: #000000;
+	border: thin solid #284279;
+	font-family: Arial;
+	font-size: 12px;
+	letter-spacing: normal;
+	word-spacing: normal;
+	text-align: left;
+	white-space: normal;
+	text-indent: 5px;
+} 
+.style55 {font-size: x-small}
+#apDiv1 {
+	position: relative;
+	width:306px;
+	height:35px;
+	z-index:1;
+}
+#apDiv2 {
+
+    position: relative;
+	top: 10px;
+	z-index:52;
+}
+.green {
+	color: #70A97F;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 10px;
+}
+#loader {
+	position: absolute;
+	width:108px;
+	height:23px;
+	z-index:52;
+	left: 250px;
+	top: 150px;
+	visibility: hidden;
+	border: thin;
+	border-style:solid;
+	border-color:#000000;
+	background: #eeeeee;
+	filter:alpha(opacity=80);
+
+}
+input.groovybutton
+{
+   font-size:11px;
+   font-family:Arial,sans-serif;
+   height:18px;
+   background-color:#779999;
+   background-image:url(/pentaho-style/tabview/images/back03.gif);
+   border-style:solid;
+   border-color:#DDDDDD;
+   border-width:1px;
+}
+
+input.groovybutton2
+{
+	font-size:11px;
+	font-family:Arial,sans-serif;
+	height:18px;
+	background-color:#779999;
+	background-image:url(/pentaho-style/tabview/images/back03.gif);
+	border: 1px solid #000000;
+}

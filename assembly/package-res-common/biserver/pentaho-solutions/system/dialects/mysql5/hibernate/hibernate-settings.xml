@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<settings>
+
+  <!--
+  * This setting allows the deployment to specify where to find the 
+  * database-specific hibernate configuration. The samples supplied
+  * include the following:
+  * 
+  * system/hibernate/hsql.hibernate.cfg.xml
+  * system/hibernate/mysql5.hibernate.cfg.xml
+  * system/hibernate/postgresql.hibernate.cfg.xml
+  * system/hibernate/oracle10g.hibernate.cfg.xml
+  *
+  -->
+    <config-file>system/hibernate/mysql5.hibernate.cfg.xml</config-file>
+
+  <!--
+  *
+  * managed should be set to true if running the BI Platform
+  * in a managed environment (like JBoss, Orion, etc). In this configuration,
+  * you should specify another location for the hibernate.cfg.xml (see below)
+  * instead of simply using the default one provided. This setting essentially
+  * tells the HibernateUtil class to use JNDI to locate the factory class for
+  * getting sessions. This allows the platform to use Hibernate across boundaries
+  * in message beans (for example).
+  *
+    <managed>false</managed>
+  -->
+
+    <managed>false</managed>
+</settings>

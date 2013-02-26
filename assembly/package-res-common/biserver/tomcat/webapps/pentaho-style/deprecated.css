@@ -1,0 +1,161 @@
+/* unused */
+.icon_folder A {
+	PADDING: 10px 0px 0px 45px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/icon_folder.png) no-repeat 0px 0px;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 30px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+/* unused */
+.icon_folder A:hover {
+	#BACKGROUND-POSITION: 0px -463px;
+	color: #ef6507;
+}
+
+/* unused */
+.content_links {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	color: #000000;
+	text-align:left;
+	vertical-align: top;
+	height: 25px;
+	position: relative;
+	padding: 0px 18px 5px 18px;
+}
+
+/* unused */
+.content_related {
+	border: 1px solid #e1e1e1;
+	color: #000000;
+	font: normal 1em Tahoma, Arial;
+	text-align:left;
+	padding: 5px 10px 10px 10px;
+	height: 100%;
+	width: 50%;
+	vertical-align:text-top;
+}
+
+/* unused */
+.content_container_list {
+	border: 0px solid #818f49;
+}
+
+/* unused */
+.content_list {
+	padding: 0px 0px 0px 0px;
+	vertical-align: top;
+}
+
+
+
+
+/* unused */
+.listrow_folder {
+	background-color: #FFFFFF;
+	color: #ef6507;
+	cursor: pointer;
+	BACKGROUND: url(/pentaho-style/images/icon_folder.png) no-repeat 5px 8px;
+	FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+	height: 40px;
+	TEXT-DECORATION: none;
+}
+
+/* unused */
+.listrowon_folder {
+	background-color: #cdcdcd;
+	color: #778645;
+	cursor: pointer;
+	BACKGROUND: url(/pentaho-style/images/icon_folder.png) no-repeat 5px 5px;
+	FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+	height: 40px;
+	TEXT-DECORATION: none;
+	BACKGROUND-POSITION: 5px -455px;
+}
+
+/* unused */
+.listrowon_file {
+	background-color: #cdcdcd;
+	color: #778645;
+	cursor: pointer;
+	FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+	height: 40px;
+	TEXT-DECORATION: none;
+	BACKGROUND-POSITION: 5px -455px;
+}
+
+
+
+
+/* Begin small list */
+
+/* unused */
+.listrow {
+ background-color: #FFFFFF;
+ color: #ef6507;
+ cursor: pointer;
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+ TEXT-DECORATION: none;
+ padding: 0px 0px 0px 5px;
+}
+
+/* unused */
+.listrowon {
+ background-color: #edf1e3;
+ color: #778645;
+ cursor: pointer;
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+ TEXT-DECORATION: none;
+ padding: 0px 0px 0px 5px;
+}
+
+/* unused */
+.list_col_first_sm {
+ TEXT-DECORATION: none;
+ text-align:left;
+ vertical-align: middle;
+ border-bottom: 1px solid #818f49;
+ padding: 3px;
+}
+
+/* unused */
+.list_col_name_sm {
+ TEXT-DECORATION: none;
+ text-align:left;
+ vertical-align: middle;
+ vertical-align: top;
+ border-bottom: 1px solid #818f49;
+ border-left: 1px solid #e0e7d0;
+ padding: 3px;
+ width:75%;
+}
+
+/* unused */
+.list_col_fill_sm {
+ TEXT-DECORATION: none;
+ text-align:left;
+ vertical-align: middle;
+ vertical-align: top;
+ border-bottom: 1px solid #818f49;
+ border-left: 1px solid #e0e7d0;
+ padding: 3px;
+}
+
+/* End small list */
+
+
+
+/* unused */
+.footer_version {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	color: #ef6507;
+	border-top: 1px solid #818f49;
+	padding: 3px 5px 5px 0px;
+	margin: 15px 0px 0px 0px;
+	text-align:right;
+}

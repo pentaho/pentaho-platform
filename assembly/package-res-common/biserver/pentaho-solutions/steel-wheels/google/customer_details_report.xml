@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE report PUBLIC "-//JFreeReport//DTD report definition//EN//simple/version 0.8.5"
+                        "http://jfreereport.sourceforge.net/report-085.dtd">
+<!--
+  The report needs JFreeReport 0.8.6 or the message-field
+  contents will look funny.
+-->
+<report name="Customer Sales History" orientation="portrait" pageformat="LETTER"
+  topmargin="0pt" leftmargin="5pt" bottommargin="0pt" rightmargin="5pt" >
+
+   <configuration> 
+     <property name="org.jfree.report.modules.output.table.html.BodyFragment">true</property> 
+     <property name="org.jfree.report.modules.output.table.html.ProportionalColumnWidths">true</property>
+   </configuration>
+
+  <!-- This is what is called 'title' in JasperReports -->
+
+  <groups>
+
+    <group name="CustomerGroup">
+      <fields>
+        <field>REGION</field>
+        <field>DEPARTMENT</field>
+      </fields>
+      <groupheader fontname="Arial" fontsize="6" fontstyle="plain">
+        <label x="0" y="0" width="160" height="10" color="#000000">Date</label>
+        <label x="160" y="0" width="100" height="14" color="#000000" alignment="right">Amount</label>
+        <label x="460" y="0" width="5" height="14" color="#000000" alignment="right"></label>
+      </groupheader>
+      <!--
+      By specifiying a band height that is greater than the used size, we
+      enforce some empty space between the groups.
+      -->
+      <groupfooter fontname="Arial" fontsize="9" fontstyle="plain" height="24">
+        <label x="0" y="0" width="160" height="14" color="#000000" >Total</label>
+        <number-field x="160" y="0" width="80" height="14" fieldname="TotalSales" format="$#,##0" color="#000000" alignment="right" />
+      </groupfooter>
+    </group>
+  </groups>
+
+  <!-- This is what is called 'detail' in JasperReports -->
+  <items fontname="Arial" fontsize="8" color="#404040">
+    <date-field x="0" y="0" width="160" height="12" fieldname="ORDER DATE" format="dd MMM yyyy"/>
+    <number-field x="160" y="0" width="80" height="12" fieldname="VALUE" format="$#,##0" alignment="right" />
+  </items>
+
+  <functions>
+
+    <expression class="org.jfree.report.function.ItemSumFunction"
+                name="TotalSales">
+      <properties>
+        <property name="field">VALUE</property>
+        <property name="group">CustomerGroup</property>
+      </properties>
+    </expression>
+    
+  </functions>
+</report>
