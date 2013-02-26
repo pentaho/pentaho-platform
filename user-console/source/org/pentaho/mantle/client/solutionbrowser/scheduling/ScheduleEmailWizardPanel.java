@@ -19,6 +19,7 @@ package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessages;
 import org.pentaho.gwt.widgets.client.i18n.WidgetsLocalizedMessagesSingleton;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.mantle.client.messages.Messages;
@@ -29,6 +30,8 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -113,11 +116,15 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
     no.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         emailSchedulePanel.setVisible(!no.getValue());
+        setCanContinue(isValidConfig());
+        setCanFinish(isValidConfig());
       }
     });
     yes.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         emailSchedulePanel.setVisible(yes.getValue());
+        setCanContinue(isValidConfig());
+        setCanFinish(isValidConfig());
       }
     });
     no.setValue(true);
@@ -138,17 +145,24 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
     }
     subjectTextBox.setText(Messages.getString("scheduleDefaultSubject", friendlyFileName));
     attachmentNameTextBox.setText(friendlyFileName);
-    
+
     Label toLabel = new Label(Messages.getString("toColon"));
-    //toLabel.setWidth("130px");
+    // toLabel.setWidth("130px");
     toLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
     Label toAddressLabel = new Label(Messages.getString("scheduleAddressSeparatorMessage"));
     toAddressLabel.setStyleName("msg-Label");
-    
+
     HorizontalPanel toLabelPanel = new HorizontalPanel();
     toLabelPanel.add(toLabel);
     toLabelPanel.add(toAddressLabel);
-    
+
+    toAddressTextBox.addKeyUpHandler(new KeyUpHandler() {
+      public void onKeyUp(KeyUpEvent event) {
+        setCanContinue(isValidConfig());
+        setCanFinish(isValidConfig());
+      }
+    });
+
     emailSchedulePanel.setWidget(0, 0, toLabelPanel);
     toAddressTextBox.getElement().getStyle().setHeight(25, Unit.PX);
     toAddressTextBox.getElement().getStyle().setPaddingLeft(5, Unit.PX);
@@ -196,18 +210,31 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
 
     toAddressTextBox.setFocus(true);
     toAddressTextBox.getElement().focus();
-    
+
     panelWidgetChanged(null);
   }
 
   public String getName() {
-    // TODO Auto-generated method stub
     return MSGS.scheduleEdit();
   }
 
+  private boolean isValidConfig() {
+    if (no.getValue()) {
+      return true;
+    }
+    boolean empty = StringUtils.isEmpty(toAddressTextBox.getText());
+    if (!empty) {
+      int at = toAddressTextBox.getText().indexOf("@");
+      if (at > 0 && at < toAddressTextBox.getText().length() - 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   protected void panelWidgetChanged(Widget changedWidget) {
-    this.setCanContinue(true);
-    this.setCanFinish(true);
+    setCanContinue(isValidConfig());
+    setCanFinish(isValidConfig());
   }
 
 }
