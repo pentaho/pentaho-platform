@@ -20,6 +20,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface IUnifiedRepositoryWebServiceAsync {
 
+  void getProductID(AsyncCallback<String> productId);
+  
   void canUnlockFile(String fileId, AsyncCallback<Boolean> arg2);
 
   void copyFile(String string, String destAbsPath, String versionMessage, AsyncCallback<Void> arg4);

@@ -15,9 +15,8 @@
 package org.pentaho.platform.repository2.unified.webservices;
 
 import java.util.List;
-import javax.jws.WebService;
 
-import org.pentaho.versionchecker.util.VersionInfo;
+import javax.jws.WebService;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
