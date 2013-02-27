@@ -526,11 +526,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             if (response.getStatusCode() == 200) {
               setDone(true);
               NewScheduleDialog.this.hide();
-              MessageDialogBox dialogBox = new MessageDialogBox(
-                  Messages.getString("schedule"), Messages.getString("fileScheduled", filePath.substring(filePath.lastIndexOf("/") + 1)), //$NON-NLS-1$ //$NON-NLS-2$
-                  false, false, true);
-              dialogBox.center();
-
               if (callback != null) {
                 callback.okPressed();
               }
