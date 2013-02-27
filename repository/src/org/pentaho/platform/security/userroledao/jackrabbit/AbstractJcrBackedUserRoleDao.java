@@ -30,7 +30,6 @@ import org.apache.jackrabbit.core.security.user.UserManagerImpl;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.NameFactory;
 import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -44,8 +43,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl.Builder;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
-import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
@@ -152,6 +149,35 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     }
   }
 
+  private void setUserRolesForNewUser(Session session, final ITenant theTenant, final String userName, final String[] roles) throws RepositoryException, NotFoundException {
+    Set<String> roleSet = new HashSet<String>();
+    if (roles != null) {
+      roleSet.addAll(Arrays.asList(roles));
+    }
+    roleSet.add(authenticatedRoleName);
+
+    User jackrabbitUser = getJackrabbitUser(theTenant, userName, session);
+
+    if ((jackrabbitUser == null)
+        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID()) : theTenant)) {
+      throw new NotFoundException("User not found");
+    }
+
+    HashMap<String, Group> finalCollectionOfAssignedGroups = new HashMap<String, Group>();
+    ITenant tenant = theTenant == null ? JcrTenantUtils.getTenant(userName, true) : theTenant;
+    for (String role : roleSet) {
+      Group jackrabbitGroup = getJackrabbitGroup(tenant, role, session);
+      if (jackrabbitGroup != null) {
+        finalCollectionOfAssignedGroups.put(tenantedRoleNameUtils.getPrincipleId(tenant, role), jackrabbitGroup);
+      }
+    }
+
+    ArrayList<String> groupsToAdd = new ArrayList<String>(finalCollectionOfAssignedGroups.keySet());
+    
+    for (String groupId : groupsToAdd) {
+      finalCollectionOfAssignedGroups.get(groupId).addMember(jackrabbitUser);
+    }
+  }
   public void setUserRoles(Session session, final ITenant theTenant, final String userName, final String[] roles)
       throws RepositoryException, NotFoundException {
     Set<String> roleSet = new HashSet<String>();
@@ -240,7 +266,11 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     UserManager tenantUserMgr = getUserManager(tenant, session);
     tenantUserMgr.createUser(userId, password, new PrincipalImpl(userId), "");
     session.save();
-    setUserRoles(session, tenant, user, roles);
+    /** This call is absolutely necessary. setUserRolesForNewUser will never
+    **  inspect what roles this user is a part of. Since this is a new user
+    **  it will not be a part of new roles
+    **/ 
+    setUserRolesForNewUser(session, tenant, user, roles);
     setUserDescription(session, tenant, user, description);
     session.save();
     createUserHomeFolder(tenant, user, session);
