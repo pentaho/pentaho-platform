@@ -1,0 +1,11 @@
+<jboss-app>
+  <module>
+    <service>quartz-ds.xml</service>
+  </module>
+  <module>
+    <service>PentahoHibernate-ds.xml</service>
+  </module>
+
+  <!-- add datasources -->
+
+</jboss-app>

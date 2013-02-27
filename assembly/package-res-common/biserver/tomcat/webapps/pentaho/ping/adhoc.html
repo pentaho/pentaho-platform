@@ -1,0 +1,2039 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!--
+charset below is utf-8 to assist tools reading this file. The value will be replaced with the system encoding
+before returning to client. Do not modify the line below.
+-->
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>Pentaho Business Intelligence Platform</title>
+       
+    <style>
+	CSS - http://localhost:8080/pentaho/Home
+
+    * Collapse All
+    * Expand All
+
+http://localhost:8080/pentaho/Home
+http://localhost:8080/pentaho-style/styles-new.css
+
+A:link {
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	color: #949e3e;
+
+	text-decoration: none;
+
+}
+
+A:visited {
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	color: #949e3e;
+
+	text-decoration: none;
+
+}
+
+A:hover {
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	color: #ef8033;
+
+	text-decoration: none;
+
+}
+
+A:active {
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	color: #ef8033;
+
+	text-decoration: none;
+
+}
+
+
+
+
+
+/* date picker div */
+
+.dpDiv{
+
+	background-color: #e0e0e0;
+
+	border:1px solid #808080;
+
+}
+
+
+
+
+
+.body {
+
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+
+	color: #000000;
+
+	background-color: #ffffff;
+
+	background-image: url();
+
+	background-repeat: repeat;
+
+	background-position: center center;
+
+	margin: 0px;
+
+	padding: 0px;
+
+}
+
+
+
+
+
+
+
+
+
+.homeDashboard {
+
+	text-align: left;
+
+	border: 1px solid #808080;
+
+	background-color: white;
+
+}
+
+
+
+
+
+.banner {
+
+	height: 103px;
+
+	width: 100%;
+
+	vertical-align: top;
+
+	padding: 0px;
+
+	margin: 0px;
+
+	text-align: right;
+
+	background-color: #87944c;
+
+	background-image: url(/pentaho-style/images/bg_home.png);
+
+	background-repeat: no-repeat;
+
+	background-position: center right;
+
+	position:relative;
+
+	top: 0;
+
+	left: 0;
+
+	z-index: 0;
+
+}
+
+
+
+/* used in about.jsp and splash.jsp */
+
+.contentcell_half_left {
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	color: #000000;
+
+	text-align:left;
+
+	vertical-align: top;
+
+	padding: 0px 9px 9px 18px;
+
+	height: 100%;
+
+}
+
+/* used in admin.jsp */
+
+.contentcell_half_right {
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	color: #000000;
+
+	text-align:left;
+
+	vertical-align: top;
+
+	position: relative;
+
+	padding: 0px 18px 9px 9px;
+
+	width: 50%;
+
+}
+
+
+
+/* used in admin.jsp, my workspace */
+
+.content_table {
+
+	width: 98%;
+
+	}
+
+
+
+/* shown on icon view/navigate, */
+
+.content_container {
+
+	border-top: 1px solid #818f49;
+
+}
+
+
+
+/* shown on admin, about */
+
+.content_container2 {
+
+	border-top: 1px solid #818f49;
+
+	width: 100%;
+
+	padding: 0px;
+
+}
+
+
+
+
+
+/* shown on home (in home.jsp) */
+
+.content_container3 {
+
+	border-top: 1px solid #818f49;
+
+}
+
+
+
+
+
+/* used only in files-mini */
+
+.content_home_scroll {
+
+	overflow: auto;
+
+	height: 195px;
+
+	padding-bottom: 14px;
+
+}
+
+
+
+/* commonly used */
+
+.content_body {
+
+	padding: 5px 0px 5px 0px;
+
+	vertical-align: top;
+
+	}
+
+
+
+/* used in file-icons.xsl, files-mini.xsl */
+
+.content_body_scroll {
+
+	padding: 0px 0px 0px 9px;
+
+	vertical-align: top;
+
+	}
+
+
+
+
+
+/* commonly used */
+
+.content_header {
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	margin: 9px 0px 3px 0px;
+
+	color: #ef6507;
+
+}
+
+
+
+/* commonly used */
+
+.content_header_line {
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	margin: 0px 0px 3px 0px;
+
+	color: #ef6507;
+
+}
+
+
+
+
+
+
+
+/* Begin Large Browse list */
+
+
+
+/* files-list.xsl, publishers.xsl */
+
+.list_table {
+
+	width: 98%;
+
+	border-top: 1px solid #808080;
+
+	border-right: 1px solid #808080;
+
+	border-left: 1px solid #808080;
+
+	margin: 0px 0px 0px 5px;
+
+}
+
+
+
+/* files-list.xsl */
+
+.list_colHead_first {
+
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+
+	background-color: #c2cfa2;
+
+	color: black;
+
+	padding: 0px 5px 1px 5px;
+
+	border-right: 1px solid #ffffff;
+
+	border-left: 1px solid #808080;
+
+	border-bottom: 1px solid #808080;
+
+	white-space:nowrap;
+
+}
+
+
+
+/* files-list.xsl */
+
+.list_colHead_fill {
+
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+
+	background-color: #c2cfa2;
+
+	color: black;
+
+	padding: 0px 5px 1px 5px;
+
+	border-right: 1px solid #ffffff;
+
+	border-left: 1px solid #778645;
+
+	border-bottom: 1px solid #808080;
+
+	white-space:nowrap;
+
+}
+
+
+
+
+
+/* files-list.xsl */
+
+
+.listrow_file {
+
+	background-color: #ffffff;
+
+	color: #ef6507;
+
+	font:  normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	height: 40px;
+
+	text-decoration: none;
+
+}
+
+
+
+/* files-list.xsl */
+
+.list_col_first {
+
+	padding: 10px 6px 8px 5px;
+
+	text-decoration: none;
+
+	text-align:left;
+
+	vertical-align: top;
+
+	border-bottom: 1px solid #808080;
+
+}
+
+
+
+/* files-list.xsl */
+
+.list_col_fill {
+
+	padding: 0px 6px 0px 5px;
+
+	text-decoration: none;
+
+	text-align:right;
+
+	vertical-align: top;
+
+	border-bottom: 1px solid #808080;
+
+	border-left: 1px solid #e0e7d0;
+
+}
+
+
+
+/* files-list.xsl, portal-files.xsl */
+
+.list_description {
+
+	color: #000000;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	text-decoration: none;
+
+}
+
+
+
+
+
+.fileFolderDefault {
+
+	border:  1px solid #808080;;
+
+	padding: 5px;
+
+	background-color: #eeeeee;;
+
+}
+
+
+
+.fileFolderHover {
+
+	border:  1px solid #808080;;
+
+	padding: 5px;
+
+	background-color: #dddddd;;
+
+}
+
+
+
+.navigation_table {
+
+	background-color: #ffffff;
+
+	border:  1px solid #808080;
+
+}
+
+
+
+/* End Large Browse list */
+
+
+
+
+
+
+
+/* buttons */
+
+.btn_arrow_dd A {
+
+	padding: 0px 0px -2px 0px;
+
+	DISPLAY: block;
+
+	BACKGROUND: url(/pentaho-style/images/btn_arrow_dd.png) no-repeat 0px 0px;
+
+	WIDTH: 15px;
+
+}
+
+.btn_arrow_dd A:hover {
+
+	BACKGROUND-POSITION: 0px -15px;
+
+}
+
+
+
+.btn_trashcan A {
+
+	padding: 0px 0px -2px 0px;
+
+	DISPLAY: block;
+
+	BACKGROUND: url(/pentaho-style/images/btn_trashcan.png) no-repeat 0px 0px;
+
+	WIDTH: 20px;
+
+}
+
+.btn_trashcan A:hover {
+
+	BACKGROUND-POSITION: 0px -16px
+
+}
+
+
+
+.btn_header A {
+
+	PADDING: 0px 0px 1px 0px;
+
+	DISPLAY: block;
+
+	BACKGROUND: url(/pentaho-style/images/btn_header.png) no-repeat 0px 0px;
+
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 80px;
+
+	TEXT-DECORATION: none;
+
+	color: #ffffff;
+
+	text-align:center;
+
+	white-space:nowrap;
+
+	height: 14px;
+
+}
+
+.btn_header A:active {
+
+	PADDING: 0px 0px 1px 0px;
+
+	DISPLAY: block;
+
+	BACKGROUND: url(/pentaho-style/images/btn_header.png) no-repeat 0px 0px;
+
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 80px;
+
+	TEXT-DECORATION: none;
+
+	color: #ffffff;
+
+	text-align:center;
+
+	white-space:nowrap;
+
+	height: 14px;
+
+}
+
+.btn_header A:visited {
+
+	PADDING: 0px 0px 1px 0px;
+
+	DISPLAY: block;
+
+	BACKGROUND: url(/pentaho-style/images/btn_header.png) no-repeat 0px 0px;
+
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 80px;
+
+	TEXT-DECORATION: none;
+
+	color: #ffffff;
+
+	text-align:center;
+
+	white-space:nowrap;
+
+	height: 14px;
+
+}
+
+.btn_header A:hover {
+
+	BACKGROUND-POSITION: 0px -15px;
+
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+
+	color: #ffffff;
+
+}
+
+
+
+/* Common btn hover below this list */
+
+.btn_scheduler A {
+
+	BACKGROUND: url(/pentaho-style/images/btn_scheduler.png) no-repeat 0px 0px;
+
+	PADDING: 8px 0px 0px 35px;
+
+	DISPLAY: block;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 90%;
+
+	height: 25px;
+
+	TEXT-DECORATION: none;
+
+	color: #000000;
+
+	text-align:left;
+
+	white-space:nowrap;
+
+	vertical-align: top;
+
+}
+
+
+
+.btn_clean A {
+
+	BACKGROUND: url(/pentaho-style/images/btn_clean.png) no-repeat 0px 0px;
+
+	PADDING: 8px 0px 0px 35px;
+
+	DISPLAY: block;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 90%;
+
+	height: 25px;
+
+	TEXT-DECORATION: none;
+
+	color: #000000;
+
+	text-align:left;
+
+	white-space:nowrap;
+
+	vertical-align: top;
+
+}
+
+
+
+.btn_subscriptions A {
+
+	BACKGROUND: url(/pentaho-style/images/btn_subscriptions.png) no-repeat 0px 0px;
+
+	PADDING: 8px 0px 0px 35px;
+
+	DISPLAY: block;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 90%;
+
+	height: 25px;
+
+	TEXT-DECORATION: none;
+
+	color: #000000;
+
+	text-align:left;
+
+	white-space:nowrap;
+
+	vertical-align: top;
+
+}
+
+
+
+.btn_loadrepository A {
+
+	BACKGROUND: url(/pentaho-style/images/btn_loadrepository.png) no-repeat 0px 0px;
+
+	PADDING: 8px 0px 0px 35px;
+
+	DISPLAY: block;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 90%;
+
+	height: 25px;
+
+	TEXT-DECORATION: none;
+
+	color: #000000;
+
+	text-align:left;
+
+	white-space:nowrap;
+
+	vertical-align: top;
+
+}
+
+
+
+.btn_shark A {
+
+	BACKGROUND: url(/pentaho-style/images/btn_shark.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+
+	DISPLAY: block;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 90%;
+
+	height: 25px;
+
+	TEXT-DECORATION: none;
+
+	color: #000000;
+
+	text-align:left;
+
+	white-space:nowrap;
+
+	vertical-align: top;
+
+}
+
+
+
+.btn_solutionrepos A {
+
+	BACKGROUND: url(/pentaho-style/images/btn_solutionrepos.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+
+	DISPLAY: block;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 90%;
+
+	height: 25px;
+
+	TEXT-DECORATION: none;
+
+	color: #000000;
+
+	text-align:left;
+
+	white-space:nowrap;
+
+	vertical-align: top;
+
+}
+
+
+
+.btn_systemsettings A {
+
+	BACKGROUND: url(/pentaho-style/images/btn_systemsettings.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+
+	DISPLAY: block;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 90%;
+
+	height: 25px;
+
+	TEXT-DECORATION: none;
+
+	color: #000000;
+
+	text-align:left;
+
+	white-space:nowrap;
+
+	vertical-align: top;
+
+}
+
+
+
+.btn_globalactions A {
+
+	BACKGROUND: url(/pentaho-style/images/btn_globalactions.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+
+	DISPLAY: block;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	WIDTH: 90%;
+
+	height: 25px;
+
+	TEXT-DECORATION: none;
+
+	color: #000000;
+
+	text-align:left;
+
+	white-space:nowrap;
+
+	vertical-align: top;
+
+}
+
+
+
+/* Begin ALL Main btn hover */
+
+.btn_scheduler A:hover, .btn_clean A:hover, .btn_subscriptions A:hover, .btn_loadrepository A:hover, .btn_shark A:hover, .btn_solutionrepos A:hover, .btn_systemsettings A:hover, .btn_globalactions A:hover {
+
+	background-position: 0px -32px;
+
+	color: #ef6507;
+
+}
+
+/* End ALL Main btn hover */
+
+
+
+
+
+/* BEGIN bread crumbs, portal-files.xsl, PropertiesEditor.jsp, AuditReport.jsp */
+
+.icon_folder_sm A {
+
+	padding: 0px 10px 0px 25px;
+
+	display: block;
+
+	background: url(/pentaho-style/images/icon_folder_sm.png) no-repeat 0px 0px;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+	height: 18px;
+
+	text-decoration: underline;
+
+	color: #778645;
+
+	text-align: left;
+
+	white-space:nowrap;
+
+	vertical-align: top;
+
+}
+
+.icon_folder_sm A:hover {
+
+	background-position: 0px -18px;
+
+	color: #ef6507;
+
+}
+
+/* END bread crumbs, portal-files.xsl, PropertiesEditor.jsp, AuditReport.jsp */
+
+
+
+
+
+
+
+
+
+/* used in Pivot.jsp and template-dialog.html */
+
+div#dialog01_footer {
+
+	border-top: 1px solid black;
+
+	background-color: f2f2f2;
+
+	position:absolute;
+
+	bottom:0;
+
+	left:0;
+
+	width:100%;
+
+	height:50px;
+
+}
+
+
+
+/* used in Pivot.jsp and template-dialog.html */
+
+div#dialog01_content{
+
+	padding: 15px;
+
+}
+
+
+
+
+
+
+
+.btn_hover_off {
+
+ background-color: #cdcdcd;
+
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+ color: #000000;
+
+ cursor: pointer;
+
+ letter-spacing: .15em;
+
+}
+
+
+
+.btn_hover_on {
+
+ background-color: #dfdfdf;
+
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+ color: #ef6507;
+
+ cursor: pointer;
+
+ letter-spacing: .15em;
+
+}
+
+.btn_left {
+
+ background-color: #cdcdcd;
+
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+ cursor: pointer;
+
+ BACKGROUND: url(/pentaho-style/images/btn_left_active.png) no-repeat;
+
+ width: 26px;
+
+}
+
+.btn_middle {
+
+
+ background-color: #cdcdcd;
+
+ cursor: pointer;
+
+ BACKGROUND: url(/pentaho-style/images/btn_middle_active.png) repeat-x;
+
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+ width: 26px;
+
+ height: 38px;
+
+ TEXT-DECORATION: none;
+
+}
+
+.btn_right {
+
+ background-color: #cdcdcd;
+
+ cursor: pointer;
+
+ BACKGROUND: url(/pentaho-style/images/btn_right_active.png) no-repeat;
+
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+ width: 26px;
+
+ height: 38px;
+
+ margin-right: 500px;
+
+ TEXT-DECORATION: none;
+
+}
+
+
+
+.portlet-subsection-header {
+
+	color: #ef6507;
+
+	font: normal 1em Tahoma, Arial;
+
+	text-align:left;
+
+	vertical-align:text-top;
+
+}
+
+
+
+.portlet-font {
+
+	color: #000000;
+
+	font: normal 1em Tahoma, Arial;
+
+	text-align:left;
+
+	vertical-align:text-top;
+
+}
+
+
+
+
+
+.portlet-table-header {
+
+	font: bold .85em Tahoma, "Trebuchet MS", Arial;
+
+	color: #808080;
+
+	}
+
+
+
+.portlet-table-text {
+
+	font: .85em Tahoma, "Trebuchet MS", Arial;
+
+	border-bottom: 1px solid #dddddd;
+
+	color: #000000;
+
+	}
+
+
+
+div.portlet-font {
+
+	font: bold .85em Tahoma, "Trebuchet MS", Arial;
+
+	color: #ffffff;
+
+	background-color: red;
+
+	padding: 5px 10px 5px 10px;
+
+	margin: 5px;
+
+	text-align:center;
+
+	width: 500px;
+
+	border: 1px solid #000000;
+
+	}
+
+
+
+td.portlet-table-header {
+
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+
+	background-color: #c2cfa2;
+
+	color: #000000;
+
+	padding: 0px 5px 1px 5px;
+
+	border-bottom: 1px solid #818f49;
+
+	border-left: 1px solid #778645;
+
+	border-right: 1px solid #ffffff;
+
+	white-space:nowrap;
+
+	}
+
+
+
+
+
+.portlet-table-text	{
+
+ TEXT-DECORATION: none;
+
+ text-align:left;
+
+ vertical-align: top;
+
+ border-bottom: 1px solid #808080;
+
+ border-right: 1px solid #cacaca;
+
+ padding: 5px;
+
+}
+
+/* padding and margin order = top right bottom left */
+
+
+
+
+
+/* BEGIN MESSAGE BOX */
+
+#messagebox td {
+
+	vertical-align:top;
+
+	padding: 0px 0px 3px 0px;
+
+	font: normal .85em Tahoma, Arial, Helvetica, sans-sarif;
+
+	color: #000000;
+
+	line-height: 1.45em;
+
+	padding:0px 0px 5px 0px;
+
+	width: 100%;
+
+}
+
+
+
+#messagebox table {
+
+	padding:0px 0px 5px 0px;
+
+	width: 100%
+
+}
+
+
+
+.messagebox_title {
+
+	color: #5e5e5e;
+
+	padding: 0px 0px 10px 0px;
+
+	font: normal 1.5em Tahoma, Arial, Helvetica, sans-sarif;
+
+}
+
+
+
+.message_top_left {
+
+	background-image: url(/pentaho-style/images/fly-top-left1.png);
+
+}
+
+.message_top_right {
+
+	background-image: url(/pentaho-style/images/fly-top-right1.png);
+
+}
+
+
+
+.message_bottom_left {
+
+	background-image: url(/pentaho-style/images/fly-bot-left1.png);
+
+}
+
+
+
+.message_bottom_right {
+
+	background-image: url(/pentaho-style/images/fly-bot-right1.png);
+
+}
+
+
+
+.message_middle {
+
+	background-image: url(/pentaho-style/images/fly-middle1.png);
+
+	background-repeat: repeat;
+
+}
+
+
+
+.message_middle_top {
+
+	background-image: url(/pentaho-style/images/fly-middle1.png);
+
+	background-repeat: repeat;
+
+	border-top: 1px solid #cecece;
+
+}
+
+
+
+.message_middle_left {
+
+	background-image: url(/pentaho-style/images/fly-middle1.png);
+
+	background-repeat: repeat;
+
+	border-left: 1px solid #cecece;
+
+}
+
+
+
+.message_middle_right {
+
+	background-image: url(/pentaho-style/images/fly-middle1.png);
+
+	background-repeat: repeat;
+
+	border-right: 1px solid #cecece;
+
+}
+
+
+
+.message_middle_bottom {
+
+	background-image: url(/pentaho-style/images/fly-middle1.png);
+
+	background-repeat: repeat;
+
+	border-bottom: 1px solid #cecece;
+
+}
+
+
+
+.message_spacer {
+
+width:25px;
+
+height:25px;
+
+}
+
+/* END MESSAGE BOX */
+
+
+
+/* BEGIN ALERT BOX */
+
+#alertbox td {
+
+vertical-align:top;
+
+padding: 0px 0px 3px 0px;
+
+font-size: .85em;
+
+line-height: 1.45em;
+
+padding:0px 0px 5px 0px;
+
+}
+
+
+
+#alertbox table {
+
+padding:0px 0px 5px 0px;
+
+width: 100%;
+
+}
+
+
+
+.alertbox_title {
+
+	color: #d46464;
+
+	padding: 0px 0px 10px 0px;
+
+	font: normal 1.5em Tahoma, Arial, Helvetica, sans-sarif;
+
+}
+
+
+
+.alert_top_left {
+
+	background-image: url(/pentaho-style/images/alert-top-left.png);
+
+}
+
+.alert_top_right {
+
+	background-image: url(/pentaho-style/images/alert-top-right.png);
+
+}
+
+
+
+.alert_bottom_left {
+
+	background-image: url(/pentaho-style/images/alert-bot-left.png);
+
+}
+
+
+
+.alert_bottom_right {
+
+	background-image: url(/pentaho-style/images/alert-bot-right.png);
+
+}
+
+
+
+.alert_middle {
+
+	background-image: url(/pentaho-style/images/alert-middle.png);
+
+	background-repeat: repeat;
+
+}
+
+
+
+.alert_middle_top {
+
+	background-image: url(/pentaho-style/images/alert-middle.png);
+
+	background-repeat: repeat;
+
+	border-top: 1px solid #f99898;
+
+}
+
+
+
+.alert_middle_left {
+
+	background-image: url(/pentaho-style/images/alert-middle.png);
+
+	background-repeat: repeat;
+
+	border-left: 1px solid #f99898;
+
+}
+
+
+
+.alert_middle_right {
+
+	background-image: url(/pentaho-style/images/alert-middle.png);
+
+	background-repeat: repeat;
+
+	border-right: 1px solid #f99898;
+
+}
+
+
+
+.alert_middle_bottom {
+
+	background-image: url(/pentaho-style/images/alert-middle.png);
+
+	background-repeat: repeat;
+
+	border-bottom: 1px solid #f99898;
+
+}
+
+
+
+.alert_spacer {
+
+	width:25px;
+
+	height:25px;
+
+}
+
+
+
+.alert_icon {
+
+	width:32px;
+
+	height:32px;
+
+	vertical-align:top;
+
+	padding: 0px 10px 0px 0px;
+
+}
+
+/* END ALERT BOX */
+
+
+
+
+
+
+
+
+
+.footer_source_forge_and_disclaimer {
+
+	font: normal .8em Tahoma, "Trebuchet MS", Arial;
+
+	color: #888888;
+
+	border-top: 1px solid #818f49;
+
+	vertical-align: top;
+
+	padding: 5px 5px 0px 0px;
+
+	margin: 15px 0px 0px 0px;
+
+}
+
+
+
+
+
+/* sniffy stuff */
+
+.flyTitle { 
+
+	padding-bottom: 2px; 
+
+	color: #ef8033;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+}
+
+
+
+
+
+.flyDesc {
+
+	padding-top: 5px; 
+
+	color: green;
+
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+
+}
+
+
+
+.flyContent {
+
+	background-color: #e6e9db;
+
+}
+
+
+
+.content_pagehead {
+
+	color: #000000;
+
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+
+}
+
+http://localhost:8080/pentaho-style/menus/transmenu.css
+
+#wrap {
+
+    border:1px solid #000000;
+
+    width:642px;
+
+}
+
+#menu {
+
+	position: absolute;
+
+	right: 0px;
+
+	height: 25px;
+
+	background-color: none;
+
+	z-index:0;
+
+	top: 2px;
+
+}
+
+#menu a {
+
+	display: block;
+
+	font: normal 1.2em Tahoma, Helvetica, sans-serif;
+
+	float: left;
+
+	padding: 1px 11px 1px 11px;
+
+	text-decoration: none;
+
+	color: #ffffff;
+
+}
+
+#menu a.hover {
+
+	background-color: #f1a500;
+
+	color: #ffffff;
+
+	padding: 1px 11px 1px 11px;
+
+	font: normal 1.2em Tahoma, Helvetica, sans-serif;
+
+}
+
+#menu span {
+
+	display:none;
+
+}
+
+#img {
+
+	vertical-align:bottom;
+
+}
+
+
+
+#subnav {
+
+	font-size:100em;
+
+	margin-bottom:2em;
+
+}
+
+#subnav a {
+
+	color:#FB3B00;
+
+	margin-right:1em;
+
+}
+
+#subnav span {
+
+	color:#ffffff;
+
+	margin-right:1.2em;
+
+}
+
+
+
+
+
+
+
+
+
+/* this is the clipping region for the menu. it's width and height get set by script, depending on the size of the items table */
+
+.transMenu {
+
+	position:absolute;
+
+	overflow:hidden;
+
+	left:-1000px;
+
+	top:-1000px;
+
+}
+
+
+
+/* this is the main container for the menu itself. it's width and height get set by script, depending on the size of the items table */
+
+.transMenu .content {
+
+	position:absolute;
+
+	font-weight:normal;
+
+}
+
+
+
+/* this table comprises all menu items. each TR is one item. It is relatively positioned so that the shadow and background transparent divs can be positioned underneath it */
+
+.transMenu .items {
+
+	position:relative;
+
+	left:0px; top:0px;
+
+	z-index:2;
+
+	background-color: #fef9ce;
+
+	border: 1px solid #be8100;
+
+	padding-top: 1px;
+
+	-moz-opacity:1.0;
+
+	filter:alpha(opacity=1.0);
+
+}
+
+
+
+.transMenu.top .items {
+
+	margin-top: 3px;
+
+	border: 1px solid #be8100;
+
+}
+
+
+
+/* each TR.item is one menu item */
+
+.transMenu .item {
+
+	color: #000000;
+
+        font: normal 1em sans-serif;
+
+        text-decoration: none;
+
+	/* this is a hack for mac/ie5, whom incorrectly cascades the border properties of the parent table to each row */
+
+        border: none;
+
+	cursor:pointer;
+
+	cursor:hand;
+
+}
+
+
+
+/* this DIV is the semi-transparent white background of each menu. the -moz-opacity is a proprietary way to get transparency in mozilla, the filter is for IE/windows 5.0+. */
+
+/* we set the background color in script because ie mac does not use it; that browser only uses a semi-transparent white PNG that the spacer gif inside this DIV is replaced by */
+
+.transMenu .background {
+
+	position:absolute;
+
+	left:0px; top:0px;
+
+	z-index:1;
+
+	-moz-opacity:.8;
+
+	filter:alpha(opacity=80);
+
+}
+
+
+
+/* same concept as .background, but this is the sliver of shadow on the right of the menu. It's left, height, and background are set by script. In IE5/mac, it uses a PNG */
+
+.transMenu .shadowRight {
+
+	position:absolute;
+
+	z-index:3;
+
+	top:3px; width:2px;
+
+	-moz-opacity:.4;
+
+	filter:alpha(opacity=40);
+
+}
+
+
+
+/* same concept as .background, but this is the sliver of shadow on the bottom of the menu. It's top, width, and background are set by script. In IE5/mac, it uses a PNG */
+
+.transMenu .shadowBottom {
+
+	position:absolute;
+
+	z-index:1;
+
+	left:3px; height:2px;
+
+	-moz-opacity:.4;
+
+	filter:alpha(opacity=40);
+
+}
+
+
+
+/* this is the class that is used when the mouse is over an item. script sets the row to this class when required. */
+
+.transMenu .item.hover {
+
+	background: #949e3e;
+
+	color: #ffffff;
+
+}
+
+
+
+/* this is either the dingbat that indicates there is a submenu, or a spacer gif in it's place. We give it extra margin to create some space between the text and the dingbat */
+
+.transMenu .item img {
+
+	margin-left:3px;
+
+	padding-top: 3px;
+
+}
+/* New Styles */
+	
+	.style1 {
+	font-size: 16pt;
+	font-weight: bold;
+	color: #F46500;
+}
+    .style2 {font-size: 14pt}
+    .style3 {
+	text-align: left;
+}
+p{
+text-align: left;
+margin: 0;
+padding: 0 0 4px 0;
+}
+
+
+a.button{
+	background: url('images/button_right.png') scroll top right no-repeat;
+	color: #444;
+	display: block;
+	float: right;
+	height: 30px;
+	margin-right: 6px;
+	padding-right: 6px;
+	font-family: arial;
+	font-size: 12px;
+	font-weight:bold;
+	text-decoration: none;
+}
+			
+a.button span {
+	background: url('images/button_left.png') no-repeat;
+	display: block;
+	line-height: 14px;
+	padding: 8px 10px 8px 14px;
+	width: 100px;
+	text-align: center;
+}
+a:hover.button span {
+	background: url('images/button_left.png') no-repeat;
+	display: block;
+	line-height: 14px;
+	/*padding: 8px 10px 8px 14px;*/
+	color: #FF6600;
+	
+}
+
+
+h1{
+	margin: 0;
+	padding: 0;
+	font-size: 1.75em;
+	color: #F46500;
+	text-align: left;
+}
+h2{
+	margin: 0;
+	padding: 0;
+	font-size: 1.5em;
+	color: #F46500;
+	text-align: left;
+}
+h3{
+	margin: 0;
+	padding: 0;
+	font-size: 1.25em;
+	color: #000;
+	text-align: left;
+}
+
+.welcome{
+	font-size: 1.25em;
+	line-height: 1.5em;
+	margin: 0;
+	padding: 20px 10px 0 0;
+	text-align: left;
+}
+    </style>
+
+</head>
+
+<body class="body" dir=ltr>
+
+<div class="banner"></div>
+
+			<div id="menu">
+				<a id="home-menu" href="#">Home</a>
+			</div>
+
+		<div id="backgroundalert" style="display:none;position:absolute;top:3px;left:3px;height:30px;width:200px;z-index:100">
+			<span style="font-size:1em">
+				<a href="file:///C|/Documents and Settings/User/Desktop/Working/Console/UserContent" style="font-size:1em;color:white">
+					*New Files*
+				</a>
+			</span>
+
+		</div>
+
+	
+
+
+	
+
+
+	<center>
+	
+		<BR/>
+	
+		<table width="1000" border="0" style="width:1000">
+			<tr>
+			  <td width="1034"><table width="1000" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="10"><img src="images/gb_top_left.png" height="10" width="10" /></td>
+                  <td background="images/gb_top_mid.png" width="362"><img src="images/Clr.png" width="362" height="10" /></td>
+                  <td colspan="3" background="images/gb_top_mid.png"><img src="images/Clr.png" width="654" height="10" /></td>
+                  <td width="10"><img src="images/gb_top_right.png" height="10" width="10" /></td>
+                </tr>
+                <tr>
+                  <td background="images/gg_mid_left.png">&nbsp;</td>
+                  <td valign="top"><h2>Ad Hoc Reporting</h2>
+                      <p>The Pentaho ad hoc reporting interface is an interactive, AJAX-based, Web client that delivers self-service reporting to business users of any skill level. Powered by Pentaho metadata, the ad hoc reporting interface provides: 
+                      <ul class="style3">
+                        <li>Simple, four-step wizard for creating template based reports</li>
+                        <li>Report generation in a variety of formats including PDF, HTML, Excel, and RTF</li>
+                        <li>Metadata-based query creation without requiring end users to know SQL</li>
+                        <li>Interoperability with Pentaho Report Designer file format </li>
+                      </ul><p></p>
+                  </td>
+                  <td valign="top"><img src="images/adHoc.png" width="322" height="262" /></td>
+                  <td><img src="images/Clr.png" width="10"  height="9"/></td>
+                  <td valign="top"><img src="images/Report.png" width="322" height="262" /></td>
+                  <td background="images/gb_mid_right.png">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td width="10"><img src="images/gb_bottom_left.png" height="10" width="10" /></td>
+                  <td background="images/gb_bottom_mid.png" width="302"><img src="images/Clr.png" width="362" height="10" /></td>
+                  <td colspan="3" background="images/gb_bottom_mid.png"><img src="images/Clr.png" width="654" height="10" /></td>
+                  <td width="10"><img src="images/gb_bottom_right.png" height="10" width="10" /></td>
+                </tr>
+              </table></td>
+		  </tr>
+          <tr>
+          	<td>&nbsp;</td>
+        </tr>
+			<tr>
+			  <td>
+                  <table width="1000" cellpadding="0" cellspacing="0">
+<tr>
+                	<td width="10"><img src="images/gb_top_left.png" height="10" width="10" /></td>
+                    <td background="images/gb_top_mid.png" width="362"><img src="images/Clr.png" width="362" height="10" /></td>
+                    <td colspan="3" background="images/gb_top_mid.png"><img src="images/Clr.png" width="654" height="10" /></td>
+                    <td width="10"><img src="images/gb_top_right.png" height="10" width="10" /></td>
+                  </tr>
+                  <tr>
+                	<td background="images/gg_mid_left.png">&nbsp;</td>
+                    <td valign="top">
+                    	<h2>Centralized Metadata Layer</h2>
+                        <p><img src="images/metadata.png" width="362" height="230" /></p>                    </td>
+                    <td valign="top"><p>To use the ad hoc reporting interface with your own data, you must design a metadata model using the Pentaho Metadata Editor.  Pentaho metadata provides the following features:</p>
+                      <p><ul class="style3">
+                        <li>For designers, the ability to create one report that satisfies multiple end-user needs                        </li>
+                        <li>For business users, the ability to create their own ad hoc reports based on centralized business rules, without any technical skills or knowledge of SQL                        </li>
+                        <li>Centralized maintenance for data connectivity, security, formatting, and more.<br />
+                          </li>
+                    </ul><p></p><img src="images/Clr.png" width="322" height="1" /></td>
+                    <td><img src="images/Clr.png" width="10"  height="9"/></td>
+                    <td valign="top"><table width="322" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td width="10"><img src="images/g_top_left.png" width="10" height="9" /></td>
+                        <td bgcolor="#dee7cb"><img src="images/Clr.png" width="302"  height="9"/></td>
+                        <td width="10"><img src="images/g_top_right.png" width="10" height="9" /></td>
+                      </tr>
+                      <tr>
+                        <td rowspan="2" bgcolor="#dee7cb">&nbsp;</td>
+                        <td bgcolor="#dee7cb">
+                        <p>To launch the Pentaho Report Designer and begin designing your own reports:<br />
+                        <h3>Windows</h3>
+                        <p>From the Windows Start menu, select Program Files > Pentaho > Pentaho Open BI Suite > Metadata Editor
+                        </p>
+                        <p>&nbsp;</p>
+                        <h3>Linux</h3>
+                        <p>Run metaeditor.sh found in the metadata-editor directory under your root Pentaho installation directory
+                        </p></td>
+                        <td rowspan="2" bgcolor="#dee7cb">&nbsp;</td>
+                      </tr>
+                      <tr>
+                        <td bgcolor="#dee7cb"align="right"></td>
+                      </tr>
+                      <tr>
+                        <td width="10"><img src="images/g_bottom_left.png" width="10" height="10" /></td>
+                        <td bgcolor="#dee7cb"><img src="images/Clr.png" width="302"  height="9"/></td>
+                        <td width="10"><img src="images/g_bottom_right.png" width="10" height="10" /></td>
+                      </tr>
+                    </table></td>
+                    <td background="images/gb_mid_right.png">&nbsp;</td>
+                  </tr>
+                  
+                  <tr>
+                	<td width="10"><img src="images/gb_bottom_left.png" height="10" width="10" /></td>
+                    <td background="images/gb_bottom_mid.png" width="302"><img src="images/Clr.png" width="362" height="10" /></td>
+                    <td colspan="3" background="images/gb_bottom_mid.png"><img src="images/Clr.png" width="654" height="10" /></td>
+                    <td width="10"><img src="images/gb_bottom_right.png" height="10" width="10" /></td>
+                  </tr>
+                </table>              </td>
+		  </tr>
+			<tr>
+			  <td>&nbsp;</td>
+		  </tr>
+			<tr>
+			  <td><table width="1000" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="10"><img src="images/gb_top_left.png" height="10" width="10" /></td>
+                  <td background="images/gb_top_mid.png" width="363"><img src="images/Clr.png" width="362" height="10" /></td>
+                  <td colspan="3" background="images/gb_top_mid.png"><img src="images/Clr.png" width="654" height="10" /></td>
+                  <td width="10"><img src="images/gb_top_right.png" height="10" width="10" /></td>
+                </tr>
+                <tr>
+                  <td background="images/gg_mid_left.png">&nbsp;</td>
+                  <td colspan="4" valign="top"><h2>Additional Information</h2>
+                      <p><a href="http://wiki.pentaho.com/display/Reporting/Pentaho+Reporting+Latest">Reporting Documentation</a> – Pentaho Reporting Documentation Wiki<br />
+                        <a href="http://wiki.pentaho.com/display/PentahoDoc/Pentaho+Metadata+Editor">Pentaho Metadata Editor</a> – Documentation Home for Pentaho Metadata Editor<br />
+                        <a href="http://wiki.pentaho.org/display/PentahoDoc/Getting+Started+with+the+BI+Platform">Getting Started with the BI Platform</a> – Introduction to Pentaho Open BI Suite <br />
+                        <a href="http://forums.pentaho.org/forumdisplay.php?f=57">Pentaho Reporting Forums</a> – Collaborate with other members of the Pentaho Reporting community</p>                    
+                      <img src="images/Clr.png" width="10"  height="9"/></td>
+                  <td background="images/gb_mid_right.png">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td width="10"><img src="images/gb_bottom_left.png" height="10" width="10" /></td>
+                  <td background="images/gb_bottom_mid.png" width="363"><img src="images/Clr.png" width="362" height="10" /></td>
+                  <td colspan="3" background="images/gb_bottom_mid.png"><img src="images/Clr.png" width="654" height="10" /></td>
+                  <td width="10"><img src="images/gb_bottom_right.png" height="10" width="10" /></td>
+                </tr>
+              </table></td>
+		  </tr>
+		</table>
+
+	  <BR/>
+</center>
+
+	
+		<table border="0" cellpadding="0" cellspacing="0" width="100%" >
+		<tr>
+			<td width="100%" style="text-align:right">
+				<div class="footer_line">&copy; 2007, Pentaho. Version: Certified Pentaho BI Platform 1.6.2.RC2.1102 (debugging)</div>
+			</td>
+		</tr>
+
+		<tr>
+			<td style="top:10px">
+		  <a href="http://www.sourceforge.net/" target="_blank"><img height="37" id="sflogo" alt="SourceForge.net Logo" src="/pentaho-style/sfLogo.png" width="125" border="0" /></a></td>
+                    <td rowspan="5" background="images/gb_mid_right.png">&nbsp;</td>
+          </tr>
+                  <tr>
+                	<td><img src="images/Clr.png" height="4" width="10" /></td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td>
+                  </tr>
+	</table>
+
+</body>
+</html>

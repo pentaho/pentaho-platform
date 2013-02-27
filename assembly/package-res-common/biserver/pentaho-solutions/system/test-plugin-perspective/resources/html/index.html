@@ -1,0 +1,70 @@
+<html>
+	<head>
+		<title>Test Perspective Content</title>
+	</head>
+	
+	<body bgcolor="white">
+		<H1>It worked!</H1>
+		<p>
+		If you are viewing this the test perspective successfully loaded.
+		</p>
+		<p>
+		This perspective defines a javascript function which is associated with a button on the main toolbar.
+		<p>
+		The main toolbar and menubar in PUC is now interactive.  You can check the state of any button/menu item and toggle enable/disable.
+		</p>
+		<H2>Sample Code</H2>
+		<p>
+		The round green button added to the toolbar when this perspective is active has an id of "test.perspective.test.overlay.button".  
+		To check the state invoke:<BR>
+		<code>
+			var enabled = window.top.mantle_isToolbarButtonEnabled("test.perspective.test.overlay.button");
+		</code>
+		</p>
+		
+		<p>
+		To toggle set the state:<BR>
+		<code>
+			window.top.mantle_setToolbarButtonEnabled("test.perspective.test.overlay.button", !enabled);
+		</code>
+		</p>
+		
+		<H2>Toolbar Interactivity</H2>
+		<p>
+		Click to <button onclick="alert(window.top.mantle_isToolbarButtonEnabled('test.perspective.test.overlay.button'))">read</button> state (enabled/disabled) state of PUC main toolbar button.
+		<BR>
+		Click to <button onclick="window.top.mantle_setToolbarButtonEnabled('test.perspective.test.overlay.button', true)">enable</button> PUC main toolbar button.
+		<BR>
+		Click to <button onclick="window.top.mantle_setToolbarButtonEnabled('test.perspective.test.overlay.button', false)">disable</button> PUC main toolbar button.
+		</p>
+
+		<H2>Menubar Interactivity</H2>
+		<p>
+		Click to <button onclick="alert(window.top.mantle_isMenuItemEnabled('test.perspective.test.overlay.new.menu.item'))">read</button> state (enabled/disabled) state of PUC main menu item.
+		<BR>
+		Click to <button onclick="window.top.mantle_setMenuItemEnabled('test.perspective.test.overlay.new.menu.item', true)">enable</button> PUC main menu item.
+		<BR>
+		Click to <button onclick="window.top.mantle_setMenuItemEnabled('test.perspective.test.overlay.new.menu.item', false)">disable</button> PUC main menu item.
+		</p>
+		
+	</body>
+	
+	<script type="text/javascript">
+	
+		var testButtonEnabled = true;
+	
+		window.top.defaultTestPerspectiveFunction = function() {
+			alert('Success!');
+		}
+		
+		perspectiveActivated = function() {
+			window.top.mantle_setToolbarButtonEnabled('test.perspective.test.overlay.button', testButtonEnabled);
+		}		
+		
+		perspectiveDeactivated = function() {
+			testButtonEnabled = window.top.mantle_isToolbarButtonEnabled('test.perspective.test.overlay.button');
+		}		
+		
+	</script>
+	
+</html>

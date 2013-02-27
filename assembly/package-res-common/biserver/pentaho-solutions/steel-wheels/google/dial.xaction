@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>JFree_ChartComponent.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>DEBUG</logging-level>
+  <documentation> 
+    <author>Michael D'Amour</author>  
+    <description>%description</description>  
+    <icon>JFree_ChartComponent.png</icon>  
+    <help>Help</help>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <inputs> 
+    <chart-type type="string"> 
+      <default-value>.png</default-value>  
+      <sources> 
+        <request>type</request> 
+      </sources> 
+    </chart-type>  
+    <low type="string"> 
+      <sources> 
+        <request>low</request> 
+      </sources> 
+    </low>  
+    <high type="string"> 
+      <sources> 
+        <request>high</request> 
+      </sources> 
+    </high>  
+    <max type="string"> 
+      <sources> 
+        <request>max</request> 
+      </sources> 
+    </max>  
+    <value type="string"> 
+      <sources> 
+        <request>value</request> 
+      </sources> 
+    </value> 
+  </inputs>
+
+  <outputs> 
+    <chart_url type="string"/> 
+  </outputs>
+
+  <resources/>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>rule</action-type>
+      <action-inputs> 
+        <max type="String"/>  
+        <value type="String"/> 
+      </action-inputs>
+      <action-outputs> 
+        <data type="list"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[ 
+			      	data = new JavaScriptResultSet();
+			      	data.setColumnHeaders( new Array( 'actual', 'min', 'max' ) );
+		      		data.addRow( new Array( parseInt(value), 0, parseInt(max) ) );
+		      ]]> </script> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>ChartComponent</component-name>
+      <action-type>Create The Chart</action-type>
+      <action-inputs> 
+        <output-type type="string" mapping="chart-type"/>  
+        <chart-data type="result-set" mapping="data"/>  
+        <low type="String"/>  
+        <high type="String"/>  
+        <max type="String"/> 
+      </action-inputs>
+      <action-outputs> 
+        <chart-filename type="string"/> 
+        <context-path type="string"/>  
+      </action-outputs>
+      <component-definition> 
+        <by-row>true</by-row>  
+        <height>125</height>  
+        <width>125</width>  
+        <title/>  
+        <chart-attributes> 
+          <chart-type>DialChart</chart-type>  
+          <title-position>TOP</title-position>  
+          <height/>  
+          <width/>  
+          <title/>  
+          <title-font> 
+            <font-family>Tahoma</font-family>  
+            <size>8</size>  
+            <is-bold>false</is-bold>  
+            <is-italic>false</is-italic> 
+          </title-font>  
+          <tick-color>#cccccc</tick-color>  
+          <tick-interval>0</tick-interval>  
+          <needle-color>#000080</needle-color>  
+          <chart-background type="color">#cccccc</chart-background>  
+          <plot-background type="color">#ffffff</plot-background>  
+          <!-- orientation>Horizontal</orientation>  
+          <is-3D>false</is-3D>  
+          <is-stacked>false</is-stacked>  
+          <category-label-rotation>90</category-label-rotation -->  
+          <border-visible>false</border-visible>  
+          <border-paint>#808080</border-paint>  
+          <include-legend>false</include-legend>  
+          <stroke-width>1</stroke-width>  
+          <intervals>
+	          <interval> 
+	            <label>low</label>  
+	            <!-- this is the value that the range starts at -->  
+	            <minimum>0</minimum>  
+	            <!-- this is the value that the range stops at -->  
+	            <maximum>{low}</maximum>  
+	            <!--  this is the color of the range -->  
+	            <!-- color>#ff8080</color -->  
+	            <interval-background type="gradient"> 
+	              <color1>#ec1c2f</color1>  
+	              <color2>#ec1c2f</color2>  
+	              <cyclic>false</cyclic> 
+	            </interval-background>  
+	            <!--  this is the color of the text for the range value and tick marks -->  
+	            <text-color>#ec1c2f</text-color> 
+	          </interval>  
+	          <interval> 
+	            <label>mid</label>  
+	            <!-- this is the value that the range starts at -->  
+	            <minimum>{low}</minimum>  
+	            <!-- this is the value that the range stops at -->  
+	            <maximum>{high}</maximum>  
+	            <!--  this is the color of the range -->  
+	            <!-- color>#ff8080</color -->  
+	            <interval-background type="gradient"> 
+	              <color1>#ffff00</color1>  
+	              <color2>#ffff00</color2>  
+	              <cyclic>false</cyclic> 
+	            </interval-background>  
+	            <!--  this is the color of the text for the range value and tick marks -->  
+	            <text-color>#ffff00</text-color> 
+	          </interval>  
+	          <interval> 
+	            <label>high</label>  
+	            <!-- this is the value that the range starts at -->  
+	            <minimum>{high}</minimum>  
+	            <!-- this is the value that the range stops at -->  
+	            <maximum>{max}</maximum>  
+	            <!--  this is the color of the range -->  
+	            <!-- color>#ff8080</color -->  
+	            <interval-background type="gradient"> 
+	              <color1>#20c519</color1>  
+	              <color2>#20c519</color2>  
+	              <cyclic>false</cyclic> 
+	            </interval-background>  
+	            <!--  this is the color of the text for the range value and tick marks -->  
+	            <text-color>#20c519</text-color> 
+	          </interval>
+          </intervals> 
+        </chart-attributes> 
+      </component-definition> 
+    </action-definition>
+  
+    <action-definition> 
+      <component-name>JavascriptRule</component-name>
+      <action-type>Get The Chart URL</action-type>
+      <action-inputs> 
+        <CHARTOUTPUT type="string" mapping="chart-filename"/>  
+        <CONTEXTPATH type="string" mapping="context-path"/>         
+      </action-inputs>
+      <action-outputs> 
+        <chart_url type="string"/> 
+      </action-outputs>
+      <component-definition> 
+        <script><![CDATA[chart_url =  '<img src="' + CONTEXTPATH + "getImage?image=" + CHARTOUTPUT + '" />';]]></script> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

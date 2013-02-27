@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC
+    "-//SPRING//DTD BEAN//EN"
+    "http://www.springsource.org/dtd/spring-beans.dtd">
+
+<!--+
+	| Application context containing beans helpful for debugging.
+	+-->
+
+<beans>
+
+  <bean id="ldapAuthenticatorProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.springframework.security.providers.ldap.LdapAuthenticator</value>
+    </property>
+    <property name="target">
+      <ref bean="authenticator" />
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>loggingAdvisor</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="loggingAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice">
+      <ref local="loggingInterceptor" />
+    </property>
+    <property name="pattern">
+      <value>.*</value>
+    </property>
+  </bean>
+
+  <bean id="loggingInterceptor" class="org.pentaho.platform.engine.security.LoggingInterceptor" />
+
+</beans>

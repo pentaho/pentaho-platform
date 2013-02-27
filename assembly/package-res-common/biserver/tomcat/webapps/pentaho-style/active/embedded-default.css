@@ -1,0 +1,588 @@
+BODY, P, TH, TD {
+    font-family: arial, helvetica, sans-serif;
+    text-align: left;
+}
+
+.P, .TD {
+    font-size: 11px;
+}
+
+.BODY {
+  background-image: url(/style/Pentaho%20Default/nav-embedd-back1.png);
+  background-repeat: repeat-y;
+}
+
+TABLE {
+    padding: 2px 3px;
+    border-collapse:collapse;
+    border-spacing: 3px 3px;
+}
+
+#NavigationDiv {
+  color: #00007b;
+  font-weight: bold;
+  text-decoration: none;
+  float: left;
+  border: 0;
+  white-space: nowrap;
+  vertical-align: bottom;
+  position:absolute;
+  top: 0;
+  left:0;
+  height:59;
+  width:800;
+  margin:0px;  
+  padding-left:10px;  
+  padding-top:5px;  
+}
+
+#NavigationDiv ul {
+  margin: 0px;
+  height: 59;
+}
+
+#NavigationDiv ol {
+  margin: 0px;
+  height: 59;
+}
+
+#NavigationDiv ul li {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px; 
+  font-weight: bold;
+  color: white;
+  list-style-type: none;
+  height:59;
+  top: 50;
+  white-space: nowrap;
+  vertical-align: top;
+  padding-top:5px;  
+  padding-left:10px;  
+  padding-right:5px;  
+  padding-bottom:5px; 
+  text-decoration:none;
+  color: #00007b;
+  background-image: url(/style/Pentaho%20Default/nav-embedd-back4.png);
+  background-position: bottom right; 
+  background-repeat: no-repeat;
+}
+
+#NavigationDiv ol li {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px; 
+  font-weight: bold;
+  color: #ff007b;
+  list-style-type: none;
+  height:59;
+  top: 0;
+  white-space: nowrap;
+  text-align: right;
+  border-right: 1px solid #AFC1E0;
+  border-left: 1px solid #DEE9F9;
+  white-space: nowrap;
+  padding-top:5px;  
+  padding-left:10px;  
+  padding-right:5px; 
+  padding-bottom:5px;  
+  background-image: url(/style/Pentaho%20Default/nav-embedd-back5.png);
+  background-position: bottom right; 
+  background-repeat: repeat-y;
+  text-decoration:none;
+  color: #00007b;
+}
+
+#NavigationDiv li a:link {
+  color: #00007b;
+  font-weight: bold;
+  text-decoration: none;
+  border: 0;
+  height:59;
+  padding-top:5px;  
+  padding-left:10px;  
+  padding-right:5px; 
+  padding-bottom:5px;  
+}
+
+#NavigationDiv li a:visited {
+  color: #00007b;
+  font-weight: bold;
+  text-decoration: none;
+  border: 0;
+  padding-top:5px;  
+  padding-left:10px;  
+  padding-right:5px; 
+  padding-bottom:5px;  
+}
+
+#NavigationDiv li a:hover {
+  color: #F4B94E;
+  height:59;
+  white-space: nowrap;
+  padding-top:5px;  
+  padding-left:10px;  
+  padding-right:5px; 
+  padding-bottom:5px;  
+}
+
+.small {
+    font-size: 11px;
+}
+
+.BannerDiv { 
+  position: absolute;
+  top:0;
+  left:0;
+}
+
+.LogoDiv {
+  position:absolute;
+  top:-100;
+  left:5;
+  width:256;
+  height:74;
+  background-image:url(/style/Pentaho%20Default/pentaho_logo1.gif);
+  background-repeat:no-repeat;
+}
+
+.VersionDiv {
+  font-family:inherit;
+  font-size: 8px;
+  color: white;
+  position:absolute;
+  top:53;
+  left:25;
+}
+
+.TabDiv {
+  top:0;
+  left:140;
+}
+
+.BannerLinkDiv {
+  font-family:inherit;
+  font-size: 12px;
+  color: #00007b;
+  position:absolute;
+  top:0;
+  left:256;
+}
+
+.BannerLink {
+  font-family:inherit;
+  font-size: 12px;
+  color: #00007b;
+}
+
+.ContentDiv {
+  position:absolute;
+  top:0;
+  left:0;
+  width:85%;
+  font-size:18px;
+  padding-left:90px;
+}
+
+.PageTitleDiv {
+  text-align:left;
+  position:absolute;
+  top:0;
+  height:0;
+  left:0;
+  width:0;
+  padding-left: 100px;
+}
+
+.PortalRow {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.PortletRows { 
+  background-color: white; 
+  padding-left:50px;
+  padding-right:10px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.PortalColumns { 
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  width: 100%;
+}
+
+.PortalColumn { 
+  padding-left: 3px;
+  padding-right: 3px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.PortletContainerDiv { 
+  background-color: white;
+  border-bottom: 1px solid #C0C0C0;
+  border-left: 1px solid #C0C0C0;
+  border-right: 1px solid #C0C0C0;
+  padding-left:0px;
+  padding-top:0px;
+  padding-right:0px;
+  width:100%;
+}
+
+.PortletHeader {
+  background-color: #6071BF;
+  color: white;
+  font-size:11px;
+}
+
+.PortletHeaderTitle {
+  color: white;
+  font-size:12px;
+  font-weight: bold;
+}
+
+.PortletHeaderTable {
+  height:10;
+  width:100%;
+  vertical-align: middle;
+}
+
+.PortletHeaderIcon {
+  width:14;
+  height:14;
+}
+
+.PortletHeaderLinks {
+  text-align: right;
+  vertical-align: middle;
+}
+
+.PortletTitleLink {
+  color: #00007b;
+  font-size:11px;
+}
+
+.PortletTitleLinks {
+  color: #C0C0C0;
+  font-size:11px;
+  text-align: right;
+  vertical-align: middle;
+}
+
+.PortletTitle {
+  color: white;
+  xfont-weight: bold;
+  font-size:12px;
+  white-space: nowrap;
+}
+
+.PortletText {
+  font-family:inherit;
+  font-size: 12px;
+  color: #00ff00;
+}
+.PortletTextRight {
+  font-family:inherit;
+  font-size: 12px;
+  color: #00ff00;
+  text-align:right;
+}
+
+.PortletTextSelected {
+  font-family:inherit;
+  font-size: 12px;
+  color: #00ff00;
+  font-weight: bold;
+  background-color: #coffc0;
+}
+
+.PortletColumnHeader {
+  font-family:inherit;
+  font-size: 12px;
+  color: #00ff00;
+  font-weight:bold;
+  border-bottom: 2px solid #C0C0C0;
+  vertical-align:bottom;
+}
+
+.PortletTextLink {
+  font-family:inherit;
+  font-size: 12px;
+  color: #00ff00;
+  text-decoration: none;
+}
+
+.PortletIndent1 {
+  font-family:inherit;
+  font-size: 14px;
+  color: inherit;
+  padding-left:0; 
+  font-weight: bold;
+  font-style: italic; 
+}
+
+.PortletIndent2 {
+  font-family:inherit;
+  font-size: 12px;
+  color: inherit;
+  padding-left:15;
+  font-weight: bold;
+}
+
+.PortletIndent3 {
+  font-family:inherit;
+  font-size: 12px;
+  color: inherit;
+  padding-left:30;
+  font-style: italic; 
+}
+
+.PortletIndent4 {
+  font-family:inherit;
+  font-size: 12px;
+  color: inherit;
+  padding-left:45;
+}
+
+.portlet-font{
+  Color : #00007b ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  border-bottom: inherited;
+  padding-bottom:0;
+  }
+
+A.portlet-font:link {
+  font-weight: inherited;
+  text-decoration : none ;
+  border-bottom: 1px dotted #000000;
+  color: #000000;
+}
+
+A.portlet-font:hover {
+  font-weight: inherited;
+  text-decoration : none ;
+  border-bottom: 0px dotted #000000;
+  color: #000000;
+  background-color: #BED1E9;
+  }
+
+.portlet-font-dim{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-msg-status{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-msg-info{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-msg-error{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-msg-alert{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-msg-success{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-section-header{
+  font-family:inherit;
+  font-size: 14px;
+  color: #00007b;
+  padding-left:0; 
+  font-weight: bold;
+  font-style: italic; 
+  }
+
+.portlet-section-body{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-section-alternate{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-section-selected{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-section-subheader{
+  Color : #000000 ;
+  Font-Family : Arial, Helvetica ;
+  Font-Size : 9pt ;
+  Font-Weight : Bold ;
+  }
+
+.portlet-section-footer{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-section-text{
+  Color : #00007b ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-table-header{
+  Color : #00007b ;
+  Font-Family : Arial, Helvetica ;
+  Font-Size : 9pt ;
+  Font-Weight : Bold ;
+  vertical-align: bottom;
+  Background-Color : white ;
+  border-bottom: 2px solid #00007b;
+  }
+
+A.portlet-table-header{
+  Color : #00007b ;
+  Font-Family : Arial, Helvetica ;
+  Font-Size : 9pt ;
+  Font-Weight : Bold ;
+  vertical-align: bottom;
+  Background-Color : white ;
+  border-bottom: 0px solid white;
+  padding-left:11px;
+  text-decoration: none;
+  background-image: url( /style/Pentaho%20Default/sort-column.png );
+  background-repeat: no-repeat;
+  background-position: 0px 4px;
+  }
+
+.portlet-table-body{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  border-left: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  }
+
+.portlet-table-alternate{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  border-bottom: 1px solid #e0e0e0;
+  }
+
+.portlet-table-selected{
+  Color : #00007b ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  }
+
+.portlet-table-subheader{
+  Color : #000000 ;
+  Font-Family : Arial, Helvetica ;
+  Font-Size : 9pt ;
+  Font-Weight : Bold ;
+  }
+
+.portlet-table-footer{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-table-text{
+  Color : #00007b ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  border-bottom: 1px solid #e0e0e0;
+  }
+
+.portlet-form-label{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-form-input-field{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-form-button{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-icon-label{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-dlg-icon-label{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-form-field-label{
+  Color : #000000 ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  }
+
+.portlet-form-field{
+  Color : #00007b ;
+  Text-Decoration : none ;
+  Font-Family : Arial ;
+  Font-Size : 8pt ;
+  border-left: 0px;
+  }

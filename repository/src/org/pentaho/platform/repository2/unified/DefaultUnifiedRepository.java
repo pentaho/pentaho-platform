@@ -453,4 +453,9 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   public List<Character> getReservedChars() {
     return repositoryFileDao.getReservedChars();
   }
+
+  @Override
+  public String getProductID() {
+	return repositoryFileDao.getProductID();
+  }
 }

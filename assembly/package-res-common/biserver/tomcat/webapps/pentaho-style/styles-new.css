@@ -1,0 +1,807 @@
+A:link {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	color: #949e3e;
+	text-decoration: none;
+}
+A:visited {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	color: #949e3e;
+	text-decoration: none;
+}
+A:hover {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	color: #ef8033;
+	text-decoration: none;
+}
+A:active {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	color: #ef8033;
+	text-decoration: none;
+}
+
+
+/* date picker div */
+.dpDiv{
+	background-color: #e0e0e0;
+	border:1px solid #808080;
+}
+
+.body {
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+	color: #000000;
+	background-color: #ffffff;
+	background-image: url();
+    background-repeat: repeat;
+    background-position: center center;
+	
+	margin: 0px;
+	padding: 0px;
+}
+
+.homeDashboard {
+	text-align: left;
+	border: 1px solid #808080;
+	background-color: white;
+}
+
+.banner {
+	height: 103px;
+	width: 100%;
+	vertical-align: top;
+	padding: 0px;
+	margin: 0px;
+	text-align: right;
+	background-color: #87944c;
+	background-image: url(/pentaho-style/images/bg_home.png);
+	background-repeat: no-repeat;
+	background-position: center right;
+	position:relative;
+	top: 0;
+	left: 0;
+	z-index: 0;
+}
+
+/* used in about.jsp and splash.jsp */
+.contentcell_half_left {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	color: #000000;
+	text-align:left;
+	vertical-align: top;
+	padding: 0px 9px 9px 18px;
+	height: 100%;
+}
+/* used in admin.jsp */
+.contentcell_half_right {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	color: #000000;
+	text-align:left;
+	vertical-align: top;
+	position: relative;
+	padding: 0px 18px 9px 9px;
+	width: 50%;
+}
+
+/* used in admin.jsp, my workspace */
+.content_table {
+	width: 98%;
+	}
+
+/* shown on icon view/navigate, */
+.content_container {
+	border-top: 1px solid #818f49;
+}
+
+/* shown on admin, about */
+.content_container2 {
+	width: 100%;
+	padding: 0px;
+}
+
+/* shown on home (in home.jsp) */
+.content_container3 {
+	border-top: 1px solid #818f49;
+}
+
+/* used only in files-mini */
+.content_home_scroll {
+	overflow: auto;
+	height: 195px;
+	padding-bottom: 14px;
+}
+
+/* commonly used */
+.content_body {
+	padding: 0px;
+	vertical-align: top;
+	}
+
+/* used in file-icons.xsl, files-mini.xsl */
+.content_body_scroll {
+	padding: 0px 0px 0px 9px;
+	vertical-align: top;
+	}
+
+
+/* commonly used */
+.content_header {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	margin: 9px 0px 3px 0px;
+	color: #ef6507;
+}
+
+/* commonly used */
+.content_header_line {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	margin: 0px 0px 3px 0px;
+	color: #ef6507;
+}
+
+/* Begin Large Browse list */
+
+/* files-list.xsl, publishers.xsl */
+.list_table {
+	width: 98%;
+	border-top: 1px solid #808080;
+	border-right: 1px solid #808080;
+	border-left: 1px solid #808080;
+	margin: 0px 0px 0px 5px;
+}
+
+/* files-list.xsl */
+.list_colHead_first {
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+	background-color: #c2cfa2;
+	color: black;
+	padding: 0px 5px 1px 5px;
+	border-right: 1px solid #ffffff;
+	border-left: 1px solid #808080;
+	border-bottom: 1px solid #808080;
+	white-space:nowrap;
+}
+
+/* files-list.xsl */
+.list_colHead_fill {
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+	background-color: #c2cfa2;
+	color: black;
+	padding: 0px 5px 1px 5px;
+	border-right: 1px solid #ffffff;
+	border-left: 1px solid #778645;
+	border-bottom: 1px solid #808080;
+	white-space:nowrap;
+}
+
+
+/* files-list.xsl */
+.listrow_file {
+	background-color: #ffffff;
+	color: #ef6507;
+	font:  normal 1em Tahoma, "Trebuchet MS", Arial;
+	height: 40px;
+	text-decoration: none;
+}
+
+/* files-list.xsl */
+.list_col_first {
+	padding: 10px 6px 8px 5px;
+	text-decoration: none;
+	text-align:left;
+	vertical-align: top;
+	border-bottom: 1px solid #808080;
+}
+
+/* files-list.xsl */
+.list_col_fill {
+	padding: 0px 6px 0px 5px;
+	text-decoration: none;
+	text-align:right;
+	vertical-align: top;
+	border-bottom: 1px solid #808080;
+	border-left: 1px solid #e0e7d0;
+}
+
+/* files-list.xsl, portal-files.xsl */
+.list_description {
+	color: #000000;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	text-decoration: none;
+}
+
+
+.fileFolderDefault {
+	border:  1px solid #808080;;
+	padding: 5px;
+	background-color: #eeeeee;;
+}
+
+.fileFolderHover {
+	border:  1px solid #808080;;
+	padding: 5px;
+	background-color: #dddddd;;
+}
+
+.navigation_table {
+	background-color: #ffffff;
+	border:  1px solid #808080;
+}
+
+/* End Large Browse list */
+
+
+
+/* buttons */
+.btn_arrow_dd A {
+    padding: 0px 0px 0px 0px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/btn_arrow_dd.png) no-repeat 0px 0px;
+	WIDTH: 15px;
+}
+.btn_arrow_dd A:hover {
+	BACKGROUND-POSITION: 0px -15px;
+}
+
+.btn_trashcan A {
+    padding: 0px 0px 0px 0px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/btn_trashcan.png) no-repeat 0px 0px;
+	WIDTH: 20px;
+}
+.btn_trashcan A:hover {
+	BACKGROUND-POSITION: 0px -16px
+}
+
+.btn_header A {
+	PADDING: 0px 0px 1px 0px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/btn_header.png) no-repeat 0px 0px;
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 80px;
+	TEXT-DECORATION: none;
+	color: #ffffff;
+	text-align:center;
+	white-space:nowrap;
+	height: 14px;
+}
+.btn_header A:active {
+	PADDING: 0px 0px 1px 0px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/btn_header.png) no-repeat 0px 0px;
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 80px;
+	TEXT-DECORATION: none;
+	color: #ffffff;
+	text-align:center;
+	white-space:nowrap;
+	height: 14px;
+}
+.btn_header A:visited {
+	PADDING: 0px 0px 1px 0px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/btn_header.png) no-repeat 0px 0px;
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 80px;
+	TEXT-DECORATION: none;
+	color: #ffffff;
+	text-align:center;
+	white-space:nowrap;
+	height: 14px;
+}
+.btn_header A:hover {
+	BACKGROUND-POSITION: 0px -15px;
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+	color: #ffffff;
+}
+
+/* Common btn hover below this list */
+.btn_scheduler A {
+	BACKGROUND: url(/pentaho-style/images/btn_scheduler.png) no-repeat 0px 0px;
+	PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_clean A {
+	BACKGROUND: url(/pentaho-style/images/btn_clean.png) no-repeat 0px 0px;
+	PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_subscriptions A {
+	BACKGROUND: url(/pentaho-style/images/btn_subscriptions.png) no-repeat 0px 0px;
+	PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_loadrepository A {
+	BACKGROUND: url(/pentaho-style/images/btn_loadrepository.png) no-repeat 0px 0px;
+	PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_shark A {
+	BACKGROUND: url(/pentaho-style/images/btn_shark.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_solutionrepos A {
+	BACKGROUND: url(/pentaho-style/images/btn_solutionrepos.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_systemsettings A {
+	BACKGROUND: url(/pentaho-style/images/btn_systemsettings.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_globalactions A {
+	BACKGROUND: url(/pentaho-style/images/btn_globalactions.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+/* Begin ALL Main btn hover */
+.btn_scheduler A:hover, .btn_clean A:hover, .btn_subscriptions A:hover, .btn_loadrepository A:hover, .btn_shark A:hover, .btn_solutionrepos A:hover, .btn_systemsettings A:hover, .btn_globalactions A:hover {
+	background-position: 0px -32px;
+	color: #ef6507;
+}
+/* End ALL Main btn hover */
+
+
+/* BEGIN bread crumbs, portal-files.xsl, PropertiesEditor.jsp, AuditReport.jsp */
+.icon_folder_sm A {
+	padding: 0px 10px 0px 25px;
+	display: block;
+	background: url(/pentaho-style/images/icon_folder_sm.png) no-repeat 0px 0px;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	height: 18px;
+	text-decoration: underline;
+	color: #778645;
+	text-align: left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+.icon_folder_sm A:hover {
+	background-position: 0px -18px;
+	color: #ef6507;
+}
+/* END bread crumbs, portal-files.xsl, PropertiesEditor.jsp, AuditReport.jsp */
+
+/* used in Pivot.jsp and template-dialog.html */
+div#dialog01_footer {
+	border-top: 1px solid black;
+  background-color: #f2f2f2;
+	position:absolute;
+	bottom:0;
+	left:0;
+	width:100%;
+	height:50px;
+}
+
+/* used in Pivot.jsp and template-dialog.html */
+div#dialog01_content{
+	padding: 15px;
+}
+
+.btn_hover_off {
+	 background-color: #cdcdcd;
+	 FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+	 color: #000000;
+	 cursor: pointer;
+	 letter-spacing: .15em;
+}
+
+.btn_hover_on {
+	 background-color: #dfdfdf;
+	 FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+	 color: #ef6507;
+	 cursor: pointer;
+	 letter-spacing: .15em;
+}
+.btn_left {
+	 background-color: #cdcdcd;
+	 FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+	 cursor: pointer;
+	 BACKGROUND: url(/pentaho-style/images/btn_left_active.png) no-repeat;
+	 width: 26px;
+}
+.btn_middle {
+	 background-color: #cdcdcd;
+	 cursor: pointer;
+	 BACKGROUND: url(/pentaho-style/images/btn_middle_active.png) repeat-x;
+	 FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+	 width: 26px;
+	 height: 38px;
+	 TEXT-DECORATION: none;
+}
+.btn_right {
+	 background-color: #cdcdcd;
+	 cursor: pointer;
+	 BACKGROUND: url(/pentaho-style/images/btn_right_active.png) no-repeat;
+	 FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+	 width: 26px;
+	 height: 38px;
+	 margin-right: 500px;
+	 TEXT-DECORATION: none;
+}
+
+.portlet-subsection-header {
+	color: #ef6507;
+	font: normal 1em Tahoma, Arial;
+	text-align:left;
+	vertical-align:text-top;
+}
+
+.portlet-font {
+	color: #000000;
+	font: normal 1em Tahoma, Arial;
+	text-align:left;
+	vertical-align:text-top;
+}
+
+
+.portlet-table-header {
+	font: bold .85em Tahoma, "Trebuchet MS", Arial;
+	color: #808080;
+	}
+
+.portlet-table-text {
+	font: .85em Tahoma, "Trebuchet MS", Arial;
+	border-bottom: 1px solid #dddddd;
+	color: #000000;
+}
+
+div.portlet-font {
+	font: bold .85em Tahoma, "Trebuchet MS", Arial;
+	color: #ffffff;
+	background-color: red;
+	padding: 5px 10px 5px 10px;
+	margin: 5px;
+	text-align:center;
+	width: 500px;
+	border: 1px solid #000000;
+}
+
+td.portlet-table-header {
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+	background-color: #c2cfa2;
+	color: #000000;
+	padding: 0px 5px 1px 5px;
+	border-bottom: 1px solid #818f49;
+	border-left: 1px solid #778645;
+	border-right: 1px solid #ffffff;
+	white-space:nowrap;
+}
+
+
+.portlet-table-text	{
+	 TEXT-DECORATION: none;
+	 text-align:left;
+	 vertical-align: top;
+	 border-bottom: 1px solid #808080;
+	 border-right: 1px solid #cacaca;
+	 padding: 5px;
+}
+/* padding and margin order = top right bottom left */
+
+
+/* BEGIN MESSAGE BOX */
+#messagebox td {
+	vertical-align:top;
+	padding: 0px 0px 3px 0px;
+	font: normal .85em Tahoma, Arial, Helvetica, sans-sarif;
+	color: #000000;
+	line-height: 1.45em;
+	padding:0px 0px 5px 0px;
+	width: 100%;
+}
+
+#messagebox table {
+	padding:0px 0px 5px 0px;
+	width: 100%
+}
+
+.messagebox_title {
+	color: #5e5e5e;
+	padding: 0px 0px 10px 0px;
+	font: normal 1.5em Tahoma, Arial, Helvetica, sans-sarif;
+}
+
+.message_top_left {
+	background-image: url(/pentaho-style/images/fly-top-left1.png);
+}
+.message_top_right {
+	background-image: url(/pentaho-style/images/fly-top-right1.png);
+}
+
+.message_bottom_left {
+	background-image: url(/pentaho-style/images/fly-bot-left1.png);
+}
+
+.message_bottom_right {
+	background-image: url(/pentaho-style/images/fly-bot-right1.png);
+}
+
+.message_middle {
+	background-image: url(/pentaho-style/images/fly-middle1.png);
+	background-repeat: repeat;
+}
+
+.message_middle_top {
+	background-image: url(/pentaho-style/images/fly-middle1.png);
+	background-repeat: repeat;
+	border-top: 1px solid #cecece;
+}
+
+.message_middle_left {
+	background-image: url(/pentaho-style/images/fly-middle1.png);
+	background-repeat: repeat;
+	border-left: 1px solid #cecece;
+}
+
+.message_middle_right {
+	background-image: url(/pentaho-style/images/fly-middle1.png);
+	background-repeat: repeat;
+	border-right: 1px solid #cecece;
+}
+
+.message_middle_bottom {
+	background-image: url(/pentaho-style/images/fly-middle1.png);
+	background-repeat: repeat;
+	border-bottom: 1px solid #cecece;
+}
+
+.message_spacer {
+	width:25px;
+	height:25px;
+}
+/* END MESSAGE BOX */
+
+/* BEGIN ALERT BOX */
+#alertbox td {
+	vertical-align:top;
+	padding: 0px 0px 3px 0px;
+	font-size: .85em;
+	line-height: 1.45em;
+	padding:0px 0px 5px 0px;
+}
+
+#alertbox table {
+	padding:0px 0px 5px 0px;
+	width: 100%;
+}
+
+.alertbox_title {
+	color: #d46464;
+	padding: 0px 0px 10px 0px;
+	font: normal 1.5em Tahoma, Arial, Helvetica, sans-sarif;
+}
+
+.alert_top_left {
+	background-image: url(/pentaho-style/images/alert-top-left.png);
+}
+.alert_top_right {
+	background-image: url(/pentaho-style/images/alert-top-right.png);
+}
+
+.alert_bottom_left {
+	background-image: url(/pentaho-style/images/alert-bot-left.png);
+}
+
+.alert_bottom_right {
+	background-image: url(/pentaho-style/images/alert-bot-right.png);
+}
+
+.alert_middle {
+	background-image: url(/pentaho-style/images/alert-middle.png);
+	background-repeat: repeat;
+}
+
+.alert_middle_top {
+	background-image: url(/pentaho-style/images/alert-middle.png);
+	background-repeat: repeat;
+	border-top: 1px solid #f99898;
+}
+
+.alert_middle_left {
+	background-image: url(/pentaho-style/images/alert-middle.png);
+	background-repeat: repeat;
+	border-left: 1px solid #f99898;
+}
+
+.alert_middle_right {
+	background-image: url(/pentaho-style/images/alert-middle.png);
+	background-repeat: repeat;
+	border-right: 1px solid #f99898;
+}
+
+.alert_middle_bottom {
+	background-image: url(/pentaho-style/images/alert-middle.png);
+	background-repeat: repeat;
+	border-bottom: 1px solid #f99898;
+}
+
+.alert_spacer {
+	width:25px;
+	height:25px;
+}
+
+.alert_icon {
+	width:32px;
+	height:32px;
+	vertical-align:top;
+	padding: 0px 10px 0px 0px;
+}
+/* END ALERT BOX */
+
+.footer_source_forge_and_disclaimer {
+	font: normal .8em Tahoma, "Trebuchet MS", Arial;
+	color: #888888;
+	border-top: 1px solid #818f49;
+	vertical-align: top;
+	padding: 5px 5px 0px 0px;
+	margin: 15px 0px 0px 0px;
+}
+
+/* sniffy stuff */
+.flyTitle { 
+	padding-bottom: 2px; 
+	color: #ef8033;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+}
+
+.flyDesc {
+	padding-top: 5px; 
+	color: green;
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+}
+
+.flyContent {
+	background-color: #e6e9db;
+}
+
+.content_pagehead {
+	color: #000000;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+}
+
+/* New Styles */    
+ .style1 {
+    font-size: 16pt;
+    font-weight: bold;
+    color: #F46500;
+}
+
+.style2 {font-size: 14pt}
+.style3 {
+    text-align: left;
+}
+p {
+	text-align: left;
+	margin: 0;
+	padding: 0 0 4px 0;
+}
+
+a.button {
+    background: url('images/button_right.gif') scroll top right no-repeat;
+    color: #444;
+    display: block;
+    float: right;
+    height: 30px;
+    margin-right: 6px;
+    padding-right: 6px;
+    font-family: arial;
+    font-size: 12px;
+    font-weight:bold;
+    text-decoration: none;
+}
+            
+a.button span {
+    background: url('images/button_left.gif') no-repeat;
+    display: block;
+    line-height: 14px;
+    padding: 8px 10px 8px 14px;
+    width: 100px;
+    text-align: center;
+}
+a:hover.button span {
+    background: url('images/button_left.gif') no-repeat;
+    display: block;
+    line-height: 14px;
+    /*padding: 8px 10px 8px 14px;*/
+    color: #FF6600;
+    
+}
+
+h1{
+    margin: 0;
+    padding: 0;
+    font-size: 1.75em;
+    color: #F46500;
+    text-align: left;
+}
+
+h2{
+    margin: 0;
+    padding: 0;
+    font-size: 1.5em;
+    color: #F46500;
+    text-align: left;
+}
+
+h3{
+    margin: 0;
+    padding: 0;
+    font-size: 1.25em;
+    color: #000;
+    text-align: left;
+}
+
+.welcome{
+    font-size: 1.25em;
+    line-height: 1.5em;
+    margin: 0;
+    padding: 20px 10px 0 0;
+    text-align: left;
+} 

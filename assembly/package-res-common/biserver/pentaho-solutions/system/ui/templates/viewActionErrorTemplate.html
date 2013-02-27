@@ -1,0 +1,54 @@
+<html><head><title></title><link rel="stylesheet" type="text/css" href="/pentaho-style/active/default.css"></head>
+<body>
+<script language="javascript" type="text/javascript">
+<!--
+function showHide(shID) {
+    if (document.getElementById(shID)) {
+        if (document.getElementById(shID+'-show').style.display != 'none') {
+            document.getElementById(shID+'-show').style.display = 'none';
+            document.getElementById(shID+'-hide').style.display = 'inline';
+            document.getElementById(shID).style.display = 'block';
+        } 
+        else {
+            document.getElementById(shID+'-show').style.display = 'inline';
+            document.getElementById(shID+'-hide').style.display = 'none';
+            document.getElementById(shID).style.display = 'none';
+        }
+    }
+} 
+  
+//-->
+</script>
+
+<div id="errorResponse">
+<div class="error"> 
+         
+<h1>%ERROR_HEADING%</h1>
+<div class="summary">
+  <div class="item"><span class="label">%EXCEPTION_MESSAGES_LABEL%</span><pre>%EXCEPTION_MESSAGES%</pre></div>
+  <div class="item"><span class="label">%ACTION_SEQUENCE_LABEL%</span>%ACTION_SEQUENCE%</div>
+  <div class="item"><span class="label">%ACTION_SEQUENCE_EXECUTION_STACK_LABEL%</span><pre>%ACTION_SEQUENCE_EXECUTION_STACK%</pre></div>
+  <div class="item"><span class="label">%LOOP_INDEX_LABEL%</span>%LOOP_INDEX%</div>
+  <div class="item"><span class="label">%EXCEPTION_TIME_LABEL%</span>%EXCEPTION_TIME%</div>
+  <div class="item"><span class="label">%EXCEPTION_TYPE_LABEL%</span>%EXCEPTION_TYPE%</div>
+  <div class="item"><span class="label">%SESSION_ID_LABEL%</span>%SESSION_ID%</div>
+  <div class="item"><span class="label">%INSTANCE_ID_LABEL%</span>%INSTANCE_ID%</div>
+  <div class="item"><span class="label">%ACTION_CLASS_LABEL%</span>%ACTION_CLASS%</div>
+  <div class="item"><span class="label">%ACTION_DESC_LABEL%</span>%ACTION_DESC%</div>
+  <!-- <div class="item"><span class="label">%STEP_NUM_LABEL%</span>%STEP_NUM%</div> -->
+</div>
+  
+<div id="controls">  
+<a href="#" id="details-show" class="showLink" onclick="showHide('details');return false;">View Details</a>
+<a href="#" id="details-hide" class="hideLink" onclick="showHide('details');return false;">Hide Details</a>
+</div>
+
+<div id="details" class="details"><span class="label">%STACK_TRACE_LABEL%</span><pre class="stackTrace">%STACK_TRACE%<pre></div>
+  
+</div> 
+</div>
+
+<div class="errorResponseFooter">%SERVER_INFO%</div>
+    
+</body>
+</html>

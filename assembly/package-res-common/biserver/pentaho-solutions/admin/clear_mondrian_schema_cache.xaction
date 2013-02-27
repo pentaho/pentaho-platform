@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>clear_mondrian_cache.xaction</name>
+  <title>%title</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>William E. Seyler</author>  
+    <description>%description</description>  
+    <icon>btn_flush_mondrian_schema.png</icon>  
+    <help/>  
+    <result-type>rule</result-type> 
+  </documentation>
+
+  <actions>
+	<action-definition>
+	  <component-name>JavascriptRule</component-name>
+	  <action-type>MondrianFlusher</action-type>
+	  <action-outputs>
+		<no-output type="string"/>
+	  </action-outputs>
+	  <component-definition>
+		<script>
+		  <![CDATA[
+		    Packages.org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper.getInstance().reInit(null);
+		  ]]>
+		</script>
+	  </component-definition>
+	</action-definition>
+  </actions>
+</action-sequence>

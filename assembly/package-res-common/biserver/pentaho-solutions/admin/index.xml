@@ -1,0 +1,7 @@
+<index>
+	<name>%name</name>
+	<description>%description</description>
+	<icon>admin.png</icon>
+	<visible>false</visible>
+	<display-type>list</display-type>
+</index>

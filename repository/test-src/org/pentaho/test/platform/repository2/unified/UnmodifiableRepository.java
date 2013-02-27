@@ -600,4 +600,9 @@ public class UnmodifiableRepository implements IUnifiedRepository {
   public List<Character> getReservedChars() {
     return repository.getReservedChars();
   }
+
+  @Override
+  public String getProductID() {
+	return repository.getProductID();
+  }
 }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>MQL2.xaction</name>
+  <title>Picklist Action Sequence</title>
+  <version>1</version>
+  <logging-level>debug</logging-level>
+  <documentation> 
+    <author>James Dixon</author>  
+    <description></description>  
+    <help></help>  
+    <result-type>rule</result-type>  
+    <icon>HelloETL.png</icon> 
+  </documentation>
+
+  <inputs>
+  		<query type="string">
+			<sources>
+				<request>mql</request>
+			</sources>
+		</query>
+  </inputs>
+
+  <outputs> 
+      	<data type="list"/>
+  </outputs>
+
+  <resources> 
+  </resources>
+  
+  <actions> 
+    <action-definition> 
+      <component-name>org.pentaho.plugin.mql.MQLRelationalDataComponent</component-name>
+      <action-type>rule</action-type>
+      <action-inputs>
+		<query type="string"/>
+      </action-inputs>
+      <action-resources> 
+      </action-resources>
+      <action-outputs> 
+      	<data type="list"/>
+      </action-outputs>
+      <component-definition> 
+      </component-definition> 
+    </action-definition>
+ 
+  </actions> 
+</action-sequence>

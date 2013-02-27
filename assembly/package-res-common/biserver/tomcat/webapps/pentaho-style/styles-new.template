@@ -1,0 +1,746 @@
+A:link {
+	font: <% "anchor.link.font", "normal 1em Tahoma, \"Trebuchet MS\", Arial" %>;
+	color: <% "anchor.link.color", "#949e3e" %>;
+	text-decoration: <% "anchor.link.text.decoration", "none" %>;
+}
+A:visited {
+	font: <% "anchor.visited.font", "normal 1em Tahoma, \"Trebuchet MS\", Arial" %>;
+	color: <% "anchor.visited.color", "#949e3e" %>;
+	text-decoration: <% "anchor.visited.text.decoration", "none" %>;
+}
+A:hover {
+	font: <% "anchor.hover.font", "normal 1em Tahoma, \"Trebuchet MS\", Arial" %>;
+	color: <% "anchor.hover.color", "#ef8033" %>;
+	text-decoration: <% "anchor.hover.text.decoration", "none" %>;
+}
+A:active {
+	font: <% "anchor.active.font", "normal 1em Tahoma, \"Trebuchet MS\", Arial" %>;
+	color: <% "", "#ef8033" %>;
+	text-decoration: <% "anchor.active.text.decoration", "none" %>;
+}
+
+
+/* date picker div */
+.dpDiv{
+	background-color: #e0e0e0;
+	border:1px solid #808080;
+}
+
+
+.body {
+	font: <% "body.font", "normal .85em Tahoma, \"Trebuchet MS\", Arial" %>;
+	color: <% "body.color", "#000000" %>;
+	background-color: <% "body.background.color", "#ffffff" %>;
+	background-image: url(<% "body.background.image", "" %>);
+	background-repeat: <% "body.background.image.repeat", "repeat" %>;
+	background-position: <% "body.background.image.position", "top left" %>;
+	margin: 0px;
+	padding: 0px;
+}
+
+
+
+
+.homeDashboard {
+	text-align: left;
+	border: 1px solid #808080;
+	background-color: white;
+}
+
+
+.banner {
+	height: <% "banner.height", "103px" %>;
+	width: <% "banner.width", "100%" %>;
+	vertical-align: top;
+	padding: 0px;
+	margin: 0px;
+	text-align: right;
+	background-color: <% "banner.background.color", "#87944c" %>;
+	background-image: url(<% "banner.background.image", "/pentaho-style/images/bg_home.png" %>);
+	background-repeat: <% "banner.background.repeat", "no-repeat" %>;
+	background-position: <% "banner.background.position", "right" %>;
+	position:relative;
+	top: 0;
+	left: 0;
+	z-index: 0;
+}
+
+/* used in about.jsp and splash.jsp */
+.contentcell_half_left {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	color: #000000;
+	text-align:left;
+	vertical-align: top;
+	padding: 0px 9px 9px 18px;
+	height: 100%;
+}
+/* used in admin.jsp */
+.contentcell_half_right {
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	color: #000000;
+	text-align:left;
+	vertical-align: top;
+	position: relative;
+	padding: 0px 18px 9px 9px;
+	width: 50%;
+}
+
+/* used in admin.jsp, my workspace */
+.content_table {
+	width: 98%;
+	}
+
+/* shown on icon view/navigate, */
+.content_container {
+	border-top: <% "content.container.border", "1px solid #818f49" %>;
+}
+
+/* shown on admin, about */
+.content_container2 {
+	border-top: <% "content.container2.border", "1px solid #818f49" %>;
+	width: 100%;
+	padding: 0px;
+}
+
+
+/* shown on home (in home.jsp) */
+.content_container3 {
+	border-top: <% "content.container3.border", "1px solid #818f49" %>;
+}
+
+
+/* used only in files-mini */
+.content_home_scroll {
+	overflow: auto;
+	height: 195px;
+	padding-bottom: 14px;
+}
+
+/* commonly used */
+.content_body {
+	padding: 5px 0px 5px 0px;
+	vertical-align: top;
+	}
+
+/* used in file-icons.xsl, files-mini.xsl */
+.content_body_scroll {
+	padding: 0px 0px 0px 9px;
+	vertical-align: top;
+	}
+
+
+/* commonly used */
+.content_header {
+	font: <% "content.header.font", "normal 1em Tahoma, \"Trebuchet MS\", Arial" %>;
+	margin: 9px 0px 3px 0px;
+	color: <% "content.header.color", "#ef6507" %>;
+}
+
+/* commonly used */
+.content_header_line {
+	font: <% "content.header.font", "normal 1.25em Tahoma, \"Trebuchet MS\", Arial" %>;
+	margin: 0px 0px 3px 0px;
+	color: <% "content.header.color", "#ef6507" %>;
+}
+
+
+
+/* Begin Large Browse list */
+
+/* files-list.xsl, publishers.xsl */
+.list_table {
+	width: <% "navigator.table.width", "98%" %>;
+	border-top: <% "navigator.table.border", "1px solid #818f49" %>;
+	border-right: <% "navigator.table.border", "1px solid #818f49" %>;
+	border-left: <% "navigator.table.border", "1px solid #818f49" %>;
+	margin: <% "navigator.table.margin", "0px 0px 0px 5px" %>;
+}
+
+/* files-list.xsl */
+.list_colHead_first {
+	font: <% "navigator.columnheader.font", "normal .85em Tahoma, \"Trebuchet MS\", Arial" %>;
+	background-color: <% "navigator.columnheader.background", "#c2cfa2" %>;
+	color: <% "navigator.columnheader.color", "#000000" %>;
+	padding: <% "navigator.columnheader.padding", "0px 5px 1px 5px" %>;
+	border-right: <% "navigator.columnheader.right.border", "1px solid #ffffff" %>;
+	border-left: <% "navigator.table.border", "1px solid #818f49" %>;
+	border-bottom: <% "navigator.table.border", "1px solid #818f49" %>;
+	white-space:nowrap;
+}
+
+/* files-list.xsl */
+.list_colHead_fill {
+	font: <% "navigator.columnheader.font", "normal .85em Tahoma, \"Trebuchet MS\", Arial" %>;
+	background-color: <% "navigator.columnheader.background", "#c2cfa2" %>;
+	color: <% "navigator.columnheader.color", "#000000" %>;
+	padding: <% "navigator.columnheader.padding", "0px 5px 1px 5px" %>;
+	border-right: <% "navigator.columnheaderfill.right.border", "1px solid #ffffff" %>;
+	border-left: <% "navigator.columnheaderfill.left.border", "1px solid #778645" %>;
+	border-bottom: <% "navigator.table.border", "1px solid #818f49" %>;
+	white-space:nowrap;
+}
+
+
+/* files-list.xsl */
+.listrow_file {
+	background-color: <% "navigator.filerow.background.color", "#FFFFFF" %>;
+	color: <% "navigator.filerow.color", "#ef6507" %>;
+	font:  <% "navigator.filerow.font", "normal 1em Tahoma, \"Trebuchet MS\", Arial" %>;
+	height: <% "navigator.filerow.height", "40px" %>;
+	text-decoration: none;
+}
+
+/* files-list.xsl */
+.list_col_first {
+	padding: <% "navigator.filerow.cell.first.padding", "6px 6px 8px 5px" %>;
+	text-decoration: none;
+	text-align:left;
+	vertical-align: top;
+	border-bottom: <% "navigator.table.border", "1px solid #818f49" %>;
+}
+
+/* files-list.xsl */
+.list_col_fill {
+	padding: <% "navigator.filerow.cell.fill.padding", "0px 6px 0px 5px" %>;
+	text-decoration: none;
+	text-align:right;
+	vertical-align: top;
+	border-bottom: <% "navigator.table.border", "1px solid #818f49" %>;
+	border-left: <% "navigator.filerow.cell.fill.left.border", "1px solid #e0e7d0" %>;
+}
+
+/* files-list.xsl, portal-files.xsl */
+.list_description {
+	color: <% "navigator.description.color", "#000000" %>;
+	font: <% "navigator.description.font", "normal 1em Tahoma, \"Trebuchet MS\", Arial" %>;
+	text-decoration: <% "navigator.description.text.decoration", "none" %>;
+}
+
+
+.fileFolderDefault {
+	border:  <% "navigator.folder.border", "1px solid #808080" %>;
+	padding: <% "navigator.folder.padding", "5px" %>;
+	background-color: <% "navigator.folder.background.color", "#eeeeee" %>;
+}
+
+.fileFolderHover {
+	border:  <% "navigator.folder.hover.border", "1px solid #808080" %>;
+	padding: <% "navigator.folder.hover.padding", "5px" %>;
+	background-color: <% "navigator.folder.hover.background.color", "#dddddd" %>;
+}
+
+.navigation_table {
+	background-color: <% "navigator.filerow.background.color", "#FFFFFF" %>;
+	border:  <% "navigator.table.border", "1px solid #808080" %>;
+}
+
+/* End Large Browse list */
+
+
+
+/* buttons */
+.btn_arrow_dd A {
+	padding: 0px 0px -2px 0px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/btn_arrow_dd.png) no-repeat 0px 0px;
+	WIDTH: 15px;
+}
+.btn_arrow_dd A:hover {
+	BACKGROUND-POSITION: 0px -15px;
+}
+
+.btn_trashcan A {
+	padding: 0px 0px -2px 0px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/btn_trashcan.png) no-repeat 0px 0px;
+	WIDTH: 20px;
+}
+.btn_trashcan A:hover {
+	BACKGROUND-POSITION: 0px -16px
+}
+
+.btn_header A {
+	PADDING: 0px 0px 1px 0px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/btn_header.png) no-repeat 0px 0px;
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 80px;
+	TEXT-DECORATION: none;
+	color: #ffffff;
+	text-align:center;
+	white-space:nowrap;
+	height: 14px;
+}
+.btn_header A:active {
+	PADDING: 0px 0px 1px 0px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/btn_header.png) no-repeat 0px 0px;
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 80px;
+	TEXT-DECORATION: none;
+	color: #ffffff;
+	text-align:center;
+	white-space:nowrap;
+	height: 14px;
+}
+.btn_header A:visited {
+	PADDING: 0px 0px 1px 0px;
+	DISPLAY: block;
+	BACKGROUND: url(/pentaho-style/images/btn_header.png) no-repeat 0px 0px;
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 80px;
+	TEXT-DECORATION: none;
+	color: #ffffff;
+	text-align:center;
+	white-space:nowrap;
+	height: 14px;
+}
+.btn_header A:hover {
+	BACKGROUND-POSITION: 0px -15px;
+	font: bold .75em Tahoma, "Trebuchet MS", Arial;
+	color: #ffffff;
+}
+
+/* Common btn hover below this list */
+.btn_scheduler A {
+	BACKGROUND: url(/pentaho-style/images/btn_scheduler.png) no-repeat 0px 0px;
+	PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_clean A {
+	BACKGROUND: url(/pentaho-style/images/btn_clean.png) no-repeat 0px 0px;
+	PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_subscriptions A {
+	BACKGROUND: url(/pentaho-style/images/btn_subscriptions.png) no-repeat 0px 0px;
+	PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_loadrepository A {
+	BACKGROUND: url(/pentaho-style/images/btn_loadrepository.png) no-repeat 0px 0px;
+	PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_shark A {
+	BACKGROUND: url(/pentaho-style/images/btn_shark.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_solutionrepos A {
+	BACKGROUND: url(/pentaho-style/images/btn_solutionrepos.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_systemsettings A {
+	BACKGROUND: url(/pentaho-style/images/btn_systemsettings.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+.btn_globalactions A {
+	BACKGROUND: url(/pentaho-style/images/btn_globalactions.png) no-repeat 0px 0px;PADDING: 8px 0px 0px 35px;
+	DISPLAY: block;
+	font: normal 1em Tahoma, "Trebuchet MS", Arial;
+	WIDTH: 90%;
+	height: 25px;
+	TEXT-DECORATION: none;
+	color: #000000;
+	text-align:left;
+	white-space:nowrap;
+	vertical-align: top;
+}
+
+/* Begin ALL Main btn hover */
+.btn_scheduler A:hover, .btn_clean A:hover, .btn_subscriptions A:hover, .btn_loadrepository A:hover, .btn_shark A:hover, .btn_solutionrepos A:hover, .btn_systemsettings A:hover, .btn_globalactions A:hover {
+	background-position: 0px -32px;
+	color: #ef6507;
+}
+/* End ALL Main btn hover */
+
+
+/* BEGIN bread crumbs, portal-files.xsl, PropertiesEditor.jsp, AuditReport.jsp */
+.icon_folder_sm A {
+	padding: <% "icon.folder.padding", "0px 10px 0px 25px" %>;
+	display: block;
+	background: url(<% "icon.folder.background.image", "/pentaho-style/images/icon_folder_sm.png" %>) no-repeat 0px 0px;
+	font: <% "icon.folder.font", "normal 1em Tahoma, \"Trebuchet MS\", Arial" %>;
+	height: <% "icon.folder.height", "18px" %>;
+	text-decoration: <% "icon.folder.text.decoration", "underline" %>;
+	color: <% "icon.folder.color", "#778645" %>;
+	text-align: <% "icon.folder.text.align", "left" %>;
+	white-space:nowrap;
+	vertical-align: <% "icon.folder.vertical.align", "top" %>;
+}
+.icon_folder_sm A:hover {
+	background-position: 0px -<% "icon.folder.height", "18px" %>;
+	color: <% "icon.folder.hover.color", "#ef6507" %>;
+}
+/* END bread crumbs, portal-files.xsl, PropertiesEditor.jsp, AuditReport.jsp */
+
+
+
+
+/* used in Pivot.jsp and template-dialog.html */
+div#dialog01_footer {
+	border-top: <% "dialog.footer.border", "#ef6507" %>;
+	background-color: <% "dialog.footer.background.color", "#f2f2f2" %>;
+	position:absolute;
+	bottom:0;
+	left:0;
+	width:100%;
+	height:50px;
+}
+
+/* used in Pivot.jsp and template-dialog.html */
+div#dialog01_content{
+	padding: 15px;
+}
+
+
+
+.btn_hover_off {
+ background-color: #cdcdcd;
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+ color: #000000;
+ cursor: pointer;
+ letter-spacing: .15em;
+}
+
+.btn_hover_on {
+ background-color: #dfdfdf;
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+ color: #ef6507;
+ cursor: pointer;
+ letter-spacing: .15em;
+}
+.btn_left {
+ background-color: #cdcdcd;
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+ cursor: pointer;
+ BACKGROUND: url(/pentaho-style/images/btn_left_active.png) no-repeat;
+ width: 26px;
+}
+.btn_middle {
+ background-color: #cdcdcd;
+ cursor: pointer;
+ BACKGROUND: url(/pentaho-style/images/btn_middle_active.png) repeat-x;
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+ width: 26px;
+ height: 38px;
+ TEXT-DECORATION: none;
+}
+.btn_right {
+ background-color: #cdcdcd;
+ cursor: pointer;
+ BACKGROUND: url(/pentaho-style/images/btn_right_active.png) no-repeat;
+ FONT: normal 1em Tahoma, "Trebuchet MS", Arial;
+ width: 26px;
+ height: 38px;
+ margin-right: 500px;
+ TEXT-DECORATION: none;
+}
+
+.portlet-subsection-header {
+	color: #ef6507;
+	font: normal 1em Tahoma, Arial;
+	text-align:left;
+	vertical-align:text-top;
+}
+
+.portlet-font {
+	color: #000000;
+	font: normal 1em Tahoma, Arial;
+	text-align:left;
+	vertical-align:text-top;
+}
+
+
+.portlet-table-header {
+	font: bold .85em Tahoma, "Trebuchet MS", Arial;
+	color: #808080;
+	}
+
+.portlet-table-text {
+	font: .85em Tahoma, "Trebuchet MS", Arial;
+	border-bottom: 1px solid #dddddd;
+	color: #000000;
+	}
+
+div.portlet-font {
+	font: bold .85em Tahoma, "Trebuchet MS", Arial;
+	color: #ffffff;
+	background-color: red;
+	padding: 5px 10px 5px 10px;
+	margin: 5px;
+	text-align:center;
+	width: 500px;
+	border: 1px solid #000000;
+	}
+
+td.portlet-table-header {
+	font: normal .85em Tahoma, "Trebuchet MS", Arial;
+	background-color: #c2cfa2;
+	color: #000000;
+	padding: 0px 5px 1px 5px;
+	border-bottom: 1px solid #818f49;
+	border-left: 1px solid #778645;
+	border-right: 1px solid #ffffff;
+	white-space:nowrap;
+	}
+
+
+.portlet-table-text	{
+ TEXT-DECORATION: none;
+ text-align:left;
+ vertical-align: top;
+ border-bottom: 1px solid #808080;
+ border-right: 1px solid #cacaca;
+ padding: 5px;
+}
+/* padding and margin order = top right bottom left */
+
+
+/* BEGIN MESSAGE BOX */
+#messagebox td {
+	vertical-align:top;
+	padding: 0px 0px 3px 0px;
+	font: <% "messagebox.content.font", "normal .85em Tahoma, Arial, Helvetica, sans-sarif" %>;
+	color: <% "messagebox.content.color", "#000000" %>;
+	line-height: 1.45em;
+	padding:0px 0px 5px 0px;
+	width: 100%;
+}
+
+#messagebox table {
+	padding:0px 0px 5px 0px;
+	width: 100%
+}
+
+.messagebox_title {
+	color: <% "messagebox.title.color", "#5e5e5e" %>;
+	padding: 0px 0px 10px 0px;
+	font: <% "messagebox.title.font", "normal 1.5em Tahoma, Arial, Helvetica, sans-sarif" %>;
+}
+
+.message_top_left {
+	background-image: url(<% "messagebox.top.left.image", "/pentaho-style/images/fly-top-left1.png" %>);
+}
+.message_top_right {
+	background-image: url(<% "messagebox.top.right.image", "/pentaho-style/images/fly-top-right1.png" %>);
+}
+
+.message_bottom_left {
+	background-image: url(<% "messagebox.bottom.left.image", "/pentaho-style/images/fly-bot-left1.png" %>);
+}
+
+.message_bottom_right {
+	background-image: url(<% "messagebox.bottom.right.image", "/pentaho-style/images/fly-bot-right1.png" %>);
+}
+
+.message_middle {
+	background-image: url(<% "messagebox.middle.image", "/pentaho-style/images/fly-middle1.png" %>);
+	background-repeat: repeat;
+}
+
+.message_middle_top {
+	background-image: url(<% "messagebox.middle.top.image", "/pentaho-style/images/fly-middle1.png" %>);
+	background-repeat: repeat;
+	border-top: <% "messagebox.border", "1px solid #cecece" %>;
+}
+
+.message_middle_left {
+	background-image: url(<% "messagebox.middle.left.image", "/pentaho-style/images/fly-middle1.png" %>);
+	background-repeat: repeat;
+	border-left: <% "messagebox.border", "1px solid #cecece" %>;
+}
+
+.message_middle_right {
+	background-image: url(<% "messagebox.middle.right.image", "/pentaho-style/images/fly-middle1.png" %>);
+	background-repeat: repeat;
+	border-right: <% "messagebox.border", "1px solid #cecece" %>;
+}
+
+.message_middle_bottom {
+	background-image: url(<% "messagebox.middle.bottom.image", "/pentaho-style/images/fly-middle1.png" %>);
+	background-repeat: repeat;
+	border-bottom: <% "messagebox.border", "1px solid #cecece" %>;
+}
+
+.message_spacer {
+width:25px;
+height:25px;
+}
+/* END MESSAGE BOX */
+
+/* BEGIN ALERT BOX */
+#alertbox td {
+vertical-align:top;
+padding: 0px 0px 3px 0px;
+font-size: .85em;
+line-height: 1.45em;
+padding:0px 0px 5px 0px;
+}
+
+#alertbox table {
+padding:0px 0px 5px 0px;
+width: 100%;
+}
+
+.alertbox_title {
+	color: <% "alertbox.title.color", "#d46464" %>;
+	padding: 0px 0px 10px 0px;
+	font: <% "alertbox.title.font", "normal 1.5em Tahoma, Arial, Helvetica, sans-sarif" %>;
+}
+
+.alert_top_left {
+	background-image: url(<% "alertbox.top.left.image", "/pentaho-style/images/alert-top-left.png" %>);
+}
+.alert_top_right {
+	background-image: url(<% "alertbox.top.right.image", "/pentaho-style/images/alert-top-right.png" %>);
+}
+
+.alert_bottom_left {
+	background-image: url(<% "alertbox.bottom.left.image", "/pentaho-style/images/alert-bot-left.png" %>);
+}
+
+.alert_bottom_right {
+	background-image: url(<% "alertbox.bottom.right.image", "/pentaho-style/images/alert-bot-right.png" %>);
+}
+
+.alert_middle {
+	background-image: url(<% "alertbox.middle.image", "/pentaho-style/images/alert-middle.png" %>);
+	background-repeat: repeat;
+}
+
+.alert_middle_top {
+	background-image: url(<% "alertbox.middle.top.image", "/pentaho-style/images/alert-middle.png" %>);
+	background-repeat: repeat;
+	border-top: <% "alertbox.border", "1px solid #f99898" %>;
+}
+
+.alert_middle_left {
+	background-image: url(<% "alertbox.middle.left.image", "/pentaho-style/images/alert-middle.png" %>);
+	background-repeat: repeat;
+	border-left: <% "alertbox.border", "1px solid #f99898" %>;
+}
+
+.alert_middle_right {
+	background-image: url(<% "alertbox.middle.right.image", "/pentaho-style/images/alert-middle.png" %>);
+	background-repeat: repeat;
+	border-right: <% "alertbox.border", "1px solid #f99898" %>;
+}
+
+.alert_middle_bottom {
+	background-image: url(<% "alertbox.middle.bottom.image", "/pentaho-style/images/alert-middle.png" %>);
+	background-repeat: repeat;
+	border-bottom: <% "alertbox.border", "1px solid #f99898" %>;
+}
+
+.alert_spacer {
+	width:25px;
+	height:25px;
+}
+
+.alert_icon {
+	width:32px;
+	height:32px;
+	vertical-align:top;
+	padding: 0px 10px 0px 0px;
+}
+/* END ALERT BOX */
+
+
+
+
+.footer_source_forge_and_disclaimer {
+	font: <% "footer.sfdisc.font", "normal .8em Tahoma, \"Trebuchet MS\", Arial" %>;
+	color: <% "footer.sfdisc.color", "#888888" %>;
+	border-top: <% "footer.sfdisc.border", "1px solid #818f49" %>;
+	vertical-align: <% "footer.sfdisc.vertical.align", "top" %>;
+	padding: <% "footer.sfdisc.padding", "5px 5px 0px 0px" %>;
+	margin: <% "footer.sfdisc.margin", "15px 0px 0px 0px" %>;
+}
+
+
+/* sniffy stuff */
+.flyTitle { 
+	padding-bottom: 2px; 
+	color: <% "flyover.title.color", "#ef8033" %>;
+	font: <% "flyover.title.font", "normal 1em Tahoma, \"Trebuchet MS\", Arial" %>;
+}
+
+
+.flyDesc {
+	padding-top: 5px; 
+	color: <% "flyover.desc.color", "#000000" %>;
+	font: <% "flyover.desc.font", "normal .85em Tahoma, \"Trebuchet MS\", Arial" %>;
+}
+
+.flyContent {
+	background-color: <% "flyover.background.color", "#e6e9db" %>;
+}
+
+.content_pagehead {
+	color: <% "page.header.font.color", "#000000" %>;
+	font: <% "page.header.font", "normal 1em Tahoma, \"Trebuchet MS\", Arial" %>;
+}

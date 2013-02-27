@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSources>
+  <DataSource>
+    <DataSourceName>Provider=Mondrian;DataSource=Pentaho</DataSourceName>
+    <DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>
+    <URL>http://localhost:8080/pentaho/Xmla?userid=joe&amp;password=password</URL>
+    <DataSourceInfo>Provider=mondrian</DataSourceInfo>
+    <ProviderName>PentahoXMLA</ProviderName>
+    <ProviderType>MDP</ProviderType>
+    <AuthenticationMode>Unauthenticated</AuthenticationMode>
+    <Catalogs>
+        <Catalog name="SteelWheels">
+            <DataSourceInfo>Provider=mondrian;DataSource=SampleData</DataSourceInfo>
+			<Definition>solution:/public/pentaho-solutions/steel-wheels/analysis/steelwheels.mondrian.xml</Definition>
+		</Catalog>
+        <Catalog name="SampleData">
+            <DataSourceInfo>Provider=mondrian;DataSource=SampleData</DataSourceInfo>
+            <Definition>solution:/public/pentaho-solutions/steel-wheels/analysis/SampleData.mondrian.xml</Definition>
+        </Catalog>
+    </Catalogs>
+  </DataSource>
+</DataSources>

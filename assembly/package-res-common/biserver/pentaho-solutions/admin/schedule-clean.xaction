@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<action-sequence> 
+  <name>schedule-clean.xaction</name>  
+  <version>1</version>  
+  <title>%title</title>  
+  <logging-level>debug</logging-level>  
+  <documentation> 
+    <author>William E. Seyler</author>  
+    <icon>ScheduleAdmin.png</icon>  
+    <description>%description</description>  
+    <help/>  
+    <result-type>rule</result-type>  
+    <icon>Broom.PNG</icon> 
+  </documentation>  
+  <inputs> 
+    <solution type="string"> 
+      <default-value>admin</default-value> 
+    </solution>  
+    <path type="string"> 
+      <default-value></default-value> 
+    </path>  
+    <action type="string"> 
+      <default-value>clean_repository.xaction</default-value> 
+    </action>  
+    <jobName type="string"> 
+      <default-value>Clean-Content-Repository</default-value> 
+    </jobName>  
+    <triggerType type="string"> 
+      <default-value>simple</default-value> 
+    </triggerType>  
+    <triggerName type="string"> 
+      <default-value>CleanRepositoryTrigger</default-value> 
+    </triggerName>  
+    <repeatInterval type="string"> 
+      <default-value>86400</default-value> 
+    </repeatInterval>  
+    <repeatCount type="string">
+      <default-value/>
+    </repeatCount> 
+  </inputs>  
+  <outputs/>  
+  <resources/>  
+  <actions> 
+    <action-definition> 
+      <action-inputs> 
+        <solution type="string"/>  
+        <path type="string"/>  
+        <action type="string"/>  
+        <jobName type="string"/>  
+        <triggerType type="string"/>  
+        <triggerName type="string"/>  
+        <repeatInterval type="string"/> 
+      </action-inputs>  
+      <component-name>JobSchedulerComponent</component-name>  
+      <action-type>schedule</action-type>  
+      <component-definition>
+        <jobAction>startJob</jobAction>
+	  </component-definition> 
+    </action-definition> 
+  </actions> 
+</action-sequence>

@@ -1,0 +1,334 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Pentaho Information Map</title>
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript">
+
+$('document').ready(function(){
+
+   // Toggle display panel w/ animation
+   $('.title_bar').click(function(){
+       $(this).find('span').toggleClass('open');
+       $(this).next().slideToggle('slow');
+       return false;
+   });
+   
+   
+   // Toggle display article description
+   $('.article').click(function(){
+       $(this).parent().find('.disc').slideToggle('80');
+       $(this).toggleClass('open');
+       return false;
+   });
+
+
+   // Open all panels
+   $('.open-all').click(function(){
+       $('.panel').slideDown('slow');
+       $('.title_bar span').addClass('open');
+       return false;
+   });
+
+
+   // Close all panels
+   $('.collapse-all').click(function(){
+       $('.panel').slideUp('slow');
+       $('.title_bar span').removeClass('open');
+       return false;
+   });
+   
+});
+
+</script>
+<style type="text/css">
+/************
+MIGUEL STYLES
+************/
+
+.panel, .disc {
+	display:none;
+}
+.title_bar {
+	cursor:pointer;
+}
+.title_bar span, .title_bar span.open {
+	color:#FFF;
+	background:url(disclose_arrow_right.png) no-repeat 0 0;
+	padding-left:15px;
+}
+.title_bar span.open {
+	background:url(disclose_arrow_down.png) no-repeat 0 0;
+}
+.article {
+	background:url(disclose_arrow_right_blk.png) no-repeat 0 0;
+	padding-left:15px;
+}
+.article.open {
+	background:url(disclose_arrow_down_blk.png) no-repeat 0 0;
+}
+#user {
+	display: block;
+}
+/****************
+END MIGUEL STYLES
+****************/
+
+
+
+
+
+
+body {
+	font-family: Tahoma, Helvetica, Arial, sans-serif;
+	font-size: 14px;
+}
+#wrapper {
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 10px;
+	width: 800px;
+}
+#header {
+	width: 100%;
+	padding: 0 0 10px 0;
+	background: transparent;
+	height: 80px;
+}
+#title {
+	background: transparent;
+	width: 400px;
+	color: #FFFFFF;
+	font-family: "Franklin Gothic Demi", Tahoma, Arial;
+	font-size: 2em;
+	text-shadow: 0 1px 1px #000000;
+	padding: 30px 0 0 24px;
+	float: left;
+}
+#logo {
+	width: 200px;
+	background: transparent;
+	float: right;
+	text-align: right;
+}
+#infoMap {
+	border-left: 1px solid #000;
+	border-right: 1px solid #000;
+	border-bottom: 1px solid #000;
+	width: 720px;
+	padding: 20px;
+	background-color: #d4d6db;
+}
+.pentaho-rounded-panel2-shadowed {
+	border: 1px solid black;
+	border-radius: 5px 5px 5px 5px;
+	box-shadow: 1px 1px 5px 0 #333333, 0 0 1px 1px rgba(255, 255, 255, 0.6) inset;
+	text-align: left;
+	width: 760px;
+	padding: 20px 20px 20px 20px;
+}
+.pentaho-background {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+.pentaho-shine {
+	background: -moz-linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.15) 100%) repeat scroll 0 0 transparent;
+}
+.pentaho-page-background {
+	background: url("bg_pentaho_default.png") repeat-x scroll left top #303030;
+}
+#controls {
+	text-align: right;
+}
+.panel-title {
+	text-decoration: none;
+	color: #FFF;
+	font-size:.85em;
+	text-shadow: 0 1px 1px #000;
+}
+.title_bar {
+	padding: 4px 4px 4px 6px;
+	background-color: #000;
+	margin: 0 0 4px 0;
+	border-bottom: 1px solid #d4d6db;
+	background: -moz-linear-gradient(center top, #1A1A1A 0%, #333333 50%, #000000 51%, #000000 100%) repeat scroll 0 0 transparent;
+}
+:-moz-any-link:focus {
+ outline: none;
+}
+ul {
+	padding: 0;
+	margin: 0 0px 4px 18px;
+}
+ul li {
+	list-style: none;
+	font-size: .85em;
+}
+a {
+	color: #e74e01;
+}
+a:hover {
+	text-decoration: none
+}
+a:active {
+}
+a:visited {
+	color: #944a17
+}
+.disc {
+	padding: 2px 0 4px 12px;
+	Line-height: 1.25em;
+}
+#banner {
+	width: 720px;
+	padding: 20px;
+	height: 90px;
+	background: #dedede; /* Old browsers */
+	background: -moz-linear-gradient(top, #dedede 0%, #ffffff 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dedede), color-stop(100%, #ffffff)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #dedede 0%, #ffffff 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #dedede 0%, #ffffff 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #dedede 0%, #ffffff 100%); /* IE10+ */
+ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dedede', endColorstr='#ffffff', GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #dedede 0%, #ffffff 100%); /* W3C */
+	box-shadow: 0 0 1px 1px rgba(255, 255, 255, 0.6) inset;
+	border: 1px solid black;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-topright: 5px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+.panel {
+	width: 100%;
+	line-height:1.5em;
+	padding: 2px;
+}
+.style2 {
+	font-size: .8em
+}
+</style>
+</head>
+<body class="pentaho-page-background">
+<div id="wrapper">
+  <div id="header">
+    <div id="title">Pentaho Information Map</div>
+    <div id="logo"><a href="http://www.pentaho.com" target="_blank"><img src="logo.png" alt="Pentaho Logo" border="0"/></a></div>
+  </div>
+  <div class="pentaho-rounded-panel2-shadowed pentaho-background pentaho-shine">
+    <div id="banner">
+      <table width="700" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td width="17%" rowspan="2"><img src="pdf_icon.png" width="80" height="80" /></td>
+          <td width="83%"><a href="puc_user_guide.pdf" target="_blank">Pentaho User Console Guide</a><br />
+            <span class="style2">Reference material and task-based documentation on Pentaho Dashboard Designer, Pentaho Analyzer, Pentaho Interactive Reporting, and the content scheduling and authorization features in the Pentaho User Console.</span></td>
+        </tr>
+        <tr>
+          <td valign="top" style="padding: 8px 0 0 0;"><a href="getting_started_with_pentaho.pdf" target="_blank">Getting Started with BI Suite</a><br />
+            <span class="style2">Detailed walkthroughs that show how to create content with Pentaho User Console design tools.</span></td>
+        </tr>
+      </table>
+    </div>
+    <div id="infoMap">
+      <div id="controls"> <b><a class="collapse-all" href=""><img src="collapse_all.png" border="0" alt="Hide All" /></a> <a class="open-all" href=""><img src="expand_all.png" border="0" alt="Show All" /></a></b> </div>
+      <p class="title_bar"><span class="open">User Guides</span></p>
+      <div id="user" class="panel" style="display:">
+        <ul>
+          <li> <a href="" class="article"></a> <a href="getting_started_with_pentaho.pdf" target="_blank">Getting Started with BI Suite</a><br />
+            <div id="GettingStartedwithBISuiteU" class="disc">Detailed walkthroughs that show how to create content with Pentaho User Console design tools. <br />
+            </div>
+          </li>
+          <li> <a href="" class="article"></a> <a href="puc_user_guide.pdf" target="_blank">Pentaho User Console Guide</a><br />
+            <div id="PentahoUserConsoleGuideU" class="disc">Reference material and task-based documentation on Pentaho Dashboard   Designer, Pentaho Analyzer, Pentaho Interactive Reporting, and the   content scheduling and authorization features in the Pentaho User   Console. </div>
+          </li>
+          <li> <a href="" class="article"></a> <a href="analysis_guide.pdf" target="_blank">Analysis Guide</a><br />
+            <div id="AnalysisGuideU" class="disc">Guidance and theory on creating ROLAP schemas with Schema Workbench and   Pentaho Data Integration; Pentaho Analyzer and JPivot user   documentation; Mondrian engine and Pentaho Analyzer configuration   instructions. Also includes an MDX element reference. </div>
+          </li>
+          <li> <a href="" class="article"></a> <a href="report_designer_user_guide.pdf" target="_blank">Report Designer User Guide</a><br />
+            <div id="ReportDesignerUserGuideU" class="disc">Reference material and task-based documentation on creating, editing,   and publishing reports with Pentaho Report Designer. Includes a complete   chart property reference. </div>
+          </li>
+          <li> <a href="" class="article"></a> <a href="pme_user_guide.pdf" target="_blank">Metadata Editor User Guide</a><br />
+            <div id="MetadataEditorUserGuideU" class="disc"> Reference material and task-based documentation for creating, editing,   and publishing metadata models with Pentaho Metadata Editor. </div>
+          </li>
+          <li> <a href="" class="article"></a> <a href="getting_started_with_pdi.pdf" target="_blank">Getting Started with PDI</a><br />
+            <div id="GettingStartedwithPDIU" class="disc">Evaluation document showcasing the high-value features of PDI.</div>
+          </li>
+          <li> <a href="" class="article"></a> <a href="pdi_user_guide.pdf" target="_blank">PDI User Guide</a><br />
+            <div id="PDIUserGuideU" class="disc">Reference material and task-based documentation that covers the majority of the functionality in Pentaho Data Integration. <br />
+            </div>
+          </li>
+          <li> <a href="" class="article"></a> <a href="hadoop_pentaho.pdf" target="_blank">Hadoop Guide</a><br />
+            <div id="HadoopGuideU" class="disc"> How to install and configure Pentaho's Hadoop distribution, along with   procedural documentation on how to implement the Hadoop-related job   entries and transformation steps in Pentaho Data Integration. </div>
+          </li>
+          <li> <a href="" class="article"></a> <a href="aggregation_designer_guide.pdf" target="_blank">Aggregation Designer User Guide</a><br />
+            <div id="AggregationDesigneruserGuideU" class="disc"> Information on creating aggregate tables for Pentaho Analysis.</div>
+          </li>
+        </ul>
+      </div>
+      <p class="title_bar"><span>Administrator Guides</span></p>
+      <div id="admin" class="panel">
+        <ul>
+          <li><a href="" class="article"></a> <a href="admin_guide.pdf" target="_blank">BI Suite Admin Guide</a><br />
+            <div id="BISuiteAdminGuideA" class="disc">Explains system configuration and administration tasks for the Pentaho   BI Server and DI Server. (Please see the Security Guide for detailed   instructions on implementing different user authentication methods). </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="troubleshooting.pdf" target="_blank">BI Suite Troubleshooting Guide</a><br />
+            <div id="BISuiteTroubleshootingGuideA" class="disc">A collection of troubleshooting topics from all other Pentaho guides.   You may find this useful if you have encountered some kind of error but   don't know where in the BI Suite to look for the root cause. </div>
+          </li>
+          <li> <a href="" class="article"></a> <a href="install_graphical.pdf" target="_blank">BI Suite Graphical Installation Guide</a><br />
+            <div id="BISuiteGraphicalInstallationGuideA" class="disc"> Installation instructions for the graphical BI Suite installer,   including system requirements and a high-level list of the software that   is installed to your machine. NOTE: This is the most common   installation method, but requires that you use the Pentaho-supplied Java   Runtime Environment, MySQL database, and Tomcat application server. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="install_ziptar.pdf" target="_blank">BI Suite Archive-based Installation Guide</a><br />
+            <div id="BISuiteArchivebasedInstallationGuideA" class="disc"> Installation instructions for deploying zip or tar.gz archive packages   for every part of the BI Suite. Includes system requirements and a   high-level list of the software that is installed to your machine. This   installation method allows you to use Oracle, PostgreSQL, or your own   version of MySQL for the BI Server solution database, and your own Java   Runtime Environment. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="install_manual.pdf" target="_blank">BI Suite Manual Deployment Guide</a><br />
+            <div id="BISuiteManualDeploymentGuideA" class="disc">J2EE WAR assembly and deployment instructions for the Pentaho BI Server.   Only use this installation path if you must use your own version of   Tomcat or JBoss to run the BI Server. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="security_guide.pdf" target="_blank">BI Suite Security Guide</a><br />
+            <div id="BISuiteSecurityGuideA" class="disc"> Instructions and guidance for implementing a different user   authentication method, or for implementing SSL on the BI Server. Covers   Active Directory, LDAP, single sign-on, and custom JDBC authentication. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="upgrade_guide.pdf" target="_blank">BI Suite Upgrade Guide</a><br />
+            <div id="BISuiteUpgradeGuideA" class="disc">Upgrade instructions for migrating from the previous major BI Suite   release to the newest. This guide also includes all of the content from   the PDI Upgrade Guide. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="performance_tuning_guide.pdf" target="_blank">BI Suite Performance-Tuning Guide</a><br />
+            <div id="BISuitePerformanceTuningGuideA" class="disc">Guidance and instructions for improving performance in most areas of the   BI Suite. Covers modification of the BI Suite, guidelines for content   streamlining, application server clustering, and advice on performance   monitoring and testing. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="install_pdi.pdf" target="_blank">PDI Installation Guide</a><br />
+            <div id="PDIInstallationGuideA" class="disc">Installation instructions for both the graphical PDI installer and the   zip and tar.gz archive packages. Covers server and workstation   installations. Includes system requirements and a high-level list of the   software that is installed to your machine. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="pdi_admin_guide.pdf" target="_blank">PDI Administrator's Guide</a><br />
+            <div id="PDIAdministratorsGuideA" class="disc">Explains system configuration and administration tasks for the DI Server. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="upgrade_pdi_41_to_42.pdf" target="_blank">PDI Upgrade Guide</a><br />
+            <div id="PDIUpgradeGuideA" class="disc"> Instructions for upgrading from the previous version of Pentaho Data   Integration to the newest. This pertains to both the client tool (Spoon)   and the Data Integration Server (DI Server). </div>
+          </li>
+        </ul>
+      </div>
+      <p class="title_bar"><span>Developer Guides</span></p>
+      <div id="dev" class="panel">
+        <ul>
+          <li><a href="" class="article"></a> <a href="customizing_pentaho_guide.pdf" target="_blank">Customizing the BI Suite</a><br />
+            <div id="CustomizingtheBISuiteD" class="disc"> Instructions for localization and basic customization of the Pentaho   User Console, including Pentaho Analyzer, Interactive Reporting, and   Dashboard Designer. <br />
+            </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="dashboard_guide.pdf" target="_blank">Creating Pentaho Dashboards</a><br />
+            <div id="CreatingPentahoDashboardsU" class="disc">Design theory for creating dashboards that use Pentaho content. Covers   Pentaho Dashboard Designer, Community Dashboard Framework (CDF), and   basic guidance for custom JSPs. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="integrating_biserver.pdf" target="_blank">Integrating the BI Server</a><br />
+            <div id="IntegratingtheBIServerD" class="disc">Code samples and URL parameter reference material that shows how to   interact with or embed (in an existing Web application) Pentaho   Analyzer, Dashboard Designer, and Interactive Reporting. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="embedding_pentaho_reporting_engine.pdf" target="_blank">Embedding the Pentaho Reporting Engine</a><br />
+            <div id="EmbeddingthePentahoReportingEngineD" class="disc"> Guidance and code samples for using the Pentaho Reporting SDK to embed the Reporting engine in Java applications. </div>
+          </li>
+          <li><a href="" class="article"></a> <a href="creating_action_sequences.pdf" target="_blank">Creating Action Sequences</a><br />
+            <div id="CreatingActionSequencesU" class="disc"> Reference material, guidance, and code samples for creating action   sequences to run on the Pentaho BI Platform. Includes user documentation   for Pentaho Design Studio. </div>
+          </li>
+        </ul>
+      </div>
+      <div id="footer" style="text-align: right; padding: 8px 0 4px 0;  font-size: .8em;">Adobe Acrobat Reader is required to view PDF files.<br />
+        This is a free program available from the Adobe web site. <a href="http://get.adobe.com/reader/" target="_blank">Download Acrobat Reader here</a>.</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

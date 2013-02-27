@@ -29,6 +29,7 @@
 
   <!-- custom platform assembly properties -->
   <property name="package.res.dir" value="package-res"/>
+  <property name="package.res.common.dir" value="package-res-common"/>
   <property name="rdbms" value="hsqldb" description="Default database for open assembly is hsqldb" />
   <property name="stage.dir.server" value="${stage.dir}/${package.id}" />
   <property name="stage.dir.solutions" value="${stage.dir.server}/pentaho-solutions"/>
@@ -60,10 +61,7 @@
   <property name="plugin-samples.visible" value="true" description="Should the plugin-samples be visible" />
 
   <property name="user-console.tmp.dir" value="${basedir}/temp" />
-  <property name="tomcat.major.version" value="6"/>
-	<property name="tomcat.minor.version" value="0.36"/>
-	<property name="tomcat.version" value="${tomcat.major.version}.${tomcat.minor.version}"/>
-  <property name="tomcat.dir" value="${subfloor.resources.dir}/apache-tomcat-${tomcat.version}" description="Directory where tomcat is deployed"/>
+  <property name="tomcat.dir" value="${subfloor.resources.dir}/apache-tomcat-6.0.29" description="Directory where tomcat is deployed"/>
   <property name="third-party.dir" value="${subfloor.resources.dir}/third-party" description="Directory where 3rd party tools are included in the platform assemblies" />
   <property name="wkhtmltoimage.dir" value="${third-party.dir}/wkhtmltoimage" description="Directory where wkhtmltoimage is downloaded"/>
 
@@ -95,7 +93,9 @@
     <mkdir dir="${solution-archives.dir}" />
   </target>
 
-<target name="ce-build-all"
+
+
+  <target name="ce-build-all"
         depends="clean-all,resolve,assemble,package,war-pentaho-tomcat,zip-pentaho-style-war,package,zip-pentaho-data,zip-pentaho-solutions"
         description="Performs ce build process"/>
 
@@ -141,10 +141,10 @@
           unless="tomcat.available"
           description="Fetches tomcat from apache">
     <mkdir dir="${subfloor.tmp.dir}" />
-    <get src="http://archive.apache.org/dist/tomcat/tomcat-${tomcat.major.version}/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}-windows-x86.zip"
-         dest="${subfloor.tmp.dir}/apache-tomcat-${tomcat.version}-windows-x86.zip"
+    <get src="http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29-windows-x86.zip"
+         dest="${subfloor.tmp.dir}/apache-tomcat-6.0.29-windows-x86.zip"
          usetimestamp="true" />
-	<unzip src="${subfloor.tmp.dir}/apache-tomcat-${tomcat.version}-windows-x86.zip" dest="${tomcat.dir}/.."/>
+	<unzip src="${subfloor.tmp.dir}/apache-tomcat-6.0.29-windows-x86.zip" dest="${tomcat.dir}/.."/>
   </target>
 	
   <!-- =================================
@@ -256,6 +256,21 @@
 
 
   </target>
+	
+	<!-- Add general libs -->
+	  <target name="prepare-pentaho-lib-folder" >
+		    <copy todir="${prep.pentaho.war.lib.dir}">
+		      <fileset dir="${lib.dir}">
+		        <include name="*.jar" />
+		        <exclude name="servlet-api-*.jar" />
+		        <exclude name="gwt-user-*.jar" />
+		        <exclude name="mysql-connector-*.jar" />
+		        <exclude name="*-sources.jar" />
+		        <!-- TODO: Remove the line below when we fix the circular dependency between kettle-engine and metadata -->
+		        <exclude name="hibernate-3.2.6.ga.jar" />
+		      </fileset>
+		    </copy>
+	  </target>
 
   <!-- =================================
           target: assemble-pentaho-webapp

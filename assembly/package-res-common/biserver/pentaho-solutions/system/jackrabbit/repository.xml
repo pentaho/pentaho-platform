@@ -1,0 +1,420 @@
+<?xml version="1.0"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE Repository
+    PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 2.0//EN"
+    "http://jackrabbit.apache.org/dtd/repository-2.0.dtd">
+
+<Repository>
+  <!--
+    virtual file system where the repository stores global state
+    (e.g. registered namespaces, custom node types, etc.).
+
+    ALERT: If you make changes to the Repository XML ensure that you delete
+    all files is {solution_folder}/system/jackrabbit/repository and drop all
+    the the tables in associated dbs to ensure you start with a pristine
+    repository.  If you leave artifacts you may run into errors resulting from
+    an "inconsistent" repository!
+  -->
+  <!--
+    Replace the following "FileSystem" XML node to use supported databases as
+    the repository file system.  Change the url, user, password and other parameters
+    to suit your db installation.  The schemaObjectPrefix should
+    be a unique prefix that will be prepended to the table names.
+    NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
+    documentation for further explanation.
+  -->
+
+  <!--
+  <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+    <param name="driver" value="com.mysql.jdbc.Driver"/>
+    <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+    <param name="user" value="jcr_user"/>
+    <param name="password" value="password"/>
+    <param name="schema" value="mysql"/>
+    <param name="schemaObjectPrefix" value="fs_repos_"/>
+  </FileSystem>
+
+  <FileSystem class="org.apache.jackrabbit.core.fs.db.OracleFileSystem">
+    <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+    <param name="user" value="jcr_user"/>
+    <param name="password" value="password"/>
+    <param name="schemaObjectPrefix" value="fs_repos_"/>
+    <param name="tablespace" value="jackrabbit"/>
+  </FileSystem>
+
+  <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+    <param name="driver" value="org.postgresql.Driver"/>
+    <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+    <param name="user" value="jcr_user"/>
+    <param name="password" value="password"/>
+    <param name="schema" value="postgresql"/>
+    <param name="schemaObjectPrefix" value="fs_repos_"/>
+  </FileSystem>
+  -->
+
+  <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+     <param name="path" value="${rep.home}/repository"/>
+  </FileSystem>
+
+  <!--
+    data store configuration
+  -->
+  <!--
+    Replace the following "DataStore" XML node to use supported databases as the data
+    store for the repository.  Change the url, user, password and other parameters
+    to suit your db installation.  The schemaObjectPrefix should
+    be a unique prefix that will be prepended to the table names.
+    NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
+    documentation for further explanation.
+  -->
+
+  <!--
+  <DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
+    <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+    <param name="user" value="jcr_user"/>
+    <param name="password" value="password"/>
+    <param name="databaseType" value="mysql"/>
+    <param name="driver" value="com.mysql.jdbc.Driver"/>
+    <param name="minRecordLength" value="1024"/>
+    <param name="maxConnections" value="3"/>
+    <param name="copyWhenReading" value="true"/>
+    <param name="tablePrefix" value=""/>
+    <param name="schemaObjectPrefix" value="ds_repos_"/>
+  </DataStore>
+
+  <DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
+    <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+    <param name="driver" value="oracle.jdbc.OracleDriver"/>
+    <param name="user" value="jcr_user"/>
+    <param name="password" value="password"/>
+    <param name="databaseType" value="oracle"/>
+    <param name="minRecordLength" value="1024"/>
+    <param name="maxConnections" value="3"/>
+    <param name="copyWhenReading" value="true"/>
+    <param name="tablePrefix" value=""/>
+    <param name="schemaObjectPrefix" value="ds_repos_"/>
+  </DataStore>
+
+  <DataStore class="org.apache.jackrabbit.core.data.db.DbDataStore">
+    <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+    <param name="driver" value="org.postgresql.Driver"/>
+    <param name="user" value="jcr_user"/>
+    <param name="password" value="password"/>
+    <param name="databaseType" value="postgresql"/>
+    <param name="minRecordLength" value="1024"/>
+    <param name="maxConnections" value="3"/>
+    <param name="copyWhenReading" value="true"/>
+    <param name="tablePrefix" value=""/>
+    <param name="schemaObjectPrefix" value="ds_repos_"/>
+  </DataStore>
+  -->
+
+
+  <DataStore class="org.apache.jackrabbit.core.data.FileDataStore"/>
+
+  <!--
+      security configuration
+  -->
+  <Security appName="Jackrabbit">
+    <!--
+        security manager:
+        class: FQN of class implementing the JackrabbitSecurityManager interface
+    -->
+    <SecurityManager class="org.apache.jackrabbit.core.DefaultSecurityManager" workspaceName="security">
+      <!--
+      workspace access:
+      class: FQN of class implementing the WorkspaceAccessManager interface
+      -->
+      <!-- <WorkspaceAccessManager class="..."/> -->
+      <!-- <param name="config" value="${rep.home}/security.xml"/> -->
+    </SecurityManager>
+
+    <!--
+        access manager:
+        class: FQN of class implementing the AccessManager interface
+    -->
+    <AccessManager class="org.apache.jackrabbit.core.security.DefaultAccessManager">
+      <!-- <param name="config" value="${rep.home}/access.xml"/> -->
+    </AccessManager>
+
+    <LoginModule class="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityLoginModule">
+      <!--
+        anonymous user name ('anonymous' is the default value)
+      -->
+      <param name="anonymousId" value="anonymous"/>
+      <!--
+        administrator user id (default value if param is missing is 'admin')
+      -->
+      <param name="adminId" value="admin"/>
+
+      <param name="principalProvider"
+             value="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityPrincipalProvider"/>
+      <!-- comma separated list of pre-authentication tokens, one per application -->
+      <param name="preAuthenticationTokens" value="ZchBOvP8q9FQ"/>
+      <!-- must match PentahoSessionCredentialsStrategy.ATTR_PRE_AUTHENTICATION_TOKEN -->
+      <param name="trust_credentials_attribute" value="pre_authentication_token"/>
+    </LoginModule>
+  </Security>
+
+  <!--
+      location of workspaces root directory and name of default workspace
+  -->
+  <Workspaces rootPath="${rep.home}/workspaces" defaultWorkspace="default"/>
+  <!--
+      workspace configuration template:
+      used to create the initial workspace if there's no workspace yet
+  -->
+  <Workspace name="${wsp.name}">
+    <!--
+        virtual file system of the workspace:
+        class: FQN of class implementing the FileSystem interface
+    -->
+    <!--
+      Replace the following "FileSystem" XML node to use supported databases as
+      the repository file system.  Change the url, user, password and other parameters
+      to suit your db installation.  The schemaObjectPrefix should
+      be a unique prefix that will be prepended to the table names.
+      NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
+      documentation for further explanation.
+    -->
+    <!--
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+      <param name="driver" value="com.mysql.jdbc.Driver"/>
+      <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="mysql"/>
+      <param name="schemaObjectPrefix" value="fs_ws_"/>
+    </FileSystem>
+
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.OracleFileSystem">
+      <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schemaObjectPrefix" value="fs_ws_"/>
+      <param name="tablespace" value="jcr_user"/>
+    </FileSystem>
+
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+      <param name="driver" value="org.postgresql.Driver"/>
+      <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="postgresql"/>
+      <param name="schemaObjectPrefix" value="fs_ws_"/>
+    </FileSystem>
+    -->
+
+
+    <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+      <param name="path" value="${wsp.home}"/>
+    </FileSystem>
+
+
+    <!--
+        persistence manager of the workspace:
+        class: FQN of class implementing the PersistenceManager interface
+    -->
+    <!--
+            Replace the following "PersistenceManager" XML node to use a supported database as the
+            persistenanceManager store.  Change the url, user, password and parameters
+          to suit your db installation.  The schemaObjectPrefix should
+          be a unique prefix that will be prepended to the table names.
+          NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
+          documentation for further explanation.
+        -->
+    <!--
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.MySqlPersistenceManager">
+      <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+      <param name="user" value="jcr_user" />
+      <param name="password" value="password" />
+      <param name="schema" value="mysql"/>
+      <param name="schemaObjectPrefix" value="${wsp.name}_pm_ws_"/>
+    </PersistenceManager>
+
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.OraclePersistenceManager">
+      <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+      <param name="driver" value="oracle.jdbc.OracleDriver"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="oracle"/>
+      <param name="schemaObjectPrefix" value="${wsp.name}_pm_ws_"/>
+      <param name="tablespace" value="jackrabbit"/>
+    </PersistenceManager>
+
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.PostgreSQLPersistenceManager">
+      <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+      <param name="driver" value="org.postgresql.Driver"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="postgresql"/>
+      <param name="schemaObjectPrefix" value="${wsp.name}_pm_ws_"/>
+    </PersistenceManager>
+    -->
+
+
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
+      <param name="url" value="jdbc:h2:${wsp.home}/db"/>
+      <param name="schemaObjectPrefix" value="${wsp.name}_"/>
+    </PersistenceManager>
+
+    <!--
+        Search index and the file system it uses.
+        class: FQN of class implementing the QueryHandler interface
+    -->
+    <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+      <param name="path" value="${wsp.home}/index"/>
+      <param name="supportHighlighting" value="true"/>
+    </SearchIndex>
+
+
+    <WorkspaceSecurity>
+      <AccessControlProvider class="org.apache.jackrabbit.core.security.authorization.acl.PentahoACLProvider">
+        <!-- Param names have the prefix magicAceDefinition along with a consecutive integer -->
+        <!-- Param values have four values separated by colons. -->
+        <!-- Param value subitem #1: path possibly including {0} which will be replaced by tenantId -->
+        <!-- Param value subitem #2: ABS action name -->
+        <!-- Param value subitem #3: comma-separated list of JCR privileges -->
+        <!-- Param value subitem #4: boolean where true means that path is a prefix and not to be matched exactly -->
+        <param name="magicAceDefinition0" value="{0};org.pentaho.security.administerSecurity;jcr:all;true;true;false" />
+        <param name="magicAceDefinition1"
+value="{0};org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false;true" />
+        <param name="magicAceDefinition2"
+value="{0}/etc/pdi;org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false;false" />
+        <param name="magicAceDefinition3"
+value="{0}/etc/pdi;org.pentaho.repository.create;jcr:read,jcr:readAccessControl,jcr:write,jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,jcr:nodeTypeManagement;true;false;false" />
+      </AccessControlProvider>
+    </WorkspaceSecurity>
+
+  </Workspace>
+
+  <!--
+      Configures the versioning
+  -->
+  <Versioning rootPath="${rep.home}/version">
+    <!--
+        Configures the filesystem to use for versioning for the respective
+        persistence manager
+    -->
+    <!--
+          Replace the following "FileSystem" XML node to use a supported database as
+          the repository file system.  Change the url, user, password and other parameters
+          to suit your db installation.  The schemaObjectPrefix should
+          be a unique prefix that will be prepended to the table names.
+          NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
+          documentation for further explanation.
+        -->
+    <!--
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+      <param name="driver" value="com.mysql.jdbc.Driver"/>
+      <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="mysql"/>
+      <param name="schemaObjectPrefix" value="fs_ver_"/>
+    </FileSystem>
+
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.OracleFileSystem">
+      <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schemaObjectPrefix" value="fs_ver_"/>
+      <param name="tablespace" value="jackrabbit"/>
+    </FileSystem>
+
+    <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+      <param name="driver" value="org.postgresql.Driver"/>
+      <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="postgresql"/>
+      <param name="schemaObjectPrefix" value="fs_ver_"/>
+    </FileSystem>
+    -->
+
+    <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+      <param name="path" value="${rep.home}/version" />
+    </FileSystem>
+
+    <!--
+        Configures the persistence manager to be used for persisting version state.
+        Please note that the current versioning implementation is based on
+        a 'normal' persistence manager, but this could change in future
+        implementations.
+    -->
+    <!--
+            Replace the following "PersistenceManager" XML node to use a supported database as the
+            persistenanceManager store.  Change the url, user, password and parameters
+          to suit your db installation.  The schemaObjectPrefix should
+          be a unique prefix that will be prepended to the table names.
+          NOTE: The database must be pre-created in and match the parameters.  See Jackrabbit
+          documentation for further explanation.
+        -->
+    <!--
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.MySqlPersistenceManager">
+      <param name="url" value="jdbc:mysql://localhost:3306/jackrabbit"/>
+      <param name="user" value="jcr_user" />
+      <param name="password" value="password" />
+      <param name="schema" value="mysql"/>
+      <param name="schemaObjectPrefix" value="pm_ver_"/>
+    </PersistenceManager>
+
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.OraclePersistenceManager">
+      <param name="url" value="jdbc:oracle:thin:@localhost:1521/XE"/>
+      <param name="driver" value="oracle.jdbc.OracleDriver"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="oracle"/>
+      <param name="schemaObjectPrefix" value="pm_ver_"/>
+      <param name="tablespace" value="jackrabbit"/>
+    </PersistenceManager>
+
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.PostgreSQLPersistenceManager">
+      <param name="url" value="jdbc:postgresql://localhost:5432/jackrabbit"/>
+      <param name="driver" value="org.postgresql.Driver"/>
+      <param name="user" value="jcr_user"/>
+      <param name="password" value="password"/>
+      <param name="schema" value="postgresql"/>
+      <param name="schemaObjectPrefix" value="pm_ver_"/>
+    </PersistenceManager>
+    -->
+
+    <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
+      <param name="url" value="jdbc:h2:${rep.home}/version/db"/>
+      <param name="schemaObjectPrefix" value="version_"/>
+    </PersistenceManager>
+
+  </Versioning>
+
+  <!--
+      Search index for content that is shared repository wide
+      (/jcr:system tree, contains mainly versions)
+  -->
+  <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+    <param name="path" value="${rep.home}/repository/index"/>
+    <param name="supportHighlighting" value="true"/>
+  </SearchIndex>
+
+  <!--
+      Run with a cluster journal
+  -->
+  <Cluster id="node1">
+    <Journal class="org.apache.jackrabbit.core.journal.MemoryJournal"/>
+  </Cluster>
+</Repository>

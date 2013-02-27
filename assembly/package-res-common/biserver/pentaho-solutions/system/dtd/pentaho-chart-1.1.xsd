@@ -1,0 +1,1410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.1">
+<!-- #################################                                           IMPORTANT NOTICE                                                   ###################################################### -->	
+<!-- This schema describes the chart definition for Pentaho BI platform charts. This includes dashboard, portlet and action sequence charts. This DOES NOT include report charts or analysis charts. -->	
+<!-- ############################################################################################################################################################### -->	
+<!--
+        Primary Schema                                    -->
+	<xs:complexType name="chart_attributes">
+		<xs:all minOccurs="0">
+			<xs:element ref="chart-type"/>
+			<xs:element ref="dataset-type" minOccurs="0"/>
+			<xs:element ref="title" minOccurs="0"/>
+			<xs:element ref="background-color" minOccurs="0"/>
+			<xs:element ref="plot-background-color" minOccurs="0"/>
+			<xs:element ref="orientation" minOccurs="0"/>
+			<xs:element ref="height" minOccurs="0"/>
+			<xs:element ref="width" minOccurs="0"/>
+			<xs:element ref="is-stacked" minOccurs="0"/>
+			<xs:element ref="color-palette" minOccurs="0"/>
+			<xs:element ref="include-legend" minOccurs="0"/>
+			<xs:element ref="legend-border-visible" minOccurs="0"/>
+			<xs:element ref="legend-font" minOccurs="0"/>
+			<xs:element ref="data" minOccurs="0"/>
+			<xs:element ref="title-position" minOccurs="0"/>
+			<xs:element ref="title-font" minOccurs="0"/>
+			<xs:element ref="chart-background" minOccurs="0"/>
+			<xs:element ref="plot-background" minOccurs="0"/>
+			<xs:element ref="is-3D" minOccurs="0"/>
+			<xs:element ref="border-visible" minOccurs="0"/>
+			<xs:element ref="border-paint" minOccurs="0"/>
+			<xs:element ref="markers-visible" minOccurs="0"/>
+			<xs:element ref="domain-label-rotation-dir" minOccurs="0"/>
+			<xs:element ref="domain-label-rotation" minOccurs="0"/>
+			<xs:element ref="use-base-url" minOccurs="0"/>
+			<xs:element ref="url-template" minOccurs="0"/>
+			<xs:element ref="url-target" minOccurs="0"/>
+			<xs:element ref="paramName" minOccurs="0"/>
+			<xs:element ref="series-name" minOccurs="0"/>
+			<xs:element ref="bar-series" minOccurs="0"/>
+			<xs:element ref="line-series" minOccurs="0"/>
+			<xs:element ref="lines-range-tick-format" minOccurs="0"/>
+			<xs:element ref="lines-range-title" minOccurs="0"/>
+			<xs:element ref="lines-range-minimum" minOccurs="0"/>
+			<xs:element ref="lines-range-maximum" minOccurs="0"/>
+			<xs:element ref="lines-range-tick-font" minOccurs="0"/>
+			<xs:element ref="range-tick-format" minOccurs="0"/>
+			<xs:element ref="range-tick-font" minOccurs="0"/>
+			<xs:element ref="range-title-font" minOccurs="0"/>
+			<xs:element ref="range-title" minOccurs="0"/>
+			<xs:element ref="domain-title" minOccurs="0"/>
+			<xs:element ref="domain-title-font" minOccurs="0"/>
+			<xs:element ref="domain-minimum" minOccurs="0"/>
+			<xs:element ref="domain-maximum" minOccurs="0"/>
+			<xs:element ref="domain-tick-font" minOccurs="0"/>
+			<xs:element ref="domain-tick-format" minOccurs="0"/>
+			<xs:element ref="domain-vertical-tick-labels" minOccurs="0"/>
+			<xs:element ref="range-minimum" minOccurs="0"/>
+			<xs:element ref="range-maximum" minOccurs="0"/>
+			<xs:element ref="max-bubble-size" minOccurs="0"/>
+			<xs:element ref="bubble-label-content" minOccurs="0"/>
+			<xs:element ref="bubble-label-x-format" minOccurs="0"/>
+			<xs:element ref="bubble-label-y-format" minOccurs="0"/>
+			<xs:element ref="bubble-label-z-format" minOccurs="0"/>
+			<xs:element ref="units" minOccurs="0"/>
+			<xs:element ref="needle-color" minOccurs="0"/>
+			<xs:element ref="date-maximum" minOccurs="0"/>
+			<xs:element ref="date-minimum" minOccurs="0"/>
+			<xs:element ref="subtitles" minOccurs="0"/>
+			<xs:element ref="intervals" minOccurs="0"/>
+			<xs:element ref="max-bar-width" minOccurs="0"/>
+			<xs:element ref="tick-interval" minOccurs="0"/>
+			<xs:element ref="tick-color" minOccurs="0"/>
+			<xs:element ref="value-color" minOccurs="0"/>
+			<xs:element ref="interior-gap" minOccurs="0"/>
+			<xs:element ref="start-angle" minOccurs="0"/>
+			<xs:element ref="label-font" minOccurs="0"/>
+			<xs:element ref="label-paint" minOccurs="0"/>
+			<xs:element ref="label-background-paint" minOccurs="0"/>
+			<xs:element ref="label-gap" minOccurs="0"/>
+			<xs:element ref="display-labels" minOccurs="0"/>
+			<xs:element ref="dot-width" minOccurs="0"/>
+			<xs:element ref="dot-height" minOccurs="0"/>
+			<xs:element ref="tooltip-content" minOccurs="0"/>
+			<xs:element ref="tooltip-x-format" minOccurs="0"/>
+			<xs:element ref="tooltip-y-format" minOccurs="0"/>
+			<xs:element ref="range-sticky-zero" minOccurs="0"/>
+			<xs:element ref="domain-sticky-zero" minOccurs="0"/>
+			<xs:element ref="range-includes-zero" minOccurs="0"/>
+			<xs:element ref="domain-includes-zero" minOccurs="0"/>
+			<xs:element ref="explode-slices" minOccurs="0"/>
+			<xs:element ref="line-style" minOccurs="0"/>
+			<xs:element ref="line-width" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+	<!-- 
+	BOOLEAN_TYPE -->
+	<xs:simpleType name="boolean_type">
+		<xs:annotation>
+			<xs:documentation>Types restricted to true or false. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:boolean">
+			<xs:enumeration value="true"/>
+			<xs:enumeration value="false"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- 
+	CHART_TYPE -->
+	<xs:simpleType name="chart_type">
+		<xs:annotation>
+			<xs:documentation> Supported chart types. This property and the dataset-type property instruct the chart engine what kind of chart to build. </xs:documentation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>Line</chart_name>
+					<chart_name>Area</chart_name>
+					<chart_name>Bar</chart_name>
+					<chart_name>Pie</chart_name>
+					<chart_name>PieGrid</chart_name>
+					<chart_name>Time Series Line</chart_name>
+					<chart_name>Time Series Dot</chart_name>
+					<chart_name>Time Series Difference</chart_name>
+					<chart_name>Time Series StepArea</chart_name>
+					<chart_name>Time Series Step</chart_name>
+					<chart_name>Time Series Area</chart_name>
+					<chart_name>Bar Line Combination</chart_name>
+					<chart_name>XY Line</chart_name>
+					<chart_name>XY Area</chart_name>
+					<chart_name>XY Step</chart_name>
+					<chart_name>XY StepArea</chart_name>
+					<chart_name>XY Difference</chart_name>
+					<chart_name>XY Dot</chart_name>
+					<chart_name>Dial</chart_name>
+					<chart_name>Bubble</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="AreaChart"/>
+			<xs:enumeration value="BarChart"/>
+			<xs:enumeration value="BarLineChart"/>
+			<xs:enumeration value="BubbleChart"/>
+			<xs:enumeration value="DialChart"/>
+			<xs:enumeration value="LineChart"/>
+			<xs:enumeration value="PieChart"/>
+			<xs:enumeration value="PieGrid"/>
+			<xs:enumeration value="StepChart"/>
+			<xs:enumeration value="StepAreaChart"/>
+			<xs:enumeration value="DifferenceChart"/>
+			<xs:enumeration value="DotChart"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- 
+	BACKGROUND_FILL_TYPE -->
+	<xs:simpleType name="background_fill_type">
+		<xs:annotation>
+			<xs:documentation>Types of background fill supported. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="color"/>
+			<xs:enumeration value="gradient"/>
+			<xs:enumeration value="texture"/>
+			<xs:enumeration value="image"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- 
+	BACKGROUND_TYPE -->
+	<xs:complexType name="background_type" mixed="true">
+		<xs:annotation>
+			<xs:documentation>Describes the background element .</xs:documentation>
+		</xs:annotation>
+		<xs:all minOccurs="0">
+			<xs:element ref="x1" minOccurs="0"/>
+			<xs:element ref="y1" minOccurs="0"/>
+			<xs:element ref="x2" minOccurs="0"/>
+			<xs:element ref="y2" minOccurs="0"/>
+			<xs:element ref="color1" minOccurs="0"/>
+			<xs:element ref="color2" minOccurs="0"/>
+			<xs:element ref="cyclic" minOccurs="0"/>
+			<xs:element ref="texture-image" minOccurs="0"/>
+		</xs:all>
+		<xs:attribute name="type" type="background_fill_type" use="required"/>
+	</xs:complexType>
+	<!-- elements used in background_type -->
+	<xs:element name="y2" type="xs:decimal">
+		<xs:annotation>
+			<xs:documentation>Along with x2, defines either a point in a rectangle (for texture background), or a single ending point (for gradient backgrounds). </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="y1" type="xs:decimal">
+		<xs:annotation>
+			<xs:documentation>Along with x1, defines either a point in a rectangle (for texture background), or a single starting point (for gradient backgrounds). </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="x2" type="xs:decimal">
+		<xs:annotation>
+			<xs:documentation>Along with y2, defines either a point in a rectangle (for texture background), or a single ending point (for gradient backgrounds). </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="x1" type="xs:decimal">
+		<xs:annotation>
+			<xs:documentation>Along with y1, defines either a point in a rectangle (for texture background), or a single starting point (for gradient backgrounds).  </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="color1" type="color_type">
+		<xs:annotation>
+			<xs:documentation>The first color in a gradient pattern background fill. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="color2" type="color_type">
+		<xs:annotation>
+			<xs:documentation>The second color ina gradient pattern background fill.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="cyclic" type="boolean_type">
+		<xs:annotation>
+			<xs:documentation>If true, gradient will cycle between color1 and color2. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="texture-image" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Path to image and image file name to use for texture background. Path should be relative to chart definition.  </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	FONT_TYPE -->
+	<xs:complexType name="font_type">
+		<xs:annotation>
+			<xs:documentation> specifying a font and its attributes </xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element ref="font-family"/>
+			<xs:element ref="size" minOccurs="0"/>
+			<xs:element ref="is-bold" minOccurs="0"/>
+			<xs:element ref="is-italic" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+	<!-- elements used in font_type -->
+	<xs:element name="font-family" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Sets the font family, or font name. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="size" type="xs:byte">
+		<xs:annotation>
+			<xs:documentation>Sets the size of the font. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="is-italic" type="boolean_type">
+		<xs:annotation>
+			<xs:documentation>If true, italicizes the text. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="is-bold" type="boolean_type">
+		<xs:annotation>
+			<xs:documentation>If true, bolds the text. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	COLOR_TYPE -->
+	<xs:simpleType name="color_type">
+		<xs:annotation>
+			<xs:documentation> color types are HTML hex value colors  </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[#][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- 
+	 SERIESLIST_TYPE-->
+	<xs:complexType name="serieslist_type">
+		<xs:annotation>
+			<xs:documentation> lists of series names for bar\line definition </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="series" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="series" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>A single series in the list element. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	EXPLODE_SLICES_TYPE -->
+	<xs:complexType name="explode_slices_type">
+		<xs:annotation>
+			<xs:documentation> List of series to explode in a pie chart. </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="slice" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- elements used in explode_slices_type -->
+	<xs:element name="slice" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Name of the slice series to explode.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	SUBTITLES_TYPE -->
+	<xs:complexType name="subtitles_type">
+		<xs:annotation>
+			<xs:documentation> List of subtitles. </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="subtitle" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- elements used in subtitles_type -->
+	<xs:element name="subtitle" type="xs:string">
+		<xs:annotation>
+			<xs:documentation><![CDATA[ Currently, this can occur multiple times as children of the <chart> element. This causes us problems, because we cannot represent this in the schema. So we need to DEPRECATE the <subtitle> element as a child of the <chart> element, and institute the <subtitles> element.]]></xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	 INTERVALS_TYPE -->
+	<xs:complexType name="intervals_type">
+		<xs:annotation>
+			<xs:documentation> list of intervals </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="interval" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- elements used in intervals_type -->
+	<xs:element name="interval">
+		<xs:annotation>
+			<xs:documentation><![CDATA[ Currently, this can occur multiple times as children of the <chart> element. This causes us problems, because we cannot represent this in the schema. So we need to DEPRECATE the <interval> element as a child of the <chart> element, and institute the <intervals> element.]]></xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:all>
+				<xs:element ref="label"/>
+				<xs:element ref="minimum"/>
+				<xs:element ref="maximum"/>
+				<xs:element ref="interval-background"/>
+				<xs:element ref="text-color"/>
+				<xs:element ref="stroke-width"/>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+	<!-- elements used in interval -->
+	<xs:element name="stroke-width" type="xs:decimal">
+		<xs:annotation>
+			<xs:documentation>Sets the width of the outline stroke of the interval. .</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="label" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Sets the label for the interval. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="interval-background" type="background_type">
+		<xs:annotation>
+			<xs:documentation>Sets the background for the interval. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="text-color" type="color_type">
+		<xs:annotation>
+			<xs:documentation>Sets the color of the text for the interval. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="minimum" type="xs:byte">
+		<xs:annotation>
+			<xs:documentation>Set the minimum value the interval should start at. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="maximum" type="xs:byte">
+		<xs:annotation>
+			<xs:documentation>Sets the maximum value where the interval should end. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	ELEMENTS USED FOR DRILL LINKING IN CHARTS -->
+	<xs:element name="url-template" type="xs:string">
+		<xs:annotation>
+			<xs:documentation> The template URL to use for a drill point in the chart. This template can have replaceable parameters embedded, whose values will be injected when the chart map is rendered. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="series-name" type="xs:string">
+		<xs:annotation>
+			<xs:documentation> A replaceable parameter for the URL template. Typically, the series name from the drill point in the chart; also referred to as ParamName2 in some docs.   </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="paramName" type="xs:string">
+		<xs:annotation>
+			<xs:documentation> A replaceable parameter for the URL template. Typically the category value from the drill point in the chart, if applicable. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="url-target" type="xs:string">
+		<xs:annotation>
+			<xs:documentation> same as HTML attribute target: _self, _blank, etc. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="use-base-url" type="boolean_type">
+		<xs:annotation>
+			<xs:documentation> if true, appends the server base URL to the template; typically protocol, domain, port and web app context. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	-->
+	<xs:element name="range-title" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Sets the title for the primary numeric data axis - typically the y axis in a horizontally oriented chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	-->
+	<xs:element name="range-title-font" type="font_type">
+		<xs:annotation>
+			<xs:documentation>Sets the font for the range axis title.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	-->
+	<xs:element name="domain-title" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Sets the title for the domain axis, if it exists. In a typical 2 dimensional horizontal chart, this the categorical or x axis. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	-->
+	<xs:element name="domain-title-font" type="font_type">
+		<xs:annotation>
+			<xs:documentation>Sets the font for the domain axis title.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	-->
+	<xs:element name="range-tick-format" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Sets the format of the labels on the tick marks of the range axis. An example format for displaying percentages might be "0.00%"</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	-->
+	<xs:element name="range-tick-font" type="font_type">
+		<xs:annotation>
+			<xs:documentation>Sets the font for the labels on the tick marks of the range axis. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	-->
+	<xs:element name="range-minimum" type="xs:integer">
+		<xs:annotation>
+			<xs:documentation>Sets the lower bounding value on the range axis. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	-->
+	<xs:element name="range-maximum" type="xs:integer">
+		<xs:annotation>
+			<xs:documentation>Sets the upper bounding value on the range axis. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	-->
+	<xs:element name="dot-width" type="xs:integer">
+		<xs:annotation>
+			<xs:documentation>Sets the width of the marker that represents a series point on a chart (in pixels). </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	-->
+	<xs:element name="dot-height" type="xs:integer">
+		<xs:annotation>
+			<xs:documentation>Sets the height of the marker that represents a series point on a chart (in pixels). </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	 -->
+	<xs:element name="date-minimum" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>- Intentionally set as strings instead of xs:date types. If we set these to xs:dates, the date format required would YYYY-MM-DD. We require a full date time string parsable by the DateFormat method DateFormat.getInstance().parse(). For example, the string "December 03, 2007 00:00:00" is valid. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="date-maximum" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>- Intentionally set as strings instead of xs:date types. If we set these to xs:dates, the date format required would YYYY-MM-DD. We require a full date time string parsable by the DateFormat method DateFormat.getInstance().parse(). For example, the string "December 03, 2007 00:00:00" is valid. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="markers-visible" type="boolean_type" default="false">
+		<xs:annotation>
+			<xs:documentation>Sets the point markers visible in applicable charts, ie., line or dot charts. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="line-width" type="xs:decimal" default="1.0">
+		<xs:annotation>
+			<xs:documentation>Sets the width of line series lines.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="line-style" default="solid">
+		<xs:annotation>
+			<xs:documentation>Sets the style of line series lines. </xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="solid"/>
+				<xs:enumeration value="dash"/>
+				<xs:enumeration value="dot"/>
+				<xs:enumeration value="dashdot"/>
+				<xs:enumeration value="dashdotdot"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="legend-border-visible" type="boolean_type" default="true">
+		<xs:annotation>
+			<xs:documentation>If true, draws a border around the legend. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="legend-font" type="font_type">
+		<xs:annotation>
+			<xs:documentation>Sets the font to use on the text in the legend. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="include-legend" type="boolean_type" default="true">
+		<xs:annotation>
+			<xs:documentation>When set to true, displays the legend in the chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<!-- domain-vertical-tick-labels: overlaps with domain-label-rotation? Deprecate? -->
+	<xs:element name="domain-vertical-tick-labels" type="boolean_type">
+		<xs:annotation>
+			<xs:documentation>Sets the orientation of the tick labels on the domain axis; true for vertical, false for horizontal. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="domain-tick-format" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Sets the format of the labels on the tick marks of the domain axis. An example format for displaying percentages might be "0.00%". Useful when the domain axis is a numeric axis.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="domain-tick-font" type="font_type">
+		<xs:annotation>
+			<xs:documentation>Sets the font for the labels on the tick marks of the domain axis.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="domain-minimum" type="xs:int">
+		<xs:annotation>
+			<xs:documentation>Sets the lower bounding value on the domain axis. Useful when the domain axis is a numeric axis. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="domain-maximum" type="xs:int">
+		<xs:annotation>
+			<xs:documentation>Sets the upper bounding value on the domain axis. Useful when the domain axis is a numeric axis. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="domain-label-rotation-dir" default="down">
+		<xs:annotation>
+			<xs:documentation>Sets the direction of the rotation angle for domain axis labels. The domain-label-rotation  property must be used in conjunction with this one to rotate the domain labels. </xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="down"/>
+				<xs:enumeration value="up"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="domain-label-rotation">
+		<xs:annotation>
+			<xs:documentation> The degree of the angle of rotation for domain axis labels  </xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:minInclusive value="0"/>
+				<xs:maxInclusive value="360"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="max-bar-width">
+		<xs:annotation>
+			<xs:documentation>Sets the maximum bar width as a percentage of the axis length. For example, setting this to 0.05 will ensure that the bars never exceed
+five percent of the length of the axis. This can improve the appearance of charts where there is a possibility that only one or two bars will be displayed.</xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:decimal">
+				<xs:minInclusive value=".01"/>
+				<xs:maxInclusive value="1.0"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="dataset-type">
+		<xs:annotation>
+			<xs:documentation>Informs the chart that its getting a specialty dataset type. For instance. this property is used with xy, timeseries and xyz data. </xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="CategoryDataset"/>
+				<xs:enumeration value="TimeSeriesCollection"/>
+				<xs:enumeration value="XYSeriesCollection"/>
+				<xs:enumeration value="XYZSeriesCollection"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="data">
+		<xs:annotation>
+			<xs:documentation>Element that defines the action sequence from which to get the dataset from. Supported only in dashboard and portal charting.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:all>
+				<xs:element ref="data-solution"/>
+				<xs:element ref="data-path"/>
+				<xs:element ref="data-action"/>
+				<xs:element ref="data-output"/>
+				<xs:element ref="domain-period-type" minOccurs="0"/>
+				<xs:element ref="data-orientation" minOccurs="0"/>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+	<!-- elements used in data element -->
+	<xs:element name="domain-period-type">
+		<xs:annotation>
+			<xs:documentation>This property specifies the time period interval the chart should expect for your time series data. For example, if you use "Month" as the interval for domain-period-type, then your data should only contain a dates on a monthly interval, ie., Jan 2007, Feb 2007, etc. NOTE that this property does NOT affect the displayed values on the range axis!  </xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="FixedMillisecond"/>
+				<xs:enumeration value="Millisecond"/>
+				<xs:enumeration value="Second"/>
+				<xs:enumeration value="Minute"/>
+				<xs:enumeration value="Hour"/>
+				<xs:enumeration value="Day"/>
+				<xs:enumeration value="Week"/>
+				<xs:enumeration value="Month"/>
+				<xs:enumeration value="Quarter"/>
+				<xs:enumeration value="Year"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="data-solution" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>The name of the solution where the data action sequence lives.  </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="data-path" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>The path within the solution to the data action sequence.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="data-output" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>The name of the output parameter in the data action sequence that references the resultset (dataset) to use in the chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="data-orientation" default="rows">
+		<xs:annotation>
+			<xs:documentation>Specifies the dataset's orientation - should the data be processed from columns or rows. See description of how to pass data to the charts for details. </xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="columns"/>
+				<xs:enumeration value="rows"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="data-action" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Name of the data action sequence to execute for chart data.  </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+	Applicable only to bubble charts   -->
+	<xs:element name="bubble-label-x-format" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Definition of the bubble labels' x value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or "##0.00 %"</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="bubble-label-y-format" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Definition of the bubble labels' y value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or "##0.00 %"</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="bubble-label-z-format" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Definition of the bubble labels' z value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or "##0.00 %"</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="bubble-label-content" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Definition of the bubble labels' content. {0} = series name, {1} = x value, {2} = y value, {3} = z value. (e.g. "{0}: ({1}, {2}, {3})"</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="max-bubble-size">
+		<xs:annotation>
+			<xs:documentation> The maximum bubble size preferred as a percentage of the bubble value represented. Represented as an integer 1 to 100. </xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:minInclusive value="1"/>
+				<xs:maxInclusive value="100"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- 
+		Currently applied only to XY series charts  -->
+	<xs:element name="tooltip-content" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Definition of the XY point labels' content. {0} = series name, {1} = x value, {2} = y value. (e.g. "{0}: ({1}, {2})" .</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="tooltip-x-format" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Definition of the XY point labels' x value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or "##0.00 %" .</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="tooltip-y-format" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Definition of the XY point labels' y value number format. e.g. "#,##0.0#" or "#,##0.00 EUR" or "##0.00 %".</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="range-sticky-zero" type="boolean_type">
+		<xs:annotation>
+			<xs:documentation>If true, truncates the axis margin at zero. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="range-includes-zero" type="boolean_type">
+		<xs:annotation>
+			<xs:documentation>When an axis' values are auto-calculated, this flag when true ensures that the range axis's range always includes zero. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="domain-sticky-zero" type="boolean_type">
+		<xs:annotation>
+			<xs:documentation>If true, truncates the axis margin at zero. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="domain-includes-zero" type="boolean_type">
+		<xs:annotation>
+			<xs:documentation>When an axis' values are auto-calculated, this flag when true ensures that the domain axis's range always includes zero. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<!-- 
+		Applicable only to bar\line charts  -->
+	<xs:element name="bar-series" type="serieslist_type">
+		<xs:annotation>
+			<xs:documentation>A list of names of the columns (series) in the dataset representing the series that shoud be drawn as bars. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="line-series" type="serieslist_type">
+		<xs:annotation>
+			<xs:documentation>A list of names of the columns (series) in the dataset representing the series that shoud be drawn as lines. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	 -->
+	<xs:element name="lines-range-title" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Sets the title for the primary numeric data axis for the lines in a bar/line chart - typically the y axis in a horizontally oriented chart.  The range-title property sets the title for the bars in the chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="lines-range-tick-format" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Sets the format of the labels on the tick marks of the range axis for the lines in a bar\line chart.  An example format for displaying percentages might be "0.00%". The range-tick-format property sets the tick format for the bars in the chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="lines-range-tick-font" type="font_type">
+		<xs:annotation>
+			<xs:documentation>Sets the font for the labels on the tick marks of the range axis for the lines in a bar\line chart. The range-tick-font property sets the tick font for the bars in the chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="lines-range-minimum" type="xs:decimal">
+		<xs:annotation>
+			<xs:documentation>Sets the lower bounding value on the range axis for the lines in a bar\line chart.The range-minimum property sets the minimum for the bars in the chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="lines-range-maximum" type="xs:decimal">
+		<xs:annotation>
+			<xs:documentation>Sets the upper bounding value on the range axis for the lines in a bar\line chart.The range-maximum property sets the maximum for the bars in the chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--    
+		Applicable only to pie charts   -->
+	<xs:element name="interior-gap" type="xs:decimal" default="0.085">
+		<xs:annotation>
+			<xs:documentation>Sets the gap around the interior of the pie plot (the region where the labels are drawn) as a percentage of the plot width and height. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="start-angle" default="90">
+		<xs:annotation>
+			<xs:documentation>Defines the angle (in degrees) at which the first pie section starts. Zero is at 3 o’clock, and as the angle increases it proceeds anticlockwise around the chart (so that 90 degrees, the current default, is at 12 o’clock). </xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:minInclusive value="0"/>
+				<xs:maxInclusive value="360"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="label-font" type="font_type">
+		<xs:annotation>
+			<xs:documentation>Sets the font for the labels on the pie sections. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="label-paint" type="color_type">
+		<xs:annotation>
+			<xs:documentation>Sets the color for the labels on the pie sections. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="label-background-paint" type="color_type">
+		<xs:annotation>
+			<xs:documentation>Sets the colors for the labels on the pie sections. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="label-gap" type="xs:decimal">
+		<xs:annotation>
+			<xs:documentation>Sets the gap for the section labels. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="display-labels" type="boolean_type" default="true">
+		<xs:annotation>
+			<xs:documentation>If true, displays labels for the pie sections. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="explode-slices" type="explode_slices_type">
+		<xs:annotation>
+			<xs:documentation>A list of series names to explode in the pie chart. Pie slices will not explode on a 3-D pie chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<!--    
+		Applicable only to dial charts   -->
+	<xs:element name="intervals" type="intervals_type">
+		<xs:annotation>
+			<xs:documentation>Description of intervals used to highlight particular data ranges on a dial. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="tick-interval" type="xs:integer">
+		<xs:annotation>
+			<xs:documentation>Sets the size between tick marks on the dial. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="tick-color" type="color_type">
+		<xs:annotation>
+			<xs:documentation>Sets the color of the tick marks on the dial. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="value-color" type="color_type">
+		<xs:annotation>
+			<xs:documentation>Sets the color of the current value on the dial. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="needle-color" type="color_type">
+		<xs:annotation>
+			<xs:documentation>Sets the color of the needle on a dial chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="units" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>This is the string displayed after the value in the middle of the dial. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<!-- DEPRECATED: Use chart-background property instead -->
+	<xs:element name="background-color" type="color_type">
+		<xs:annotation>
+			<xs:documentation>Sets the background color of the chart area. This does not include the plot area. This property is only used in the dial charts, and should be deprecated. Use the chart-background property instead.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<!-- DEPRECATED: Use plot-background property instead -->
+	<xs:element name="plot-background-color" type="color_type">
+		<xs:annotation>
+			<xs:documentation>Sets the plot background color of the chart area. This does not include the surrounding chart area. This property is only used in the dial charts, and should be deprecated. Use the plot-background property instead.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- 
+		Generic properties supported by the majority of the charts -->
+	<xs:element name="chart-type" type="chart_type">
+		<xs:annotation>
+			<xs:documentation>Sets the type of chart you intend to generate. The dataset-type property and the chart-type property work together to tell the chart engine what kind of chart to build. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="width" type="xs:short">
+		<xs:annotation>
+			<xs:documentation>Sets the width of the entire chart (plot and surrounding area).</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="height" type="xs:short">
+		<xs:annotation>
+			<xs:documentation>Sets the height of the entire chart (plot and surrounding area).</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="title" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Sets the main title for the chart. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="title-font" type="font_type">
+		<xs:annotation>
+			<xs:documentation>Sets the font for the main title for the chart.  </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="title-position">
+		<xs:annotation>
+			<xs:documentation>Sets the position to display the chart title. </xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="top"/>
+				<xs:enumeration value="left"/>
+				<xs:enumeration value="bottom"/>
+				<xs:enumeration value="right"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="subtitles" type="subtitles_type">
+		<xs:annotation>
+			<xs:documentation>A list of titles that display as subtitles for the chart.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="orientation">
+		<xs:annotation>
+			<xs:documentation>Sets the orientation for the chart. </xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="vertical"/>
+				<xs:enumeration value="horizontal"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="border-visible" type="boolean_type">
+		<xs:annotation>
+			<xs:documentation>If true, draws a border around the entire surrounding area for the chart. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="border-paint" type="color_type">
+		<xs:annotation>
+			<xs:documentation>Sets the color for the surrounding chart border. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="is-stacked" type="boolean_type" default="false">
+		<xs:annotation>
+			<xs:documentation>If true, stacks the series of the chart, one on top of the other. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="is-3D" type="boolean_type" default="false">
+		<xs:annotation>
+			<xs:documentation>If true, renders the chart 3 dimensionally. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="color-palette">
+		<xs:annotation>
+			<xs:documentation>List of colors to apply (in order) to the series in the chart. </xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="color" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="color" type="color_type">
+		<xs:annotation>
+			<xs:documentation>Represents one color in the color-palette.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="chart-background" type="background_type">
+		<xs:annotation>
+			<xs:documentation>Renders either the color, gradient , texture or image specified as the background for the chart. Note this does not mean the plot area, but the surrounding area of the chart. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!--
+	-->
+	<xs:element name="plot-background" type="background_type">
+		<xs:annotation>
+			<xs:documentation>Renders either the color, gradient , texture or image specified as the plot background for the chart. </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<!-- ##################################################################################### -->
+	<!--	 These groups are here to help with auto-generated documentation. The groups describe the chart 
+			 properties that are available per chart type. In the future, we may want to change these to complexTypes
+			to better describe the dependencies between properties and required versus optional status. 
+
+			When adding a new property or chart type, be sure to update the schema and these groups so that
+			the documentation reflects the additions accurately. 																		-->
+	<!-- ##################################################################################### -->
+	<!--
+        Base chart group - all charts have these properties  -->
+	<xs:group name="base_chart_group">
+		<xs:sequence>
+			<xs:element ref="chart-type" minOccurs="1"/>
+			<xs:element ref="title"/>
+			<xs:element ref="height"/>
+			<xs:element ref="width"/>
+			<xs:element ref="color-palette"/>
+			<xs:element ref="include-legend"/>
+			<xs:element ref="legend-border-visible"/>
+			<xs:element ref="legend-font"/>
+			<xs:element ref="title-position"/>
+			<xs:element ref="title-font"/>
+			<xs:element ref="chart-background"/>
+			<xs:element ref="plot-background"/>
+			<xs:element ref="is-3D"/>
+			<xs:element ref="border-visible"/>
+			<xs:element ref="border-paint"/>
+			<xs:element ref="subtitles"/>
+			<xs:element ref="data"/>
+			<xs:element ref="use-base-url"/>
+			<xs:element ref="url-template"/>
+			<xs:element ref="url-target"/>
+			<xs:element ref="paramName"/>
+			<xs:element ref="series-name"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        Two Axis Chart Group - properties for all dual axis charts  -->
+	<xs:group name="two_axis_chart_group">
+		<xs:sequence>
+			<xs:group ref="base_chart_group"/>
+			<xs:element ref="orientation"/>
+			<xs:element ref="dataset-type"/>
+			<xs:element ref="domain-title"/>
+			<xs:element ref="domain-title-font"/>
+			<xs:element ref="domain-tick-font"/>
+			<xs:element ref="range-minimum"/>
+			<xs:element ref="range-maximum"/>
+			<xs:element ref="range-tick-format"/>
+			<xs:element ref="range-tick-font"/>
+			<xs:element ref="range-title-font"/>
+			<xs:element ref="range-title"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        Categorical Chart Group - properties for all categorical charts  -->
+	<xs:group name="categorical_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>Line</chart_name>
+					<chart_name>Area</chart_name>
+					<chart_name>Bar</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for categorical charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="two_axis_chart_group"/>
+			<xs:element ref="domain-label-rotation-dir"/>
+			<xs:element ref="domain-label-rotation"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        XY Chart Group - properties for all XY charts  -->
+	<xs:group name="xy_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>XY Line</chart_name>
+					<chart_name>XY Area</chart_name>
+					<chart_name>XY Step</chart_name>
+					<chart_name>XY StepArea</chart_name>
+					<chart_name>XY Difference</chart_name>
+					<chart_name>XY Dot</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for xy dataset charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="two_axis_chart_group"/>
+			<xs:element ref="domain-vertical-tick-labels"/>
+			<xs:element ref="domain-tick-format"/>
+			<xs:element ref="domain-minimum"/>
+			<xs:element ref="domain-maximum"/>
+			<xs:element ref="tooltip-content"/>
+			<xs:element ref="tooltip-x-format"/>
+			<xs:element ref="tooltip-y-format"/>
+			<xs:element ref="range-sticky-zero"/>
+			<xs:element ref="range-includes-zero"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        Bubble Chart Group - properties for xyz chart  -->
+	<xs:group name="xyz_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>Bubble</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for xyz dataset charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="two_axis_chart_group"/>
+			<xs:element ref="max-bubble-size"/>
+			<xs:element ref="bubble-label-content"/>
+			<xs:element ref="bubble-label-x-format"/>
+			<xs:element ref="bubble-label-y-format"/>
+			<xs:element ref="bubble-label-z-format"/>
+			<xs:element ref="domain-vertical-tick-labels"/>
+			<xs:element ref="domain-tick-format"/>
+			<xs:element ref="domain-minimum"/>
+			<xs:element ref="domain-maximum"/>
+			<xs:element ref="range-sticky-zero"/>
+			<xs:element ref="range-includes-zero"/>
+			<xs:element ref="domain-includes-zero"/>
+			<xs:element ref="domain-sticky-zero"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        TimeSeries Chart Group - properties for time series chart  -->
+	<xs:group name="timeseries_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>Time Series Line</chart_name>
+					<chart_name>Time Series Area</chart_name>
+					<chart_name>Time Series Step</chart_name>
+					<chart_name>Time Series StepArea</chart_name>
+					<chart_name>Time Series Difference</chart_name>
+					<chart_name>Time Series Dot</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for time series dataset charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="base_chart_group"/>
+			<xs:element ref="date-maximum"/>
+			<xs:element ref="date-minimum"/>
+			<xs:element ref="domain-period-type"/>
+			<xs:element ref="domain-vertical-tick-labels"/>
+			<xs:element ref="tooltip-content"/>
+			<xs:element ref="tooltip-x-format"/>
+			<xs:element ref="tooltip-y-format"/>
+			<xs:element ref="dataset-type" minOccurs="1"/>
+			<xs:element ref="domain-title"/>
+			<xs:element ref="domain-title-font"/>
+			<xs:element ref="range-title-font"/>
+			<xs:element ref="range-title"/>
+			<xs:element ref="range-minimum"/>
+			<xs:element ref="range-maximum"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        Dial Chart Group - properties for dial chart  -->
+	<xs:group name="dial_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>Dial</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for dial charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="base_chart_group"/>
+			<xs:element ref="background-color"/>
+			<xs:element ref="plot-background-color"/>
+			<xs:element ref="units"/>
+			<xs:element ref="needle-color"/>
+			<xs:element ref="intervals"/>
+			<xs:element ref="tick-interval"/>
+			<xs:element ref="tick-color"/>
+			<xs:element ref="value-color"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        PieGrid Chart Group - properties for piegrid charts  -->
+	<xs:group name="piegrid_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>PieGrid</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for piegrid charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="base_chart_group"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        Pie Chart Group - properties for pie chart  -->
+	<xs:group name="pie_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>Pie</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for pie charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="base_chart_group"/>
+			<xs:element ref="interior-gap"/>
+			<xs:element ref="start-angle"/>
+			<xs:element ref="label-font"/>
+			<xs:element ref="label-paint"/>
+			<xs:element ref="label-background-paint"/>
+			<xs:element ref="label-gap"/>
+			<xs:element ref="display-labels"/>
+			<xs:element ref="explode-slices"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        Bar Chart Group - properties for bar chart  -->
+	<xs:group name="bar_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>Bar</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for bar charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="max-bar-width"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+       Stacked Chart Group - properties for stacked charts  -->
+	<xs:group name="stacked_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>Bar</chart_name>
+					<chart_name>Bar Line Combination</chart_name>
+					<chart_name>Time Series Area</chart_name>
+					<chart_name>Area</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group representing those charts that are stackable.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="is-stacked"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        Line Chart Group - properties for line chart  -->
+	<xs:group name="line_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>Line</chart_name>
+					<chart_name>Time Series Line</chart_name>
+					<chart_name>XY Line</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for line charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="line-style"/>
+			<xs:element ref="line-width"/>
+			<xs:element ref="markers-visible"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        Dot Chart Group - properties for dot chart  -->
+	<xs:group name="dot_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>TimeSeries Dot</chart_name>
+					<chart_name>XY Dot</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for dot charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="dot-height"/>
+			<xs:element ref="dot-width"/>
+		</xs:sequence>
+	</xs:group>
+	<!--
+        Bar\Line Chart Group - properties for bar\line chart  -->
+	<xs:group name="bar_line_chart_group">
+		<xs:annotation>
+			<xs:appinfo>
+				<supported_charts>
+					<chart_name>Bar Line Combination</chart_name>
+				</supported_charts>
+			</xs:appinfo>
+			<xs:documentation>Group of elements implemented for pie charts.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="two_axis_chart_group"/>
+			<xs:group ref="bar_chart_group"/>
+			<xs:group ref="line_chart_group"/>
+			<xs:element ref="bar-series"/>
+			<xs:element ref="line-series"/>
+			<xs:element ref="lines-range-tick-format"/>
+			<xs:element ref="lines-range-title"/>
+			<xs:element ref="lines-range-minimum"/>
+			<xs:element ref="lines-range-maximum"/>
+			<xs:element ref="lines-range-tick-font"/>
+		</xs:sequence>
+	</xs:group>
+	<!-- ##################################################################################### -->
+	<!-- ##################################################################################### -->
+	<!--
+	-->
+	<xs:element name="chart" type="chart_attributes"/>
+	<xs:element name="chart-attributes" type="chart_attributes"/>
+</xs:schema>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springsource.org/dtd/spring-beans.dtd">
+  <!--
+    This is the top level Spring configuration file for wiring system listeners, administration tasks, the system settings serivce,
+    and session startup actions into the Pentaho BI platform. In a standard installation, this file references beans that are defined
+    in the systemListeners.xml, adminPlugins.xml, and sessionStartupActions.xml files. If you wish to modify the system
+    listeners, administration tasks, or session startup actions used by the system you should edit those files and not
+    this one. This file should not be modified.
+  -->
+<beans>
+  <bean id="systemSettingsService" class="org.pentaho.platform.engine.core.system.PathBasedSystemSettings" />
+  <bean class="org.pentaho.platform.engine.core.system.SpringPentahoSystemProxy">
+    <property name="administrationPlugins" ref="administrationPluginsList" />
+    <property name="systemListeners" ref="systemListenersList" />
+    <property name="sessionStartupActions" ref="sessionStartupActionsList" />
+    <property name="systemSettingsService" ref="systemSettingsService" />
+  </bean>
+</beans>

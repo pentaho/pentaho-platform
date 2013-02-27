@@ -1,0 +1,19 @@
+<kettle-repository>
+
+  <!-- The values within <properties> are passed directly to the Kettle Pentaho components. -->
+       
+	<!-- This is the location of the Kettle repositories.xml file, leave empty if the default is used: $HOME/.kettle/repositories.xml -->
+	<repositories.xml.file></repositories.xml.file>
+
+	<repository.type>files</repository.type>
+
+	<!--  The name of the repository to use -->
+	<repository.name></repository.name>
+	
+	<!--  The name of the repository user -->
+	<repository.userid>admin</repository.userid>
+	
+	<!--  The password -->
+	<repository.password>admin</repository.password>
+		
+</kettle-repository>

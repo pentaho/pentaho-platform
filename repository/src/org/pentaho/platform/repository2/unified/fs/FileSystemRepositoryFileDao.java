@@ -33,6 +33,7 @@ import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFile
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
+import org.pentaho.platform.util.VersionHelper;
 
 @SuppressWarnings("nls")
 public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
@@ -364,5 +365,10 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   @Override
   public List<Character> getReservedChars() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getProductID() {
+    return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }
 }
