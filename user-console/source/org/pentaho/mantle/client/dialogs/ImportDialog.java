@@ -158,8 +158,8 @@ public class ImportDialog extends PromptDialogBox {
     
     final CheckBox overwriteAclPermissions = new CheckBox(Messages.getString("overwriteAclPermissions"), true);
     overwriteAclPermissions.setName("overwriteAclPermissions");
-    overwriteAclPermissions.setValue(Boolean.TRUE);
-    overwriteAclPermissions.setFormValue("true");
+    overwriteAclPermissions.setValue(Boolean.FALSE);
+    overwriteAclPermissions.setFormValue("false");
     overwriteAclPermissions.setEnabled(true);
     overwriteAclPermissions.setVisible(false);    
 
@@ -225,6 +225,8 @@ public class ImportDialog extends PromptDialogBox {
           if(value.equals("none")) {
         	  applyAclPermissions.setValue(Boolean.FALSE);
         	  applyAclPermissions.setFormValue("false");
+            overwriteAclPermissions.setValue(Boolean.FALSE);
+            overwriteAclPermissions.setFormValue("false");        	  
           }
         }
     };
