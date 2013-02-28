@@ -33,7 +33,6 @@ import org.pentaho.di.core.Const;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.LogChannel;
-import org.pentaho.di.core.logging.LogWriter;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.www.CarteSingleton;
 import org.pentaho.di.www.SlaveServerConfig;
@@ -102,6 +101,11 @@ public class KettleSystemListener implements IPentahoSystemListener {
    */
   @SuppressWarnings("unchecked")
   protected void initLogging() {
+    /*  
+     * TODO: add the kettle5-log4j-plugin jar file as a dependency to this project
+     * 
+     * import org.pentaho.di.core.logging.LogWriter;
+     * 
     // get platform's file appender
     Enumeration<org.apache.log4j.Appender> appenders = org.apache.log4j.Logger.getRootLogger().getAllAppenders();
     while (appenders.hasMoreElements()) {
@@ -111,6 +115,7 @@ public class KettleSystemListener implements IPentahoSystemListener {
         LogWriter.getInstance().addAppender(appender);
       }
     }
+    */
   }
   
   private void hookInDataSourceProvider() {
