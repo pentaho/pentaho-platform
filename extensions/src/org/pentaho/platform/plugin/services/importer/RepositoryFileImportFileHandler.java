@@ -67,6 +67,8 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
             updateAclFromBundle(false, bundle, file);
           }
         }
+      } else {
+        getLogger().trace("Not importing existing file [" + repositoryFilePath + "]");
       }
     } else {
       if (bundle.isFolder()) {
