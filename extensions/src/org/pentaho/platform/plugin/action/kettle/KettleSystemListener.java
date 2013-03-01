@@ -103,14 +103,14 @@ public class KettleSystemListener implements IPentahoSystemListener {
   @SuppressWarnings("unchecked")
   protected void initLogging() {
     // get platform's file appender
-    Enumeration<org.apache.log4j.Appender> appenders = org.apache.log4j.Logger.getRootLogger().getAllAppenders();
+   /* Enumeration<org.apache.log4j.Appender> appenders = org.apache.log4j.Logger.getRootLogger().getAllAppenders();
     while (appenders.hasMoreElements()) {
       org.apache.log4j.Appender appender = appenders.nextElement();
       if (appender instanceof org.apache.log4j.FileAppender) {
         // make sure kettle's output goes to platform's file appender too
         LogWriter.getInstance().addAppender(appender);
       }
-    }
+    }*/
   }
   
   private void hookInDataSourceProvider() {
