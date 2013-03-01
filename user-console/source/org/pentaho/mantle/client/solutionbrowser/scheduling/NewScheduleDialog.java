@@ -79,7 +79,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   ScheduleParamsDialog scheduleParamsDialog;
   ScheduleEditorWizardPanel scheduleEditorWizardPanel;
   JsJob editJob;
-
+  
   Boolean done = false;
   boolean hasParams = false;
   boolean isEmailConfValid = false;
@@ -124,6 +124,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       ScheduleEditor scheduleEditor = scheduleEditorWizardPanel.getScheduleEditor();
       JsJobTrigger jsJobTrigger = jsJob.getJobTrigger();
       ScheduleType scheduleType = ScheduleType.valueOf(jsJobTrigger.getScheduleType());
+      scheduleEditor.setScheduleName(jsJob.getJobName());
       scheduleEditor.setScheduleType(scheduleType);
       if (scheduleType == ScheduleType.CRON || jsJobTrigger.getType().equals("cronJobTrigger")) {
         scheduleEditor.getCronEditor().setCronString(jsJobTrigger.getCronString());
@@ -279,7 +280,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     WeekOfMonth weekOfMonth = scheduleEditorWizardPanel.getScheduleEditor().getRecurrenceEditor().getSelectedWeekOfMonth();
 
     JSONObject schedule = new JSONObject();
-
+    schedule.put("jobName", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName()));
+    
     if (scheduleType == ScheduleType.RUN_ONCE) { // Run once types
       schedule.put("simpleJobTrigger", getJsonSimpleTrigger(0, 0, startDateTime, null)); //$NON-NLS-1$
     } else if ((scheduleType == ScheduleType.SECONDS) || (scheduleType == ScheduleType.MINUTES) || (scheduleType == ScheduleType.HOURS)) {

@@ -23,21 +23,19 @@ package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -86,7 +84,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
   protected IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
   protected IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
   IPluginManager pluginMgr = PentahoSystem.get(IPluginManager.class);
-  Random random = new Random(new Date().getTime());
 
   public SchedulerResource() {
   }
@@ -187,7 +184,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
         parameterMap.put(param.getName(), param.getValue());
       }
 
-      job = scheduler.createJob(Integer.toString(Math.abs(random.nextInt())), actionId, parameterMap, jobTrigger, new RepositoryFileStreamProvider(
+      job = scheduler.createJob(scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger, new RepositoryFileStreamProvider(
           scheduleRequest.getInputFile(), outputFile));
     } catch (SchedulerException e) {
       return Response.serverError().entity(e.toString()).build();
@@ -232,7 +229,6 @@ public class SchedulerResource extends AbstractJaxRSResource {
           if(canAdminister){
               return true;
           }
-          System.out.println("PRINCIPAL NAME: " + principalName);
           return principalName.equals(job.getUserName());
         }
       });

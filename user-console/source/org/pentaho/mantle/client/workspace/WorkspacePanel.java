@@ -460,7 +460,7 @@ public class WorkspacePanel extends SimplePanel {
     lastFireColumn.setSortable(true);
 
     // table.addColumn(idColumn, "ID");
-    // table.addColumn(nameColumn, "Name");
+    table.addColumn(nameColumn, Messages.getString("scheduleName"));
     table.addColumn(resourceColumn, Messages.getString("file"));
     table.addColumn(scheduleColumn, Messages.getString("recurrence"));
     table.addColumn(lastFireColumn, Messages.getString("lastFire"));
@@ -475,10 +475,12 @@ public class WorkspacePanel extends SimplePanel {
     table.addColumnStyleName(2, "backgroundContentHeaderTableCell");
     table.addColumnStyleName(3, "backgroundContentHeaderTableCell");
     table.addColumnStyleName(4, "backgroundContentHeaderTableCell");
+    table.addColumnStyleName(5, "backgroundContentHeaderTableCell");
     if (isAdmin) {
-      table.addColumnStyleName(5, "backgroundContentHeaderTableCell");
+      table.addColumnStyleName(6, "backgroundContentHeaderTableCell");
     }
 
+    table.setColumnWidth(nameColumn, 160, Unit.PX);
     table.setColumnWidth(resourceColumn, 220, Unit.PX);
     table.setColumnWidth(lastFireColumn, 150, Unit.PX);
     table.setColumnWidth(nextFireColumn, 150, Unit.PX);
@@ -606,8 +608,8 @@ public class WorkspacePanel extends SimplePanel {
     table.addColumnSortHandler(columnSortHandler);
 
     table.getColumnSortList().push(idColumn);
-    table.getColumnSortList().push(nameColumn);
     table.getColumnSortList().push(resourceColumn);
+    table.getColumnSortList().push(nameColumn);
 
     table.getSelectionModel().addSelectionChangeHandler(new Handler() {
       @SuppressWarnings("unchecked")

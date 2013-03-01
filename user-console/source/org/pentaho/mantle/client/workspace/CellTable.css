@@ -107,22 +107,22 @@ border: selectionBorderWidth solid #cbefa3;
 }
 
 .cellTableKeyboardSelectedRow {
- background: #dbdbdb;
+ background: #005ca5;
 }
 
 .cellTableKeyboardSelectedRowCell {
-  border: selectionBorderWidth solid #dbdbdb;
+  border: selectionBorderWidth solid #005ca5;
 }
 
 .cellTableSelectedRow {
-  background: #dbdbdb;
-  color: black;
+  background: #005ca5;
+  color: white;
   height: auto;
   overflow: auto;
 }
 
 .cellTableSelectedRowCell {
-  border: selectionBorderWidth solid #dbdbdb;
+  border: selectionBorderWidth solid #005ca5;
 }
 
 /**

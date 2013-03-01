@@ -31,7 +31,7 @@ import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 @XmlRootElement
 public class JobScheduleRequest implements Serializable {
   private static final long serialVersionUID = -6145183300070801027L;
-  
+
   public static final int SUNDAY = 0;
   public static final int MONDAY = 1;
   public static final int TUESDAY = 2;
@@ -39,7 +39,7 @@ public class JobScheduleRequest implements Serializable {
   public static final int THURSDAY = 4;
   public static final int FRIDAY = 5;
   public static final int SATURDAY = 6;
-  
+
   public static final int JANUARY = 0;
   public static final int FEBRUARY = 1;
   public static final int MARCH = 2;
@@ -52,33 +52,34 @@ public class JobScheduleRequest implements Serializable {
   public static final int OCTOBER = 9;
   public static final int NOVEMBER = 10;
   public static final int DECEMBER = 11;
-  
+
   public static final int LAST_WEEK_OF_MONTH = 4;
-  
+
+  String jobName;
   String inputFile;
   String outputFile;
-   
+
   CronJobTrigger cronJobTrigger;
   ComplexJobTriggerProxy complexJobTrigger;
   SimpleJobTrigger simpleJobTrigger;
   ArrayList<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
-  
+
   public String getInputFile() {
     return inputFile;
   }
-  
+
   public void setInputFile(String file) {
     this.inputFile = file;
   }
-  
+
   public String getOutputFile() {
     return outputFile;
   }
-  
+
   public void setOutputFile(String file) {
     this.outputFile = file;
   }
-  
+
   public CronJobTrigger getCronJobTrigger() {
     return cronJobTrigger;
   }
@@ -91,11 +92,10 @@ public class JobScheduleRequest implements Serializable {
     this.cronJobTrigger = jobTrigger;
   }
 
-  
   public ComplexJobTriggerProxy getComplexJobTrigger() {
     return complexJobTrigger;
   }
-  
+
   public void setComplexJobTrigger(ComplexJobTriggerProxy jobTrigger) {
     if (jobTrigger != null) {
       setCronJobTrigger(null);
@@ -103,11 +103,11 @@ public class JobScheduleRequest implements Serializable {
     }
     this.complexJobTrigger = jobTrigger;
   }
-  
+
   public SimpleJobTrigger getSimpleJobTrigger() {
     return simpleJobTrigger;
   }
-  
+
   public void setSimpleJobTrigger(SimpleJobTrigger jobTrigger) {
     if (jobTrigger != null) {
       setCronJobTrigger(null);
@@ -128,6 +128,13 @@ public class JobScheduleRequest implements Serializable {
       }
     }
   }
-  
-  
+
+  public String getJobName() {
+    return jobName;
+  }
+
+  public void setJobName(String jobName) {
+    this.jobName = jobName;
+  }
+
 }
