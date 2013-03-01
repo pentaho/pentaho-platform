@@ -38,9 +38,8 @@ import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleValueException;
 import org.pentaho.di.core.logging.CentralLogStore;
-import org.pentaho.di.core.logging.Log4jStringAppender;
+import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.logging.LogWriter;
 import org.pentaho.di.core.logging.LoggingObjectInterface;
 import org.pentaho.di.core.logging.LoggingRegistry;
 import org.pentaho.di.core.parameters.UnknownParamException;
@@ -65,7 +64,6 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.ComponentBase;
 import org.pentaho.platform.plugin.action.messages.Messages;
 import org.pentaho.platform.util.xml.w3c.XmlW3CHelper;
-import org.pentaho.di.core.logging.LogLevel; 
 
 /**
  * KettleComponent shows a list of available transformations in the root of the choosen repository.
@@ -157,9 +155,10 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
   /** The password to login with */
   private String password;
-
-  private Log4jStringAppender kettleUserAppender;
   
+  /** The log channel ID of the executing transformation or job */
+  private String logChannelId;
+
   @Override
   public Log getLogger() {
     return LogFactory.getLog(KettleComponent.class);
@@ -193,6 +192,8 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
   @Override
   public boolean init() {
+    LogChannel kettleComponentChannel = new LogChannel("Kettle platform component");
+    logChannelId=kettleComponentChannel.getLogChannelId();
     return true;
 
   }
@@ -302,6 +303,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
   /**
    * Execute the specified transformation in the chosen repository.
    */
+  @SuppressWarnings("unchecked")
   @Override
   public boolean executeAction() {
 
@@ -311,9 +313,6 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
     TransMeta transMeta = null;
     JobMeta jobMeta = null;
-    LogWriter logWriter = LogWriter.getInstance();
-
-    kettleUserAppender = LogWriter.createStringAppender();
 
     // Build lists of parameters, variables and command line arguments
 
@@ -361,7 +360,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
       // this is the preferred way to provide inputs to the
       // KetteComponent, the order of inputs is now preserved
-      Iterator inputNamesIter = getInputNames().iterator();
+      Iterator<?> inputNamesIter = getInputNames().iterator();
       while (inputNamesIter.hasNext()) {
         String name = (String) inputNamesIter.next();
         argumentList.add(getInputStringValue(name));
@@ -398,9 +397,9 @@ public class KettleComponent extends ComponentBase implements RowListener {
     solutionPath = solutionPath.replaceAll("\\\\", "\\\\\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
     solutionPath = solutionPath.replaceAll("\\$", "\\\\\\$"); //$NON-NLS-1$ //$NON-NLS-2$
 
-    Repository repository = connectToRepository(logWriter);
+    Repository repository = connectToRepository();
     boolean result = false;
-    logWriter.addAppender(kettleUserAppender);
+    
     try {
       if (isDefinedInput(KettleComponent.DIRECTORY)) {
         String directoryName = getInputStringValue(KettleComponent.DIRECTORY);
@@ -411,7 +410,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
         if (isDefinedInput(KettleComponent.TRANSFORMATION)) {
           String transformationName = getInputStringValue(KettleComponent.TRANSFORMATION);
-          transMeta = loadTransformFromRepository(directoryName, transformationName, repository, logWriter);
+          transMeta = loadTransformFromRepository(directoryName, transformationName, repository);
           if (transMeta != null) {
             try {
               for (String key : parameterMap.keySet()) {
@@ -430,7 +429,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
           }
         } else if (isDefinedInput(KettleComponent.JOB)) {
           String jobName = getInputStringValue(KettleComponent.JOB);
-          jobMeta = loadJobFromRepository(directoryName, jobName, repository, logWriter);
+          jobMeta = loadJobFromRepository(directoryName, jobName, repository);
           if (jobMeta != null) {
             try {
               for (String key : parameterMap.keySet()) {
@@ -470,29 +469,34 @@ public class KettleComponent extends ComponentBase implements RowListener {
           return false;
         }
 
-        if (transMeta == null) {
-          error(Messages.getInstance().getErrorString("Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.TRANSFORMFILE, fileAddress)); //$NON-NLS-1$
-          debug(kettleUserAppender.getBuffer().toString());
-          return false;
-        } else { // Don't forget to set the parameters here as well...
-          try {
-            for (String key : parameterMap.keySet()) {
-              transMeta.setParameterValue(key, parameterMap.get(key));
-            }
-            for (String key : variableMap.keySet()) {
-              transMeta.setVariable(key, variableMap.get(key));
-            }
-
-          } catch (UnknownParamException e) {
-            error(e.getMessage());
+        /*
+         * Unreachable code below...
+          if (transMeta == null) {
+            error(Messages.getInstance().getErrorString("Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.TRANSFORMFILE, fileAddress)); //$NON-NLS-1$
+            debug(getKettleLog(true));
+            return false;
           }
-          transMeta.setArguments(arguments);
-          /*
-           * We do not need to concatenate the solutionPath info as the fileAddress has the complete location of the file from start to end. This is to resolve
-           * BISERVER-502.
-           */
-          transMeta.setFilename(fileAddress);
+        */
+
+         // Don't forget to set the parameters here as well...
+        try {
+          for (String key : parameterMap.keySet()) {
+            transMeta.setParameterValue(key, parameterMap.get(key));
+          }
+          for (String key : variableMap.keySet()) {
+            transMeta.setVariable(key, variableMap.get(key));
+          }
+
+        } catch (UnknownParamException e) {
+          error(e.getMessage());
         }
+        transMeta.setArguments(arguments);
+        /*
+         * We do not need to concatenate the solutionPath info as the fileAddress has the complete location of the file from start to end. This is to resolve
+         * BISERVER-502.
+         */
+        transMeta.setFilename(fileAddress);
+
       } else if (isDefinedResource(KettleComponent.JOBFILE)) {
         String fileAddress = ""; //$NON-NLS-1$
         try {
@@ -505,12 +509,12 @@ public class KettleComponent extends ComponentBase implements RowListener {
           org.w3c.dom.Document doc = XmlW3CHelper.getDomFromString(jobXmlStr);
           if (doc == null) {
             error(Messages.getInstance().getErrorString("Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.JOBFILE, fileAddress)); //$NON-NLS-1$
-            debug(kettleUserAppender.getBuffer().toString());
+            debug(getKettleLog(true));
             return false;
           }
           // create a job from the document
           try {
-            repository = connectToRepository(logWriter);
+            repository = connectToRepository();
             // if we get a valid repository its great, if not try it
             // without
 
@@ -531,7 +535,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
         }
         if (jobMeta == null) {
           error(Messages.getInstance().getErrorString("Kettle.ERROR_0015_BAD_RESOURCE", KettleComponent.JOBFILE, fileAddress)); //$NON-NLS-1$
-          debug(kettleUserAppender.getBuffer().toString());
+          debug(getKettleLog(true));
           return false;
         } else {
           try {
@@ -555,14 +559,14 @@ public class KettleComponent extends ComponentBase implements RowListener {
       // transformation or job
 
       if (transMeta != null) {
-        result = executeTransformation(transMeta, logWriter);
+        result = executeTransformation(transMeta);
       }
       if (jobMeta != null) {
-        result = executeJob(jobMeta, repository, logWriter);
+        result = executeJob(jobMeta, repository);
       }
 
     } finally {
-      logWriter.removeAppender(kettleUserAppender);
+      
       if (repository != null) {
         if (ComponentBase.debug) {
           debug(Messages.getInstance().getString("Kettle.DEBUG_DISCONNECTING")); //$NON-NLS-1$
@@ -610,7 +614,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
   
   private void cleanLogChannelFromMap(LoggingObjectInterface loi) {
     String logChannelId = loi.getLogChannelId();
-    Map logChannelMap = LoggingRegistry.getInstance().getMap();
+    Map<String, LoggingObjectInterface> logChannelMap = LoggingRegistry.getInstance().getMap();
     if ( (logChannelMap != null) ) {
       List<String> logKids = LoggingRegistry.getInstance().getLogChannelChildren(logChannelId);
       if (logKids != null) {
@@ -644,13 +648,13 @@ public class KettleComponent extends ComponentBase implements RowListener {
     return (fileAddress);
   }
 
-  protected boolean customizeTrans(Trans trans, LogWriter logWriter) {
+  protected boolean customizeTrans(Trans trans) {
     // override this to customize the transformation before it runs
     // by default there is no transformation
     return true;
   }
 
-  private boolean executeTransformation(final TransMeta transMeta, final LogWriter logWriter) {
+  private boolean executeTransformation(final TransMeta transMeta) {
     boolean success = true;
     Trans trans = null;
 
@@ -667,78 +671,80 @@ public class KettleComponent extends ComponentBase implements RowListener {
         throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0010_BAD_TRANSFORMATION_METADATA")); //$NON-NLS-1$
       }
 
-      if (trans != null) {
-        // OK, we have the transformation, now run it!
-        if (!customizeTrans(trans, logWriter)) {
-          throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0028_CUSTOMIZATION_FUNCITON_FAILED")); //$NON-NLS-1$
+      // Remember where to get our execution logging from
+      //
+      logChannelId = trans.getLogChannelId();
+      
+      // OK, we have the transformation, now run it!
+      if (!customizeTrans(trans)) {
+        throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0028_CUSTOMIZATION_FUNCITON_FAILED")); //$NON-NLS-1$
+      }
+
+      debug(Messages.getInstance().getString("Kettle.DEBUG_PREPARING_TRANSFORMATION")); //$NON-NLS-1$
+
+      try {
+        LogLevel lvl = getLogLevel();
+        trans.setLogLevel(lvl);
+        trans.prepareExecution(transMeta.getArguments());
+      } catch (Exception e) {
+        throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0011_TRANSFORMATION_PREPARATION_FAILED"), e); //$NON-NLS-1$
+      }
+
+      String stepName = null;
+      String outputName = null;
+
+      try {
+        debug(Messages.getInstance().getString("Kettle.DEBUG_FINDING_STEP_IMPORTER")); //$NON-NLS-1$
+
+        stepName = getMonitorStepName();
+        outputName = getTransformSuccessOutputName();
+
+        if (outputName != null) {
+          registerAsStepListener(stepName, trans);
         }
+      } catch (Exception e) {
+        throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0012_ROW_LISTENER_CREATE_FAILED"), e); //$NON-NLS-1$
+      }
 
-        debug(Messages.getInstance().getString("Kettle.DEBUG_PREPARING_TRANSFORMATION")); //$NON-NLS-1$
+      try {
+        debug(Messages.getInstance().getString("Kettle.DEBUG_STARTING_TRANSFORMATION")); //$NON-NLS-1$
+        trans.startThreads();
+      } catch (Exception e) {
+        throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0013_TRANSFORMATION_START_FAILED"), e); //$NON-NLS-1$
+      }
 
-        try {
-          LogLevel lvl = getLogLevel();
-          trans.setLogLevel(lvl);
-          trans.prepareExecution(transMeta.getArguments());
-        } catch (Exception e) {
-          throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0011_TRANSFORMATION_PREPARATION_FAILED"), e); //$NON-NLS-1$
+      try {
+        // It's running in a separate thread to allow monitoring,
+        // etc.
+        debug(Messages.getInstance().getString("Kettle.DEBUG_TRANSFORMATION_RUNNING")); //$NON-NLS-1$
+
+        trans.waitUntilFinished();
+        cleanLogChannel(trans);
+        trans.cleanup();
+      } catch (Exception e) {
+        throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0014_ERROR_DURING_EXECUTE"), e); //$NON-NLS-1$
+      }
+
+      // Dump the Kettle log...
+      debug(getKettleLog(false));
+
+      // Build written row output
+      if (results != null) {
+        if (outputName != null) {
+          setOutputValue(outputName, results);
         }
-
-        String stepName = null;
-        String outputName = null;
-
-        try {
-          debug(Messages.getInstance().getString("Kettle.DEBUG_FINDING_STEP_IMPORTER")); //$NON-NLS-1$
-
-          stepName = getMonitorStepName();
-          outputName = getTransformSuccessOutputName();
-
-          if (outputName != null) {
-            registerAsStepListener(stepName, trans);
-          }
-        } catch (Exception e) {
-          throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0012_ROW_LISTENER_CREATE_FAILED"), e); //$NON-NLS-1$
+        if (isDefinedOutput(TRANSFORM_SUCCESS_COUNT_OUTPUT)) {
+          setOutputValue(TRANSFORM_SUCCESS_COUNT_OUTPUT, results.getRowCount());
         }
+      }
 
-        try {
-          debug(Messages.getInstance().getString("Kettle.DEBUG_STARTING_TRANSFORMATION")); //$NON-NLS-1$
-          trans.startThreads();
-        } catch (Exception e) {
-          throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0013_TRANSFORMATION_START_FAILED"), e); //$NON-NLS-1$
+      // Build error row output
+      if (errorResults != null) {
+        if (isDefinedOutput(TRANSFORM_ERROR_OUTPUT)) {
+          setOutputValue(TRANSFORM_ERROR_OUTPUT, errorResults);
         }
-
-        try {
-          // It's running in a separate thread to allow monitoring,
-          // etc.
-          debug(Messages.getInstance().getString("Kettle.DEBUG_TRANSFORMATION_RUNNING")); //$NON-NLS-1$
-
-          trans.waitUntilFinished();
-          cleanLogChannel(trans);
-          trans.cleanup();
-        } catch (Exception e) {
-          throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0014_ERROR_DURING_EXECUTE"), e); //$NON-NLS-1$
-        }
-
-        // Dump the Kettle log...
-        debug(kettleUserAppender.getBuffer().toString());
-
-        // Build written row output
-        if (results != null) {
-          if (outputName != null) {
-            setOutputValue(outputName, results);
-          }
-          if (isDefinedOutput(TRANSFORM_SUCCESS_COUNT_OUTPUT)) {
-            setOutputValue(TRANSFORM_SUCCESS_COUNT_OUTPUT, results.getRowCount());
-          }
-        }
-
-        // Build error row output
-        if (errorResults != null) {
-          if (isDefinedOutput(TRANSFORM_ERROR_OUTPUT)) {
-            setOutputValue(TRANSFORM_ERROR_OUTPUT, errorResults);
-          }
-          if (isDefinedOutput(TRANSFORM_ERROR_COUNT_OUTPUT)) {
-            setOutputValue(TRANSFORM_ERROR_COUNT_OUTPUT, errorResults.getRowCount());
-          }
+        if (isDefinedOutput(TRANSFORM_ERROR_COUNT_OUTPUT)) {
+          setOutputValue(TRANSFORM_ERROR_COUNT_OUTPUT, errorResults.getRowCount());
         }
       }
     } catch (KettleComponentException e) {
@@ -747,8 +753,6 @@ public class KettleComponent extends ComponentBase implements RowListener {
     }
 
     prepareKettleOutput(trans);
-
-    // TODO:
 
     return success;
   }
@@ -836,6 +840,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
     }
   }
   
+  @SuppressWarnings("unchecked")
   private String getTransformSuccessOutputName() {
     String result = null;
 
@@ -887,9 +892,14 @@ public class KettleComponent extends ComponentBase implements RowListener {
       executionStatus = Messages.getInstance().getErrorString("Kettle.ERROR_0026_JOB_NOT_LOADED"); //$NON-NLS-1$
     }
   }
+  
+  private String getKettleLog(boolean includeGeneral) {
+    StringBuffer logText = CentralLogStore.getAppender().getBuffer(logChannelId, includeGeneral);
+    return logText.toString();
+  }
 
   private void extractKettleLog() {
-    executionLog = kettleUserAppender.getBuffer().toString();
+    executionLog = getKettleLog(false);
   }
 
   private String getUndefinedOutputParameter(Iterator<String> outputNames) {
@@ -904,7 +914,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
     return null;
   }
 
-  private boolean executeJob(final JobMeta jobMeta, final Repository repository, final LogWriter logWriter) {
+  private boolean executeJob(final JobMeta jobMeta, final Repository repository) {
     boolean success = true;
     Job job = null;
 
@@ -918,43 +928,46 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
       }
       if (job == null) {
-        debug(kettleUserAppender.getBuffer().toString());
+        debug(getKettleLog(true));
         throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0021_BAD_JOB_METADATA")); //$NON-NLS-1$
       }
-      if (job != null) {
-        try {
-          if (ComponentBase.debug) {
-            debug(Messages.getInstance().getString("Kettle.DEBUG_STARTING_JOB")); //$NON-NLS-1$
-          }
-          LogLevel lvl = getLogLevel();
-          job.setLogLevel(lvl);
-          job.start();
-        } catch (Exception e) {
-          throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0022_JOB_START_FAILED"), e); //$NON-NLS-1$
+      
+      // Remember where to get our execution logging from
+      //
+      logChannelId = job.getLogChannelId();
+      
+      try {
+        if (ComponentBase.debug) {
+          debug(Messages.getInstance().getString("Kettle.DEBUG_STARTING_JOB")); //$NON-NLS-1$
         }
-
-        try {
-          // It's running in a separate tread to allow monitoring,
-          // etc.
-          if (ComponentBase.debug) {
-            debug(Messages.getInstance().getString("Kettle.DEBUG_JOB_RUNNING")); //$NON-NLS-1$
-          }
-          job.waitUntilFinished();
-          if (job.getResult().getNrErrors() > 0) {
-            debug(kettleUserAppender.getBuffer().toString());
-            throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0014_ERROR_DURING_EXECUTE")); //$NON-NLS-1$
-          }
-        } catch (Exception e) {
-          throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0014_ERROR_DURING_EXECUTE"), e); //$NON-NLS-1$
-        } finally {
-          if (job != null) {
-            cleanLogChannel(job);
-          }
-        }
-
-        // Dump the Kettle log...
-        debug(kettleUserAppender.getBuffer().toString());
+        LogLevel lvl = getLogLevel();
+        job.setLogLevel(lvl);
+        job.start();
+      } catch (Exception e) {
+        throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0022_JOB_START_FAILED"), e); //$NON-NLS-1$
       }
+
+      try {
+        // It's running in a separate tread to allow monitoring,
+        // etc.
+        if (ComponentBase.debug) {
+          debug(Messages.getInstance().getString("Kettle.DEBUG_JOB_RUNNING")); //$NON-NLS-1$
+        }
+        job.waitUntilFinished();
+        if (job.getResult().getNrErrors() > 0) {
+          debug(getKettleLog(true));
+          throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0014_ERROR_DURING_EXECUTE")); //$NON-NLS-1$
+        }
+      } catch (Exception e) {
+        throw new KettleComponentException(Messages.getInstance().getErrorString("Kettle.ERROR_0014_ERROR_DURING_EXECUTE"), e); //$NON-NLS-1$
+      } finally {
+        if (job != null) {
+          cleanLogChannel(job);
+        }
+      }
+
+      // Dump the Kettle log...
+      debug(getKettleLog(false));
     } catch (KettleComponentException e) {
       success = false;
       error(Messages.getInstance().getErrorString("Kettle.ERROR_0008_ERROR_RUNNING", e.toString()), e); //$NON-NLS-1$
@@ -966,8 +979,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
   }
 
-  private TransMeta loadTransformFromRepository(final String directoryName, final String transformationName, final Repository repository,
-      final LogWriter logWriter) {
+  private TransMeta loadTransformFromRepository(final String directoryName, final String transformationName, final Repository repository) {
     if (ComponentBase.debug) {
       debug(Messages.getInstance().getString("Kettle.DEBUG_DIRECTORY", directoryName)); //$NON-NLS-1$
     }
@@ -995,7 +1007,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
       }
       if (transMeta == null) {
         error(Messages.getInstance().getErrorString("Kettle.ERROR_0009_TRANSFROMATION_METADATA_NOT_FOUND", directoryName + "/" + transformationName)); //$NON-NLS-1$ //$NON-NLS-2$
-        debug(kettleUserAppender.getBuffer().toString());
+        debug(getKettleLog(true));
         return null;
       } else {
         return transMeta;
@@ -1007,7 +1019,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
     return null;
   }
 
-  private JobMeta loadJobFromRepository(final String directoryName, final String jobName, final Repository repository, final LogWriter logWriter) {
+  private JobMeta loadJobFromRepository(final String directoryName, final String jobName, final Repository repository) {
     if (ComponentBase.debug) {
       debug(Messages.getInstance().getString("Kettle.DEBUG_DIRECTORY", directoryName)); //$NON-NLS-1$
     }
@@ -1035,7 +1047,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
       }
       if (jobMeta == null) {
         error(Messages.getInstance().getErrorString("Kettle.ERROR_0020_JOB_METADATA_NOT_FOUND", directoryName + "/" + jobName)); //$NON-NLS-1$ //$NON-NLS-2$
-        debug(kettleUserAppender.getBuffer().toString());
+        debug(getKettleLog(true));
         return null;
       } else {
         return jobMeta;
@@ -1047,7 +1059,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
     return null;
   }
 
-  private Repository connectToRepository(final LogWriter logWriter) {
+  private Repository connectToRepository() {
     boolean useRepository = PentahoSystem.getSystemSetting("kettle/settings.xml", "repository.type", "files").equals("rdbms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
     if (!useRepository) {
@@ -1066,11 +1078,14 @@ public class KettleComponent extends ComponentBase implements RowListener {
         error(Messages.getInstance().getErrorString("Kettle.ERROR_0007_BAD_META_REPOSITORY"), e); //$NON-NLS-1$
         return null;
       }
+      /*
+       * Unreachable code below
       if (repositoriesMeta == null) {
         error(Messages.getInstance().getErrorString("Kettle.ERROR_0007_BAD_META_REPOSITORY")); //$NON-NLS-1$
-        debug(kettleUserAppender.getBuffer().toString());
+        debug(getKettleLog(true));
         return null;
       }
+       */
 
       if (ComponentBase.debug) {
         debug(Messages.getInstance().getString("Kettle.DEBUG_POPULATING_META")); //$NON-NLS-1$
@@ -1087,7 +1102,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
       if ((repositoriesXMLFile != null) && !"".equals(repositoriesXMLFile)) //$NON-NLS-1$
       {
         error(Messages.getInstance().getErrorString("Kettle.ERROR_0017_XML_REPOSITORY_NOT_SUPPORTED")); //$NON-NLS-1$
-        debug(kettleUserAppender.getBuffer().toString());
+        debug(getKettleLog(true));
         return null;
       }
 
@@ -1105,7 +1120,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
 
       if (repositoryMeta == null) {
         error(Messages.getInstance().getErrorString("Kettle.ERROR_0004_REPOSITORY_NOT_FOUND", repositoryName)); //$NON-NLS-1$
-        debug(kettleUserAppender.getBuffer().toString());
+        debug(getKettleLog(true));
         return null;
       }
 

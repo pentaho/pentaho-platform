@@ -17,13 +17,14 @@
 */
 package org.pentaho.platform.plugin.action.kettle;
 
+import org.apache.jackrabbit.spi.commons.logging.LogWriter;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.database.Database;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleDatabaseException;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
-import org.pentaho.di.core.logging.LogWriter;
+import org.pentaho.di.core.logging.LoggingObject;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransHopMeta;
@@ -39,7 +40,7 @@ public class Custom1 extends KettleComponent {
   private static final long serialVersionUID = -3534575935705861245L;
 
   @Override 
-	  protected boolean customizeTrans( Trans trans, LogWriter logWriter ) {
+	  protected boolean customizeTrans( Trans trans ) {
 		  // override this to customize the transformation before it runs
 		  // by default there is no transformation
 		
@@ -54,7 +55,7 @@ public class Custom1 extends KettleComponent {
 		String sql = transMeta.getSQLStatementsString();
 
 		// Execute the SQL on the target table:
-		Database targetDatabase = new Database(transMeta.findDatabase(targetDatabaseName));
+		Database targetDatabase = new Database(new LoggingObject("Custom1"), transMeta.findDatabase(targetDatabaseName));
 		targetDatabase.connect();
 		targetDatabase.execStatements(sql);
 
@@ -66,8 +67,6 @@ public class Custom1 extends KettleComponent {
 			String targetTableName, String[] targetFields, LogWriter logWriter)
 			throws KettleException {
 
-//		LogWriter log = LogWriter.getInstance();
-
 		try
 		{
 			// Create a new transformation...
@@ -77,16 +76,14 @@ public class Custom1 extends KettleComponent {
 			transMeta.setName(transformationName);
 
 			// Add the database connections
-			/*
+/*
 			for (int i = 0; i < databasesXML.length; i++) {
 				DatabaseMeta databaseMeta = new DatabaseMeta(databasesXML[i]);
 				transMeta.addDatabase(databaseMeta);
 			}
 */
-			DatabaseMeta sourceDBInfo = transMeta
-					.findDatabase(sourceDatabaseName);
-			DatabaseMeta targetDBInfo = transMeta
-					.findDatabase(targetDatabaseName);
+			DatabaseMeta sourceDBInfo = transMeta.findDatabase(sourceDatabaseName);
+			DatabaseMeta targetDBInfo = transMeta.findDatabase(targetDatabaseName);
 
 			//
 			// create the source step...
@@ -155,7 +152,7 @@ public class Custom1 extends KettleComponent {
 			String tostepname = "write to [" + targetTableName + "]";
 			TableOutputMeta toi = new TableOutputMeta();
 			toi.setDatabaseMeta(targetDBInfo);
-			toi.setTablename(targetTableName);
+			toi.setTableName(targetTableName);
 			toi.setCommitSize(200);
 			toi.setTruncateTable(true);
 
