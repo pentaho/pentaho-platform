@@ -120,7 +120,7 @@ public class KettleSystemListener implements IPentahoSystemListener {
   private void hookInDataSourceProvider() {
     try {
       @SuppressWarnings("unused")
-      Class clazz = Class.forName("org.pentaho.di.core.database.DataSourceProviderInterface"); //$NON-NLS-1$
+      Class<?> clazz = Class.forName("org.pentaho.di.core.database.DataSourceProviderInterface"); //$NON-NLS-1$
       PlatformKettleDataSourceProvider.hookupProvider();
     } catch (Exception ignored) {
       // if here, then it's because we're running with an older
