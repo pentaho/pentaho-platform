@@ -32,6 +32,7 @@ import org.pentaho.di.cluster.SlaveServer;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.logging.CentralLogStore;
 import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.www.CarteSingleton;
@@ -101,21 +102,18 @@ public class KettleSystemListener implements IPentahoSystemListener {
    */
   @SuppressWarnings("unchecked")
   protected void initLogging() {
-    /*  
-     * TODO: add the kettle5-log4j-plugin jar file as a dependency to this project
-     * 
-     * import org.pentaho.di.core.logging.LogWriter;
-     * 
-    // get platform's file appender
+    // Find the platform file listener (if any) and make sure it gets data from Kettle.
+    // We listen to the log records from Kettle and pass logging along
+    //
     Enumeration<org.apache.log4j.Appender> appenders = org.apache.log4j.Logger.getRootLogger().getAllAppenders();
     while (appenders.hasMoreElements()) {
       org.apache.log4j.Appender appender = appenders.nextElement();
       if (appender instanceof org.apache.log4j.FileAppender) {
-        // make sure kettle's output goes to platform's file appender too
-        LogWriter.getInstance().addAppender(appender);
+        
+        Log4jForwardingKettleLoggingEventListener listener = new Log4jForwardingKettleLoggingEventListener(appender);
+        CentralLogStore.getAppender().addLoggingEventListener(listener);
       }
     }
-    */
   }
   
   private void hookInDataSourceProvider() {
