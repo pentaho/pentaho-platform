@@ -228,11 +228,10 @@ public class DefaultChartBeansGenerator implements IChartBeansGenerator {
 
     IPentahoUrlFactory urlFactory = new SimpleUrlFactory(contextPath); //$NON-NLS-1$
    
-    IRuntimeContext runtime = solutionEngine.execute(doc.toString(), pentahoSession.getActionName(), "myprocessid", false, true, //$NON-NLS-1$ //$NON-NLS-2$
+    IRuntimeContext runtime = solutionEngine.execute(doc.toString(), "chartbeans_mql", "myprocessid", false, true, //$NON-NLS-1$ //$NON-NLS-2$
         "myinstanceid", true, parameterProviders, outputHandler, null, urlFactory, new ArrayList()); //$NON-NLS-1$
 
-    if ((runtime != null) && (runtime.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS)) {
-    } else {
+    if ((runtime != null) && (runtime.getStatus() != IRuntimeContext.RUNTIME_STATUS_SUCCESS)) {
       StringBuilder buf = new StringBuilder();
       boolean firstIteration = true;
       for (Object /* String */message : runtime.getMessages()) {
