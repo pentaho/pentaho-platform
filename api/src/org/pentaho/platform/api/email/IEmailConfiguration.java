@@ -24,6 +24,8 @@ public interface IEmailConfiguration {
   public void setDebug(final boolean debug);
   public String getDefaultFrom();
   public void setDefaultFrom(final String defaultFrom);
+  public String getFromName();
+  public void setFromName(String fromName);
   public String getSmtpHost();
   public void setSmtpHost(final String smtpHost);
   public Short getSmtpPort();
