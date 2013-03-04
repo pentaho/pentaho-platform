@@ -74,7 +74,7 @@ public class EmailResourceTest extends TestCase {
     }
 
     {
-      final EmailConfiguration emailConfigOriginal = new EmailConfiguration(true, false, "test@pentaho.com", null, new Short((short) 36), "", true, "user",
+      final EmailConfiguration emailConfigOriginal = new EmailConfiguration(true, false, "test@pentaho.com", "Pentaho Scheduler", null, new Short((short) 36), "", true, "user",
           null, false, true);
       final Response response = emailResource.setEmailConfig(emailConfigOriginal);
       assertEquals(OK_STATUS, response.getStatus());

@@ -49,6 +49,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -116,8 +117,14 @@ public class SchedulerResource extends AbstractJaxRSResource {
     Job job = null;
     try {
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
+      String outName = RepositoryFilenameUtils.getBaseName(scheduleRequest.getInputFile());
+      
+      if (StringUtils.isEmpty(scheduleRequest.getJobName())) {
+        outName = scheduleRequest.getJobName();
+      }
+      
       String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName())
-          + "/workspace/" + RepositoryFilenameUtils.getBaseName(scheduleRequest.getInputFile()) + ".*"; //$NON-NLS-1$ // //$NON-NLS-2$
+          + "/workspace/" + outName + ".*"; //$NON-NLS-1$ // //$NON-NLS-2$
       String actionId = RepositoryFilenameUtils.getExtension(scheduleRequest.getInputFile()) + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
       JobTrigger jobTrigger = scheduleRequest.getSimpleJobTrigger();
       if (scheduleRequest.getSimpleJobTrigger() != null) {
