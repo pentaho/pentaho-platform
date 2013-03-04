@@ -158,6 +158,7 @@ public class Emailer {
       props.put("mail.smtp.ssl", ObjectUtils.toString(service.getEmailConfig().isUseSsl()));
       props.put("mail.smtp.quitwait", ObjectUtils.toString(service.getEmailConfig().isSmtpQuitWait()));
       props.put("mail.from.default", service.getEmailConfig().getDefaultFrom());
+      props.put("mail.from.name", service.getEmailConfig().getFromName());
       props.put("mail.debug", ObjectUtils.toString(service.getEmailConfig().isDebug()));
 
       if (service.getEmailConfig().isAuthenticate()) {

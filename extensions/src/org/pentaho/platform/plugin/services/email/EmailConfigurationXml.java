@@ -46,7 +46,7 @@ public class EmailConfigurationXml extends EmailConfiguration {
   private static final String AUTHENTICATE_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.auth";  //$NON-NLS-1$
   private static final String DEBUG_XPATH = ROOT_ELEMENT + "/properties/mail.debug";  //$NON-NLS-1$
   private static final String DEFAULT_FROM_XPATH = ROOT_ELEMENT + "/mail.from.default";  //$NON-NLS-1$
-  private static final String FROM_NAME = ROOT_ELEMENT + "/mail.from.name";  //$NON-NLS-1$
+  private static final String FROM_NAME_XPATH = ROOT_ELEMENT + "/mail.from.name";  //$NON-NLS-1$
   private static final String SMTP_HOST_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.host";  //$NON-NLS-1$
   private static final String SMTP_PORT_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.port";  //$NON-NLS-1$
   private static final String SMTP_PROTOCOL_XPATH = ROOT_ELEMENT + "/properties/mail.transport.protocol";  //$NON-NLS-1$
@@ -106,7 +106,7 @@ public class EmailConfigurationXml extends EmailConfiguration {
     setSmtpQuitWait(getBooleanValue(doc, SMTP_QUIT_WAIT_XPATH));
 
     setDefaultFrom(getStringValue(doc, DEFAULT_FROM_XPATH));
-    setFromName(getStringValue(doc, FROM_NAME));
+    setFromName(getStringValue(doc, FROM_NAME_XPATH));
     setUserId(getStringValue(doc, USER_ID_XPATH));
     setPassword(getStringValue(doc, PASSWORD_XPATH));
   }
@@ -173,6 +173,7 @@ public class EmailConfigurationXml extends EmailConfiguration {
         ObjectUtils.toString(emailConfiguration.isSmtpQuitWait(), Boolean.FALSE.toString()));
 
     setValue(document, DEFAULT_FROM_XPATH, ObjectUtils.toString(emailConfiguration.getDefaultFrom()));
+    setValue(document, FROM_NAME_XPATH, ObjectUtils.toString(emailConfiguration.getFromName()));
     setValue(document, USER_ID_XPATH, ObjectUtils.toString(emailConfiguration.getUserId()));
     setValue(document, PASSWORD_XPATH, ObjectUtils.toString(emailConfiguration.getPassword()));
     return document;

@@ -119,7 +119,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
       String outName = RepositoryFilenameUtils.getBaseName(scheduleRequest.getInputFile());
       
-      if (StringUtils.isEmpty(scheduleRequest.getJobName())) {
+      if (!StringUtils.isEmpty(scheduleRequest.getJobName())) {
         outName = scheduleRequest.getJobName();
       }
       
