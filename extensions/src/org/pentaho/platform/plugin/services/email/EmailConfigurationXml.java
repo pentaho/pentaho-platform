@@ -46,6 +46,7 @@ public class EmailConfigurationXml extends EmailConfiguration {
   private static final String AUTHENTICATE_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.auth";  //$NON-NLS-1$
   private static final String DEBUG_XPATH = ROOT_ELEMENT + "/properties/mail.debug";  //$NON-NLS-1$
   private static final String DEFAULT_FROM_XPATH = ROOT_ELEMENT + "/mail.from.default";  //$NON-NLS-1$
+  private static final String FROM_NAME = ROOT_ELEMENT + "/mail.from.name";  //$NON-NLS-1$
   private static final String SMTP_HOST_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.host";  //$NON-NLS-1$
   private static final String SMTP_PORT_XPATH = ROOT_ELEMENT + "/properties/mail.smtp.port";  //$NON-NLS-1$
   private static final String SMTP_PROTOCOL_XPATH = ROOT_ELEMENT + "/properties/mail.transport.protocol";  //$NON-NLS-1$
@@ -105,6 +106,7 @@ public class EmailConfigurationXml extends EmailConfiguration {
     setSmtpQuitWait(getBooleanValue(doc, SMTP_QUIT_WAIT_XPATH));
 
     setDefaultFrom(getStringValue(doc, DEFAULT_FROM_XPATH));
+    setFromName(getStringValue(doc, FROM_NAME));
     setUserId(getStringValue(doc, USER_ID_XPATH));
     setPassword(getStringValue(doc, PASSWORD_XPATH));
   }

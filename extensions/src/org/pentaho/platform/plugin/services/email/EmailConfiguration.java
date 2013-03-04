@@ -38,6 +38,7 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
   private boolean authenticate;
   private boolean debug;
   private String defaultFrom;
+  private String fromName;
   private String smtpHost;
   private Short smtpPort;
   private String smtpProtocol;
@@ -53,6 +54,7 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
   public EmailConfiguration(final boolean authenticate,
                             final boolean debug,
                             final String defaultFrom,
+                            final String fromName,
                             final String smtpHost,
                             final Short smtpPort,
                             final String smtpProtocol,
@@ -64,6 +66,7 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
     this.authenticate = authenticate;
     this.debug = debug;
     this.defaultFrom = defaultFrom;
+    this.fromName = fromName;
     this.smtpHost = smtpHost;
     this.smtpPort = smtpPort;
     this.smtpProtocol = smtpProtocol;
@@ -96,6 +99,14 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
 
   public void setDefaultFrom(final String defaultFrom) {
     this.defaultFrom = defaultFrom;
+  }
+
+  public String getFromName() {
+    return fromName == null ? "" : fromName;
+  }
+
+  public void setFromName(final String fromName) {
+    this.fromName = fromName;
   }
 
   public String getSmtpHost() {
@@ -180,6 +191,7 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
         "authenticate='" + authenticate + '\'' +
             ", debug='" + debug + '\'' +
             ", defaultFrom='" + defaultFrom + '\'' +
+            ", fromName='" + fromName + '\'' +
             ", smtpHost='" + smtpHost + '\'' +
             ", smtpPort=" + smtpPort +
             ", smtpProtocol='" + smtpProtocol + '\'' +
@@ -207,6 +219,7 @@ public class EmailConfiguration implements Serializable, IEmailConfiguration {
             && this.useStartTls == that.useStartTls
             && ObjectUtils.equals(this.getSmtpPort(), that.getSmtpPort())
             && isEquals(this.defaultFrom, that.defaultFrom)
+            && isEquals(this.fromName, that.fromName)
             && isEquals(this.smtpHost, that.smtpHost)
             && isEquals(this.smtpProtocol, that.smtpProtocol)
             && isEquals(this.userId, that.userId)
