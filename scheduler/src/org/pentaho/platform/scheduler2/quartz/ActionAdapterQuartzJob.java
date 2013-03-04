@@ -227,7 +227,11 @@ public class ActionAdapterQuartzJob implements Job {
       if (extension == null) {
         extension = ".bin";
       }
-      emailer.setAttachmentName(attachmentName + extension);
+      if (!attachmentName.endsWith(extension)) {
+        emailer.setAttachmentName(attachmentName + extension);
+      } else {
+        emailer.setAttachmentName(attachmentName);
+      }
     } else if (data != null) {
       String path = filePath;
       if (path.endsWith(".*")) {
@@ -237,8 +241,12 @@ public class ActionAdapterQuartzJob implements Job {
       if (extension == null) {
         extension = ".bin";
       }
-      path = path.substring(path.lastIndexOf("/") + 1, path.length()) + extension;
-      emailer.setAttachmentName(path);
+      path = path.substring(path.lastIndexOf("/") + 1, path.length());
+      if (!path.endsWith(extension)) {
+        emailer.setAttachmentName(path + extension);
+      } else {
+        emailer.setAttachmentName(path);
+      }
     }
     if (data == null || data.getMimeType() == null || "".equals(data.getMimeType())) {
       emailer.setAttachmentMimeType("binary/octet-stream");
@@ -251,7 +259,6 @@ public class ActionAdapterQuartzJob implements Job {
     } else {
       emailer.setSubject("Pentaho Scheduler: " + emailer.getAttachmentName());
     }
-    emailer.setFromName("Pentaho Scheduler");
     String message = (String) actionParams.get("_SCH_EMAIL_MESSAGE");
     if (subject != null && !"".equals(subject)) {
       emailer.setBody(message);

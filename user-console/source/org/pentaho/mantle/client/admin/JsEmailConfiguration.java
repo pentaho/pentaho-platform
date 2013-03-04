@@ -32,6 +32,7 @@ public class JsEmailConfiguration extends JavaScriptObject {
   public final native boolean isAuthenticate() /*-{ return this.authenticate; }-*/; //
   public final native boolean isDebug() /*-{ return this.debug; }-*/; //
   public final native String getDefaultFrom() /*-{ return this.defaultFrom; }-*/; //
+  public final native String getFromName() /*-{ return this.fromName; }-*/; //
   public final native String getSmtpHost() /*-{ return this.smtpHost; }-*/; //
   public final native Short getSmtpPort() /*-{ return this.smtpPort; }-*/; //
   public final native String getSmtpProtocol() /*-{ return this.smtpProtocol; }-*/; //
@@ -44,6 +45,7 @@ public class JsEmailConfiguration extends JavaScriptObject {
   public final native void setAuthenticate(final boolean authenticate) /*-{ this.authenticate = authenticate; }-*/; //
   public final native void setDebug(final boolean debug) /*-{ this.debug = debug; }-*/; //
   public final native void setDefaultFrom(final String defaultFrom) /*-{ this.defaultFrom = defaultFrom; }-*/; //
+  public final native void setFromName(final String fromName) /*-{ this.fromName = fromName; }-*/; //
   public final native void setSmtpHost(final String smtpHost) /*-{ this.smtpHost = smtpHost; }-*/; //
   public final native void setSmtpPort(final short smtpPort) /*-{ this.smtpPort = smtpPort; }-*/; //
   public final native void setSmtpProtocol(final String smtpProtocol) /*-{ this.smtpProtocol = smtpProtocol; }-*/; //

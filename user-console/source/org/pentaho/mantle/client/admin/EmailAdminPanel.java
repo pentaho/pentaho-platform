@@ -35,6 +35,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -47,6 +48,7 @@ public class EmailAdminPanel extends SimplePanel {
 	protected CheckBox useStartTLSCheckBox;
 	protected CheckBox useSSLCheckBox;
 	protected ValidationTextBox fromAddressTextBox;
+	protected TextBox fromNameTextBox;
 	protected CheckBox authenticationCheckBox;
 	protected ValidationTextBox userNameTextBox;
 	protected ValidationPasswordTextBox passwordTextBox;
@@ -161,8 +163,13 @@ public class EmailAdminPanel extends SimplePanel {
 		vSpacer.setHeight("10px");
 		mailPanel.add(vSpacer);
 
+    mailPanel.add(new Label(Messages.getString("fromName") + ":"));
+    fromNameTextBox = new TextBox();
+    fromNameTextBox.setWidth("400px");
+    mailPanel.add(fromNameTextBox);
+    
+    
 		mailPanel.add(new Label(Messages.getString("defaultFromAddress") + ":"));
-
 		HorizontalPanel hPanel = new HorizontalPanel();
 		fromAddressTextBox = new ValidationTextBox() {
 			public boolean validate() {

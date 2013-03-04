@@ -109,6 +109,14 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			}
 		});
 
+    fromNameTextBox.addKeyUpHandler(new KeyUpHandler() {
+      public void onKeyUp(final KeyUpEvent keyUpEvent) {
+        emailConfig.setFromName(fromNameTextBox.getValue());
+        isDirty = true;
+        validate();
+      }
+    });		
+		
 		userNameTextBox.addKeyUpHandler(new KeyUpHandler() {
 			public void onKeyUp(final KeyUpEvent keyUpEvent) {
 				emailConfig.setUserId(userNameTextBox.getValue());
@@ -286,6 +294,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 					useStartTLSCheckBox.setValue(Boolean.parseBoolean(emailConfig.isUseStartTls() + ""));
 					useSSLCheckBox.setValue(Boolean.parseBoolean(emailConfig.isUseSsl() + ""));
 					fromAddressTextBox.setValue(emailConfig.getDefaultFrom());
+          fromNameTextBox.setValue(emailConfig.getFromName());
 					userNameTextBox.setValue(emailConfig.getUserId());
 					debuggingCheckBox.setValue(Boolean.parseBoolean(emailConfig.isDebug() + ""));
 

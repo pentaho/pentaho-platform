@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.ISourcesStreamEvents;
@@ -211,15 +212,26 @@ public class RepositoryFileOutputStream extends ByteArrayOutputStream implements
         if (autoCreateUniqueFileName) {
           int nameCount = 1;
           String newFileName = null;
-          while (file != null) {
+          
+          List<RepositoryFile> children = repository.getChildren(parentFolder.getId());
+
+          boolean hasFile = true;
+          while (hasFile) {
+            hasFile = false;
             nameCount++;
             if ((extension != null) && (extension.length() > 0)) {
               newFileName = baseFileName + "(" + nameCount + ")." + extension;  //$NON-NLS-1$ //$NON-NLS-2$
             } else {
               newFileName = baseFileName + "(" + nameCount + ")";  //$NON-NLS-1$ //$NON-NLS-2$
             }
-            file = repository.getFile(parentFolder.getPath() + "/" + newFileName); //$NON-NLS-1$
+            for (RepositoryFile child : children) {
+              if (child.getPath().equals(parentFolder.getPath() + "/" + newFileName)) {
+                hasFile = true;
+                break;
+              }
+            }
           }
+          
           file = new RepositoryFile.Builder(newFileName).versioned(true).build(); // Default versioned to true so that we're keeping history
           file = repository.createFile(parentFolder.getId(), file, payload, "New File"); //$NON-NLS-1$
           path = file.getPath();

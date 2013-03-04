@@ -37,11 +37,13 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.email.IEmailService;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.util.messages.LocaleHelper;
 
 public class Emailer {
@@ -158,7 +160,11 @@ public class Emailer {
       props.put("mail.smtp.ssl", ObjectUtils.toString(service.getEmailConfig().isUseSsl()));
       props.put("mail.smtp.quitwait", ObjectUtils.toString(service.getEmailConfig().isSmtpQuitWait()));
       props.put("mail.from.default", service.getEmailConfig().getDefaultFrom());
-      props.put("mail.from.name", service.getEmailConfig().getFromName());
+      String fromName = service.getEmailConfig().getFromName();
+      if (StringUtils.isEmpty(fromName)) {
+        fromName = Messages.getInstance().getString("schedulerEmailFromName");
+      }
+      props.put("mail.from.name", fromName);
       props.put("mail.debug", ObjectUtils.toString(service.getEmailConfig().isDebug()));
 
       if (service.getEmailConfig().isAuthenticate()) {
