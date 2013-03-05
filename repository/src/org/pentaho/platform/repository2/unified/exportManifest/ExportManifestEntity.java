@@ -74,6 +74,12 @@ public class ExportManifestEntity {
 		entityMetaData.setIsFolder(repositoryFile.isFolder());
 		entityMetaData.setLocale(LocaleHelper.getLocale().toString());
 		entityMetaData.setName(repositoryFile.getName());
+
+    // before testing, strip trailing slash from rootFolder if it exists
+    if(rootFolder.endsWith("/")){
+      rootFolder = rootFolder.substring(0, rootFolder.length() - 1);
+    }
+
 		if (!repositoryFile.getPath().startsWith(rootFolder)) {
 		  throw new ExportManifestFormatException("File path does not start with rootFolder");
 		}
@@ -298,7 +304,7 @@ public class ExportManifestEntity {
 	}
 
 	/**
-	 * @param customProperty
+	 * @param customProperties
 	 *          the customProperty to set
 	 */
 	public void setCustomProperties(List<CustomProperty> customProperties) {
