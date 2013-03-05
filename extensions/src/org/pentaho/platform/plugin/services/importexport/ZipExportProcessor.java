@@ -117,9 +117,13 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
     if (exportRepositoryFile.isFolder()) {  // Handle recursive export
       exportManifest.getManifestInformation().setRootFolder(path.substring(0,path.lastIndexOf("/") + 1));
-      ZipEntry entry = new ZipEntry(exportRepositoryFile.getPath().substring(filePath.length() + 1) + "/");
+
+      ZipEntry entry = new ZipEntry(getZipEntryName(exportRepositoryFile, filePath));
+
       zos.putNextEntry(entry);
+
       exportDirectory(exportRepositoryFile, zos, filePath);
+
     } else {
       exportManifest.getManifestInformation().setRootFolder(path.substring(0,path.lastIndexOf("/") + 1));
       exportFile(exportRepositoryFile, zos, filePath);
@@ -171,7 +175,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
       // if we don't get a valid input stream back, skip it
       if(is != null){
         addToManifest(repositoryFile);
-        ZipEntry entry = new ZipEntry(repositoryFile.getPath().substring(filePath.length() + 1));
+        ZipEntry entry = new ZipEntry(getZipEntryName(repositoryFile, filePath));
 
         zos.putNextEntry(entry);
 
@@ -208,7 +212,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
         if(outputStream.getClass().isAssignableFrom(ZipOutputStream.class)){
           ZipOutputStream zos = (ZipOutputStream)outputStream;
-          ZipEntry entry = new ZipEntry(repositoryFile.getPath().substring(filePath.length() + 1) + "/");
+          ZipEntry entry = new ZipEntry(getZipEntryName(repositoryFile, filePath));
           zos.putNextEntry(entry);
         }
 
@@ -218,6 +222,36 @@ public class ZipExportProcessor extends BaseExportProcessor {
       }
     }
 
+  }
+
+  /**
+   * Take repository file path and local file path and return computed
+   * zip entry path
+   *
+   * @param repositoryFile
+   * @param filePath
+   * @return
+   */
+  private String getZipEntryName(RepositoryFile repositoryFile, String filePath){
+    String result = "";
+
+    // if we are at the root, get substring differently
+    int filePathLength = 0;
+    if(filePath.equals("/")){
+      filePathLength = filePath.length();
+    }
+    else{
+      filePathLength = filePath.length() + 1;
+    }
+
+    result = repositoryFile.getPath().substring(filePathLength);
+
+    // add trailing slash for folders
+    if(repositoryFile.isFolder()){
+      result += "/";
+    }
+
+    return result;
   }
 
 }
