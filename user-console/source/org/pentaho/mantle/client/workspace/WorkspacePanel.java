@@ -333,16 +333,21 @@ public class WorkspacePanel extends SimplePanel {
     table.getElement().setId("schedule-table");
 
     table.addCellPreviewHandler(new CellPreviewEvent.Handler<JsJob>() {
-
       public void onCellPreview(CellPreviewEvent<JsJob> event) {
-
-        if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 0 && event.getValue().hasResourceName()) {
+        if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 1 && event.getValue().hasResourceName()) {
+          // get history for the entire resource
           PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
           String resource = event.getValue().getFullResourceName();
           resource = resource.replace("/", ":");
           dialog.setContent(new GeneratedContentPanel(resource, event.getValue().getUserName()));
           dialog.setSize("600px", "300px");
           dialog.center();
+        } else if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 0) {
+          // get history for the specific schedule (by name)
+          PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
+          String scheduleName = event.getValue().getJobName();
+          dialog.setContent(new GeneratedContentPanel(scheduleName, event.getValue().getUserName()));
+          dialog.setSize("600px", "300px");
         }
       }
     });
