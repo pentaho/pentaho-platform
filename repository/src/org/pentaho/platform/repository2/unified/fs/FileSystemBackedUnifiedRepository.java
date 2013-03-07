@@ -7,13 +7,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.util.VersionHelper;
@@ -42,12 +42,12 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   }
 
   public RepositoryFile createFile(Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
-                                   String versionMessage) {
+      String versionMessage) {
     return repositoryFileDao.createFile(parentFolderId, file, data, null, versionMessage);
   }
 
   public RepositoryFile createFile(Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
-                                   RepositoryFileAcl acl, String versionMessage) {
+      RepositoryFileAcl acl, String versionMessage) {
     return repositoryFileDao.createFile(parentFolderId, file, data, acl, versionMessage);
   }
 
@@ -56,7 +56,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   }
 
   public RepositoryFile createFolder(Serializable parentFolderId, RepositoryFile file, RepositoryFileAcl acl,
-                                     String versionMessage) {
+      String versionMessage) {
     return repositoryFileDao.createFolder(parentFolderId, file, acl, versionMessage);
   }
 
@@ -87,12 +87,12 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   }
 
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute(Serializable fileId, Serializable versionId,
-                                                                      Class<T> dataClass) {
+      Class<T> dataClass) {
     return repositoryFileDao.getData(fileId, versionId, dataClass);
   }
 
   public <T extends IRepositoryFileData> T getDataAtVersionForRead(Serializable fileId, Serializable versionId,
-                                                                   Class<T> dataClass) {
+      Class<T> dataClass) {
     return repositoryFileDao.getData(fileId, versionId, dataClass);
   }
 
@@ -145,6 +145,26 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
 
   public RepositoryFile getFileById(Serializable fileId, boolean loadLocaleMaps) {
     return repositoryFileDao.getFileById(fileId, loadLocaleMaps);
+  }
+
+  @Override
+  public RepositoryFile getFile(String path, IPentahoLocale locale) {
+    return this.repositoryFileDao.getFile(path, locale);
+  }
+
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, IPentahoLocale locale) {
+    return this.repositoryFileDao.getFileById(fileId, locale);
+  }
+
+  @Override
+  public RepositoryFile getFile(String path, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return this.repositoryFileDao.getFile(path, loadLocaleMaps, locale);
+  }
+
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return this.repositoryFileDao.getFileById(fileId, loadLocaleMaps, locale);
   }
 
   public RepositoryFileTree getTree(String path, int depth, String filter, boolean showHidden) {
@@ -238,6 +258,7 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public String getProductID() {
-	  return VersionHelper.getVersionInfo(this.getClass()).getProductID();
+    return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }
+
 }

@@ -18,6 +18,8 @@ import java.util.List;
 
 import javax.jws.WebService;
 
+import org.pentaho.platform.repository2.locale.PentahoLocale;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 
 /**
@@ -35,32 +37,32 @@ import com.google.gwt.user.client.rpc.RemoteService;
 public interface IUnifiedRepositoryWebService extends RemoteService {
 
   String getProductID();
-	
-  RepositoryFileDto getFile(final String path);
 
-  RepositoryFileDto getFileById(final String fileId);
+  RepositoryFileDto getFile(final String path, final boolean loadLocaleMaps, final PentahoLocale locale);
+
+  RepositoryFileDto getFileById(final String fileId, final boolean loadLocaleMaps, final PentahoLocale locale);
 
   NodeRepositoryFileDataDto getDataAsNodeForRead(final String fileId);
 
   List<NodeRepositoryFileDataDto> getDataAsNodeForReadInBatch(final List<RepositoryFileDto> files);
 
   RepositoryFileDto createFile(final String parentFolderId, final RepositoryFileDto file,
-                               final NodeRepositoryFileDataDto data, final String versionMessage);
+      final NodeRepositoryFileDataDto data, final String versionMessage);
 
   RepositoryFileDto createFileWithAcl(final String parentFolderId, final RepositoryFileDto file,
-                                      final NodeRepositoryFileDataDto data, final RepositoryFileAclDto acl, final String versionMessage);
+      final NodeRepositoryFileDataDto data, final RepositoryFileAclDto acl, final String versionMessage);
 
   RepositoryFileDto createFolder(final String parentFolderId, final RepositoryFileDto file, final String versionMessage);
 
   RepositoryFileDto createFolderWithAcl(final String parentFolderId, final RepositoryFileDto file,
-                                        final RepositoryFileAclDto acl, final String versionMessage);
+      final RepositoryFileAclDto acl, final String versionMessage);
 
   List<RepositoryFileDto> getChildren(final String folderId);
 
   List<RepositoryFileDto> getChildrenWithFilter(final String folderId, final String filter);
 
   RepositoryFileDto updateFile(final RepositoryFileDto file, final NodeRepositoryFileDataDto data,
-                               final String versionMessage);
+      final String versionMessage);
 
   void deleteFileWithPermanentFlag(final String fileId, final boolean permanent, final String versionMessage);
 
@@ -115,6 +117,6 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
   void setFileMetadata(final String fileId, final List<StringKeyStringValueDto> fileMetadataMap);
 
   List<StringKeyStringValueDto> getFileMetadata(final String fileId);
-  
+
   List<Character> getReservedChars();
 }

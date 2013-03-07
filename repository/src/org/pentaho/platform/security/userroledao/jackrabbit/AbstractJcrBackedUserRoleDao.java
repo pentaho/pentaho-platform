@@ -80,20 +80,20 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   String tenantAdminRoleName;
 
   String repositoryAdminUsername;
-  
+
   IPathConversionHelper pathConversionHelper;
-  
-  IRepositoryDefaultAclHandler  defaultAclHandler;
-  
-  ILockHelper  lockHelper;
+
+  IRepositoryDefaultAclHandler defaultAclHandler;
+
+  ILockHelper lockHelper;
 
   HashMap<String, UserManagerImpl> userMgrMap = new HashMap<String, UserManagerImpl>();
 
   public AbstractJcrBackedUserRoleDao(ITenantedPrincipleNameResolver userNameUtils,
       ITenantedPrincipleNameResolver roleNameUtils, String authenticatedRoleName, String tenantAdminRoleName,
-      String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao, final IPathConversionHelper pathConversionHelper,
-      final ILockHelper  lockHelper, final IRepositoryDefaultAclHandler  defaultAclHandler)
-      throws NamespaceException {
+      String repositoryAdminUsername, IRepositoryFileAclDao repositoryFileAclDao, IRepositoryFileDao repositoryFileDao,
+      final IPathConversionHelper pathConversionHelper, final ILockHelper lockHelper,
+      final IRepositoryDefaultAclHandler defaultAclHandler) throws NamespaceException {
     this.tenantedUserNameUtils = userNameUtils;
     this.tenantedRoleNameUtils = roleNameUtils;
     this.authenticatedRoleName = authenticatedRoleName;
@@ -111,8 +111,9 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     Group jackrabbitGroup = getJackrabbitGroup(theTenant, roleName, session);
 
     if ((jackrabbitGroup == null)
-        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID()) : theTenant)) {
-      throw new NotFoundException("Role not found");
+        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID())
+            : theTenant)) {
+      throw new NotFoundException("Role not found"); //$NON-NLS-1$
     }
     HashMap<String, User> currentlyAssignedUsers = new HashMap<String, User>();
     Iterator<Authorizable> currentMembers = jackrabbitGroup.getMembers();
@@ -149,7 +150,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     }
   }
 
-  private void setUserRolesForNewUser(Session session, final ITenant theTenant, final String userName, final String[] roles) throws RepositoryException, NotFoundException {
+  private void setUserRolesForNewUser(Session session, final ITenant theTenant, final String userName,
+      final String[] roles) throws RepositoryException, NotFoundException {
     Set<String> roleSet = new HashSet<String>();
     if (roles != null) {
       roleSet.addAll(Arrays.asList(roles));
@@ -159,8 +161,9 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     User jackrabbitUser = getJackrabbitUser(theTenant, userName, session);
 
     if ((jackrabbitUser == null)
-        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID()) : theTenant)) {
-      throw new NotFoundException("User not found");
+        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
+            : theTenant)) {
+      throw new NotFoundException("User not found"); //$NON-NLS-1$
     }
 
     HashMap<String, Group> finalCollectionOfAssignedGroups = new HashMap<String, Group>();
@@ -173,11 +176,12 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     }
 
     ArrayList<String> groupsToAdd = new ArrayList<String>(finalCollectionOfAssignedGroups.keySet());
-    
+
     for (String groupId : groupsToAdd) {
       finalCollectionOfAssignedGroups.get(groupId).addMember(jackrabbitUser);
     }
   }
+
   public void setUserRoles(Session session, final ITenant theTenant, final String userName, final String[] roles)
       throws RepositoryException, NotFoundException {
     Set<String> roleSet = new HashSet<String>();
@@ -189,8 +193,9 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     User jackrabbitUser = getJackrabbitUser(theTenant, userName, session);
 
     if ((jackrabbitUser == null)
-        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID()) : theTenant)) {
-      throw new NotFoundException("User not found");
+        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
+            : theTenant)) {
+      throw new NotFoundException("User not found"); //$NON-NLS-1$
     }
     HashMap<String, Group> currentlyAssignedGroups = new HashMap<String, Group>();
     Iterator<Group> currentGroups = jackrabbitUser.memberOf();
@@ -235,13 +240,13 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       tenant = JcrTenantUtils.getCurrentTenant();
     }
     if (!TenantUtils.isAccessibleTenant(tenant)) {
-      throw new NotFoundException("Tenant " + theTenant.getId() + " not found");
+      throw new NotFoundException("Tenant " + theTenant.getId() + " not found"); //$NON-NLS-1$//$NON-NLS-2$
     }
     String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, role);
 
     UserManager tenantUserMgr = getUserManager(tenant, session);
     // Intermediate path will always be an empty string. The path is already provided while creating a user manager
-    tenantUserMgr.createGroup(new PrincipalImpl(roleId), "");
+    tenantUserMgr.createGroup(new PrincipalImpl(roleId), ""); //$NON-NLS-1$
     setRoleMembers(session, tenant, role, memberUserNames);
     setRoleDescription(session, tenant, role, description);
     return getRole(session, theTenant, roleName);
@@ -260,16 +265,16 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       tenant = JcrTenantUtils.getCurrentTenant();
     }
     if (!TenantUtils.isAccessibleTenant(tenant)) {
-      throw new NotFoundException("Tenant " + theTenant.getId() + " not found");
+      throw new NotFoundException("Tenant " + theTenant.getId() + " not found"); //$NON-NLS-1$//$NON-NLS-2$
     }
     String userId = tenantedUserNameUtils.getPrincipleId(tenant, user);
     UserManager tenantUserMgr = getUserManager(tenant, session);
-    tenantUserMgr.createUser(userId, password, new PrincipalImpl(userId), "");
+    tenantUserMgr.createUser(userId, password, new PrincipalImpl(userId), ""); //$NON-NLS-1$
     session.save();
     /** This call is absolutely necessary. setUserRolesForNewUser will never
     **  inspect what roles this user is a part of. Since this is a new user
     **  it will not be a part of new roles
-    **/ 
+    **/
     setUserRolesForNewUser(session, tenant, user, roles);
     setUserDescription(session, tenant, user, description);
     session.save();
@@ -280,19 +285,21 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
   public void deleteRole(Session session, final IPentahoRole role) throws NotFoundException, RepositoryException {
     Group jackrabbitGroup = getJackrabbitGroup(role.getTenant(), role.getName(), session);
-    if (jackrabbitGroup != null && TenantUtils.isAccessibleTenant(tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID()))) {
+    if (jackrabbitGroup != null
+        && TenantUtils.isAccessibleTenant(tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID()))) {
       jackrabbitGroup.remove();
     } else {
-      throw new NotFoundException("");
+      throw new NotFoundException(""); //$NON-NLS-1$
     }
   }
 
   public void deleteUser(Session session, final IPentahoUser user) throws NotFoundException, RepositoryException {
     User jackrabbitUser = getJackrabbitUser(user.getTenant(), user.getUsername(), session);
-    if (jackrabbitUser != null && TenantUtils.isAccessibleTenant(tenantedUserNameUtils.getTenant(jackrabbitUser.getID()))) {
+    if (jackrabbitUser != null
+        && TenantUtils.isAccessibleTenant(tenantedUserNameUtils.getTenant(jackrabbitUser.getID()))) {
       jackrabbitUser.remove();
     } else {
-      throw new NotFoundException("");
+      throw new NotFoundException(""); //$NON-NLS-1$
     }
   }
 
@@ -306,7 +313,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
     String description = null;
     try {
-      propertyValues = jackrabbitUser.getProperty("description");
+      propertyValues = jackrabbitUser.getProperty("description"); //$NON-NLS-1$
       description = propertyValues.length > 0 ? propertyValues[0].getString() : null;
     } catch (Exception ex) {
     }
@@ -330,11 +337,11 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
 
     String description = null;
     try {
-      propertyValues = jackrabbitGroup.getProperty("description");
+      propertyValues = jackrabbitGroup.getProperty("description"); //$NON-NLS-1$
       description = propertyValues.length > 0 ? propertyValues[0].getString() : null;
     } catch (Exception ex) {
     }
-    
+
     role = new PentahoRole(tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID()),
         tenantedRoleNameUtils.getPrincipleName(jackrabbitGroup.getID()), description);
     return role;
@@ -348,14 +355,15 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       final String description) throws NotFoundException, RepositoryException {
     Group jackrabbitGroup = getJackrabbitGroup(theTenant, roleName, session);
     if (jackrabbitGroup != null
-        && TenantUtils.isAccessibleTenant(theTenant == null ? tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID()) : theTenant)) {
+        && TenantUtils.isAccessibleTenant(theTenant == null ? tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID())
+            : theTenant)) {
       if (description == null) {
-        jackrabbitGroup.removeProperty("description");
+        jackrabbitGroup.removeProperty("description"); //$NON-NLS-1$
       } else {
-        jackrabbitGroup.setProperty("description", session.getValueFactory().createValue(description));
+        jackrabbitGroup.setProperty("description", session.getValueFactory().createValue(description)); //$NON-NLS-1$
       }
     } else {
-      throw new NotFoundException("Role not found");
+      throw new NotFoundException("Role not found"); //$NON-NLS-1$
     }
   }
 
@@ -363,13 +371,14 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       final String description) throws NotFoundException, RepositoryException {
     User jackrabbitUser = getJackrabbitUser(theTenant, userName, session);
     if ((jackrabbitUser == null)
-        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID()) : theTenant)) {
-      throw new NotFoundException("User not found");
+        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
+            : theTenant)) {
+      throw new NotFoundException("User not found"); //$NON-NLS-1$
     }
     if (description == null) {
-      jackrabbitUser.removeProperty("description");
+      jackrabbitUser.removeProperty("description"); //$NON-NLS-1$
     } else {
-      jackrabbitUser.setProperty("description", session.getValueFactory().createValue(description));
+      jackrabbitUser.setProperty("description", session.getValueFactory().createValue(description)); //$NON-NLS-1$
     }
   }
 
@@ -377,8 +386,9 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
       throws NotFoundException, RepositoryException {
     User jackrabbitUser = getJackrabbitUser(theTenant, userName, session);
     if ((jackrabbitUser == null)
-        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID()) : theTenant)) {
-      throw new NotFoundException("User not found");
+        || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
+            : theTenant)) {
+      throw new NotFoundException("User not found"); //$NON-NLS-1$
     }
     jackrabbitUser.changePassword(password);
   }
@@ -446,22 +456,24 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
   public IPentahoRole getRole(Session session, final ITenant tenant, final String name) throws RepositoryException {
     Group jackrabbitGroup = getJackrabbitGroup(tenant, name, session);
     return jackrabbitGroup != null
-        && TenantUtils.isAccessibleTenant(tenant == null ? tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID()) : tenant) ? convertToPentahoRole(jackrabbitGroup)
-        : null;
+        && TenantUtils.isAccessibleTenant(tenant == null ? tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID())
+            : tenant) ? convertToPentahoRole(jackrabbitGroup) : null;
   }
 
   private UserManagerImpl getUserManager(ITenant theTenant, Session session) throws RepositoryException {
     Properties tenantProperties = new Properties();
-    tenantProperties.put(UserManagerImpl.PARAM_USERS_PATH, UserManagerImpl.USERS_PATH + theTenant.getRootFolderAbsolutePath());
-    tenantProperties.put(UserManagerImpl.PARAM_GROUPS_PATH, UserManagerImpl.GROUPS_PATH + theTenant.getRootFolderAbsolutePath());
+    tenantProperties.put(UserManagerImpl.PARAM_USERS_PATH,
+        UserManagerImpl.USERS_PATH + theTenant.getRootFolderAbsolutePath());
+    tenantProperties.put(UserManagerImpl.PARAM_GROUPS_PATH,
+        UserManagerImpl.GROUPS_PATH + theTenant.getRootFolderAbsolutePath());
     return new UserManagerImpl((SessionImpl) session, session.getUserID(), tenantProperties);
   }
 
   public IPentahoUser getUser(Session session, final ITenant tenant, final String name) throws RepositoryException {
     User jackrabbitUser = getJackrabbitUser(tenant, name, session);
     return jackrabbitUser != null
-        && TenantUtils.isAccessibleTenant(tenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID()) : tenant) ? convertToPentahoUser(jackrabbitUser)
-        : null;
+        && TenantUtils.isAccessibleTenant(tenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
+            : tenant) ? convertToPentahoUser(jackrabbitUser) : null;
   }
 
   private Group getJackrabbitGroup(ITenant theTenant, String name, Session session) throws RepositoryException {
@@ -477,7 +489,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     if (tenant == null || tenant.getId() == null) {
       tenant = JcrTenantUtils.getCurrentTenant();
     }
-    if(tenant == null || tenant.getId() == null) {
+    if (tenant == null || tenant.getId() == null) {
       tenant = JcrTenantUtils.getDefaultTenant();
     }
     roleId = tenantedRoleNameUtils.getPrincipleId(tenant, roleName);
@@ -502,13 +514,13 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     if (tenant == null || tenant.getId() == null) {
       tenant = JcrTenantUtils.getCurrentTenant();
     }
-    if(tenant == null || tenant.getId() == null) {
+    if (tenant == null || tenant.getId() == null) {
       tenant = JcrTenantUtils.getDefaultTenant();
     }
-      
-    if(tenant != null) {
+
+    if (tenant != null) {
       userId = tenantedUserNameUtils.getPrincipleId(tenant, userName);
-  
+
       UserManager userMgr = getUserManager(tenant, session);
       Authorizable authorizable = userMgr.getAuthorizable(userId);
       if (authorizable instanceof User) {
@@ -527,7 +539,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     List<IPentahoUser> users = new ArrayList<IPentahoUser>();
     Group jackrabbitGroup = getJackrabbitGroup(theTenant, roleName, session);
     if ((jackrabbitGroup != null)
-        && TenantUtils.isAccessibleTenant(theTenant == null ? tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID()) : theTenant)) {
+        && TenantUtils.isAccessibleTenant(theTenant == null ? tenantedRoleNameUtils.getTenant(jackrabbitGroup.getID())
+            : theTenant)) {
       Iterator<Authorizable> authorizables = jackrabbitGroup.getMembers();
       while (authorizables.hasNext()) {
         Authorizable authorizable = authorizables.next();
@@ -544,7 +557,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     ArrayList<IPentahoRole> roles = new ArrayList<IPentahoRole>();
     User jackrabbitUser = getJackrabbitUser(theTenant, userName, session);
     if ((jackrabbitUser != null)
-        && TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID()) : theTenant)) {
+        && TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
+            : theTenant)) {
       Iterator<Group> groups = jackrabbitUser.memberOf();
       while (groups.hasNext()) {
         roles.add(convertToPentahoRole(groups.next()));
@@ -553,10 +567,11 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     return roles;
   }
 
-  private RepositoryFile createUserHomeFolder(ITenant theTenant, String username, Session session) throws RepositoryException {
+  private RepositoryFile createUserHomeFolder(ITenant theTenant, String username, Session session)
+      throws RepositoryException {
     Builder aclsForUserHomeFolder = null;
     Builder aclsForTenantHomeFolder = null;
-    
+
     if (theTenant == null) {
       theTenant = JcrTenantUtils.getTenant(username, true);
       username = JcrTenantUtils.getPrincipalName(username, true);
@@ -564,52 +579,57 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     if (theTenant == null || theTenant.getId() == null) {
       theTenant = JcrTenantUtils.getCurrentTenant();
     }
-    if(theTenant == null || theTenant.getId() == null) {
+    if (theTenant == null || theTenant.getId() == null) {
       theTenant = JcrTenantUtils.getDefaultTenant();
     }
     RepositoryFile userHomeFolder = null;
     String userId = tenantedUserNameUtils.getPrincipleId(theTenant, username);
     final RepositoryFileSid userSid = new RepositoryFileSid(userId);
-      RepositoryFile tenantHomeFolder = null;
-      RepositoryFile tenantRootFolder = null;
-      RepositoryFileSid ownerSid = null;
-      // Get the Tenant Root folder. If the Tenant Root folder does not exist then exit.
-      tenantRootFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session, ServerRepositoryPaths
-          .getTenantRootFolderPath(theTenant), pathConversionHelper, lockHelper, false);
-      if (tenantRootFolder != null) {
-        // Try to see if Tenant Home folder exist
-        tenantHomeFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session, ServerRepositoryPaths
-            .getTenantHomeFolderPath(theTenant), pathConversionHelper, lockHelper, false);
+    RepositoryFile tenantHomeFolder = null;
+    RepositoryFile tenantRootFolder = null;
+    RepositoryFileSid ownerSid = null;
+    // Get the Tenant Root folder. If the Tenant Root folder does not exist then exit.
+    tenantRootFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session,
+        ServerRepositoryPaths.getTenantRootFolderPath(theTenant), pathConversionHelper, lockHelper, false, null);
+    if (tenantRootFolder != null) {
+      // Try to see if Tenant Home folder exist
+      tenantHomeFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session,
+          ServerRepositoryPaths.getTenantHomeFolderPath(theTenant), pathConversionHelper, lockHelper, false, null);
 
-        if (tenantHomeFolder == null) {
-          String ownerId = tenantedUserNameUtils.getPrincipleId(theTenant, username);
-          ownerSid = new RepositoryFileSid(ownerId, Type.USER);
-          
-          String tenantAuthenticatedRoleId = tenantedRoleNameUtils.getPrincipleId(theTenant, authenticatedRoleName);
-          RepositoryFileSid tenantAuthenticatedRoleSid = new RepositoryFileSid(tenantAuthenticatedRoleId, Type.ROLE);
-          
-          aclsForTenantHomeFolder = new RepositoryFileAcl.Builder(userSid)
-            .ace(tenantAuthenticatedRoleSid, EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
+      if (tenantHomeFolder == null) {
+        String ownerId = tenantedUserNameUtils.getPrincipleId(theTenant, username);
+        ownerSid = new RepositoryFileSid(ownerId, Type.USER);
 
-          aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid, EnumSet.of(RepositoryFilePermission.ALL));
-          tenantHomeFolder = internalCreateFolder(session, tenantRootFolder.getId(), new RepositoryFile.Builder(
-              ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).build(), aclsForTenantHomeFolder.build(), "tenant home folder");
-        } else {
-          String ownerId = tenantedUserNameUtils.getPrincipleId(theTenant, username);
-          ownerSid = new RepositoryFileSid(ownerId, Type.USER);
-          aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid, EnumSet.of(RepositoryFilePermission.ALL));
-        }
-        
-        // now check if user's home folder exist
-        userHomeFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session, ServerRepositoryPaths
-            .getUserHomeFolderPath(theTenant, username), pathConversionHelper, lockHelper, false);
-        if (userHomeFolder == null) {
-          userHomeFolder = internalCreateFolder(session, tenantHomeFolder.getId(), new RepositoryFile.Builder(username).folder(true).build(), aclsForUserHomeFolder.build(), "user home folder");
-        }
+        String tenantAuthenticatedRoleId = tenantedRoleNameUtils.getPrincipleId(theTenant, authenticatedRoleName);
+        RepositoryFileSid tenantAuthenticatedRoleSid = new RepositoryFileSid(tenantAuthenticatedRoleId, Type.ROLE);
 
+        aclsForTenantHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(tenantAuthenticatedRoleSid,
+            EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
+
+        aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid,
+            EnumSet.of(RepositoryFilePermission.ALL));
+        tenantHomeFolder = internalCreateFolder(session, tenantRootFolder.getId(), new RepositoryFile.Builder(
+            ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).build(), aclsForTenantHomeFolder.build(),
+            "tenant home folder"); //$NON-NLS-1$
+      } else {
+        String ownerId = tenantedUserNameUtils.getPrincipleId(theTenant, username);
+        ownerSid = new RepositoryFileSid(ownerId, Type.USER);
+        aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid,
+            EnumSet.of(RepositoryFilePermission.ALL));
       }
-      return userHomeFolder;
- }
+
+      // now check if user's home folder exist
+      userHomeFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session,
+          ServerRepositoryPaths.getUserHomeFolderPath(theTenant, username), pathConversionHelper, lockHelper, false,
+          null);
+      if (userHomeFolder == null) {
+        userHomeFolder = internalCreateFolder(session, tenantHomeFolder.getId(), new RepositoryFile.Builder(username)
+            .folder(true).build(), aclsForUserHomeFolder.build(), "user home folder"); //$NON-NLS-1$
+      }
+
+    }
+    return userHomeFolder;
+  }
 
   private RepositoryFile internalCreateFolder(final Session session, final Serializable parentFolderId,
       final RepositoryFile folder, final RepositoryFileAcl acl, final String versionMessage) throws RepositoryException {
@@ -617,7 +637,8 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
     Node folderNode = JcrRepositoryFileUtils.createFolderNode(session, pentahoJcrConstants, parentFolderId, folder);
     // we must create the acl during checkout
-    JcrRepositoryFileAclUtils.createAcl(session, pentahoJcrConstants, folderNode.getIdentifier(), acl == null ? defaultAclHandler.createDefaultAcl(folder) : acl);
+    JcrRepositoryFileAclUtils.createAcl(session, pentahoJcrConstants, folderNode.getIdentifier(),
+        acl == null ? defaultAclHandler.createDefaultAcl(folder) : acl);
     session.save();
     if (folder.isVersioned()) {
       JcrRepositoryFileUtils.checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, folderNode,
