@@ -22,10 +22,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
@@ -50,8 +50,8 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public FileSystemRepositoryFileDao(File baseDir) {
     //Detect OS
     final String os = System.getProperty("os.name").toLowerCase();
-    if(os.contains("win")&& baseDir.getPath().equals("\\")){
-      baseDir=new File("C:\\");
+    if (os.contains("win") && baseDir.getPath().equals("\\")) {
+      baseDir = new File("C:\\");
     }
     assert (baseDir.exists() && baseDir.isDirectory());
     this.rootDir = baseDir;
@@ -80,7 +80,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   public RepositoryFile createFile(Serializable parentFolderId, RepositoryFile file, IRepositoryFileData data,
-                                   RepositoryFileAcl acl, String versionMessage) {
+      RepositoryFileAcl acl, String versionMessage) {
     String fileNameWithPath = RepositoryFilenameUtils.concat(parentFolderId.toString(), file.getName());
     FileOutputStream fos = null;
     File f = new File(fileNameWithPath);
@@ -91,7 +91,8 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       if (data instanceof SimpleRepositoryFileData) {
         fos.write(inputStreamToBytes(((SimpleRepositoryFileData) data).getStream()));
       } else if (data instanceof NodeRepositoryFileData) {
-        fos.write(inputStreamToBytes(new ByteArrayInputStream(((NodeRepositoryFileData) data).getNode().toString().getBytes())));
+        fos.write(inputStreamToBytes(new ByteArrayInputStream(((NodeRepositoryFileData) data).getNode().toString()
+            .getBytes())));
       }
     } catch (FileNotFoundException e) {
       throw new UnifiedRepositoryException("Error writing file [" + fileNameWithPath + "]", e);
@@ -105,7 +106,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   public RepositoryFile createFolder(Serializable parentFolderId, RepositoryFile file, RepositoryFileAcl acl,
-                                     String versionMessage) {
+      String versionMessage) {
     try {
       String folderNameWithPath = parentFolderId + "/" + file.getName();
       File newFolder = new File(folderNameWithPath);
@@ -134,7 +135,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public List<RepositoryFile> getChildren(Serializable folderId) {
     List<RepositoryFile> children = new ArrayList<RepositoryFile>();
     File folder = new File(folderId.toString());
-    for (Iterator iterator = FileUtils.listFiles(folder, null, false).iterator(); iterator.hasNext(); ) {
+    for (Iterator iterator = FileUtils.listFiles(folder, null, false).iterator(); iterator.hasNext();) {
       children.add(internalGetFile((File) iterator.next()));
     }
     return children;
@@ -143,7 +144,8 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public List<RepositoryFile> getChildren(Serializable folderId, String filter) {
     List<RepositoryFile> children = new ArrayList<RepositoryFile>();
     File folder = new File(folderId.toString());
-    for (Iterator iterator = FileUtils.listFiles(folder, new WildcardFileFilter(filter), null).iterator(); iterator.hasNext(); ) {
+    for (Iterator iterator = FileUtils.listFiles(folder, new WildcardFileFilter(filter), null).iterator(); iterator
+        .hasNext();) {
       children.add(internalGetFile((File) iterator.next()));
     }
     return children;
@@ -170,42 +172,26 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   public RepositoryFile internalGetFile(File f) {
+
     RepositoryFile file = null;
     if (f.exists()) {
       String jcrPath = f.getAbsolutePath().substring(rootDir.getAbsolutePath().length());
       if (jcrPath.length() == 0) {
         jcrPath = "/";
       }
-      file = new RepositoryFile.Builder(f.getAbsolutePath(), f.getName())
-          .createdDate(new Date(f.lastModified()))
-          .lastModificationDate(new Date(f.lastModified()))
-          .folder(f.isDirectory())
-          .versioned(false)
-          .path(jcrPath)
-          .versionId(f.getName())
-          .locked(false)
-          .lockDate(null)
-          .lockMessage(null)
-          .lockOwner(null)
-          .title(f.getName()).description(f.getName())
-          .titleMap(null)
-          .descriptionMap(null)
-          .locale(null)
-          .fileSize(f.length())
-          .build();
+      file = new RepositoryFile.Builder(f.getAbsolutePath(), f.getName()).createdDate(new Date(f.lastModified()))
+          .lastModificationDate(new Date(f.lastModified())).folder(f.isDirectory()).versioned(false).path(jcrPath)
+          .versionId(f.getName()).locked(false).lockDate(null).lockMessage(null).lockOwner(null).title(f.getName())
+          .description(f.getName()).titleMap(null).descriptionMap(null).locale(null).fileSize(f.length()).build();
     }
     return file;
 
   }
 
   public RepositoryFile getFile(String relPath) {
-    String physicalFileLocation = relPath.equals("/") ? rootDir.getAbsolutePath() : RepositoryFilenameUtils.concat
-        (rootDir.getAbsolutePath(), relPath.substring(RepositoryFilenameUtils.getPrefixLength(relPath)));
+    String physicalFileLocation = relPath.equals("/") ? rootDir.getAbsolutePath() : RepositoryFilenameUtils.concat(
+        rootDir.getAbsolutePath(), relPath.substring(RepositoryFilenameUtils.getPrefixLength(relPath)));
     return internalGetFile(new File(physicalFileLocation));
-  }
-
-  public RepositoryFile getFile(String relPath, boolean loadLocaleMaps) {
-    return getFile(relPath);
   }
 
   public RepositoryFile getFile(Serializable fileId, Serializable versionId) {
@@ -220,7 +206,31 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
     return getFile(fileId.toString());
   }
 
+  public RepositoryFile getFile(String relPath, boolean loadLocaleMaps) {
+    return getFile(relPath);
+  }
+
   public RepositoryFile getFileById(Serializable fileId, boolean loadLocaleMaps) {
+    return getFile(fileId.toString());
+  }
+
+  @Override
+  public RepositoryFile getFile(String relPath, IPentahoLocale locale) {
+    return getFile(relPath);
+  }
+
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, IPentahoLocale locale) {
+    return getFile(fileId.toString());
+  }
+
+  @Override
+  public RepositoryFile getFile(String relPath, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return getFile(relPath);
+  }
+
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, boolean loadLocaleMaps, IPentahoLocale locale) {
     return getFile(fileId.toString());
   }
 
@@ -271,7 +281,8 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       if (data instanceof SimpleRepositoryFileData) {
         fos.write(inputStreamToBytes(((SimpleRepositoryFileData) data).getStream()));
       } else if (data instanceof NodeRepositoryFileData) {
-        fos.write(inputStreamToBytes(new ByteArrayInputStream(((NodeRepositoryFileData) data).getNode().toString().getBytes())));
+        fos.write(inputStreamToBytes(new ByteArrayInputStream(((NodeRepositoryFileData) data).getNode().toString()
+            .getBytes())));
       }
     } catch (FileNotFoundException e) {
       throw new UnifiedRepositoryException(e);
@@ -327,8 +338,8 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   public Map<String, Serializable> getFileMetadata(final Serializable fileId) {
-    final String metadataFilename = FilenameUtils.concat(FilenameUtils.concat(
-        FilenameUtils.getFullPathNoEndSeparator(fileId.toString()), ".metadata"),
+    final String metadataFilename = FilenameUtils.concat(
+        FilenameUtils.concat(FilenameUtils.getFullPathNoEndSeparator(fileId.toString()), ".metadata"),
         FilenameUtils.getName(fileId.toString()));
     final Map<String, Serializable> metadata = new HashMap<String, Serializable>();
     BufferedReader reader = null;
@@ -371,4 +382,5 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   public String getProductID() {
     return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }
+
 }
