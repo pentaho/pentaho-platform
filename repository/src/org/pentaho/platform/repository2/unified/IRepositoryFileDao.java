@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -33,7 +34,7 @@ import org.pentaho.platform.api.repository2.unified.VersionSummary;
  * @author mlowery
  */
 public interface IRepositoryFileDao {
-	
+
   String getProductID();
 
   RepositoryFile getFileByAbsolutePath(final String absPath);
@@ -47,6 +48,14 @@ public interface IRepositoryFileDao {
   RepositoryFile getFileById(final Serializable fileId);
 
   RepositoryFile getFileById(final Serializable fileId, final boolean loadLocaleMaps);
+
+  RepositoryFile getFile(final String relPath, final IPentahoLocale locale);
+
+  RepositoryFile getFileById(final Serializable fileId, final IPentahoLocale locale);
+
+  RepositoryFile getFile(final String relPath, final boolean loadLocaleMaps, final IPentahoLocale locale);
+
+  RepositoryFile getFileById(final Serializable fileId, final boolean loadLocaleMaps, final IPentahoLocale locale);
 
   <T extends IRepositoryFileData> T getData(final Serializable fileId, final Serializable versionId,
       final Class<T> dataClass);
@@ -88,14 +97,14 @@ public interface IRepositoryFileDao {
   void moveFile(final Serializable fileId, final String destRelPath, final String versionMessage);
 
   void copyFile(final Serializable fileId, final String destAbsPath, final String versionMessage);
-  
+
   void restoreFileAtVersion(final Serializable fileId, final Serializable versionId, final String versionMessage);
-  
+
   List<RepositoryFile> getReferrers(final Serializable fileId);
 
   void setFileMetadata(final Serializable fileId, Map<String, Serializable> metadataMap);
-  
+
   Map<String, Serializable> getFileMetadata(final Serializable fileId);
-  
+
   List<Character> getReservedChars();
 }

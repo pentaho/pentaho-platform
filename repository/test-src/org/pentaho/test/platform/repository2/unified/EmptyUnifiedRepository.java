@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -76,7 +77,8 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public <T extends IRepositoryFileData> T getDataAtVersionForRead(final Serializable fileId, final Serializable versionId, final Class<T> dataClass) {
+  public <T extends IRepositoryFileData> T getDataAtVersionForRead(final Serializable fileId,
+      final Serializable versionId, final Class<T> dataClass) {
     return null;
   }
 
@@ -86,37 +88,44 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public <T extends IRepositoryFileData> T getDataAtVersionForExecute(final Serializable fileId, final Serializable versionId, final Class<T> dataClass) {
+  public <T extends IRepositoryFileData> T getDataAtVersionForExecute(final Serializable fileId,
+      final Serializable versionId, final Class<T> dataClass) {
     return null;
   }
 
   @Override
-  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch(final List<RepositoryFile> files, final Class<T> dataClass) {
+  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch(final List<RepositoryFile> files,
+      final Class<T> dataClass) {
     return null;
   }
 
   @Override
-  public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch(final List<RepositoryFile> files, final Class<T> dataClass) {
+  public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch(final List<RepositoryFile> files,
+      final Class<T> dataClass) {
     return null;
   }
 
   @Override
-  public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file, final IRepositoryFileData data, final String versionMessage) {
+  public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
+      final IRepositoryFileData data, final String versionMessage) {
     return null;
   }
 
   @Override
-  public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file, final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
+  public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
+      final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     return null;
   }
 
   @Override
-  public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file, final String versionMessage) {
+  public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
+      final String versionMessage) {
     return null;
   }
 
   @Override
-  public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file, final RepositoryFileAcl acl, final String versionMessage) {
+  public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
+      final RepositoryFileAcl acl, final String versionMessage) {
     return null;
   }
 
@@ -131,7 +140,8 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData data, final String versionMessage) {
+  public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData data,
+      final String versionMessage) {
     return null;
   }
 
@@ -252,6 +262,26 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public String getProductID() {
-	return null;
+    return null;
+  }
+
+  @Override
+  public RepositoryFile getFile(String path, IPentahoLocale locale) {
+    return null;
+  }
+
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, IPentahoLocale locale) {
+    return null;
+  }
+
+  @Override
+  public RepositoryFile getFile(String path, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return null;
+  }
+
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return null;
   }
 }

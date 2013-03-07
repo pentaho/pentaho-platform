@@ -129,9 +129,9 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
    */
   public RepositoryFile(Serializable id, String name, boolean folder, boolean hidden, boolean versioned,
       Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
-      String lockMessage, Date lockDate, String locale, String title,
-      Map<String, String> titleMap, String description, Map<String, String> descriptionMap,
-      String originalParentFolderPath, Date deletedDate, long fileSize, String creatorId) {
+      String lockMessage, Date lockDate, String locale, String title, Map<String, String> titleMap, String description,
+      Map<String, String> descriptionMap, String originalParentFolderPath, Date deletedDate, long fileSize,
+      String creatorId) {
     super();
     this.id = id;
     this.name = name;
@@ -156,7 +156,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     this.fileSize = fileSize;
     this.creatorId = creatorId;
   }
-  
+
   // ~ Methods =========================================================================================================
 
   public String getName() {
@@ -184,7 +184,6 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   public Long getFileSize() {
     return fileSize;
   }
-
 
   public boolean isFolder() {
     return folder;
@@ -321,18 +320,19 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     public Builder(final RepositoryFile other) {
       this(other.name);
-      this.id(other.id).path(other.path).createdDate(other.createdDate).creatorId(other.creatorId).fileSize(other.fileSize).folder(other.folder).lastModificationDate(
-          other.lastModifiedDate).versioned(other.versioned).hidden(other.hidden).versionId(other.versionId).locked(
-          other.locked).lockDate(other.lockDate).lockOwner(other.lockOwner).lockMessage(other.lockMessage).title(other.title).description(other.description).titleMap(other.titleMap).descriptionMap(
-          other.descriptionMap).locale(other.locale).originalParentFolderPath(other.originalParentFolderPath)
-          .deletedDate(other.deletedDate);
+      this.id(other.id).path(other.path).createdDate(other.createdDate).creatorId(other.creatorId)
+          .fileSize(other.fileSize).folder(other.folder).lastModificationDate(other.lastModifiedDate)
+          .versioned(other.versioned).hidden(other.hidden).versionId(other.versionId).locked(other.locked)
+          .lockDate(other.lockDate).lockOwner(other.lockOwner).lockMessage(other.lockMessage).title(other.title)
+          .description(other.description).titleMap(other.titleMap).descriptionMap(other.descriptionMap)
+          .locale(other.locale).originalParentFolderPath(other.originalParentFolderPath).deletedDate(other.deletedDate);
     }
 
     public RepositoryFile build() {
       return new RepositoryFile(id, name, this.folder, this.hidden, this.versioned, this.versionId, this.path,
           this.createdDate, this.lastModifiedDate, this.locked, this.lockOwner, this.lockMessage, this.lockDate,
-          this.locale, this.title, this.titleMap, this.description, this.descriptionMap,
-          this.originalParentFolderPath, this.deletedDate, this.fileSize, this.creatorId);
+          this.locale, this.title, this.titleMap, this.description, this.descriptionMap, this.originalParentFolderPath,
+          this.deletedDate, this.fileSize, this.creatorId);
     }
 
     public Builder createdDate(final Date createdDate1) {
@@ -364,12 +364,12 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       this.folder = folder1;
       return this;
     }
-    
+
     public Builder id(final Serializable id1) {
       this.id = id1;
       return this;
     }
-    
+
     public Builder name(final String name1) {
       this.name = name1;
       return this;
@@ -483,6 +483,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     private void initDescriptionMap() {
       if (this.descriptionMap == null) {
         this.descriptionMap = new HashMap<String, String>();
+        this.descriptionMap.put(ROOT_LOCALE, this.description == null ? "" : this.description); //$NON-NLS-1$
       }
     }
 
@@ -546,12 +547,12 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       return false;
     return true;
   }
-  
+
   public RepositoryFile clone() {
     RepositoryFile.Builder builder = new RepositoryFile.Builder(this);
     builder.titleMap(titleMap != null ? new HashMap<String, String>(titleMap) : null);
     builder.descriptionMap(descriptionMap != null ? new HashMap<String, String>(descriptionMap) : null);
     return builder.build();
-  }  
+  }
 
 }

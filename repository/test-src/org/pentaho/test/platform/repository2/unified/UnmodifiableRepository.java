@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -130,6 +131,26 @@ public class UnmodifiableRepository implements IUnifiedRepository {
     return repository.getFileById(fileId, loadLocaleMaps);
   }
 
+  @Override
+  public RepositoryFile getFile(String path, IPentahoLocale locale) {
+    return this.repository.getFile(path, locale);
+  }
+
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, IPentahoLocale locale) {
+    return this.repository.getFileById(fileId, locale);
+  }
+
+  @Override
+  public RepositoryFile getFile(String path, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return this.repository.getFile(path, loadLocaleMaps, locale);
+  }
+
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return this.repository.getFileById(fileId, loadLocaleMaps, locale);
+  }
+
   /**
    * Gets data at base version for read.
    *
@@ -151,7 +172,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @return data
    */
   @Override
-  public <T extends IRepositoryFileData> T getDataAtVersionForRead(final Serializable fileId, final Serializable versionId, final Class<T> dataClass) {
+  public <T extends IRepositoryFileData> T getDataAtVersionForRead(final Serializable fileId,
+      final Serializable versionId, final Class<T> dataClass) {
     return repository.getDataAtVersionForRead(fileId, versionId, dataClass);
   }
 
@@ -176,7 +198,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @return data
    */
   @Override
-  public <T extends IRepositoryFileData> T getDataAtVersionForExecute(final Serializable fileId, final Serializable versionId, final Class<T> dataClass) {
+  public <T extends IRepositoryFileData> T getDataAtVersionForExecute(final Serializable fileId,
+      final Serializable versionId, final Class<T> dataClass) {
     return repository.getDataAtVersionForExecute(fileId, versionId, dataClass);
   }
 
@@ -192,7 +215,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @return data
    */
   @Override
-  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch(final List<RepositoryFile> files, final Class<T> dataClass) {
+  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch(final List<RepositoryFile> files,
+      final Class<T> dataClass) {
     return repository.getDataForReadInBatch(files, dataClass);
   }
 
@@ -208,7 +232,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @return data
    */
   @Override
-  public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch(final List<RepositoryFile> files, final Class<T> dataClass) {
+  public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch(final List<RepositoryFile> files,
+      final Class<T> dataClass) {
     return repository.getDataForExecuteInBatch(files, dataClass);
   }
 
@@ -222,7 +247,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @return file that is equal to given file except with id populated
    */
   @Override
-  public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file, final IRepositoryFileData data, final String versionMessage) {
+  public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
+      final IRepositoryFileData data, final String versionMessage) {
     throw new UnmodifiableRepositoryException();
   }
 
@@ -237,7 +263,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @return file that is equal to given file except with id populated
    */
   @Override
-  public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file, final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
+  public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
+      final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     throw new UnmodifiableRepositoryException();
   }
 
@@ -250,7 +277,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @return file that is equal to given file except with id populated
    */
   @Override
-  public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file, final String versionMessage) {
+  public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
+      final String versionMessage) {
     throw new UnmodifiableRepositoryException();
   }
 
@@ -264,7 +292,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @return file that is equal to given file except with id populated
    */
   @Override
-  public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file, final RepositoryFileAcl acl, final String versionMessage) {
+  public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
+      final RepositoryFileAcl acl, final String versionMessage) {
     throw new UnmodifiableRepositoryException();
   }
 
@@ -301,7 +330,8 @@ public class UnmodifiableRepository implements IUnifiedRepository {
    * @return updated file (possibly with new version number)
    */
   @Override
-  public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData data, final String versionMessage) {
+  public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData data,
+      final String versionMessage) {
     throw new UnmodifiableRepositoryException();
   }
 
@@ -603,6 +633,7 @@ public class UnmodifiableRepository implements IUnifiedRepository {
 
   @Override
   public String getProductID() {
-	return repository.getProductID();
+    return repository.getProductID();
   }
+
 }
