@@ -16,17 +16,16 @@ package org.pentaho.platform.plugin.services.metadata;
 
 import java.io.Serializable;
 
-import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
-import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -92,7 +91,7 @@ public class PentahoMetadataRepositoryLifecycleManager implements IBackingReposi
   }
 
   @Override
-  public void newTenant(String tenantId) {
+  public void newTenant(final ITenant tenant) {
     try {
       txnTemplate.execute(new TransactionCallbackWithoutResult() {
         @Override
@@ -122,11 +121,11 @@ public class PentahoMetadataRepositoryLifecycleManager implements IBackingReposi
 
   @Override
   public void newTenant() {
-    newTenant((String)PentahoSessionHolder.getSession().getAttribute(IPentahoSession.TENANT_ID_KEY));
+    newTenant(JcrTenantUtils.getTenant());
   }
 
   @Override
-  public void newUser(String tenantId, String username) {
+  public void newUser(final ITenant tenant, String username) {
     // TODO Auto-generated method stub
 
   }

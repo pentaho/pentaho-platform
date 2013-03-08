@@ -2,8 +2,12 @@ package org.pentaho.platform.engine.security;
 
 import java.util.List;
 
+import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.util.Assert;
 
@@ -25,11 +29,19 @@ public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
 
   // ~ Constructors ====================================================================================================
 
-  public DefaultRoleJdbcDaoImpl() {
+  
+  ITenantedPrincipleNameResolver userNameUtils;
+  public DefaultRoleJdbcDaoImpl(ITenantedPrincipleNameResolver userNameUtils) {
     super();
+    this.userNameUtils = userNameUtils;
   }
 
   // ~ Methods =========================================================================================================
+
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+    return super.loadUserByUsername(userNameUtils.getPrincipleName(username));
+  }
 
   @SuppressWarnings("unchecked")
   @Override

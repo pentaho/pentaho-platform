@@ -145,8 +145,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
   }
 
   private RepositoryFile getTenantRootFolder(Session session, final ITenant tenant) throws RepositoryException {
-    RepositoryFile rootFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session,
-        tenant.getRootFolderAbsolutePath(), pathConversionHelper, null, false, null);
+    RepositoryFile rootFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session,tenant.getRootFolderAbsolutePath(), pathConversionHelper, null, false, null);
     if (rootFolder != null) {
       Map<String, Serializable> metadata = JcrRepositoryFileUtils.getFileMetadata(session, rootFolder.getId());
       if (!metadata.containsKey(ITenantManager.TENANT_ROOT) || !(Boolean) metadata.get(ITenantManager.TENANT_ROOT)) {
@@ -273,22 +272,15 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
   public RepositoryFile createUserHomeFolder(ITenant theTenant, String username) {
     Builder aclsForUserHomeFolder = null;
     Builder aclsForTenantHomeFolder = null;
-
-    if (theTenant == null) {
-      theTenant = JcrTenantUtils.getTenant(username, true);
-      username = JcrTenantUtils.getPrincipalName(username, true);
-    }
-    if (theTenant == null || theTenant.getId() == null) {
-      theTenant = JcrTenantUtils.getCurrentTenant();
-    }
-    if (theTenant == null || theTenant.getId() == null) {
-      theTenant = JcrTenantUtils.getDefaultTenant();
-    }
     RepositoryFile userHomeFolder = null;
-    String userId = tenantedUserNameResolver.getPrincipleId(theTenant, username);
-    final RepositoryFileSid userSid = new RepositoryFileSid(userId);
     RepositoryFile tenantHomeFolder = null;
     RepositoryFile tenantRootFolder = null;
+    String userId = tenantedUserNameResolver.getPrincipleId(theTenant, username);
+    final RepositoryFileSid userSid = new RepositoryFileSid(userId);
+    username = JcrTenantUtils.getPrincipalName(username, true);
+    if (theTenant == null) {
+      theTenant = JcrTenantUtils.getTenant(username, true);
+    }
     // Get the Tenant Root folder. If the Tenant Root folder does not exist then exit.
     tenantRootFolder = repositoryFileDao
         .getFileByAbsolutePath(ServerRepositoryPaths.getTenantRootFolderPath(theTenant));
@@ -329,5 +321,10 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
 
     }
     return userHomeFolder;
+  }
+
+  @Override
+  public RepositoryFile getUserHomeFolder(ITenant theTenant, String username) {
+    return repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths.getUserHomeFolderPath(theTenant, username));
   }
 }

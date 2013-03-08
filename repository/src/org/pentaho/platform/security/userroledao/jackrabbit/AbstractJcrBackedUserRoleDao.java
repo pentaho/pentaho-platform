@@ -241,6 +241,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     }
     if (!TenantUtils.isAccessibleTenant(tenant)) {
       throw new NotFoundException("Tenant " + theTenant.getId() + " not found"); //$NON-NLS-1$//$NON-NLS-2$
+
     }
     String roleId = tenantedRoleNameUtils.getPrincipleId(tenant, role);
 
@@ -266,6 +267,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
     }
     if (!TenantUtils.isAccessibleTenant(tenant)) {
       throw new NotFoundException("Tenant " + theTenant.getId() + " not found"); //$NON-NLS-1$//$NON-NLS-2$
+
     }
     String userId = tenantedUserNameUtils.getPrincipleId(tenant, user);
     UserManager tenantUserMgr = getUserManager(tenant, session);
@@ -389,6 +391,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         || !TenantUtils.isAccessibleTenant(theTenant == null ? tenantedUserNameUtils.getTenant(jackrabbitUser.getID())
             : theTenant)) {
       throw new NotFoundException("User not found"); //$NON-NLS-1$
+
     }
     jackrabbitUser.changePassword(password);
   }
