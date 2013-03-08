@@ -75,14 +75,19 @@ public class ExportManifestEntity {
 		entityMetaData.setLocale(LocaleHelper.getLocale().toString());
 		entityMetaData.setName(repositoryFile.getName());
 
-    // before testing, strip trailing slash from rootFolder if it exists
-    if(rootFolder.endsWith("/")){
-      rootFolder = rootFolder.substring(0, rootFolder.length() - 1);
-    }
+        /* before testing, strip trailing slash from rootFolder if it exists but
+        only for string comparison with repositoryFile path. This is just a
+        convenience to not fail if someone adds a trailing slash to the repo
+        path when exporting from the command line */
+        String testRootFolder = rootFolder;
+        if(testRootFolder.endsWith("/")){
+            testRootFolder = testRootFolder.substring(0, testRootFolder.length() - 1);
+        }
 
-		if (!repositoryFile.getPath().startsWith(rootFolder)) {
+		if (!repositoryFile.getPath().startsWith(testRootFolder)) {
 		  throw new ExportManifestFormatException("File path does not start with rootFolder");
 		}
+
 		String adjustedPath = repositoryFile.getPath().substring(rootFolder.length());
 		entityMetaData.setPath(adjustedPath);
 		entityMetaData.setTitle(repositoryFile.getTitle());
