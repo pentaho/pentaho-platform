@@ -16,9 +16,8 @@ package org.pentaho.platform.repository2.unified.lifecycle;
 
 import java.util.List;
 
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.repository2.unified.jcr.DumpToFilePentahoSystemListener;
 import org.springframework.util.Assert;
 
 /**
@@ -51,9 +50,9 @@ public class DelegatingBackingRepositoryLifecycleManager implements IBackingRepo
     }
   }
 
-  public synchronized void newTenant(final String tenantId) {
+  public synchronized void newTenant(final ITenant tenant) {
     for (IBackingRepositoryLifecycleManager manager : managers) {
-      manager.newTenant(tenantId);
+      manager.newTenant(tenant);
     }
   }
 
@@ -63,9 +62,9 @@ public class DelegatingBackingRepositoryLifecycleManager implements IBackingRepo
     }
   }
 
-  public synchronized void newUser(final String tenantId, final String username) {
+  public synchronized void newUser(final ITenant tenant, final String username) {
     for (IBackingRepositoryLifecycleManager manager : managers) {
-      manager.newUser(tenantId, username);
+      manager.newUser(tenant, username);
     }
   }
 

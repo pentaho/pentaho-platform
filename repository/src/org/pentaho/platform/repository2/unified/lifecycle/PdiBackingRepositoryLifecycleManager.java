@@ -14,11 +14,10 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
-import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -34,8 +33,6 @@ public class PdiBackingRepositoryLifecycleManager implements IBackingRepositoryL
 
   // ~ Constructors ====================================================================================================
 
-  private ITenantedPrincipleNameResolver nameUtils = new DefaultTenantedPrincipleNameResolver();
-  
   public PdiBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
                                               final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
                                               final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern) {
@@ -55,7 +52,7 @@ public class PdiBackingRepositoryLifecycleManager implements IBackingRepositoryL
   }
 
   @Override
-  public void newTenant(String tenantId) {
+  public void newTenant(final ITenant tenant) {
     // TODO Auto-generated method stub
     
   }
@@ -67,7 +64,7 @@ public class PdiBackingRepositoryLifecycleManager implements IBackingRepositoryL
   }
 
   @Override
-  public void newUser(String tenantId, String username) {
+  public void newUser(final ITenant tenant, String username) {
     // TODO Auto-generated method stub
     
   }

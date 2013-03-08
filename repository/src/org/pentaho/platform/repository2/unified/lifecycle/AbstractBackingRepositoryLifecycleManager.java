@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
@@ -29,10 +30,10 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
@@ -105,11 +106,12 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
   }
 
   public void newTenant() {
-    newTenant(TenantUtils.getCurrentTenant().getId());
+    
+    newTenant(JcrTenantUtils.getTenant().getId());
   }
 
   public void newUser() {
-    newUser(TenantUtils.getCurrentTenant().getId(), internalGetUsername());
+    newUser(JcrTenantUtils.getTenant(), internalGetUsername());
   }
 
   public void newTenant(final String tenantId) {
@@ -119,12 +121,12 @@ public abstract class AbstractBackingRepositoryLifecycleManager implements IBack
 
   protected abstract void doNewTenant(final String tenantId);
 
-  public void newUser(final String tenantId, final String username) {
+  public void newUser(final ITenant tenant, final String username) {
     assertStartedUp();
-    doNewUser(tenantId, username);
+    doNewUser(tenant, username);
   }
 
-  protected abstract void doNewUser(final String tenantId, final String username);
+  protected abstract void doNewUser(final ITenant tenant, final String username);
 
   public void shutdown() {
     assertStartedUp();

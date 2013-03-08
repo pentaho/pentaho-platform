@@ -1,5 +1,7 @@
 package org.pentaho.platform.api.repository2.unified;
 
+import org.pentaho.platform.api.mt.ITenant;
+
 /**
  * Allows external code to do initialization work on the backing repository at certain lifecycle milestones. An example
  * of a backing repository is JCR. Note that there is no code dependency between this interface and 
@@ -36,9 +38,9 @@ public interface IBackingRepositoryLifecycleManager {
 
   /**
    * To be called before any users belonging to a particular tenant interact with the backing repository.
-   * @param tenantId new tenant id
+   * @param new Tenant
    */
-  void newTenant(final String tenantId);
+  void newTenant(final ITenant tenant);
 
   /**
    * To be called before any users belonging to the current tenant interact with the backing repository.
@@ -47,10 +49,10 @@ public interface IBackingRepositoryLifecycleManager {
 
   /**
    * To be called before user indicated by {@code username} interacts with the backing repository.
-   * @param tenantId tenant to which the user belongs
+   * @param tenant to which the user belongs
    * @param username new username
    */
-  void newUser(final String tenantId, final String username);
+  void newUser(final ITenant tenant, final String username);
 
   /**
    * To be called before current user interacts with the backing repository.

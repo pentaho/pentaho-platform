@@ -128,9 +128,9 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 
   private String sysAdminRoleName;
   
-  private String tenantAdminAuthorityNamePattern;
+  private String adminAuthorityName;
 
-  private String tenantAuthenticatedAuthorityNamePattern;
+  private String authenticatedAuthorityName;
 
   private JcrTemplate testJcrTemplate;
 
@@ -239,8 +239,8 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
 	SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
 	logout();
 	repositoryAdminUsername = null;
-	tenantAdminAuthorityNamePattern = null;
-	tenantAuthenticatedAuthorityNamePattern = null;
+	adminAuthorityName = null;
+	authenticatedAuthorityName = null;
 	roleBindingDao = null;
 	authorizationPolicy = null;
 	testJcrTemplate = null;
@@ -275,13 +275,13 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   @Ignore
   public void testGetFileText() throws Exception {
     loginAsRepositoryAdmin();
-    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminAuthorityName});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{adminAuthorityName});
     mp.defineInstance(IUnifiedRepository.class, repo);
 
-    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    login("joe", mainTenant_1, new String[]{authenticatedAuthorityName});
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
 
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "file.txt", "abcdefg");
@@ -311,13 +311,13 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   public void a1_HappyPath() {
     loginAsRepositoryAdmin();
 
-    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminAuthorityName});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{adminAuthorityName});
     mp.defineInstance(IUnifiedRepository.class, repo);
 
-    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    login("joe", mainTenant_1, new String[]{authenticatedAuthorityName});
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
 
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "test.xjunit", "abcdefg");
@@ -336,13 +336,13 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   public void a2_HappyPath() {
     loginAsRepositoryAdmin();
 
-    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminAuthorityName});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{adminAuthorityName});
     mp.defineInstance(IUnifiedRepository.class, repo);
 
-    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    login("joe", mainTenant_1, new String[]{authenticatedAuthorityName});
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
 
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "test.xjunit", "abcdefg");
@@ -366,13 +366,13 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   public void a3_dotUrl() {
     loginAsRepositoryAdmin();
 
-    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminAuthorityName});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{adminAuthorityName});
     mp.defineInstance(IUnifiedRepository.class, repo);
 
-    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    login("joe", mainTenant_1, new String[]{authenticatedAuthorityName});
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
 
     final String text = "URL=http://google.com";
@@ -408,13 +408,13 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   public void a3_HappyPath_GET() {
     loginAsRepositoryAdmin();
 
-    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminAuthorityName});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{adminAuthorityName});
     mp.defineInstance(IUnifiedRepository.class, repo);
 
-    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    login("joe", mainTenant_1, new String[]{authenticatedAuthorityName});
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
 
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "test.xjunit", "abcdefg");
@@ -430,13 +430,13 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   public void a3_HappyPath_POST() {
     loginAsRepositoryAdmin();
 
-    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminAuthorityName});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminAuthorityName, authenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{adminAuthorityName});
     mp.defineInstance(IUnifiedRepository.class, repo);
 
-    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    login("joe", mainTenant_1, new String[]{authenticatedAuthorityName});
     String publicFolderPath = ClientRepositoryPaths.getPublicFolderPath();
     
     createTestFile(publicFolderPath.replaceAll("/", ":") + ":" + "test.xjunit", "abcdefg");
@@ -725,8 +725,8 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
   testJcrTemplate.setAllowCreate(true);
   testJcrTemplate.setExposeNativeSession(true);
   repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
-  tenantAuthenticatedAuthorityNamePattern = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
-  tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+  authenticatedAuthorityName = (String) applicationContext.getBean("singleTenantAuthenticatedAuthorityName");
+  adminAuthorityName = (String) applicationContext.getBean("singleTenantAdminAuthorityName");
     sysAdminAuthorityName = (String) applicationContext.getBean("superAdminAuthorityName");
     sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
   authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
@@ -808,9 +808,9 @@ public class RepositoryResourceTest extends JerseyTest implements ApplicationCon
     final String password = "password";
 
     List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-    authList.add(new GrantedAuthorityImpl(tenantAuthenticatedAuthorityNamePattern));
+    authList.add(new GrantedAuthorityImpl(authenticatedAuthorityName));
     if (tenantAdmin) {
-      authList.add(new GrantedAuthorityImpl(tenantAdminAuthorityNamePattern));
+      authList.add(new GrantedAuthorityImpl(adminAuthorityName));
     }
     GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
     UserDetails userDetails = new User(username, password, true, true, true, true, authorities);

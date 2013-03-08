@@ -33,6 +33,7 @@ import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -56,18 +57,21 @@ import org.springframework.util.Assert;
  *
  * @author mlowery
  */
-public class DefaultBackingRepositoryLifecycleManager implements  IBackingRepositoryLifecycleManager {
+public class DefaultBackingRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager {
 
-  
   // ~ Static fields/initializers ======================================================================================
 
   // ~ Instance fields =================================================================================================
   IUserRoleDao userRoleDao;
+
   ITenantManager tenantManager;
+
   protected String repositoryAdminUsername;
-  
+
   protected String tenantAdminRoleName;
+
   protected String systemTenantAdminUserName;
+
   protected String singleTenantAdminUserName;
 
   protected String tenantAuthenticatedRoleName;
@@ -81,13 +85,8 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
   // ~ Constructors ====================================================================================================
 
   public DefaultBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
-                                                  final IRepositoryFileAclDao repositoryFileAclDao, 
-                                                  final TransactionTemplate txnTemplate,
-                                                  final String repositoryAdminUsername, 
-                                                  final String systemTenantAdminUserName,
-                                                  final String singleTenantAdminUserName,
-                                                  final String tenantAdminRoleName,
-                                                  final String tenantAuthenticatedRoleName) {
+      final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
+      final String repositoryAdminUsername,final String systemTenantAdminUserName, final String singleTenantAdminUserName, final String tenantAdminRoleName, final String tenantAuthenticatedRoleName) {
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
     Assert.notNull(txnTemplate);
@@ -103,7 +102,6 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
     this.singleTenantAdminUserName = singleTenantAdminUserName;
     initTransactionTemplate();
 
-    
   }
 
   // ~ Methods =========================================================================================================
@@ -114,17 +112,19 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
   }
 
   @Override
-  public synchronized void newTenant(final String tenantId) {
+  public synchronized void newTenant(final ITenant tenant) {
   }
 
   @Override
-  public synchronized void newUser(final String tenantId, final String username) {
-    getTenantManager().createUserHomeFolder(new Tenant(tenantId, true), username);
+  public synchronized void newUser(final ITenant tenant, final String username) {
+    if(getTenantManager().getUserHomeFolder(tenant, username) == null) {
+      getTenantManager().createUserHomeFolder(tenant, username);
+    }
   }
-
 
   @Override
   public void newTenant() {
+    newTenant(JcrTenantUtils.getTenant());
   }
 
   @Override
@@ -140,24 +140,20 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
     ITenant defaultTenant = null;
     loginAsRepositoryAdmin();
     ITenantManager tenantMgr = getTenantManager();
-    ITenant systemTenant = tenantMgr.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    ITenant systemTenant = tenantMgr.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(),
+        tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
     if (systemTenant != null) {
-      userRoleDao.createUser(systemTenant, systemTenantAdminUserName, "password", "", new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
-      IPentahoSession origSession = PentahoSessionHolder.getSession();
-      Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
-      login(systemTenantAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
-      try {
-        defaultTenant = tenantMgr.getTenant(systemTenant.getRootFolderAbsolutePath() + RepositoryFile.SEPARATOR + TenantUtils.TENANTID_SINGLE_TENANT);
-        if(defaultTenant == null) {
-          // We'll create the default tenant here... maybe this isn't the best place.
-          defaultTenant = tenantMgr.createTenant(systemTenant, TenantUtils.TENANTID_SINGLE_TENANT, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-          userRoleDao.createUser(defaultTenant, singleTenantAdminUserName, "password", "", new String[]{tenantAdminRoleName});
-        }
-      } finally {
-        PentahoSessionHolder.setSession(origSession);
-        SecurityContextHolder.getContext().setAuthentication(origAuth);
+      userRoleDao.createUser(systemTenant, systemTenantAdminUserName, "password", "", new String[] {
+          tenantAdminRoleName, tenantAuthenticatedRoleName });
+      defaultTenant = tenantMgr.getTenant(JcrTenantUtils.getDefaultTenant().getId());
+      if (defaultTenant == null) {
+        // We'll create the default tenant here... maybe this isn't the best place.
+        defaultTenant = tenantMgr.createTenant(systemTenant, TenantUtils.TENANTID_SINGLE_TENANT, tenantAdminRoleName,
+            tenantAuthenticatedRoleName, "Anonymous");
+        userRoleDao.createUser(defaultTenant, singleTenantAdminUserName, "password", "",
+            new String[] { tenantAdminRoleName });
       }
-    }    
+    }
   }
 
   /**
@@ -169,7 +165,8 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
     try {
       IPentahoObjectFactory objectFactory = PentahoSystem.getObjectFactory();
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
-      return (null != tenantManager ? tenantManager : objectFactory.get(ITenantManager.class, "tenantMgrProxy", pentahoSession));
+      return (null != tenantManager ? tenantManager : objectFactory.get(ITenantManager.class, "tenantMgrProxy",
+          pentahoSession));
     } catch (ObjectFactoryException e) {
       return null;
     }
@@ -180,14 +177,14 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
    * @param lifecycleManager the lifecycle manager to use (can not be null)
    */
   public void setTenantManager(final ITenantManager tenantManager) {
-    assert(null != tenantManager);
+    assert (null != tenantManager);
     this.tenantManager = tenantManager;
   }
-  
+
   public IUserRoleDao getUserRoleDao() {
     return userRoleDao;
   }
-  
+
   public void setUserRoleDao(IUserRoleDao userRoleDao) {
     this.userRoleDao = userRoleDao;
   }
@@ -222,7 +219,7 @@ public class DefaultBackingRepositoryLifecycleManager implements  IBackingReposi
   protected void loginAsRepositoryAdmin() {
     StandaloneSession pentahoSession = new StandaloneSession(repositoryAdminUsername);
     pentahoSession.setAuthenticated(repositoryAdminUsername);
-    final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[]{};
+    final GrantedAuthority[] repositoryAdminAuthorities = new GrantedAuthority[] {};
     final String password = "ignored";
     UserDetails repositoryAdminUserDetails = new User(repositoryAdminUsername, password, true, true, true, true,
         repositoryAdminAuthorities);
