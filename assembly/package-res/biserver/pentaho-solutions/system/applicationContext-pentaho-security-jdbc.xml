@@ -28,6 +28,7 @@
 		</property>
 		<property name="dataSource" ref="dataSource" />
     <property name="rolePrefix" value="" />
+    <constructor-arg ref="tenantedUserNameUtils"/>		
 	</bean>
 
   <bean id="userRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">

@@ -60,13 +60,14 @@
 	</bean>
 
 	<bean id="userDetailsService0"
-		class="org.springframework.security.userdetails.ldap.LdapUserDetailsService">
+		class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserDetailsService">
 		<constructor-arg>
 			<ref local="userSearch" />
 		</constructor-arg>
 		<constructor-arg>
 			<ref local="populator" />
 		</constructor-arg>
+	<constructor-arg ref="tenantedUserNameUtils"/>		
 	</bean>
 
   <!--

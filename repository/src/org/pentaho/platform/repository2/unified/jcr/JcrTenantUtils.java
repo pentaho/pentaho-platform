@@ -58,7 +58,7 @@ public class JcrTenantUtils {
   }
 
   public static String getTenantedUser(String username) {
-    if (username != null && !username.equals("system") && !username.equals(getRepositoryAdminUserName()) && getUserNameUtils() != null) {
+    if (username != null && !username.equals(getRepositoryAdminUserName()) && getUserNameUtils() != null) {
       ITenant tenant = getUserNameUtils().getTenant(username);
       if (tenant == null || tenant.getId() == null) {
         IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
@@ -85,9 +85,19 @@ public class JcrTenantUtils {
     if (tenant == null || tenant.getId() == null) {
       tenant = getCurrentTenant();
     }
+    if(tenant == null || tenant.getId() == null) {
+      tenant = getDefaultTenant();
+    }
     return tenant;
   }
-  
+
+  public static ITenant getTenant() {
+    ITenant tenant = getCurrentTenant();
+    if(tenant == null || tenant.getId() == null) {
+      tenant = getDefaultTenant();
+    }
+    return tenant;
+  }
   public static String getPrincipalName(String principalId, boolean isUser) {
     String principalName = null;
     ITenantedPrincipleNameResolver nameUtils = isUser ? getUserNameUtils() : getRoleNameUtils();

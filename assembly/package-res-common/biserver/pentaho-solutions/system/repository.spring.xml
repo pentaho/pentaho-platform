@@ -209,10 +209,10 @@
     <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
     <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
-    <constructor-arg ref="tenantAdminAuthorityNamePattern"/>
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>
   </bean>
  
  
@@ -238,6 +238,7 @@
         org.pentaho.platform.api.mt.ITenantManager.getTenantRootFolder=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
         org.pentaho.platform.api.mt.ITenantManager.getTenant=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
         org.pentaho.platform.api.mt.ITenantManager.createUserHomeFolder=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
+        org.pentaho.platform.api.mt.ITenantManager.getUserHomeFolder=VOTE_AUTHZ_POLICY_org.pentaho.security.administerSecurity
       </value>
     </property>
   </bean>
@@ -262,6 +263,7 @@
         org.pentaho.platform.api.mt.ITenantManager.getTenantRootFolder=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.mt.ITenantManager.getTenant=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.mt.ITenantManager.createUserHomeFolder=PROPAGATION_REQUIRED        
+        org.pentaho.platform.api.mt.ITenantManager.getUserHomeFolder=PROPAGATION_REQUIRED        
       </value>
     </property>
   </bean>
@@ -301,8 +303,8 @@
 	<constructor-arg ref="adminJcrTemplate"/>
   	<constructor-arg ref="tenantedUserNameUtils"/>
   	<constructor-arg ref="tenantedRoleNameUtils"/>
-  	<constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
-  	<constructor-arg ref="tenantAdminAuthorityNamePattern"/>
+  	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+  	<constructor-arg ref="singleTenantAdminAuthorityName"/>
   	<constructor-arg ref="repositoryAdminUsername"/>
   	<constructor-arg ref="repositoryFileAclDao"/>
   	<constructor-arg ref="repositoryFileDao"/>
@@ -410,17 +412,17 @@
     <constructor-arg value="ZchBOvP8q9FQ"/>
   </bean>
 
-  <!-- The name of the authority which is granted to all authenticated users of a particular tenant. -->
-  <bean id="tenantAuthenticatedAuthorityNamePattern" class="java.lang.String">
+  <!-- The name of the authority which is granted to all authenticated users in single-tenancy mode. -->
+  <bean id="singleTenantAuthenticatedAuthorityName" class="java.lang.String">
     <constructor-arg value="Authenticated"/>
   </bean>
 
-  <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
-  <bean id="tenantAdminAuthorityNamePattern" class="java.lang.String">
-    <constructor-arg value="TenantAdmin"/>
+  <!-- The name of the authority which is granted to all admin users in single-tenancy mode. -->
+  <bean id="singleTenantAdminAuthorityName" class="java.lang.String">
+    <constructor-arg value="Admin" />
   </bean>
 
-  <bean id="superAdminAuthorityName" class="java.lang.String">
+<bean id="superAdminAuthorityName" class="java.lang.String">
     <constructor-arg value="SysAdmin"/>
   </bean>
   
@@ -433,7 +435,7 @@
   </bean>
   
   <bean id="singleTenantAdminUserName" class="java.lang.String">
-    <constructor-arg value="sadmin"/>
+    <constructor-arg value="joe"/>
   </bean>
   
     <!-- Used in code that doesn't use Spring's transaction interception. -->
@@ -449,8 +451,8 @@
 	<constructor-arg ref="repositoryAdminUsername"/>
 	<constructor-arg ref="systemTenantAdminUserName"/>
 	<constructor-arg ref="singleTenantAdminUserName"/>
-	<constructor-arg ref="tenantAdminAuthorityNamePattern"/>	
-	<constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+	<constructor-arg ref="singleTenantAdminAuthorityName"/>	
+	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
 	<property name="tenantManager" ref="tenantMgrTxn"/>
 	<property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
@@ -461,7 +463,7 @@
     <constructor-arg ref="repositoryFileAclDao"/>
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
   </bean>        
   <bean id="metadataRepositoryLifecycleManager"
         class="org.pentaho.platform.plugin.services.metadata.PentahoMetadataRepositoryLifecycleManager">
@@ -469,15 +471,15 @@
     <constructor-arg ref="repositoryFileAclDao"/>
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
   </bean>        
   <bean id="sampleDataRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.SampleDataRepositoryLifecycleManager">
     <constructor-arg ref="IDatasourceMgmtService"/>
     <constructor-arg ref="IDatabaseDialectService"/>
 	<constructor-arg ref="repositoryAdminUsername"/>
 	<constructor-arg ref="singleTenantAdminUserName"/>
-	<constructor-arg ref="tenantAdminAuthorityNamePattern"/>	
-	<constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+	<constructor-arg ref="singleTenantAdminAuthorityName"/>	
+	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
 	<property name="tenantManager" ref="tenantMgrTxn"/>
 	<property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
@@ -487,7 +489,7 @@
     <constructor-arg ref="repositoryFileAclDao"/>
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="tenantAuthenticatedAuthorityNamePattern"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
   <constructor-arg ref="tenantedUserNameUtils"/>                
   </bean>
 
@@ -601,10 +603,7 @@
   </bean>
   <bean id="pathConversionHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultPathConversionHelper"/>
 
-  <bean class="org.pentaho.platform.repository2.unified.spring.BackingRepositoryLifecycleManagerAuthenticationSuccessListener">
-  	<constructor-arg ref="tenantedUserNameUtils"/>
-  </bean>
-  
+  <bean class="org.pentaho.platform.repository2.unified.spring.BackingRepositoryLifecycleManagerAuthenticationSuccessListener"/>
   <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.InheritDefaultAclHandler" />
 
   <bean id="repositoryFileAclDao"
@@ -624,7 +623,7 @@
   </bean>
 
   <util:map id="immutableRoleBindingMap">
-    <entry key-ref="tenantAdminAuthorityNamePattern">
+    <entry key-ref="singleTenantAdminAuthorityName">
       <util:list>
         <value>org.pentaho.repository.read</value>
         <value>org.pentaho.repository.create</value>
@@ -644,8 +643,7 @@
   </util:map>
 
   <util:map id="bootstrapRoleBindingMap">
-    <!-- {0} placeholder will be replaced with current tenant id -->
-    <entry key-ref="tenantAuthenticatedAuthorityNamePattern">
+    <entry key-ref="singleTenantAuthenticatedAuthorityName">
       <util:list>
         <value>org.pentaho.repository.read</value>
         <value>org.pentaho.repository.create</value>

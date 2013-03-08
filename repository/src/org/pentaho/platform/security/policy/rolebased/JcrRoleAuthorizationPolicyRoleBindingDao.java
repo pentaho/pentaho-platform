@@ -27,6 +27,7 @@ import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.engine.core.system.TenantUtils;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.util.Assert;
@@ -116,7 +117,7 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
   public void setRoleBindings(final ITenant tenant, final String runtimeRoleName, final List<String> logicalRoleNames) {
     ITenant tempTenant = tenant;
     if (tenant == null) {
-      tempTenant = getTenant(runtimeRoleName);
+      tempTenant = JcrTenantUtils.getTenant(runtimeRoleName, false);
     }    
     if (!TenantUtils.isAccessibleTenant(tempTenant)) {
       throw new NotFoundException("Tenant " + tenant.getId() + " not found");

@@ -19,7 +19,7 @@ import java.lang.reflect.Constructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.mt.ITenant;
-import org.pentaho.platform.engine.core.system.TenantUtils;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 
 /**
  * Class of static methods that return commonly needed absolute paths like "tenant root folder path."
@@ -89,19 +89,19 @@ public class ServerRepositoryPaths {
   }
 
   public static String getTenantHomeFolderPath() {
-    return getTenantHomeFolderPath(TenantUtils.getCurrentTenant());
+    return getTenantHomeFolderPath(JcrTenantUtils.getTenant());
   }
 
   public static String getTenantPublicFolderPath() {
-    return getTenantPublicFolderPath(TenantUtils.getCurrentTenant());
+    return getTenantPublicFolderPath(JcrTenantUtils.getTenant());
   }
 
   public static String getTenantRootFolderPath() {
-    return getTenantRootFolderPath(TenantUtils.getCurrentTenant());
+    return getTenantRootFolderPath(JcrTenantUtils.getTenant());
   }
 
   public static String getTenantEtcFolderPath() {
-    return getTenantEtcFolderPath(TenantUtils.getCurrentTenant());
+    return getTenantEtcFolderPath(JcrTenantUtils.getTenant());
   }
 
   public static String getTenantHomeFolderName() {

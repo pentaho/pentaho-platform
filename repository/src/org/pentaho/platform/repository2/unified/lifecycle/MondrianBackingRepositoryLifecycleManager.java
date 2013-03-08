@@ -86,12 +86,11 @@ public class MondrianBackingRepositoryLifecycleManager implements IBackingReposi
     txnTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
   }
 
-  protected void createEtcMondrianFolder(final String tenantPath) {
+  protected void createEtcMondrianFolder(final ITenant tenant) {
     try {
       txnTemplate.execute(new TransactionCallbackWithoutResult() {
         @Override
         public void doInTransactionWithoutResult(final TransactionStatus status) {
-          ITenant tenant = new Tenant(tenantPath, true);
           final RepositoryFileSid repositoryAdminUserSid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenant, repositoryAdminUsername));
           RepositoryFile tenantEtcFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
               .getTenantEtcFolderPath(tenant));
@@ -124,8 +123,8 @@ public class MondrianBackingRepositoryLifecycleManager implements IBackingReposi
   }
 
   @Override
-  public void newTenant(String tenantId) {
-    createEtcMondrianFolder(tenantId);
+  public void newTenant(final ITenant tenant) {
+    createEtcMondrianFolder(tenant);
   }
 
   @Override
@@ -135,7 +134,7 @@ public class MondrianBackingRepositoryLifecycleManager implements IBackingReposi
   }
 
   @Override
-  public void newUser(String tenantId, String username) {
+  public void newUser(final ITenant tenant, String username) {
     // TODO Auto-generated method stub
     
   }
