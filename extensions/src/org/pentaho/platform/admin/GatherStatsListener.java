@@ -13,7 +13,6 @@ import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.scheduler2.versionchecker.EmbeddedVersionCheckSystemListener;
 
 public class GatherStatsListener implements IPentahoSystemListener {
 
@@ -21,7 +20,7 @@ public class GatherStatsListener implements IPentahoSystemListener {
    
    private String transFileName;
       
-   private static final Log logger = LogFactory.getLog(EmbeddedVersionCheckSystemListener.class);
+   private static final Log logger = LogFactory.getLog(GatherStatsListener.class);
    private int intervalInSeconds = -1;
    
    Map<String, Serializable> jobMap = new HashMap<String, Serializable>();
