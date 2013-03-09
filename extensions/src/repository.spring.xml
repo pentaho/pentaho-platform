@@ -221,10 +221,10 @@
     <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="tenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
     <constructor-arg ref="tenantedUserNameUtils"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
-    <constructor-arg ref="tenantAdminAuthorityName"/>
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>
   </bean>
  
   <bean id="defaultBackingRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager">
@@ -246,7 +246,7 @@
     <constructor-arg ref="repositoryFileAclDao"/>
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="tenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
   </bean>        
   <bean id="metadataRepositoryLifecycleManager"
         class="org.pentaho.platform.plugin.services.metadata.PentahoMetadataRepositoryLifecycleManager">
@@ -254,12 +254,17 @@
     <constructor-arg ref="repositoryFileAclDao"/>
     <constructor-arg ref="jcrTransactionTemplate"/>
     <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="tenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
   </bean>        
-  <bean id="sampleDataRepositoryLifecycleManager"
-        class="org.pentaho.platform.repository2.unified.lifecycle.SampleDataRepositoryLifecycleManager">
+  <bean id="sampleDataRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.SampleDataRepositoryLifecycleManager">
     <constructor-arg ref="IDatasourceMgmtService"/>
     <constructor-arg ref="IDatabaseDialectService"/>
+	<constructor-arg ref="repositoryAdminUsername"/>
+	<constructor-arg ref="singleTenantAdminUserName"/>
+	<constructor-arg ref="singleTenantAdminAuthorityName"/>	
+	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+	<property name="tenantManager" ref="tenantMgrTxn"/>
+	<property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
   <bean id="mondrianBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager">
@@ -655,8 +660,8 @@
 	<constructor-arg ref="adminJcrTemplate"/>
   	<constructor-arg ref="tenantedUserNameUtils"/>
   	<constructor-arg ref="tenantedRoleNameUtils"/>
-  	<constructor-arg ref="tenantAuthenticatedAuthorityName"/>
-  	<constructor-arg ref="tenantAdminAuthorityName"/>
+  	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+  	<constructor-arg ref="singleTenantAdminAuthorityName"/>
   	<constructor-arg ref="repositoryAdminUsername"/>
   	<constructor-arg ref="repositoryFileAclDao"/>
   	<constructor-arg ref="repositoryFileDao"/>
@@ -669,7 +674,7 @@
   <bean id="mockUserRoleDao" class="org.pentaho.test.mock.MockUserRoleDao">
 	<constructor-arg ref="tenantedUserNameUtils"/>            
 	<constructor-arg ref="tenantedRoleNameUtils"/>
-    <constructor-arg ref="tenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
   </bean>
   <!-- end authorization policy -->
 </beans>

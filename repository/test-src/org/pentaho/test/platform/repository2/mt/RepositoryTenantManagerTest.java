@@ -303,6 +303,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
   private MicroPlatform mp;
 
   private IRepositoryFileDao repositoryFileDao;
+  
+  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
 
   private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
 
@@ -334,6 +336,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     mp.define(ITenant.class, Tenant.class);
     mp.defineInstance("authorizationPolicy", authorizationPolicy);
     mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
+    mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
+    
     // Start the micro-platform
     mp.start();
     logout();
@@ -428,6 +432,7 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
     tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrProxy");
+    roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTarget");
     repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean("repositoryFileDao");
     userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDao");
     tenantedUserNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedUserNameUtils");
