@@ -132,6 +132,7 @@ public class PluginThemeResolver implements IThemeResolver {
           themeName = resourceBundle.getString(themeName);
         }
         Theme theme = new Theme(themeId, themeName, "content/"+pluginId+"/"+rootThemeFolder+"/"+themeId+"/");
+        theme.setHidden("true".equals(themeNode.attributeValue("hidden")));
 
 
         if("true".equals(themeNode.attributeValue("system"))){
