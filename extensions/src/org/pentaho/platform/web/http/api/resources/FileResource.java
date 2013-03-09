@@ -239,12 +239,14 @@ public class FileResource extends AbstractJaxRSResource {
           RepositoryFile sourceFile = repository.getFileById(sourceFileId);
           if (destDir != null && destDir.isFolder() && sourceFile != null && !sourceFile.isFolder()) {
             String fileName = sourceFile.getName();
+            String copyText = null;
             String nameNoExtension = fileName.substring(0, fileName.lastIndexOf('.'));
             String extension = fileName.substring(fileName.lastIndexOf('.'));
             String sourcePath = sourceFile.getPath().substring(0, sourceFile.getPath().lastIndexOf(PATH_SEPARATOR));
             RepositoryFileDto testFile = repoWs.getFile(path + PATH_SEPARATOR + nameNoExtension + Messages.getInstance().getString("FileResource.COPY_PREFIX") + extension); //$NON-NLS-1$
             if (sourcePath.equals(destDir.getPath()) && !nameNoExtension.endsWith(Messages.getInstance().getString("FileResource.COPY_PREFIX")) && testFile == null) { // We're trying to save to the same folder we copied from //$NON-NLS-1$
-              fileName = nameNoExtension + Messages.getInstance().getString("FileResource.COPY_PREFIX") + extension;  //$NON-NLS-1$
+              copyText = Messages.getInstance().getString("FileResource.COPY_PREFIX");
+              fileName = nameNoExtension + copyText + extension;  //$NON-NLS-1$
             } else { // We're saving to a different folder than we're copying from or we've already copied here before
               if (testFile != null) {
                 nameNoExtension = testFile.getName().substring(0, testFile.getName().lastIndexOf('.'));
@@ -254,7 +256,8 @@ public class FileResource extends AbstractJaxRSResource {
               Integer nameCount = 1;
               while (testFile != null) {
                 nameCount++;
-                testFileName = nameNoExtension + Messages.getInstance().getString("FileResource.DUPLICATE_INDICATOR", nameCount) + extension;  //$NON-NLS-1$
+                copyText = Messages.getInstance().getString("FileResource.COPY_PREFIX") + Messages.getInstance().getString("FileResource.DUPLICATE_INDICATOR", nameCount); //$NON-NLS-1$ //$NON-NLS-2$
+                testFileName = nameNoExtension + Messages.getInstance().getString("FileResource.DUPLICATE_INDICATOR", nameCount) + extension; //$NON-NLS-1$
                 testFile = repoWs.getFile(path + PATH_SEPARATOR + testFileName);
               }
               if (nameCount > 1) {
@@ -263,7 +266,13 @@ public class FileResource extends AbstractJaxRSResource {
             }
             IRepositoryFileData data = repository.getDataForRead(sourceFileId, SimpleRepositoryFileData.class);
             RepositoryFileAcl acl = repository.getAcl(sourceFileId);
-            RepositoryFile duplicateFile = new RepositoryFile.Builder(fileName).build();
+            RepositoryFile duplicateFile = null;
+            if (!sourceFile.getName().equals(sourceFile.getTitle())) {
+              duplicateFile = new RepositoryFile.Builder(fileName).title(RepositoryFile.ROOT_LOCALE, sourceFile.getTitle() + copyText).build();
+            } else {
+              duplicateFile = new RepositoryFile.Builder(fileName).build();
+            }
+            
             repository.createFile(destDir.getId(), duplicateFile, data, acl, null);
           }
         }
