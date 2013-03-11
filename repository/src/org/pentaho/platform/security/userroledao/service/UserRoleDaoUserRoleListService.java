@@ -20,6 +20,7 @@ package org.pentaho.platform.security.userroledao.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
@@ -44,18 +45,19 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
   // ~ Instance fields =================================================================================================
 
   private IUserRoleDao userRoleDao;
-
   private UserDetailsService userDetailsService;
+  private List<String> systemRoles;
   
   // ~ Constructors ====================================================================================================
   public UserRoleDaoUserRoleListService() {
     super();
   }
 
-  public UserRoleDaoUserRoleListService(IUserRoleDao userRoleDao, UserDetailsService userDetailsService) {
+  public UserRoleDaoUserRoleListService(IUserRoleDao userRoleDao, UserDetailsService userDetailsService, List<String> systemRoles) {
     super();
     this.userRoleDao = userRoleDao;
     this.userDetailsService = userDetailsService;
+    this.systemRoles = systemRoles;
   }
   // ~ Methods =========================================================================================================
 
@@ -140,5 +142,10 @@ public class UserRoleDaoUserRoleListService implements IUserRoleListService {
 
   public void setUserDetailsService(UserDetailsService userDetailsService) {
     this.userDetailsService = userDetailsService;
+  }
+
+  @Override
+  public List<String> getSystemRoles() {
+    return systemRoles;
   }
 }

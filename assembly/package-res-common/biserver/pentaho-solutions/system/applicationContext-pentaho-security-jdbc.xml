@@ -11,6 +11,7 @@
 	<bean id="userRoleListService0"
 		class="org.pentaho.platform.plugin.services.security.userrole.jdbc.JdbcUserRoleListService">
 		<constructor-arg index="0" ref="userDetailsService" />
+		<constructor-arg index="1" ref="singleTenantSystemAuthorities" />
 		<property name="allAuthoritiesQuery">
 			<value>
 				<![CDATA[SELECT distinct(authority) as authority FROM AUTHORITIES ORDER BY authority]]>
@@ -28,7 +29,7 @@
 		</property>
 		<property name="dataSource" ref="dataSource" />
     <property name="rolePrefix" value="" />
-    <constructor-arg ref="tenantedUserNameUtils"/>		
+	<constructor-arg ref="tenantedUserNameUtils"/>		
 	</bean>
 
   <bean id="userRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">

@@ -57,4 +57,9 @@ public class UserRoleListServiceToWebServiceAdapter implements IUserRoleListServ
   public List<String> getRolesForUser(ITenant tenant, String username) {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public List<String> getSystemRoles() {
+    throw new UnsupportedOperationException();
+  } 
 }

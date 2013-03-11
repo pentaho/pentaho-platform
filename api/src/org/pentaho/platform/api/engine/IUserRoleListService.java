@@ -21,6 +21,7 @@
 package org.pentaho.platform.api.engine;
 
 import java.util.List;
+import java.util.Set;
 
 import org.pentaho.platform.api.mt.ITenant;
 
@@ -32,6 +33,13 @@ public interface IUserRoleListService {
    * @return the authorities (never <code>null</code>)
    */
   public List<String> getAllRoles();
+  
+  /**
+   * Returns all System authorities known to the provider. Cannot return
+   * <code>null</code>
+   * @return the authorities (never <code>null</code>)
+   */
+  public List<String> getSystemRoles();
 
   /**
    * Returns all authorities known to the provider for a given tenant. Cannot return
