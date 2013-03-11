@@ -47,6 +47,7 @@ import org.pentaho.platform.util.beans.ActionHarness;
 import org.pentaho.platform.util.web.MimeHelper;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -106,8 +107,7 @@ public class ActionAdapterQuartzJob implements Job {
     final IAction actionBean = (IAction) bean;
 
     try {
-
-      invokeAction(actionBean, actionUser, jobDataMap.getWrappedMap());
+      invokeAction(actionBean, actionUser, context.getJobDetail(), jobDataMap.getWrappedMap());
 
     } catch (Throwable t) {
       // We should not distinguish between checked and unchecked exceptions here. All job execution failures
@@ -117,7 +117,7 @@ public class ActionAdapterQuartzJob implements Job {
     }
   }
 
-  protected void invokeAction(final IAction actionBean, final String actionUser, final Map<String, Serializable> params) throws Exception {
+  protected void invokeAction(final IAction actionBean, final String actionUser, final JobDetail jobDetail, final Map<String, Serializable> params) throws Exception {
 
     // remove the scheduling infrastructure properties
     params.remove(QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS);
@@ -162,6 +162,11 @@ public class ActionAdapterQuartzJob implements Job {
               public void fileCreated(String filePath) {
                 IUnifiedRepository repo = PentahoSystem.get(IUnifiedRepository.class);
                 RepositoryFile sourceFile = repo.getFile(filePath);
+                // add metadata
+                Map<String, Serializable> metadata = repo.getFileMetadata(sourceFile.getId());
+                metadata.put("scheduleName", params.get(jobDetail.getName()));
+                repo.setFileMetadata(sourceFile.getId(), metadata);
+                // send email
                 SimpleRepositoryFileData data = repo.getDataForRead(sourceFile.getId(), SimpleRepositoryFileData.class);
                 try {
                   sendEmail(actionParams, filePath, data);
@@ -215,7 +220,7 @@ public class ActionAdapterQuartzJob implements Job {
     emailer.setTo(to);
     emailer.setCc(cc);
     emailer.setBcc(bcc);
-    emailer.setAttachment(data.getStream());
+    emailer.setAttachment(data.getInputStream());
     emailer.setAttachmentName("attachment");
     String attachmentName = (String) actionParams.get("_SCH_EMAIL_ATTACHMENT_NAME");
     if (attachmentName != null && !"".equals(attachmentName)) {
