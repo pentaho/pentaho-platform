@@ -71,7 +71,7 @@ public class TestSecurityRule extends BaseTest {
 //    String expected = "Userid: pat, Authenticated(true), Administrator(false)\n" + //$NON-NLS-1$
 //        " User Roles: ROLE_DEV, ROLE_AUTHENTICATED\n" + //$NON-NLS-1$
 //        " System Roles: ROLE_DEV, ROLE_AUTHENTICATED, ROLE_IS, ROLE_ADMIN, ROLE_DEVMGR, ROLE_CEO, ROLE_CTO\n" + //$NON-NLS-1$
-//        " System Users: tiffany, joe, suzy, pat, admin"; //$NON-NLS-1$
+//        " System Users: tiffany, admin, suzy, pat, admin"; //$NON-NLS-1$
 //    assertEquals(outputValue, expected);
 //  }
   

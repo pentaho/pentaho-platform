@@ -81,7 +81,7 @@ public abstract class AbstractMondrianCatalogTestBase extends BaseTest {
   public void setUp() {
     super.setUp();
     setUpTempFile();
-    SecurityHelper.getInstance().becomeUser("joe");
+    SecurityHelper.getInstance().becomeUser("admin");
   }
 
   /**

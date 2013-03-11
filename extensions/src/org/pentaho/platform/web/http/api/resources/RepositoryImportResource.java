@@ -62,7 +62,7 @@ public class RepositoryImportResource {
 	 *         <p/>
 	 *         This REST method takes multi-part form data and imports it to a
 	 *         JCR repository.
-	 *         --import --url=http://localhost:8080/pentaho --username=joe --password=password --source=file-system --type=files --charset=UTF-8 --path=/public  --file-path="C:/pentahotraining/BootCamp Labs/Pilot Project/SteelWheels.csv" --permission=true --overwrite=true --retainOwnership=true --rest=true
+	 *         --import --url=http://localhost:8080/pentaho --username=admin --password=password --source=file-system --type=files --charset=UTF-8 --path=/public  --file-path="C:/pentahotraining/BootCamp Labs/Pilot Project/SteelWheels.csv" --permission=true --overwrite=true --retainOwnership=true --rest=true
 	 */
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)

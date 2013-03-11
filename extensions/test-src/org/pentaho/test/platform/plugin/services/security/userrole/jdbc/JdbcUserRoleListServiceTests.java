@@ -58,7 +58,7 @@ public class JdbcUserRoleListServiceTests {
   @Test
   public void testGetAllUsernamesForTenant() throws Exception {
     ITenant defaultTenant = new Tenant("/pentaho/tenant0", true);
-    login("joe", defaultTenant);
+    login("admin", defaultTenant);
     JdbcUserRoleListService dao = makePopulatedJdbcUserRoleListService();
     dao
         .setAllUsernamesQuery("SELECT DISTINCT(USERNAME) FROM USERS ORDER BY USERNAME"); //$NON-NLS-1$
@@ -92,7 +92,7 @@ public class JdbcUserRoleListServiceTests {
   @Test
   public void testGetAllAuthoritiesForTenant() throws Exception {
     ITenant defaultTenant = new Tenant("/pentaho/tenant0", true);
-    login("joe", defaultTenant);
+    login("admin", defaultTenant);
 
     JdbcUserRoleListService dao = makePopulatedJdbcUserRoleListService();
     dao
@@ -131,7 +131,7 @@ public class JdbcUserRoleListServiceTests {
   @Test
   public void testGetAllAuthoritiesWithRolePrefixForTenant() throws Exception {
     ITenant defaultTenant = new Tenant("/pentaho/tenant0", true);
-    login("joe", defaultTenant);
+    login("admin", defaultTenant);
     JdbcUserRoleListService dao = makePopulatedJdbcUserRoleListService();
     dao
         .setAllAuthoritiesQuery("SELECT DISTINCT(AUTHORITY) AS AUTHORITY FROM AUTHORITIES ORDER BY 1"); //$NON-NLS-1$
@@ -169,7 +169,7 @@ public class JdbcUserRoleListServiceTests {
   @Test
   public void testGetAllUsernamesInRoleForTenant() throws Exception {
     ITenant defaultTenant = new Tenant("/pentaho/tenant0", true);
-    login("joe", defaultTenant);
+    login("admin", defaultTenant);
     JdbcUserRoleListService dao = makePopulatedJdbcUserRoleListService();
     dao
         .setAllUsernamesInRoleQuery("SELECT DISTINCT(USERNAME) AS USERNAME FROM AUTHORITIES WHERE AUTHORITY = ? ORDER BY 1"); //$NON-NLS-1$
@@ -203,7 +203,7 @@ public class JdbcUserRoleListServiceTests {
   @Test
   public void testGetRolesForUserForTenant() throws Exception {
     ITenant defaultTenant = new Tenant("/pentaho/tenant0", true);
-    login("joe", defaultTenant);
+    login("admin", defaultTenant);
     JdbcUserRoleListService dao = makePopulatedJdbcUserRoleListService();
     dao.setUserDetailsService(makePopulatedJdbcDao()); 
     dao.afterPropertiesSet();

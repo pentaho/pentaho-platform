@@ -13,10 +13,10 @@
 
 	<inputs>
 		<to type="string">
-		  <default-value>joe.pentaho@pentaho.org</default-value>
+		  <default-value>admin.pentaho@pentaho.org</default-value>
 		</to>
 		<from type="string">
-		  <default-value>joe.pentaho@pentaho.com</default-value>
+		  <default-value>admin.pentaho@pentaho.com</default-value>
 		</from>
 		<subject type="string">
 		  <default-value>text_html_attach_email.xaction - Pentaho email Test</default-value>

@@ -242,7 +242,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     List res = userRoleListService.getAllUsers();
     
     assertTrue(res.contains("pat")); //$NON-NLS-1$
-    assertTrue(res.contains("joe")); //$NON-NLS-1$
+    assertTrue(res.contains("admin")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllUserNames1(): " + res); //$NON-NLS-1$
@@ -273,7 +273,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     List res =userRoleListService.getAllUsers(defaultTenant);
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
-    assertTrue(res.contains("joe")); //$NON-NLS-1$
+    assertTrue(res.contains("admin")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllUserNames1(): " + res); //$NON-NLS-1$
@@ -341,7 +341,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     List res = userRoleListService.getAllUsers();
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
-    assertTrue(res.contains("joe")); //$NON-NLS-1$
+    assertTrue(res.contains("admin")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllUserNames2(): " + res); //$NON-NLS-1$
@@ -374,7 +374,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("tiffany")); //$NON-NLS-1$
-    assertTrue(res.contains("joe")); //$NON-NLS-1$
+    assertTrue(res.contains("admin")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllUserNames3(): " + res); //$NON-NLS-1$

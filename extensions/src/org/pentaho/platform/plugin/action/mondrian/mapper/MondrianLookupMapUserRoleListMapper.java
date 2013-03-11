@@ -50,7 +50,7 @@ public class MondrianLookupMapUserRoleListMapper extends MondrianAbstractPlatfor
    * Support              M_ENG             Presales_Cat, Services_Cat
    * Services             M_SVCS            Presales_Cat
    * 
-   * If user Joe has Sales , and CEO as roles, he connects to the Accting_Cat, or Sales_Cat catalogs,
+   * If user admin has Sales , and CEO as roles, he connects to the Accting_Cat, or Sales_Cat catalogs,
    * he will be connected with the mondrian role M_SALES.
    * 
    * If user Tiffany is in the Engineering and Services roles, and connects to the Presales_Cat catalog, 

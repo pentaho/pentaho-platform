@@ -9,7 +9,7 @@
 
   <sec:authentication-provider>
     <sec:user-service id="userDetailsService">
-      <sec:user password="password" name="joe" authorities="Authenticated, Admin" />
+      <sec:user password="password" name="admin" authorities="Authenticated, Admin" />
       <sec:user password="password" name="suzy" authorities="Authenticated" />
     </sec:user-service>
   </sec:authentication-provider>

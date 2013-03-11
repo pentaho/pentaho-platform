@@ -7962,7 +7962,7 @@
         <CWM:TaggedValue xmi.id='a1768' tag='SECURITY_DETAILS_NAME' value='SecurityDetails'/>
         <CWM:TaggedValue xmi.id='a1769' tag='SECURITY_DETAIL_NAME' value='details'/>
         <CWM:TaggedValue xmi.id='a1770' tag='SECURITY_DETAIL_TYPE' value='All'/>
-        <CWM:TaggedValue xmi.id='a1771' tag='SECURITY_USERNAME' value='joe'/>
+        <CWM:TaggedValue xmi.id='a1771' tag='SECURITY_USERNAME' value='admin'/>
         <CWM:TaggedValue xmi.id='a1772' tag='SECURITY_PASSWORD' value='password'/>
         <CWM:TaggedValue xmi.id='a1773' tag='SECURITY_PROXY_HOST' value=''/>
         <CWM:TaggedValue xmi.id='a1774' tag='SECURITY_PROXY_PORT' value=''/>

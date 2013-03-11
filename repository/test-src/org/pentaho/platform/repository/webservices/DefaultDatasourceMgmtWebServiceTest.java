@@ -40,7 +40,7 @@ public class DefaultDatasourceMgmtWebServiceTest  extends TestCase {
   
   private static final String EXP_UPDATED_DBMETA_PORT = "10522";
   
-  public static final String EXP_LOGIN = "joe";
+  public static final String EXP_LOGIN = "admin";
   
   private static final String FOLDER_PDI = "pdi";
  

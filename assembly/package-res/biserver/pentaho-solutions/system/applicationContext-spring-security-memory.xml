@@ -30,7 +30,7 @@
 			<!-- case matters -->
 			<value>
 				<![CDATA[
-          joe=password,ceo,Admin,Authenticated
+          admin=password,ceo,Admin,Authenticated
           suzy=password,cto,is,Authenticated
           pat=password,dev,Authenticated
           tiffany=password,dev,devmgr,Authenticated

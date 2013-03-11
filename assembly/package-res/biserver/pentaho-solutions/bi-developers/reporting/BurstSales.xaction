@@ -20,7 +20,7 @@
       </sources> 
     </ReportType>  
     <from type="string"> 
-      <default-value>joe.pentaho@pentaho.org</default-value> 
+      <default-value>admin.pentaho@pentaho.org</default-value>
     </from>  
     <attach type="string"> 
       <default-value>report-output</default-value> 

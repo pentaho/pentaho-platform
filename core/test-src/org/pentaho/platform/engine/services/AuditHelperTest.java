@@ -52,20 +52,20 @@ public class AuditHelperTest extends BaseTest {
 
   public void testAuditFailures2() {
     startTest();
-    AuditHelper.audit(null, "Joe", "ViewAction", "String", "334234", "Type", "This is a message", "Values", 34, this);//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ 
+    AuditHelper.audit(null, "admin", "ViewAction", "String", "334234", "Type", "This is a message", "Values", 34, this);//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
     assertTrue(true);
     finishTest();
   }
 
   public void testAuditFailures3() {
     startTest();
-    AuditHelper.audit("342323", "Joe", null, "String", "334234", "Type", "This is a message", "Values", 34, this);//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+    AuditHelper.audit("342323", "admin", null, "String", "334234", "Type", "This is a message", "Values", 34, this);//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
     assertTrue(true);
     finishTest();
   }
   public void testAuditFailures4() {
     startTest();
-    AuditHelper.audit("342323", "Joe", "ViewAction", "String", null, "Type", "This is a message", "Values", 34, this);//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+    AuditHelper.audit("342323", "admin", "ViewAction", "String", null, "Type", "This is a message", "Values", 34, this);//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
     assertTrue(true);
     finishTest();
   }  

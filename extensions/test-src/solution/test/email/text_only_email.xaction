@@ -13,7 +13,7 @@
 
   <inputs> 
     <to type="string"> 
-      <default-value><![CDATA[joe.pentaho@pentaho.org]]></default-value> 
+      <default-value><![CDATA[admin.pentaho@pentaho.org]]></default-value>
     </to>  
     <subject type="string"> 
       <default-value>text_only_email.xaction - Pentaho email Test</default-value>  

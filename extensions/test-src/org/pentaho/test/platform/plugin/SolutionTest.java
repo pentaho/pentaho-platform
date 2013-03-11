@@ -116,11 +116,11 @@ public class SolutionTest extends BaseTest {
     agent.setParamter("name2", "value2");//$NON-NLS-1$ //$NON-NLS-2$
     agent.setParamter("name3", "value3");//$NON-NLS-1$ //$NON-NLS-2$
     agent.setParamter("name4", "value4");//$NON-NLS-1$ //$NON-NLS-2$
-    agent.setUserId("Joe"); //$NON-NLS-1$
+    agent.setUserId("Admin"); //$NON-NLS-1$
     agent.setActionSequence("test/dashboard/departments.rule.xaction");//$NON-NLS-1$
     int result = agent.execute();
     assertEquals(agent.getDescription(), "description"); //$NON-NLS-1$
-    assertEquals(agent.getUserId(), "Joe"); //$NON-NLS-1$
+    assertEquals(agent.getUserId(), "Admin"); //$NON-NLS-1$
     assertEquals(agent.getActionSequence(), "test/dashboard/departments.rule.xaction"); //$NON-NLS-1$
     assertEquals(IRuntimeContext.RUNTIME_STATUS_SUCCESS, result);
 

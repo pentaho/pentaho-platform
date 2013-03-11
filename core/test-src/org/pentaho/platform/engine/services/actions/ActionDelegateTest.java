@@ -362,7 +362,7 @@ public class ActionDelegateTest {
     //
     assertEquals("string type input \"message\" is incorrect/not set", "Test 1..2..3", action.getMessage());
 
-    assertArrayEquals("addresseess input is incorrect/not set", new String[] { "joe", "suzy", "fred", "sam" }, action
+    assertArrayEquals("addresseess input is incorrect/not set", new String[] { "admin", "suzy", "fred", "sam" }, action
         .getAddressees().toArray());
     assertEquals("long type input \"count\" is incorrect/not set", new Long(99), action.getCount());
 

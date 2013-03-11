@@ -29,7 +29,7 @@ public class AbstractUserMapFactoryBeanTestBase {
 	protected void setUp() throws Exception {
 		StringBuffer buf = new StringBuffer();
 		buf
-				.append("joe=password,ROLE_ADMIN,ROLE_CEO,ROLE_AUTHENTICATED\n") //$NON-NLS-1$
+				.append("admin=password,ROLE_ADMIN,ROLE_CEO,ROLE_AUTHENTICATED\n") //$NON-NLS-1$
 				.append("suzy=password,ROLE_CTO,ROLE_IS,ROLE_AUTHENTICATED\n") //$NON-NLS-1$
 				.append("pat=password,ROLE_DEV,ROLE_AUTHENTICATED\n") //$NON-NLS-1$
 				.append(

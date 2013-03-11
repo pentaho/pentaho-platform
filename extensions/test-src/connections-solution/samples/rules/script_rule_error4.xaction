@@ -13,7 +13,7 @@
 
 	<inputs>
 		<user-name type="string">
-		  <default-value>joe</default-value>
+		  <default-value>admin</default-value>
 		</user-name>
 	</inputs>
 
@@ -38,7 +38,7 @@
 			      function testDashedVariable( ) {
 			      	var results = new JavaScriptResultSet();
 			      	results.setColumnHeaders( 'REGION' );
-			      	if( user_name == 'joe' ) {
+			      	if( user_name == 'admin' ) {
 			      		results.addRow( new Array( 'Central' ) );
 			      	} 
 			      	else if( use_name == 'suzy' ) {

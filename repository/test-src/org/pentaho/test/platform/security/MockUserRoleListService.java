@@ -50,15 +50,15 @@ public class MockUserRoleListService implements IUserRoleListService {
     List<String> allUsers = new ArrayList<String>(4);
     allUsers.add("pat"); //$NON-NLS-1$
     allUsers.add("tiffany"); //$NON-NLS-1$
-    allUsers.add("joe"); //$NON-NLS-1$
+    allUsers.add("admin"); //$NON-NLS-1$
     allUsers.add("suzy"); //$NON-NLS-1$
     userMap.put("default", allUsers);
     
     List<UsersInRole> userInRoles = new ArrayList<UsersInRole>(6);
     userInRoles.add(new UsersInRole("dev", Arrays.asList(new String[] {"pat", "tiffany"})));
-    userInRoles.add(new UsersInRole("Admin", Arrays.asList(new String[] {"joe"})));
+    userInRoles.add(new UsersInRole("Admin", Arrays.asList(new String[] {"admin"})));
     userInRoles.add(new UsersInRole("devmgr", Arrays.asList(new String[] {"tiffany"})));
-    userInRoles.add(new UsersInRole("ceo", Arrays.asList(new String[] {"joe"})));
+    userInRoles.add(new UsersInRole("ceo", Arrays.asList(new String[] {"admin"})));
     userInRoles.add(new UsersInRole("cto", Arrays.asList(new String[] {"suzy"})));
     userInRoles.add(new UsersInRole("is", Arrays.asList(new String[] {"suzy"})));
     usersInRole.put("default", userInRoles);
@@ -66,7 +66,7 @@ public class MockUserRoleListService implements IUserRoleListService {
     List<RolesInUser> roleInUser = new ArrayList<RolesInUser>(6);
     roleInUser.add(new RolesInUser("pat", Arrays.asList(new String[] {"dev", "Authenticated"})));
     roleInUser.add(new RolesInUser("tiffany", Arrays.asList(new String[] {"dev", "devmgr", "Authenticated"})));
-    roleInUser.add(new RolesInUser("joe", Arrays.asList(new String[] {"Admin", "ceo", "Authenticated"})));
+    roleInUser.add(new RolesInUser("admin", Arrays.asList(new String[] {"Admin", "ceo", "Authenticated"})));
     roleInUser.add(new RolesInUser("suzy", Arrays.asList(new String[] {"cto", "is", "Authenticated"})));
     rolesInUser.put("default", roleInUser);    
   }

@@ -43,12 +43,12 @@ public class ExportManifestTest extends TestCase {
 	  exportManifestInformation.setRootFolder(rootFolder);
 	  
 		List<RepositoryFileAce> aces1 = new ArrayList<RepositoryFileAce>();
-		aces1.add(createMockAce("joe-/pentaho/tenant0", "USER",
+		aces1.add(createMockAce("admin-/pentaho/tenant0", "USER",
 				RepositoryFilePermission.READ, RepositoryFilePermission.WRITE));
 		aces1.add(createMockAce("TenantAdmin-/pentaho/tenant0", "ROLE",
 				RepositoryFilePermission.READ));
 		repoDir2 = createMockRepositoryFile("/dir1/dir2", true);
-		repoDir2Acl = createMockRepositoryAcl("acl2", "joe", false, aces1);
+		repoDir2Acl = createMockRepositoryAcl("acl2", "admin", false, aces1);
 		repoFile3 = createMockRepositoryFile("/dir1/dir2/file1", false);
 		RepositoryFile badRepoFile = createMockRepositoryFile("/baddir/dir2/file1", false);
 		

@@ -403,7 +403,7 @@ public class CommandLineProcessor {
 
   /*
    * --import --url=http://localhost:8080/pentaho -
-   *  -username=joe
+   *  -username=admin
    *  --password=password 
    *  --source=file-system --charset=UTF-8
    *  --path=:public 
@@ -510,7 +510,7 @@ public class CommandLineProcessor {
    * REST Service Export
    * 
    * @throws ParseException
-   *             --export --url=http://localhost:8080/pentaho --username=joe
+   *             --export --url=http://localhost:8080/pentaho --username=admin
    *             --password=password --file-path=c:/temp/export.zip
    *             --charset=UTF-8 --path=public/pentaho-solutions/steel-wheels
    *             --logfile=c:/temp/steel-wheels.log --withManifest=true

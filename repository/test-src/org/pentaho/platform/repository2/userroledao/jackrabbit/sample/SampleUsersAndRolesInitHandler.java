@@ -35,7 +35,7 @@ public class SampleUsersAndRolesInitHandler {
         userRoleDao.createRole(getSampleTenant(), "is", "Information Services", null);
 
         userRoleDao.createUser(getSampleTenant(), "admin", "admin", null, new String[]{"Admin"});
-        userRoleDao.createUser(getSampleTenant(), "joe", "password", null, new String[]{"Admin"});
+        userRoleDao.createUser(getSampleTenant(), "admin", "password", null, new String[]{"Admin"});
         userRoleDao.createUser(getSampleTenant(), "pat", "password", null, new String[]{"dev"});
         userRoleDao.createUser(getSampleTenant(), "suzy", "password", null, new String[]{"cto", "is"});
         userRoleDao.createUser(getSampleTenant(), "tiffany", "password", null, new String[]{"dev", "devmgr"});

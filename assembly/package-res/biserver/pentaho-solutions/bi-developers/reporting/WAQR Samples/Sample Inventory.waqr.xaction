@@ -6,7 +6,7 @@
   <title>Sample Inventory</title>
   <logging-level>warn</logging-level>
   <documentation>
-    <author>joe</author>
+    <author>admin</author>
     <description>Created by the Web-based Adhoc Query and Reporting Client</description>
     <icon>PentahoReporting.png</icon>
     <help>Auto-generated action-sequence for WAQR.</help>

@@ -37,10 +37,10 @@ public class UserMapFactoryBeanTests extends AbstractUserMapFactoryBeanTestBase 
 		UserMapFactoryBean bean = new UserMapFactoryBean();
 		bean.setUserMap(userMapText);
 		UserMap map = (UserMap) bean.getObject();
-		assertNotNull(map.getUser("joe")); //$NON-NLS-1$
+		assertNotNull(map.getUser("admin")); //$NON-NLS-1$
 		assertNotNull(map.getUser("tiffany")); //$NON-NLS-1$
     // Next assert is unnecessary as by contract, the getUser returns a UserDetails
-		// assertTrue(map.getUser("joe") instanceof UserDetails); //$NON-NLS-1$
-		// System.out.println(map.getUser("joe"));
+		// assertTrue(map.getUser("admin") instanceof UserDetails); //$NON-NLS-1$
+		// System.out.println(map.getUser("admin"));
 	}
 }

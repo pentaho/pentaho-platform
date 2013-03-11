@@ -420,9 +420,9 @@ public class ChartTest extends BaseTest {
     parameterProviders.put(IParameterProvider.SCOPE_REQUEST, requestParameters);
     parameterProviders.put(IParameterProvider.SCOPE_SESSION, sessionParameters);
     StandaloneSession session = new StandaloneSession(Messages.getInstance().getString("BaseTest.DEBUG_JUNIT_SESSION")); //$NON-NLS-1$
-    UserSession usession = new UserSession("Joe", Locale.US, true, requestParameters);//$NON-NLS-1$
+    UserSession usession = new UserSession("Admin", Locale.US, true, requestParameters);//$NON-NLS-1$
     usession.doStartupActions(requestParameters);
-    UserSession usessionNoAuth = new UserSession("Joe", Locale.US, requestParameters); //$NON-NLS-1$
+    UserSession usessionNoAuth = new UserSession("Admin", Locale.US, requestParameters); //$NON-NLS-1$
     usessionNoAuth.doStartupActions(requestParameters);
     SimpleOutputHandler outputHandler = new SimpleOutputHandler(outputStream, false);
     BaseRequestHandler requestHandler = new BaseRequestHandler(session, null, outputHandler, null, urlFactory);

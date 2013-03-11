@@ -275,9 +275,9 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
       userRoleDao.createUser(defaultTenant, "tiffany", "password", "user", new String[] {authenticatedRoleName, "dev", "devmgr"});
     }
 
-    user = userRoleDao.getUser(defaultTenant, "joe");
+    user = userRoleDao.getUser(defaultTenant, "admin");
     if (user == null) {
-      userRoleDao.createUser(defaultTenant, "joe", "password", "user", new String[] {tenantAdminRoleName, authenticatedRoleName, "Admin", "ceo"});
+      userRoleDao.createUser(defaultTenant, "admin", "password", "user", new String[] {tenantAdminRoleName, authenticatedRoleName, "Admin", "ceo"});
     }
 
   }

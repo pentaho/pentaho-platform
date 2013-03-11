@@ -41,7 +41,7 @@ public class UserRoleEndpointTest extends UserRoleWebServiceTest {
     Service service = Service.create(new URL("http://localhost:8080/pentaho/webservices/userRoleService?wsdl"), new QName(
     "http://www.pentaho.org/ws/1.0", "userRoleService"));
     IUserRoleWebService userRoleWebService = service.getPort(IUserRoleWebService.class);
-    ((BindingProvider) userRoleWebService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "joe");
+    ((BindingProvider) userRoleWebService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "admin");
     ((BindingProvider) userRoleWebService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "password");
     // accept cookies to maintain session on server
     ((BindingProvider) userRoleWebService).getRequestContext().put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);

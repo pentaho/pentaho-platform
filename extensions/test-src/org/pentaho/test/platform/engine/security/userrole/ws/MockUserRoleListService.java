@@ -27,7 +27,7 @@ public class MockUserRoleListService implements IUserRoleListService {
     List<String> allUsers = new ArrayList<String>(4);
     allUsers.add("pat"); //$NON-NLS-1$
     allUsers.add("tiffany"); //$NON-NLS-1$
-    allUsers.add("joe"); //$NON-NLS-1$
+    allUsers.add("admin"); //$NON-NLS-1$
     allUsers.add("suzy"); //$NON-NLS-1$
     return allUsers;
   }
@@ -36,11 +36,11 @@ public class MockUserRoleListService implements IUserRoleListService {
     if (role.equals("dev")) { //$NON-NLS-1$
       return Arrays.asList(new String[] { "pat", "tiffany" }); //$NON-NLS-1$ //$NON-NLS-2$
     } else if (role.equals("Admin")) { //$NON-NLS-1$
-      return Arrays.asList(new String[] { "joe" });//$NON-NLS-1$
+      return Arrays.asList(new String[] { "admin" });//$NON-NLS-1$
     } else if (role.equals("devmgr")) { //$NON-NLS-1$
       return Arrays.asList(new String[] { "tiffany" });//$NON-NLS-1$
     } else if (role.equals("ceo")) { //$NON-NLS-1$
-      return Arrays.asList(new String[] { "joe" });//$NON-NLS-1$
+      return Arrays.asList(new String[] { "admin" });//$NON-NLS-1$
     } else if (role.equals("cto")) { //$NON-NLS-1$
       return Arrays.asList(new String[] { "suzy" });//$NON-NLS-1$
     } else if (role.equals("is")) { //$NON-NLS-1$
@@ -54,7 +54,7 @@ public class MockUserRoleListService implements IUserRoleListService {
       return Arrays.asList(new String[] { "dev", "Authenticated" });//$NON-NLS-1$ //$NON-NLS-2$
     } else if (username.equals("tiffany")) {//$NON-NLS-1$
       return Arrays.asList(new String[] { "dev", "devmgr", "Authenticated" });//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    } else if (username.equals("joe")) {//$NON-NLS-1$
+    } else if (username.equals("admin")) {//$NON-NLS-1$
       return Arrays.asList(new String[] { "Admin", "ceo", "Authenticated" });//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     } else if (username.equals("suzy")) {//$NON-NLS-1$
       return Arrays.asList(new String[] { "cto", "is", "Authenticated" });//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

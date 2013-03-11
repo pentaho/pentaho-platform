@@ -1,13 +1,13 @@
 version: 1
 
-dn: uid=joe,ou=users,ou=system
-mail: joe.pentaho@pentaho.org
+dn: uid=admin,ou=users,ou=system
+mail: admin.pentaho@pentaho.org
 objectclass: inetOrgPerson
 objectclass: organizationalPerson
 objectclass: person
 objectclass: top
-uid: joe
-cn: joe
+uid: admin
+cn: admin
 businesscategory: cn=ceo,ou=roles,ou=system
 businesscategory: cn=Admin,ou=roles,ou=system
 userpassword:: cGFzc3dvcmQ=
@@ -55,7 +55,7 @@ dn: cn=Sales,ou=groups,ou=system
 cn: Sales
 objectclass: groupofuniquenames
 objectclass: top
-uniquemember: uid=joe,ou=users,ou=system
+uniquemember: uid=admin,ou=users,ou=system
 
 dn: cn=Marketing,ou=groups,ou=system
 cn: Marketing
@@ -97,7 +97,7 @@ cn: ceo
 description: CEO Role
 objectclass: organizationalRole
 objectclass: top
-roleoccupant: uid=joe,ou=users,ou=system
+roleoccupant: uid=admin,ou=users,ou=system
 l: Orlando
 st: Florida
 
@@ -120,6 +120,6 @@ cn: dev
 dn: cn=Admin,ou=roles,ou=system
 objectclass: organizationalRole
 objectclass: top
-roleoccupant: uid=joe,ou=users,ou=system
+roleoccupant: uid=admin,ou=users,ou=system
 roleoccupant: uid=admin,ou=system
 cn: Admin

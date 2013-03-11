@@ -14,7 +14,7 @@
 	<inputs>
 		<to type="string-list">
 		  <default-value type="string-list">
-        <list-item>joe.pentaho@pentaho.org</list-item>
+        <list-item>admin.pentaho@pentaho.org</list-item>
         <list-item>pat.pentaho@pentaho.org</list-item>
         <list-item>suzy.pentaho@pentaho.org</list-item>
         <list-item>tiffany.pentaho@pentaho.org</list-item>
