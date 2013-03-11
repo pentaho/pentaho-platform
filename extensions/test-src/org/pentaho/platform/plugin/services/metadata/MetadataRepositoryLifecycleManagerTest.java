@@ -177,7 +177,10 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
-    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao,userDetailsService);
+    List<String> systemRoles = new ArrayList<String>();
+    systemRoles.add("Admin");
+    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao,userDetailsService,
+        systemRoles);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserRoleDao(userRoleDao);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserDetailsService(userDetailsService);
     mp.defineInstance(IUserRoleListService.class, userRoleListService);

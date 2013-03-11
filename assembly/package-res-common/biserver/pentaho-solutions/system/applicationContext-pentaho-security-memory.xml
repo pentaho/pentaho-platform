@@ -47,12 +47,13 @@
 				</bean>
 			</list>
 		</property>
-    <property name="usernameComparator">
-      <bean class="org.pentaho.platform.engine.security.DefaultUsernameComparator" />
-    </property>
-    <property name="roleComparator">
-      <bean class="org.pentaho.platform.engine.security.DefaultRoleComparator" />
-    </property>
+	    <property name="usernameComparator">
+	      <bean class="org.pentaho.platform.engine.security.DefaultUsernameComparator" />
+	    </property>
+	    <property name="roleComparator">
+	      <bean class="org.pentaho.platform.engine.security.DefaultRoleComparator" />
+	    </property>
+	    <property name="systemRoles" ref="singleTenantSystemAuthorities" />
 	</bean>
 
 </beans>

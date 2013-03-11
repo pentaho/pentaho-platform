@@ -55,6 +55,8 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
   private UserRoleListEnhancedUserMap userRoleListEnhancedUserMap;
 
   private UserDetailsService userDetailsService;
+  
+  private List<String> systemRoles;
 
   @Override
   public List<String> getAllRoles() {
@@ -147,5 +149,14 @@ public class InMemoryUserRoleListService implements IUserRoleListService, Initia
   public List<String> getAllUsers(ITenant tenant) {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public List<String> getSystemRoles() {
+    return systemRoles;
+  }
+
+  public void setSystemRoles(List<String> systemRoles) {
+    this.systemRoles = systemRoles;
   }
 }

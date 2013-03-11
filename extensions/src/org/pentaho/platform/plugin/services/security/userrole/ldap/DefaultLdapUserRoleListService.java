@@ -77,7 +77,8 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     super();
   }
   
-  public DefaultLdapUserRoleListService(final Comparator<String> usernameComparator, final Comparator<String> roleComparator,ITenantedPrincipleNameResolver userNameUtils, ITenantedPrincipleNameResolver roleNameUtils) {
+  public DefaultLdapUserRoleListService(final Comparator<String> usernameComparator, final Comparator<String> roleComparator,
+      List<String> systemRoles) {
     super();
     this.usernameComparator = usernameComparator;
     this.roleComparator = roleComparator;
@@ -199,5 +200,17 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
       throw new UnsupportedOperationException("only allowed to access to default tenant");
     }
     return getAllUsers();
+  }
+
+  private ITenant getDefaultTenant() {
+    IPentahoSession session = PentahoSessionHolder.getSession();
+    String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
+    return new Tenant(tenantId, true);
+  }
+
+  @Override
+  public List<String> getSystemRoles() {
+    // TODO Auto-generated method stub
+    return null;
   }
 }
