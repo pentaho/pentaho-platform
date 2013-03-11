@@ -85,7 +85,7 @@ public class SolutionTest extends BaseTest {
       e.printStackTrace();
     }
 
-    try {
+  /*  try {
       File f = new File(outputPath + File.separator + "report.html"); //$NON-NLS-1$
       FileOutputStream outputStream = new FileOutputStream(f);
       HashMap parameters = new HashMap();
@@ -106,7 +106,7 @@ public class SolutionTest extends BaseTest {
     finishTest();
   }
 
-  /*public void testSolutionEngineAgent() {
+  public void testSolutionEngineAgent() {
     startTest();
 
     SolutionEngineAgent agent = new SolutionEngineAgent();
