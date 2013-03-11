@@ -220,7 +220,9 @@ public class JdbcUserRoleListServiceTests {
   
 	protected JdbcUserRoleListService makePopulatedJdbcUserRoleListService()
 			throws Exception {
-		JdbcUserRoleListService dao = new JdbcUserRoleListService(makePopulatedJdbcDao());
+    List<String> systemRoles = new ArrayList<String>();
+    systemRoles.add("Admin");
+		JdbcUserRoleListService dao = new JdbcUserRoleListService(makePopulatedJdbcDao(), systemRoles);
 		dao.setDataSource(PopulatedDatabase.getDataSource());
 		return dao;
 	}

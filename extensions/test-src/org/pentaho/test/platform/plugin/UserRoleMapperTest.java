@@ -330,6 +330,11 @@ public class UserRoleMapperTest {
       }
       return Collections.emptyList();  
     }
+
+    @Override
+    public List<String> getSystemRoles() {
+        throw new UnsupportedOperationException();
+    }
     
   }
 

@@ -24,8 +24,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.mt.ITenant;
@@ -36,7 +38,8 @@ public class MockUserRoleListService implements IUserRoleListService {
   Map<String, List<String>> userMap = new HashMap<String, List<String>>();
   Map<String, List<UsersInRole>> usersInRole = new HashMap<String, List<UsersInRole>>();
   Map<String, List<RolesInUser>> rolesInUser = new HashMap<String, List<RolesInUser>>();
-  
+  List<String> systemRoles = new ArrayList<String>();
+
   public MockUserRoleListService() {
     List<String> allAuths = new ArrayList<String>(7);
     allAuths.add("dev"); //$NON-NLS-1$
@@ -68,7 +71,10 @@ public class MockUserRoleListService implements IUserRoleListService {
     roleInUser.add(new RolesInUser("tiffany", Arrays.asList(new String[] {"dev", "devmgr", "Authenticated"})));
     roleInUser.add(new RolesInUser("joe", Arrays.asList(new String[] {"Admin", "ceo", "Authenticated"})));
     roleInUser.add(new RolesInUser("suzy", Arrays.asList(new String[] {"cto", "is", "Authenticated"})));
-    rolesInUser.put("default", roleInUser);    
+    rolesInUser.put("default", roleInUser); 
+    
+    systemRoles.add("Admin");
+    systemRoles.add("Authenticated");
   }
   @Override
   public List<String> getAllRoles() {
@@ -191,5 +197,10 @@ public class MockUserRoleListService implements IUserRoleListService {
     public void add(String role) {
       this.roles.add(role);
     }
+  }
+
+  @Override
+  public List<String> getSystemRoles() {
+    return systemRoles;
   }
 }

@@ -72,4 +72,10 @@ public class StubUserRoleListService implements IUserRoleListService {
     return roles;
   }
 
+  @Override
+  public List<String> getSystemRoles() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

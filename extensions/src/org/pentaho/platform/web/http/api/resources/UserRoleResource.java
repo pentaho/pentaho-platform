@@ -68,6 +68,15 @@ public class UserRoleResource extends AbstractJaxRSResource {
 		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
 		return new RoleListWrapper(userRoleListService.getAllRoles());
 	}
+	
+	@GET
+	  @Path("/systemRoles")
+	  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+	  public RoleListWrapper getSystemRoles() throws Exception {
+	    IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
+	    return new RoleListWrapper(userRoleListService.getSystemRoles());
+	}
+	
 
 	@GET
 	@Path("/logicalRoleMap")

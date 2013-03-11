@@ -11,6 +11,7 @@
 	<bean id="userRoleListService0" class="org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService">
 		<constructor-arg ref="userRoleDaoProxy"/>
 		<constructor-arg ref="userDetailsService"/>
+		<constructor-arg ref="singleTenantSystemAuthorities" />
 	</bean>
   
   <bean id="userRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">

@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -69,15 +70,18 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
   private UserDetailsService userDetailsService;
 
   private String rolePrefix;
+  
+  private List<String> systemRoles;
 
   // ~ Constructors
   // ===========================================================
 
-  public JdbcUserRoleListService(final UserDetailsService userDetailsService) {
+  public JdbcUserRoleListService(final UserDetailsService userDetailsService, final List<String> systemRoles) {
     allAuthoritiesQuery = JdbcUserRoleListService.DEF_ALL_AUTHORITIES_QUERY;
     allUsernamesQuery = JdbcUserRoleListService.DEF_ALL_USERNAMES_QUERY;
     allUsernamesInRoleQuery = JdbcUserRoleListService.DEF_ALL_USERNAMES_IN_ROLE_QUERY;
     this.userDetailsService = userDetailsService;
+    this.systemRoles = systemRoles;
   }
 
   // ~ Methods
@@ -274,5 +278,10 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
     IPentahoSession session = PentahoSessionHolder.getSession();
     String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
     return new Tenant(tenantId, true);
+  }
+
+  @Override
+  public List<String> getSystemRoles() {
+    return systemRoles;
   }
 }
