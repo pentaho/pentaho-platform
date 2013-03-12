@@ -82,8 +82,11 @@ import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifi
 public class SchedulerResource extends AbstractJaxRSResource {
 
   protected IScheduler scheduler = PentahoSystem.get(IScheduler.class, "IScheduler2", null); //$NON-NLS-1$
+
   protected IUnifiedRepository repository = PentahoSystem.get(IUnifiedRepository.class);
+
   protected IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
+
   IPluginManager pluginMgr = PentahoSystem.get(IPluginManager.class);
 
   public SchedulerResource() {
@@ -97,7 +100,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces("text/plain")
   public Response createJob(JobScheduleRequest scheduleRequest) throws IOException {
-    if(!policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+
+    // Used to determine if created by a RunInBackgroundCommand
+    boolean bypassSecurity = scheduleRequest.getSimpleJobTrigger() == null
+        && scheduleRequest.getComplexJobTrigger() == null && scheduleRequest.getCronJobTrigger() == null;
+
+    if (bypassSecurity) {
+      scheduleRequest.setJobName("RunInBackgroundJob"); //$NON-NLS-1$
+      scheduleRequest.setSimpleJobTrigger(new SimpleJobTrigger(null, null, 0, 0));
+    }
+
+    if (!bypassSecurity && !policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
       return Response.status(UNAUTHORIZED).build();
     }
 
@@ -108,21 +121,21 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
     Map<String, Serializable> metadata = repository.getFileMetadata(file.getId());
     if (metadata.containsKey("_PERM_SCHEDULABLE")) {
-      boolean schedulable = Boolean.parseBoolean((String)metadata.get("_PERM_SCHEDULABLE"));
+      boolean schedulable = Boolean.parseBoolean((String) metadata.get("_PERM_SCHEDULABLE"));
       if (!schedulable) {
         return Response.status(FORBIDDEN).build();
       }
     }
-    
+
     Job job = null;
     try {
       IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
       String outName = RepositoryFilenameUtils.getBaseName(scheduleRequest.getInputFile());
-      
+
       if (!StringUtils.isEmpty(scheduleRequest.getJobName())) {
         outName = scheduleRequest.getJobName();
       }
-      
+
       String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName())
           + "/workspace/" + outName + ".*"; //$NON-NLS-1$ // //$NON-NLS-2$
       String actionId = RepositoryFilenameUtils.getExtension(scheduleRequest.getInputFile()) + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -177,7 +190,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
         jobTrigger = complexJobTrigger;
       } else if (scheduleRequest.getCronJobTrigger() != null) {
         if (scheduler instanceof QuartzScheduler) {
-          ComplexJobTrigger complexJobTrigger = QuartzScheduler.createComplexTrigger(scheduleRequest.getCronJobTrigger().getCronString());
+          ComplexJobTrigger complexJobTrigger = QuartzScheduler.createComplexTrigger(scheduleRequest
+              .getCronJobTrigger().getCronString());
           complexJobTrigger.setStartTime(scheduleRequest.getCronJobTrigger().getStartTime());
           complexJobTrigger.setEndTime(scheduleRequest.getCronJobTrigger().getEndTime());
           complexJobTrigger.setUiPassParam(scheduleRequest.getComplexJobTrigger().getUiPassParam());
@@ -191,8 +205,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
         parameterMap.put(param.getName(), param.getValue());
       }
 
-      job = scheduler.createJob(scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger, new RepositoryFileStreamProvider(
-          scheduleRequest.getInputFile(), outputFile));
+      job = scheduler.createJob(scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
+          new RepositoryFileStreamProvider(scheduleRequest.getInputFile(), outputFile));
     } catch (SchedulerException e) {
       return Response.serverError().entity(e.toString()).build();
     }
@@ -206,7 +220,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response triggerNow(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
           && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.triggerNow(jobRequest.getJobId());
       } else {
@@ -225,16 +240,18 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @GET
   @Path("/jobs")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public List<Job> getJobs(@DefaultValue("false") @QueryParam("asCronString") Boolean asCronString) {
+  public List<Job> getJobs(@DefaultValue("false")
+  @QueryParam("asCronString")
+  Boolean asCronString) {
     try {
       IPentahoSession session = PentahoSessionHolder.getSession();
       final String principalName = session.getName(); //this authentication wasn't matching with the job user name, changed to get name via the current session
       final Boolean canAdminister = canAdminister(session);
-      
+
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
-          if(canAdminister){
-              return true;
+          if (canAdminister) {
+            return true;
           }
           return principalName.equals(job.getUserName());
         }
@@ -244,22 +261,24 @@ public class SchedulerResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
-  private Boolean canAdminister(IPentahoSession session){
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
-        return true;
-      }
-      return false;
+
+  private Boolean canAdminister(IPentahoSession session) {
+    if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+        && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+        && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+      return true;
+    }
+    return false;
   }
 
   @GET
   @Path("/canSchedule")
   @Produces(TEXT_PLAIN)
   public String doGetCanSchedule() {
-    Boolean isAllowed =  policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING);
+    Boolean isAllowed = policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING);
     return isAllowed ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
-  
+
   @GET
   @Path("/state")
   @Produces("text/plain")
@@ -276,7 +295,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response start() {
     try {
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
           && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.start();
       }
@@ -291,7 +311,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response pause() {
     try {
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
           && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.pause();
       }
@@ -306,7 +327,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response shutdown() {
     try {
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
           && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.shutdown();
       }
@@ -323,7 +345,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response getJobState(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
           && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
       } else {
@@ -344,7 +367,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response pauseJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
           && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.pauseJob(jobRequest.getJobId());
       } else {
@@ -367,7 +391,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response resumeJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
           && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.resumeJob(jobRequest.getJobId());
       } else {
@@ -390,7 +415,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response removeJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+          && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
           && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
         scheduler.removeJob(jobRequest.getJobId());
         return Response.ok("REMOVED").type(MediaType.TEXT_PLAIN).build();
@@ -409,7 +435,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @GET
   @Path("/jobinfo")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public Job getJob(@QueryParam("jobId") String jobId, @DefaultValue("false") @QueryParam("asCronString") String asCronString) {
+  public Job getJob(@QueryParam("jobId")
+  String jobId, @DefaultValue("false")
+  @QueryParam("asCronString")
+  String asCronString) {
     try {
       Job job = scheduler.getJob(jobId);
       if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())
