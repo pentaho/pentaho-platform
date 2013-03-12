@@ -45,11 +45,14 @@ public class UserRoleWebServiceTest {
   private static HashSet<IPentahoRole> roles = new HashSet<IPentahoRole>();
   private static Map<IPentahoUser, Set<IPentahoRole>> userRolesMap = new HashMap<IPentahoUser, Set<IPentahoRole>>();
   private static Map<IPentahoRole, Set<IPentahoUser>> roleMembersMap = new HashMap<IPentahoRole, Set<IPentahoUser>>();
+  private static final String USER_ROLE_DAO_TXN = "userRoleDaoTxn";
   
   public static class UserRoleDaoMock implements IUserRoleDao {
 
     class TestTenant implements ITenant {
-      public boolean isEnabled() {
+      private static final long serialVersionUID = 7753150663858677669L;
+
+	  public boolean isEnabled() {
         return true;
       }
 
@@ -171,11 +174,6 @@ public class UserRoleWebServiceTest {
         throw new NotFoundException("");
       }
     }
-
-    private RepositoryFile createUserHomeFolder(ITenant tenant, String username) {
-      // TODO Auto-generated method stub
-      return null;
-    } 
     
     @Override
     public void setRoleMembers(ITenant tenant, String roleName, String[] memberUserNames) throws NotFoundException, UncategorizedUserRoleDaoException {
@@ -439,11 +437,11 @@ public class UserRoleWebServiceTest {
   @Before
   public void init0() {
     microPlatform = new MicroPlatform();
-    microPlatform.define("txnUserRoleDao", UserRoleDaoMock.class);
+    microPlatform.define(USER_ROLE_DAO_TXN, UserRoleDaoMock.class);
     microPlatform.define(IAclVoter.class, AclVoterMock.class);
     microPlatform.define("passwordEncoder", PasswordEncoderMock.class);
 
-   UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, "txnUserRoleDao", null);
+   UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null);
 
     users.clear();
     roles.clear();
@@ -485,7 +483,7 @@ public class UserRoleWebServiceTest {
   
   @Test
   public void testCreateRole() throws Exception {
-    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, "txnUserRoleDao", null);
+    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null);
 
     IUserRoleWebService service = getUserRoleWebService();
     ProxyPentahoRole role = new ProxyPentahoRole("role");
@@ -510,7 +508,7 @@ public class UserRoleWebServiceTest {
   
   @Test
   public void testCreateUser() throws Exception {
-    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, "txnUserRoleDao", null);
+    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null);
     
     IUserRoleWebService service = getUserRoleWebService();
     ProxyPentahoUser user = new ProxyPentahoUser();
@@ -674,7 +672,7 @@ public class UserRoleWebServiceTest {
 
   @Test
   public void testSetRoles() throws UserRoleException {
-    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, "txnUserRoleDao", null);
+    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null);
 
     IUserRoleWebService service = getUserRoleWebService();
     ProxyPentahoUser userObj = new ProxyPentahoUser();
@@ -702,7 +700,7 @@ public class UserRoleWebServiceTest {
   
   @Test
   public void testSetUsers() throws UserRoleException {
-    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, "txnUserRoleDao", null);
+    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null);
     
     IUserRoleWebService service = getUserRoleWebService();
     ProxyPentahoRole roleObj = new ProxyPentahoRole("testRole1");
@@ -730,7 +728,7 @@ public class UserRoleWebServiceTest {
   
   @Test
   public void testUpdateUser() throws UserRoleException {
-    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, "txnUserRoleDao", null);
+    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null);
     
     IUserRoleWebService service = getUserRoleWebService();
     ProxyPentahoUser userObj = new ProxyPentahoUser();
@@ -757,7 +755,7 @@ public class UserRoleWebServiceTest {
   
   @Test
   public void testUpdateRoleObject() throws UserRoleException {
-    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, "txnUserRoleDao", null);
+    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null);
     
     IUserRoleWebService service = getUserRoleWebService();
     ProxyPentahoRole roleObj = new ProxyPentahoRole("testRole1");
@@ -782,7 +780,7 @@ public class UserRoleWebServiceTest {
 
   @Test
   public void testUpdateRole() throws UserRoleException {
-    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, "txnUserRoleDao", null);
+    UserRoleDaoMock userRoleDao = PentahoSystem.get(UserRoleDaoMock.class, USER_ROLE_DAO_TXN, null);
     
     IUserRoleWebService service = getUserRoleWebService();
     ProxyPentahoRole roleObj = new ProxyPentahoRole("testRole1");
