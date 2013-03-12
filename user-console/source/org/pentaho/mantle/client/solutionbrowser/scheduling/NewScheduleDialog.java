@@ -36,6 +36,7 @@ import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
+import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
@@ -46,6 +47,7 @@ import org.pentaho.mantle.login.client.MantleLoginDialog;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayInteger;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -79,7 +81,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   ScheduleParamsDialog scheduleParamsDialog;
   ScheduleEditorWizardPanel scheduleEditorWizardPanel;
   JsJob editJob;
-  
+
   Boolean done = false;
   boolean hasParams = false;
   boolean isEmailConfValid = false;
@@ -281,7 +283,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
     JSONObject schedule = new JSONObject();
     schedule.put("jobName", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName()));
-    
+
     if (scheduleType == ScheduleType.RUN_ONCE) { // Run once types
       schedule.put("simpleJobTrigger", getJsonSimpleTrigger(0, 0, startDateTime, null)); //$NON-NLS-1$
     } else if ((scheduleType == ScheduleType.SECONDS) || (scheduleType == ScheduleType.MINUTES) || (scheduleType == ScheduleType.HOURS)) {
@@ -511,6 +513,19 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     } else {
       // submit
       JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
+
+      if (editJob != null) {
+        String lineageId = editJob.getJobParam("lineage-id");
+        JsArrayString lineageIdValue = (JsArrayString) JavaScriptObject.createArray().cast();
+        lineageIdValue.push(lineageId);
+        JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
+        p.setName("lineage-id");
+        p.setType("string");
+        p.setStringValue(lineageIdValue);
+        JSONArray scheduleParams = new JSONArray();
+        scheduleParams.set(0, new JSONObject(p));
+        scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$    
+      }
 
       RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
       scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$

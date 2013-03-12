@@ -24,14 +24,16 @@ import java.util.List;
 import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.filechooser.JsonToRepositoryFileTreeConverter;
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.gen2.table.client.FixedWidthFlexTable;
 import com.google.gwt.gen2.table.client.FixedWidthGrid;
@@ -65,15 +67,13 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
   private FixedWidthGrid dataTable;
   protected HistoryToolbar toolbar;
   protected String user;
-
-  public GeneratedContentPanel(final String repositoryFilePath) {
-    this(repositoryFilePath, null);
-  }
+  private String lineageId;
   
-  public GeneratedContentPanel(final String repositoryFilePath, final String user) {
+  public GeneratedContentPanel(final String repositoryFilePath, final String lineageId, final String user) {
     this.repositoryFilePath = repositoryFilePath;
     this.user = user;
-
+    this.lineageId = lineageId;
+    
     toolbar = new HistoryToolbar();
     toolbar.getRunButton().setEnabled(false);
     this.add(toolbar);
@@ -116,9 +116,12 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String url = contextURL + "api/repo/files/" + fileSummaryPath + "/generatedcontent"; //$NON-NLS-1$ //$NON-NLS-2$
+    String url = contextURL + "api/repo/files/" + fileSummaryPath + "/generatedContent"; //$NON-NLS-1$ //$NON-NLS-2$
     if (user != null) {
-      url = contextURL + "api/repo/files/" + fileSummaryPath + "/generatedcontentForUser?user=" + user; //$NON-NLS-1$ //$NON-NLS-2$
+      url = contextURL + "api/repo/files/" + fileSummaryPath + "/generatedContentForUser?user=" + user; //$NON-NLS-1$ //$NON-NLS-2$
+    }
+    if (!StringUtils.isEmpty(lineageId)) {
+      url = contextURL + "api/repo/files/generatedContentForSchedule?lineageId=" + lineageId; //$NON-NLS-1$ //$NON-NLS-2$
     }
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     builder.setHeader("Accept", "application/json");

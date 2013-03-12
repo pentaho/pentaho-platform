@@ -27,7 +27,9 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.workspace.JsJob;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -101,6 +103,17 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
       }
     }
 
+    if (editJob != null) {
+      String lineageId = editJob.getJobParam("lineage-id");
+      JsArrayString lineageIdValue = (JsArrayString) JavaScriptObject.createArray().cast();
+      lineageIdValue.push(lineageId);
+      JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
+      p.setName("lineage-id");
+      p.setType("string");
+      p.setStringValue(lineageIdValue);
+      scheduleParams.set(scheduleParams.size(), new JSONObject(p));
+    }
+    
     scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$    
 
     RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");

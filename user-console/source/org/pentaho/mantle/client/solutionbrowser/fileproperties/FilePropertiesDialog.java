@@ -45,7 +45,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
 
     generalTab = new GeneralPanel(this, fileSummary);
     if (!fileSummary.isFolder()) {
-      generatedContentTab = new GeneratedContentPanel(SolutionBrowserPanel.pathToId(fileSummary.getPath()));
+      generatedContentTab = new GeneratedContentPanel(SolutionBrowserPanel.pathToId(fileSummary.getPath()), null, null);
     }
     if (!isInTrash) {
       permissionsTab = new PermissionsPanel(fileSummary);

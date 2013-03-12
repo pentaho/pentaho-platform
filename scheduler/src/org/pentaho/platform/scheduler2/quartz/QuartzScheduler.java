@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -81,6 +82,8 @@ public class QuartzScheduler implements IScheduler {
   public static final String RESERVEDMAPKEY_STREAMPROVIDER = "ActionAdapterQuartzJob-StreamProvider"; //$NON-NLS-1$
   
   public static final String RESERVEDMAPKEY_UIPASSPARAM = "uiPassParam";
+
+  public static final String RESERVEDMAPKEY_LINEAGE_ID = "lineage-id";
 
   private static final Log logger = LogFactory.getLog(QuartzScheduler.class);
 
@@ -236,6 +239,11 @@ public class QuartzScheduler implements IScheduler {
     
     if (trigger.getUiPassParam() != null){
     	jobParams.put(RESERVEDMAPKEY_UIPASSPARAM, trigger.getUiPassParam());
+    }
+    
+    if (!jobParams.containsKey(RESERVEDMAPKEY_LINEAGE_ID)) {
+      String uuid = UUID.randomUUID().toString();
+      jobParams.put(RESERVEDMAPKEY_LINEAGE_ID, uuid);
     }
     
     JobDetail jobDetail = createJobDetails(jobId, jobParams);

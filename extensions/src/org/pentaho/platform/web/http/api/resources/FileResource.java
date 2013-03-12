@@ -84,9 +84,11 @@ import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
+import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -612,15 +614,15 @@ public class FileResource extends AbstractJaxRSResource {
       String targetFileId = targetFile.getId();
       SessionResource sessionResource = new SessionResource();
       
-      RepositoryFileDto workspaceFolder = repoWs.getFile(sessionResource.doGetCurrentUserDir());
+      RepositoryFile workspaceFolder = repository.getFile(sessionResource.doGetCurrentUserDir());
       if (workspaceFolder != null) {
-        List<RepositoryFileDto> children = repoWs.getChildren(workspaceFolder.getId());
-        for (RepositoryFileDto child : children) {
+        List<RepositoryFile> children = repository.getChildren(workspaceFolder.getId());
+        for (RepositoryFile child : children) {
           if (!child.isFolder()) {
             Map<String, Serializable> fileMetadata = repository.getFileMetadata(child.getId());
             String creatorId = (String) fileMetadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
             if (creatorId != null && creatorId.equals(targetFileId)) {
-              content.add(child);
+              content.add(RepositoryFileAdapter.toFileDto(child));
             }
           }
         }
@@ -630,7 +632,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   @GET
-  @Path("{pathId : .+}/generatedcontentForUser")
+  @Path("{pathId : .+}/generatedContentForUser")
   @Produces({APPLICATION_XML, APPLICATION_JSON})
   public List<RepositoryFileDto> doGetGeneratedContentForUser(@PathParam("pathId") String pathId, @QueryParam("user") String user) {
     RepositoryFileDto targetFile = doGetProperties(pathId);
@@ -639,15 +641,15 @@ public class FileResource extends AbstractJaxRSResource {
       String targetFileId = targetFile.getId();
       SessionResource sessionResource = new SessionResource();
       
-      RepositoryFileDto workspaceFolder = repoWs.getFile(sessionResource.doGetUserDir(user));
+      RepositoryFile workspaceFolder = repository.getFile(sessionResource.doGetUserDir(user));
       if (workspaceFolder != null) {
-        List<RepositoryFileDto> children = repoWs.getChildren(workspaceFolder.getId());
-        for (RepositoryFileDto child : children) {
+        List<RepositoryFile> children = repository.getChildren(workspaceFolder.getId());
+        for (RepositoryFile child : children) {
           if (!child.isFolder()) {
             Map<String, Serializable> fileMetadata = repository.getFileMetadata(child.getId());
             String creatorId = (String) fileMetadata.get(PentahoJcrConstants.PHO_CONTENTCREATOR);
             if (creatorId != null && creatorId.equals(targetFileId)) {
-              content.add(child);
+              content.add(RepositoryFileAdapter.toFileDto(child));
             }
           }
         }
@@ -655,6 +657,30 @@ public class FileResource extends AbstractJaxRSResource {
     }
     return content;
   }
+  
+  @GET
+  @Path("/generatedContentForSchedule")
+  @Produces({APPLICATION_XML, APPLICATION_JSON})
+  public List<RepositoryFileDto> doGetGeneratedContentForSchedule(@QueryParam("lineageId") String lineageId) {
+    List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
+    SessionResource sessionResource = new SessionResource();
+    RepositoryFile workspaceFolder = repository.getFile(sessionResource.doGetCurrentUserDir());
+    if (workspaceFolder != null) {
+      List<RepositoryFile> children = repository.getChildren(workspaceFolder.getId());
+      for (RepositoryFile child : children) {
+        if (!child.isFolder()) {
+          Map<String, Serializable> fileMetadata = repository.getFileMetadata(child.getId());
+          String lineageIdMeta = (String) fileMetadata.get(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID);
+          if (lineageIdMeta != null && lineageIdMeta.equals(lineageId)) {
+            content.add(RepositoryFileAdapter.toFileDto(child));
+          }
+        }
+      }
+    }
+    return content;
+  }
+  
+  
   /////////
   // BROWSE
 
