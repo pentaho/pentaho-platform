@@ -133,4 +133,12 @@ public interface ITenantManager {
    * @return home folder
    */
   RepositoryFile createUserHomeFolder(final ITenant tenant, final String username);
+
+  /** Retrieves users home folder. 
+   * @param tenantPath
+   * @param username
+   * @return home folder if it exists
+   */
+  RepositoryFile getUserHomeFolder(final ITenant tenant, final String username);
+
 }

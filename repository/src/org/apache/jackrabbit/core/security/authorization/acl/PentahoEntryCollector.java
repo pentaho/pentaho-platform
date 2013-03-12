@@ -24,7 +24,6 @@ import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.unified.jcr.IAclMetadataStrategy.AclMetadata;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclUtils;
@@ -250,12 +249,11 @@ public class PentahoEntryCollector extends EntryCollector {
       e.printStackTrace();
     }
     
-    ITenant currentTenant = TenantUtils.getCurrentTenant();
-    if ((currentTenant != null) && (currentTenant.getId() != null)) {
+    ITenant tenant = JcrTenantUtils.getTenant();
     for (final MagicAceDefinition def : magicAceDefinitions) {
       match = false;
           
-        String substitutedPath = MessageFormat.format(def.path, currentTenant.getRootFolderAbsolutePath());
+        String substitutedPath = MessageFormat.format(def.path, tenant.getRootFolderAbsolutePath());
       if (isAllowed(roleBindingDao, def.logicalRole)) {        
         if (def.applyToTarget) {
           match = path.equals(substitutedPath);
@@ -272,7 +270,6 @@ public class PentahoEntryCollector extends EntryCollector {
         // unfortunately, we need the ACLTemplate because it alone can create ACEs that can be cast successfully later; changed never persisted
         acl.addAccessControlEntry(principal, def.privileges);
       }
-    }
     }
     
     List<AccessControlEntry> acEntries = new ArrayList<AccessControlEntry>();
@@ -394,12 +391,14 @@ public class PentahoEntryCollector extends EntryCollector {
 
   protected List<String> getRuntimeRoleNames() {
     IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
+    List<String> runtimeRoles = new ArrayList<String>();
     Assert.state(pentahoSession != null);
     Authentication authentication = SecurityHelper.getInstance().getAuthentication();
-    GrantedAuthority[] authorities = authentication.getAuthorities();
-    List<String> runtimeRoles = new ArrayList<String>();
-    for (int i = 0; i < authorities.length; i++) {
-      runtimeRoles.add(authorities[i].getAuthority());
+    if(authentication != null) {
+      GrantedAuthority[] authorities = authentication.getAuthorities();
+      for (int i = 0; i < authorities.length; i++) {
+        runtimeRoles.add(authorities[i].getAuthority());
+      }
     }
     return runtimeRoles;
   }

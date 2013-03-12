@@ -49,6 +49,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -61,9 +62,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
+import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
@@ -98,7 +99,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   private ICurrentUserProvider currentUserProvider = new SpringSecurityCurrentUserProvider();
 
   private FileRecord root;
-  
+
   private static ITenantedPrincipleNameResolver userNameUtils = new DefaultTenantedPrincipleNameResolver();
 
   // ~ Constructors ====================================================================================================
@@ -143,16 +144,14 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     root.addChild(pub);
     idManager.register(pub);
 
-
-    RepositoryFile etcFolder = new RepositoryFile.Builder("etc").path(RepositoryFile.SEPARATOR + "etc")
-        .folder(true).build();
+    RepositoryFile etcFolder = new RepositoryFile.Builder("etc").path(RepositoryFile.SEPARATOR + "etc").folder(true)
+        .build();
 
     RepositoryFileAcl etcFolderAcl = new RepositoryFileAcl.Builder(root()).entriesInheriting(true).build();
 
     FileRecord etc = new FileRecord(etcFolder, etcFolderAcl);
     root.addChild(etc);
     idManager.register(etc);
-
 
   }
 
@@ -206,9 +205,9 @@ public class MockUnifiedRepository implements IUnifiedRepository {
         return null;
       }
       return idManager.getFileById(fileId).getFile();
-    } else {
-      return null;
     }
+
+    return null;
   }
 
   @Override
@@ -222,6 +221,26 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
+  public RepositoryFile getFile(String path, IPentahoLocale locale) {
+    return getFile(path);
+  }
+
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, IPentahoLocale locale) {
+    return getFileById(fileId);
+  }
+
+  @Override
+  public RepositoryFile getFile(String path, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return getFile(path);
+  }
+
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return getFileById(fileId);
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <T extends IRepositoryFileData> T getDataForRead(final Serializable fileId, final Class<T> dataClass) {
     FileRecord r = idManager.getFileById(fileId);
@@ -231,12 +250,12 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   @Override
   @SuppressWarnings("unchecked")
   public <T extends IRepositoryFileData> T getDataAtVersionForRead(final Serializable fileId,
-                                                                   final Serializable versionId, final Class<T> dataClass) {
+      final Serializable versionId, final Class<T> dataClass) {
     if (versionId == null) {
       return (T) versionManager.getLatestVersion(fileId).getData();
-    } else {
-      return (T) versionManager.getFileAtVersion(fileId, versionId).getData();
     }
+
+    return (T) versionManager.getFileAtVersion(fileId, versionId).getData();
   }
 
   @Override
@@ -246,13 +265,13 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute(final Serializable fileId,
-                                                                      final Serializable versionId, final Class<T> dataClass) {
+      final Serializable versionId, final Class<T> dataClass) {
     return getDataAtVersionForRead(fileId, versionId, dataClass);
   }
 
   @Override
   public <T extends IRepositoryFileData> List<T> getDataForReadInBatch(final List<RepositoryFile> files,
-                                                                       final Class<T> dataClass) {
+      final Class<T> dataClass) {
     List<T> datas = new ArrayList<T>();
     for (RepositoryFile file : files) {
       if (file.getVersionId() != null) {
@@ -266,7 +285,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch(final List<RepositoryFile> files,
-                                                                          final Class<T> dataClass) {
+      final Class<T> dataClass) {
     List<T> datas = new ArrayList<T>();
     for (RepositoryFile file : files) {
       if (file.getVersionId() != null) {
@@ -280,19 +299,20 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-                                   final IRepositoryFileData data, final String versionMessage) {
+      final IRepositoryFileData data, final String versionMessage) {
     return createFile(parentFolderId, file, data, createDefaultAcl(), versionMessage);
   }
 
   private RepositoryFileAcl createDefaultAcl() {
-    RepositoryFileAcl.Builder builder = new RepositoryFileAcl.Builder(userNameUtils.getPrincipleId(new Tenant("/pentaho", true), currentUserProvider.getUser()));
+    RepositoryFileAcl.Builder builder = new RepositoryFileAcl.Builder(userNameUtils.getPrincipleId(new Tenant(
+        "/pentaho", true), currentUserProvider.getUser()));
     builder.entriesInheriting(true);
     return builder.build();
   }
 
   @Override
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-                                   final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
+      final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     Validate.isTrue(!file.isFolder());
     if (!hasAccess(parentFolderId, EnumSet.of(WRITE))) {
       throw new AccessDeniedException("access denied");
@@ -321,7 +341,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       r.setData(new ReusableSimpleRepositoryFileData((SimpleRepositoryFileData) data));
     } else if (data instanceof NodeRepositoryFileData) {
       DataNode node = ((NodeRepositoryFileData) data).getNode();
-      referralManager.process(r.getFile().getId(), oldData != null ? ((NodeRepositoryFileData) oldData).getNode() : null, node);
+      referralManager.process(r.getFile().getId(), oldData != null ? ((NodeRepositoryFileData) oldData).getNode()
+          : null, node);
       r.setData(new NodeRepositoryFileData(idManager.process(node)));
     }
   }
@@ -350,13 +371,13 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
-                                     final String versionMessage) {
+      final String versionMessage) {
     return createFolder(parentFolderId, file, createDefaultAcl(), versionMessage);
   }
 
   @Override
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
-                                     final RepositoryFileAcl acl, final String versionMessage) {
+      final RepositoryFileAcl acl, final String versionMessage) {
     Validate.isTrue(file.isFolder());
     Validate.isTrue(!file.isVersioned());
     if (!hasAccess(parentFolderId, EnumSet.of(WRITE))) {
@@ -420,7 +441,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData data,
-                                   final String versionMessage) {
+      final String versionMessage) {
     Validate.isTrue(!file.isFolder());
     if (!hasAccess(file.getId(), EnumSet.of(WRITE))) {
       throw new AccessDeniedException("access denied");
@@ -450,7 +471,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       idManager.deregister(fileId);
     }
   }
-  
+
   private void orphanFile(final Serializable fileId) {
     FileRecord r = idManager.getFileById(fileId);
     FileRecord parentFolder = r.getParent();
@@ -636,9 +657,9 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     FileRecord r = idManager.getFileById(fileId);
     if (r.getParent() != null) {
       return getEffectiveAces(r.getParent().getFile().getId());
-    } else {
-      return r.getAcl().getAces();
     }
+
+    return r.getAcl().getAces();
   }
 
   @Override
@@ -649,8 +670,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     } else {
       r = versionManager.getFileAtVersion(fileId, versionId);
     }
-    return new VersionSummary(r.getVersionId(), r.getFile().getId(), false, r.getDate(), r.getAuthor(), r.getVersionMessage(),
-        new ArrayList<String>(0));
+    return new VersionSummary(r.getVersionId(), r.getFile().getId(), false, r.getDate(), r.getAuthor(),
+        r.getVersionMessage(), new ArrayList<String>(0));
   }
 
   @Override
@@ -671,8 +692,8 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     List<VersionSummary> sums = new ArrayList<VersionSummary>();
     List<FrozenFileRecord> records = versionManager.getVersions(fileId);
     for (FrozenFileRecord record : records) {
-      sums.add(new VersionSummary(record.getVersionId(), record.getFile().getId(), false, record.getDate(),
-          record.getAuthor(), record.getVersionMessage(), new ArrayList<String>(0)));
+      sums.add(new VersionSummary(record.getVersionId(), record.getFile().getId(), false, record.getDate(), record
+          .getAuthor(), record.getVersionMessage(), new ArrayList<String>(0)));
     }
     return sums;
   }
@@ -748,7 +769,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   private class FileRecord implements Comparable<FileRecord> {
 
     public FileRecord(final RepositoryFile file, final IRepositoryFileData data, final RepositoryFileAcl acl,
-                      final Map<String, Serializable> metadata) {
+        final Map<String, Serializable> metadata) {
       this.file = file;
       setData(data);
       this.acl = acl;
@@ -856,7 +877,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
 
     public void orphan(final String name) {
-      for (Iterator<FileRecord> iter = children.iterator(); iter.hasNext(); ) {
+      for (Iterator<FileRecord> iter = children.iterator(); iter.hasNext();) {
         FileRecord r = iter.next();
         if (r.getFile().getName().equals(name)) {
           iter.remove();
@@ -914,7 +935,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       }
       return node;
     }
-    
+
     /**
      * Removes file from this manager. Returns FileRecord mapped to fileId (null if no such fileId).
      */
@@ -937,7 +958,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
 
     public void createVersion(final Serializable fileId, final String author, final String versionMessage,
-                              final Date date) {
+        final Date date) {
       List<FrozenFileRecord> history = versionMap.get(fileId);
       if (history == null) {
         history = new ArrayList<FrozenFileRecord>();
@@ -967,7 +988,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     }
 
     public FrozenFileRecord restoreVersion(final Serializable fileId, final Serializable versionId,
-                                           final String author, final String versionMessage, final Date date) {
+        final String author, final String versionMessage, final Date date) {
       List<FrozenFileRecord> history = versionMap.get(fileId);
       if (history == null) {
         throw new UnifiedRepositoryException(String.format("version history for [%s] does not exist", fileId));
@@ -981,9 +1002,9 @@ public class MockUnifiedRepository implements IUnifiedRepository {
         history.add(new FrozenFileRecord(history.size(), new RepositoryFile.Builder(r.getFile()).versionId(
             history.size()).build(), r.getData(), r.getMetadata(), author, versionMessage, date));
         return history.get(history.size() - 1);
-      } else {
-        throw new UnifiedRepositoryException(String.format("unknown version [%s]", fileId));
       }
+
+      throw new UnifiedRepositoryException(String.format("unknown version [%s]", fileId));
     }
 
     public List<FrozenFileRecord> getVersions(final Serializable fileId) {
@@ -992,7 +1013,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
         throw new UnifiedRepositoryException(String.format("version history for [%s] does not exist", fileId));
       }
       List<FrozenFileRecord> cleanedHistory = new ArrayList<FrozenFileRecord>(history);
-      for (Iterator<FrozenFileRecord> iter = cleanedHistory.iterator(); iter.hasNext(); ) {
+      for (Iterator<FrozenFileRecord> iter = cleanedHistory.iterator(); iter.hasNext();) {
         FrozenFileRecord r = iter.next();
         if (r == null) {
           iter.remove();
@@ -1043,7 +1064,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     private Date date;
 
     public FrozenFileRecord(final Serializable versionId, final RepositoryFile file, final IRepositoryFileData data,
-                            final Map<String, Serializable> metadata, final String author, final String versionMessage, final Date date) {
+        final Map<String, Serializable> metadata, final String author, final String versionMessage, final Date date) {
       super();
       this.versionId = versionId;
       this.file = file;
@@ -1130,7 +1151,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
       String origPath = trash.getIdToOrigPathMap().get(fileId);
       List<FileRecord> dels = trash.getOrigPathToFilesMap().get(origPath);
       FileRecord found = null;
-      for (Iterator<FileRecord> iter = dels.iterator(); iter.hasNext(); ) {
+      for (Iterator<FileRecord> iter = dels.iterator(); iter.hasNext();) {
         FileRecord r = iter.next();
         if (r.getFile().getId().equals(fileId)) {
           iter.remove();
@@ -1290,96 +1311,96 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public String getProductID() {
-     return VersionHelper.getVersionInfo(this.getClass()).getProductID();
+    return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }
 
-//  public static void main(final String[] args) throws Exception {
-//    MockUnifiedRepository repo = new MockUnifiedRepository();
-//    t(repo.getFile("/").getId() != null);
-//    t(repo.getFile("/").getPath().equals("/"));
-//    t(repo.getFile("/public").getId() != null);
-//    t(repo.getFile("/public").getPath().equals("/public"));
-//    repo.createFile(repo.getFile("/public").getId(), new RepositoryFile.Builder("file.txt").versioned(true).build(),
-//        new SimpleRepositoryFileData(new ByteArrayInputStream("hello world".getBytes("UTF-8")), "UTF-8", "text/plain"),
-//        "hello world");
-//    t(repo.getFile("/public/file.txt").getId() != null);
-//    t(repo.getVersionSummaries(repo.getFile("/public/file.txt").getId()).size() == 1);
-//
-//    repo.updateFile(repo.getFile("/public/file.txt"), new SimpleRepositoryFileData(new ByteArrayInputStream(
-//        "caio world".getBytes("UTF-8")), "UTF-8", "text/plain"), "caio world");
-//    t(repo.getVersionSummaries(repo.getFile("/public/file.txt").getId()).size() == 2);
-//    List<VersionSummary> sums = repo.getVersionSummaries(repo.getFile("/public/file.txt").getId());
-//    t(repo.getFileAtVersion(sums.get(0).getVersionedFileId(), sums.get(0).getId()) != null);
-//    t(repo.getFileAtVersion(sums.get(1).getVersionedFileId(), sums.get(1).getId()) != null);
-//    SimpleRepositoryFileData d = repo.getDataForRead(repo.getFile("/public/file.txt").getId(),
-//        SimpleRepositoryFileData.class);
-//    SimpleRepositoryFileData d0 = repo.getDataAtVersionForRead(repo.getFile("/public/file.txt").getId(), sums.get(0)
-//        .getId(), SimpleRepositoryFileData.class);
-//    SimpleRepositoryFileData d1 = repo.getDataAtVersionForRead(repo.getFile("/public/file.txt").getId(), sums.get(1)
-//        .getId(), SimpleRepositoryFileData.class);
-//    t(Arrays.equals(IOUtils.toByteArray(d.getStream()), IOUtils.toByteArray(d1.getStream())));
-//    t(Arrays.equals(IOUtils.toByteArray(d0.getStream()), "hello world".getBytes("UTF-8")));
-//    t(Arrays.equals(IOUtils.toByteArray(d1.getStream()), "caio world".getBytes("UTF-8")));
-//
-//    repo.restoreFileAtVersion(repo.getFile("/public/file.txt").getId(), sums.get(0).getId(), null);
-//    List<VersionSummary> sums2 = repo.getVersionSummaries(repo.getFile("/public/file.txt").getId());
-//    t(sums2.size() == 3);
-//    SimpleRepositoryFileData d2 = repo.getDataForRead(repo.getFile("/public/file.txt").getId(),
-//        SimpleRepositoryFileData.class);
-//    t(Arrays.equals(IOUtils.toByteArray(d2.getStream()), "hello world".getBytes("UTF-8")));
-//    repo.deleteFileAtVersion(repo.getFile("/public/file.txt").getId(), sums2.get(2).getId());
-//    t(repo.getVersionSummaries(repo.getFile("/public/file.txt").getId()).size() == 2);
-//
-//    t(repo.getAcl(repo.getFile("/public/file.txt").getId()) != null);
-//    RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(repo.getAcl(repo.getFile("/public/file.txt").getId()))
-//        .ace(new RepositoryFileSid("larry", USER), READ).build();
-//    t(repo.updateAcl(newAcl).getId() != null);
-//    t(repo.getAcl(repo.getFile("/public/file.txt").getId()).getAces().get(0).getSid()
-//        .equals(new RepositoryFileSid("larry", USER)));
-//
-//    t(repo.createFolder(repo.getFile("/public").getId(), new RepositoryFile.Builder("testFolder").folder(true).build(),
-//        null).getId() != null);
-//
-//    t(repo.getChildren(repo.getFile("/public").getId()).size() == 2);
-//    t(repo.getChildren(repo.getFile("/public").getId(), "*.txt").size() == 1);
-//
-//    RepositoryFileTree tree = repo.getTree("/public", -1, null, true);
-//    t(tree.getFile().getName().equals("public"));
-//    t(tree.getChildren().size() == 2);
-//    t(tree.getChildren().get(1).getFile().getName().equals("testFolder"));
-//
-//    repo.copyFile(repo.getFile("/public/file.txt").getId(), "/public/testFolder", null);
-//    t(repo.getFile("/public/file.txt") != null);
-//    t(repo.getFile("/public/testFolder/file.txt") != null);
-//    t(!repo.getFile("/public/file.txt").getId().equals(repo.getFile("/public/testFolder/file.txt").getId()));
-//    Serializable testFolderFileId = repo.getFile("/public/testFolder/file.txt").getId();
-//    repo.moveFile(testFolderFileId, "/public/file2.txt", null);
-//    t(repo.getFile("/public/testFolder/file.txt") == null);
-//    t(repo.getFile("/public/file2.txt").getId().equals(testFolderFileId));
-//
-//    t(repo.canUnlockFile(repo.getFile("/public/file.txt").getId()));
-//    t(!repo.getFile("/public/file.txt").isLocked());
-//    repo.lockFile(repo.getFile("/public/file.txt").getId(), "blah");
-//    t(repo.getFile("/public/file.txt").isLocked());
-//    t(repo.getFile("/public/file.txt").getLockMessage().equals("blah"));
-//    repo.unlockFile(repo.getFile("/public/file.txt").getId());
-//    t(!repo.getFile("/public/file.txt").isLocked());
-//
-//    t(repo.getDeletedFiles().isEmpty());
-//    Serializable fileTxtId = repo.getFile("/public/file.txt").getId();
-//    repo.deleteFile(repo.getFile("/public/file.txt").getId(), null);
-//    t(repo.getDeletedFiles().size() == 1);
-//    t(repo.getDeletedFiles("/public").size() == 1);
-//    t(repo.getDeletedFiles("/public", "*.txt").size() == 1);
-//    repo.undeleteFile(fileTxtId, null);
-//    t(repo.getDeletedFiles().isEmpty());
-//    repo.deleteFile(repo.getFile("/public/file.txt").getId(), true, null);
-//    t(repo.getDeletedFiles().isEmpty());
-//  }
-//
-//  private static void t(boolean test) {
-//    if (!test) {
-//      throw new RuntimeException();
-//    }
-//  }
+  //  public static void main(final String[] args) throws Exception {
+  //    MockUnifiedRepository repo = new MockUnifiedRepository();
+  //    t(repo.getFile("/").getId() != null);
+  //    t(repo.getFile("/").getPath().equals("/"));
+  //    t(repo.getFile("/public").getId() != null);
+  //    t(repo.getFile("/public").getPath().equals("/public"));
+  //    repo.createFile(repo.getFile("/public").getId(), new RepositoryFile.Builder("file.txt").versioned(true).build(),
+  //        new SimpleRepositoryFileData(new ByteArrayInputStream("hello world".getBytes("UTF-8")), "UTF-8", "text/plain"),
+  //        "hello world");
+  //    t(repo.getFile("/public/file.txt").getId() != null);
+  //    t(repo.getVersionSummaries(repo.getFile("/public/file.txt").getId()).size() == 1);
+  //
+  //    repo.updateFile(repo.getFile("/public/file.txt"), new SimpleRepositoryFileData(new ByteArrayInputStream(
+  //        "caio world".getBytes("UTF-8")), "UTF-8", "text/plain"), "caio world");
+  //    t(repo.getVersionSummaries(repo.getFile("/public/file.txt").getId()).size() == 2);
+  //    List<VersionSummary> sums = repo.getVersionSummaries(repo.getFile("/public/file.txt").getId());
+  //    t(repo.getFileAtVersion(sums.get(0).getVersionedFileId(), sums.get(0).getId()) != null);
+  //    t(repo.getFileAtVersion(sums.get(1).getVersionedFileId(), sums.get(1).getId()) != null);
+  //    SimpleRepositoryFileData d = repo.getDataForRead(repo.getFile("/public/file.txt").getId(),
+  //        SimpleRepositoryFileData.class);
+  //    SimpleRepositoryFileData d0 = repo.getDataAtVersionForRead(repo.getFile("/public/file.txt").getId(), sums.get(0)
+  //        .getId(), SimpleRepositoryFileData.class);
+  //    SimpleRepositoryFileData d1 = repo.getDataAtVersionForRead(repo.getFile("/public/file.txt").getId(), sums.get(1)
+  //        .getId(), SimpleRepositoryFileData.class);
+  //    t(Arrays.equals(IOUtils.toByteArray(d.getStream()), IOUtils.toByteArray(d1.getStream())));
+  //    t(Arrays.equals(IOUtils.toByteArray(d0.getStream()), "hello world".getBytes("UTF-8")));
+  //    t(Arrays.equals(IOUtils.toByteArray(d1.getStream()), "caio world".getBytes("UTF-8")));
+  //
+  //    repo.restoreFileAtVersion(repo.getFile("/public/file.txt").getId(), sums.get(0).getId(), null);
+  //    List<VersionSummary> sums2 = repo.getVersionSummaries(repo.getFile("/public/file.txt").getId());
+  //    t(sums2.size() == 3);
+  //    SimpleRepositoryFileData d2 = repo.getDataForRead(repo.getFile("/public/file.txt").getId(),
+  //        SimpleRepositoryFileData.class);
+  //    t(Arrays.equals(IOUtils.toByteArray(d2.getStream()), "hello world".getBytes("UTF-8")));
+  //    repo.deleteFileAtVersion(repo.getFile("/public/file.txt").getId(), sums2.get(2).getId());
+  //    t(repo.getVersionSummaries(repo.getFile("/public/file.txt").getId()).size() == 2);
+  //
+  //    t(repo.getAcl(repo.getFile("/public/file.txt").getId()) != null);
+  //    RepositoryFileAcl newAcl = new RepositoryFileAcl.Builder(repo.getAcl(repo.getFile("/public/file.txt").getId()))
+  //        .ace(new RepositoryFileSid("larry", USER), READ).build();
+  //    t(repo.updateAcl(newAcl).getId() != null);
+  //    t(repo.getAcl(repo.getFile("/public/file.txt").getId()).getAces().get(0).getSid()
+  //        .equals(new RepositoryFileSid("larry", USER)));
+  //
+  //    t(repo.createFolder(repo.getFile("/public").getId(), new RepositoryFile.Builder("testFolder").folder(true).build(),
+  //        null).getId() != null);
+  //
+  //    t(repo.getChildren(repo.getFile("/public").getId()).size() == 2);
+  //    t(repo.getChildren(repo.getFile("/public").getId(), "*.txt").size() == 1);
+  //
+  //    RepositoryFileTree tree = repo.getTree("/public", -1, null, true);
+  //    t(tree.getFile().getName().equals("public"));
+  //    t(tree.getChildren().size() == 2);
+  //    t(tree.getChildren().get(1).getFile().getName().equals("testFolder"));
+  //
+  //    repo.copyFile(repo.getFile("/public/file.txt").getId(), "/public/testFolder", null);
+  //    t(repo.getFile("/public/file.txt") != null);
+  //    t(repo.getFile("/public/testFolder/file.txt") != null);
+  //    t(!repo.getFile("/public/file.txt").getId().equals(repo.getFile("/public/testFolder/file.txt").getId()));
+  //    Serializable testFolderFileId = repo.getFile("/public/testFolder/file.txt").getId();
+  //    repo.moveFile(testFolderFileId, "/public/file2.txt", null);
+  //    t(repo.getFile("/public/testFolder/file.txt") == null);
+  //    t(repo.getFile("/public/file2.txt").getId().equals(testFolderFileId));
+  //
+  //    t(repo.canUnlockFile(repo.getFile("/public/file.txt").getId()));
+  //    t(!repo.getFile("/public/file.txt").isLocked());
+  //    repo.lockFile(repo.getFile("/public/file.txt").getId(), "blah");
+  //    t(repo.getFile("/public/file.txt").isLocked());
+  //    t(repo.getFile("/public/file.txt").getLockMessage().equals("blah"));
+  //    repo.unlockFile(repo.getFile("/public/file.txt").getId());
+  //    t(!repo.getFile("/public/file.txt").isLocked());
+  //
+  //    t(repo.getDeletedFiles().isEmpty());
+  //    Serializable fileTxtId = repo.getFile("/public/file.txt").getId();
+  //    repo.deleteFile(repo.getFile("/public/file.txt").getId(), null);
+  //    t(repo.getDeletedFiles().size() == 1);
+  //    t(repo.getDeletedFiles("/public").size() == 1);
+  //    t(repo.getDeletedFiles("/public", "*.txt").size() == 1);
+  //    repo.undeleteFile(fileTxtId, null);
+  //    t(repo.getDeletedFiles().isEmpty());
+  //    repo.deleteFile(repo.getFile("/public/file.txt").getId(), true, null);
+  //    t(repo.getDeletedFiles().isEmpty());
+  //  }
+  //
+  //  private static void t(boolean test) {
+  //    if (!test) {
+  //      throw new RuntimeException();
+  //    }
+  //  }
 }

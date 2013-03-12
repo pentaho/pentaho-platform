@@ -35,6 +35,7 @@
 		</property>
     <property name="rolePrefix" value="" />
     <property name="defaultRole" ref="defaultRole" />
+    <constructor-arg ref="tenantedUserNameUtils"/>		
 	</bean>
   
 	<!--  This is only for Hypersonic. Please update this section for any other database you are using -->

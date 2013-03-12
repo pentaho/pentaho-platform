@@ -93,8 +93,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 @SuppressWarnings("nls")
 public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationContextAware {
   private UnifiedRepositoryToWebServiceAdapter adapter;
-  private String tenantAdminAuthorityNamePattern;
-  private String tenantAuthenticatedAuthorityNamePattern;
+  private String tenantAdminAuthorityName;
+  private String tenantAuthenticatedAuthorityName;
   private String sysAdminAuthorityName;
   private IUnifiedRepository repository;
   private IUnifiedRepositoryJaxwsWebService repositoryWS;
@@ -104,8 +104,6 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
   private JcrTemplate testJcrTemplate;
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
-  private ITenantedPrincipleNameResolver userNameUtils = new DefaultTenantedPrincipleNameResolver();
-  private ITenantedPrincipleNameResolver roleNameUtils = new DefaultTenantedPrincipleNameResolver();
   private String sysAdminRoleName;
   private String tenantAdminRoleName;
   private String tenantAuthenticatedRoleName;
@@ -146,22 +144,22 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
     mp = new MicroPlatform();
     // used by DefaultPentahoJackrabbitAccessControlHelper
-    mp.defineInstance("tenantedUserNameUtils", userNameUtils);
-    mp.defineInstance("tenantedRoleNameUtils", roleNameUtils);    
+    mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
+    mp.defineInstance("tenantedRoleNameUtils", tenantedRoleNameUtils);    
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance(ITenantManager.class, tenantManager);
     mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
     mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
     // Start the micro-platform
     mp.start();
-    systemTenant = tenantMgrTxn.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    systemTenant = tenantMgrTxn.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
     logout();
 
   }
   
   private void cleanupUserAndRoles(String userName, ITenant systemTenant, ITenant tenant) {
-    login(userName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login(userName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     for (IPentahoRole role : userRoleDao.getRoles(tenant)) {
       userRoleDao.deleteRole(role);
     }
@@ -204,8 +202,8 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     repositoryAdminUsername = null;
     sysAdminAuthorityName = null;
     sysAdminUserName = null;
-    tenantAdminAuthorityNamePattern = null;
-    tenantAuthenticatedAuthorityNamePattern = null;
+    tenantAdminAuthorityName = null;
+    tenantAuthenticatedAuthorityName = null;
     authorizationPolicy = null;
     testJcrTemplate = null;
     if (startupCalled) {
@@ -272,8 +270,8 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     testJcrTemplate.setAllowCreate(true);
     testJcrTemplate.setExposeNativeSession(true);
     repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
-    tenantAuthenticatedAuthorityNamePattern = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
-    tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    tenantAuthenticatedAuthorityName = (String) applicationContext.getBean("singleTenantAuthenticatedAuthorityName");
+    tenantAdminAuthorityName = (String) applicationContext.getBean("singleTenantAdminAuthorityName");
     sysAdminAuthorityName = (String) applicationContext.getBean("superAdminAuthorityName");
     sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
@@ -297,10 +295,10 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
   
   @Test
   public void testFileMetadata() throws Exception {
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
-    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    login("admin", mainTenant_1, new String[]{tenantAuthenticatedAuthorityNamePattern});
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+    login("admin", mainTenant_1, new String[]{tenantAuthenticatedAuthorityName});
     RepositoryFile file = repository.getFile(ClientRepositoryPaths.getPublicFolderPath());
     final RepositoryFile testfile = repository.createFile(file.getId(),
         new RepositoryFile.Builder("testfile").build(),

@@ -355,7 +355,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   public void init(RepositoryFile fileSummary, Document fileInfo) {
     this.fileInfo = fileInfo;
-    addOwnerAcls();
     usersAndRolesList.clear();
     existingUsersAndRoles.clear();
 
@@ -478,26 +477,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         ace.getParentNode().removeChild(ace);
         break;
       }
-    }
-  }
-
-  /**
-   * 
-   */
-  private void addOwnerAcls() {
-    // First get the owners name and type
-    String ownerName = getOwnerName();
-    Integer ownerType = getOwnerType();
-
-    // Now see if we have the owner in the aces
-    Boolean foundOwner = getNames(ownerType).contains(ownerName);
-    if (!foundOwner) { // We don't have the owner in the aces so we'll create one. Otherwise use whats there.
-      addRecipient(ownerName, ownerType);
-      // by default the owner gets everything
-      updatePermissionForUserOrRole(ownerName, true, PERM_READ);
-      updatePermissionForUserOrRole(ownerName, true, PERM_ACE_READ);
-      updatePermissionForUserOrRole(ownerName, true, PERM_WRITE);
-      updatePermissionForUserOrRole(ownerName, true, PERM_ACE_WRITE);
     }
   }
 

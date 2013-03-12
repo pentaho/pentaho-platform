@@ -21,15 +21,12 @@ import javax.jcr.Value;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.springframework.util.Assert;
@@ -81,18 +78,13 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     boolean includeSuperAdminLogicalRoles = false;
     for (String runtimeRoleName : runtimeRoleNames) {
       if (!superAdminRoleName.equals(runtimeRoleName)) {
-        ITenant tenant = tenantedRoleNameUtils.getTenant(runtimeRoleName);
-        if (tenant == null || tenant.getId() == null) {
-          tenant = getCurrentTenant();
-        }
-        if (tenant != null) {
+          ITenant tenant = JcrTenantUtils.getTenant(runtimeRoleName, false);
           List<String> runtimeRoles = tenantMap.get(tenant);
           if (runtimeRoles == null) {
             runtimeRoles = new ArrayList<String>();
             tenantMap.put(tenant, runtimeRoles);
           }
           runtimeRoles.add(tenantedRoleNameUtils.getPrincipleName(runtimeRoleName));
-        }
       } else {
         includeSuperAdminLogicalRoles = true;
       }
@@ -187,14 +179,10 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
 
   public void setRoleBindings(Session session, ITenant tenant, String runtimeRoleName, List<String> logicalRoleNames) throws NamespaceException, RepositoryException {
     if (tenant == null) {
-      tenant = getTenant(runtimeRoleName);
+      tenant = JcrTenantUtils.getTenant(runtimeRoleName, false);
       runtimeRoleName = getPrincipalName(runtimeRoleName);
     }
-    
-    if (tenant == null || tenant.getId() == null) {
-      tenant = getCurrentTenant();
-    }
-    
+
     if (!TenantUtils.isAccessibleTenant(tenant)) {
       throw new NotFoundException("Tenant " + tenant.getId() + " not found");
     }
@@ -232,22 +220,6 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
     boundLogicalRoleNamesCache.put(roleId, logicalRoleNames);
   }
   
-  protected ITenant getCurrentTenant() {
-    String tenantId = (String) PentahoSessionHolder.getSession().getAttribute(IPentahoSession.TENANT_ID_KEY);
-    return tenantId != null ? new Tenant(tenantId, true) : null;
-  }
-  
-  protected ITenant getTenant(String principalId) {
-    ITenant tenant = null;
-    if (tenantedRoleNameUtils != null) {
-      tenant = tenantedRoleNameUtils.getTenant(principalId);
-    }
-    if (tenant == null || tenant.getId() == null) {
-      tenant = getCurrentTenant();
-    }
-    return tenant;
-  }
-
   private String getPrincipalName(String principalId) {
     String principalName = null;
     if (tenantedRoleNameUtils != null) {
@@ -263,7 +235,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   protected Map<String, List<String>> getRoleBindings(Session session, ITenant tenant) throws RepositoryException {
     Map<String, List<String>> map = new HashMap<String, List<String>>();
     if (tenant == null) {
-      tenant = getCurrentTenant();
+      tenant = JcrTenantUtils.getTenant();
     }
     if (!TenantUtils.isAccessibleTenant(tenant)) {
       return map;

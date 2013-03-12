@@ -5,6 +5,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import org.pentaho.platform.api.locale.IPentahoLocale;
+
 /**
  * Entry point into the unified repository. The finest grained object that can be read and written to this repository
  * is a {@link RepositoryFile}.
@@ -13,7 +15,7 @@ import java.util.Map;
  */
 public interface IUnifiedRepository {
   public static final String SYSTEM_FOLDER = "system_folder"; //$NON-NLS-1$
-  
+
   /**
    * Gets file. Use this method to test for file existence too.
    *
@@ -34,7 +36,6 @@ public interface IUnifiedRepository {
    * @return file or {@code null} if the file does not exist or access is denied
    */
   RepositoryFileTree getTree(final String path, final int depth, final String filter, final boolean showHidden);
-
 
   /**
    * Gets file as it was at the given version.
@@ -76,6 +77,57 @@ public interface IUnifiedRepository {
   RepositoryFile getFileById(final Serializable fileId, final boolean loadLocaleMaps);
 
   /**
+   * Like {@link #getFile(String, boolean)} except that the maps which are pulled back are slimmed down to only 
+   * contain the localized strings
+   *  
+   * @param path
+   *        {@link String} of the path to the file
+   * @param locale
+   *        {@link IPentahoLocale} which the user wishes to have contained in the map
+   * @return {@link RepositoryFile}
+   */
+  RepositoryFile getFile(final String path, final IPentahoLocale locale);
+
+  /**
+   * Same as {@link #getFile(String, IPentahoLocale)} except that the {@link Serializable} file id is required
+   * 
+   * @param fileId
+   *        {@link Serializable} file Id of the file
+   * @param locale
+   *        {@link IPentahoLocale} which the user wishes to have contained in the map
+   * @return {@link RepositoryFile}
+   */
+  RepositoryFile getFileById(final Serializable fileId, final IPentahoLocale locale);
+
+  /**
+   * Retrieves a file at its given version
+   * 
+   * @param path
+   *        {@link String} full path to file 
+   * @param loadLocaleMaps
+   *        boolean - to determine whether to load the locale map
+   * @param locale
+   *        {@link IPentahoLocale} locale to retrieve for {@link RepositoryFile}
+   *        
+   * @return {@link RepositoryFile} 
+   */
+  RepositoryFile getFile(final String path, final boolean loadLocaleMaps, final IPentahoLocale locale);
+
+  /**
+   * Retrieves a file at its given version by its id
+   * @param fileId
+   *        {@link Serializable} file id
+   * 
+   * @param loadLocaleMaps
+   *        boolean - to determine whether to load the locale map
+   * @param locale
+   *        {@link IPentahoLocale} locale to retrieve for {@link RepositoryFile}
+   *        
+   * @return {@link RepositoryFile}
+   */
+  RepositoryFile getFileById(final Serializable fileId, final boolean loadLocaleMaps, final IPentahoLocale locale);
+
+  /**
    * Gets data at base version for read.
    *
    * @param fileId    file id
@@ -93,7 +145,7 @@ public interface IUnifiedRepository {
    * @return data
    */
   <T extends IRepositoryFileData> T getDataAtVersionForRead(final Serializable fileId, final Serializable versionId,
-                                                            final Class<T> dataClass);
+      final Class<T> dataClass);
 
   /**
    * Gets data at base version for execute.
@@ -113,7 +165,7 @@ public interface IUnifiedRepository {
    * @return data
    */
   <T extends IRepositoryFileData> T getDataAtVersionForExecute(final Serializable fileId, final Serializable versionId,
-                                                               final Class<T> dataClass);
+      final Class<T> dataClass);
 
   /**
    * Gets the data for multiple {@link RepositoryFile}s for read.  Each {@link RepositoryFile} may or may not contain a
@@ -126,7 +178,8 @@ public interface IUnifiedRepository {
    * @param dataClass class that implements {@link IRepositoryFileData}
    * @return data
    */
-  <T extends IRepositoryFileData> java.util.List<T> getDataForReadInBatch(final List<RepositoryFile> files, final Class<T> dataClass);
+  <T extends IRepositoryFileData> java.util.List<T> getDataForReadInBatch(final List<RepositoryFile> files,
+      final Class<T> dataClass);
 
   /**
    * Gets the data for multiple {@link RepositoryFile}s for execute.  Each {@link RepositoryFile} may or may not contain a
@@ -139,7 +192,8 @@ public interface IUnifiedRepository {
    * @param dataClass class that implements {@link IRepositoryFileData}
    * @return data
    */
-  <T extends IRepositoryFileData> java.util.List<T> getDataForExecuteInBatch(final List<RepositoryFile> files, final Class<T> dataClass);
+  <T extends IRepositoryFileData> java.util.List<T> getDataForExecuteInBatch(final List<RepositoryFile> files,
+      final Class<T> dataClass);
 
   /**
    * Creates a file.
@@ -151,7 +205,7 @@ public interface IUnifiedRepository {
    * @return file that is equal to given file except with id populated
    */
   RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-                            final IRepositoryFileData data, final String versionMessage);
+      final IRepositoryFileData data, final String versionMessage);
 
   /**
    * Creates a file.
@@ -164,7 +218,7 @@ public interface IUnifiedRepository {
    * @return file that is equal to given file except with id populated
    */
   RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-                            final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage);
+      final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage);
 
   /**
    * Creates a folder.
@@ -186,7 +240,7 @@ public interface IUnifiedRepository {
    * @return file that is equal to given file except with id populated
    */
   RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
-                              final RepositoryFileAcl acl, final String versionMessage);
+      final RepositoryFileAcl acl, final String versionMessage);
 
   /**
    * Returns the children of this folder.
@@ -438,7 +492,7 @@ public interface IUnifiedRepository {
    * @return Map<String, Serializable> of all the metadata for this file
    */
   Map<String, Serializable> getFileMetadata(final Serializable fileId);
-  
+
   /**
    * Returns a list of characters which cannot be used in file/folder names. These characters must be escaped using
    * percent-encoding. Callers may safely cache this value. Note that it is the responsibility of the implementation to
@@ -453,7 +507,7 @@ public interface IUnifiedRepository {
    * @return list of reserved characters
    */
   List<Character> getReservedChars();
-  
+
   /**
    * Returns the product ID that was set in the pentaho-platform jar manifests.
    */

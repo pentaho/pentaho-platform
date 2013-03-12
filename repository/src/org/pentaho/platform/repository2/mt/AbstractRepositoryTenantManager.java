@@ -19,9 +19,9 @@ import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl.Builder;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl.Builder;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
@@ -41,7 +41,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
   public static final String FOLDER_NAME_ROLEBASED = "roleBased"; //$NON-NLS-1$
 
   public static final String FOLDER_NAME_RUNTIMEROLES = "runtimeRoles"; //$NON-NLS-1$
-  
+
   protected IRepositoryFileAclDao repositoryFileAclDao;
 
   protected IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
@@ -51,13 +51,13 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
   protected IRepositoryFileDao repositoryFileDao;
 
   protected ITenantedPrincipleNameResolver tenantedRoleNameResolver;
-  
+
   protected ITenantedPrincipleNameResolver tenantedUserNameResolver;
 
   protected String repositoryAdminUsername;
 
   protected String tenantAdminRoleName;
-  
+
   protected String tenantAuthenticatedRoleName;
 
   protected IPathConversionHelper pathConversionHelper = new IPathConversionHelper() {
@@ -84,8 +84,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
       final IRepositoryFileAclDao repositoryFileAclDao, IRoleAuthorizationPolicyRoleBindingDao roleBindingDao,
       final String repositoryAdminUsername, final String tenantAuthenticatedAuthorityNamePattern,
       final ITenantedPrincipleNameResolver tenantedUserNameResolver,
-      final ITenantedPrincipleNameResolver tenantedRoleNameResolver,
-      final String tenantAdminRoleName) {
+      final ITenantedPrincipleNameResolver tenantedRoleNameResolver, final String tenantAdminRoleName) {
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
     Assert.notNull(roleBindingDao);
@@ -109,15 +108,15 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
   }
 
   private void deleteUserRole(Session session, ITenant parentTenant, List<ITenant> tenants) throws RepositoryException {
-      for (ITenant tenant : tenants) {
-        deleteUserRole(session, tenant, getChildTenants(session, tenant));
-      }
-      for (IPentahoRole role : userRoleDao.getRoles(parentTenant)) {
-        userRoleDao.deleteRole(role);
-      }
-      for (IPentahoUser user : userRoleDao.getUsers(parentTenant)) {
-        userRoleDao.deleteUser(user);
-      }
+    for (ITenant tenant : tenants) {
+      deleteUserRole(session, tenant, getChildTenants(session, tenant));
+    }
+    for (IPentahoRole role : userRoleDao.getRoles(parentTenant)) {
+      userRoleDao.deleteRole(role);
+    }
+    for (IPentahoUser user : userRoleDao.getUsers(parentTenant)) {
+      userRoleDao.deleteUser(user);
+    }
   }
 
   public void deleteTenant(Session jcrSession, final ITenant tenant) throws RepositoryException {
@@ -146,8 +145,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
   }
 
   private RepositoryFile getTenantRootFolder(Session session, final ITenant tenant) throws RepositoryException {
-    RepositoryFile rootFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session, tenant.getRootFolderAbsolutePath(),
-        pathConversionHelper, null, false);
+    RepositoryFile rootFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session,tenant.getRootFolderAbsolutePath(), pathConversionHelper, null, false, null);
     if (rootFolder != null) {
       Map<String, Serializable> metadata = JcrRepositoryFileUtils.getFileMetadata(session, rootFolder.getId());
       if (!metadata.containsKey(ITenantManager.TENANT_ROOT) || !(Boolean) metadata.get(ITenantManager.TENANT_ROOT)) {
@@ -208,8 +206,6 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
 
   }
 
-
-  
   private boolean isTenantEnabled(Session session, final Serializable tenantFolderId) throws ItemNotFoundException,
       RepositoryException {
     Map<String, Serializable> metadata = JcrRepositoryFileUtils.getFileMetadata(session, tenantFolderId);
@@ -258,7 +254,7 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
   public ITenant getTenant(Session session, String tenantId) throws RepositoryException {
     ITenant tenant = null;
     RepositoryFile tenantRootFolder = JcrRepositoryFileUtils.getFileByAbsolutePath(session, tenantId,
-        pathConversionHelper, null, false);
+        pathConversionHelper, null, false, null);
     if ((tenantRootFolder != null) && isTenantRoot(session, tenantRootFolder.getId())) {
       tenant = new Tenant(tenantId, isTenantEnabled(session, tenantRootFolder.getId()));
     }
@@ -271,63 +267,64 @@ public abstract class AbstractRepositoryTenantManager implements ITenantManager 
 
     return metadata.containsKey(ITenantManager.TENANT_ROOT) && (Boolean) metadata.get(ITenantManager.TENANT_ROOT);
   }
-  
 
   @Override
   public RepositoryFile createUserHomeFolder(ITenant theTenant, String username) {
     Builder aclsForUserHomeFolder = null;
     Builder aclsForTenantHomeFolder = null;
-    
-    if (theTenant == null) {
-      theTenant = JcrTenantUtils.getTenant(username, true);
-      username = JcrTenantUtils.getPrincipalName(username, true);
-    }
-    if (theTenant == null || theTenant.getId() == null) {
-      theTenant = JcrTenantUtils.getCurrentTenant();
-    }
-    if(theTenant == null || theTenant.getId() == null) {
-      theTenant = JcrTenantUtils.getDefaultTenant();
-    }
     RepositoryFile userHomeFolder = null;
+    RepositoryFile tenantHomeFolder = null;
+    RepositoryFile tenantRootFolder = null;
     String userId = tenantedUserNameResolver.getPrincipleId(theTenant, username);
     final RepositoryFileSid userSid = new RepositoryFileSid(userId);
-      RepositoryFile tenantHomeFolder = null;
-      RepositoryFile tenantRootFolder = null;
-      // Get the Tenant Root folder. If the Tenant Root folder does not exist then exit.
-      tenantRootFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
-          .getTenantRootFolderPath(theTenant));
-      if (tenantRootFolder != null) {
-        // Try to see if Tenant Home folder exist
-        tenantHomeFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
-            .getTenantHomeFolderPath(theTenant));
-        if (tenantHomeFolder == null) {
-          String ownerId = tenantedUserNameResolver.getPrincipleId(theTenant, username);
-          RepositoryFileSid ownerSid = new RepositoryFileSid(ownerId, Type.USER);
-          
-          String tenantAuthenticatedRoleId = tenantedRoleNameResolver.getPrincipleId(theTenant, tenantAuthenticatedRoleName);
-          RepositoryFileSid tenantAuthenticatedRoleSid = new RepositoryFileSid(tenantAuthenticatedRoleId, Type.ROLE);
-          
-          aclsForTenantHomeFolder = new RepositoryFileAcl.Builder(userSid)
-            .ace(tenantAuthenticatedRoleSid, EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
+    username = JcrTenantUtils.getPrincipalName(username, true);
+    if (theTenant == null) {
+      theTenant = JcrTenantUtils.getTenant(username, true);
+    }
+    // Get the Tenant Root folder. If the Tenant Root folder does not exist then exit.
+    tenantRootFolder = repositoryFileDao
+        .getFileByAbsolutePath(ServerRepositoryPaths.getTenantRootFolderPath(theTenant));
+    if (tenantRootFolder != null) {
+      // Try to see if Tenant Home folder exist
+      tenantHomeFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths
+          .getTenantHomeFolderPath(theTenant));
+      if (tenantHomeFolder == null) {
+        String ownerId = tenantedUserNameResolver.getPrincipleId(theTenant, username);
+        RepositoryFileSid ownerSid = new RepositoryFileSid(ownerId, Type.USER);
 
-          aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid, EnumSet.of(RepositoryFilePermission.ALL));
-          tenantHomeFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
-                ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).build(), aclsForTenantHomeFolder.build(), "tenant home folder");
-        } else {
-          String ownerId = tenantedUserNameResolver.getPrincipleId(theTenant, username);
-          RepositoryFileSid ownerSid = new RepositoryFileSid(ownerId, Type.USER);
-          aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid, EnumSet.of(RepositoryFilePermission.ALL));
-        }
-        
-        // now check if user's home folder exist
-        userHomeFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths.getUserHomeFolderPath(theTenant, username));
-        if (userHomeFolder == null) {
-          userHomeFolder = repositoryFileDao.createFolder(tenantHomeFolder.getId(),
-              new RepositoryFile.Builder(username).folder(true).build(),
-              aclsForUserHomeFolder.build(), "user home folder"); //$NON-NLS-1$
-        }
+        String tenantAuthenticatedRoleId = tenantedRoleNameResolver.getPrincipleId(theTenant,
+            tenantAuthenticatedRoleName);
+        RepositoryFileSid tenantAuthenticatedRoleSid = new RepositoryFileSid(tenantAuthenticatedRoleId, Type.ROLE);
 
+        aclsForTenantHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(tenantAuthenticatedRoleSid,
+            EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
+
+        aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid,
+            EnumSet.of(RepositoryFilePermission.ALL));
+        tenantHomeFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
+            ServerRepositoryPaths.getTenantHomeFolderName()).folder(true).build(), aclsForTenantHomeFolder.build(),
+            "tenant home folder");
+      } else {
+        String ownerId = tenantedUserNameResolver.getPrincipleId(theTenant, username);
+        RepositoryFileSid ownerSid = new RepositoryFileSid(ownerId, Type.USER);
+        aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid,
+            EnumSet.of(RepositoryFilePermission.ALL));
       }
-      return userHomeFolder;
- }
+
+      // now check if user's home folder exist
+      userHomeFolder = repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths.getUserHomeFolderPath(theTenant,
+          username));
+      if (userHomeFolder == null) {
+        userHomeFolder = repositoryFileDao.createFolder(tenantHomeFolder.getId(), new RepositoryFile.Builder(username)
+            .folder(true).build(), aclsForUserHomeFolder.build(), "user home folder"); //$NON-NLS-1$
+      }
+
+    }
+    return userHomeFolder;
+  }
+
+  @Override
+  public RepositoryFile getUserHomeFolder(ITenant theTenant, String username) {
+    return repositoryFileDao.getFileByAbsolutePath(ServerRepositoryPaths.getUserHomeFolderPath(theTenant, username));
+  }
 }

@@ -37,6 +37,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
@@ -55,8 +56,9 @@ import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
-import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
@@ -87,7 +89,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @SuppressWarnings("nls")
 public class RepositoryTenantManagerTest implements ApplicationContextAware {
 
-  private final String USERNAME_ADMIN = "admin";
+  private final String USERNAME_JOE = "admin";
 
   private final String TENANT_ID_ACME = "acme";
 
@@ -285,9 +287,9 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
 
   private static String repositoryAdminUsername;
 
-  private String tenantAdminAuthorityNamePattern;
+  private String tenantAdminAuthorityName;
 
-  private String tenantAuthenticatedAuthorityNamePattern;
+  private String tenantAuthenticatedAuthorityName;
   private String superAdminRoleName;
 
   private String sysAdminUserName;
@@ -302,8 +304,6 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
 
   private IRepositoryFileDao repositoryFileDao;
 
-  private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
-  
   private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
 
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
@@ -332,8 +332,7 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
     mp.defineInstance(ITenantManager.class, tenantManager);
     mp.define(ITenant.class, Tenant.class);
-    mp.defineInstance(IAuthorizationPolicy.class, authorizationPolicy);
-    mp.defineInstance("roleAuthorizationPolicyRoleBindingDaoTarget", roleBindingDaoTarget);
+    mp.defineInstance("authorizationPolicy", authorizationPolicy);
     mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
     // Start the micro-platform
     mp.start();
@@ -349,8 +348,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
     logout();
     repositoryAdminUsername = null;
-    tenantAdminAuthorityNamePattern = null;
-    tenantAuthenticatedAuthorityNamePattern = null;
+    tenantAdminAuthorityName = null;
+    tenantAuthenticatedAuthorityName = null;
     authorizationPolicy = null;
     testJcrTemplate = null;
     if (startupCalled) {
@@ -423,12 +422,11 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     testJcrTemplate.setAllowCreate(true);
     testJcrTemplate.setExposeNativeSession(true);
     repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
-    tenantAuthenticatedAuthorityNamePattern = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
-    tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    tenantAuthenticatedAuthorityName = (String) applicationContext.getBean("singleTenantAuthenticatedAuthorityName");
+    tenantAdminAuthorityName = (String) applicationContext.getBean("singleTenantAdminAuthorityName");
     superAdminRoleName = (String) applicationContext.getBean("superAdminAuthorityName");
     sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
-    roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTarget");
     tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrProxy");
     repositoryFileDao = (IRepositoryFileDao) applicationContext.getBean("repositoryFileDao");
     userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDao");
@@ -451,12 +449,12 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     // When the system tenant is first created nobody will be logged in.
     logout();
     loginAsRepositoryAdmin();
-    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern,
-        tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
+        tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
     assertNotNull(systemTenant);
-    ITenant duplicateTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern,
-        tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    ITenant duplicateTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
+        tenantAuthenticatedAuthorityName, "Anonymous");
     assertNull(duplicateTenant);
     cleanupUserAndRoles(systemTenant);
   }
@@ -465,19 +463,19 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
   public void testCreateTenant() {
     // This line is equivalent to manager.startup();
     loginAsRepositoryAdmin();
-    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern,
-        tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
+        tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     assertNotNull(systemTenant);
     assertTrue(systemTenant.isEnabled());
 
-    ITenant tenantRoot = tenantManager.createTenant(systemTenant, TenantUtils.TENANTID_SINGLE_TENANT, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(tenantRoot, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant tenantRoot = tenantManager.createTenant(systemTenant, TenantUtils.TENANTID_SINGLE_TENANT, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(tenantRoot, "admin", "password", "", new String[]{tenantAdminAuthorityName});
     assertNotNull(tenantRoot);
     assertTrue(tenantRoot.isEnabled());
-    ITenant subTenantRoot = tenantManager.createTenant(tenantRoot, TENANT_ID_APPLE, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenantRoot, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant subTenantRoot = tenantManager.createTenant(tenantRoot, TENANT_ID_APPLE, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenantRoot, "admin", "password", "", new String[]{tenantAdminAuthorityName});
     assertNotNull(subTenantRoot);
     assertTrue(subTenantRoot.isEnabled());
     List<ITenant> childTenants = tenantManager.getChildTenants(tenantRoot);
@@ -493,13 +491,13 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
   public void testEnableDisableTenant() {
     // This line is equivalent to manager.startup();
     loginAsRepositoryAdmin();
-      ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern,
-          tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-      login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+      ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
+          tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
+      login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
       assertTenantNotNull(systemTenant);
-      ITenant tenantRoot = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(tenantRoot, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+      ITenant tenantRoot = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(tenantRoot, "admin", "password", "", new String[]{tenantAdminAuthorityName});
       assertTenantNotNull(tenantRoot);
       assertTrue(tenantRoot.isEnabled());
       tenantManager.enableTenant(tenantRoot, false);
@@ -515,14 +513,14 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
   @Test
   public void testIsTenantRoot() {
     loginAsRepositoryAdmin();
-      ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern,
-          tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-      login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+      ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
+          tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
+      login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
       assertTenantNotNull(systemTenant);
       assertTrue(systemTenant.isEnabled());
-      ITenant tenantRoot = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(tenantRoot, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+      ITenant tenantRoot = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(tenantRoot, "admin", "password", "", new String[]{tenantAdminAuthorityName});
       assertTenantNotNull(tenantRoot);
   
       cleanupUserAndRoles(systemTenant);
@@ -532,22 +530,22 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
   @Test
   public void testIsSubTenant() {
     loginAsRepositoryAdmin();
-      ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern,
-          tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-      login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
-      ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
-      ITenant mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
-      ITenant subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(subTenant1_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
-      ITenant subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(subTenant1_2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
-      ITenant subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(subTenant2_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
-      ITenant subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(subTenant2_2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+      ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
+          tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
+      login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+      ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+      ITenant mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+      ITenant subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(subTenant1_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+      ITenant subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(subTenant1_2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+      ITenant subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(subTenant2_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+      ITenant subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(subTenant2_2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
       assertTrue(tenantManager.isSubTenant(mainTenant_1, mainTenant_1));
       assertTrue(tenantManager.isSubTenant(mainTenant_2, mainTenant_2));
       assertTrue(tenantManager.isSubTenant(mainTenant_1, subTenant1_2));
@@ -560,6 +558,10 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
       assertTrue(tenantManager.isSubTenant(mainTenant_2, subTenant2_2));
       assertTrue(tenantManager.isSubTenant(subTenant2_2, subTenant2_2));
       assertTrue(tenantManager.isSubTenant(subTenant1_2, subTenant1_2));
+      
+      JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
+          repositoryAdminUsername, "c:/tmp/testdump122", Mode.CUSTOM);
+      dumpToFile.execute();
       cleanupUserAndRoles(systemTenant);
       cleanupUserAndRoles(mainTenant_1);
       cleanupUserAndRoles(mainTenant_2);
@@ -572,21 +574,21 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
   @Test
   public void testGetChildrenTenants() {
     loginAsRepositoryAdmin();
-      ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern,
-          tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-      login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
-      ITenant tenantRoot = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(tenantRoot, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+      ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
+          tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
+      login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+      ITenant tenantRoot = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(tenantRoot, "admin", "password", "", new String[]{tenantAdminAuthorityName});
       assertNotNull(tenantRoot);
       assertTrue(tenantRoot.isEnabled());
   
-      ITenant subTenantRoot1 = tenantManager.createTenant(tenantRoot, TENANT_ID_APPLE, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(subTenantRoot1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+      ITenant subTenantRoot1 = tenantManager.createTenant(tenantRoot, TENANT_ID_APPLE, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(subTenantRoot1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
       assertTrue(subTenantRoot1.isEnabled());
   
-      ITenant subTenantRoot2 = tenantManager.createTenant(tenantRoot, TENANT_ID_MICROSOFT, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-      userRoleDao.createUser(subTenantRoot2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+      ITenant subTenantRoot2 = tenantManager.createTenant(tenantRoot, TENANT_ID_MICROSOFT, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+      userRoleDao.createUser(subTenantRoot2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
       assertTrue(subTenantRoot2.isEnabled());
   
       List<ITenant> tenantChildren = tenantManager.getChildTenants(tenantRoot);
@@ -599,94 +601,94 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
       cleanupUserAndRoles(subTenantRoot2);
   }
 
-  @Test
+  @Ignore
   public void testDeleteTenant() {
     loginAsRepositoryAdmin();
-    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern,
-        tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
-    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    ITenant mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName,
+        tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+    ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+    ITenant mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
     ITenant subTenant1_1 = null;
     // Testing SubTenant1_1 as a TenantAdmin of MainTenant2. This should fail
-    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     try {
-      subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+      subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
       fail("should have thrown an exception");
     } catch (Throwable th) {
       assertNotNull(th);
     }
     logout();
-    login("admin", mainTenant_1, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
-    subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant1_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+    subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant1_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
     
-    ITenant subTenant1_1_1 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant1_1_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant subTenant1_1_1 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant1_1_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
 
-    ITenant subTenant1_1_2 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant1_1_2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant subTenant1_1_2 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant1_1_2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
     logout();
     // Testing SubTenant1_2 as a TenantAdmin of MainTenant2. This should fail
-    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     ITenant subTenant1_2 = null;
     try {
-      subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+      subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
       fail("should have thrown an exception");
     } catch (Throwable th) {
       assertNotNull(th);
     }
     logout();
-    login("admin", mainTenant_1, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
-    subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant1_2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+    subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant1_2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
     logout();
-    login("admin", subTenant1_2, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
-    ITenant subTenant1_2_1 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant1_2_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    login("admin", subTenant1_2, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+    ITenant subTenant1_2_1 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant1_2_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
 
-    ITenant subTenant1_2_2 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant1_2_2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant subTenant1_2_2 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant1_2_2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
     logout();    
-    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
-    ITenant subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant2_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
-    ITenant subTenant2_1_1 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant2_1_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+    ITenant subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant2_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+    ITenant subTenant2_1_1 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant2_1_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
 
-    ITenant subTenant2_1_2 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant2_1_2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant subTenant2_1_2 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant2_1_2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
     logout();
-    login("admin", mainTenant_1, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     ITenant subTenant2_2 = null;
     try {
-    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
+    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
     fail("should have thrown an exception");
     } catch (Throwable th) {
       assertNotNull(th);
     }    
     logout();
-    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
-    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant2_2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant2_2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
 
     logout();
-    login("admin", subTenant2_2, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login("admin", subTenant2_2, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
 
-    ITenant subTenant2_2_1 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_1, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant2_2_1, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant subTenant2_2_1 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant2_2_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
 
-    ITenant subTenant2_2_2 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_2, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(subTenant2_2_2, "admin", "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    ITenant subTenant2_2_2 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_2, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(subTenant2_2_2, "admin", "password", "", new String[]{tenantAdminAuthorityName});
 
     
     
     // Delete Tenants
     
-    login("admin", subTenant2_1, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login("admin", subTenant2_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     try {
       tenantManager.deleteTenant(subTenant2_1);
     fail("should have thrown an exception");
@@ -694,11 +696,8 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
       assertNotNull(th);
     }  
     logout();
-    
-//    JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
-//        repositoryAdminUsername, "c:/tmp/testdump", Mode.CUSTOM);
-//    dumpToFile.execute();
-    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+
+    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     tenantManager.deleteTenant(subTenant2_1);
     ITenant tenant = tenantManager.getTenant(subTenant2_1.getRootFolderAbsolutePath());
     assertNull(tenant);
@@ -708,7 +707,7 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     assertNull(tenant);
     logout();
     
-    login("admin", subTenant2_2, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login("admin", subTenant2_2, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     try {
     tenantManager.deleteTenant(subTenant2_2);
     fail("should have thrown an exception");
@@ -717,7 +716,7 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     }
     logout();
     
-    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login("admin", mainTenant_2, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     tenantManager.deleteTenant(subTenant2_2);
     tenant = tenantManager.getTenant(subTenant2_2.getRootFolderAbsolutePath());
     assertNull(tenant);
@@ -727,21 +726,14 @@ public class RepositoryTenantManagerTest implements ApplicationContextAware {
     assertNull(tenant);   
     logout();
 
-    login("admin", mainTenant_1, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     tenantManager.deleteTenant(subTenant1_1);
     tenantManager.deleteTenant(subTenant1_2);
     logout();
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     tenantManager.deleteTenant(mainTenant_1);
     tenantManager.deleteTenant(mainTenant_2);
     logout();
-    
-    //loginAsRepositoryAdmin();
-    //tenantManager.deleteTenant(systemTenant);
-
-    //JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
-    //    repositoryAdminUsername, "c:/build/testrepo_3", Mode.CUSTOM);
-    //dumpToFile.execute();
  }
 }

@@ -47,7 +47,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
@@ -139,7 +138,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
           "JcrRoleAuthorizationPolicyRoleBindingDao.ERROR_0002_REPO_NOT_INITIALIZED")); //$NON-NLS-1$
     }
     Node authzFolderNode = tenantRootFolderNode.addNode(FOLDER_NAME_AUTHZ, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER());
-    tenantRootFolderNode.save();
+    session.save();
     return authzFolderNode;
   }
 
@@ -147,7 +146,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
       final ITenant tenant) throws RepositoryException {
     Node authzFolderNode = createAuthzFolderNode(session, pentahoJcrConstants, tenant);
     Node node = authzFolderNode.addNode(FOLDER_NAME_ROLEBASED, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER());
-    authzFolderNode.save();
+    session.save();
     return node;
   }
 
@@ -155,7 +154,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
       final PentahoJcrConstants pentahoJcrConstants, final ITenant tenant) throws RepositoryException {
     Node roleBasedFolderNode = createRoleBasedFolderNode(session, pentahoJcrConstants, tenant);
     Node node = roleBasedFolderNode.addNode(FOLDER_NAME_RUNTIMEROLES, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER());
-    roleBasedFolderNode.save();
+    session.save();
     return node;
   }
   

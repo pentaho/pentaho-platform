@@ -19,11 +19,22 @@ package org.pentaho.mantle.client.commands;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.platform.repository2.unified.webservices.IUnifiedRepositoryWebServiceCache;
+
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 public class DeleteFolderCommand extends AbstractCommand {
+  
+  String moduleBaseURL = GWT.getModuleBaseURL();
+
+  String moduleName = GWT.getModuleName();
+
+  String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+  
   RepositoryFile repositoryFile;
 
   public DeleteFolderCommand() {
@@ -38,21 +49,38 @@ public class DeleteFolderCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    String url = GWT.getModuleBaseURL();
-    url = url.substring(0, url.lastIndexOf("mantle"));
-    IUnifiedRepositoryWebServiceCache.getServiceRelativeToUrl(url).deleteFile(repositoryFile.getId(), null, new AsyncCallback<Void>() {
+    final String filesList = repositoryFile.getId();
 
-      public void onFailure(Throwable arg0) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete", repositoryFile.getTitle()), //$NON-NLS-1$ //$NON-NLS-2$
-            false, false, true);
-        dialogBox.center();
-      }
+    String deleteFilesURL = contextURL + "api/repo/files/delete"; //$NON-NLS-1$
+    RequestBuilder deleteFilesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, deleteFilesURL);
+    deleteFilesRequestBuilder.setHeader("Content-Type", "text/plain"); //$NON-NLS-1$//$NON-NLS-2$
+    try {
+      deleteFilesRequestBuilder.sendRequest(filesList, new RequestCallback() {
 
-      public void onSuccess(Void obj) {
-        RefreshRepositoryCommand cmd = new RefreshRepositoryCommand();
-        cmd.execute(false);
-      }
-    });
+        @Override
+        public void onError(Request request, Throwable exception) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+              false, false, true);
+          dialogBox.center();
+        }
+
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == 200) {
+            new RefreshRepositoryCommand().execute(false);
+          } else {
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+                false, false, true);
+            dialogBox.center();
+          }
+        }
+
+      });
+    } catch (RequestException e) {
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+          false, false, true);
+      dialogBox.center();
+    }
   }
 
 }

@@ -51,6 +51,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
+import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
@@ -78,9 +79,9 @@ import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepository
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
-import org.pentaho.platform.engine.core.system.TenantUtils;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
@@ -168,6 +169,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
   private String repositoryAdminUsername;
   
   private IBackingRepositoryLifecycleManager repositoryLifecyleManager;
+
   private IBackingRepositoryLifecycleManager defaultBackingRepositoryLifecycleManager;
 
   /**
@@ -309,6 +311,80 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     assertEquals(EN_US_VALUE, updatedFileWithMaps.getTitleMap().get(Locale.getDefault().toString()));
     assertEquals(ROOT_LOCALE_VALUE, updatedFileWithMaps.getTitleMap().get(RepositoryFile.ROOT_LOCALE));
+    logout();
+  }
+
+  @Test
+  public void testLocales() throws Exception {
+    login(sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName });
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName,
+        tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAdminRoleName });
+    logout();
+
+    login(USERNAME_SUZY, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName });
+
+    // Create file
+    final String fileName = "locale.sample";
+    RepositoryFile file = createSampleFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY), fileName,
+        "test", false, 123);
+
+    // Test filename title matches created file name
+    assertEquals(fileName, file.getTitle());
+
+    final IPentahoLocale SPANISH = new PentahoLocale(new Locale("sp"));
+    final IPentahoLocale US = new PentahoLocale(Locale.US);
+    final String EN_US_TITLE = "Locale Sample";
+    final String EN_US_DESCRIPTION = "This is a test for retrieving localized words";
+    final String SP_TITLE = "Muestra de Localizacion";
+    final String SP_DESCRIPTION = "Esta es una prueba para buscar palabras localizadas";
+
+    RepositoryFile.Builder builder = new RepositoryFile.Builder(file);
+
+    // Set English locale values
+    builder.title(US.toString(), EN_US_TITLE);
+    builder.description(US.toString(), EN_US_DESCRIPTION);
+
+    // Set Spanish locale values
+    builder.title(SPANISH.toString(), SP_TITLE);
+    builder.description(SPANISH.toString(), SP_DESCRIPTION);
+
+    // Update file data
+    final SampleRepositoryFileData modContent = new SampleRepositoryFileData("blah", false, 123);
+    repo.updateFile(builder.build(), modContent, null);
+
+    // Retrieve file - gets full map
+    RepositoryFile updatedFile = repo.getFile(file.getPath(), true);
+
+    // Assert messages are the same
+    assertEquals(EN_US_TITLE, updatedFile.getTitleMap().get(US.toString()));
+    assertEquals(EN_US_DESCRIPTION, updatedFile.getDescriptionMap().get(US.toString()));
+
+    assertEquals(SP_TITLE, updatedFile.getTitleMap().get(SPANISH.toString()));
+    assertEquals(SP_DESCRIPTION, updatedFile.getDescriptionMap().get(SPANISH.toString()));
+
+    /*
+     * Retrieve single result with locale
+     */
+
+    // SPANISH
+    updatedFile = repo.getFile(file.getPath(), SPANISH);
+
+    assertEquals(SP_TITLE, updatedFile.getTitle());
+    assertEquals(SP_DESCRIPTION, updatedFile.getDescription());
+
+    // US ENGLISH
+    updatedFile = repo.getFile(file.getPath(), US);
+
+    assertEquals(EN_US_TITLE, updatedFile.getTitle());
+    assertEquals(EN_US_DESCRIPTION, updatedFile.getDescription());
+
+    // ROOT Locale
+    updatedFile = repo.getFile(file.getPath(), null);
+
+    assertEquals(fileName, updatedFile.getTitle());
+    assertEquals("", updatedFile.getDescription());
+
     logout();
   }
 
@@ -3083,8 +3159,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
     superAdminRoleName = (String) applicationContext.getBean("superAdminAuthorityName");
     sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
-    tenantAuthenticatedRoleName = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
-    tenantAdminRoleName = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    tenantAuthenticatedRoleName = (String) applicationContext.getBean("singleTenantAuthenticatedAuthorityName");
+    tenantAdminRoleName = (String) applicationContext.getBean("singleTenantAdminAuthorityName");
     tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrProxy");
     pathConversionHelper = (IPathConversionHelper) applicationContext.getBean("pathConversionHelper");
     roleBindingDao = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTxn");

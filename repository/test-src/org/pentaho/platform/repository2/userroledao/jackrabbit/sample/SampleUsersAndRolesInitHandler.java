@@ -27,15 +27,15 @@ public class SampleUsersAndRolesInitHandler {
       boolean hasUsers = hasUsers();
 
       if (!hasUsers) {
-        userRoleDao.createRole(getSampleTenant(), "Admin", "Super User", null);
+        userRoleDao.createRole(getSampleTenant(), "Administrator", "Super User", null);
         userRoleDao.createRole(getSampleTenant(), "ceo", "Chief Executive Officer", null);
         userRoleDao.createRole(getSampleTenant(), "cto", "Chief Technology Officer", null);
         userRoleDao.createRole(getSampleTenant(), "dev", "Developer", null);
         userRoleDao.createRole(getSampleTenant(), "devmgr", "Development Manager", null);
         userRoleDao.createRole(getSampleTenant(), "is", "Information Services", null);
 
-        userRoleDao.createUser(getSampleTenant(), "admin", "admin", null, new String[]{"Admin"});
-        userRoleDao.createUser(getSampleTenant(), "admin", "password", null, new String[]{"Admin"});
+        userRoleDao.createUser(getSampleTenant(), "admin", "admin", null, new String[]{"Administrator"});
+        userRoleDao.createUser(getSampleTenant(), "admin", "password", null, new String[]{"Administrator"});
         userRoleDao.createUser(getSampleTenant(), "pat", "password", null, new String[]{"dev"});
         userRoleDao.createUser(getSampleTenant(), "suzy", "password", null, new String[]{"cto", "is"});
         userRoleDao.createUser(getSampleTenant(), "tiffany", "password", null, new String[]{"dev", "devmgr"});

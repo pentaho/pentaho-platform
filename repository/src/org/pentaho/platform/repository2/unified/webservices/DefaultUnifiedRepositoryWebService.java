@@ -29,11 +29,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
-import org.pentaho.platform.api.util.IVersionHelper;
-import org.pentaho.platform.engine.core.system.BaseSession;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.versionchecker.util.VersionHelper;
-import org.pentaho.versionchecker.util.VersionInfo;
 
 /**
  * Implementation of {@link IUnifiedRepositoryWebService} that delegates to an {@link IUnifiedRepository} instance.
@@ -56,7 +54,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   protected RepositoryFileAclAceAdapter repositoryFileAclAceAdapter = new RepositoryFileAclAceAdapter();
 
   protected VersionSummaryAdapter versionSummaryAdapter = new VersionSummaryAdapter();
-  
+
   // ~ Constructors ====================================================================================================
 
   /**
@@ -89,8 +87,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return fileData != null ? nodeRepositoryFileDataAdapter.marshal(fileData) : null;
   }
 
-  public List<NodeRepositoryFileDataDto> getDataAsNodeForReadInBatch(
-      final List<RepositoryFileDto> files) {
+  public List<NodeRepositoryFileDataDto> getDataAsNodeForReadInBatch(final List<RepositoryFileDto> files) {
     List<NodeRepositoryFileDataDto> data = new ArrayList<NodeRepositoryFileDataDto>(files.size());
     for (RepositoryFileDto f : files) {
       if (f.getVersionId() == null) {
@@ -104,7 +101,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileDto getFile(String path) {
-	validateEtcReadAccess(path);
+    validateEtcReadAccess(path);
     RepositoryFile file = repo.getFile(path);
     return file != null ? repositoryFileAdapter.marshal(file) : null;
   }
@@ -114,6 +111,18 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     return file != null ? repositoryFileAdapter.marshal(file) : null;
   }
 
+  @Override
+  public RepositoryFileDto getFile(String path, boolean loadLocaleMaps, PentahoLocale locale) {
+    RepositoryFile file = this.repo.getFile(path, loadLocaleMaps, locale);
+    return file != null ? this.repositoryFileAdapter.marshal(file) : null;
+  }
+
+  @Override
+  public RepositoryFileDto getFileById(String fileId, boolean loadLocaleMaps, PentahoLocale locale) {
+    RepositoryFile file = this.repo.getFileById(fileId, loadLocaleMaps, locale);
+    return file != null ? this.repositoryFileAdapter.marshal(file) : null;
+  }
+
   public RepositoryFileTreeDto getTree(final String path, final int depth, final String filter, final boolean showHidden) {
     RepositoryFileTree tree = repo.getTree(path, depth, filter, showHidden);
 
@@ -121,14 +130,17 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     // PDI uses this web-service and system folders must be returned to admin repository database connections.
     List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
     IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-    boolean isAdmin = policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION);
-    for(RepositoryFileTree file : tree.getChildren()) {
-    	Map<String, Serializable> fileMeta = repo.getFileMetadata(file.getFile().getId());
-    	boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta.get(IUnifiedRepository.SYSTEM_FOLDER) : false;
-    	if(!isAdmin && isSystemFolder) {
-    		continue;
-    	}
-    	files.add(file);
+    boolean isAdmin = policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+        && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+        && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION);
+    for (RepositoryFileTree file : tree.getChildren()) {
+      Map<String, Serializable> fileMeta = repo.getFileMetadata(file.getFile().getId());
+      boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta
+          .get(IUnifiedRepository.SYSTEM_FOLDER) : false;
+      if (!isAdmin && isSystemFolder) {
+        continue;
+      }
+      files.add(file);
     }
     tree = new RepositoryFileTree(tree.getFile(), files);
     return tree != null ? repositoryFileTreeAdapter.marshal(tree) : null;
@@ -156,7 +168,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileDto createFolderWithAcl(String parentFolderId, RepositoryFileDto file, RepositoryFileAclDto acl,
-                                               String versionMessage) {
+      String versionMessage) {
     RepositoryFile newFile = repo.createFolder(parentFolderId, repositoryFileAdapter.unmarshal(file),
         repositoryFileAclAdapter.unmarshal(acl), versionMessage);
     return newFile != null ? repositoryFileAdapter.marshal(newFile) : null;
@@ -207,15 +219,15 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   public RepositoryFileDto createFile(String parentFolderId, RepositoryFileDto file, NodeRepositoryFileDataDto data,
-                                      String versionMessage) {
-	  validateEtcWriteAccess(parentFolderId);
+      String versionMessage) {
+    validateEtcWriteAccess(parentFolderId);
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
         nodeRepositoryFileDataAdapter.unmarshal(data), versionMessage));
   }
 
   public RepositoryFileDto createFileWithAcl(String parentFolderId, RepositoryFileDto file,
-                                             NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, String versionMessage) {
-	  validateEtcWriteAccess(parentFolderId);
+      NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, String versionMessage) {
+    validateEtcWriteAccess(parentFolderId);
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
         nodeRepositoryFileDataAdapter.unmarshal(data), repositoryFileAclAdapter.unmarshal(acl), versionMessage));
   }
@@ -318,26 +330,29 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   public List<Character> getReservedChars() {
     return repo.getReservedChars();
   }
-  
+
   protected void validateEtcWriteAccess(String parentFolderId) {
-	  RepositoryFile etcFolder = repo.getFile("/etc");
-	  if(etcFolder != null) {
-		  String etcFolderId = etcFolder.getId().toString();
-		  if(etcFolderId.equals(parentFolderId)) {
-			  throw new RuntimeException("This service is not allowed to access the ETC folder in JCR.");
-		  }
-	  }
+    RepositoryFile etcFolder = repo.getFile("/etc");
+    if (etcFolder != null) {
+      String etcFolderId = etcFolder.getId().toString();
+      if (etcFolderId.equals(parentFolderId)) {
+        throw new RuntimeException("This service is not allowed to access the ETC folder in JCR.");
+      }
+    }
   }
-  
+
   protected void validateEtcReadAccess(String path) {
-	  IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-	  boolean isAdmin = policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION);
-	  if(!isAdmin && path.startsWith("/etc")) {
-		  throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
-	  }
+    IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
+    boolean isAdmin = policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+        && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+        && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION);
+    if (!isAdmin && path.startsWith("/etc")) {
+      throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
+    }
   }
 
   public String getProductID() {
-	  return VersionHelper.getVersionInfo(this.getClass()).getProductID();
+    return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }
+
 }

@@ -62,8 +62,8 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
-import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode.DataPropertyType;
+import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -72,8 +72,8 @@ import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.IPathConversionHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
-import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
+import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.repository2.unified.lifecycle.DefaultBackingRepositoryLifecycleManager;
@@ -137,9 +137,9 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
 
   private IBackingRepositoryLifecycleManager manager;
 
-  private String tenantAuthenticatedAuthorityNamePattern;
+  private String tenantAuthenticatedAuthorityName;
 
-  private String tenantAdminAuthorityNamePattern;
+  private String tenantAdminAuthorityName;
 
   private String repositoryAdminUsername;
 
@@ -231,8 +231,8 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     // Start the micro-platform
     mp.start();
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
 
     logout();
   }
@@ -242,12 +242,12 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
   }
   @Ignore 
   public void testEverything() throws Exception {
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
-    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern, "Anonymous");
-    userRoleDao.createUser(systemTenant, USERNAME_SUZY, "password", "", new String[]{tenantAdminAuthorityNamePattern});
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
+    userRoleDao.createUser(systemTenant, USERNAME_SUZY, "password", "", new String[]{tenantAdminAuthorityName});
     logout();
-    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedAuthorityNamePattern});
-    defaultBackingRepositoryLifecycleManager.newUser(tenantAcme.getId(), USERNAME_SUZY);
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedAuthorityName});
+    defaultBackingRepositoryLifecycleManager.newUser(tenantAcme, USERNAME_SUZY);
     System.out.println("getFile");
     JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
         repositoryAdminUsername, "c:/build/testrepo_9", Mode.CUSTOM);
@@ -406,7 +406,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
   }
 
   private void cleanupUserAndRoles(String userName, ITenant systemTenant, ITenant tenant) {
-    login(userName, systemTenant, new String[]{tenantAdminAuthorityNamePattern, tenantAuthenticatedAuthorityNamePattern});
+    login(userName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     for (IPentahoRole role : userRoleDao.getRoles(tenant)) {
       userRoleDao.deleteRole(role);
     }
@@ -449,8 +449,8 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     repositoryAdminUsername = null;
     sysAdminAuthorityName = null;
     sysAdminUserName = null;
-    tenantAdminAuthorityNamePattern = null;
-    tenantAuthenticatedAuthorityNamePattern = null;
+    tenantAdminAuthorityName = null;
+    tenantAuthenticatedAuthorityName = null;
     authorizationPolicy = null;
     testJcrTemplate = null;
     if (startupCalled) {
@@ -519,8 +519,8 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     testJcrTemplate.setExposeNativeSession(true);
     repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
     sysAdminAuthorityName = (String) applicationContext.getBean("superAdminAuthorityName");
-    tenantAuthenticatedAuthorityNamePattern = (String) applicationContext.getBean("tenantAuthenticatedAuthorityNamePattern");
-    tenantAdminAuthorityNamePattern = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    tenantAuthenticatedAuthorityName = (String) applicationContext.getBean("singleTenantAuthenticatedAuthorityName");
+    tenantAdminAuthorityName = (String) applicationContext.getBean("singleTenantAdminAuthorityName");
     sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
     authorizationPolicy = (IAuthorizationPolicy) applicationContext.getBean("authorizationPolicy");
     tenantManager = (ITenantManager) applicationContext.getBean("tenantMgrProxy");

@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -114,8 +115,40 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
+  @Override
+  public RepositoryFile getFile(String path, IPentahoLocale locale) {
+    return this.repositoryFileDao.getFile(path, locale);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, IPentahoLocale locale) {
+    return this.repositoryFileDao.getFileById(fileId, locale);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public RepositoryFile getFile(String path, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return this.repositoryFileDao.getFile(path, loadLocaleMaps, locale);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public RepositoryFile getFileById(Serializable fileId, boolean loadLocaleMaps, IPentahoLocale locale) {
+    return this.repositoryFileDao.getFileById(fileId, loadLocaleMaps, locale);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-                                   final IRepositoryFileData data, final String versionMessage) {
+      final IRepositoryFileData data, final String versionMessage) {
     return createFile(parentFolderId, file, data, null, versionMessage);
   }
 
@@ -123,7 +156,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
-                                     final String versionMessage) {
+      final String versionMessage) {
     return createFolder(parentFolderId, file, null, versionMessage);
   }
 
@@ -131,7 +164,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public RepositoryFile createFile(final Serializable parentFolderId, final RepositoryFile file,
-                                   final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
+      final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.isTrue(!file.isFolder());
     Assert.notNull(data);
@@ -144,7 +177,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
-                                     final RepositoryFileAcl acl, final String versionMessage) {
+      final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.isTrue(file.isFolder());
     // external callers never allowed to create folders at repo root
@@ -175,7 +208,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public <T extends IRepositoryFileData> T getDataAtVersionForExecute(final Serializable fileId,
-                                                                      final Serializable versionId, final Class<T> dataClass) {
+      final Serializable versionId, final Class<T> dataClass) {
     return getDataAtVersionForRead(fileId, versionId, dataClass);
   }
 
@@ -190,7 +223,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public <T extends IRepositoryFileData> T getDataAtVersionForRead(final Serializable fileId,
-                                                                   final Serializable versionId, final Class<T> dataClass) {
+      final Serializable versionId, final Class<T> dataClass) {
     Assert.notNull(fileId);
     return repositoryFileDao.getData(fileId, versionId, dataClass);
   }
@@ -198,8 +231,8 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
-  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch(
-      final List<RepositoryFile> files, final Class<T> dataClass) {
+  public <T extends IRepositoryFileData> List<T> getDataForReadInBatch(final List<RepositoryFile> files,
+      final Class<T> dataClass) {
     Assert.notNull(files);
     List<T> data = new ArrayList<T>(files.size());
     for (RepositoryFile f : files) {
@@ -212,8 +245,8 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   /**
    * {@inheritDoc}
    */
-  public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch(
-      final List<RepositoryFile> files, final Class<T> dataClass) {
+  public <T extends IRepositoryFileData> List<T> getDataForExecuteInBatch(final List<RepositoryFile> files,
+      final Class<T> dataClass) {
     return getDataForReadInBatch(files, dataClass);
   }
 
@@ -236,7 +269,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    * {@inheritDoc}
    */
   public RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData data,
-                                   final String versionMessage) {
+      final String versionMessage) {
     Assert.notNull(file);
     Assert.notNull(data);
 
@@ -416,20 +449,20 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   }
 
   private RepositoryFile internalCreateFile(final Serializable parentFolderId, final RepositoryFile file,
-                                            final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
+      final IRepositoryFileData data, final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     Assert.notNull(data);
     return repositoryFileDao.createFile(parentFolderId, file, data, acl, versionMessage);
   }
 
   private RepositoryFile internalCreateFolder(final Serializable parentFolderId, final RepositoryFile file,
-                                              final RepositoryFileAcl acl, final String versionMessage) {
+      final RepositoryFileAcl acl, final String versionMessage) {
     Assert.notNull(file);
     return repositoryFileDao.createFolder(parentFolderId, file, acl, versionMessage);
   }
 
   private RepositoryFile internalUpdateFile(final RepositoryFile file, final IRepositoryFileData data,
-                                            final String versionMessage) {
+      final String versionMessage) {
     Assert.notNull(file);
     Assert.notNull(data);
     return repositoryFileDao.updateFile(file, data, versionMessage);
@@ -456,6 +489,7 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public String getProductID() {
-	return repositoryFileDao.getProductID();
+    return repositoryFileDao.getProductID();
   }
+
 }

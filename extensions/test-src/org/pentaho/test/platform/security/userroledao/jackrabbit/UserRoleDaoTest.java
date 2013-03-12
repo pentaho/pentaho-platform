@@ -57,7 +57,6 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
-import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
@@ -199,8 +198,8 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   IUserRoleDao userRoleDaoTestProxy;
   private ITenantManager tenantManager;
   private String repositoryAdminUsername;
-  private String tenantAdminRoleName;
-  private String tenantAuthenticatedRoleName;
+  private String adminRoleName;
+  private String authenticatedRoleName;
   private String sysAdminRoleName;
   private String sysAdminUserName;
   private JcrTemplate testJcrTemplate;
@@ -263,7 +262,6 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     // null out fields to get back memory
     authorizationPolicy = null;
     loginAsRepositoryAdmin();
-    SimpleJcrTestUtils.deleteItem(testJcrTemplate, ServerRepositoryPaths.getPentahoRootFolderPath());
     logout();
     
     
@@ -272,8 +270,8 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     userRoleDaoTestProxy = null;
     tenantManager = null;
     repositoryAdminUsername = null;
-    tenantAdminRoleName = null;
-    tenantAuthenticatedRoleName = null;
+    adminRoleName = null;
+    authenticatedRoleName = null;
     sysAdminRoleName = null;
     sysAdminUserName = null;
     testJcrTemplate = null;
@@ -362,9 +360,9 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     testJcrTemplate.setAllowCreate(true);
     testJcrTemplate.setExposeNativeSession(true);
     repositoryAdminUsername = (String) applicationContext.getBean("repositoryAdminUsername");
-    tenantAuthenticatedRoleName = (String) applicationContext
-        .getBean("tenantAuthenticatedAuthorityNamePattern");
-    tenantAdminRoleName = (String) applicationContext.getBean("tenantAdminAuthorityNamePattern");
+    authenticatedRoleName = (String) applicationContext
+        .getBean("singleTenantAuthenticatedAuthorityName");
+    adminRoleName = (String) applicationContext.getBean("singleTenantAdminAuthorityName");
     roleBindingDaoTarget = (IRoleAuthorizationPolicyRoleBindingDao) applicationContext.getBean("roleAuthorizationPolicyRoleBindingDaoTarget");
     sysAdminRoleName = (String) applicationContext.getBean("superAdminAuthorityName");
     sysAdminUserName = (String) applicationContext.getBean("superAdminUserName");
@@ -390,53 +388,53 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   @Ignore
   public void testGetUserWithSubTenant() throws Exception {
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_1_1 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_1_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_1_1 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_1_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_1_2 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_1_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_1_2 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_1_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_2_1 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_2_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_2_1 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_2_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_2_2 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_2_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_2_2 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_2_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_1_1 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_1_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_1_1 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_1_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_1_2 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_1_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_1_2 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_1_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_2_1 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_2_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_2_1 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_2_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_2_2 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_2_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_2_2 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_2_2, "admin", "password", "", new String[]{adminRoleName});
     
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
     IPentahoUser pentahoUser = userRoleDaoProxy.createUser(subTenant1_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
     pentahoUser = userRoleDaoProxy.createUser(subTenant1_2, USER_3, PASSWORD_3, USER_DESCRIPTION_3, null);
     pentahoUser = userRoleDaoProxy.createUser(subTenant1_1_1, USER_4, PASSWORD_2, USER_DESCRIPTION_2, null);
@@ -466,7 +464,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
 
     logout();
 
-    login("admin", mainTenant_2, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_2, new String[]{adminRoleName, authenticatedRoleName});
     
     pentahoUser = userRoleDaoProxy.createUser(mainTenant_2, USER_8, PASSWORD_8, USER_DESCRIPTION_8, null);
     pentahoUser = userRoleDaoProxy.createUser(subTenant2_1, USER_9, PASSWORD_9, USER_DESCRIPTION_9, null);
@@ -519,54 +517,54 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   @Ignore
   public void testGetRolesWithSubTenant() throws Exception {
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_1_1 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_1_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_1_1 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_1_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_1_2 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_1_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_1_2 = tenantManager.createTenant(subTenant1_1, SUB_TENANT1_1_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_1_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_2_1 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_2_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_2_1 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_2_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_2_2 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_2_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_2_2 = tenantManager.createTenant(subTenant1_2, SUB_TENANT1_2_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_2_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_1_1 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_1_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_1_1 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_1_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_1_2 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_1_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_1_2 = tenantManager.createTenant(subTenant2_1, SUB_TENANT2_1_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_1_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_2_1 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_2_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_2_1 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_2_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_2_2 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_2_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_2_2 = tenantManager.createTenant(subTenant2_2, SUB_TENANT2_2_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_2_2, "admin", "password", "", new String[]{adminRoleName});
     
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
     IPentahoRole pentahoRole = userRoleDaoProxy.createRole(mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null);
     pentahoRole = userRoleDaoProxy.createRole(subTenant1_1, ROLE_2, ROLE_DESCRIPTION_2, null);
     pentahoRole = userRoleDaoProxy.createRole(subTenant1_2, ROLE_3, ROLE_DESCRIPTION_3, null);
@@ -584,7 +582,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     
     logout();
 
-    login("admin", mainTenant_2, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_2, new String[]{adminRoleName, authenticatedRoleName});
     
     pentahoRole = userRoleDaoProxy.createRole(mainTenant_2, ROLE_8, ROLE_DESCRIPTION_8, null);
     pentahoRole = userRoleDaoProxy.createRole(subTenant2_1, ROLE_9, ROLE_DESCRIPTION_9, null);
@@ -635,31 +633,31 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   @Ignore
   public void testCreateUser() throws Exception {
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_2, "admin", "password", "", new String[]{adminRoleName});
     
 
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
     List<IPentahoUser> users = userRoleDaoProxy.getUsers(mainTenant_1);
     IPentahoUser pentahoUser = userRoleDaoProxy.createUser(mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
     pentahoUser = userRoleDaoProxy.getUser(mainTenant_1, USER_2);
@@ -668,7 +666,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoUser.getDescription(), USER_DESCRIPTION_2);
     assertEquals(pentahoUser.isEnabled(), true);
     logout();
-    login("admin", subTenant2_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant2_1, new String[]{adminRoleName, authenticatedRoleName});
     try {
       pentahoUser = userRoleDaoProxy.createUser(mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
       fail("Exception not thrown");
@@ -676,7 +674,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
       assertNotNull(th);
     }
     logout();
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     users = userRoleDaoProxy.getUsers(mainTenant_1);
     int DEFAULT_USER_COUNT = 1;
@@ -688,11 +686,11 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoUser.isEnabled(), true);
     
     logout();
-    login("admin", mainTenant_2, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_2, new String[]{adminRoleName, authenticatedRoleName});
     pentahoUser = userRoleDaoProxy.createUser(mainTenant_2, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
     
     logout();
-    login("admin", subTenant1_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant1_1, new String[]{adminRoleName, authenticatedRoleName});
     try {
       pentahoUser = userRoleDaoProxy.createUser(mainTenant_2, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
       fail("Exception not thrown");
@@ -701,7 +699,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     }
 
     logout();
-    login("admin", mainTenant_2, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_2, new String[]{adminRoleName, authenticatedRoleName});
 
     pentahoUser = userRoleDaoProxy.getUser(mainTenant_2, USER_2);
     assertEquals(pentahoUser.getTenant(), mainTenant_2);
@@ -718,7 +716,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoUser.isEnabled(), true);
     
     logout();
-    login("admin", subTenant2_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant2_1, new String[]{adminRoleName, authenticatedRoleName});
 
     pentahoUser = userRoleDaoProxy.createUser(null, USER_3 + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + subTenant2_1.getRootFolderAbsolutePath(), PASSWORD_3, USER_DESCRIPTION_3, null);
     
@@ -729,7 +727,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoUser.isEnabled(), true);
     
     logout();
-    login("admin", subTenant1_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant1_1, new String[]{adminRoleName, authenticatedRoleName});
 
     try {
       pentahoUser = userRoleDaoProxy.createUser(subTenant2_1, USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
@@ -739,7 +737,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     }
 
     logout();
-    login("admin", subTenant2_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant2_1, new String[]{adminRoleName, authenticatedRoleName});
 
     users = userRoleDaoProxy.getUsers(subTenant2_1);
     assertTrue(users.size() == 1 + DEFAULT_USER_COUNT);
@@ -750,7 +748,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoUser.isEnabled(), true);
     
     logout();
-    login("admin", subTenant1_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant1_1, new String[]{adminRoleName, authenticatedRoleName});
     
     pentahoUser = userRoleDaoProxy.createUser(null, USER_4 + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + subTenant1_1.getRootFolderAbsolutePath(), PASSWORD_4, USER_DESCRIPTION_4, null);
     
@@ -761,7 +759,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoUser.isEnabled(), true);
     
     logout();
-    login("admin", subTenant2_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant2_1, new String[]{adminRoleName, authenticatedRoleName});
 
     try {
       pentahoUser = userRoleDaoProxy.createUser(subTenant1_1, USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
@@ -771,7 +769,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     }
 
     logout();
-    login("admin", subTenant1_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant1_1, new String[]{adminRoleName, authenticatedRoleName});
 
     
     users = userRoleDaoProxy.getUsers(subTenant1_1);
@@ -783,7 +781,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoUser.isEnabled(), true);
 
     logout();
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     try {
       pentahoUser = userRoleDaoProxy.createUser(mainTenant_1, USER_1, PASSWORD_1, USER_DESCRIPTION_1, null);
@@ -812,31 +810,31 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   @Ignore
   public void testCreateRole() throws Exception {
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_1 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant1_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant1_2 = tenantManager.createTenant(mainTenant_1, SUB_TENANT1_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant1_2, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_1 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_1, "admin", "password", "", new String[]{adminRoleName});
     
-    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(subTenant2_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    subTenant2_2 = tenantManager.createTenant(mainTenant_2, SUB_TENANT2_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(subTenant2_2, "admin", "password", "", new String[]{adminRoleName});
     
 
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     IPentahoRole pentahoRole = userRoleDaoProxy.createRole(mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null);
     
@@ -852,7 +850,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoRole.getName(), ROLE_1);
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_1);
     logout();
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
     try {
       pentahoRole = userRoleDaoProxy.createRole(mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null);
       fail("Exception not thrown");
@@ -860,7 +858,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
       assertNotNull(th);
     }
     logout();
-    login("admin", mainTenant_2, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_2, new String[]{adminRoleName, authenticatedRoleName});
 
     pentahoRole = userRoleDaoProxy.createRole(mainTenant_2, ROLE_1, ROLE_DESCRIPTION_2, null);
     
@@ -877,7 +875,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_2);
 
     logout();
-    login("admin", subTenant2_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant2_1, new String[]{adminRoleName, authenticatedRoleName});
     try {
       pentahoRole = userRoleDaoProxy.createRole(mainTenant_2, ROLE_1, ROLE_DESCRIPTION_1, null);
       fail("Exception not thrown");
@@ -900,7 +898,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_3);
     
     logout();
-    login("admin", subTenant1_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant1_1, new String[]{adminRoleName, authenticatedRoleName});
     try {
       pentahoRole = userRoleDaoProxy.createRole(subTenant2_1, ROLE_3, ROLE_DESCRIPTION_3, null);
       fail("Exception not thrown");
@@ -909,7 +907,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     }
 
     logout();
-    login("admin", subTenant1_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant1_1, new String[]{adminRoleName, authenticatedRoleName});
     
     pentahoRole = userRoleDaoProxy.createRole(null, ROLE_4 + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + subTenant1_1.getRootFolderAbsolutePath(), ROLE_DESCRIPTION_4, null);
     
@@ -926,7 +924,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertEquals(pentahoRole.getDescription(), ROLE_DESCRIPTION_4);
 
     logout();
-    login("admin", subTenant2_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", subTenant2_1, new String[]{adminRoleName, authenticatedRoleName});
     try {
       pentahoRole = userRoleDaoProxy.createRole(subTenant1_1, ROLE_3, ROLE_DESCRIPTION_3, null);
       fail("Exception not thrown");
@@ -935,7 +933,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     }
 
     logout();
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     try {
       pentahoRole = userRoleDaoProxy.createRole(mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null);
@@ -965,18 +963,18 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   @Ignore
   public void testUpdateUser() throws Exception {
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
 
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     IPentahoUser pentahoUser = userRoleDaoProxy.createUser(mainTenant_1, USER_5, PASSWORD_5, USER_DESCRIPTION_5, null);   
     pentahoUser = userRoleDaoProxy.getUser(mainTenant_1, USER_5);
@@ -1018,7 +1016,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
       // Expected exception
     }
     logout();
-    login("admin", mainTenant_2, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_2, new String[]{adminRoleName, authenticatedRoleName});
 
     try {
       changedDescription1 = USER_DESCRIPTION_5 + "change1";
@@ -1038,18 +1036,18 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   @Ignore
   public void testUpdateRole() throws Exception {
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
 
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     IPentahoRole pentahoRole = userRoleDaoProxy.createRole(mainTenant_1, ROLE_5, ROLE_DESCRIPTION_5, null);   
     pentahoRole = userRoleDaoProxy.getRole(mainTenant_1, ROLE_5);
@@ -1090,7 +1088,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
       // Expected exception
     }
     logout();
-    login("admin", mainTenant_2, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_2, new String[]{adminRoleName, authenticatedRoleName});
 
     try {
       changedDescription1 = ROLE_DESCRIPTION_5 + "change1";
@@ -1109,25 +1107,25 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   public void testDeleteUser() throws Exception {
     int DEFAULT_TENANT_USER = 1;
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
 
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     IPentahoUser pentahoUser = userRoleDaoProxy.createUser(mainTenant_1, USER_6, PASSWORD_6, USER_DESCRIPTION_6, null);       
     pentahoUser = userRoleDaoProxy.getUser(null, USER_6 + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + mainTenant_1.getRootFolderAbsolutePath());   
     assertNotNull(pentahoUser);
     
     logout();
-    login("admin", mainTenant_2, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_2, new String[]{adminRoleName, authenticatedRoleName});
     try {
       userRoleDaoProxy.deleteUser(pentahoUser);    
       fail("Exception not thrown");
@@ -1136,7 +1134,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     }    
 
     logout();
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     userRoleDaoProxy.deleteUser(pentahoUser);
     
@@ -1192,18 +1190,18 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   public void testDeleteRole() throws Exception {
     int DEFAULT_ROLE_COUNT = 3;
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
 
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
 
     IPentahoRole pentahoRole = userRoleDaoProxy.createRole(mainTenant_1, ROLE_6, ROLE_DESCRIPTION_6, null);       
@@ -1211,7 +1209,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     assertNotNull(pentahoRole);
 
     logout();
-    login("admin", mainTenant_2, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_2, new String[]{adminRoleName, authenticatedRoleName});
     try {
       userRoleDaoProxy.deleteRole(pentahoRole);
       fail("Exception not thrown");
@@ -1220,7 +1218,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     }    
 
     logout();
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     userRoleDaoProxy.deleteRole(pentahoRole);
     pentahoRole = userRoleDaoProxy.getRole(null, ROLE_6 + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + mainTenant_1.getRootFolderAbsolutePath());   
@@ -1274,18 +1272,18 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   @Ignore
   public void testGetUser() throws Exception {
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
 
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     assertNull(userRoleDaoProxy.getUser(UNKNOWN_TENANT, UNKNOWN_USER));   
     assertNull(userRoleDaoProxy.getUser(null, UNKNOWN_USER));
@@ -1298,18 +1296,18 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   public void testGetUsers() throws Exception {
     int DEFAULT_USER_COUNT = 1;
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
 
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     userRoleDaoProxy.createUser(mainTenant_1, USER_7, PASSWORD_7, USER_DESCRIPTION_7, null);       
     userRoleDaoProxy.createUser(mainTenant_1, USER_8, PASSWORD_8, USER_DESCRIPTION_8, null);
@@ -1347,18 +1345,18 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   public void testGetRoles() throws Exception {
     int DEFAULT_ROLE_COUNT = 3;
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
 
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
     userRoleDaoProxy.createRole(mainTenant_1, ROLE_7, ROLE_DESCRIPTION_7, null);       
     userRoleDaoProxy.createRole(mainTenant_1, ROLE_8, ROLE_DESCRIPTION_8, null);
     List<IPentahoRole> roles = userRoleDaoProxy.getRoles(mainTenant_1);
@@ -1387,18 +1385,18 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   @Ignore
   public void testRoleWithMembers() throws Exception {
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
     
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
     
     userRoleDaoProxy.createRole(mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null);       
     userRoleDaoProxy.createRole(mainTenant_1, ROLE_2, ROLE_DESCRIPTION_2, null);
@@ -1432,7 +1430,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     
     ArrayList<String> expectedRoleNames = new ArrayList<String>();
     expectedRoleNames.add(ROLE_6);
-    expectedRoleNames.add(tenantAuthenticatedRoleName);
+    expectedRoleNames.add(authenticatedRoleName);
     ArrayList<String> actualRoleNames = new ArrayList<String>();
     List<IPentahoRole> roles = userRoleDaoProxy.getUserRoles(mainTenant_1, USER_6);
     for (IPentahoRole role : roles) {
@@ -1444,7 +1442,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     expectedRoleNames = new ArrayList<String>();
     expectedRoleNames.add(ROLE_5);
     expectedRoleNames.add(ROLE_6);
-    expectedRoleNames.add(tenantAuthenticatedRoleName);
+    expectedRoleNames.add(authenticatedRoleName);
     actualRoleNames = new ArrayList<String>();
     roles = userRoleDaoProxy.getUserRoles(null, USER_5 + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + mainTenant_1.getRootFolderAbsolutePath());
     for (IPentahoRole role : roles) {
@@ -1455,7 +1453,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
         
     roles = userRoleDaoProxy.getUserRoles(mainTenant_1, USER_7);
     assertEquals(1, roles.size());
-    assertEquals(tenantAuthenticatedRoleName, roles.get(0).getName());
+    assertEquals(authenticatedRoleName, roles.get(0).getName());
     
     userRoleDaoProxy.setUserRoles(null, USER_7 + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + mainTenant_1.getRootFolderAbsolutePath(), new String[]{ROLE_5, ROLE_6});
     roles = userRoleDaoProxy.getUserRoles(null, USER_7 + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + mainTenant_1.getRootFolderAbsolutePath());
@@ -1469,7 +1467,7 @@ public class UserRoleDaoTest implements ApplicationContextAware {
     expectedUserNames = new ArrayList<String>();
     expectedUserNames.add(USER_1);
     expectedUserNames.add(USER_2);
-    expectedRoleNames.add(tenantAuthenticatedRoleName);
+    expectedRoleNames.add(authenticatedRoleName);
     userRoleDaoProxy.setRoleMembers(null, ROLE_3 + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + mainTenant_1.getRootFolderAbsolutePath(), new String[]{USER_1, USER_2});
     users = userRoleDaoProxy.getRoleMembers(null, ROLE_3 + DefaultTenantedPrincipleNameResolver.DEFAULT_DELIMETER + mainTenant_1.getRootFolderAbsolutePath());
     actualUserNames.clear();
@@ -1487,18 +1485,18 @@ public class UserRoleDaoTest implements ApplicationContextAware {
   @Ignore
   public void testGetRole() throws Exception {
     loginAsRepositoryAdmin();
-    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminRoleName});
+    systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminRoleName});
     
-    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(sysAdminUserName, systemTenant, new String[]{adminRoleName, authenticatedRoleName});
     
-    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_1, "admin", "password", "", new String[]{adminRoleName});
     
-    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{tenantAdminRoleName});
+    mainTenant_2 = tenantManager.createTenant(systemTenant, MAIN_TENANT_2, adminRoleName, authenticatedRoleName, "Anonymous");
+    userRoleDaoProxy.createUser(mainTenant_2, "admin", "password", "", new String[]{adminRoleName});
     
-    login("admin", mainTenant_1, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login("admin", mainTenant_1, new String[]{adminRoleName, authenticatedRoleName});
 
     assertNull(userRoleDaoProxy.getRole(UNKNOWN_TENANT, UNKNOWN_ROLE));   
     assertNull(userRoleDaoProxy.getRole(null, UNKNOWN_ROLE));

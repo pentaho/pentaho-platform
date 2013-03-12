@@ -19,6 +19,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
 import org.pentaho.platform.core.mt.Tenant;
@@ -46,7 +47,7 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest 
 
   public void testOnApplicationEvent() throws Exception {
     final BackingRepositoryLifecycleManagerAuthenticationSuccessListener listener = new
-        BackingRepositoryLifecycleManagerAuthenticationSuccessListener(usernamePrincipleUtils);
+        BackingRepositoryLifecycleManagerAuthenticationSuccessListener();
 
     // Test the getters and setters
     final int order = listener.getOrder() + 1;
@@ -67,14 +68,13 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest 
     String principleName = usernamePrincipleUtils.getPrincipleId(new Tenant(CURRENT_TENANT, true), CURRENT_USER);
     listener.onApplicationEvent(new MockAbstractAuthenticationEvent(new MockAuthentication(principleName)));
     final List<MethodTrackingData> methodTrackerHistory1 = mockLifecycleManager.getMethodTrackerHistory();
-    assertEquals(2, methodTrackerHistory1.size());
+    assertEquals(4, methodTrackerHistory1.size());
     assertEquals("newTenant", methodTrackerHistory1.get(0).getMethodName());
     assertEquals(2, methodTrackerHistory1.get(0).getParameters().size());
-    assertEquals(principleName, methodTrackerHistory1.get(0).getParameters().get(USER_PARAMETER));
-    assertEquals(CURRENT_TENANT, methodTrackerHistory1.get(0).getParameters().get(TENANTID_PARAMETER));
+    assertEquals(principleName, methodTrackerHistory1.get(3).getParameters().get(USER_PARAMETER));
+    assertEquals(CURRENT_TENANT,  usernamePrincipleUtils.getTenant((String)methodTrackerHistory1.get(3).getParameters().get(USER_PARAMETER)).getId());
     assertEquals("newUser", methodTrackerHistory1.get(1).getMethodName());
-    assertEquals(1, methodTrackerHistory1.get(1).getParameters().size());
-    assertEquals(principleName, methodTrackerHistory1.get(1).getParameters().get(USER_PARAMETER));
+    assertEquals(3, methodTrackerHistory1.get(1).getParameters().size());
     // Make sure both methods get called when exceptions are thrown
     mockLifecycleManager.resetCallHistory();
     mockLifecycleManager.setThrowException(true);
@@ -107,10 +107,10 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest 
       if (throwException) throw new RuntimeException(UNIT_TEST_EXCEPTION_MESSAGE);
     }
 
-    public void newTenant(final String tenantId) {
+    public void newTenant(final ITenant tenant) {
       methodTrackerHistory.add(new MethodTrackingData("newTenant")
           .addParameter(USER_PARAMETER, securityHelper.getCurrentUser())
-          .addParameter("tenantId", tenantId));
+          .addParameter("tenant", tenant));
       if (throwException) throw new RuntimeException(UNIT_TEST_EXCEPTION_MESSAGE);
     }
 
@@ -120,10 +120,10 @@ public class BackingRepositoryLifecycleManagerAuthenticationSuccessListenerTest 
       if (throwException) throw new RuntimeException(UNIT_TEST_EXCEPTION_MESSAGE);
     }
 
-    public void newUser(final String tenantId, final String username) {
+    public void newUser(final ITenant tenant, final String username) {
       methodTrackerHistory.add(new MethodTrackingData("newUser")
           .addParameter(USER_PARAMETER, securityHelper.getCurrentUser())
-          .addParameter("tenantId", tenantId)
+          .addParameter("tenant", tenant)
           .addParameter("username", username));
       if (throwException) throw new RuntimeException(UNIT_TEST_EXCEPTION_MESSAGE);
     }
