@@ -668,6 +668,7 @@ public class WorkspacePanel extends SimplePanel {
     bar.add(Toolbar.GLUE);
 
     ToolbarButton refresh = new ToolbarButton(new Image(MantleImages.images.refresh()));
+    refresh.setToolTip(Messages.getString("refreshTooltip"));
     refresh.setCommand(new Command() {
       public void execute() {
         RefreshWorkspaceCommand cmd = new RefreshWorkspaceCommand();
@@ -821,6 +822,7 @@ public class WorkspacePanel extends SimplePanel {
       }
     });
     editButton.setEnabled(false);
+    editButton.setToolTip(Messages.getString("editTooltip"));
     bar.add(editButton);
 
     scheduleRemoveButton.setCommand(new Command() {
@@ -843,9 +845,9 @@ public class WorkspacePanel extends SimplePanel {
         }
       }
     });
-    scheduleRemoveButton.setToolTip(Messages.getString("remove"));
+    scheduleRemoveButton.setToolTip(Messages.getString("remove"));   
     bar.add(scheduleRemoveButton);
-    bar.addSpacer(10);
+    bar.addSpacer(50);
 
     tableAndPager.add(bar);
     tableAndPager.add(table);
