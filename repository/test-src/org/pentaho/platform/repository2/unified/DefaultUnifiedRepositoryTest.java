@@ -24,15 +24,7 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import javax.jcr.Repository;
 import javax.jcr.security.Privilege;
@@ -387,6 +379,76 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     logout();
   }
+
+
+  @Test
+  public void testLocalePropertiesMap() throws Exception {
+    login(sysAdminUserName, systemTenant, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName });
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName,
+       tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", new String[] { tenantAdminRoleName });
+    logout();
+
+    login(USERNAME_SUZY, tenantAcme, new String[] { tenantAdminRoleName, tenantAuthenticatedRoleName });
+
+    // Create file
+    final String fileName = "locale.sample";
+    RepositoryFile file = createSampleFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY), fileName,
+       "test", false, 123);
+
+    // Test filename title matches created file name
+    assertEquals(fileName, file.getTitle());
+
+    final String ROOTLOCALE = "rootLocale";
+    final IPentahoLocale SPANISH = new PentahoLocale(new Locale("es"));
+    final IPentahoLocale US = new PentahoLocale(Locale.US);
+    final String TITLE = "title";
+    final String DESCRIPTION = "description";
+    final String EN_US_TITLE = "Locale Sample";
+    final String EN_US_DESCRIPTION = "This is a test for retrieving localized words";
+    final String SP_TITLE = "Muestra de Localizacion";
+    final String SP_DESCRIPTION = "Esta es una prueba para buscar palabras localizadas";
+
+    RepositoryFile.Builder builder = new RepositoryFile.Builder(file);
+    Map<String, Properties> localeMap = new HashMap<String, Properties>();
+
+    // Set English locale values
+    Properties enProperties = new Properties();
+    enProperties.setProperty(TITLE, EN_US_TITLE);
+    enProperties.setProperty(DESCRIPTION, EN_US_DESCRIPTION);
+    localeMap.put(US.toString(), enProperties);
+
+    // Set Spanish locale values
+    Properties esProperties = new Properties();
+    esProperties.setProperty(TITLE, SP_TITLE);
+    esProperties.setProperty(DESCRIPTION, SP_DESCRIPTION);
+    localeMap.put(SPANISH.toString(), esProperties);
+
+    builder.localePropertiesMap(localeMap);
+
+    // Update file data
+    final SampleRepositoryFileData modContent = new SampleRepositoryFileData("blah", false, 123);
+    repo.updateFile(builder.build(), modContent, null);
+
+    // Retrieve file - gets full map
+    RepositoryFile updatedFile = repo.getFile(file.getPath(), true);
+
+    // Assert messages are the same
+    Properties ep = updatedFile.getLocalePropertiesMap().get(US.toString());
+    assertEquals(EN_US_TITLE, ep.getProperty(TITLE));
+    assertEquals(EN_US_DESCRIPTION, ep.getProperty(DESCRIPTION));
+
+    Properties sp = updatedFile.getLocalePropertiesMap().get(SPANISH.toString());
+    assertEquals(SP_TITLE, sp.getProperty(TITLE));
+    assertEquals(SP_DESCRIPTION, sp.getProperty(DESCRIPTION));
+
+    // Assert empty rootLocale
+    Properties rootLocale = updatedFile.getLocalePropertiesMap().get(ROOTLOCALE);
+    assertNotNull(rootLocale);
+
+    logout();
+  }
+
 
   /**
    * This test method depends on {@code DefaultRepositoryEventHandler} behavior.

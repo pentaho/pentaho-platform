@@ -153,7 +153,7 @@ public class ExportManifestTest extends TestCase {
 				isFolder, false, false, "versionId", path, createdDate, lastModeDate,
 				false, "lockOwner", "lockMessage", lockDate, "en_US", "title", null,
 				"description", null, "/original/parent/folder/path", deletedDate, 4096,
-				"creatorId");
+				"creatorId", null);
 		return mockRepositoryFile;
 	}
 
