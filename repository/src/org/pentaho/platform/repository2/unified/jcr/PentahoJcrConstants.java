@@ -60,6 +60,8 @@ public class PentahoJcrConstants extends JcrConstants {
 
   public static String PHO_CONTENTCREATOR = "contentCreator";  //$NON-NLS-1$
 
+  public static String PHO_SCHEDULENAME = "scheduleName";  //$NON-NLS-1$
+  
   private static final String PHO_LOCKEDNODEREF = "lockedNodeRef"; //$NON-NLS-1$
 
   private static final String PHO_LOCKTOKEN = "lockToken"; //$NON-NLS-1$

@@ -345,6 +345,7 @@ code {
 
 .pucContentDeck {
 	height: 100%;
+  width: 100%;
 }
 
 .workspaceDisclosureContentWrapper {

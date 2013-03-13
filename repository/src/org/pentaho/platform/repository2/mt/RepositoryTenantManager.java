@@ -146,6 +146,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
       final ITenant tenant) throws RepositoryException {
     Node authzFolderNode = createAuthzFolderNode(session, pentahoJcrConstants, tenant);
     Node node = authzFolderNode.addNode(FOLDER_NAME_ROLEBASED, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER());
+    authzFolderNode.save();
     session.save();
     return node;
   }
@@ -154,6 +155,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
       final PentahoJcrConstants pentahoJcrConstants, final ITenant tenant) throws RepositoryException {
     Node roleBasedFolderNode = createRoleBasedFolderNode(session, pentahoJcrConstants, tenant);
     Node node = roleBasedFolderNode.addNode(FOLDER_NAME_RUNTIMEROLES, pentahoJcrConstants.getPHO_NT_INTERNALFOLDER());
+    roleBasedFolderNode.save();
     session.save();
     return node;
   }

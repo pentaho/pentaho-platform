@@ -70,7 +70,7 @@ public class SolutionTest extends BaseTest {
     finishTest();
   }
 
-  public void testSolutionHelper() {
+  /*public void testSolutionHelper() {
     startTest();
     String outputPath = "c:/"; //$NON-NLS-1$
     try {
@@ -106,7 +106,7 @@ public class SolutionTest extends BaseTest {
     finishTest();
   }
 
-  /*public void testSolutionEngineAgent() {
+  public void testSolutionEngineAgent() {
     startTest();
 
     SolutionEngineAgent agent = new SolutionEngineAgent();
@@ -177,7 +177,7 @@ public class SolutionTest extends BaseTest {
     test.setUp();
     test.testSolutionCompare();
     test.testSolutionCompare2();
-    test.testSolutionHelper();
+//    test.testSolutionHelper();
 //    test.testSolutionEngineAgent();
 //    test.testSimpleParameterProvider();
     test.testOutputDef();

@@ -57,6 +57,8 @@ import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile;
+import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryDumpToFile.Mode;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
@@ -78,6 +80,7 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Class Description
@@ -94,7 +97,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
 
   private static final String TEST_TENANT_ID = "Pentaho";
 
-  private static final String TEST_USER_ID = "admin";
+  private static final String TEST_USER_ID = "joe";
 
   private static MicroPlatform mp = new MicroPlatform();
 
@@ -134,13 +137,14 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
 
   private ITenant systemTenant = null;
   
-  private ITenant testTenant = new Tenant(TEST_TENANT_ID, true);
+  private ITenant testTenant;
 
   private ITenantedPrincipleNameResolver tenantedRoleNameUtils;
 
   private ITenantedPrincipleNameResolver tenantedUserNameUtils;
 
   private IRoleAuthorizationPolicyRoleBindingDao roleBindingDaoTarget;
+  private static TransactionTemplate jcrTransactionTemplate;
 
   public static final String SYSTEM_PROPERTY = "spring.security.strategy";
 
@@ -173,7 +177,10 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
-    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao,userDetailsService);
+    List<String> systemRoles = new ArrayList<String>();
+    systemRoles.add("Admin");
+    userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao,userDetailsService,
+        systemRoles);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserRoleDao(userRoleDao);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserDetailsService(userDetailsService);
     mp.defineInstance(IUserRoleListService.class, userRoleListService);
@@ -215,6 +222,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
   @Test
   public void testDoNewTenant() throws Exception {
     IPentahoSession currentSession = PentahoSessionHolder.getSession();
+    testTenant = new Tenant(TEST_TENANT_ID, true);
     try {
       metadataRepositoryLifecycleManager.newTenant(testTenant);
       fail("The /etc folder is not setup and this should cause a failure");
@@ -226,16 +234,18 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
     userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminAuthorityName});
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{adminAuthorityName});
-    login("admin", mainTenant_1, new String[]{tenantAuthenticatedAuthorityName});
-
-    metadataRepositoryLifecycleManager.newTenant(testTenant);
+    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{adminAuthorityName, tenantAuthenticatedAuthorityName});
+    login("joe", mainTenant_1, new String[]{adminAuthorityName, tenantAuthenticatedAuthorityName});
+    JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
+        repositoryAdminUsername, "c:/build/testrepo_3", Mode.CUSTOM);
+    dumpToFile.execute();
+    metadataRepositoryLifecycleManager.newTenant(mainTenant_1);
     String metadataPath = ClientRepositoryPaths.getEtcFolderPath() + "/metadata";
     RepositoryFile metadataRepositoryPath = repo.getFile(metadataPath);
     assertTrue(metadataRepositoryPath.getPath() != null);
 
     // Nothing should change if we run it again
-    metadataRepositoryLifecycleManager.newTenant(testTenant);
+    metadataRepositoryLifecycleManager.newTenant(mainTenant_1);
     metadataPath = ClientRepositoryPaths.getEtcFolderPath() + "/metadata";
     metadataRepositoryPath = repo.getFile(metadataPath);
     assertTrue(metadataRepositoryPath.getPath() != null);
@@ -284,6 +294,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     tenantedRoleNameUtils = (ITenantedPrincipleNameResolver) applicationContext.getBean("tenantedRoleNameUtils");
     metadataRepositoryLifecycleManager = (IBackingRepositoryLifecycleManager) applicationContext
         .getBean("metadataRepositoryLifecycleManager");
+    jcrTransactionTemplate = (TransactionTemplate) applicationContext.getBean("jcrTransactionTemplate");
     repo = (IUnifiedRepository) applicationContext.getBean("unifiedRepository");
     TestPrincipalProvider.userRoleDao = (IUserRoleDao) applicationContext.getBean("userRoleDaoTxn");
     TestPrincipalProvider.adminCredentialsStrategy = (CredentialsStrategy) applicationContext

@@ -2,6 +2,7 @@ package org.pentaho.platform.plugin.services.security.userrole;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,6 +71,10 @@ public class ExtraRolesUserRoleListServiceDecorator implements IUserRoleListServ
     Assert.notNull(extraRoles);
     this.extraRoles = new ArrayList<String>(extraRoles);
   }
+  
+  public void setSystemRoles(final Set<String> systemRoles){
+    Assert.notNull(systemRoles);
+  }
 
   @Override
   public List<String> getAllRoles(ITenant tenant) {
@@ -89,6 +94,11 @@ public class ExtraRolesUserRoleListServiceDecorator implements IUserRoleListServ
   @Override
   public List<String> getRolesForUser(ITenant tenant, String username) {
     return userRoleListService.getRolesForUser(tenant, username);
+  }
+
+  @Override
+  public List<String> getSystemRoles() {
+    return userRoleListService.getSystemRoles();
   }
 
 }

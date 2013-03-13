@@ -22,6 +22,8 @@ package org.pentaho.mantle.client.solutionbrowser;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -217,6 +219,15 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorAndContentPanel.setRightWidget(contentPanel);
     solutionNavigatorAndContentPanel.getElement().setAttribute("id", "solutionNavigatorAndContentPanel");
 
+    Window.addResizeHandler(new ResizeHandler() {
+      @Override
+      public void onResize(ResizeEvent event) {
+        int width = event.getWidth();
+        int adjustedWidth = solutionNavigatorAndContentPanel.getLeftWidget().getOffsetWidth() + (hSplitter == null ? 0 : hSplitter.getOffsetWidth());
+        solutionNavigatorAndContentPanel.getRightWidget().setWidth((width - adjustedWidth) + "px");
+      }
+    });
+
     @SuppressWarnings("rawtypes")
     NodeList possibleChildren = solutionNavigatorAndContentPanel.getElement().getElementsByTagName("table");
     for (int i = 0; i < possibleChildren.getLength(); i++) {
@@ -271,6 +282,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     showContent();
     ElementUtils.removeScrollingFromSplitPane(solutionNavigatorPanel);
     ElementUtils.removeScrollingFromUpTo(solutionNavigatorAndContentPanel.getLeftWidget().getElement(), solutionNavigatorAndContentPanel.getElement());
+
+    solutionNavigatorAndContentPanel.getRightWidget().setWidth("100%");
 
     // BISERVER-6208 Files List panel behaves badly in Safari
     if (Window.Navigator.getUserAgent().toLowerCase().indexOf("webkit") != -1) {
@@ -752,6 +765,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       solutionNavigatorAndContentPanel.setSplitPosition(defaultSplitPosition);
       solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
       solutionNavigatorPanel.setSplitPosition("60%"); //$NON-NLS-1$
+      int adjustedWidth = solutionNavigatorAndContentPanel.getLeftWidget().getOffsetWidth() + (hSplitter == null ? 0 : hSplitter.getOffsetWidth());
+
+      int width = this.getOffsetWidth() - adjustedWidth;
+      solutionNavigatorAndContentPanel.getRightWidget().setWidth(width + "px");
+
       Element vSplitter = DOM.getElementById("pucVerticalSplitter");
       if (vSplitter != null) {
         ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
@@ -760,6 +778,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       solutionNavigatorAndContentPanel.setLeftWidget(new SimplePanel());
       solutionNavigatorAndContentPanel.setSplitPosition("0px"); //$NON-NLS-1$
       solutionNavigatorPanel.setVisible(false); //$NON-NLS-1$
+      solutionNavigatorAndContentPanel.getRightWidget().setWidth(solutionNavigatorAndContentPanel.getOffsetWidth() + "px");
     }
   }
 

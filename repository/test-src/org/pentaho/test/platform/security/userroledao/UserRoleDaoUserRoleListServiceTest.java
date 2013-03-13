@@ -23,7 +23,10 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -57,7 +60,6 @@ import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
 import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
-import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -376,8 +378,10 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     pentahoRole = userRoleDao.createRole(mainTenant_2, ROLE_6, ROLE_DESCRIPTION_6, null);
     pentahoRole = userRoleDao.createRole(mainTenant_2, ROLE_7, ROLE_DESCRIPTION_7, null);
 
+    List<String> systemRoles = Arrays.asList(new String[] {"Admin"});
+
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService);
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles);
     userDetailsService.setUserRoleDao(userRoleDao);
     logout();
     login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
@@ -442,7 +446,9 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
     
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService);
+    List<String> systemRoles = Arrays.asList(new String[] {"Admin"});
+    
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles);
     service.setUserRoleDao(userRoleDao);
     service.setUserDetailsService(userDetailsService);
 
@@ -518,6 +524,8 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     userRoleDao.setUserRoles(mainTenant_1,USER_2, new String[] {ROLE_1,ROLE_2, ROLE_3});
     
+    List<String> systemRoles = Arrays.asList(new String[] {"Admin"});
+    
     try  {
       userRoleDao.setUserRoles(mainTenant_1,USER_3, new String[] {ROLE_2,ROLE_3, ROLE_4});
       fail("Exception should be thrown");
@@ -534,7 +542,8 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
     userDetailsService.setDefaultRole(tenantAuthenticatedAuthorityName);
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService);
+    
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles);
     service.setUserDetailsService(userDetailsService);
 
     logout();
@@ -598,7 +607,9 @@ public class UserRoleDaoUserRoleListServiceTest  implements ApplicationContextAw
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
     userDetailsService.setDefaultRole(tenantAuthenticatedAuthorityName);
-    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService);
+    List<String> systemRoles = new ArrayList<String>();
+    systemRoles.add("Admin");
+    UserRoleDaoUserRoleListService service = new UserRoleDaoUserRoleListService(userRoleDao, userDetailsService, systemRoles);
     
     List<String> usersInRole_1 = service.getUsersInRole(mainTenant_1, ROLE_1);
     List<String> usersInRole_2 = service.getUsersInRole(null, ROLE_2);

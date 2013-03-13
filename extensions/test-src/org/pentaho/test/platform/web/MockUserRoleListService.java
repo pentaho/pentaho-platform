@@ -219,5 +219,10 @@ public class MockUserRoleListService implements IUserRoleListService {
     }
     return Collections.emptyList();
   }
+
+  @Override
+  public List<String> getSystemRoles() {
+    return Arrays.asList(new String[] { "Admin" });
+  }
   
 }

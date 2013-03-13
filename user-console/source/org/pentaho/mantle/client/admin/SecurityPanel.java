@@ -72,13 +72,14 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
   }
   private static final int SYSTEM_ROLES_TYPE = 0;
   private static final int REGULAR_ROLES_TYPE = 1;
-  private static final ArrayList<String> SYSTEM_ROLES = new ArrayList<String>(Arrays.asList(new String[]{"Admin", "Authenticated"}));
+  //private static final ArrayList<String> SYSTEM_ROLES = new ArrayList<String>(Arrays.asList(new String[]{"Admin", "Authenticated"}));
   
   String moduleBaseURL = GWT.getModuleBaseURL();
   String moduleName = GWT.getModuleName();
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
   
   private ArrayList<String> userRoles = new ArrayList<String>();
+  private ArrayList<String> systemRoles = new ArrayList<String>();
   private ListBox rolesListBox;
   private Button saveButton = new Button("Save");
   private VerticalPanel permissionPanel;
@@ -122,6 +123,7 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
     setWidget(securityPanel);
     
     initializeAvailUserRoles();
+    initializeSystemRoles();
     initializeLogicalRoleMappings();
 
   }
@@ -209,7 +211,7 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
     } catch (RequestException e) {
      }
   }
-
+  
   public void onChange(ChangeEvent event) {
     int selectedIndex = rolesListBox.getSelectedIndex();
     if (selectedIndex >= 0) {
@@ -352,8 +354,8 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
     }
     rolesListBox.clear();
     for (String role : userRoles) {
-      if (((roleType == SYSTEM_ROLES_TYPE) && SYSTEM_ROLES.contains(role))
-          || ((roleType != SYSTEM_ROLES_TYPE)&& !SYSTEM_ROLES.contains(role))) {
+      if (((roleType == SYSTEM_ROLES_TYPE) && systemRoles.contains(role))
+          || ((roleType != SYSTEM_ROLES_TYPE) && !systemRoles.contains(role))) {
         rolesListBox.addItem(role);
       }
     }
@@ -423,4 +425,30 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
     }
   }
 
+  private void initializeSystemRoles() {
+    final String url = GWT.getHostPageBaseURL() + "api/userrole/systemRoles"; //$NON-NLS-1$
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("accept", "application/json");
+    try {
+      executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
+            
+            JsUserRoleList roleList = (JsUserRoleList)parseRoleList(JsonUtils.escapeJsonForEval(response.getText()));
+            JsArrayString jsRoleNames = roleList.getRoles();
+            for (int i = 0; i < jsRoleNames.length(); i++) {
+              systemRoles.add(jsRoleNames.get(i));
+            }
+            Collections.sort(systemRoles);
+          } else {
+           }
+        }
+      });
+    } catch (RequestException e) {
+    }
+  }
 }

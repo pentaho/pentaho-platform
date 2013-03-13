@@ -413,26 +413,28 @@
   </bean>
 
   <!-- The name of the authority which is granted to all authenticated users of a particular tenant. -->
-  <bean id="tenantAuthenticatedAuthorityName" class="java.lang.String">
-    <constructor-arg value="Authenticated"/>
-  </bean>
-
-  <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
-  <bean id="tenantAdminAuthorityName" class="java.lang.String">
-    <constructor-arg value="TenantAdmin"/>
-  </bean>
-
-  <!-- The name of the authority which is granted to all authenticated users in single-tenancy mode. -->
   <bean id="singleTenantAuthenticatedAuthorityName" class="java.lang.String">
     <constructor-arg value="Authenticated"/>
   </bean>
 
-  <!-- The name of the authority which is granted to all admin users in single-tenancy mode. -->
+  <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
   <bean id="singleTenantAdminAuthorityName" class="java.lang.String">
-    <constructor-arg value="Admin" />
+    <constructor-arg value="Admin"/>
   </bean>
 
-<bean id="superAdminAuthorityName" class="java.lang.String">
+  <!-- The name of the authority which is granted to all non-authenticated users of a particular tenant -->
+  <bean id="singleTenantAnonymousUserName" class="java.lang.String">
+    <constructor-arg value="Anonymous"/>
+  </bean>
+  
+  <!-- The set of authorities that are considered system and cannot be removed -->
+  <util:list id="singleTenantSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
+  	 <ref bean="singleTenantAuthenticatedAuthorityName" />
+	 <ref bean="singleTenantAdminAuthorityName" />
+  	 <ref bean="singleTenantAnonymousUserName" />
+  </util:list>
+  
+  <bean id="superAdminAuthorityName" class="java.lang.String">
     <constructor-arg value="SysAdmin"/>
   </bean>
   
@@ -448,7 +450,7 @@
     <constructor-arg value="admin"/>
   </bean>
   
-   <!-- Used in code that doesn't use Spring's transaction interception. -->
+        <!-- Used in code that doesn't use Spring's transaction interception. -->
   <!-- The code sets the propagation behavior to PROPAGATION_REQUIRES_NEW. -->
   <bean id="jcrTransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
     <constructor-arg ref="jcrTransactionManager"/>
@@ -614,7 +616,8 @@
   <bean id="pathConversionHelper" class="org.pentaho.platform.repository2.unified.jcr.DefaultPathConversionHelper"/>
 
   <bean class="org.pentaho.platform.repository2.unified.spring.BackingRepositoryLifecycleManagerAuthenticationSuccessListener"/>
-    <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.InheritDefaultAclHandler" />
+ 
+  <bean id="defaultAclHandler" class="org.pentaho.platform.repository2.unified.jcr.InheritDefaultAclHandler" />
 
   <bean id="repositoryFileAclDao"
         class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclDao">
@@ -660,7 +663,7 @@
         <value>org.pentaho.scheduler.manage</value>
       </util:list>
     </entry>
-        <!-- for single tenant mode -->
+    <!-- for single tenant mode -->
   </util:map>
   
   <!--
