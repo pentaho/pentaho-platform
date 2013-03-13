@@ -134,7 +134,7 @@ public class ExportManifestEntity {
 				emd.getIsHidden(), false, null, emd.getPath(),
 				XmlGregorianCalendarConverter.asDate(emd.getCreatedDate()), null,
 				false, null, null, null, "en-US", emd.getTitle(), null,
-				emd.getDescription(), null, null, null, 0, emd.getOwner());
+				emd.getDescription(), null, null, null, 0, emd.getOwner(), null);
 	}
 
 	/**

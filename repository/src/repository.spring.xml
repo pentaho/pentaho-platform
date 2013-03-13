@@ -392,6 +392,7 @@
         <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.FolderNtdProvider" />
         <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LockTokenStorageNtdProvider" />
         <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.VersionableNtdProvider" />
+        <bean class="org.pentaho.platform.repository2.unified.jcr.sejcr.ntdproviders.LocaleNtdProvider" />
       </list>
     </property>
   </bean>
