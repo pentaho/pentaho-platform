@@ -1,7 +1,10 @@
 package org.pentaho.platform.repository2.unified.webservices;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
+
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -11,8 +14,6 @@ public class RepositoryFileTreeDto implements Serializable {
   List<RepositoryFileTreeDto> children;
 
   public RepositoryFileTreeDto() {
-    super();
-    // TODO Auto-generated constructor stub
   }
 
   public RepositoryFileDto getFile() {
@@ -35,5 +36,11 @@ public class RepositoryFileTreeDto implements Serializable {
   @Override
   public String toString() {
     return "RepositoryFileTreeDto [file=" + file + ", children=" + children + "]";
+  }
+
+  public void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+    if (children == null) {
+      children = Collections.<RepositoryFileTreeDto>emptyList();
+    }
   }
 }
