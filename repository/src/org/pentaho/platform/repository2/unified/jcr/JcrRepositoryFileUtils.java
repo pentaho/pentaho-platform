@@ -312,11 +312,12 @@ public class JcrRepositoryFileUtils {
     if(localePropertiesMap != null && !localePropertiesMap.isEmpty()){
       for(String locale : localePropertiesMap.keySet()){
         Properties properties = localePropertiesMap.get(locale);
-
-        // create node and set properties for each locale
-        Node localeNode = localeRootNode.addNode(locale, pentahoJcrConstants.getNT_UNSTRUCTURED());
-        for(String propertyName : properties.stringPropertyNames()){
-          localeNode.setProperty(propertyName, properties.getProperty(propertyName));
+        if(properties != null){
+          // create node and set properties for each locale
+          Node localeNode = localeRootNode.addNode(locale, pentahoJcrConstants.getNT_UNSTRUCTURED());
+          for(String propertyName : properties.stringPropertyNames()){
+            localeNode.setProperty(propertyName, properties.getProperty(propertyName));
+          }
         }
       }
     }
@@ -460,7 +461,6 @@ public class JcrRepositoryFileUtils {
     if (file.getLocalePropertiesMap() != null && !file.getLocalePropertiesMap().isEmpty()) {
       Node localeNode = fileNode.addNode(pentahoJcrConstants.getPHO_LOCALES(),
         pentahoJcrConstants.getPHO_NT_LOCALE());
-        //pentahoJcrConstants.getNT_UNSTRUCTURED());
       setLocalePropertiesMap(session, pentahoJcrConstants, localeNode, file.getLocalePropertiesMap());
     }
     Node metaNode = fileNode.addNode(pentahoJcrConstants.getPHO_METADATA(), JcrConstants.NT_UNSTRUCTURED);
@@ -529,7 +529,6 @@ public class JcrRepositoryFileUtils {
       if (!fileNode.hasNode(pentahoJcrConstants.getPHO_LOCALES())) {
         localePropertiesMapNode = fileNode.addNode(pentahoJcrConstants.getPHO_LOCALES(),
            pentahoJcrConstants.getPHO_NT_LOCALE());
-           //pentahoJcrConstants.getNT_UNSTRUCTURED());
       } else {
         localePropertiesMapNode = fileNode.getNode(pentahoJcrConstants.getPHO_LOCALES());
       }
