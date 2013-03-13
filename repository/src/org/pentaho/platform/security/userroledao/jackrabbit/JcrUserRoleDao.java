@@ -160,12 +160,12 @@ public class JcrUserRoleDao extends AbstractJcrBackedUserRoleDao {
 
   @Override
   public List<IPentahoRole> getRoles() throws UncategorizedUserRoleDaoException {
-    return getRoles(JcrTenantUtils.getCurrentTenant());
+    return getRoles(JcrTenantUtils.getTenant());
   }
 
   @Override
   public List<IPentahoUser> getUsers() throws UncategorizedUserRoleDaoException {
-    return getUsers(JcrTenantUtils.getCurrentTenant());
+    return getUsers(JcrTenantUtils.getTenant());
   }
 
   @Override
