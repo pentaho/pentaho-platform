@@ -67,7 +67,7 @@
 		<constructor-arg>
 			<ref local="populator" />
 		</constructor-arg>
-		<constructor-arg ref="tenantedUserNameUtils"/>		
+		<constructor-arg ref="tenantedUserNameUtils"/>
 	</bean>
 
   <!--
@@ -89,3 +89,4 @@
   </bean>
 
 </beans>
+
