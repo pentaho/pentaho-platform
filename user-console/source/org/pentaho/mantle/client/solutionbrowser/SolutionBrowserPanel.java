@@ -22,6 +22,8 @@ package org.pentaho.mantle.client.solutionbrowser;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
@@ -218,6 +220,18 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
     solutionNavigatorAndContentPanel.setRightWidget(contentPanel);
     solutionNavigatorAndContentPanel.getElement().setAttribute("id", "solutionNavigatorAndContentPanel");
+
+    // handle resizing the content panel on splitter move
+    solutionNavigatorAndContentPanel.addHandler(new MouseMoveHandler() {
+      @Override
+      public void onMouseMove(MouseMoveEvent event) {
+        if(solutionNavigatorAndContentPanel.isResizing()) {
+          int width = solutionNavigatorAndContentPanel.getOffsetWidth();
+          int adjustedWidth = solutionNavigatorAndContentPanel.getLeftWidget().getOffsetWidth() + (hSplitter == null ? 0 : hSplitter.getOffsetWidth());
+          solutionNavigatorAndContentPanel.getRightWidget().setWidth((width - adjustedWidth) + "px");
+        }
+      }
+    }, MouseMoveEvent.getType());
 
     Window.addResizeHandler(new ResizeHandler() {
       @Override

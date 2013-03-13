@@ -71,19 +71,18 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
   private ITenantedPrincipleNameResolver userNameUtils;
 
   private ITenantedPrincipleNameResolver roleNameUtils;
+  
+  private List<String> systemRoles;
   // ~ Constructors ====================================================================================================
 
   public DefaultLdapUserRoleListService() {
     super();
   }
   
-  public DefaultLdapUserRoleListService(final Comparator<String> usernameComparator, final Comparator<String> roleComparator,
-      List<String> systemRoles) {
+  public DefaultLdapUserRoleListService(final Comparator<String> usernameComparator, final Comparator<String> roleComparator) {
     super();
     this.usernameComparator = usernameComparator;
     this.roleComparator = roleComparator;
-    this.userNameUtils = userNameUtils;    
-    this.roleNameUtils = roleNameUtils;    
   }
   
   // ~ Methods =========================================================================================================
@@ -202,15 +201,18 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     return getAllUsers();
   }
 
-  private ITenant getDefaultTenant() {
-    IPentahoSession session = PentahoSessionHolder.getSession();
-    String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
-    return new Tenant(tenantId, true);
-  }
+//  private ITenant getDefaultTenant() {
+//    IPentahoSession session = PentahoSessionHolder.getSession();
+//    String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
+//    return new Tenant(tenantId, true);
+//  }
 
   @Override
   public List<String> getSystemRoles() {
-    // TODO Auto-generated method stub
-    return null;
+    return systemRoles;
+  }
+  
+  public void setSystemRoles(List<String> systemRoles) {
+    this.systemRoles = systemRoles;
   }
 }

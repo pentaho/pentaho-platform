@@ -144,7 +144,7 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
       friendlyFileName = friendlyFileName.substring(0, friendlyFileName.lastIndexOf("."));
     }
     subjectTextBox.setText(Messages.getString("scheduleDefaultSubject", friendlyFileName));
-    attachmentNameTextBox.setText(friendlyFileName);
+    attachmentNameTextBox.setText(job.getJobName());
 
     Label toLabel = new Label(Messages.getString("toColon"));
     // toLabel.setWidth("130px");
