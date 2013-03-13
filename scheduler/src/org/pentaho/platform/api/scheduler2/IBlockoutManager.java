@@ -17,16 +17,14 @@
 
 package org.pentaho.platform.api.scheduler2;
 
+import org.pentaho.platform.scheduler2.blockout.BlockoutTrigger;
+import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
 /**
  * @author wseyler
  * 
  * Interface for managing Block-outs (time when schedules should NOT be executed)
- */
-/**
- * @author wseyler
- *
  */
 public interface IBlockoutManager {
   
@@ -36,14 +34,22 @@ public interface IBlockoutManager {
    * 
    * Adds a block-out, the blockout recurrence is based on the blockout (trigger) argument
    * and the duration
+   * @throws SchedulerException 
    */
-  void adBlockout(IBlockout blockout);
+  void addBlockout(BlockoutTrigger blockout) throws SchedulerException;
 
   /**
    * @param blockoutName
    * @return a IBlockout Object that represents the blockout with the name blockoutName
+   * @throws SchedulerException 
    */
-  IBlockout getBlockout(String blockoutName);
+  BlockoutTrigger getBlockout(String blockoutName) throws SchedulerException;
+  
+  /**
+   * @return an array of blockouts
+   * @throws SchedulerException
+   */
+  BlockoutTrigger[] getBlockouts() throws SchedulerException;
   
   /**
    * @param blockoutName
@@ -51,15 +57,16 @@ public interface IBlockoutManager {
    * 
    * Replaces the blockout with blockoutName with the IBlockout updatedBlockout
    */
-  void updateBlockout(String blockoutName, IBlockout updatedBlockout);
+  void updateBlockout(String blockoutName, BlockoutTrigger updatedBlockout);
   
   
   /**
    * @param blockoutName
-   * 
+   * @return boolean = true if found and deleted.
    * removes the blockout with the name blokoutName from the active blockouts
+   * @throws SchedulerException 
    */
-  void deleteBlockout(String blockoutName);
+  boolean deleteBlockout(String blockoutName) throws SchedulerException;
   
   /**
    * @param scheduleTrigger
@@ -79,5 +86,5 @@ public interface IBlockoutManager {
    * @param testBlockout
    * @return true if testBlockout will block ANY existing schedules.
    */
-  boolean willBlockSchedules(IBlockout testBlockout);
+  boolean willBlockSchedules(BlockoutTrigger testBlockout);
 }
