@@ -234,44 +234,34 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
       userRoleDao.createRole(defaultTenant, "Administrator", "", new String[0]);
     }
 
-      role = userRoleDao.getRole(defaultTenant, "ceo");
+      role = userRoleDao.getRole(defaultTenant, "Power User");
       if (role == null) {
-          userRoleDao.createRole(defaultTenant, "ceo", "", new String[0]);
+          userRoleDao.createRole(defaultTenant, "Power User", "", new String[0]);
       }
 
-      role = userRoleDao.getRole(defaultTenant, "cto");
+      role = userRoleDao.getRole(defaultTenant, "Report Author");
       if (role == null) {
-          userRoleDao.createRole(defaultTenant, "cto", "", new String[0]);
+          userRoleDao.createRole(defaultTenant, "Report Author", "", new String[0]);
       }
 
-      role = userRoleDao.getRole(defaultTenant, "dev");
+      role = userRoleDao.getRole(defaultTenant, "Business Analyst");
       if (role == null) {
-          userRoleDao.createRole(defaultTenant, "dev", "", new String[0]);
-      }
-
-      role = userRoleDao.getRole(defaultTenant, "devmgr");
-      if (role == null) {
-          userRoleDao.createRole(defaultTenant, "devmgr", "", new String[0]);
-      }
-
-      role = userRoleDao.getRole(defaultTenant, "is");
-      if (role == null) {
-          userRoleDao.createRole(defaultTenant, "is", "", new String[0]);
+          userRoleDao.createRole(defaultTenant, "Business Analyst", "", new String[0]);
       }
 
       IPentahoUser user = userRoleDao.getUser(defaultTenant, "suzy");
       if (user == null) {
-          userRoleDao.createUser(defaultTenant, "suzy", "password", "user", new String[] {authenticatedRoleName, "cto", "is"});
+          userRoleDao.createUser(defaultTenant, "suzy", "password", "user", new String[] {authenticatedRoleName, "Power User"});
       }
 
       user = userRoleDao.getUser(defaultTenant, "pat");
       if (user == null) {
-          userRoleDao.createUser(defaultTenant, "pat", "password", "user", new String[] {authenticatedRoleName, "dev"});
+          userRoleDao.createUser(defaultTenant, "pat", "password", "user", new String[] {authenticatedRoleName, "Business Analyst"});
       }
 
       user = userRoleDao.getUser(defaultTenant, "tiffany");
       if (user == null) {
-          userRoleDao.createUser(defaultTenant, "tiffany", "password", "user", new String[] {authenticatedRoleName, "dev", "devmgr"});
+          userRoleDao.createUser(defaultTenant, "tiffany", "password", "user", new String[] {authenticatedRoleName, "Report Author"});
       }
 
       user = userRoleDao.getUser(defaultTenant, "admin");

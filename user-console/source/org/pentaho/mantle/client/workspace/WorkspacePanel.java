@@ -156,16 +156,17 @@ public class WorkspacePanel extends SimplePanel {
     public void cancelPressed() {
     }
   };
-  
+
   private IDialogCallback scheduleDialogCallback = new IDialogCallback() {
     public void okPressed() {
       // Remove Next Line to disable deletion of old job
       controlJobs(selectedJobs, "removeJob", RequestBuilder.DELETE, true);
       refresh();
     }
+
     public void cancelPressed() {
     }
-  };  
+  };
 
   private boolean isAdmin = false;
   private boolean isScheduler = false;
@@ -176,7 +177,7 @@ public class WorkspacePanel extends SimplePanel {
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "text/plain");
       requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
-      
+
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable caught) {
@@ -203,7 +204,7 @@ public class WorkspacePanel extends SimplePanel {
               }
 
             });
-          } catch (RequestException e){
+          } catch (RequestException e) {
             Window.alert(e.getMessage());
           }
         }
@@ -294,8 +295,10 @@ public class WorkspacePanel extends SimplePanel {
             controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
           }
 
-          if(!WorkspacePanel.this.isScheduler) controlSchedulerButton.setEnabled(false);
-          else controlSchedulerButton.setEnabled(true);
+          if (!WorkspacePanel.this.isScheduler)
+            controlSchedulerButton.setEnabled(false);
+          else
+            controlSchedulerButton.setEnabled(true);
         }
       });
     } catch (RequestException e) {
@@ -339,15 +342,17 @@ public class WorkspacePanel extends SimplePanel {
           PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
           String resource = event.getValue().getFullResourceName();
           resource = resource.replace("/", ":");
-          dialog.setContent(new GeneratedContentPanel(resource, event.getValue().getUserName()));
+          dialog.setContent(new GeneratedContentPanel(resource, null, event.getValue().getUserName()));
           dialog.setSize("600px", "300px");
           dialog.center();
         } else if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 0) {
           // get history for the specific schedule (by name)
           PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
-          String scheduleName = event.getValue().getJobName();
-          dialog.setContent(new GeneratedContentPanel(scheduleName, event.getValue().getUserName()));
+          String resource = event.getValue().getFullResourceName();
+          resource = resource.replace("/", ":");
+          dialog.setContent(new GeneratedContentPanel(resource, event.getValue().getJobParam("lineage-id"), event.getValue().getUserName()));
           dialog.setSize("600px", "300px");
+          dialog.center();
         }
       }
     });
@@ -372,9 +377,15 @@ public class WorkspacePanel extends SimplePanel {
     };
     idColumn.setSortable(true);
 
-    TextColumn<JsJob> nameColumn = new TextColumn<JsJob>() {
-      public String getValue(JsJob job) {
-        return job.getJobName();
+    Column<JsJob, SafeHtml> nameColumn = new Column<JsJob, SafeHtml>(new SafeHtmlCell()) {
+      public SafeHtml getValue(JsJob job) {
+        try {
+          return new SafeHtmlBuilder().appendHtmlConstant(
+              "<span class='workspace-resource-link' title='" + new SafeHtmlBuilder().appendEscaped(job.getJobName()).toSafeHtml().asString() + "'>" + job.getJobName()
+                  + "</span>").toSafeHtml();
+        } catch (Throwable t) {
+        }
+        return new SafeHtmlBuilder().appendHtmlConstant("-").toSafeHtml();
       }
     };
     nameColumn.setSortable(true);
@@ -668,6 +679,7 @@ public class WorkspacePanel extends SimplePanel {
     bar.add(Toolbar.GLUE);
 
     ToolbarButton refresh = new ToolbarButton(new Image(MantleImages.images.refresh()));
+    refresh.setToolTip(Messages.getString("refreshTooltip"));
     refresh.setCommand(new Command() {
       public void execute() {
         RefreshWorkspaceCommand cmd = new RefreshWorkspaceCommand();
@@ -821,6 +833,7 @@ public class WorkspacePanel extends SimplePanel {
       }
     });
     editButton.setEnabled(false);
+    editButton.setToolTip(Messages.getString("editTooltip"));
     bar.add(editButton);
 
     scheduleRemoveButton.setCommand(new Command() {
@@ -845,7 +858,7 @@ public class WorkspacePanel extends SimplePanel {
     });
     scheduleRemoveButton.setToolTip(Messages.getString("remove"));
     bar.add(scheduleRemoveButton);
-    bar.addSpacer(10);
+    bar.addSpacer(50);
 
     tableAndPager.add(bar);
     tableAndPager.add(table);
@@ -916,8 +929,10 @@ public class WorkspacePanel extends SimplePanel {
             controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
           }
 
-          if(!WorkspacePanel.this.isScheduler) controlSchedulerButton.setEnabled(false);
-          else controlSchedulerButton.setEnabled(true);
+          if (!WorkspacePanel.this.isScheduler)
+            controlSchedulerButton.setEnabled(false);
+          else
+            controlSchedulerButton.setEnabled(true);
         }
       });
     } catch (RequestException e) {

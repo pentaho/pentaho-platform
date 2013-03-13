@@ -34,7 +34,9 @@ import org.pentaho.mantle.client.workspace.JsJobParam;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -141,7 +143,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
           // single value, remove []
           String param = jparams.get(i).getValue().trim();
           param = param.substring(1);
-          param = param.substring(0, param.length()-1);
+          param = param.substring(0, param.length() - 1);
           urlParams += jparams.get(i).getName() + "=" + URL.encodeQueryString(param);
         } else {
           urlParams += jparams.get(i).getName() + "=" + URL.encodeQueryString(jparams.get(i).getValue().trim());
@@ -178,6 +180,18 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     } else {
       hide();
       JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(jobSchedule.toString());
+
+      if (editJob != null) {
+        String lineageId = editJob.getJobParam("lineage-id");
+        JsArrayString lineageIdValue = (JsArrayString) JavaScriptObject.createArray().cast();
+        lineageIdValue.push(lineageId);
+        JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
+        p.setName("lineage-id");
+        p.setType("string");
+        p.setStringValue(lineageIdValue);
+        scheduleParams.set(scheduleParams.size(), new JSONObject(p));
+      }
+
       scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$    
 
       RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");

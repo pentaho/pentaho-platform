@@ -50,7 +50,7 @@ public class UserRoleWebService implements IUserRoleWebService {
     if (!isAdmin()) {
       throw new UserRoleException(Messages.getInstance().getErrorString("UserRoleWebService.ERROR_0001_NOT_ADMIN")); //$NON-NLS-1$
     }
-    IUserRoleDao dao = PentahoSystem.get(IUserRoleDao.class, "txnUserRoleDao", PentahoSessionHolder.getSession()); //$NON-NLS-1$
+    IUserRoleDao dao = PentahoSystem.get(IUserRoleDao.class, "userRoleDaoTxn", PentahoSessionHolder.getSession()); //$NON-NLS-1$
     if (dao == null) {
       throw new UserRoleException(Messages.getInstance().getErrorString("UserRoleWebService.ERROR_0002_IUSERROLEDAO_NOT_AVAILABLE")); //$NON-NLS-1$
     }

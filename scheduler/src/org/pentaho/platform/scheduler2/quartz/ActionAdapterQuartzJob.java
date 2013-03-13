@@ -164,7 +164,8 @@ public class ActionAdapterQuartzJob implements Job {
                 RepositoryFile sourceFile = repo.getFile(filePath);
                 // add metadata
                 Map<String, Serializable> metadata = repo.getFileMetadata(sourceFile.getId());
-                metadata.put("scheduleName", params.get(jobDetail.getName()));
+                String lineageId = (String)params.get(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID);
+                metadata.put(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId);
                 repo.setFileMetadata(sourceFile.getId(), metadata);
                 // send email
                 SimpleRepositoryFileData data = repo.getDataForRead(sourceFile.getId(), SimpleRepositoryFileData.class);
