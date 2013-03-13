@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.pentaho.platform.api.locale.IPentahoLocale;
 
 /**
  * Immutable repository file. Use the {@link Builder} to create instances.
@@ -122,6 +124,12 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
    */
   private final Date deletedDate;
 
+
+  /**
+   * A map for locale properties. Keys are locale names and values are locale key-value pairs.
+   */
+  private final Map<String, Properties> localePropertiesMap;
+
   // ~ Constructors ===================================================================================================
 
   /*
@@ -131,7 +139,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
       String lockMessage, Date lockDate, String locale, String title, Map<String, String> titleMap, String description,
       Map<String, String> descriptionMap, String originalParentFolderPath, Date deletedDate, long fileSize,
-      String creatorId) {
+      String creatorId, Map<String, Properties> localePropertiesMap) {
     super();
     this.id = id;
     this.name = name;
@@ -155,6 +163,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     this.deletedDate = deletedDate != null ? new Date(deletedDate.getTime()) : null;
     this.fileSize = fileSize;
     this.creatorId = creatorId;
+    this.localePropertiesMap = localePropertiesMap != null ? new HashMap<String, Properties>(localePropertiesMap) : null;
   }
 
   // ~ Methods =========================================================================================================
@@ -233,6 +242,11 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     return description;
   }
 
+  public Map<String, Properties> getLocalePropertiesMap() {
+    // defensive copy
+    return localePropertiesMap == null ? null : new HashMap<String, Properties>(localePropertiesMap);
+  }
+
   public Map<String, String> getTitleMap() {
     // defensive copy
     return titleMap == null ? null : new HashMap<String, String>(titleMap);
@@ -300,6 +314,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     private Map<String, String> descriptionMap;
 
+    private Map<String, Properties> localePropertiesMap;
+
     private String locale;
 
     private String originalParentFolderPath;
@@ -325,14 +341,15 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
           .versioned(other.versioned).hidden(other.hidden).versionId(other.versionId).locked(other.locked)
           .lockDate(other.lockDate).lockOwner(other.lockOwner).lockMessage(other.lockMessage).title(other.title)
           .description(other.description).titleMap(other.titleMap).descriptionMap(other.descriptionMap)
-          .locale(other.locale).originalParentFolderPath(other.originalParentFolderPath).deletedDate(other.deletedDate);
+          .locale(other.locale).originalParentFolderPath(other.originalParentFolderPath).deletedDate(other.deletedDate)
+          .localePropertiesMap(other.localePropertiesMap);
     }
 
     public RepositoryFile build() {
       return new RepositoryFile(id, name, this.folder, this.hidden, this.versioned, this.versionId, this.path,
           this.createdDate, this.lastModifiedDate, this.locked, this.lockOwner, this.lockMessage, this.lockDate,
           this.locale, this.title, this.titleMap, this.description, this.descriptionMap, this.originalParentFolderPath,
-          this.deletedDate, this.fileSize, this.creatorId);
+          this.deletedDate, this.fileSize, this.creatorId, this.localePropertiesMap);
     }
 
     public Builder createdDate(final Date createdDate1) {
@@ -352,7 +369,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     }
 
     /**
-     * @param length
+     * @param fileSize1
      * @return
      */
     public Builder fileSize(long fileSize1) {
@@ -434,6 +451,35 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     public Builder description(final String description1) {
       this.description = description1;
       return this;
+    }
+
+    public Builder localePropertiesMap(final Map<String, Properties> localePropertiesMap) {
+      this.localePropertiesMap = localePropertiesMap;
+      if(this.localePropertiesMap != null && !this.localePropertiesMap.containsKey(ROOT_LOCALE)){
+        this.localePropertiesMap.put(ROOT_LOCALE, new Properties()); // required
+      }
+      return this;
+    }
+
+    public Builder clearLocalePropertiesMap() {
+      if (this.localePropertiesMap != null) {
+        this.localePropertiesMap.clear();
+        this.localePropertiesMap.put(ROOT_LOCALE, new Properties()); // required
+      }
+      return this;
+    }
+
+    public Builder localeProperties(final String locale, final Properties localeProperties) {
+      initLocalePropertiesMap();
+      this.localePropertiesMap.put(locale, localeProperties);
+      return this;
+    }
+
+    private void initLocalePropertiesMap() {
+      if (this.localePropertiesMap == null) {
+        this.localePropertiesMap = new HashMap<String, Properties>();
+        this.localePropertiesMap.put(ROOT_LOCALE, new Properties()); // required
+      }
     }
 
     public Builder titleMap(final Map<String, String> titleMap1) {
@@ -552,6 +598,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     RepositoryFile.Builder builder = new RepositoryFile.Builder(this);
     builder.titleMap(titleMap != null ? new HashMap<String, String>(titleMap) : null);
     builder.descriptionMap(descriptionMap != null ? new HashMap<String, String>(descriptionMap) : null);
+    builder.localePropertiesMap(localePropertiesMap != null ? new HashMap<String, Properties>(localePropertiesMap) : null);
     return builder.build();
   }
 
