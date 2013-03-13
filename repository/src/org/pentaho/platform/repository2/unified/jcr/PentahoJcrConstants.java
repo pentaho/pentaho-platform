@@ -54,6 +54,8 @@ public class PentahoJcrConstants extends JcrConstants {
 
   private static final String PHO_NT_LOCALIZEDSTRING = "localizedString"; //$NON-NLS-1$
 
+  private static final String PHO_NT_LOCALE = "locale"; //$NON-NLS-1$
+
   private static final String PHO_NT_PENTAHOHIERARCHYNODE = "pentahoHierarchyNode"; //$NON-NLS-1$
 
   private static final String PHO_LASTMODIFIED = "lastModified"; //$NON-NLS-1$
@@ -77,6 +79,8 @@ public class PentahoJcrConstants extends JcrConstants {
   private static final String PHO_TITLE = "title"; //$NON-NLS-1$
 
   private static final String PHO_DESCRIPTION = "description"; //$NON-NLS-1$
+
+  private static final String PHO_LOCALES = "locales"; //$NON-NLS-1$
   
   private static final String PHO_CONTENTTYPE = "contentType"; //$NON-NLS-1$
 
@@ -155,12 +159,20 @@ public class PentahoJcrConstants extends JcrConstants {
     return resolveName(PHO_NS, PHO_DESCRIPTION);
   }
 
+  public String getPHO_LOCALES() {
+    return resolveName(PHO_NS, PHO_LOCALES);
+  }
+
   public String getPHO_ROOTLOCALE() {
     return resolveName(PHO_NS, PHO_ROOTLOCALE);
   }
 
   public String getPHO_NT_LOCALIZEDSTRING() {
     return resolveName(PHO_NT_NS, PHO_NT_LOCALIZEDSTRING);
+  }
+
+  public String getPHO_NT_LOCALE() {
+    return resolveName(PHO_NT_NS, PHO_NT_LOCALE);
   }
 
   public String getPHO_NT_PENTAHOFOLDER() {
@@ -206,5 +218,4 @@ public class PentahoJcrConstants extends JcrConstants {
   public String getPHO_ACLONLYCHANGE() {
     return resolveName(PHO_NS, PHO_ACLONLYCHANGE);
   }
-
 }
