@@ -73,23 +73,28 @@
 		<constructor-arg index="1" >
 			<bean class="org.pentaho.platform.engine.security.DefaultRoleComparator" />
 		</constructor-arg>
-		<constructor-arg index="2" >
-			<ref ="singleTenantSystemAuthorities" />
-</constructor-arg>
 		<property name="allAuthoritiesSearch">
 			<ref local="allAuthoritiesSearch" />
-</property>
+		</property>
 		<property name="allUsernamesSearch">
 			<ref local="allUsernamesSearch" />
-</property>
+		</property>
 		<property name="userDetailsService">
 			<ref bean="userDetailsService" />
-</property>
+		</property>
 		<property name="usernamesInRoleSearch">
 			<ref local="usernamesInRoleSearch" />
-</property>
-</bean>
-
+		</property>
+		<property name="roleNameUtils" >
+			<ref bean="tenantedRoleNameUtils" />
+		</property>
+		<property name="userNameUtils">
+			<ref bean="tenantedUserNameUtils" />
+		</property>
+		<property name="systemRoles" >
+			<ref bean="singleTenantSystemAuthorities" />
+		</property>
+  </bean>
   <bean id="userRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">
     <property name="userRoleListService" ref="userRoleListService0" />
     <property name="extraRoles" ref="extraRoles" />
