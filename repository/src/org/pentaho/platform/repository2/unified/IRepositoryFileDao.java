@@ -127,4 +127,6 @@ public interface IRepositoryFileDao {
   void setLocalePropertiesForFile(final String relPath, final String locale, final Properties properties);
 
   void setLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale, final Properties properties);
+
+  void deleteLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale);
 }

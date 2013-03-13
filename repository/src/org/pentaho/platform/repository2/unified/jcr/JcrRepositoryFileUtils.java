@@ -992,6 +992,29 @@ public class JcrRepositoryFileUtils {
     checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, localesNode, null);
   }
 
+  public static void deleteFileLocaleProperties(final Session session, final Serializable fileId,
+    String locale) throws RepositoryException {
+
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+    Node fileNode = session.getNodeByIdentifier(fileId.toString());
+    String prefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS);
+    Assert.hasText(prefix);
+
+    Node localesNode = fileNode.getNode(pentahoJcrConstants.getPHO_LOCALES());
+    Assert.notNull(localesNode);
+
+    try{
+      // remove locale node
+      Node localeNode = localesNode.getNode(locale);
+      localeNode.remove();
+    }
+    catch(PathNotFoundException pnfe){
+      // nothing to delete
+    }
+
+    checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, localesNode, null);
+  }
+
 
   public static void setFileMetadata(final Session session, final Serializable fileId,
       Map<String, Serializable> metadataMap) throws ItemNotFoundException, RepositoryException {

@@ -419,6 +419,11 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   @Override
+  public void deleteLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
   public String getProductID() {
     return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }

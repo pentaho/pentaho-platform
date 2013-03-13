@@ -473,6 +473,32 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(NEW_TITLE, updated_en.getProperty(TITLE));
     assertEquals(NEW_DESCRIPTION, updated_en.getProperty(DESCRIPTION));
 
+    // test successful delete locale properties
+    final RepositoryFile repoFile1 = updatedRepoFile.clone();
+    txnTemplate.execute(new TransactionCallbackWithoutResult() {
+      public void doInTransactionWithoutResult(final TransactionStatus status) {
+        repositoryFileDao.deleteLocalePropertiesForFile(repoFile1, "es");
+      }
+    });
+
+    // assert deleted locale
+    updatedRepoFile = repo.getFile(file.getPath(), true);
+    List<Locale> locales = repositoryFileDao.getAvailableLocalesForFile(updatedRepoFile);
+    assertEquals(2, locales.size());
+
+    // test successful delete locale properties
+    final RepositoryFile repoFile2 = updatedRepoFile.clone();
+    txnTemplate.execute(new TransactionCallbackWithoutResult() {
+      public void doInTransactionWithoutResult(final TransactionStatus status) {
+        repositoryFileDao.deleteLocalePropertiesForFile(repoFile2, "xx");
+      }
+    });
+
+    // locale properties do not exist, no change in available locales
+    updatedRepoFile = repo.getFile(file.getPath(), true);
+    locales = repositoryFileDao.getAvailableLocalesForFile(updatedRepoFile);
+    assertEquals(2, locales.size());
+
     logout();
   }
 

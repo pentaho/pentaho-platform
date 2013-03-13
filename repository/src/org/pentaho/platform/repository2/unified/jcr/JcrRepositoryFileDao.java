@@ -462,7 +462,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         return JcrRepositoryFileUtils.getFileAtVersion(session, pentahoJcrConstants, pathConversionHelper, lockHelper,
-            fileId, versionId);
+           fileId, versionId);
       }
     });
   }
@@ -482,7 +482,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         deleteHelper.deleteFile(session, pentahoJcrConstants, fileId);
         session.save();
         JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId,
-            versionMessage);
+           versionMessage);
         return null;
       }
     });
@@ -600,7 +600,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         deleteHelper.undeleteFile(session, pentahoJcrConstants, fileId);
         session.save();
         JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants,
-            origParentFolderId, versionMessage);
+           origParentFolderId, versionMessage);
         return null;
       }
     });
@@ -767,7 +767,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         String absPath = pathConversionHelper.relToAbs(relPath);
         return JcrRepositoryFileUtils.getTree(session, pentahoJcrConstants, pathConversionHelper, lockHelper, absPath,
-            depth, filter, showHidden);
+           depth, filter, showHidden);
       }
     });
   }
@@ -932,6 +932,19 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
         JcrRepositoryFileUtils.setFileLocaleProperties(session, repositoryFile.getId(), locale, properties);
+        return null;
+      }
+    });
+  }
+
+  @Override
+  public void deleteLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale) {
+    Assert.notNull(repositoryFile);
+    Assert.notNull(locale);
+    jcrTemplate.execute(new JcrCallback() {
+      @Override
+      public Object doInJcr(final Session session) throws RepositoryException, IOException {
+        JcrRepositoryFileUtils.deleteFileLocaleProperties(session, repositoryFile.getId(), locale);
         return null;
       }
     });
