@@ -16,12 +16,7 @@ package org.pentaho.platform.repository2.unified.jcr;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
@@ -866,6 +861,80 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   @Override
   public String getProductID() {
     return VersionHelper.getVersionInfo(this.getClass()).getProductID();
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+    RepositoryFile repositoryFile = getFileById(fileId, true);
+    return getAvailableLocalesForFile(repositoryFile);
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(String relPath) {
+    RepositoryFile repositoryFile = getFileById(relPath, true);
+    return getAvailableLocalesForFile(repositoryFile);
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(RepositoryFile repositoryFile){
+    List<Locale> localeList = new ArrayList<Locale>();
+    if(repositoryFile != null){
+      for(String localeName : repositoryFile.getLocalePropertiesMap().keySet()){
+        Locale locale = new Locale(localeName);
+        localeList.add(locale);
+      }
+    }
+
+    return localeList;
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+    RepositoryFile repositoryFile = getFileById(fileId, true);
+    return getLocalePropertiesForFile(repositoryFile, locale);
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+
+    RepositoryFile repositoryFile = getFileById(relPath, true);
+    return getLocalePropertiesForFile(repositoryFile, locale);
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    if(repositoryFile != null){
+      Properties properties = repositoryFile.getLocalePropertiesMap().get(locale);
+      return properties;
+    }
+
+    return null;
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+    RepositoryFile repositoryFile = getFileById(fileId, true);
+    setLocalePropertiesForFile(repositoryFile, locale, properties);
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+    RepositoryFile repositoryFile = getFileById(relPath, true);
+    setLocalePropertiesForFile(repositoryFile, locale, properties);
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale, final Properties properties) {
+    Assert.notNull(repositoryFile);
+    Assert.notNull(locale);
+    Assert.notNull(properties);
+    jcrTemplate.execute(new JcrCallback() {
+      @Override
+      public Object doInJcr(final Session session) throws RepositoryException, IOException {
+        JcrRepositoryFileUtils.setFileLocaleProperties(session, repositoryFile.getId(), locale, properties);
+        return null;
+      }
+    });
   }
 
 }

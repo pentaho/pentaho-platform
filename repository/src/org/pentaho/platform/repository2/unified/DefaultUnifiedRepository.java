@@ -15,10 +15,7 @@
 package org.pentaho.platform.repository2.unified;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -492,4 +489,39 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     return repositoryFileDao.getProductID();
   }
 
+  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+    return repositoryFileDao.getAvailableLocalesForFile(fileId);
+  }
+
+  public List<Locale> getAvailableLocalesForFile(String relPath) {
+    return repositoryFileDao.getAvailableLocalesForFile(relPath);
+  }
+
+  public List<Locale> getAvailableLocalesForFile(RepositoryFile repositoryFile) {
+    return repositoryFileDao.getAvailableLocalesForFile(repositoryFile);
+  }
+
+  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+    return repositoryFileDao.getLocalePropertiesForFile(fileId, locale);
+  }
+
+  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+    return repositoryFileDao.getLocalePropertiesForFile(relPath, locale);
+  }
+
+  public Properties getLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    return repositoryFileDao.getLocalePropertiesForFile(repositoryFile, locale);
+  }
+
+  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+    repositoryFileDao.setLocalePropertiesForFile(fileId, locale, properties);
+  }
+
+  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+    repositoryFileDao.setLocalePropertiesForFile(relPath, locale, properties);
+  }
+
+  public void setLocalePropertiesForFile(RepositoryFile repositoryFile, String locale, Properties properties) {
+    repositoryFileDao.setLocalePropertiesForFile(repositoryFile, locale, properties);
+  }
 }
