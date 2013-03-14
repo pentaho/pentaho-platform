@@ -11,12 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -379,8 +374,57 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
   }
 
   @Override
+  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(String relPath) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(RepositoryFile repositoryFile) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(RepositoryFile repositoryFile, String locale, Properties properties) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
+  public void deleteLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    throw new UnsupportedOperationException("This operation is not support by this repository");
+  }
+
+  @Override
   public String getProductID() {
     return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }
-
 }
