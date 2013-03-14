@@ -21,9 +21,11 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.Trigger;
 
 /**
  * @author wseyler
@@ -39,7 +41,11 @@ public class BlockoutJob implements Job {
    */
   @Override
   public void execute(JobExecutionContext jec) throws JobExecutionException {
-    long duration = ((BlockoutTrigger)jec.getTrigger()).getBlockDuration();
+    Trigger blockoutTrigger = jec.getTrigger();
+    if (!(blockoutTrigger instanceof IBlockoutTrigger)) {
+      throw new JobExecutionException("A BlockoutJob instance must be fired by a instance of IBlockoutTrigger");
+    }
+    long duration = ((IBlockoutTrigger)blockoutTrigger).getBlockDuration();
     logger.warn("Blocking Started at: " + new Date() + " and will last: " + duration + " milliseconds"); //$NON-NLS-1$
   }
 

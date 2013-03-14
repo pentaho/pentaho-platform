@@ -18,6 +18,8 @@
 package org.pentaho.platform.scheduler2.blockout;
 
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
+import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -31,7 +33,6 @@ import org.quartz.impl.StdSchedulerFactory;
  *
  */
 public class DefaultBlockoutManager implements IBlockoutManager {
-  public static final String BLOCK_GROUP = "BLOCK_GROUP"; //$NON-NLS-1$
   
   Scheduler scheduler = null;
   
@@ -42,44 +43,67 @@ public class DefaultBlockoutManager implements IBlockoutManager {
   }
 
   /* (non-Javadoc)
-   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#addBlockout(org.pentaho.platform.scheduler2.blockout.BlockoutTrigger)
+   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#addBlockout(org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)
    */
   @Override
-  public void addBlockout(BlockoutTrigger blockout) throws SchedulerException {
-    JobDetail jd = new JobDetail(blockout.getName(), BLOCK_GROUP, BlockoutJob.class);
-    blockout.setJobName(jd.getName());
-    blockout.setJobGroup(jd.getGroup());
-    scheduler.scheduleJob(jd, blockout);
+  public void addBlockout(IBlockoutTrigger blockout) throws SchedulerException {
+    if (!(blockout instanceof Trigger)) {
+      throw new SchedulerException(Messages.getInstance().getString("DefaultBlockoutManager.ERROR_0001_WRONG_BLOCKER_TYPE"));
+    }
+    Trigger blockoutTrigger = (Trigger)blockout;
+    JobDetail jd = new JobDetail(blockoutTrigger.getName(), BLOCK_GROUP, BlockoutJob.class);
+    blockoutTrigger.setJobName(jd.getName());
+    blockoutTrigger.setJobGroup(jd.getGroup());
+    scheduler.scheduleJob(jd, blockoutTrigger);
   }
 
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#getBlockout(java.lang.String)
    */
   @Override
-  public BlockoutTrigger getBlockout(String blockoutName) throws SchedulerException {
-    return (BlockoutTrigger) scheduler.getTrigger(blockoutName, BLOCK_GROUP);
+  public IBlockoutTrigger getBlockout(String blockoutName) throws SchedulerException {
+    return (IBlockoutTrigger) scheduler.getTrigger(blockoutName, BLOCK_GROUP);
   }
 
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#getBlockouts()
    */
   @Override
-  public BlockoutTrigger[] getBlockouts() throws SchedulerException {
+  public IBlockoutTrigger[] getBlockouts() throws SchedulerException {
     String[] blockedTriggerName = scheduler.getTriggerNames(BLOCK_GROUP);
-    BlockoutTrigger[] blockTriggers = new BlockoutTrigger[blockedTriggerName.length];
+    IBlockoutTrigger[] blockTriggers = new IBlockoutTrigger[blockedTriggerName.length];
     for (int i=0; i<blockedTriggerName.length; i++) {
-      blockTriggers[i] = (BlockoutTrigger) scheduler.getTrigger(blockedTriggerName[i], BLOCK_GROUP);
+      blockTriggers[i] = (IBlockoutTrigger) scheduler.getTrigger(blockedTriggerName[i], BLOCK_GROUP);
     }
     return blockTriggers;
   }
 
   /* (non-Javadoc)
-   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#updateBlockout(java.lang.String, org.pentaho.platform.scheduler2.blockout.BlockoutTrigger)
+   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#updateBlockout(java.lang.String, org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)
    */
   @Override
-  public void updateBlockout(String blockoutName, BlockoutTrigger updatedBlockout) {
-    // TODO Auto-generated method stub
-
+  public void updateBlockout(String blockoutName, IBlockoutTrigger newBlockout) throws SchedulerException {
+    if (!(newBlockout instanceof Trigger)) {
+      throw new SchedulerException(Messages.getInstance().getString("DefaultBlockoutManager.ERROR_0001_WRONG_BLOCKER_TYPE"));
+    }
+    Trigger newBlockoutTrigger = (Trigger) newBlockout;
+    IBlockoutTrigger oldBlockout = null;
+    try {
+      oldBlockout = getBlockout(blockoutName);
+      if (oldBlockout == null) {
+        throw new SchedulerException(Messages.getInstance().getString("DefaultBlockoutManager.ERROR_0001_WRONG_BLOCKER_TYPE", blockoutName));
+      }
+    } catch (SchedulerException ex) {
+      throw new SchedulerException(Messages.getInstance().getString("DefaultBlockoutManager.ERROR_0001_WRONG_BLOCKER_TYPE", blockoutName), ex);
+    }
+    
+    deleteBlockout(blockoutName);
+    Trigger oldBlockoutTrigger = (Trigger)oldBlockout;
+    JobDetail jd = scheduler.getJobDetail(oldBlockoutTrigger.getJobName(), oldBlockoutTrigger.getJobGroup());
+    
+    newBlockoutTrigger.setJobName(jd.getName());
+    newBlockoutTrigger.setJobGroup(jd.getGroup());
+    scheduler.scheduleJob(jd, newBlockoutTrigger);
   }
 
   /* (non-Javadoc)
@@ -109,10 +133,10 @@ public class DefaultBlockoutManager implements IBlockoutManager {
   }
 
   /* (non-Javadoc)
-   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#willBlockSchedules(org.pentaho.platform.scheduler2.blockout.BlockoutTrigger)
+   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#willBlockSchedules(org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)
    */
   @Override
-  public boolean willBlockSchedules(BlockoutTrigger testBlockout) {
+  public boolean willBlockSchedules(IBlockoutTrigger testBlockout) {
     // TODO Auto-generated method stub
     return false;
   }
