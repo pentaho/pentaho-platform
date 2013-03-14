@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.filechooser.JsonToRepositoryFileTreeConverter;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.gwt.widgets.client.filechooser.JsonToRepositoryFileTreeConverter;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
@@ -33,7 +33,6 @@ import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.gen2.table.client.FixedWidthFlexTable;
 import com.google.gwt.gen2.table.client.FixedWidthGrid;
@@ -68,12 +67,12 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
   protected HistoryToolbar toolbar;
   protected String user;
   private String lineageId;
-  
+
   public GeneratedContentPanel(final String repositoryFilePath, final String lineageId, final String user) {
     this.repositoryFilePath = repositoryFilePath;
     this.user = user;
     this.lineageId = lineageId;
-    
+
     toolbar = new HistoryToolbar();
     toolbar.getRunButton().setEnabled(false);
     this.add(toolbar);
@@ -104,6 +103,15 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     // TODO Auto-generated method stub
   }
 
+  /**
+   *
+   * @return
+   */
+  @Override
+  public List<RequestBuilder> prepareRequests() {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
   /* (non-Javadoc)
    * @see org.pentaho.mantle.client.solutionbrowser.fileproperties.IFileModifier#init(org.pentaho.gwt.widgets.client.filechooser.RepositoryFile, com.google.gwt.xml.client.Document)
    */
@@ -112,6 +120,11 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     init(SolutionBrowserPanel.pathToId(fileSummary.getPath()), fileInfo);
   }
 
+  /**
+   *
+   * @param fileSummaryPath
+   * @param fileInfo
+   */
   private void init(final String fileSummaryPath, Document fileInfo) {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
@@ -160,6 +173,10 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     }    
   }
   
+  /**
+   *
+   * @param event
+   */
   public void onBrowserEvent(Event event) {
     if (event.getTypeInt() == Event.ONDBLCLICK) {
       new RunContentCommand().execute();
@@ -173,6 +190,9 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
   public class HistoryToolbar extends Toolbar {
     ToolbarButton refreshBtn, runBtn;
 
+    /**
+     *
+     */
     public HistoryToolbar() {
       super();
 
@@ -185,6 +205,9 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
       createMenus();
     }
 
+    /**
+     *
+     */
     private void createMenus() {
       addSpacer(5);
       Label label = new Label(Messages.getString("history"));
@@ -209,6 +232,10 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
       add(refreshBtn);
     }
     
+    /**
+     *
+     * @return
+     */
     public ToolbarButton getRunButton() {
       return runBtn;
     }
@@ -256,6 +283,9 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     } 
   }
 
+  /**
+   *
+   */
   private class FileAwareLabel extends Label {
     private RepositoryFile file;
     
@@ -280,6 +310,9 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     }
   }
   
+  /**
+   *
+   */
   public class ContentSorter extends ColumnSorter {
 
     /* (non-Javadoc)

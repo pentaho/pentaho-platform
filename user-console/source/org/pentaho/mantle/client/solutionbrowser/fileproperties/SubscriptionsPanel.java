@@ -12,13 +12,14 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  *
  * @created Jun 30, 2008 
  * @author wseyler
  */
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
+import com.google.gwt.http.client.RequestBuilder;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.objects.SolutionFileInfo;
@@ -36,6 +37,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 
+import java.util.List;
+
 /**
  * @author wseyler
  * 
@@ -51,6 +54,9 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
   private Button moveAllRightBtn = new Button();
   private Button moveAllLeftBtn = new Button();
 
+  /**
+   *
+   */
   public SubscriptionsPanel() {
     layout();
 
@@ -69,6 +75,9 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
 
   }
 
+  /**
+   *
+   */
   public void layout() {
     this.setSize("100%", "100%"); //$NON-NLS-1$//$NON-NLS-2$
     enableSubscriptions.addClickHandler(new ClickHandler() {
@@ -157,22 +166,40 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
 
   }
 
+  /**
+   *
+   */
   protected void moveSelectedToRight() {
     moveItems(availableLB, appliedLB, false);
   }
 
+  /**
+   *
+   */
   protected void moveAllToRight() {
     moveItems(availableLB, appliedLB, true);
   }
 
+  /**
+   *
+   */
   protected void moveSelectedToLeft() {
     moveItems(appliedLB, availableLB, false);
   }
 
+  /**
+   *
+   */
   protected void moveAllToLeft() {
     moveItems(appliedLB, availableLB, true);
   }
 
+  /**
+   *
+   * @param srcLB
+   * @param destLB
+   * @param moveAll
+   */
   protected void moveItems(ListBox srcLB, ListBox destLB, boolean moveAll) {
     int itemCount = srcLB.getItemCount();
     int srcSelectionIndex = srcLB.getSelectedIndex();
@@ -196,6 +223,11 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
     }
   }
 
+  /**
+   *
+   * @param targetListBox
+   * @param removeAll
+   */
   private void removeItems(ListBox targetListBox, boolean removeAll) {
     int itemCount = targetListBox.getItemCount();
     for (int i = itemCount - 1; i >= 0; i--) {
@@ -206,7 +238,7 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
   }
 
   /**
-   * @param destLB
+   * @param targetListBox
    */
   private void deselectAll(ListBox targetListBox) {
     for (int i = 0; i < targetListBox.getItemCount(); i++) {
@@ -222,6 +254,16 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
   public void apply() {
   }
 
+  @Override
+  public List<RequestBuilder> prepareRequests() {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  /**
+   *
+   * @param fileSummary
+   * @param fileInfo
+   */
   public void init(RepositoryFile fileSummary, Document fileInfo) {
     
   }
@@ -235,6 +277,9 @@ public class SubscriptionsPanel extends VerticalPanel implements IFileModifier {
     updateState();
   }
 
+  /**
+   *
+   */
   protected void updateControls() {
     availableLB.setEnabled(enableSubscriptions.getValue());
     appliedLB.setEnabled(enableSubscriptions.getValue());

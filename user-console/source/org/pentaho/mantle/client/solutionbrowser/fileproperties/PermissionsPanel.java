@@ -12,49 +12,31 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  *
  * Created Mar 25, 2008
  * @author Michael D'Amour
  */
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.ui.*;
+import com.google.gwt.xml.client.*;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.Text;
-import com.google.gwt.xml.client.XMLParser;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Permissions tab sub panel of FilePropertiesDialog. GET ACL call is performed
+ * by FilePropertiesDialog and then passed to sub panels to consolidate
+ */
 public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   private static final String RECIPIENT_TYPE_ELEMENT_NAME = "recipientType"; //$NON-NLS-1$
@@ -63,8 +45,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   private static final String ACES_ELEMENT_NAME = "aces"; //$NON-NLS-1$
   private static final String OWNER_NAME_ELEMENT_NAME = "owner"; //$NON-NLS-1$
   private static final String OWNER_TYPE_ELEMENT_NAME = "ownerType"; //$NON-NLS-1$
-
-  private static final String METADATA_PERM_PREFIX = "_PERM_"; //$NON-NLS-1$
 
   public static final int USER_TYPE = 0;
   public static final int ROLE_TYPE = 1;
@@ -77,7 +57,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   boolean dirty = false;
 
   ArrayList<String> existingUsersAndRoles = new ArrayList<String>();
-  ArrayList<JSONObject> metadataPerms = new ArrayList<JSONObject>();
 
   RepositoryFile fileSummary;
   Document fileInfo;
@@ -95,8 +74,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   final CheckBox inheritsCheckBox = new CheckBox(Messages.getString("inherits")); //$NON-NLS-1$
 
-  VerticalPanel metadataPermsPanel = new VerticalPanel();
-
+  /**
+   *
+   * @param fileSummary
+   */
   public PermissionsPanel(RepositoryFile fileSummary) {
     this.fileSummary = fileSummary;
 
@@ -210,7 +191,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     setWidget(row++, 0, permissionsLabel);
     setWidget(row++, 0, permissionsTable);
     setWidget(row++, 0, inheritsCheckBox);
-    setWidget(row++, 0, metadataPermsPanel);
 
     setWidth("100%"); //$NON-NLS-1$
 
@@ -261,6 +241,11 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     removeButton.setEnabled(!(isOwner(userOrRoleString, USER_TYPE) || isOwner(userOrRoleString, ROLE_TYPE)) && !inheritsCheckBox.getValue());
   }
 
+  /**
+   *
+   * @param grant
+   * @param perm
+   */
   public void updatePermissionMask(boolean grant, int perm) {
     if (usersAndRolesList.getSelectedIndex() >= 0) {
       dirty = true;
@@ -269,11 +254,20 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     }
   }
 
+  /**
+   * PUT acl changes back via REST call to /acl
+   */
   public void apply() {
-    if (!dirty) {
-      // do nothing if we're not dirty (make sure to invoke callback)
-      return;
-    }
+    // not used
+  }
+
+  /**
+   *
+   * @return
+   */
+  public List<RequestBuilder> prepareRequests(){
+    List<RequestBuilder> requestBuilders = new ArrayList();
+
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
@@ -281,78 +275,26 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, url);
     builder.setHeader("Content-Type", "application/xml");
 
-    // send the fileInfo back to the server, we've updated it
-    RequestCallback callback = new RequestCallback() {
-      @Override
-      public void onError(Request arg0, Throwable arg1) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
-        dialogBox.center();
-        // invoke the next
-      }
-
-      @Override
-      public void onResponseReceived(Request arg0, Response arg1) {
-        if (arg1.getStatusCode() == Response.SC_OK) {
-          dirty = false;
-        } else {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
-          dialogBox.center();
-        }
-      }
-    };
-
-    try {
-      // At this point if we're inheriting we need to remove all the acls so that the inheriting flag isn't set by default
-      if (isInheritsAcls()) {
-        removeAllAces();
-      }
-      builder.sendRequest(fileInfo.toString(), callback);
-    } catch (RequestException e) {
-
+    // At this point if we're inheriting we need to remove all the acls so that the inheriting flag isn't set by default
+    if (isInheritsAcls()) {
+      removeAllAces();
     }
 
-    String setMetadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$//$NON-NLS-2$
-    RequestBuilder setMetadataBuilder = new RequestBuilder(RequestBuilder.PUT, setMetadataUrl);
-    setMetadataBuilder.setHeader("Content-Type", "application/json");
+    // set request data in builder itself
+    builder.setRequestData(fileInfo.toString());
 
-    // send the fileInfo back to the server, we've updated it
-    RequestCallback setMetadataCallback = new RequestCallback() {
-      @Override
-      public void onError(Request arg0, Throwable arg1) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
-        dialogBox.center();
-      }
+    // add builder to list to return to parent for execution
+    requestBuilders.add(builder);
 
-      @Override
-      public void onResponseReceived(Request arg0, Response arg1) {
-        if (arg1.getStatusCode() == Response.SC_OK) {
-          dirty = false;
-        } else {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), arg1.toString(), false, false, true); //$NON-NLS-1$
-          dialogBox.center();
-        }
-      }
-    };
-
-    try {
-      JSONArray arr = new JSONArray();
-      JSONObject metadata = new JSONObject();
-      metadata.put("stringKeyStringValueDto", arr);
-      for (int i = 0; i < metadataPerms.size(); i++) {
-        Set<String> keys = metadataPerms.get(i).keySet();
-        for (String key : keys) {
-          JSONObject obj = new JSONObject();
-          obj.put("key", new JSONString(key));
-          obj.put("value", metadataPerms.get(i).get(key).isString());
-          arr.set(i, obj);
-        }
-      }
-      setMetadataBuilder.sendRequest(metadata.toString(), setMetadataCallback);
-    } catch (RequestException e) {
-    }
-
+    return requestBuilders;
   }
 
+  /**
+   * Take permissions from fileInfo response and create roles and users list
+   *
+   * @param fileSummary
+   * @param fileInfo
+   */
   public void init(RepositoryFile fileSummary, Document fileInfo) {
     this.fileInfo = fileInfo;
     usersAndRolesList.clear();
@@ -374,96 +316,11 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   }
 
   /**
-   * @param fileSummary
+   *
    */
   public void init() {
-    String moduleBaseURL = GWT.getModuleBaseURL();
-    String moduleName = GWT.getModuleName();
-    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/acl"; //$NON-NLS-1$ //$NON-NLS-2$
-    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-    try {
-      builder.sendRequest(null, new RequestCallback() {
-
-        public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
-          dialogBox.center();
-        }
-
-        public void onResponseReceived(Request request, Response response) {
-          if (response.getStatusCode() == Response.SC_OK) {
-            Document permissions = XMLParser.parse(response.getText());
-            // Window.alert("Received perms:\n" + permissions.toString());
-            init(fileSummary, permissions);
-          } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(
-                Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-            dialogBox.center();
-          }
-        }
-      });
-    } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
-      dialogBox.center();
-    }
-
-    if (SolutionBrowserPanel.getInstance().isAdministrator() && !fileSummary.isFolder()) {
-      String metadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$ //$NON-NLS-2$
-      RequestBuilder metadataBuilder = new RequestBuilder(RequestBuilder.GET, metadataUrl);
-      metadataBuilder.setHeader("accept", "application/json");
-      try {
-        metadataBuilder.sendRequest(null, new RequestCallback() {
-
-          public void onError(Request request, Throwable exception) {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
-            dialogBox.center();
-          }
-
-          public void onResponseReceived(Request request, Response response) {
-            if (response.getStatusCode() == Response.SC_OK) {
-              if (response.getText() != null && !"".equals(response.getText()) && !response.getText().equals("null")) {
-                JSONObject json = (JSONObject) JSONParser.parseLenient(response.getText());
-                if (json != null) {
-                  JSONArray arr = (JSONArray) json.get("stringKeyStringValueDto");
-                  for (int i = 0; i < arr.size(); i++) {
-                    JSONValue arrVal = arr.get(i);
-                    String key = arrVal.isObject().get("key").isString().stringValue();
-                    String value = arrVal.isObject().get("value").isString().stringValue();
-                    if (key.startsWith(METADATA_PERM_PREFIX)) {
-                      JSONObject nv = new JSONObject();
-                      nv.put(key, new JSONString(value));
-                      metadataPerms.add(nv);
-                    }
-                  }
-                  for (final JSONObject nv : metadataPerms) {
-                    Set<String> keys = nv.keySet();
-                    for (final String key : keys) {
-                      final CheckBox cb = new CheckBox(Messages.getString(key.substring(METADATA_PERM_PREFIX.length()).toLowerCase()));
-                      cb.setValue(Boolean.parseBoolean(nv.get(key).isString().stringValue()));
-                      cb.addClickHandler(new ClickHandler() {
-                        public void onClick(ClickEvent event) {
-                          dirty = true;
-                          nv.put(key, new JSONString(cb.getValue().toString()));
-                        }
-                      });
-                      metadataPermsPanel.add(cb);
-                    }
-                  }
-                }
-              }
-            } else {
-              MessageDialogBox dialogBox = new MessageDialogBox(
-                  Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-              dialogBox.center();
-            }
-          }
-        });
-      } catch (RequestException e) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
-        dialogBox.center();
-      }
-    }
-
+    // not doing anything right now. GET moved to FilePropertiesDialog parent and
+    // response set in PermissionsPanel.setAclResponse
   }
 
   // *********************
@@ -480,18 +337,37 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     }
   }
 
+  /**
+   *
+   * @param name
+   * @param type
+   * @return
+   */
   private Boolean isOwner(String name, Integer type) {
     return name == getOwnerName() && type == getOwnerType();
   }
 
+  /**
+   *
+   * @return
+   */
   private String getOwnerName() {
     return fileInfo.getElementsByTagName(OWNER_NAME_ELEMENT_NAME).item(0).getFirstChild().getNodeValue();
   }
 
+  /**
+   *
+   * @return
+   */
   private Integer getOwnerType() {
     return Integer.parseInt(fileInfo.getElementsByTagName(OWNER_TYPE_ELEMENT_NAME).item(0).getFirstChild().getNodeValue());
   }
 
+  /**
+   *
+   * @param recipientName
+   * @param recipientType
+   */
   void addRecipient(String recipientName, int recipientType) {
     Element newAces = fileInfo.createElement(ACES_ELEMENT_NAME);
     Element newPermission = fileInfo.createElement(PERMISSIONS_ELEMENT_NAME);
@@ -512,6 +388,11 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     updatePermissionForUserOrRole(recipientName, true, PERM_ACE_READ);
   }
 
+  /**
+   *
+   * @param recipient
+   * @param permission
+   */
   private void addPermission(String recipient, int permission) {
     NodeList aces = fileInfo.getElementsByTagName(ACES_ELEMENT_NAME);
     for (int i = 0; i < aces.getLength(); i++) {
@@ -616,12 +497,27 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     }
   }
 
+  /**
+   *
+   * @return
+   */
   Boolean isInheritsAcls() {
     return Boolean.valueOf(fileInfo.getElementsByTagName(INHERITS_ELEMENT_NAME).item(0).getFirstChild().getNodeValue());
   }
 
+  /**
+   *
+   * @param inherits
+   */
   void setInheritsAcls(Boolean inherits) {
     fileInfo.getElementsByTagName(INHERITS_ELEMENT_NAME).item(0).getFirstChild().setNodeValue(inherits.toString());
   }
 
+  /**
+   * Get owner name from acl response
+   * @param response
+   */
+  protected void setAclResponse(Response response){
+    init(fileSummary, XMLParser.parse(response.getText()));
+  }
 }
