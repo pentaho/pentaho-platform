@@ -72,8 +72,7 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
   }
   private static final int SYSTEM_ROLES_TYPE = 0;
   private static final int REGULAR_ROLES_TYPE = 1;
-  //private static final ArrayList<String> SYSTEM_ROLES = new ArrayList<String>(Arrays.asList(new String[]{"Admin", "Authenticated"}));
-  
+    
   String moduleBaseURL = GWT.getModuleBaseURL();
   String moduleName = GWT.getModuleName();
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
