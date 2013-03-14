@@ -30,19 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1312,6 +1300,53 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   @Override
   public String getProductID() {
     return VersionHelper.getVersionInfo(this.getClass()).getProductID();
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(String relPath) {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(RepositoryFile repositoryFile) {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+    return new Properties();
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+    return new Properties();
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    return new Properties();
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(RepositoryFile repositoryFile, String locale, Properties properties) {
+  }
+
+  @Override
+  public void deleteLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    //To change body of implemented methods use File | Settings | File Templates.
   }
 
   //  public static void main(final String[] args) throws Exception {

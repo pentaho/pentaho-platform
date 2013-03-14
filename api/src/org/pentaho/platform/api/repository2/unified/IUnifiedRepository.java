@@ -1,9 +1,7 @@
 package org.pentaho.platform.api.repository2.unified;
 
 import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.pentaho.platform.api.locale.IPentahoLocale;
 
@@ -512,4 +510,24 @@ public interface IUnifiedRepository {
    * Returns the product ID that was set in the pentaho-platform jar manifests.
    */
   String getProductID();
+
+  List<Locale> getAvailableLocalesForFile(final Serializable fileId);
+
+  List<Locale> getAvailableLocalesForFile(final String relPath);
+
+  List<Locale> getAvailableLocalesForFile(final RepositoryFile repositoryFile);
+
+  Properties getLocalePropertiesForFile(final Serializable fileId, final String locale);
+
+  Properties getLocalePropertiesForFile(final String relPath, final String locale);
+
+  Properties getLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale);
+
+  void setLocalePropertiesForFile(final Serializable fileId, final String locale, final Properties properties);
+
+  void setLocalePropertiesForFile(final String relPath, final String locale, final Properties properties);
+
+  void setLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale, final Properties properties);
+
+  void deleteLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale);
 }
