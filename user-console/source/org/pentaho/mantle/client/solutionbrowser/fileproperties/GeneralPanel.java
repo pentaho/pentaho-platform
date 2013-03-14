@@ -12,27 +12,36 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  *
  * Created Mar 25, 2008
  * @author Michael D'Amour
  */
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.json.client.*;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.*;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.XMLParser;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.commands.RestoreFileCommand;
 import org.pentaho.mantle.client.messages.Messages;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.xml.client.Document;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+/**
+ *
+ */
 public class GeneralPanel extends FlexTable implements IFileModifier {
 
   Label nameLabel = new Label();
@@ -44,11 +53,26 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
   Label lastModifiedDateLabel = new Label();
   Label deletedDateLabel = new Label();
   Label originalLocationLabel = new Label();
+  Label ownerLabel = new Label();
   
 //  IFileSummary fileSummary;
   RepositoryFile fileSummary;
+
   boolean isInTrash;
-  
+  boolean dirty = false;
+
+  ArrayList<JSONObject> metadataPerms = new ArrayList<JSONObject>();
+  VerticalPanel metadataPermsPanel = new VerticalPanel();
+
+  private static final String METADATA_PERM_PREFIX = "_PERM_"; //$NON-NLS-1$
+  private static final String OWNER_NAME_ELEMENT_NAME = "owner"; //$NON-NLS-1$
+  private static final String OWNER_TYPE_ELEMENT_NAME = "ownerType"; //$NON-NLS-1$
+
+  /**
+   *
+   * @param dialog
+   * @param fileSummary
+   */
   public GeneralPanel(final FilePropertiesDialog dialog, final RepositoryFile fileSummary) {
     super();
     this.fileSummary = fileSummary;
@@ -59,26 +83,35 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     setWidget(1, 0, new Label(Messages.getString("type") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
     setWidget(1, 1, typeLabel);
 
-    setWidget(2, 0, new Label(Messages.getString("location")+":")); //$NON-NLS-1$ //$NON-NLS-2$
-    setWidget(2, 1, locationLabel);
+    addHr(2, 0, 2);
 
-    setWidget(3, 0, new Label(Messages.getString("size") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
-    setWidget(3, 1, sizeLabel);
+    setWidget(3, 0, new Label(Messages.getString("owner") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(3, 1, ownerLabel);
 
-    setWidget(4, 0, new Label(Messages.getString("created") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
-    setWidget(4, 1, createdLabel);
+    setWidget(4, 0, new Label(Messages.getString("location") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(4, 1, locationLabel);
+
+    setWidget(5, 0, new Label(Messages.getString("size") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(5, 1, sizeLabel);
+
+    addHr(6, 0, 2);
+
+    setWidget(7, 0, new Label(Messages.getString("created") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(7, 1, createdLabel);
     
-    setWidget(5, 0, new Label(Messages.getString("lastModified") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
-    setWidget(5, 1, lastModifiedDateLabel);
+    setWidget(8, 0, new Label(Messages.getString("lastModified") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(8, 1, lastModifiedDateLabel);
+
+    addHr(9, 0, 2);
     
     if (isInTrash) {
-      setWidget(6, 0, new Label(Messages.getString("dateDeleted") + ":"));  //$NON-NLS-1$//$NON-NLS-2$
-      setWidget(6, 1, deletedDateLabel);
+      setWidget(10, 0, new Label(Messages.getString("dateDeleted") + ":"));  //$NON-NLS-1$//$NON-NLS-2$
+      setWidget(10, 1, deletedDateLabel);
       
     Label lbl = new Label(Messages.getString("originalLocation") + ":"); //$NON-NLS-1$ //$NON-NLS-2$
     lbl.addStyleName("nowrap"); //$NON-NLS-1$     
-      setWidget(7, 0, lbl);
-      setWidget(7, 1, originalLocationLabel);
+      setWidget(11, 0, lbl);
+      setWidget(11, 1, originalLocationLabel);
       
       Button restoreButton = new Button("Restore");
       restoreButton.setStylePrimaryName("pentaho-button");
@@ -93,28 +126,59 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
         }
         
       });
-      setWidget(8, 3, restoreButton);
+      setWidget(12, 3, restoreButton);
+
+      addHr(13, 0, 2);
     }
+
+    setWidget(13, 0, metadataPermsPanel);
+
+    setCellPadding(2);
+    setCellSpacing(2);
+
     init();
   }
 
+  /**
+   *
+   */
   public void apply() {
+    // not used
   }
 
+  public List<RequestBuilder> prepareRequests(){
+      List<RequestBuilder> requestBuilders = new ArrayList();
+      String moduleBaseURL = GWT.getModuleBaseURL();
+      String moduleName = GWT.getModuleName();
+      String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+      String setMetadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$//$NON-NLS-2$
+      RequestBuilder setMetadataBuilder = new RequestBuilder(RequestBuilder.PUT, setMetadataUrl);
+      setMetadataBuilder.setHeader("Content-Type", "application/json");
+
+      // prepare request data
+          JSONArray arr = new JSONArray();
+          JSONObject metadata = new JSONObject();
+          metadata.put("stringKeyStringValueDto", arr);
+          for (int i = 0; i < metadataPerms.size(); i++) {
+              Set<String> keys = metadataPerms.get(i).keySet();
+              for (String key : keys) {
+                  JSONObject obj = new JSONObject();
+                  obj.put("key", new JSONString(key));
+                  obj.put("value", metadataPerms.get(i).get(key).isString());
+                  arr.set(i, obj);
+              }
+          }
+          // setMetadataBuilder.sendRequest(metadata.toString(), setMetadataCallback);
+       setMetadataBuilder.setRequestData(metadata.toString());
+       requestBuilders.add(setMetadataBuilder);
+
+    return requestBuilders;
+  }
+
+  /**
+   *
+   */
   public void init() {
-//    fileSummary = file;
-//    // possibly hit server to pull all this data
-//    if (fileInfo == null) {
-//      populateUIFromServer();
-//    } else {
-//      nameLabel.setText(fileInfo.localizedName);
-//      locationLabel.setText(fileInfo.solution+fileInfo.path);
-//      sourceLabel.setText(fileInfo.solution+fileInfo.path+"/"+fileInfo.name); //$NON-NLS-1$
-//      this.typeLabel.setText(getFileTypeDescription(fileInfo.type, fileInfo.pluginTypeName));
-//      NumberFormat numberFormat = NumberFormat.getDecimalFormat();
-//      sizeLabel.setText(numberFormat.format(fileInfo.size/1000.00)+" KB"); //$NON-NLS-1$
-//      lastModifiedDateLabel.setText(fileInfo.lastModifiedDate.toString());
-//    }
     nameLabel.setText(fileSummary.getTitle());
     typeLabel.setText(fileSummary.isFolder() ? Messages.getString("folder") : fileSummary.getName().substring(fileSummary.getName().lastIndexOf(".")));  //$NON-NLS-1$//$NON-NLS-2$
     locationLabel.setText(isInTrash ? Messages.getString("recycleBin") : fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/")));  //$NON-NLS-1$//$NON-NLS-2$
@@ -123,21 +187,6 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     lastModifiedDateLabel.setText(fileSummary.getLastModifiedDate() == null ? fileSummary.getCreatedDate().toString() : fileSummary.getLastModifiedDate().toString());
     deletedDateLabel.setText(fileSummary.getDeletedDate() == null ? "" : fileSummary.getDeletedDate().toString()); //$NON-NLS-1$
     originalLocationLabel.setText(fileSummary.getOriginalParentFolderPath());
-//    if (fileSummary.getPath().contains("/.trash/pho:")) {
-//      locationLabel.setText("Recycle Bin");
-//    } else {
-//      locationLabel.setText(fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/")));
-//    }
-//    sourceLabel.setText(fileSummary.getName());
-//    if (fileSummary.isFolder()) {
-//      typeLabel.setText("Folder");
-//    } else {
-//      typeLabel.setText(fileSummary.getName().substring(fileSummary.getName().lastIndexOf(".")));
-//    }
-//    NumberFormat numberFormat = NumberFormat.getDecimalFormat();
-//    sizeLabel.setText(numberFormat.format(fileSummary.getFileSize()/1000.00)+" KB");
-//    // TODO Need to find out why last modified date is coming in as null
-//    lastModifiedDateLabel.setText(fileSummary.getCreatedDate() != null ? fileSummary.getLastModifiedDate().toString() : "");
   }
 
   /* (non-Javadoc)
@@ -148,56 +197,65 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     // TODO Auto-generated method stub
     
   }
-  
-  /*
-  private String getFileTypeDescription(SolutionFileInfo.Type type, String pluginTypeName){
-    switch(type){
-      case FOLDER:
-        return Messages.getString("folder"); //$NON-NLS-1$
-      case ANALYSIS_VIEW:
-        return Messages.getString("analysisView"); //$NON-NLS-1$
-      case XACTION:
-        return Messages.getString("xaction"); //$NON-NLS-1$
-      case URL:
-        return "URL";   //$NON-NLS-1$
-      case REPORT:
-        return Messages.getString("report"); //$NON-NLS-1$
-      case PLUGIN:
-        return pluginTypeName;
-      default:
-        return ""; //$NON-NLS-1$
+
+  /**
+   * Add an hr element with a specified colspan
+   * @param row
+   * @param col
+   */
+  protected void addHr(int row, int col, int colspan){
+    setHTML(row, col, new SafeHtml() {
+      @Override
+      public String asString() {
+        return "<hr/>";
+      }
+    });
+    getFlexCellFormatter().setColSpan(row, col, colspan);
+  }
+
+  /**
+   * Accept metadata response object and parse for use in General panel
+   * @param response
+   */
+  protected void setMetadataResponse(Response response){
+    if (SolutionBrowserPanel.getInstance().isAdministrator() && !fileSummary.isFolder()) {
+      JSONObject json = (JSONObject) JSONParser.parseLenient(response.getText());
+      if (json != null) {
+        JSONArray arr = (JSONArray) json.get("stringKeyStringValueDto");
+        for (int i = 0; i < arr.size(); i++) {
+          JSONValue arrVal = arr.get(i);
+          String key = arrVal.isObject().get("key").isString().stringValue();
+          String value = arrVal.isObject().get("value").isString().stringValue();
+          if (key.startsWith(METADATA_PERM_PREFIX)) {
+            JSONObject nv = new JSONObject();
+            nv.put(key, new JSONString(value));
+            metadataPerms.add(nv);
+          }
+        }
+        for (final JSONObject nv : metadataPerms) {
+          Set<String> keys = nv.keySet();
+          for (final String key : keys) {
+            final CheckBox cb = new CheckBox(Messages.getString(key.substring(METADATA_PERM_PREFIX.length()).toLowerCase()));
+            cb.setValue(Boolean.parseBoolean(nv.get(key).isString().stringValue()));
+            cb.addClickHandler(new ClickHandler() {
+              public void onClick(ClickEvent event) {
+                dirty = true;
+                nv.put(key, new JSONString(cb.getValue().toString()));
+              }
+            });
+            metadataPermsPanel.add(cb);
+          }
+        }
+      }
     }
   }
-  */
 
-//  public void populateUIFromServer() {
-//    AbstractCommand getSolutionFileCmd = new AbstractCommand() {
-//
-//      private void getFileInfo() {
-//        AsyncCallback<SolutionFileInfo> callback = new AsyncCallback<SolutionFileInfo>() {
-//
-//          public void onFailure(Throwable caught) {
-//            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetFileProperties"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-//            dialogBox.center();
-//          }
-//
-//          public void onSuccess(SolutionFileInfo fileInfo) {
-//            init(fileSummary, fileInfo);
-//          }
-//        };
-//        MantleServiceCache.getService().getSolutionFileInfo(fileSummary.getSolution(), fileSummary.getPath(), fileSummary.getName(), callback);
-//      }
-//      
-//      protected void performOperation() {
-//        getFileInfo();
-//      }
-//
-//      protected void performOperation(boolean feedback) {
-//        getFileInfo();
-//      }
-//      
-//    };
-//    getSolutionFileCmd.execute();       
-//  }
-
+  /**
+   * Get owner name from acl response
+   * @param response
+   */
+  protected void setAclResponse(Response response){
+    Document permissions = XMLParser.parse(response.getText());
+    ownerLabel.setText(permissions.getElementsByTagName(OWNER_NAME_ELEMENT_NAME).item(0).getFirstChild().getNodeValue());
+  }
 }
