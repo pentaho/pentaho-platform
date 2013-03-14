@@ -28,6 +28,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
    */
   public static final String ROOT_LOCALE = "rootLocale"; //$NON-NLS-1$
 
+  public static final String DEFAULT_LOCALE = "default"; //$NON-NLS-1$
+
   // ~ Instance fields =================================================================================================
 
   private final String name;
@@ -455,8 +457,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     public Builder localePropertiesMap(final Map<String, Properties> localePropertiesMap) {
       this.localePropertiesMap = localePropertiesMap;
-      if(this.localePropertiesMap != null && !this.localePropertiesMap.containsKey(ROOT_LOCALE)){
-        this.localePropertiesMap.put(ROOT_LOCALE, new Properties()); // required
+      if(this.localePropertiesMap != null && !this.localePropertiesMap.containsKey(DEFAULT_LOCALE)){
+        this.localePropertiesMap.put(DEFAULT_LOCALE, new Properties()); // required
       }
       return this;
     }
@@ -464,7 +466,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     public Builder clearLocalePropertiesMap() {
       if (this.localePropertiesMap != null) {
         this.localePropertiesMap.clear();
-        this.localePropertiesMap.put(ROOT_LOCALE, new Properties()); // required
+        this.localePropertiesMap.put(DEFAULT_LOCALE, new Properties()); // required
       }
       return this;
     }
@@ -478,7 +480,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     private void initLocalePropertiesMap() {
       if (this.localePropertiesMap == null) {
         this.localePropertiesMap = new HashMap<String, Properties>();
-        this.localePropertiesMap.put(ROOT_LOCALE, new Properties()); // required
+        this.localePropertiesMap.put(DEFAULT_LOCALE, new Properties()); // required
       }
     }
 
