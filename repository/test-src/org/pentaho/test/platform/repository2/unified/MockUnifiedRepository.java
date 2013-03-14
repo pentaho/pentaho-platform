@@ -1346,7 +1346,6 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public void deleteLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
-    //To change body of implemented methods use File | Settings | File Templates.
   }
 
   //  public static void main(final String[] args) throws Exception {
