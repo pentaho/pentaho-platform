@@ -14,7 +14,6 @@
  */
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -125,40 +124,51 @@ public class DefaultPermissionConversionHelper implements IPermissionConversionH
 
     // READ
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.READ, Privilege.JCR_READ);
-    // WRITE
-    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_WRITE);
-    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_NODE_TYPE_MANAGEMENT);
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.READ, Privilege.JCR_READ_ACCESS_CONTROL);
+    
+    // DELETE
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.DELETE, Privilege.JCR_REMOVE_NODE);
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.DELETE, Privilege.JCR_REMOVE_CHILD_NODES);
+    
+    //WRITE
+
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_ADD_CHILD_NODES);
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_VERSION_MANAGEMENT);
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE, Privilege.JCR_LOCK_MANAGEMENT);
-    // READ_ACL
-    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.READ_ACL, Privilege.JCR_READ_ACCESS_CONTROL);
-    // WRITE_ACL
-    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.WRITE_ACL, Privilege.JCR_MODIFY_ACCESS_CONTROL);
+    
+    //ACL_MANAGEMENT
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.ACL_MANAGEMENT, Privilege.JCR_NODE_TYPE_MANAGEMENT);
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.ACL_MANAGEMENT, Privilege.JCR_MODIFY_ACCESS_CONTROL);
+    permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.ACL_MANAGEMENT, Privilege.JCR_MODIFY_PROPERTIES);
+
     // ALL
     permissionEnumToPrivilegeNamesMap.put(RepositoryFilePermission.ALL, Privilege.JCR_ALL);
 
     privilegeNameToPermissionEnumsMap = HashMultimap.create();
-    // JCR_READ
+    
+    // JCR_READ + JCR_READ_ACCESS_CONTROL
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_READ, RepositoryFilePermission.READ);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_READ_ACCESS_CONTROL, RepositoryFilePermission.READ);
+    
+    // JCR_REMOVE_NODE + JCR_REMOVE_CHILD_NODES
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_MODIFY_PROPERTIES, RepositoryFilePermission.DELETE);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_REMOVE_NODE, RepositoryFilePermission.DELETE);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_REMOVE_CHILD_NODES, RepositoryFilePermission.DELETE);
+
+    // JCR_NODE_TYPE_MANAGEMENT + JCR_MODIFY_PROPERTIES + JCR_MODIFY_ACCESS_CONTROL
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_MODIFY_PROPERTIES, RepositoryFilePermission.ACL_MANAGEMENT);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_NODE_TYPE_MANAGEMENT, RepositoryFilePermission.ACL_MANAGEMENT);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_MODIFY_ACCESS_CONTROL, RepositoryFilePermission.ACL_MANAGEMENT);
+    
     // JCR_WRITE
-    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_WRITE, RepositoryFilePermission.WRITE);
-    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_MODIFY_PROPERTIES, RepositoryFilePermission.WRITE);
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_ADD_CHILD_NODES, RepositoryFilePermission.WRITE);
-    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_REMOVE_NODE, RepositoryFilePermission.WRITE);
-    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_REMOVE_CHILD_NODES, RepositoryFilePermission.WRITE);
-    // JCR_NODE_TYPE_MANAGEMENT
-    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_NODE_TYPE_MANAGEMENT, RepositoryFilePermission.WRITE);
-    // JCR_READ_ACCESS_CONTROL
-    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_READ_ACCESS_CONTROL, RepositoryFilePermission.READ_ACL);
-    // JCR_MODIFY_ACCESS_CONTROL
-    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_MODIFY_ACCESS_CONTROL, RepositoryFilePermission.WRITE_ACL);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_VERSION_MANAGEMENT, RepositoryFilePermission.WRITE);
+    privilegeNameToPermissionEnumsMap.put(Privilege.JCR_LOCK_MANAGEMENT, RepositoryFilePermission.WRITE);
+    
     // JCR_ALL
     privilegeNameToPermissionEnumsMap.put(Privilege.JCR_ALL, RepositoryFilePermission.ALL);
 
     // None of the following translate into a RepositoryFilePermission:
-    // JCR_NODE_TYPE_MANAGEMENT
-    // JCR_VERSION_MANAGEMENT
-    // JCR_LOCK_MANAGEMENT
     // JCR_RETENTION_MANAGEMENT
     // JCR_LIFECYCLE_MANAGEMENT
   }

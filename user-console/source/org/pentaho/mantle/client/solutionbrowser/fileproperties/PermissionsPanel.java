@@ -56,8 +56,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   public static final int ROLE_TYPE = 1;
   public static final int PERM_READ = 0;
   public static final int PERM_WRITE = 1;
-  public static final int PERM_ACE_READ = 2;
-  public static final int PERM_ACE_WRITE = 3;
+  public static final int PERM_DELETE = 2;
+  public static final int PERM_GRANT_PERM = 3;
   private static final String INHERITS_ELEMENT_NAME = "entriesInheriting"; //$NON-NLS-1$
 
   boolean dirty = false;
@@ -74,9 +74,9 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   Button addButton = new Button(Messages.getString("addPeriods")); //$NON-NLS-1$
 
   final CheckBox readPermissionCheckBox = new CheckBox(Messages.getString("read")); //$NON-NLS-1$
-  final CheckBox readAcePermissionCheckBox = new CheckBox(Messages.getString("readAcl")); //$NON-NLS-1$
+  final CheckBox deletePermissionCheckBox = new CheckBox(Messages.getString("delete")); //$NON-NLS-1$
   final CheckBox writePermissionCheckBox = new CheckBox(Messages.getString("write")); //$NON-NLS-1$
-  final CheckBox writeAcePermissionCheckBox = new CheckBox(Messages.getString("writeAcl")); //$NON-NLS-1$
+  final CheckBox grantPermissionCheckBox = new CheckBox(Messages.getString("grantPermission")); //$NON-NLS-1$
 
   final CheckBox inheritsCheckBox = new CheckBox(Messages.getString("inherits")); //$NON-NLS-1$
 
@@ -151,18 +151,18 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     buttonPanel.setWidth("100%"); //$NON-NLS-1$
 
     readPermissionCheckBox.getElement().setId("sharePermissionRead"); //$NON-NLS-1$
-    readAcePermissionCheckBox.getElement().setId("sharePermissionReadAcl"); //$NON-NLS-1$
+    deletePermissionCheckBox.getElement().setId("sharePermissionDelete"); //$NON-NLS-1$
     writePermissionCheckBox.getElement().setId("sharePermissionWrite"); //$NON-NLS-1$
-    writeAcePermissionCheckBox.getElement().setId("sharePermissionWriteAcl"); //$NON-NLS-1$
+    grantPermissionCheckBox.getElement().setId("sharePermissionGrantPerm"); //$NON-NLS-1$
 
     readPermissionCheckBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent clickEvent) {
         updatePermissionMask(readPermissionCheckBox.getValue(), PERM_READ);
       }
     });
-    readAcePermissionCheckBox.addClickHandler(new ClickHandler() {
+    deletePermissionCheckBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent clickEvent) {
-        updatePermissionMask(readAcePermissionCheckBox.getValue(), PERM_ACE_READ);
+        updatePermissionMask(deletePermissionCheckBox.getValue(), PERM_DELETE);
       }
     });
     writePermissionCheckBox.addClickHandler(new ClickHandler() {
@@ -170,21 +170,21 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         updatePermissionMask(writePermissionCheckBox.getValue(), PERM_WRITE);
       }
     });
-    writeAcePermissionCheckBox.addClickHandler(new ClickHandler() {
+    grantPermissionCheckBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent clickEvent) {
-        updatePermissionMask(writeAcePermissionCheckBox.getValue(), PERM_ACE_WRITE);
+        updatePermissionMask(grantPermissionCheckBox.getValue(), PERM_GRANT_PERM);
       }
     });
 
     readPermissionCheckBox.setEnabled(false);
-    readAcePermissionCheckBox.setEnabled(false);
 
     inheritsCheckBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent clickEvent) {
         dirty = true;
         setInheritsAcls(inheritsCheckBox.getValue());
         writePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
-        writeAcePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
+        grantPermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
+        deletePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
         addButton.setEnabled(!inheritsCheckBox.getValue());
         removeButton.setEnabled(!inheritsCheckBox.getValue());
       }
@@ -209,10 +209,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     setWidth("100%"); //$NON-NLS-1$
 
     permissionsTable.setWidget(0, 0, readPermissionCheckBox);
-    permissionsTable.setWidget(0, 1, readAcePermissionCheckBox);
+    permissionsTable.setWidget(0, 1, deletePermissionCheckBox);
 
     permissionsTable.setWidget(1, 0, writePermissionCheckBox);
-    permissionsTable.setWidget(1, 1, writeAcePermissionCheckBox);
+    permissionsTable.setWidget(1, 1, grantPermissionCheckBox);
 
     permissionsTable.setStyleName("permissionsTable"); //$NON-NLS-1$
     permissionsTable.setWidth("100%"); //$NON-NLS-1$
@@ -239,17 +239,19 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
 
     if ("".equals(userOrRoleString)) { //$NON-NLS-1$
       writePermissionCheckBox.setEnabled(false);
-      writeAcePermissionCheckBox.setEnabled(false);
+      deletePermissionCheckBox.setEnabled(false);
+      grantPermissionCheckBox.setEnabled(false);
     }
 
     readPermissionCheckBox.setValue(perms.contains(PERM_READ));
-    readAcePermissionCheckBox.setValue(perms.contains(PERM_ACE_READ));
+    deletePermissionCheckBox.setValue(perms.contains(PERM_DELETE));
     writePermissionCheckBox.setValue(perms.contains(PERM_WRITE));
-    writeAcePermissionCheckBox.setValue(perms.contains(PERM_ACE_WRITE));
+    grantPermissionCheckBox.setValue(perms.contains(PERM_GRANT_PERM));
     inheritsCheckBox.setValue(isInheritsAcls());
 
     writePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
-    writeAcePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
+    deletePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
+    grantPermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
 
     addButton.setEnabled(!inheritsCheckBox.getValue());
     removeButton.setEnabled(!(isOwner(userOrRoleString, USER_TYPE) || isOwner(userOrRoleString, ROLE_TYPE)) && !inheritsCheckBox.getValue());
@@ -399,7 +401,6 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     // Base recipient is created at this point.
     // Now give them the default perms.
     updatePermissionForUserOrRole(recipientName, true, PERM_READ);
-    updatePermissionForUserOrRole(recipientName, true, PERM_ACE_READ);
   }
 
   /**

@@ -597,8 +597,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       
     // tenant public folder
     assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()), acmeAuthenticatedAuthoritySid,
-        EnumSet.of(RepositoryFilePermission.WRITE, RepositoryFilePermission.WRITE_ACL, RepositoryFilePermission.READ,
-            RepositoryFilePermission.READ_ACL));
+        EnumSet.of(RepositoryFilePermission.WRITE, RepositoryFilePermission.READ));
     assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getPublicFolderPath()).getId())
         .getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantPublicFolderPath(),
@@ -611,7 +610,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // tenant home folder
     assertFalse(repo.getAcl(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getId()).isEntriesInheriting());
     assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()), acmeAuthenticatedAuthoritySid,
-        EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
+        EnumSet.of(RepositoryFilePermission.READ));
     assertEquals(tenantAdminSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getHomeFolderPath()).getId())
         .getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantHomeFolderPath(),
@@ -621,7 +620,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     Serializable fileId = repo.getFile(ClientRepositoryPaths.getEtcFolderPath()).getId();
     assertLocalAceExists(repo.getFile(ClientRepositoryPaths.getEtcFolderPath()), acmeAuthenticatedAuthoritySid,
-        EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
+        EnumSet.of(RepositoryFilePermission.READ));
     assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getEtcFolderPath()).getId())
         .getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantEtcFolderPath(),
@@ -2356,12 +2355,11 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // tiffany owns it but suzy is creating it
     RepositoryFileAcl.Builder aclBuilder = new RepositoryFileAcl.Builder(tiffanySid);
     // need this to be able to fetch acl as suzy
-    aclBuilder.ace(suzySid, RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL);
+    aclBuilder.ace(suzySid, RepositoryFilePermission.READ);
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, aclBuilder.build(), null);
     RepositoryFileAcl fetchedAcl = repo.getAcl(newFolder.getId());
     assertEquals(new RepositoryFileSid(USERNAME_TIFFANY), fetchedAcl.getOwner());
-    assertLocalAceExists(newFolder, new RepositoryFileSid(USERNAME_SUZY), EnumSet.of(RepositoryFilePermission.READ,
-        RepositoryFilePermission.READ_ACL));
+    assertLocalAceExists(newFolder, new RepositoryFileSid(USERNAME_SUZY), EnumSet.of(RepositoryFilePermission.READ));
   }
 
   @Test
@@ -2385,7 +2383,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     RepositoryFileAcl acl = new RepositoryFileAcl.Builder(newFile.getId(), userNameUtils.getPrincipleId(
         tenantAcme, USERNAME_TIFFANY), RepositoryFileSid.Type.USER).entriesInheriting(false).ace(
         userNameUtils.getPrincipleId(tenantAcme, USERNAME_SUZY), RepositoryFileSid.Type.USER,
-        RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL).build();
+        RepositoryFilePermission.READ).build();
     repo.updateAcl(acl);
     // at this point, suzy has write access to src and dest folders but only read access to actual file that will be 
     // moved; this should fail
@@ -3421,7 +3419,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
                 RepositoryFileSid tenantAuthenticatedRoleSid = new RepositoryFileSid(tenantAuthenticatedRoleId, Type.ROLE);
                 
                 aclsForTenantHomeFolder = new RepositoryFileAcl.Builder(userSid)
-                  .ace(tenantAuthenticatedRoleSid, EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
+                  .ace(tenantAuthenticatedRoleSid, EnumSet.of(RepositoryFilePermission.READ));
 
                 aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid, EnumSet.of(RepositoryFilePermission.ALL));
                 tenantHomeFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
