@@ -46,13 +46,8 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
   public void tearDown() {
     // Clean the cache
     ICacheManager cacheManager = PentahoSystem.getCacheManager(null);
-    @SuppressWarnings("unchecked")
-    Set<CacheKey> keys = (Set<CacheKey>) cacheManager.getAllKeysFromRegionCache(CACHE_NAME);
-    if (keys != null) {
-      for(CacheKey key : keys) {
-        cacheManager.removeFromRegionCache(CACHE_NAME, key);
-      }
-    }
+    cacheManager.clearRegionCache(CACHE_NAME);
+
     super.tearDown();
   }
 
@@ -184,11 +179,11 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
     ids = repo.getDomainIds();
     assertEquals(1, ids.size());
     assertEquals(2, mock.getInvocationCount("getDomainIds")); //$NON-NLS-1$
-    assertEquals(0, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
+    assertEquals(1, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
 
     ids = repo.getDomainIds();
-    assertEquals(3, mock.getInvocationCount("getDomainIds")); //$NON-NLS-1$
-    assertEquals(0, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
+    assertEquals(2, mock.getInvocationCount("getDomainIds")); //$NON-NLS-1$
+    assertEquals(1, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
   }
 
 
@@ -237,8 +232,8 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
     assertEquals(1, mock.getInvocationCount("reloadDomains")); //$NON-NLS-1$
     assertEquals(1, repo.getDomainIds().size());
 
-    // Cache should still be empty
-    assertEquals(0, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
+    // Cache should only have the domain ids
+    assertEquals(1, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
   }
 
   public void testFlushDomains() throws Exception {
@@ -262,7 +257,7 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
     assertEquals(1, mock.getInvocationCount("flushDomains")); //$NON-NLS-1$
     assertEquals(0, repo.getDomainIds().size());
     assertEquals(0, mock.getDomainIds().size());
-    assertEquals(0, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
+    assertEquals(1, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
   }
 
   /**
@@ -330,12 +325,12 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
 
     assertEquals(1, repo.getDomainIds().size());
     repo.getDomain(ID);
-    assertEquals(1, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
+    assertEquals(2, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
 
     // Storing a domain should only wipe out the cached domains with the same id
     repo.storeDomain(getTestDomain("2"), false); //$NON-NLS-1$
     assertEquals(2, repo.getDomainIds().size());
-    assertEquals(1, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
+    assertEquals(2, PentahoSystem.getCacheManager(null).getAllKeysFromRegionCache(CACHE_NAME).size());
   }
 
   public void testRemoveModel() throws Exception {
