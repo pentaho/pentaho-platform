@@ -22,14 +22,9 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 
@@ -41,18 +36,8 @@ import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 public class UserRoleResourceTest extends TestCase {
 
   public void testConstruction() throws Exception {
-    // Failures
-    try {
-      new UserRoleResource();
-      fail("The use of PentahoSystem should throw an exception since it has not been setup correctly");
-    } catch (Throwable success) {
-    }
-
-    // Successful
-    new UserRoleResource(new MockRoleAuthorizationPolicyRoleBindingDao(), new MockTenantManager());
-
-    PentahoSystem.setObjectFactory(new MockPentahoObjectFactory());
-    new UserRoleResource();
+    // Only one way to construct now.  Normally spring injected
+    new UserRoleResource(new MockRoleAuthorizationPolicyRoleBindingDao(), new MockTenantManager(), "Admin");
   }
 
   public void getAllUsers() throws Exception {
@@ -94,39 +79,6 @@ public class UserRoleResourceTest extends TestCase {
     }
   }
 
-
-  private class MockPentahoObjectFactory implements IPentahoObjectFactory {
-    @Override
-    public <T> T get(final Class<T> interfaceClass, final IPentahoSession session) throws ObjectFactoryException {
-      if (interfaceClass.equals(IRoleAuthorizationPolicyRoleBindingDao.class)) {
-        return (T) new MockRoleAuthorizationPolicyRoleBindingDao();
-      }
-      return null;
-    }
-
-    @Override
-    public <T> T get(final Class<T> interfaceClass, final String key, final IPentahoSession session) throws ObjectFactoryException {
-      if (interfaceClass.equals(IRoleAuthorizationPolicyRoleBindingDao.class)) {
-        return (T) new MockRoleAuthorizationPolicyRoleBindingDao();
-      }
-      return null;
-    }
-
-    @Override
-    public boolean objectDefined(final String key) {
-      return StringUtils.equals(key, "IRoleAuthorizationPolicyRoleBindingDao");
-    }
-
-    @Override
-    public Class<?> getImplementingClass(final String key) {
-      return StringUtils.equals(key, "IRoleAuthorizationPolicyRoleBindingDao") ? MockRoleAuthorizationPolicyRoleBindingDao.class : null;
-    }
-
-    @Override
-    public void init(final String configFile, final Object context) {
-    }
-  }
-  
   private class MockTenantManager implements ITenantManager {
 
     @Override

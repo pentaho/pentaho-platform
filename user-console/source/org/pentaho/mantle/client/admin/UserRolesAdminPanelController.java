@@ -41,6 +41,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
@@ -129,6 +130,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
+				  checkForError(response);
 					roleNameTextBox.setText("");
 					availableMembersListBox.clear();
 					selectedMembersListBox.clear();
@@ -138,6 +140,12 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			});
 		} catch (RequestException e) {
 		}
+	}
+	
+	private void checkForError(Response response) {
+    if (response != null && response.getText() != null && response.getText().length() > 0) {
+      Window.alert(response.getText());
+    }
 	}
 
 	public void deleteUsers() {
@@ -157,6 +165,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
+				  checkForError(response);
 					userNameTextBox.setText("");
 					userPasswordTextBox.setText("");
 					availableRolesListBox.clear();
@@ -381,6 +390,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
+          checkForError(response);
 					getRolesForUser(userName);
 					initializeAvailableRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()));
 				}
@@ -397,6 +407,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
+          checkForError(response);
 					getUsersInRole(roleName);
 					initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
 					
