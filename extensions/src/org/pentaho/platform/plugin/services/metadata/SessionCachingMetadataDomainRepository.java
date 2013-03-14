@@ -38,6 +38,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   private ICacheManager cacheManager;
 
   private IMetadataDomainRepository delegate;
+  private static final String DOMAIN_CACHE_KEY_PREDICATE = "domain-id-cache-for-session:";
 
   /**
    * this as a public class so that if necessary someone can get access to a session
@@ -216,23 +217,109 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
         return true; // continue
       }
     });
+    removeDomainFromIDCache(domainId);
   }
 
   @Override
   public void reloadDomains() {
     forAllKeys(REMOVE_ALL_CALLBACK);
+    clearDomainIdsFromCache();
     delegate.reloadDomains();
   }
 
   @Override
   public void flushDomains() {
     forAllKeys(REMOVE_ALL_CALLBACK);
+    clearDomainIdsFromCache();
     delegate.flushDomains();
   }
 
   protected void flushDomains(final IPentahoSession session) {
     forAllKeysInSession(session, REMOVE_ALL_CALLBACK);
+    clearDomainIdsFromCache(session);
   }
+
+
+  /**
+   * Remove domain ID cache for all sessions
+   */
+  protected void clearDomainIdsFromCache() {
+    try {
+      Set<?> cachedObjects = cacheManager.getAllKeysFromRegionCache(CACHE_REGION);
+      if (cachedObjects != null)
+      {
+        for (Object k : cachedObjects)
+        {
+          if (k instanceof String)
+          {
+            String key = (String) k;
+            if(key != null && key.startsWith(DOMAIN_CACHE_KEY_PREDICATE)){
+              cacheManager.removeFromRegionCache(CACHE_REGION, key);
+            }
+          }
+        }
+      }
+    } catch (Throwable e) {
+      // due to a known issue in hibernate cache
+      // the getAll* methods of ICacheManager throw a NullPointerException if
+      // cache values are null (this can happen due to cache object timeouts)
+      // please see: http://opensource.atlassian.com/projects/hibernate/browse/HHH-3248
+      if (logger.isDebugEnabled()) {
+        logger.debug("", e); //$NON-NLS-1$
+      }
+    }
+  }
+
+
+  /**
+   * Remove domain ID cache for a given session
+   *
+   * @param session
+   */
+  protected void clearDomainIdsFromCache(IPentahoSession session) {
+    final String key = generateDomainIdCacheKeyForSession(session);
+    if(cacheManager.getFromRegionCache(CACHE_REGION, key) != null){
+      cacheManager.removeFromRegionCache(CACHE_REGION, key);
+    }
+  }
+
+  /**
+   * Remove a single domain ID from all session domain ID caches
+   * @param domainId
+   */
+  private void removeDomainFromIDCache(String domainId) {
+    try {
+      Set<?> cachedObjects = cacheManager.getAllKeysFromRegionCache(CACHE_REGION);
+      if (cachedObjects != null)
+      {
+        for (Object k : cachedObjects)
+        {
+          if (k instanceof String)
+          {
+            String key = (String) k;
+            if(key != null && key.startsWith(DOMAIN_CACHE_KEY_PREDICATE)){
+              Set<String> domainIds = (Set<String>) cacheManager.getFromRegionCache(CACHE_REGION, key);
+              domainIds.remove(domainId);
+              cacheManager.putInRegionCache(CACHE_REGION, key, domainIds);
+            }
+          }
+        }
+      }
+    } catch (Throwable e) {
+      // due to a known issue in hibernate cache
+      // the getAll* methods of ICacheManager throw a NullPointerException if
+      // cache values are null (this can happen due to cache object timeouts)
+      // please see: http://opensource.atlassian.com/projects/hibernate/browse/HHH-3248
+      if (logger.isDebugEnabled()) {
+        logger.debug("", e); //$NON-NLS-1$
+      }
+    }
+  }
+
+  protected String generateDomainIdCacheKeyForSession(IPentahoSession session){
+    return DOMAIN_CACHE_KEY_PREDICATE+session.getId();
+  }
+
 
   @Override
   public void removeDomain(final String domainId) {
@@ -254,8 +341,18 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
 
   @Override
   public Set<String> getDomainIds() {
+    final IPentahoSession session = PentahoSessionHolder.getSession();
+
+    final String domainKey = generateDomainIdCacheKeyForSession(session);
+    Set<String> domainIds = (Set<String>) cacheManager.getFromRegionCache(CACHE_REGION, domainKey);
+    if(domainIds != null){
+      // We've previously cached domainIds available for this session
+      return domainIds;
+    }
     // Domains are accessible by anyone. What they contain may be different so rely on the lookup to be session-specific.
-    return delegate.getDomainIds();
+    domainIds = delegate.getDomainIds();
+    cacheManager.putInRegionCache(CACHE_REGION, domainKey, domainIds);
+    return domainIds;
   }
 
   @Override

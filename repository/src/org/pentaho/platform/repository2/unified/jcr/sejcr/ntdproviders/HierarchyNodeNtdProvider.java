@@ -23,6 +23,7 @@ import org.pentaho.platform.repository2.unified.jcr.sejcr.NodeTypeDefinitionProv
 //     + pho:title (pho_nt:localizedString) copy
 //     + pho:description (pho_nt:localizedString) copy
 //     + pho:metadata (nt:unstructured) copy
+//     + pho:locales (pho_nt:locale) copy
 //     - pho:hidden (boolean) = false copy
 public class HierarchyNodeNtdProvider implements NodeTypeDefinitionProvider {
 
@@ -36,6 +37,7 @@ public class HierarchyNodeNtdProvider implements NodeTypeDefinitionProvider {
     t.getNodeDefinitionTemplates().add(getTitleNode(ntMgr));
     t.getNodeDefinitionTemplates().add(getDescriptionNode(ntMgr));
     t.getNodeDefinitionTemplates().add(getMetadataNode(ntMgr));
+    t.getNodeDefinitionTemplates().add(getLocaleNode(ntMgr));
     t.getPropertyDefinitionTemplates().add(getHiddenProperty(ntMgr, vFac));
     return t;
   }
@@ -78,4 +80,12 @@ public class HierarchyNodeNtdProvider implements NodeTypeDefinitionProvider {
     return t;
   }
 
+  private NodeDefinitionTemplate getLocaleNode(final NodeTypeManager ntMgr) throws RepositoryException {
+    NodeDefinitionTemplate t = ntMgr.createNodeDefinitionTemplate();
+    t.setName(PHO + "locales"); //$NON-NLS-1$
+    t.setRequiredPrimaryTypeNames(new String[] {  PHO_NT + "locale" }); //$NON-NLS-1$
+    t.setOnParentVersion(OnParentVersionAction.COPY);
+    t.setSameNameSiblings(false);
+    return t;
+  }
 }
