@@ -25,7 +25,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
 import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 
 /**
  * @author wseyler
@@ -50,11 +52,11 @@ public class DefaultBlockoutManagerTest {
   }
 
   /**
-   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#addBlockout(org.pentaho.platform.scheduler2.blockout.BlockoutTrigger)}.
+   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#addBlockout(org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)}.
    */
   @Test
   public void testAddBlockout() {
-    BlockoutTrigger trigger = new BlockoutTrigger("blockout", DefaultBlockoutManager.BLOCK_GROUP, "job_name", DefaultBlockoutManager.BLOCK_GROUP, new Date(), null, -1, 1000000, 50000 );
+    SimpleBlockoutTrigger trigger = new SimpleBlockoutTrigger("blockout", new Date(), null, -1, 1000000, 50000 );
     try {
       blockoutManager.addBlockout(trigger);
     } catch (SchedulerException e) {
@@ -74,8 +76,8 @@ public class DefaultBlockoutManagerTest {
    */
   @Test
   public void testGetBlockout() {
-    BlockoutTrigger trigger1 = new BlockoutTrigger("blockout1", DefaultBlockoutManager.BLOCK_GROUP, "job_name", DefaultBlockoutManager.BLOCK_GROUP, new Date(), null, -1, 1000000, 50000 );
-    BlockoutTrigger trigger2 = new BlockoutTrigger("blockout2", DefaultBlockoutManager.BLOCK_GROUP, "job_name", DefaultBlockoutManager.BLOCK_GROUP, new Date(), null, -1, 1000000, 50000 );
+    SimpleBlockoutTrigger trigger1 = new SimpleBlockoutTrigger("blockout1", new Date(), null, -1, 1000000, 50000 );
+    SimpleBlockoutTrigger trigger2 = new SimpleBlockoutTrigger("blockout2", new Date(), null, -1, 1000000, 50000 );
     try {
       blockoutManager.addBlockout(trigger1);
       blockoutManager.addBlockout(trigger2);
@@ -96,12 +98,12 @@ public class DefaultBlockoutManagerTest {
   @Test
   public void testGetBlockouts() {
     try {
-      BlockoutTrigger[] blockouts = blockoutManager.getBlockouts();
-      for (BlockoutTrigger trigger : blockouts) {
-        blockoutManager.deleteBlockout(trigger.getName());
+      IBlockoutTrigger[] blockouts = blockoutManager.getBlockouts();
+      for (IBlockoutTrigger trigger : blockouts) {
+        blockoutManager.deleteBlockout(((Trigger)trigger).getName());
       }
-      BlockoutTrigger trigger1 = new BlockoutTrigger("blockout1", DefaultBlockoutManager.BLOCK_GROUP, "job_name", DefaultBlockoutManager.BLOCK_GROUP, new Date(), null, -1, 1000000, 50000 );
-      BlockoutTrigger trigger2 = new BlockoutTrigger("blockout2", DefaultBlockoutManager.BLOCK_GROUP, "job_name", DefaultBlockoutManager.BLOCK_GROUP, new Date(), null, -1, 1000000, 50000 );
+      SimpleBlockoutTrigger trigger1 = new SimpleBlockoutTrigger("blockout1", new Date(), null, -1, 1000000, 50000 );
+      SimpleBlockoutTrigger trigger2 = new SimpleBlockoutTrigger("blockout2", new Date(), null, -1, 1000000, 50000 );
       blockoutManager.addBlockout(trigger1);
       blockoutManager.addBlockout(trigger2);
 
@@ -114,7 +116,7 @@ public class DefaultBlockoutManagerTest {
   }
   
   /**
-   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#updateBlockout(java.lang.String, org.pentaho.platform.scheduler2.blockout.BlockoutTrigger)}.
+   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#updateBlockout(java.lang.String, org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)}.
    */
   @Test
   public void testUpdateBlockout() {
@@ -126,7 +128,7 @@ public class DefaultBlockoutManagerTest {
    */
   @Test
   public void testDeleteBlockout() {
-    BlockoutTrigger trigger = new BlockoutTrigger("deleteBlockout", DefaultBlockoutManager.BLOCK_GROUP, "job_name", DefaultBlockoutManager.BLOCK_GROUP, new Date(), null, -1, 1000000, 50000 );
+    SimpleBlockoutTrigger trigger = new SimpleBlockoutTrigger("deleteBlockout", new Date(), null, -1, 1000000, 50000 );
     try {
       blockoutManager.addBlockout(trigger);
     } catch (SchedulerException e) {
@@ -159,7 +161,7 @@ public class DefaultBlockoutManagerTest {
   }
 
   /**
-   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#willBlockSchedules(org.pentaho.platform.scheduler2.blockout.BlockoutTrigger)}.
+   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#willBlockSchedules(org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)}.
    */
   @Test
   public void testWillBlockSchedules() {
