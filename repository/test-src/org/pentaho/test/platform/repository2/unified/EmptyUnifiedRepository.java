@@ -19,9 +19,7 @@
 package org.pentaho.test.platform.repository2.unified;
 
 import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -283,5 +281,51 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   @Override
   public RepositoryFile getFileById(Serializable fileId, boolean loadLocaleMaps, IPentahoLocale locale) {
     return null;
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+    return null;
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(String relPath) {
+    return null;
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(RepositoryFile repositoryFile) {
+    return null;
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+    return null;
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+    return null;
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    return null;
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(RepositoryFile repositoryFile, String locale, Properties properties) {
+  }
+
+  @Override
+  public void deleteLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
   }
 }

@@ -19,9 +19,7 @@
 package org.pentaho.test.platform.repository2.unified;
 
 import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -636,4 +634,73 @@ public class UnmodifiableRepository implements IUnifiedRepository {
     return repository.getProductID();
   }
 
+  @Override
+  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+    Assert.notNull(fileId);
+    return repository.getAvailableLocalesForFile(fileId);
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(String relPath) {
+    Assert.notNull(relPath);
+    return repository.getAvailableLocalesForFile(relPath);
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(RepositoryFile repositoryFile) {
+    Assert.notNull(repositoryFile);
+    return repository.getAvailableLocalesForFile(repositoryFile);
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+    Assert.notNull(fileId);
+    Assert.notNull(locale);
+    return repository.getLocalePropertiesForFile(fileId, locale);
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+    Assert.notNull(relPath);
+    Assert.notNull(locale);
+    return repository.getLocalePropertiesForFile(relPath, locale);
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    Assert.notNull(repositoryFile);
+    Assert.notNull(locale);
+    return repository.getLocalePropertiesForFile(repositoryFile, locale);
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+    Assert.notNull(fileId);
+    Assert.notNull(locale);
+    Assert.notNull(properties);
+    repository.setLocalePropertiesForFile(fileId, locale, properties);
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+    Assert.notNull(relPath);
+    Assert.notNull(locale);
+    Assert.notNull(properties);
+    repository.setLocalePropertiesForFile(relPath, locale, properties);
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(RepositoryFile repositoryFile, String locale, Properties properties) {
+    Assert.notNull(repositoryFile);
+    Assert.notNull(locale);
+    Assert.notNull(properties);
+    repository.setLocalePropertiesForFile(repositoryFile, locale, properties);
+  }
+
+  @Override
+  public void deleteLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    Assert.notNull(repositoryFile);
+    Assert.notNull(locale);
+    repository.deleteLocalePropertiesForFile(repositoryFile, locale);
+  }
 }
