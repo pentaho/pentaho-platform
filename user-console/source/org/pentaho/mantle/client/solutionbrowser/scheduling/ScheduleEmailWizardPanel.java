@@ -32,6 +32,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -55,10 +56,12 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
   private TextArea messageTextArea = new TextArea();
 
   private String filePath;
-
-  public ScheduleEmailWizardPanel(String filePath, JsJob job) {
+  private JSONObject jobSchedule;
+  
+  public ScheduleEmailWizardPanel(String filePath, JSONObject jobSchedule, JsJob job) {
     super();
     this.filePath = filePath;
+    this.jobSchedule = jobSchedule;
     layout(job);
   }
 
@@ -144,7 +147,11 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
       friendlyFileName = friendlyFileName.substring(0, friendlyFileName.lastIndexOf("."));
     }
     subjectTextBox.setText(Messages.getString("scheduleDefaultSubject", friendlyFileName));
-    attachmentNameTextBox.setText(job.getJobName());
+    if (job != null) {
+      attachmentNameTextBox.setText(job.getJobName());
+    } else {
+      attachmentNameTextBox.setText(jobSchedule.get("jobName").isString().stringValue());
+    }
 
     Label toLabel = new Label(Messages.getString("toColon"));
     // toLabel.setWidth("130px");
