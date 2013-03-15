@@ -353,18 +353,25 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
   }
 
   @Override
-  public List<Locale> getAvailableLocalesForFileById(String fileId) {
-    return repo.getAvailableLocalesForFileById((Serializable) fileId);
+  public List<PentahoLocale> getAvailableLocalesForFileById(String fileId) {
+    List<PentahoLocale> pentahoLocales = new ArrayList<PentahoLocale>();
+    List<Locale> locales = repo.getAvailableLocalesForFileById(fileId);
+    if(locales != null && !locales.isEmpty()){
+      for(Locale locale : locales){
+        pentahoLocales.add(new PentahoLocale(locale));
+      }
+    }
+    return pentahoLocales;
   }
 
   @Override
   public Properties getLocalePropertiesForFileById(String fileId, String locale) {
-    return repo.getLocalePropertiesForFileById((Serializable) fileId, locale);
+    return repo.getLocalePropertiesForFileById(fileId, locale);
   }
 
   @Override
   public void setLocalePropertiesForFileByFileId(String fileId, String locale, Properties properties) {
-    repo.setLocalePropertiesForFileById((Serializable) fileId, locale, properties);
+    repo.setLocalePropertiesForFileById(fileId, locale, properties);
   }
 
   @Override
