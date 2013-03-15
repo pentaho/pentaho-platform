@@ -62,6 +62,7 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -709,9 +710,16 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
   @Override
   public void center() {
-    // TODO Auto-generated method stub
     super.center();
-    scheduleEditorWizardPanel.setFocus();
+    Timer t = new Timer() {
+      public void run() {
+        scheduleEditorWizardPanel.setFocus();
+        if (scheduleEditorWizardPanel.isAttached() && scheduleEditorWizardPanel.isVisible()) {
+          cancel();
+        }
+      }
+    };
+    t.scheduleRepeating(250);
   }
 
   protected boolean enableNext(int index) {

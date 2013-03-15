@@ -19,19 +19,30 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.ui.*;
-import com.google.gwt.xml.client.*;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.Text;
+import com.google.gwt.xml.client.XMLParser;
 
 /**
  * Permissions tab sub panel of FilePropertiesDialog. GET ACL call is performed
@@ -266,7 +277,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
    * @return
    */
   public List<RequestBuilder> prepareRequests(){
-    List<RequestBuilder> requestBuilders = new ArrayList();
+    ArrayList<RequestBuilder> requestBuilders = new ArrayList<RequestBuilder>();
 
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();

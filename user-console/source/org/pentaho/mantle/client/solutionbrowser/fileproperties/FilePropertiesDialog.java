@@ -19,9 +19,8 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.*;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -31,8 +30,13 @@ import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * File properties parent panel displayed when right clicking
@@ -121,7 +125,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
    *
    */
   private void applyPanel() {
-    List<RequestBuilder> requestBuilders = new ArrayList();
+    ArrayList<RequestBuilder> requestBuilders = new ArrayList<RequestBuilder>();
     for (int i=0;i<propertyTabs.getTabCount();i++) {
       Widget w = propertyTabs.getTab(i).getContent();
       if (w instanceof IFileModifier) {

@@ -20,7 +20,6 @@ package org.pentaho.mantle.client.ui.tabs;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -34,7 +33,6 @@ import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
-import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel.CustomFrame;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NodeList;
