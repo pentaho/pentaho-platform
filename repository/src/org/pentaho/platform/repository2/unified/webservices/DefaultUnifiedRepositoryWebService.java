@@ -219,19 +219,19 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
       String versionMessage) {
     validateEtcWriteAccess(parentFolderId);
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
-        nodeRepositoryFileDataAdapter.unmarshal(data), versionMessage));
+       nodeRepositoryFileDataAdapter.unmarshal(data), versionMessage));
   }
 
   public RepositoryFileDto createFileWithAcl(String parentFolderId, RepositoryFileDto file,
       NodeRepositoryFileDataDto data, RepositoryFileAclDto acl, String versionMessage) {
     validateEtcWriteAccess(parentFolderId);
     return repositoryFileAdapter.marshal(repo.createFile(parentFolderId, repositoryFileAdapter.unmarshal(file),
-        nodeRepositoryFileDataAdapter.unmarshal(data), repositoryFileAclAdapter.unmarshal(acl), versionMessage));
+       nodeRepositoryFileDataAdapter.unmarshal(data), repositoryFileAclAdapter.unmarshal(acl), versionMessage));
   }
 
   public RepositoryFileDto updateFile(RepositoryFileDto file, NodeRepositoryFileDataDto data, String versionMessage) {
     return repositoryFileAdapter.marshal(repo.updateFile(repositoryFileAdapter.unmarshal(file),
-        nodeRepositoryFileDataAdapter.unmarshal(data), versionMessage));
+       nodeRepositoryFileDataAdapter.unmarshal(data), versionMessage));
   }
 
   public boolean canUnlockFile(String fileId) {
@@ -244,7 +244,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   public NodeRepositoryFileDataDto getDataAsNodeForReadAtVersion(String fileId, String versionId) {
     return nodeRepositoryFileDataAdapter.marshal(repo.getDataAtVersionForRead(fileId, versionId,
-        NodeRepositoryFileData.class));
+       NodeRepositoryFileData.class));
   }
 
   public List<RepositoryFileAclAceDto> getEffectiveAces(String fileId) {
@@ -350,6 +350,26 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   public String getProductID() {
     return VersionHelper.getVersionInfo(this.getClass()).getProductID();
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFileById(String fileId) {
+    return repo.getAvailableLocalesForFileById((Serializable) fileId);
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFileById(String fileId, String locale) {
+    return repo.getLocalePropertiesForFileById((Serializable) fileId, locale);
+  }
+
+  @Override
+  public void setLocalePropertiesForFileByFileId(String fileId, String locale, Properties properties) {
+    repo.setLocalePropertiesForFileById((Serializable) fileId, locale, properties);
+  }
+
+  @Override
+  public void deleteLocalePropertiesForFile(String fileId, String locale) {
+    repo.deleteLocalePropertiesForFile(repo.getFileById(fileId), locale);
   }
 
 }
