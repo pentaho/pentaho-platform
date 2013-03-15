@@ -8,9 +8,13 @@ package org.pentaho.platform.plugin.services.importer;
  * 
  */
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import mondrian.util.Pair;
 import mondrian.xmla.DataSourcesConfig.DataSource;
 
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -35,6 +39,7 @@ public class MondrianImportHandler implements IPlatformImportHandler {
   private static final String DOMAIN_ID = "domain-id";
 
   private static final String DATA_SOURCE = "DataSource";
+  private static final String PROVIDER = "Provider";
 
   IMondrianCatalogService mondrianRepositoryImporter;
 
@@ -68,8 +73,9 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       throw new PlatformImportException("Bundle missing required domain-id property");
     }
     try {
-      String ds = findParameterPropertyValue(bundle, DATA_SOURCE);
-      MondrianCatalog catalog = this.createCatalogObject(domainId, ds, xmla);
+      MondrianCatalog catalog =
+          this.createCatalogObject(domainId, xmla, bundle);
+
       mondrianRepositoryImporter.addCatalog(bundle.getInputStream(), catalog, overwriteInRepossitory,
           PentahoSessionHolder.getSession());
     } catch (MondrianCatalogServiceException mse) {
@@ -94,6 +100,17 @@ public class MondrianImportHandler implements IPlatformImportHandler {
       value = propertyList.get(key);
     }
     return value;
+  }
+
+  private Map<String, String> findParameters(IPlatformImportBundle bundle) {
+      mondrian.olap.Util.PropertyList propertyList =
+        mondrian.olap.Util.parseConnectString((String) bundle
+          .getProperty(PARAMETERS));
+      final Map<String, String> parameters = new HashMap<String, String>();
+      for (Pair<String, String> prop : propertyList) {
+          parameters.put(prop.left, prop.right);
+      }
+      return parameters;
   }
 
   /**
@@ -123,24 +140,63 @@ public class MondrianImportHandler implements IPlatformImportHandler {
 
   /**
    * Helper method to create a catalog object 
-   * @param domainId
-   * @param datasource
-   * @return
-   * @throws ParserConfigurationException
-   * @throws SAXException
-   * @throws IOException
    */
-  protected MondrianCatalog createCatalogObject(String domainId, String datasource, boolean xmlaEnabled)
-      throws ParserConfigurationException, SAXException, IOException {
+  protected MondrianCatalog createCatalogObject(
+      String catName, boolean xmlaEnabled, IPlatformImportBundle bundle)
+      throws ParserConfigurationException, SAXException, IOException, PlatformImportException
+  {
+    final Map<String, String> parameters = findParameters(bundle);
 
-    String catName = domainId;
+    final String dsName = findParameterPropertyValue(bundle, DATA_SOURCE);
+    if (dsName == null) {
+        // DataSource must be present.
+        throw new PlatformImportException("Bundle is missing required 'DataSource' property");
+    }
+
+    final String provider;
+    if (parameters.containsKey(PROVIDER)) {
+        provider = findParameterPropertyValue(bundle, PROVIDER);
+    } else {
+        // Defaults to 'mondrian'
+        provider = "mondrian";
+    }
+
+    StringBuilder sb =
+      new StringBuilder(
+        "DataSource="
+        + dsName
+        + ";Provider="
+        + provider);
+
+    // Build a list of the remaining properties
+    for (Entry<String, String> parameter : parameters.entrySet()) {
+      if (!parameter.getKey().equals(DATA_SOURCE) && !parameter.getKey().equals(PROVIDER)) {
+        sb.append(";");
+        sb.append(parameter.getKey());
+        sb.append("=");
+        sb.append(parameter.getValue());
+      }
+    }
+
     MondrianSchema schema = new MondrianSchema(catName, null);
     String dsProvider = xmlaEnabled ? DataSource.PROVIDER_TYPE_MDP : "None:";
-    MondrianDataSource ds = new MondrianDataSource(catName, "", "", "Provider=mondrian;DataSource=" + datasource,
-        "Provider=Mondrian", dsProvider, DataSource.AUTH_MODE_UNAUTHENTICATED, null); 
-    MondrianCatalog catalog = new MondrianCatalog(catName, "Provider=mondrian;DataSource=" + datasource + ";",
-        "mondrian:" +  RepositoryFile.SEPARATOR + catName, ds, schema);
+
+    MondrianDataSource ds =
+      new MondrianDataSource(
+        catName,
+        "",
+        "",
+        "Provider=" + provider + ";DataSource=" + dsName,
+        "Provider=" + provider, dsProvider, DataSource.AUTH_MODE_UNAUTHENTICATED, null); 
+
+    MondrianCatalog catalog =
+      new MondrianCatalog(
+        catName,
+        sb.toString(),
+        provider + ":" +  RepositoryFile.SEPARATOR + catName,
+        ds,
+        schema);
+
     return catalog;
   }
-
 }
