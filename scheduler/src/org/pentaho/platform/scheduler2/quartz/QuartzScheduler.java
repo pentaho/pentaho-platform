@@ -124,7 +124,7 @@ public class QuartzScheduler implements IScheduler {
     quartzScheduler = null;
   }
 
-  protected Scheduler getQuartzScheduler() throws org.quartz.SchedulerException {
+  public Scheduler getQuartzScheduler() throws org.quartz.SchedulerException {
     if (quartzScheduler == null) {
       /*
        * Currently, quartz will always give you the same scheduler object when any factory instance is asked for a scheduler. In other words there is no such
