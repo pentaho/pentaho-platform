@@ -48,20 +48,31 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MantleModel extends XulEventSourceAdapter implements SolutionBrowserListener {
 
   private MantleXul main;
+
   private boolean saveEnabled;
+
   private boolean saveAsEnabled;
+
   private boolean newAnalysisEnabled;
+
   private boolean contentEditEnabled;
+
   private boolean contentEditSelected;
+
   private boolean showBrowserSelected;
+  
+  private boolean showNavigatorSelected;
+
   private boolean propertiesEnabled;
 
   private FileItem selectedFileItem;
+
   private JavaScriptObject callback;
 
   public MantleModel(MantleXul main) {
@@ -142,21 +153,29 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   }
 
   @Bindable
-  public void toggleShowWorkspace() {
+  public void showWorkspace() {
     IPluginPerspective perspective = PerspectiveManager.getInstance().getActivePerspective();
-    boolean showing = perspective.getId().equalsIgnoreCase("workspace.perspective");
-    if (showing) {
-      PerspectiveManager.getInstance().setPerspective("default.perspective");
-    } else {
-      PerspectiveManager.getInstance().setPerspective("workspace.perspective");
-    }
+    boolean showing = perspective.getId().equalsIgnoreCase(PerspectiveManager.WORKSPACE_PERSPECTIVE);
+    if (!showing) {    
+      PerspectiveManager.getInstance().setPerspective(PerspectiveManager.WORKSPACE_PERSPECTIVE);
+    } 
+    //MantleApplication.getInstance().pucToolBarVisibility(false);
   }
-
+  
+  @Bindable
+  public void showBrowser() {
+    IPluginPerspective perspective = PerspectiveManager.getInstance().getActivePerspective();
+    boolean showing = perspective.getId().equalsIgnoreCase(PerspectiveManager.DEFAULT_PERSPECTIVE);
+    if (!showing) {    
+      PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);
+    }
+   // MantleApplication.getInstance().pucToolBarVisibility(true);
+  }
   @Bindable
   public void loadAdminContent(final String securityPanelId, final String url) {
     // hijack content area (or simply find and select existing content)
     Frame frame = null;
-    for (int i = 0; i <MantleXul.getInstance().getAdminContentDeck().getWidgetCount(); i++) {
+    for (int i = 0; i < MantleXul.getInstance().getAdminContentDeck().getWidgetCount(); i++) {
       Widget w = MantleXul.getInstance().getAdminContentDeck().getWidget(i);
       if (w instanceof Frame && securityPanelId.equals(w.getElement().getId())) {
         frame = (Frame) w;
@@ -167,9 +186,10 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
       frame.getElement().setId(securityPanelId);
       MantleXul.getInstance().getAdminContentDeck().add(frame);
     }
-    MantleXul.getInstance().getAdminContentDeck().showWidget(MantleXul.getInstance().getAdminContentDeck().getWidgetIndex(frame));
+    MantleXul.getInstance().getAdminContentDeck()
+        .showWidget(MantleXul.getInstance().getAdminContentDeck().getWidgetIndex(frame));
   }
-  
+
   @Bindable
   public void loadSecurityPanel() {
     GWT.runAsync(new RunAsyncCallback() {
@@ -180,28 +200,29 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
         }
         contentDeck.showWidget(contentDeck.getWidgetIndex(SecurityPanel.getInstance()));
       }
-      
+
       public void onFailure(Throwable reason) {
       }
     });
   }
-  
+
   @Bindable
   public void loadUserRolesAdminPanel() {
     GWT.runAsync(new RunAsyncCallback() {
       public void onSuccess() {
         DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
-        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(UserRolesAdminPanelController.getInstance()) == -1) {
+        if (MantleApplication.getInstance().getContentDeck()
+            .getWidgetIndex(UserRolesAdminPanelController.getInstance()) == -1) {
           contentDeck.add(UserRolesAdminPanelController.getInstance());
         }
         contentDeck.showWidget(contentDeck.getWidgetIndex(UserRolesAdminPanelController.getInstance()));
       }
-      
+
       public void onFailure(Throwable reason) {
       }
     });
   }
-  
+
   @Bindable
   public void loadEmailAdminPanel() {
     GWT.runAsync(new RunAsyncCallback() {
@@ -212,11 +233,12 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
         }
         contentDeck.showWidget(contentDeck.getWidgetIndex(EmailAdminPanelController.getInstance()));
       }
+
       public void onFailure(Throwable reason) {
       }
     });
   }
-  
+
   @Bindable
   public void refreshContent() {
     if ("workspace.perspective".equals(PerspectiveManager.getInstance().getActivePerspective().getId())) {
@@ -302,15 +324,16 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     setContentEditEnabled(editIsEnabled);
     setContentEditSelected(editSelected);
     setCallback(callback);
-
-    setShowBrowserSelected(SolutionBrowserPanel.getInstance().isNavigatorShowing());
+    this.showNavigatorSelected = SolutionBrowserPanel.getInstance().isNavigatorShowing();
+    setShowBrowserSelected(this.showNavigatorSelected);
 
     if (panel instanceof IFrameTabPanel) {
       if (SolutionBrowserListener.EventType.OPEN.equals(type) || SolutionBrowserListener.EventType.SELECT.equals(type)) {
         if (panel != null) {
           main.applyOverlays(((IFrameTabPanel) panel).getOverlayIds());
         }
-      } else if (SolutionBrowserListener.EventType.CLOSE.equals(type) || SolutionBrowserListener.EventType.DESELECT.equals(type)) {
+      } else if (SolutionBrowserListener.EventType.CLOSE.equals(type)
+          || SolutionBrowserListener.EventType.DESELECT.equals(type)) {
         if (panel != null) {
           main.removeOverlays(((IFrameTabPanel) panel).getOverlayIds());
         }
@@ -365,6 +388,16 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   public void setCallback(JavaScriptObject callback) {
     this.callback = callback;
+  }
+
+  @Bindable
+  public boolean isShowNavigatorSelected(){
+    return this.showNavigatorSelected;
+  }
+
+  @Bindable
+  public void setShowNavigatorSelected(boolean showNavigator) {    
+    this.showNavigatorSelected = showNavigator;   
   }
 
 }

@@ -26,6 +26,7 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
+import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.admin.JsSysAdminPanel;
@@ -89,33 +90,54 @@ public class MantleController extends AbstractXulEventHandler {
   private MantleModel model;
 
   private XulToolbarbutton openBtn;
+
   private XulToolbarbutton saveBtn;
+
   private XulToolbarbutton saveAsBtn;
+
   private XulToolbarbutton newAdhocBtn;
+
   private XulToolbarbutton newAnalysisBtn;
+
   private XulToolbarbutton showBrowserBtn;
+
   private XulToolbarbutton contentEditBtn;
 
   private XulMenuitem propertiesMenuItem;
+
   private XulMenuitem saveMenuItem;
+
   private XulMenuitem saveAsMenuItem;
+
   private XulMenuitem showBrowserMenuItem;
+
   private XulMenuitem showWorkspaceMenuItem;
+
   private XulMenuitem useDescriptionsMenuItem;
+
   private XulMenuitem showHiddenFilesMenuItem;
 
   private XulMenubar languageMenu;
+
   private XulMenubar themesMenu;
+
   private XulMenubar toolsMenu;
+
   private XulMenubar recentMenu;
+
   private XulMenubar favoriteMenu;
-  private BindingFactory bf; 
+
+  private BindingFactory bf;
+
   HashMap<String, ISysAdminPanel> sysAdminPanelsMap = new HashMap<String, ISysAdminPanel>();
-	RecentPickList recentPickList = RecentPickList.getInstance();
-	FavoritePickList favoritePickList = FavoritePickList.getInstance();
+
+  RecentPickList recentPickList = RecentPickList.getInstance();
+
+  FavoritePickList favoritePickList = FavoritePickList.getInstance();
 
   class SysAdminPanelInfo {
     String id;
+
     String url;
 
     public SysAdminPanelInfo() {
@@ -139,358 +161,351 @@ public class MantleController extends AbstractXulEventHandler {
    */
   @Bindable
   public void init() {
+   
+    openBtn = (XulToolbarbutton) document.getElementById("openButton");
+    saveBtn = (XulToolbarbutton) document.getElementById("saveButton");
+    saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton");
+    newAnalysisBtn = (XulToolbarbutton) document.getElementById("newAnalysisButton");
+    showBrowserBtn = (XulToolbarbutton) document.getElementById("showBrowserButton");
+    contentEditBtn = (XulToolbarbutton) document.getElementById("editContentButton");
 
-      openBtn = (XulToolbarbutton) document.getElementById("openButton");
-      saveBtn = (XulToolbarbutton) document.getElementById("saveButton");
-      saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton");
-      newAnalysisBtn = (XulToolbarbutton) document.getElementById("newAnalysisButton");
-      showBrowserBtn = (XulToolbarbutton) document.getElementById("showBrowserButton");
-      contentEditBtn = (XulToolbarbutton) document.getElementById("editContentButton");
+    bf = new GwtBindingFactory(document);
+    bf.createBinding(model, "saveEnabled", saveBtn, "!disabled");
+    bf.createBinding(model, "saveAsEnabled", saveAsBtn, "!disabled");
+    bf.createBinding(model, "contentEditEnabled", contentEditBtn, "!disabled");
+    bf.createBinding(model, "contentEditSelected", this, "editContentSelected");   
+   
+    propertiesMenuItem = (XulMenuitem) document.getElementById("propertiesMenuItem");
+    saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem");
+    saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem");
+    showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem");
+    showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem");
+    useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem");
+    showHiddenFilesMenuItem = (XulMenuitem) document.getElementById("showHiddenFilesMenuItem");
+    languageMenu = (XulMenubar) document.getElementById("languagemenu");
+    themesMenu = (XulMenubar) document.getElementById("themesmenu");
+    toolsMenu = (XulMenubar) document.getElementById("toolsmenu");
+    recentMenu = (XulMenubar) document.getElementById("recentmenu");
+    favoriteMenu = (XulMenubar) document.getElementById("favoritesmenu");
 
-      bf = new GwtBindingFactory(document);
-      bf.createBinding(model, "saveEnabled", saveBtn, "!disabled");
-      bf.createBinding(model, "saveAsEnabled", saveAsBtn, "!disabled");
-      bf.createBinding(model, "contentEditEnabled", contentEditBtn, "!disabled");
-      bf.createBinding(model, "contentEditSelected", this, "editContentSelected");
+    // install language sub-menus
+    Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
+    if (supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty()) {
+      MenuBar langMenu = (MenuBar) languageMenu.getManagedObject();
+      for (String lang : supportedLanguages.keySet()) {
+        MenuItem langMenuItem = new MenuItem(supportedLanguages.get(lang), new SwitchLocaleCommand(lang)); //$NON-NLS-1$
+        langMenuItem.getElement().setId(supportedLanguages.get(lang) + "_menu_item");
+        langMenu.addItem(langMenuItem);
+      }
+    }
+    buildFavoritesAndRecent(false);
+    
+    //Bindings to keep menu and toolbar in sync with BrowserPanel state showBrowserSelected
+    final List<Binding> bindingsToUpdate = new ArrayList<Binding>();
+  
+    //For the menu item
+    bindingsToUpdate.add(
+        bf.createBinding(model, "showBrowserSelected", showBrowserMenuItem, "checked")
+    );    
+   
+    UserSettingsManager.getInstance().addUserSettingsListener(new IUserSettingsListener() {
 
-      propertiesMenuItem = (XulMenuitem) document.getElementById("propertiesMenuItem");
-      saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem");
-      saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem");
-      showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem");
-      showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem");
-      useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem");
-      showHiddenFilesMenuItem = (XulMenuitem) document.getElementById("showHiddenFilesMenuItem");
-      languageMenu = (XulMenubar) document.getElementById("languagemenu");
-      themesMenu = (XulMenubar) document.getElementById("themesmenu");
-      toolsMenu = (XulMenubar) document.getElementById("toolsmenu");
-      recentMenu = (XulMenubar) document.getElementById("recentmenu");
-      favoriteMenu = (XulMenubar) document.getElementById("favoritesmenu");
-		
-      // install language sub-menus
-      Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
-      if (supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty()) {
-        MenuBar langMenu = (MenuBar) languageMenu.getManagedObject();
-        for (String lang : supportedLanguages.keySet()) {
-          MenuItem langMenuItem = new MenuItem(supportedLanguages.get(lang), new SwitchLocaleCommand(lang)); //$NON-NLS-1$
-          langMenuItem.getElement().setId(supportedLanguages.get(lang) + "_menu_item");
-          langMenu.addItem(langMenuItem);
+      @Override
+      public void onFetchUserSettings(JsArray<JsSetting> settings) {
+        if (settings == null) {
+          return;
+        }
+
+        for (int i = 0; i < settings.length(); i++) {
+          JsSetting setting = settings.get(i);
+          try {
+            if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
+              boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
+
+              model.setShowNavigatorSelected(showNavigator);
+
+              for (Binding b : bindingsToUpdate) {
+                try {
+                  b.fireSourceChanged();
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              }
+
+            } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
+              boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
+              ((PentahoMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(checked);
+            } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
+              boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
+              ((PentahoMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(checked);
+            }
+          } catch (Exception e) {
+            MessageDialogBox dialogBox = new MessageDialogBox(
+                Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+            dialogBox.center();
+          }
         }
       }
-  		
-      buildFavoritesAndRecent(false);
 
-      //Bindings to keep menu and toolbar in sync with BrowserPanel state showBrowserSelected
-      final List<Binding> bindingsToUpdate = new ArrayList<Binding>();
-      //For the menu item
-      bindingsToUpdate.add(
-      		bf.createBinding(model, "showBrowserSelected", showBrowserMenuItem, "checked")
-      );
-      //For the toolbar button
-      bindingsToUpdate.add(
-      		bf.createBinding(model, "showBrowserSelected", showBrowserBtn, "selected")
-      );
+    });
 
-      //Glue the two to this method
-  		bindingsToUpdate.add(
-      		bf.createBinding(model, "showBrowserSelected", this, "showBrowserSelected")
-      );
+    // install themes
+    RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL()
+        + "api/theme/active");
+    try {
+      getActiveThemeRequestBuilder.sendRequest(null, new RequestCallback() {
 
+        public void onError(Request request, Throwable exception) {
+          // showError(exception);
+        }
 
-      UserSettingsManager.getInstance().addUserSettingsListener(new IUserSettingsListener(){
+        public void onResponseReceived(Request request, Response response) {
+          final String activeTheme = response.getText();
+          RequestBuilder getThemesRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL()
+              + "api/theme/list");
+          getThemesRequestBuilder.setHeader("accept", "application/json");
 
-				@Override
-				public void onFetchUserSettings(JsArray<JsSetting> settings) {
-					if (settings == null) {
-			      return;
-			    }
+          try {
+            getThemesRequestBuilder.sendRequest(null, new RequestCallback() {
+              public void onError(Request arg0, Throwable arg1) {
+              }
 
-			    for (int i = 0; i < settings.length(); i++) {
-			      JsSetting setting = settings.get(i);
-			      try {
-			        if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
-			          boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
+              public void onResponseReceived(Request request, Response response) {
+                try {
+                  final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
+                  RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+                  requestBuilder.setHeader("accept", "text/plain");
+                  requestBuilder.sendRequest(null, new RequestCallback() {
 
-								model.setShowBrowserSelected(showNavigator);
-						    
-					      for(Binding b : bindingsToUpdate){
-					      	try{
-					      		b.fireSourceChanged();
-					      	} catch(Exception e){
-					      		e.printStackTrace();
-					      	}
-					      }
-					      
-              } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
-                boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
-                ((PentahoMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(checked);
-			        } else if (IMantleUserSettingsConstants.MANTLE_SHOW_HIDDEN_FILES.equals(setting.getName())) {
-                boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
-			          ((PentahoMenuItem) showHiddenFilesMenuItem.getManagedObject()).setChecked(checked);
-			        }
-			      } catch (Exception e) {
-			        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetUserSettings"), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
-			        dialogBox.center();
-			      }
-			    }
-				}
-      	
-      });
-      
-      // install themes
-      RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/active");
-      try {
-        getActiveThemeRequestBuilder.sendRequest(null, new RequestCallback() {
+                    public void onError(Request request, Throwable caught) {
+                    }
 
-          public void onError(Request request, Throwable exception) {
-            // showError(exception);
+                    public void onResponseReceived(Request request, Response response) {
+                      toolsMenu.setVisible("true".equalsIgnoreCase(response.getText()));
+                    }
+
+                  });
+                } catch (RequestException e) {
+                  Window.alert(e.getMessage());
+                }
+
+                JsArray<JsTheme> themes = JsTheme.getThemes(JsonUtils.escapeJsonForEval(response.getText()));
+
+                for (int i = 0; i < themes.length(); i++) {
+                  JsTheme theme = themes.get(i);
+                  PentahoMenuItem themeMenuItem = new PentahoMenuItem(theme.getName(), new SwitchThemeCommand(theme
+                      .getId())); //$NON-NLS-1$
+                  themeMenuItem.getElement().setId(theme.getId() + "_menu_item");
+                  themeMenuItem.setChecked(theme.getId().equals(activeTheme));
+                  ((MenuBar) themesMenu.getManagedObject()).addItem(themeMenuItem);
+                }
+
+                bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled");
+                bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled");
+                bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled");
+
+                PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
+                  public void onHandle(Void v) {
+                    executeAdminContent();
+                  }
+                });
+
+                setupNativeHooks(MantleController.this);
+              }
+            });
+
+          } catch (RequestException e) {
+            // showError(e);
           }
+        }
 
-          public void onResponseReceived(Request request, Response response) {
-            final String activeTheme = response.getText();
-            RequestBuilder getThemesRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/theme/list");
-            getThemesRequestBuilder.setHeader("accept", "application/json");
+      });
 
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
+      // showError(e);
+    }
+  }
+
+  /**
+   * 
+   * @param force Force the reload of user settings from server
+   * rather than use cache.
+   * 
+   */
+  public void buildFavoritesAndRecent(boolean force) {
+
+    loadRecentAndFavorites(force);
+    refreshPickListMenu(recentMenu, recentPickList);
+    refreshPickListMenu(favoriteMenu, favoritePickList);
+
+    recentPickList.addItemsChangedListener(new IFilePickListListener<RecentPickItem>() {
+
+      public void itemsChanged(AbstractFilePickList<RecentPickItem> filePickList) {
+        refreshPickListMenu(recentMenu, recentPickList);
+        recentPickList.save("recent");
+      }
+    });
+
+    favoritePickList.addItemsChangedListener(new IFilePickListListener<FavoritePickItem>() {
+
+      public void itemsChanged(AbstractFilePickList<FavoritePickItem> filePickList) {
+        refreshPickListMenu(favoriteMenu, favoritePickList);
+        favoritePickList.save("favorites");
+      }
+    });
+  }
+
+  /**
+   * Loads an arbitrary <code>FilePickList</code> into a menu
+   *  
+   * @param pickMenu  The XulMenuBar to host the menu entries
+   * @param filePickList The files to list in natural order
+   */
+  private void refreshPickListMenu(XulMenubar pickMenu, final AbstractFilePickList<? extends IFilePickItem> filePickList) {
+    final MenuBar menuBar = (MenuBar) pickMenu.getManagedObject();
+    menuBar.clearItems();
+
+    if (filePickList.size() > 0) {
+      for (IFilePickItem filePickItem : filePickList.getFilePickList()) {
+        final String text = filePickItem.getFullPath();
+        menuBar.addItem(filePickItem.getTitle(), new Command() {
+          public void execute() {
+            SolutionBrowserPanel.getInstance().openFile(text, COMMAND.RUN);
+          }
+        });
+      }
+      menuBar.addSeparator();
+      menuBar.addItem(Messages.getString("clearItems"), new Command() {
+        public void execute() {
+          //confirm the clear
+          GwtConfirmBox warning = new GwtConfirmBox();
+          warning.setHeight(117);
+          warning.setMessage(Messages.getString("clearItemsMessage"));
+          warning.setTitle(Messages.getString("clearItems"));
+          warning.addDialogCallback(new XulDialogCallback<String>() {
+            public void onClose(XulComponent sender, Status returnCode, String retVal) {
+              if (returnCode == Status.ACCEPT) {
+                filePickList.clear();
+              }
+            }
+
+            public void onError(XulComponent sender, Throwable t) {
+            }
+          });
+          warning.show();
+        }
+      });
+    } else {
+      menuBar.addItem(Messages.getString("empty"), new Command() {
+        public void execute() {
+          //Do nothing
+        }
+      });
+    }
+  }
+
+  private void loadRecentAndFavorites(boolean force) {
+    UserSettingsManager.getInstance().fetchUserSettings(new AsyncCallback<JsArray<JsSetting>>() {
+
+      public void onSuccess(JsArray<JsSetting> result) {
+        JsSetting setting;
+        for (int j = 0; j < result.length(); j++) {
+          setting = result.get(j);
+          if ("favorites".equalsIgnoreCase(setting.getName())) {
             try {
-              getThemesRequestBuilder.sendRequest(null, new RequestCallback() {
-                public void onError(Request arg0, Throwable arg1) {
-                }
-
-                public void onResponseReceived(Request request, Response response) {
-                  try {
-                    final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
-                    RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-                    requestBuilder.setHeader("accept", "text/plain");
-                    requestBuilder.sendRequest(null, new RequestCallback() {
-
-                      public void onError(Request request, Throwable caught) {
-                      }
-
-                      public void onResponseReceived(Request request, Response response) {
-                        toolsMenu.setVisible("true".equalsIgnoreCase(response.getText()));
-                      }
-
-                    });
-                  } catch (RequestException e) {
-                    Window.alert(e.getMessage());
-                  }
-                  
-                  JsArray<JsTheme> themes = JsTheme.getThemes(JsonUtils.escapeJsonForEval(response.getText()));
-
-                  for (int i = 0; i < themes.length(); i++) {
-                    JsTheme theme = themes.get(i);
-                    PentahoMenuItem themeMenuItem = new PentahoMenuItem(theme.getName(), new SwitchThemeCommand(theme.getId())); //$NON-NLS-1$
-                    themeMenuItem.getElement().setId(theme.getId() + "_menu_item");
-                    themeMenuItem.setChecked(theme.getId().equals(activeTheme));
-                    ((MenuBar) themesMenu.getManagedObject()).addItem(themeMenuItem);
-                  }
-
-                  bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled");
-                  bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled");
-                  bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled");
-
-                  PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
-                	  public void onHandle(Void v) {
-                		  executeAdminContent();
-                	  }
-				  });
-                  
-                  setupNativeHooks(MantleController.this);
-                }
-              });
-
-            } catch (RequestException e) {
-              // showError(e);
+              // handle favorite
+              JSONArray favorites = JSONParser.parseLenient(setting.getValue()).isArray();
+              if (favorites != null) {
+                // Create the FavoritePickList object from the JSONArray
+                favoritePickList = FavoritePickList.getInstanceFromJSON(favorites);
+              } else {
+                favoritePickList = FavoritePickList.getInstance();
+              }
+            } catch (Throwable t) {
+            }
+          } else if ("recent".equalsIgnoreCase(setting.getName())) {
+            try {
+              // handle recent
+              JSONArray recents = JSONParser.parseLenient(setting.getValue()).isArray();
+              if (recents != null) {
+                // Create the RecentPickList object from the JSONArray
+                recentPickList = RecentPickList.getInstanceFromJSON(recents);
+              } else {
+                recentPickList = RecentPickList.getInstance();
+              }
+              recentPickList.setMaxSize(10);
+            } catch (Throwable t) {
             }
           }
-
-        });
-
-      } catch (RequestException e) {
-        Window.alert(e.getMessage());
-        // showError(e);
+        }
       }
+
+      public void onFailure(Throwable caught) {
+      }
+
+    }, force);
   }
-  
-	/**
-	 * 
-	 * @param force Force the reload of user settings from server
-	 * rather than use cache.
-	 * 
-	 */
-	public void buildFavoritesAndRecent(boolean force) {
-		
-		loadRecentAndFavorites(force);
-		refreshPickListMenu(recentMenu, recentPickList);
-		refreshPickListMenu(favoriteMenu, favoritePickList);
-		
-		recentPickList.addItemsChangedListener(new IFilePickListListener<RecentPickItem>(){
 
-			public void itemsChanged(AbstractFilePickList<RecentPickItem> filePickList) {
-				refreshPickListMenu(recentMenu, recentPickList);
-				recentPickList.save("recent");
-			}
-		});
-		
-		favoritePickList.addItemsChangedListener(new IFilePickListListener<FavoritePickItem>(){
-
-			public void itemsChanged(AbstractFilePickList<FavoritePickItem> filePickList) {
-				refreshPickListMenu(favoriteMenu, favoritePickList);
-				favoritePickList.save("favorites");
-			}
-		});
-	}
-
-	/**
-	 * Loads an arbitrary <code>FilePickList</code> into a menu
-	 *  
-	 * @param pickMenu	The XulMenuBar to host the menu entries
-	 * @param filePickList The files to list in natural order
-	 */
-	private void refreshPickListMenu(XulMenubar pickMenu,
-		final AbstractFilePickList<? extends IFilePickItem> filePickList) {
-		final MenuBar menuBar = (MenuBar) pickMenu.getManagedObject();
-		menuBar.clearItems();
-
-		if (filePickList.size() > 0) {
-			for (IFilePickItem filePickItem : filePickList.getFilePickList()) {
-				final String text = filePickItem.getFullPath();
-				menuBar.addItem(filePickItem.getTitle(), new Command() {
-					public void execute() {
-						SolutionBrowserPanel.getInstance().openFile(text, COMMAND.RUN);
-					}
-				});
-			}
-			menuBar.addSeparator();
-			menuBar.addItem(Messages.getString("clearItems"), new Command()  {
-				public void execute() {
-					//confirm the clear
-					GwtConfirmBox warning = new GwtConfirmBox();
-					warning.setHeight(117); 
-					warning.setMessage(Messages.getString("clearItemsMessage"));
-					warning.setTitle(Messages.getString("clearItems"));
-					warning.addDialogCallback(new XulDialogCallback<String>() {
-						public void onClose(XulComponent sender, Status returnCode, String retVal) {
-							if (returnCode == Status.ACCEPT) {
-								filePickList.clear();
-							}
-						}
-
-						public void onError(XulComponent sender, Throwable t) {
-						}
-					});
-					warning.show();
-				}
-			});
-		} else {
-			menuBar.addItem(Messages.getString("empty"), new Command()  {
-				public void execute() {
-					//Do nothing
-				}
-			});
-		}
-	}
-
-	private void loadRecentAndFavorites(boolean force) {
-		UserSettingsManager.getInstance().fetchUserSettings(
-				new AsyncCallback<JsArray<JsSetting>>() {
-					
-					
-					public void onSuccess(JsArray<JsSetting> result) {
-						JsSetting setting;
-						for (int j = 0; j < result.length(); j++) {
-							setting = result.get(j);
-							if ("favorites".equalsIgnoreCase(setting.getName())) {
-								try {
-									// handle favorite
-									JSONArray favorites = JSONParser.parseLenient(setting.getValue()).isArray();
-									if (favorites != null) {
-										// Create the FavoritePickList object from the JSONArray
-										favoritePickList = FavoritePickList.getInstanceFromJSON(favorites);
-									} else {
-										favoritePickList = FavoritePickList.getInstance();
-									}
-								} catch (Throwable t) {
-								}
-							} else if ("recent".equalsIgnoreCase(setting.getName())) {
-								try {
-									// handle recent
-									JSONArray recents = JSONParser.parseLenient(setting.getValue()).isArray();
-									if (recents != null) {
-										// Create the RecentPickList object from the JSONArray
-										recentPickList = RecentPickList.getInstanceFromJSON(recents);
-									} else {
-										recentPickList = RecentPickList.getInstance();
-									}
-									recentPickList.setMaxSize(10);
-								} catch (Throwable t) {
-								}
-							}
-						}
-					}
-
-					public void onFailure(Throwable caught) {
-					}
-					
-				}, force);
-	}
-	
   private void executeAdminContent() {
-	  
-	  try {
-		 RequestCallback internalCallback = new RequestCallback() {
 
-			 public void onError(Request request, Throwable exception) {
-		     }
+    try {
+      RequestCallback internalCallback = new RequestCallback() {
 
-		     public void onResponseReceived(Request request, Response response) {
-		    	 JsArray<JsSetting> jsSettings = null;
-		    	 try {
-		    		 jsSettings = JsSetting.parseSettingsJson(response.getText());
-		    	 } catch (Throwable t) {
-		    		 // happens when there are no settings
-		    	 }
-		    	 if (jsSettings == null) {
-		    		 return;
-		    	 }
-		    	 for (int i = 0; i < jsSettings.length(); i++) {
-		    		 String content = jsSettings.get(i).getValue();
-		    		 StringTokenizer nameValuePairs = new StringTokenizer(content, ";");
-		    		 String perspective = null, content_panel_id  = null, content_url  = null;
-		    		 for(int j = 0; j < nameValuePairs.countTokens(); j ++) {
-		    			 String currentToken = nameValuePairs.tokenAt(j).trim();
-		    			 if(currentToken.startsWith("perspective=")) {
-		    				 perspective = currentToken.substring("perspective=".length());
-		    			 }
-		    			 if(currentToken.startsWith("content-panel-id=")) {
-		    				 content_panel_id = currentToken.substring("content-panel-id=".length());
-		    			 }
-		    			 if(currentToken.startsWith("content-url=")) {
-		    				 content_url = currentToken.substring("content-url=".length());
-		    			 }
-		    		 }
-		    		 if(perspective != null) {
-		    			 PerspectiveManager.getInstance().setPerspective(perspective);
-		    		 } 
-		    		 if(content_panel_id != null && content_url != null) {
-		    			 loadAdminContent(content_panel_id, content_url);
-		    		 } 
-		    		 if(perspective == null && content_panel_id == null && content_url == null) {
-		    			 GwtMessageBox warning = new GwtMessageBox();
-						 warning.setTitle(Messages.getString("warning"));
-						 warning.setMessage(content);
-						 warning.setButtons(new Object[GwtMessageBox.ACCEPT]);
-						 warning.setAcceptLabel(Messages.getString("close"));
-						 warning.show();
-		    		 }
-		    	 }
-		     }
-		 };  
-		  
-		 RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL() + "api/mantle/getAdminContent");
-		 builder.setHeader("accept", "application/json");
-		 builder.sendRequest(null, internalCallback);
-	  } catch (RequestException e) {
-	  }
+        public void onError(Request request, Throwable exception) {
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          JsArray<JsSetting> jsSettings = null;
+          try {
+            jsSettings = JsSetting.parseSettingsJson(response.getText());
+          } catch (Throwable t) {
+            // happens when there are no settings
+          }
+          if (jsSettings == null) {
+            return;
+          }
+          for (int i = 0; i < jsSettings.length(); i++) {
+            String content = jsSettings.get(i).getValue();
+            StringTokenizer nameValuePairs = new StringTokenizer(content, ";");
+            String perspective = null, content_panel_id = null, content_url = null;
+            for (int j = 0; j < nameValuePairs.countTokens(); j++) {
+              String currentToken = nameValuePairs.tokenAt(j).trim();
+              if (currentToken.startsWith("perspective=")) {
+                perspective = currentToken.substring("perspective=".length());
+              }
+              if (currentToken.startsWith("content-panel-id=")) {
+                content_panel_id = currentToken.substring("content-panel-id=".length());
+              }
+              if (currentToken.startsWith("content-url=")) {
+                content_url = currentToken.substring("content-url=".length());
+              }
+            }
+            if (perspective != null) {
+              PerspectiveManager.getInstance().setPerspective(perspective);
+            }
+            if (content_panel_id != null && content_url != null) {
+              loadAdminContent(content_panel_id, content_url);
+            }
+            if (perspective == null && content_panel_id == null && content_url == null) {
+              GwtMessageBox warning = new GwtMessageBox();
+              warning.setTitle(Messages.getString("warning"));
+              warning.setMessage(content);
+              warning.setButtons(new Object[GwtMessageBox.ACCEPT]);
+              warning.setAcceptLabel(Messages.getString("close"));
+              warning.show();
+            }
+          }
+        }
+      };
+
+      RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL()
+          + "api/mantle/getAdminContent");
+      builder.setHeader("accept", "application/json");
+      builder.sendRequest(null, internalCallback);
+      //TO DO Reset the menuItem click for browser and workspace here?
+    } catch (RequestException e) {
+    }
   }
 
   public native void setupNativeHooks(MantleController controller)
@@ -532,7 +547,7 @@ public class MantleController extends AbstractXulEventHandler {
       controller.@org.pentaho.mantle.client.ui.xul.MantleController::selectAdminCatTreeTreeItem(Ljava/lang/String;)(treeLabel);      
     } 
   }-*/;
-
+  
   public void enableUsersRolesTreeItem(boolean enabled) {
     MantleXul.getInstance().enableUsersRolesTreeItem(enabled);
   }
@@ -565,13 +580,15 @@ public class MantleController extends AbstractXulEventHandler {
             SecurityPanel.getInstance().getElement().setId((SecurityPanel.getInstance()).getId());
           } else if (UserRolesAdminPanelController.getInstance().getId().equals(adminPanelAwaitingActivation.id)) {
             model.loadUserRolesAdminPanel();
-            UserRolesAdminPanelController.getInstance().getElement().setId((UserRolesAdminPanelController.getInstance()).getId());
+            UserRolesAdminPanelController.getInstance().getElement()
+                .setId((UserRolesAdminPanelController.getInstance()).getId());
           } else if ((EmailAdminPanelController.getInstance()).getId().equals(adminPanelAwaitingActivation.id)) {
             model.loadEmailAdminPanel();
-            EmailAdminPanelController.getInstance().getElement().setId((EmailAdminPanelController.getInstance()).getId());
+            EmailAdminPanelController.getInstance().getElement()
+                .setId((EmailAdminPanelController.getInstance()).getId());
           } else {
             model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
-          }
+          }         
         }
 
         public void onFailure(Throwable reason) {
@@ -628,13 +645,27 @@ public class MantleController extends AbstractXulEventHandler {
   }
 
   @Bindable
-  public void showBrowserClicked() {
-  	model.setShowBrowserSelected(!model.isShowBrowserSelected());
+  private void disableMenuItemChecks(){
+    ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(false);
+    ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(false);
   }
 
   @Bindable
-  public void setShowBrowserSelected(boolean flag) {
-    ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(flag);
+  public void showBrowserClicked() {
+    boolean checked = ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).isChecked();
+    if (!checked) {
+      ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(false);      
+    }
+    ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(true);    
+    model.setShowBrowserSelected(true);    
+    model.showBrowser();   
+    MantleApplication.getInstance().pucToolBarVisibility(true);  
+  }
+  
+  @Bindable
+  public void showNavigatorClicked(){
+    model.setShowNavigatorSelected(!model.isShowNavigatorSelected());  
+    ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(model.isShowNavigatorSelected());   
     showBrowserCommand.execute();
     //showBrowserBtn.setSelected(flag, false);
   }
@@ -681,11 +712,14 @@ public class MantleController extends AbstractXulEventHandler {
     }
   }-*/;
 
-  private void passivateActiveSecurityPanels(final String idOfSecurityPanelToBeActivated, final String urlOfSecurityPanelToBeActivated) {
-    adminPanelAwaitingActivation = new SysAdminPanelInfo(idOfSecurityPanelToBeActivated, urlOfSecurityPanelToBeActivated);
+  private void passivateActiveSecurityPanels(final String idOfSecurityPanelToBeActivated,
+      final String urlOfSecurityPanelToBeActivated) {
+    adminPanelAwaitingActivation = new SysAdminPanelInfo(idOfSecurityPanelToBeActivated,
+        urlOfSecurityPanelToBeActivated);
     int visiblePanelIndex = MantleXul.getInstance().getAdminContentDeck().getVisibleWidget();
     if (visiblePanelIndex >= 0) {
-      String visiblePanelId = MantleXul.getInstance().getAdminContentDeck().getWidget(visiblePanelIndex).getElement().getId();
+      String visiblePanelId = MantleXul.getInstance().getAdminContentDeck().getWidget(visiblePanelIndex).getElement()
+          .getId();
       if ((visiblePanelId != null) && !visiblePanelId.equals(idOfSecurityPanelToBeActivated)) {
         ISysAdminPanel sysAdminPanel = sysAdminPanelsMap.get(visiblePanelId);
         if (sysAdminPanel != null) {
@@ -712,6 +746,7 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public void loadAdminContent(final String panelId, final String url) {
+    this.disableMenuItemChecks();
     passivateActiveSecurityPanels(panelId, url);
   }
 
@@ -806,7 +841,8 @@ public class MantleController extends AbstractXulEventHandler {
   public void editContentClicked() {
     model.setContentEditToggled();
 
-    executeEditContentCallback(SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().getFrame().getElement(), model.isContentEditSelected());
+    executeEditContentCallback(SolutionBrowserPanel.getInstance().getContentTabPanel().getCurrentFrame().getFrame()
+        .getElement(), model.isContentEditSelected());
   }
 
   private native void executeEditContentCallback(Element obj, boolean selected)
@@ -883,8 +919,13 @@ public class MantleController extends AbstractXulEventHandler {
   @Bindable
   public void showWorkspaceClicked() {
     boolean checked = ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).isChecked();
-    ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(!checked);
-    model.toggleShowWorkspace();
+    if (!checked) {
+      ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(false);           
+    }    
+    ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(true);
+    model.setShowBrowserSelected(false);    
+    model.showWorkspace();   
+    MantleApplication.getInstance().pucToolBarVisibility(false);
   }
 
   @Bindable
@@ -903,6 +944,7 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public void refreshContent() {
+    
     model.refreshContent();
   }
 
