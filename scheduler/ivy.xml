@@ -21,6 +21,7 @@
 
     <dependency org="junit" name="junit" rev="4.4" conf="test->default" />
     <dependency org="org.jmock" name="jmock-junit4" rev="2.5.1" conf="test->default" />
+    	<dependency org="org.jmock" name="jmock-legacy" rev="2.5.1" conf="test->default" />
 
     <!--  internal dependencies -->
     <dependency org="${ivy.artifact.group}" name="pentaho-platform-api"  rev="${project.revision}" changing="true" conf="default->default" />
