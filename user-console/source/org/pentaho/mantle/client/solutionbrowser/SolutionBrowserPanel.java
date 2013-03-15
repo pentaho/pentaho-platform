@@ -524,7 +524,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   public void openFile(final RepositoryFile repositoryFile, final FileCommand.COMMAND mode) {
-    PerspectiveManager.getInstance().setPerspective("default.perspective");
+    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);
     String fileNameWithPath = repositoryFile.getPath();
     if (mode == FileCommand.COMMAND.EDIT) {
       editFile();

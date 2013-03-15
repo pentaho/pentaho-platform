@@ -61,6 +61,9 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class PerspectiveManager extends HorizontalPanel {
 
+  public static final String ADMIN_PERSPECTIVE = "admin.perspective";
+  public static final String WORKSPACE_PERSPECTIVE = "workspace.perspective";
+  public static final String DEFAULT_PERSPECTIVE = "default.perspective";
   public static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
   public static final String SEPARATOR = "/"; //$NON-NLS-1$
 
@@ -332,8 +335,8 @@ public class PerspectiveManager extends HorizontalPanel {
       }
     }
 
-    if (source.isDown() && !perspective.getId().equals("default.perspective") && !perspective.getId().equals("workspace.perspective")
-        && !perspective.getId().equals("admin.perspective")) {
+    if (source.isDown() && !perspective.getId().equals(DEFAULT_PERSPECTIVE) && !perspective.getId().equals(WORKSPACE_PERSPECTIVE)
+        && !perspective.getId().equals(ADMIN_PERSPECTIVE)) {
       hijackContentArea(perspective);
     }
 
@@ -341,18 +344,18 @@ public class PerspectiveManager extends HorizontalPanel {
     // if source is not down then no perspectives are selected, select the first one
     if (!source.isDown()) {
       toggles.get(0).setDown(true);
-      if (defaultPerspective.getId().equals("default.perspective")) {
+      if (defaultPerspective.getId().equals(DEFAULT_PERSPECTIVE)) {
         showDefaultPerspective();
         return;
       }
     }
 
     // if the selected perspective is "default.perspective"
-    if (perspective.getId().equals("default.perspective")) {
+    if (perspective.getId().equals(DEFAULT_PERSPECTIVE)) {
       showDefaultPerspective();
-    } else if (perspective.getId().equals("workspace.perspective")) {
+    } else if (perspective.getId().equals(WORKSPACE_PERSPECTIVE)) {
       showWorkspacePerspective();
-    } else if (perspective.getId().equals("admin.perspective")) {
+    } else if (perspective.getId().equals(ADMIN_PERSPECTIVE)) {
       showAdminPerspective();
     }
   }
@@ -364,6 +367,7 @@ public class PerspectiveManager extends HorizontalPanel {
     }
     // show stuff we've created/configured
     contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
+    MantleApplication.getInstance().pucToolBarVisibility(true);
   }
 
   private void showWorkspacePerspective() {
@@ -377,6 +381,7 @@ public class PerspectiveManager extends HorizontalPanel {
           WorkspacePanel.getInstance().refresh();
         }
         contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));
+        MantleApplication.getInstance().pucToolBarVisibility(false);
       }
       
       public void onFailure(Throwable reason) {
