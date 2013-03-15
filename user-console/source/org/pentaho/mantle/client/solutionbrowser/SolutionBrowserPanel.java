@@ -226,9 +226,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       @Override
       public void onMouseMove(MouseMoveEvent event) {
         if(solutionNavigatorAndContentPanel.isResizing()) {
-          int width = solutionNavigatorAndContentPanel.getOffsetWidth();
-          int adjustedWidth = solutionNavigatorAndContentPanel.getLeftWidget().getOffsetWidth() + (hSplitter == null ? 0 : hSplitter.getOffsetWidth());
-          solutionNavigatorAndContentPanel.getRightWidget().setWidth((width - adjustedWidth) + "px");
+          adjustWidth();
         }
       }
     }, MouseMoveEvent.getType());
@@ -236,9 +234,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     Window.addResizeHandler(new ResizeHandler() {
       @Override
       public void onResize(ResizeEvent event) {
-        int width = event.getWidth();
-        int adjustedWidth = solutionNavigatorAndContentPanel.getLeftWidget().getOffsetWidth() + (hSplitter == null ? 0 : hSplitter.getOffsetWidth());
-        solutionNavigatorAndContentPanel.getRightWidget().setWidth((width - adjustedWidth) + "px");
+        adjustWidth();
       }
     });
 
@@ -779,10 +775,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       solutionNavigatorAndContentPanel.setSplitPosition(defaultSplitPosition);
       solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
       solutionNavigatorPanel.setSplitPosition("60%"); //$NON-NLS-1$
-      int adjustedWidth = solutionNavigatorAndContentPanel.getLeftWidget().getOffsetWidth() + (hSplitter == null ? 0 : hSplitter.getOffsetWidth());
-
-      int width = this.getOffsetWidth() - adjustedWidth;
-      solutionNavigatorAndContentPanel.getRightWidget().setWidth(width + "px");
 
       Element vSplitter = DOM.getElementById("pucVerticalSplitter");
       if (vSplitter != null) {
@@ -792,8 +784,21 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       solutionNavigatorAndContentPanel.setLeftWidget(new SimplePanel());
       solutionNavigatorAndContentPanel.setSplitPosition("0px"); //$NON-NLS-1$
       solutionNavigatorPanel.setVisible(false); //$NON-NLS-1$
-      solutionNavigatorAndContentPanel.getRightWidget().setWidth(solutionNavigatorAndContentPanel.getOffsetWidth() + "px");
     }
+    adjustWidth();
+  }
+
+  private void adjustWidth() {
+
+    hSplitter = DOM.getElementById("pucHorizontalSplitter");
+
+    // no way to get the computed width in GWT, so we have to get the computed style via JSNI call to custom js.
+    int rightMargin = Integer.valueOf(ElementUtils.getComputedStyle(hSplitter, "margin-right").replace("px", ""));
+    int splitterWidth = (hSplitter == null ? 0 : hSplitter.getOffsetWidth()) + rightMargin;
+    int adjustedWidth = solutionNavigatorAndContentPanel.getLeftWidget().getOffsetWidth() + splitterWidth;
+    int width = this.getOffsetWidth() - adjustedWidth;
+
+    solutionNavigatorAndContentPanel.getRightWidget().setWidth(width + "px");
   }
 
   public void addSolutionBrowserListener(SolutionBrowserListener listener) {
