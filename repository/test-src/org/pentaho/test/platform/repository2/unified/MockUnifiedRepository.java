@@ -1303,12 +1303,12 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+  public List<Locale> getAvailableLocalesForFileById(Serializable fileId) {
     return Collections.emptyList();
   }
 
   @Override
-  public List<Locale> getAvailableLocalesForFile(String relPath) {
+  public List<Locale> getAvailableLocalesForFileByPath(String relPath) {
     return Collections.emptyList();
   }
 
@@ -1318,12 +1318,12 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+  public Properties getLocalePropertiesForFileById(Serializable fileId, String locale) {
     return new Properties();
   }
 
   @Override
-  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+  public Properties getLocalePropertiesForFileByPath(String relPath, String locale) {
     return new Properties();
   }
 
@@ -1333,11 +1333,11 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+  public void setLocalePropertiesForFileById(Serializable fileId, String locale, Properties properties) {
   }
 
   @Override
-  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+  public void setLocalePropertiesForFileByPath(String relPath, String locale, Properties properties) {
   }
 
   @Override
