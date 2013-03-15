@@ -192,6 +192,8 @@
                 <![CDATA[
 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 \A/.*require-js-cfg.js\Z=Anonymous,Authenticated
+\A/js/require.js\Z=Anonymous,Authenticated
+\A/js/require-cfg.js\Z=Anonymous,Authenticated
 \A/webcontext.js.*\Z=Anonymous,Authenticated
 \A/content/common-ui/resources/web/cache/cache-service.js.*\Z=Anonymous,Authenticated
 \A/cacheexpirationservice.*\Z=Anonymous,Authenticated
