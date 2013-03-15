@@ -490,15 +490,15 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+  public List<Locale> getAvailableLocalesForFileById(Serializable fileId) {
     Assert.notNull(fileId);
-    return repositoryFileDao.getAvailableLocalesForFile(fileId);
+    return repositoryFileDao.getAvailableLocalesForFileById(fileId);
   }
 
   @Override
-  public List<Locale> getAvailableLocalesForFile(String relPath) {
+  public List<Locale> getAvailableLocalesForFileByPath(String relPath) {
     Assert.notNull(relPath);
-    return repositoryFileDao.getAvailableLocalesForFile(relPath);
+    return repositoryFileDao.getAvailableLocalesForFileByPath(relPath);
   }
 
   @Override
@@ -508,17 +508,17 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+  public Properties getLocalePropertiesForFileById(Serializable fileId, String locale) {
     Assert.notNull(fileId);
     Assert.notNull(locale);
-    return repositoryFileDao.getLocalePropertiesForFile(fileId, locale);
+    return repositoryFileDao.getLocalePropertiesForFileById(fileId, locale);
   }
 
   @Override
-  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+  public Properties getLocalePropertiesForFileByPath(String relPath, String locale) {
     Assert.notNull(relPath);
     Assert.notNull(locale);
-    return repositoryFileDao.getLocalePropertiesForFile(relPath, locale);
+    return repositoryFileDao.getLocalePropertiesForFileByPath(relPath, locale);
   }
 
   @Override
@@ -529,19 +529,19 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+  public void setLocalePropertiesForFileById(Serializable fileId, String locale, Properties properties) {
     Assert.notNull(fileId);
     Assert.notNull(locale);
     Assert.notNull(properties);
-    repositoryFileDao.setLocalePropertiesForFile(fileId, locale, properties);
+    repositoryFileDao.setLocalePropertiesForFileById(fileId, locale, properties);
   }
 
   @Override
-  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+  public void setLocalePropertiesForFileByPath(String relPath, String locale, Properties properties) {
     Assert.notNull(relPath);
     Assert.notNull(locale);
     Assert.notNull(properties);
-    repositoryFileDao.setLocalePropertiesForFile(relPath, locale, properties);
+    repositoryFileDao.setLocalePropertiesForFileByPath(relPath, locale, properties);
   }
 
   @Override
