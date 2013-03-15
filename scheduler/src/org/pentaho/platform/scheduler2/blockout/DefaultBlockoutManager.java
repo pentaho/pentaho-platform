@@ -19,13 +19,14 @@ package org.pentaho.platform.scheduler2.blockout;
 
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.messsages.Messages;
+import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
-import org.quartz.impl.StdSchedulerFactory;
 
 
 /**
@@ -38,8 +39,8 @@ public class DefaultBlockoutManager implements IBlockoutManager {
   
   public DefaultBlockoutManager() throws SchedulerException {
     super();
-    SchedulerFactory sf = new StdSchedulerFactory();
-    scheduler = sf.getScheduler();  // Return the default scheduler;
+    QuartzScheduler qs = (QuartzScheduler)PentahoSystem.get(IScheduler.class, "IScheduler2", null); //$NON-NLS-1$
+    scheduler = qs.getQuartzScheduler();
   }
 
   /* (non-Javadoc)

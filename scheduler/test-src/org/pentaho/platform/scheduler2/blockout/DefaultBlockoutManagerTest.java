@@ -17,15 +17,24 @@
 
 package org.pentaho.platform.scheduler2.blockout;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Date;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
+import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
+import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TestQuartzScheduler;
+import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TstPluginManager;
+import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
@@ -36,11 +45,18 @@ import org.quartz.Trigger;
 public class DefaultBlockoutManagerTest {
   IBlockoutManager blockoutManager;
   
+  
   /**
    * @throws java.lang.Exception
    */
   @Before
   public void setUp() throws Exception {
+    MicroPlatform mp = new MicroPlatform();
+    mp.define(IPluginManager.class, TstPluginManager.class);
+    mp.define("IScheduler2", TestQuartzScheduler.class);
+    mp.define(IUserRoleListService.class, StubUserRoleListService.class);
+    mp.start();
+
     blockoutManager = new DefaultBlockoutManager();
   }
 
