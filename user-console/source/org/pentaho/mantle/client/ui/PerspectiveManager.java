@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
@@ -68,6 +69,9 @@ public class PerspectiveManager extends HorizontalPanel {
   public static final String SEPARATOR = "/"; //$NON-NLS-1$
 
   private ArrayList<ToggleButton> toggles = new ArrayList<ToggleButton>();
+  
+  private PentahoMenuItem browserMenuItem;
+  private PentahoMenuItem workspaceMenuItem;
 
   // create an overlay list to later register with the main toolbar/menubar
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
@@ -289,7 +293,7 @@ public class PerspectiveManager extends HorizontalPanel {
         disableMe.setDown(false);
       }
     }
-
+    
     // remove current perspective overlays
     if (activePerspective != null) {
       for (XulOverlay o : activePerspective.getOverlays()) {
@@ -368,9 +372,12 @@ public class PerspectiveManager extends HorizontalPanel {
     // show stuff we've created/configured
     contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
     MantleApplication.getInstance().pucToolBarVisibility(true);
+    this.browserMenuItem.setChecked(true);
+    this.workspaceMenuItem.setChecked(false);
   }
 
   private void showWorkspacePerspective() {
+   
     GWT.runAsync(new RunAsyncCallback() {
       
       public void onSuccess() {
@@ -381,12 +388,15 @@ public class PerspectiveManager extends HorizontalPanel {
           WorkspacePanel.getInstance().refresh();
         }
         contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));
-        MantleApplication.getInstance().pucToolBarVisibility(false);
+        MantleApplication.getInstance().pucToolBarVisibility(false);   
+      
       }
       
       public void onFailure(Throwable reason) {
       }
     });
+    this.browserMenuItem.setChecked(false);
+    this.workspaceMenuItem.setChecked(true);
   }
 
   private void showAdminPerspective() {
@@ -397,6 +407,9 @@ public class PerspectiveManager extends HorizontalPanel {
     contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getAdminPerspective()));
     MantleXul.getInstance().customizeAdminStyle();
     MantleXul.getInstance().configureAdminCatTree();
+    //disable Browser and Workspace menuItem
+    this.browserMenuItem.setChecked(false);
+    this.workspaceMenuItem.setChecked(false);
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {
@@ -466,5 +479,13 @@ public class PerspectiveManager extends HorizontalPanel {
   public void setActivePerspective(IPluginPerspective activePerspective) {
     this.activePerspective = activePerspective;
     setPerspective(activePerspective.getId());
+  }
+  
+  public void setBrowserMenuItem(PentahoMenuItem menuItem){
+    this.browserMenuItem = menuItem;
+  }
+  
+  public void setWorkspaceMenuItem(PentahoMenuItem menuItem){
+    this.workspaceMenuItem = menuItem;
   }
 }
