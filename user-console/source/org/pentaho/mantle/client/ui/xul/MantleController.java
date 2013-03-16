@@ -188,6 +188,11 @@ public class MantleController extends AbstractXulEventHandler {
     recentMenu = (XulMenubar) document.getElementById("recentmenu");
     favoriteMenu = (XulMenubar) document.getElementById("favoritesmenu");
 
+    //let the manager have access to these menu items to toggle checks off and on 
+    PerspectiveManager.getInstance().setBrowserMenuItem((PentahoMenuItem) showBrowserMenuItem.getManagedObject());
+    PerspectiveManager.getInstance().setWorkspaceMenuItem((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject());
+    ((PentahoMenuItem)showBrowserMenuItem.getManagedObject()).setChecked(true);
+    
     // install language sub-menus
     Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
     if (supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty()) {
@@ -482,7 +487,7 @@ public class MantleController extends AbstractXulEventHandler {
               }
             }
             if (perspective != null) {
-              PerspectiveManager.getInstance().setPerspective(perspective);
+              PerspectiveManager.getInstance().setPerspective(perspective);             
             }
             if (content_panel_id != null && content_url != null) {
               loadAdminContent(content_panel_id, content_url);
@@ -652,22 +657,15 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public void showBrowserClicked() {
-    boolean checked = ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).isChecked();
-    if (!checked) {
-      ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(false);      
-    }
-    ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(true);    
     model.setShowBrowserSelected(true);    
     model.showBrowser();   
-    MantleApplication.getInstance().pucToolBarVisibility(true);  
   }
   
   @Bindable
   public void showNavigatorClicked(){
     model.setShowNavigatorSelected(!model.isShowNavigatorSelected());  
     ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(model.isShowNavigatorSelected());   
-    showBrowserCommand.execute();
-    //showBrowserBtn.setSelected(flag, false);
+    showBrowserCommand.execute();   
   }
 
   @Bindable
@@ -918,14 +916,8 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public void showWorkspaceClicked() {
-    boolean checked = ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).isChecked();
-    if (!checked) {
-      ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(false);           
-    }    
-    ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(true);
     model.setShowBrowserSelected(false);    
     model.showWorkspace();   
-    MantleApplication.getInstance().pucToolBarVisibility(false);
   }
 
   @Bindable
