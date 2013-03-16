@@ -662,6 +662,12 @@ public class MantleController extends AbstractXulEventHandler {
   }
   
   @Bindable
+  public void showWorkspaceClicked() {
+    model.setShowBrowserSelected(false);    
+    model.showWorkspace();   
+  }
+  
+  @Bindable
   public void showNavigatorClicked(){
     model.setShowNavigatorSelected(!model.isShowNavigatorSelected());  
     ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(model.isShowNavigatorSelected());   
@@ -912,12 +918,6 @@ public class MantleController extends AbstractXulEventHandler {
   @Bindable
   public void scheduleContentClicked() {
     model.executeScheduleContent();
-  }
-
-  @Bindable
-  public void showWorkspaceClicked() {
-    model.setShowBrowserSelected(false);    
-    model.showWorkspace();   
   }
 
   @Bindable
