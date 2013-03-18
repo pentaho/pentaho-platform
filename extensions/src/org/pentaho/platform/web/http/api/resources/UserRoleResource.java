@@ -34,6 +34,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
 
+@org.codehaus.enunciate.modules.jersey.SpringManagedLifecycle
 @Path("/userrole/")
 public class UserRoleResource extends AbstractJaxRSResource {
 
@@ -86,7 +87,7 @@ public class UserRoleResource extends AbstractJaxRSResource {
 			systemRolesMap.getLocalizedRoleNames().add(new LocalizedLogicalRoleName(localalizeNameEntry.getKey(), localalizeNameEntry.getValue()));
 		}
 		for (Map.Entry<String, List<String>> logicalRoleAssignments : roleBindingStruct.bindingMap.entrySet()) {
-			systemRolesMap.getLogicalRoleAssignments().add(new LogicalRoleAssignment(logicalRoleAssignments.getKey(), logicalRoleAssignments.getValue()));
+			systemRolesMap.getAssignments().add(new LogicalRoleAssignment(logicalRoleAssignments.getKey(), logicalRoleAssignments.getValue()));
 		}
 		return systemRolesMap;
 	}
@@ -95,7 +96,7 @@ public class UserRoleResource extends AbstractJaxRSResource {
 	@Consumes({ APPLICATION_XML, APPLICATION_JSON })
 	@Path("/roleAssignments")
 	public Response setLogicalRoles(LogicalRoleAssignments roleAssignments) {
-		for (LogicalRoleAssignment roleAssignment : roleAssignments.getLogicalRoleAssignments()) {
+		for (LogicalRoleAssignment roleAssignment : roleAssignments.getAssignments()) {
 			roleBindingDao.setRoleBindings(roleAssignment.getRoleName(), roleAssignment.getLogicalRoles());
 		}
 		return Response.ok().build();
