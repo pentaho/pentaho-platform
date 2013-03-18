@@ -284,12 +284,12 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+  public List<Locale> getAvailableLocalesForFileById(Serializable fileId) {
     return null;
   }
 
   @Override
-  public List<Locale> getAvailableLocalesForFile(String relPath) {
+  public List<Locale> getAvailableLocalesForFileByPath(String relPath) {
     return null;
   }
 
@@ -299,12 +299,12 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+  public Properties getLocalePropertiesForFileById(Serializable fileId, String locale) {
     return null;
   }
 
   @Override
-  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+  public Properties getLocalePropertiesForFileByPath(String relPath, String locale) {
     return null;
   }
 
@@ -314,11 +314,11 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   }
 
   @Override
-  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+  public void setLocalePropertiesForFileById(Serializable fileId, String locale, Properties properties) {
   }
 
   @Override
-  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+  public void setLocalePropertiesForFileByPath(String relPath, String locale, Properties properties) {
   }
 
   @Override

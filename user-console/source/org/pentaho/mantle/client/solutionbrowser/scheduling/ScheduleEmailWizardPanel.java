@@ -33,6 +33,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -128,6 +129,7 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
         emailSchedulePanel.setVisible(yes.getValue());
         setCanContinue(isValidConfig());
         setCanFinish(isValidConfig());
+        setFocus();
       }
     });
     no.setValue(true);
@@ -215,9 +217,6 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
 
     this.add(emailSchedulePanel, CENTER);
 
-    toAddressTextBox.setFocus(true);
-    toAddressTextBox.getElement().focus();
-
     panelWidgetChanged(null);
   }
 
@@ -244,4 +243,19 @@ public class ScheduleEmailWizardPanel extends AbstractWizardPanel {
     setCanFinish(isValidConfig());
   }
 
+  public void setFocus() {
+    Timer t = new Timer() {
+      public void run() {
+        toAddressTextBox.getElement().blur();
+        toAddressTextBox.setFocus(false);
+        toAddressTextBox.setFocus(true);
+        toAddressTextBox.getElement().focus();
+        if (toAddressTextBox.isAttached() && toAddressTextBox.isVisible()) {
+          cancel();
+        }
+      }
+    };
+    t.scheduleRepeating(250);
+  }
+  
 }

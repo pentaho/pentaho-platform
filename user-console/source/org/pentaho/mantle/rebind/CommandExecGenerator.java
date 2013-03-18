@@ -131,8 +131,7 @@ public class CommandExecGenerator extends Generator {
         if (implementingType.isDefaultInstantiable()) {
           sourceWriter.println("new " + implementingType.getSimpleSourceName() + "().execute();");
         } else {
-          logger.log(TreeLogger.WARN, "Cannot generate auto-scripts for Command type (" + implementingType.getSimpleSourceName()
-              + "), needs at least a no-arg constructor");
+          //logger.log(TreeLogger.WARN, "Cannot generate auto-scripts for Command type (" + implementingType.getSimpleSourceName() + "), needs at least a no-arg constructor");
         }
         sourceWriter.println("}");
       }
@@ -173,8 +172,7 @@ public class CommandExecGenerator extends Generator {
         if (implementingType.isDefaultInstantiable()) {
           sourceWriter.println("return new " + implementingType.getSimpleSourceName() + "();");
         } else {
-          logger.log(TreeLogger.WARN, "Cannot generate auto-scripts for Command type (" + implementingType.getSimpleSourceName()
-              + "), needs at least a no-arg constructor");
+          //logger.log(TreeLogger.WARN, "Cannot generate auto-scripts for Command type (" + implementingType.getSimpleSourceName() + "), needs at least a no-arg constructor");
         }
         sourceWriter.println("}");
       }

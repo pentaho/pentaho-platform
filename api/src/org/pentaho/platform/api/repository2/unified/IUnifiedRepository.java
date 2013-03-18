@@ -511,21 +511,21 @@ public interface IUnifiedRepository {
    */
   String getProductID();
 
-  List<Locale> getAvailableLocalesForFile(final Serializable fileId);
+  List<Locale> getAvailableLocalesForFileById(final Serializable fileId);
 
-  List<Locale> getAvailableLocalesForFile(final String relPath);
+  List<Locale> getAvailableLocalesForFileByPath(final String relPath);
 
   List<Locale> getAvailableLocalesForFile(final RepositoryFile repositoryFile);
 
-  Properties getLocalePropertiesForFile(final Serializable fileId, final String locale);
+  Properties getLocalePropertiesForFileById(final Serializable fileId, final String locale);
 
-  Properties getLocalePropertiesForFile(final String relPath, final String locale);
+  Properties getLocalePropertiesForFileByPath(final String relPath, final String locale);
 
   Properties getLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale);
 
-  void setLocalePropertiesForFile(final Serializable fileId, final String locale, final Properties properties);
+  void setLocalePropertiesForFileById(final Serializable fileId, final String locale, final Properties properties);
 
-  void setLocalePropertiesForFile(final String relPath, final String locale, final Properties properties);
+  void setLocalePropertiesForFileByPath(final String relPath, final String locale, final Properties properties);
 
   void setLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale, final Properties properties);
 

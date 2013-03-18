@@ -190,8 +190,8 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
 
   @Override
   public void center() {
-    // TODO Auto-generated method stub
     super.center();
+    scheduleEmailWizardPanel.setFocus();
   }
 
   @Override

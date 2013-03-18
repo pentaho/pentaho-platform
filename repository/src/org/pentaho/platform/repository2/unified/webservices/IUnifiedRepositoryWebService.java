@@ -14,10 +14,14 @@
  */
 package org.pentaho.platform.repository2.unified.webservices;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
 
 import javax.jws.WebService;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -119,4 +123,12 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
   List<StringKeyStringValueDto> getFileMetadata(final String fileId);
 
   List<Character> getReservedChars();
+
+  List<PentahoLocale> getAvailableLocalesForFileById(final String fileId);
+
+  Properties getLocalePropertiesForFileById(final String fileId, final String locale);
+
+  void setLocalePropertiesForFileByFileId(final String fileId, final String locale, final Properties properties);
+
+  void deleteLocalePropertiesForFile(final String fileId, final String locale);
 }

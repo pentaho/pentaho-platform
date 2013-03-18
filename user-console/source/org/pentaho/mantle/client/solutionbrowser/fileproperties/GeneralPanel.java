@@ -19,25 +19,34 @@
  */
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.commands.RestoreFileCommand;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.json.client.*;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
-import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
-import org.pentaho.mantle.client.commands.RestoreFileCommand;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -66,7 +75,6 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
 
   private static final String METADATA_PERM_PREFIX = "_PERM_"; //$NON-NLS-1$
   private static final String OWNER_NAME_ELEMENT_NAME = "owner"; //$NON-NLS-1$
-  private static final String OWNER_TYPE_ELEMENT_NAME = "ownerType"; //$NON-NLS-1$
 
   /**
    *
@@ -147,7 +155,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
   }
 
   public List<RequestBuilder> prepareRequests(){
-      List<RequestBuilder> requestBuilders = new ArrayList();
+    ArrayList<RequestBuilder> requestBuilders = new ArrayList<RequestBuilder>();
       String moduleBaseURL = GWT.getModuleBaseURL();
       String moduleName = GWT.getModuleName();
       String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
@@ -203,6 +211,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
    * @param row
    * @param col
    */
+  @SuppressWarnings("serial")
   protected void addHr(int row, int col, int colspan){
     setHTML(row, col, new SafeHtml() {
       @Override

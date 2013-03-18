@@ -864,13 +864,13 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   }
 
   @Override
-  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+  public List<Locale> getAvailableLocalesForFileById(Serializable fileId) {
     RepositoryFile repositoryFile = getFileById(fileId, true);
     return getAvailableLocalesForFile(repositoryFile);
   }
 
   @Override
-  public List<Locale> getAvailableLocalesForFile(String relPath) {
+  public List<Locale> getAvailableLocalesForFileByPath(String relPath) {
     RepositoryFile repositoryFile = getFileById(relPath, true);
     return getAvailableLocalesForFile(repositoryFile);
   }
@@ -889,13 +889,13 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   }
 
   @Override
-  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+  public Properties getLocalePropertiesForFileById(Serializable fileId, String locale) {
     RepositoryFile repositoryFile = getFileById(fileId, true);
     return getLocalePropertiesForFile(repositoryFile, locale);
   }
 
   @Override
-  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+  public Properties getLocalePropertiesForFileByPath(String relPath, String locale) {
 
     RepositoryFile repositoryFile = getFileById(relPath, true);
     return getLocalePropertiesForFile(repositoryFile, locale);
@@ -912,13 +912,13 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   }
 
   @Override
-  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+  public void setLocalePropertiesForFileById(Serializable fileId, String locale, Properties properties) {
     RepositoryFile repositoryFile = getFileById(fileId, true);
     setLocalePropertiesForFile(repositoryFile, locale, properties);
   }
 
   @Override
-  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+  public void setLocalePropertiesForFileByPath(String relPath, String locale, Properties properties) {
     RepositoryFile repositoryFile = getFileById(relPath, true);
     setLocalePropertiesForFile(repositoryFile, locale, properties);
   }
