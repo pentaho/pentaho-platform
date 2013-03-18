@@ -371,9 +371,9 @@ public class PerspectiveManager extends HorizontalPanel {
     }
     // show stuff we've created/configured
     contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
-    MantleApplication.getInstance().pucToolBarVisibility(true);
     this.browserMenuItem.setChecked(true);
     this.workspaceMenuItem.setChecked(false);
+    MantleApplication.getInstance().pucToolBarVisibility(true);
   }
 
   private void showWorkspacePerspective() {
@@ -410,6 +410,7 @@ public class PerspectiveManager extends HorizontalPanel {
     //disable Browser and Workspace menuItem
     this.browserMenuItem.setChecked(false);
     this.workspaceMenuItem.setChecked(false);
+    MantleApplication.getInstance().pucToolBarVisibility(false);
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {
