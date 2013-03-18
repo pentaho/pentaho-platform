@@ -659,7 +659,12 @@ public class MantleController extends AbstractXulEventHandler {
   public void showBrowserClicked() {
     model.setShowBrowserSelected(true);    
     model.showBrowser();   
-    MantleApplication.getInstance().pucToolBarVisibility(true);  
+  }
+  
+  @Bindable
+  public void showWorkspaceClicked() {
+    model.setShowBrowserSelected(false);    
+    model.showWorkspace();   
   }
   
   @Bindable
@@ -914,13 +919,6 @@ public class MantleController extends AbstractXulEventHandler {
   @Bindable
   public void scheduleContentClicked() {
     model.executeScheduleContent();
-  }
-
-  @Bindable
-  public void showWorkspaceClicked() {
-    model.setShowBrowserSelected(false);    
-    model.showWorkspace();   
-    MantleApplication.getInstance().pucToolBarVisibility(false);
   }
 
   @Bindable
