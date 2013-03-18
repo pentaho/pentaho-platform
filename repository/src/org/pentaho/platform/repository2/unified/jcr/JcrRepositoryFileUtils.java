@@ -964,8 +964,8 @@ public class JcrRepositoryFileUtils {
     return new RepositoryFileTree(rootFile, children);
   }
 
-  public static void setFileLocaleProperties(final Session session, final Serializable fileId,
-    String locale, Properties properties) throws RepositoryException {
+  public static Node updateFileLocaleProperties(final Session session, final Serializable fileId,
+                                                String locale, Properties properties) throws RepositoryException {
 
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
     Node fileNode = session.getNodeByIdentifier(fileId.toString());
@@ -993,10 +993,10 @@ public class JcrRepositoryFileUtils {
       setLocalePropertiesMap(session, pentahoJcrConstants, localesNode, propertiesMap);
     }
 
-    checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, localesNode, null);
+    return fileNode;
   }
 
-  public static void deleteFileLocaleProperties(final Session session, final Serializable fileId,
+  public static Node deleteFileLocaleProperties(final Session session, final Serializable fileId,
     String locale) throws RepositoryException {
 
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
@@ -1016,7 +1016,7 @@ public class JcrRepositoryFileUtils {
       // nothing to delete
     }
 
-    checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, localesNode, null);
+    return fileNode;
   }
 
 
@@ -1166,5 +1166,4 @@ public class JcrRepositoryFileUtils {
         lockHelper, (Node) fileNode, loadMaps, locale) : null;
 
   }
-
 }

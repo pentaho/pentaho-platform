@@ -931,7 +931,16 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     jcrTemplate.execute(new JcrCallback() {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
-        JcrRepositoryFileUtils.setFileLocaleProperties(session, repositoryFile.getId(), locale, properties);
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+        String versionMessage =  Messages.getInstance()
+           .getString("JcrRepositoryFileDao.LOCALE_0001_UPDATE_PROPERTIES", repositoryFile.getId());
+        lockHelper.addLockTokenToSessionIfNecessary(session, pentahoJcrConstants, repositoryFile.getId());
+        JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, repositoryFile.getId());
+        JcrRepositoryFileUtils.updateFileLocaleProperties(session, repositoryFile.getId(), locale, properties);
+        session.save();
+        JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, repositoryFile.getId(),
+           versionMessage);
+        lockHelper.removeLockTokenFromSessionIfNecessary(session, pentahoJcrConstants, repositoryFile.getId());
         return null;
       }
     });
@@ -944,7 +953,16 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     jcrTemplate.execute(new JcrCallback() {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+        String versionMessage =  Messages.getInstance()
+           .getString("JcrRepositoryFileDao.LOCALE_0002_DELETE_PROPERTIES", repositoryFile.getId());
+        lockHelper.addLockTokenToSessionIfNecessary(session, pentahoJcrConstants, repositoryFile.getId());
+        JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, repositoryFile.getId());
         JcrRepositoryFileUtils.deleteFileLocaleProperties(session, repositoryFile.getId(), locale);
+        session.save();
+        JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, repositoryFile.getId(),
+           versionMessage);
+        lockHelper.removeLockTokenFromSessionIfNecessary(session, pentahoJcrConstants, repositoryFile.getId());
         return null;
       }
     });
