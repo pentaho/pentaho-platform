@@ -605,7 +605,7 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   @GET
-  @Path("{pathId : .+}/generatedcontent")
+  @Path("{pathId : .+}/generatedContent")
   @Produces({APPLICATION_XML, APPLICATION_JSON})
   public List<RepositoryFileDto> doGetGeneratedContent(@PathParam("pathId") String pathId) {
     RepositoryFileDto targetFile = doGetProperties(pathId);

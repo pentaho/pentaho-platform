@@ -399,7 +399,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // Test filename title matches created file name
     assertEquals(fileName, file.getTitle());
 
-    final String ROOTLOCALE = "rootLocale";
+    final String DEFAULT_LOCALE = "default";
     final IPentahoLocale SPANISH = new PentahoLocale(new Locale("es"));
     final IPentahoLocale US = new PentahoLocale(Locale.US);
     final String TITLE = "title";
@@ -413,13 +413,13 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     Map<String, Properties> localeMap = new HashMap<String, Properties>();
 
     // Set English locale values
-    Properties enProperties = new Properties();
+    final Properties enProperties = new Properties();
     enProperties.setProperty(TITLE, EN_US_TITLE);
     enProperties.setProperty(DESCRIPTION, EN_US_DESCRIPTION);
     localeMap.put(US.toString(), enProperties);
 
     // Set Spanish locale values
-    Properties esProperties = new Properties();
+    final Properties esProperties = new Properties();
     esProperties.setProperty(TITLE, SP_TITLE);
     esProperties.setProperty(DESCRIPTION, SP_DESCRIPTION);
     localeMap.put(SPANISH.toString(), esProperties);
@@ -431,7 +431,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     repo.updateFile(builder.build(), modContent, null);
 
     // Retrieve file - gets full map
-    RepositoryFile updatedFile = repo.getFile(file.getPath(), true);
+    final RepositoryFile updatedFile = repo.getFile(file.getPath(), true);
 
     // Assert messages are the same
     Properties ep = updatedFile.getLocalePropertiesMap().get(US.toString());
@@ -443,12 +443,64 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(SP_DESCRIPTION, sp.getProperty(DESCRIPTION));
 
     // Assert empty rootLocale
-    Properties rootLocale = updatedFile.getLocalePropertiesMap().get(ROOTLOCALE);
+    Properties rootLocale = updatedFile.getLocalePropertiesMap().get(DEFAULT_LOCALE);
     assertNotNull(rootLocale);
+
+    final String NEW_TITLE = "new title";
+    final String NEW_DESCRIPTION = "new description";
+    enProperties.setProperty(TITLE, NEW_TITLE); // overwrite title
+    enProperties.setProperty(DESCRIPTION, NEW_DESCRIPTION); // overwrite title
+
+    txnTemplate.execute(new TransactionCallbackWithoutResult() {
+      public void doInTransactionWithoutResult(final TransactionStatus status) {
+
+        // assert available locales
+        List<Locale> locales = repositoryFileDao.getAvailableLocalesForFile(updatedFile);
+        assertEquals(3, locales.size()); // includes rootLocale
+
+        // assert correct locale properties
+        Properties properties = repositoryFileDao.getLocalePropertiesForFile(updatedFile, "es");
+        assertEquals(SP_TITLE, properties.getProperty(TITLE));
+        assertEquals(SP_DESCRIPTION, properties.getProperty(DESCRIPTION));
+
+        repositoryFileDao.setLocalePropertiesForFile(updatedFile, Locale.US.getLanguage(), enProperties);
+      }
+    });
+
+    // Assert updated properties
+    RepositoryFile updatedRepoFile = repo.getFile(file.getPath(), true);
+    Properties updated_en = updatedRepoFile.getLocalePropertiesMap().get(US.toString());
+    assertEquals(NEW_TITLE, updated_en.getProperty(TITLE));
+    assertEquals(NEW_DESCRIPTION, updated_en.getProperty(DESCRIPTION));
+
+    // test successful delete locale properties
+    final RepositoryFile repoFile1 = updatedRepoFile.clone();
+    txnTemplate.execute(new TransactionCallbackWithoutResult() {
+      public void doInTransactionWithoutResult(final TransactionStatus status) {
+        repositoryFileDao.deleteLocalePropertiesForFile(repoFile1, "es");
+      }
+    });
+
+    // assert deleted locale
+    updatedRepoFile = repo.getFile(file.getPath(), true);
+    List<Locale> locales = repositoryFileDao.getAvailableLocalesForFile(updatedRepoFile);
+    assertEquals(2, locales.size());
+
+    // test successful delete locale properties
+    final RepositoryFile repoFile2 = updatedRepoFile.clone();
+    txnTemplate.execute(new TransactionCallbackWithoutResult() {
+      public void doInTransactionWithoutResult(final TransactionStatus status) {
+        repositoryFileDao.deleteLocalePropertiesForFile(repoFile2, "xx");
+      }
+    });
+
+    // locale properties do not exist, no change in available locales
+    updatedRepoFile = repo.getFile(file.getPath(), true);
+    locales = repositoryFileDao.getAvailableLocalesForFile(updatedRepoFile);
+    assertEquals(2, locales.size());
 
     logout();
   }
-
 
   /**
    * This test method depends on {@code DefaultRepositoryEventHandler} behavior.

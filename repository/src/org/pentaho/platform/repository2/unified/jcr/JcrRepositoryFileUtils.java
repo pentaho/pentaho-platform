@@ -965,6 +965,57 @@ public class JcrRepositoryFileUtils {
     return new RepositoryFileTree(rootFile, children);
   }
 
+  public static void setFileLocaleProperties(final Session session, final Serializable fileId,
+    String locale, Properties properties) throws RepositoryException {
+
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+    Node fileNode = session.getNodeByIdentifier(fileId.toString());
+    String prefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS);
+    Assert.hasText(prefix);
+
+    Node localesNode = fileNode.getNode(pentahoJcrConstants.getPHO_LOCALES());
+    Assert.notNull(localesNode);
+
+    try{
+      Node localeNode = localesNode.getNode(locale);
+      for(String propertyName : properties.stringPropertyNames()){
+        localeNode.setProperty(propertyName, properties.getProperty(propertyName));
+      }
+    }
+    catch(PathNotFoundException pnfe){
+      // locale doesn't exist, create a new locale node
+      Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
+      propertiesMap.put(locale, properties);
+      setLocalePropertiesMap(session, pentahoJcrConstants, localesNode, propertiesMap);
+    }
+
+    checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, localesNode, null);
+  }
+
+  public static void deleteFileLocaleProperties(final Session session, final Serializable fileId,
+    String locale) throws RepositoryException {
+
+    PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+    Node fileNode = session.getNodeByIdentifier(fileId.toString());
+    String prefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS);
+    Assert.hasText(prefix);
+
+    Node localesNode = fileNode.getNode(pentahoJcrConstants.getPHO_LOCALES());
+    Assert.notNull(localesNode);
+
+    try{
+      // remove locale node
+      Node localeNode = localesNode.getNode(locale);
+      localeNode.remove();
+    }
+    catch(PathNotFoundException pnfe){
+      // nothing to delete
+    }
+
+    checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, localesNode, null);
+  }
+
+
   public static void setFileMetadata(final Session session, final Serializable fileId,
       Map<String, Serializable> metadataMap) throws ItemNotFoundException, RepositoryException {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);

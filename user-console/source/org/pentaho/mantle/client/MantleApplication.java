@@ -285,4 +285,8 @@ public class MantleApplication implements IUserSettingsListener, IMantleSettings
   public void setContentDeck(DeckPanel contentDeck) {
     this.contentDeck = contentDeck;
   }
+  
+  public void pucToolBarVisibility(boolean visible){
+    RootPanel.get("pucToolBar").setVisible(visible);    
+  }
 }

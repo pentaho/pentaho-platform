@@ -29,8 +29,8 @@ public class LocaleNtdProvider implements NodeTypeDefinitionProvider {
     NodeTypeTemplate t = ntMgr.createNodeTypeTemplate();
     t.setName(PHO_NT + "locale"); //$NON-NLS-1$
 
-    // create node definition for rootLocale
-    t.getNodeDefinitionTemplates().add(getLocaleNode(ntMgr, "rootLocale"));
+    // create node definition for default locale
+    t.getNodeDefinitionTemplates().add(getLocaleNode(ntMgr, "default"));
 
     // create node definitions for each available locale
     for(Locale locale : Locale.getAvailableLocales()){

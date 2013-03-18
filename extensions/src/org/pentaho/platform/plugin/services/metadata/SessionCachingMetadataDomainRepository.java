@@ -1,6 +1,7 @@
 package org.pentaho.platform.plugin.services.metadata;
 
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -325,12 +326,14 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
   public void removeDomain(final String domainId) {
     delegate.removeDomain(domainId);
     purgeDomain(domainId);
+    removeDomainFromIDCache(domainId);
   }
 
   @Override
   public void storeDomain(final Domain domain, final boolean overwrite) throws DomainIdNullException, DomainAlreadyExistsException, DomainStorageException {
     delegate.storeDomain(domain, overwrite);
     purgeDomain(domain.getId());
+    clearDomainIdsFromCache();
   }
 
   @Override
@@ -351,7 +354,7 @@ public class SessionCachingMetadataDomainRepository implements IMetadataDomainRe
     }
     // Domains are accessible by anyone. What they contain may be different so rely on the lookup to be session-specific.
     domainIds = delegate.getDomainIds();
-    cacheManager.putInRegionCache(CACHE_REGION, domainKey, domainIds);
+    cacheManager.putInRegionCache(CACHE_REGION, domainKey, new HashSet<String>(domainIds));
     return domainIds;
   }
 

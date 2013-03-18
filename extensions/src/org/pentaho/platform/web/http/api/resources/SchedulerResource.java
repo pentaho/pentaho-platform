@@ -102,21 +102,21 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response createJob(JobScheduleRequest scheduleRequest) throws IOException {
 
     // Used to determine if created by a RunInBackgroundCommand
-    boolean bypassSecurity = scheduleRequest.getSimpleJobTrigger() == null
+    boolean runInBackground = scheduleRequest.getSimpleJobTrigger() == null
         && scheduleRequest.getComplexJobTrigger() == null && scheduleRequest.getCronJobTrigger() == null;
-
-    if (bypassSecurity) {
-      scheduleRequest.setJobName("RunInBackgroundJob"); //$NON-NLS-1$
-      scheduleRequest.setSimpleJobTrigger(new SimpleJobTrigger(null, null, 0, 0));
-    }
-
-    if (!bypassSecurity && !policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
-      return Response.status(UNAUTHORIZED).build();
-    }
 
     final RepositoryFile file = repository.getFile(scheduleRequest.getInputFile());
     if (file == null) {
       return Response.status(NOT_FOUND).build();
+    }
+    
+    if (runInBackground) {
+      scheduleRequest.setJobName(file.getName().substring(0, file.getName().lastIndexOf("."))); //$NON-NLS-1$
+      scheduleRequest.setSimpleJobTrigger(new SimpleJobTrigger(null, null, 0, 0));
+    }
+
+    if (!runInBackground && !policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      return Response.status(UNAUTHORIZED).build();
     }
 
     Map<String, Serializable> metadata = repository.getFileMetadata(file.getId());

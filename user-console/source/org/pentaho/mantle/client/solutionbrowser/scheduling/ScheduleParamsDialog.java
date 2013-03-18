@@ -175,23 +175,21 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   @Override
   protected boolean onFinish() {
     scheduleParams = getScheduleParams();
+    if (editJob != null) {
+      String lineageId = editJob.getJobParam("lineage-id");
+      JsArrayString lineageIdValue = (JsArrayString) JavaScriptObject.createArray().cast();
+      lineageIdValue.push(lineageId);
+      JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
+      p.setName("lineage-id");
+      p.setType("string");
+      p.setStringValue(lineageIdValue);
+      scheduleParams.set(scheduleParams.size(), new JSONObject(p));
+    }
     if (isEmailConfValid) {
       showScheduleEmailDialog(scheduleParams);
     } else {
       hide();
       JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(jobSchedule.toString());
-
-      if (editJob != null) {
-        String lineageId = editJob.getJobParam("lineage-id");
-        JsArrayString lineageIdValue = (JsArrayString) JavaScriptObject.createArray().cast();
-        lineageIdValue.push(lineageId);
-        JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
-        p.setName("lineage-id");
-        p.setType("string");
-        p.setStringValue(lineageIdValue);
-        scheduleParams.set(scheduleParams.size(), new JSONObject(p));
-      }
-
       scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$    
 
       RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");

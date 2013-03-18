@@ -12,17 +12,34 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2008 Pentaho Corporation.  All rights reserved.
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  *
  * Created Mar 25, 2008
  * @author Michael D'Amour
  */
 package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 
+import com.google.gwt.http.client.RequestBuilder;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import com.google.gwt.xml.client.Document;
 
+import java.util.List;
+
+/**
+ * Interface for sub panels of the FilePropertiesDialog which provides methods
+ * for passing
+ */
 public interface IFileModifier {
   public void init(RepositoryFile fileSummary, Document fileInfo);
   public void apply();
+
+  /**
+   * Use this method to create RequestBuilder objects and use RequestBuilder.setRequestData
+   * Add RequestBuilder objects to the List which is then used by FilePropertiesDialog
+   * to iterate through and call each request sequentially by chaining them in the callbacks.
+   * It is not necessary to set a callback since FilePropertiesDialog will add its own
+   * @see FilePropertiesDialog#applyPanel()
+   * @return
+   */
+  public List<RequestBuilder> prepareRequests();
 }

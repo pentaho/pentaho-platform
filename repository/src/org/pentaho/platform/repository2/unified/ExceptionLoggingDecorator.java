@@ -15,11 +15,7 @@
 package org.pentaho.platform.repository2.unified;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -539,4 +535,97 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
     return VersionHelper.getVersionInfo(this.getClass()).getProductID();
   }
 
+  @Override
+  public List<Locale> getAvailableLocalesForFile(final Serializable fileId) {
+    return callLogThrow(new Callable<List<Locale>>() {
+      public List<Locale> call() throws Exception {
+        return delegatee.getAvailableLocalesForFile(fileId);
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.getAvailableLocalesForFile", fileId)); //$NON-NLS-1$
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(final String relPath) {
+    return callLogThrow(new Callable<List<Locale>>() {
+      public List<Locale> call() throws Exception {
+        return delegatee.getAvailableLocalesForFile(relPath);
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.getAvailableLocalesForFile", relPath)); //$NON-NLS-1$
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(final RepositoryFile repositoryFile) {
+    return callLogThrow(new Callable<List<Locale>>() {
+      public List<Locale> call() throws Exception {
+        return delegatee.getAvailableLocalesForFile(repositoryFile);
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.getAvailableLocalesForFile", repositoryFile.getId())); //$NON-NLS-1$
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(final Serializable fileId, final String locale) {
+    return callLogThrow(new Callable<Properties>() {
+      public Properties call() throws Exception {
+        return delegatee.getLocalePropertiesForFile(fileId, locale);
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.getLocalePropertiesForFile", fileId)); //$NON-NLS-1$
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(final String relPath, final String locale) {
+    return callLogThrow(new Callable<Properties>() {
+      public Properties call() throws Exception {
+        return delegatee.getLocalePropertiesForFile(relPath, locale);
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.getLocalePropertiesForFile", relPath)); //$NON-NLS-1$
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale) {
+    return callLogThrow(new Callable<Properties>() {
+      public Properties call() throws Exception {
+        return delegatee.getLocalePropertiesForFile(repositoryFile, locale);
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.getLocalePropertiesForFile", repositoryFile.getId())); //$NON-NLS-1$
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(final Serializable fileId, final String locale, final Properties properties) {
+    callLogThrow(new Callable<Void>() {
+      public Void call() throws Exception {
+        delegatee.setLocalePropertiesForFile(fileId, locale, properties);
+        return null;
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.setLocalePropertiesForFile", fileId)); //$NON-NLS-1$
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(final String relPath, final String locale, final Properties properties) {
+    callLogThrow(new Callable<Void>() {
+      public Void call() throws Exception {
+        delegatee.setLocalePropertiesForFile(relPath, locale, properties);
+        return null;
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.setLocalePropertiesForFile", relPath)); //$NON-NLS-1$
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale, final Properties properties) {
+    callLogThrow(new Callable<Void>() {
+      public Void call() throws Exception {
+        delegatee.setLocalePropertiesForFile(repositoryFile, locale, properties);
+        return null;
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.setLocalePropertiesForFile", repositoryFile.getId())); //$NON-NLS-1$
+  }
+
+  @Override
+  public void deleteLocalePropertiesForFile(final RepositoryFile repositoryFile, final String locale) {
+    callLogThrow(new Callable<Void>() {
+      public Void call() throws Exception {
+        delegatee.deleteLocalePropertiesForFile(repositoryFile, locale);
+        return null;
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.deleteLocalePropertiesForFile", repositoryFile.getId())); //$NON-NLS-1$
+  }
 }

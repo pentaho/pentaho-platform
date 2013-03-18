@@ -160,6 +160,9 @@ body{
 .puc-horizontal-split-panel {
 }
 
+.IE .puc-horizontal-split-panel {
+  overflow: hidden;
+}
 .puc-horizontal-split-panel .hsplitter {
   cursor: w-resize;
   margin-right: 10px;
@@ -346,6 +349,9 @@ code {
 .pucContentDeck {
 	height: 100%;
   width: 100%;
+}
+.IE .pucContentDeck {
+  overflow: visible !important;
 }
 
 .workspaceDisclosureContentWrapper {

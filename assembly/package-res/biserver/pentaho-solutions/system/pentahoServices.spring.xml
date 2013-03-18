@@ -66,7 +66,11 @@ impl="org.pentaho.platform.security.userroledao.ws.AuthorizationPolicyBasedUserR
   <!-- JAX-RS beans -->
   <bean class="org.pentaho.platform.web.http.api.resources.RootResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.DirectoryResource" scope="request"/>
-  <bean class="org.pentaho.platform.web.http.api.resources.UserRoleResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.UserRoleResource" scope="request">
+  	<constructor-arg ref="IRoleAuthorizationPolicyRoleBindingDao" />
+  	<constructor-arg ref="ITenantManager" />
+  	<constructor-arg ref="singleTenantAdminAuthorityName"/>
+  </bean>
   <bean class="org.pentaho.platform.web.http.api.resources.FileResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.EmailResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SessionResource" scope="request"/>  

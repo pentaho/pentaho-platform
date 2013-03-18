@@ -2,10 +2,7 @@ package org.pentaho.platform.repository2.unified.fs;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
@@ -259,6 +256,56 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
   @Override
   public String getProductID() {
     return VersionHelper.getVersionInfo(this.getClass()).getProductID();
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(Serializable fileId) {
+   throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(String relPath) {
+   throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<Locale> getAvailableLocalesForFile(RepositoryFile repositoryFile) {
+   throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(Serializable fileId, String locale) {
+   throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(String relPath, String locale) {
+   throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Properties getLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+   throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(Serializable fileId, String locale, Properties properties) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(String relPath, String locale, Properties properties) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setLocalePropertiesForFile(RepositoryFile repositoryFile, String locale, Properties properties) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void deleteLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    throw new UnsupportedOperationException();
   }
 
 }
