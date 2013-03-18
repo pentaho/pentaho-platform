@@ -48,12 +48,16 @@ public class LocaleImportHandler implements IPlatformImportHandler {
 		localeProperties.setProperty("name", locale.getName());
 		localeProperties.setProperty("description", locale.getComment());
 
-		if(localeParent != null) {
+		if(localeParent != null && unifiedRepository != null) {
 			unifiedRepository.setLocalePropertiesForFile(localeParent, "en", localeProperties);
 		}
 	}
 
 	private RepositoryFile getLocaleParent(RepositoryFileImportBundle locale) {
+		if(unifiedRepository == null) {
+			return null;
+		}
+		
 		RepositoryFile localeParent = null;
 		String localeFileName = locale.getFile().getName();
 		RepositoryFile localeFolder = unifiedRepository.getFile(locale.getPath());
