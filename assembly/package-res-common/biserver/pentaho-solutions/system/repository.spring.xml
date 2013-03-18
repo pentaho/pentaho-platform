@@ -99,6 +99,16 @@
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getReferrers=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setFileMetadata=PROPAGATION_REQUIRED
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileMetadata=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileById=PROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileByPathPROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFilePROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileByIdPROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileByPathPROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFilePROPAGATION_REQUIRED,readOnly
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileByIdPROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileByPathPROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFilePROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteLocalePropertiesForFilePROPAGATION_REQUIRED
       </value>
     </property>
   </bean>
