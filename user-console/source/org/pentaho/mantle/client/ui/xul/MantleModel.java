@@ -157,8 +157,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     boolean showing = perspective.getId().equalsIgnoreCase(PerspectiveManager.WORKSPACE_PERSPECTIVE);
     if (!showing) {    
       PerspectiveManager.getInstance().setPerspective(PerspectiveManager.WORKSPACE_PERSPECTIVE);
-    } 
-    //MantleApplication.getInstance().pucToolBarVisibility(false);
+    }    
   }
   
   @Bindable
@@ -167,8 +166,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     boolean showing = perspective.getId().equalsIgnoreCase(PerspectiveManager.DEFAULT_PERSPECTIVE);
     if (!showing) {    
       PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);
-    }
-   // MantleApplication.getInstance().pucToolBarVisibility(true);
+    }   
   }
   @Bindable
   public void loadAdminContent(final String securityPanelId, final String url) {
