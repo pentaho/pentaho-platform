@@ -878,7 +878,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   @Override
   public List<Locale> getAvailableLocalesForFile(RepositoryFile repositoryFile){
     List<Locale> localeList = new ArrayList<Locale>();
-    if(repositoryFile != null){
+    if(repositoryFile != null && repositoryFile.getLocalePropertiesMap() != null){
       for(String localeName : repositoryFile.getLocalePropertiesMap().keySet()){
         Locale locale = new Locale(localeName);
         localeList.add(locale);
@@ -903,7 +903,7 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public Properties getLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
-    if(repositoryFile != null){
+    if(repositoryFile != null && repositoryFile.getLocalePropertiesMap() != null){
       Properties properties = repositoryFile.getLocalePropertiesMap().get(locale);
       return properties;
     }
