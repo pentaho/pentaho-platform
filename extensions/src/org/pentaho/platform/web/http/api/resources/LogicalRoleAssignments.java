@@ -5,17 +5,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class LogicalRoleAssignments {
-  ArrayList<LogicalRoleAssignment> logicalRoleAssignments = new ArrayList<LogicalRoleAssignment>();
+  ArrayList<LogicalRoleAssignment> assignments = new ArrayList<LogicalRoleAssignment>();
 
-  public ArrayList<LogicalRoleAssignment> getLogicalRoleAssignments() {
-    return logicalRoleAssignments;
+  public ArrayList<LogicalRoleAssignment> getAssignments() {
+    return assignments;
   }
 
-  public void setLogicalRoleAssignments(ArrayList<LogicalRoleAssignment> roleAssignments) {
-    if (roleAssignments != this.logicalRoleAssignments) {
-      this.logicalRoleAssignments.clear();
+  public void setAssignments(ArrayList<LogicalRoleAssignment> roleAssignments) {
+    if (roleAssignments != this.assignments) {
+      this.assignments.clear();
       if (roleAssignments != null) {
-        this.logicalRoleAssignments.addAll(roleAssignments);
+        this.assignments.addAll(roleAssignments);
       }
     }
   }
