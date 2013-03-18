@@ -349,14 +349,14 @@ public class PerspectiveManager extends HorizontalPanel {
     if (!source.isDown()) {
       toggles.get(0).setDown(true);
       if (defaultPerspective.getId().equals(DEFAULT_PERSPECTIVE)) {
-        showDefaultPerspective();
+        showDefaultPerspective(false, false);
         return;
       }
     }
 
     // if the selected perspective is "default.perspective"
     if (perspective.getId().equals(DEFAULT_PERSPECTIVE)) {
-      showDefaultPerspective();
+      showDefaultPerspective(false, false);
     } else if (perspective.getId().equals(WORKSPACE_PERSPECTIVE)) {
       showWorkspacePerspective();
     } else if (perspective.getId().equals(ADMIN_PERSPECTIVE)) {
@@ -364,15 +364,14 @@ public class PerspectiveManager extends HorizontalPanel {
     }
   }
 
-  private void showDefaultPerspective() {
+  private void showDefaultPerspective(boolean browserChecked, boolean workspaceChecked) {
     DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
     if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(SolutionBrowserPanel.getInstance()) == -1) {
       contentDeck.add(SolutionBrowserPanel.getInstance());
     }
     // show stuff we've created/configured
     contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
-    this.browserMenuItem.setChecked(true);
-    this.workspaceMenuItem.setChecked(false);
+    setCheckMMenuItem(true,false);
     MantleApplication.getInstance().pucToolBarVisibility(true);
   }
 
@@ -389,14 +388,13 @@ public class PerspectiveManager extends HorizontalPanel {
         }
         contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));
         MantleApplication.getInstance().pucToolBarVisibility(false);   
-      
+        setCheckMMenuItem(false,true);
       }
       
       public void onFailure(Throwable reason) {
       }
     });
-    this.browserMenuItem.setChecked(false);
-    this.workspaceMenuItem.setChecked(true);
+   
   }
 
   private void showAdminPerspective() {
@@ -408,8 +406,7 @@ public class PerspectiveManager extends HorizontalPanel {
     MantleXul.getInstance().customizeAdminStyle();
     MantleXul.getInstance().configureAdminCatTree();
     //disable Browser and Workspace menuItem
-    this.browserMenuItem.setChecked(false);
-    this.workspaceMenuItem.setChecked(false);
+    setCheckMMenuItem(false,false);
     MantleApplication.getInstance().pucToolBarVisibility(false);
   }
 
@@ -488,5 +485,12 @@ public class PerspectiveManager extends HorizontalPanel {
   
   public void setWorkspaceMenuItem(PentahoMenuItem menuItem){
     this.workspaceMenuItem = menuItem;
+  }
+  
+  private void setCheckMMenuItem(boolean browserChecked,boolean workspaceChecked) {
+    if( this.browserMenuItem != null && this.workspaceMenuItem != null){
+      this.browserMenuItem.setChecked(browserChecked);
+      this.workspaceMenuItem.setChecked(workspaceChecked);
+    }
   }
 }
