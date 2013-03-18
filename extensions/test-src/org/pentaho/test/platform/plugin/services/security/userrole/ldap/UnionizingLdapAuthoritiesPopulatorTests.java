@@ -72,7 +72,7 @@ public class UnionizingLdapAuthoritiesPopulatorTests extends
 		assertTrue(null != auths && auths.length > 0);
 
 		List authsList = Arrays.asList(auths);
-		assertTrue(authsList.contains(new GrantedAuthorityImpl("ROLE_CTO"))); //$NON-NLS-1$
+		assertTrue(authsList.contains(new GrantedAuthorityImpl("ROLE_POWER_USER"))); //$NON-NLS-1$
 		assertTrue(authsList
 				.contains(new GrantedAuthorityImpl("ROLE_MARKETING"))); //$NON-NLS-1$
 

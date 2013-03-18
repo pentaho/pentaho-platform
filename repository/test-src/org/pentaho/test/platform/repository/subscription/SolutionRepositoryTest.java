@@ -148,8 +148,8 @@ public class SolutionRepositoryTest extends RepositoryTestCase {
         RepositoryFile aFile = (RepositoryFile) repo
             .getSolutionFile("samples/reporting/jasper-reports-test-1.xaction", ISolutionRepository.ACTION_EXECUTE); //$NON-NLS-1$
 
-        SpringSecurityPermissionMgr.instance().setPermission(new SimpleRole("ROLE_ADMIN"), new SimplePermissionMask(7), aFile);
-        SpringSecurityPermissionMgr.instance().setPermission(new SimpleRole("ROLE_DEVMGR"), new SimplePermissionMask(6), aFile);
+        SpringSecurityPermissionMgr.instance().setPermission(new SimpleRole("ROLE_ADMINISTRATOR"), new SimplePermissionMask(7), aFile);
+        SpringSecurityPermissionMgr.instance().setPermission(new SimpleRole("ROLE_AUTHENTICATED"), new SimplePermissionMask(6), aFile);
         SpringSecurityPermissionMgr.instance().setPermission(new SimpleRole("ROLE_DEV"), new SimplePermissionMask(2), aFile);
         return null;  
       }

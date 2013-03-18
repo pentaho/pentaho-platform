@@ -404,7 +404,7 @@
   <!-- The username to use to do internal work for no particular user. -->
   <!-- See Jackrabbit repository.xml adminId -->
   <bean id="repositoryAdminUsername" class="java.lang.String">
-    <constructor-arg value="admin"/>
+    <constructor-arg value="pentahoRepoAdmin"/>
   </bean>
 
   <!-- This token allows Jackrabbit to trust that this application has already authenticated the user. -->
@@ -419,7 +419,7 @@
 
   <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
   <bean id="singleTenantAdminAuthorityName" class="java.lang.String">
-    <constructor-arg value="Admin"/>
+    <constructor-arg value="Administrator"/>
   </bean>
 
   <!-- The name of the authority which is granted to all non-authenticated users of a particular tenant -->
