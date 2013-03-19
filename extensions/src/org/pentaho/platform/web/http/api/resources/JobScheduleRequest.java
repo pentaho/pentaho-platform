@@ -58,6 +58,7 @@ public class JobScheduleRequest implements Serializable {
   String jobName;
   String inputFile;
   String outputFile;
+  String actionClass;
 
   CronJobTrigger cronJobTrigger;
   ComplexJobTriggerProxy complexJobTrigger;
@@ -137,4 +138,11 @@ public class JobScheduleRequest implements Serializable {
     this.jobName = jobName;
   }
 
+  public String getActionClass() {
+    return actionClass;
+  }
+
+  public void setActionClass(String actionClass) {
+    this.actionClass = actionClass;
+  }
 }
