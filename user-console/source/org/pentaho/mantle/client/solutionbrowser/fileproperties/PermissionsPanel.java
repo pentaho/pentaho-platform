@@ -22,6 +22,7 @@ package org.pentaho.mantle.client.solutionbrowser.fileproperties;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -31,12 +32,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -196,12 +191,20 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     });
 
     int row = 0;
+    setWidget(row++, 0, inheritsCheckBox);
     setWidget(row++, 0, new Label(Messages.getString("usersAndRoles"))); //$NON-NLS-1$
     setWidget(row++, 0, usersAndRolesList);
+
+    // right justify button panel
+    CellFormatter buttonPanelCellFormatter = new CellFormatter();
+    buttonPanelCellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+    setCellFormatter(buttonPanelCellFormatter);
     setWidget(row++, 0, buttonPanel);
+
     setWidget(row++, 0, permissionsLabel);
     setWidget(row++, 0, permissionsTable);
-    setWidget(row++, 0, inheritsCheckBox);
+
+    setCellPadding(4);
 
     setWidth("100%"); //$NON-NLS-1$
 
