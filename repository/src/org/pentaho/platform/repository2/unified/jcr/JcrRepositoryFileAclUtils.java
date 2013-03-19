@@ -208,7 +208,7 @@ public class JcrRepositoryFileAclUtils {
         } else {
           principal = new SpringSecurityUserPrincipal(JcrTenantUtils.getTenantedUser(ace.getSid().getName()));
         }
-        IPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper();
+        IPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper(session);
         acList.addAccessControlEntry(principal,
             permissionConversionHelper.pentahoPermissionsToPrivileges(session, ace.getPermissions()));
       }
@@ -307,7 +307,7 @@ public class JcrRepositoryFileAclUtils {
       sid = new RepositoryFileSid(principal.getName(), RepositoryFileSid.Type.USER);
     }
     Privilege[] privileges = acEntry.getPrivileges();
-    IPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper();
+    IPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper(session);
     return new RepositoryFileAce(sid, permissionConversionHelper.privilegesToPentahoPermissions(session, privileges));
   }
 

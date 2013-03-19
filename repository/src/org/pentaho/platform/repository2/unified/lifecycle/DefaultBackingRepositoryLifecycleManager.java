@@ -14,9 +14,15 @@
  */
 package org.pentaho.platform.repository2.unified.lifecycle;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
+import javax.jcr.security.AccessControlException;
+
+import org.apache.jackrabbit.api.JackrabbitWorkspace;
+import org.apache.jackrabbit.api.security.authorization.PrivilegeManager;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -24,8 +30,6 @@ import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.repository2.unified.IBackingRepositoryLifecycleManager;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -34,14 +38,18 @@ import org.pentaho.platform.repository2.unified.IRepositoryFileAclDao;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
+import org.springframework.extensions.jcr.JcrCallback;
+import org.springframework.extensions.jcr.JcrTemplate;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
@@ -81,12 +89,14 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
   protected IRepositoryFileDao repositoryFileDao;
 
   protected IRepositoryFileAclDao repositoryFileAclDao;
+  
+  private JcrTemplate adminJcrTemplate;
 
   // ~ Constructors ====================================================================================================
 
   public DefaultBackingRepositoryLifecycleManager(final IRepositoryFileDao contentDao,
       final IRepositoryFileAclDao repositoryFileAclDao, final TransactionTemplate txnTemplate,
-      final String repositoryAdminUsername,final String systemTenantAdminUserName, final String singleTenantAdminUserName, final String tenantAdminRoleName, final String tenantAuthenticatedRoleName) {
+      final String repositoryAdminUsername,final String systemTenantAdminUserName, final String singleTenantAdminUserName, final String tenantAdminRoleName, final String tenantAuthenticatedRoleName, final JcrTemplate adminJcrTemplate) {
     Assert.notNull(contentDao);
     Assert.notNull(repositoryFileAclDao);
     Assert.notNull(txnTemplate);
@@ -100,6 +110,7 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
     this.tenantAdminRoleName = tenantAdminRoleName;
     this.systemTenantAdminUserName = systemTenantAdminUserName;
     this.singleTenantAdminUserName = singleTenantAdminUserName;
+    this.adminJcrTemplate = adminJcrTemplate;
     initTransactionTemplate();
 
   }
@@ -125,6 +136,7 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
   @Override
   public void newTenant() {
     newTenant(JcrTenantUtils.getTenant());
+    createCustomPrivilege();
   }
 
   @Override
@@ -171,6 +183,31 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
       return null;
     }
   }
+  
+  
+  private void createCustomPrivilege() {
+      txnTemplate.execute(new TransactionCallbackWithoutResult() {
+        public void doInTransactionWithoutResult(final TransactionStatus status) {
+          adminJcrTemplate.execute(new JcrCallback() {
+            @Override
+            public Object doInJcr(Session session) throws IOException, RepositoryException {
+                PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+                Workspace workspace = session.getWorkspace();
+                PrivilegeManager privilegeManager =((JackrabbitWorkspace) workspace).getPrivilegeManager();
+                try {
+                  privilegeManager.getPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE());
+                } catch(AccessControlException ace) {
+                  privilegeManager.registerPrivilege(pentahoJcrConstants.getPHO_ACLMANAGEMENT_PRIVILEGE(),
+                      false, new String[0]);
+                }
+                session.save();
+                return null;
+            }
+          });
+        }
+      });
+  }
+
 
   /**
    * Sets the {@link IBackingRepositoryLifecycleManager} to be used by this instance
@@ -187,33 +224,6 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
 
   public void setUserRoleDao(IUserRoleDao userRoleDao) {
     this.userRoleDao = userRoleDao;
-  }
-
-  /**
-   * Logs in with given username.
-   *
-   * @param username username of user
-   * @param tenantId tenant to which this user belongs
-   * @tenantAdmin true to add the tenant admin authority to the user's roles
-   */
-  private void login(final String username, final ITenant tenant, final String[] roles) {
-    StandaloneSession pentahoSession = new StandaloneSession(username);
-    pentahoSession.setAuthenticated(tenant.getId(), username);
-    PentahoSessionHolder.setSession(pentahoSession);
-    pentahoSession.setAttribute(IPentahoSession.TENANT_ID_KEY, tenant.getId());
-    final String password = "password";
-
-    List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
-
-    for (String role : roles) {
-      authList.add(new GrantedAuthorityImpl(role));
-    }
-    GrantedAuthority[] authorities = authList.toArray(new GrantedAuthority[0]);
-    UserDetails userDetails = new User(username, password, true, true, true, true, authorities);
-    Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, password, authorities);
-    PentahoSessionHolder.setSession(pentahoSession);
-    // this line necessary for Spring Security's MethodSecurityInterceptor
-    SecurityContextHolder.getContext().setAuthentication(auth);
   }
 
   protected void loginAsRepositoryAdmin() {

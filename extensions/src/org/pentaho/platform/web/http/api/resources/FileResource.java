@@ -534,6 +534,40 @@ public class FileResource extends AbstractJaxRSResource {
   }
 
   @GET
+  @Path("{pathId : .+}/canAccess")
+  @Produces(TEXT_PLAIN)
+  public String doGetCanAccess(@PathParam("pathId") String pathId, @QueryParam("permissions") String permissions) {
+    StringTokenizer tokenizer = new StringTokenizer(permissions, "|");
+    List<Integer> permissionList = new ArrayList<Integer>();
+    while (tokenizer.hasMoreTokens()) {
+      Integer perm = Integer.valueOf(tokenizer.nextToken());
+      switch (perm) {
+        case 0: {
+          permissionList.add(RepositoryFilePermission.READ.ordinal());
+          break;
+        }
+        case 1: {
+          permissionList.add(RepositoryFilePermission.WRITE.ordinal());
+          break;
+        }
+        case 2: {
+          permissionList.add(RepositoryFilePermission.DELETE.ordinal());
+          break;
+        }
+        case 3: {
+          permissionList.add(RepositoryFilePermission.ACL_MANAGEMENT.ordinal());
+          break;
+        }
+        case 4: {
+          permissionList.add(RepositoryFilePermission.ALL.ordinal());
+          break;
+        }
+      }
+    }
+    return repoWs.hasAccess(idToPath(pathId), permissionList) ? "true" : "false";
+  }
+
+  @GET
   @Path("/canAdminister")
   @Produces(TEXT_PLAIN)
   public String doGetCanAdminister() {
