@@ -24,8 +24,6 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
-import com.google.gwt.event.dom.client.MouseUpEvent;
-import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
@@ -179,7 +177,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   };
 
   private static SolutionBrowserPanel instance;
-  private boolean wasResized = false;
 
   private SolutionBrowserPanel() {
     RootPanel.get().getElement().getStyle().setProperty("position", "relative");
@@ -228,30 +225,11 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorAndContentPanel.addHandler(new MouseMoveHandler() {
       @Override
       public void onMouseMove(MouseMoveEvent event) {
-        if (solutionNavigatorAndContentPanel.isResizing()) {
-          wasResized = true;
+        if(solutionNavigatorAndContentPanel.isResizing()) {
           adjustWidth();
         }
       }
     }, MouseMoveEvent.getType());
-
-    // IE doesn't always keep up with the mouse move eventing, lets adjust with width after they are done resizing
-    if (Window.Navigator.getUserAgent().toLowerCase().indexOf("msie") != -1) {
-      solutionNavigatorAndContentPanel.addHandler(new MouseUpHandler() {
-        @Override
-        public void onMouseUp(MouseUpEvent mouseUpEvent) {
-          if (wasResized) {
-            wasResized = false;
-            Timer t = new Timer() {
-              public void run() {
-                adjustWidth();
-              }
-            };
-            t.schedule(200);
-          }
-        }
-      }, MouseUpEvent.getType());
-    }
 
     Window.addResizeHandler(new ResizeHandler() {
       @Override
@@ -339,56 +317,56 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   public void onBrowserEvent(Event event) {
     switch (DOM.eventGetType(event)) {
 
-      case Event.ONMOUSEDOWN: {
-        isMouseDown = true;
-        break;
-      }
+    case Event.ONMOUSEDOWN: {
+      isMouseDown = true;
+      break;
+    }
 
-      case Event.ONMOUSEUP: {
-        isMouseDown = false;
-        DOM.releaseCapture(getElement());
-        break;
-      }
+    case Event.ONMOUSEUP: {
+      isMouseDown = false;
+      DOM.releaseCapture(getElement());
+      break;
+    }
 
-      case Event.ONMOUSEOUT: {
-        isMouseDown = false;
-        DOM.releaseCapture(getElement());
-        break;
-      }
+    case Event.ONMOUSEOUT: {
+      isMouseDown = false;
+      DOM.releaseCapture(getElement());
+      break;
+    }
 
-      case Event.ONMOUSEMOVE: {
-        if (isMouseDown) {
+    case Event.ONMOUSEMOVE: {
+      if (isMouseDown) {
 
-          if (hSplitter == null) {
-            hSplitter = DOM.getElementById("pucHorizontalSplitter");
+        if (hSplitter == null) {
+          hSplitter = DOM.getElementById("pucHorizontalSplitter");
+        }
+        if (vSplitter == null) {
+          vSplitter = DOM.getElementById("pucVerticalSplitter");
+        }
+
+        String left = hSplitter.getParentElement().getStyle().getLeft();
+        if (left.indexOf("px") != -1) {
+          left = left.substring(0, left.indexOf("px"));
+        }
+        int leftInt = Integer.parseInt(left);
+        if (leftInt > 0) {
+          solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
+          solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
+        }
+        if (leftInt <= 50) {
+          if (vSplitter != null) {
+            ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage("");
           }
-          if (vSplitter == null) {
-            vSplitter = DOM.getElementById("pucVerticalSplitter");
-          }
-
-          String left = hSplitter.getParentElement().getStyle().getLeft();
-          if (left.indexOf("px") != -1) {
-            left = left.substring(0, left.indexOf("px"));
-          }
-          int leftInt = Integer.parseInt(left);
-          if (leftInt > 0) {
-            solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
-            solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
-          }
-          if (leftInt <= 50) {
-            if (vSplitter != null) {
-              ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage("");
-            }
-          } else {
-            if (vSplitter != null) {
-              if (!pucVerticalSplitterImg.equals(((Element) vSplitter.getChild(0)).getStyle().getBackgroundImage())) {
-                ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
-              }
+        } else {
+          if (vSplitter != null) {
+            if (!pucVerticalSplitterImg.equals(((Element) vSplitter.getChild(0)).getStyle().getBackgroundImage())) {
+              ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
             }
           }
         }
-        break;
       }
+      break;
+    }
 
     }
     super.onBrowserEvent(event);
@@ -400,17 +378,17 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   private static native void setupNativeHooks(SolutionBrowserPanel solutionNavigator)
-    /*-{
-      $wnd.sendMouseEvent = function (event) {
-        return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::mouseUp(Lcom/google/gwt/user/client/Event;)(event);
-      }
-      $wnd.mantle_setNavigatorShowing = function (show) {
-        return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
-      }
-      $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
-        solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
-      }
-    }-*/;
+  /*-{
+    $wnd.sendMouseEvent = function(event) {
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::mouseUp(Lcom/google/gwt/user/client/Event;)(event);
+    }
+    $wnd.mantle_setNavigatorShowing = function(show) {
+      return solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::setNavigatorShowing(Z)(show);
+    }
+    $wnd.mantle_confirmBackgroundExecutionDialog = function(url) {
+      solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);      
+    }    
+  }-*/;
 
   public void confirmBackgroundExecutionDialog(final String url) {
     final String title = Messages.getString("confirm"); //$NON-NLS-1$
@@ -436,8 +414,9 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   /**
    * The passed in URL has all the parameters set for background execution. We simply call GET on the URL and handle the response object. If the response object
    * contains a particular string then we display success message box.
-   *
-   * @param url Complete url with all the parameters set for scheduling a job in the background.
+   * 
+   * @param url
+   *          Complete url with all the parameters set for scheduling a job in the background.
    */
   private void runInBackground(final String url) {
 
@@ -574,25 +553,25 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       }
     }
   }
-
+  
   public void addRecent(String fileNameWithPath, String title) {
-    RecentPickItem recentPickItem = new RecentPickItem(fileNameWithPath);
-    recentPickItem.setTitle(title);
-    recentPickItem.setLastUse(System.currentTimeMillis());
-    RecentPickList.getInstance().add(recentPickItem);
+  	RecentPickItem recentPickItem = new RecentPickItem(fileNameWithPath);
+  	recentPickItem.setTitle(title);
+  	recentPickItem.setLastUse(System.currentTimeMillis());
+  	RecentPickList.getInstance().add(recentPickItem);
   }
-
+  
   public void addFavorite(String fileNameWithPath, String title) {
-    FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
-    favoritePickItem.setTitle(title);
-    FavoritePickList.getInstance().add(favoritePickItem);
+  	FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
+  	favoritePickItem.setTitle(title);
+  	FavoritePickList.getInstance().add(favoritePickItem);
   }
-
+  
   public void removeFavorite(String fileNameWithPath) {
-    FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
-    FavoritePickList.getInstance().remove(favoritePickItem);
+  	FavoritePickItem favoritePickItem = new FavoritePickItem(fileNameWithPath);
+  	FavoritePickList.getInstance().remove(favoritePickItem);
   }
-
+  
   protected void initializeExecutableFileTypes() {
     // GeneratedContentDialog dialog = new GeneratedContentDialog();
     // dialog.show();
@@ -777,14 +756,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     this.isAdministrator = isAdministrator;
     solutionTree.setAdministrator(isAdministrator);
   }
+    public boolean isScheduler() {
+        return isScheduler;
+    }
 
-  public boolean isScheduler() {
-    return isScheduler;
-  }
-
-  public void setScheduler(boolean isScheduler) {
-    this.isScheduler = isScheduler;
-  }
+    public void setScheduler(boolean isScheduler) {
+        this.isScheduler = isScheduler;
+    }
 
   public boolean isNavigatorShowing() {
     return showSolutionBrowser;
@@ -888,7 +866,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   /**
-   *
+   * 
    */
   public SolutionBrowserClipboard getClipboard() {
     return clipboard;

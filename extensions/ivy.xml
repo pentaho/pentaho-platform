@@ -148,9 +148,6 @@
     <dependency org="javatar" name="javatar" rev="2.5" transitive="false"/>
     <dependency org="com.google.gwt" name="gwt-servlet" rev="2.4.0"/>
 
-    <!-- To support Enunciate Annotations in Resource classes 1.21.1 -->
-	<dependency org="org.codehaus.enunciate" name="enunciate-jersey-rt" rev="1.26.2" />
-	
     <!--  internal dependencies -->
 
     <!--  charting  -->
@@ -356,7 +353,7 @@
     </dependency>
 
     <!-- dependencies for generating doc -->
-    <dependency org="org.codehaus.enunciate" name="enunciate-top" rev="1.26.2" conf="enunciate->default"/>
+    <dependency org="org.codehaus.enunciate" name="enunciate-top" rev="1.21.1" conf="enunciate->default"/>
 
     <exclude org="org.glassfish" module="javax.servlet"/>
     <!-- CM-241 -->

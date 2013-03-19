@@ -459,8 +459,9 @@ public class JcrRepositoryFileUtils {
       setLocalizedStringMap(session, pentahoJcrConstants, descriptionNode, file.getDescriptionMap());
     }
     if (file.getLocalePropertiesMap() != null && !file.getLocalePropertiesMap().isEmpty()) {
-      Node localeNodes = fileNode.addNode(pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE());
-      setLocalePropertiesMap(session, pentahoJcrConstants, localeNodes, file.getLocalePropertiesMap());
+      Node localeNode = fileNode.addNode(pentahoJcrConstants.getPHO_LOCALES(),
+        pentahoJcrConstants.getPHO_NT_LOCALE());
+      setLocalePropertiesMap(session, pentahoJcrConstants, localeNode, file.getLocalePropertiesMap());
     }
     Node metaNode = fileNode.addNode(pentahoJcrConstants.getPHO_METADATA(), JcrConstants.NT_UNSTRUCTURED);
     setMetadataItemForFile(session, PentahoJcrConstants.PHO_CONTENTCREATOR, file.getCreatorId(), metaNode);
@@ -964,21 +965,16 @@ public class JcrRepositoryFileUtils {
     return new RepositoryFileTree(rootFile, children);
   }
 
-  public static Node updateFileLocaleProperties(final Session session, final Serializable fileId,
-                                                String locale, Properties properties) throws RepositoryException {
+  public static void setFileLocaleProperties(final Session session, final Serializable fileId,
+    String locale, Properties properties) throws RepositoryException {
 
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
     Node fileNode = session.getNodeByIdentifier(fileId.toString());
     String prefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS);
     Assert.hasText(prefix);
 
-    Node localesNode = null;
-    if (!fileNode.hasNode(pentahoJcrConstants.getPHO_LOCALES())) {
-      // Auto-create pho:locales node if doesn't exist
-      localesNode = fileNode.addNode(pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE());
-    } else {
-      localesNode = fileNode.getNode(pentahoJcrConstants.getPHO_LOCALES());
-    }
+    Node localesNode = fileNode.getNode(pentahoJcrConstants.getPHO_LOCALES());
+    Assert.notNull(localesNode);
 
     try{
       Node localeNode = localesNode.getNode(locale);
@@ -993,10 +989,10 @@ public class JcrRepositoryFileUtils {
       setLocalePropertiesMap(session, pentahoJcrConstants, localesNode, propertiesMap);
     }
 
-    return fileNode;
+    checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, localesNode, null);
   }
 
-  public static Node deleteFileLocaleProperties(final Session session, final Serializable fileId,
+  public static void deleteFileLocaleProperties(final Session session, final Serializable fileId,
     String locale) throws RepositoryException {
 
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
@@ -1016,7 +1012,7 @@ public class JcrRepositoryFileUtils {
       // nothing to delete
     }
 
-    return fileNode;
+    checkinNearestVersionableNodeIfNecessary(session, pentahoJcrConstants, localesNode, null);
   }
 
 
@@ -1166,4 +1162,5 @@ public class JcrRepositoryFileUtils {
         lockHelper, (Node) fileNode, loadMaps, locale) : null;
 
   }
+
 }

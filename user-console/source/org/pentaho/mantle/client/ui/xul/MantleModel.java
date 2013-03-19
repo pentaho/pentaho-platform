@@ -168,6 +168,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
       PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);
     }   
   }
+  
   @Bindable
   public void loadAdminContent(final String securityPanelId, final String url) {
     // hijack content area (or simply find and select existing content)

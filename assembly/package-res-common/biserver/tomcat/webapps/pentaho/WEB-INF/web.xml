@@ -243,11 +243,6 @@
 	<listener>
 		<listener-class>org.pentaho.platform.web.http.session.PentahoCacheSessionListener</listener-class>
 	</listener>
-	
-	<listener>
-       <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
-	</listener>
-
 	<!-- insert additional listeners -->
 
 

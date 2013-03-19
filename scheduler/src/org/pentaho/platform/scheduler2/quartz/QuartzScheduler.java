@@ -206,7 +206,7 @@ public class QuartzScheduler implements IScheduler {
   }
 
   private JobDetail createJobDetails(QuartzJobKey jobId, Map<String, Serializable> jobParams) {
-    JobDetail jobDetail = new JobDetail(jobId.toString(), jobId.getUserName(), BlockingQuartzJob.class);
+    JobDetail jobDetail = new JobDetail(jobId.toString(), jobId.getUserName(), ActionAdapterQuartzJob.class);
     jobParams.put(RESERVEDMAPKEY_ACTIONUSER, jobId.getUserName());
     JobDataMap jobDataMap = new JobDataMap(jobParams);
     jobDetail.setJobDataMap(jobDataMap);
