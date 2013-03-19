@@ -7411,7 +7411,7 @@
       </CWM:Description.modelElement>
     </CWM:Description>
     <CWM:Description xmi.id='a1670' name='security'
-                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Admin&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
+                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Administrator&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
                      type='Security'>
       <CWM:Description.modelElement>
         <CWMMDB:Schema xmi.idref='a15'/>
@@ -7464,7 +7464,7 @@
       </CWM:Description.modelElement>
     </CWM:Description>
     <CWM:Description xmi.id='a1679' name='security'
-                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Admin&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
+                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Administrator&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
                      type='Security'>
       <CWM:Description.modelElement>
         <CWM:Extent xmi.idref='a24'/>
@@ -7483,7 +7483,7 @@
       </CWM:Description.modelElement>
     </CWM:Description>
     <CWM:Description xmi.id='a1682' name='security'
-                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Admin&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
+                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Administrator&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
                      type='Security'>
       <CWM:Description.modelElement>
         <CWM:Extent xmi.idref='a44'/>
@@ -7503,7 +7503,7 @@
       </CWM:Description.modelElement>
     </CWM:Description>
     <CWM:Description xmi.id='a1685' name='security'
-                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Admin&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
+                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Administrator&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
                      type='Security'>
       <CWM:Description.modelElement>
         <CWMMDB:Schema xmi.idref='a122'/>
@@ -7535,7 +7535,7 @@
       </CWM:Description.modelElement>
     </CWM:Description>
     <CWM:Description xmi.id='a1690' name='security'
-                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Admin&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
+                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Administrator&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
                      type='Security'>
       <CWM:Description.modelElement>
         <CWM:Extent xmi.idref='a123'/>
@@ -7555,7 +7555,7 @@
       </CWM:Description.modelElement>
     </CWM:Description>
     <CWM:Description xmi.id='a1693' name='security'
-                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Admin&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
+                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Administrator&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
                      type='Security'>
       <CWM:Description.modelElement>
         <CWM:Extent xmi.idref='a137'/>
@@ -7575,14 +7575,14 @@
       </CWM:Description.modelElement>
     </CWM:Description>
     <CWM:Description xmi.id='a1696' name='security'
-                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;dev&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;-1&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Admin&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
+                     body='&lt;security&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;user&lt;/type&gt;&lt;name&gt;suzy&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;dev&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;-1&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;  &lt;owner-rights&gt;&#13;&#10;  &lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Administrator&lt;/name&gt;&lt;/owner&gt; &lt;rights&gt;31&lt;/rights&gt;&#13;&#10;  &lt;/owner-rights&gt;&#13;&#10;&lt;/security&gt;&#13;&#10;'
                      type='Security'>
       <CWM:Description.modelElement>
         <CWMMDB:Schema xmi.idref='a180'/>
       </CWM:Description.modelElement>
     </CWM:Description>
     <CWM:Description xmi.id='a1697' name='row_level_security'
-                     body='&lt;row-level-security type=&quot;role-based&quot;&gt;&lt;formula&gt;&lt;![CDATA[]]&gt;&lt;/formula&gt;&lt;entries&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;ceo&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Anonymous&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;cto&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;devmgr&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;is&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;dev&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[[BT_CUSTOMER_W_TER_CUSTOMER_W_TER.BC_CUSTOMER_W_TER_TERRITORY]=&quot;NA&quot;]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Admin&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;/entries&gt;&lt;/row-level-security&gt;'
+                     body='&lt;row-level-security type=&quot;role-based&quot;&gt;&lt;formula&gt;&lt;![CDATA[]]&gt;&lt;/formula&gt;&lt;entries&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;ceo&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Anonymous&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;cto&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;devmgr&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;is&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;dev&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[[BT_CUSTOMER_W_TER_CUSTOMER_W_TER.BC_CUSTOMER_W_TER_TERRITORY]=&quot;NA&quot;]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;entry&gt;&lt;owner&gt;&lt;type&gt;role&lt;/type&gt;&lt;name&gt;Administrator&lt;/name&gt;&lt;/owner&gt;&lt;formula&gt;&lt;![CDATA[TRUE()]]&gt;&lt;/formula&gt;&lt;/entry&gt;&lt;/entries&gt;&lt;/row-level-security&gt;'
                      type='RowLevelSecurity'>
       <CWM:Description.modelElement>
         <CWMMDB:Schema xmi.idref='a180'/>
@@ -7962,7 +7962,7 @@
         <CWM:TaggedValue xmi.id='a1768' tag='SECURITY_DETAILS_NAME' value='SecurityDetails'/>
         <CWM:TaggedValue xmi.id='a1769' tag='SECURITY_DETAIL_NAME' value='details'/>
         <CWM:TaggedValue xmi.id='a1770' tag='SECURITY_DETAIL_TYPE' value='All'/>
-        <CWM:TaggedValue xmi.id='a1771' tag='SECURITY_USERNAME' value='joe'/>
+        <CWM:TaggedValue xmi.id='a1771' tag='SECURITY_USERNAME' value='Administrator'/>
         <CWM:TaggedValue xmi.id='a1772' tag='SECURITY_PASSWORD' value='password'/>
         <CWM:TaggedValue xmi.id='a1773' tag='SECURITY_PROXY_HOST' value=''/>
         <CWM:TaggedValue xmi.id='a1774' tag='SECURITY_PROXY_PORT' value=''/>

@@ -168,7 +168,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
 
   private final String USERNAME_PAT = "pat";
 
-  private final String USERNAME_JOE = "joe";
+  private final String USERNAME_ADMIN = "admin";
 
   private final String USERNAME_GEORGE = "george";
 
@@ -420,7 +420,7 @@ public class DefaultUnifiedRepositoryJaxwsWebServiceTest implements ApplicationC
     try {
       if(tenants != null && tenants.size() > 0) {
         for(ITenant tenant: tenants) {
-          login("joe", tenant, true);
+          login("admin", tenant, true);
           for(IPentahoRole role:userRoleDao.getRoles())  {
             userRoleDao.deleteRole(role);
           }

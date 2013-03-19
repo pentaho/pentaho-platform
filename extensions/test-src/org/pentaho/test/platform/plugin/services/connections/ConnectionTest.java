@@ -68,7 +68,7 @@ public class ConnectionTest extends BaseTest {
 //    public void testSQLConnection() {
 //        startTest();
 //        OutputStream outputStream = this.getOutputStream("ConnectionTest.testSQLConnection", ".csv"); //$NON-NLS-1$ //$NON-NLS-2$
-//        IPentahoSession session = new StandaloneSession("Joe");
+//        IPentahoSession session = new StandaloneSession("Admin");
 //        IPentahoConnection connection = PentahoConnectionFactory.getConnection(IPentahoConnection.SQL_DATASOURCE, session, this); //$NON-NLS-1$
 //        try {
 //            IPentahoResultSet results = connection.executeQuery("select * from DEPARTMENT_MANAGERS"); //$NON-NLS-1$
@@ -138,7 +138,7 @@ public class ConnectionTest extends BaseTest {
     public void testMDXConnectionWithPropertiesFile() {
       startTest();
       OutputStream outputStream = this.getOutputStream("ConnectionTest.testMDXConnectionWithPropertiesFile", ".csv"); //$NON-NLS-1$ //$NON-NLS-2$
-      IPentahoSession session = new StandaloneSession("Joe");
+      IPentahoSession session = new StandaloneSession("Admin");
       Properties mdxProperties = new Properties();
       try  {
         mdxProperties.load(new FileInputStream("mdxConnection.properties")); //$NON-NLS-1$
@@ -181,7 +181,7 @@ public class ConnectionTest extends BaseTest {
 
     public void testSQLConnectionWithAllInfo() {
       startTest();
-      IPentahoSession session = new StandaloneSession("Joe");
+      IPentahoSession session = new StandaloneSession("Admin");
       OutputStream outputStream = this.getOutputStream("ConnectionTest.testConnectionWithPropertyName", ".csv"); //$NON-NLS-1$ //$NON-NLS-2$
       File file = new File(PentahoSystem.getApplicationContext().getSolutionPath("test/datasources/SampleData.mondrian.xml")); //$NON-NLS-1$
       IPentahoConnection connection = PentahoConnectionFactory.getConnection(IPentahoConnection.MDX_DATASOURCE, "jdbc:hsqldb:hsql://localhost:9001/sampledata; Catalog=" + file.toURI().toString(), "mondrian", "sa", "", session, this); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -220,7 +220,7 @@ public class ConnectionTest extends BaseTest {
     @SuppressWarnings("deprecation")
     public void testMDXConnection() {
         startTest();
-        IPentahoSession session = new StandaloneSession("Joe");
+        IPentahoSession session = new StandaloneSession("Admin");
         OutputStream outputStream = this.getOutputStream("ConnectionTest.testSQLConnection", ".csv"); //$NON-NLS-1$ //$NON-NLS-2$
         File file = new File(PentahoSystem.getApplicationContext().getSolutionPath("test/datasources/SampleData.mondrian.xml")); //$NON-NLS-1$
         IPentahoConnection connection = PentahoConnectionFactory.getConnection(IPentahoConnection.MDX_DATASOURCE, "jdbc:hsqldb:hsql://localhost:9001/sampledata; Catalog=" + file.toURI().toString(), "mondrian", "sa", "",session,  null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -270,7 +270,7 @@ public class ConnectionTest extends BaseTest {
 
         // StandaloneSession session = new StandaloneSession(Messages.getString("BaseTest.DEBUG_JUNIT_SESSION")); //$NON-NLS-1$
 //		SolutionRepositoryVfs.setSolutionRepository( PentahoSystem.getSolutionRepository( session ) );
-        IPentahoSession session = new StandaloneSession("Joe");
+        IPentahoSession session = new StandaloneSession("Admin");
         OutputStream outputStream = this.getOutputStream("ConnectionTest.testSQLConnection", ".csv"); //$NON-NLS-1$ //$NON-NLS-2$
         File file = new File(PentahoSystem.getApplicationContext().getSolutionPath("test/datasources/SampleDataSchema.zip")); //$NON-NLS-1$
         String catalog = "zip:" + file.toURI().toString()+"!/SampleData.mondrian.xml"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -314,7 +314,7 @@ public class ConnectionTest extends BaseTest {
 
     public void testXQueryConnection() {
         startTest();
-        IPentahoSession session = new StandaloneSession("Joe");
+        IPentahoSession session = new StandaloneSession("Admin");
         OutputStream outputStream = this.getOutputStream("ConnectionTest.testSQLConnection", ".csv"); //$NON-NLS-1$ //$NON-NLS-2$
         try {
             IPentahoConnection connection = PentahoConnectionFactory.getConnection(IPentahoConnection.XML_DATASOURCE, session, this);
@@ -380,7 +380,7 @@ public class ConnectionTest extends BaseTest {
 //    public void testMdx() {
 //
 //        startTest();
-//        IPentahoSession session = new StandaloneSession("Joe");
+//        IPentahoSession session = new StandaloneSession("Admin");
 //        OutputStream outputStream = this.getOutputStream("ConnectionTest.testMdx", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$  	
 //
 //        IPentahoResultSet resultSet = null;
@@ -414,7 +414,7 @@ public class ConnectionTest extends BaseTest {
 //    public void testXQueryAction() {
 //
 //        startTest();
-//        IPentahoSession session = new StandaloneSession("Joe");
+//        IPentahoSession session = new StandaloneSession("Admin");
 //        OutputStream outputStream = this.getOutputStream("ConnectionTest.testRelationalGrid", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$  	
 //
 //        IPentahoResultSet resultSet = null;

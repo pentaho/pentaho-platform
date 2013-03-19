@@ -40,7 +40,7 @@ public class UserDetailsRoleListEndpointTest extends UserDetailsRoleListWebServi
     Service service = Service.create(new URL("http://localhost:8080/pentaho/webservices/userRoleListService?wsdl"), new QName(
     "http://www.pentaho.org/ws/1.0", "userRoleListService"));
     IUserRoleListWebService userDetailsRoleListWebService = service.getPort(IUserRoleListWebService.class);
-    ((BindingProvider) userDetailsRoleListWebService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "joe");
+    ((BindingProvider) userDetailsRoleListWebService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "admin");
     ((BindingProvider) userDetailsRoleListWebService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "password");
     // accept cookies to maintain session on server
     ((BindingProvider) userDetailsRoleListWebService).getRequestContext().put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);

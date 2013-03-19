@@ -69,8 +69,7 @@ public class TestBasicAclVoter extends BaseTest {
         RepositoryFile testFile = new RepositoryFile("Test Folder", null, null);//$NON-NLS-1$
         Map<IPermissionRecipient, IPermissionMask> perms = new LinkedHashMap<IPermissionRecipient, IPermissionMask>();
         perms.put(new SimpleUser("suzy"), new SimplePermissionMask(IPentahoAclEntry.PERM_EXECUTE));
-        perms.put(new SimpleRole("ROLE_CTO"), new SimplePermissionMask(IPentahoAclEntry.PERM_SUBSCRIBE));
-        perms.put(new SimpleRole("ROLE_IS"), new SimplePermissionMask(IPentahoAclEntry.PERM_ADMINISTRATION));
+        perms.put(new SimpleRole("ROLE_POWER_USER"), new SimplePermissionMask(IPentahoAclEntry.PERM_SUBSCRIBE));
         SpringSecurityPermissionMgr.instance().setPermissions(perms, testFile);
         PentahoBasicAclVoter voter = new PentahoBasicAclVoter();
         assertTrue(voter.hasAccess(PentahoSessionHolder.getSession(), testFile, IPentahoAclEntry.PERM_EXECUTE));

@@ -97,7 +97,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
 
   private static final String TEST_TENANT_ID = "Pentaho";
 
-  private static final String TEST_USER_ID = "joe";
+  private static final String TEST_USER_ID = "admin";
 
   private static MicroPlatform mp = new MicroPlatform();
 
@@ -178,7 +178,7 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
     List<String> systemRoles = new ArrayList<String>();
-    systemRoles.add("Admin");
+    systemRoles.add("Administrator");
     userRoleListService = new UserRoleDaoUserRoleListService(userRoleDao,userDetailsService,
         systemRoles);
     ((UserRoleDaoUserRoleListService) userRoleListService).setUserRoleDao(userRoleDao);
@@ -234,8 +234,8 @@ public class MetadataRepositoryLifecycleManagerTest implements ApplicationContex
     ITenant systemTenant = tenantManager.createTenant(null, ServerRepositoryPaths.getPentahoRootFolderName(), adminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
     userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{adminAuthorityName});
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, adminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{adminAuthorityName, tenantAuthenticatedAuthorityName});
-    login("joe", mainTenant_1, new String[]{adminAuthorityName, tenantAuthenticatedAuthorityName});
+    userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{adminAuthorityName, tenantAuthenticatedAuthorityName});
+    login("admin", mainTenant_1, new String[]{adminAuthorityName, tenantAuthenticatedAuthorityName});
     JcrRepositoryDumpToFile dumpToFile = new JcrRepositoryDumpToFile(testJcrTemplate, jcrTransactionTemplate,
         repositoryAdminUsername, "c:/build/testrepo_3", Mode.CUSTOM);
     dumpToFile.execute();

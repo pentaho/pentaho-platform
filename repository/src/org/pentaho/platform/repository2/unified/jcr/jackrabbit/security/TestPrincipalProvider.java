@@ -47,7 +47,7 @@ import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 
 /**
- * PrincipalProvider for unit test purposes. Has joe and the other Pentaho users. In addition, it has the Jackrabbit 
+ * PrincipalProvider for unit test purposes. Has admin and the other Pentaho users. In addition, it has the Jackrabbit
  * principals "everyone", "admin", and "anonymous".
  * 
  * <p>
@@ -232,11 +232,11 @@ public class TestPrincipalProvider implements PrincipalProvider {
             }
         }
       } else {
-        if(principal.getName() != null && (principal.getName().startsWith("joe") || principal.getName().startsWith("suzy") || principal.getName().startsWith("tiffany"))) {
+        if(principal.getName() != null && (principal.getName().startsWith("admin") || principal.getName().startsWith("suzy") || principal.getName().startsWith("tiffany"))) {
           ITenant tenant = tenantedUserNameUtils.getTenant(principal.getName());
           principals.add(new SpringSecurityRolePrincipal(tenantedRoleNameUtils.getPrincipleId(tenant, "Authenticated")));
         }
-        if(principal.getName() != null && principal.getName().startsWith("joe")) {
+        if(principal.getName() != null && principal.getName().startsWith("admin")) {
           ITenant tenant = tenantedUserNameUtils.getTenant(principal.getName());
           principals.add(new SpringSecurityRolePrincipal(tenantedRoleNameUtils.getPrincipleId(tenant, "TenantAdmin")));
         }

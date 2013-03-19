@@ -46,7 +46,7 @@ public class RepositoryUtilsTest {
 
   @BeforeClass
   public static void setUpClass() {
-    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("joe", null, new GrantedAuthority[0]));
+    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("admin", null, new GrantedAuthority[0]));
   }
   
   @AfterClass

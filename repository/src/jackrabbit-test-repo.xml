@@ -75,7 +75,7 @@ Jackrabbit configuration suitable for integration tests.
            <!--
               administrator user id (default value if param is missing is 'admin')
             -->
-           <param name="adminId" value="admin"/>
+           <param name="adminId" value="pentahoRepoAdmin"/>
            
            <param name="principalProvider" 
                value="org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrincipalProvider"/>

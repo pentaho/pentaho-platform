@@ -128,7 +128,7 @@ public class MondrianCatalogHelperTest {
 	  final String metadataPath = steelWheelsFolderPath + RepositoryFile.SEPARATOR + "metadata";
 	  stubCreateFile(repo, metadataPath);
 	  
-		IPentahoSession session = new StandaloneSession("joe");
+		IPentahoSession session = new StandaloneSession("admin");
 		MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
 
 		MondrianSchema schema = new MondrianSchema("SteelWheels", null);
@@ -206,7 +206,7 @@ public class MondrianCatalogHelperTest {
     stubGetFile(repo, steelWheelsSchemaPath);
     stubGetData(repo, steelWheelsSchemaPath, mondrianSchema1);
   	    
-	  IPentahoSession session = new StandaloneSession("joe");
+	  IPentahoSession session = new StandaloneSession("admin");
 		MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
 
 		List<MondrianCatalog> cats = helper.listCatalogs(session, false);
@@ -234,7 +234,7 @@ public class MondrianCatalogHelperTest {
     
     stubGetFolder(repo, steelWheelsFolderPath);
 	  
-	  IPentahoSession session = new StandaloneSession("joe");
+	  IPentahoSession session = new StandaloneSession("admin");
 		MondrianCatalogHelper helper = (MondrianCatalogHelper) PentahoSystem.get(IMondrianCatalogService.class);
 
 		helper.removeCatalog("mondrian:/SteelWheels", session);

@@ -173,7 +173,7 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
     try {
       if(tenants != null && tenants.size() > 0) {
         for(ITenant tenant: tenants) {
-          login("joe", tenant, true);
+          login("admin", tenant, true);
           for(IPentahoRole role:userRoleDao.getRoles())  {
             userRoleDao.deleteRole(role);
           }
@@ -297,8 +297,8 @@ public class UnifiedRepositoryToWebServiceAdapterTest implements ApplicationCont
   public void testFileMetadata() throws Exception {
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityName});
-    login("joe", mainTenant_1, new String[]{tenantAuthenticatedAuthorityName});
+    userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+    login("admin", mainTenant_1, new String[]{tenantAuthenticatedAuthorityName});
     RepositoryFile file = repository.getFile(ClientRepositoryPaths.getPublicFolderPath());
     final RepositoryFile testfile = repository.createFile(file.getId(),
         new RepositoryFile.Builder("testfile").build(),

@@ -151,7 +151,7 @@ public class DefaultBackingRepositoryLifecycleManager implements IBackingReposit
         defaultTenant = tenantMgr.createTenant(systemTenant, TenantUtils.TENANTID_SINGLE_TENANT, tenantAdminRoleName,
             tenantAuthenticatedRoleName, "Anonymous");
         userRoleDao.createUser(defaultTenant, singleTenantAdminUserName, "password", "",
-            new String[] { tenantAdminRoleName });
+                new String[] { tenantAdminRoleName });
       }
     }
   }

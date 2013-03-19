@@ -1,6 +1,7 @@
 package org.pentaho.platform.repository2.unified.lifecycle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -10,6 +11,7 @@ import org.pentaho.database.model.IDatabaseConnection;
 import org.pentaho.database.service.IDatabaseDialectService;
 import org.pentaho.database.util.DatabaseTypeHelper;
 import org.pentaho.platform.api.data.IDBDatasourceService;
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.ObjectFactoryException;
@@ -27,6 +29,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -34,6 +37,7 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
+
 
 public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryLifecycleManager{
 
@@ -59,13 +63,16 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
   String tenantAdminRoleName;
   String authenticatedRoleName;
   protected String repositoryAdminUsername;
+  protected IRoleAuthorizationPolicyRoleBindingDao roleBindingDao;
+
   
   public SampleDataRepositoryLifecycleManager(IDatasourceMgmtService datasourceMgmtService, 
                                               IDatabaseDialectService databaseDialectService,
                                               final String repositoryAdminUsername,
                                               final String singleTenantAdminUserName,
                                               final String tenantAdminRoleName,
-                                              final String authenticatedRoleName) {
+                                              final String authenticatedRoleName,
+                                              final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao) {
     super();
     this.databaseTypeHelper = new DatabaseTypeHelper(databaseDialectService.getDatabaseTypes());
     this.datasourceMgmtService = datasourceMgmtService;
@@ -73,6 +80,7 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
     this.singleTenantAdminUserName = singleTenantAdminUserName;
     this.tenantAdminRoleName = tenantAdminRoleName;
     this.authenticatedRoleName = authenticatedRoleName;
+    this.roleBindingDao = roleBindingDao;
     settings = new PathBasedSystemSettings();
   }
 
@@ -229,55 +237,48 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
    */
   private void createDefaultUsersAndRoles(ITenant defaultTenant) {
 
-    IPentahoRole role = userRoleDao.getRole(defaultTenant, "Admin");
+    IPentahoRole role = userRoleDao.getRole(defaultTenant, "Administrator");
     if (role == null) {
-      userRoleDao.createRole(defaultTenant, "Admin", "", new String[0]);
-    }
-    
-    role = userRoleDao.getRole(defaultTenant, "ceo");
-    if (role == null) {
-      userRoleDao.createRole(defaultTenant, "ceo", "", new String[0]);
-    }
-    
-    role = userRoleDao.getRole(defaultTenant, "cto");
-    if (role == null) {
-      userRoleDao.createRole(defaultTenant, "cto", "", new String[0]);
-    }
-    
-    role = userRoleDao.getRole(defaultTenant, "dev");
-    if (role == null) {
-      userRoleDao.createRole(defaultTenant, "dev", "", new String[0]);
-    }
-    
-    role = userRoleDao.getRole(defaultTenant, "devmgr");
-    if (role == null) {
-      userRoleDao.createRole(defaultTenant, "devmgr", "", new String[0]);
-    }
-    
-    role = userRoleDao.getRole(defaultTenant, "is");
-    if (role == null) {
-      userRoleDao.createRole(defaultTenant, "is", "", new String[0]);
-    }    
-       
-    IPentahoUser user = userRoleDao.getUser(defaultTenant, "suzy");
-    if (user == null) {
-      userRoleDao.createUser(defaultTenant, "suzy", "password", "user", new String[] {authenticatedRoleName, "cto", "is"});
-    }
-    
-    user = userRoleDao.getUser(defaultTenant, "pat");
-    if (user == null) {
-      userRoleDao.createUser(defaultTenant, "pat", "password", "user", new String[] {authenticatedRoleName, "dev"});
-    }
-    
-    user = userRoleDao.getUser(defaultTenant, "tiffany");
-    if (user == null) {
-      userRoleDao.createUser(defaultTenant, "tiffany", "password", "user", new String[] {authenticatedRoleName, "dev", "devmgr"});
+      userRoleDao.createRole(defaultTenant, "Administrator", "", new String[0]);
     }
 
-    user = userRoleDao.getUser(defaultTenant, "joe");
-    if (user == null) {
-      userRoleDao.createUser(defaultTenant, "joe", "password", "user", new String[] {tenantAdminRoleName, authenticatedRoleName, "Admin", "ceo"});
-    }
+      role = userRoleDao.getRole(defaultTenant, "Power User");
+      if (role == null) {
+          userRoleDao.createRole(defaultTenant, "Power User", "", new String[0]);
+      }
+      roleBindingDao.setRoleBindings(defaultTenant, "Power User", Arrays.asList(new String[]{IAuthorizationPolicy.MANAGE_SCHEDULING}));
+
+      role = userRoleDao.getRole(defaultTenant, "Report Author");
+      if (role == null) {
+          userRoleDao.createRole(defaultTenant, "Report Author", "", new String[0]);
+      }
+      roleBindingDao.setRoleBindings(defaultTenant, "Report Author", Arrays.asList(new String[]{}));
+
+      role = userRoleDao.getRole(defaultTenant, "Business Analyst");
+      if (role == null) {
+          userRoleDao.createRole(defaultTenant, "Business Analyst", "", new String[0]);
+      }
+      roleBindingDao.setRoleBindings(defaultTenant, "Business Analyst", Arrays.asList(new String[]{IAuthorizationPolicy.MANAGE_SCHEDULING/*, IAuthorizationPolicy.PUBLISH*/}));
+
+      IPentahoUser user = userRoleDao.getUser(defaultTenant, "suzy");
+      if (user == null) {
+          userRoleDao.createUser(defaultTenant, "suzy", "password", "user", new String[] {authenticatedRoleName, "Power User"});
+      }
+
+      user = userRoleDao.getUser(defaultTenant, "pat");
+      if (user == null) {
+          userRoleDao.createUser(defaultTenant, "pat", "password", "user", new String[] {authenticatedRoleName, "Business Analyst"});
+      }
+
+      user = userRoleDao.getUser(defaultTenant, "tiffany");
+      if (user == null) {
+          userRoleDao.createUser(defaultTenant, "tiffany", "password", "user", new String[] {authenticatedRoleName, "Report Author"});
+      }
+
+      user = userRoleDao.getUser(defaultTenant, "admin");
+      if (user == null) {
+          userRoleDao.createUser(defaultTenant, "admin", "password", "user", new String[] {tenantAdminRoleName, authenticatedRoleName, "Administrator"});
+      }
 
   }
   

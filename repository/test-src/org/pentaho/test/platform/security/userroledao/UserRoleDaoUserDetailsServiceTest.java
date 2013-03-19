@@ -85,16 +85,16 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
 
   private static final String ROLE_PREFIX = "ROLE_"; //$NON-NLS-1$
 
-  private static final String ROLE = "Admin"; //$NON-NLS-1$
+  private static final String ROLE = "Administrator"; //$NON-NLS-1$
 
   private static final String TENANT = "pentaho"; //$NON-NLS-1$
   
   private static final String PASSWORD = "password"; //$NON-NLS-1$
 
-  private static final String USERNAME = "joe"; //$NON-NLS-1$
+  private static final String USERNAME = "admin"; //$NON-NLS-1$
 
   public static final int DEFAULT_ROLE_COUNT = 3;
-  public static final int DEFAULT_USER_COUNT = 1; // joe
+  public static final int DEFAULT_USER_COUNT = 1; // admin
   public static final String MAIN_TENANT_1 = "maintenant1";
   public static final String MAIN_TENANT_2 = "maintenant2";
 
@@ -114,7 +114,7 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
   public static final String PASSWORD_13 = "password13"; //$NON-NLS-1$
   public static final String PASSWORD_14 = "password14"; //$NON-NLS-1$
 
-  public static final String USER_1 = "joe"; //$NON-NLS-1$
+  public static final String USER_1 = "admin"; //$NON-NLS-1$
   public static final String USER_2 = "jim"; //$NON-NLS-1$
   public static final String USER_3 = "sally"; //$NON-NLS-1$
   public static final String USER_4 = "suzy"; //$NON-NLS-1$
@@ -250,7 +250,7 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
     try {
       if(tenants != null && tenants.size() > 0) {
         for(ITenant tenant: tenants) {
-          login("joe", tenant, true);
+          login("admin", tenant, true);
           for(IPentahoRole role:userRoleDao.getRoles())  {
             userRoleDao.deleteRole(role);
           }
@@ -372,8 +372,8 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
     userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityName});
-    login("joe", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+    userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+    login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     IPentahoUser pentahoUser = userRoleDao.createUser(mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
     IPentahoRole pentahoRole = userRoleDao.createRole(mainTenant_1, ROLE_1, ROLE_DESCRIPTION_1, null);
     pentahoRole = userRoleDao.createRole(mainTenant_1, ROLE_2, ROLE_DESCRIPTION_2, null);
@@ -395,7 +395,7 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
     assertTrue(userFromService.getAuthorities()[2].getAuthority().equals(ROLE_0) || userFromService.getAuthorities()[2].getAuthority().equals(ROLE_3) || userFromService.getAuthorities()[2].getAuthority().equals(ROLE_2) || userFromService.getAuthorities()[2].getAuthority().equals(ROLE_1));
     assertTrue(userFromService.getAuthorities()[3].getAuthority().equals(ROLE_0) || userFromService.getAuthorities()[3].getAuthority().equals(ROLE_3) || userFromService.getAuthorities()[3].getAuthority().equals(ROLE_2) || userFromService.getAuthorities()[3].getAuthority().equals(ROLE_1));
 
-    cleanupUserAndRoles("joe", mainTenant_1);
+    cleanupUserAndRoles("admin", mainTenant_1);
     cleanupUserAndRoles(sysAdminUserName, systemTenant);
   }
 
@@ -406,8 +406,8 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
     userRoleDao.createUser(systemTenant, sysAdminUserName, "password", "", new String[]{tenantAdminAuthorityName});
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     ITenant mainTenant_1 = tenantManager.createTenant(systemTenant, MAIN_TENANT_1, tenantAdminAuthorityName, tenantAuthenticatedAuthorityName, "Anonymous");
-    userRoleDao.createUser(mainTenant_1, "joe", "password", "", new String[]{tenantAdminAuthorityName});
-    login("joe", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
+    userRoleDao.createUser(mainTenant_1, "admin", "password", "", new String[]{tenantAdminAuthorityName});
+    login("admin", mainTenant_1, new String[]{tenantAdminAuthorityName, tenantAuthenticatedAuthorityName});
     IPentahoUser pentahoUser = userRoleDao.createUser(mainTenant_1, USER_2, PASSWORD_2, USER_DESCRIPTION_2, null);
 
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
@@ -418,7 +418,7 @@ public class UserRoleDaoUserDetailsServiceTest   implements ApplicationContextAw
       assertNotNull(unnf);
     }
     
-    cleanupUserAndRoles("joe", mainTenant_1);
+    cleanupUserAndRoles("admin", mainTenant_1);
     cleanupUserAndRoles(sysAdminUserName, systemTenant);
 
   }

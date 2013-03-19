@@ -127,7 +127,7 @@ public interface ITenantManager {
   
   ITenant getTenantByRootFolderPath(String tenantRootFolderPath);
   
-  /** Creates users home folder. If the user is joe, this method will create home/joe folder
+  /** Creates users home folder. If the user is admin, this method will create home/admin folder
    * @param tenantPath
    * @param username
    * @return home folder
