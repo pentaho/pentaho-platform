@@ -21,7 +21,7 @@
 		</region>
 
 		<from type="string">
-		  <default-value>admin.pentaho@pentaho.org</default-value>
+		  <default-value>joe.pentaho@pentaho.org</default-value>
 		</from>
 		
 		<subject type="string">
@@ -53,7 +53,7 @@
 			      function getManagersEmail( theRegion ) { 
 			        
 			        if ( "Central".equals( theRegion ) ) {
-			          return( "admin.pentaho@pentaho.org" );
+			          return( "joe.pentaho@pentaho.org" );
 			        }
 			        return( "jose.pentaho@pentaho.org" );
 			      }

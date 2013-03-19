@@ -6,7 +6,7 @@ objectclass: organizationalUnit
 objectclass: top
 
 dn: uid=admin,ou=users,dc=pentaho,dc=org
-mail: admin.pentaho@pentaho.org
+mail: joe.pentaho@pentaho.org
 objectclass: inetOrgPerson
 objectclass: organizationalPerson
 objectclass: person

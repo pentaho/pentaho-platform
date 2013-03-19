@@ -15,10 +15,10 @@
 			<default-value>html</default-value>
 		</output-type>
 		<to type="string">
-		  <default-value>admin.pentaho@pentaho.org</default-value>
+		  <default-value>joe.pentaho@pentaho.org</default-value>
 		</to>
 		<from type="string">
-		  <default-value>admin.pentaho@pentaho.org</default-value>
+		  <default-value>joe.pentaho@pentaho.org</default-value>
 		</from>
 		<subject type="string">
 		  <default-value>Pentaho BI Platform breaks through the Email barrier</default-value>
