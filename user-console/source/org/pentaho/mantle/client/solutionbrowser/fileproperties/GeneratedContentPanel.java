@@ -220,6 +220,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
       runBtn = new ToolbarButton(runImage, runDisabledImage);
       runBtn.setId("filesToolbarRun");
       runBtn.setCommand(new RunContentCommand());
+      runBtn.setToolTip(Messages.getString("open"));
       add(runBtn);
 
       Image refreshImage = new Image();
