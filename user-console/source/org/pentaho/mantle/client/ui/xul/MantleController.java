@@ -210,7 +210,7 @@ public class MantleController extends AbstractXulEventHandler {
   
     //For the menu item
     bindingsToUpdate.add(
-        bf.createBinding(model, "showBrowserSelected", showBrowserMenuItem, "checked")
+        bf.createBinding(model, "showNavigatorSelected", showBrowserBtn, "selected")
     );    
    
     UserSettingsManager.getInstance().addUserSettingsListener(new IUserSettingsListener() {
@@ -229,13 +229,15 @@ public class MantleController extends AbstractXulEventHandler {
 
               model.setShowNavigatorSelected(showNavigator);
 
-              for (Binding b : bindingsToUpdate) {
+             
                 try {
-                  b.fireSourceChanged();
+               
+                  ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(showNavigator);   
+                  showBrowserCommand.execute();  
                 } catch (Exception e) {
                   e.printStackTrace();
                 }
-              }
+           
 
             } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
               boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
@@ -666,11 +668,12 @@ public class MantleController extends AbstractXulEventHandler {
     model.setShowBrowserSelected(false);    
     model.showWorkspace();   
   }
-  
+ 
   @Bindable
   public void showNavigatorClicked(){
-    model.setShowNavigatorSelected(!model.isShowNavigatorSelected());  
-    ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(model.isShowNavigatorSelected());   
+    boolean show = !model.isShowNavigatorSelected();
+    model.setShowNavigatorSelected(show);  //toggle first
+    ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(show);   
     showBrowserCommand.execute();   
   }
 
