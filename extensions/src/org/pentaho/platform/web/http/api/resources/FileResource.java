@@ -21,39 +21,6 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static javax.ws.rs.core.MediaType.WILDCARD;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -81,16 +48,23 @@ import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
-import org.pentaho.platform.repository2.unified.webservices.DefaultUnifiedRepositoryWebService;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAceDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAdapter;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
-import org.pentaho.platform.repository2.unified.webservices.RepositoryFileTreeDto;
-import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
+import org.pentaho.platform.repository2.unified.webservices.*;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static javax.ws.rs.core.MediaType.*;
+import static javax.ws.rs.core.Response.Status.*;
 
 /**
  * Represents a file node in the repository.  This api provides methods for discovering information
@@ -765,10 +739,22 @@ public class FileResource extends AbstractJaxRSResource {
         StringKeyStringValueDto schedPerm = new StringKeyStringValueDto("_PERM_SCHEDULABLE", "true");
         list.add(schedPerm);
       }
+
+      // check file object for hidden value and add it to the list
+      list.add(new StringKeyStringValueDto("_PERM_HIDDEN", String.valueOf(file.isHidden())));
     }
+
     return list;
   }
 
+  /**
+   * Even though the hidden flag is a property of the file node itself, and not the metadata child,
+   * it is considered metadata from PUC and is included in the setMetadata call
+   *
+   * @param pathId
+   * @param metadata
+   * @return
+   */
   @PUT
   @Path("{pathId : .+}/metadata")
   @Produces({APPLICATION_XML, APPLICATION_JSON})
@@ -776,10 +762,44 @@ public class FileResource extends AbstractJaxRSResource {
     try {
       RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
       Map<String, Serializable> fileMetadata = repository.getFileMetadata(file.getId());
+      boolean isHidden = false;
+
       for (StringKeyStringValueDto nv : metadata) {
-        fileMetadata.put(nv.getKey(), nv.getValue());
+        // don't add hidden to the list because it is not actually part of the metadata node
+        if((nv.getKey().contentEquals("_PERM_HIDDEN"))){
+          isHidden = Boolean.parseBoolean(nv.getValue());
+        }
+        else{
+          fileMetadata.put(nv.getKey(), nv.getValue());
+        }
       }
+
+      // handle hidden flag if it is different
+      if(file.isHidden() != isHidden){
+        file.setHidden(isHidden);
+
+        /*
+          Since we cannot simply set the new value, use the RepositoryFileAdapter
+          to create a new instance and then update the original.
+         */
+        RepositoryFile sourceFile = repository.getFileById(file.getId());
+        RepositoryFileDto destFileDto = RepositoryFileAdapter.toFileDto(sourceFile);
+
+        destFileDto.setHidden(isHidden);
+
+        RepositoryFile destFile = RepositoryFileAdapter.toFile(destFileDto);
+
+        // add the existing acls and file data
+        RepositoryFileAcl acl = repository.getAcl(sourceFile.getId());
+        IRepositoryFileData data = repository.getDataForRead(sourceFile.getId(), SimpleRepositoryFileData.class);
+
+        repository.updateFile(destFile, data, null);
+        repository.updateAcl(acl);
+      }
+
+      // now update the rest of the metadata
       repository.setFileMetadata(file.getId(), fileMetadata);
+
       return Response.ok().build();
     } catch (Throwable t) {
       return Response.serverError().build();

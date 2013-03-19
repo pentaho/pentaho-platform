@@ -358,7 +358,7 @@ public class PerspectiveManager extends HorizontalPanel {
     if (perspective.getId().equals(DEFAULT_PERSPECTIVE)) {
       showDefaultPerspective(true, false);
     } else if (perspective.getId().equals(WORKSPACE_PERSPECTIVE)) {
-      showWorkspacePerspective(false,true);
+      showWorkspacePerspective();
     } else if (perspective.getId().equals(ADMIN_PERSPECTIVE)) {
       showAdminPerspective(false,false);
     }
@@ -372,11 +372,10 @@ public class PerspectiveManager extends HorizontalPanel {
     // show stuff we've created/configured
     contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
     setCheckMMenuItem(browserChecked,workspaceChecked);
-
     MantleApplication.getInstance().pucToolBarVisibility(true);
   }
 
-  private void showWorkspacePerspective(boolean browserChecked, boolean workspaceChecked) {
+  private void showWorkspacePerspective() {
    
     GWT.runAsync(new RunAsyncCallback() {
       
@@ -389,13 +388,13 @@ public class PerspectiveManager extends HorizontalPanel {
         }
         contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));
         MantleApplication.getInstance().pucToolBarVisibility(false);   
-          
+        setCheckMMenuItem(false,true);
       }
       
       public void onFailure(Throwable reason) {
       }
     });
-    setCheckMMenuItem(browserChecked,workspaceChecked); 
+   
   }
 
   private void showAdminPerspective(boolean browserChecked, boolean workspaceChecked) {
@@ -407,9 +406,8 @@ public class PerspectiveManager extends HorizontalPanel {
     MantleXul.getInstance().customizeAdminStyle();
     MantleXul.getInstance().configureAdminCatTree();
     //disable Browser and Workspace menuItem
-    setCheckMMenuItem(browserChecked,workspaceChecked);    
-    MantleApplication.getInstance().pucToolBarVisibility(false);
-
+    setCheckMMenuItem(browserChecked,workspaceChecked);
+    MantleApplication.getInstance().pucToolBarVisibility(false); //this should not be needed since overlay removes.
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {

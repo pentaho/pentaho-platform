@@ -84,6 +84,8 @@ public class RepositoryFileDto implements Serializable {
 
   List<StringKeyStringValueDto> descriptionMapEntries;
 
+  List<LocaleMapDto> localePropertiesMapEntries;
+
   public RepositoryFileDto() {
     super();
     // TODO Auto-generated constructor stub
@@ -293,6 +295,14 @@ public class RepositoryFileDto implements Serializable {
     this.descriptionMapEntries = descriptionMapEntries;
   }
 
+  public List<LocaleMapDto> getLocalePropertiesMapEntries() {
+    return localePropertiesMapEntries;
+  }
+
+  public void setLocalePropertiesMapEntries(List<LocaleMapDto> localePropertiesMapEntries) {
+    this.localePropertiesMapEntries = localePropertiesMapEntries;
+  }
+
   @SuppressWarnings("nls")
   @Override
   public String toString() {
@@ -302,8 +312,8 @@ public class RepositoryFileDto implements Serializable {
         + lastModifiedDate + ", locale=" + locale + ", lockDate=" + lockDate + ", lockMessage=" + lockMessage
         + ", lockOwner=" + lockOwner + ", locked=" + locked 
         + ", originalParentFolderPath=" + originalParentFolderPath + ", owner=" + owner + ", ownerType=" + ownerType
-        + ", title=" + title + ", titleMapEntries=" + titleMapEntries + ", versionId=" + versionId + ", versioned="
-        + versioned + "]";
+        + ", title=" + title + ", titleMapEntries=" + titleMapEntries + ", localePropertiesMapEntries=" + localePropertiesMapEntries
+        + ", versionId=" + versionId + ", versioned=" + versioned + "]";
   }
 
 }

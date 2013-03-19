@@ -227,13 +227,17 @@ public class MantleController extends AbstractXulEventHandler {
             if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
               boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
 
-              model.setShowNavigatorSelected(showNavigator);            
-                try {             
+              model.setShowNavigatorSelected(showNavigator);
+
+             // for (Binding b : bindingsToUpdate) {
+                try {
+                //  b.fireSourceChanged();
                   ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(showNavigator);   
                   showBrowserCommand.execute();  
                 } catch (Exception e) {
                   e.printStackTrace();
-                }           
+                }
+              //}
 
             } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
               boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$

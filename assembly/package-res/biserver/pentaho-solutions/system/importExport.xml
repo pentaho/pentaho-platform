@@ -78,6 +78,7 @@
                 <entry key="ktr" value="text/xml"/>
                 <entry key="png" value="image/png"/>
                 <entry key="properties" value="text/plain"/>
+                <entry key="locale" value="text/locale"/>
                 <entry key="report" value="text/xml"/>
                 <entry key="rptdesign" value="text/xml"/>
                 <entry key="svg" value="image/svg+xml"/>
@@ -165,6 +166,16 @@
                     <bean class="org.pentaho.platform.plugin.services.importer.MondrianImportHandler">
                         <constructor-arg ref="IMondrianCatalogService"/>
                     </bean>
+                </entry>
+				<entry key="text/locale">
+                    <bean class="org.pentaho.platform.plugin.services.importer.LocaleImportHandler">
+						<constructor-arg>
+		            		<list>
+                				<value>xaction</value>
+                				<value>url</value>
+		            		</list>
+	        			</constructor-arg>
+		    		</bean>	
                 </entry>
             </map>
         </constructor-arg>
