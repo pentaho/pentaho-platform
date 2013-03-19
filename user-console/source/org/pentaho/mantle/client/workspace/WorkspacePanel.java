@@ -742,18 +742,20 @@ public class WorkspacePanel extends SimplePanel {
     bar.add(controlScheduleButton);
     bar.addSpacer(20);
 
-    final ToolbarButton controlSchedulerButton = new ToolbarButton(new Image(MantleImages.images.start_scheduler16()));
-    controlSchedulerButton.setCommand(new Command() {
-      public void execute() {
-        toggleSchedulerOnOff(controlSchedulerButton);
+      if (isAdmin) {
+          final ToolbarButton controlSchedulerButton = new ToolbarButton(new Image(MantleImages.images.start_scheduler16()));
+          controlSchedulerButton.setCommand(new Command() {
+            public void execute() {
+              toggleSchedulerOnOff(controlSchedulerButton);
+            }
+          });
+          updateControlSchedulerButtonState(controlSchedulerButton);
+
+          bar.add(controlSchedulerButton);
+          bar.addSpacer(20);
       }
-    });
-    updateControlSchedulerButtonState(controlSchedulerButton);
 
-    bar.add(controlSchedulerButton);
-    bar.addSpacer(20);
-
-    editButton.setCommand(new Command() {
+      editButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
           JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
