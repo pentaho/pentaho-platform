@@ -100,7 +100,7 @@ public class UserRoleMapperTest {
   public void testReadRolesInSchema() throws Exception {
     final MondrianCatalogHelper helper = (MondrianCatalogHelper)PentahoSystem.get(IMondrianCatalogService.class);;
     Assert.assertNotNull(helper);
-    MondrianCatalog mc = SecurityHelper.getInstance().runAsUser("joe", new Callable<MondrianCatalog>() {
+    MondrianCatalog mc = SecurityHelper.getInstance().runAsUser("admin", new Callable<MondrianCatalog>() {
       @Override
       public MondrianCatalog call() throws Exception {
         return helper.getCatalog("SteelWheelsRoles", PentahoSessionHolder.getSession());
@@ -119,7 +119,7 @@ public class UserRoleMapperTest {
   
   @Test
   public void testReadRolesInPlatform() throws Exception {
-    SecurityHelper.getInstance().runAsUser("joe", new Callable<Void>() {
+    SecurityHelper.getInstance().runAsUser("admin", new Callable<Void>() {
       @Override
       public Void call() throws Exception {
         Authentication auth = SecurityHelper.getInstance().getAuthentication();
@@ -141,7 +141,7 @@ public class UserRoleMapperTest {
     mapper.setSessionProperty("rolesAttribute");
 
     try {
-      String[] roles = SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
+      String[] roles = SecurityHelper.getInstance().runAsUser("admin", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           IPentahoSession session = PentahoSessionHolder.getSession();
@@ -166,7 +166,7 @@ public class UserRoleMapperTest {
     mapper.setSessionProperty("rolesAttribute");
 
     try {
-      String[] roles = SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
+      String[] roles = SecurityHelper.getInstance().runAsUser("admin", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
@@ -190,7 +190,7 @@ public class UserRoleMapperTest {
     mapper.setLookupMap(lookup);
 
     try {
-      String[] roles = SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
+      String[] roles = SecurityHelper.getInstance().runAsUser("admin", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles"); 
@@ -215,7 +215,7 @@ public class UserRoleMapperTest {
 
     mapper.setFailOnEmptyRoleList(true);
     try {
-      SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
+      SecurityHelper.getInstance().runAsUser("admin", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
@@ -229,7 +229,7 @@ public class UserRoleMapperTest {
     mapper.setFailOnEmptyRoleList(false);
     
     try {
-      String[] roles = SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
+      String[] roles = SecurityHelper.getInstance().runAsUser("admin", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
@@ -267,7 +267,7 @@ public class UserRoleMapperTest {
     final MondrianOneToOneUserRoleListMapper mapper = new MondrianOneToOneUserRoleListMapper();
     mapper.setFailOnEmptyRoleList(true);
     try {
-      SecurityHelper.getInstance().runAsUser("joe", new Callable<String[]>() {
+      SecurityHelper.getInstance().runAsUser("admin", new Callable<String[]>() {
         @Override
         public String[] call() throws Exception {
           return mapper.mapConnectionRoles(PentahoSessionHolder.getSession(), "SteelWheelsRoles");
@@ -323,7 +323,7 @@ public class UserRoleMapperTest {
 
     @Override
     public List<String> getRolesForUser(ITenant tenant, String username) {
-      if (username.equals("joe")) {
+      if (username.equals("admin")) {
         return Arrays.asList(new String[] { "ceo", "Admin", "Authenticated" });
       } else if (username.equals("simplebob")) {
         return Arrays.asList(new String[] { "Role1", "Role2" });

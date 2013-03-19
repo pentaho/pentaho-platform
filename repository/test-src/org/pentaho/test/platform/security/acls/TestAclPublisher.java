@@ -63,9 +63,8 @@ public class TestAclPublisher extends BaseTest {
 
   public void setup() {
     super.setUp();
-    defaultAcls.put(new SimpleRole("ROLE_ADMIN"), new SimplePermissionMask(IPentahoAclEntry.PERM_FULL_CONTROL)); //$NON-NLS-1$
-    defaultAcls.put(new SimpleRole("ROLE_CTO"), new SimplePermissionMask(IPentahoAclEntry.PERM_FULL_CONTROL)); //$NON-NLS-1$
-    defaultAcls.put(new SimpleRole("ROLE_DEV"), new SimplePermissionMask(IPentahoAclEntry.PERM_EXECUTE_SUBSCRIBE)); //$NON-NLS-1$
+    defaultAcls.put(new SimpleRole("ROLE_ADMINISTRATOR"), new SimplePermissionMask(IPentahoAclEntry.PERM_FULL_CONTROL)); //$NON-NLS-1$
+    defaultAcls.put(new SimpleRole("ROLE_POWER_USER"), new SimplePermissionMask(IPentahoAclEntry.PERM_FULL_CONTROL)); //$NON-NLS-1$
     defaultAcls.put(new SimpleRole("ROLE_AUTHENTICATED"), new SimplePermissionMask(IPentahoAclEntry.PERM_EXECUTE)); //$NON-NLS-1$
   }
 

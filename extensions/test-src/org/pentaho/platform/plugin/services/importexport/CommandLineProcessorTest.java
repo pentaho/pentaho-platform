@@ -31,13 +31,13 @@ import org.apache.commons.lang.StringUtils;
 public class CommandLineProcessorTest extends TestCase {
   private static String VALID_URL_OPTION = "--url=http://localhost:8080/pentaho";
   private static String FILE_SYSTEM_SOURCE_OPTION = "--source=file-system";
-  private static String VALID_IMPORT_COMMAND_LINE = "--import --type=files --source=file-system --username=joe " +
+  private static String VALID_IMPORT_COMMAND_LINE = "--import --type=files --source=file-system --username=admin " +
       "--password=password --charset=UTF-8 --path=/public " +
       "--file-path=/home/dkincade/pentaho/platform/trunk/biserver-ee/pentaho-solutions " + VALID_URL_OPTION;
 
   private static String VALID_LEGACY_DB_CHARSET_OPTION = "--legacy-db-charset=ISO-8859-1";
   private static String VALID_IMPORT_LEGACY_COMMAND_LINE =
-      "--import --url=http://localhost:8080/pentaho --username=joe --password=password " +
+      "--import --url=http://localhost:8080/pentaho --username=admin --password=password " +
           "--source=legacy-db --charset=UTF-8 --path=/public --legacy-db-driver=com.mysql.jdbc.Driver " +
           "--legacy-db-url=jdbc:mysql://localhost/hibernate --legacy-db-username=hibuser " +
           "--legacy-db-password=password " + VALID_LEGACY_DB_CHARSET_OPTION;

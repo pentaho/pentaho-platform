@@ -57,7 +57,7 @@ public class AppConfigProperties {
   public static final String DEFAULT_VALUE_PASSWORD_SERVICE_CLASS = "org.pentaho.platform.util.Base64PasswordService"; //$NON-NLS-1$
   public static final String DEFAULT_BISERVER_BASE_URL = "http://localhost:8080/pentaho"; //$NON-NLS-1$
   public static final String DEFAULT_BISERVER_CONTEXT_PATH = "/pentaho"; //$NON-NLS-1$
-  public static final String DEFAULT_PLATFORM_USERNAME = "joe"; //$NON-NLS-1$
+  public static final String DEFAULT_PLATFORM_USERNAME = "admin"; //$NON-NLS-1$
   public static final String DEFAULT_BISERVER_STATUS_CHECK_PERIOD = "30000"; //$NON-NLS-1$
   public static final String DEFAULT_HOMEPAGE_TIMEOUT = "15000"; //$NON-NLS-1$
   public static final String DEFAULT_HIBERNATE_CONFIG_PATH = "system/hibernate/hsql.hibernate.cfg.xml"; //$NON-NLS-1$

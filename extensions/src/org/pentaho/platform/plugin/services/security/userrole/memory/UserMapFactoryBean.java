@@ -41,7 +41,7 @@ import org.springframework.security.userdetails.memory.UserMapEditor;
  *       &lt;constructor-arg type=&quot;java.lang.String&quot;&gt;
  *         &lt;value&gt;
  *           &lt;![CDATA[
- *           joe=password,Admin,ceo,Authenticated
+ *           admin=password,Admin,ceo,Authenticated
  *           ...
  *           ]]&gt;
  *         &lt;/value&gt;

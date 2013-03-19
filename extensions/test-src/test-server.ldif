@@ -5,14 +5,14 @@ ou: users
 objectclass: organizationalUnit
 objectclass: top
 
-dn: uid=joe,ou=users,dc=pentaho,dc=org
+dn: uid=admin,ou=users,dc=pentaho,dc=org
 mail: joe.pentaho@pentaho.org
 objectclass: inetOrgPerson
 objectclass: organizationalPerson
 objectclass: person
 objectclass: top
-uid: joe
-cn: joe
+uid: admin
+cn: admin
 businesscategory: cn=ceo,ou=roles,dc=pentaho,dc=org
 businesscategory: cn=Admin,ou=roles,dc=pentaho,dc=org
 userpassword:: cGFzc3dvcmQ=
@@ -67,7 +67,7 @@ dn: cn=Sales,ou=groups,dc=pentaho,dc=org
 cn: Sales
 objectclass: groupofuniquenames
 objectclass: top
-uniquemember: uid=joe,ou=users,dc=pentaho,dc=org
+uniquemember: uid=admin,ou=users,dc=pentaho,dc=org
 
 dn: cn=Marketing,ou=groups,dc=pentaho,dc=org
 cn: Marketing
@@ -109,7 +109,7 @@ cn: ceo
 description: CEO Role
 objectclass: organizationalRole
 objectclass: top
-roleoccupant: uid=joe,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=admin,ou=users,dc=pentaho,dc=org
 l: Orlando
 st: Florida
 
@@ -132,14 +132,14 @@ cn: dev
 dn: cn=Admin,ou=roles,dc=pentaho,dc=org
 objectclass: organizationalRole
 objectclass: top
-roleoccupant: uid=joe,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=admin,ou=users,dc=pentaho,dc=org
 roleoccupant: uid=admin,dc=pentaho,dc=org
 cn: Admin
 
 dn: cn=Authenticated,ou=roles,dc=pentaho,dc=org
 objectclass: organizationalRole
 objectclass: top
-roleoccupant: uid=joe,ou=users,dc=pentaho,dc=org
+roleoccupant: uid=admin,ou=users,dc=pentaho,dc=org
 roleoccupant: uid=suzy,ou=users,dc=pentaho,dc=org
 roleoccupant: uid=suzy,ou=users,dc=pentaho,dc=org
 roleoccupant: uid=pat,ou=users,dc=pentaho,dc=org

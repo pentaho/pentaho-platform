@@ -37,11 +37,11 @@ import org.springframework.beans.factory.InitializingBean;
  * b- At runtime, the users' tenant ID is substituted in a pattern to retrieve the Datasource with the Tenant ID
  * 
  * For example:
- * User=Joe, Tenant=ABC_COMPANY
+ * User=admin, Tenant=ABC_COMPANY
  * Requested Datasource: Customers
  * Actual Returned Datasource: ABC_COMPANY-Datasource
  * 
- * When Joe runs a report that uses the datasource Customers, subclassers will use the tenant-ID 
+ * When admin runs a report that uses the datasource Customers, subclassers will use the tenant-ID
  * and the datasource name to fulfill the request -  
  * 
  * @author mbatchelor

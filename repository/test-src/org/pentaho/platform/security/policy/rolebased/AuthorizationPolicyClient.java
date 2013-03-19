@@ -56,7 +56,7 @@ public class AuthorizationPolicyClient {
     ((BindingProvider) policy).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "password");
     // accept cookies to maintain session on server
     ((BindingProvider) policy).getRequestContext().put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
-    ((BindingProvider) roleBindingDaoWebService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "joe");
+    ((BindingProvider) roleBindingDaoWebService).getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "admin");
     ((BindingProvider) roleBindingDaoWebService).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "password");
     // accept cookies to maintain session on server
     ((BindingProvider) roleBindingDaoWebService).getRequestContext().put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);

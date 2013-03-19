@@ -3,7 +3,7 @@
   <DataSource>
     <DataSourceName>Provider=Mondrian;DataSource=Pentaho</DataSourceName>
     <DataSourceDescription>Pentaho BI Platform Datasources</DataSourceDescription>
-    <URL>http://localhost:8080/pentaho/Xmla?userid=joe&amp;password=password</URL>
+    <URL>http://localhost:8080/pentaho/Xmla?userid=admin&amp;password=password</URL>
     <DataSourceInfo>Provider=mondrian</DataSourceInfo>
     <ProviderName>PentahoXMLA</ProviderName>
     <ProviderType>MDP</ProviderType>

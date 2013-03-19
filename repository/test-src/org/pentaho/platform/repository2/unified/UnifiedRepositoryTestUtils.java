@@ -723,7 +723,7 @@ public class UnifiedRepositoryTestUtils {
    * 
    * <p>Example:</p>
    * <pre>
-   * assertThat(repositoryFileAcl, isLikeAcl(new RepositoryFileAcl.Builder("joe", RepositoryFileSid.Type.USER)
+   * assertThat(repositoryFileAcl, isLikeAcl(new RepositoryFileAcl.Builder("admin", RepositoryFileSid.Type.USER)
    *   .ace("suzy", RepositoryFileSid.Type.USER, RepositoryFilePermission.WRITE).build()), true);
    * </pre>
    * 
@@ -743,7 +743,7 @@ public class UnifiedRepositoryTestUtils {
    * 
    * <p>Example:</p>
    * <pre>
-   * assertThat(repositoryFileAcl, isLikeAcl(new RepositoryFileAcl.Builder("joe", RepositoryFileSid.Type.USER).build()));
+   * assertThat(repositoryFileAcl, isLikeAcl(new RepositoryFileAcl.Builder("admin", RepositoryFileSid.Type.USER).build()));
    * </pre>
    * 
    * @param expectedAcl

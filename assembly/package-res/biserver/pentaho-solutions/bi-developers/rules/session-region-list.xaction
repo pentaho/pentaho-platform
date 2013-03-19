@@ -53,7 +53,7 @@
 			      function getRegions( user ) {
 			      	var results = new JavaScriptResultSet();
 			      	results.setColumnHeaders( 'REGION' );
-			      	if( user == 'joe' ) {
+			      	if( user == 'admin' ) {
 			      		results.addRow( new Array( 'Central' ) );
 			      	} 
 			      	else if( user == 'suzy' ) {

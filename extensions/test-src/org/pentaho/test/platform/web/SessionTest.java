@@ -70,7 +70,7 @@ public class SessionTest extends BaseTest {
       startTest();
   	  SimpleParameterProvider parameters = new SimpleParameterProvider();
       parameters.setParameter( "actionname", "ViewAction"); //$NON-NLS-1$ //$NON-NLS-2$
-      UserSession usession = new UserSession("Joe", Locale.US, true, parameters); //$NON-NLS-1$
+      UserSession usession = new UserSession("Admin", Locale.US, true, parameters); //$NON-NLS-1$
       usession.setActionName("ViewAction");
       usession.doStartupActions(parameters);
       assertEquals(usession.getActionName(), "ViewAction");//$NON-NLS-1$
@@ -82,7 +82,7 @@ public class SessionTest extends BaseTest {
       startTest();
  	  SimpleParameterProvider parameters = new SimpleParameterProvider();
       parameters.setParameter( "actionname", "ViewAction"); //$NON-NLS-1$ //$NON-NLS-2$
-      UserSession usession = new UserSession("Joe", Locale.US,parameters); //$NON-NLS-1$
+      UserSession usession = new UserSession("Admin", Locale.US,parameters); //$NON-NLS-1$
       Log log = usession.getLogger();
       usession.setActionName("ViewAction");      
       usession.doStartupActions(parameters);
@@ -123,7 +123,7 @@ public class SessionTest extends BaseTest {
       
       PentahoHttpSessionListener httpSessionListener = new PentahoHttpSessionListener();
       httpSessionListener.sessionCreated(event);
-      PentahoHttpSessionListener.registerHttpSession(session.getId(), null, null, null, "Joe", null, Long.parseLong("100000")); //$NON-NLS-1$ //$NON-NLS-2$
+      PentahoHttpSessionListener.registerHttpSession(session.getId(), null, null, null, "Admin", null, Long.parseLong("100000")); //$NON-NLS-1$ //$NON-NLS-2$
       PentahoHttpSessionListener.deregisterHttpSession(session.getId());
       httpSessionListener.sessionDestroyed(event);
 
@@ -138,7 +138,7 @@ public class SessionTest extends BaseTest {
       
       PentahoHttpSessionListener httpSessionListener = new PentahoHttpSessionListener();
       httpSessionListener.sessionCreated(event);
-      PentahoHttpSessionListener.registerHttpSession(session.getId(), "3543453453", "34534535345", "533453535345", "Joe", "4674564564", Long.parseLong("100000"));//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+      PentahoHttpSessionListener.registerHttpSession(session.getId(), "3543453453", "34534535345", "533453535345", "Admin", "4674564564", Long.parseLong("100000"));//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
       PentahoHttpSessionListener.deregisterHttpSession(session.getId());
       session.setAttribute(PentahoSystem.PENTAHO_SESSION_KEY, null);//$NON-NLS-1$
       httpSessionListener.sessionDestroyed(event);

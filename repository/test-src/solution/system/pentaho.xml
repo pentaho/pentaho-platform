@@ -46,7 +46,7 @@
 						for this to work).
 					-->
 					<default-acls>
-						<acl-entry role="Admin" acl="FULL_CONTROL" />				<!-- Admin users get all authorities -->
+						<acl-entry role="Administrator" acl="FULL_CONTROL" />				<!-- Admin users get all authorities -->
 						<acl-entry role="cto" acl="FULL_CONTROL" />				<!-- CTO gets everything -->
 						<acl-entry role="dev" acl="EXECUTE_SUBSCRIBE" />		<!-- Dev gets execute/subscribe -->
 						<acl-entry role="Authenticated" acl="EXECUTE" />		<!-- Authenticated users get execute only -->
@@ -60,7 +60,7 @@
 
 					<overrides>
 						<file path="/pentaho-solutions/admin">
-							<acl-entry role="Admin" acl="FULL_CONTROL" />
+							<acl-entry role="Administrator" acl="FULL_CONTROL" />
 						</file>
 					</overrides>
 

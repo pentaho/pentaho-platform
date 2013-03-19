@@ -41,15 +41,15 @@ public class UserRoleListEnhancedUserMapFactoryBeanTests extends
 		bean.setUserMap(userMapText);
 		UserRoleListEnhancedUserMap map = (UserRoleListEnhancedUserMap) bean
 				.getObject();
-		assertNotNull(map.getUser("joe")); //$NON-NLS-1$
+		assertNotNull(map.getUser("admin")); //$NON-NLS-1$
     // Next assert is unnecessary by interface contract
-		// assertTrue(map.getUser("joe") instanceof UserDetails); //$NON-NLS-1$
+		// assertTrue(map.getUser("admin") instanceof UserDetails); //$NON-NLS-1$
 		assertTrue(isRolePresent(map.getAllAuthorities(), "ROLE_CEO")); //$NON-NLS-1$
 		assertTrue(isUserPresent(
-				map.getUserNamesInRole("ROLE_CEO"), "joe")); //$NON-NLS-1$//$NON-NLS-2$
+				map.getUserNamesInRole("ROLE_CEO"), "admin")); //$NON-NLS-1$//$NON-NLS-2$
 		// System.out.println(StringUtils.arrayToCommaDelimitedString(map.getAllUsers()));
 		assertTrue(isUserPresent(map.getAllUsers(), "suzy")); //$NON-NLS-1$
-		// System.out.println(map.getUser("joe"));
+		// System.out.println(map.getUser("admin"));
 	}
 
 	protected boolean isRolePresent(final String[] roles,

@@ -34,7 +34,7 @@ import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
  * </p>
  * 
  * <pre>
- *        dn: uid=joe,ou=users,ou=system
+ *        dn: uid=admin,ou=users,ou=system
  *        ...
  *        uniqueMember: cn=ceo,ou=roles
  * </pre>

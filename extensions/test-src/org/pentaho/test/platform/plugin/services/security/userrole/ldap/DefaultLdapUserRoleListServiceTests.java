@@ -205,9 +205,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     userRoleListService.setRoleComparator(new DefaultRoleComparator());
 
     List res = userRoleListService.getRolesForUser(null, "suzy"); //$NON-NLS-1$
-    assertTrue(res.contains("ROLE_IS")); //$NON-NLS-1$
-
-    assertTrue(res.indexOf("ROLE_CTO") < res.indexOf("ROLE_IS"));
+    assertTrue(res.contains("ROLE_POWER_USER")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAuthoritiesForUser2Sorted(): " + res); //$NON-NLS-1$
@@ -242,7 +240,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     List res = userRoleListService.getAllUsers();
     
     assertTrue(res.contains("pat")); //$NON-NLS-1$
-    assertTrue(res.contains("joe")); //$NON-NLS-1$
+    assertTrue(res.contains("admin")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllUserNames1(): " + res); //$NON-NLS-1$
@@ -273,7 +271,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     List res =userRoleListService.getAllUsers(defaultTenant);
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
-    assertTrue(res.contains("joe")); //$NON-NLS-1$
+    assertTrue(res.contains("admin")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllUserNames1(): " + res); //$NON-NLS-1$
@@ -341,7 +339,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     List res = userRoleListService.getAllUsers();
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
-    assertTrue(res.contains("joe")); //$NON-NLS-1$
+    assertTrue(res.contains("admin")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllUserNames2(): " + res); //$NON-NLS-1$
@@ -374,7 +372,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
 
     assertTrue(res.contains("pat")); //$NON-NLS-1$
     assertTrue(res.contains("tiffany")); //$NON-NLS-1$
-    assertTrue(res.contains("joe")); //$NON-NLS-1$
+    assertTrue(res.contains("admin")); //$NON-NLS-1$
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllUserNames3(): " + res); //$NON-NLS-1$
@@ -732,7 +730,7 @@ public class DefaultLdapUserRoleListServiceTests extends AbstractPentahoLdapInte
     assertTrue(res.contains("ROLE_CTO")); //$NON-NLS-1$
     assertTrue(res.contains("ROLE_CEO")); //$NON-NLS-1$
 
-    assertTrue(res.indexOf("ROLE_ADMIN") < res.indexOf("ROLE_DEV"));
+    assertTrue(res.indexOf("ROLE_ADMINISTRATOR") < res.indexOf("ROLE_DEV"));
 
     if (logger.isDebugEnabled()) {
       logger.debug("results of getAllAuthorities1Sorted(): " + res); //$NON-NLS-1$

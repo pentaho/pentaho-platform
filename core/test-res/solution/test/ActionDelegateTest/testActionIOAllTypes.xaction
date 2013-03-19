@@ -17,7 +17,7 @@
     </message>  
     <addressees type="string-list"> 
       <default-value type="string-list"> 
-        <list-item>joe</list-item>  
+        <list-item>admin</list-item>  
         <list-item>suzy</list-item>  
         <list-item>fred</list-item>  
         <list-item>sam</list-item> 

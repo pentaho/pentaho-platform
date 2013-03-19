@@ -62,7 +62,7 @@ public class TestPentahoUserOverridesVoter extends BaseTest {
         RepositoryFile testFile = new RepositoryFile("Test Folder", null, null);//$NON-NLS-1$
         Map<IPermissionRecipient, IPermissionMask> perms = new LinkedHashMap<IPermissionRecipient, IPermissionMask>();
         perms.put(new SimpleUser("suzy"), new SimplePermissionMask(IPentahoAclEntry.PERM_NOTHING));
-        perms.put(new SimpleRole("ROLE_CTO"), new SimplePermissionMask(IPentahoAclEntry.PERM_FULL_CONTROL));
+        perms.put(new SimpleRole("ROLE_POWER_USER"), new SimplePermissionMask(IPentahoAclEntry.PERM_FULL_CONTROL));
         SpringSecurityPermissionMgr.instance().getPermissions(testFile);
 
         // Now, the stage is set. We should be able to double-check that suzy

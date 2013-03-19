@@ -284,7 +284,7 @@ a {
           <table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
                       <td style="font-size: .8em;"><strong><%=Messages.getInstance().getString("UI.PUC.LOGIN.ADMIN_USER")%></strong><br>
-                        <%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%> joe<br>
+                        <%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%> admin<br>
                         <%=Messages.getInstance().getString("UI.PUC.LOGIN.PASSWORD")%> password</td>
                       <td style="font-size: .8em;"><strong><%=Messages.getInstance().getString("UI.PUC.LOGIN.BUSINESS_USER")%></strong><br>
                         <%=Messages.getInstance().getString("UI.PUC.LOGIN.USERNAME")%> suzy<br>

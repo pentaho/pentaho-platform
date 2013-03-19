@@ -6,7 +6,7 @@
 	<logging-level>debug</logging-level>
 
 	<documentation>
-		<author>Joe Pentaho</author>
+		<author>Admin Pentaho</author>
 		<description>Call a JavaScript rule to determine the email address of the passed in region and send an email to that manager</description>
 		<help>This is an Example Action Sequence</help>
 	</documentation>

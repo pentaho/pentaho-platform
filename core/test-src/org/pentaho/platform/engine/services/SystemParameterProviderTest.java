@@ -38,7 +38,7 @@ public class SystemParameterProviderTest extends BaseTest {
 		
 		public void testCustomParameter() {
 		    startTest();
-	        IPentahoSession session = new StandaloneSession("joe");
+	        IPentahoSession session = new StandaloneSession("admin");
           CustomSettingsParameterProvider provider = new CustomSettingsParameterProvider();
           provider.setSession( session );
           
