@@ -22,7 +22,7 @@
 		class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
 		<property name="userMap">
 			<value>
-				<![CDATA[pentahosuper=5f4dcc3b5aa765d61d8327deb882cf99,Super,Admin,Authenticated]]>
+				<![CDATA[SystemAdmin=5f4dcc3b5aa765d61d8327deb882cf99,Super,Administrator,Authenticated]]>
 			</value>
 		</property>
 	</bean>

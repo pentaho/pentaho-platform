@@ -514,6 +514,7 @@
 	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
 	<property name="tenantManager" ref="tenantMgrTxn"/>
 	<property name="userRoleDao" ref="userRoleDaoTxn"/>
+	<constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
   </bean>
   <bean id="mondrianBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager">
