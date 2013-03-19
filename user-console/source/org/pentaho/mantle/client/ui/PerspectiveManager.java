@@ -349,18 +349,18 @@ public class PerspectiveManager extends HorizontalPanel {
     if (!source.isDown()) {
       toggles.get(0).setDown(true);
       if (defaultPerspective.getId().equals(DEFAULT_PERSPECTIVE)) {
-        showDefaultPerspective(false, false);
+        showDefaultPerspective(true, false);
         return;
       }
     }
 
     // if the selected perspective is "default.perspective"
     if (perspective.getId().equals(DEFAULT_PERSPECTIVE)) {
-      showDefaultPerspective(false, false);
+      showDefaultPerspective(true, false);
     } else if (perspective.getId().equals(WORKSPACE_PERSPECTIVE)) {
       showWorkspacePerspective();
     } else if (perspective.getId().equals(ADMIN_PERSPECTIVE)) {
-      showAdminPerspective();
+      showAdminPerspective(false,false);
     }
   }
 
@@ -371,7 +371,7 @@ public class PerspectiveManager extends HorizontalPanel {
     }
     // show stuff we've created/configured
     contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
-    setCheckMMenuItem(true,false);
+    setCheckMMenuItem(browserChecked,workspaceChecked);
     MantleApplication.getInstance().pucToolBarVisibility(true);
   }
 
@@ -397,7 +397,7 @@ public class PerspectiveManager extends HorizontalPanel {
    
   }
 
-  private void showAdminPerspective() {
+  private void showAdminPerspective(boolean browserChecked, boolean workspaceChecked) {
     DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
     if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getAdminPerspective()) == -1) {
       contentDeck.add(MantleXul.getInstance().getAdminPerspective());
@@ -406,8 +406,8 @@ public class PerspectiveManager extends HorizontalPanel {
     MantleXul.getInstance().customizeAdminStyle();
     MantleXul.getInstance().configureAdminCatTree();
     //disable Browser and Workspace menuItem
-    setCheckMMenuItem(false,false);
-    MantleApplication.getInstance().pucToolBarVisibility(false);
+    setCheckMMenuItem(browserChecked,workspaceChecked);
+    MantleApplication.getInstance().pucToolBarVisibility(false); //this should not be needed since overlay removes.
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {
