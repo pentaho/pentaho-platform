@@ -15,7 +15,9 @@
 package org.pentaho.platform.repository2.unified.webservices;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -76,6 +78,27 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
         f.descriptionMapEntries.add(entryDto);
       }
     }
+    if (v.getLocalePropertiesMap() != null) {
+      f.localePropertiesMapEntries = new ArrayList<LocaleMapDto>();
+      for (Map.Entry<String, Properties> entry : v.getLocalePropertiesMap().entrySet()) {
+
+        LocaleMapDto localeMapDto = new LocaleMapDto();
+        List<StringKeyStringValueDto> valuesDto = new ArrayList<StringKeyStringValueDto>();
+
+        Properties properties = entry.getValue();
+        if(properties != null){
+          for(String propertyName : properties.stringPropertyNames()){
+            valuesDto.add(new StringKeyStringValueDto(propertyName, properties.getProperty(propertyName)));
+          }
+        }
+
+        localeMapDto.setLocale(entry.getKey());
+        localeMapDto.setProperties(valuesDto);
+
+        f.localePropertiesMapEntries.add(localeMapDto);
+      }
+    }
+
     return f;
   }
 
@@ -100,7 +123,6 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     } else {
       owner = null;
     }
-
     if (v.titleMapEntries != null) {
       for (StringKeyStringValueDto entryDto : v.titleMapEntries) {
         builder.title(entryDto.getKey(), entryDto.getValue());
@@ -110,6 +132,21 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     if (v.descriptionMapEntries != null) {
       for (StringKeyStringValueDto entryDto : v.descriptionMapEntries) {
         builder.description(entryDto.getKey(), entryDto.getValue());
+      }
+    }
+    if (v.localePropertiesMapEntries != null) {
+      for (LocaleMapDto localeMapDto : v.localePropertiesMapEntries) {
+
+        String locale = localeMapDto.getLocale();
+        Properties localeProperties = new Properties();
+
+        if(localeMapDto.getProperties() != null){
+          for(StringKeyStringValueDto keyValueDto: localeMapDto.getProperties()){
+            localeProperties.put(keyValueDto.getKey(), keyValueDto.getValue());
+          }
+        }
+
+        builder.localeProperties(locale, localeProperties);
       }
     }
 
