@@ -130,7 +130,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
   @Override
   public boolean shouldFireNow() {
     // TODO Auto-generated method stub
-    return true;
+    return false;
   }
 
   /* (non-Javadoc)

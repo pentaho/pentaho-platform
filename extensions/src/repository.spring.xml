@@ -80,16 +80,6 @@
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getReferrers=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setFileMetadata=PROPAGATION_REQUIRED
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileMetadata=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileById=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileByPath=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFile=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileById=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileByPath=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFile=PROPAGATION_REQUIRED,readOnly
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileById=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileByPath=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFile=PROPAGATION_REQUIRED
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteLocalePropertiesForFile=PROPAGATION_REQUIRED
       </value>
     </property>
   </bean>
@@ -359,16 +349,6 @@
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getReferrers=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setFileMetadata=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getFileMetadata=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileById=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFileByPath=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAvailableLocalesForFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileById=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFileByPath=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getLocalePropertiesForFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileById=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFileByPath=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.setLocalePropertiesForFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
-        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.deleteLocalePropertiesForFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
       </value>
     </property>
   </bean>

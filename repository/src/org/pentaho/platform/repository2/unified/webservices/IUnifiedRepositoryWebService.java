@@ -124,7 +124,7 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
 
   List<Character> getReservedChars();
 
-  List<PentahoLocale> getAvailableLocalesForFileById(final String fileId);
+  List<Locale> getAvailableLocalesForFileById(final String fileId);
 
   Properties getLocalePropertiesForFileById(final String fileId, final String locale);
 
