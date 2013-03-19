@@ -64,6 +64,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 		RepositoryFileImportBundle importBundle = (RepositoryFileImportBundle) bundle;
 		ZipInputStream zipImportStream = new ZipInputStream(bundle.getInputStream());
 		SolutionRepositoryImportSource importSource = new SolutionRepositoryImportSource(zipImportStream);
+		LocaleFilesProcessor localeFilesProcessor = new LocaleFilesProcessor();
 
 		IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
 		for (IRepositoryFileBundle file : importSource.getFiles()) {
@@ -84,7 +85,12 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				fileName = repositoryFilePath;
 				repositoryFilePath = importBundle.getPath();
 			} else {
-				bundleInputStream = file.getInputStream();
+				byte[] bytes = IOUtils.toByteArray(file.getInputStream());
+				bundleInputStream = new ByteArrayInputStream(bytes);
+				//If is locale file store it for later processing.
+				if(localeFilesProcessor.isLocaleFile(file, importBundle.getPath(), bundleInputStream)) {
+					continue;
+				}
 				bundleBuilder.input(bundleInputStream);
 				bundleBuilder.mime(mimeResolver.resolveMimeForFileName(fileName));
 				String filePath = (file.getPath().equals("/") || file.getPath().equals("\\")) ? "" : file.getPath();
@@ -111,6 +117,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				bundleInputStream = null;
 			}
 		}
+		//Process locale files.
+		localeFilesProcessor.processLocaleFiles(importer);
 	}
 
 	private RepositoryFileAcl processAclForFile(IPlatformImportBundle bundle, String filePath) {

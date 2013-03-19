@@ -181,7 +181,7 @@ INSERT INTO QUADRANT_ACTUALS VALUES('Western','Professional Services','Services 
 INSERT INTO QUADRANT_ACTUALS VALUES('Western','Professional Services','Senior Consultant',3721780,3718000,-3780)
 INSERT INTO QUADRANT_ACTUALS VALUES('Western','Professional Services','Staff Consultant',3465490,3336206,-129284)
 INSERT INTO QUADRANT_ACTUALS VALUES('Western','Professional Services','Trainer',3436200,2918000,-518200)
-INSERT INTO DEPARTMENT_MANAGERS VALUES('Central','admin Pentaho','admin@pentaho.org')
+INSERT INTO DEPARTMENT_MANAGERS VALUES('Central','Admin Pentaho','admin@pentaho.org')
 INSERT INTO DEPARTMENT_MANAGERS VALUES('Eastern','Suzy Pentaho','suzy@pentaho.org')
 INSERT INTO DEPARTMENT_MANAGERS VALUES('Western','Pat Pentaho','pat@pentaho.org')
 INSERT INTO DEPARTMENT_MANAGERS VALUES('Southern','Tiffany Pentaho','tiffany@pentaho.org')
