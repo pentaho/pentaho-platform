@@ -395,7 +395,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   @Bindable
   public void setShowNavigatorSelected(boolean showNavigator) {    
-    this.showNavigatorSelected = showNavigator;   
+    this.showNavigatorSelected = showNavigator;      
   }
 
 }
