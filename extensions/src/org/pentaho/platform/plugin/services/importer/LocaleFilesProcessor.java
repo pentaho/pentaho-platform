@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -38,34 +39,39 @@ public class LocaleFilesProcessor {
 	}
 
 	public boolean isLocaleFile(IRepositoryFileBundle file, String parentPath, InputStream inputStream) throws IOException {
-		
+
 		boolean isLocale = false;
 		String fileName = file.getFile().getName();
-		if(fileName.endsWith(".properties")) {
-			
+		if (fileName.endsWith(".properties")) {
+
 			Properties properties = new Properties();
 			properties.load(inputStream);
-			
-			String name = properties.getProperty("name");
-			String description = properties.getProperty("description");
-			if (name != null && description != null) {
 
+			String name = properties.getProperty("name");
+			String title = properties.getProperty("title");
+			String description = properties.getProperty("description");
+
+			if (StringUtils.isEmpty(name)) {
+				name = title;
+			}
+
+			if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(description)) {
 				String filePath = (file.getPath().equals("/") || file.getPath().equals("\\")) ? "" : file.getPath();
 				filePath = RepositoryFilenameUtils.concat(parentPath, filePath);
-				
+
 				LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, file.getFile(), inputStream);
 				localeFiles.add(localeFile);
 				isLocale = true;
 			}
 		}
-		return isLocale;		
+		return isLocale;
 	}
 
 	public void processLocaleFiles(IPlatformImporter importer) throws PlatformImportException {
 		RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 		NameBaseMimeResolver mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
 		String mimeType = mimeResolver.resolveMimeForFileName("file.locale");
-		
+
 		for (LocaleFileDescriptor localeFile : localeFiles) {
 			bundleBuilder.name(localeFile.getName());
 			bundleBuilder.comment(localeFile.getDescription());

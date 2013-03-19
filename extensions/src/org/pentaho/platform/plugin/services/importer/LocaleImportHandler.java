@@ -21,6 +21,7 @@ package org.pentaho.platform.plugin.services.importer;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 import org.pentaho.metadata.repository.DomainAlreadyExistsException;
@@ -48,16 +49,28 @@ public class LocaleImportHandler implements IPlatformImportHandler {
 		localeProperties.setProperty("name", locale.getName());
 		localeProperties.setProperty("description", locale.getComment());
 
-		if(localeParent != null && unifiedRepository != null) {
-			unifiedRepository.setLocalePropertiesForFile(localeParent, "en", localeProperties);
+		if (localeParent != null && unifiedRepository != null) {
+			unifiedRepository.setLocalePropertiesForFile(localeParent, extractLocaleCode(locale), localeProperties);
 		}
 	}
 
+	private String extractLocaleCode(RepositoryFileImportBundle localeBundle) {
+		String localeCode = "default";
+		String localeFileName = localeBundle.getFile().getName();
+		for (Locale locale : Locale.getAvailableLocales()) {
+			if (localeFileName.endsWith("_" + locale + ".properties")) {
+				localeCode = locale.toString();
+				break;
+			}
+		}
+		return localeCode;
+	}
+
 	private RepositoryFile getLocaleParent(RepositoryFileImportBundle locale) {
-		if(unifiedRepository == null) {
+		if (unifiedRepository == null) {
 			return null;
 		}
-		
+
 		RepositoryFile localeParent = null;
 		String localeFileName = locale.getFile().getName();
 		RepositoryFile localeFolder = unifiedRepository.getFile(locale.getPath());
