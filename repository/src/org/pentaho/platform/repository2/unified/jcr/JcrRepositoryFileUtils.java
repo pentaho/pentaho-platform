@@ -280,14 +280,14 @@ public class JcrRepositoryFileUtils {
 
   private static Map<String, Properties> getLocalePropertiesMap(
      final Session session, final PentahoJcrConstants pentahoJcrConstants,
-     final Node localeNode) throws RepositoryException {
+     final Node localesNode) throws RepositoryException {
 
     String prefix = session.getNamespacePrefix(PentahoJcrConstants.PHO_NS);
     Assert.hasText(prefix);
 
     Map<String, Properties> localePropertiesMap = new HashMap<String, Properties>();
 
-    NodeIterator nodeItr = localeNode.getNodes();
+    NodeIterator nodeItr = localesNode.getNodes();
     while(nodeItr.hasNext()){
       Node node = nodeItr.nextNode();
 
@@ -298,7 +298,6 @@ public class JcrRepositoryFileUtils {
         Property property = propertyIterator.nextProperty();
         properties.put(property.getName(), property.getValue().getString());
       }
-
       localePropertiesMap.put(locale, properties);
     }
     return localePropertiesMap;
@@ -936,7 +935,7 @@ public class JcrRepositoryFileUtils {
     Node fileNode = (Node) fileItem;
 
     RepositoryFile rootFile = JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, pathConversionHelper,
-        lockHelper, fileNode, false, null);
+        lockHelper, fileNode, true, null);
     if (!showHidden && rootFile.isHidden()) {
       return null;
     }
