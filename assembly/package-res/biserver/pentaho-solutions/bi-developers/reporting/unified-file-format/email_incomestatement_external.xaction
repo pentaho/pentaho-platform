@@ -37,7 +37,7 @@
       <sources> 
         <request>sendto</request> 
       </sources>  
-      <default-value><![CDATA[admin@pentaho.com]]></default-value>
+      <default-value><![CDATA[joe@pentaho.com]]></default-value>
     </sendto> 
   </inputs>
 

@@ -33,7 +33,7 @@
       	<component-definition>
           <jndi>SampleDataAdmin</jndi>
           <query><![CDATA[
-            update DEPARTMENT_MANAGERS set EMAIL = 'admin@pentaho.org' where EMAIL = 'admin@pentaho.org'
+            update DEPARTMENT_MANAGERS set EMAIL = 'joe@pentaho.org' where EMAIL = 'joe@pentaho.org'
           ]]></query>
         </component-definition>
       </action-definition>
