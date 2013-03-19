@@ -50,6 +50,7 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStrea
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.*;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -693,6 +694,12 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFileTreeDto tree = repoWs.getTree(path, depth, filter, showHidden.booleanValue());
     for(RepositoryFileTreeDto child : tree.getChildren()) {
   	  RepositoryFileDto file = child.getFile();
+
+      // [BISERVER-8446] localize title and description
+      LocalizationUtil localizationUtil = new LocalizationUtil(file, LocaleHelper.getLocale());
+      file.setTitle(localizationUtil.resolveLocalizedString("title", file.getTitle()));
+      file.setDescription(localizationUtil.resolveLocalizedString("description", file.getDescription()));
+
   	  Map<String, Serializable> fileMeta = repository.getFileMetadata(file.getId());
   	  boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta.get(IUnifiedRepository.SYSTEM_FOLDER) : false;
   	  if(!isSystemFolder) {
