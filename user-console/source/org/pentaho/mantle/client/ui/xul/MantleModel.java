@@ -155,7 +155,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   public void showWorkspace() {
     IPluginPerspective perspective = PerspectiveManager.getInstance().getActivePerspective();
     boolean showing = perspective.getId().equalsIgnoreCase(PerspectiveManager.WORKSPACE_PERSPECTIVE);
-    if (!showing) {    
+    if (!showing || !this.showBrowserSelected) {    
       PerspectiveManager.getInstance().setPerspective(PerspectiveManager.WORKSPACE_PERSPECTIVE);
     }    
   }

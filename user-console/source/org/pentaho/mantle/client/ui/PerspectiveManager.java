@@ -386,15 +386,14 @@ public class PerspectiveManager extends HorizontalPanel {
         } else {
           WorkspacePanel.getInstance().refresh();
         }
-        contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));
-        MantleApplication.getInstance().pucToolBarVisibility(false);   
-        setCheckMMenuItem(false,true);
+        contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));       
       }
       
       public void onFailure(Throwable reason) {
       }
     });
-   
+    MantleApplication.getInstance().pucToolBarVisibility(false);   
+    setCheckMMenuItem(false,true);
   }
 
   private void showAdminPerspective(boolean browserChecked, boolean workspaceChecked) {
