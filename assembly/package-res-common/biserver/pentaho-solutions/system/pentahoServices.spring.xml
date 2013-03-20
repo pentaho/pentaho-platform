@@ -75,6 +75,7 @@ impl="org.pentaho.platform.security.userroledao.ws.AuthorizationPolicyBasedUserR
   <bean class="org.pentaho.platform.web.http.api.resources.EmailResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.SessionResource" scope="request"/>  
   <bean class="org.pentaho.platform.web.http.api.resources.SchedulerResource" scope="request"/>
+  <bean class="org.pentaho.platform.web.http.api.resources.BlockoutResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.RepositoryImportResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.PluginResource" scope="request"/>
