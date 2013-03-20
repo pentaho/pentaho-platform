@@ -14,14 +14,13 @@
  * @author wseyler
  */
 
-
 package org.pentaho.platform.web.http.api.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
-import java.io.Serializable;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -33,7 +32,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
@@ -41,16 +39,14 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
-
 /**
  * @author wseyler
  *
  */
 @Path("/scheduler/blockout")
 public class BlockoutResource extends AbstractJaxRSResource {
-  
+
   private IBlockoutManager manager = null;
-  
 
   public BlockoutResource() {
     super();
@@ -59,12 +55,12 @@ public class BlockoutResource extends AbstractJaxRSResource {
 
   @GET
   @Path("/list")
-  @Produces({APPLICATION_JSON, APPLICATION_XML})
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
   public BlockoutTriggerProxy[] getBlockouts() {
     try {
       IBlockoutTrigger[] blockoutsArray = manager.getBlockouts();
       BlockoutTriggerProxy[] triggers = new BlockoutTriggerProxy[blockoutsArray.length];
-      for (int i=0 ;i<triggers.length; i++) {
+      for (int i = 0; i < triggers.length; i++) {
         triggers[i] = new BlockoutTriggerProxy((Trigger) blockoutsArray[i]);
       }
       return triggers;
@@ -72,22 +68,23 @@ public class BlockoutResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
+
   @GET
   @Path("/get")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public BlockoutTriggerProxy getBlockout(@QueryParam("blockoutName") String blockoutName) {
+  public BlockoutTriggerProxy getBlockout(@QueryParam("blockoutName")
+  String blockoutName) {
     try {
-      return new BlockoutTriggerProxy((Trigger)manager.getBlockout(blockoutName));
+      return new BlockoutTriggerProxy((Trigger) manager.getBlockout(blockoutName));
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
   }
-  
+
   @PUT
   @Path("/add")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-  @Produces({TEXT_PLAIN})
+  @Produces({ TEXT_PLAIN })
   public Response addBlockout(IBlockoutTrigger trigger) {
     try {
       manager.addBlockout(trigger);
@@ -96,10 +93,11 @@ public class BlockoutResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
+
   @DELETE
   @Path("/delete")
-  public Response deleteBlockout(@QueryParam("blockoutName") String blockoutName) {
+  public Response deleteBlockout(@QueryParam("blockoutName")
+  String blockoutName) {
     boolean success = true;
     try {
       success = manager.deleteBlockout(blockoutName);
@@ -112,12 +110,13 @@ public class BlockoutResource extends AbstractJaxRSResource {
       return Response.status(Status.NOT_MODIFIED).build();
     }
   }
-  
+
   @POST
   @Path("/update")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-  @Produces({TEXT_PLAIN})
-  public Response updateBlockout(@QueryParam("blockoutName") String blockoutName, IBlockoutTrigger updateBlockout) {
+  @Produces({ TEXT_PLAIN })
+  public Response updateBlockout(@QueryParam("blockoutName")
+  String blockoutName, IBlockoutTrigger updateBlockout) {
     try {
       manager.updateBlockout(blockoutName, updateBlockout);
       return Response.ok().build();
@@ -125,31 +124,43 @@ public class BlockoutResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
+
   @GET
   @Path("/willFire")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-  @Produces({TEXT_PLAIN})
+  @Produces({ TEXT_PLAIN })
   public Response willFire(Trigger trigger) {
-    Integer fireTimes = manager.willFire(trigger);
-    return Response.ok(fireTimes).build();
+    try {
+      Boolean willFire = manager.willFire(trigger);
+      return Response.ok(willFire.toString()).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @GET
   @Path("/shouldFireNow")
-  @Produces({TEXT_PLAIN})
+  @Produces({ TEXT_PLAIN })
   public Response shouldFireNow() {
-    Boolean result = manager.shouldFireNow();
-    return Response.ok(result.toString()).build();
+    try {
+      Boolean result = manager.shouldFireNow();
+      return Response.ok(result.toString()).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
   }
-  
+
   @GET
   @Path("/willBlock")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-  @Produces({TEXT_PLAIN})
+  @Produces({ TEXT_PLAIN })
   public Response willBlock(IBlockoutTrigger blockoutTrigger) {
-    Boolean result = manager.willBlockSchedules(blockoutTrigger);
-    return Response.ok(result.toString()).build();
+    try {
+      List<Trigger> results = manager.willBlockSchedules(blockoutTrigger);
+      return Response.ok(results.toString()).build();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
   }
-  
+
 }
