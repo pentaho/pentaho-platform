@@ -25,7 +25,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryAccessDeniedException;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
+import org.pentaho.platform.repository2.messages.Messages;
 import org.springframework.util.Assert;
 
 /**
@@ -399,6 +401,12 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
    */
   public RepositoryFileAcl updateAcl(final RepositoryFileAcl acl) {
     Assert.notNull(acl);
+    RepositoryFile file = getFileById(acl.getId());
+    List<RepositoryFilePermission> perms = new ArrayList<RepositoryFilePermission>();
+    perms.add(RepositoryFilePermission.ACL_MANAGEMENT);
+    if(!hasAccess(file.getPath(), EnumSet.copyOf(perms))) {
+      throw new UnifiedRepositoryAccessDeniedException(Messages.getInstance().getString("DefaultUnifiedRepository.ERROR_0001_ACCESS_DENIED_UPDATE_ACL",acl.getId()));
+    }
     return repositoryFileAclDao.updateAcl(acl);
   }
 
