@@ -37,6 +37,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
@@ -47,7 +48,7 @@ import org.quartz.Trigger;
  */
 @Path("/scheduler/blockout")
 public class BlockoutResource extends AbstractJaxRSResource {
-  IBlockoutManager manager;
+  IBlockoutManager manager = PentahoSystem.get(IBlockoutManager.class, "IBlockoutManager", null); //$NON-NLS-1$;
   
   @GET
   @Path("/list")
