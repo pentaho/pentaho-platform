@@ -201,7 +201,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
           ComplexJobTrigger complexJobTrigger = QuartzScheduler.createComplexTrigger(scheduleRequest.getCronJobTrigger().getCronString());
           complexJobTrigger.setStartTime(scheduleRequest.getCronJobTrigger().getStartTime());
           complexJobTrigger.setEndTime(scheduleRequest.getCronJobTrigger().getEndTime());
-          complexJobTrigger.setUiPassParam(scheduleRequest.getComplexJobTrigger().getUiPassParam());
+          complexJobTrigger.setUiPassParam(scheduleRequest.getCronJobTrigger().getUiPassParam());
           jobTrigger = complexJobTrigger;
         } else {
           throw new IllegalArgumentException();
