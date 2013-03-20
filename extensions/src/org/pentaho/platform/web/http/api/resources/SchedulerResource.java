@@ -111,12 +111,17 @@ public class SchedulerResource extends AbstractJaxRSResource {
       file = repository.getFile(scheduleRequest.getInputFile());
     }
     
-    if (runInBackground && hasInputFile) {
+    // if we are going to run in background, create immediate trigger
+    if (runInBackground) {
+      scheduleRequest.setSimpleJobTrigger(new SimpleJobTrigger(null, null, 0, 0));
+    }
+    
+    // if we have an inputfile, generate job name based on that if the name is not passed in
+    if (hasInputFile && StringUtils.isEmpty(scheduleRequest.getJobName())) {
       scheduleRequest.setJobName(file.getName().substring(0, file.getName().lastIndexOf("."))); //$NON-NLS-1$
-      scheduleRequest.setSimpleJobTrigger(new SimpleJobTrigger(null, null, 0, 0));
     } else {
+      // just make up a name
       scheduleRequest.setJobName("" + System.currentTimeMillis()); //$NON-NLS-1$
-      scheduleRequest.setSimpleJobTrigger(new SimpleJobTrigger(null, null, 0, 0));
     }
 
     if (!runInBackground && !policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
@@ -220,6 +225,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
           Class<IAction> iaction = ((Class<IAction>)Class.forName(actionClass));
           job = scheduler.createJob(scheduleRequest.getJobName(), iaction, parameterMap, jobTrigger);
         } catch (ClassNotFoundException e) {
+          throw new RuntimeException(e);
         }
       }
     } catch (SchedulerException e) {
