@@ -2485,32 +2485,23 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
    * Tests Updating the ACL when no GRANT_PERMISSION is assigned 
    *
    */
-  /*@Test
+  @Test
   public void testUpdatingPermissionWhenNoGrantPermissionOnFile() throws Exception {
     
     login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
-    userRoleDao.createUser(tenantAcme, USERNAME_JOE, "password", "", new String[]{tenantAdminRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
     
-    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", new String[]{tenantAuthenticatedRoleName});
     userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", new String[]{tenantAuthenticatedRoleName});
+
+    defaultBackingRepositoryLifecycleManager.newTenant();
     
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
     RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).versioned(true).build();
     newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
-    RepositoryFileAcl acl = repo.getAcl(newFolder.getId());
-
-    RepositoryFileAcl.Builder newAclBuilder = new RepositoryFileAcl.Builder(acl);
-    RepositoryFileSid tiffanySid = new RepositoryFileSid(userNameUtils.getPrincipleId(tenantAcme,
-        USERNAME_TIFFANY));
-    newAclBuilder.ace(new RepositoryFileSid(roleNameUtils.getPrincipleId(tenantAcme,
-        tenantAuthenticatedRoleName), RepositoryFileSid.Type.ROLE), RepositoryFilePermission.READ,RepositoryFilePermission.WRITE).owner(tiffanySid);
-
-    repo.updateAcl(newAclBuilder.build());
-    RepositoryFileAcl fetchedAcl = repo.getAcl(newFolder.getId());
-    assertEquals(new RepositoryFileSid(USERNAME_TIFFANY), fetchedAcl.getOwner());
-    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     RepositoryFileAcl newAcl = repo.getAcl(newFolder.getId());
     
     RepositoryFileAcl.Builder anotherNewAclBuilder = new RepositoryFileAcl.Builder(newAcl);
@@ -2523,41 +2514,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     } catch (UnifiedRepositoryException e) {
       assertNotNull(e);
     }
-    
-    login(USERNAME_JOE, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
-    
-    try {
-      repo.updateAcl(anotherNewAclBuilder.build());
-      assertTrue(true);
-      fetchedAcl = repo.getAcl(newFolder.getId());
-      List<RepositoryFileAce> aces = fetchedAcl.getAces();
-      RepositoryFileAce ace = aces.get(0);
-      assertTrue(ace.getPermissions().contains(RepositoryFilePermission.DELETE));
-      RepositoryFileAcl.Builder anotherTestNewAclBuilder = new RepositoryFileAcl.Builder(fetchedAcl);
-      anotherTestNewAclBuilder.ace(new RepositoryFileSid(roleNameUtils.getPrincipleId(tenantAcme,
-          tenantAuthenticatedRoleName), RepositoryFileSid.Type.ROLE), RepositoryFilePermission.READ,RepositoryFilePermission.WRITE, RepositoryFilePermission.DELETE, RepositoryFilePermission.ACL_MANAGEMENT);
-      repo.updateAcl(anotherTestNewAclBuilder.build());
-    } catch (UnifiedRepositoryException e) {
-      fail();
-    }
-    /*
-    login(USERNAME_TIFFANY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
-    try {
-      RepositoryFileAcl newAcls = repo.getAcl(newFolder.getId());
-      RepositoryFileAcl.Builder acBuilder = new RepositoryFileAcl.Builder(newAcls);
-      acBuilder.ace(new RepositoryFileSid(roleNameUtils.getPrincipleId(tenantAcme,
-          tenantAuthenticatedRoleName), RepositoryFileSid.Type.ROLE), RepositoryFilePermission.READ, RepositoryFilePermission.ACL_MANAGEMENT, RepositoryFilePermission.DELETE);
-      repo.updateAcl(newAclBuilder.build());
-      assertTrue(true);
-      fetchedAcl = repo.getAcl(newFolder.getId());
-      List<RepositoryFileAce> aces = fetchedAcl.getAces();
-      RepositoryFileAce ace = aces.get(0);
-      assertFalse(ace.getPermissions().contains(RepositoryFilePermission.WRITE));
-      
-    } catch (UnifiedRepositoryException e) {
-      fail();
-    } */
-  /*}*/
+
+  }
 
   @Test
   public void testMoveFile() throws Exception {
