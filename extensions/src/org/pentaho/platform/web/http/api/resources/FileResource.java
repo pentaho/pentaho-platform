@@ -183,7 +183,7 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path("{pathId : .+}/children")
   @Consumes({TEXT_PLAIN})
-  public Response copyFiles(@PathParam("pathId") String pathId, @QueryParam("mode") Integer mode, String paramsparamsparams) {
+  public Response copyFiles(@PathParam("pathId") String pathId, @QueryParam("mode") Integer mode, String params) {
     if (mode == null) {
       mode = MODE_RENAME;
     }
