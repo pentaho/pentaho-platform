@@ -21,8 +21,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -34,6 +33,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
@@ -48,31 +48,37 @@ import org.quartz.Trigger;
  */
 @Path("/scheduler/blockout")
 public class BlockoutResource extends AbstractJaxRSResource {
-  IBlockoutManager manager = PentahoSystem.get(IBlockoutManager.class, "IBlockoutManager", null); //$NON-NLS-1$;
   
+  private IBlockoutManager manager = null;
+  
+
+  public BlockoutResource() {
+    super();
+    manager = PentahoSystem.get(IBlockoutManager.class, "IBlockoutManager", null); //$NON-NLS-1$;
+  }
+
   @GET
   @Path("/list")
-  @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public List<IBlockoutTrigger> getBlockouts() {
-    List<IBlockoutTrigger> blockouts = new ArrayList<IBlockoutTrigger>();
+  @Produces({APPLICATION_JSON, APPLICATION_XML})
+  public BlockoutTriggerProxy[] getBlockouts() {
     try {
       IBlockoutTrigger[] blockoutsArray = manager.getBlockouts();
-      for (IBlockoutTrigger blockout : blockoutsArray) {
-        blockouts.add(blockout);
+      BlockoutTriggerProxy[] triggers = new BlockoutTriggerProxy[blockoutsArray.length];
+      for (int i=0 ;i<triggers.length; i++) {
+        triggers[i] = new BlockoutTriggerProxy((Trigger) blockoutsArray[i]);
       }
-      
+      return triggers;
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
-    return blockouts;
   }
   
   @GET
   @Path("/get")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public IBlockoutTrigger getBlockout(@QueryParam("blockoutName") String blockoutName) {
+  public BlockoutTriggerProxy getBlockout(@QueryParam("blockoutName") String blockoutName) {
     try {
-      return manager.getBlockout(blockoutName);
+      return new BlockoutTriggerProxy((Trigger)manager.getBlockout(blockoutName));
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
@@ -145,4 +151,5 @@ public class BlockoutResource extends AbstractJaxRSResource {
     Boolean result = manager.willBlockSchedules(blockoutTrigger);
     return Response.ok(result.toString()).build();
   }
+  
 }
