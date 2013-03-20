@@ -119,7 +119,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
     // if we have an inputfile, generate job name based on that if the name is not passed in
     if (hasInputFile && StringUtils.isEmpty(scheduleRequest.getJobName())) {
       scheduleRequest.setJobName(file.getName().substring(0, file.getName().lastIndexOf("."))); //$NON-NLS-1$
-    } else {
+    } else if (!hasInputFile) {
       // just make up a name
       scheduleRequest.setJobName("" + System.currentTimeMillis()); //$NON-NLS-1$
     }
