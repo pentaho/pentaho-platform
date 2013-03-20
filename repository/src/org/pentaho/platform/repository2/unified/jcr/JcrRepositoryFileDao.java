@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
+import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
@@ -32,6 +33,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
 import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
@@ -476,6 +478,12 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     jcrTemplate.execute(new JcrCallback() {
       @Override
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
+        RepositoryFile fileToBeDeleted = getFileById(fileId);
+        List<RepositoryFilePermission> perms = new ArrayList<RepositoryFilePermission>();
+        perms.add(RepositoryFilePermission.DELETE);
+        if(!aclDao.hasAccess(fileToBeDeleted.getPath(), EnumSet.copyOf(perms))) {
+          throw new AccessDeniedException(Messages.getInstance().getString("JcrRepositoryFileDao.ERROR_0006_ACCESS_DENIED_DELETE",fileId));
+        }
         PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
         Serializable parentFolderId = JcrRepositoryFileUtils.getParentId(session, fileId);
         JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);

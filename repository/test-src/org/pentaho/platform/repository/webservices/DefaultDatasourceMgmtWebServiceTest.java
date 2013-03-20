@@ -3,9 +3,7 @@ package org.pentaho.platform.repository.webservices;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ_ACL;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE_ACL;
 
 import java.util.List;
 
@@ -54,7 +52,7 @@ public class DefaultDatasourceMgmtWebServiceTest  extends TestCase {
     datasourceMgmtWebService = new DefaultDatasourceMgmtWebService(datasourceMgmtService);
     dbConnectionAdapter = new DatabaseConnectionAdapter();
     SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(MockUnifiedRepository.root().getName(), null, new GrantedAuthority[0]));
-    repository.createFolder(repository.getFile("/etc").getId(), new RepositoryFile.Builder(FOLDER_PDI).folder(true).build(), new RepositoryFileAcl.Builder(MockUnifiedRepository.root()).ace(MockUnifiedRepository.everyone(), READ, READ_ACL, WRITE, WRITE_ACL).build(), null);
+    repository.createFolder(repository.getFile("/etc").getId(), new RepositoryFile.Builder(FOLDER_PDI).folder(true).build(), new RepositoryFileAcl.Builder(MockUnifiedRepository.root()).ace(MockUnifiedRepository.everyone(), READ, WRITE).build(), null);
     repository.createFolder(repository.getFile("/etc/pdi").getId(), new RepositoryFile.Builder(FOLDER_DATABASES).folder(true).build(), null);
     SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(EXP_LOGIN, null, new GrantedAuthority[0]));
   }

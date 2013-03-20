@@ -246,10 +246,11 @@
 	<constructor-arg ref="singleTenantAdminUserName"/>
 	<constructor-arg ref="singleTenantAdminAuthorityName"/>	
 	<constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
+    <constructor-arg ref="adminJcrTemplate"/>	
 	<property name="tenantManager" ref="tenantMgrTxn"/>
 	<property name="userRoleDao" ref="userRoleDaoTxn"/>
   </bean>
-  
+
   <bean id="pdiBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.PdiBackingRepositoryLifecycleManager">
     <constructor-arg ref="repositoryFileDao"/>

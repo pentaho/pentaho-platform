@@ -20,9 +20,7 @@
 package org.pentaho.test.platform.repository2.unified;
 
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.READ_ACL;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE;
-import static org.pentaho.platform.api.repository2.unified.RepositoryFilePermission.WRITE_ACL;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.ROLE;
 import static org.pentaho.platform.api.repository2.unified.RepositoryFileSid.Type.USER;
 
@@ -117,7 +115,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
     RepositoryFile rootFolder = new RepositoryFile.Builder("").path(RepositoryFile.SEPARATOR).folder(true).build();
 
     RepositoryFileAcl rootFolderAcl = new RepositoryFileAcl.Builder(root()).entriesInheriting(false)
-        .ace(everyone(), READ, READ_ACL).build();
+        .ace(everyone(), READ).build();
 
     root = new FileRecord(rootFolder, rootFolderAcl);
     idManager.register(root);
@@ -126,7 +124,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
         .folder(true).build();
 
     RepositoryFileAcl publicFolderAcl = new RepositoryFileAcl.Builder(root()).entriesInheriting(false)
-        .ace(everyone(), READ, READ_ACL, WRITE, WRITE_ACL).build();
+        .ace(everyone(), READ, WRITE).build();
 
     FileRecord pub = new FileRecord(publicFolder, publicFolderAcl);
     root.addChild(pub);
@@ -568,7 +566,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public RepositoryFileAcl getAcl(final Serializable fileId) {
-    if (!hasAccess(fileId, EnumSet.of(READ_ACL))) {
+    if (!hasAccess(fileId, EnumSet.of(READ))) {
       throw new AccessDeniedException("access denied");
     }
     FileRecord r = idManager.getFileById(fileId);
@@ -577,7 +575,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public RepositoryFileAcl updateAcl(final RepositoryFileAcl acl) {
-    if (!hasAccess(acl.getId(), EnumSet.of(WRITE_ACL))) {
+    if (!hasAccess(acl.getId(), EnumSet.of(WRITE))) {
       throw new AccessDeniedException("access denied");
     }
     FileRecord r = idManager.getFileById(acl.getId());
@@ -623,7 +621,7 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   @Override
   public List<RepositoryFileAce> getEffectiveAces(final Serializable fileId) {
-    if (!hasAccess(fileId, EnumSet.of(READ_ACL))) {
+    if (!hasAccess(fileId, EnumSet.of(READ))) {
       throw new AccessDeniedException("access denied");
     }
     return internalGetEffectiveAces(fileId);

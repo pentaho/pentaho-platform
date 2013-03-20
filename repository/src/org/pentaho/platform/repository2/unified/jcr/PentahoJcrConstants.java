@@ -41,7 +41,7 @@ public class PentahoJcrConstants extends JcrConstants {
    * Pentaho mixin type namespace.
    */
   public static final String PHO_MIX_NS = "http://www.pentaho.org/jcr/mix/2.0"; //$NON-NLS-1$
-
+ 
   private static final String PHO_MIX_VERSIONABLE = "pentahoVersionable"; //$NON-NLS-1$
 
   private static final String PHO_NT_PENTAHOFILE = "pentahoFile"; //$NON-NLS-1$
@@ -95,6 +95,8 @@ public class PentahoJcrConstants extends JcrConstants {
   private static String PHO_ORIGPARENTFOLDERPATH = "origParentFolderPath"; //$NON-NLS-1$
   
   private static String PHO_ORIGNAME = "origName"; //$NON-NLS-1$
+  
+  private static String PHO_ACL_MANAGEMENT_PRIVILEGE = "aclManagement"; //$NON-NLS-1$
   
   /**
    * Same abstraction as {@code Locale.ROOT}.
@@ -218,4 +220,9 @@ public class PentahoJcrConstants extends JcrConstants {
   public String getPHO_ACLONLYCHANGE() {
     return resolveName(PHO_NS, PHO_ACLONLYCHANGE);
   }
+
+  public String getPHO_ACLMANAGEMENT_PRIVILEGE() {
+    return resolveName(PHO_NS, PHO_ACL_MANAGEMENT_PRIVILEGE);
+  }
+
 }

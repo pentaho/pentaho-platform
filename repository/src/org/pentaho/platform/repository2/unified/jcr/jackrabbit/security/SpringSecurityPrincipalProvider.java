@@ -342,32 +342,36 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     }
     // user cache not available or user not in cache; do lookup
     GrantedAuthority[] auths = null;
-    int index = 0;
-    try {
-      user = getUserDetailsService().loadUserByUsername(username);
-      auths = new GrantedAuthority[user.getAuthorities().length];
-      // cache the roles while we're here
-      for (GrantedAuthority grantedAuth : user.getAuthorities()) {
-        roleCache.put(grantedAuth.getAuthority(), createSpringSecurityRolePrincipal(grantedAuth.getAuthority()));
-        auths[index++] = new GrantedAuthorityImpl(JcrTenantUtils.getTenantedRole(grantedAuth.getAuthority()));
-      }
-      if (logger.isTraceEnabled()) {
-        logger.trace("found user in back-end " + user.getUsername()); //$NON-NLS-1$
-      }
-    } catch (UsernameNotFoundException e) {
-      if (logger.isTraceEnabled()) {
-        logger.trace("username " + username + " not in cache or back-end; returning null"); //$NON-NLS-1$ //$NON-NLS-2$
-      }
-    }
     UserDetails newUser = null;
-    if (user != null) {
-      newUser = new User(user.getUsername(), user.getPassword(), user.isEnabled(), ACCOUNT_NON_EXPIRED,
-          CREDS_NON_EXPIRED, ACCOUNT_NON_LOCKED, auths);
+    int index = 0;
+    if(getUserDetailsService() != null) {
+      try {
+        user = getUserDetailsService().loadUserByUsername(username);
+        auths = new GrantedAuthority[user.getAuthorities().length];
+        // cache the roles while we're here
+        for (GrantedAuthority grantedAuth : user.getAuthorities()) {
+          roleCache.put(grantedAuth.getAuthority(), createSpringSecurityRolePrincipal(grantedAuth.getAuthority()));
+          auths[index++] = new GrantedAuthorityImpl(JcrTenantUtils.getTenantedRole(grantedAuth.getAuthority()));
+        }
+        if (logger.isTraceEnabled()) {
+          logger.trace("found user in back-end " + user.getUsername()); //$NON-NLS-1$
+        }
+      } catch (UsernameNotFoundException e) {
+        if (logger.isTraceEnabled()) {
+          logger.trace("username " + username + " not in cache or back-end; returning null"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+      }
+      
+      if (user != null) {
+        newUser = new User(user.getUsername(), user.getPassword(), user.isEnabled(), ACCOUNT_NON_EXPIRED,
+            CREDS_NON_EXPIRED, ACCOUNT_NON_LOCKED, auths);
+      }
+
+      if (getSpringSecurityUserCache() != null && newUser != null) {
+        getSpringSecurityUserCache().putUserInCache(newUser);
+      }
     }
 
-    if (getSpringSecurityUserCache() != null && newUser != null) {
-      getSpringSecurityUserCache().putUserInCache(newUser);
-    }
     return newUser;
   }
 

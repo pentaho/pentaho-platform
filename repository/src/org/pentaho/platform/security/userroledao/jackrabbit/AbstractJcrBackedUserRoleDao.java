@@ -607,7 +607,7 @@ public abstract class AbstractJcrBackedUserRoleDao implements IUserRoleDao {
         RepositoryFileSid tenantAuthenticatedRoleSid = new RepositoryFileSid(tenantAuthenticatedRoleId, Type.ROLE);
 
         aclsForTenantHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(tenantAuthenticatedRoleSid,
-            EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL));
+            EnumSet.of(RepositoryFilePermission.READ));
 
         aclsForUserHomeFolder = new RepositoryFileAcl.Builder(userSid).ace(ownerSid,
             EnumSet.of(RepositoryFilePermission.ALL));
