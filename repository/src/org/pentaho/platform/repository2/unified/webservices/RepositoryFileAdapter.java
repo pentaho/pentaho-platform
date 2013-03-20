@@ -20,8 +20,10 @@ import java.util.Map;
 import java.util.Properties;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+import org.pentaho.platform.util.messages.LocaleHelper;
 
 /**
  * Converts {@code RepositoryFile} into JAXB-safe object and vice-versa.
@@ -97,6 +99,17 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
 
         f.localePropertiesMapEntries.add(localeMapDto);
       }
+    }
+
+    // [BISERVER-8446] localize title and description
+    if(f.getName() != null && f.getName().equals("query1.xaction")){
+      LocalizationUtil localizationUtil = new LocalizationUtil(f, LocaleHelper.getLocale());
+      String title = localizationUtil.resolveLocalizedString("title", null);
+      if(StringUtils.isBlank(title)){
+        title = localizationUtil.resolveLocalizedString("name", f.getTitle());
+      }
+      f.setTitle(title);
+      f.setDescription(localizationUtil.resolveLocalizedString("description", f.getDescription()));
     }
 
     return f;
