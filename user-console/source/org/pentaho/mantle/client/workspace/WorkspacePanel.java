@@ -223,11 +223,6 @@ public class WorkspacePanel extends SimplePanel {
   }
 
   public void refresh(final boolean isAdmin) {
-    controlScheduleButton.setEnabled(false);
-    triggerNowButton.setEnabled(false);
-    scheduleRemoveButton.setEnabled(false);
-    editButton.setEnabled(false);
-
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
