@@ -183,7 +183,7 @@ public class FileResource extends AbstractJaxRSResource {
   @PUT
   @Path("{pathId : .+}/children")
   @Consumes({TEXT_PLAIN})
-  public Response copyFiles(@PathParam("pathId") String pathId, @QueryParam("mode") Integer mode, String params) {
+  public Response copyFiles(@PathParam("pathId") String pathId, @QueryParam("mode") Integer mode, String paramsparamsparams) {
     if (mode == null) {
       mode = MODE_RENAME;
     }
@@ -551,6 +551,28 @@ public class FileResource extends AbstractJaxRSResource {
       return repoWs.getLocalePropertiesForFileById(file.getId(), locale);
     }
     return new Properties();
+  }
+
+  @PUT
+  @Path("{pathId : .+}/localeProperties")
+  @Produces({APPLICATION_XML, APPLICATION_JSON})
+  public Response doSetLocaleProperties(@PathParam("pathId") String pathId,
+                                        @QueryParam("locale") String locale,
+                                        List<StringKeyStringValueDto> properties) {
+    try {
+      RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
+      Properties fileProperties = new Properties();
+      if(properties != null && !properties.isEmpty()){
+        for (StringKeyStringValueDto dto : properties){
+          fileProperties.put(dto.getKey(), dto.getValue());
+        }
+      }
+      repoWs.setLocalePropertiesForFileByFileId(file.getId(), locale, fileProperties);
+
+      return Response.ok().build();
+    } catch (Throwable t) {
+      return Response.serverError().build();
+    }
   }
 
   /////////
