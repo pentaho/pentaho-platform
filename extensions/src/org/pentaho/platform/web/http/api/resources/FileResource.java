@@ -46,6 +46,7 @@ import org.pentaho.platform.plugin.services.importexport.BaseExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.SimpleExportProcessor;
 import org.pentaho.platform.plugin.services.importexport.ZipExportProcessor;
+import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileInputStream;
 import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStream;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
@@ -60,10 +61,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.StringTokenizer;
 
 import static javax.ws.rs.core.MediaType.*;
@@ -523,6 +521,36 @@ public class FileResource extends AbstractJaxRSResource {
     } catch (Throwable t) {
       return Response.serverError().build();
     }
+  }
+
+  /////////
+  // LOCALES
+
+  @GET
+  @Path("{pathId : .+}/locales")
+  @Produces({APPLICATION_XML, APPLICATION_JSON})
+  public List<String> doGetFileLocales(@PathParam("pathId") String pathId) {
+    List<String> availableLocales = new ArrayList<String>();
+    RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
+    List<PentahoLocale> locales = repoWs.getAvailableLocalesForFileById(file.getId());
+    if(locales != null && !locales.isEmpty()){
+      for(PentahoLocale locale : locales){
+        availableLocales.add(locale.toString());
+      }
+    }
+    return availableLocales;
+  }
+
+  @GET
+  @Path("{pathId : .+}/localeProperties")
+  @Produces({APPLICATION_XML, APPLICATION_JSON})
+  public Properties doGetLocaleProperties(@PathParam("pathId") String pathId,
+                                          @QueryParam("locale") String locale){
+    RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
+    if(file != null){
+      return repoWs.getLocalePropertiesForFileById(file.getId(), locale);
+    }
+    return new Properties();
   }
 
   /////////
