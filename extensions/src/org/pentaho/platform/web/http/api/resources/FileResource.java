@@ -553,6 +553,43 @@ public class FileResource extends AbstractJaxRSResource {
     return new Properties();
   }
 
+  @PUT
+  @Path("{pathId : .+}/localeProperties")
+  @Produces({APPLICATION_XML, APPLICATION_JSON})
+  public Response doSetLocaleProperties(@PathParam("pathId") String pathId,
+                                        @QueryParam("locale") String locale,
+                                        List<StringKeyStringValueDto> properties) {
+    try {
+      RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
+      Properties fileProperties = new Properties();
+      if(properties != null && !properties.isEmpty()){
+        for (StringKeyStringValueDto dto : properties){
+          fileProperties.put(dto.getKey(), dto.getValue());
+        }
+      }
+      repoWs.setLocalePropertiesForFileByFileId(file.getId(), locale, fileProperties);
+
+      return Response.ok().build();
+    } catch (Throwable t) {
+      return Response.serverError().build();
+    }
+  }
+
+  @PUT
+  @Path("{pathId : .+}/deleteLocale")
+  @Produces({APPLICATION_XML, APPLICATION_JSON})
+  public Response doDeleteLocale(@PathParam("pathId") String pathId,
+                                 @QueryParam("locale") String locale) {
+    try {
+      RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
+      repoWs.deleteLocalePropertiesForFile(file.getId(), locale);
+
+      return Response.ok().build();
+    } catch (Throwable t) {
+      return Response.serverError().build();
+    }
+  }
+
   /////////
   // PROPERTIES
 
