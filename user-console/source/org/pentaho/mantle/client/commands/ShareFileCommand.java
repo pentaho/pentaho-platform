@@ -22,10 +22,22 @@ import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
 
 public class ShareFileCommand implements Command {
 
+  private String moduleBaseURL = GWT.getModuleBaseURL();
+  private String moduleName = GWT.getModuleName();
+  private String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+  private static final int MANAGE_ACLS = 3;
+  
   public ShareFileCommand() {
   }
 
@@ -33,10 +45,31 @@ public class ShareFileCommand implements Command {
     SolutionBrowserPanel sbp = SolutionBrowserPanel.getInstance();
     List<RepositoryFile> selectedList = sbp.getFilesListPanel().getRepositoryFiles();
     if (selectedList != null && selectedList.size() == 1) {
-      RepositoryFile item = selectedList.get(0);
-    FilePropertiesDialog dialog = new FilePropertiesDialog(item, new MantleTabPanel(), null, FilePropertiesDialog.Tabs.PERMISSION);
-    dialog.showTab(FilePropertiesDialog.Tabs.PERMISSION);
-    dialog.center();
+      final RepositoryFile item = selectedList.get(0);
+      
+      // Checking if the user has access to manage permissions
+      String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(item.getPath()) + "/canAccess?permissions="+MANAGE_ACLS; //$NON-NLS-1$ //$NON-NLS-2$
+      RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+      try {
+        builder.sendRequest(null, new RequestCallback() {
+
+          public void onError(Request request, Throwable exception) {
+            FilePropertiesDialog dialog = new FilePropertiesDialog(item, new MantleTabPanel(), null, FilePropertiesDialog.Tabs.PERMISSION, false);
+            dialog.showTab(FilePropertiesDialog.Tabs.PERMISSION);
+            dialog.center();          }
+
+          public void onResponseReceived(Request request, Response response) {
+              FilePropertiesDialog dialog = new FilePropertiesDialog(item, new MantleTabPanel(), null, FilePropertiesDialog.Tabs.PERMISSION, Boolean.parseBoolean(response.getText()));
+              dialog.showTab(FilePropertiesDialog.Tabs.PERMISSION);
+              dialog.center();
+          }
+        });
+      } catch (RequestException e) {
+        FilePropertiesDialog dialog = new FilePropertiesDialog(item, new MantleTabPanel(), null, FilePropertiesDialog.Tabs.PERMISSION, false);
+        dialog.showTab(FilePropertiesDialog.Tabs.PERMISSION);
+        dialog.center();
+      }
+  
   }
   }
 

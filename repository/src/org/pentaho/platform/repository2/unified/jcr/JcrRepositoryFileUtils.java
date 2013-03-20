@@ -50,6 +50,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException;
+import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -1120,7 +1121,7 @@ public class JcrRepositoryFileUtils {
     }
   }
 
-  public static RepositoryFile createFolder(final Session session, final RepositoryFile parentFolder,
+  public static RepositoryFile createFolder(final Session session, final CredentialsStrategySessionFactory sessionFactory, final RepositoryFile parentFolder,
       final RepositoryFile folder, final boolean inheritAces, final RepositoryFileSid ownerSid,
       final IPathConversionHelper pathConversionHelper, final String versionMessage) throws RepositoryException {
     Serializable parentFolderId = parentFolder == null ? null : parentFolder.getId();

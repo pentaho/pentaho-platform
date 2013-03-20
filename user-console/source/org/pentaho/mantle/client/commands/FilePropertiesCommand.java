@@ -18,8 +18,16 @@ package org.pentaho.mantle.client.commands;
 
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel;
+import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.FilePropertiesDialog.Tabs;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Command;
 
 public class FilePropertiesCommand implements Command {
@@ -27,7 +35,10 @@ public class FilePropertiesCommand implements Command {
   Tabs defaultTab = Tabs.GENERAL;
 
   private RepositoryFile fileSummary;
-
+  private String moduleBaseURL = GWT.getModuleBaseURL();
+  private String moduleName = GWT.getModuleName();
+  private String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+  private static final int MANAGE_ACLS = 3;
   public FilePropertiesCommand(RepositoryFile fileSummary) {
     this(fileSummary, Tabs.GENERAL);
   }
@@ -38,9 +49,29 @@ public class FilePropertiesCommand implements Command {
   }
 
   public void execute() {
-    FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab);
-    dialog.showTab(defaultTab);
-    dialog.center();
+    // Checking if the user has access to manage permissions
+    String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/canAccess?permissions="+MANAGE_ACLS; //$NON-NLS-1$ //$NON-NLS-2$
+    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+    try {
+      builder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, false);
+          dialog.showTab(defaultTab);
+          dialog.center();            
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+            FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, Boolean.parseBoolean(response.getText()));
+            dialog.showTab(defaultTab);
+            dialog.center();            
+        }
+      });
+    } catch (RequestException e) {
+      FilePropertiesDialog dialog = new FilePropertiesDialog(fileSummary, new PentahoTabPanel(), null, defaultTab, false);
+      dialog.showTab(defaultTab);
+      dialog.center();            
+    }
   }
 
   public Tabs getDefaultTab() {

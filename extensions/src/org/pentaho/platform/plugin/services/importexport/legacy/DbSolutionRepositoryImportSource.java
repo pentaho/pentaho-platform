@@ -309,7 +309,6 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
           Set<RepositoryFilePermission> perms = new HashSet<RepositoryFilePermission>();
           if ((mask & 1) == 1) { // EXECUTE
             perms.add(RepositoryFilePermission.READ);
-            perms.add(RepositoryFilePermission.READ_ACL);
           }
           /*
            * SUBSCRIBE (decimal value 2) is not a permission in PUR! Skipping...
@@ -324,7 +323,7 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
             perms.add(RepositoryFilePermission.WRITE);
           }
           if ((mask & 32) == 32) { // UPDATE_PERMISSIONS
-            perms.add(RepositoryFilePermission.WRITE_ACL);
+            perms.add(RepositoryFilePermission.ACL_MANAGEMENT);
           }
           if (perms.isEmpty()) {
             return EnumSet.noneOf(RepositoryFilePermission.class);

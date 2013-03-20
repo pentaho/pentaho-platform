@@ -73,20 +73,13 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
   private JcrTemplate jcrTemplate;
 
-  private IPermissionConversionHelper permissionConversionHelper;
-
   private IPathConversionHelper pathConversionHelper;
   // ~ Constructors ====================================================================================================
 
   public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper) {
-    this(jcrTemplate, pathConversionHelper, new DefaultPermissionConversionHelper());
-  }
-
-  public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper, final IPermissionConversionHelper permissionConversionHelper) {
     super();
     this.jcrTemplate = jcrTemplate;
     this.pathConversionHelper = pathConversionHelper;
-    this.permissionConversionHelper = permissionConversionHelper;
   }
 
   // ~ Methods =========================================================================================================
@@ -169,6 +162,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
   public boolean hasAccess(final String relPath, final EnumSet<RepositoryFilePermission> permissions) {
     return (Boolean) jcrTemplate.execute(new JcrCallback() {
       public Object doInJcr(final Session session) throws RepositoryException, IOException {
+        DefaultPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper(session); 
         Privilege[] privs = permissionConversionHelper.pentahoPermissionsToPrivileges(session, permissions);
         try {
           String absPath = pathConversionHelper.relToAbs(relPath);
@@ -220,6 +214,8 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     Principal principal = acEntry.getPrincipal();
     RepositoryFileSid sid = null;
     String name = principal.getName();
+    DefaultPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper(session); 
+
     if (principal instanceof Group) {
       sid = new RepositoryFileSid(JcrTenantUtils.getRoleNameUtils().getPrincipleName(name), RepositoryFileSid.Type.ROLE);
     } else {
@@ -231,10 +227,6 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
         privileges));
   }
 
-  public void setPermissionConversionHelper(final IPermissionConversionHelper permissionConversionHelper) {
-    Assert.notNull(permissionConversionHelper);
-    this.permissionConversionHelper = permissionConversionHelper;
-  }
 
   /**
    * Converts between {@code RepositoryFilePermission} and {@code Privilege} instances.
@@ -345,6 +337,7 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
   protected RepositoryFileAcl internalUpdateAcl(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId, final RepositoryFileAcl acl) throws RepositoryException {
+    DefaultPermissionConversionHelper permissionConversionHelper = new DefaultPermissionConversionHelper(session); 
     Node node = session.getNodeByIdentifier(fileId.toString());
     if (node == null) {
       throw new RepositoryException(Messages.getInstance().getString(
@@ -380,4 +373,5 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
     return getAcl(fileId);
 
   }
+  
 }

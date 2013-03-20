@@ -447,7 +447,8 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     
     RepositoryFile publicFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
         ServerRepositoryPaths.getTenantPublicFolderName()).folder(true).build(), new RepositoryFileAcl.Builder(
-        fileOwnerSid).ace(tenantAdminRoleSid, EnumSet.of(RepositoryFilePermission.ALL)).ace(tenantAuthenticatedRoleSid, EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL, RepositoryFilePermission.WRITE, RepositoryFilePermission.WRITE_ACL)).build(), null);
+        fileOwnerSid).ace(tenantAdminRoleSid, EnumSet.of(RepositoryFilePermission.ALL)).ace(tenantAuthenticatedRoleSid,
+            EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.WRITE, RepositoryFilePermission.DELETE)).build(), null);
     
     return publicFolder;
   }
@@ -462,7 +463,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     
     RepositoryFile etcFolder = repositoryFileDao.createFolder(tenantRootFolder.getId(), new RepositoryFile.Builder(
         ServerRepositoryPaths.getTenantEtcFolderName()).folder(true).build(), new RepositoryFileAcl.Builder(
-        fileOwnerSid).entriesInheriting(true).ace(tenantAuthenticatedRoleSid, EnumSet.of(RepositoryFilePermission.READ, RepositoryFilePermission.READ_ACL)).ace(tenantAdminRoleSid, EnumSet.of(RepositoryFilePermission.ALL)).build(), null);
+        fileOwnerSid).entriesInheriting(true).ace(tenantAuthenticatedRoleSid, EnumSet.of(RepositoryFilePermission.READ)).ace(tenantAdminRoleSid, EnumSet.of(RepositoryFilePermission.ALL)).build(), null);
 
     RepositoryFile pdiFolder = repositoryFileDao.createFolder(etcFolder.getId(), new RepositoryFile.Builder("pdi").folder(true).build(), new RepositoryFileAcl.Builder(fileOwnerSid).entriesInheriting(true).build(), null);
     repositoryFileDao.createFolder(pdiFolder.getId(), new RepositoryFile.Builder("databases").folder(true).build(), new RepositoryFileAcl.Builder(fileOwnerSid).entriesInheriting(true).build(), null);

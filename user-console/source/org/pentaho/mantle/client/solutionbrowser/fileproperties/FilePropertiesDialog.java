@@ -56,7 +56,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
   private String moduleBaseURL = GWT.getModuleBaseURL();
   private String moduleName = GWT.getModuleName();
   private String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-
+  boolean canManageAcls = false;
   boolean dirty = false;
 
   /**
@@ -66,22 +66,22 @@ public class FilePropertiesDialog extends PromptDialogBox {
    * @param callback
    * @param defaultTab
    */
-  public FilePropertiesDialog(RepositoryFile fileSummary, final PentahoTabPanel propertyTabs, final IDialogCallback callback, Tabs defaultTab) {
+  public FilePropertiesDialog(RepositoryFile fileSummary, final PentahoTabPanel propertyTabs, final IDialogCallback callback, Tabs defaultTab, final boolean canManageAcls) {
     super(fileSummary.getName() + " " + Messages.getString("properties"), Messages.getString("ok"), Messages.getString("cancel"), false, true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     boolean isInTrash = fileSummary.getPath().contains("/.trash/pho:");
     setContent(propertyTabs);
-
+    this.canManageAcls = canManageAcls;
     generalTab = new GeneralPanel(this, fileSummary);
 
     if (!fileSummary.isFolder()) {
       generatedContentTab = new GeneratedContentPanel(SolutionBrowserPanel.pathToId(fileSummary.getPath()), null, null);
     }
-    if (!isInTrash) {
+    if (canManageAcls && !isInTrash) {
       permissionsTab = new PermissionsPanel(fileSummary);
     }
 
     generalTab.getElement().setId("filePropertiesGeneralTab");
-    if (!isInTrash) {
+    if (canManageAcls && !isInTrash) {
       permissionsTab.getElement().setId("filePropertiesPermissionsTab");
     }
 
@@ -109,7 +109,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
     });
     this.propertyTabs = propertyTabs;
     this.propertyTabs.addTab(Messages.getString("general"), Messages.getString("general"), false, generalTab);
-    if (permissionsTab != null) {
+    if (canManageAcls && permissionsTab != null) {
       this.propertyTabs.addTab(Messages.getString("share"), Messages.getString("share"), false, permissionsTab);
     }
     if (generatedContentTab != null) {
@@ -190,7 +190,7 @@ public class FilePropertiesDialog extends PromptDialogBox {
           }
           break;
         case PERMISSION:
-          if (pTab.getContent() == permissionsTab) {
+          if (canManageAcls && pTab.getContent() == permissionsTab) {
             propertyTabs.selectTab(pTab);
           }
           break;

@@ -36,6 +36,7 @@ import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
+import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
@@ -63,6 +64,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import static javax.ws.rs.core.MediaType.*;
 import static javax.ws.rs.core.Response.Status.*;
@@ -531,6 +533,40 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces({APPLICATION_XML, APPLICATION_JSON})
   public RepositoryFileDto doGetRootProperties() {
     return repoWs.getFile(PATH_SEPARATOR);
+  }
+
+  @GET
+  @Path("{pathId : .+}/canAccess")
+  @Produces(TEXT_PLAIN)
+  public String doGetCanAccess(@PathParam("pathId") String pathId, @QueryParam("permissions") String permissions) {
+    StringTokenizer tokenizer = new StringTokenizer(permissions, "|");
+    List<Integer> permissionList = new ArrayList<Integer>();
+    while (tokenizer.hasMoreTokens()) {
+      Integer perm = Integer.valueOf(tokenizer.nextToken());
+      switch (perm) {
+        case 0: {
+          permissionList.add(RepositoryFilePermission.READ.ordinal());
+          break;
+        }
+        case 1: {
+          permissionList.add(RepositoryFilePermission.WRITE.ordinal());
+          break;
+        }
+        case 2: {
+          permissionList.add(RepositoryFilePermission.DELETE.ordinal());
+          break;
+        }
+        case 3: {
+          permissionList.add(RepositoryFilePermission.ACL_MANAGEMENT.ordinal());
+          break;
+        }
+        case 4: {
+          permissionList.add(RepositoryFilePermission.ALL.ordinal());
+          break;
+        }
+      }
+    }
+    return repoWs.hasAccess(idToPath(pathId), permissionList) ? "true" : "false";
   }
 
   @GET
