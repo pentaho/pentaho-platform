@@ -59,7 +59,7 @@ public class KettleSystemListener implements IPentahoSystemListener {
   public boolean startup(final IPentahoSession session) {
     
     if (usePlatformLogFile) {
-      CentralLogStore.init();
+      CentralLogStore.init(false, false);
       initLogging();
     }
     
