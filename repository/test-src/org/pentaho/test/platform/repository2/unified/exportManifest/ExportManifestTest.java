@@ -151,8 +151,8 @@ public class ExportManifestTest extends TestCase {
 		String baseName = path.substring(path.lastIndexOf("/") + 1);
 		RepositoryFile mockRepositoryFile = new RepositoryFile("12345", baseName,
 				isFolder, false, false, "versionId", path, createdDate, lastModeDate,
-				false, "lockOwner", "lockMessage", lockDate, "en_US", "title", null,
-				"description", null, "/original/parent/folder/path", deletedDate, 4096,
+				false, "lockOwner", "lockMessage", lockDate, "en_US", "title",
+				"description", "/original/parent/folder/path", deletedDate, 4096,
 				"creatorId", null);
 		return mockRepositoryFile;
 	}

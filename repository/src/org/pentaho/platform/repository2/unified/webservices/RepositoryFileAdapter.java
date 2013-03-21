@@ -66,20 +66,6 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     if (v.getVersionId() != null) {
       f.versionId = v.getVersionId().toString();
     }
-    if (v.getTitleMap() != null) {
-      f.titleMapEntries = new ArrayList<StringKeyStringValueDto>();
-      for (Map.Entry<String, String> entry : v.getTitleMap().entrySet()) {
-        StringKeyStringValueDto entryDto = new StringKeyStringValueDto(entry.getKey(), entry.getValue());
-        f.titleMapEntries.add(entryDto);
-      }
-    }
-    if (v.getDescriptionMap() != null) {
-      f.descriptionMapEntries = new ArrayList<StringKeyStringValueDto>();
-      for (Map.Entry<String, String> entry : v.getDescriptionMap().entrySet()) {
-        StringKeyStringValueDto entryDto = new StringKeyStringValueDto(entry.getKey(), entry.getValue());
-        f.descriptionMapEntries.add(entryDto);
-      }
-    }
     if (v.getLocalePropertiesMap() != null) {
       f.localePropertiesMapEntries = new ArrayList<LocaleMapDto>();
       for (Map.Entry<String, Properties> entry : v.getLocalePropertiesMap().entrySet()) {
@@ -141,17 +127,6 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
       owner = new RepositoryFileSid(v.owner, RepositoryFileSid.Type.values()[v.ownerType]);
     } else {
       owner = null;
-    }
-    if (v.titleMapEntries != null) {
-      for (StringKeyStringValueDto entryDto : v.titleMapEntries) {
-        builder.title(entryDto.getKey(), entryDto.getValue());
-      }
-    }
-
-    if (v.descriptionMapEntries != null) {
-      for (StringKeyStringValueDto entryDto : v.descriptionMapEntries) {
-        builder.description(entryDto.getKey(), entryDto.getValue());
-      }
     }
     if (v.localePropertiesMapEntries != null) {
       for (LocaleMapDto localeMapDto : v.localePropertiesMapEntries) {

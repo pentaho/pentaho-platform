@@ -286,7 +286,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", new String[]{tenantAdminRoleName});
     logout();
-    
+
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     final String fileName = "helloworld.sample";
     RepositoryFile newFile = createSampleFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY), fileName,
@@ -296,14 +296,16 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     final String EN_US_VALUE = "Hello World Sample";
     builder.title(Locale.getDefault().toString(), EN_US_VALUE);
     final String ROOT_LOCALE_VALUE = "Hello World";
-    builder.title(RepositoryFile.ROOT_LOCALE, ROOT_LOCALE_VALUE);
+    builder.title(RepositoryFile.DEFAULT_LOCALE, ROOT_LOCALE_VALUE);
     final SampleRepositoryFileData modContent = new SampleRepositoryFileData("blah", false, 123);
     repo.updateFile(builder.build(), modContent, null);
     RepositoryFile updatedFileWithMaps = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY)
         + RepositoryFile.SEPARATOR + "helloworld.sample", true);
 
-    assertEquals(EN_US_VALUE, updatedFileWithMaps.getTitleMap().get(Locale.getDefault().toString()));
-    assertEquals(ROOT_LOCALE_VALUE, updatedFileWithMaps.getTitleMap().get(RepositoryFile.ROOT_LOCALE));
+    assertEquals(EN_US_VALUE, updatedFileWithMaps.getLocalePropertiesMap()
+       .get(Locale.getDefault().toString()).getProperty(RepositoryFile.FILE_TITLE));
+    assertEquals(ROOT_LOCALE_VALUE, updatedFileWithMaps.getLocalePropertiesMap()
+       .get(RepositoryFile.DEFAULT_LOCALE).getProperty(RepositoryFile.FILE_TITLE));
     logout();
   }
 
@@ -325,7 +327,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // Test filename title matches created file name
     assertEquals(fileName, file.getTitle());
 
-    final IPentahoLocale SPANISH = new PentahoLocale(new Locale("sp"));
+    final IPentahoLocale SPANISH = new PentahoLocale(new Locale("es"));
     final IPentahoLocale US = new PentahoLocale(Locale.US);
     final String EN_US_TITLE = "Locale Sample";
     final String EN_US_DESCRIPTION = "This is a test for retrieving localized words";
@@ -349,13 +351,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // Retrieve file - gets full map
     RepositoryFile updatedFile = repo.getFile(file.getPath(), true);
 
-    // Assert messages are the same
-    assertEquals(EN_US_TITLE, updatedFile.getTitleMap().get(US.toString()));
-    assertEquals(EN_US_DESCRIPTION, updatedFile.getDescriptionMap().get(US.toString()));
-
-    assertEquals(SP_TITLE, updatedFile.getTitleMap().get(SPANISH.toString()));
-    assertEquals(SP_DESCRIPTION, updatedFile.getDescriptionMap().get(SPANISH.toString()));
-
     /*
      * Retrieve single result with locale
      */
@@ -376,7 +371,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     updatedFile = repo.getFile(file.getPath(), null);
 
     assertEquals(fileName, updatedFile.getTitle());
-    assertEquals("", updatedFile.getDescription());
+    assertEquals(null, updatedFile.getDescription());
 
     logout();
   }
@@ -2098,7 +2093,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
 
     RepositoryFile.Builder builder = new RepositoryFile.Builder(newFile);
     final String desc = "Hello World description";
-    builder.description(RepositoryFile.ROOT_LOCALE, desc);
+    builder.description(RepositoryFile.DEFAULT_LOCALE, desc);
     repo.updateFile(builder.build(), modData, null);
 
     List<VersionSummary> versionSummaries = repo.getVersionSummaries(newFile.getId());

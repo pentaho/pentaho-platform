@@ -181,28 +181,19 @@ public class JcrRepositoryFileUtils {
     }
 
     if (isPentahoHierarchyNode(session, pentahoJcrConstants, node)) {
-      if (node.hasNode(pentahoJcrConstants.getPHO_TITLE())) {
-        title = getLocalizedString(session, pentahoJcrConstants, node.getNode(pentahoJcrConstants.getPHO_TITLE()),
-            pentahoLocale);
-      }
-      if (node.hasNode(pentahoJcrConstants.getPHO_DESCRIPTION())) {
-        description = getLocalizedString(session, pentahoJcrConstants,
-            node.getNode(pentahoJcrConstants.getPHO_DESCRIPTION()), pentahoLocale);
-      }
+      if (node.hasNode(pentahoJcrConstants.getPHO_LOCALES())) {
+        localePropertiesMap = getLocalePropertiesMap(session, pentahoJcrConstants,
+           node.getNode(pentahoJcrConstants.getPHO_LOCALES()));
 
-      if (loadMaps) {
-        if (node.hasNode(pentahoJcrConstants.getPHO_TITLE())) {
-          titleMap = getLocalizedStringMap(session, pentahoJcrConstants,
-              node.getNode(pentahoJcrConstants.getPHO_TITLE()));
-        }
-        if (node.hasNode(pentahoJcrConstants.getPHO_DESCRIPTION())) {
-          descriptionMap = getLocalizedStringMap(session, pentahoJcrConstants,
-              node.getNode(pentahoJcrConstants.getPHO_DESCRIPTION()));
-        }
-
-        if (node.hasNode(pentahoJcrConstants.getPHO_LOCALES())) {
-          localePropertiesMap = getLocalePropertiesMap(session, pentahoJcrConstants,
-             node.getNode(pentahoJcrConstants.getPHO_LOCALES()));
+        if(localePropertiesMap != null && pentahoLocale != null){
+          Properties properties = localePropertiesMap.get(pentahoLocale.getLocale().toString());
+          if(properties == null){
+            properties = localePropertiesMap.get(pentahoLocale.getLocale().getLanguage()); // try just the language
+          }
+          if(properties != null){
+            title = properties.getProperty(RepositoryFile.FILE_TITLE);
+            description = properties.getProperty(RepositoryFile.FILE_DESCRIPTION);
+          }
         }
       }
     }
@@ -228,7 +219,7 @@ public class JcrRepositoryFileUtils {
     RepositoryFile file = new RepositoryFile.Builder(id, name).createdDate(created).creatorId(creatorId)
         .lastModificationDate(lastModified).folder(folder).versioned(versioned).path(path).versionId(versionId)
         .fileSize(fileSize).locked(locked).lockDate(lockDate).hidden(hidden).lockMessage(lockMessage)
-        .lockOwner(lockOwner).title(title).description(description).titleMap(titleMap).descriptionMap(descriptionMap)
+        .lockOwner(lockOwner).title(title).description(description)
         .locale(pentahoLocale.toString()).localePropertiesMap(localePropertiesMap).build();
 
     return file;
@@ -448,16 +439,6 @@ public class JcrRepositoryFileUtils {
     fileNode.setProperty(pentahoJcrConstants.getPHO_LASTMODIFIED(), Calendar.getInstance());
     fileNode.setProperty(pentahoJcrConstants.getPHO_HIDDEN(), file.isHidden());
     fileNode.setProperty(pentahoJcrConstants.getPHO_FILESIZE(), content.getDataSize());
-    if (file.getTitleMap() != null && !file.getTitleMap().isEmpty()) {
-      Node titleNode = fileNode.addNode(pentahoJcrConstants.getPHO_TITLE(),
-          pentahoJcrConstants.getPHO_NT_LOCALIZEDSTRING());
-      setLocalizedStringMap(session, pentahoJcrConstants, titleNode, file.getTitleMap());
-    }
-    if (file.getDescriptionMap() != null && !file.getDescriptionMap().isEmpty()) {
-      Node descriptionNode = fileNode.addNode(pentahoJcrConstants.getPHO_DESCRIPTION(),
-          pentahoJcrConstants.getPHO_NT_LOCALIZEDSTRING());
-      setLocalizedStringMap(session, pentahoJcrConstants, descriptionNode, file.getDescriptionMap());
-    }
     if (file.getLocalePropertiesMap() != null && !file.getLocalePropertiesMap().isEmpty()) {
       Node localeNodes = fileNode.addNode(pentahoJcrConstants.getPHO_LOCALES(), pentahoJcrConstants.getPHO_NT_LOCALE());
       setLocalePropertiesMap(session, pentahoJcrConstants, localeNodes, file.getLocalePropertiesMap());
@@ -503,26 +484,6 @@ public class JcrRepositoryFileUtils {
     fileNode.setProperty(pentahoJcrConstants.getPHO_LASTMODIFIED(), Calendar.getInstance());
     fileNode.setProperty(pentahoJcrConstants.getPHO_HIDDEN(), file.isHidden());
     fileNode.setProperty(pentahoJcrConstants.getPHO_FILESIZE(), content.getDataSize());
-    if (file.getTitleMap() != null && !file.getTitleMap().isEmpty()) {
-      Node titleNode = null;
-      if (!fileNode.hasNode(pentahoJcrConstants.getPHO_TITLE())) {
-        titleNode = fileNode.addNode(pentahoJcrConstants.getPHO_TITLE(),
-            pentahoJcrConstants.getPHO_NT_LOCALIZEDSTRING());
-      } else {
-        titleNode = fileNode.getNode(pentahoJcrConstants.getPHO_TITLE());
-      }
-      setLocalizedStringMap(session, pentahoJcrConstants, titleNode, file.getTitleMap());
-    }
-    if (file.getDescriptionMap() != null && !file.getDescriptionMap().isEmpty()) {
-      Node descriptionNode = null;
-      if (!fileNode.hasNode(pentahoJcrConstants.getPHO_DESCRIPTION())) {
-        descriptionNode = fileNode.addNode(pentahoJcrConstants.getPHO_DESCRIPTION(),
-            pentahoJcrConstants.getPHO_NT_LOCALIZEDSTRING());
-      } else {
-        descriptionNode = fileNode.getNode(pentahoJcrConstants.getPHO_DESCRIPTION());
-      }
-      setLocalizedStringMap(session, pentahoJcrConstants, descriptionNode, file.getDescriptionMap());
-    }
     if (file.getLocalePropertiesMap() != null && !file.getLocalePropertiesMap().isEmpty()) {
       Node localePropertiesMapNode = null;
       if (!fileNode.hasNode(pentahoJcrConstants.getPHO_LOCALES())) {
