@@ -27,6 +27,7 @@ import javax.servlet.ServletException;
 
 import mondrian.olap.Connection;
 import mondrian.olap.DriverManager;
+import mondrian.olap.MondrianException;
 import mondrian.olap.MondrianServer;
 import mondrian.server.FileRepository;
 import org.apache.commons.logging.Log;
@@ -60,6 +61,7 @@ import org.xml.sax.EntityResolver;
 import mondrian.server.DynamicContentFinder;
 import mondrian.spi.CatalogLocator;
 import mondrian.spi.impl.ServletContextCatalogLocator;
+import mondrian.xmla.XmlaException;
 import mondrian.xmla.XmlaHandler.ConnectionFactory;
 import mondrian.xmla.impl.DynamicDatasourceXmlaServlet;
 
@@ -257,29 +259,54 @@ public class PentahoXmlaServlet extends DynamicDatasourceXmlaServlet {
         
 
         // Now let the delegate connection factory do its magic.
-        if (catalogName == null)
-        return
-          delegate.getConnection(
-            databaseName,
-            catalogName,
-            roleName.equals("")
-              ? null
-              : roleName,
-            props);
-        else {
-         //We create a connection differently so we can ensure that
+        if (catalogName == null) {
+
+          return
+            delegate.getConnection(
+              databaseName,
+              catalogName,
+              roleName.equals("")
+                ? null
+                : roleName,
+              props);
+
+        } else {
+          //We create a connection differently so we can ensure that
           //the XMLA servlet shares the same MondrianServer instance as the rest
           //of the platform
-          MondrianCatalog mc = org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper.getInstance().getCatalog(catalogName,
-                  PentahoSessionHolder.getSession());
+          IMondrianCatalogService mcs =
+              PentahoSystem.get(IMondrianCatalogService.class);
 
+          MondrianCatalog mc =
+              mcs.getCatalog(catalogName, PentahoSessionHolder.getSession());
 
-          Connection con = DriverManager.getConnection(mc.getDataSourceInfo() + ";Catalog=" + mc.getDefinition(), makeCatalogLocator(servletConfig));
+          if (mc == null) {
+            throw new XmlaException(
+              CLIENT_FAULT_FC,
+              HSB_BAD_RESTRICTION_LIST_CODE,
+              HSB_BAD_RESTRICTION_LIST_FAULT_FS,
+              new MondrianException(
+                "No such catalog: " + catalogName));
+          }
 
+          Connection con =
+            DriverManager.getConnection(
+              mc.getDataSourceInfo() + ";Catalog=" + mc.getDefinition(),
+              makeCatalogLocator(servletConfig));
 
-          MondrianServer server = MondrianServer.forConnection(con);
-          FileRepository fr = new FileRepository(makeContentFinder(makeDataSourcesUrl(servletConfig)), makeCatalogLocator(servletConfig));
-          return fr.getConnection(server, databaseName, catalogName, roleName, props);
+          try {
+            final MondrianServer server = MondrianServer.forConnection(con);
+
+            FileRepository fr =
+              new FileRepository(
+                makeContentFinder(makeDataSourcesUrl(servletConfig)),
+                makeCatalogLocator(servletConfig));
+
+            return fr.getConnection(
+              server, databaseName, catalogName, roleName, props);
+          } finally {
+            con.close();
+          }
         }
       }
     };
