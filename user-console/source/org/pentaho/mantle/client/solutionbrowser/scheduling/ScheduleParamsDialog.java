@@ -78,7 +78,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   boolean isEmailConfValid = false;
 
   public ScheduleParamsDialog(NewScheduleDialog parentDialog, boolean isEmailConfValid, JsJob editJob) {
-    super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
+    super(ScheduleDialogType.SCHEDULER, Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     this.parentDialog = parentDialog;
     this.filePath = parentDialog.filePath;
     this.jobSchedule = parentDialog.getSchedule();
@@ -91,7 +91,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
   }
 
   public ScheduleParamsDialog(String filePath, JSONObject schedule, boolean isEmailConfValid) {
-    super(Messages.getString("runInBackground"), null, false, true); //$NON-NLS-1$
+    super(ScheduleDialogType.SCHEDULER, Messages.getString("runInBackground"), null, false, true); //$NON-NLS-1$
     this.filePath = filePath;
     this.jobSchedule = schedule;
     this.isEmailConfValid = isEmailConfValid;
