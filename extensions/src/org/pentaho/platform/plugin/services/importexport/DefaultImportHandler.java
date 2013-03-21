@@ -290,7 +290,7 @@ public class DefaultImportHandler implements ImportHandler {
    */
   protected RepositoryFile createFile(final ImportSource.IRepositoryFileBundle bundle, final String destinationPath,
                                       final boolean hidden, final IRepositoryFileData data, final String comment) {
-    final RepositoryFile file = new RepositoryFile.Builder(bundle.getFile()).hidden(hidden).title(RepositoryFile.ROOT_LOCALE, getTitle(bundle.getFile().getName())).versioned(true).build();
+    final RepositoryFile file = new RepositoryFile.Builder(bundle.getFile()).hidden(hidden).title(RepositoryFile.DEFAULT_LOCALE, getTitle(bundle.getFile().getName())).versioned(true).build();
     final Serializable parentId = getParentId(destinationPath);
     final RepositoryFileAcl acl = bundle.getAcl();
     if (null == acl) {
