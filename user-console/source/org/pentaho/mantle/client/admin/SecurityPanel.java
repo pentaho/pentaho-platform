@@ -276,16 +276,16 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
     var arr = [];
     var obj = eval('(' + json + ')');
     if (obj != null) {
-      if (obj.logicalRoleAssignments.constructor.toString().indexOf("Array") == -1) {
-        arr.push(obj.logicalRoleAssignments);
-        obj.logicalRoleAssignments = arr;
+      if (obj.assignments.constructor.toString().indexOf("Array") == -1) {
+        arr.push(obj.assignments);
+        obj.assignments = arr;
       }
       for (var i = 0; i < obj.logicalRoleAssignments.length; i++) {
         arr = [];
-        if (obj.logicalRoleAssignments[i].logicalRoles == undefined) continue;
-        if (obj.logicalRoleAssignments[i].logicalRoles.constructor.toString().indexOf("Array") == -1) {
-          arr.push(obj.logicalRoleAssignments[i].logicalRoles);
-          obj.logicalRoleAssignments[i].logicalRoles = arr;
+        if (obj.assignments[i].logicalRoles == undefined) continue;
+        if (obj.assignments[i].logicalRoles.constructor.toString().indexOf("Array") == -1) {
+          arr.push(obj.assignments[i].logicalRoles);
+          obj.assignments[i].logicalRoles = arr;
         }
       }
       if (obj.localizedRoleNames.constructor.toString().indexOf("Array") == -1) {
