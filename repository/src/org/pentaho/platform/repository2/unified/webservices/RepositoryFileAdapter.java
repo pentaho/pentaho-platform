@@ -101,14 +101,22 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
       }
     }
 
-    // [BISERVER-8446] localize title and description
+    // [BISERVER-8337] localize title and description. In the future, this should be done in the client
+    LocalePropertyResolver lpr = new LocalePropertyResolver(f.getName());
     LocalizationUtil localizationUtil = new LocalizationUtil(f, LocaleHelper.getLocale());
-    String title = localizationUtil.resolveLocalizedString("title", null);
+    String title = localizationUtil.resolveLocalizedString(lpr.resolveDefaultTitleKey(), null);
     if(StringUtils.isBlank(title)){
-      title = localizationUtil.resolveLocalizedString("name", f.getTitle());
+      title = localizationUtil.resolveLocalizedString(lpr.resolveTitleKey(), null);
+      if(StringUtils.isBlank(title)){
+        title = localizationUtil.resolveLocalizedString(lpr.resolveNameKey(), f.getTitle());
+      }
     }
     f.setTitle(title);
-    f.setDescription(localizationUtil.resolveLocalizedString("description", f.getDescription()));
+    String description = localizationUtil.resolveLocalizedString(lpr.resolveDefaultDescriptionKey(), null);
+    if(StringUtils.isBlank(description)){
+      description = localizationUtil.resolveLocalizedString(lpr.resolveDescriptionKey(), f.getDescription());
+    }
+    f.setDescription(description);
 
     return f;
   }

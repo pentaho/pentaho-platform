@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springsource.org/dtd/spring-beans.dtd">
+
+  <!--+
+	| Application context containing Jackrabbit AuthenticationProvider 
+	| implementation.
+	+-->
+
+<beans>
+
+  <bean id="authenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+    <property name="userDetailsService">
+      <ref bean="userDetailsService" />
+    </property>
+    <property name="passwordEncoder">
+      <ref local="passwordEncoder" />
+    </property>
+  </bean>
+
+  <!-- UserDetailsService that delegates to an IUserRoleDao -->
+  <bean id="userDetailsService" class="org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService">
+    <property name="userRoleDao">
+      <ref bean="userRoleDaoTxn" />
+    </property>
+    <property name="rolePrefix" value="" />
+    <property name="defaultRole" ref="defaultRole" />
+  </bean>
+
+  <!-- not a plaintext password encoder -->
+  <bean id="passwordEncoder" class="org.pentaho.platform.repository2.userroledao.jackrabbit.security.DefaultPentahoPasswordEncoder" />
+  
+</beans>

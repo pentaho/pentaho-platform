@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd"
+       default-lazy-init="true" >
+
+    <bean id="streamConverter" class="org.pentaho.platform.plugin.services.importexport.StreamConverter">
+        <constructor-arg ref="unifiedRepository"/>
+    </bean>
+
+    <bean id="ITenant" class="org.pentaho.platform.core.mt.Tenant" scope="prototype"/>
+
+    <util:map id="convertersMap">
+        <entry key="kjb" value-ref="streamConverter"/>
+        <entry key="ktr" value-ref="streamConverter"/>
+        <entry key="prpt" value-ref="streamConverter"/>
+        <entry key="prpti" value-ref="streamConverter"/>
+        <entry key="mondrian.xml" value-ref="streamConverter"/>
+        <entry key="report" value-ref="streamConverter"/>
+        <entry key="rptdesign" value-ref="streamConverter"/>
+        <entry key="svg" value-ref="streamConverter"/>
+        <entry key="url" value-ref="streamConverter"/>
+        <entry key="xaction" value-ref="streamConverter"/>
+        <entry key="xanalyzer" value-ref="streamConverter"/>
+        <entry key="xcdf" value-ref="streamConverter"/>
+        <entry key="xdash" value-ref="streamConverter"/>
+        <entry key="xreportspec" value-ref="streamConverter"/>
+        <entry key="waqr.xaction" value-ref="streamConverter"/>
+        <entry key="xwaqr" value-ref="streamConverter"/>
+        <entry key="gif" value-ref="streamConverter"/>
+        <entry key="css" value-ref="streamConverter"/>
+        <entry key="html" value-ref="streamConverter"/>
+        <entry key="htm" value-ref="streamConverter"/>
+        <entry key="jpg" value-ref="streamConverter"/>
+        <entry key="jpeg" value-ref="streamConverter"/>
+        <entry key="js" value-ref="streamConverter"/>
+        <entry key="cfg.xml" value-ref="streamConverter"/>
+        <entry key="jrxml" value-ref="streamConverter"/>
+        <entry key="png" value-ref="streamConverter"/>
+        <entry key="properties" value-ref="streamConverter"/>
+        <entry key="sql" value-ref="streamConverter"/>
+        <entry key="xmi" value-ref="streamConverter"/>
+        <entry key="xml" value-ref="streamConverter"/>
+        <entry key="cda" value-ref="streamConverter"/>
+    </util:map>
+
+    <bean id="DefaultExportHandler" class="org.pentaho.platform.plugin.services.importexport.DefaultExportHandler">
+        <property name="repository" ref="unifiedRepository"/>
+        <property name="converters" ref="convertersMap"/>
+    </bean>
+
+    <bean id="defaultImportHandler" class="org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler">
+        <property name="repository" ref="unifiedRepository"/>
+        <property name="converters" ref="convertersMap"/>
+		<property name="defaultAclHandler" ref="defaultAclHandler"/>
+    </bean>
+
+    <bean id="NameBaseMimeResolver" class="org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver">
+        <constructor-arg>
+            <map>
+                <entry key="zip" value="application/vnd.pentaho.solution-repository"/>
+                <entry key="xmi" value="text/xmi+xml"/>
+                <entry key="xanalyzer" value="text/xml"/>
+                <entry key="prpti" value="application/zip"/>
+                <entry key="gif" value="image/gif"/>
+                <entry key="prpt" value="application/zip"/>
+                <entry key="css" value="text/css"/>
+                <entry key="html" value="text/html"/>
+                <entry key="htm" value="text/html"/>
+                <entry key="jpg" value="image/jpeg"/>
+                <entry key="js" value="text/javascript"/>
+                <entry key="cfg.xml" value="text/xml"/>
+                <entry key="jrxml" value="text/xml"/>
+                <entry key="kjb" value="text/xml"/>
+                <entry key="ktr" value="text/xml"/>
+                <entry key="png" value="image/png"/>
+                <entry key="properties" value="text/plain"/>
+                <entry key="locale" value="text/locale"/>
+                <entry key="report" value="text/xml"/>
+                <entry key="rptdesign" value="text/xml"/>
+                <entry key="svg" value="image/svg+xml"/>
+                <entry key="url" value="application/internet-shortcut"/>
+                <entry key="sql" value="text/plain"/>
+                <entry key="xaction" value="text/xml"/>
+                <entry key="xanalyzer" value="text/xml"/>
+                <entry key="xcdf" value="text/xml"/>
+                <entry key="xdash" value="text/xml"/>
+                <entry key="xmi" value="text/xml"/>
+                <entry key="xml" value="text/xml"/>
+                <entry key="xreportspec" value="text/xml"/>
+                <entry key="waqr.xaction" value="text/xml"/>
+                <entry key="waqr.xreportspec" value="text/xml"/>
+                <entry key="waqr.xml" value="text/xml"/>
+                <entry key="xwaqr" value="text/xml"/>
+                <entry key="cda" value="text/xml"/>
+                <entry key="xls" value="application/vnd.ms-excel"/>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="IPlatformImporter" class="org.pentaho.platform.plugin.services.importer.PentahoPlatformImporter" scope="singleton">
+        <constructor-arg>
+            <map>
+                <entry key="application/vnd.pentaho.solution-repository">
+                    <bean class="org.pentaho.platform.plugin.services.importer.SolutionImportHandler">
+                        <constructor-arg ref="NameBaseMimeResolver"/>
+                        <property name="whiteList">
+                            <list>
+                                <value>.xanalyzer</value>
+                                <value>.prpti</value>
+                                <value>.gif</value>
+                                <value>.prpt</value>
+                                <value>.css</value>
+                                <value>.html</value>
+                                <value>.htm</value>
+                                <value>.jpg</value>
+                                <value>.js</value>
+                                <value>.cfg.xml</value>
+                                <value>.jrxml</value>
+                                <value>.kjb</value>
+                                <value>.ktr</value>
+                                <value>.png</value>
+                                <value>.properties</value>
+                                <value>.report</value>
+                                <value>.rptdesign</value>
+                                <value>.svg</value>
+                                <value>.url</value>
+                                <value>.sql</value>
+                                <value>.xaction</value>
+                                <value>.xanalyzer</value>
+                                <value>.xcdf</value>
+                                <value>.xdash</value>
+                                <value>.xml</value>
+                                <value>.xreportspec</value>
+                                <value>.waqr.xaction</value>
+                                <value>.waqr.xreportspec</value>
+                                <value>.waqr.xml</value>
+                                <value>.xwaqr</value>
+                                <value>.cda</value>
+                                <value>.xls</value>
+                            </list>
+                        </property>
+                        <property name="blackList">
+                            <list>
+                                <value>.xml</value>
+                                <value>.properties</value>
+                                <value>.png</value>
+                                <value>.jpg</value>
+                                <value>.gif</value>
+                                <value>.svg</value>
+                                <value>.html</value>
+                                <value>.htm</value>
+                            </list>
+                        </property>
+                    </bean>
+                </entry>
+                <entry key="text/xmi+xml">
+                    <bean class="org.pentaho.platform.plugin.services.importer.MetadataImportHandler">
+                        <constructor-arg ref="IMetadataDomainRepositoryImpl"/>
+                    </bean>
+                </entry>
+                <entry key="application/vnd.pentaho.mondrian+xml">
+                    <bean class="org.pentaho.platform.plugin.services.importer.MondrianImportHandler">
+                        <constructor-arg ref="IMondrianCatalogService"/>
+                    </bean>
+                </entry>
+				<entry key="text/locale">
+                    <bean class="org.pentaho.platform.plugin.services.importer.LocaleImportHandler">
+						<constructor-arg>
+		            		<list>
+                				<value>xaction</value>
+                				<value>url</value>
+		            		</list>
+	        			</constructor-arg>
+		    		</bean>	
+                </entry>
+            </map>
+        </constructor-arg>
+        <constructor-arg ref="NameBaseMimeResolver"/>
+        <property name="defaultHandler">
+            <ref bean="defaultImportHandler"/>
+        </property>
+        <property name="repositoryImportLogger">
+            <bean class="org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger"/>
+        </property>
+
+    </bean>
+</beans>

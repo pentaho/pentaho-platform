@@ -801,12 +801,6 @@ public class FileResource extends AbstractJaxRSResource {
     RepositoryFileTreeDto tree = repoWs.getTree(path, depth, filter, showHidden.booleanValue());
     for(RepositoryFileTreeDto child : tree.getChildren()) {
   	  RepositoryFileDto file = child.getFile();
-
-      // [BISERVER-8446] localize title and description
-      LocalizationUtil localizationUtil = new LocalizationUtil(file, LocaleHelper.getLocale());
-      file.setTitle(localizationUtil.resolveLocalizedString("title", file.getTitle()));
-      file.setDescription(localizationUtil.resolveLocalizedString("description", file.getDescription()));
-
   	  Map<String, Serializable> fileMeta = repository.getFileMetadata(file.getId());
   	  boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta.get(IUnifiedRepository.SYSTEM_FOLDER) : false;
   	  if(!isSystemFolder) {

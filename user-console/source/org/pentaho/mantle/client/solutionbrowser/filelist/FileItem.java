@@ -142,8 +142,11 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
 
     fileLabel.setWordWrap(false);
     fileLabel.setText(repositoryFile.getTitle());
-    // TODO What should used for tool tip
-    fileLabel.setTitle(repositoryFile.getTitle());
+    String description = repositoryFile.getDescription();
+    if(description == null){
+      description = repositoryFile.getTitle();
+    }
+    fileLabel.setTitle(description);
     setStyleName("fileLabel"); //$NON-NLS-1$
     setCellPadding(0);
     setCellSpacing(0);
