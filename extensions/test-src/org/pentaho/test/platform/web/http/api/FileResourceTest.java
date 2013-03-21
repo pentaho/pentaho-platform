@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory.Scope;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoRole;
 import org.pentaho.platform.api.engine.security.userroledao.IPentahoUser;
 import org.pentaho.platform.api.engine.security.userroledao.IUserRoleDao;
@@ -33,6 +34,7 @@ import org.pentaho.platform.plugin.services.importexport.Converter;
 import org.pentaho.platform.plugin.services.importexport.DefaultExportHandler;
 import org.pentaho.platform.plugin.services.importexport.StreamConverter;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.mt.RepositoryTenantManager;
 import org.pentaho.platform.repository2.unified.IRepositoryFileDao;
 import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.SimpleJcrTestUtils;
@@ -42,6 +44,7 @@ import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclAce
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileAclDto;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.policy.rolebased.RoleAuthorizationPolicy;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserDetailsService;
 import org.pentaho.platform.security.userroledao.service.UserRoleDaoUserRoleListService;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
@@ -176,7 +179,11 @@ public class FileResourceTest extends JerseyTest implements ApplicationContextAw
     mp.defineInstance(IRoleAuthorizationPolicyRoleBindingDao.class, roleBindingDaoTarget);
     mp.defineInstance("tenantedUserNameUtils", tenantedUserNameUtils);
     mp.defineInstance("tenantedRoleNameUtils", tenantedRoleNameUtils);
-    mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);    
+    mp.defineInstance("repositoryAdminUsername", repositoryAdminUsername);
+    mp.define(IRoleAuthorizationPolicyRoleBindingDao.class, RoleAuthorizationPolicy.class, Scope.GLOBAL);
+    mp.define(ITenantManager.class, RepositoryTenantManager.class, Scope.GLOBAL);
+    mp.defineInstance("singleTenantAdminAuthorityName", new String("Administrator"));
+    
     UserRoleDaoUserDetailsService userDetailsService = new UserRoleDaoUserDetailsService();
     userDetailsService.setUserRoleDao(userRoleDao);
     List<String> systemRoles = new ArrayList<String>();
