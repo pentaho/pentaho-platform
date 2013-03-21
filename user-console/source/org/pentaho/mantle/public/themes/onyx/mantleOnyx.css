@@ -143,6 +143,21 @@
   color: #EF6507;
 }
 
+.hiddenFileLabel {
+	width: 100%;
+	opacity: .7;
+	font-style: italic;
+	background-color: #ffffff;
+}
+
+.hiddenFileLabelSelected {
+	width: 100%;
+	opacity: .7;
+	font-style: italic;
+	background-color: #dbdbdb;
+}
+
+
 .fileLabel {
   background-color: #ffffff;
 }

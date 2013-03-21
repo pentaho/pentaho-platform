@@ -23,7 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
+
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
+import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 
@@ -49,19 +55,31 @@ import com.google.gwt.xml.client.XMLParser;
 public class PermissionsPanel extends FlexTable implements IFileModifier {
 
   private static final String RECIPIENT_TYPE_ELEMENT_NAME = "recipientType"; //$NON-NLS-1$
+
   private static final String PERMISSIONS_ELEMENT_NAME = "permissions"; //$NON-NLS-1$
+
   private static final String RECIPIENT_ELEMENT_NAME = "recipient"; //$NON-NLS-1$
+
   private static final String ACES_ELEMENT_NAME = "aces"; //$NON-NLS-1$
+
   private static final String OWNER_NAME_ELEMENT_NAME = "owner"; //$NON-NLS-1$
+
   private static final String OWNER_TYPE_ELEMENT_NAME = "ownerType"; //$NON-NLS-1$
 
   public static final int USER_TYPE = 0;
+
   public static final int ROLE_TYPE = 1;
+
   public static final int PERM_READ = 0;
+
   public static final int PERM_WRITE = 1;
+
   public static final int PERM_DELETE = 2;
+
   public static final int PERM_GRANT_PERM = 3;
+
   public static final int PERM_ALL = 4;
+
   private static final String INHERITS_ELEMENT_NAME = "entriesInheriting"; //$NON-NLS-1$
 
   boolean dirty = false;
@@ -69,18 +87,29 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
   ArrayList<String> existingUsersAndRoles = new ArrayList<String>();
 
   RepositoryFile fileSummary;
+
   Document fileInfo;
+
   Document origFileInfo;
+
   boolean origInheritAclFlag = false;
+
   ListBox usersAndRolesList = new ListBox(false);
+
   Label permissionsLabel = new Label(Messages.getString("permissionsColon")); //$NON-NLS-1$
+
   FlexTable permissionsTable = new FlexTable();
+
   Button removeButton = new Button(Messages.getString("remove")); //$NON-NLS-1$
+
   Button addButton = new Button(Messages.getString("addPeriods")); //$NON-NLS-1$
 
   final CheckBox readPermissionCheckBox = new CheckBox(Messages.getString("read")); //$NON-NLS-1$
+
   final CheckBox deletePermissionCheckBox = new CheckBox(Messages.getString("delete")); //$NON-NLS-1$
+
   final CheckBox writePermissionCheckBox = new CheckBox(Messages.getString("write")); //$NON-NLS-1$
+
   final CheckBox grantPermissionCheckBox = new CheckBox(Messages.getString("grantPermission")); //$NON-NLS-1$
 
   final CheckBox inheritsCheckBox = new CheckBox(Messages.getString("inherits")); //$NON-NLS-1$
@@ -186,36 +215,66 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     inheritsCheckBox.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent clickEvent) {
         dirty = true;
-        Boolean inheritCheckBoxValue = inheritsCheckBox.getValue();
         String moduleBaseURL = GWT.getModuleBaseURL();
         String moduleName = GWT.getModuleName();
-        String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+        final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
 
-        if(inheritCheckBoxValue) {
-          String path = fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/"));
-          String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(path) + "/acl"; //$NON-NLS-1$ //$NON-NLS-2$
-          RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-          try {
-            builder.sendRequest(null, new RequestCallback() {
+        if(inheritsCheckBox.getValue()) {
+          VerticalPanel vp = new VerticalPanel();
+          vp.add(new Label(Messages.getString("permissionsWillBeLostQuestion"))); //$NON-NLS-1$
+          final PromptDialogBox permissionsOverwriteConfirm = new PromptDialogBox(Messages.getString("permissionsWillBeLostConfirmMessage"), Messages.getString("yes"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+  
+          final IDialogCallback callback = new IDialogCallback() {
+  
+            public void cancelPressed() {
+              permissionsOverwriteConfirm.hide();
+              inheritsCheckBox.setValue(false);
+              dirty = false;
+              refreshPermission(false);
+            }
+  
+            public void okPressed() {
+              String path = fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/"));
+              String url = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(path) + "/acl"; //$NON-NLS-1$ //$NON-NLS-2$
+              RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+              try {
+                builder.sendRequest(null, new RequestCallback() {
+                  public void onResponseReceived(Request request, Response response) {
+                    if (response.getStatusCode() == Response.SC_OK) {
+                      initializePermissionPanel(XMLParser.parse(response.getText()));
+                      refreshPermission(inheritsCheckBox.getValue());
+                    } else {
+                      inheritsCheckBox.setValue(false);
+                      refreshPermission(false);
+                      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetPermissions", response.getStatusText()), //$NON-NLS-1$ //$NON-NLS-2$
+                          false, false, true);
+                      dialogBox.center();
+                    }
+                  }
 
-              public void onError(Request request, Throwable exception) {
+                  @Override
+                  public void onError(Request request, Throwable exception) {
+                    inheritsCheckBox.setValue(false);
+                    refreshPermission(false);
+                    MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetPermissions", exception.getLocalizedMessage()), //$NON-NLS-1$ //$NON-NLS-2$
+                        false, false, true);
+                    dialogBox.center();
+                  }
+                });
+              } catch (RequestException e) {
+                inheritsCheckBox.setValue(false);
+                refreshPermission(false);
+                MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotGetPermissions", e.getLocalizedMessage()), //$NON-NLS-1$ //$NON-NLS-2$
+                    false, false, true);
+                dialogBox.center();
               }
+            }
+          };
+          permissionsOverwriteConfirm.setCallback(callback);
+          permissionsOverwriteConfirm.center();
 
-              public void onResponseReceived(Request request, Response response) {
-                if (response.getStatusCode() == Response.SC_OK) {
-                  initializePermissionPanel(XMLParser.parse(response.getText()));
-                } 
-              }
-            });
-          } catch (RequestException e) {
-          }
         }
-        setInheritsAcls(inheritCheckBoxValue, fileInfo);
-        writePermissionCheckBox.setEnabled(!inheritCheckBoxValue);
-        grantPermissionCheckBox.setEnabled(!inheritCheckBoxValue);
-        deletePermissionCheckBox.setEnabled(!inheritCheckBoxValue);
-        addButton.setEnabled(!inheritCheckBoxValue);
-        removeButton.setEnabled(!inheritCheckBoxValue);
+        refreshPermission(inheritsCheckBox.getValue());
       }
     });
 
@@ -243,6 +302,17 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     permissionsTable.setWidget(1, 0, writePermissionCheckBox);
     permissionsTable.setWidget(1, 1, grantPermissionCheckBox);
 
+    permissionsTable.getCellFormatter().setHorizontalAlignment(0, 0, HorizontalPanel.ALIGN_LEFT);
+    permissionsTable.getCellFormatter().setHorizontalAlignment(1, 0, HorizontalPanel.ALIGN_LEFT);
+    permissionsTable.getCellFormatter().setHorizontalAlignment(0, 1, HorizontalPanel.ALIGN_LEFT);
+    permissionsTable.getCellFormatter().setHorizontalAlignment(1, 1, HorizontalPanel.ALIGN_LEFT);
+    permissionsTable.getCellFormatter().setWidth(0, 0, "100%");
+    permissionsTable.getCellFormatter().setWidth(0, 1, "100%");
+    permissionsTable.getCellFormatter().setWidth(1, 0, "100%");
+    permissionsTable.getCellFormatter().setWidth(1, 1, "100%");
+    
+    
+    
     permissionsTable.setStyleName("permissionsTable"); //$NON-NLS-1$
     permissionsTable.setWidth("100%"); //$NON-NLS-1$
     permissionsTable.setHeight("100%"); //$NON-NLS-1$
@@ -250,6 +320,14 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     init();
   }
 
+  private void refreshPermission(Boolean inheritCheckBoxValue) {
+    setInheritsAcls(inheritCheckBoxValue, fileInfo);
+    writePermissionCheckBox.setEnabled(!inheritCheckBoxValue);
+    grantPermissionCheckBox.setEnabled(!inheritCheckBoxValue);
+    deletePermissionCheckBox.setEnabled(!inheritCheckBoxValue);
+    addButton.setEnabled(!inheritCheckBoxValue);
+    removeButton.setEnabled(!inheritCheckBoxValue);
+  }
   /**
    * Set the widgets according to what is currently in the DOM.
    */
@@ -272,10 +350,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
       grantPermissionCheckBox.setEnabled(false);
     }
 
-    readPermissionCheckBox.setValue(perms.contains(PERM_READ)|perms.contains(PERM_ALL));
-    deletePermissionCheckBox.setValue(perms.contains(PERM_DELETE)|perms.contains(PERM_ALL));
-    writePermissionCheckBox.setValue(perms.contains(PERM_WRITE)|perms.contains(PERM_ALL));
-    grantPermissionCheckBox.setValue(perms.contains(PERM_GRANT_PERM)|perms.contains(PERM_ALL));
+    readPermissionCheckBox.setValue(perms.contains(PERM_READ) | perms.contains(PERM_ALL));
+    deletePermissionCheckBox.setValue(perms.contains(PERM_DELETE) | perms.contains(PERM_ALL));
+    writePermissionCheckBox.setValue(perms.contains(PERM_WRITE) | perms.contains(PERM_ALL));
+    grantPermissionCheckBox.setValue(perms.contains(PERM_GRANT_PERM) | perms.contains(PERM_ALL));
     inheritsCheckBox.setValue(isInheritsAcls(fileInfo));
 
     writePermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
@@ -283,7 +361,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     grantPermissionCheckBox.setEnabled(!inheritsCheckBox.getValue());
 
     addButton.setEnabled(!inheritsCheckBox.getValue());
-    removeButton.setEnabled(!(isOwner(userOrRoleString, USER_TYPE, fileInfo) || isOwner(userOrRoleString, ROLE_TYPE, fileInfo)) && !inheritsCheckBox.getValue());
+    removeButton.setEnabled(!(isOwner(userOrRoleString, USER_TYPE, fileInfo) || isOwner(userOrRoleString, ROLE_TYPE,
+        fileInfo)) && !inheritsCheckBox.getValue());
   }
 
   /**
@@ -310,7 +389,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
    *
    * @return
    */
-  public List<RequestBuilder> prepareRequests(){
+  public List<RequestBuilder> prepareRequests() {
     List<RequestBuilder> requestBuilders = new ArrayList();
 
     String moduleBaseURL = GWT.getModuleBaseURL();
@@ -411,7 +490,8 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
    * @return
    */
   private Integer getOwnerType(Document fileInfo) {
-    return Integer.parseInt(fileInfo.getElementsByTagName(OWNER_TYPE_ELEMENT_NAME).item(0).getFirstChild().getNodeValue());
+    return Integer.parseInt(fileInfo.getElementsByTagName(OWNER_TYPE_ELEMENT_NAME).item(0).getFirstChild()
+        .getNodeValue());
   }
 
   /**
@@ -567,7 +647,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
    * Get owner name from acl response
    * @param response
    */
-  protected void setAclResponse(Response response){
+  protected void setAclResponse(Response response) {
     init(fileSummary, XMLParser.parse(response.getText()));
   }
 }

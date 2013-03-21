@@ -26,5 +26,5 @@ public class JsLogicalRoleMap extends JavaScriptObject {
     
   }
   public final native JsArray<JsLocalizedRoleName> getLogicalRoles() /*-{ return this.localizedRoleNames; }-*/; //
-  public final native JsArray<JsLogicalRoleAssigment> getRoleAssignments() /*-{ return this.logicalRoleAssignments; }-*/; //
+  public final native JsArray<JsLogicalRoleAssigment> getRoleAssignments() /*-{ return this.assignments; }-*/; //
 }
