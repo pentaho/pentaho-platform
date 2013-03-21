@@ -1,8 +1,9 @@
-package org.pentaho.platform.web.http.api.resources;
+package org.pentaho.platform.repository.webservices;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
+import org.pentaho.platform.repository2.unified.webservices.LocalizationUtil;
 import org.pentaho.platform.repository2.unified.webservices.RepositoryFileDto;
 import org.pentaho.platform.repository2.unified.webservices.StringKeyStringValueDto;
 
