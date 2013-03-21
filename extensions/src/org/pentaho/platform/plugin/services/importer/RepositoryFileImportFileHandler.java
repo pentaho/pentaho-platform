@@ -202,7 +202,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   protected RepositoryFile createFile(final RepositoryFileImportBundle bundle, final String repositoryPath,
       final IRepositoryFileData data) {
     final RepositoryFile file = new RepositoryFile.Builder(bundle.getName()).hidden(bundle.isHidden())
-        .title(RepositoryFile.ROOT_LOCALE, getTitle(bundle.getName())).versioned(true).build();
+        .title(RepositoryFile.DEFAULT_LOCALE, getTitle(bundle.getName())).versioned(true).build();
     final Serializable parentId = getParentId(repositoryPath);
     final RepositoryFileAcl acl = bundle.getAcl();
     if (null == acl) {
