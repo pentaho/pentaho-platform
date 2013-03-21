@@ -520,21 +520,18 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
   @Override
   public Properties getLocalePropertiesForFileById(Serializable fileId, String locale) {
     Assert.notNull(fileId);
-    Assert.notNull(locale);
     return repositoryFileDao.getLocalePropertiesForFileById(fileId, locale);
   }
 
   @Override
   public Properties getLocalePropertiesForFileByPath(String relPath, String locale) {
     Assert.notNull(relPath);
-    Assert.notNull(locale);
     return repositoryFileDao.getLocalePropertiesForFileByPath(relPath, locale);
   }
 
   @Override
   public Properties getLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
     Assert.notNull(repositoryFile);
-    Assert.notNull(locale);
     return repositoryFileDao.getLocalePropertiesForFile(repositoryFile, locale);
   }
 

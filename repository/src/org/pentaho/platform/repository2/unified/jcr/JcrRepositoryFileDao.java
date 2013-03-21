@@ -911,6 +911,9 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
 
   @Override
   public Properties getLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
+    if(org.apache.commons.lang.StringUtils.isBlank(locale)){
+      locale = PentahoJcrConstants.DEFAULT_LOCALE;
+    }
     if(repositoryFile != null && repositoryFile.getLocalePropertiesMap() != null){
       Properties properties = repositoryFile.getLocalePropertiesMap().get(locale);
       return properties;
