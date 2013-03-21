@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -40,6 +41,7 @@ import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
 import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TestQuartzScheduler;
 import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TstPluginManager;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -56,9 +58,9 @@ public class DefaultBlockoutManagerTest {
   /**
    * Standard Units of Time
    */
-  enum TIME {
+  static enum TIME {
     MILLISECOND(1), SECOND(MILLISECOND.time * 1000), MINUTE(SECOND.time * 60), HOUR(MINUTE.time * 60), DAY(
-        HOUR.time * 24), WEEK(DAY.time * 7), MONTH(DAY.time * 30), YEAR(DAY.time * 365 + HOUR.time * 8);
+        HOUR.time * 24), WEEK(DAY.time * 7), YEAR(DAY.time * 365 + HOUR.time * 8);
 
     private long time;
 
@@ -202,11 +204,11 @@ public class DefaultBlockoutManagerTest {
           -1, TIME.WEEK.time * 2, TIME.HOUR.time * 2);
 
       Calendar scheduleStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 7, 1, 0, 0);
-      SimpleTrigger trueScheduleTrigger = new SimpleTrigger("trueSchedule", "SCHEDULES", scheduleStartDate.getTime(),
+      SimpleTrigger trueScheduleTrigger = new SimpleTrigger("trueSchedule", "SCHEDULES", scheduleStartDate.getTime(), //$NON-NLS-1$ //$NON-NLS-2$
           null, -1, TIME.WEEK.time);
       scheduleJob(trueScheduleTrigger);
 
-      SimpleTrigger falseScheduleTrigger = new SimpleTrigger("falseSchedule", "SCHEDULES", scheduleStartDate.getTime(),
+      SimpleTrigger falseScheduleTrigger = new SimpleTrigger("falseSchedule", "SCHEDULES", scheduleStartDate.getTime(), //$NON-NLS-1$ //$NON-NLS-2$
           null, -1, TIME.WEEK.time * 2);
       scheduleJob(falseScheduleTrigger);
 
@@ -259,18 +261,29 @@ public class DefaultBlockoutManagerTest {
           "blockOut", trueBlockOutStartDate.getTime(), null, //$NON-NLS-1$
           -1, TIME.WEEK.time * 2, TIME.HOUR.time * 2);
 
-      Calendar falseBlockOutStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 8);
+      Calendar falseBlockOutStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 9);
       SimpleBlockoutTrigger falseBlockOutTrigger = new SimpleBlockoutTrigger(
           "blockOut", falseBlockOutStartDate.getTime(), null, //$NON-NLS-1$
           -1, TIME.WEEK.time * 2, TIME.HOUR.time * 2);
 
       Calendar scheduleStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 7, 1, 0, 0);
-      SimpleTrigger scheduleTrigger = new SimpleTrigger("trueSchedule", "SCHEDULES", scheduleStartDate.getTime(), null,
+      SimpleTrigger scheduleTrigger = new SimpleTrigger("schedule", "SCHEDULES", scheduleStartDate.getTime(), null, //$NON-NLS-1$ //$NON-NLS-2$
           -1, TIME.WEEK.time);
       scheduleJob(scheduleTrigger);
 
       assertEquals(1, this.blockOutManager.willBlockSchedules(trueBlockOutTrigger).size());
       assertEquals(0, this.blockOutManager.willBlockSchedules(falseBlockOutTrigger).size());
+
+      try {
+        CronTrigger cronTrigger = new CronTrigger("cronTrigger", "SCHEDULES", "cronJob", "CRONJOBS", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            scheduleStartDate.getTime(), null, "0 0 1 ? * MON-TUE"); //$NON-NLS-1$
+        scheduleJob(cronTrigger);
+
+        assertEquals(2, this.blockOutManager.willBlockSchedules(trueBlockOutTrigger).size());
+        assertEquals(0, this.blockOutManager.willBlockSchedules(falseBlockOutTrigger).size());
+      } catch (ParseException e) {
+        throw new RuntimeException(e);
+      }
 
       // Clean up
       deleteJob(scheduleTrigger);
@@ -284,7 +297,7 @@ public class DefaultBlockoutManagerTest {
    * Schedules a non-block out job
    * @param scheduleTrigger
    */
-  private void scheduleJob(SimpleTrigger scheduleTrigger) {
+  private void scheduleJob(Trigger scheduleTrigger) {
     try {
       JobDetail jd = new JobDetail(scheduleTrigger.getName(), scheduleTrigger.getGroup(), TestJob.class);
       scheduleTrigger.setJobName(jd.getName());
