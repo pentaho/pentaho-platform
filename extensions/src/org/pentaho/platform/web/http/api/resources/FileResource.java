@@ -529,13 +529,13 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path("{pathId : .+}/locales")
   @Produces({APPLICATION_XML, APPLICATION_JSON})
-  public List<String> doGetFileLocales(@PathParam("pathId") String pathId) {
-    List<String> availableLocales = new ArrayList<String>();
+  public List<LocaleMapDto> doGetFileLocales(@PathParam("pathId") String pathId) {
+    List<LocaleMapDto> availableLocales = new ArrayList<LocaleMapDto>();
     RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
     List<PentahoLocale> locales = repoWs.getAvailableLocalesForFileById(file.getId());
     if(locales != null && !locales.isEmpty()){
       for(PentahoLocale locale : locales){
-        availableLocales.add(locale.toString());
+        availableLocales.add(new LocaleMapDto(locale.toString(), null));
       }
     }
     return availableLocales;
@@ -544,13 +544,19 @@ public class FileResource extends AbstractJaxRSResource {
   @GET
   @Path("{pathId : .+}/localeProperties")
   @Produces({APPLICATION_XML, APPLICATION_JSON})
-  public Properties doGetLocaleProperties(@PathParam("pathId") String pathId,
-                                          @QueryParam("locale") String locale){
+  public List<StringKeyStringValueDto> doGetLocaleProperties(@PathParam("pathId") String pathId,
+                                                             @QueryParam("locale") String locale){
     RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
+    List<StringKeyStringValueDto> keyValueList = new ArrayList<StringKeyStringValueDto>();
     if(file != null){
-      return repoWs.getLocalePropertiesForFileById(file.getId(), locale);
+      Properties properties = repoWs.getLocalePropertiesForFileById(file.getId(), locale);
+      if(properties != null && !properties.isEmpty()){
+        for(String key : properties.stringPropertyNames()){
+          keyValueList.add(new StringKeyStringValueDto(key, properties.getProperty(key)));
+        }
+      }
     }
-    return new Properties();
+    return keyValueList;
   }
 
   @PUT
