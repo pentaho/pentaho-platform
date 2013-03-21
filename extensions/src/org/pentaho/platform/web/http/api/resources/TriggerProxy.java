@@ -14,31 +14,32 @@
  * @author wseyler
  */
 
-
 package org.pentaho.platform.web.http.api.resources;
 
 import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlRootElement;
+
 import org.quartz.Trigger;
 
 /**
  * @author wseyler
- *
  */
 @XmlRootElement
-public class BlockoutTriggerProxy implements Serializable {
-    private Trigger trigger;
-    
-    public BlockoutTriggerProxy() {
-      super();
-    }
-    public BlockoutTriggerProxy(Trigger trigger) {
-      this();
-      this.trigger = trigger;
-    }
+public class TriggerProxy implements Serializable {
+  private Trigger trigger;
 
-    public Trigger getTrigger() {
-      return trigger;
-    }
+  public TriggerProxy() {
+    super();
+  }
+
+  public TriggerProxy(Trigger trigger) {
+    this();
+    this.trigger = trigger;
+  }
+
+  public Trigger getTrigger() {
+    return trigger;
+  }
 
 }

@@ -56,12 +56,12 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @GET
   @Path("/list")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public BlockoutTriggerProxy[] getBlockouts() {
+  public TriggerProxy[] getBlockouts() {
     try {
       IBlockoutTrigger[] blockoutsArray = manager.getBlockouts();
-      BlockoutTriggerProxy[] triggers = new BlockoutTriggerProxy[blockoutsArray.length];
+      TriggerProxy[] triggers = new TriggerProxy[blockoutsArray.length];
       for (int i = 0; i < triggers.length; i++) {
-        triggers[i] = new BlockoutTriggerProxy((Trigger) blockoutsArray[i]);
+        triggers[i] = new TriggerProxy((Trigger) blockoutsArray[i]);
       }
       return triggers;
     } catch (SchedulerException e) {
@@ -72,10 +72,10 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @GET
   @Path("/get")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public BlockoutTriggerProxy getBlockout(@QueryParam("blockoutName")
+  public TriggerProxy getBlockout(@QueryParam("blockoutName")
   String blockoutName) {
     try {
-      return new BlockoutTriggerProxy((Trigger) manager.getBlockout(blockoutName));
+      return new TriggerProxy((Trigger) manager.getBlockout(blockoutName));
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
@@ -106,9 +106,9 @@ public class BlockoutResource extends AbstractJaxRSResource {
     }
     if (success) {
       return Response.status(Status.OK).build();
-    } else {
-      return Response.status(Status.NOT_MODIFIED).build();
     }
+
+    return Response.status(Status.NOT_MODIFIED).build();
   }
 
   @POST
@@ -153,11 +153,17 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @GET
   @Path("/willBlock")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-  @Produces({ TEXT_PLAIN })
-  public Response willBlock(IBlockoutTrigger blockoutTrigger) {
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
+  public TriggerProxy[] willBlock(IBlockoutTrigger blockoutTrigger) {
     try {
-      List<Trigger> results = manager.willBlockSchedules(blockoutTrigger);
-      return Response.ok(results.toString()).build();
+      List<Trigger> blockedTriggers = manager.willBlockSchedules(blockoutTrigger);
+      TriggerProxy[] blockedTriggerProxies = new TriggerProxy[blockedTriggers.size()];
+
+      for (int i = 0; i < blockedTriggerProxies.length; i++) {
+        blockedTriggerProxies[i] = new TriggerProxy(blockedTriggers.get(i));
+      }
+
+      return blockedTriggerProxies;
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
