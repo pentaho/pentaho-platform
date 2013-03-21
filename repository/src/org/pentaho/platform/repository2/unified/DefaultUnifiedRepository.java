@@ -17,6 +17,8 @@ package org.pentaho.platform.repository2.unified;
 import java.io.Serializable;
 import java.util.*;
 
+import javax.jcr.AccessDeniedException;
+
 import org.pentaho.platform.api.locale.IPentahoLocale;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
