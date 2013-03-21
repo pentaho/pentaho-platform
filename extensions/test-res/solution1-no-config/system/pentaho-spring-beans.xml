@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springsource.org/dtd/spring-beans.dtd">
+
+<!--+
+  | This should be the only file specified in web.xml's contextConfigLocation. It should only contain imports.
+  +-->
+  
+<beans>
+  <import resource="pentahoSystemConfig.xml" />
+  <import resource="adminPlugins.xml" />
+  <import resource="systemListeners.xml" />
+  <import resource="sessionStartupActions.xml" />
+  <import resource="repository.spring.xml" />
+  <import resource="applicationContext-spring-security.xml" />
+  <import resource="applicationContext-spring-security-superuser.xml" />
+  <import resource="applicationContext-common-authorization.xml" />
+  <!--
+  <import resource="applicationContext-spring-security-hibernate.xml" />
+  <import resource="applicationContext-pentaho-security-hibernate.xml" />
+  -->
+  <import resource="applicationContext-pentaho-security-jackrabbit.xml" />
+  <import resource="applicationContext-spring-security-jackrabbit.xml" />
+  <import resource="pentahoObjects.spring.xml" />
+  <import resource="GettingStartedDB-spring.xml" /> <!-- Remove this line to unhook the Getting Started DB -->
+  <import resource="importExport.xml" />
+
+</beans>
