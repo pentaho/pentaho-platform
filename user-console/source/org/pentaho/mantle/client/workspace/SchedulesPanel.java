@@ -61,7 +61,6 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -78,8 +77,6 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 public class SchedulesPanel extends SimplePanel {
 
   private static final int PAGE_SIZE = 25;
-
-  private static SchedulesPanel instance = new SchedulesPanel();
 
   private ToolbarButton controlScheduleButton = new ToolbarButton(new Image(MantleImages.images.run16()));
   private ToolbarButton editButton = new ToolbarButton(new Image(MantleImages.images.edit16()));
@@ -168,61 +165,12 @@ public class SchedulesPanel extends SimplePanel {
     }
   };
 
-  private boolean isAdmin = false;
-  private boolean isScheduler = false;
-
-  private SchedulesPanel() {
-    try {
-      final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
-      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-      requestBuilder.setHeader("accept", "text/plain");
-      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
-
-      requestBuilder.sendRequest(null, new RequestCallback() {
-
-        public void onError(Request request, Throwable caught) {
-          refresh(false);
-        }
-
-        public void onResponseReceived(Request request, Response response) {
-          SchedulesPanel.this.isAdmin = "true".equalsIgnoreCase(response.getText());
-
-          try {
-            final String url2 = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule"; //$NON-NLS-1$
-            RequestBuilder requestBuilder2 = new RequestBuilder(RequestBuilder.GET, url2);
-            requestBuilder2.setHeader("accept", "text/plain");
-            requestBuilder2.sendRequest(null, new RequestCallback() {
-              public void onError(Request request, Throwable caught) {
-                createUI(isAdmin, false);
-                refresh(isAdmin);
-              }
-
-              public void onResponseReceived(Request request, Response response) {
-                SchedulesPanel.this.isScheduler = "true".equalsIgnoreCase(response.getText());
-                createUI(isAdmin, isScheduler);
-                refresh(isAdmin);
-              }
-
-            });
-          } catch (RequestException e) {
-            Window.alert(e.getMessage());
-          }
-        }
-      });
-    } catch (RequestException e) {
-      Window.alert(e.getMessage());
-    }
-  }
-
-  public static SchedulesPanel getInstance() {
-    return instance;
+  public SchedulesPanel(final boolean isAdmin, final boolean isScheduler) {
+      createUI(isAdmin, isScheduler);
+      refresh();
   }
 
   public void refresh() {
-    refresh(isAdmin);
-  }
-
-  public void refresh(final boolean isAdmin) {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
@@ -269,7 +217,7 @@ public class SchedulesPanel extends SimplePanel {
     table.redraw();
   }
 
-  private void updateControlSchedulerButtonState(final ToolbarButton controlSchedulerButton) {
+  private void updateControlSchedulerButtonState(final ToolbarButton controlSchedulerButton, final boolean isScheduler) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/state"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
@@ -290,7 +238,7 @@ public class SchedulesPanel extends SimplePanel {
             controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
           }
 
-          if (!SchedulesPanel.this.isScheduler)
+          if (!isScheduler)
             controlSchedulerButton.setEnabled(false);
           else
             controlSchedulerButton.setEnabled(true);
@@ -301,7 +249,7 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
-  private void toggleSchedulerOnOff(final ToolbarButton controlSchedulerButton) {
+  private void toggleSchedulerOnOff(final ToolbarButton controlSchedulerButton, final boolean isScheduler) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/state"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
@@ -315,9 +263,9 @@ public class SchedulesPanel extends SimplePanel {
         public void onResponseReceived(Request request, Response response) {
           boolean isRunning = "RUNNING".equalsIgnoreCase(response.getText());
           if (isRunning) {
-            controlScheduler(controlSchedulerButton, "pause");
+            controlScheduler(controlSchedulerButton, "pause", isScheduler);
           } else {
-            controlScheduler(controlSchedulerButton, "start");
+            controlScheduler(controlSchedulerButton, "start", isScheduler);
           }
         }
       });
@@ -326,7 +274,8 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
-  private void createUI(boolean isAdmin, final boolean isScheduler) {
+    @SuppressWarnings("EmptyCatchBlock")
+    private void createUI(boolean isAdmin, final boolean isScheduler) {
 
     table.getElement().setId("schedule-table");
 
@@ -626,19 +575,19 @@ public class SchedulesPanel extends SimplePanel {
       @SuppressWarnings("unchecked")
       public void onSelectionChange(SelectionChangeEvent event) {
         selectedJobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
-        JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
-        editButton.setEnabled(SchedulesPanel.this.isScheduler);
+        JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
+        editButton.setEnabled(isScheduler);
         if ("NORMAL".equalsIgnoreCase(jobs[0].getState())) {
           controlScheduleButton.setImage(new Image(MantleImages.images.stop16()));
         } else {
           controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
         }
-        controlScheduleButton.setEnabled(jobs != null && SchedulesPanel.this.isScheduler);
+        controlScheduleButton.setEnabled(isScheduler);
 
         boolean isRunning = "NORMAL".equalsIgnoreCase(jobs[0].getState());
         controlScheduleButton.setToolTip(isRunning ? Messages.getString("stop") : Messages.getString("start"));
-        scheduleRemoveButton.setEnabled(jobs != null && SchedulesPanel.this.isScheduler);
-        triggerNowButton.setEnabled(jobs != null && SchedulesPanel.this.isScheduler);
+        scheduleRemoveButton.setEnabled(isScheduler);
+        triggerNowButton.setEnabled(isScheduler);
       }
     });
 
@@ -722,7 +671,7 @@ public class SchedulesPanel extends SimplePanel {
     controlScheduleButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
-          JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
+          JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
           if ("NORMAL".equals(jobs[0].getState())) {
             controlJobs(selectedJobs, "pauseJob", RequestBuilder.POST, false);
           } else {
@@ -741,10 +690,10 @@ public class SchedulesPanel extends SimplePanel {
           final ToolbarButton controlSchedulerButton = new ToolbarButton(new Image(MantleImages.images.start_scheduler16()));
           controlSchedulerButton.setCommand(new Command() {
             public void execute() {
-              toggleSchedulerOnOff(controlSchedulerButton);
+              toggleSchedulerOnOff(controlSchedulerButton, isScheduler);
             }
           });
-          updateControlSchedulerButtonState(controlSchedulerButton);
+          updateControlSchedulerButtonState(controlSchedulerButton, isScheduler);
 
           bar.add(controlSchedulerButton);
           bar.addSpacer(20);
@@ -753,7 +702,7 @@ public class SchedulesPanel extends SimplePanel {
       editButton.setCommand(new Command() {
       public void execute() {
         if (selectedJobs != null) {
-          JsJob[] jobs = (JsJob[]) selectedJobs.toArray(new JsJob[] {});
+          JsJob[] jobs = selectedJobs.toArray(new JsJob[selectedJobs.size()]);
 
           final String url = GWT.getHostPageBaseURL() + "api/scheduler/jobinfo?jobId=" + jobs[0].getJobId();
           RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
@@ -895,7 +844,7 @@ public class SchedulesPanel extends SimplePanel {
               controlScheduleButton.setImage(new Image(MantleImages.images.run16()));
             }
             if (refreshData) {
-              refresh(isAdmin);
+              refresh();
             }
           }
         });
@@ -905,7 +854,7 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
-  private void controlScheduler(final ToolbarButton controlSchedulerButton, final String function) {
+  private void controlScheduler(final ToolbarButton controlSchedulerButton, final String function, final boolean isScheduler) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/" + function; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
     builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
@@ -926,7 +875,7 @@ public class SchedulesPanel extends SimplePanel {
             controlSchedulerButton.setImage(new Image(MantleImages.images.start_scheduler16()));
           }
 
-          if (!SchedulesPanel.this.isScheduler)
+          if (!isScheduler)
             controlSchedulerButton.setEnabled(false);
           else
             controlSchedulerButton.setEnabled(true);
@@ -937,22 +886,19 @@ public class SchedulesPanel extends SimplePanel {
     }
   }
 
-  private final native JsArray<JsJob> parseJson(String json)
+  private native JsArray<JsJob> parseJson(String json)
   /*-{
     var obj = eval('(' + json + ')');
     return obj.job;
   }-*/;
 
-  private final native JsJob parseJsonJob(String json)
+  private native JsJob parseJsonJob(String json)
   /*-{
     var obj = eval('(' + json + ')');
     return obj;
   }-*/;
 
   public interface CellTableResources extends Resources {
-    public interface CellTableStyle extends CellTable.Style {
-    };
-
     @Override
     public ImageResource cellTableSortAscending();
 
