@@ -23,6 +23,7 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginProvider;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.PlatformPluginRegistrationException;
+import org.pentaho.platform.api.mt.ITenantManager;
 import org.pentaho.platform.api.repository.IContentItem;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
@@ -34,6 +35,9 @@ import org.pentaho.platform.plugin.services.pluginmgr.DefaultPluginManager;
 import org.pentaho.platform.plugin.services.pluginmgr.PlatformPlugin;
 import org.pentaho.platform.plugin.services.pluginmgr.PluginResourceLoader;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
+import org.pentaho.platform.repository2.mt.RepositoryTenantManager;
+import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.policy.rolebased.RoleAuthorizationPolicy;
 import org.pentaho.platform.web.http.filters.PentahoRequestContextFilter;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.tuckey.web.filters.urlrewrite.RequestProxy;
@@ -71,6 +75,10 @@ public class FilePerspectiveResourceTest extends JerseyTest {
     mp.setFullyQualifiedServerUrl(getBaseURI() + webAppDescriptor.getContextPath() + "/");
     mp.define(IPluginManager.class, DefaultPluginManager.class, Scope.GLOBAL);
     mp.define(IPluginResourceLoader.class, PluginResourceLoader.class, Scope.GLOBAL);
+    mp.define(IRoleAuthorizationPolicyRoleBindingDao.class, RoleAuthorizationPolicy.class, Scope.GLOBAL);
+    mp.define(ITenantManager.class, RepositoryTenantManager.class, Scope.GLOBAL);
+    mp.defineInstance("singleTenantAdminAuthorityName", new String("Administrator"));
+    
   }
 
   @Override
