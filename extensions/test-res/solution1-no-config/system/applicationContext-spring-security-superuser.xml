@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springsource.org/dtd/spring-beans.dtd">
+
+<!--+
+	| Application context containing "super" AuthenticationProvider
+	| implementation.
+	+-->
+
+<beans>
+
+	<bean id="superAuthenticationProvider"
+		class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+		<property name="userDetailsService">
+			<ref bean="superUserDetailsService" />
+		</property>
+		<property name="passwordEncoder">
+			<ref bean="superPasswordEncoder" />
+		</property>
+	</bean>
+
+	<bean id="superUserDetailsService"
+		class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
+		<property name="userMap">
+			<value>
+				<![CDATA[SystemAdmin=5f4dcc3b5aa765d61d8327deb882cf99,Super,Administrator,Authenticated]]>
+			</value>
+		</property>
+	</bean>
+
+
+	<bean id="superPasswordEncoder"
+		class="org.springframework.security.providers.encoding.Md5PasswordEncoder" />
+
+</beans>
