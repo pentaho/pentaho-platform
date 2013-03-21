@@ -50,12 +50,22 @@ public class LocaleFilesProcessor {
 			String name = properties.getProperty("name");
 			String title = properties.getProperty("title");
 			String description = properties.getProperty("description");
+			String url_name = properties.getProperty("url_name");
+			String url_description = properties.getProperty("url_description");
 
-			if (StringUtils.isEmpty(name)) {
+			if (!StringUtils.isEmpty(url_name)) {
+				name = url_name;
+			}
+			if (!StringUtils.isEmpty(title)) {
 				name = title;
 			}
 
-			if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(description)) {
+			description = !StringUtils.isEmpty(description) ? description : "";
+			if (!StringUtils.isEmpty(url_description)) {
+				description = url_description;
+			}
+
+			if (!StringUtils.isEmpty(name)) {
 				String filePath = (file.getPath().equals("/") || file.getPath().equals("\\")) ? "" : file.getPath();
 				filePath = RepositoryFilenameUtils.concat(parentPath, filePath);
 
