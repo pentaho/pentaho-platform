@@ -335,23 +335,33 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   private static String findTitle(final RepositoryFile file) {
     String title = null;
-    if (file.getTitleMap() != null) {
-      title = file.getTitleMap().get(Locale.getDefault().toString());
-      if (title == null) {
-        title = file.getTitleMap().get(RepositoryFile.ROOT_LOCALE);
+    Properties properties = file.getLocalePropertiesMap().get(Locale.getDefault().toString());
+    if(properties == null){
+      properties = file.getLocalePropertiesMap().get(RepositoryFile.DEFAULT_LOCALE);
+      if(properties != null){
+        title = properties.getProperty(RepositoryFile.FILE_TITLE);
+        if(StringUtils.isBlank(title)){
+          title = properties.getProperty(RepositoryFile.TITLE);
+        }
       }
     }
+
     return title;
   }
 
   private static String findDesc(final RepositoryFile file) {
     String desc = null;
-    if (file.getDescriptionMap() != null) {
-      desc = file.getDescriptionMap().get(Locale.getDefault().toString());
-      if (desc == null) {
-        desc = file.getDescriptionMap().get(RepositoryFile.ROOT_LOCALE);
+    Properties properties = file.getLocalePropertiesMap().get(Locale.getDefault().toString());
+    if(properties == null){
+      properties = file.getLocalePropertiesMap().get(RepositoryFile.DEFAULT_LOCALE);
+      if(properties != null){
+        desc = properties.getProperty(RepositoryFile.FILE_DESCRIPTION);
+        if(StringUtils.isBlank(desc)){
+          desc = properties.getProperty(RepositoryFile.DESCRIPTION);
+        }
       }
     }
+
     return desc;
   }
 

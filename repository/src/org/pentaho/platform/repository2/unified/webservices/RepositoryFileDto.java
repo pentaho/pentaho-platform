@@ -80,10 +80,6 @@ public class RepositoryFileDto implements Serializable {
 
   Date deletedDate;
 
-  List<StringKeyStringValueDto> titleMapEntries;
-
-  List<StringKeyStringValueDto> descriptionMapEntries;
-
   List<LocaleMapDto> localePropertiesMapEntries;
 
   public RepositoryFileDto() {
@@ -279,22 +275,6 @@ public class RepositoryFileDto implements Serializable {
     this.deletedDate = deletedDate;
   }
 
-  public List<StringKeyStringValueDto> getTitleMapEntries() {
-    return titleMapEntries;
-  }
-
-  public void setTitleMapEntries(List<StringKeyStringValueDto> titleMapEntries) {
-    this.titleMapEntries = titleMapEntries;
-  }
-
-  public List<StringKeyStringValueDto> getDescriptionMapEntries() {
-    return descriptionMapEntries;
-  }
-
-  public void setDescriptionMapEntries(List<StringKeyStringValueDto> descriptionMapEntries) {
-    this.descriptionMapEntries = descriptionMapEntries;
-  }
-
   public List<LocaleMapDto> getLocalePropertiesMapEntries() {
     return localePropertiesMapEntries;
   }
@@ -308,11 +288,11 @@ public class RepositoryFileDto implements Serializable {
   public String toString() {
     return "RepositoryFileDto [id=" + id + ", name=" + name + ", path=" + path + ", folder=" + folder + ", size=" + fileSize
         + ", createdDate=" + createdDate + ", creatorId=" + creatorId + ", deletedDate=" + deletedDate + ", description=" + description
-        + ", descriptionMapEntries=" + descriptionMapEntries + ", hidden=" + hidden + ", lastModifiedDate="
+        + ", hidden=" + hidden + ", lastModifiedDate="
         + lastModifiedDate + ", locale=" + locale + ", lockDate=" + lockDate + ", lockMessage=" + lockMessage
         + ", lockOwner=" + lockOwner + ", locked=" + locked 
         + ", originalParentFolderPath=" + originalParentFolderPath + ", owner=" + owner + ", ownerType=" + ownerType
-        + ", title=" + title + ", titleMapEntries=" + titleMapEntries + ", localePropertiesMapEntries=" + localePropertiesMapEntries
+        + ", title=" + title + ", localePropertiesMapEntries=" + localePropertiesMapEntries
         + ", versionId=" + versionId + ", versioned=" + versioned + "]";
   }
 
