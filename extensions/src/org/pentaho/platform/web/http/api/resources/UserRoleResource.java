@@ -4,6 +4,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.WILDCARD;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,20 +41,23 @@ public class UserRoleResource extends AbstractJaxRSResource {
 
 	private IRoleAuthorizationPolicyRoleBindingDao roleBindingDao = null;
 	private ITenantManager tenantManager = null;
+	private ArrayList<String> systemRoles;
 	private String adminRole;
 
 	public UserRoleResource() {
 	  this(PentahoSystem.get(IRoleAuthorizationPolicyRoleBindingDao.class),
 	  PentahoSystem.get(ITenantManager.class),
+	  PentahoSystem.get(ArrayList.class, "singleTenantSystemAuthorities", PentahoSessionHolder.getSession()),
 	  PentahoSystem.get(String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession()));
 	}
   public UserRoleResource(final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao
-      , final ITenantManager tenantMgr, final String adminRole) {
+      , final ITenantManager tenantMgr, final ArrayList<String> systemRoles, final String adminRole) {
     if (roleBindingDao == null) {
       throw new IllegalArgumentException();
     }
     this.roleBindingDao = roleBindingDao;
-    tenantManager = tenantMgr;
+    this.tenantManager = tenantMgr;
+    this.systemRoles = systemRoles;
     this.adminRole = adminRole;
   }
   
@@ -363,12 +367,13 @@ public class UserRoleResource extends AbstractJaxRSResource {
 	 * @return Error message if invalid or null if ok
 	 */
 	private String checkAdminRole(String deleteRoles, String deleteUsers) {
-    //Make sure Admin role is not being deleted
+    //Make sure system roles are not being deleted
 	  if (deleteRoles != null && deleteRoles.length() > 0) {
 	    StringTokenizer tokenizer = new StringTokenizer(deleteRoles, "|");
 	    while (tokenizer.hasMoreTokens()) {
-	      if (adminRole.equals(tokenizer.nextToken())) {
-          return ("Illegal to remove the " + adminRole +" role");
+	      String token = tokenizer.nextToken();
+	      if (systemRoles.contains(token)) {
+          return ("Illegal to remove the " + token +" role");
         }
       }
 	  }

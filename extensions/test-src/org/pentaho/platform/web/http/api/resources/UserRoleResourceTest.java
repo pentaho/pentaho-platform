@@ -17,6 +17,7 @@
 package org.pentaho.platform.web.http.api.resources;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,12 @@ public class UserRoleResourceTest extends TestCase {
 
   public void testConstruction() throws Exception {
     // Only one way to construct now.  Normally spring injected
-    new UserRoleResource(new MockRoleAuthorizationPolicyRoleBindingDao(), new MockTenantManager(), "Admin");
+    String adminRole = "Administrator";
+    ArrayList<String> systemRoles = new ArrayList<String>();
+    systemRoles.add(adminRole);
+    systemRoles.add("Anonymous");
+    systemRoles.add("Authenticated");
+    new UserRoleResource(new MockRoleAuthorizationPolicyRoleBindingDao(), new MockTenantManager(), systemRoles, "Administrator");
   }
 
   public void getAllUsers() throws Exception {
