@@ -87,15 +87,22 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   boolean hasParams = false;
   boolean isEmailConfValid = false;
 
+
   public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
-    super(Messages.getString("editSchedule"), null, false, true); //$NON-NLS-1$
+    super(ScheduleDialogType.SCHEDULER, Messages.getString("editSchedule"), null, false, true); //$NON-NLS-1$
     setCallback(callback);
     this.editJob = jsJob;
     constructDialog(jsJob.getFullResourceName(), hasParams, isEmailConfValid, jsJob);
   }
 
   public NewScheduleDialog(String filePath, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
-    super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
+    super(ScheduleDialogType.SCHEDULER, Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
+    setCallback(callback);
+    constructDialog(filePath, hasParams, isEmailConfValid, null);
+  }
+
+  public NewScheduleDialog(ScheduleDialogType type, String title, String filePath, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
+    super(type, title, null, false, true);
     setCallback(callback);
     constructDialog(filePath, hasParams, isEmailConfValid, null);
   }
@@ -111,7 +118,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     this.hasParams = hasParams;
     this.filePath = filePath;
     this.isEmailConfValid = isEmailConfValid;
-    scheduleEditorWizardPanel = new ScheduleEditorWizardPanel();
+    scheduleEditorWizardPanel = new ScheduleEditorWizardPanel(getDialogType());
     IWizardPanel[] wizardPanels = { scheduleEditorWizardPanel };
     this.setWizardPanels(wizardPanels);
     setPixelSize(475, 465);

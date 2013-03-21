@@ -59,7 +59,7 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
   Boolean done = false;
 
   public ScheduleEmailDialog(AbstractWizardDialog parentDialog, String filePath, JSONObject jobSchedule, JSONArray scheduleParams, JsJob editJob) {
-    super(Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
+    super(ScheduleDialogType.SCHEDULER, Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     this.parentDialog = parentDialog;
     this.filePath = filePath;
     this.jobSchedule = jobSchedule;
