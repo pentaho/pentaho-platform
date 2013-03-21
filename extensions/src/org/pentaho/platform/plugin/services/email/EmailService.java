@@ -157,7 +157,7 @@ public class EmailService implements IEmailService {
     String sendEmailMessage = "";
     try {
       MimeMessage msg = new MimeMessage(session);
-      msg.setFrom(new InternetAddress(emailConfig.getDefaultFrom()));
+      msg.setFrom(new InternetAddress(emailConfig.getDefaultFrom(),emailConfig.getFromName()));
       msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailConfig.getDefaultFrom()));
       msg.setSubject(messages.getString("EmailService.SUBJECT"));
       msg.setText(messages.getString("EmailService.MESSAGE"));

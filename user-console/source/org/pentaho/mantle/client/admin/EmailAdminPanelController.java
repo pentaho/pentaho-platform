@@ -249,31 +249,8 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	}
 
 	private void testEmail() {
-		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/sendEmailTest";
-		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
-		try {
-			executableTypesRequestBuilder.setHeader("Content-Type", "application/json");
-			executableTypesRequestBuilder.sendRequest(emailConfig.getJSONString(), new RequestCallback() {
-				public void onError(Request request, Throwable exception) {
-				}
-
-				public void onResponseReceived(Request request, Response response) {
-					String message = null;
-					if (response.getText().equals("EmailTester.SUCESS")) {
-						message = Messages.getString("connectionTest.sucess");
-					} else if (response.getText().equals("EmailTester.FAIL")) {
-						message = Messages.getString("connectionTest.fail");
-					}
-					GwtMessageBox messageBox = new GwtMessageBox();
-					messageBox.setTitle(Messages.getString("connectionTest"));
-					messageBox.setMessage(message);
-					messageBox.setButtons(new Object[GwtMessageBox.ACCEPT]);
-					messageBox.setAcceptLabel(Messages.getString("close"));
-					messageBox.show();
-				}
-			});
-		} catch (RequestException e) {
-		}
+		EmailTestDialog etd = new EmailTestDialog(emailConfig);
+		etd.show();
 	}
 
 	private void getEmailConfig() {
