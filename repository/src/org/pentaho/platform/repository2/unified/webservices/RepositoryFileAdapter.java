@@ -102,15 +102,13 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
     }
 
     // [BISERVER-8446] localize title and description
-    if(f.getName() != null && f.getName().equals("query1.xaction")){
-      LocalizationUtil localizationUtil = new LocalizationUtil(f, LocaleHelper.getLocale());
-      String title = localizationUtil.resolveLocalizedString("title", null);
-      if(StringUtils.isBlank(title)){
-        title = localizationUtil.resolveLocalizedString("name", f.getTitle());
-      }
-      f.setTitle(title);
-      f.setDescription(localizationUtil.resolveLocalizedString("description", f.getDescription()));
+    LocalizationUtil localizationUtil = new LocalizationUtil(f, LocaleHelper.getLocale());
+    String title = localizationUtil.resolveLocalizedString("title", null);
+    if(StringUtils.isBlank(title)){
+      title = localizationUtil.resolveLocalizedString("name", f.getTitle());
     }
+    f.setTitle(title);
+    f.setDescription(localizationUtil.resolveLocalizedString("description", f.getDescription()));
 
     return f;
   }
