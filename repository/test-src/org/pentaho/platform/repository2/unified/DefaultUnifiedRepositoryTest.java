@@ -770,7 +770,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
-        
+    defaultBackingRepositoryLifecycleManager.newTenant();    
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     
     final String fileName = "helloworld.sample";
@@ -2180,6 +2180,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
     userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
     
+    defaultBackingRepositoryLifecycleManager.newTenant();
+    
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
@@ -2213,7 +2215,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
-        
+    defaultBackingRepositoryLifecycleManager.newTenant();        
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
     
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
@@ -2263,7 +2265,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
     userRoleDao.createUser(tenantAcme, USERNAME_TIFFANY, "password", "", null);
-        
+    defaultBackingRepositoryLifecycleManager.newTenant();
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     RepositoryFile acmePublicFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
@@ -2298,7 +2300,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
-        
+    defaultBackingRepositoryLifecycleManager.newTenant();        
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
@@ -2349,7 +2351,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
-        
+    defaultBackingRepositoryLifecycleManager.newTenant();    
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getPublicFolderPath());
@@ -2384,7 +2386,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
-        
+    defaultBackingRepositoryLifecycleManager.newTenant();        
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     RepositoryFile newFile = createSampleFile(repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY))
@@ -2404,6 +2406,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    defaultBackingRepositoryLifecycleManager.newTenant();
     RepositoryFile publicFolderFile = createSampleFile(repo.getFile(ClientRepositoryPaths.getPublicFolderPath())
         .getPath(), "helloworld.sample", "ddfdf", false, 83);
     RepositoryFileAcl publicFolderFileAcl = new RepositoryFileAcl.Builder(publicFolderFile.getId(), userNameUtils.getPrincipleId(
@@ -2444,7 +2447,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});    
-
+    defaultBackingRepositoryLifecycleManager.newTenant();
     RepositoryFile publicFolderFile = createSampleFile(repo.getFile(ClientRepositoryPaths.getPublicFolderPath())
         .getPath(), "helloworld.sample", "ddfdf", false, 83);
     RepositoryFileAcl publicFolderFileAcl = new RepositoryFileAcl.Builder(publicFolderFile.getId(), userNameUtils.getPrincipleId(
