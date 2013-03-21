@@ -205,7 +205,7 @@
     <!-- kettle and dependencies -->
     <dependency org="pentaho-kettle" name="kettle-engine" rev="${dependency.kettle.revision}" changing="true"/>
     <dependency org="pentaho-kettle" name="kettle-core" rev="${dependency.kettle.revision}" changing="true"/>
-    <dependency org="pentaho-kettle" name="kettle-db" rev="${dependency.kettle.revision}" changing="true"/>
+    
     <dependency org="org.snmp4j" name="snmp4j" rev="1.9.3d" conf="default->default" transitive="false"/>
     <dependency org="pentaho" name="salesforce-partner" rev="24.0" conf="default->default" transitive="false"/>
     <dependency org="rome" name="rome" rev="1.0" conf="default->default" transitive="false"/>
