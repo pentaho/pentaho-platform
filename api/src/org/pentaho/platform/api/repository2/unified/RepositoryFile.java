@@ -22,13 +22,16 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
   public static final String SEPARATOR = "/"; //$NON-NLS-1$
 
-  /**
-   * Key used in {@link #titleMap} or {@link #descriptionMap} that indicates what string to use when no locale 
-   * information is available.
-   */
-  public static final String ROOT_LOCALE = "rootLocale"; //$NON-NLS-1$
-
   public static final String DEFAULT_LOCALE = "default"; //$NON-NLS-1$
+
+  public static final String TITLE = "title";
+
+  public static final String FILE_TITLE = "file.title";
+
+  public static final String DESCRIPTION = "description";
+
+  public static final String FILE_DESCRIPTION = "file.description";
+
 
   // ~ Instance fields =================================================================================================
 
@@ -97,18 +100,6 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
   private final String description;
 
   /**
-   * A map for titles. Keys are locale strings and values are titles. Write-only. {@code null} value means that no 
-   * title will be created or updated.
-   */
-  private final Map<String, String> titleMap;
-
-  /**
-   * A map for descriptions. Keys are locale strings and values are descriptions. Write-only. {@code null} value means 
-   * that no description will be created or updated.
-   */
-  private final Map<String, String> descriptionMap;
-
-  /**
    * The locale string with which locale-sensitive fields (like title) are populated. Used in {@link #equals(Object)} 
    * calculation to guarantee caching works correctly. Read-only.
    */
@@ -139,8 +130,8 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
    */
   public RepositoryFile(Serializable id, String name, boolean folder, boolean hidden, boolean versioned,
       Serializable versionId, String path, Date createdDate, Date lastModifiedDate, boolean locked, String lockOwner,
-      String lockMessage, Date lockDate, String locale, String title, Map<String, String> titleMap, String description,
-      Map<String, String> descriptionMap, String originalParentFolderPath, Date deletedDate, long fileSize,
+      String lockMessage, Date lockDate, String locale, String title, String description,
+      String originalParentFolderPath, Date deletedDate, long fileSize,
       String creatorId, Map<String, Properties> localePropertiesMap) {
     super();
     this.id = id;
@@ -158,9 +149,9 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     this.lockDate = lockDate != null ? new Date(lockDate.getTime()) : null;
     this.locale = locale;
     this.title = title;
-    this.titleMap = titleMap != null ? new HashMap<String, String>(titleMap) : null;
+    //this.titleMap = titleMap != null ? new HashMap<String, String>(titleMap) : null;
     this.description = description;
-    this.descriptionMap = descriptionMap != null ? new HashMap<String, String>(descriptionMap) : null;
+    //this.descriptionMap = descriptionMap != null ? new HashMap<String, String>(descriptionMap) : null;
     this.originalParentFolderPath = originalParentFolderPath;
     this.deletedDate = deletedDate != null ? new Date(deletedDate.getTime()) : null;
     this.fileSize = fileSize;
@@ -249,6 +240,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     return localePropertiesMap == null ? null : new HashMap<String, Properties>(localePropertiesMap);
   }
 
+  /*
   public Map<String, String> getTitleMap() {
     // defensive copy
     return titleMap == null ? null : new HashMap<String, String>(titleMap);
@@ -258,6 +250,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     // defensive copy
     return descriptionMap == null ? null : new HashMap<String, String>(descriptionMap);
   }
+  */
 
   public String getLocale() {
     return locale;
@@ -326,14 +319,12 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
     public Builder(final String name) {
       this.name = name;
-      this.clearTitleMap();
     }
 
     public Builder(final Serializable id, final String name) {
       notNull(id);
       this.name = name;
       this.id = id;
-      this.clearTitleMap();
     }
 
     public Builder(final RepositoryFile other) {
@@ -342,7 +333,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
           .fileSize(other.fileSize).folder(other.folder).lastModificationDate(other.lastModifiedDate)
           .versioned(other.versioned).hidden(other.hidden).versionId(other.versionId).locked(other.locked)
           .lockDate(other.lockDate).lockOwner(other.lockOwner).lockMessage(other.lockMessage).title(other.title)
-          .description(other.description).titleMap(other.titleMap).descriptionMap(other.descriptionMap)
+          .description(other.description)
           .locale(other.locale).originalParentFolderPath(other.originalParentFolderPath).deletedDate(other.deletedDate)
           .localePropertiesMap(other.localePropertiesMap);
     }
@@ -350,7 +341,7 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
     public RepositoryFile build() {
       return new RepositoryFile(id, name, this.folder, this.hidden, this.versioned, this.versionId, this.path,
           this.createdDate, this.lastModifiedDate, this.locked, this.lockOwner, this.lockMessage, this.lockDate,
-          this.locale, this.title, this.titleMap, this.description, this.descriptionMap, this.originalParentFolderPath,
+          this.locale, this.title, this.description, this.originalParentFolderPath,
           this.deletedDate, this.fileSize, this.creatorId, this.localePropertiesMap);
     }
 
@@ -484,55 +475,32 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
       }
     }
 
-    public Builder titleMap(final Map<String, String> titleMap1) {
-      this.titleMap = titleMap1;
-      return this;
-    }
-
-    public Builder clearTitleMap() {
-      if (this.titleMap != null) {
-        this.titleMap.clear();
-      }
-      return this;
-    }
-
     public Builder title(final String localeString, final String title1) {
-      initTitleMap();
-      this.titleMap.put(localeString, title1);
-      return this;
-    }
-
-    private void initTitleMap() {
-      if (this.titleMap == null) {
-        this.titleMap = new HashMap<String, String>();
-        this.titleMap.put(ROOT_LOCALE, this.name);
+      initLocalePropertiesMap();
+      Properties properties = this.localePropertiesMap.get(localeString);
+      if(properties == null){
+        properties = new Properties();
       }
-    }
+      properties.put(FILE_TITLE, title1);
+      properties.put(TITLE, title1);
 
-    public Builder descriptionMap(final Map<String, String> descriptionMap1) {
-      // defensive copy
-      this.descriptionMap = descriptionMap1;
-      return this;
-    }
+      this.localePropertiesMap.put(localeString, properties);
 
-    public Builder clearDescriptionMap() {
-      if (this.descriptionMap != null) {
-        this.descriptionMap.clear();
-      }
       return this;
     }
 
     public Builder description(final String localeString, final String description1) {
-      initDescriptionMap();
-      this.descriptionMap.put(localeString, description1);
-      return this;
-    }
-
-    private void initDescriptionMap() {
-      if (this.descriptionMap == null) {
-        this.descriptionMap = new HashMap<String, String>();
-        this.descriptionMap.put(ROOT_LOCALE, this.description == null ? "" : this.description); //$NON-NLS-1$
+      initLocalePropertiesMap();
+      Properties properties = this.localePropertiesMap.get(localeString);
+      if(properties == null){
+        properties = new Properties();
       }
+      properties.put(FILE_DESCRIPTION, description1);
+      properties.put(DESCRIPTION, description1);
+
+      this.localePropertiesMap.put(localeString, properties);
+
+      return this;
     }
 
     public Builder locale(final String locale1) {
@@ -598,8 +566,6 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
   public RepositoryFile clone() {
     RepositoryFile.Builder builder = new RepositoryFile.Builder(this);
-    builder.titleMap(titleMap != null ? new HashMap<String, String>(titleMap) : null);
-    builder.descriptionMap(descriptionMap != null ? new HashMap<String, String>(descriptionMap) : null);
     builder.localePropertiesMap(localePropertiesMap != null ? new HashMap<String, Properties>(localePropertiesMap) : null);
     return builder.build();
   }

@@ -177,7 +177,7 @@ public class FileSystemRepositoryFileDao implements IRepositoryFileDao {
       file = new RepositoryFile.Builder(f.getAbsolutePath(), f.getName()).createdDate(new Date(f.lastModified()))
           .lastModificationDate(new Date(f.lastModified())).folder(f.isDirectory()).versioned(false).path(jcrPath)
           .versionId(f.getName()).locked(false).lockDate(null).lockMessage(null).lockOwner(null).title(f.getName())
-          .description(f.getName()).titleMap(null).descriptionMap(null).locale(null).fileSize(f.length()).build();
+          .description(f.getName()).locale(null).fileSize(f.length()).build();
     }
     return file;
 

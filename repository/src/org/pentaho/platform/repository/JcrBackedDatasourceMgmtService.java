@@ -58,7 +58,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
       //databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
 
       RepositoryFile file = new RepositoryFile.Builder(RepositoryFilenameUtils.escape(databaseConnection.getName() 
-          + RepositoryObjectType.DATABASE.getExtension(), cachedReservedChars)).title(RepositoryFile.ROOT_LOCALE, databaseConnection.getName()).versioned(true).build();
+          + RepositoryObjectType.DATABASE.getExtension(), cachedReservedChars)).title(RepositoryFile.DEFAULT_LOCALE, databaseConnection.getName()).versioned(true).build();
       file = repository.createFile(getDatabaseParentFolderId(), file, new NodeRepositoryFileData(databaseHelper.databaseConnectionToDataNode(databaseConnection)), null);
       if(file != null && file.getId() != null) {
         return file.getId().toString();
@@ -239,7 +239,7 @@ public class JcrBackedDatasourceMgmtService implements IDatasourceMgmtService{
       //databaseMeta.setPassword(passwordService.encrypt(databaseMeta.getPassword()));
 
       if(file != null) {
-        file = new RepositoryFile.Builder(file).title(RepositoryFile.ROOT_LOCALE, databaseConnection.getName()).build();
+        file = new RepositoryFile.Builder(file).title(RepositoryFile.DEFAULT_LOCALE, databaseConnection.getName()).build();
         file = repository.updateFile(file, new NodeRepositoryFileData(databaseHelper.databaseConnectionToDataNode(databaseConnection)),null);
         renameIfNecessary(databaseConnection, file);
         return file.getId().toString();

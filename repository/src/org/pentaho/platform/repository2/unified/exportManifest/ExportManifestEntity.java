@@ -133,8 +133,8 @@ public class ExportManifestEntity {
 		return new RepositoryFile(null, emd.getName(), emd.getIsFolder(),
 				emd.getIsHidden(), false, null, emd.getPath(),
 				XmlGregorianCalendarConverter.asDate(emd.getCreatedDate()), null,
-				false, null, null, null, "en-US", emd.getTitle(), null,
-				emd.getDescription(), null, null, null, 0, emd.getOwner(), null);
+				false, null, null, null, "en-US", emd.getTitle(),
+				emd.getDescription(), null, null, 0, emd.getOwner(), null);
 	}
 
 	/**
