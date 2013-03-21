@@ -16,32 +16,16 @@
  */
 package org.pentaho.mantle.client.workspace;
 
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 
-public class WorkspacePanel extends VerticalPanel {
-    private static WorkspacePanel instance = new WorkspacePanel();
-    private final SchedulesPanel schedulesPanel;
-    private final BlockoutPanel blockoutPanel;
+public class BlockoutPanel extends SimplePanel {
+    private static BlockoutPanel instance = new BlockoutPanel();
 
-    public static WorkspacePanel getInstance() {
+    public static BlockoutPanel getInstance() {
         return instance;
     }
 
-    public WorkspacePanel() {
-        schedulesPanel = SchedulesPanel.getInstance();
-        add(schedulesPanel);
-        blockoutPanel = BlockoutPanel.getInstance();
-        add(blockoutPanel);
-
-    }
-
     public void refresh() {
-        schedulesPanel.refresh();
-        blockoutPanel.refresh();
-    }
-
-    public void refresh(boolean isAdmin) {
-        schedulesPanel.refresh(isAdmin);
-        blockoutPanel.refresh();
+        //To change body of created methods use File | Settings | File Templates.
     }
 }
