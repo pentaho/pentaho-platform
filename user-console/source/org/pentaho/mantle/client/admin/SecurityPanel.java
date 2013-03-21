@@ -117,7 +117,8 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
     securityPanel.setWidget(2, 0, saveButton);
     
     securityPanel.setWidget(1, 1, createPermissionPanel());
-    securityPanel.getFlexCellFormatter().setVerticalAlignment(2, 0, HasVerticalAlignment.ALIGN_TOP);
+    securityPanel.getFlexCellFormatter().setVerticalAlignment(1, 1, HasVerticalAlignment.ALIGN_BOTTOM);
+    securityPanel.getFlexCellFormatter().setVerticalAlignment(2, 0, HasVerticalAlignment.ALIGN_BOTTOM);
     
     setWidget(securityPanel);
     
@@ -276,16 +277,16 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
     var arr = [];
     var obj = eval('(' + json + ')');
     if (obj != null) {
-      if (obj.logicalRoleAssignments.constructor.toString().indexOf("Array") == -1) {
-        arr.push(obj.logicalRoleAssignments);
-        obj.logicalRoleAssignments = arr;
+      if (obj.assignments.constructor.toString().indexOf("Array") == -1) {
+        arr.push(obj.assignments);
+        obj.assignments = arr;
       }
-      for (var i = 0; i < obj.logicalRoleAssignments.length; i++) {
+      for (var i = 0; i < obj.assignments.length; i++) {
         arr = [];
-        if (obj.logicalRoleAssignments[i].logicalRoles == undefined) continue;
-        if (obj.logicalRoleAssignments[i].logicalRoles.constructor.toString().indexOf("Array") == -1) {
-          arr.push(obj.logicalRoleAssignments[i].logicalRoles);
-          obj.logicalRoleAssignments[i].logicalRoles = arr;
+        if (obj.assignments[i].logicalRoles == undefined) continue;
+        if (obj.assignments[i].logicalRoles.constructor.toString().indexOf("Array") == -1) {
+          arr.push(obj.assignments[i].logicalRoles);
+          obj.assignments[i].logicalRoles = arr;
         }
       }
       if (obj.localizedRoleNames.constructor.toString().indexOf("Array") == -1) {
@@ -313,7 +314,7 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
       jsRoleAssignment.put("logicalRoles", jsLogicalRoles);
       jsLogicalRoleAssignments.set(x++, jsRoleAssignment);
     }   
-    jsNewRoleAssignments.put("logicalRoleAssignments", jsLogicalRoleAssignments);    
+    jsNewRoleAssignments.put("assignments", jsLogicalRoleAssignments);    
     RequestBuilder saveSettingRequestBuilder = new RequestBuilder(RequestBuilder.PUT, contextURL + "api/userrole/roleAssignments");
     saveSettingRequestBuilder.setHeader("Content-Type", "application/json");  //$NON-NLS-1$//$NON-NLS-2$
     WaitPopup.getInstance().setVisible(true);

@@ -26,6 +26,7 @@ import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
+import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 import org.pentaho.ui.xul.util.XulDialogCallback;
 
 import com.google.gwt.core.client.GWT;
@@ -41,7 +42,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.xml.client.Document;
@@ -85,6 +85,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
@@ -93,6 +94,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 			});
 		} catch (RequestException e) {
+		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 
@@ -102,6 +104,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
@@ -110,6 +113,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 			});
 		} catch (RequestException e) {
+		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 
@@ -127,10 +131,11 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-				  checkForError(response);
+				  checkForError(Messages.getString("Error"), response);
 					roleNameTextBox.setText("");
 					availableMembersListBox.clear();
 					selectedMembersListBox.clear();
@@ -139,15 +144,30 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 			});
 		} catch (RequestException e) {
+		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 	
-	private void checkForError(Response response) {
+	private void checkForError(String title, Response response) {
     if (response != null && response.getText() != null && response.getText().length() > 0) {
-      Window.alert(response.getText());
+      GwtMessageBox messageBox = new GwtMessageBox();
+      messageBox.setTitle(title);
+      messageBox.setMessage(response.getText());
+      messageBox.setButtons(new Object[GwtMessageBox.ACCEPT]);
+      messageBox.setAcceptLabel(Messages.getString("close"));
+      messageBox.show();
     }
 	}
 
+  private void displayErrorInMessageBox(String title, String message) {
+      GwtMessageBox messageBox = new GwtMessageBox();
+      messageBox.setTitle(title);
+      messageBox.setMessage(message);
+      messageBox.setButtons(new Object[GwtMessageBox.ACCEPT]);
+      messageBox.setAcceptLabel(Messages.getString("close"));
+      messageBox.show();
+  }
+	
 	public void deleteUsers() {
 
 		String selectedUsers = "";
@@ -162,10 +182,11 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-				  checkForError(response);
+				  checkForError(Messages.getString("Error"), response);
 					userNameTextBox.setText("");
 					userPasswordTextBox.setText("");
 					availableRolesListBox.clear();
@@ -176,6 +197,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 			});
 		} catch (RequestException e) {
+		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 
@@ -187,12 +209,15 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
+				  
 				}
 			});
 		} catch (RequestException e) {
+		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 
@@ -216,6 +241,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
@@ -242,6 +268,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 			});
 		} catch (RequestException e) {
+		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 
@@ -253,6 +280,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
@@ -279,6 +307,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 			});
 		} catch (RequestException e) {
+		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 
@@ -290,6 +319,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
@@ -329,6 +359,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 			});
 		} catch (RequestException e) {
+		    displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 
@@ -340,6 +371,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
@@ -379,6 +411,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 			});
 		} catch (RequestException e) {
+		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 
@@ -387,15 +420,17 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-          checkForError(response);
+          checkForError(Messages.getString("Error"), response);
 					getRolesForUser(userName);
 					initializeAvailableRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()));
 				}
 			});
 		} catch (RequestException e) {
+		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 
@@ -404,16 +439,18 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		try {
 			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
+				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-          checkForError(response);
+          checkForError(Messages.getString("Error"), response);
 					getUsersInRole(roleName);
 					initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
 					
 				}
 			});
 		} catch (RequestException e) {
+		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
 
@@ -597,6 +634,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					}
 
 					public void onError(XulComponent sender, Throwable t) {
+					 displayErrorInMessageBox(Messages.getString("Error"), t.getLocalizedMessage());
 					}
 				});
 				warning.show();
@@ -626,6 +664,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					}
 
 					public void onError(XulComponent sender, Throwable t) {
+					 displayErrorInMessageBox(Messages.getString("Error"), t.getLocalizedMessage());
 					}
 				});
 				warning.show();
