@@ -245,10 +245,10 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(buttonsPanel);
 
 		hSpacer = new SimplePanel();
-		hSpacer.setWidth("339px");
+		hSpacer.setWidth("230px");
 		buttonsPanel.add(hSpacer);
 
-		testButton = new Button(Messages.getString("test"));
+		testButton = new Button(Messages.getString("connectionTest.label"));
 		testButton.setStylePrimaryName("pentaho-button");
 		buttonsPanel.add(testButton);
 
