@@ -102,9 +102,9 @@ public class DefaultBlockoutManager implements IBlockoutManager {
       throw new SchedulerException(Messages.getInstance().getString(ERR_WRONG_BLOCKER_TYPE, blockoutName), ex);
     }
 
-    deleteBlockout(blockoutName);
     Trigger oldBlockoutTrigger = (Trigger) oldBlockout;
     JobDetail jd = scheduler.getJobDetail(oldBlockoutTrigger.getJobName(), oldBlockoutTrigger.getJobGroup());
+    deleteBlockout(blockoutName);
 
     newBlockoutTrigger.setJobName(jd.getName());
     newBlockoutTrigger.setJobGroup(jd.getGroup());
