@@ -247,7 +247,7 @@ public class FileResource extends AbstractJaxRSResource {
             
             // If the title is different than the source file, copy it separately
             if (!sourceFile.getName().equals(sourceFile.getTitle())) {
-              duplicateFile = new RepositoryFile.Builder(fileName).title(RepositoryFile.ROOT_LOCALE, sourceFile.getTitle() + copyText).build();
+              duplicateFile = new RepositoryFile.Builder(fileName).title(RepositoryFile.DEFAULT_LOCALE, sourceFile.getTitle() + copyText).build();
             } else {
               duplicateFile = new RepositoryFile.Builder(fileName).build();
             }
