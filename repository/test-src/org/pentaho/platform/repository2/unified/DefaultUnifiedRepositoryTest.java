@@ -370,8 +370,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // ROOT Locale
     updatedFile = repo.getFile(file.getPath(), null);
 
-    assertEquals(fileName, updatedFile.getTitle());
-    assertEquals(null, updatedFile.getDescription());
+    assertEquals(EN_US_TITLE, updatedFile.getTitle());
+    assertEquals(EN_US_DESCRIPTION, updatedFile.getDescription());
 
     logout();
   }
