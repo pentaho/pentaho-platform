@@ -193,6 +193,17 @@ public class JcrRepositoryFileUtils {
           description = localizationUtil.resolveLocalizedString(lpr.resolveDescriptionKey(), description);
         }
       }
+
+      // BISERVER-8609 - Backwards compatibility. Fallback to the old data structure if title/description are not found
+      if (title == null && node.hasNode(pentahoJcrConstants.getPHO_TITLE())) {
+        title = getLocalizedString(session, pentahoJcrConstants, node.getNode(pentahoJcrConstants.getPHO_TITLE()),
+           pentahoLocale);
+      }
+      if (description == null && node.hasNode(pentahoJcrConstants.getPHO_DESCRIPTION())) {
+        description = getLocalizedString(session, pentahoJcrConstants,
+           node.getNode(pentahoJcrConstants.getPHO_DESCRIPTION()), pentahoLocale);
+      }
+
     }
 
     if(!loadMaps){
@@ -893,7 +904,7 @@ public class JcrRepositoryFileUtils {
     Node fileNode = (Node) fileItem;
 
     RepositoryFile rootFile = JcrRepositoryFileUtils.nodeToFile(session, pentahoJcrConstants, pathConversionHelper,
-        lockHelper, fileNode, true, null);
+        lockHelper, fileNode, false, null);
     if (!showHidden && rootFile.isHidden()) {
       return null;
     }
