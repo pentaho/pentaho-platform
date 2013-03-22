@@ -88,7 +88,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				byte[] bytes = IOUtils.toByteArray(file.getInputStream());
 				bundleInputStream = new ByteArrayInputStream(bytes);
 				//If is locale file store it for later processing.
-				if(localeFilesProcessor.isLocaleFile(file, importBundle.getPath(), bundleInputStream)) {
+				if(localeFilesProcessor.isLocaleFile(file, importBundle.getPath(), bytes)) {
 					continue;
 				}
 				bundleBuilder.input(bundleInputStream);
