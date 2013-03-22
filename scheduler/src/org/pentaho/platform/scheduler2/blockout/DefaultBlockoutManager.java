@@ -27,7 +27,10 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.quartz.CronTrigger;
+import org.quartz.DateIntervalTrigger;
+import org.quartz.DateIntervalTrigger.IntervalUnit;
 import org.quartz.JobDetail;
+import org.quartz.NthIncludedDayTrigger;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
@@ -39,6 +42,20 @@ import org.quartz.TriggerUtils;
  *
  */
 public class DefaultBlockoutManager implements IBlockoutManager {
+
+  /**
+   * Standard Units of Time
+   */
+  static enum TIME {
+    MILLISECOND(1), SECOND(MILLISECOND.time * 1000), MINUTE(SECOND.time * 60), HOUR(MINUTE.time * 60), DAY(
+        HOUR.time * 24), WEEK(DAY.time * 7), YEAR(DAY.time * 365);
+
+    private long time;
+
+    private TIME(long time) {
+      this.time = time;
+    }
+  }
 
   Scheduler scheduler = null;
 
@@ -127,7 +144,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
    */
   @Override
   public boolean willFire(Trigger scheduleTrigger) throws SchedulerException {
-    long year = 1000L * 60L * 60L * 24L * 365L;
+    List<Date> fireTimes = getFireTimes(scheduleTrigger);
 
     for (IBlockoutTrigger blockOut : getBlockouts()) {
 
@@ -139,16 +156,10 @@ public class DefaultBlockoutManager implements IBlockoutManager {
           return false;
         }
 
-        // Calculate fire times for next year
-        Date startDate = new Date(System.currentTimeMillis());
-        Date endDate = new Date(startDate.getTime() + year);
-        List fireTimes = TriggerUtils.computeFireTimesBetween(scheduleTrigger,
-            this.scheduler.getCalendar(scheduleTrigger.getCalendarName()), startDate, endDate);
-
         // Loop through fire times and verify whether block out is blocking the schedule completely
         boolean scheduleCompletelyBlocked = true;
-        for (Object fireTime : fireTimes) {
-          if (!(scheduleCompletelyBlocked = willBlockDate(blockOut, (Date) fireTime))) {
+        for (Date fireTime : fireTimes) {
+          if (!(scheduleCompletelyBlocked = willBlockDate(blockOut, fireTime))) {
             break;
           }
         }
@@ -229,9 +240,12 @@ public class DefaultBlockoutManager implements IBlockoutManager {
    */
   private boolean willBlockSchedule(Trigger scheduleTrigger, IBlockoutTrigger blockOut) throws SchedulerException {
 
-    // Perform special willBlockSchedule for CronTrigger
-    if (scheduleTrigger instanceof CronTrigger) {
-      return willBlockSchedule((CronTrigger) scheduleTrigger, blockOut);
+    // Perform special willBlockComplexSchedule for CronTrigger, NthIncludedDayTrigger, or DateIntervalTrigger with a MONTH interval
+    if (scheduleTrigger instanceof CronTrigger
+        || scheduleTrigger instanceof NthIncludedDayTrigger
+        || (scheduleTrigger instanceof DateIntervalTrigger && ((DateIntervalTrigger) scheduleTrigger)
+            .getRepeatIntervalUnit().equals(IntervalUnit.MONTH))) {
+      return willBlockComplexSchedule(scheduleTrigger, blockOut);
     }
 
     // Protect against non-trigger implementations
@@ -253,7 +267,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
       double x2 = (blockOutTrigger.getStartTime().getTime() + blockOut.getBlockDuration() - scheduleTrigger
           .getStartTime().getTime()) / (double) scheduleRecurrence + shiftBy;
 
-      // x2 has to be positive, as it indicates an xShift to the "future"
+      // x1 || x2 has to be positive, as it indicates an xShift to the "future"
       if (hasIntBetween(x1, x2) && (x1 < x2 ? x2 >= 0 : x1 >= 0)) {
 
         int xShift = (int) Math.ceil(x1 < x2 ? x1 : x2);
@@ -280,23 +294,17 @@ public class DefaultBlockoutManager implements IBlockoutManager {
    * approach to calculate a year of fire times for the {@link CronTrigger} and ensure that 
    * they do/do not conflict with the {@link IBlockoutTrigger}
    * 
-   * @param cronTrigger
-   *        {@link CronTrigger}
+   * @param trigger
+   *        {@link Trigger}
    * @param blockOut
    *        {@link IBlockoutTrigger}
-   * @return whether the {@link IBlockoutTrigger} will conflict at all with the {@link CronTrigger}
+   * @return whether the {@link IBlockoutTrigger} will conflict at all with the complex {@link Trigger}s
    * @throws SchedulerException
    */
-  private boolean willBlockSchedule(CronTrigger cronTrigger, IBlockoutTrigger blockOut) throws SchedulerException {
-    long year = 1000L * 60L * 60L * 24L * 365L;
+  private boolean willBlockComplexSchedule(Trigger trigger, IBlockoutTrigger blockOut) throws SchedulerException {
 
-    Date startDate = new Date(System.currentTimeMillis());
-    Date endDate = new Date(startDate.getTime() + year);
-    List<?> fireTimes = TriggerUtils.computeFireTimesBetween(cronTrigger,
-        this.scheduler.getCalendar(cronTrigger.getCalendarName()), startDate, endDate);
-
-    for (Object fireTime : fireTimes) {
-      if (willBlockDate(blockOut, (Date) fireTime)) {
+    for (Date fireTime : getFireTimes(trigger)) {
+      if (willBlockDate(blockOut, fireTime)) {
         return true;
       }
     }
@@ -351,6 +359,35 @@ public class DefaultBlockoutManager implements IBlockoutManager {
 
     if (trigger instanceof SimpleTrigger) {
       recurrenceInterval = ((SimpleTrigger) trigger).getRepeatInterval();
+    } else if (trigger instanceof DateIntervalTrigger) {
+      DateIntervalTrigger dateIntervalTrigger = (DateIntervalTrigger) trigger;
+
+      long intervalUnit = 0;
+      switch (dateIntervalTrigger.getRepeatIntervalUnit()) {
+        case SECOND:
+          intervalUnit = TIME.SECOND.time;
+          break;
+        case MINUTE:
+          intervalUnit = TIME.MINUTE.time;
+          break;
+        case HOUR:
+          intervalUnit = TIME.HOUR.time;
+          break;
+        case DAY:
+          intervalUnit = TIME.DAY.time;
+          break;
+        case WEEK:
+          intervalUnit = TIME.WEEK.time;
+          break;
+        case YEAR:
+          intervalUnit = TIME.YEAR.time;
+          break;
+
+        default:
+          break;
+      }
+
+      recurrenceInterval = dateIntervalTrigger.getRepeatInterval() * intervalUnit;
     } else {
       recurrenceInterval = trigger.getNextFireTime().getTime()
           - (trigger.getPreviousFireTime() != null ? trigger.getPreviousFireTime().getTime() : trigger.getStartTime()
@@ -358,6 +395,23 @@ public class DefaultBlockoutManager implements IBlockoutManager {
     }
 
     return recurrenceInterval;
+  }
+
+  /**
+   * @param scheduleTrigger
+   *        {@link Trigger}
+   * @return List of Dates representing times the {@link Trigger} will fire for the next 4 years, as to include leap years
+   * @throws SchedulerException
+   */
+  @SuppressWarnings("unchecked")
+  private List<Date> getFireTimes(Trigger scheduleTrigger) throws SchedulerException {
+
+    Date startDate = new Date(System.currentTimeMillis());
+    Date endDate = new Date(startDate.getTime() + 4 * TIME.YEAR.time);
+
+    // Calculate fire times for next 4 years 
+    return TriggerUtils.computeFireTimesBetween(scheduleTrigger,
+        this.scheduler.getCalendar(scheduleTrigger.getCalendarName()), startDate, endDate);
   }
 
 }

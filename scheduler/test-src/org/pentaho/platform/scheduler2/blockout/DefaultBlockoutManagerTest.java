@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -42,6 +41,8 @@ import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TestQua
 import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TstPluginManager;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.quartz.CronTrigger;
+import org.quartz.DateIntervalTrigger;
+import org.quartz.DateIntervalTrigger.IntervalUnit;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -60,7 +61,7 @@ public class DefaultBlockoutManagerTest {
    */
   static enum TIME {
     MILLISECOND(1), SECOND(MILLISECOND.time * 1000), MINUTE(SECOND.time * 60), HOUR(MINUTE.time * 60), DAY(
-        HOUR.time * 24), WEEK(DAY.time * 7), YEAR(DAY.time * 365 + HOUR.time * 8);
+        HOUR.time * 24), WEEK(DAY.time * 7), YEAR(DAY.time * 365);
 
     private long time;
 
@@ -162,12 +163,15 @@ public class DefaultBlockoutManagerTest {
   public void testUpdateBlockout() {
     long INITIAL_BLOCK_DURATION = 50000l;
     long UPDATED_BLOCK_DURATION = 1000000l;
-    SimpleBlockoutTrigger trigger = new SimpleBlockoutTrigger("updateBlockout", new Date(), null, -1, 1000000, INITIAL_BLOCK_DURATION); //$NON-NLS-1$
+    SimpleBlockoutTrigger trigger = new SimpleBlockoutTrigger(
+        "updateBlockout", new Date(), null, -1, 1000000, INITIAL_BLOCK_DURATION); //$NON-NLS-1$
     try {
       blockOutManager.addBlockout(trigger);
-      SimpleBlockoutTrigger updatedTrigger = new SimpleBlockoutTrigger("updateBlockout", new Date(), null, -1, 1000000, UPDATED_BLOCK_DURATION); //$NON-NLS-1$
+      SimpleBlockoutTrigger updatedTrigger = new SimpleBlockoutTrigger(
+          "updateBlockout", new Date(), null, -1, 1000000, UPDATED_BLOCK_DURATION); //$NON-NLS-1$
       blockOutManager.updateBlockout(updatedTrigger.getName(), updatedTrigger);
-      SimpleBlockoutTrigger retrievedTrigger = (SimpleBlockoutTrigger) blockOutManager.getBlockout(updatedTrigger.getName());
+      SimpleBlockoutTrigger retrievedTrigger = (SimpleBlockoutTrigger) blockOutManager.getBlockout(updatedTrigger
+          .getName());
       assertEquals(UPDATED_BLOCK_DURATION, retrievedTrigger.getBlockDuration());
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
@@ -267,26 +271,46 @@ public class DefaultBlockoutManagerTest {
           -1, TIME.WEEK.time * 2, TIME.HOUR.time * 2);
 
       Calendar scheduleStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 7, 1, 0, 0);
-      SimpleTrigger scheduleTrigger = new SimpleTrigger("schedule", "SCHEDULES", scheduleStartDate.getTime(), null, //$NON-NLS-1$ //$NON-NLS-2$
+      Trigger scheduleTrigger = new SimpleTrigger("schedule", "SCHEDULES", scheduleStartDate.getTime(), null, //$NON-NLS-1$ //$NON-NLS-2$
           -1, TIME.WEEK.time);
       scheduleJob(scheduleTrigger);
 
       assertEquals(1, this.blockOutManager.willBlockSchedules(trueBlockOutTrigger).size());
       assertEquals(0, this.blockOutManager.willBlockSchedules(falseBlockOutTrigger).size());
 
+      Trigger cronTrigger = null;
       try {
-        CronTrigger cronTrigger = new CronTrigger("cronTrigger", "SCHEDULES", "cronJob", "CRONJOBS", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        cronTrigger = new CronTrigger("cronTrigger", "SCHEDULES", "cronJob", "CRONJOBS", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             scheduleStartDate.getTime(), null, "0 0 1 ? * MON-TUE"); //$NON-NLS-1$
         scheduleJob(cronTrigger);
 
         assertEquals(2, this.blockOutManager.willBlockSchedules(trueBlockOutTrigger).size());
         assertEquals(0, this.blockOutManager.willBlockSchedules(falseBlockOutTrigger).size());
+
       } catch (ParseException e) {
         throw new RuntimeException(e);
       }
 
+      Trigger dateIntervalTrigger1 = new DateIntervalTrigger("dateIntervalTrigger1", scheduleStartDate.getTime(), null, //$NON-NLS-1$
+          IntervalUnit.WEEK, 2);
+      scheduleJob(dateIntervalTrigger1);
+
+      assertEquals(3, this.blockOutManager.willBlockSchedules(trueBlockOutTrigger).size());
+      assertEquals(0, this.blockOutManager.willBlockSchedules(falseBlockOutTrigger).size());
+
+      // Test non-standard interval 
+      Trigger dateIntervalTrigger2 = new DateIntervalTrigger("dateIntervalTrigger2", scheduleStartDate.getTime(), null, //$NON-NLS-1$
+          IntervalUnit.MONTH, 1);
+      scheduleJob(dateIntervalTrigger2);
+
+      assertEquals(4, this.blockOutManager.willBlockSchedules(trueBlockOutTrigger).size());
+      assertEquals(1, this.blockOutManager.willBlockSchedules(falseBlockOutTrigger).size());
+      
       // Clean up
       deleteJob(scheduleTrigger);
+      deleteJob(cronTrigger);
+      deleteJob(dateIntervalTrigger1);
+      deleteJob(dateIntervalTrigger2);
 
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
@@ -315,7 +339,7 @@ public class DefaultBlockoutManagerTest {
    * Deletes a job from the scheduler
    * @param scheduleTrigger
    */
-  private void deleteJob(SimpleTrigger scheduleTrigger) {
+  private void deleteJob(Trigger scheduleTrigger) {
     try {
       QuartzScheduler qs = (QuartzScheduler) PentahoSystem.get(IScheduler.class, "IScheduler2", null); //$NON-NLS-1$
       qs.getQuartzScheduler().deleteJob(scheduleTrigger.getName(), scheduleTrigger.getGroup());
