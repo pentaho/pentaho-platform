@@ -19,6 +19,7 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -38,12 +39,12 @@ public class LocaleFilesProcessor {
 		localeFiles = new ArrayList<LocaleFileDescriptor>();
 	}
 
-	public boolean isLocaleFile(IRepositoryFileBundle file, String parentPath, InputStream inputStream) throws IOException {
+	public boolean isLocaleFile(IRepositoryFileBundle file, String parentPath, byte[] bytes) throws IOException {
 
 		boolean isLocale = false;
 		String fileName = file.getFile().getName();
 		if (fileName.endsWith(".properties")) {
-
+			InputStream inputStream = new ByteArrayInputStream(bytes);
 			Properties properties = new Properties();
 			properties.load(inputStream);
 

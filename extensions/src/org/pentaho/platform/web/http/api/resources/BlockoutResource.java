@@ -26,7 +26,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -36,6 +35,7 @@ import javax.ws.rs.core.Response.Status;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
@@ -56,12 +56,12 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @GET
   @Path("/list")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public TriggerProxy[] getBlockouts() {
+  public SimpleBlockoutTrigger[] getBlockouts() {
     try {
       IBlockoutTrigger[] blockoutsArray = manager.getBlockouts();
-      TriggerProxy[] triggers = new TriggerProxy[blockoutsArray.length];
+      SimpleBlockoutTrigger[] triggers = new SimpleBlockoutTrigger[blockoutsArray.length];
       for (int i = 0; i < triggers.length; i++) {
-        triggers[i] = new TriggerProxy((Trigger) blockoutsArray[i]);
+        triggers[i] = (SimpleBlockoutTrigger) blockoutsArray[i];
       }
       return triggers;
     } catch (SchedulerException e) {
@@ -72,20 +72,20 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @GET
   @Path("/get")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public TriggerProxy getBlockout(@QueryParam("blockoutName")
+  public SimpleBlockoutTrigger getBlockout(@QueryParam("blockoutName")
   String blockoutName) {
     try {
-      return new TriggerProxy((Trigger) manager.getBlockout(blockoutName));
+      return  (SimpleBlockoutTrigger) manager.getBlockout(blockoutName);
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
   }
 
-  @PUT
+  @POST
   @Path("/add")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces({ TEXT_PLAIN })
-  public Response addBlockout(IBlockoutTrigger trigger) {
+  public Response addBlockout(SimpleBlockoutTrigger trigger) {
     try {
       manager.addBlockout(trigger);
       return Response.ok().build();
@@ -116,7 +116,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces({ TEXT_PLAIN })
   public Response updateBlockout(@QueryParam("blockoutName")
-  String blockoutName, IBlockoutTrigger updateBlockout) {
+  String blockoutName, SimpleBlockoutTrigger updateBlockout) {
     try {
       manager.updateBlockout(blockoutName, updateBlockout);
       return Response.ok().build();
@@ -154,7 +154,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Path("/willBlock")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public TriggerProxy[] willBlock(IBlockoutTrigger blockoutTrigger) {
+  public TriggerProxy[] willBlock(SimpleBlockoutTrigger blockoutTrigger) {
     try {
       List<Trigger> blockedTriggers = manager.willBlockSchedules(blockoutTrigger);
       TriggerProxy[] blockedTriggerProxies = new TriggerProxy[blockedTriggers.size()];

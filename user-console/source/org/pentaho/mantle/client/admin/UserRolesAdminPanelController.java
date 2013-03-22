@@ -155,6 +155,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       messageBox.setMessage(response.getText());
       messageBox.setButtons(new Object[GwtMessageBox.ACCEPT]);
       messageBox.setAcceptLabel(Messages.getString("close"));
+      messageBox.setWidth(300);
       messageBox.show();
     }
 	}
@@ -165,6 +166,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
       messageBox.setMessage(message);
       messageBox.setButtons(new Object[GwtMessageBox.ACCEPT]);
       messageBox.setAcceptLabel(Messages.getString("close"));
+      messageBox.setWidth(300);
       messageBox.show();
   }
 	
