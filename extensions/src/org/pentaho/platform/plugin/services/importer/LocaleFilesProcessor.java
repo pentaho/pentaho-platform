@@ -72,7 +72,10 @@ public class LocaleFilesProcessor {
 
 				LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, file.getFile(), inputStream);
 				localeFiles.add(localeFile);
-				isLocale = true;
+
+				if (properties.size() <= 2) {
+					isLocale = true;
+				}
 			}
 		}
 		return isLocale;
