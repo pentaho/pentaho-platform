@@ -172,6 +172,7 @@
 		            		<list>
                 				<value>xaction</value>
                 				<value>url</value>
+                				<value>xdash</value>
 		            		</list>
 	        			</constructor-arg>
 		    		</bean>	
