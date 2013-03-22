@@ -312,7 +312,13 @@ public class JcrRepositoryFileUtils {
         Properties properties = localePropertiesMap.get(locale);
         if(properties != null){
           // create node and set properties for each locale
-          Node localeNode = localeRootNode.addNode(locale, pentahoJcrConstants.getNT_UNSTRUCTURED());
+          Node localeNode;
+          if (!localeRootNode.hasNode(locale)) {
+            localeNode = localeRootNode.addNode(locale, pentahoJcrConstants.getNT_UNSTRUCTURED());
+          }
+          else {
+            localeNode = localeRootNode.getNode(locale);
+          }
           for(String propertyName : properties.stringPropertyNames()){
             localeNode.setProperty(propertyName, properties.getProperty(propertyName));
           }
