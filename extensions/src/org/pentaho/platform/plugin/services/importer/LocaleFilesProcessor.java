@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
@@ -44,8 +43,8 @@ public class LocaleFilesProcessor {
 
 		boolean isLocale = false;
 		String fileName = file.getFile().getName();
-		if (fileName.endsWith(".properties")) {		 
-		  InputStream inputStream = new ByteArrayInputStream(bytes);
+		if (fileName.endsWith(".properties")) {
+			InputStream inputStream = new ByteArrayInputStream(bytes);
 			Properties properties = new Properties();
 			properties.load(inputStream);
 

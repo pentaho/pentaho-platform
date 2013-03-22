@@ -19,7 +19,6 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,13 +71,11 @@ public class LocaleImportHandlerTest {
 		localeContent.append("\n");
 		localeContent.append("description=Test description");
 
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(localeContent.toString().getBytes());
-
 		RepositoryFile file = new RepositoryFile.Builder("test.properties").build();
 		RepositoryFileBundle repoFileBundle = new RepositoryFileBundle(file, null, "", null, "UTF-8", null);
 
 		LocaleFilesProcessor localeFilesProcessor = new LocaleFilesProcessor();
-		localeFilesProcessor.isLocaleFile(repoFileBundle, "/", inputStream);
+		localeFilesProcessor.isLocaleFile(repoFileBundle, "/", localeContent.toString().getBytes());
 
 		localeFilesProcessor.processLocaleFiles(importer);
 	}
