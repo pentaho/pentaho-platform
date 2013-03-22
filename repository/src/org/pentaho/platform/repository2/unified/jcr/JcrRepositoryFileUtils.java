@@ -14,45 +14,29 @@
  */
 package org.pentaho.platform.repository2.unified.jcr;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.regex.Pattern;
-
-import javax.jcr.Item;
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.lock.Lock;
-import javax.jcr.version.Version;
-import javax.jcr.version.VersionHistory;
-import javax.jcr.version.VersionManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.JcrConstants;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.locale.IPentahoLocale;
-import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileTree;
-import org.pentaho.platform.api.repository2.unified.VersionSummary;
-import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
-import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
+import org.pentaho.platform.api.repository2.unified.*;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
 import org.pentaho.platform.repository2.messages.Messages;
 import org.pentaho.platform.repository2.unified.exception.RepositoryFileDaoMalformedNameException;
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategySessionFactory;
+import org.pentaho.platform.util.messages.LocaleHelper;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import javax.jcr.*;
+import javax.jcr.lock.Lock;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionManager;
+import java.io.Serializable;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Class of static methods where the real JCR work takes place.
@@ -136,8 +120,6 @@ public class JcrRepositoryFileUtils {
     String lockMessage = null;
     String title = null;
     String description = null;
-    Map<String, String> titleMap = null;
-    Map<String, String> descriptionMap = null;
     Map<String, Properties> localePropertiesMap = null;
 
     id = getNodeId(session, pentahoJcrConstants, node);
@@ -180,27 +162,41 @@ public class JcrRepositoryFileUtils {
       }
     }
 
+    // Get default locale if null
+    if (pentahoLocale == null) {
+      Locale currentLocale = LocaleHelper.getLocale();
+      if(currentLocale != null){
+        pentahoLocale = new PentahoLocale(currentLocale);
+      }
+      else{
+        pentahoLocale = new PentahoLocale();
+      }
+    }
+
     if (isPentahoHierarchyNode(session, pentahoJcrConstants, node)) {
       if (node.hasNode(pentahoJcrConstants.getPHO_LOCALES())) {
         localePropertiesMap = getLocalePropertiesMap(session, pentahoJcrConstants,
            node.getNode(pentahoJcrConstants.getPHO_LOCALES()));
 
-        if(localePropertiesMap != null && pentahoLocale != null){
-          Properties properties = localePropertiesMap.get(pentahoLocale.getLocale().toString());
-          if(properties == null){
-            properties = localePropertiesMap.get(pentahoLocale.getLocale().getLanguage()); // try just the language
+        // [BISERVER-8337] localize title and description
+        LocalePropertyResolver lpr = new LocalePropertyResolver(name);
+        LocalizationUtil localizationUtil = new LocalizationUtil(localePropertiesMap, pentahoLocale.getLocale());
+        title = localizationUtil.resolveLocalizedString(lpr.resolveDefaultTitleKey(), null);
+        if(org.apache.commons.lang.StringUtils.isBlank(title)){
+          title = localizationUtil.resolveLocalizedString(lpr.resolveTitleKey(), null);
+          if(org.apache.commons.lang.StringUtils.isBlank(title)){
+            title = localizationUtil.resolveLocalizedString(lpr.resolveNameKey(), title);
           }
-          if(properties != null){
-            title = properties.getProperty(RepositoryFile.FILE_TITLE);
-            description = properties.getProperty(RepositoryFile.FILE_DESCRIPTION);
-          }
+        }
+        description = localizationUtil.resolveLocalizedString(lpr.resolveDefaultDescriptionKey(), null);
+        if(org.apache.commons.lang.StringUtils.isBlank(description)){
+          description = localizationUtil.resolveLocalizedString(lpr.resolveDescriptionKey(), description);
         }
       }
     }
 
-    // Get default locale if null
-    if (pentahoLocale == null) {
-      pentahoLocale = new PentahoLocale();
+    if(!loadMaps){
+      localePropertiesMap = null; // remove reference, allow garbage collection
     }
 
     versioned = isVersioned(session, pentahoJcrConstants, node);

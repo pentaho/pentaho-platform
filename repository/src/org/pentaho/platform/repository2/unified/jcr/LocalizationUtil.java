@@ -1,23 +1,25 @@
-package org.pentaho.platform.repository2.unified.webservices;
+package org.pentaho.platform.repository2.unified.jcr;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author Rowell Belen
  */
 public class LocalizationUtil {
 
-  private RepositoryFileDto repositoryFile;
+  private Map<String, Properties> localePropertiesMap;
   private Locale locale;
 
   private final String DEFAULT = "default";
 
-  public LocalizationUtil(RepositoryFileDto repositoryFile, Locale locale){
-    Assert.notNull(repositoryFile);
-    this.repositoryFile = repositoryFile;
+  public LocalizationUtil(Map<String, Properties> localePropertiesMap, Locale locale){
+    Assert.notNull(localePropertiesMap);
+    this.localePropertiesMap = localePropertiesMap;
     this.locale = locale;
   }
 
@@ -57,26 +59,14 @@ public class LocalizationUtil {
       localeString = DEFAULT;
     }
 
-    if(repositoryFile != null && repositoryFile.getLocalePropertiesMapEntries() != null){
-      if(repositoryFile.getLocalePropertiesMapEntries() != null){
-        // loop through the locale maps
-        for(LocaleMapDto localeMapDto : repositoryFile.getLocalePropertiesMapEntries()){
-          if(localeMapDto.getLocale().equals(localeString)){
-            if(localeMapDto.getProperties() != null){
-              // loop through the locale properties
-              for(StringKeyStringValueDto keyValue : localeMapDto.getProperties()){
-                if(StringUtils.isNotBlank(keyValue.getKey()) && StringUtils.isNotBlank(keyValue.getValue())){
-                  if(keyValue.getKey().equals(propertyName)){
-                    return keyValue.getValue(); // found localized string in map
-                  }
-                }
-              }
-            }
-          }
-        }
+    if(this.localePropertiesMap != null){
+      Properties localeProperties = this.localePropertiesMap.get(localeString);
+      if(localeProperties != null && !localeProperties.isEmpty()){
+        return localeProperties.getProperty(propertyName); // found localized string in map
       }
     }
 
     return null;
   }
 }
+
