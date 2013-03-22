@@ -24,13 +24,15 @@ public class RepositoryFile implements Comparable<RepositoryFile>, Serializable 
 
   public static final String DEFAULT_LOCALE = "default"; //$NON-NLS-1$
 
-  public static final String TITLE = "title";
+  public static final String ROOT_LOCALE = DEFAULT_LOCALE; //$NON-NLS-1$
 
-  public static final String FILE_TITLE = "file.title";
+  public static final String TITLE = "title"; //$NON-NLS-1$
 
-  public static final String DESCRIPTION = "description";
+  public static final String FILE_TITLE = "file.title"; //$NON-NLS-1$
 
-  public static final String FILE_DESCRIPTION = "file.description";
+  public static final String DESCRIPTION = "description"; //$NON-NLS-1$
+
+  public static final String FILE_DESCRIPTION = "file.description"; //$NON-NLS-1$
 
 
   // ~ Instance fields =================================================================================================
