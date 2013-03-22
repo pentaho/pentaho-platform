@@ -26,7 +26,7 @@ import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringTokenizer;
-import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.admin.JsSysAdminPanel;
@@ -593,6 +593,9 @@ public class MantleController extends AbstractXulEventHandler {
             model.loadEmailAdminPanel();
             EmailAdminPanelController.getInstance().getElement()
                 .setId((EmailAdminPanelController.getInstance()).getId());
+          } else if ((ContentCleanerPanel.getInstance()).getId().equals(adminPanelAwaitingActivation.id)) {
+            model.loadContentCleanerPanel();
+            ContentCleanerPanel.getInstance().getElement().setId((ContentCleanerPanel.getInstance()).getId());
           } else {
             model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
           }         
@@ -772,7 +775,23 @@ public class MantleController extends AbstractXulEventHandler {
       }
     });
   }
+  
+  @Bindable
+  public void loadContentCleanerPanel() {
+    GWT.runAsync(new RunAsyncCallback() {
+      public void onSuccess() {
+        String contentCleanerPanelId = ContentCleanerPanel.getInstance().getId();
+        if (!sysAdminPanelsMap.containsKey(contentCleanerPanelId)) {
+          sysAdminPanelsMap.put(contentCleanerPanelId, ContentCleanerPanel.getInstance());
+        }
+        loadAdminContent(contentCleanerPanelId, null);
+      }
 
+      public void onFailure(Throwable reason) {
+      }
+    });
+  }
+  
   @Bindable
   public void loadUserRolesAdminPanel() {
     GWT.runAsync(new RunAsyncCallback() {

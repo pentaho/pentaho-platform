@@ -20,6 +20,7 @@ package org.pentaho.mantle.client.ui.xul;
 import java.util.HashMap;
 
 import org.pentaho.mantle.client.MantleApplication;
+import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.SecurityPanel;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
@@ -192,7 +193,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     GWT.runAsync(new RunAsyncCallback() {
       public void onSuccess() {
         DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
-        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(SecurityPanel.getInstance()) == -1) {
+        if (contentDeck.getWidgetIndex(SecurityPanel.getInstance()) == -1) {
           contentDeck.add(SecurityPanel.getInstance());
         }
         contentDeck.showWidget(contentDeck.getWidgetIndex(SecurityPanel.getInstance()));
@@ -203,6 +204,22 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     });
   }
 
+  @Bindable
+  public void loadContentCleanerPanel() {
+    GWT.runAsync(new RunAsyncCallback() {
+      public void onSuccess() {
+        DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
+        if (contentDeck.getWidgetIndex(ContentCleanerPanel.getInstance()) == -1) {
+          contentDeck.add(ContentCleanerPanel.getInstance());
+        }
+        contentDeck.showWidget(contentDeck.getWidgetIndex(ContentCleanerPanel.getInstance()));
+      }
+
+      public void onFailure(Throwable reason) {
+      }
+    });
+  }
+  
   @Bindable
   public void loadUserRolesAdminPanel() {
     GWT.runAsync(new RunAsyncCallback() {

@@ -34,6 +34,7 @@ import org.pentaho.gwt.widgets.client.utils.TimeUtil;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
@@ -41,6 +42,7 @@ import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.workspace.JsJob;
+import org.pentaho.mantle.client.workspace.JsJobParam;
 import org.pentaho.mantle.client.workspace.JsJobTrigger;
 import org.pentaho.mantle.login.client.MantleLoginDialog;
 
@@ -86,7 +88,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   Boolean done = false;
   boolean hasParams = false;
   boolean isEmailConfValid = false;
-
 
   public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
     super(ScheduleDialogType.SCHEDULER, Messages.getString("editSchedule"), null, false, true); //$NON-NLS-1$
@@ -523,16 +524,27 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
 
       if (editJob != null) {
-        String lineageId = editJob.getJobParam("lineage-id");
-        JsArrayString lineageIdValue = (JsArrayString) JavaScriptObject.createArray().cast();
-        lineageIdValue.push(lineageId);
-        JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
-        p.setName("lineage-id");
-        p.setType("string");
-        p.setStringValue(lineageIdValue);
+
         JSONArray scheduleParams = new JSONArray();
-        scheduleParams.set(0, new JSONObject(p));
+        
+        for (int i=0;i<editJob.getJobParams().length();i++) {
+          JsJobParam param = editJob.getJobParams().get(i);
+          JsArrayString paramValue = (JsArrayString) JavaScriptObject.createArray().cast();
+          paramValue.push(param.getValue());
+          JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
+          p.setName(param.getName());
+          p.setType("string");
+          p.setStringValue(paramValue);
+          scheduleParams.set(i, new JSONObject(p));
+        }
+        
         scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$    
+        
+        String actionClass = editJob.getJobParam("ActionAdapterQuartzJob-ActionClass");
+        if (!StringUtils.isEmpty(actionClass)) {
+          scheduleRequest.put("actionClass", new JSONString(actionClass));
+        }
+        
       }
 
       RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");

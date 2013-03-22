@@ -129,6 +129,12 @@
 			  </treechildren>
 			</treeitem>
 			
+	    	<treeitem container="true" command="mantleXulHandler.loadContentCleanerPanel()">
+	  			<treerow>
+	    			<treecell label="Content" />
+		  		</treerow>	    
+			</treeitem>			
+			
 	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('adminHelpPanel', 'http://wiki.pentaho.com/display/COM/Community+Wiki+Home')">
 	  			<treerow>
 	    			<treecell label="Help" />

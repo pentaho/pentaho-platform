@@ -23,6 +23,7 @@ import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.Schedu
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
 import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -85,6 +86,9 @@ public class JsJobTrigger extends JavaScriptObject {
   }-*/;
 
   public final Date getStartTime() {
+    if (StringUtils.isEmpty(getNativeStartTime())) {
+      return new Date();
+    }
     return JsJob.formatDate(getNativeStartTime());
   }
 

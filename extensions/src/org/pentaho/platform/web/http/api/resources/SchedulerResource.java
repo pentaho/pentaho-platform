@@ -49,12 +49,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IScheduler;
@@ -89,6 +92,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
   IPluginManager pluginMgr = PentahoSystem.get(IPluginManager.class);
 
+  private static final Log logger = LogFactory.getLog(SchedulerResource.class);
+
   public SchedulerResource() {
   }
 
@@ -108,7 +113,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
     boolean hasInputFile = !StringUtils.isEmpty(scheduleRequest.getInputFile());
     RepositoryFile file = null;
     if (hasInputFile) {
-      file = repository.getFile(scheduleRequest.getInputFile());
+      try {
+        file = repository.getFile(scheduleRequest.getInputFile());
+      } catch (UnifiedRepositoryException ure) {
+        hasInputFile = false;
+        logger.warn(ure.getMessage(), ure);
+      }
     }
     
     // if we are going to run in background, create immediate trigger
@@ -119,7 +129,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
     // if we have an inputfile, generate job name based on that if the name is not passed in
     if (hasInputFile && StringUtils.isEmpty(scheduleRequest.getJobName())) {
       scheduleRequest.setJobName(file.getName().substring(0, file.getName().lastIndexOf("."))); //$NON-NLS-1$
-    } else if (!hasInputFile) {
+    } else if (!StringUtils.isEmpty(scheduleRequest.getActionClass())) {
+      String actionClass = scheduleRequest.getActionClass().substring(scheduleRequest.getActionClass().lastIndexOf(".")+1);
+      scheduleRequest.setJobName(actionClass); //$NON-NLS-1$
+    } else if (!hasInputFile && StringUtils.isEmpty(scheduleRequest.getJobName())) {
       // just make up a name
       scheduleRequest.setJobName("" + System.currentTimeMillis()); //$NON-NLS-1$
     }
@@ -257,6 +270,34 @@ public class SchedulerResource extends AbstractJaxRSResource {
     }
   }
 
+  @GET
+  @Path("/getContentCleanerJob")
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
+  public Job getContentCleanerJob() {
+    try {
+      IPentahoSession session = PentahoSessionHolder.getSession();
+      final String principalName = session.getName(); // this authentication wasn't matching with the job user name, changed to get name via the current session
+      final Boolean canAdminister = canAdminister(session);
+
+      List<Job> jobs = scheduler.getJobs(new IJobFilter() {
+        public boolean accept(Job job) {
+          String actionClass = (String)job.getJobParams().get("ActionAdapterQuartzJob-ActionClass");
+          if (canAdminister && "org.pentaho.platform.admin.GeneratedContentCleaner".equals(actionClass)) {
+            return true;
+          }
+          return principalName.equals(job.getUserName()) && "org.pentaho.platform.admin.GeneratedContentCleaner".equals(actionClass);
+        }
+      });
+
+      if (jobs.size() > 0) {
+        return jobs.get(0);
+      }
+      return null;
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  
   @GET
   @Path("/jobs")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })

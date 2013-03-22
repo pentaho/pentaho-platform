@@ -28,4 +28,6 @@ public class JsJobParam extends JavaScriptObject {
   // JSNI methods to get job data.
   public final native String getName() /*-{ return this.name; }-*/; //
   public final native String getValue() /*-{ return this.value; }-*/; //
+  public final native void setName(String name) /*-{ this.name = name; }-*/;
+  public final native void setValue(String value) /*-{ this.value = value; }-*/;
 }
