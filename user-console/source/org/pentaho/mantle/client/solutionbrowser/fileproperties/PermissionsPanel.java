@@ -302,14 +302,10 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
     permissionsTable.setWidget(1, 0, writePermissionCheckBox);
     permissionsTable.setWidget(1, 1, grantPermissionCheckBox);
 
-    permissionsTable.getCellFormatter().setHorizontalAlignment(0, 0, HorizontalPanel.ALIGN_LEFT);
-    permissionsTable.getCellFormatter().setHorizontalAlignment(1, 0, HorizontalPanel.ALIGN_LEFT);
-    permissionsTable.getCellFormatter().setHorizontalAlignment(0, 1, HorizontalPanel.ALIGN_LEFT);
-    permissionsTable.getCellFormatter().setHorizontalAlignment(1, 1, HorizontalPanel.ALIGN_LEFT);
-    permissionsTable.getCellFormatter().setWidth(0, 0, "100%");
-    permissionsTable.getCellFormatter().setWidth(0, 1, "100%");
-    permissionsTable.getCellFormatter().setWidth(1, 0, "100%");
-    permissionsTable.getCellFormatter().setWidth(1, 1, "100%");
+    permissionsTable.getCellFormatter().setWidth(0, 0, "50%");
+    permissionsTable.getCellFormatter().setWidth(0, 1, "50%");
+    permissionsTable.getCellFormatter().setWidth(1, 0, "50%");
+    permissionsTable.getCellFormatter().setWidth(1, 1, "50%");
     
     
     
