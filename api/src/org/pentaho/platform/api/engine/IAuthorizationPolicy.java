@@ -25,6 +25,7 @@ public interface IAuthorizationPolicy {
       predefinedSystemRoles.add(ADMINISTER_SECURITY_ACTION);
       predefinedSystemRoles.add(CREATE_TENANTS_ACTION);
       predefinedSystemRoles.add(MANAGE_SCHEDULING);
+      predefinedSystemRoles.add(PUBLISH_REPOSITORY_ACTION);
       return predefinedSystemRoles;
     }
   }
@@ -33,6 +34,7 @@ public interface IAuthorizationPolicy {
   public static final String ADMINISTER_SECURITY_ACTION = "org.pentaho.security.administerSecurity";
   public static final String CREATE_TENANTS_ACTION = "org.pentaho.security.administerSystem";
   public static final String MANAGE_SCHEDULING = "org.pentaho.scheduler.manage";
+  public static final String PUBLISH_REPOSITORY_ACTION = "org.pentaho.security.publish";
   
   public static final Set<String> PREDEFINED_SYSTEM_LOGICAL_ROLES = Initializer.getPredefinedSystemRoles();
   
