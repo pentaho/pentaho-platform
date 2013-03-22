@@ -335,13 +335,15 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   private static String findTitle(final RepositoryFile file) {
     String title = null;
-    Properties properties = file.getLocalePropertiesMap().get(Locale.getDefault().toString());
-    if(properties == null){
-      properties = file.getLocalePropertiesMap().get(RepositoryFile.DEFAULT_LOCALE);
-      if(properties != null){
-        title = properties.getProperty(RepositoryFile.FILE_TITLE);
-        if(StringUtils.isBlank(title)){
-          title = properties.getProperty(RepositoryFile.TITLE);
+    if(file.getLocalePropertiesMap() != null){
+      Properties properties = file.getLocalePropertiesMap().get(Locale.getDefault().toString());
+      if(properties == null){
+        properties = file.getLocalePropertiesMap().get(RepositoryFile.DEFAULT_LOCALE);
+        if(properties != null){
+          title = properties.getProperty(RepositoryFile.FILE_TITLE);
+          if(StringUtils.isBlank(title)){
+            title = properties.getProperty(RepositoryFile.TITLE);
+          }
         }
       }
     }
@@ -351,13 +353,15 @@ public class MockUnifiedRepository implements IUnifiedRepository {
 
   private static String findDesc(final RepositoryFile file) {
     String desc = null;
-    Properties properties = file.getLocalePropertiesMap().get(Locale.getDefault().toString());
-    if(properties == null){
-      properties = file.getLocalePropertiesMap().get(RepositoryFile.DEFAULT_LOCALE);
-      if(properties != null){
-        desc = properties.getProperty(RepositoryFile.FILE_DESCRIPTION);
-        if(StringUtils.isBlank(desc)){
-          desc = properties.getProperty(RepositoryFile.DESCRIPTION);
+    if(file.getLocalePropertiesMap() != null){
+      Properties properties = file.getLocalePropertiesMap().get(Locale.getDefault().toString());
+      if(properties == null){
+        properties = file.getLocalePropertiesMap().get(RepositoryFile.DEFAULT_LOCALE);
+        if(properties != null){
+          desc = properties.getProperty(RepositoryFile.FILE_DESCRIPTION);
+          if(StringUtils.isBlank(desc)){
+            desc = properties.getProperty(RepositoryFile.DESCRIPTION);
+          }
         }
       }
     }
