@@ -14,16 +14,14 @@
  */
 package org.pentaho.platform.repository2.unified.webservices;
 
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
+import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
-import org.apache.commons.lang.StringUtils;
-import org.pentaho.platform.api.repository2.unified.RepositoryFile;
-import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
-import org.pentaho.platform.util.messages.LocaleHelper;
 
 /**
  * Converts {@code RepositoryFile} into JAXB-safe object and vice-versa.
@@ -86,23 +84,6 @@ public class RepositoryFileAdapter extends XmlAdapter<RepositoryFileDto, Reposit
         f.localePropertiesMapEntries.add(localeMapDto);
       }
     }
-
-    // [BISERVER-8337] localize title and description. In the future, this should be done in the client
-    LocalePropertyResolver lpr = new LocalePropertyResolver(f.getName());
-    LocalizationUtil localizationUtil = new LocalizationUtil(f, LocaleHelper.getLocale());
-    String title = localizationUtil.resolveLocalizedString(lpr.resolveDefaultTitleKey(), null);
-    if(StringUtils.isBlank(title)){
-      title = localizationUtil.resolveLocalizedString(lpr.resolveTitleKey(), null);
-      if(StringUtils.isBlank(title)){
-        title = localizationUtil.resolveLocalizedString(lpr.resolveNameKey(), f.getTitle());
-      }
-    }
-    f.setTitle(title);
-    String description = localizationUtil.resolveLocalizedString(lpr.resolveDefaultDescriptionKey(), null);
-    if(StringUtils.isBlank(description)){
-      description = localizationUtil.resolveLocalizedString(lpr.resolveDescriptionKey(), f.getDescription());
-    }
-    f.setDescription(description);
 
     return f;
   }

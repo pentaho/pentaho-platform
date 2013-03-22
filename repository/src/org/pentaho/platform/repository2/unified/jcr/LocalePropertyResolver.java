@@ -1,4 +1,4 @@
-package org.pentaho.platform.repository2.unified.webservices;
+package org.pentaho.platform.repository2.unified.jcr;
 
 import org.springframework.util.Assert;
 
