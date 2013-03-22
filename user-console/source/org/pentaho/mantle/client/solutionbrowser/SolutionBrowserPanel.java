@@ -325,7 +325,12 @@ public class SolutionBrowserPanel extends HorizontalPanel {
           if (left.indexOf("px") != -1) {
             left = left.substring(0, left.indexOf("px"));
           }
-          int leftInt = Integer.parseInt(left);
+          int leftInt = 0;
+          try {
+            leftInt = Integer.parseInt(left);
+          } catch (NumberFormatException nfe) {
+            leftInt = 0;
+          }
           if (leftInt <= 0) {
             setNavigatorShowing(false);
           }
