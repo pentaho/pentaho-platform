@@ -19,6 +19,8 @@ package org.pentaho.platform.scheduler2.blockout;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
 import org.quartz.SimpleTrigger;
@@ -27,11 +29,14 @@ import org.quartz.SimpleTrigger;
  * @author wseyler
  *
  */
+@XmlRootElement
 public class SimpleBlockoutTrigger extends SimpleTrigger implements IBlockoutTrigger {
 
   private static final long serialVersionUID = 5382112382745363351L;
-  private long blockDuration;
   
+  public SimpleBlockoutTrigger() {
+    super();
+  }
   /**
    * @param name
    * @param group
@@ -46,14 +51,14 @@ public class SimpleBlockoutTrigger extends SimpleTrigger implements IBlockoutTri
   public SimpleBlockoutTrigger(String name, Date startTime, Date endTime,
       int repeatCount, long repeatInterval, long blockDuration) {
     super(name, IBlockoutManager.BLOCK_GROUP, name, IBlockoutManager.BLOCK_GROUP, startTime, endTime, repeatCount, repeatInterval);
-    this.blockDuration = blockDuration;
+    this.setBlockDuration(blockDuration);
   }
 
   public long getBlockDuration() {
-    return blockDuration;
+    return this.getJobDataMap().getLong(IBlockoutManager.BLOCK_DURATION_KEY);
   }
 
   public void setBlockDuration(long blockDuration) {
-    this.blockDuration = blockDuration;
+    this.getJobDataMap().put(IBlockoutManager.BLOCK_DURATION_KEY, blockDuration);
   }
 }

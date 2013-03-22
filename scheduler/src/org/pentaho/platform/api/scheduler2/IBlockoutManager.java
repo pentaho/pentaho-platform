@@ -28,6 +28,7 @@ import org.quartz.Trigger;
  */
 public interface IBlockoutManager {
   public static final String BLOCK_GROUP = "BLOCK_GROUP"; //$NON-NLS-1$
+  public static final String BLOCK_DURATION_KEY = "blocking_duration"; //$NON-NLS-1$
 
   /**
    * @param blockout - A trigger that determines the recurrence of the block-out
