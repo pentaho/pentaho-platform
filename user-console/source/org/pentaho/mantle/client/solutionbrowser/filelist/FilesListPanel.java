@@ -249,14 +249,22 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
           if (selectedFileItems != null && selectedFileItems.size() > 0) {
             for (FileItem fileItem : selectedFileItems) {
               if (fileItem.getRepositoryFile().equals(fileLabel.getRepositoryFile())) {
-                fileLabel.setStyleName("fileLabelSelected");
+                if(file.isHidden()) {
+                  fileLabel.setStyleName("hiddenFileLabelSelected");
+                } else {
+                  fileLabel.setStyleName("fileLabelSelected");  //$NON-NLS-1$  
+                }
                 selectedFileItems.add(fileLabel);
                 // if we do not break this loop, it will go forever! (we added an item)
                 break;
               }
             }
           } else {
-            fileLabel.setStyleName("fileLabel"); //$NON-NLS-1$
+            if(file.isHidden()) {
+              fileLabel.setStyleName("hiddenFileLabel");//$NON-NLS-1$  
+            } else {
+              fileLabel.setStyleName("fileLabel"); //$NON-NLS-1$  
+            }
           }
         }
       }
