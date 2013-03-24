@@ -299,6 +299,8 @@ value="{0};org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false
 value="{0}/etc/pdi;org.pentaho.repository.read;jcr:read,jcr:readAccessControl;true;false;false" />
         <param name="magicAceDefinition3"
 value="{0}/etc/pdi;org.pentaho.repository.create;jcr:read,jcr:readAccessControl,jcr:write,jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,jcr:nodeTypeManagement;true;false;false" />
+        <param name="magicAceDefinition4"
+value="{0}/etc;org.pentaho.security.publish;jcr:read,jcr:readAccessControl,jcr:write,jcr:modifyAccessControl,jcr:lockManagement,jcr:versionManagement,jcr:nodeTypeManagement;true;true;false" />
       </AccessControlProvider>
     </WorkspaceSecurity>
 
