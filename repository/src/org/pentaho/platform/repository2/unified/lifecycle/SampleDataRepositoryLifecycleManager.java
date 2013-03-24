@@ -245,20 +245,20 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
       role = userRoleDao.getRole(defaultTenant, "Power User");
       if (role == null) {
           userRoleDao.createRole(defaultTenant, "Power User", "", new String[0]);
+          roleBindingDao.setRoleBindings(defaultTenant, "Power User", Arrays.asList(new String[]{IAuthorizationPolicy.MANAGE_SCHEDULING}));
       }
-      roleBindingDao.setRoleBindings(defaultTenant, "Power User", Arrays.asList(new String[]{IAuthorizationPolicy.MANAGE_SCHEDULING}));
 
       role = userRoleDao.getRole(defaultTenant, "Report Author");
       if (role == null) {
           userRoleDao.createRole(defaultTenant, "Report Author", "", new String[0]);
+          roleBindingDao.setRoleBindings(defaultTenant, "Report Author", Arrays.asList(new String[]{}));
       }
-      roleBindingDao.setRoleBindings(defaultTenant, "Report Author", Arrays.asList(new String[]{}));
 
       role = userRoleDao.getRole(defaultTenant, "Business Analyst");
       if (role == null) {
           userRoleDao.createRole(defaultTenant, "Business Analyst", "", new String[0]);
+          roleBindingDao.setRoleBindings(defaultTenant, "Business Analyst", Arrays.asList(new String[]{IAuthorizationPolicy.MANAGE_SCHEDULING/*, IAuthorizationPolicy.PUBLISH*/}));
       }
-      roleBindingDao.setRoleBindings(defaultTenant, "Business Analyst", Arrays.asList(new String[]{IAuthorizationPolicy.MANAGE_SCHEDULING/*, IAuthorizationPolicy.PUBLISH*/}));
 
       IPentahoUser user = userRoleDao.getUser(defaultTenant, "suzy");
       if (user == null) {
