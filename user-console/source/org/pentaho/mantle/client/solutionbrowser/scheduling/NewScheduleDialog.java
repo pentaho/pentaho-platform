@@ -506,6 +506,129 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return jsJobTrigger;
   }
 
+  private boolean addBlockoutPeriod(final JSONObject schedule) {
+    final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add"; //$NON-NLS-1$
+    RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
+    addBlockoutPeriodRequest.setHeader("accept", "application/json");
+
+    final JSONObject addBlockoutParams = new JSONObject();
+    addBlockoutParams.put("name", new JSONString("TEST_BLOCKOUT")); //$NON-NLS-1$
+    addBlockoutParams.put("startTime", new JSONString("2013-03-20T00:00:00.000-04:00")); //$NON-NLS-1$
+    addBlockoutParams.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$                 // TODO: this is end date
+    addBlockoutParams.put("repeatInterval", new JSONString("86400")); //$NON-NLS-1$
+    addBlockoutParams.put("repeatCount", new JSONString("-1")); //$NON-NLS-1$
+    addBlockoutParams.put("blockDuration", new JSONString("10000")); //$NON-NLS-1$          // TODO: Need to calculate this from (endTime - startTime)
+
+    try {
+      addBlockoutPeriodRequest.sendRequest(addBlockoutParams.toString(), new RequestCallback()
+      {
+        public void onError(Request request, Throwable exception)
+        {
+          System.out.println("********** Got an error from blockout conflict");
+        }
+
+        public void onResponseReceived(Request request, Response response)
+        {
+          System.out.println("*********** Got a success: " + response.getStatusCode() + ": " + response.getStatusText());
+          JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
+
+          if (response.getStatusCode() == Response.SC_OK)
+          {
+          }
+        }
+      });
+    } catch (RequestException e) {
+    }
+
+    return true;      // TODO figure out if true conflict
+
+  }
+
+  private void promptDueToBlockoutConflicts(final boolean alwaysConflict, final boolean conflictsSometimes) {
+    StringBuffer conflictMessage = new StringBuffer();
+
+    final String updateScheduleButtonText = "Update Schedule";
+    final String continueButtonText = "Continue";
+
+    boolean showContinueButton =  conflictsSometimes;
+    boolean isScheduleConflict = alwaysConflict || conflictsSometimes;
+
+    // TODO: Put these messages in properties file
+    if (conflictsSometimes) {
+      conflictMessage.append("One or more instances of this schedule conflict with a blocked out time.\n");
+      conflictMessage.append("Do you want to update the scheduled time or continue with the current settings?");
+    } else {
+      conflictMessage.append("This schedule is set to run during a blocked out time. Update the scheduled time and try again.");
+    }
+
+    if (isScheduleConflict) {
+      final MessageDialogBox dialogBox = new MessageDialogBox("Blockout Time Exists",
+                                                              conflictMessage.toString(),
+                                                              false, false, true,
+                                                              updateScheduleButtonText,
+                                                              showContinueButton ? continueButtonText : null,
+                                                              null); //$NON-NLS-1$ //$NON-NLS-2$
+      dialogBox.setCallback(new IDialogCallback() {
+        // TODO:  If user clicked on 'Continue' we want to add the schedule.  Otherwise we dismiss the dialog
+        // and they have to modify the recurrence schedule
+        public void cancelPressed() {
+          // TODO: User clicked on continue, so we need to proceed adding the schedule
+          System.out.println("Continue button pressed");
+        }
+
+        public void okPressed() {
+          System.out.println("Update Schedule Button pressed");
+          dialogBox.setVisible(false);
+        }
+      });
+
+      dialogBox.center();
+    }
+  }
+
+
+  protected void verifyBlockoutConflict(final JSONObject schedule, final JsJobTrigger trigger) {
+    // We want to check to see if there are any conflicts with any blockout periods
+
+    // TODO - call check for conflict API (not list)
+    final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/list"; //$NON-NLS-1$
+    RequestBuilder blockoutConflictRequest = new RequestBuilder(RequestBuilder.GET, url);
+    blockoutConflictRequest.setHeader("accept", "application/json");
+    try {
+      blockoutConflictRequest.sendRequest(null, new RequestCallback()
+      {
+        public void onError(Request request, Throwable exception)
+        {
+          System.out.println("********** Got an error from blockout conflict");
+        }
+
+        public void onResponseReceived(Request request, Response response)
+        {
+          System.out.println("*********** Got a success: " + response.getStatusCode() + ": " + response.getStatusText());
+          JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
+
+          if (response.getStatusCode() == Response.SC_OK)
+          {
+            // There will be two booleans to indicate partial or full conflicts
+            // Determine if this schedule conflicts all the time or some of the time
+            boolean conflictsSometimes = true;       // TODO: figure this out
+            boolean alwaysConflict = false;
+
+            if (conflictsSometimes || alwaysConflict) {
+              promptDueToBlockoutConflicts(alwaysConflict, conflictsSometimes);
+            } else {
+              // Continue with other panels in the wizard (params, email)
+            }
+          }
+        }
+      });
+    } catch (RequestException e) {
+    }
+
+    super.nextClicked();
+  }
+
+
   /*
    * (non-Javadoc)
    * 
@@ -515,6 +638,12 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   protected boolean onFinish() {
     JsJobTrigger trigger = getJsJobTrigger();
     JSONObject schedule = getSchedule();
+
+    // TODO: We need to check for a conflict first
+    if (getDialogType() == ScheduleDialogType.SCHEDULER) {
+      verifyBlockoutConflict(schedule, trigger);
+    }
+
     if (hasParams) {
       showScheduleParamsDialog(trigger, schedule);
     } else if (isEmailConfValid) {
@@ -547,42 +676,49 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         
       }
 
-      RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
-      scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+      // TODO: Needs to be a cascading callback
+      // For blockout dialog we need to add a blockout period
+      if (getDialogType() == ScheduleDialogType.BLOCKOUT) {
+        addBlockoutPeriod(schedule);
+      } else {
+        RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
+        scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
 
-      try {
-        scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
+        try {
+          scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
 
-          public void onError(Request request, Throwable exception) {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
-            dialogBox.center();
-            setDone(false);
-          }
-
-          public void onResponseReceived(Request request, Response response) {
-            if (response.getStatusCode() == 200) {
-              setDone(true);
-              NewScheduleDialog.this.hide();
-              if (callback != null) {
-                callback.okPressed();
-              }
-
-            } else {
-              MessageDialogBox dialogBox = new MessageDialogBox(
-                  Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
-                  false, false, true);
+            public void onError(Request request, Throwable exception) {
+              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
               dialogBox.center();
               setDone(false);
             }
-          }
 
-        });
-      } catch (RequestException e) {
-        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
-            false, false, true);
-        dialogBox.center();
-        setDone(false);
+            public void onResponseReceived(Request request, Response response) {
+              if (response.getStatusCode() == 200) {
+                setDone(true);
+                NewScheduleDialog.this.hide();
+                if (callback != null) {
+                  callback.okPressed();
+                }
+
+              } else {
+                MessageDialogBox dialogBox = new MessageDialogBox(
+                                                                         Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
+                                                                         false, false, true);
+                dialogBox.center();
+                setDone(false);
+              }
+            }
+
+          });
+        } catch (RequestException e) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
+                                                            false, false, true);
+          dialogBox.center();
+          setDone(false);
+        }
       }
+
       setDone(true);
     }
     return false;
