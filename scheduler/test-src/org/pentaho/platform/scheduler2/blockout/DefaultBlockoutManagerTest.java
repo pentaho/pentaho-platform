@@ -230,6 +230,38 @@ public class DefaultBlockoutManagerTest {
   }
 
   /**
+   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#isPartiallyBlocked(org.quartz.Trigger)}.
+   */
+  @Test
+  public void testIsPartiallyBlocked() {
+    Calendar blockOutStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 1, 0, 0, 0);
+    IBlockoutTrigger blockOutTrigger = new SimpleBlockoutTrigger("blockOut", blockOutStartDate.getTime(), null, -1, //$NON-NLS-1$
+        TIME.WEEK.time * 2, TIME.HOUR.time * 2);
+
+    Calendar trueScheduleStartDate1 = new GregorianCalendar(2013, Calendar.JANUARY, 15, 0, 0, 0);
+    Trigger trueSchedule1 = new SimpleTrigger("trueSchedule1", trueScheduleStartDate1.getTime(), null, -1, //$NON-NLS-1$
+        TIME.WEEK.time * 2);
+
+    Calendar trueScheduleStartDate2 = new GregorianCalendar(2013, Calendar.JANUARY, 15, 0, 0, 0);
+    Trigger trueSchedule2 = new SimpleTrigger("trueSchedule2", trueScheduleStartDate2.getTime(), null, -1, //$NON-NLS-1$
+        TIME.WEEK.time);
+
+    Calendar falseScheduleStartDate1 = new GregorianCalendar(2013, Calendar.JANUARY, 1, 3, 0, 0);
+    Trigger falseSchedule1 = new SimpleTrigger("falseSchedule1", falseScheduleStartDate1.getTime(), null, -1, //$NON-NLS-1$
+        TIME.WEEK.time);
+
+    try {
+      this.blockOutManager.addBlockout(blockOutTrigger);
+
+      assertTrue(this.blockOutManager.isPartiallyBlocked(trueSchedule1));
+      assertTrue(this.blockOutManager.isPartiallyBlocked(trueSchedule2));
+      assertFalse(this.blockOutManager.isPartiallyBlocked(falseSchedule1));
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
    * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#shouldFireNow()}.
    */
   @Test
@@ -305,7 +337,7 @@ public class DefaultBlockoutManagerTest {
 
       assertEquals(4, this.blockOutManager.willBlockSchedules(trueBlockOutTrigger).size());
       assertEquals(1, this.blockOutManager.willBlockSchedules(falseBlockOutTrigger).size());
-      
+
       // Clean up
       deleteJob(scheduleTrigger);
       deleteJob(cronTrigger);

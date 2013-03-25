@@ -28,6 +28,7 @@ import org.quartz.Trigger;
  */
 public interface IBlockoutManager {
   public static final String BLOCK_GROUP = "BLOCK_GROUP"; //$NON-NLS-1$
+
   public static final String BLOCK_DURATION_KEY = "blocking_duration"; //$NON-NLS-1$
 
   /**
@@ -72,7 +73,8 @@ public interface IBlockoutManager {
 
   /**
    * @param scheduleTrigger
-   * @return whether the {@link Trigger} will fire, given the current list of {@link IBlockoutTrigger}s
+   *        {@link Trigger}
+   * @return whether the {@link Trigger} will fire, at least once, given the current list of {@link IBlockoutTrigger}s
    * @throws SchedulerException 
    */
   boolean willFire(Trigger scheduleTrigger) throws SchedulerException;
@@ -89,4 +91,13 @@ public interface IBlockoutManager {
    * @throws SchedulerException 
    */
   List<Trigger> willBlockSchedules(IBlockoutTrigger testBlockout) throws SchedulerException;
+
+  /**
+   * @param scheduleTrigger
+   *        {@link Trigger}
+   * @return whether the {@link Trigger} is blocked, at least partially, by at least a single {@link IBlockoutTrigger},
+   *         provided the list of registered {@link IBlockoutTrigger}s
+   * @throws SchedulerException
+   */
+  boolean isPartiallyBlocked(Trigger scheduleTrigger) throws SchedulerException;;
 }
