@@ -129,9 +129,9 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Path("/willFire")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces({ TEXT_PLAIN })
-  public Response willFire(Trigger trigger) {
+  public Response willFire(TriggerProxy trigger) {
     try {
-      Boolean willFire = manager.willFire(trigger);
+      Boolean willFire = manager.willFire(trigger.getTrigger());
       return Response.ok(willFire.toString()).build();
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
@@ -168,5 +168,18 @@ public class BlockoutResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-
+  
+  @GET
+  @Path("/blockstatus")
+  @Consumes({ APPLICATION_JSON, APPLICATION_XML })
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
+  public BlockStatusProxy getBlockStatus(TriggerProxy trigger) {
+    try {
+      Boolean partiallyBlocked = manager.isPartiallyBlocked(trigger.getTrigger());
+      Boolean totallyBlocked = !manager.willFire(trigger.getTrigger());
+      return new BlockStatusProxy(totallyBlocked, partiallyBlocked);
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
