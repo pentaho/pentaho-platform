@@ -76,6 +76,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
       throw new SchedulerException(Messages.getInstance().getString(ERR_WRONG_BLOCKER_TYPE));
     }
     Trigger blockoutTrigger = (Trigger) blockout;
+    blockoutTrigger.setGroup(BLOCK_GROUP);
     JobDetail jd = new JobDetail(blockoutTrigger.getName(), BLOCK_GROUP, BlockoutJob.class);
     blockoutTrigger.setJobName(jd.getName());
     blockoutTrigger.setJobGroup(jd.getGroup());
@@ -98,11 +99,18 @@ public class DefaultBlockoutManager implements IBlockoutManager {
     String[] blockedTriggerName = scheduler.getTriggerNames(BLOCK_GROUP);
     IBlockoutTrigger[] blockTriggers = new IBlockoutTrigger[blockedTriggerName.length];
     for (int i = 0; i < blockedTriggerName.length; i++) {
-      blockTriggers[i] = (IBlockoutTrigger) scheduler.getTrigger(blockedTriggerName[i], BLOCK_GROUP);
+      blockTriggers[i] = getSimpleBlockoutTrigger(scheduler.getTrigger(blockedTriggerName[i], BLOCK_GROUP));
     }
     return blockTriggers;
   }
 
+  private SimpleBlockoutTrigger getSimpleBlockoutTrigger(Trigger trigger) {
+    SimpleTrigger simpleTrigger = (SimpleTrigger)trigger;
+    SimpleBlockoutTrigger simpleBlockoutTrigger = new SimpleBlockoutTrigger(simpleTrigger.getName(), simpleTrigger.getStartTime(), simpleTrigger.getEndTime(), simpleTrigger.getRepeatCount(), simpleTrigger.getRepeatInterval(), 0l);
+    simpleBlockoutTrigger.setJobDataMap(simpleTrigger.getJobDataMap());
+    return simpleBlockoutTrigger;
+  }
+  
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#updateBlockout(java.lang.String, org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)
    */
@@ -175,7 +183,23 @@ public class DefaultBlockoutManager implements IBlockoutManager {
   }
 
   /* (non-Javadoc)
-   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#shouldFireNow()
+   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#isPartiallyBlocked
+   */
+  @Override
+  public boolean isPartiallyBlocked(Trigger scheduleTrigger) throws SchedulerException {
+
+    // Loop through blockout triggers
+    for (IBlockoutTrigger blockOut : getBlockouts()) {
+      if (willBlockSchedule(scheduleTrigger, blockOut)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#shouldFireNow(org.quartz.Trigger)
    */
   @Override
   public boolean shouldFireNow() throws SchedulerException {
@@ -267,8 +291,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
       double x2 = (blockOutTrigger.getStartTime().getTime() + blockOut.getBlockDuration() - scheduleTrigger
           .getStartTime().getTime()) / (double) scheduleRecurrence + shiftBy;
 
-      // x1 || x2 has to be positive, as it indicates an xShift to the "future"
-      if (hasIntBetween(x1, x2) && (x1 < x2 ? x2 >= 0 : x1 >= 0)) {
+      if (hasIntBetween(x1, x2)) {
 
         int xShift = (int) Math.ceil(x1 < x2 ? x1 : x2);
 
