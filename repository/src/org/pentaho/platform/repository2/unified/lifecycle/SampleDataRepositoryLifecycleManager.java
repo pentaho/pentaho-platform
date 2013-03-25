@@ -251,13 +251,13 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
       role = userRoleDao.getRole(defaultTenant, "Report Author");
       if (role == null) {
           userRoleDao.createRole(defaultTenant, "Report Author", "", new String[0]);
-          roleBindingDao.setRoleBindings(defaultTenant, "Report Author", Arrays.asList(new String[]{}));
+          roleBindingDao.setRoleBindings(defaultTenant, "Report Author", Arrays.asList(new String[]{IAuthorizationPolicy.PUBLISH_REPOSITORY_ACTION}));
       }
 
       role = userRoleDao.getRole(defaultTenant, "Business Analyst");
       if (role == null) {
           userRoleDao.createRole(defaultTenant, "Business Analyst", "", new String[0]);
-          roleBindingDao.setRoleBindings(defaultTenant, "Business Analyst", Arrays.asList(new String[]{IAuthorizationPolicy.MANAGE_SCHEDULING/*, IAuthorizationPolicy.PUBLISH*/}));
+          roleBindingDao.setRoleBindings(defaultTenant, "Business Analyst", Arrays.asList(new String[]{IAuthorizationPolicy.MANAGE_SCHEDULING, IAuthorizationPolicy.PUBLISH_REPOSITORY_ACTION}));
       }
 
       IPentahoUser user = userRoleDao.getUser(defaultTenant, "suzy");
