@@ -76,6 +76,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
       throw new SchedulerException(Messages.getInstance().getString(ERR_WRONG_BLOCKER_TYPE));
     }
     Trigger blockoutTrigger = (Trigger) blockout;
+    blockoutTrigger.setGroup(BLOCK_GROUP);
     JobDetail jd = new JobDetail(blockoutTrigger.getName(), BLOCK_GROUP, BlockoutJob.class);
     blockoutTrigger.setJobName(jd.getName());
     blockoutTrigger.setJobGroup(jd.getGroup());
@@ -98,11 +99,18 @@ public class DefaultBlockoutManager implements IBlockoutManager {
     String[] blockedTriggerName = scheduler.getTriggerNames(BLOCK_GROUP);
     IBlockoutTrigger[] blockTriggers = new IBlockoutTrigger[blockedTriggerName.length];
     for (int i = 0; i < blockedTriggerName.length; i++) {
-      blockTriggers[i] = (IBlockoutTrigger) scheduler.getTrigger(blockedTriggerName[i], BLOCK_GROUP);
+      blockTriggers[i] = getSimpleBlockoutTrigger(scheduler.getTrigger(blockedTriggerName[i], BLOCK_GROUP));
     }
     return blockTriggers;
   }
 
+  private SimpleBlockoutTrigger getSimpleBlockoutTrigger(Trigger trigger) {
+    SimpleTrigger simpleTrigger = (SimpleTrigger)trigger;
+    SimpleBlockoutTrigger simpleBlockoutTrigger = new SimpleBlockoutTrigger(simpleTrigger.getName(), simpleTrigger.getStartTime(), simpleTrigger.getEndTime(), simpleTrigger.getRepeatCount(), simpleTrigger.getRepeatInterval(), 0l);
+    simpleBlockoutTrigger.setJobDataMap(simpleTrigger.getJobDataMap());
+    return simpleBlockoutTrigger;
+  }
+  
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#updateBlockout(java.lang.String, org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)
    */
