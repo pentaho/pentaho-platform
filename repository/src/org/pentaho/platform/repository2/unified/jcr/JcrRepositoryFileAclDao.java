@@ -36,6 +36,7 @@ import javax.jcr.security.Privilege;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAce;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.api.repository2.unified.RepositoryFilePermission;
@@ -74,12 +75,15 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
   private JcrTemplate jcrTemplate;
 
   private IPathConversionHelper pathConversionHelper;
+  
+  private String tenantAdminAuthorityName;
   // ~ Constructors ====================================================================================================
 
-  public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper) {
+  public JcrRepositoryFileAclDao(final JcrTemplate jcrTemplate, final IPathConversionHelper pathConversionHelper, String tenantAdminAuthorityName) {
     super();
     this.jcrTemplate = jcrTemplate;
     this.pathConversionHelper = pathConversionHelper;
+    this.tenantAdminAuthorityName = tenantAdminAuthorityName;
   }
 
   // ~ Methods =========================================================================================================
@@ -116,7 +120,9 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
             List<AccessControlEntry> cleanedAcEntries = JcrRepositoryFileAclUtils.removeAclMetadata(Arrays
                 .asList(acEntries));
             for (AccessControlEntry acEntry : cleanedAcEntries) {
-              aces.add(toAce(session, acEntry));
+              if(!acEntry.getPrincipal().equals(new SpringSecurityRolePrincipal(JcrTenantUtils.getTenantedRole(tenantAdminAuthorityName)))) {
+                aces.add(toAce(session, acEntry));                
+              }
             }
             return aces;
           }
@@ -129,7 +135,9 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
         List<AccessControlEntry> cleanedAcEntries = JcrRepositoryFileAclUtils.removeAclMetadata(Arrays
             .asList(acEntries));
         for (AccessControlEntry acEntry : cleanedAcEntries) {
-          aces.add(toAce(session, acEntry));
+          if(!acEntry.getPrincipal().equals(new SpringSecurityRolePrincipal(JcrTenantUtils.getTenantedRole(tenantAdminAuthorityName)))) {
+            aces.add(toAce(session, acEntry));            
+          }
         }
         return aces;
       }
@@ -203,7 +211,9 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
         .getAccessControlEntries()));
 
     for (AccessControlEntry acEntry : cleanedAcEntries) {
-      aclBuilder.ace(toAce(session, acEntry));
+      if(!acEntry.getPrincipal().equals(new SpringSecurityRolePrincipal(JcrTenantUtils.getTenantedRole(tenantAdminAuthorityName)))) {
+        aclBuilder.ace(toAce(session, acEntry));  
+      }
     }
     return aclBuilder.build();
 
@@ -355,18 +365,40 @@ public class JcrRepositoryFileAclDao implements IRepositoryFileAclDao {
 
     JcrRepositoryFileAclUtils.setAclMetadata(session, absPath, acList, new AclMetadata(acl.getOwner().getName(), acl.isEntriesInheriting()));
 
-    // add entries to now empty list but only if not inheriting; force user to start with clean slate 
+    // add entries to now empty list but only if not inheriting; force user to start with clean slate
+    boolean adminPrincipalExist = false;
+    ITenant principalTenant = null;
     if (!acl.isEntriesInheriting()) {
       for (RepositoryFileAce ace : acl.getAces()) {
         Principal principal = null;
         if (RepositoryFileSid.Type.ROLE == ace.getSid().getType()) {
-          principal = new SpringSecurityRolePrincipal(ace.getSid().getName());
+          String principalName = JcrTenantUtils.getRoleNameUtils().getPrincipleName(ace.getSid().getName());
+          if(tenantAdminAuthorityName.equals(principalName)) {
+            adminPrincipalExist = true;
+          }
+          principal = new SpringSecurityRolePrincipal(JcrTenantUtils.getTenantedRole(ace.getSid().getName()));
         } else {
-          principal = new SpringSecurityUserPrincipal(ace.getSid().getName());
+          principal = new SpringSecurityUserPrincipal(JcrTenantUtils.getTenantedUser(ace.getSid().getName()));
         }
         acList.addAccessControlEntry(principal,
             permissionConversionHelper.pentahoPermissionsToPrivileges(session, ace.getPermissions()));
       }
+      if(!adminPrincipalExist) {
+        if(acl.getAces() != null && acl.getAces().size() > 0) {
+          principalTenant = JcrTenantUtils.getRoleNameUtils().getTenant(acl.getAces().get(0).getSid().getName());   
+        }
+       
+        if(principalTenant == null || principalTenant.getId() == null) {
+          principalTenant = JcrTenantUtils.getCurrentTenant();
+        }
+
+        List<RepositoryFilePermission> permissionList = new ArrayList<RepositoryFilePermission>();
+        permissionList.add(RepositoryFilePermission.ALL);
+        Principal adminPrincipal = new SpringSecurityRolePrincipal(JcrTenantUtils.getRoleNameUtils().getPrincipleId(principalTenant, tenantAdminAuthorityName));
+        acList.addAccessControlEntry(adminPrincipal,
+            permissionConversionHelper.pentahoPermissionsToPrivileges(session, EnumSet.copyOf(permissionList)));
+      }
+      
     }
     acMgr.setPolicy(absPath, acList);
     session.save();
