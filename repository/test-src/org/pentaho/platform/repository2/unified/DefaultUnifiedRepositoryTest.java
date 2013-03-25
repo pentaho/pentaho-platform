@@ -568,20 +568,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // tenant root folder
     // there is no ace that gives authenticated acme users access to /pentaho/acme; it's in logic on the server
     assertFalse(repo.getAcl(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId()).isEntriesInheriting());
-    // TODO mlowery possible issue
-    
-    RepositoryFileAcl acl = repo.getAcl(file.getId());
-    List<RepositoryFileAce> aces = acl.getAces();
-    assertEquals(2, aces.size());
-    for (RepositoryFileAce ace : aces) {
-      RepositoryFileSid sid = ace.getSid();
-      String roleName = roleNameUtils.getPrincipleName(sid.getName());
-      assertTrue(roleName.equals(tenantAdminRoleName));
-      for (RepositoryFilePermission perm : ace.getPermissions()) {
-          perm.equals(RepositoryFilePermission.ALL);
-      }
-    }
-    
     assertEquals(tenantCreatorSid, repo.getAcl(repo.getFile(ClientRepositoryPaths.getRootFolderPath()).getId())
         .getOwner());
     assertTrue(SimpleJcrTestUtils.hasPrivileges(testJcrTemplate, ServerRepositoryPaths.getTenantRootFolderPath(),
@@ -3312,7 +3298,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(Arrays.asList(new String[] { "org.pentaho.p1.reader" }), struct.bindingMap.get("whatever"));
 
     assertNotNull(struct.logicalRoleNameMap);
-    assertEquals(5, struct.logicalRoleNameMap.size());
+    assertEquals(6, struct.logicalRoleNameMap.size());
     assertEquals("Create Content", struct.logicalRoleNameMap
         .get(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
     assertEquals("Manage System", struct.logicalRoleNameMap

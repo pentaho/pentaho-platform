@@ -458,6 +458,7 @@
         class="org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileAclDao">
     <constructor-arg ref="jcrTemplate"/>
     <constructor-arg ref="pathConversionHelper"/>
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>
   </bean>
 
   <!-- begin authorization policy -->
