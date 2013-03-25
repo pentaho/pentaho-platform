@@ -148,7 +148,7 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
   }
   
   public void initializeAvailUserRoles() {
-    final String url = GWT.getHostPageBaseURL() + "api/userrole/roles"; //$NON-NLS-1$
+    final String url = GWT.getHostPageBaseURL() + "api/userrole/allRoles"; //$NON-NLS-1$
     RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
     executableTypesRequestBuilder.setHeader("accept", "application/json");
     try {
