@@ -175,7 +175,23 @@ public class DefaultBlockoutManager implements IBlockoutManager {
   }
 
   /* (non-Javadoc)
-   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#shouldFireNow()
+   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#isPartiallyBlocked
+   */
+  @Override
+  public boolean isPartiallyBlocked(Trigger scheduleTrigger) throws SchedulerException {
+
+    // Loop through blockout triggers
+    for (IBlockoutTrigger blockOut : getBlockouts()) {
+      if (willBlockSchedule(scheduleTrigger, blockOut)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#shouldFireNow(org.quartz.Trigger)
    */
   @Override
   public boolean shouldFireNow() throws SchedulerException {
@@ -267,8 +283,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
       double x2 = (blockOutTrigger.getStartTime().getTime() + blockOut.getBlockDuration() - scheduleTrigger
           .getStartTime().getTime()) / (double) scheduleRecurrence + shiftBy;
 
-      // x1 || x2 has to be positive, as it indicates an xShift to the "future"
-      if (hasIntBetween(x1, x2) && (x1 < x2 ? x2 >= 0 : x1 >= 0)) {
+      if (hasIntBetween(x1, x2)) {
 
         int xShift = (int) Math.ceil(x1 < x2 ? x1 : x2);
 
