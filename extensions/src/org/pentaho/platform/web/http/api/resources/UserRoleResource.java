@@ -43,15 +43,18 @@ public class UserRoleResource extends AbstractJaxRSResource {
 	private ITenantManager tenantManager = null;
 	private ArrayList<String> systemRoles;
 	private String adminRole;
+	private ArrayList<String> extraRoles;
 
 	public UserRoleResource() {
 	  this(PentahoSystem.get(IRoleAuthorizationPolicyRoleBindingDao.class),
 	  PentahoSystem.get(ITenantManager.class),
 	  PentahoSystem.get(ArrayList.class, "singleTenantSystemAuthorities", PentahoSessionHolder.getSession()),
-	  PentahoSystem.get(String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession()));
+	  PentahoSystem.get(String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession()),
+	  PentahoSystem.get(ArrayList.class, "extraRoles", PentahoSessionHolder.getSession()));
 	}
   public UserRoleResource(final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao
-      , final ITenantManager tenantMgr, final ArrayList<String> systemRoles, final String adminRole) {
+      , final ITenantManager tenantMgr, final ArrayList<String> systemRoles, final String adminRole,
+      final ArrayList<String> extraRoles) {
     if (roleBindingDao == null) {
       throw new IllegalArgumentException();
     }
@@ -59,6 +62,7 @@ public class UserRoleResource extends AbstractJaxRSResource {
     this.tenantManager = tenantMgr;
     this.systemRoles = systemRoles;
     this.adminRole = adminRole;
+    this.extraRoles = extraRoles;
   }
   
   @GET
@@ -78,13 +82,28 @@ public class UserRoleResource extends AbstractJaxRSResource {
 	}
 	
 	@GET
-	  @Path("/systemRoles")
-	  @Produces({ APPLICATION_XML, APPLICATION_JSON })
-	  public RoleListWrapper getSystemRoles() throws Exception {
-	    IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
-	    return new RoleListWrapper(userRoleListService.getSystemRoles());
+  @Path("/allRoles")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public RoleListWrapper getAllRoles() throws Exception {
+    IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
+    List<String> roles = userRoleListService.getAllRoles();
+    roles.addAll(extraRoles);
+    return new RoleListWrapper(roles);
+  }
+	
+	@GET
+  @Path("/systemRoles")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public RoleListWrapper getSystemRoles() throws Exception {
+    return new RoleListWrapper(systemRoles);
 	}
 	
+	@GET
+  @Path("/extraRoles")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public RoleListWrapper getExtraRoles() throws Exception {
+    return new RoleListWrapper(extraRoles);
+  }
 
 	@GET
 	@Path("/logicalRoleMap")
