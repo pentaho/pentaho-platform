@@ -4,6 +4,11 @@
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd"
        default-lazy-init="true">
+    <bean id="propertyPlaceholderConfigurerRepository"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
+        <property name="location" value="repository.spring.properties" />
+        <property name="placeholderPrefix" value="%{" />
+    </bean>
   <!--
     default-lazy-init makes all of the beans in this file lazy-init=true which means they are not instantiated until
     they are referenced; this allows PentahoSystem to be fully initialized (which is used internally in
@@ -439,7 +444,7 @@
 
   <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
   <bean id="singleTenantAdminAuthorityName" class="java.lang.String">
-    <constructor-arg value="Administrator"/>
+        <constructor-arg value="%{singleTenantAdminAuthorityName}"/>
   </bean>
 
   <!-- The name of the authority which is granted to all non-authenticated users of a particular tenant -->
@@ -456,7 +461,7 @@
   
   <util:list id="extraSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
      <ref bean="singleTenantAuthenticatedAuthorityName" />
-     <ref bean="singleTenantAnonymousUserName" />
+  	 <ref bean="singleTenantAnonymousUserName" />
   </util:list>
   
   <bean id="superAdminAuthorityName" class="java.lang.String">
@@ -472,7 +477,7 @@
   </bean>
   
   <bean id="singleTenantAdminUserName" class="java.lang.String">
-    <constructor-arg value="admin"/>
+        <constructor-arg value="%{singleTenantAdminUserName}"/>
   </bean>
   
         <!-- Used in code that doesn't use Spring's transaction interception. -->

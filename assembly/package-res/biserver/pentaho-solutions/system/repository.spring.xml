@@ -440,7 +440,7 @@
 
   <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
   <bean id="singleTenantAdminAuthorityName" class="java.lang.String">
-    <constructor-arg value="Administrator"/>
+        <constructor-arg value="%{singleTenantAdminAuthorityName}"/>
   </bean>
 
   <!-- The name of the authority which is granted to all non-authenticated users of a particular tenant -->
@@ -457,7 +457,7 @@
   
   <util:list id="extraSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
      <ref bean="singleTenantAuthenticatedAuthorityName" />
-     <ref bean="singleTenantAnonymousUserName" />
+  	 <ref bean="singleTenantAnonymousUserName" />
   </util:list>
   
   <bean id="superAdminAuthorityName" class="java.lang.String">
@@ -473,7 +473,7 @@
   </bean>
   
   <bean id="singleTenantAdminUserName" class="java.lang.String">
-    <constructor-arg value="admin"/>
+        <constructor-arg value="%{singleTenantAdminUserName}"/>
   </bean>
   
         <!-- Used in code that doesn't use Spring's transaction interception. -->
