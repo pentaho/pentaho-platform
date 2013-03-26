@@ -59,7 +59,7 @@ public class DeleteFolderCommand extends AbstractCommand {
 
         @Override
         public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFolder"), //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true);
           dialogBox.center();
         }
@@ -69,7 +69,7 @@ public class DeleteFolderCommand extends AbstractCommand {
           if (response.getStatusCode() == 200) {
             new RefreshRepositoryCommand().execute(false);
           } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFolder"), //$NON-NLS-1$ //$NON-NLS-2$
                 false, false, true);
             dialogBox.center();
           }

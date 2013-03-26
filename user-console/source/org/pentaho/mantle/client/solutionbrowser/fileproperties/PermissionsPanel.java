@@ -222,7 +222,7 @@ public class PermissionsPanel extends FlexTable implements IFileModifier {
         if(inheritsCheckBox.getValue()) {
           VerticalPanel vp = new VerticalPanel();
           vp.add(new Label(Messages.getString("permissionsWillBeLostQuestion"))); //$NON-NLS-1$
-          final PromptDialogBox permissionsOverwriteConfirm = new PromptDialogBox(Messages.getString("permissionsWillBeLostConfirmMessage"), Messages.getString("yes"), Messages.getString("no"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+          final PromptDialogBox permissionsOverwriteConfirm = new PromptDialogBox(Messages.getString("permissionsWillBeLostConfirmMessage"), Messages.getString("ok"), Messages.getString("cancel"), false, true, vp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   
           final IDialogCallback callback = new IDialogCallback() {
   
