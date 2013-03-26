@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.quartz.Trigger;
 
 /**
@@ -40,6 +41,11 @@ public class TriggerProxy implements Serializable {
 
   public Trigger getTrigger() {
     return trigger;
+  }
+  
+  @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+  public void setTrigger(Trigger trigger) {
+    this.trigger = trigger;
   }
 
 }
