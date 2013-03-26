@@ -142,6 +142,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
       try {
         builder.sendRequest("" + solutionTree.isShowHiddenFiles(), EmptyRequestCallback.getInstance());
+        RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(true,null, null, solutionTree.isShowHiddenFiles());
       } catch (RequestException e) {
         // showError(e);
       }

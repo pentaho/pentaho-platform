@@ -147,7 +147,12 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       description = repositoryFile.getTitle();
     }
     fileLabel.setTitle(description);
-    setStyleName("fileLabel"); //$NON-NLS-1$
+    if(repositoryFile.isHidden()) {
+      setStyleName("hiddenFileLabel"); //$NON-NLS-1$
+    } else {
+      setStyleName("fileLabel"); //$NON-NLS-1$  
+    }
+    
     setCellPadding(0);
     setCellSpacing(0);
     ElementUtils.preventTextSelection(fileLabel.getElement());
@@ -181,7 +186,11 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       if (this.getStyleName().equalsIgnoreCase("fileLabelCut")) {
         this.setStyleName("fileLabelCutSelected");
       } else {
-        this.setStyleName("fileLabelSelected"); // Toggle this files style to selected //$NON-NLS-1$
+        if(repositoryFile.isHidden()) {
+          this.setStyleName("hiddenFileLabelSelected"); //$NON-NLS-1$
+        } else {
+          this.setStyleName("fileLabelSelected"); //$NON-NLS-1$  
+        }
       }
       filesListPanel.getSelectedFileItems().add(this); // and add it to the list of selected files.
     }
@@ -194,7 +203,11 @@ public class FileItem extends FlexTable implements HasAllMouseHandlers, IFileSum
       if (this.getStyleName().equalsIgnoreCase("fileLabelCutSelected")) {
         this.setStyleName("fileLabelCut");
       } else {
-        this.setStyleName("fileLabel"); // Toggle this files style to unselected //$NON-NLS-1$
+        if(repositoryFile.isHidden()) {
+          this.setStyleName("hiddenFileLabel"); //$NON-NLS-1$
+        } else {
+          this.setStyleName("fileLabel"); //$NON-NLS-1$  
+        }        
       }
       filesListPanel.getSelectedFileItems().remove(this); // Remove it from the selected list
     }
