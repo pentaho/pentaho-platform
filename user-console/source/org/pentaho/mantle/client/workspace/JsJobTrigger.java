@@ -409,13 +409,14 @@ public class JsJobTrigger extends JavaScriptObject {
     if (scheduleType == ScheduleType.DAILY) {
       intervalSeconds = 86400;
       intervalUnits = timeUnitText(intervalSeconds, "day");
-      DateTimeFormat timeFormat = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM);
+      //DateTimeFormat timeFormat = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM);
       if (getRepeatInterval() == intervalSeconds) {
         intervalUnits = Messages.getString("dayAtLowercase");
-      } else {
-        intervalUnits += " " + Messages.getString("at");
       }
-      intervalUnits += " " + timeFormat.format(getStartTime());
+      //else {
+      //  intervalUnits += " " + Messages.getString("at");
+      //}
+      //intervalUnits += " " + timeFormat.format(getStartTime());
     } else if (scheduleType == ScheduleType.HOURS) {
       intervalSeconds = 3600;
       intervalUnits = timeUnitText(intervalSeconds, "hour");

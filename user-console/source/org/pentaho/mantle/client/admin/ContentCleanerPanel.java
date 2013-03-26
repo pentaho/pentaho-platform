@@ -19,6 +19,7 @@ package org.pentaho.mantle.client.admin;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.NewScheduleDialog;
 import org.pentaho.mantle.client.workspace.JsJob;
 import org.pentaho.mantle.client.workspace.JsJobParam;
@@ -41,6 +42,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CaptionPanel;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
@@ -110,42 +112,43 @@ public class ContentCleanerPanel extends HorizontalPanel implements ISysAdminPan
           });
 
           VerticalPanel content = new VerticalPanel();
-          CaptionPanel nowPanel = new CaptionPanel("Now");
+          CaptionPanel nowPanel = new CaptionPanel(Messages.getString("deleteGeneratedFilesNow"));
+          VerticalPanel nowLabelPanelWrapper = new VerticalPanel();
           HorizontalPanel nowLabelPanel = new HorizontalPanel();
-          nowLabelPanel.add(new Label("Delete generated content older than"));
+          nowLabelPanel.add(new Label(Messages.getString("deleteGeneratedFilesOlderThan")));
           nowLabelPanel.add(nowTextBox);
           nowTextBox.setText("180");
-          nowLabelPanel.add(new Label("days"));
-          Button deleteNowButton = new Button("Delete Now");
+          nowLabelPanel.add(new Label(Messages.getString("days")));
+          Button deleteNowButton = new Button(Messages.getString("deleteNow"));
           deleteNowButton.setStylePrimaryName("pentaho-button");
           deleteNowButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
               deleteContentNow(Long.parseLong(nowTextBox.getValue()) * 86400L);
             }
           });
-          nowLabelPanel.add(deleteNowButton);
-          nowPanel.setContentWidget(nowLabelPanel);
+          nowLabelPanelWrapper.add(nowLabelPanel);
+          nowLabelPanelWrapper.add(deleteNowButton);
+          nowPanel.setContentWidget(nowLabelPanelWrapper);
           content.add(nowPanel);
 
           // scheduled
-          CaptionPanel scheduledPanelWrapper = new CaptionPanel("Scheduled");
+          CaptionPanel scheduledPanelWrapper = new CaptionPanel(Messages.getString("scheduleDeletionOfGeneratedFiles"));
           VerticalPanel scheduledPanel = new VerticalPanel();
 
           if (!fakeJob) {
             String desc = jsJob.getJobTrigger().getDescription();
             Label descLabel = new Label(desc);
             scheduledPanel.add(descLabel);
+          } else {
+            Label descLabel = new Label(Messages.getString("generatedFilesAreNotScheduledToBeDeleted"));
+            scheduledPanel.add(descLabel);
           }
 
-          HorizontalPanel scheduleLabelPanel = new HorizontalPanel();
-          scheduleLabelPanel.add(new Label("Delete generated content older than"));
-          scheduleLabelPanel.add(scheduleTextBox);
-          scheduleLabelPanel.add(new Label("days"));
-          Button editScheduleButton = new Button("Edit Recurrence");
+          Button editScheduleButton = new Button(Messages.getString("edit"));
           if (fakeJob) {
-            editScheduleButton.setText("Create");
+            editScheduleButton.setText(Messages.getString("scheduleDeletion"));
           }
-          Button deleteScheduleButton = new Button("Delete Recurrence");
+          Button deleteScheduleButton = new Button(Messages.getString("cancelSchedule"));
           deleteScheduleButton.setStylePrimaryName("pentaho-button");
           deleteScheduleButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
@@ -163,11 +166,16 @@ public class ContentCleanerPanel extends HorizontalPanel implements ISysAdminPan
                 public void cancelPressed() {
                 }
               };
-              NewScheduleDialog editSchedule = new NewScheduleDialog(jsJob, callback, false, false);
+              
+              HorizontalPanel scheduleLabelPanel = new HorizontalPanel();
+              scheduleLabelPanel.add(new Label(Messages.getString("deleteGeneratedFilesOlderThan"), false));
+              scheduleLabelPanel.add(scheduleTextBox);
+              scheduleLabelPanel.add(new Label(Messages.getString("daysUsingTheFollowingRules"), false));
+              NewScheduleDialog editSchedule = new NewScheduleDialog(jsJob, callback, false, false, false);
+              editSchedule.addCustomPanel(scheduleLabelPanel, DockPanel.NORTH);
               editSchedule.center();
             }
           });
-          scheduledPanel.add(scheduleLabelPanel);
           HorizontalPanel scheduleButtonPanel = new HorizontalPanel();
           scheduleButtonPanel.add(editScheduleButton);
           if (!fakeJob) {

@@ -747,7 +747,7 @@ public class SchedulesPanel extends SimplePanel {
                               public void onResponseReceived(Request request, Response response) {
                                 if (response.getStatusCode() == Response.SC_OK) {
                                   final boolean hasParams = Boolean.parseBoolean(response.getText());
-                                  final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, hasParams, isEmailConfValid);
+                                  final NewScheduleDialog schedDialog = new NewScheduleDialog(jsJob, scheduleDialogCallback, hasParams, true, isEmailConfValid);
                                   schedDialog.center();
                                 }
                               }

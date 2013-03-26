@@ -22,9 +22,6 @@ package org.pentaho.mantle.client.solutionbrowser.scheduling;
 import java.util.Date;
 import java.util.List;
 
-import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.DailyRecurrenceEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.MonthlyRecurrenceEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.WeeklyRecurrenceEditor;
@@ -55,6 +52,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -72,6 +72,8 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author wseyler
@@ -95,23 +97,23 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   boolean isEmailConfValid = false;
   private ScheduleEditor scheduleEditor;
 
-  public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
+  public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid, boolean showScheduleName) {
     super(ScheduleDialogType.SCHEDULER, Messages.getString("editSchedule"), null, false, true); //$NON-NLS-1$
     setCallback(callback);
     this.editJob = jsJob;
-    constructDialog(jsJob.getFullResourceName(), hasParams, isEmailConfValid, jsJob);
+    constructDialog(jsJob.getFullResourceName(), hasParams, isEmailConfValid, showScheduleName, jsJob);
   }
 
   public NewScheduleDialog(String filePath, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
     super(ScheduleDialogType.SCHEDULER, Messages.getString("newSchedule"), null, false, true); //$NON-NLS-1$
     setCallback(callback);
-    constructDialog(filePath, hasParams, isEmailConfValid, null);
+    constructDialog(filePath, hasParams, isEmailConfValid, true, null);
   }
 
   public NewScheduleDialog(ScheduleDialogType type, String title, String filePath, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
     super(type, title, null, false, true);
     setCallback(callback);
-    constructDialog(filePath, hasParams, isEmailConfValid, null);
+    constructDialog(filePath, hasParams, isEmailConfValid, true, null);
   }
 
   public boolean onKeyDownPreview(char key, int modifiers) {
@@ -121,11 +123,15 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return true;
   }
 
-  private void constructDialog(String filePath, boolean hasParams, boolean isEmailConfValid, JsJob jsJob) {
+  public void addCustomPanel(Widget w, DockPanel.DockLayoutConstant position) {
+    scheduleEditorWizardPanel.add(w, position);
+  }
+  
+  private void constructDialog(String filePath, boolean hasParams, boolean isEmailConfValid, boolean showScheduleName, JsJob jsJob) {
     this.hasParams = hasParams;
     this.filePath = filePath;
     this.isEmailConfValid = isEmailConfValid;
-    scheduleEditorWizardPanel = new ScheduleEditorWizardPanel(getDialogType());
+    scheduleEditorWizardPanel = new ScheduleEditorWizardPanel(getDialogType(), showScheduleName);
     scheduleEditor = scheduleEditorWizardPanel.getScheduleEditor();
     scheduleEditor.setBlockoutButtonHandler(new ClickHandler() {
       @Override
