@@ -17,10 +17,7 @@
  */
 package org.pentaho.mantle.client.ui.xul;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.pentaho.gwt.widgets.client.utils.i18n.IResourceBundleLoadCallback;
 import org.pentaho.gwt.widgets.client.utils.i18n.ResourceBundle;
@@ -261,7 +258,9 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
               ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
               for (int i = 0; i < jsoverlays.length(); i++) {
                 JsXulOverlay o = jsoverlays.get(i);
-                MantleXulOverlay overlay = new MantleXulOverlay(o.getId(), o.getOverlayUri(), o.getSource(), o.getResourceBundleUri());
+                MantleXulOverlay overlay;
+                  overlay = new MantleXulOverlay(o.getId(), o.getOverlayUri(), o.getSource(),
+                      o.getResourceBundleUri(), Integer.parseInt(o.getPriority()));
                 overlays.add(overlay);
               }
 
@@ -279,7 +278,36 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   public void overlayLoaded() {
   }
 
-  public void addOverlays(List<XulOverlay> overlays) {
+  /**
+   * Class to compare Overlays using their priority attribute
+   */
+  private class OverlayPriority implements Comparator<XulOverlay> {
+
+
+    @Override
+    public int compare(XulOverlay o1, XulOverlay o2) {
+      int value=0;
+      if(o1!=null && o2!=null){
+        if(o1.getPriority() > o2.getPriority()) {
+          value=1;
+        }
+        else if(o1.getPriority() < o2.getPriority()) {
+          value=-1;
+        }
+      }
+      else if(o1==null && o2!=null){
+        value = -1;
+      }
+      else if(o2==null && o1!=null){
+        value = 1;
+      }
+      return value;
+    }
+  }
+
+  public void addOverlays(ArrayList<XulOverlay> overlays) {
+
+    Collections.sort(overlays, new OverlayPriority());
     this.overlays.addAll(overlays);
     // all overlays are added, however, only startup/sticky are applied immediately "applyOnStart"
     for (final XulOverlay overlay : overlays) {
