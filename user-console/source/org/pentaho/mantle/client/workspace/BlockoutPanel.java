@@ -25,6 +25,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -43,174 +44,181 @@ import static org.pentaho.mantle.client.workspace.WorkspacePanel.CellTableResour
 import static org.pentaho.mantle.client.workspace.WorkspacePanel.PAGE_SIZE;
 
 public class BlockoutPanel extends SimplePanel {
-    private CellTable<JsBlock> table =
-        new CellTable<JsBlock>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
-    private ListDataProvider<JsBlock> dataProvider = new ListDataProvider<JsBlock>();
-    private SimplePager pager;
-    private final VerticalPanel widgets = new VerticalPanel();
-    private Button blockoutButton;
-    private IDialogCallback blockoutDialogCallback = new IDialogCallback() {
-        public void okPressed() {
-        }
-
-        public void cancelPressed() {
-        }
-    };
-    private Toolbar tableControls;
-    private VerticalPanel tablePanel;
-
-    public BlockoutPanel(final boolean isAdmin) {
-        createUI(isAdmin);
-        refresh();
+  private CellTable<JsBlock> table =
+    new CellTable<JsBlock>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
+  private ListDataProvider<JsBlock> dataProvider = new ListDataProvider<JsBlock>();
+  private SimplePager pager;
+  private final VerticalPanel widgets = new VerticalPanel();
+  private Button blockoutButton;
+  private IDialogCallback blockoutDialogCallback = new IDialogCallback() {
+    public void okPressed() {
     }
 
-    @SuppressWarnings("EmptyCatchBlock")
-    private void createUI(final boolean isAdmin) {
-        widgets.setWidth("100%");
-        table.getElement().setId("schedule-table");
-
-        table.setSelectionModel(new MultiSelectionModel<JsBlock>());
-        Label noDataLabel = new Label(Messages.getString("noBlockouts"));
-        noDataLabel.setStyleName("noDataForScheduleTable");
-        table.setEmptyTableWidget(noDataLabel);
-        TextColumn<JsBlock> startColumn = new TextColumn<JsBlock>() {
-            public String getValue(JsBlock block) {
-                try {
-                    return block.getStartTime().toString();
-                } catch (Throwable t) {
-                }
-                return "-";
-            }
-        };
-        table.addColumn(startColumn, "Starts");  //todo:resource
-        table.addColumnStyleName(0, "backgroundContentHeaderTableCell");
-        TextColumn<JsBlock> endColumn = new TextColumn<JsBlock>() {
-            public String getValue(JsBlock block) {
-                try {
-                    long l = block.getStartTime().getTime() + block.getBlockDuration();
-                    Date endDate = new Date(l);
-                    return endDate.toString();
-                } catch (Throwable t) {
-                }
-                return "-";
-            }
-        };
-        table.addColumn(endColumn, "Ends");  //todo: resource
-        table.addColumnStyleName(1, "backgroundContentHeaderTableCell");
-
-        TextColumn<JsBlock> repeatColumn = new TextColumn<JsBlock>() {
-            public String getValue(JsBlock block) {
-                try {
-                    return Integer.toString(block.getRepeatCount());
-                } catch (Throwable t) {
-                }
-                return "-";
-            }
-        };
-        table.addColumn(repeatColumn, "Repeats");//todo: resource
-        table.addColumnStyleName(2, "backgroundContentHeaderTableCell");
-        Toolbar bar = new Toolbar();
-        bar.addSpacer(10);
-        bar.add(new Label("Blockout Times - All schedules will be blocked out during the following times:"));      //todo: resource
-
-        bar.setWidth("100%");
-        widgets.add(bar);
-        blockoutButton = new Button("Create Blockout Time");   //todo: resource
-        tableControls = new Toolbar();
-        tablePanel = new VerticalPanel();
-
-        if (isAdmin) {
-            blockoutButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(final ClickEvent clickEvent) {
-                    DialogBox blockoutDialog = new NewBlockoutScheduleDialog("", blockoutDialogCallback, false, true);
-                    blockoutDialog.center();
-                }
-            });
-            blockoutButton.setStyleName("pentaho-button");
-            widgets.add(blockoutButton);
-
-            tableControls.addSpacer(10);
-            tableControls.add(Toolbar.GLUE);
-            tableControls.add(new ToolbarButton(new Image(MantleImages.images.add_icon())));
-            tableControls.add(new ToolbarButton(new Image(MantleImages.images.edit16())));
-            tableControls.add(new ToolbarButton(new Image(MantleImages.images.remove16())));
-            tablePanel.add(tableControls);
-        }
-
-
-
-        dataProvider.addDataDisplay(table);
-        SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
-        pager = new SimplePager(SimplePager.TextLocation.CENTER, pagerResources, false, 0, true);
-        pager.setDisplay(table);
-        tablePanel.add(table);
-        tablePanel.add(pager);
-        widgets.add(tablePanel);
-        setWidget(widgets);
-
+    public void cancelPressed() {
     }
+  };
+  private Toolbar tableControls;
+  private VerticalPanel tablePanel;
 
-    public void refresh() {
-        String moduleBaseURL = GWT.getModuleBaseURL();
-        String moduleName = GWT.getModuleName();
-        String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-        final String url = contextURL + "api/scheduler/blockout/list"; //$NON-NLS-1$
-        RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-        executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
-        executableTypesRequestBuilder.setHeader("accept", "application/json");
+  public BlockoutPanel(final boolean isAdmin) {
+    createUI(isAdmin);
+    refresh();
+  }
+
+  @SuppressWarnings("EmptyCatchBlock")
+  private void createUI(final boolean isAdmin) {
+    widgets.setWidth("100%");
+    table.getElement().setId("schedule-table");
+
+    table.setSelectionModel(new MultiSelectionModel<JsBlock>());
+    Label noDataLabel = new Label(Messages.getString("noBlockouts"));
+    noDataLabel.setStyleName("noDataForScheduleTable");
+    table.setEmptyTableWidget(noDataLabel);
+    TextColumn<JsBlock> startColumn = new TextColumn<JsBlock>() {
+      public String getValue(JsBlock block) {
         try {
-            executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
-
-                public void onError(Request request, Throwable exception) {
-                    // showError(exception);
-                }
-
-                public void onResponseReceived(Request request, Response response) {
-                    if (response.getStatusCode() == Response.SC_OK) {
-                        if ("null".equals(response.getText())) {
-                            showData(null);
-                        } else {
-                            String json = JsonUtils.escapeJsonForEval(response.getText());
-                            JsArray<JsBlock> allBlocks = parseJson(json);
-                            showData(allBlocks);
-                        }
-                    } else {
-                        // showServerError(response);
-                    }
-                }
-            });
-        } catch (RequestException e) {
-            // showError(e);
+          return block.getStartTime().toString();
+        } catch (Throwable t) {
         }
+        return "-";
+      }
+    };
+    table.addColumn(startColumn, "Starts");  //todo:resource
+    table.addColumnStyleName(0, "backgroundContentHeaderTableCell");
+    TextColumn<JsBlock> endColumn = new TextColumn<JsBlock>() {
+      public String getValue(JsBlock block) {
+        try {
+          long l = block.getStartTime().getTime() + block.getBlockDuration();
+          Date endDate = new Date(l);
+          return endDate.toString();
+        } catch (Throwable t) {
+        }
+        return "-";
+      }
+    };
+    table.addColumn(endColumn, "Ends");  //todo: resource
+    table.addColumnStyleName(1, "backgroundContentHeaderTableCell");
+
+    TextColumn<JsBlock> repeatColumn = new TextColumn<JsBlock>() {
+      public String getValue(JsBlock block) {
+        try {
+          return block.getSimpleDescription();
+        } catch (Throwable t) {
+        }
+        return "-";
+      }
+    };
+    table.addColumn(repeatColumn, "Repeats");//todo: resource
+    table.addColumnStyleName(2, "backgroundContentHeaderTableCell");
+    Toolbar bar = new Toolbar();
+    bar.addSpacer(10);
+    bar.add(new Label("Blockout Times - All schedules will be blocked out during the following times:"));      //todo: resource
+
+    bar.setWidth("100%");
+    widgets.add(bar);
+    blockoutButton = new Button("Create Blockout Time");   //todo: resource
+    tableControls = new Toolbar();
+    tablePanel = new VerticalPanel();
+
+    if (isAdmin) {
+      final ClickHandler newBlockoutHandler = new ClickHandler() {
+        @Override
+        public void onClick(final ClickEvent clickEvent) {
+          DialogBox blockoutDialog = new NewBlockoutScheduleDialog("", blockoutDialogCallback, false, true);
+          blockoutDialog.center();
+        }
+      };
+      blockoutButton.addClickHandler(newBlockoutHandler);
+      blockoutButton.setStyleName("pentaho-button");
+      widgets.add(blockoutButton);
+
+      tableControls.addSpacer(10);
+      tableControls.add(Toolbar.GLUE);
+      ToolbarButton addButton = new ToolbarButton(new Image(MantleImages.images.add_icon()));
+      addButton.setCommand(new Command() {
+        @Override
+        public void execute() {
+          newBlockoutHandler.onClick(null);
+        }
+      });
+      tableControls.add(addButton);
+      tableControls.add(new ToolbarButton(new Image(MantleImages.images.edit16())));
+      tableControls.add(new ToolbarButton(new Image(MantleImages.images.remove16())));
+      tablePanel.add(tableControls);
     }
 
-    private void showData(final JsArray<JsBlock> allBlocks) {
-        if(allBlocks == null || allBlocks.length() == 0) {
-            table.setVisible(false);
-            tableControls.setVisible(false);
-            pager.setVisible(false);
-            blockoutButton.setVisible(true);
-        } else {
-            table.setVisible(true);
-            tableControls.setVisible(true);
-            pager.setVisible(true);
-            blockoutButton.setVisible(false);
-            List<JsBlock> filteredList = new ArrayList<JsBlock>();
-            for (int i = 0; i < allBlocks.length(); i++) {
-                filteredList.add(allBlocks.get(i));
+
+    dataProvider.addDataDisplay(table);
+    SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
+    pager = new SimplePager(SimplePager.TextLocation.CENTER, pagerResources, false, 0, true);
+    pager.setDisplay(table);
+    tablePanel.add(table);
+    tablePanel.add(pager);
+    widgets.add(tablePanel);
+    setWidget(widgets);
+
+  }
+
+  public void refresh() {
+    String moduleBaseURL = GWT.getModuleBaseURL();
+    String moduleName = GWT.getModuleName();
+    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+    final String url = contextURL + "api/scheduler/blockout/list"; //$NON-NLS-1$
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
+    executableTypesRequestBuilder.setHeader("accept", "application/json");
+    try {
+      executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+        public void onError(Request request, Throwable exception) {
+          // showError(exception);
+        }
+
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
+            if ("null".equals(response.getText())) {
+              showData(null);
+            } else {
+              String json = JsonUtils.escapeJsonForEval(response.getText());
+              JsArray<JsBlock> allBlocks = parseJson(json);
+              showData(allBlocks);
             }
-            List<JsBlock> list = dataProvider.getList();
-            list.clear();
-            list.addAll(filteredList);
-            pager.setVisible(filteredList.size() > PAGE_SIZE);
-            table.setVisible(filteredList.size() > 0);
-            table.redraw();
+          } else {
+            // showServerError(response);
+          }
         }
+      });
+    } catch (RequestException e) {
+      // showError(e);
+    }
+  }
 
+  private void showData(final JsArray<JsBlock> allBlocks) {
+    if (allBlocks == null || allBlocks.length() == 0) {
+      table.setVisible(false);
+      tableControls.setVisible(false);
+      pager.setVisible(false);
+      blockoutButton.setVisible(true);
+    } else {
+      table.setVisible(true);
+      tableControls.setVisible(true);
+      pager.setVisible(true);
+      blockoutButton.setVisible(false);
+      List<JsBlock> filteredList = new ArrayList<JsBlock>();
+      for (int i = 0; i < allBlocks.length(); i++) {
+        filteredList.add(allBlocks.get(i));
+      }
+      List<JsBlock> list = dataProvider.getList();
+      list.clear();
+      list.addAll(filteredList);
+      pager.setVisible(filteredList.size() > PAGE_SIZE);
+      table.setVisible(filteredList.size() > 0);
+      table.redraw();
     }
 
-    private native JsArray<JsBlock> parseJson(String json)
+  }
+
+  private native JsArray<JsBlock> parseJson(String json)
   /*-{
     var obj = eval('(' + json + ')');
     return obj.simpleBlockoutTrigger;
