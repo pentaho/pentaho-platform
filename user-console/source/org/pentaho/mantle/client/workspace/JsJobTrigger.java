@@ -352,40 +352,7 @@ public final native void setDayOfWeekRecurrences(JsArrayInteger days)
       trigDesc += " at " + timeFormat.format(getStartTime());
     } else if ("simpleJobTrigger".equals(getType())) {
       //if (getRepeatInterval() > 0) {
-      	String intervalUnits="";
-      	int intervalSeconds = 1;
-      	if (scheduleType == ScheduleType.DAILY ) {
-      		intervalSeconds = 86400;
-      		intervalUnits = timeUnitText(intervalSeconds, "day");
-        	DateTimeFormat timeFormat = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM);
-        	if (getRepeatInterval() == intervalSeconds) {
-        		intervalUnits = Messages.getString("dayAtLowercase");
-        	} else {
-        		intervalUnits += " " + Messages.getString("at");
-        	}
-      		intervalUnits += " " + timeFormat.format(getStartTime());
-      	} else if (scheduleType == ScheduleType.HOURS) {
-      		intervalSeconds = 3600;
-      		intervalUnits = timeUnitText(intervalSeconds, "hour");
-      	} else if (scheduleType == ScheduleType.MINUTES) {
-      		intervalSeconds = 60;
-      		intervalUnits = timeUnitText(intervalSeconds, "minute");
-      	} else if (scheduleType == ScheduleType.SECONDS) {
-      		intervalSeconds = 1;
-      		intervalUnits = timeUnitText(intervalSeconds, "second");
-      	} else if (scheduleType == ScheduleType.WEEKLY) {
-      		intervalSeconds = 604800;
-          intervalUnits = Messages.getString("weekly");
-       	}
-      	if (intervalSeconds != getRepeatInterval()) {
-      		trigDesc = Messages.getString("every") + " " + intervalUnits; 
-      	} else {
-      		trigDesc = Messages.getString("every") + " " + intervalUnits;
-      	}
-        if (getRepeatCount() > 0) {
-          trigDesc += "; " + Messages.getString("run") + " " + getRepeatCount() + " " + Messages.getString("times");
-      //  } 	
-      }
+        trigDesc = getSimpleDescription();
 
       // if (getStartTime() != null) {
       // trigDesc += " from " + getStartTime();
@@ -396,13 +363,53 @@ public final native void setDayOfWeekRecurrences(JsArrayInteger days)
     } 
     return trigDesc;
   }
-  
+
+  public final String getSimpleDescription() {
+    ScheduleType scheduleType = getSimpleScheduleType();
+    String trigDesc;
+    String intervalUnits="";
+    int intervalSeconds = 1;
+    if (scheduleType == ScheduleType.DAILY ) {
+      intervalSeconds = 86400;
+      intervalUnits = timeUnitText(intervalSeconds, "day");
+      DateTimeFormat timeFormat = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM);
+      if (getRepeatInterval() == intervalSeconds) {
+        intervalUnits = Messages.getString("dayAtLowercase");
+      } else {
+        intervalUnits += " " + Messages.getString("at");
+      }
+      intervalUnits += " " + timeFormat.format(getStartTime());
+    } else if (scheduleType == ScheduleType.HOURS) {
+      intervalSeconds = 3600;
+      intervalUnits = timeUnitText(intervalSeconds, "hour");
+    } else if (scheduleType == ScheduleType.MINUTES) {
+      intervalSeconds = 60;
+      intervalUnits = timeUnitText(intervalSeconds, "minute");
+    } else if (scheduleType == ScheduleType.SECONDS) {
+      intervalSeconds = 1;
+      intervalUnits = timeUnitText(intervalSeconds, "second");
+    } else if (scheduleType == ScheduleType.WEEKLY) {
+      intervalSeconds = 604800;
+      intervalUnits = Messages.getString("weekly");
+    }
+    if (intervalSeconds != getRepeatInterval()) {
+      trigDesc = Messages.getString("every") + " " + intervalUnits;
+    } else {
+      trigDesc = Messages.getString("every") + " " + intervalUnits;
+    }
+    if (getRepeatCount() > 0) {
+      trigDesc += "; " + Messages.getString("run") + " " + getRepeatCount() + " " + Messages.getString("times");
+      //  }
+    }
+    return trigDesc;
+  }
+
   public final String timeUnitText(int intervalSeconds, String timeUnit){
-		if (getRepeatInterval() == intervalSeconds) {
-			return Messages.getString(timeUnit);
-		} else {
-			return "" + getRepeatInterval()/intervalSeconds + " " + Messages.getString(timeUnit + "s");
-		}
+    if (getRepeatInterval() == intervalSeconds) {
+      return Messages.getString(timeUnit);
+    } else {
+      return "" + getRepeatInterval()/intervalSeconds + " " + Messages.getString(timeUnit + "s");
+    }
   }
 
   public final String oldGetScheduleType() {
@@ -469,27 +476,31 @@ public final native void setDayOfWeekRecurrences(JsArrayInteger days)
       	return ScheduleType.WEEKLY;
       }
     } else if ("simpleJobTrigger".equals(getType())) {
-    	if (getRepeatInterval() == 0) {
-    		return ScheduleType.RUN_ONCE;
-    	} else if (getRepeatInterval() % 604800 == 0){
-    		return ScheduleType.WEEKLY;
-    	} else if (getRepeatInterval() % 86400 == 0) {
-    		return ScheduleType.DAILY;
-    	} else if (getRepeatInterval() % 3600 == 0) {
-    		return ScheduleType.HOURS;
-    	} else if (getRepeatInterval() % 60 == 0) {
-    		return ScheduleType.MINUTES;
-    	} else if (getRepeatInterval() > 0) {
-    		return ScheduleType.SECONDS;
-    	} else {
-    		return ScheduleType.RUN_ONCE;
-    	}
+        return getSimpleScheduleType();
     } else {
       return ScheduleType.CRON; // cron trigger
     } 
   }
-  
-  public final boolean isWorkDaysInWeek(){
+
+  private ScheduleType getSimpleScheduleType() {
+    if (getRepeatInterval() == 0) {
+      return ScheduleType.RUN_ONCE;
+    } else if (getRepeatInterval() % 604800 == 0){
+      return ScheduleType.WEEKLY;
+    } else if (getRepeatInterval() % 86400 == 0) {
+      return ScheduleType.DAILY;
+    } else if (getRepeatInterval() % 3600 == 0) {
+      return ScheduleType.HOURS;
+    } else if (getRepeatInterval() % 60 == 0) {
+      return ScheduleType.MINUTES;
+    } else if (getRepeatInterval() > 0) {
+      return ScheduleType.SECONDS;
+    } else {
+      return ScheduleType.RUN_ONCE;
+    }
+  }
+
+    public final boolean isWorkDaysInWeek(){
     int[] daysOfWeek = getDayOfWeekRecurrences();
     if (daysOfWeek == null || daysOfWeek.length != 5) {
     	return false;
