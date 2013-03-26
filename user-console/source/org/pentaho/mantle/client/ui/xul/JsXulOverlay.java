@@ -31,6 +31,8 @@ public class JsXulOverlay extends JavaScriptObject {
   public final native String getOverlayXml() /*-{ return this.source; }-*/; //
   public final native String getResourceBundleUri() /*-{ return this.resourceBundleUri; }-*/; //
   public final native String getSource() /*-{ return this.source; }-*/; //
+  public final native String getPriority() /*-{ return this.priority; }-*/; //
+
 
   public final native static JsArray<JsXulOverlay> parseJson(String json)
   /*-{
