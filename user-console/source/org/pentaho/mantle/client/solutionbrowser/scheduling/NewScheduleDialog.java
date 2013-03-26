@@ -605,19 +605,27 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     // We want to check to see if there are any conflicts with any blockout periods
 
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/blockstatus"; //$NON-NLS-1$
-    RequestBuilder blockoutConflictRequest = new RequestBuilder(RequestBuilder.GET, url);
+    RequestBuilder blockoutConflictRequest = new RequestBuilder(RequestBuilder.POST, url);
+    blockoutConflictRequest.setHeader("accept", "application/json");
     blockoutConflictRequest.setHeader("Content-Type", "application/json");
 
     final JSONObject verifyBlockoutParams = new JSONObject();
+    verifyBlockoutParams.put("@class", new JSONString("org.quartz.SimpleTrigger"));
     verifyBlockoutParams.put("name", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
     verifyBlockoutParams.put("startTime", new JSONString(scheduleEditorWizardPanel.getStartTime())); //$NON-NLS-1$
     verifyBlockoutParams.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$                 // TODO: this is end date
-    verifyBlockoutParams.put("repeatInterval", new JSONString("86400")); //$NON-NLS-1$
-    verifyBlockoutParams.put("repeatCount", new JSONString("-1")); //$NON-NLS-1$
-    verifyBlockoutParams.put("blockDuration", new JSONString("10000")); //$NON-NLS-1$          // TODO: Need to calculate this from (endTime - startTime)
+
+    // How many times we are going to repeat this trigger (this schedule)
+    verifyBlockoutParams.put("repeatCount", new JSONNumber(-1)); //$NON-NLS-1$
+
+    int repeatInterval = trigger.getRepeatInterval();
+    verifyBlockoutParams.put("repeatInterval", new JSONNumber(repeatInterval)); //$NON-NLS-1$
+
+    final JSONObject triggerBlockoutParams = new JSONObject();
+    triggerBlockoutParams.put("trigger", verifyBlockoutParams);
 
     try {
-      blockoutConflictRequest.sendRequest(verifyBlockoutParams.toString(), new RequestCallback()
+      blockoutConflictRequest.sendRequest(triggerBlockoutParams.toString(), new RequestCallback()
       {
         public void onError(Request request, Throwable exception)
         {
