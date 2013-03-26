@@ -129,10 +129,12 @@ public class PentahoSpringBeansConfig {
       configFiles.remove(SPRING_SECURITY_DB_CONFIG_FILE);
       configFiles.remove(SPRING_SECURITY_LDAP_CONFIG_FILE);
       configFiles.remove(SPRING_SECURITY_JDBC_CONFIG_FILE);
+      configFiles.remove(SPRING_SECURITY_JCR_CONFIG_FILE);
       configFiles.remove(PENTAHO_SECURITY_MEMORY_CONFIG_FILE);
       configFiles.remove(PENTAHO_SECURITY_DB_CONFIG_FILE);
       configFiles.remove(PENTAHO_SECURITY_LDAP_CONFIG_FILE);
       configFiles.remove(PENTAHO_SECURITY_JDBC_CONFIG_FILE);
+      configFiles.remove(PENTAHO_SECURITY_JCR_CONFIG_FILE);
       switch (authenticationProvider) {
         case MEMORY_BASED_AUTHENTICATION:
           configFiles.add(SPRING_SECURITY_MEMORY_CONFIG_FILE);
@@ -147,8 +149,8 @@ public class PentahoSpringBeansConfig {
           configFiles.add(PENTAHO_SECURITY_LDAP_CONFIG_FILE);
           break;
         case JCR_BASED_AUTHENTICATION:
-            configFiles.add(SPRING_SECURITY_DB_CONFIG_FILE);
-            configFiles.add(PENTAHO_SECURITY_DB_CONFIG_FILE);
+            configFiles.add(SPRING_SECURITY_JCR_CONFIG_FILE);
+            configFiles.add(PENTAHO_SECURITY_JCR_CONFIG_FILE);
             break;
         case JDBC_BASED_AUTHENTICATION:
             configFiles.add(SPRING_SECURITY_JDBC_CONFIG_FILE);
