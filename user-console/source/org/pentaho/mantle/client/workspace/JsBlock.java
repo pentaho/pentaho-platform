@@ -5,9 +5,6 @@ public class JsBlock extends JsJobTrigger {
     protected JsBlock() {
     }
 
-    public final native int getBlockDuration() /*-{ return this.jobId; }-*/; //
+    public final native int getBlockDuration() /*-{ return this.blockDuration; }-*/; //
 
-    public final native void setBlockDuration(int duration) /*-{
-    this.blockDuration = duration;
-  }-*/;
 }
