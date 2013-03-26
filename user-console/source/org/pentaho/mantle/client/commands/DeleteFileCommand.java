@@ -65,7 +65,7 @@ public class DeleteFileCommand extends AbstractCommand {
 
         @Override
         public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
               false, false, true);
           dialogBox.center();
         }
@@ -75,7 +75,7 @@ public class DeleteFileCommand extends AbstractCommand {
           if (response.getStatusCode() == 200) {
             new RefreshRepositoryCommand().execute(false);
           } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
                 false, false, true);
             dialogBox.center();
           }
@@ -83,7 +83,7 @@ public class DeleteFileCommand extends AbstractCommand {
 
       });
     } catch (RequestException e) {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDelete"), //$NON-NLS-1$ //$NON-NLS-2$
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("couldNotDeleteFile"), //$NON-NLS-1$ //$NON-NLS-2$
           false, false, true);
       dialogBox.center();
     }
