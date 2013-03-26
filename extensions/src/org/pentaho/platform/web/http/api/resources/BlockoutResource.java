@@ -169,12 +169,13 @@ public class BlockoutResource extends AbstractJaxRSResource {
     }
   }
   
-  @GET
+  @POST
   @Path("/blockstatus")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
   public BlockStatusProxy getBlockStatus(TriggerProxy trigger) {
     try {
+      // Get blockout status
       Boolean partiallyBlocked = manager.isPartiallyBlocked(trigger.getTrigger());
       Boolean totallyBlocked = !manager.willFire(trigger.getTrigger());
       return new BlockStatusProxy(totallyBlocked, partiallyBlocked);
