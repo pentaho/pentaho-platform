@@ -22,6 +22,7 @@ package org.pentaho.mantle.client.solutionbrowser.scheduling;
 import java.util.Date;
 import java.util.List;
 
+import com.google.gwt.core.client.JsonUtils;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.DailyRecurrenceEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.MonthlyRecurrenceEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.WeeklyRecurrenceEditor;
@@ -544,7 +545,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
   }
 
-  private void promptDueToBlockoutConflicts(final boolean alwaysConflict, final boolean conflictsSometimes) {
+  private void promptDueToBlockoutConflicts(final boolean alwaysConflict, final boolean conflictsSometimes, final JSONObject schedule, final JsJobTrigger trigger) {
     StringBuffer conflictMessage = new StringBuffer();
 
     final String updateScheduleButtonText = "Update Schedule";
@@ -574,6 +575,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         public void cancelPressed() {
           // TODO: User clicked on continue, so we need to proceed adding the schedule
           System.out.println("Continue button pressed");
+          handleWizardPanels(schedule, trigger);
         }
 
         public void okPressed() {
@@ -590,12 +592,20 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   protected void verifyBlockoutConflict(final JSONObject schedule, final JsJobTrigger trigger) {
     // We want to check to see if there are any conflicts with any blockout periods
 
-    // TODO - call check for conflict API (not list)
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/list"; //$NON-NLS-1$
+    final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/blockstatus"; //$NON-NLS-1$
     RequestBuilder blockoutConflictRequest = new RequestBuilder(RequestBuilder.GET, url);
-    blockoutConflictRequest.setHeader("accept", "application/json");
+    blockoutConflictRequest.setHeader("Content-Type", "application/json");
+
+    final JSONObject verifyBlockoutParams = new JSONObject();
+    verifyBlockoutParams.put("name", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
+    verifyBlockoutParams.put("startTime", new JSONString(scheduleEditorWizardPanel.getStartTime())); //$NON-NLS-1$
+    verifyBlockoutParams.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$                 // TODO: this is end date
+    verifyBlockoutParams.put("repeatInterval", new JSONString("86400")); //$NON-NLS-1$
+    verifyBlockoutParams.put("repeatCount", new JSONString("-1")); //$NON-NLS-1$
+    verifyBlockoutParams.put("blockDuration", new JSONString("10000")); //$NON-NLS-1$          // TODO: Need to calculate this from (endTime - startTime)
+
     try {
-      blockoutConflictRequest.sendRequest(null, new RequestCallback()
+      blockoutConflictRequest.sendRequest(verifyBlockoutParams.toString(), new RequestCallback()
       {
         public void onError(Request request, Throwable exception)
         {
@@ -604,21 +614,26 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
         public void onResponseReceived(Request request, Response response)
         {
-          System.out.println("*********** Got a success: " + response.getStatusCode() + ": " + response.getStatusText());
+          System.out.println("*********** Got a response: " + response.getStatusCode() + ": " + response.getStatusText());
+          String json = JsonUtils.escapeJsonForEval(response.getText());
+          System.out.println("******* JSON: " + json);
           JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
 
           if (response.getStatusCode() == Response.SC_OK)
           {
             // There will be two booleans to indicate partial or full conflicts
             // Determine if this schedule conflicts all the time or some of the time
-            boolean conflictsSometimes = true;       // TODO: figure this out
+            boolean conflictsSometimes = false;       // TODO: figure this out
             boolean alwaysConflict = false;
 
             if (conflictsSometimes || alwaysConflict) {
-              promptDueToBlockoutConflicts(alwaysConflict, conflictsSometimes);
+              promptDueToBlockoutConflicts(alwaysConflict, conflictsSometimes, schedule, trigger);
             } else {
               // Continue with other panels in the wizard (params, email)
+              handleWizardPanels(schedule, trigger);
             }
+          } else {
+            handleWizardPanels(schedule, trigger);
           }
         }
       });
@@ -628,6 +643,94 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     super.nextClicked();
   }
 
+  private void handleWizardPanels(final JSONObject schedule, final JsJobTrigger trigger)
+  {
+    if (hasParams)
+    {
+      showScheduleParamsDialog(trigger, schedule);
+    }
+    else if (isEmailConfValid)
+    {
+      showScheduleEmailDialog(schedule);
+    }
+    else
+    {
+      // submit
+      JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
+
+      if (editJob != null)
+      {
+        JSONArray scheduleParams = new JSONArray();
+
+        for (int i = 0; i < editJob.getJobParams().length(); i++)
+        {
+          JsJobParam param = editJob.getJobParams().get(i);
+          JsArrayString paramValue = (JsArrayString) JavaScriptObject.createArray().cast();
+          paramValue.push(param.getValue());
+          JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
+          p.setName(param.getName());
+          p.setType("string");
+          p.setStringValue(paramValue);
+          scheduleParams.set(i, new JSONObject(p));
+        }
+
+        scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$
+
+        String actionClass = editJob.getJobParam("ActionAdapterQuartzJob-ActionClass");
+        if (!StringUtils.isEmpty(actionClass))
+        {
+          scheduleRequest.put("actionClass", new JSONString(actionClass));
+        }
+
+      }
+
+      RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
+      scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
+
+      try
+      {
+        scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback()
+        {
+          public void onError(Request request, Throwable exception)
+          {
+            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+            dialogBox.center();
+            setDone(false);
+          }
+
+          public void onResponseReceived(Request request, Response response)
+          {
+            if (response.getStatusCode() == 200)
+            {
+              setDone(true);
+              NewScheduleDialog.this.hide();
+              if (callback != null)
+              {
+                callback.okPressed();
+              }
+            }
+            else
+            {
+              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"),
+                                                                Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
+                                                                false, false, true);
+              dialogBox.center();
+              setDone(false);
+            }
+          }
+        });
+      }
+      catch (RequestException e)
+      {
+        MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
+                                                          false, false, true);
+        dialogBox.center();
+        setDone(false);
+      }
+
+      setDone(true);
+    }
+  }
 
   /*
    * (non-Javadoc)
@@ -644,84 +747,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       verifyBlockoutConflict(schedule, trigger);
     }
 
-    if (hasParams) {
-      showScheduleParamsDialog(trigger, schedule);
-    } else if (isEmailConfValid) {
-      showScheduleEmailDialog(schedule);
-    } else {
-      // submit
-      JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
-
-      if (editJob != null) {
-
-        JSONArray scheduleParams = new JSONArray();
-        
-        for (int i=0;i<editJob.getJobParams().length();i++) {
-          JsJobParam param = editJob.getJobParams().get(i);
-          JsArrayString paramValue = (JsArrayString) JavaScriptObject.createArray().cast();
-          paramValue.push(param.getValue());
-          JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
-          p.setName(param.getName());
-          p.setType("string");
-          p.setStringValue(paramValue);
-          scheduleParams.set(i, new JSONObject(p));
-        }
-        
-        scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$    
-        
-        String actionClass = editJob.getJobParam("ActionAdapterQuartzJob-ActionClass");
-        if (!StringUtils.isEmpty(actionClass)) {
-          scheduleRequest.put("actionClass", new JSONString(actionClass));
-        }
-        
-      }
-
-      // TODO: Needs to be a cascading callback
-      // For blockout dialog we need to add a blockout period
-      if (getDialogType() == ScheduleDialogType.BLOCKOUT) {
-        addBlockoutPeriod(schedule);
-      } else {
-        RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
-        scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
-
-        try {
-          scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
-
-            public void onError(Request request, Throwable exception) {
-              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
-              dialogBox.center();
-              setDone(false);
-            }
-
-            public void onResponseReceived(Request request, Response response) {
-              if (response.getStatusCode() == 200) {
-                setDone(true);
-                NewScheduleDialog.this.hide();
-                if (callback != null) {
-                  callback.okPressed();
-                }
-
-              } else {
-                MessageDialogBox dialogBox = new MessageDialogBox(
-                                                                         Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
-                                                                         false, false, true);
-                dialogBox.center();
-                setDone(false);
-              }
-            }
-
-          });
-        } catch (RequestException e) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
-                                                            false, false, true);
-          dialogBox.center();
-          setDone(false);
-        }
-      }
-
-      setDone(true);
-    }
-    return false;
+    return true;
   }
 
   private void showScheduleEmailDialog(final JSONObject schedule) {
