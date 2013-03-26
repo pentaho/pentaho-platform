@@ -49,12 +49,9 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.CellTable.Resources;
-import com.google.gwt.user.cellview.client.CellTable.Style;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.SimplePager;
@@ -74,11 +71,11 @@ import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 
+import static org.pentaho.mantle.client.workspace.WorkspacePanel.*;
+
 public class SchedulesPanel extends SimplePanel {
 
-  private static final int PAGE_SIZE = 25;
-
-  private ToolbarButton controlScheduleButton = new ToolbarButton(new Image(MantleImages.images.run16()));
+    private ToolbarButton controlScheduleButton = new ToolbarButton(new Image(MantleImages.images.run16()));
   private ToolbarButton editButton = new ToolbarButton(new Image(MantleImages.images.edit16()));
   private ToolbarButton triggerNowButton = new ToolbarButton(new Image(MantleImages.images.execute16()));
   private ToolbarButton scheduleRemoveButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
@@ -89,7 +86,8 @@ public class SchedulesPanel extends SimplePanel {
   private Set<JsJob> selectedJobs = null;
   private ArrayList<IJobFilter> filters = new ArrayList<IJobFilter>();
 
-  private CellTable<JsJob> table = new CellTable<JsJob>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
+  private CellTable<JsJob> table =
+      new CellTable<JsJob>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
   private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
   private SimplePager pager;
 
@@ -898,17 +896,4 @@ public class SchedulesPanel extends SimplePanel {
     return obj;
   }-*/;
 
-  public interface CellTableResources extends Resources {
-    @Override
-    public ImageResource cellTableSortAscending();
-
-    @Override
-    public ImageResource cellTableSortDescending();
-
-    /**
-     * The styles used in this widget.
-     */
-    @Source("org/pentaho/mantle/client/workspace/CellTable.css")
-    public Style cellTableStyle();
-  }
 }

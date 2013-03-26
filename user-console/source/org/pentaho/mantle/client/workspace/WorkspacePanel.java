@@ -18,13 +18,16 @@ package org.pentaho.mantle.client.workspace;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
+import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class WorkspacePanel extends VerticalPanel {
+    static final int PAGE_SIZE = 25;
     private static WorkspacePanel instance = new WorkspacePanel();
-    private final SchedulesPanel schedulesPanel;
-    private final BlockoutPanel blockoutPanel;
+    private SchedulesPanel schedulesPanel;
+    private BlockoutPanel blockoutPanel;
 
     private boolean isScheduler;
     private boolean isAdmin;
@@ -59,10 +62,13 @@ public class WorkspacePanel extends VerticalPanel {
 
                             public void onError(Request request, Throwable caught) {
                                 isScheduler = false;
+                                createUI();
+
                             }
 
                             public void onResponseReceived(Request request, Response response) {
                                 isScheduler = "true".equalsIgnoreCase(response.getText());
+                                createUI();
                             }
 
                         });
@@ -75,15 +81,33 @@ public class WorkspacePanel extends VerticalPanel {
             Window.alert(e.getMessage());
         }
 
-        schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
-        add(schedulesPanel);
-        blockoutPanel = BlockoutPanel.getInstance();
-        add(blockoutPanel);
 
     }
 
+    private void createUI() {
+        schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
+        add(schedulesPanel);
+        blockoutPanel = new BlockoutPanel(isAdmin);
+        add(blockoutPanel);
+    }
+
+
     public void refresh() {
         schedulesPanel.refresh();
-        blockoutPanel.refresh();
+//        blockoutPanel.refresh();
+    }
+
+    public interface CellTableResources extends CellTable.Resources {
+      @Override
+      public ImageResource cellTableSortAscending();
+
+      @Override
+      public ImageResource cellTableSortDescending();
+
+      /**
+       * The styles used in this widget.
+       */
+      @Source("org/pentaho/mantle/client/workspace/CellTable.css")
+      public CellTable.Style cellTableStyle();
     }
 }
