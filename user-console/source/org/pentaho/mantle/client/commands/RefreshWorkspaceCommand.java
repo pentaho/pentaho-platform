@@ -47,7 +47,7 @@ public class RefreshWorkspaceCommand extends AbstractCommand {
           GWT.runAsync(new RunAsyncCallback() {
             
             public void onSuccess() {
-              WorkspacePanel.getInstance().refresh(false);
+              WorkspacePanel.getInstance().refresh();
             }
             
             public void onFailure(Throwable reason) {
@@ -59,7 +59,7 @@ public class RefreshWorkspaceCommand extends AbstractCommand {
           GWT.runAsync(new RunAsyncCallback() {
             
             public void onSuccess() {
-              WorkspacePanel.getInstance().refresh("true".equalsIgnoreCase(response.getText()));
+              WorkspacePanel.getInstance().refresh();
             }
             
             public void onFailure(Throwable reason) {

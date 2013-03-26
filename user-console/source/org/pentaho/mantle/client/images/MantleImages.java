@@ -145,4 +145,5 @@ public interface MantleImages extends ClientBundle, Resources, HorizontalSplitPa
   ImageResource filterActive16();
   ImageResource filterRemove16();
   ImageResource execute16();
+  ImageResource add_icon();
 }
