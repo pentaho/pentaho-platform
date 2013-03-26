@@ -18,7 +18,7 @@ drop user jcr_user cascade;
 
 create user jcr_user identified by "password" default tablespace pentaho_tablespace quota unlimited on pentaho_tablespace temporary tablespace temp quota 5M on system;
 
-grant create session, create procedure, create table, create sequence to jcr_user;
+grant create session, create procedure, create table, create trigger, create sequence to jcr_user;
 
 --CREATE ADDITIONAL REPOSITORY TABLES
 
