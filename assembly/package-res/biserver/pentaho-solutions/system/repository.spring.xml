@@ -455,6 +455,11 @@
   	 <ref bean="singleTenantAnonymousUserName" />
   </util:list>
   
+  <util:list id="extraSystemAuthorities" list-class="java.util.ArrayList" value-type="java.lang.String">
+     <ref bean="singleTenantAuthenticatedAuthorityName" />
+     <ref bean="singleTenantAnonymousUserName" />
+  </util:list>
+  
   <bean id="superAdminAuthorityName" class="java.lang.String">
     <constructor-arg value="SysAdmin"/>
   </bean>

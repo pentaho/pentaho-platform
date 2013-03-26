@@ -50,7 +50,7 @@ public class UserRoleResource extends AbstractJaxRSResource {
 	  PentahoSystem.get(ITenantManager.class),
 	  PentahoSystem.get(ArrayList.class, "singleTenantSystemAuthorities", PentahoSessionHolder.getSession()),
 	  PentahoSystem.get(String.class, "singleTenantAdminAuthorityName", PentahoSessionHolder.getSession()),
-	  PentahoSystem.get(ArrayList.class, "extraRoles", PentahoSessionHolder.getSession()));
+	  PentahoSystem.get(ArrayList.class, "extraSystemAuthorities", PentahoSessionHolder.getSession()));
 	}
   public UserRoleResource(final IRoleAuthorizationPolicyRoleBindingDao roleBindingDao
       , final ITenantManager tenantMgr, final ArrayList<String> systemRoles, final String adminRole,
