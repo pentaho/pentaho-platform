@@ -274,7 +274,13 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
   public void deselect() {
     for (int i = 0; i < filesList.getRowCount(); i++) {
       FileItem item = (FileItem) filesList.getWidget(i, 0);
-      item.setStyleName("fileLabel"); //$NON-NLS-1$
+      RepositoryFile file = item.getRepositoryFile();
+      if(file.isHidden()) {
+        item.setStyleName("hiddenFileLabel");//$NON-NLS-1$ 
+      } else {
+        item.setStyleName("fileLabel");  //$NON-NLS-1$ 
+      }
+
     }
   }
 
@@ -285,7 +291,13 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
   public void setSelectedFileItems(List<FileItem> fileItems) {
     // Deselect all prior selections
     for (FileItem fileItem : selectedFileItems) {
-      fileItem.setStyleName("fileLabel");
+      RepositoryFile file = fileItem.getRepositoryFile();
+      if(file.isHidden()) {
+        fileItem.setStyleName("hiddenFileLabel");
+      } else {
+        fileItem.setStyleName("fileLabel");  
+      }
+
     }
     // clear the prior selections list
     selectedFileItems.clear();
@@ -293,7 +305,12 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
     selectedFileItems.addAll(fileItems);
     // and make sure they're selected
     for (FileItem fileItem : selectedFileItems) {
-      fileItem.setStyleName("fileLabelSelected");
+      RepositoryFile file = fileItem.getRepositoryFile();
+      if(file.isHidden()) {
+        fileItem.setStyleName("hiddenFileLabelSelected");
+      } else {
+        fileItem.setStyleName("fileLabelSelected");  
+      }
     }
   }
 
@@ -302,6 +319,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
       return;
     }
     FileItem currentItem = currentItems.get(currentItems.size()-1);
+    RepositoryFile currentRepositoryFile = currentItem.getRepositoryFile();
     int myIndex = -1;
     for (int i = 0; i < getFileCount(); i++) {
       FileItem fileItem = getFileItem(i);
@@ -310,9 +328,20 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
       }
     }
     if (myIndex >= 0 && myIndex < getFileCount() - 1) {
-      currentItem.setStyleName("fileLabel"); //$NON-NLS-1$
+      if(currentRepositoryFile.isHidden()) {
+        currentItem.setStyleName("hiddenFileLabel"); //$NON-NLS-1$
+      } else {
+        currentItem.setStyleName("fileLabel"); //$NON-NLS-1$  
+      }
+      
       FileItem nextItem = getFileItem(myIndex + 1);
-      nextItem.setStyleName("fileLabelSelected"); //$NON-NLS-1$
+      RepositoryFile nextRepositoryFile = nextItem.getRepositoryFile();
+      if(nextRepositoryFile.isHidden()) {
+        nextItem.setStyleName("hiddenFileLabelSelected"); //$NON-NLS-1$
+      } else {
+        nextItem.setStyleName("fileLabelSelected"); //$NON-NLS-1$  
+      }
+      
       List<FileItem> fileItems = new ArrayList<FileItem>();
       fileItems.add(nextItem);
       setSelectedFileItems(fileItems);
@@ -325,6 +354,7 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
       return;
     }
     FileItem currentItem = currentItems.get(0);
+    RepositoryFile currentRepositoryFile = currentItem.getRepositoryFile();
     int myIndex = -1;
     for (int i = 0; i < getFileCount(); i++) {
       FileItem fileItem = getFileItem(i);
@@ -333,9 +363,19 @@ public class FilesListPanel extends FlowPanel implements IRepositoryFileTreeList
       }
     }
     if (myIndex > 0 && myIndex < getFileCount()) {
-      currentItem.setStyleName("fileLabel"); //$NON-NLS-1$
+      if(currentRepositoryFile.isHidden()) {
+        currentItem.setStyleName("hiddenFileLabel"); //$NON-NLS-1$
+      } else {
+        currentItem.setStyleName("fileLabel"); //$NON-NLS-1$  
+      }
       FileItem previousItem = getFileItem(myIndex - 1);
-      previousItem.setStyleName("fileLabelSelected"); //$NON-NLS-1$
+      RepositoryFile previousCurrentRepositoryFile = previousItem.getRepositoryFile();
+      if(previousCurrentRepositoryFile.isHidden()) {
+        previousItem.setStyleName("hiddenFileLabelSelected"); //$NON-NLS-1$
+      } else {
+        previousItem.setStyleName("fileLabelSelected"); //$NON-NLS-1$  
+      }
+      
       List<FileItem> fileItems = new ArrayList<FileItem>();
       fileItems.add(previousItem);
       setSelectedFileItems(fileItems);
