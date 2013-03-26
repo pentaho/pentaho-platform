@@ -36,6 +36,7 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.NewBlockoutScheduleDialog;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.pentaho.mantle.client.workspace.WorkspacePanel.CellTableResources;
@@ -86,7 +87,9 @@ public class BlockoutPanel extends SimplePanel {
         TextColumn<JsBlock> endColumn = new TextColumn<JsBlock>() {
             public String getValue(JsBlock block) {
                 try {
-                    return Integer.toString(block.getBlockDuration());
+                    long l = block.getStartTime().getTime() + block.getBlockDuration();
+                    Date endDate = new Date(l);
+                    return endDate.toString();
                 } catch (Throwable t) {
                 }
                 return "-";
