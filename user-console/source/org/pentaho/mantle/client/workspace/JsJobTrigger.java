@@ -578,4 +578,5 @@ public class JsJobTrigger extends JavaScriptObject {
   }
 
   public final native Date getNextFireTime() /*-{ return this.nextFireTime; }-*/;
+  public final native Date getName() /*-{ return this.name; }-*/;
 }

@@ -40,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static org.pentaho.mantle.client.workspace.WorkspacePanel.CellTableResources;
 import static org.pentaho.mantle.client.workspace.WorkspacePanel.PAGE_SIZE;
@@ -162,8 +163,20 @@ public class BlockoutPanel extends SimplePanel {
         }
       });
       tableControls.add(addButton);
-      tableControls.add(new ToolbarButton(new Image(MantleImages.images.edit16())));
-      tableControls.add(new ToolbarButton(new Image(MantleImages.images.remove16())));
+      ToolbarButton editButton = new ToolbarButton(new Image(MantleImages.images.edit16()));
+      tableControls.add(editButton);
+      ToolbarButton removeButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
+      removeButton.setCommand(new Command() {
+        @Override
+        public void execute() {
+          Set<JsJobTrigger> selectedSet =
+            ((MultiSelectionModel<JsJobTrigger>) table.getSelectionModel()).getSelectedSet();
+          for (JsJobTrigger jsJobTrigger : selectedSet) {
+            removeBlockout(jsJobTrigger);
+          }
+        }
+      });
+      tableControls.add(removeButton);
       tablePanel.add(tableControls);
     }
 
@@ -184,35 +197,54 @@ public class BlockoutPanel extends SimplePanel {
     return simpleDateFormat.format(date);
   }
 
+  private void removeBlockout(final JsJobTrigger jsJobTrigger) {
+    makeServiceCall("delete?blockoutName=" + jsJobTrigger.getName(), RequestBuilder.DELETE, new RequestCallback() {
+
+      public void onError(Request request, Throwable exception) {
+        // todo: do something
+      }
+
+      public void onResponseReceived(Request request, Response response) {
+        if (response.getStatusCode() == Response.SC_OK) {
+          refresh();
+        } else {
+          // todo: do something
+        }
+      }
+    });
+  }
+
   public void refresh() {
+    makeServiceCall("list", RequestBuilder.GET, new RequestCallback() {
+
+      public void onError(Request request, Throwable exception) {
+        //todo: do something
+      }
+
+      public void onResponseReceived(Request request, Response response) {
+        if (response.getStatusCode() == Response.SC_OK) {
+          if ("null".equals(response.getText())) {
+            showData(null);
+          } else {
+            showData(parseJson(JsonUtils.escapeJsonForEval(response.getText())));
+          }
+        } else {
+          //todo: do something
+        }
+      }
+    });
+  }
+
+  private void makeServiceCall(final String urlSuffix, final RequestBuilder.Method httpMethod, final RequestCallback callback) {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    final String url = contextURL + "api/scheduler/blockout/list"; //$NON-NLS-1$
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+    final String url = contextURL + "api/scheduler/blockout/" + urlSuffix; //$NON-NLS-1$
+    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(httpMethod, url);
     executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     executableTypesRequestBuilder.setHeader("accept", "application/json");
     try {
-      executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
-
-        public void onError(Request request, Throwable exception) {
-          // showError(exception);
-        }
-
-        public void onResponseReceived(Request request, Response response) {
-          if (response.getStatusCode() == Response.SC_OK) {
-            if ("null".equals(response.getText())) {
-              showData(null);
-            } else {
-              String json = JsonUtils.escapeJsonForEval(response.getText());
-              JsArray<JsJobTrigger> allBlocks = parseJson(json);
-              showData(allBlocks);
-            }
-          } else {
-            // showServerError(response);
-          }
-        }
-      });
+      executableTypesRequestBuilder.sendRequest(null, callback);
     } catch (RequestException e) {
       // showError(e);
     }
