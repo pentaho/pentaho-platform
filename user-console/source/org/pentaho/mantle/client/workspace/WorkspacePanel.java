@@ -94,7 +94,7 @@ public class WorkspacePanel extends VerticalPanel {
 
     public void refresh() {
         schedulesPanel.refresh();
-//        blockoutPanel.refresh();
+        blockoutPanel.refresh();
     }
 
     public interface CellTableResources extends CellTable.Resources {

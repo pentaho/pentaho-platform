@@ -36,6 +36,7 @@ import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.NewBlockoutScheduleDialog;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -71,32 +72,29 @@ public class BlockoutPanel extends SimplePanel {
     table.getElement().setId("schedule-table");
 
     table.setSelectionModel(new MultiSelectionModel<JsJobTrigger>());
-    Label noDataLabel = new Label(Messages.getString("noBlockouts"));
-    noDataLabel.setStyleName("noDataForScheduleTable");
-    table.setEmptyTableWidget(noDataLabel);
     TextColumn<JsJobTrigger> startColumn = new TextColumn<JsJobTrigger>() {
       public String getValue(JsJobTrigger block) {
         try {
-          return block.getStartTime().toString();
+          return formatDate(block.getStartTime());
         } catch (Throwable t) {
         }
         return "-";
       }
     };
-    table.addColumn(startColumn, "Starts");  //todo:resource
+    table.addColumn(startColumn, Messages.getString("blockoutColumnStarts"));
     table.addColumnStyleName(0, "backgroundContentHeaderTableCell");
     TextColumn<JsJobTrigger> endColumn = new TextColumn<JsJobTrigger>() {
       public String getValue(JsJobTrigger block) {
         try {
           long l = block.getStartTime().getTime() + block.getBlockDuration();
           Date endDate = new Date(l);
-          return endDate.toString();
+          return formatDate(endDate);
         } catch (Throwable t) {
         }
         return "-";
       }
     };
-    table.addColumn(endColumn, "Ends");  //todo: resource
+    table.addColumn(endColumn, Messages.getString("blockoutColumnEnds"));
     table.addColumnStyleName(1, "backgroundContentHeaderTableCell");
 
     TextColumn<JsJobTrigger> repeatColumn = new TextColumn<JsJobTrigger>() {
@@ -108,15 +106,28 @@ public class BlockoutPanel extends SimplePanel {
         return "-";
       }
     };
-    table.addColumn(repeatColumn, "Repeats");//todo: resource
+    table.addColumn(repeatColumn, Messages.getString("blockoutColumnRepeats"));
     table.addColumnStyleName(2, "backgroundContentHeaderTableCell");
+
+    TextColumn<JsJobTrigger> endByColumn = new TextColumn<JsJobTrigger>() {
+      public String getValue(JsJobTrigger block) {
+        try {
+          return formatDate(block.getEndTime());
+        } catch (Throwable t) {
+        }
+        return "-";
+      }
+    };
+    table.addColumn(endByColumn, Messages.getString("blockoutColumnRepeatsEndBy"));
+    table.addColumnStyleName(3, "backgroundContentHeaderTableCell");
+
     Toolbar bar = new Toolbar();
     bar.addSpacer(10);
-    bar.add(new Label("Blockout Times - All schedules will be blocked out during the following times:"));      //todo: resource
+    bar.add(new Label(Messages.getString("blockoutHeadline")));
 
     bar.setWidth("100%");
     widgets.add(bar);
-    blockoutButton = new Button("Create Blockout Time");   //todo: resource
+    blockoutButton = new Button(Messages.getString("createBlockoutTime"));
     tableControls = new Toolbar();
     tablePanel = new VerticalPanel();
 
@@ -157,6 +168,11 @@ public class BlockoutPanel extends SimplePanel {
     widgets.add(tablePanel);
     setWidget(widgets);
 
+  }
+
+  private String formatDate(final Date date) {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd h:mm a");
+    return simpleDateFormat.format(date);
   }
 
   public void refresh() {
