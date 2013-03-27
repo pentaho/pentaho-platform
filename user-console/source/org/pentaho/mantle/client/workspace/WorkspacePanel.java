@@ -21,93 +21,104 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
+import org.pentaho.mantle.client.messages.Messages;
 
 public class WorkspacePanel extends VerticalPanel {
-    static final int PAGE_SIZE = 25;
-    private static WorkspacePanel instance = new WorkspacePanel();
-    private SchedulesPanel schedulesPanel;
-    private BlockoutPanel blockoutPanel;
+  static final int PAGE_SIZE = 25;
+  private static WorkspacePanel instance = new WorkspacePanel();
+  private SchedulesPanel schedulesPanel;
+  private BlockoutPanel blockoutPanel;
 
-    private boolean isScheduler;
-    private boolean isAdmin;
+  private boolean isScheduler;
+  private boolean isAdmin;
 
 
+  public static WorkspacePanel getInstance() {
+    return instance;
+  }
 
-    public static WorkspacePanel getInstance() {
-        return instance;
-    }
+  public WorkspacePanel() {
+    try {
+      final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
+      RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+      requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
+      requestBuilder.sendRequest(null, new RequestCallback() {
 
-    public WorkspacePanel() {
-        try {
-            final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
-            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-            requestBuilder.setHeader("accept", "text/plain");
-            requestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
-            requestBuilder.sendRequest(null, new RequestCallback() {
-
-                public void onError(Request request, Throwable caught) {
-                    isAdmin = false;
-                    isScheduler = false;
-                }
-
-                public void onResponseReceived(Request request, Response response) {
-                    isAdmin = "true".equalsIgnoreCase(response.getText());
-
-                    try {
-                        final String url2 = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule"; //$NON-NLS-1$
-                        RequestBuilder requestBuilder2 = new RequestBuilder(RequestBuilder.GET, url2);
-                        requestBuilder2.setHeader("accept", "text/plain");
-                        requestBuilder2.sendRequest(null, new RequestCallback() {
-
-                            public void onError(Request request, Throwable caught) {
-                                isScheduler = false;
-                                createUI();
-
-                            }
-
-                            public void onResponseReceived(Request request, Response response) {
-                                isScheduler = "true".equalsIgnoreCase(response.getText());
-                                createUI();
-                            }
-
-                        });
-                    } catch (RequestException e) {
-                        Window.alert(e.getMessage());
-                    }
-                }
-            });
-        } catch (RequestException e) {
-            Window.alert(e.getMessage());
+        public void onError(Request request, Throwable caught) {
+          isAdmin = false;
+          isScheduler = false;
         }
 
+        public void onResponseReceived(Request request, Response response) {
+          isAdmin = "true".equalsIgnoreCase(response.getText());
 
+          try {
+            final String url2 = GWT.getHostPageBaseURL() + "api/scheduler/canSchedule"; //$NON-NLS-1$
+            RequestBuilder requestBuilder2 = new RequestBuilder(RequestBuilder.GET, url2);
+            requestBuilder2.setHeader("accept", "text/plain");
+            requestBuilder2.sendRequest(null, new RequestCallback() {
+
+              public void onError(Request request, Throwable caught) {
+                isScheduler = false;
+                createUI();
+
+              }
+
+              public void onResponseReceived(Request request, Response response) {
+                isScheduler = "true".equalsIgnoreCase(response.getText());
+                createUI();
+              }
+
+            });
+          } catch (RequestException e) {
+            Window.alert(e.getMessage());
+          }
+        }
+      });
+    } catch (RequestException e) {
+      Window.alert(e.getMessage());
     }
 
-    private void createUI() {
-        schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
-        add(schedulesPanel);
-        blockoutPanel = new BlockoutPanel(isAdmin);
-        add(blockoutPanel);
-    }
+
+  }
+
+  private void createUI() {
+    schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
+    add(schedulesPanel);
+    setCellHeight(schedulesPanel, "50%");
+    Toolbar bar = new Toolbar();
+    bar.addSpacer(10);
+    bar.add(new Label(Messages.getString("blockoutTimes")));
+    bar.setHeight("1em");
+    add(bar);
+    setVerticalAlignment(ALIGN_TOP);
+    blockoutPanel = new BlockoutPanel(isAdmin);
+    add(blockoutPanel);
+    setCellHeight(blockoutPanel, "50%");
+    getElement().getStyle().setBackgroundColor("white");
+  }
 
 
-    public void refresh() {
-        schedulesPanel.refresh();
-        blockoutPanel.refresh();
-    }
+  public void refresh() {
+    schedulesPanel.refresh();
+    blockoutPanel.refresh();
+  }
 
-    public interface CellTableResources extends CellTable.Resources {
-      @Override
-      public ImageResource cellTableSortAscending();
+  public interface CellTableResources extends CellTable.Resources {
+    @Override
+    public ImageResource cellTableSortAscending();
 
-      @Override
-      public ImageResource cellTableSortDescending();
+    @Override
+    public ImageResource cellTableSortDescending();
 
-      /**
-       * The styles used in this widget.
-       */
-      @Source("org/pentaho/mantle/client/workspace/CellTable.css")
-      public CellTable.Style cellTableStyle();
-    }
+    /**
+     * The styles used in this widget.
+     */
+    @Source("org/pentaho/mantle/client/workspace/CellTable.css")
+    public CellTable.Style cellTableStyle();
+  }
 }

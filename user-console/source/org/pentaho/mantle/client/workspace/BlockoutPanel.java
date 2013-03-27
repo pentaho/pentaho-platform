@@ -86,9 +86,13 @@ public class BlockoutPanel extends SimplePanel {
     TextColumn<JsJobTrigger> endColumn = new TextColumn<JsJobTrigger>() {
       public String getValue(JsJobTrigger block) {
         try {
-          long l = block.getStartTime().getTime() + block.getBlockDuration();
-          Date endDate = new Date(l);
-          return formatDate(endDate);
+          Date nextFireTime = block.getNextFireTime();
+          if(nextFireTime == null) {
+            Date endDate = new Date(block.getStartTime().getTime() + block.getBlockDuration());
+            return formatDate(endDate);
+          } else {
+            return formatDate(nextFireTime);
+          }
         } catch (Throwable t) {
         }
         return "-";
