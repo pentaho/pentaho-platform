@@ -305,24 +305,26 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
     }
   }
 
-  public void addOverlays(ArrayList<XulOverlay> overlays) {
+  public void addOverlays( ArrayList<XulOverlay> overlays) {
 
     Collections.sort(overlays, new OverlayPriority());
     this.overlays.addAll(overlays);
-    // all overlays are added, however, only startup/sticky are applied immediately "applyOnStart"
-    for (final XulOverlay overlay : overlays) {
-      final boolean applyOnStart = overlay.getId().startsWith("startup") || overlay.getId().startsWith("sticky");
-      Timer loadOverlayTimer = new Timer() {
-        public void run() {
-          if (container != null) {
-            cancel();
+    // wait for container to be loaded/ready
+    Timer loadOverlayTimer = new Timer() {
+      public void run() {
+        if (container != null) {
+          cancel();
+
+          for (final XulOverlay overlay : MantleXul.this.overlays) {
+            // all overlays are added, however, only startup/sticky are applied immediately "applyOnStart"
+            final boolean applyOnStart = overlay.getId().startsWith("startup") || overlay.getId().startsWith("sticky");
             loadBundle(XMLParser.parse(overlay.getSource()), applyOnStart, overlay.getResourceBundleUri());
           }
         }
-      };
-      // wait for container to be loaded/ready
-      loadOverlayTimer.scheduleRepeating(250);
-    }
+      }
+    };
+    loadOverlayTimer.scheduleRepeating(250);
+
   }
 
   public void applyOverlays(Set<String> overlayIds) {
