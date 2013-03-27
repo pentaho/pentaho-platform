@@ -138,7 +138,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     scheduleEditor.setBlockoutButtonHandler(new ClickHandler() {
       @Override
       public void onClick(final ClickEvent clickEvent) {
-        PromptDialogBox box = new PromptDialogBox("Blockout Times","Ok",null, null, false, false, new BlockoutPanel(false));
+        PromptDialogBox box = new PromptDialogBox("Blockout Times","Close",null, null, false, true, new BlockoutPanel(false));
         box.center();
       }
     });
