@@ -22,6 +22,11 @@ package org.pentaho.mantle.client.solutionbrowser.scheduling;
 import java.util.Date;
 import java.util.List;
 
+import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Random;
+import org.pentaho.gwt.widgets.client.controls.TimePicker;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.DailyRecurrenceEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.MonthlyRecurrenceEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.WeeklyRecurrenceEditor;
@@ -52,9 +57,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -525,18 +527,40 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return jsJobTrigger;
   }
 
-  private boolean addBlockoutPeriod(final JSONObject schedule) {
+  private boolean addBlockoutPeriod(final JSONObject schedule, final JsJobTrigger trigger) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add"; //$NON-NLS-1$
     RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
     addBlockoutPeriodRequest.setHeader("accept", "application/json");
+    addBlockoutPeriodRequest.setHeader("Content-Type", "application/json");
+
+
+    Date startDate = scheduleEditorWizardPanel.getStartDate();
+    String startTime = scheduleEditorWizardPanel.getStartTime();
+
+    TimePicker recurrenceEndTime = scheduleEditorWizardPanel.getRecurrenceEndTime();
+//    Date endDateTime = null;
+//    if (recurrenceEndTime != null) {
+//      int startYear = startDate.getYear();
+//      int startMonth = startDate.getMonth();
+//      int startDay = startDate.getDate();
+//
+//      int endHour = getStartHour(recurrenceEndTime.getHour());
+//      int endMinute = getStartMin(recurrenceEndTime.getMinute());
+//      endDateTime = new Date(startYear, startMonth, startDay, endHour, endMinute);
+//    }
+
+
+    // Create a unique blockout period name
+    final String blockoutPeriodName = trigger.getScheduleType() + Random.nextDouble();
 
     final JSONObject addBlockoutParams = new JSONObject();
-    addBlockoutParams.put("name", new JSONString("TEST_BLOCKOUT")); //$NON-NLS-1$
-    addBlockoutParams.put("startTime", new JSONString("2013-03-20T00:00:00.000-04:00")); //$NON-NLS-1$
-    addBlockoutParams.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$                 // TODO: this is end date
-    addBlockoutParams.put("repeatInterval", new JSONString("86400")); //$NON-NLS-1$
-    addBlockoutParams.put("repeatCount", new JSONString("-1")); //$NON-NLS-1$
-    addBlockoutParams.put("blockDuration", new JSONString("10000")); //$NON-NLS-1$          // TODO: Need to calculate this from (endTime - startTime)
+    addBlockoutParams.put("name", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
+    addBlockoutParams.put("startTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
+    addBlockoutParams.put("endTime", trigger.getStartTime() == null ? JSONNull.getInstance() :
+                                                           new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
+    addBlockoutParams.put("repeatInterval",new JSONNumber(trigger.getRepeatInterval())); //$NON-NLS-1$
+    addBlockoutParams.put("repeatCount", new JSONNumber(-1)); //$NON-NLS-1$
+    addBlockoutParams.put("blockDuration", new JSONNumber(10000)); //$NON-NLS-1$          // TODO: Need to calculate this from (endTime - startTime)
 
     try {
       addBlockoutPeriodRequest.sendRequest(addBlockoutParams.toString(), new RequestCallback()
@@ -548,11 +572,12 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
         public void onResponseReceived(Request request, Response response)
         {
-          System.out.println("*********** Got a success: " + response.getStatusCode() + ": " + response.getStatusText());
+          System.out.println("*********** Got a response: " + response.getStatusCode() + ": " + response.getStatusText());
           JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
 
           if (response.getStatusCode() == Response.SC_OK)
           {
+            System.out.println("****** Got a valid response after adding a blockout period: " + response.getStatusCode());
           }
         }
       });
@@ -618,7 +643,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     final JSONObject verifyBlockoutParams = new JSONObject();
     verifyBlockoutParams.put("@class", new JSONString("org.quartz.SimpleTrigger"));
     verifyBlockoutParams.put("name", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
-    verifyBlockoutParams.put("startTime", new JSONString(scheduleEditorWizardPanel.getStartTime())); //$NON-NLS-1$
+    verifyBlockoutParams.put("startTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
     verifyBlockoutParams.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$                 // TODO: this is end date
 
     // How many times we are going to repeat this trigger (this schedule)
@@ -771,6 +796,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     // TODO: We need to check for a conflict first
     if (getDialogType() == ScheduleDialogType.SCHEDULER) {
       verifyBlockoutConflict(schedule, trigger);
+    } else {
+      // Need to add the blockout period
+      addBlockoutPeriod(schedule, trigger);
     }
 
     return true;
