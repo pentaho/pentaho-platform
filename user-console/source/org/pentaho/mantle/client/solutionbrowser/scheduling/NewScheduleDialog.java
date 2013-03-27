@@ -391,6 +391,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       jsJobTrigger.setType("simpleJobTrigger");
       jsJobTrigger.setRepeatInterval(0);
       jsJobTrigger.setRepeatCount(0);
+      jsJobTrigger.setBlockDuration(0);                  // TODO: Calculate this properly
       jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
     } else if ((scheduleType == ScheduleType.SECONDS) || (scheduleType == ScheduleType.MINUTES) || (scheduleType == ScheduleType.HOURS)) {
       int repeatInterval = 0;
@@ -401,6 +402,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       jsJobTrigger.setType("simpleJobTrigger");
       jsJobTrigger.setRepeatInterval(repeatInterval);
       jsJobTrigger.setRepeatCount(-1);
+      jsJobTrigger.setBlockDuration(0);                 // TODO: Calculate this properly
       jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
       if (endDate != null) {
         jsJobTrigger.setNativeEndTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate));
@@ -415,6 +417,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         jsJobTrigger.setType("simpleJobTrigger");
         jsJobTrigger.setRepeatInterval(repeatInterval);
         jsJobTrigger.setRepeatCount(-1);
+        jsJobTrigger.setBlockDuration(0);          // TODO: Calculate this properly
         jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
         if (endDate != null) {
           jsJobTrigger.setNativeEndTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate));
@@ -433,6 +436,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         hours.set(0, 0);
 
         jsJobTrigger.setType("complexJobTrigger");
+        jsJobTrigger.setBlockDuration(0);             // TODO: Calculate this properly
         jsJobTrigger.setDayOfWeekRecurrences(jsDaysOfWeek);
         jsJobTrigger.setHourRecurrences(hours);
         jsJobTrigger.setMinuteRecurrences(minutes);
@@ -458,6 +462,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       hours.set(0, 0);
 
       jsJobTrigger.setType("complexJobTrigger");
+      jsJobTrigger.setBlockDuration(0);        // TODO: Calculate this properly
       jsJobTrigger.setDayOfWeekRecurrences(jsDaysOfWeek);
       jsJobTrigger.setHourRecurrences(hours);
       jsJobTrigger.setMinuteRecurrences(minutes);
@@ -468,6 +473,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       }
     } else if ((scheduleType == ScheduleType.MONTHLY) || ((scheduleType == ScheduleType.YEARLY) && (monthOfYear != null))) {
       jsJobTrigger.setType("complexJobTrigger");
+      jsJobTrigger.setBlockDuration(0);     // TODO: Calculate this properly
+
       if (dayOfMonth != null) {
         JsArrayInteger jsDaysOfMonth = (JsArrayInteger) JavaScriptObject.createArray();
         jsDaysOfMonth.set(0, dayOfMonth);
@@ -535,19 +542,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
 
     Date startDate = scheduleEditorWizardPanel.getStartDate();
-    String startTime = scheduleEditorWizardPanel.getStartTime();
-
-    TimePicker recurrenceEndTime = scheduleEditorWizardPanel.getRecurrenceEndTime();
-//    Date endDateTime = null;
-//    if (recurrenceEndTime != null) {
-//      int startYear = startDate.getYear();
-//      int startMonth = startDate.getMonth();
-//      int startDay = startDate.getDate();
-//
-//      int endHour = getStartHour(recurrenceEndTime.getHour());
-//      int endMinute = getStartMin(recurrenceEndTime.getMinute());
-//      endDateTime = new Date(startYear, startMonth, startDay, endHour, endMinute);
-//    }
 
 
     // Create a unique blockout period name
@@ -556,8 +550,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     final JSONObject addBlockoutParams = new JSONObject();
     addBlockoutParams.put("name", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
     addBlockoutParams.put("startTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
-    addBlockoutParams.put("endTime", trigger.getStartTime() == null ? JSONNull.getInstance() :
-                                                           new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
     addBlockoutParams.put("repeatInterval",new JSONNumber(trigger.getRepeatInterval())); //$NON-NLS-1$
     addBlockoutParams.put("repeatCount", new JSONNumber(-1)); //$NON-NLS-1$
     addBlockoutParams.put("blockDuration", new JSONNumber(10000)); //$NON-NLS-1$          // TODO: Need to calculate this from (endTime - startTime)

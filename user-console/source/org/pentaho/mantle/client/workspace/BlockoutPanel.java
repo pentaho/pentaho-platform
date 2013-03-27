@@ -44,9 +44,9 @@ import static org.pentaho.mantle.client.workspace.WorkspacePanel.CellTableResour
 import static org.pentaho.mantle.client.workspace.WorkspacePanel.PAGE_SIZE;
 
 public class BlockoutPanel extends SimplePanel {
-  private CellTable<JsBlock> table =
-    new CellTable<JsBlock>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
-  private ListDataProvider<JsBlock> dataProvider = new ListDataProvider<JsBlock>();
+  private CellTable<JsJobTrigger> table =
+    new CellTable<JsJobTrigger>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
+  private ListDataProvider<JsJobTrigger> dataProvider = new ListDataProvider<JsJobTrigger>();
   private SimplePager pager;
   private final VerticalPanel widgets = new VerticalPanel();
   private Button blockoutButton;
@@ -70,12 +70,12 @@ public class BlockoutPanel extends SimplePanel {
     widgets.setWidth("100%");
     table.getElement().setId("schedule-table");
 
-    table.setSelectionModel(new MultiSelectionModel<JsBlock>());
+    table.setSelectionModel(new MultiSelectionModel<JsJobTrigger>());
     Label noDataLabel = new Label(Messages.getString("noBlockouts"));
     noDataLabel.setStyleName("noDataForScheduleTable");
     table.setEmptyTableWidget(noDataLabel);
-    TextColumn<JsBlock> startColumn = new TextColumn<JsBlock>() {
-      public String getValue(JsBlock block) {
+    TextColumn<JsJobTrigger> startColumn = new TextColumn<JsJobTrigger>() {
+      public String getValue(JsJobTrigger block) {
         try {
           return block.getStartTime().toString();
         } catch (Throwable t) {
@@ -85,8 +85,8 @@ public class BlockoutPanel extends SimplePanel {
     };
     table.addColumn(startColumn, "Starts");  //todo:resource
     table.addColumnStyleName(0, "backgroundContentHeaderTableCell");
-    TextColumn<JsBlock> endColumn = new TextColumn<JsBlock>() {
-      public String getValue(JsBlock block) {
+    TextColumn<JsJobTrigger> endColumn = new TextColumn<JsJobTrigger>() {
+      public String getValue(JsJobTrigger block) {
         try {
           long l = block.getStartTime().getTime() + block.getBlockDuration();
           Date endDate = new Date(l);
@@ -99,8 +99,8 @@ public class BlockoutPanel extends SimplePanel {
     table.addColumn(endColumn, "Ends");  //todo: resource
     table.addColumnStyleName(1, "backgroundContentHeaderTableCell");
 
-    TextColumn<JsBlock> repeatColumn = new TextColumn<JsBlock>() {
-      public String getValue(JsBlock block) {
+    TextColumn<JsJobTrigger> repeatColumn = new TextColumn<JsJobTrigger>() {
+      public String getValue(JsJobTrigger block) {
         try {
           return block.getSimpleDescription();
         } catch (Throwable t) {
@@ -180,7 +180,7 @@ public class BlockoutPanel extends SimplePanel {
               showData(null);
             } else {
               String json = JsonUtils.escapeJsonForEval(response.getText());
-              JsArray<JsBlock> allBlocks = parseJson(json);
+              JsArray<JsJobTrigger> allBlocks = parseJson(json);
               showData(allBlocks);
             }
           } else {
@@ -193,7 +193,7 @@ public class BlockoutPanel extends SimplePanel {
     }
   }
 
-  private void showData(final JsArray<JsBlock> allBlocks) {
+  private void showData(final JsArray<JsJobTrigger> allBlocks) {
     if (allBlocks == null || allBlocks.length() == 0) {
       table.setVisible(false);
       tableControls.setVisible(false);
@@ -204,11 +204,11 @@ public class BlockoutPanel extends SimplePanel {
       tableControls.setVisible(true);
       pager.setVisible(true);
       blockoutButton.setVisible(false);
-      List<JsBlock> filteredList = new ArrayList<JsBlock>();
+      List<JsJobTrigger> filteredList = new ArrayList<JsJobTrigger>();
       for (int i = 0; i < allBlocks.length(); i++) {
         filteredList.add(allBlocks.get(i));
       }
-      List<JsBlock> list = dataProvider.getList();
+      List<JsJobTrigger> list = dataProvider.getList();
       list.clear();
       list.addAll(filteredList);
       pager.setVisible(filteredList.size() > PAGE_SIZE);
@@ -218,7 +218,7 @@ public class BlockoutPanel extends SimplePanel {
 
   }
 
-  private native JsArray<JsBlock> parseJson(String json)
+  private native JsArray<JsJobTrigger> parseJson(String json)
   /*-{
     var obj = eval('(' + json + ')');
     return obj.simpleBlockoutTrigger;
