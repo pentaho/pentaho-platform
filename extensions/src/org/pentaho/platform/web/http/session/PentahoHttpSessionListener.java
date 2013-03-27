@@ -23,9 +23,10 @@
 package org.pentaho.platform.web.http.session;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
@@ -42,7 +43,7 @@ public class PentahoHttpSessionListener implements HttpSessionListener {
 
   private static final boolean debug = PentahoSystem.debug;
 
-  private static final Map<String,String[]> sessionMap = new HashMap<String,String[]>();
+  private static final Map<String,String[]> sessionMap = new ConcurrentHashMap<String,String[]>();
 
   public void sessionCreated(final HttpSessionEvent event) {
     // we can't find out what the locale of the request is so we go with the
