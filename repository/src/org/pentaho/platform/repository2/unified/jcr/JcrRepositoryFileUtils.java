@@ -295,7 +295,9 @@ public class JcrRepositoryFileUtils {
       PropertyIterator propertyIterator = node.getProperties();
       while(propertyIterator.hasNext()){
         Property property = propertyIterator.nextProperty();
-        properties.put(property.getName(), property.getValue().getString());
+        if (!property.isMultiple()) {
+           properties.put(property.getName(), property.getValue().getString());
+        }
       }
       localePropertiesMap.put(locale, properties);
     }
