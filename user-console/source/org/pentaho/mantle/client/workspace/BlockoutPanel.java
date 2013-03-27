@@ -75,7 +75,12 @@ public class BlockoutPanel extends SimplePanel {
     TextColumn<JsJobTrigger> startColumn = new TextColumn<JsJobTrigger>() {
       public String getValue(JsJobTrigger block) {
         try {
-          return formatDate(block.getStartTime());
+          Date nextFireTime = block.getNextFireTime();
+          if(nextFireTime == null) {
+            return formatDate(block.getStartTime());
+          } else {
+            return formatDate(nextFireTime);
+          }
         } catch (Throwable t) {
         }
         return "-";
@@ -91,7 +96,7 @@ public class BlockoutPanel extends SimplePanel {
             Date endDate = new Date(block.getStartTime().getTime() + block.getBlockDuration());
             return formatDate(endDate);
           } else {
-            return formatDate(nextFireTime);
+            return formatDate(new Date(nextFireTime.getTime() + block.getBlockDuration()));
           }
         } catch (Throwable t) {
         }
@@ -172,11 +177,6 @@ public class BlockoutPanel extends SimplePanel {
     widgets.add(tablePanel);
     setWidget(widgets);
 
-  }
-
-  private String formatDate(final Date date) {
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd h:mm a");
-    return simpleDateFormat.format(date);
   }
 
   private String formatDate(final Date date) {
