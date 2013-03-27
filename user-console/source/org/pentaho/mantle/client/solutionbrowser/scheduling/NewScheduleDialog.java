@@ -57,9 +57,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -534,6 +531,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add"; //$NON-NLS-1$
     RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
     addBlockoutPeriodRequest.setHeader("accept", "application/json");
+    addBlockoutPeriodRequest.setHeader("Content-Type", "application/json");
+
 
     Date startDate = scheduleEditorWizardPanel.getStartDate();
     String startTime = scheduleEditorWizardPanel.getStartTime();
