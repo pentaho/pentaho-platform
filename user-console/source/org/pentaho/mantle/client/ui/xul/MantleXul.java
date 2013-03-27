@@ -369,6 +369,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
 
     Collections.sort(overlays, new OverlayPriority());
     this.overlays.addAll(overlays);
+
+    if(this.overlays.size()>0) {
     // wait for container to be loaded/ready
     Timer loadOverlayTimer = new Timer() {
       public void run() {
@@ -379,7 +381,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
       }
     };
     loadOverlayTimer.scheduleRepeating(250);
-
+    }
   }
 
   public void applyOverlays(Set<String> overlayIds) {
