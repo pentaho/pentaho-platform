@@ -145,13 +145,11 @@ public class PluginResource {
       return Response.status(Status.NOT_FOUND).build();
     }
 
-    IPluginResourceLoader resLoader = PentahoSystem.get(IPluginResourceLoader.class);
-    ClassLoader loader = pluginManager.getClassLoader(pluginId);
-    if (!pluginManager.isPublic(pluginId, path) && resLoader.getResourceAsStream(loader, path) != null) {
+    if (!pluginManager.isPublic(pluginId, path)) {
       return Response.status(Status.FORBIDDEN).build();
     }
 
-    InputStream isTmp = null;
+    InputStream isTmp;
     try {
       isTmp = getCacheBackedStream(pluginId, path, useCache);
     } catch (FileNotFoundException e) {
