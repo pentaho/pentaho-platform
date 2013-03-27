@@ -179,6 +179,11 @@ public class BlockoutPanel extends SimplePanel {
     return simpleDateFormat.format(date);
   }
 
+  private String formatDate(final Date date) {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd h:mm a");
+    return simpleDateFormat.format(date);
+  }
+
   public void refresh() {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
