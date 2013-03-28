@@ -95,8 +95,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   boolean isEmailConfValid = false;
   private ScheduleEditor scheduleEditor;
 
-  public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid, boolean showScheduleName) {
-    super(ScheduleDialogType.SCHEDULER, Messages.getString("editSchedule"), null, false, true); //$NON-NLS-1$
+  public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid, boolean showScheduleName, final ScheduleDialogType type) {
+    super(type, Messages.getString("editSchedule"), null, false, true); //$NON-NLS-1$
     setCallback(callback);
     this.editJob = jsJob;
     constructDialog(jsJob.getFullResourceName(), hasParams, isEmailConfValid, showScheduleName, jsJob);
@@ -134,7 +134,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     scheduleEditor.setBlockoutButtonHandler(new ClickHandler() {
       @Override
       public void onClick(final ClickEvent clickEvent) {
-        PromptDialogBox box = new PromptDialogBox("Blockout Times","Close",null, null, false, true, new BlockoutPanel(false));
+        PromptDialogBox box = new PromptDialogBox("Blockout Times", "Close", null, null, false, true, new BlockoutPanel(false));
         box.center();
       }
     });

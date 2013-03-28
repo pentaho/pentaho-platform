@@ -17,6 +17,7 @@
 package org.pentaho.mantle.client.workspace;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -123,7 +124,15 @@ public class BlockoutPanel extends SimplePanel {
     editButton.setCommand(new Command() {
       @Override
       public void execute() {
-        newBlockoutHandler.onClick(null);
+        Set<JsJobTrigger> triggers = ((MultiSelectionModel<JsJobTrigger>) table.getSelectionModel()).getSelectedSet();
+
+        JsJob jsJob = (JsJob) JavaScriptObject.createObject().cast();
+        JsJobTrigger trigger = triggers.iterator().next();
+        jsJob.setJobTrigger(trigger);
+        jsJob.setJobName(trigger.getName());
+
+        DialogBox blockoutDialog = new NewBlockoutScheduleDialog(jsJob, emptyCallback, false, true, false);
+        blockoutDialog.center();
       }
     });
     tableControls.add(editButton);
@@ -290,7 +299,9 @@ public class BlockoutPanel extends SimplePanel {
       blockoutButton.setVisible(false);
       List<JsJobTrigger> filteredList = new ArrayList<JsJobTrigger>();
       for (int i = 0; i < allBlocks.length(); i++) {
-        filteredList.add(allBlocks.get(i));
+        JsJobTrigger trigger = allBlocks.get(i);
+        trigger.setType("simpleJobTrigger");
+        filteredList.add(trigger);
       }
       List<JsJobTrigger> list = dataProvider.getList();
       list.clear();
