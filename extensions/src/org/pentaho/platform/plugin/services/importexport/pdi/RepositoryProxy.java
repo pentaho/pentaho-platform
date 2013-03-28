@@ -37,6 +37,7 @@ import org.pentaho.di.repository.UserInfo;
 import org.pentaho.di.shared.SharedObjects;
 import org.pentaho.di.trans.DataServiceMeta;
 import org.pentaho.di.trans.TransMeta;
+import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNode;
 import org.pentaho.platform.api.repository2.unified.data.node.DataNodeRef;
 import org.pentaho.platform.api.repository2.unified.data.node.DataProperty;
@@ -210,7 +211,8 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     throw new UnsupportedOperationException();
   }
 
-  public List<RepositoryElementMetaInterface> getJobObjects(ObjectId idDirectory, boolean includeDeleted) throws KettleException {
+  public List<RepositoryElementMetaInterface> getJobObjects(ObjectId idDirectory, boolean includeDeleted)
+      throws KettleException {
     throw new UnsupportedOperationException();
   }
 
@@ -286,9 +288,9 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     if (node.hasProperty(code)) {
       DataProperty property = node.getProperty(code);
       if (property.getType().equals(DataPropertyType.LONG)) {
-    	  return property.getLong();
+        return property.getLong();
       } else {
-    	  return 0;
+        return 0;
       }
     } else {
       return 0;
@@ -320,7 +322,8 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     }
   }
 
-  public ObjectId getTransformationID(String name, RepositoryDirectoryInterface repositoryDirectory) throws KettleException {
+  public ObjectId getTransformationID(String name, RepositoryDirectoryInterface repositoryDirectory)
+      throws KettleException {
     throw new UnsupportedOperationException();
   }
 
@@ -393,10 +396,10 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     return null;
   }
 
-  public DatabaseMeta loadDatabaseMetaFromJobEntryAttribute(ObjectId idJobentry, String nameCode, int nr, 
-       String code, List<DatabaseMeta> databases) throws KettleException {
-     
-     return loadDatabaseMetaFromJobEntryAttribute(idJobentry, nameCode , code + PROP_CODE_NR_SEPARATOR + nr, databases);
+  public DatabaseMeta loadDatabaseMetaFromJobEntryAttribute(ObjectId idJobentry, String nameCode, int nr, String code,
+      List<DatabaseMeta> databases) throws KettleException {
+
+    return loadDatabaseMetaFromJobEntryAttribute(idJobentry, nameCode, code + PROP_CODE_NR_SEPARATOR + nr, databases);
   }
 
   public DatabaseMeta loadDatabaseMetaFromStepAttribute(ObjectId idStep, String code, List<DatabaseMeta> databases)
@@ -408,8 +411,8 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     return null;
   }
 
-  public JobMeta loadJob(String jobname, RepositoryDirectoryInterface repdir, ProgressMonitorListener monitor, String revision)
-      throws KettleException {
+  public JobMeta loadJob(String jobname, RepositoryDirectoryInterface repdir, ProgressMonitorListener monitor,
+      String revision) throws KettleException {
     throw new UnsupportedOperationException();
   }
 
@@ -433,8 +436,8 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     throw new UnsupportedOperationException();
   }
 
-  public TransMeta loadTransformation(String transname, RepositoryDirectoryInterface repdir, ProgressMonitorListener monitor,
-      boolean setInternalVariables, String revision) throws KettleException {
+  public TransMeta loadTransformation(String transname, RepositoryDirectoryInterface repdir,
+      ProgressMonitorListener monitor, boolean setInternalVariables, String revision) throws KettleException {
     throw new UnsupportedOperationException();
   }
 
@@ -445,7 +448,7 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
   public void clearSharedObjectCache() {
     // no op
   }
-  
+
   public SharedObjects readJobMetaSharedObjects(JobMeta jobMeta) throws KettleException {
     throw new UnsupportedOperationException();
   }
@@ -454,7 +457,8 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     throw new UnsupportedOperationException();
   }
 
-  public ObjectId renameJob(ObjectId idJob, RepositoryDirectoryInterface newDirectory, String newName) throws KettleException {
+  public ObjectId renameJob(ObjectId idJob, RepositoryDirectoryInterface newDirectory, String newName)
+      throws KettleException {
     throw new UnsupportedOperationException();
   }
 
@@ -463,8 +467,8 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     throw new UnsupportedOperationException();
   }
 
-  public ObjectId renameTransformation(ObjectId idTransformation, RepositoryDirectoryInterface newDirectory, String newName)
-      throws KettleException {
+  public ObjectId renameTransformation(ObjectId idTransformation, RepositoryDirectoryInterface newDirectory,
+      String newName) throws KettleException {
     throw new UnsupportedOperationException();
   }
 
@@ -472,9 +476,9 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
       throws KettleException {
     throw new UnsupportedOperationException();
   }
-  
-  public void save(RepositoryElementInterface repositoryElement, String versionComment, ProgressMonitorListener monitor, boolean overwrite)
-  throws KettleException {
+
+  public void save(RepositoryElementInterface repositoryElement, String versionComment,
+      ProgressMonitorListener monitor, boolean overwrite) throws KettleException {
     throw new UnsupportedOperationException();
   }
 
@@ -492,13 +496,13 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     }
   }
 
-  public void saveDatabaseMetaJobEntryAttribute(ObjectId idJob, ObjectId idJobentry, int nr, String nameCode, String code,
-        DatabaseMeta database) throws KettleException {
-      if (database != null && database.getObjectId() != null) {
-        DataNodeRef ref = new DataNodeRef(database.getObjectId().getId());
-        node.setProperty(code + PROP_CODE_NR_SEPARATOR + nr, ref);
-      }
+  public void saveDatabaseMetaJobEntryAttribute(ObjectId idJob, ObjectId idJobentry, int nr, String nameCode,
+      String code, DatabaseMeta database) throws KettleException {
+    if (database != null && database.getObjectId() != null) {
+      DataNodeRef ref = new DataNodeRef(database.getObjectId().getId());
+      node.setProperty(code + PROP_CODE_NR_SEPARATOR + nr, ref);
     }
+  }
 
   public void saveDatabaseMetaStepAttribute(ObjectId idTransformation, ObjectId idStep, String code,
       DatabaseMeta database) throws KettleException {
@@ -598,9 +602,8 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     throw new UnsupportedOperationException();
   }
 
-
-  public List<RepositoryElementMetaInterface> getJobAndTransformationObjects(ObjectId idDirectory, boolean includeDeleted)
-      throws KettleException {
+  public List<RepositoryElementMetaInterface> getJobAndTransformationObjects(ObjectId idDirectory,
+      boolean includeDeleted) throws KettleException {
     throw new UnsupportedOperationException();
   }
 
@@ -627,7 +630,7 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
   public boolean canUnlockFileById(ObjectId id) throws KettleException {
     throw new UnsupportedOperationException();
   }
-  
+
   public RepositoryObject getObjectInformation(ObjectId objectId, RepositoryObjectType objectType)
       throws KettleException {
     throw new UnsupportedOperationException();
@@ -638,7 +641,7 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
   }
 
   public TransMeta loadTransformation(ObjectId idTransformation, String versionLabel) throws KettleException {
-    throw new UnsupportedOperationException();  
+    throw new UnsupportedOperationException();
   }
 
   public String getConnectMessage() {
@@ -662,9 +665,9 @@ public class RepositoryProxy implements Repository, java.io.Serializable {
     throw new UnsupportedOperationException();
   }
 
-@Override
-public List<DataServiceMeta> listDataServices() throws KettleException {
-	// TODO Auto-generated method stub
-	return null;
-}
+  @Override
+  public IMetaStore getMetaStore() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }
