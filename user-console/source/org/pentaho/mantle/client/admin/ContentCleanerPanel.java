@@ -19,6 +19,7 @@ package org.pentaho.mantle.client.admin;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.NewScheduleDialog;
 import org.pentaho.mantle.client.workspace.JsJob;
@@ -171,7 +172,7 @@ public class ContentCleanerPanel extends HorizontalPanel implements ISysAdminPan
               scheduleLabelPanel.add(new Label(Messages.getString("deleteGeneratedFilesOlderThan"), false));
               scheduleLabelPanel.add(scheduleTextBox);
               scheduleLabelPanel.add(new Label(Messages.getString("daysUsingTheFollowingRules"), false));
-              NewScheduleDialog editSchedule = new NewScheduleDialog(jsJob, callback, false, false, false);
+              NewScheduleDialog editSchedule = new NewScheduleDialog(jsJob, callback, false, false, false, AbstractWizardDialog.ScheduleDialogType.SCHEDULER);
               editSchedule.addCustomPanel(scheduleLabelPanel, DockPanel.NORTH);
               editSchedule.center();
             }
