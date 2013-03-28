@@ -25,8 +25,6 @@ import java.util.List;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Random;
-import org.pentaho.gwt.widgets.client.controls.TimePicker;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.DailyRecurrenceEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.MonthlyRecurrenceEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.WeeklyRecurrenceEditor;
@@ -46,7 +44,6 @@ import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
 import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.workspace.BlockoutPanel;
 import org.pentaho.mantle.client.workspace.JsJob;
 import org.pentaho.mantle.client.workspace.JsJobParam;
@@ -82,7 +79,6 @@ import com.google.gwt.user.client.ui.Widget;
  * 
  */
 public class NewScheduleDialog extends AbstractWizardDialog {
-  FileItem fileItem = null;
   String moduleBaseURL = GWT.getModuleBaseURL();
   String moduleName = GWT.getModuleName();
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
@@ -537,7 +533,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   private boolean addBlockoutPeriod(final JSONObject schedule, final JsJobTrigger trigger) {
     final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add"; //$NON-NLS-1$
     RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
-    addBlockoutPeriodRequest.setHeader("accept", "application/json");
+    addBlockoutPeriodRequest.setHeader("accept", "text/plain");
     addBlockoutPeriodRequest.setHeader("Content-Type", "application/json");
 
 
@@ -545,12 +541,17 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
 
     // Create a unique blockout period name
-    final String blockoutPeriodName = trigger.getScheduleType() + Random.nextDouble();
+    // TODO: put in username instead of admin
+    final String blockoutPeriodName = trigger.getScheduleType() + ":" + "admin" + ":" + startDate.getTime();
 
     final JSONObject addBlockoutParams = new JSONObject();
     addBlockoutParams.put("name", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
     addBlockoutParams.put("startTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
-    addBlockoutParams.put("repeatInterval",new JSONNumber(trigger.getRepeatInterval())); //$NON-NLS-1$
+    addBlockoutParams.put("endTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
+
+    final int repeatInterval = (trigger.getRepeatInterval() != 0) ? trigger.getRepeatInterval() : 86400;
+    addBlockoutParams.put("repeatInterval",new JSONNumber(repeatInterval)); //$NON-NLS-1$
+
     addBlockoutParams.put("repeatCount", new JSONNumber(-1)); //$NON-NLS-1$
     addBlockoutParams.put("blockDuration", new JSONNumber(10000)); //$NON-NLS-1$          // TODO: Need to calculate this from (endTime - startTime)
 
