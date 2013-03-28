@@ -29,7 +29,6 @@
 
   <!-- custom platform assembly properties -->
   <property name="package.res.dir" value="package-res"/>
-  <property name="package.res.common.dir" value="package-res-common"/>
   <property name="rdbms" value="hsqldb" description="Default database for open assembly is hsqldb" />
   <property name="stage.dir.server" value="${stage.dir}/${package.id}" />
   <property name="stage.dir.solutions" value="${stage.dir.server}/pentaho-solutions"/>
