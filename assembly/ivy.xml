@@ -25,7 +25,7 @@
 
 
     <!-- Misc -->
-    <dependency org="org.owasp" name="ESAPI" rev="2.0_rc6" transitive="false" />
+    <dependency org="org.owasp.esapi" name="esapi" rev="2.0.1" transitive="false" />
     <dependency org="org.apache.axis" name="axis" rev="1.4" />
     <dependency org="org.apache.xmlgraphics" name="batik-bridge" rev="1.7" transitive="false"/>
     <dependency org="bsf" name="bsf" rev="2.4.0" transitive="false" />   <!-- we don't want bsf's commons_logging -->
