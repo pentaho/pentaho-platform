@@ -15,7 +15,7 @@
  */
 
 
-package org.pentaho.platform.web.http.api.resources;
+package org.pentaho.platform.web.http.api.resources.proxies;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -27,6 +27,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class BlockStatusProxy {
   Boolean totallyBlocked;
   Boolean partiallyBlocked;
+  
+  public BlockStatusProxy() {
+    this(false, false);
+  }
   
   public BlockStatusProxy(Boolean totallyBlocked, Boolean partiallyBlocked) {
     super();
