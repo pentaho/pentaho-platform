@@ -36,7 +36,13 @@ import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger;
+import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
+import org.pentaho.platform.web.http.api.resources.proxies.CronTriggerProxy;
+import org.pentaho.platform.web.http.api.resources.proxies.DateIntervalTriggerProxy;
+import org.pentaho.platform.web.http.api.resources.proxies.NthIncludedDayTriggerProxy;
+import org.pentaho.platform.web.http.api.resources.proxies.SimpleTriggerProxy;
 import org.quartz.SchedulerException;
+import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 
 /**
@@ -72,10 +78,10 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @GET
   @Path("/get")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public SimpleBlockoutTrigger getBlockout(@QueryParam("blockoutName")
+  public IBlockoutTrigger getBlockout(@QueryParam("blockoutName")
   String blockoutName) {
     try {
-      return  (SimpleBlockoutTrigger) manager.getBlockout(blockoutName);
+      return  manager.getBlockout(blockoutName);
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
@@ -84,7 +90,6 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @POST
   @Path("/add")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-  @Produces({ TEXT_PLAIN })
   public Response addBlockout(SimpleBlockoutTrigger trigger) {
     try {
       manager.addBlockout(trigger);
@@ -129,9 +134,9 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Path("/willFire")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces({ TEXT_PLAIN })
-  public Response willFire(TriggerProxy trigger) {
+  public Response willFire(SimpleTriggerProxy trigger) {
     try {
-      Boolean willFire = manager.willFire(trigger.getTrigger());
+      Boolean willFire = manager.willFire(trigger);
       return Response.ok(willFire.toString()).build();
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
@@ -154,13 +159,13 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Path("/willBlock")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public TriggerProxy[] willBlock(SimpleBlockoutTrigger blockoutTrigger) {
+  public SimpleTriggerProxy[] willBlock(SimpleBlockoutTrigger blockoutTrigger) {
     try {
       List<Trigger> blockedTriggers = manager.willBlockSchedules(blockoutTrigger);
-      TriggerProxy[] blockedTriggerProxies = new TriggerProxy[blockedTriggers.size()];
+      SimpleTriggerProxy[] blockedTriggerProxies = new SimpleTriggerProxy[blockedTriggers.size()];
 
       for (int i = 0; i < blockedTriggerProxies.length; i++) {
-        blockedTriggerProxies[i] = new TriggerProxy(blockedTriggers.get(i));
+        blockedTriggerProxies[i] = new SimpleTriggerProxy((SimpleTrigger) blockedTriggers.get(i));
       }
 
       return blockedTriggerProxies;
@@ -170,14 +175,42 @@ public class BlockoutResource extends AbstractJaxRSResource {
   }
   
   @POST
-  @Path("/blockstatus")
+  @Path("/blockstatus/simple")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public BlockStatusProxy getBlockStatus(TriggerProxy trigger) {
+  public BlockStatusProxy getBlockStatusSimple(SimpleTriggerProxy trigger) {
+    return getBlockStatus(trigger);
+  }
+  
+  @POST
+  @Path("/blockstatus/cron")
+  @Consumes({ APPLICATION_JSON, APPLICATION_XML })
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
+  public BlockStatusProxy getBlockStatusCron(CronTriggerProxy trigger) {
+    return getBlockStatus(trigger);
+  }
+  
+  @POST
+  @Path("/blockstatus/dateinterval")
+  @Consumes({ APPLICATION_JSON, APPLICATION_XML })
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
+  public BlockStatusProxy getBlockStatusDateInterval(DateIntervalTriggerProxy trigger) {
+    return getBlockStatus(trigger);
+  }
+  
+  @POST
+  @Path("/blockstatus/nthincludedday")
+  @Consumes({ APPLICATION_JSON, APPLICATION_XML })
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
+  public BlockStatusProxy getBlockStatusDateInterval(NthIncludedDayTriggerProxy trigger) {
+    return getBlockStatus(trigger);
+  }
+  
+  private BlockStatusProxy getBlockStatus(Trigger trigger) {
     try {
       // Get blockout status
-      Boolean partiallyBlocked = manager.isPartiallyBlocked(trigger.getTrigger());
-      Boolean totallyBlocked = !manager.willFire(trigger.getTrigger());
+      Boolean partiallyBlocked = manager.isPartiallyBlocked(trigger);
+      Boolean totallyBlocked = !manager.willFire(trigger);
       return new BlockStatusProxy(totallyBlocked, partiallyBlocked);
     } catch (SchedulerException e) {
       throw new RuntimeException(e);

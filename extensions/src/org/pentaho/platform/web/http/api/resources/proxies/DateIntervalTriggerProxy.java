@@ -10,42 +10,26 @@
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or  implied. Please refer to 
  * the license for the specific language governing your rights and limitations.
  *
- * @created Mar 20, 2013 
+ * @created Mar 27, 2013 
  * @author wseyler
  */
 
-package org.pentaho.platform.web.http.api.resources;
+
+package org.pentaho.platform.web.http.api.resources.proxies;
 
 import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.quartz.Trigger;
+import org.quartz.DateIntervalTrigger;
 
 /**
  * @author wseyler
+ *
  */
 @XmlRootElement
-public class TriggerProxy implements Serializable {
-  private Trigger trigger;
-
-  public TriggerProxy() {
+public class DateIntervalTriggerProxy extends DateIntervalTrigger implements Serializable {
+  public DateIntervalTriggerProxy() {
     super();
   }
-
-  public TriggerProxy(Trigger trigger) {
-    this();
-    this.trigger = trigger;
-  }
-
-  public Trigger getTrigger() {
-    return trigger;
-  }
-  
-  @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-  public void setTrigger(Trigger trigger) {
-    this.trigger = trigger;
-  }
-
 }
