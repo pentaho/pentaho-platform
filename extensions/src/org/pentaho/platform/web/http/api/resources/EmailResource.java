@@ -86,6 +86,20 @@ public class EmailResource extends AbstractJaxRSResource {
     }
   }
 
+  @GET
+  @Path("/resetEmailConfig")
+  @Produces({ MediaType.TEXT_PLAIN })
+  public Response deleteEmailConfig(EmailConfiguration emailConfiguration) {
+    if (policy == null || policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+      try {
+        emailService.setEmailConfig(new EmailConfiguration());
+      } catch (Exception e) {
+        return Response.serverError().build();
+      }
+    }
+    return Response.ok().build();
+  }  
+  
   @PUT
   @Path("/setEmailConfig")
   @Consumes({ MediaType.APPLICATION_JSON })
