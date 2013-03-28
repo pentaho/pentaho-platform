@@ -468,12 +468,14 @@ public class RepositoryResource extends AbstractJaxRSResource {
 
   protected Response getPluginFileResponse(String pluginId, String filePath) throws IOException {
     rsc("Is [{0}] a path to a plugin file?", filePath); //$NON-NLS-1$
-    PluginResource pluginResource = new PluginResource(httpServletResponse);
-    Response readFileResponse = pluginResource.readFile(pluginId, filePath);
-    //TODO: should we assume forbidden means move on in the resolution chain, or abort??
-    if (readFileResponse.getStatus() != Status.NOT_FOUND.getStatusCode()) {
-      rsc(MessageFormat.format("Yep, [{0}] is a path to a static plugin file", filePath)); //$NON-NLS-1$
-      return readFileResponse;
+    if(pluginManager.isPublic(pluginId, filePath)) {
+      PluginResource pluginResource = new PluginResource(httpServletResponse);
+      Response readFileResponse = pluginResource.readFile(pluginId, filePath);
+      //TODO: should we assume forbidden means move on in the resolution chain, or abort??
+      if (readFileResponse.getStatus() != Status.NOT_FOUND.getStatusCode()) {
+        rsc(MessageFormat.format("Yep, [{0}] is a path to a static plugin file", filePath)); //$NON-NLS-1$
+        return readFileResponse;
+      }
     }
     rsc(MessageFormat.format("Nope, [{0}] is not a path to a static plugin file", filePath)); //$NON-NLS-1$
     return null;
