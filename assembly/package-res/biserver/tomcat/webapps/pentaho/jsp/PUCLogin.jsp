@@ -18,7 +18,8 @@
             java.util.StringTokenizer,
             org.apache.commons.lang.StringEscapeUtils,
             org.pentaho.platform.engine.core.system.PentahoSessionHolder,
-            org.owasp.esapi.ESAPI"%>
+            org.owasp.esapi.ESAPI,
+            org.pentaho.platform.util.ServerTypeUtil"%>
 <%!
     // List of request URL strings to look for to send 401
 
@@ -67,7 +68,8 @@
 boolean loggedIn = request.getRemoteUser() != null && request.getRemoteUser() != "";
 int year = (new java.util.Date()).getYear() + 1900;
 
-boolean showUsers = Boolean.parseBoolean(PentahoSystem.getSystemSetting("login-show-sample-users-hint", "true"));
+boolean isPlatformServer = ServerTypeUtil.isPlatformServer();
+boolean showUsers = isPlatformServer && Boolean.parseBoolean(PentahoSystem.getSystemSetting("login-show-sample-users-hint", "true"));
 
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -303,9 +305,20 @@ a {
         <a href="http://www.pentaho.com" target="_blank"><img src="/pentaho-style/images/login/logo.png" alt="Pentaho Corporation" width="224" height="94" border="0" /></a></div></td>
   </tr>
   <tr height="334">
-    <td class="dark"><div id="container_content"><img src="/pentaho-style/images/login/title_text.png">
+  	<td class="dark">
+    <%
+      if (isPlatformServer) {
+    %>
+      <div id="container_content"><img src="/pentaho-style/images/login/title_text.png">
         <div id="message"><%=Messages.getInstance().getString("UI.PUC.LOGIN.MESSAGE")%></div>
-      </div></td>
+      </div>
+    <%
+      } else {
+    %>
+       &nbsp;
+    <%
+      }
+    %></td>
   </tr>
   <tr height="100%">
     <td bgcolor="#FFFFFF" valign="top"><div id="container_footer" style="padding: 4px 20px 0 80px; height:200px;"><%=Messages.getInstance().getString("UI.PUC.LOGIN.COPYRIGHT", String.valueOf(year))%></div></td>
