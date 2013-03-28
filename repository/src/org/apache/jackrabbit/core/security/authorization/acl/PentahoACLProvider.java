@@ -2,6 +2,7 @@ package org.apache.jackrabbit.core.security.authorization.acl;
 
 import java.security.Principal;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -12,8 +13,14 @@ import javax.jcr.security.AccessControlPolicy;
 import javax.jcr.security.Privilege;
 
 import org.apache.jackrabbit.api.security.principal.PrincipalManager;
+import org.apache.jackrabbit.core.id.NodeId;
+import org.apache.jackrabbit.core.security.SystemPrincipal;
+import org.apache.jackrabbit.core.security.authorization.CompiledPermissions;
+import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.NodeImpl;
 import org.apache.jackrabbit.core.SessionImpl;
+
+import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.SpringSecurityRolePrincipal;
 
 /**
  * Customization of {@link ACLProvider}.
@@ -23,6 +30,10 @@ import org.apache.jackrabbit.core.SessionImpl;
 public class PentahoACLProvider extends ACLProvider {
 
   private Map configuration;
+
+  // Overrides to CompiledPermissions creation require we keep an extra reference
+  // because this is private in ACLProvider
+  private EntryCollector entryCollector;
 
   /**
    * Overridden to:
@@ -69,12 +80,60 @@ public class PentahoACLProvider extends ACLProvider {
    * Overridden to:
    * <ul>
    * <li>Return custom {@code EntryCollector}.
+   * <li>Later access to the {@code EntryCollector}
    * </ul>
    */
   @Override
   protected EntryCollector createEntryCollector(SessionImpl systemSession) throws RepositoryException {
-    NodeImpl root = (NodeImpl) session.getRootNode();
-    return new PentahoEntryCollector(systemSession, root.getNodeId(), configuration);
+    // keep our own private reference; the one in ACLProvider is private
+    entryCollector = new PentahoEntryCollector(systemSession, getRootNodeId(), configuration);
+    return entryCollector;
+  }
+  
+  /**
+   * Overridden to:
+   * <ul>
+   * <li>Return custom {@code CompiledPermissions}.
+   * </ul>
+   * @see PentahoCompiledPermissionsImpl
+   */
+  @Override
+  public CompiledPermissions compilePermissions(Set<Principal> principals) throws RepositoryException {
+      checkInitialized();
+      if (isAdminOrSystem(principals)) {
+          return getAdminPermissions();
+      } else if (isReadOnly(principals)) {
+          return getReadOnlyPermissions();
+      } else {
+          return new PentahoCompiledPermissionsImpl(principals, session, entryCollector, this, true);
+      }
+  }
+
+  /**
+   * Overridden to:
+   * <ul>
+   * <li>Use custom {@code CompiledPermissions}.
+   * </ul>
+   * @see PentahoCompiledPermissionsImpl
+   */
+  @Override
+  public boolean canAccessRoot(Set<Principal> principals) throws RepositoryException {
+      checkInitialized();
+      if (isAdminOrSystem(principals)) {
+          return true;
+      } else {
+          CompiledPermissions cp = new PentahoCompiledPermissionsImpl(principals, session, entryCollector, this, false);
+          try {
+              return cp.canRead(null, getRootNodeId());
+          } finally {
+              cp.close();
+          }
+      }
+  }
+
+  private NodeId getRootNodeId() throws RepositoryException {
+    // TODO: how expensive is this? Should we keep a reference?
+    return ((NodeImpl) session.getRootNode()).getNodeId();
   }
 
 }
