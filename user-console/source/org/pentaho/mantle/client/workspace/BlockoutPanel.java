@@ -52,15 +52,13 @@ public class BlockoutPanel extends SimplePanel {
   private SimplePager pager;
   private final VerticalPanel widgets = new VerticalPanel();
   private Button blockoutButton;
-  private IDialogCallback blockoutDialogCallback = new IDialogCallback() {
-    public void okPressed() {
-    }
-
-    public void cancelPressed() {
-    }
-  };
   private Toolbar tableControls;
   private VerticalPanel tablePanel;
+  private IDialogCallback emptyCallback = new IDialogCallback() {
+    public void okPressed() { }
+
+    public void cancelPressed() { }
+  };;
 
   public BlockoutPanel(final boolean isAdmin) {
     createUI(isAdmin);
@@ -70,8 +68,82 @@ public class BlockoutPanel extends SimplePanel {
   @SuppressWarnings("EmptyCatchBlock")
   private void createUI(final boolean isAdmin) {
     widgets.setWidth("100%");
-    table.getElement().setId("schedule-table");
+    createHeadlineBar();
+    createControls(isAdmin);
+    createTable();
+    createPager();
+    widgets.add(tablePanel);
+    setWidget(widgets);
+  }
 
+  private void createHeadlineBar() {
+    Toolbar bar = new Toolbar();
+    bar.addSpacer(10);
+    bar.add(new Label(Messages.getString("blockoutHeadline")));
+
+    bar.setWidth("100%");
+    widgets.add(bar);
+  }
+
+  private void createControls(final boolean isAdmin) {
+    blockoutButton = new Button(Messages.getString("createBlockoutTime"));
+    tableControls = new Toolbar();
+    tablePanel = new VerticalPanel();
+    if (isAdmin) {
+      final ClickHandler newBlockoutHandler = new ClickHandler() {
+        @Override
+        public void onClick(final ClickEvent clickEvent) {
+          DialogBox blockoutDialog = new NewBlockoutScheduleDialog("", emptyCallback, false, true);
+          blockoutDialog.center();
+        }
+      };
+      createBlockoutButton(newBlockoutHandler);
+      createTableControls(newBlockoutHandler);
+    }
+  }
+
+  private void createBlockoutButton(final ClickHandler newBlockoutHandler) {
+    blockoutButton.addClickHandler(newBlockoutHandler);
+    blockoutButton.setStyleName("pentaho-button");
+    widgets.add(blockoutButton);
+  }
+
+  private void createTableControls(final ClickHandler newBlockoutHandler) {
+    tableControls.addSpacer(10);
+    tableControls.add(Toolbar.GLUE);
+    ToolbarButton addButton = new ToolbarButton(new Image(MantleImages.images.add_icon()));
+    addButton.setCommand(new Command() {
+      @Override
+      public void execute() {
+        newBlockoutHandler.onClick(null);
+      }
+    });
+    tableControls.add(addButton);
+    ToolbarButton editButton = new ToolbarButton(new Image(MantleImages.images.edit16()));
+    editButton.setCommand(new Command() {
+      @Override
+      public void execute() {
+        newBlockoutHandler.onClick(null);
+      }
+    });
+    tableControls.add(editButton);
+    ToolbarButton removeButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
+    removeButton.setCommand(new Command() {
+      @Override
+      public void execute() {
+        Set<JsJobTrigger> selectedSet =
+          ((MultiSelectionModel<JsJobTrigger>) table.getSelectionModel()).getSelectedSet();
+        for (JsJobTrigger jsJobTrigger : selectedSet) {
+          removeBlockout(jsJobTrigger);
+        }
+      }
+    });
+    tableControls.add(removeButton);
+    tablePanel.add(tableControls);
+  }
+
+  private void createTable() {
+    table.getElement().setId("blockout-table");
     table.setSelectionModel(new MultiSelectionModel<JsJobTrigger>());
     TextColumn<JsJobTrigger> startColumn = new TextColumn<JsJobTrigger>() {
       public String getValue(JsJobTrigger block) {
@@ -122,7 +194,13 @@ public class BlockoutPanel extends SimplePanel {
     TextColumn<JsJobTrigger> endByColumn = new TextColumn<JsJobTrigger>() {
       public String getValue(JsJobTrigger block) {
         try {
-          return formatDate(block.getEndTime());
+          int repeatCount = block.getRepeatCount();
+          if (repeatCount != -1) {
+            return formatDate(
+              new Date(block.getStartTime().getTime() + (block.getRepeatInterval() * repeatCount)));
+          } else {
+            return "Never";
+          }
         } catch (Throwable t) {
         }
         return "-";
@@ -130,66 +208,15 @@ public class BlockoutPanel extends SimplePanel {
     };
     table.addColumn(endByColumn, Messages.getString("blockoutColumnRepeatsEndBy"));
     table.addColumnStyleName(3, "backgroundContentHeaderTableCell");
-
-    Toolbar bar = new Toolbar();
-    bar.addSpacer(10);
-    bar.add(new Label(Messages.getString("blockoutHeadline")));
-
-    bar.setWidth("100%");
-    widgets.add(bar);
-    blockoutButton = new Button(Messages.getString("createBlockoutTime"));
-    tableControls = new Toolbar();
-    tablePanel = new VerticalPanel();
-
-    if (isAdmin) {
-      final ClickHandler newBlockoutHandler = new ClickHandler() {
-        @Override
-        public void onClick(final ClickEvent clickEvent) {
-          DialogBox blockoutDialog = new NewBlockoutScheduleDialog("", blockoutDialogCallback, false, true);
-          blockoutDialog.center();
-        }
-      };
-      blockoutButton.addClickHandler(newBlockoutHandler);
-      blockoutButton.setStyleName("pentaho-button");
-      widgets.add(blockoutButton);
-
-      tableControls.addSpacer(10);
-      tableControls.add(Toolbar.GLUE);
-      ToolbarButton addButton = new ToolbarButton(new Image(MantleImages.images.add_icon()));
-      addButton.setCommand(new Command() {
-        @Override
-        public void execute() {
-          newBlockoutHandler.onClick(null);
-        }
-      });
-      tableControls.add(addButton);
-      ToolbarButton editButton = new ToolbarButton(new Image(MantleImages.images.edit16()));
-      tableControls.add(editButton);
-      ToolbarButton removeButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
-      removeButton.setCommand(new Command() {
-        @Override
-        public void execute() {
-          Set<JsJobTrigger> selectedSet =
-            ((MultiSelectionModel<JsJobTrigger>) table.getSelectionModel()).getSelectedSet();
-          for (JsJobTrigger jsJobTrigger : selectedSet) {
-            removeBlockout(jsJobTrigger);
-          }
-        }
-      });
-      tableControls.add(removeButton);
-      tablePanel.add(tableControls);
-    }
-
-
+    tablePanel.add(table);
     dataProvider.addDataDisplay(table);
+  }
+
+  private void createPager() {
     SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
     pager = new SimplePager(SimplePager.TextLocation.CENTER, pagerResources, false, 0, true);
     pager.setDisplay(table);
-    tablePanel.add(table);
     tablePanel.add(pager);
-    widgets.add(tablePanel);
-    setWidget(widgets);
-
   }
 
   private String formatDate(final Date date) {
