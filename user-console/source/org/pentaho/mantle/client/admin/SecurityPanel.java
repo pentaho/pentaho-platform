@@ -46,7 +46,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CaptionPanel;
@@ -200,17 +199,19 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
             for (int j = 0; j < logicalRoleMap.getRoleAssignments().length(); j++) {
               String roleName = logicalRoleMap.getRoleAssignments().get(j).getRoleName();
               List<String> logicalRoles = new ArrayList<String>();
-              for (int k = 0; k < logicalRoleMap.getRoleAssignments().get(j).getAssignedLogicalRoles().length(); k++) {
-                logicalRoles.add(logicalRoleMap.getRoleAssignments().get(j).getAssignedLogicalRoles().get(k));
+              JsArrayString jsLogicalRoles = logicalRoleMap.getRoleAssignments().get(j).getAssignedLogicalRoles();
+              if (jsLogicalRoles != null) {
+                for (int k = 0; k < jsLogicalRoles.length(); k++) {
+                  logicalRoles.add(jsLogicalRoles.get(k));
+                }
               }
               masterRoleMap.put(roleName, logicalRoles);
             }
-          } else {
           }
         }
       });
     } catch (RequestException e) {
-     }
+    }
   }
   
   public void onChange(ChangeEvent event) {
