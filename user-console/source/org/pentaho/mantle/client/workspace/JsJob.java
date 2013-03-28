@@ -50,16 +50,20 @@ public class JsJob extends JavaScriptObject {
   public final native void setState(String newState) /*-{ this.state = newState; }-*/; //
   
   public final String getJobParam(String name) {
-    JsArray<JsJobParam> params = getJobParams();
-    for (int i=0;i<params.length();i++) {
-      JsJobParam param = params.get(i);
-      if (param.getName().equals(name)) {
-        return param.getValue();
+    if (hasJobParams()) {
+      JsArray<JsJobParam> params = getJobParams();
+      for (int i=0;i<params.length();i++) {
+        JsJobParam param = params.get(i);
+        if (param.getName().equals(name)) {
+          return param.getValue();
+        }
       }
     }
     return null;
   }
-  
+
+  private final native boolean hasJobParams() /*-{ return this.jobParams != null; }-*/; //
+
   public final boolean hasResourceName() {
     String resource = getJobParam("ActionAdapterQuartzJob-StreamProvider");
     return (resource != null && !"".equals(resource));
@@ -105,5 +109,8 @@ public class JsJob extends JavaScriptObject {
 
     return null;
   }
+
+  public final native void setJobTrigger(JsJobTrigger trigger) /*-{ this.jobTrigger = trigger; }-*/;
+  public final native String setJobName(String name) /*-{ this.jobName = name; }-*/; //
 
 }
