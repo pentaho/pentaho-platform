@@ -143,8 +143,10 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     this.setWizardPanels(wizardPanels);
     setPixelSize(475, 465);
     center();
-    if (hasParams || isEmailConfValid) {
+    if ((hasParams || isEmailConfValid) && (getDialogType() == ScheduleDialogType.SCHEDULER)) {
       finishButton.setText(Messages.getString("nextStep"));
+    } else {
+      finishButton.setText("OK");     //TODO: Put in resource
     }
     setupExisting(jsJob);
   }
@@ -580,6 +582,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       {
         public void onError(Request request, Throwable exception)
         {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+          setDone(false);
         }
 
         public void onResponseReceived(Request request, Response response)
@@ -593,7 +598,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     } catch (RequestException e) {
     }
 
-    return true
+    return true;
   }
 
   private void promptDueToBlockoutConflicts(final boolean alwaysConflict, final boolean conflictsSometimes,
@@ -648,8 +653,21 @@ public class NewScheduleDialog extends AbstractWizardDialog {
    * @param trigger
    */
   protected void verifyBlockoutConflict(final JSONObject schedule, final JsJobTrigger trigger) {
-    // TODO: Handle simple vs. complex triggers
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/blockstatus/simple"; //$NON-NLS-1$
+    final ScheduleType scheduleType = scheduleEditorWizardPanel.getScheduleType();
+    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/blockstatus/"; //$NON-NLS-1$
+
+    if (trigger.getType().equals("simpleJobTrigger")) {
+      if ((scheduleType == ScheduleType.SECONDS) || (scheduleType == ScheduleType.MINUTES) || (scheduleType == ScheduleType.HOURS)) {
+        url += "dateinterval";
+      } else {
+        url += "simple";    //$NON-NLS-1$
+      }
+    } else if (trigger.getType().equals("cronJobTrigger")) {
+      url += "cron";
+    } else {
+      url += "nthincludedday";
+    }
+
     RequestBuilder blockoutConflictRequest = new RequestBuilder(RequestBuilder.POST, url);
     blockoutConflictRequest.setHeader("accept", "application/json");
     blockoutConflictRequest.setHeader("Content-Type", "application/json");
@@ -666,6 +684,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       {
         public void onError(Request request, Throwable exception)
         {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+          setDone(false);
         }
 
         public void onResponseReceived(Request request, Response response)
