@@ -204,7 +204,8 @@ public class FileResource extends AbstractJaxRSResource {
               if (destFile == null) { // destFile doesn't exist so we'll create it.
                 RepositoryFile duplicateFile = new RepositoryFile.Builder(fileName).build();
                 repository.createFile(destDir.getId(), duplicateFile, data, acl, null);
-              } else if (mode == MODE_OVERWRITE) { // destFile exists so check to see if we want to overwrite it.
+              } else if (mode == MODE_OVERWRITE) { 
+                // destFile exists so check to see if we want to overwrite it.
                 repository.updateFile(destFile, data, null);
                 repository.updateAcl(acl);
               }
@@ -251,7 +252,7 @@ public class FileResource extends AbstractJaxRSResource {
             } else {
               duplicateFile = new RepositoryFile.Builder(fileName).build();
             }
-            
+            //use JCr Copy function to allow ID to remain the same
             repository.createFile(destDir.getId(), duplicateFile, data, acl, null);
           }
         }
