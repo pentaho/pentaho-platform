@@ -89,22 +89,22 @@ public class EmailService implements IEmailService {
    *           indicates the argument is either null or references a location which is invalid (the parent folder of the specified file doesn't exist)
    */
   public EmailService(final File emailConfigFile) throws IllegalArgumentException {
-    setEmailConfigFile(emailConfigFile);
+      setEmailConfigFile(emailConfigFile);
   }
 
   public void setEmailConfig(final IEmailConfiguration emailConfiguration) {
     if (emailConfiguration == null) {
-      throw new IllegalArgumentException(messages.getErrorString("EmailService.ERROR_0002_NULL_CONFIGURATION"));
+        throw new IllegalArgumentException(messages.getErrorString("EmailService.ERROR_0002_NULL_CONFIGURATION"));
     }
 
     final Document document = EmailConfigurationXml.getDocument(emailConfiguration);
     try {
-      emailConfigFile.createNewFile();
-      final FileOutputStream fileOutputStream = new FileOutputStream(emailConfigFile);
-      XmlDom4JHelper.saveDom(document, fileOutputStream, "UTF-8");
-      fileOutputStream.close();
+        emailConfigFile.createNewFile();
+        final FileOutputStream fileOutputStream = new FileOutputStream(emailConfigFile);
+        XmlDom4JHelper.saveDom(document, fileOutputStream, "UTF-8");
+        fileOutputStream.close();
     } catch (IOException e) {
-      logger.error(messages.getErrorString("EmailService.ERROR_0003_ERROR_CREATING_EMAIL_CONFIG_FILE", e.getLocalizedMessage()));
+        logger.error(messages.getErrorString("EmailService.ERROR_0003_ERROR_CREATING_EMAIL_CONFIG_FILE", e.getLocalizedMessage()));
     }
   }
 
@@ -115,10 +115,10 @@ public class EmailService implements IEmailService {
    */
   public EmailConfiguration getEmailConfig() {
     try {
-      return new EmailConfigurationXml(emailConfigFile);
+        return new EmailConfigurationXml(emailConfigFile);
     } catch (Exception e) {
-      logger.error(messages.getErrorString("EmailService.ERROR_0004_LOADING_EMAIL_CONFIG_FILE", e.getLocalizedMessage()));
-      return new EmailConfiguration();
+        logger.error(messages.getErrorString("EmailService.ERROR_0004_LOADING_EMAIL_CONFIG_FILE", e.getLocalizedMessage()));
+        return new EmailConfiguration();
     }
   }
 
@@ -143,31 +143,31 @@ public class EmailService implements IEmailService {
 
     Session session = null;
     if (emailConfig.isAuthenticate()) {
-      Authenticator authenticator = new Authenticator() {
+        Authenticator authenticator = new Authenticator() {
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
-          return new PasswordAuthentication(emailConfig.getUserId(), emailConfig.getPassword());
-        }
-      };
-      session = Session.getInstance(emailProperties, authenticator);
+            return new PasswordAuthentication(emailConfig.getUserId(), emailConfig.getPassword());
+            }
+        };
+        session = Session.getInstance(emailProperties, authenticator);
     } else {
-      session = Session.getInstance(emailProperties);
+        session = Session.getInstance(emailProperties);
     }
 
     String sendEmailMessage = "";
     try {
-      MimeMessage msg = new MimeMessage(session);
-      msg.setFrom(new InternetAddress(emailConfig.getDefaultFrom(),emailConfig.getFromName()));
-      msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailConfig.getDefaultFrom()));
-      msg.setSubject(messages.getString("EmailService.SUBJECT"));
-      msg.setText(messages.getString("EmailService.MESSAGE"));
-      msg.setHeader("X-Mailer", "smtpsend");
-      msg.setSentDate(new Date());
-      Transport.send(msg);
-      sendEmailMessage = "EmailTester.SUCESS";
+        MimeMessage msg = new MimeMessage(session);
+        msg.setFrom(new InternetAddress(emailConfig.getDefaultFrom(),emailConfig.getFromName()));
+        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailConfig.getDefaultFrom()));
+        msg.setSubject(messages.getString("EmailService.SUBJECT"));
+        msg.setText(messages.getString("EmailService.MESSAGE"));
+        msg.setHeader("X-Mailer", "smtpsend");
+        msg.setSentDate(new Date());
+        Transport.send(msg);
+        sendEmailMessage = "EmailTester.SUCESS";
     } catch (Exception e) {
-      logger.error(messages.getString("EmailService.NOT_CONFIGURED"), e);
-      sendEmailMessage = "EmailTester.FAIL";
+        logger.error(messages.getString("EmailService.NOT_CONFIGURED"), e);
+        sendEmailMessage = "EmailTester.FAIL";
     }
     return sendEmailMessage;
   }
