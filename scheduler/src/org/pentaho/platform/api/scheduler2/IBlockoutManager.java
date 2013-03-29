@@ -33,8 +33,7 @@ public interface IBlockoutManager {
 
   /**
    * @param blockout - A trigger that determines the recurrence of the block-out
-   * @param duration - A long that determines how long the recurrence will last each time
-   * 
+   *
    * Adds a block-out, the blockout recurrence is based on the blockout (trigger) argument
    * and the duration
    * @throws SchedulerException 
