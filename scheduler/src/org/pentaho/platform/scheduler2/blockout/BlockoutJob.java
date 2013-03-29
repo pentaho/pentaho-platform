@@ -29,7 +29,7 @@ import org.quartz.Trigger;
 
 /**
  * @author wseyler
- * This is the job that executes when the a blockout trigger fires.  This job essentially does nothing more
+ * This is the job that executes when the a block out trigger fires.  This job essentially does nothing more
  * than logging the firing of the trigger.
  */
 public class BlockoutJob implements Job {
