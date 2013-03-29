@@ -55,6 +55,7 @@ public class Job {
   String jobId;
   String userName;
   String jobName;
+  String groupName;
   JobState state = JobState.UNKNOWN;
   
   /**
@@ -115,6 +116,13 @@ public class Job {
    */
   public String getUserName() {
     return userName;
+  }
+
+  /**
+   * @return the group name of this job
+   */
+  public String getGroupName() {
+    return groupName;
   }
 
   /**
@@ -199,5 +207,13 @@ public class Job {
    */
   public void setState(JobState state) {
     this.state = state;
+  }
+
+  /**
+   * Sets the group name of this job
+   * @param groupName the group name
+   */
+  public void setGroupName(final String groupName) {
+    this.groupName = groupName;
   }
 }

@@ -393,6 +393,7 @@ public class QuartzScheduler implements IScheduler {
         for (String jobId : scheduler.getJobNames(groupName)) {
           for (Trigger trigger : scheduler.getTriggersOfJob(jobId, groupName)) {
             Job job = new Job();
+            job.setGroupName(groupName);
             JobDetail jobDetail = scheduler.getJobDetail(jobId, groupName);
             if (jobDetail != null) {
               job.setUserName(jobDetail.getGroup());
