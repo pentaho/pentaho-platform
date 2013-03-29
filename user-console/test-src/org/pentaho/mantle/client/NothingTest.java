@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 public class NothingTest extends TestCase {
 
   public void testNothing() {
+
     Assert.assertTrue(true);
     UserPermission userPerm = new UserPermission();
     Assert.assertNotNull(userPerm.toString());
