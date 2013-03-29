@@ -58,7 +58,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 	public SolutionImportHandler(IPlatformImportMimeResolver mimeResolver) {
 		this.mimeResolver = mimeResolver;
 	}
-	
+
 	public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
 
 		RepositoryFileImportBundle importBundle = (RepositoryFileImportBundle) bundle;
@@ -87,8 +87,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 			} else {
 				byte[] bytes = IOUtils.toByteArray(file.getInputStream());
 				bundleInputStream = new ByteArrayInputStream(bytes);
-				//If is locale file store it for later processing.
-				if(localeFilesProcessor.isLocaleFile(file, importBundle.getPath(), bytes)) {
+				// If is locale file store it for later processing.
+				if (localeFilesProcessor.isLocaleFile(file, importBundle.getPath(), bytes)) {
 					continue;
 				}
 				bundleBuilder.input(bundleInputStream);
@@ -101,7 +101,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 			bundleBuilder.path(repositoryFilePath);
 			String sourcePath = file.getPath().startsWith("/") ? file.getPath().substring(1) : file.getPath();
 			sourcePath = RepositoryFilenameUtils.concat(sourcePath, fileName);
-			
+
 			bundleBuilder.charSet(bundle.getCharset());
 			bundleBuilder.overwriteFile(bundle.overwriteInRepository());
 			bundleBuilder.hidden(isBlackListed(fileName));
@@ -117,35 +117,35 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				bundleInputStream = null;
 			}
 		}
-		//Process locale files.
+		// Process locale files.
 		localeFilesProcessor.processLocaleFiles(importer);
 	}
 
 	private RepositoryFileAcl processAclForFile(IPlatformImportBundle bundle, String filePath) {
-	  // If we are not overwriting ACL's or owners then make sure a null gets in the bundle.
-	  // If we are writing ACL's we'll have to check later in RepositoryFileImportHandler whether to overwrite
-	  // based on the isOverwriteAcl setting and whether we are creating or updating the RepositoryFile.
+		// If we are not overwriting ACL's or owners then make sure a null gets in the bundle.
+		// If we are writing ACL's we'll have to check later in RepositoryFileImportHandler whether to overwrite
+		// based on the isOverwriteAcl setting and whether we are creating or updating the RepositoryFile.
 		RepositoryFileAcl acl = null;
 		if (bundle.isApplyAclSettings() || !bundle.isRetainOwnership()) {
-  		try {
-  			if(manifest != null) {
-  				ExportManifestEntity entity = manifest.getExportManifestEntity(filePath);
-  				if(entity != null) {
-  					acl = entity.getRepositoryFileAcl();
-  				}
-  			}
-  		} catch(Exception e) {
-  			log.trace(e);
-  		}
-		} 
+			try {
+				if (manifest != null) {
+					ExportManifestEntity entity = manifest.getExportManifestEntity(filePath);
+					if (entity != null) {
+						acl = entity.getRepositoryFileAcl();
+					}
+				}
+			} catch (Exception e) {
+				log.trace(e);
+			}
+		}
 		return acl;
 	}
-	
+
 	private boolean isSystemPath(final String bundlePath) {
 		final String[] split = StringUtils.split(bundlePath, RepositoryFile.SEPARATOR);
 		return isSystemDir(split, 0) || isSystemDir(split, 1);
 	}
-	
+
 	private boolean isSystemDir(final String[] split, final int index) {
 		return (split != null && index < split.length && (StringUtils.equals(split[index], "system") || StringUtils.equals(split[index], "admin")));
 	}
@@ -208,8 +208,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 					RepositoryFile repoFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(file.getName())).folder(isDir).hidden(WAQRFilesMigrationHelper.hideFileCheck(file.getName())).build();
 					String parentDir = new File(entryName).getParent() == null ? RepositoryFile.SEPARATOR : new File(entryName).getParent() + RepositoryFile.SEPARATOR;
 					IRepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, parentDir, tempFile, "UTF-8", null);
-					
-					if(file.getName().equals("exportManifest.xml")) {
+
+					if (file.getName().equals("exportManifest.xml")) {
 						initializeAclManifest(repoFileBundle);
 					} else {
 						files.add(repoFileBundle);
@@ -223,9 +223,9 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				log.trace(errorMessage);
 			}
 		}
-		
-		private void initializeAclManifest(IRepositoryFileBundle file)  {
-			try { 
+
+		private void initializeAclManifest(IRepositoryFileBundle file) {
+			try {
 				byte[] bytes = IOUtils.toByteArray(file.getInputStream());
 				ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 				manifest = ExportManifest.fromXml(in);
