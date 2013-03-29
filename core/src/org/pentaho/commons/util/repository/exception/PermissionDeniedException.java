@@ -12,7 +12,7 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * Copyright 2010 Pentaho Corporation.  All rights reserved. 
+ * Copyright 2013 Pentaho Corporation.  All rights reserved.
  * 
  * @created Jan, 2010 
  * @author James Dixon
@@ -20,6 +20,9 @@
  */
 package org.pentaho.commons.util.repository.exception;
 
-public class PermissionDeniedException  extends CmisFault {
+/**
+ * PermissionDeniedException
+ */
+public class PermissionDeniedException extends CmisFault {
 
 }
