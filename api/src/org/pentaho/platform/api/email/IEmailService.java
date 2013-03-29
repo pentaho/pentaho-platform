@@ -17,11 +17,27 @@
  */
 package org.pentaho.platform.api.email;
 
+/**
+ * The Email Service used in the Pentaho Platform
+ */
 public interface IEmailService {
+  /**
+   * Saves the email configuration
+   *
+   * @param emailConfiguration the email configuration to save as the current email configuration
+   */
   public void setEmailConfig(final IEmailConfiguration emailConfiguration);
 
+  /**
+   * Retrieves the current email configuration
+   */
   public IEmailConfiguration getEmailConfig();
 
+  /**
+   * Generates a test email via the specficied email configuration
+   *
+   * @param emailConfig the email configuration to use for sending the testing email
+   */
   public String sendEmailTest(final IEmailConfiguration emailConfig);
 
   public boolean isValid();
