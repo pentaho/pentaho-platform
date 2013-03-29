@@ -2,3 +2,6 @@
 /dist
 /eclipse-bin
 /lib
+.classpath
+.project
+
