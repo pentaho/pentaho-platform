@@ -69,6 +69,7 @@ import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
 import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.workspace.BlockoutPanel;
+import org.pentaho.mantle.client.workspace.JsBlockStatus;
 import org.pentaho.mantle.client.workspace.JsJob;
 import org.pentaho.mantle.client.workspace.JsJobParam;
 import org.pentaho.mantle.client.workspace.JsJobTrigger;
@@ -142,8 +143,10 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     this.setWizardPanels(wizardPanels);
     setPixelSize(475, 465);
     center();
-    if (hasParams || isEmailConfValid) {
+    if ((hasParams || isEmailConfValid) && (getDialogType() == ScheduleDialogType.SCHEDULER)) {
       finishButton.setText(Messages.getString("nextStep"));
+    } else {
+      finishButton.setText("OK");     //TODO: Put in resource
     }
     setupExisting(jsJob);
   }
@@ -579,12 +582,13 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       {
         public void onError(Request request, Throwable exception)
         {
-          System.out.println("********** Got an error from blockout conflict");
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+          setDone(false);
         }
 
         public void onResponseReceived(Request request, Response response)
         {
-          System.out.println("*********** Got a response: " + response.getStatusCode() + ": " + response.getStatusText());
           if (response.getStatusCode() == Response.SC_OK)
           {
             System.out.println("****** Got a valid response after adding a blockout period: " + response.getStatusCode());
@@ -594,11 +598,11 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     } catch (RequestException e) {
     }
 
-    return true;      // TODO figure out if true conflict
-
+    return true;
   }
 
-  private void promptDueToBlockoutConflicts(final boolean alwaysConflict, final boolean conflictsSometimes, final JSONObject schedule, final JsJobTrigger trigger) {
+  private void promptDueToBlockoutConflicts(final boolean alwaysConflict, final boolean conflictsSometimes,
+                                            final JSONObject schedule, final JsJobTrigger trigger) {
     StringBuffer conflictMessage = new StringBuffer();
 
     final String updateScheduleButtonText = "Update Schedule";
@@ -642,10 +646,28 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   }
 
 
+  /**
+   * Before creating a new schedule, we want to check to see if the schedule that is being
+   * created is going to conflict with any one of the blockout periods if one is provisioned.
+   * @param schedule
+   * @param trigger
+   */
   protected void verifyBlockoutConflict(final JSONObject schedule, final JsJobTrigger trigger) {
-    // We want to check to see if there are any conflicts with any blockout periods
+    final ScheduleType scheduleType = scheduleEditorWizardPanel.getScheduleType();
+    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/blockstatus/"; //$NON-NLS-1$
 
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/blockstatus/simple"; //$NON-NLS-1$
+    if (trigger.getType().equals("simpleJobTrigger")) {
+      if ((scheduleType == ScheduleType.SECONDS) || (scheduleType == ScheduleType.MINUTES) || (scheduleType == ScheduleType.HOURS)) {
+        url += "dateinterval";
+      } else {
+        url += "simple";    //$NON-NLS-1$
+      }
+    } else if (trigger.getType().equals("cronJobTrigger")) {
+      url += "cron";
+    } else {
+      url += "nthincludedday";
+    }
+
     RequestBuilder blockoutConflictRequest = new RequestBuilder(RequestBuilder.POST, url);
     blockoutConflictRequest.setHeader("accept", "application/json");
     blockoutConflictRequest.setHeader("Content-Type", "application/json");
@@ -653,9 +675,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     final JSONObject verifyBlockoutParams = new JSONObject();
     verifyBlockoutParams.put("name", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
     verifyBlockoutParams.put("startTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
-    verifyBlockoutParams.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$                 // TODO: this is end date
-
-    // How many times we are going to repeat this trigger (this schedule)
+    verifyBlockoutParams.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$
     verifyBlockoutParams.put("repeatCount", new JSONNumber(0)); //$NON-NLS-1$
     verifyBlockoutParams.put("repeatInterval", new JSONNumber(0)); //$NON-NLS-1$
 
@@ -664,25 +684,22 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       {
         public void onError(Request request, Throwable exception)
         {
-          System.out.println("********** Got an error from blockout conflict");
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+          setDone(false);
         }
 
         public void onResponseReceived(Request request, Response response)
         {
-          System.out.println("*********** Got a response: " + response.getStatusCode() + ": " + response.getStatusText());
-          String json = JsonUtils.escapeJsonForEval(response.getText());
-          System.out.println("******* JSON: " + json);
-          JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
-
           if (response.getStatusCode() == Response.SC_OK)
           {
-            // There will be two booleans to indicate partial or full conflicts
-            // Determine if this schedule conflicts all the time or some of the time
-            boolean conflictsSometimes = false;       // TODO: figure this out
-            boolean alwaysConflict = false;
+            JsBlockStatus statusResponse = (JsBlockStatus) parseJson(JsonUtils.escapeJsonForEval(response.getText()));
 
-            if (conflictsSometimes || alwaysConflict) {
-              promptDueToBlockoutConflicts(alwaysConflict, conflictsSometimes, schedule, trigger);
+            // Determine if this schedule conflicts all the time or some of the time
+            boolean partiallyBlocked =  Boolean.parseBoolean(statusResponse.getPartiallyBlocked());
+            boolean totallyBlocked = Boolean.parseBoolean(statusResponse.getTotallyBlocked());
+            if (partiallyBlocked || totallyBlocked) {
+              promptDueToBlockoutConflicts(totallyBlocked, partiallyBlocked, schedule, trigger);
             } else {
               // Continue with other panels in the wizard (params, email)
               handleWizardPanels(schedule, trigger);
@@ -786,6 +803,16 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       setDone(true);
     }
   }
+
+  private final native JavaScriptObject parseJson(String json)
+  /*-{
+      if (null == json || "" == json) {
+          return null;
+      }
+      var obj = eval('(' + json + ')');
+      return obj;
+  }-*/;
+
 
   /*
    * (non-Javadoc)
