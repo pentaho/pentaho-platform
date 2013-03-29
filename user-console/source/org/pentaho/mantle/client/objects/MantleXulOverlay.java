@@ -47,7 +47,7 @@ public class MantleXulOverlay implements Serializable, XulOverlay {
     this.overlayUri = overlayUri;
     this.source = source;
     this.resourceBundleUri = resourceBundleUri;
-    this.priority = priority;
+    this.priority = test;
   }
 
   public String getId() {
