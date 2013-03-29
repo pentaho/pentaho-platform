@@ -374,33 +374,37 @@ public class SecurityHelper implements ISecurityHelper {
   /**
    * Runs code as system with full privileges.
    */
-  @Override
   public <T> T runAsSystem(final Callable<T> callable) throws Exception {
-    // TODO Substitute the tennant admin user name using the pattern {0}_adminUser
-    // final String name = MessageFormat.format("{0}_adminUser", TenantUtils.getTenantId());
     String singleTenantAdmin = PentahoSystem.get(String.class, "singleTenantAdminUserName", null);
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
+
+    StandaloneSession session = null;
     try {
-      StandaloneSession session;
-      GrantedAuthority[] roles;
       session = new StandaloneSession(singleTenantAdmin);
       session.setAuthenticated(singleTenantAdmin);
-      // create authentication
-      Authentication auth = createAuthentication(singleTenantAdmin); //$NON-NLS-1$
-      // set holders
+
+      // Set the session first or else the call to
+      // createAuthentication will fail
       PentahoSessionHolder.setSession(session);
+
+      // Now create the authentication
+      Authentication auth = createAuthentication(singleTenantAdmin); //$NON-NLS-1$
       SecurityContextHolder.getContext().setAuthentication(auth);
+
+      // Invoke the delta.
       return callable.call();
     } finally {
-      IPentahoSession sessionToDestroy = PentahoSessionHolder.getSession();
-      if (sessionToDestroy != null) {
+      // Make sure to destroy the system session so we don't leak anything.
+      if (session != null) {
         try {
-          sessionToDestroy.destroy();
+          session.destroy();
         } catch (Exception e) {
+          // We can safely ignore this.
           e.printStackTrace();
         }
       }
+      // Reset the original session.
       PentahoSessionHolder.setSession(origSession);
       SecurityContextHolder.getContext().setAuthentication(origAuth);
     }
