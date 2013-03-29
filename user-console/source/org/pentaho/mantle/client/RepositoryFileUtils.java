@@ -44,7 +44,6 @@ public static RepositoryFile convertToRepositoryFile(RepositoryFileDto file) {
   repositoryFile.setCreatedDate(file.getCreatedDate());
   repositoryFile.setDeletedDate(file.getDeletedDate());
   repositoryFile.setDescription(file.getDescription());
-  //fileChooserFile.setDescriptionMap(file.getDescriptionMap());
   repositoryFile.setFolder(file.isFolder());
   repositoryFile.setHidden(file.isHidden());
   repositoryFile.setId(file.getId());
@@ -60,8 +59,6 @@ public static RepositoryFile convertToRepositoryFile(RepositoryFileDto file) {
   repositoryFile.setOwner(file.getOwner());
   repositoryFile.setPath(file.getPath());
   repositoryFile.setTitle(file.getTitle());
-  //fileChooserFile.setTitleMap(file.getTitleMap());
-  //fileChooserFile.setVersioned(file.isVersioned());
   repositoryFile.setVersionId(file.getVersionId());
   return repositoryFile;
 }
@@ -84,7 +81,6 @@ public static RepositoryFileDto convertFromRepositoryFile(RepositoryFile file) {
   repositoryFile.setCreatedDate(file.getCreatedDate());
   repositoryFile.setDeletedDate(file.getDeletedDate());
   repositoryFile.setDescription(file.getDescription());
-  //fileChooserFile.setDescriptionMap(file.getDescriptionMap());
   repositoryFile.setFolder(file.isFolder());
   repositoryFile.setHidden(file.isHidden());
   repositoryFile.setId(file.getId());
@@ -100,8 +96,6 @@ public static RepositoryFileDto convertFromRepositoryFile(RepositoryFile file) {
   repositoryFile.setOwner(file.getOwner());
   repositoryFile.setPath(file.getPath());
   repositoryFile.setTitle(file.getTitle());
-  //fileChooserFile.setTitleMap(file.getTitleMap());
-  //fileChooserFile.setVersioned(file.isVersioned());
   repositoryFile.setVersionId(file.getVersionId());
   return repositoryFile;
 }
