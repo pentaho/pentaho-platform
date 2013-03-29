@@ -94,7 +94,8 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
   // ~ Methods =========================================================================================================
 
   private RepositoryFile internalCreateFolder(final Session session, final Serializable parentFolderId,
-      final RepositoryFile folder, final RepositoryFileAcl acl, final String versionMessage) throws RepositoryException {
+      final RepositoryFile folder, final RepositoryFileAcl acl,
+      final String versionMessage) throws RepositoryException {
     PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
     JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, parentFolderId);
     Node folderNode = JcrRepositoryFileUtils.createFolderNode(session, pentahoJcrConstants, parentFolderId, folder);
