@@ -182,6 +182,24 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
         file.getId());
   }
 
+  private RepositoryFile internalUpdateFolder(final Session session, final PentahoJcrConstants pentahoJcrConstants,
+      final RepositoryFile folder, final String versionMessage)
+      throws RepositoryException {
+    Assert.notNull(folder);
+    Assert.isTrue(folder.isFolder());
+    lockHelper.addLockTokenToSessionIfNecessary(session, pentahoJcrConstants, folder.getId());
+    JcrRepositoryFileUtils.checkoutNearestVersionableFileIfNecessary(session, pentahoJcrConstants, folder.getId());
+    JcrRepositoryFileUtils.updateFolderNode(session, pentahoJcrConstants, folder);
+    session.save();
+    JcrRepositoryFileUtils.checkinNearestVersionableFileIfNecessary(session, pentahoJcrConstants, folder.getId(),
+        versionMessage);
+    lockHelper.removeLockTokenFromSessionIfNecessary(session, pentahoJcrConstants, folder.getId());
+    return JcrRepositoryFileUtils.nodeIdToFile(session, pentahoJcrConstants, pathConversionHelper, lockHelper,
+        folder.getId());
+  }
+
+
+  
   protected ITransformer<IRepositoryFileData> findTransformerForRead(final String contentType,
       final Class<? extends IRepositoryFileData> clazz) {
     for (ITransformer<IRepositoryFileData> transformer : transformers) {
@@ -976,6 +994,19 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
            versionMessage);
         lockHelper.removeLockTokenFromSessionIfNecessary(session, pentahoJcrConstants, repositoryFile.getId());
         return null;
+      }
+    });
+  }
+
+  @Override
+  public RepositoryFile updateFolder(final RepositoryFile file, final String versionMessage) {
+    Assert.notNull(file);
+    Assert.isTrue(file.isFolder());
+    return (RepositoryFile) jcrTemplate.execute(new JcrCallback() {
+      @Override
+      public Object doInJcr(final Session session) throws RepositoryException, IOException {
+        PentahoJcrConstants pentahoJcrConstants = new PentahoJcrConstants(session);
+          return internalUpdateFolder(session, pentahoJcrConstants, file, versionMessage);
       }
     });
   }

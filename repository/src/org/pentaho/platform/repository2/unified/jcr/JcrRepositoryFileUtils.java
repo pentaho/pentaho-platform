@@ -523,6 +523,30 @@ public class JcrRepositoryFileUtils {
     return fileNode;
   }
 
+  public static Node updateFolderNode(final Session session, final PentahoJcrConstants pentahoJcrConstants, final RepositoryFile folder)
+      throws RepositoryException {
+
+    Node folderNode = session.getNodeByIdentifier(folder.getId().toString());
+    // guard against using a file retrieved from a more lenient session inside a more strict session
+    Assert.notNull(folderNode);
+
+    preventLostUpdate(session, pentahoJcrConstants, folder);
+
+    folderNode.setProperty(pentahoJcrConstants.getPHO_HIDDEN(), folder.isHidden());
+    if (folder.getLocalePropertiesMap() != null && !folder.getLocalePropertiesMap().isEmpty()) {
+      Node localePropertiesMapNode = null;
+      if (!folderNode.hasNode(pentahoJcrConstants.getPHO_LOCALES())) {
+        localePropertiesMapNode = folderNode.addNode(pentahoJcrConstants.getPHO_LOCALES(),
+           pentahoJcrConstants.getPHO_NT_LOCALE());
+      } else {
+        localePropertiesMapNode = folderNode.getNode(pentahoJcrConstants.getPHO_LOCALES());
+      }
+      setLocalePropertiesMap(session, pentahoJcrConstants, localePropertiesMapNode, folder.getLocalePropertiesMap());
+    }
+    return folderNode;
+  }
+  
+  
   public static IRepositoryFileData getContent(final Session session, final PentahoJcrConstants pentahoJcrConstants,
       final Serializable fileId, final Serializable versionId, final ITransformer<IRepositoryFileData> transformer)
       throws RepositoryException {

@@ -290,6 +290,7 @@ public class MantleController extends AbstractXulEventHandler {
 
                     public void onResponseReceived(Request request, Response response) {
                       toolsMenu.setVisible("true".equalsIgnoreCase(response.getText()));
+                      showHiddenFilesMenuItem.setVisible("true".equalsIgnoreCase(response.getText()));
                     }
 
                   });

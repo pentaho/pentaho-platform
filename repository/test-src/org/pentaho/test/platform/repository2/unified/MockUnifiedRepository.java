@@ -1359,6 +1359,21 @@ public class MockUnifiedRepository implements IUnifiedRepository {
   @Override
   public void deleteLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
   }
+  
+  @Override
+  public RepositoryFile updateFolder(RepositoryFile folder, String versionMessage) {
+    Validate.isTrue(folder.isFolder());
+    if (!hasAccess(folder.getId(), EnumSet.of(WRITE))) {
+      throw new AccessDeniedException("access denied");
+    }
+    FileRecord fileRecord = idManager.getFileById(folder.getId());
+    fileRecord.setFile(new RepositoryFile.Builder(folder).hidden(folder.isHidden()).title(findTitle(folder)).description(findDesc(folder)).build());
+    if (folder.isVersioned()) {
+      versionManager.createVersion(fileRecord.getFile().getId(), currentUserProvider.getUser(), versionMessage,
+          new Date());
+    }
+    return fileRecord.getFile();
+  }
 
   //  public static void main(final String[] args) throws Exception {
   //    MockUnifiedRepository repo = new MockUnifiedRepository();

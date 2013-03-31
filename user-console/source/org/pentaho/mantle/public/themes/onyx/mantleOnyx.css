@@ -6,7 +6,7 @@
 
 #adminCatTree .gwt-TreeItem-selected .gwt-Label {
     color: white;
-	cursor: pointer;
+	cursor: pointer;g
 	cursor: hand;
 }
 
@@ -453,6 +453,20 @@ a:active, a:hover {
   background-color: #DDDDDD;
 }
 
+.gwt-Tree .gwt-TreeItem-hidden {
+	width: 100%;
+	opacity: .7;
+	font-style: italic;
+	background-color: #ffffff;
+}
+
+.gwt-Tree .gwt-TreeItem-hiddenSelected {
+	width: 100%;
+	opacity: .7;
+	font-style: italic;
+	background-color: #dbdbdb;
+}
+
 .gwt-StackPanel {
   background-color: #EEEEEE;
   border: 1px solid #808080;
@@ -668,6 +682,20 @@ a:active, a:hover {
 #solutionTree .gwt-TreeItem-selected{
   font-size: .8em;
   background-color: #dbdbdb;
+}
+
+#solutionTree .gwt-TreeItem-hidden {
+	width: 100%;
+	opacity: .7;
+	font-style: italic;
+	background-color: #ffffff;
+}
+
+#solutionTree .gwt-TreeItem-hiddenSelected {
+	width: 100%;
+	opacity: .7;
+	font-style: italic;
+	background-color: #dbdbdb;
 }
 
 .gwt-MenuItem,

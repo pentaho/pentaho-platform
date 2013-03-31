@@ -703,4 +703,11 @@ public class UnmodifiableRepository implements IUnifiedRepository {
     Assert.notNull(locale);
     repository.deleteLocalePropertiesForFile(repositoryFile, locale);
   }
+  
+  @Override
+  public RepositoryFile updateFolder(RepositoryFile folder, String versionMessage) {
+    Assert.notNull(folder);
+    Assert.isTrue(folder.isFolder());
+    return repository.updateFolder(folder, versionMessage);
+  }
 }
