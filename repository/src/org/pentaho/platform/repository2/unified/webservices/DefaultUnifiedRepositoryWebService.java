@@ -379,4 +379,10 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     repo.deleteLocalePropertiesForFile(repo.getFileById(fileId), locale);
   }
 
+  @Override
+  public RepositoryFileDto updateFolder(RepositoryFileDto folder, String versionMessage) {
+    // TODO Auto-generated method stub
+    return repositoryFileAdapter.marshal(repo.updateFolder(repositoryFileAdapter.unmarshal(folder), versionMessage));
+  }
+
 }

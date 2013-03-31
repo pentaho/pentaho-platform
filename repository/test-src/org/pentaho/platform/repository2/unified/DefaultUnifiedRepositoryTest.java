@@ -1314,6 +1314,52 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(modSampleInteger, modData.getSampleInteger());
   }
 
+  
+  @Test
+  public void testUpdateFolder() throws Exception {
+    login(sysAdminUserName, systemTenant, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    ITenant tenantAcme = tenantManager.createTenant(systemTenant, TENANT_ID_ACME, tenantAdminRoleName, tenantAuthenticatedRoleName, "Anonymous");
+    userRoleDao.createUser(tenantAcme, USERNAME_ADMIN, "password", "", new String[]{tenantAdminRoleName});
+    
+    login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
+    userRoleDao.createUser(tenantAcme, USERNAME_SUZY, "password", "", null);
+        
+    login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
+
+        
+    RepositoryFile parentFolder = repo.getFile(ClientRepositoryPaths.getUserHomeFolderPath(USERNAME_SUZY));
+    RepositoryFile newFolder = new RepositoryFile.Builder("test").folder(true).hidden(true).build();
+
+    Date beginTime = Calendar.getInstance().getTime();
+
+    // Sleep for 1 second for time comparison
+    Thread.sleep(1000);
+    newFolder = repo.createFolder(parentFolder.getId(), newFolder, null);
+    Thread.sleep(1000);
+
+    Date endTime = Calendar.getInstance().getTime();
+    assertTrue(beginTime.before(newFolder.getCreatedDate()));
+    assertTrue(endTime.after(newFolder.getCreatedDate()));
+    assertNotNull(newFolder);
+    assertNotNull(newFolder.getId());
+    assertTrue(newFolder.isHidden());
+    assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY) + "/test"));
+    
+    RepositoryFile updateNewFolder = new RepositoryFile.Builder(newFolder).folder(true).hidden(false).build();
+
+    Date updateBeginTime = Calendar.getInstance().getTime();
+
+    // Sleep for 1 second for time comparison
+    Thread.sleep(1000);
+    updateNewFolder = repo.updateFolder(updateNewFolder, null);
+    Thread.sleep(1000);
+
+    assertNotNull(updateNewFolder);
+    assertNotNull(updateNewFolder.getId());
+    assertTrue(!updateNewFolder.isHidden());
+    assertNotNull(SimpleJcrTestUtils.getItem(testJcrTemplate, ServerRepositoryPaths.getUserHomeFolderPath(tenantAcme, USERNAME_SUZY) + "/test"));
+  }
+  
   /**
    * Create a versioned file then update it with invalid data and the checkout that we did before setting the data 
    * should be rolled back.

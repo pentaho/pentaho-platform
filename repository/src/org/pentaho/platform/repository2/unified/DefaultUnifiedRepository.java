@@ -468,10 +468,15 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     return repositoryFileDao.createFolder(parentFolderId, file, acl, versionMessage);
   }
 
+  private RepositoryFile internalUpdateFolder(final RepositoryFile file, final String versionMessage) {
+    Assert.notNull(file);
+    return repositoryFileDao.updateFolder(file, versionMessage);
+  }
+  
   private RepositoryFile internalUpdateFile(final RepositoryFile file, final IRepositoryFileData data,
       final String versionMessage) {
     Assert.notNull(file);
-    Assert.notNull(data);
+    Assert.notNull(data);      
     return repositoryFileDao.updateFile(file, data, versionMessage);
   }
 
@@ -565,4 +570,11 @@ public class DefaultUnifiedRepository implements IUnifiedRepository {
     Assert.notNull(locale);
     repositoryFileDao.deleteLocalePropertiesForFile(repositoryFile, locale);
   }
+
+  @Override
+  public RepositoryFile updateFolder(RepositoryFile folder, String versionMessage) {
+    Assert.notNull(folder);
+    return internalUpdateFolder(folder, versionMessage);
+  }
+
 }

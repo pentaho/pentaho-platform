@@ -68,6 +68,8 @@ public interface IRepositoryFileDao {
   RepositoryFile createFolder(final Serializable parentFolderId, final RepositoryFile file,
       final RepositoryFileAcl acl, final String versionMessage);
 
+  RepositoryFile updateFolder(final RepositoryFile file, final String versionMessage);
+
   List<RepositoryFile> getChildren(final Serializable folderId, final String filter);
 
   RepositoryFile updateFile(final RepositoryFile file, final IRepositoryFileData data, final String versionMessage);

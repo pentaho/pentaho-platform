@@ -74,14 +74,13 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
   private TreeItem selectedItem = null;
 
   FocusPanel focusable = new FocusPanel();
-
+  
   public SolutionTree() {
     super(MantleImages.images, false);
     setAnimationEnabled(true);
     sinkEvents(Event.ONDBLCLICK);
     // popupMenu.setAnimationEnabled(false);
     DOM.setElementAttribute(getElement(), "oncontextmenu", "return false;"); //$NON-NLS-1$ //$NON-NLS-2$
-
     DOM.setStyleAttribute(focusable.getElement(), "fontSize", "0"); //$NON-NLS-1$ //$NON-NLS-2$
     DOM.setStyleAttribute(focusable.getElement(), "position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
     DOM.setStyleAttribute(focusable.getElement(), "outline", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -98,15 +97,38 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       public void onSelection(SelectionEvent<TreeItem> event) {
         if (selectedItem != null) {
           Widget treeItemWidget = selectedItem.getWidget();
-          if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-            ((LeafItemWidget) treeItemWidget).getLeafLabel().removeStyleDependentName("selected"); //$NON-NLS-1$
+          if (selectedItem instanceof FileTreeItem) {
+            RepositoryFile repositoryFile = ((FileTreeItem)selectedItem).getRepositoryFile();
+            if(repositoryFile.isHidden()) {
+              ((LeafItemWidget) treeItemWidget).getLeafLabel().removeStyleDependentName("hiddenSelected"); //$NON-NLS-1$
+              ((LeafItemWidget) treeItemWidget).getLeafLabel().addStyleDependentName("hidden"); //$NON-NLS-1$
+            } else {
+              if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
+                ((LeafItemWidget) treeItemWidget).getLeafLabel().removeStyleDependentName("selected"); //$NON-NLS-1$
+              }            }
+          } else {
+            if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
+              ((LeafItemWidget) treeItemWidget).getLeafLabel().removeStyleDependentName("selected"); //$NON-NLS-1$
+            }
           }
         }
         selectedItem = event.getSelectedItem();
         if (selectedItem != null) {
           Widget treeItemWidget = selectedItem.getWidget();
-          if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-            ((LeafItemWidget) treeItemWidget).getLeafLabel().addStyleDependentName("selected"); //$NON-NLS-1$
+          if (selectedItem instanceof FileTreeItem) {
+            RepositoryFile repositoryFile = ((FileTreeItem)selectedItem).getRepositoryFile();
+            if(repositoryFile.isHidden()) {
+              ((LeafItemWidget) treeItemWidget).getLeafLabel().removeStyleDependentName("hidden"); //$NON-NLS-1$
+              ((LeafItemWidget) treeItemWidget).getLeafLabel().addStyleDependentName("hiddenSelected"); //$NON-NLS-1$
+            } else {
+              if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
+                ((LeafItemWidget) treeItemWidget).getLeafLabel().addStyleDependentName("selected"); //$NON-NLS-1$
+              }
+            }
+          } else {
+            if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
+              ((LeafItemWidget) treeItemWidget).getLeafLabel().addStyleDependentName("selected"); //$NON-NLS-1$
+            }
           }
         }
       }
@@ -244,31 +266,34 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     clear();
     // get document root item
     RepositoryFile rootRepositoryFile = repositoryFileTree.getFile();
-    FileTreeItem rootItem = null;
-    if (createRootNode) {
-      rootItem = new FileTreeItem();
-      rootItem.setText(rootRepositoryFile.getPath());
-      rootItem.setTitle(rootRepositoryFile.getPath());
-      rootItem.getElement().setId(rootRepositoryFile.getPath());
-      // added so we can traverse the true names
-      rootItem.setFileName("/"); //$NON-NLS-1$
-      addItem(rootItem);
-      buildSolutionTree(rootItem, repositoryFileTree);
-    } else {
-      buildSolutionTree(null, repositoryFileTree);
-      // sort the root elements
-      ArrayList<TreeItem> roots = new ArrayList<TreeItem>();
-      for (int i = 0; i < getItemCount(); i++) {
-        roots.add(getItem(i));
-      }
-      Collections.sort(roots, new Comparator<TreeItem>() {
-        public int compare(TreeItem o1, TreeItem o2) {
-          return o1.getText().compareTo(o2.getText());
+    if(!rootRepositoryFile.isHidden() || (rootRepositoryFile.isHidden() && isShowHiddenFiles())) {
+      FileTreeItem rootItem = null;
+      if (createRootNode) {
+        rootItem = new FileTreeItem();
+        rootItem.setText(rootRepositoryFile.getPath());
+        rootItem.setTitle(rootRepositoryFile.getPath());
+        rootItem.getElement().setId(rootRepositoryFile.getPath());
+        // added so we can traverse the true names
+        rootItem.setFileName("/"); //$NON-NLS-1$
+        rootItem.setRepositoryFile(rootRepositoryFile);
+        addItem(rootItem);
+        buildSolutionTree(rootItem, repositoryFileTree);
+      } else {
+        buildSolutionTree(null, repositoryFileTree);
+        // sort the root elements
+        ArrayList<TreeItem> roots = new ArrayList<TreeItem>();
+        for (int i = 0; i < getItemCount(); i++) {
+          roots.add(getItem(i));
         }
-      });
-      clear();
-      for (TreeItem myRootItem : roots) {
-        addItem(myRootItem);
+        Collections.sort(roots, new Comparator<TreeItem>() {
+          public int compare(TreeItem o1, TreeItem o2) {
+            return o1.getText().compareTo(o2.getText());
+          }
+        });
+        clear();
+        for (TreeItem myRootItem : roots) {
+          addItem(myRootItem);
+        }
       }
     }
     fixLeafNodes();
@@ -434,7 +459,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
       RepositoryFile file = treeItem.getFile();
       boolean isDirectory = file.isFolder();
       String fileName = file.getName();
-      if (!StringUtils.isEmpty(fileName)) {
+      if ((!file.isHidden() || (file.isHidden() && isShowHiddenFiles()))  && !StringUtils.isEmpty(fileName)) {
 
         // TODO Mapping Title to LocalizedName
         String localizedName = file.getTitle();
@@ -442,6 +467,10 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
         FileTreeItem childTreeItem = new FileTreeItem();
         childTreeItem.getElement().setAttribute("id", file.getPath());//$NON-NLS-1$
         childTreeItem.setUserObject(treeItem);
+        childTreeItem.setRepositoryFile(file);
+        if(file.isHidden() && file.isFolder()) {
+          childTreeItem.addStyleDependentName("hidden");
+        }
         ElementUtils.killAllTextSelection(childTreeItem.getElement());
         childTreeItem.setURL(fileName);
         if (showLocalizedFileNames) {

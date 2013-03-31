@@ -58,6 +58,8 @@ public interface IUnifiedRepositoryWebService extends RemoteService {
 
   RepositoryFileDto createFolder(final String parentFolderId, final RepositoryFileDto file, final String versionMessage);
 
+  RepositoryFileDto updateFolder(final RepositoryFileDto file, final String versionMessage);
+
   RepositoryFileDto createFolderWithAcl(final String parentFolderId, final RepositoryFileDto file,
       final RepositoryFileAclDto acl, final String versionMessage);
 

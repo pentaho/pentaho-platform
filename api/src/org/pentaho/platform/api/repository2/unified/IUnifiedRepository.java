@@ -241,6 +241,15 @@ public interface IUnifiedRepository {
       final RepositoryFileAcl acl, final String versionMessage);
 
   /**
+   * Updates a file and/or the data of a file.
+   *
+   * @param folder           updated folder (not a file); must have non-null id
+   * @param versionMessage (optional) version comment
+   * @return updated folder (possibly with new version number)
+   */
+  RepositoryFile updateFolder(final RepositoryFile folder, final String versionMessage);
+  
+  /**
    * Returns the children of this folder.
    *
    * @param folderId id of folder whose children to fetch
