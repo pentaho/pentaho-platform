@@ -50,7 +50,7 @@ public class GlobalListPublisherTest extends TestCase {
     StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory( );
     factory.init("test-res/solution/system/pentahoObjects.GlobalListPublisherTest.spring.xml", null );
 
-    PentahoSystem.setObjectFactory(factory);
+    PentahoSystem.registerObjectFactory(factory);
     PentahoSystem.setSystemSettingsService(factory.get(ISystemSettings.class, "systemSettingsService", session));
     PentahoSystem.init(appContext);
     

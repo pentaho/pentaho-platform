@@ -87,7 +87,7 @@ public class PluginManagerNotConfiguredTest extends BaseTest {
 
       IPentahoObjectFactory pentahoObjectFactory = new StandaloneSpringPentahoObjectFactory();
       pentahoObjectFactory.init(null, springApplicationContext);
-      PentahoSystem.setObjectFactory(pentahoObjectFactory);
+      PentahoSystem.registerObjectFactory(pentahoObjectFactory);
 
       //force Spring to populate PentahoSystem
       springApplicationContext.getBean("pentahoSystemProxy"); //$NON-NLS-1$

@@ -184,7 +184,7 @@ public class SolutionContextListener implements ServletContextListener {
       throw new RuntimeException(msg, e);
     }
     pentahoObjectFactory.init(pentahoObjectFactoryConfigFile, context);
-    PentahoSystem.setObjectFactory(pentahoObjectFactory);
+    PentahoSystem.registerPrimaryObjectFactory(pentahoObjectFactory);
   }
 
   /**

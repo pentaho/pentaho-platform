@@ -10,6 +10,7 @@
   <property file="dev_build.properties" />
   <property file="${assembly.dir}/override.properties" />
   <property file="${assembly.dir}/assembly.properties" />
+  <property name="ivy.use.symlinks" value="false" description="Flag indicating if Ivy should create symlinks when retrieving artifacts."/>
 
   <!--Import Open Assembly ant file -->
   <import file="${assembly.dir}/assembly.xml" />

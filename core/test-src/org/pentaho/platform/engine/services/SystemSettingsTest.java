@@ -78,7 +78,7 @@ public class SystemSettingsTest extends TestCase {
 	    String objectFactoryCreatorCfgFile = getSolutionPath() + SYSTEM_FOLDER + "/" + DEFAULT_SPRING_CONFIG_FILE_NAME; //$NON-NLS-1$
 	    IPentahoObjectFactory pentahoObjectFactory = new StandaloneSpringPentahoObjectFactory();
 	    pentahoObjectFactory.init(objectFactoryCreatorCfgFile, null);
-	    PentahoSystem.setObjectFactory( pentahoObjectFactory );
+	    PentahoSystem.registerObjectFactory(pentahoObjectFactory);
 	    return PentahoSystem.init(applicationContext );
     }
     

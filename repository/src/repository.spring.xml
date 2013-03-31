@@ -2,8 +2,12 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
        default-lazy-init="true">
+
+    <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer" lazy-init="false"/>
+
 
     <bean id="propertyPlaceholderConfigurerRepository"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
@@ -500,7 +504,56 @@
     <constructor-arg ref="bootstrapRoleBindingMap"/>
     <constructor-arg ref="superAdminAuthorityName"/>
     <constructor-arg ref="tenantedRoleNameUtils"/>
+    <constructor-arg>
+      <pen:list class="org.pentaho.platform.api.engine.IAuthorizationAction"/>
+    </constructor-arg>
   </bean>
+
+
+  <!-- Built-In ABS Logical Roles -->
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="50"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="40"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="30"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="20"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.CreateTenantsAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="10"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+  <bean class="org.pentaho.platform.security.policy.rolebased.actions.PublishAction">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="0"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
+
 
   <util:map id="immutableRoleBindingMap">
     <entry key-ref="singleTenantAdminAuthorityName">

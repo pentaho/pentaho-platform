@@ -65,7 +65,7 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
     factory.defineObject("ICacheManager", MockDisabledCacheManager.class.getName()); //$NON-NLS-1$
     // Swap in an object factory with a cache manager that doesn't allow creating new caches
     final IPentahoObjectFactory original = PentahoSystem.getObjectFactory();
-    PentahoSystem.setObjectFactory(factory);
+    PentahoSystem.registerObjectFactory(factory);
     try {
       try {
         new SessionCachingMetadataDomainRepository(new MockSessionAwareMetadataDomainRepository());
@@ -76,7 +76,7 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
       }
     } finally {
       // Replace the original object factory so the rest of the tests work
-      PentahoSystem.setObjectFactory(original);
+      PentahoSystem.registerObjectFactory(original);
     }
   }
 

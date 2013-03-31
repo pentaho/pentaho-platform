@@ -70,7 +70,9 @@ import org.pentaho.platform.api.repository2.unified.data.sample.SampleRepository
 import org.pentaho.platform.api.repository2.unified.data.simple.SimpleRepositoryFileData;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
@@ -83,6 +85,7 @@ import org.pentaho.platform.repository2.unified.jcr.jackrabbit.security.TestPrin
 import org.pentaho.platform.repository2.unified.jcr.sejcr.CredentialsStrategy;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
 import org.pentaho.platform.security.policy.rolebased.RoleBindingStruct;
+import org.pentaho.platform.security.policy.rolebased.actions.*;
 import org.pentaho.platform.security.userroledao.DefaultTenantedPrincipleNameResolver;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.springframework.beans.BeansException;
@@ -205,6 +208,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     // parent folder must match jcrRepository.homeDir bean property in repository-test-override.spring.xml
     FileUtils.deleteDirectory(new File("/tmp/jackrabbit-test-TRUNK"));
     PentahoSessionHolder.setStrategyName(PentahoSessionHolder.MODE_GLOBAL);
+
   }
 
   @AfterClass
@@ -3127,7 +3131,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
 
     roleBindingDao.setRoleBindings("Authenticated", Arrays
-        .asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION }));
+        .asList(new String[] { RepositoryReadAction.NAME }));
   }
 
   @Test
@@ -3138,8 +3142,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     
-    assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING,
-        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION }), roleBindingDao.getBoundLogicalRoleNames(Arrays
+    assertEquals(Arrays.asList(new String[] { RepositoryReadAction.NAME, SchedulerAction.NAME,
+        RepositoryCreateAction.NAME }), roleBindingDao.getBoundLogicalRoleNames(Arrays
         .asList(new String[] { "Authenticated", "ceo" })));
   }
 
@@ -3163,20 +3167,20 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     List<String> allowedActions = authorizationPolicy.getAllowedActions(null);
 
     assertEquals(3, allowedActions.size());
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.MANAGE_SCHEDULING));
+    assertTrue(allowedActions.contains(RepositoryReadAction.NAME));
+    assertTrue(allowedActions.contains(RepositoryCreateAction.NAME));
+    assertTrue(allowedActions.contains(SchedulerAction.NAME));
 
     // test with explicit namespace
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_REPOSITORY);
     assertEquals(2, allowedActions.size());
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
+    assertTrue(allowedActions.contains(RepositoryReadAction.NAME));
+    assertTrue(allowedActions.contains(RepositoryCreateAction.NAME));
 
     // test with scheduler 
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_SCHEDULER);
     assertEquals(1, allowedActions.size());
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.MANAGE_SCHEDULING));
+    assertTrue(allowedActions.contains(SchedulerAction.NAME));
     
     // test with bogus namespace
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_DOESNOTEXIST);
@@ -3186,22 +3190,22 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
     allowedActions = authorizationPolicy.getAllowedActions(null);
     assertEquals(3, allowedActions.size());
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.MANAGE_SCHEDULING));
+    assertTrue(allowedActions.contains(RepositoryReadAction.NAME));
+    assertTrue(allowedActions.contains(RepositoryCreateAction.NAME));
+    assertTrue(allowedActions.contains(SchedulerAction.NAME));
 
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_REPOSITORY);
     assertEquals(2, allowedActions.size());
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
+    assertTrue(allowedActions.contains(RepositoryReadAction.NAME));
+    assertTrue(allowedActions.contains(RepositoryCreateAction.NAME));
     // test with scheduler 
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_SCHEDULER);
     assertEquals(1, allowedActions.size());
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.MANAGE_SCHEDULING));
+    assertTrue(allowedActions.contains(SchedulerAction.NAME));
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_SECURITY);
     assertEquals(1, allowedActions.size());
-    assertTrue(allowedActions.contains(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION));
+    assertTrue(allowedActions.contains(AdministerSecurityAction.NAME));
 
     allowedActions = authorizationPolicy.getAllowedActions(NAMESPACE_PENTAHO);
     assertEquals(4, allowedActions.size());
@@ -3232,8 +3236,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
       // login with admin (in tenant acme)
       login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
       roleBindingDao.setRoleBindings(tenantAuthenticatedRoleName, Arrays.asList(new String[] {
-          IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING,
-          IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION }));
+          RepositoryReadAction.NAME, RepositoryCreateAction.NAME, SchedulerAction.NAME,
+          AdministerSecurityAction.NAME }));
       assertEquals(4, authorizationPolicy.getAllowedActions(null).size());
 
       // login with pat (in tenant duff)
@@ -3265,19 +3269,19 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     userRoleDao.createUser(tenantDuff, USERNAME_PAT, "password", "", null);
     
     login(USERNAME_ADMIN, tenantAcme, new String[]{tenantAdminRoleName, tenantAuthenticatedRoleName});
-    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
-    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
-    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION));
+    assertTrue(authorizationPolicy.isAllowed(RepositoryReadAction.NAME));
+    assertTrue(authorizationPolicy.isAllowed(RepositoryCreateAction.NAME));
+    assertTrue(authorizationPolicy.isAllowed(AdministerSecurityAction.NAME));
 
     login(USERNAME_SUZY, tenantAcme, new String[]{tenantAuthenticatedRoleName});
-    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
-    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
-    assertFalse(authorizationPolicy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION));
+    assertTrue(authorizationPolicy.isAllowed(RepositoryReadAction.NAME));
+    assertTrue(authorizationPolicy.isAllowed(RepositoryCreateAction.NAME));
+    assertFalse(authorizationPolicy.isAllowed(AdministerSecurityAction.NAME));
 
     login(USERNAME_PAT, tenantDuff, new String[]{tenantAuthenticatedRoleName});
-    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION));
-    assertTrue(authorizationPolicy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
-    assertFalse(authorizationPolicy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION));
+    assertTrue(authorizationPolicy.isAllowed(RepositoryReadAction.NAME));
+    assertTrue(authorizationPolicy.isAllowed(RepositoryCreateAction.NAME));
+    assertFalse(authorizationPolicy.isAllowed(AdministerSecurityAction.NAME));
   }
 
   @Test
@@ -3290,8 +3294,8 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     try {
       roleBindingDao
           .setRoleBindings(tenantAdminRoleName, Arrays.asList(new String[] {
-              IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
-              IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION }));
+              RepositoryReadAction.NAME,
+              RepositoryCreateAction.NAME }));
       fail();
     } catch (Exception e) {
 
@@ -3328,14 +3332,14 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull(struct);
     assertNotNull(struct.bindingMap);
     assertEquals(3, struct.bindingMap.size());
-    assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
-        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING, IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION, IAuthorizationPolicy.CREATE_TENANTS_ACTION}),
+    assertEquals(Arrays.asList(new String[] { RepositoryReadAction.NAME,
+        RepositoryCreateAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME, CreateTenantsAction.NAME}),
         struct.bindingMap.get(superAdminRoleName));
-    assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
-        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING, IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION }),
+    assertEquals(Arrays.asList(new String[] { RepositoryReadAction.NAME,
+        RepositoryCreateAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME }),
         struct.bindingMap.get(tenantAdminRoleName));
-    assertEquals(Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION,
-        IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING }), struct.bindingMap
+    assertEquals(Arrays.asList(new String[] { RepositoryReadAction.NAME,
+        RepositoryCreateAction.NAME, SchedulerAction.NAME }), struct.bindingMap
         .get(tenantAuthenticatedRoleName));
     roleBindingDao.setRoleBindings("whatever", Arrays.asList(new String[] { "org.pentaho.p1.reader" }));
 
@@ -3346,9 +3350,9 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull(struct.logicalRoleNameMap);
     assertEquals(6, struct.logicalRoleNameMap.size());
     assertEquals("Create Content", struct.logicalRoleNameMap
-        .get(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION));
+        .get(RepositoryCreateAction.NAME));
     assertEquals("Manage System", struct.logicalRoleNameMap
-        .get(IAuthorizationPolicy.CREATE_TENANTS_ACTION));
+        .get(CreateTenantsAction.NAME));
     
   }
 

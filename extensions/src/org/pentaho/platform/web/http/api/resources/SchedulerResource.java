@@ -68,6 +68,8 @@ import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifier;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 
 /**
  * Represents a file node in the repository. This api provides methods for discovering information about repository files as well as CRUD operations
@@ -131,7 +133,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       scheduleRequest.setJobName("" + System.currentTimeMillis()); //$NON-NLS-1$
     }
 
-    if (!runInBackground && !policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+    if (!runInBackground && !policy.isAllowed(SchedulerAction.NAME)) {
       return Response.status(UNAUTHORIZED).build();
     }
 
@@ -248,8 +250,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response triggerNow(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(SchedulerAction.NAME)) {
         scheduler.triggerNow(jobRequest.getJobId());
       } else {
         if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
@@ -316,8 +317,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   }
 
   private Boolean canAdminister(IPentahoSession session) {
-    if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-        && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+    if (policy.isAllowed(AdministerSecurityAction.NAME)) {
       return true;
     }
     return false;
@@ -327,7 +327,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Path("/canSchedule")
   @Produces(TEXT_PLAIN)
   public String doGetCanSchedule() {
-    Boolean isAllowed = policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING);
+    Boolean isAllowed = policy.isAllowed(SchedulerAction.NAME);
     return isAllowed ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
@@ -347,8 +347,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response start() {
     try {
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(SchedulerAction.NAME)) {
         scheduler.start();
       }
       return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
@@ -362,8 +361,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response pause() {
     try {
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(SchedulerAction.NAME)) {
         scheduler.pause();
       }
       return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
@@ -377,8 +375,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @Produces("text/plain")
   public Response shutdown() {
     try {
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(SchedulerAction.NAME)) {
         scheduler.shutdown();
       }
       return Response.ok(scheduler.getStatus().name()).type(MediaType.TEXT_PLAIN).build();
@@ -394,8 +391,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response getJobState(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(SchedulerAction.NAME)) {
         return Response.ok(job.getState().name()).type(MediaType.TEXT_PLAIN).build();
       } else {
         if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
@@ -415,8 +411,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response pauseJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(SchedulerAction.NAME)) {
         scheduler.pauseJob(jobRequest.getJobId());
       } else {
         if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
@@ -438,8 +433,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response resumeJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(SchedulerAction.NAME)) {
         scheduler.resumeJob(jobRequest.getJobId());
       } else {
         if (PentahoSessionHolder.getSession().getName().equals(job.getUserName())) {
@@ -461,8 +455,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response removeJob(JobRequest jobRequest) {
     try {
       Job job = scheduler.getJob(jobRequest.getJobId());
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION) && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-          && policy.isAllowed(IAuthorizationPolicy.MANAGE_SCHEDULING)) {
+      if (policy.isAllowed(SchedulerAction.NAME)) {
         scheduler.removeJob(jobRequest.getJobId());
         return Response.ok("REMOVED").type(MediaType.TEXT_PLAIN).build();
       } else {

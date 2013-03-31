@@ -37,7 +37,7 @@ public class AuditEntryTest extends TestCase {
   public void testAuditEntry() throws Exception {
 
     StandaloneObjectFactory factory = new StandaloneObjectFactory();
-    PentahoSystem.setObjectFactory( factory );
+    PentahoSystem.registerObjectFactory(factory);
 
     String jobId = "testjobid";
     String instId = "testinstid";

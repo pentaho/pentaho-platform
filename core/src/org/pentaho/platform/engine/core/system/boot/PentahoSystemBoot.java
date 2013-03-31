@@ -129,7 +129,7 @@ public class PentahoSystemBoot {
     setFilePath(userFilePath != null?userFilePath:new File(".").getAbsolutePath()); //$NON-NLS-1$
     
     setFullyQualifiedServerUrl(userFullyQualifiedServerUrl != null? userFullyQualifiedServerUrl:"http://localhost:8080/pentaho/"); //$NON-NLS-1$
-    
+
     setFactory(userFactory != null?userFactory:new StandaloneObjectFactory());
 
     PentahoSystem.setSystemListeners(lifecycleListeners);
@@ -234,7 +234,8 @@ public class PentahoSystemBoot {
     this.factory = factory;
     //object factory needs to also be early here so clients that do not need to
     //run the platform can have an object factory available
-    PentahoSystem.setObjectFactory(factory);
+    PentahoSystem.clearObjectFactory();
+    PentahoSystem.registerPrimaryObjectFactory(factory);
   }
 
   /**

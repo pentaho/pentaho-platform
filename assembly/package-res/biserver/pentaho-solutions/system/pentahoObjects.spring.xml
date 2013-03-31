@@ -13,9 +13,12 @@ default-lazy-init is set to true since some of these object make calls into
 PentahoSystem which is initialized after Spring
  -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
-       default-lazy-init="true" >
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd 
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true" >
 
   <bean id="ISolutionEngine" class="org.pentaho.platform.engine.services.solution.SolutionEngine" scope="prototype"/>
   <!-- Uncomment the following line to use a filesystem-based repository. Note: does not support ACLs.  -->
@@ -45,6 +48,7 @@ PentahoSystem which is initialized after Spring
   <!--  <bean id="IMetadataDomainRepository" class="org.pentaho.platform.plugin.services.metadata.CachingPentahoMetadataDomainRepository" scope="singleton"/>-->
   <bean id="IUserSettingService" class="org.pentaho.platform.repository.usersettings.UserSettingService"
         scope="session">
+
       <constructor-arg ref="unifiedRepository"/>
   </bean>
   <bean id="IEmailService" class="org.pentaho.platform.plugin.services.email.EmailService" scope="session"/>

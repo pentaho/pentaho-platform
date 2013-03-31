@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
@@ -70,8 +71,8 @@ public class JcrRoleAuthorizationPolicyRoleBindingDao extends AbstractJcrBackedR
 
   public JcrRoleAuthorizationPolicyRoleBindingDao(final JcrTemplate jcrTemplate,
       final List<String> logicalRoleNames, final Map<String, List<String>> immutableRoleBindings, final Map<String, List<String>> bootstrapRoleBindings,
-      final String superAdminRoleName, final ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
-    super(logicalRoleNames, immutableRoleBindings, bootstrapRoleBindings, superAdminRoleName, tenantedRoleNameUtils);
+      final String superAdminRoleName, final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> logicalRoles) {
+    super(logicalRoleNames, immutableRoleBindings, bootstrapRoleBindings, superAdminRoleName, tenantedRoleNameUtils, logicalRoles);
     Assert.notNull(jcrTemplate);
     this.jcrTemplate = jcrTemplate;
   }

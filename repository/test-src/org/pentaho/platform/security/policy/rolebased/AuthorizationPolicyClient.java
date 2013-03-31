@@ -27,6 +27,9 @@ import javax.xml.ws.Service;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.security.policy.rolebased.ws.IAuthorizationPolicyWebService;
 import org.pentaho.platform.security.policy.rolebased.ws.IRoleAuthorizationPolicyRoleBindingDaoWebService;
 
@@ -65,9 +68,9 @@ public class AuthorizationPolicyClient {
   @Test
   public void testEverything() {
     final String RUNTIME_ROLE_AUTHENTICATED = "Authenticated";
-    roleBindingDaoWebService.setRoleBindings(RUNTIME_ROLE_AUTHENTICATED, Arrays.asList(new String[] { IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING }));
+    roleBindingDaoWebService.setRoleBindings(RUNTIME_ROLE_AUTHENTICATED, Arrays.asList(new String[] { RepositoryReadAction.NAME, RepositoryCreateAction.NAME, SchedulerAction.NAME }));
 
     List<String> allowedActions = policy.getAllowedActions("org.pentaho");
-    assertEquals(2, allowedActions.size());
+    assertEquals(3, allowedActions.size());
   }
 }
