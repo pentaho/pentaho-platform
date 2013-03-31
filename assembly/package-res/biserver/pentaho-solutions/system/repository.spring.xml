@@ -82,6 +82,7 @@
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataAtVersionForExecute=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.createFile=PROPAGATION_REQUIRED
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.createFolder=PROPAGATION_REQUIRED
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateFolder=PROPAGATION_REQUIRED
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getChildren=PROPAGATION_REQUIRED,readOnly
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateFile=PROPAGATION_REQUIRED
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAcl=PROPAGATION_REQUIRED,readOnly
@@ -147,6 +148,7 @@
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getDataAtVersionForExecute=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.createFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.createFolder=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
+        org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateFolder=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getChildren=VOTE_AUTHZ_POLICY_org.pentaho.repository.read
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.updateFile=VOTE_AUTHZ_POLICY_org.pentaho.repository.create
         org.pentaho.platform.api.repository2.unified.IUnifiedRepository.getAcl=VOTE_AUTHZ_POLICY_org.pentaho.repository.read

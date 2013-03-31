@@ -628,4 +628,13 @@ public class ExceptionLoggingDecorator implements IUnifiedRepository {
       }
     }, Messages.getInstance().getString("ExceptionLoggingDecorator.deleteLocalePropertiesForFile", repositoryFile.getId())); //$NON-NLS-1$
   }
+  
+  @Override
+  public RepositoryFile updateFolder(final RepositoryFile folder, final String versionMessage) {
+    return callLogThrow(new Callable<RepositoryFile>() {
+      public RepositoryFile call() throws Exception {
+        return delegatee.updateFolder(folder, versionMessage);
+      }
+    }, Messages.getInstance().getString("ExceptionLoggingDecorator.updateFile", folder != null ? folder.getId() : null)); //$NON-NLS-1$
+  }
 }

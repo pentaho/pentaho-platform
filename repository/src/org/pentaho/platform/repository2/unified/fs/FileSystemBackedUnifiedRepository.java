@@ -308,4 +308,8 @@ public class FileSystemBackedUnifiedRepository implements IUnifiedRepository {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public RepositoryFile updateFolder(RepositoryFile folder, String versionMessage) {
+    throw new UnsupportedOperationException();
+  }
 }

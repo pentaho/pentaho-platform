@@ -509,4 +509,9 @@ public class UnifiedRepositoryToWebServiceAdapter implements IUnifiedRepository 
   public void deleteLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public RepositoryFile updateFolder(RepositoryFile folder, String versionMessage) {
+    return repositoryFileAdapter.unmarshal(repoWebService.updateFolder(repositoryFileAdapter.marshal(folder), versionMessage));
+  }
 }

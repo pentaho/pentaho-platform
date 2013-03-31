@@ -328,4 +328,10 @@ public class EmptyUnifiedRepository implements IUnifiedRepository {
   @Override
   public void deleteLocalePropertiesForFile(RepositoryFile repositoryFile, String locale) {
   }
+
+  @Override
+  public RepositoryFile updateFolder(RepositoryFile folder, String versionMessage) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

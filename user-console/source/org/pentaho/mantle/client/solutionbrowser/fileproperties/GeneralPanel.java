@@ -54,26 +54,38 @@ import com.google.gwt.xml.client.XMLParser;
 public class GeneralPanel extends FlexTable implements IFileModifier {
 
   Label nameLabel = new Label();
+
   Label locationLabel = new Label();
+
   Label sourceLabel = new Label();
+
   Label typeLabel = new Label();
+
   Label sizeLabel = new Label();
+
   Label createdLabel = new Label();
+
   Label lastModifiedDateLabel = new Label();
+
   Label deletedDateLabel = new Label();
+
   Label originalLocationLabel = new Label();
+
   Label ownerLabel = new Label();
-  
-//  IFileSummary fileSummary;
+
+  //  IFileSummary fileSummary;
   RepositoryFile fileSummary;
 
   boolean isInTrash;
+
   boolean dirty = false;
 
   ArrayList<JSONObject> metadataPerms = new ArrayList<JSONObject>();
+
   VerticalPanel metadataPermsPanel = new VerticalPanel();
 
   private static final String METADATA_PERM_PREFIX = "_PERM_"; //$NON-NLS-1$
+
   private static final String OWNER_NAME_ELEMENT_NAME = "owner"; //$NON-NLS-1$
 
   /**
@@ -85,7 +97,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     super();
     this.fileSummary = fileSummary;
     isInTrash = this.fileSummary.getPath().contains("/.trash/pho:"); //$NON-NLS-1$
-    setWidget(0, 0, new Label(Messages.getString("name")+":")); //$NON-NLS-1$ //$NON-NLS-2$
+    setWidget(0, 0, new Label(Messages.getString("name") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
     setWidget(0, 1, nameLabel);
 
     setWidget(1, 0, new Label(Messages.getString("type") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -106,21 +118,21 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
 
     setWidget(7, 0, new Label(Messages.getString("created") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
     setWidget(7, 1, createdLabel);
-    
+
     setWidget(8, 0, new Label(Messages.getString("lastModified") + ":")); //$NON-NLS-1$ //$NON-NLS-2$
     setWidget(8, 1, lastModifiedDateLabel);
 
     addHr(9, 0, 2);
-    
+
     if (isInTrash) {
-      setWidget(10, 0, new Label(Messages.getString("dateDeleted") + ":"));  //$NON-NLS-1$//$NON-NLS-2$
+      setWidget(10, 0, new Label(Messages.getString("dateDeleted") + ":")); //$NON-NLS-1$//$NON-NLS-2$
       setWidget(10, 1, deletedDateLabel);
-      
-    Label lbl = new Label(Messages.getString("originalLocation") + ":"); //$NON-NLS-1$ //$NON-NLS-2$
-    lbl.addStyleName("nowrap"); //$NON-NLS-1$     
+
+      Label lbl = new Label(Messages.getString("originalLocation") + ":"); //$NON-NLS-1$ //$NON-NLS-2$
+      lbl.addStyleName("nowrap"); //$NON-NLS-1$     
       setWidget(11, 0, lbl);
       setWidget(11, 1, originalLocationLabel);
-      
+
       Button restoreButton = new Button("Restore");
       restoreButton.setStylePrimaryName("pentaho-button");
       restoreButton.addClickHandler(new ClickHandler() {
@@ -132,7 +144,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
           new RestoreFileCommand(restoreList).execute();
           dialog.hide();
         }
-        
+
       });
       setWidget(12, 3, restoreButton);
 
@@ -154,31 +166,36 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
     // not used
   }
 
-  public List<RequestBuilder> prepareRequests(){
+  public List<RequestBuilder> prepareRequests() {
     ArrayList<RequestBuilder> requestBuilders = new ArrayList<RequestBuilder>();
-      String moduleBaseURL = GWT.getModuleBaseURL();
-      String moduleName = GWT.getModuleName();
-      String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-      String setMetadataUrl = contextURL + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$//$NON-NLS-2$
-      RequestBuilder setMetadataBuilder = new RequestBuilder(RequestBuilder.PUT, setMetadataUrl);
-      setMetadataBuilder.setHeader("Content-Type", "application/json");
+    String moduleBaseURL = GWT.getModuleBaseURL();
+    String moduleName = GWT.getModuleName();
+    String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+    String setMetadataUrl = contextURL
+        + "api/repo/files/" + SolutionBrowserPanel.pathToId(fileSummary.getPath()) + "/metadata"; //$NON-NLS-1$//$NON-NLS-2$
+    RequestBuilder setMetadataBuilder = new RequestBuilder(RequestBuilder.PUT, setMetadataUrl);
+    setMetadataBuilder.setHeader("Content-Type", "application/json");
 
-      // prepare request data
-          JSONArray arr = new JSONArray();
-          JSONObject metadata = new JSONObject();
-          metadata.put("stringKeyStringValueDto", arr);
-          for (int i = 0; i < metadataPerms.size(); i++) {
-              Set<String> keys = metadataPerms.get(i).keySet();
-              for (String key : keys) {
-                  JSONObject obj = new JSONObject();
-                  obj.put("key", new JSONString(key));
-                  obj.put("value", metadataPerms.get(i).get(key).isString());
-                  arr.set(i, obj);
-              }
+    // prepare request data
+    JSONArray arr = new JSONArray();
+    JSONObject metadata = new JSONObject();
+    metadata.put("stringKeyStringValueDto", arr);
+    for (int i = 0; i < metadataPerms.size(); i++) {
+      Set<String> keys = metadataPerms.get(i).keySet();
+      for (String key : keys) {
+        if (key != null && SolutionBrowserPanel.getInstance().isAdministrator()) {
+          if (key.equals("_PERM_SCHEDULABLE") && !fileSummary.isFolder() || key.equals("_PERM_HIDDEN")) {
+            JSONObject obj = new JSONObject();
+            obj.put("key", new JSONString(key));
+            obj.put("value", metadataPerms.get(i).get(key).isString());
+            arr.set(i, obj);
           }
-          // setMetadataBuilder.sendRequest(metadata.toString(), setMetadataCallback);
-       setMetadataBuilder.setRequestData(metadata.toString());
-       requestBuilders.add(setMetadataBuilder);
+        }
+      }
+    }
+    // setMetadataBuilder.sendRequest(metadata.toString(), setMetadataCallback);
+    setMetadataBuilder.setRequestData(metadata.toString());
+    requestBuilders.add(setMetadataBuilder);
 
     return requestBuilders;
   }
@@ -188,11 +205,15 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
    */
   public void init() {
     nameLabel.setText(fileSummary.getTitle());
-    typeLabel.setText(fileSummary.isFolder() ? Messages.getString("folder") : fileSummary.getName().substring(fileSummary.getName().lastIndexOf(".")));  //$NON-NLS-1$//$NON-NLS-2$
-    locationLabel.setText(isInTrash ? Messages.getString("recycleBin") : fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/")));  //$NON-NLS-1$//$NON-NLS-2$
-    sizeLabel.setText(NumberFormat.getDecimalFormat().format(fileSummary.getFileSize()/1000.00)+" " + Messages.getString("kiloBytes")); //$NON-NLS-1$ //$NON-NLS-2$
+    typeLabel
+        .setText(fileSummary.isFolder() ? Messages.getString("folder") : fileSummary.getName().substring(fileSummary.getName().lastIndexOf("."))); //$NON-NLS-1$//$NON-NLS-2$
+    locationLabel
+        .setText(isInTrash ? Messages.getString("recycleBin") : fileSummary.getPath().substring(0, fileSummary.getPath().lastIndexOf("/"))); //$NON-NLS-1$//$NON-NLS-2$
+    sizeLabel.setText(NumberFormat.getDecimalFormat().format(fileSummary.getFileSize() / 1000.00)
+        + " " + Messages.getString("kiloBytes")); //$NON-NLS-1$ //$NON-NLS-2$
     createdLabel.setText(fileSummary.getCreatedDate().toString());
-    lastModifiedDateLabel.setText(fileSummary.getLastModifiedDate() == null ? fileSummary.getCreatedDate().toString() : fileSummary.getLastModifiedDate().toString());
+    lastModifiedDateLabel.setText(fileSummary.getLastModifiedDate() == null ? fileSummary.getCreatedDate().toString()
+        : fileSummary.getLastModifiedDate().toString());
     deletedDateLabel.setText(fileSummary.getDeletedDate() == null ? "" : fileSummary.getDeletedDate().toString()); //$NON-NLS-1$
     originalLocationLabel.setText(fileSummary.getOriginalParentFolderPath());
   }
@@ -203,7 +224,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
   @Override
   public void init(RepositoryFile fileSummary, Document fileInfo) {
     // TODO Auto-generated method stub
-    
+
   }
 
   /**
@@ -212,7 +233,7 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
    * @param col
    */
   @SuppressWarnings("serial")
-  protected void addHr(int row, int col, int colspan){
+  protected void addHr(int row, int col, int colspan) {
     setHTML(row, col, new SafeHtml() {
       @Override
       public String asString() {
@@ -226,33 +247,40 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
    * Accept metadata response object and parse for use in General panel
    * @param response
    */
-  protected void setMetadataResponse(Response response){
-    if (SolutionBrowserPanel.getInstance().isAdministrator() && !fileSummary.isFolder()) {
-      JSONObject json = (JSONObject) JSONParser.parseLenient(response.getText());
-      if (json != null) {
-        JSONArray arr = (JSONArray) json.get("stringKeyStringValueDto");
-        for (int i = 0; i < arr.size(); i++) {
-          JSONValue arrVal = arr.get(i);
-          String key = arrVal.isObject().get("key").isString().stringValue();
-          String value = arrVal.isObject().get("value").isString().stringValue();
-          if (key.startsWith(METADATA_PERM_PREFIX)) {
-            JSONObject nv = new JSONObject();
-            nv.put(key, new JSONString(value));
-            metadataPerms.add(nv);
+  protected void setMetadataResponse(Response response) {
+    JSONObject json = (JSONObject) JSONParser.parseLenient(response.getText());
+    if (json != null) {
+      JSONArray arr = (JSONArray) json.get("stringKeyStringValueDto");
+      for (int i = 0; i < arr.size(); i++) {
+        JSONValue arrVal = arr.get(i);
+        String key = arrVal.isObject().get("key").isString().stringValue();
+        if (key != null && SolutionBrowserPanel.getInstance().isAdministrator()) {
+          if (key.equals("_PERM_SCHEDULABLE") && !fileSummary.isFolder() || key.equals("_PERM_HIDDEN")) {
+            String value = arrVal.isObject().get("value").isString().stringValue();
+            if (key.startsWith(METADATA_PERM_PREFIX)) {
+              JSONObject nv = new JSONObject();
+              nv.put(key, new JSONString(value));
+              metadataPerms.add(nv);
+            }
           }
         }
-        for (final JSONObject nv : metadataPerms) {
-          Set<String> keys = nv.keySet();
-          for (final String key : keys) {
-            final CheckBox cb = new CheckBox(Messages.getString(key.substring(METADATA_PERM_PREFIX.length()).toLowerCase()));
-            cb.setValue(Boolean.parseBoolean(nv.get(key).isString().stringValue()));
-            cb.addClickHandler(new ClickHandler() {
-              public void onClick(ClickEvent event) {
-                dirty = true;
-                nv.put(key, new JSONString(cb.getValue().toString()));
-              }
-            });
-            metadataPermsPanel.add(cb);
+      }
+      for (final JSONObject nv : metadataPerms) {
+        Set<String> keys = nv.keySet();
+        for (final String key : keys) {
+          if (key != null && SolutionBrowserPanel.getInstance().isAdministrator()) {
+            if (key.equals("_PERM_SCHEDULABLE") && !fileSummary.isFolder() || key.equals("_PERM_HIDDEN")) {
+              final CheckBox cb = new CheckBox(Messages.getString(key.substring(METADATA_PERM_PREFIX.length())
+                  .toLowerCase()));
+              cb.setValue(Boolean.parseBoolean(nv.get(key).isString().stringValue()));
+              cb.addClickHandler(new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                  dirty = true;
+                  nv.put(key, new JSONString(cb.getValue().toString()));
+                }
+              });
+              metadataPermsPanel.add(cb);
+            }
           }
         }
       }
@@ -263,8 +291,9 @@ public class GeneralPanel extends FlexTable implements IFileModifier {
    * Get owner name from acl response
    * @param response
    */
-  protected void setAclResponse(Response response){
+  protected void setAclResponse(Response response) {
     Document permissions = XMLParser.parse(response.getText());
-    ownerLabel.setText(permissions.getElementsByTagName(OWNER_NAME_ELEMENT_NAME).item(0).getFirstChild().getNodeValue());
+    ownerLabel
+        .setText(permissions.getElementsByTagName(OWNER_NAME_ELEMENT_NAME).item(0).getFirstChild().getNodeValue());
   }
 }
