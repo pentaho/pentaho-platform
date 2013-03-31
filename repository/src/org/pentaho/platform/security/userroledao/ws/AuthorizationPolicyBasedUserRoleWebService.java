@@ -4,6 +4,7 @@ import javax.jws.WebService;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.userroledao.messages.Messages;
 
 /**
@@ -22,6 +23,6 @@ public class AuthorizationPolicyBasedUserRoleWebService extends UserRoleWebServi
       throw new IllegalStateException(Messages.getInstance().getString(
           "AuthorizationPolicyBasedUserRoleWebService.ERROR_0001_MISSING_AUTHZ_POLICY")); //$NON-NLS-1$
     }
-    return policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION); //$NON-NLS-1$
+    return policy.isAllowed(AdministerSecurityAction.NAME); //$NON-NLS-1$
   }
 }

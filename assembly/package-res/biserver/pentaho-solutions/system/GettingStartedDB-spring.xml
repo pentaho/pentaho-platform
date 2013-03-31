@@ -1,14 +1,16 @@
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springsource.org/dtd/spring-beans.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+
 
 <!--+
   | Application context containing Getting Started Database Information
   +-->
 
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" default-lazy-init="true">
    <!-- #[]-style property values are pulled in by PropertyPlaceholderConfigurer -->
 	 <bean id="org.h2.tools.Server"
 	   class="org.h2.tools.Server"
-	   singleton="true"
+	   scope="singleton"
 	   factory-method="createTcpServer"
 	   init-method="start"
 	   destroy-method="stop">

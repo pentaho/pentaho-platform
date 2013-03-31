@@ -60,7 +60,7 @@ public class SystemResourceTest {
     ApplicationContext springApplicationContext = getSpringApplicationContext();
     IPentahoObjectFactory pentahoObjectFactory = new StandaloneSpringPentahoObjectFactory();
     pentahoObjectFactory.init(null, springApplicationContext);
-    PentahoSystem.setObjectFactory(pentahoObjectFactory);
+    PentahoSystem.registerObjectFactory(pentahoObjectFactory);
 
     //force Spring to populate PentahoSystem
     boolean initOk = PentahoSystem.init(applicationContext);

@@ -18,11 +18,10 @@
 package org.pentaho.test.platform.engine.core;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.pentaho.platform.api.engine.IPentahoInitializer;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
+import org.pentaho.platform.api.engine.*;
 
 @SuppressWarnings("nls")
 /**
@@ -76,5 +75,50 @@ public class SimpleObjectFactory implements IPentahoObjectFactory {
    */
   public void defineObject(String key, String classname) {
     classnamesMap.put(key, classname);
+  }
+
+  @Override
+  public <T> List<T> getAll(Class<T> interfaceClass, IPentahoSession curSession) throws ObjectFactoryException {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public <T> IPentahoObjectReference<T> getObjectReference(Class<T> clazz, IPentahoSession curSession) {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public <T> T get(Class<T> interfaceClass, IPentahoSession session, Map<String, String> properties) throws ObjectFactoryException {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public boolean objectDefined(Class<?> clazz) {
+    return false;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public <T> IPentahoObjectReference<T> getObjectReference(Class<T> interfaceClass, IPentahoSession curSession, Map<String, String> properties) {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public <T> List<IPentahoObjectReference<T>> getObjectReferences(Class<T> interfaceClass, IPentahoSession curSession) {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public <T> List<IPentahoObjectReference<T>> getObjectReferences(Class<T> interfaceClass, IPentahoSession curSession, Map<String, String> properties) {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public <T> List<T> getAll(Class<T> interfaceClass, IPentahoSession curSession, Map<String, String> properties) throws ObjectFactoryException {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public String getName() {
+    return "Simple Object Factory";
   }
 }

@@ -45,6 +45,9 @@ import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
 @Path("/repo/files/import")
 public class RepositoryImportResource {
@@ -128,11 +131,11 @@ public class RepositoryImportResource {
 		IAuthorizationPolicy policy = PentahoSystem
 				.get(IAuthorizationPolicy.class);
 		boolean isAdmin = policy
-				.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
+				.isAllowed(RepositoryReadAction.NAME)
 				&& policy
-						.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
+						.isAllowed(RepositoryCreateAction.NAME)
 				&& policy
-						.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION);
+						.isAllowed(AdministerSecurityAction.NAME);
 		if (!isAdmin) {
 			throw new PentahoAccessControlException("Access Denied");
 		}

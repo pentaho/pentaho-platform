@@ -1,15 +1,6 @@
 package org.pentaho.platform.security.policy.rolebased;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.Node;
@@ -20,6 +11,7 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.pentaho.platform.api.engine.IAuthorizationAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.security.userroledao.NotFoundException;
 import org.pentaho.platform.api.mt.ITenant;
@@ -43,7 +35,7 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   
   protected String superAdminRoleName;
   
-  private Set<String> logicalRoles = new HashSet<String>();
+  private Set<String> logicalRoles = new TreeSet<String>();
   
   public static final String FOLDER_NAME_AUTHZ = ".authz"; //$NON-NLS-1$
 
@@ -57,12 +49,18 @@ public abstract class AbstractJcrBackedRoleBindingDao implements IRoleAuthorizat
   protected Map boundLogicalRoleNamesCache = Collections.synchronizedMap(new LRUMap());
   
   public AbstractJcrBackedRoleBindingDao(final List<String> logicalRoleNames, final Map<String, List<String>> immutableRoleBindings, final Map<String, List<String>> bootstrapRoleBindings,
-      final String superAdminRoleName, final ITenantedPrincipleNameResolver tenantedRoleNameUtils) {
+      final String superAdminRoleName, final ITenantedPrincipleNameResolver tenantedRoleNameUtils, final List<IAuthorizationAction> logicalRoles) {
     super();
+    // TODO: replace with IllegalArgumentException
     Assert.notNull(immutableRoleBindings);
     Assert.notNull(bootstrapRoleBindings);
     Assert.notNull(superAdminRoleName);
-    this.logicalRoles.addAll(IAuthorizationPolicy.PREDEFINED_SYSTEM_LOGICAL_ROLES);
+    Assert.notNull(logicalRoles);
+
+    for (IAuthorizationAction action : logicalRoles) {
+       this.logicalRoles.add(action.getName());
+    }
+
     if (logicalRoleNames != null) {
       this.logicalRoles.addAll(logicalRoleNames);
     }

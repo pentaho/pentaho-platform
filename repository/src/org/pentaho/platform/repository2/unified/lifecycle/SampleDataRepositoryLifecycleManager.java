@@ -30,6 +30,8 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
+import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -245,20 +247,22 @@ public class SampleDataRepositoryLifecycleManager implements IBackingRepositoryL
       role = userRoleDao.getRole(defaultTenant, "Power User");
       if (role == null) {
           userRoleDao.createRole(defaultTenant, "Power User", "", new String[0]);
-          roleBindingDao.setRoleBindings(defaultTenant, "Power User", Arrays.asList(new String[]{IAuthorizationPolicy.MANAGE_SCHEDULING}));
+        roleBindingDao.setRoleBindings(defaultTenant, "Power User", Arrays.asList(new String[]{SchedulerAction.NAME}));
       }
+      
 
       role = userRoleDao.getRole(defaultTenant, "Report Author");
       if (role == null) {
           userRoleDao.createRole(defaultTenant, "Report Author", "", new String[0]);
-          roleBindingDao.setRoleBindings(defaultTenant, "Report Author", Arrays.asList(new String[]{IAuthorizationPolicy.MANAGE_SCHEDULING, IAuthorizationPolicy.PUBLISH_REPOSITORY_ACTION}));
+          roleBindingDao.setRoleBindings(defaultTenant, "Report Author", Arrays.asList(new String[]{SchedulerAction.NAME, PublishAction.NAME}));
       }
 
       role = userRoleDao.getRole(defaultTenant, "Business Analyst");
       if (role == null) {
           userRoleDao.createRole(defaultTenant, "Business Analyst", "", new String[0]);
-          roleBindingDao.setRoleBindings(defaultTenant, "Business Analyst", Arrays.asList(new String[]{IAuthorizationPolicy.PUBLISH_REPOSITORY_ACTION}));
+        roleBindingDao.setRoleBindings(defaultTenant, "Business Analyst", Arrays.asList(new String[]{ PublishAction.NAME}));
       }
+      
 
       IPentahoUser user = userRoleDao.getUser(defaultTenant, "suzy");
       if (user == null) {

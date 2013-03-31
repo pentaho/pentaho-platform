@@ -28,6 +28,7 @@ import org.pentaho.platform.api.repository2.unified.VersionSummary;
 import org.pentaho.platform.api.repository2.unified.data.node.NodeRepositoryFileData;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.locale.PentahoLocale;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.versionchecker.util.VersionHelper;
 
 /**
@@ -127,9 +128,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
     // PDI uses this web-service and system folders must be returned to admin repository database connections.
     List<RepositoryFileTree> files = new ArrayList<RepositoryFileTree>();
     IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-    boolean isAdmin = policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
-        && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-        && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION);
+    boolean isAdmin = policy.isAllowed(AdministerSecurityAction.NAME);
     for (RepositoryFileTree file : tree.getChildren()) {
       Map<String, Serializable> fileMeta = repo.getFileMetadata(file.getFile().getId());
       boolean isSystemFolder = fileMeta.containsKey(IUnifiedRepository.SYSTEM_FOLDER) ? (Boolean) fileMeta
@@ -340,9 +339,7 @@ public class DefaultUnifiedRepositoryWebService implements IUnifiedRepositoryWeb
 
   protected void validateEtcReadAccess(String path) {
     IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-    boolean isAdmin = policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
-        && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-        && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION);
+    boolean isAdmin = policy.isAllowed(AdministerSecurityAction.NAME);
     if (!isAdmin && path.startsWith("/etc")) {
       throw new RuntimeException("This user is not allowed to access the ETC folder in JCR.");
     }

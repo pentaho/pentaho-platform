@@ -39,34 +39,18 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.pentaho.platform.api.engine.IAclVoter;
-import org.pentaho.platform.api.engine.IActionParameter;
-import org.pentaho.platform.api.engine.IApplicationContext;
-import org.pentaho.platform.api.engine.ICacheManager;
-import org.pentaho.platform.api.engine.IContentOutputHandler;
-import org.pentaho.platform.api.engine.ILogger;
-import org.pentaho.platform.api.engine.ILogoutListener;
-import org.pentaho.platform.api.engine.IParameterProvider;
-import org.pentaho.platform.api.engine.IPentahoObjectFactory;
-import org.pentaho.platform.api.engine.IPentahoPublisher;
-import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPentahoSystemListener;
-import org.pentaho.platform.api.engine.IPentahoUrlFactory;
-import org.pentaho.platform.api.engine.IRuntimeContext;
-import org.pentaho.platform.api.engine.ISessionStartupAction;
-import org.pentaho.platform.api.engine.ISolutionEngine;
-import org.pentaho.platform.api.engine.ISystemSettings;
-import org.pentaho.platform.api.engine.ObjectFactoryException;
-import org.pentaho.platform.api.engine.PentahoSystemException;
+import org.pentaho.platform.api.engine.*;
 import org.pentaho.platform.engine.core.messages.Messages;
 import org.pentaho.platform.engine.core.output.SimpleOutputHandler;
 import org.pentaho.platform.engine.core.solution.PentahoSessionParameterProvider;
 import org.pentaho.platform.engine.core.solution.SimpleParameterProvider;
+import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 import org.pentaho.platform.util.logging.Logger;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.util.web.SimpleUrlFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
@@ -91,21 +75,21 @@ public class PentahoSystem {
   protected static final String SOLUTION_ENGINE = "ISolutionEngine"; //$NON-NLS-1$
 
   public static final String BACKGROUND_EXECUTION = "IBackgroundExecution"; //$NON-NLS-1$
-  
+
   // TODO: Read the Conditional Execution information from Pentaho XML.
   public static final String CONDITIONAL_EXECUTION = "IConditionalExecution"; //$NON-NLS-1$
   public static String DEFAULT_CONDITIONAL_EXECUTION_PROVIDER;
   public static String DEFAULT_MESSAGE_FORMATTER;
   public static String DEFAULT_NAVIGATION_COMPONENT;
 
-  
+
   // TODO: Read the Scheduler Class from Pentaho XML.
   public static final String SCHEDULER = "IScheduler"; //$NON-NLS-1$
 
   public static final String MESSAGE_FORMATTER = "IMessageFormatter"; //$NON-NLS-1$
-  
+
   public static final String NAVIGATION_COMPONENT = "INavigationComponent"; //$NON-NLS-1$
-  
+
   public static final String SCOPE_GLOBAL = "global"; //$NON-NLS-1$
 
   public static final String SCOPE_SESSION = "session"; //$NON-NLS-1$
@@ -125,11 +109,11 @@ public class PentahoSystem {
   private static List<IPentahoPublisher> administrationPlugins = new ArrayList<IPentahoPublisher>();
 
   private static List<IPentahoSystemListener> listeners = new ArrayList<IPentahoSystemListener>();
-  
+
   private static List<ISessionStartupAction> sessionStartupActions = new ArrayList<ISessionStartupAction>();
-  
-  private static IPentahoObjectFactory pentahoObjectFactory = null;
-  
+
+  private static AggregateObjectFactory aggObjectFactory = new AggregateObjectFactory();
+
   private static final Map initializationFailureDetailsMap = Collections.synchronizedMap(new HashMap());
 
   private static final List<String> RequiredObjects = new ArrayList<String>();
@@ -159,7 +143,7 @@ public class PentahoSystem {
   private static int initializedStatus = PentahoSystem.SYSTEM_NOT_INITIALIZED;
 
   private static final String USERSETTING_SERVICE = "IUserSettingService"; //$NON-NLS-1$
-  
+
   private static final String ACL_VOTER = "IAclVoter"; //$NON-NLS-1$
 
   private static final String CACHE_MANAGER = "ICacheManager"; //$NON-NLS-1$
@@ -197,7 +181,7 @@ public class PentahoSystem {
   public static boolean init() {
     return PentahoSystem.init( new StandaloneApplicationContext(".", ".") );  //$NON-NLS-1$ //$NON-NLS-2$
   }
-  
+
   public static boolean init(final IApplicationContext pApplicationContext) {
     return PentahoSystem.init(pApplicationContext, null);
   }
@@ -213,7 +197,7 @@ public class PentahoSystem {
     // the kettle repository, by using the INHERITABLETHREADLOCAL strategy, spawned threads will
     // enjoy the same SecurityContext as their parent!
     SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-    
+
     PentahoSystem.globalAttributes = Collections.synchronizedMap(new HashMap());
     PentahoSystem.globalParameters = new SimpleParameterProvider(PentahoSystem.globalAttributes);
 
@@ -229,7 +213,7 @@ public class PentahoSystem {
     if (LocaleHelper.getLocale() == null) {
       LocaleHelper.setLocale(Locale.getDefault());
     }
-    
+
     if( PentahoSystem.systemSettingsService != null ) {
       if (debug) {
         Logger.debug(PentahoSystem.class, "Reading ACL list from pentaho.xml"); //$NON-NLS-1$
@@ -255,14 +239,14 @@ public class PentahoSystem {
       Logger.debug(PentahoSystem.class, "Initialize XML Factories"); //$NON-NLS-1$
     }
     PentahoSystem.initXMLFactories();
-    
+
     if (debug) {
       Logger.debug(PentahoSystem.class, "Set Logging Level from pentaho.xml setting"); //$NON-NLS-1$
     }
     PentahoSystem.loggingLevel = ILogger.ERROR;
     if( PentahoSystem.systemSettingsService != null ) {
       PentahoSystem.loggingLevel = Logger
-      .getLogLevel(PentahoSystem.systemSettingsService.getSystemSetting("log-level", "ERROR")); //$NON-NLS-1$//$NON-NLS-2$
+          .getLogLevel(PentahoSystem.systemSettingsService.getSystemSetting("log-level", "ERROR")); //$NON-NLS-1$//$NON-NLS-2$
     }
 
     Logger.setLogLevel(PentahoSystem.loggingLevel);
@@ -273,7 +257,7 @@ public class PentahoSystem {
     }
     PentahoSystem.registerHostnameVerifier();
 
-    assert null != pentahoObjectFactory : "pentahoObjectFactory must be non-null"; //$NON-NLS-1$
+    assert null != aggObjectFactory : "aggObjectFactory must be non-null"; //$NON-NLS-1$
     try {
       if (debug) {
         Logger.debug(PentahoSystem.class, "Validating object factory"); //$NON-NLS-1$
@@ -282,7 +266,7 @@ public class PentahoSystem {
     } catch (PentahoSystemException e1) {
       throw new RuntimeException( e1 ); // this is fatal
     }
-    
+
     // store a list of the system listeners
     try {
       if (debug) {
@@ -302,7 +286,7 @@ public class PentahoSystem {
       Logger.debug(PentahoSystem.class, "Global startup"); //$NON-NLS-1$
     }
     PentahoSystem.globalStartup( );
-    
+
     if (debug) {
       Logger.debug(PentahoSystem.class, "PentahoSystem Init Complete"); //$NON-NLS-1$
     }
@@ -315,7 +299,7 @@ public class PentahoSystem {
       // nothing to do
       return;
     }
-    
+
     try {
       runAsSystem(new Callable<Void>() {
         @Override
@@ -327,12 +311,12 @@ public class PentahoSystem {
     } catch (Exception e) {
       throw new PentahoSystemException(e);
     }
-  
+
   }
-  
+
   /**
    * Runs code as system with full privileges.
-   * 
+   *
    * <p>Unfortunate copy and paste from SecurityHelper due to dependencies.</p>
    */
   private static <T> T runAsSystem(final Callable<T> callable) throws Exception {
@@ -340,25 +324,25 @@ public class PentahoSystem {
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
-    // create pentaho session
-    StandaloneSession session = new StandaloneSession(name);
-    session.setAuthenticated(name);
-    // create authentication
-    
-    GrantedAuthority[] roles;
-    IAclVoter aclVoter = PentahoSystem.get(IAclVoter.class, null);
-    if (aclVoter != null) {
-      roles = new GrantedAuthority[1];
-      roles[0] = aclVoter.getAdminRole();
-    } else {
-      // silently ignore a missing IAclVoter (access will be denied for lack of roles)
-      roles = new GrantedAuthority[0];
-    }
-    Authentication auth = new UsernamePasswordAuthenticationToken(name, "", roles); //$NON-NLS-1$
+      // create pentaho session
+      StandaloneSession session = new StandaloneSession(name);
+      session.setAuthenticated(name);
+      // create authentication
 
-    // set holders
-    PentahoSessionHolder.setSession(session);
-    SecurityContextHolder.getContext().setAuthentication(auth);
+      GrantedAuthority[] roles;
+
+
+      ISystemSettings settings = PentahoSystem.getSystemSettings();
+      String roleName = settings.getSystemSetting("acl-voter/admin-role", "Admin"); //$NON-NLS-1$ //$NON-NLS-2$
+
+      roles = new GrantedAuthority[1];
+      roles[0] = new GrantedAuthorityImpl(roleName);
+
+      Authentication auth = new UsernamePasswordAuthenticationToken(name, "", roles); //$NON-NLS-1$
+
+      // set holders
+      PentahoSessionHolder.setSession(session);
+      SecurityContextHolder.getContext().setAuthentication(auth);
       return callable.call();
     } finally {
       IPentahoSession sessionToDestroy = PentahoSessionHolder.getSession();
@@ -373,55 +357,55 @@ public class PentahoSystem {
       SecurityContextHolder.getContext().setAuthentication(origAuth);
     }
   }
-  
+
   private static void notifySystemListenersOfStartup(IPentahoSession session) throws PentahoSystemException {
-  	if(listeners != null && listeners.size() > 0) {
-  	  
-	    for (IPentahoSystemListener systemListener : listeners) {
-	      PentahoSystem.systemEntryPoint(); // make sure all startups occur in the context of a transaction
-	      try {
+    if(listeners != null && listeners.size() > 0) {
+
+      for (IPentahoSystemListener systemListener : listeners) {
+        PentahoSystem.systemEntryPoint(); // make sure all startups occur in the context of a transaction
+        try {
           if (debug) {
             Logger.debug(PentahoSystem.class, "System Listener Start: " + systemListener.getClass().getName()); //$NON-NLS-1$
           }
-	        if (!systemListener.startup(session)) {
-	          throw new PentahoSystemException(Messages.getInstance().getErrorString(
-	              "PentahoSystem.ERROR_0014_STARTUP_FAILURE", systemListener.getClass().getName())); //$NON-NLS-1$
-	        }
+          if (!systemListener.startup(session)) {
+            throw new PentahoSystemException(Messages.getInstance().getErrorString(
+                "PentahoSystem.ERROR_0014_STARTUP_FAILURE", systemListener.getClass().getName())); //$NON-NLS-1$
+          }
           if (debug) {
             Logger.debug(PentahoSystem.class, "System Listener Complete: " + systemListener.getClass().getName()); //$NON-NLS-1$
           }
-	      } catch (Throwable e) {
-	        throw new PentahoSystemException(Messages.getInstance().getErrorString(
-	            "PentahoSystem.ERROR_0014_STARTUP_FAILURE", systemListener.getClass().getName()), e); //$NON-NLS-1$
-	      } finally {
-	        PentahoSystem.systemExitPoint(); // commit transaction
-	      }
-	    }
-  	}
+        } catch (Throwable e) {
+          throw new PentahoSystemException(Messages.getInstance().getErrorString(
+              "PentahoSystem.ERROR_0014_STARTUP_FAILURE", systemListener.getClass().getName()), e); //$NON-NLS-1$
+        } finally {
+          PentahoSystem.systemExitPoint(); // commit transaction
+        }
+      }
+    }
   }
-  
+
 
   /**
    * Using data in the systemSettings (this data typically originates in the pentaho.xml file), initialize 3 System properties to explicitly identify the Transformer, SAX, and DOM factory implementations. (i.e. Crimson, Xerces, Xalan,
    * Saxon, etc.)
-   * 
+   *
    * For background on the purpose of this method, take a look at the notes/URLs below:
-   * 
+   *
    * Java[tm] API for XML Processing (JAXP):Frequently Asked Questions http://java.sun.com/webservices/jaxp/reference/faqs/index.html
-   * 
+   *
    * Plugging in a Transformer and XML parser http://xml.apache.org/xalan-j/usagepatterns.html#plug
-   * 
+   *
    * http://marc2.theaimsgroup.com/?l=xml-apache-general&m=101344910514822&w=2 Q. How do I use a different JAXP compatible implementation?
-   * 
+   *
    * The JAXP 1.1 API allows applications to plug in different JAXP compatible implementations of parsers or XSLT processors. For example, when an application wants to create a new JAXP DocumentBuilderFactory instance, it calls the staic
    * method DocumentBuilderFactory.newInstance(). This causes a search for the name of a concrete subclass of DocumentBuilderFactory using the following order: - The value of a system property like javax.xml.parsers.DocumentBuilderFactory
    * if it exists and is accessible. - The contents of the file $JAVA_HOME/jre/lib/jaxp.properties if it exists. - The Jar Service Provider mechanism specified in the Jar File Specification. A jar file can have a resource (i.e. an embedded
    * file) such as META-INF/javax/xml/parsers/DocumentBuilderFactory containing the name of the concrete class to instantiate. - The fallback platform default implementation.
-   * 
+   *
    * Of the above ways to specify an implementation, perhaps the most useful is the jar service provider mechanism. To use this mechanism, place the implementation jar file on your classpath. For example, to use Xerces 1.4.4 instead of the
    * version of Crimson which is bundled with JDK 1.4 (Java Development Kit version 1.4), place xerces.jar in your classpath. This mechanism also works with older versions of the JDK which do not bundle JAXP. If you are using JDK 1.4 and
    * above, see the following question for potential problems. see http://java.sun.com/j2se/1.3/docs/guide/jar/jar.html#Service%20Provider
-   * 
+   *
    */
   private static void initXMLFactories() {
     // assert systemSettings != null : "systemSettings property must be set
@@ -457,17 +441,17 @@ public class PentahoSystem {
     return PentahoSystem.initializedStatus;
   }
 
-  private static List getAdditionalInitializationFailureMessages(final int failureBit) {
-    List l = (List) PentahoSystem.initializationFailureDetailsMap.get(new Integer(failureBit));
+  private static List<String> getAdditionalInitializationFailureMessages(final int failureBit) {
+    List<String> l = (List) PentahoSystem.initializationFailureDetailsMap.get(new Integer(failureBit));
     return l;
   }
 
-  public static List getInitializationFailureMessages() {
-    List rtn = new ArrayList();
+  public static List<String> getInitializationFailureMessages() {
+    List<String> rtn = new ArrayList<String>();
     if (PentahoSystem.hasFailed(PentahoSystem.SYSTEM_SETTINGS_FAILED)) {
       rtn.add(Messages.getInstance().getString(
           "PentahoSystem.USER_INITIALIZATION_SYSTEM_SETTINGS_FAILED", PathBasedSystemSettings.SYSTEM_CFG_PATH_KEY));//$NON-NLS-1$
-      List l = PentahoSystem.getAdditionalInitializationFailureMessages(PentahoSystem.SYSTEM_SETTINGS_FAILED);
+      List<String> l = PentahoSystem.getAdditionalInitializationFailureMessages(PentahoSystem.SYSTEM_SETTINGS_FAILED);
       if (l != null) {
         rtn.addAll(l);
       }
@@ -481,7 +465,7 @@ public class PentahoSystem {
     }
     if (PentahoSystem.hasFailed(PentahoSystem.SYSTEM_OBJECTS_FAILED)) {
       rtn.add(Messages.getInstance().getString("PentahoSystem.USER_INITIALIZATION_SYSTEM_OBJECTS_FAILED"));//$NON-NLS-1$
-      List l = PentahoSystem.getAdditionalInitializationFailureMessages(PentahoSystem.SYSTEM_OBJECTS_FAILED);
+      List<String> l = PentahoSystem.getAdditionalInitializationFailureMessages(PentahoSystem.SYSTEM_OBJECTS_FAILED);
       if (l != null) {
         rtn.addAll(l);
       }
@@ -536,7 +520,7 @@ public class PentahoSystem {
 
   //TODO: is this method needed?  See if we can use the factory directly and delete this method.
   public static IContentOutputHandler getOutputDestinationFromContentRef(final String contentTag,
-      final IPentahoSession session) {
+                                                                         final IPentahoSession session) {
 
     int pos = contentTag.indexOf(':');
     if (pos == -1) {
@@ -564,41 +548,120 @@ public class PentahoSystem {
    * access session-bound objects.
    */
   public static <T> T get(Class<T> interfaceClass) {
-    return get(interfaceClass, interfaceClass.getSimpleName(), PentahoSessionHolder.getSession());
+    return get(interfaceClass, null, PentahoSessionHolder.getSession());
   }
-  
+
+
   /**
    * A convenience method for retrieving Pentaho system objects from the object factory.
-   * Looks up an object by using the name of the <code>interfaceClass</code> as the object key in 
+   * Looks up an object by using the name of the <code>interfaceClass</code> as the object key in
+   * {@link PentahoSystem#get(Class, IPentahoSession, Map)}.
+   * NOTE: session will be derived for you by using PentahoSessionHolder, so a session must already
+   * have been bound to the thread local in PentahoSessionHolder in order for you to be able to
+   * access session-bound objects.
+   */
+  public static <T> T get(Class<T> interfaceClass, final IPentahoSession session, final Map<String, String> properties) {
+    try {
+      if(!aggObjectFactory.objectDefined(interfaceClass)) {
+        //this may not be a failure case, but we should log a warning in case the object is truly required
+        Logger.warn( PentahoSystem.class.getName(), Messages.getInstance().getErrorString("PentahoSystem.WARN_OBJECT_NOT_CONFIGURED", interfaceClass.getSimpleName())); //$NON-NLS-1$
+        return null;
+      }
+      IPentahoSession curSession = (session == null)?PentahoSessionHolder.getSession():session;
+      return aggObjectFactory.get( interfaceClass, curSession, properties);
+    } catch (ObjectFactoryException e) {
+      //something went wrong, we need to log this
+      Logger.error( PentahoSystem.class.getName(), Messages.getInstance().getErrorString("PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", interfaceClass.getSimpleName()), e); //$NON-NLS-1$
+      //for backwards compatibility: callers expect a null return even in an error case
+      return null;
+    }
+  }
+
+  /**
+   * A convenience method for retrieving Pentaho system objects from the object factory.
+   * Looks up an object by using the name of the <code>interfaceClass</code> as the object key in
+   * {@link PentahoSystem#getAll(Class, IPentahoSession)}.
+   * NOTE: session will be derived for you by using PentahoSessionHolder, so a session must already
+   * have been bound to the thread local in PentahoSessionHolder in order for you to be able to
+   * access session-bound objects.
+   */
+  public static <T> List<T> getAll(Class<T> interfaceClass) {
+    return getAll(interfaceClass, PentahoSessionHolder.getSession(), null);
+  }
+
+
+  /**
+   * A convenience method for retrieving Pentaho system objects from the object factory.
+   * Looks up an object by using the name of the <code>interfaceClass</code> as the object key in
+   * {@link PentahoSystem#getAll(Class, IPentahoSession)}.
+   * NOTE: session will be derived for you by using PentahoSessionHolder, so a session must already
+   * have been bound to the thread local in PentahoSessionHolder in order for you to be able to
+   * access session-bound objects.
+   */
+  public static <T> List<T> getAll(Class<T> interfaceClass, IPentahoSession session) {
+    return getAll(interfaceClass, session, null);
+  }
+
+  /**
+   * Retrieves objects from the object factory registered to the PentahoSystem implementing
+   * or extending the given Class literal
+   */
+  public static <T> List<T> getAll(Class<T> interfaceClass, IPentahoSession session, Map<String, String> props) {
+    try {
+      if(!aggObjectFactory.objectDefined(interfaceClass)) {
+        //this may not be a failure case, but we should log a warning in case the object is truly required
+        Logger.warn( PentahoSystem.class.getName(), Messages.getInstance().getErrorString("PentahoSystem.WARN_OBJECT_NOT_CONFIGURED", interfaceClass.getSimpleName())); //$NON-NLS-1$
+        return Collections.emptyList();
+      }
+      IPentahoSession curSession = (session == null)?PentahoSessionHolder.getSession():session;
+      return aggObjectFactory.getAll( interfaceClass, curSession, props );
+    } catch (ObjectFactoryException e) {
+      //something went wrong, we need to log this
+      Logger.error( PentahoSystem.class.getName(), Messages.getInstance().getErrorString("PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", interfaceClass.getSimpleName()), e); //$NON-NLS-1$
+      //for backwards compatibility: callers expect a null return even in an error case
+      return null;
+    }
+  }
+
+
+  /**
+   * A convenience method for retrieving Pentaho system objects from the object factory implementing
+   * or extending the given Class literal
+   *
    * {@link PentahoSystem#get(Class, String, IPentahoSession)}.
    */
   public static <T> T get(Class<T> interfaceClass, final IPentahoSession session) {
     IPentahoSession curSession = (session == null)?PentahoSessionHolder.getSession():session;
-    return get(interfaceClass, interfaceClass.getSimpleName(), curSession);
+    return get(interfaceClass, null, curSession);
   }
-  
+
   /**
    * A convenience method for retrieving Pentaho system objects from the object factory.
    * Returns an instance of a configured object of the Pentaho system.  This method will
    * return <code>null</code> if the object could not be retrieved for any reason.  If
    * the object is defined but for some reason can not be retrieved, an error message
    * will be logged.
-   * 
+   *
    * @return An instance of the requested object or <code>null</code> if either the object
    * was not configured or it was configured but there was a problem retrieving it.
-   * 
+   *
    * @see PentahoSystem#getObjectFactory()
    * @see IPentahoObjectFactory#get(Class, String, IPentahoSession)
    */
   public static <T> T get(Class<T> interfaceClass, String key, final IPentahoSession session) {
     try {
-      if(!pentahoObjectFactory.objectDefined(key)) {
+      IPentahoSession curSession = (session == null) ? PentahoSessionHolder.getSession() : session;
+
+      if(key == null){ // some people are calling this method with null
+        return aggObjectFactory.get( interfaceClass, curSession );
+      }
+      if(!aggObjectFactory.objectDefined(key) && !aggObjectFactory.objectDefined(interfaceClass)) {
         //this may not be a failure case, but we should log a warning in case the object is truly required
         Logger.warn( PentahoSystem.class.getName(), Messages.getInstance().getErrorString("PentahoSystem.WARN_OBJECT_NOT_CONFIGURED", key)); //$NON-NLS-1$
         return null;
       }
-      IPentahoSession curSession = (session == null)?PentahoSessionHolder.getSession():session;
-      return pentahoObjectFactory.get( interfaceClass, key, curSession );
+
+      return aggObjectFactory.get( interfaceClass, key, curSession );
     } catch (ObjectFactoryException e) {
       //something went wrong, we need to log this
       Logger.error( PentahoSystem.class.getName(), Messages.getInstance().getErrorString("PentahoSystem.ERROR_0026_COULD_NOT_RETRIEVE_CONFIGURED_OBJECT", key), e); //$NON-NLS-1$
@@ -606,6 +669,44 @@ public class PentahoSystem {
       return null;
     }
   }
+
+
+
+  /**
+   * Returns an IPentahoObjectReference for the requested Object containing registered Object Properties.
+   *
+   * @param interfaceClass Interface or Class literal for which implementations of will be found
+   * @param curSession current session to be used for session-based implementations
+   * @return IPentahoObjectReference for the matching Object or null if no Object is found
+   */
+  public static <T> IPentahoObjectReference<T> getObjectReference(Class<T> interfaceClass, IPentahoSession curSession) throws ObjectFactoryException{
+    return getObjectReference(interfaceClass, curSession, null);
+  }
+
+
+  /**
+   * Returns an IPentahoObjectReference for the requested Object containing registered Object Properties.
+   *
+   * @param interfaceClass Interface or Class literal for which implementations of will be found
+   * @param curSession current session to be used for session-based implementations
+   * @param properties Map of properties to filter matches in the ObjectFactory by
+   *
+   * @return IPentahoObjectReference for the matching Object or null if no Object is found
+   */
+  public static <T> IPentahoObjectReference<T> getObjectReference(Class<T> interfaceClass, IPentahoSession curSession, Map<String, String> properties) throws ObjectFactoryException{
+
+    if(!aggObjectFactory.objectDefined(interfaceClass)) {
+      //this may not be a failure case, but we should log a warning in case the object is truly required
+      Logger.warn( PentahoSystem.class.getName(), Messages.getInstance().getErrorString("PentahoSystem.WARN_OBJECT_NOT_CONFIGURED", interfaceClass.getSimpleName())); //$NON-NLS-1$
+      return null;
+    }
+    curSession = (curSession == null)?PentahoSessionHolder.getSession():curSession;
+    return aggObjectFactory.getObjectReference( interfaceClass, curSession, properties );
+
+
+
+  }
+
 
   public static String getSystemName() {
     return Messages.getInstance().getString("PentahoSystem.USER_SYSTEM_TITLE"); //$NON-NLS-1$;
@@ -617,7 +718,7 @@ public class PentahoSystem {
 
   public static void sessionStartup(final IPentahoSession session) {
     PentahoSystem.sessionStartup(session, null);
-	}
+  }
 
   public static void clearGlobals() {
     PentahoSystem.globalAttributes.clear();
@@ -642,69 +743,69 @@ public class PentahoSystem {
     if (!session.isAuthenticated()) {
       return;
     }
-    
+
     if (debug) {
       Logger.debug(PentahoSystem.class, "Process session startup actions"); //$NON-NLS-1$
     }
     // TODO this needs more validation
     if(sessionStartupActions != null) {
-	    for (ISessionStartupAction sessionStartupAction : sessionStartupActions) {
-	      // parse the actionStr out to identify an action
-	        // now execute the action...
-	
-	        SimpleOutputHandler outputHandler = null;
-	
-	        String instanceId = null;
-	
-	        ISolutionEngine solutionEngine = PentahoSystem.get(ISolutionEngine.class, session);
-	        solutionEngine.setLoggingLevel(PentahoSystem.loggingLevel);
-	        solutionEngine.init(session);
-	
-	        String baseUrl = ""; //$NON-NLS-1$	
-	        HashMap parameterProviderMap = new HashMap();
-	        if( sessionParameters == null ) {
-	            sessionParameters = new PentahoSessionParameterProvider(session);
-	        }
-	
-	        parameterProviderMap.put(SCOPE_SESSION, sessionParameters);
-	
-	        IPentahoUrlFactory urlFactory = new SimpleUrlFactory(baseUrl);
-	
-	        ArrayList messages = new ArrayList();
-	
-	        IRuntimeContext context = null;
-	        try {
-	          context = solutionEngine
-	              .execute(
-	                  sessionStartupAction.getActionPath(),
-	                  "Session startup actions", false, true, instanceId, false, parameterProviderMap, outputHandler, null, urlFactory, messages); //$NON-NLS-1$
-	
-	          // if context is null, then we cannot check the status
-	          if (null == context) {
-	            return;
-	          }
-	          
-	          if (context.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS) {
-	            // now grab any outputs
-	            Iterator outputNameIterator = context.getOutputNames().iterator();
-	            while (outputNameIterator.hasNext()) {
-	
-	              String attributeName = (String) outputNameIterator.next();
-	              IActionParameter output = context.getOutputParameter(attributeName);
-	
-	              Object data = output.getValue();
-	              if (data != null) {
-                  session.removeAttribute(attributeName);
-                  session.setAttribute(attributeName, data);
-	              }
-	            }
-	          }
-	        } finally {
-	          if (context != null) {
-	            context.dispose();
-	          }
-	        }
-	    }
+      for (ISessionStartupAction sessionStartupAction : sessionStartupActions) {
+        // parse the actionStr out to identify an action
+        // now execute the action...
+
+        SimpleOutputHandler outputHandler = null;
+
+        String instanceId = null;
+
+        ISolutionEngine solutionEngine = PentahoSystem.get(ISolutionEngine.class, session);
+        solutionEngine.setLoggingLevel(PentahoSystem.loggingLevel);
+        solutionEngine.init(session);
+
+        String baseUrl = ""; //$NON-NLS-1$
+        HashMap parameterProviderMap = new HashMap();
+        if( sessionParameters == null ) {
+          sessionParameters = new PentahoSessionParameterProvider(session);
+        }
+
+        parameterProviderMap.put(SCOPE_SESSION, sessionParameters);
+
+        IPentahoUrlFactory urlFactory = new SimpleUrlFactory(baseUrl);
+
+        ArrayList messages = new ArrayList();
+
+        IRuntimeContext context = null;
+        try {
+          context = solutionEngine
+              .execute(
+                  sessionStartupAction.getActionPath(),
+                  "Session startup actions", false, true, instanceId, false, parameterProviderMap, outputHandler, null, urlFactory, messages); //$NON-NLS-1$
+
+          // if context is null, then we cannot check the status
+          if (null == context) {
+            return;
+          }
+
+          if (context.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS) {
+            // now grab any outputs
+            Iterator outputNameIterator = context.getOutputNames().iterator();
+            while (outputNameIterator.hasNext()) {
+
+              String attributeName = (String) outputNameIterator.next();
+              IActionParameter output = context.getOutputParameter(attributeName);
+
+              Object data = output.getValue();
+              if (data != null) {
+                session.removeAttribute(attributeName);
+                session.setAttribute(attributeName, data);
+              }
+            }
+          }
+        } finally {
+          if (context != null) {
+            context.dispose();
+          }
+        }
+      }
     }
   }
 
@@ -719,8 +820,8 @@ public class PentahoSystem {
     if (debug) {
       Logger.debug(PentahoSystem.class, "Process global startup actions"); //$NON-NLS-1$
     }
-    
-    
+
+
     try {
       runAsSystem(new Callable<Void>() {
         @Override
@@ -733,7 +834,7 @@ public class PentahoSystem {
       throw new RuntimeException(e);
     }
   }
-  
+
   public static void globalStartup(final IPentahoSession session) {
     // getGlobalStartupActions doesn't pay any attention to session class
     List<ISessionStartupAction> globalStartupActions = PentahoSystem.getGlobalStartupActions();
@@ -747,63 +848,63 @@ public class PentahoSystem {
     if (!doGlobals) {
       return;
     }
-    
+
     if(globalStartupActions != null) {
       for (ISessionStartupAction globalStartupAction : globalStartupActions) {
-          // now execute the action...
-  
-          SimpleOutputHandler outputHandler = null;
-  
-          String instanceId = null;
-  
-          ISolutionEngine solutionEngine = PentahoSystem.get(ISolutionEngine.class, session);
-          solutionEngine.setLoggingLevel(PentahoSystem.loggingLevel);
-          solutionEngine.init(session);
-  
-          String baseUrl = ""; //$NON-NLS-1$  
-          HashMap parameterProviderMap = new HashMap();
-          IPentahoUrlFactory urlFactory = new SimpleUrlFactory(baseUrl);
-  
-          ArrayList messages = new ArrayList();
-  
-          IRuntimeContext context = null;
-          try {
-            context = solutionEngine
-                .execute(
-                    globalStartupAction.getActionPath(),
-                    "Global startup actions", false, true, instanceId, false, parameterProviderMap, outputHandler, null, urlFactory, messages); //$NON-NLS-1$
-  
-            // if context is null, then we cannot check the status
-            if (null == context) {
-              return;
-            }
-            
-            if (context.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS) {
-              // now grab any outputs
-              Iterator outputNameIterator = context.getOutputNames().iterator();
-              while (outputNameIterator.hasNext()) {
-  
-                String attributeName = (String) outputNameIterator.next();
-                IActionParameter output = context.getOutputParameter(attributeName);
-  
-                Object data = output.getValue();
-                if (data != null) {
-                  PentahoSystem.globalAttributes.remove(attributeName);
-                  PentahoSystem.globalAttributes.put(attributeName, data);
-                }
+        // now execute the action...
+
+        SimpleOutputHandler outputHandler = null;
+
+        String instanceId = null;
+
+        ISolutionEngine solutionEngine = PentahoSystem.get(ISolutionEngine.class, session);
+        solutionEngine.setLoggingLevel(PentahoSystem.loggingLevel);
+        solutionEngine.init(session);
+
+        String baseUrl = ""; //$NON-NLS-1$
+        HashMap parameterProviderMap = new HashMap();
+        IPentahoUrlFactory urlFactory = new SimpleUrlFactory(baseUrl);
+
+        ArrayList messages = new ArrayList();
+
+        IRuntimeContext context = null;
+        try {
+          context = solutionEngine
+              .execute(
+                  globalStartupAction.getActionPath(),
+                  "Global startup actions", false, true, instanceId, false, parameterProviderMap, outputHandler, null, urlFactory, messages); //$NON-NLS-1$
+
+          // if context is null, then we cannot check the status
+          if (null == context) {
+            return;
+          }
+
+          if (context.getStatus() == IRuntimeContext.RUNTIME_STATUS_SUCCESS) {
+            // now grab any outputs
+            Iterator outputNameIterator = context.getOutputNames().iterator();
+            while (outputNameIterator.hasNext()) {
+
+              String attributeName = (String) outputNameIterator.next();
+              IActionParameter output = context.getOutputParameter(attributeName);
+
+              Object data = output.getValue();
+              if (data != null) {
+                PentahoSystem.globalAttributes.remove(attributeName);
+                PentahoSystem.globalAttributes.put(attributeName, data);
               }
             }
-          } finally {
-            if (context != null) {
-              context.dispose();
-            }
           }
-  
+        } finally {
+          if (context != null) {
+            context.dispose();
+          }
+        }
+
       }
     }
   }
-  
-  
+
+
   public static void shutdown() {
     if (LocaleHelper.getLocale() == null) {
       LocaleHelper.setLocale(Locale.getDefault());
@@ -816,9 +917,9 @@ public class PentahoSystem {
       while (systemListenerIterator.hasNext()) {
         IPentahoSystemListener listener = (IPentahoSystemListener) systemListenerIterator.next();
         if (listener != null) {
-            if (debug) {
-              Logger.debug(PentahoSystem.class, "Shutdown Listener: " + listener.getClass().getName()); //$NON-NLS-1$
-            }
+          if (debug) {
+            Logger.debug(PentahoSystem.class, "Shutdown Listener: " + listener.getClass().getName()); //$NON-NLS-1$
+          }
           try {
             listener.shutdown();
           } catch (Throwable e) {
@@ -922,23 +1023,23 @@ public class PentahoSystem {
     Document document = DocumentHelper.createDocument();
     Element root = document.addElement("publishers"); //$NON-NLS-1$
     if(administrationPlugins != null) {
-	    Iterator publisherIterator = PentahoSystem.administrationPlugins.iterator();
-	    // TODO: audit this
-	    // refresh the system settings
-	    while (publisherIterator.hasNext()) {
-	      IPentahoPublisher publisher = (IPentahoPublisher) publisherIterator.next();
-	      if (publisher != null) {
-	        try {
-	          Element publisherNode = root.addElement("publisher"); //$NON-NLS-1$
-	          publisherNode.addElement("name").setText(publisher.getName()); //$NON-NLS-1$
-	          publisherNode.addElement("description").setText(publisher.getDescription()); //$NON-NLS-1$
-	          publisherNode.addElement("class").setText(publisher.getClass().getName()); //$NON-NLS-1$
-	
-	        } catch (Throwable e) {
-	
-	        }
-	      }
-	    }
+      Iterator publisherIterator = PentahoSystem.administrationPlugins.iterator();
+      // TODO: audit this
+      // refresh the system settings
+      while (publisherIterator.hasNext()) {
+        IPentahoPublisher publisher = (IPentahoPublisher) publisherIterator.next();
+        if (publisher != null) {
+          try {
+            Element publisherNode = root.addElement("publisher"); //$NON-NLS-1$
+            publisherNode.addElement("name").setText(publisher.getName()); //$NON-NLS-1$
+            publisherNode.addElement("description").setText(publisher.getDescription()); //$NON-NLS-1$
+            publisherNode.addElement("class").setText(publisher.getClass().getName()); //$NON-NLS-1$
+
+          } catch (Throwable e) {
+
+          }
+        }
+      }
     }
     return document;
 
@@ -993,12 +1094,12 @@ public class PentahoSystem {
   //TODO: clean this up so we don't have a fallback impl
   public static ICacheManager getCacheManager( IPentahoSession session ) {
     try {
-    // TODO get the SimpleMapCacheManager into the object map somehow
-    	// we will try to use a simple map cache manager if one has not been configured
-    	ICacheManager cacheManager = pentahoObjectFactory.get(ICacheManager.class, session );
+      // TODO get the SimpleMapCacheManager into the object map somehow
+      // we will try to use a simple map cache manager if one has not been configured
+      ICacheManager cacheManager = aggObjectFactory.get(ICacheManager.class, session );
       return cacheManager;
     } catch (ObjectFactoryException e) {
-    	ICacheManager cacheManager = SimpleMapCacheManager.getInstance();
+      ICacheManager cacheManager = SimpleMapCacheManager.getInstance();
       Logger.warn( PentahoSystem.class.getName(), "Using default cache manager" ); //$NON-NLS-1$
       return cacheManager;
     }
@@ -1034,36 +1135,46 @@ public class PentahoSystem {
 
   /**
    * Gets the factory that will create and manage Pentaho system objects.
-   * 
+   *
    * @return the factory
    */
   public static IPentahoObjectFactory getObjectFactory() {
-    return pentahoObjectFactory;
+    return aggObjectFactory;
   }
-  
+
   /**
    * Registers the factory that will create and manage Pentaho system objects.
-   * 
+   *
    * @param pentahoObjectFactory  the factory
    */
-  public static void setObjectFactory( IPentahoObjectFactory pentahoObjectFactory ) {
-    PentahoSystem.pentahoObjectFactory = pentahoObjectFactory;
+  public static void registerObjectFactory(IPentahoObjectFactory pentahoObjectFactory) {
+    PentahoSystem.aggObjectFactory.registerObjectFactory(pentahoObjectFactory);
+  }
+
+
+  /**
+   * Registers the primary factory that will create and manage Pentaho system objects.
+   *
+   * @param pentahoObjectFactory  the factory
+   */
+  public static void registerPrimaryObjectFactory(IPentahoObjectFactory pentahoObjectFactory) {
+    PentahoSystem.aggObjectFactory.registerObjectFactory(pentahoObjectFactory, true);
   }
 
   /**
    * Registers administrative capabilities that can be invoked later 
    * via {@link PentahoSystem#publish(IPentahoSession, String)}
-   * 
+   *
    * @param administrationPlugins a list of admin functions to register
    */
   public static void setAdministrationPlugins(List<IPentahoPublisher> administrationPlugins) {
     PentahoSystem.administrationPlugins = administrationPlugins;
   }
-  
+
   /**
    * Registers custom handlers that are notified of both system startup and 
    * system shutdown events.
-   * 
+   *
    * @param systemListeners the system event handlers
    */
   public static void setSystemListeners(List<IPentahoSystemListener> systemListeners) {
@@ -1075,37 +1186,37 @@ public class PentahoSystem {
    * NOTE: it is completely up to the {@link IPentahoSession} implementation whether
    * to advise the system of it's creation via 
    * {@link PentahoSystem#sessionStartup(IPentahoSession)}.
-   * 
+   *
    * @param actions the server actions to execute on session startup
    */
   public static void setSessionStartupActions(List<ISessionStartupAction> actions) {
     sessionStartupActions = actions;
   }
-  
+
   /**
    * Sets the system settings service: the means by which the platform obtains it's 
    * overall system settings.
-   * 
+   *
    * @param systemSettingsService the settings service
    */
   public static void setSystemSettingsService(ISystemSettings systemSettingsService) {
     PentahoSystem.systemSettingsService = systemSettingsService;
   }
-  
+
   //TODO: move this to a helper
   private static List<ISessionStartupAction> getSessionStartupActionsForType(String sessionClassName) {
     ArrayList<ISessionStartupAction> startupActions = new ArrayList<ISessionStartupAction>();
     if(sessionStartupActions != null) {
-	    for (ISessionStartupAction sessionStartupAction : sessionStartupActions) {
-	      if (sessionStartupAction.getSessionType().equals(sessionClassName) && 
-	          sessionStartupAction.getActionOutputScope().equals(SCOPE_SESSION)) {
-	        startupActions.add(sessionStartupAction);
-	      }
-	    }
+      for (ISessionStartupAction sessionStartupAction : sessionStartupActions) {
+        if (sessionStartupAction.getSessionType().equals(sessionClassName) &&
+            sessionStartupAction.getActionOutputScope().equals(SCOPE_SESSION)) {
+          startupActions.add(sessionStartupAction);
+        }
+      }
     }
     return startupActions;
   }
-  
+
   //TODO: if a ISessionStartupAction is called on something other than a session, should
   //we be using it here in a global context?
   private static List<ISessionStartupAction> getGlobalStartupActions() {
@@ -1120,18 +1231,18 @@ public class PentahoSystem {
     return startupActions;
   }
   // End of transitional methods.
-  
+
   /**
    * Make sure all required objects exist in the object factory. If not,
    * throw an exception. If any optional objects are missing, simply log it
    * to the logger.
-   * 
+   *
    * @throws PentahoSystemException if a required object is missing.
    */
   private static void validateObjectFactory() throws PentahoSystemException {
     boolean isRequiredValid = true;
     for ( String interfaceName : PentahoSystem.RequiredObjects ) {
-      boolean isValid = pentahoObjectFactory.objectDefined( interfaceName );
+      boolean isValid = aggObjectFactory.objectDefined( interfaceName );
       isRequiredValid &= isValid;
       if ( !isValid ) {
         Logger.fatal(PentahoSystem.class.getName(), Messages.getInstance().getErrorString(
@@ -1139,7 +1250,7 @@ public class PentahoSystem {
       }
     }
     for ( String interfaceName : PentahoSystem.KnownOptionalObjects ) {
-      boolean isValid = pentahoObjectFactory.objectDefined( interfaceName );
+      boolean isValid = aggObjectFactory.objectDefined( interfaceName );
       if ( !isValid ) {
         Logger.info(PentahoSystem.class.getName(), Messages.getInstance().getString(
             "PentahoSystem.ERROR_0021_OBJECT_NOT_SPECIFIED", interfaceName )); //$NON-NLS-1$
@@ -1149,6 +1260,8 @@ public class PentahoSystem {
       throw new PentahoSystemException( Messages.getInstance().getErrorString("PentahoSystem.ERROR_0420_MISSING_REQUIRED_OBJECT") ); //$NON-NLS-1$
     }
   }
-  
 
+  public static void clearObjectFactory() {
+    aggObjectFactory.clear();
+  }
 }

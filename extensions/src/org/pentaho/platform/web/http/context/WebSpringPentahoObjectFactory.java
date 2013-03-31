@@ -20,17 +20,19 @@
  */
 package org.pentaho.platform.web.http.context;
 
-import javax.servlet.ServletContext;
-
 import org.pentaho.platform.engine.core.system.objfac.AbstractSpringPentahoObjectFactory;
 import org.pentaho.platform.web.http.messages.Messages;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.context.support.XmlWebApplicationContext;
+
+import javax.servlet.ServletContext;
 
 /**
  * This factory implementation can be used in a web environment in which a Spring
  * {@link WebApplicationContext} has already been created during initialization of
- * the web application.  WebSpringPentahoObjectFactory will delegate object creation 
- * and management to the Spring context.  There is one exception to this rule: see 
+ * the web application.  WebSpringPentahoObjectFactory will delegate object creation
+ * and management to the Spring context.  There is one exception to this rule: see
  * {@link AbstractSpringPentahoObjectFactory} for more details.
  * <p>
  * The Spring bean factory supports the binding of objects to particular scopes.  See Spring
@@ -43,10 +45,15 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  */
 public class WebSpringPentahoObjectFactory extends AbstractSpringPentahoObjectFactory {
 
+
+  public WebSpringPentahoObjectFactory() {
+    super("Main Object Factory");
+  }
+
   /**
    * Initializes this object factory by setting the internal bean factory to the {@link WebApplicationContext}
    * instance managed by Spring.
-   * 
+   *
    * @param configFile  ignored for this implementation
    * @param context   the {@link ServletContext} under which this system is currently running.  This
    *                  is used to retrieve the Spring {@link WebApplicationContext}.
@@ -60,6 +67,8 @@ public class WebSpringPentahoObjectFactory extends AbstractSpringPentahoObjectFa
     }
 
     ServletContext servletContext = (ServletContext) context;
-    beanFactory = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+    XmlWebApplicationContext ctx = (XmlWebApplicationContext) WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+
+    beanFactory = ctx;
   }
 }

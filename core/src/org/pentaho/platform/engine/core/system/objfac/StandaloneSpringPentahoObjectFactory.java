@@ -23,9 +23,14 @@ package org.pentaho.platform.engine.core.system.objfac;
 
 import java.io.File;
 
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.messages.Messages;
+import org.pentaho.platform.engine.core.system.objfac.spring.SpringScopeSessionHolder;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.config.Scope;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 
@@ -39,6 +44,15 @@ import org.springframework.core.io.FileSystemResource;
  *
  */
 public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoObjectFactory {
+
+
+  public StandaloneSpringPentahoObjectFactory() {
+  }
+
+  public StandaloneSpringPentahoObjectFactory(String name) {
+    super(name);
+  }
+
 
   /**
    * Initializes this object factory by creating a self-contained Spring
@@ -56,18 +70,62 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
       File f = new File(configFile);
       FileSystemResource fsr = new FileSystemResource(f);
       GenericApplicationContext appCtx = new GenericApplicationContext();
+
+
+      Scope requestScope = new ThreadLocalScope();
+      appCtx.getBeanFactory().registerScope("request", requestScope);
+      Scope sessionScope = new ThreadLocalScope();
+      appCtx.getBeanFactory().registerScope("session", sessionScope);
+
       XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(appCtx);
       xmlReader.loadBeanDefinitions(fsr);
 
       beanFactory = appCtx;
     } else {
-      if (!(context instanceof ApplicationContext)) {
+      if (!(context instanceof ConfigurableApplicationContext)) {
         String msg = Messages.getInstance().getErrorString("StandalonePentahoObjectFactory.ERROR_0001_CONTEXT_NOT_SUPPORTED", //$NON-NLS-1$
-            getClass().getSimpleName(), "ApplicationContext", context.getClass().getName()); //$NON-NLS-1$
+            getClass().getSimpleName(), "GenericApplicationContext", context.getClass().getName()); //$NON-NLS-1$
         throw new IllegalArgumentException(msg);
       }
-      
-      beanFactory = (ApplicationContext) context;
+
+      ConfigurableApplicationContext configAppCtx = (ConfigurableApplicationContext) context;
+      Scope requestScope = new ThreadLocalScope();
+      configAppCtx.getBeanFactory().registerScope("request", requestScope);
+      Scope sessionScope = new ThreadLocalScope();
+      configAppCtx.getBeanFactory().registerScope("session", sessionScope);
+
+      setBeanFactory(configAppCtx);
     }
+  }
+  private static class ThreadLocalScope implements Scope{
+
+    public Object get(String name, ObjectFactory objectFactory) {
+      IPentahoSession session = SpringScopeSessionHolder.SESSION.get();
+      Object object = session.getAttribute(name);
+      if (object == null) {
+        object = objectFactory.getObject();
+        session.setAttribute(name, object);
+      }
+      return object;
+    }
+
+    public Object remove(String name) {
+      IPentahoSession session = SpringScopeSessionHolder.SESSION.get();
+      return session.removeAttribute(name);
+    }
+
+    public void registerDestructionCallback(String name, Runnable callback) {
+      logger.warn("SimpleThreadScope does not support descruction callbacks. " +
+          "Consider using a RequestScope in a Web environment.");
+    }
+
+    public Object resolveContextualObject(String key) {
+      return null;
+    }
+
+    public String getConversationId() {
+      return SpringScopeSessionHolder.SESSION.get().getId();
+    }
+
   }
 }

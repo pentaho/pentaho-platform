@@ -52,6 +52,9 @@ import org.pentaho.platform.repository2.unified.fileio.RepositoryFileOutputStrea
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.repository2.unified.webservices.*;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 import org.pentaho.platform.util.messages.LocaleHelper;
 import org.pentaho.platform.web.http.messages.Messages;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -435,7 +438,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces(WILDCARD)
   //have to accept anything for browsers to work
   public Response doGetFileOrDirAsDownload(@PathParam("pathId") String pathId,
-      @QueryParam("withManifest") String strWithManifest) throws FileNotFoundException {
+                                           @QueryParam("withManifest") String strWithManifest) throws FileNotFoundException {
     String quotedFileName = null;
 
     // send zip with manifest by default
@@ -551,7 +554,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("{pathId : .+}/localeProperties")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public List<StringKeyStringValueDto> doGetLocaleProperties(@PathParam("pathId") String pathId,
-      @QueryParam("locale") String locale) {
+                                                             @QueryParam("locale") String locale) {
     RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
     List<StringKeyStringValueDto> keyValueList = new ArrayList<StringKeyStringValueDto>();
     if (file != null) {
@@ -569,7 +572,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("{pathId : .+}/localeProperties")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public Response doSetLocaleProperties(@PathParam("pathId") String pathId, @QueryParam("locale") String locale,
-      List<StringKeyStringValueDto> properties) {
+                                        List<StringKeyStringValueDto> properties) {
     try {
       RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
       Properties fileProperties = new Properties();
@@ -648,9 +651,8 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("/canAdminister")
   @Produces(TEXT_PLAIN)
   public String doGetCanAdminister() {
-    return policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
-        && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-        && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
+    return policy.isAllowed(RepositoryReadAction.NAME) && policy.isAllowed(RepositoryCreateAction.NAME)
+        && policy.isAllowed(AdministerSecurityAction.NAME) ? "true" : "false"; //$NON-NLS-1$//$NON-NLS-2$
   }
 
   @GET
@@ -722,7 +724,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("{pathId : .+}/generatedContentForUser")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public List<RepositoryFileDto> doGetGeneratedContentForUser(@PathParam("pathId") String pathId,
-      @QueryParam("user") String user) {
+                                                              @QueryParam("user") String user) {
     RepositoryFileDto targetFile = doGetProperties(pathId);
     List<RepositoryFileDto> content = new ArrayList<RepositoryFileDto>();
     if (targetFile != null) {
@@ -775,7 +777,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("/children")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public RepositoryFileTreeDto doGetRootChildren(@QueryParam("depth") Integer depth,
-      @QueryParam("filter") String filter, @QueryParam("showHidden") Boolean showHidden) {
+                                                 @QueryParam("filter") String filter, @QueryParam("showHidden") Boolean showHidden) {
     return doGetChildren(PATH_SEPARATOR, depth, filter, showHidden);
   }
 
@@ -783,7 +785,7 @@ public class FileResource extends AbstractJaxRSResource {
   @Path("{pathId : .+}/children")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public RepositoryFileTreeDto doGetChildren(@PathParam("pathId") String pathId, @QueryParam("depth") Integer depth,
-      @QueryParam("filter") String filter, @QueryParam("showHidden") Boolean showHidden) {
+                                             @QueryParam("filter") String filter, @QueryParam("showHidden") Boolean showHidden) {
 
     String path = null;
     if (filter == null) {
@@ -875,9 +877,9 @@ public class FileResource extends AbstractJaxRSResource {
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
   public Response doSetMetadata(@PathParam("pathId") String pathId, List<StringKeyStringValueDto> metadata) {
     try {
-      if (policy.isAllowed(IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION)
-          && policy.isAllowed(IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION)
-          && policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+      if (policy.isAllowed(RepositoryReadAction.NAME)
+          && policy.isAllowed(RepositoryCreateAction.NAME)
+          && policy.isAllowed(AdministerSecurityAction.NAME)) {
         RepositoryFileDto file = repoWs.getFile(idToPath(pathId));
         Map<String, Serializable> fileMetadata = repository.getFileMetadata(file.getId());
         boolean isHidden = false;

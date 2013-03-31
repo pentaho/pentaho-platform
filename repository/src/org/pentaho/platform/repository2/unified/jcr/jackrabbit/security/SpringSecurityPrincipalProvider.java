@@ -104,11 +104,6 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
 
   private UserDetailsService userDetailsService;
 
-  /**
-   * Used for group membership caching.
-   */
-  private UserCache springSecurityUserCache;
-
   private String adminId;
 
   private AdminPrincipal adminPrincipal;
@@ -162,7 +157,6 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     }
     if (PentahoSystem.getInitializedOK()) {
       userDetailsService = PentahoSystem.get(UserDetailsService.class);
-      springSecurityUserCache = PentahoSystem.get(UserCache.class);
     }
 
     initialized = true;
@@ -322,24 +316,6 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     }
 
     UserDetails user = null;
-    // first try user cache
-    if (getSpringSecurityUserCache() != null) {
-      user = getSpringSecurityUserCache().getUserFromCache(JcrTenantUtils.getTenantedUser(username));
-      if (user != null) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("user " + username + " found in spring security cache"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        return user;
-      } else {
-        if (logger.isTraceEnabled()) {
-          logger.trace("user " + username + " not found in spring security cache"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-      }
-    } else {
-      if (logger.isTraceEnabled()) {
-        logger.trace("user cache not available"); //$NON-NLS-1$
-      }
-    }
     // user cache not available or user not in cache; do lookup
     GrantedAuthority[] auths = null;
     UserDetails newUser = null;
@@ -367,9 +343,6 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
             CREDS_NON_EXPIRED, ACCOUNT_NON_LOCKED, auths);
       }
 
-      if (getSpringSecurityUserCache() != null && newUser != null) {
-        getSpringSecurityUserCache().putUserInCache(newUser);
-      }
     }
 
     return newUser;
@@ -422,15 +395,6 @@ public class SpringSecurityPrincipalProvider implements PrincipalProvider {
     if (PentahoSystem.getInitializedOK()) {
       userDetailsService = PentahoSystem.get(UserDetailsService.class);
       return userDetailsService;
-    } else {
-      return null;
-    }
-  }
-
-  protected UserCache getSpringSecurityUserCache() {
-    if (PentahoSystem.getInitializedOK()) {
-      springSecurityUserCache = PentahoSystem.get(UserCache.class);
-      return springSecurityUserCache;
     } else {
       return null;
     }

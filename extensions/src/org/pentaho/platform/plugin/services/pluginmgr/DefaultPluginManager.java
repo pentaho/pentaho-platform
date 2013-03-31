@@ -53,10 +53,12 @@ import org.pentaho.platform.api.engine.PluginLifecycleException;
 import org.pentaho.platform.api.engine.PluginServiceDefinition;
 import org.pentaho.platform.api.engine.ServiceException;
 import org.pentaho.platform.api.engine.ServiceInitializationException;
+import org.pentaho.platform.api.engine.perspective.IPluginPerspectiveManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.engine.core.solution.FileInfo;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.plugin.services.pluginmgr.servicemgr.ServiceConfig;
 import org.pentaho.platform.util.logging.Logger;
@@ -69,10 +71,10 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.FileSystemResource;
 
 public class DefaultPluginManager implements IPluginManager {
 
@@ -85,8 +87,8 @@ public class DefaultPluginManager implements IPluginManager {
 
   protected Map<String, ClassLoader> classLoaderMap = Collections.synchronizedMap(new HashMap<String, ClassLoader>());
 
-  protected Map<String, DefaultListableBeanFactory> beanFactoryMap = Collections
-      .synchronizedMap(new HashMap<String, DefaultListableBeanFactory>());
+  protected Map<String, GenericApplicationContext> beanFactoryMap = Collections
+      .synchronizedMap(new HashMap<String, GenericApplicationContext>());
 
   protected Map<String, IPlatformPlugin> registeredPlugins = new Hashtable<String, IPlatformPlugin>();
 
@@ -159,7 +161,7 @@ public class DefaultPluginManager implements IPluginManager {
   public final boolean reload() {
     IPentahoSession session = PentahoSessionHolder.getSession();
     boolean anyErrors = false;
-    IPluginProvider pluginProvider = PentahoSystem.get(IPluginProvider.class, session);
+    IPluginProvider pluginProvider = PentahoSystem.get(IPluginProvider.class, "IPluginProvider", session);
     List<IPlatformPlugin> providedPlugins = null;
     try {
       synchronized (registeredPlugins) {
@@ -181,9 +183,24 @@ public class DefaultPluginManager implements IPluginManager {
     //TODO: refresh appc context here?
 
     synchronized (providedPlugins) {
+
       for (IPlatformPlugin plugin : providedPlugins) {
         try {
-          registerPlugin(plugin, session);
+          ClassLoader loader = setPluginClassLoader(plugin);
+          initializeBeanFactory(plugin, loader);
+        } catch (Throwable t) {
+          // this has been logged already
+          anyErrors = true;
+          String msg = Messages.getInstance().getErrorString(
+              "PluginManager.ERROR_0011_FAILED_TO_REGISTER_PLUGIN", plugin.getId()); //$NON-NLS-1$
+          Logger.error(getClass().toString(), msg, t);
+          PluginMessageLogger.add(msg);
+        }
+      }
+
+      for (IPlatformPlugin plugin : providedPlugins) {
+        try {
+          registerPlugin(plugin);
           registeredPlugins.put(plugin.getId(), plugin);
         } catch (Throwable t) {
           // this has been logged already
@@ -239,7 +256,7 @@ public class DefaultPluginManager implements IPluginManager {
   }
 
   @SuppressWarnings("unchecked")
-  private void registerPlugin(final IPlatformPlugin plugin, IPentahoSession session)
+  private void registerPlugin(final IPlatformPlugin plugin)
       throws PlatformPluginRegistrationException, PluginLifecycleException {
     //TODO: we should treat the registration of a plugin as an atomic operation
     //with rollback if something is broken
@@ -260,11 +277,11 @@ public class DefaultPluginManager implements IPluginManager {
 
     plugin.init();
 
-    initializeBeanFactory(plugin, loader);
-
     registerContentTypes(plugin, loader);
 
     registerContentGenerators(plugin, loader);
+
+    registerPerspectives(plugin, loader);
 
     //cache overlays
     overlaysCache.addAll(plugin.getOverlays());
@@ -283,6 +300,12 @@ public class DefaultPluginManager implements IPluginManager {
           "PluginManager.ERROR_0015_PLUGIN_LOADED_HANDLING_FAILED", plugin.getId()); //$NON-NLS-1$
       Logger.error(getClass().toString(), msg, t);
       PluginMessageLogger.add(msg);
+    }
+  }
+
+  private void registerPerspectives(IPlatformPlugin plugin, ClassLoader loader) {
+    for (IPluginPerspective pluginPerspective : plugin.getPluginPerspectives()) {
+      PentahoSystem.get(IPluginPerspectiveManager.class).addPluginPerspective(pluginPerspective);
     }
   }
 
@@ -352,12 +375,9 @@ public class DefaultPluginManager implements IPluginManager {
       File f = new File(((PluginClassLoader) loader).getPluginDir(), "plugin.spring.xml"); //$NON-NLS-1$
       if (f.exists()) {
         logger.debug("Found plugin spring file @ " + f.getAbsolutePath()); //$NON-NLS-1$
-        ConfigurableApplicationContext context = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath()) { //$NON-NLS-1$
-          @Override
-          protected void initBeanDefinitionReader(XmlBeanDefinitionReader beanDefinitionReader) {
 
-            beanDefinitionReader.setBeanClassLoader(loader);
-          }
+        FileSystemResource fsr = new FileSystemResource(f);
+        GenericApplicationContext appCtx = new GenericApplicationContext(){
 
           @Override
           protected void prepareBeanFactory(ConfigurableListableBeanFactory clBeanFactory) {
@@ -365,13 +385,19 @@ public class DefaultPluginManager implements IPluginManager {
             clBeanFactory.setBeanClassLoader(loader);
           }
 
-          /** Critically important to override this and return the desired CL **/
           @Override
           public ClassLoader getClassLoader() {
             return loader;
           }
+
+
         };
-        nativeFactory = context;
+
+        XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(appCtx);
+        xmlReader.setBeanClassLoader(loader);
+        xmlReader.loadBeanDefinitions(fsr);
+
+        nativeFactory = appCtx;
       }
     }
     return nativeFactory;
@@ -399,11 +425,17 @@ public class DefaultPluginManager implements IPluginManager {
     //
     // Now create the definable factory for accepting old style bean definitions from IPluginProvider
     //
-    DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-    beanFactory.setBeanClassLoader(loader);
 
-    if (nativeBeanFactory != null) {
-      beanFactory.setParentBeanFactory(nativeBeanFactory);
+    GenericApplicationContext beanFactory = null;
+    if(nativeBeanFactory != null && nativeBeanFactory instanceof GenericApplicationContext){
+      beanFactory = (GenericApplicationContext) nativeBeanFactory;
+    } else{
+      beanFactory = new GenericApplicationContext();
+      beanFactory.getBeanFactory().setBeanClassLoader(loader);
+
+      if (nativeBeanFactory != null) {
+        beanFactory.getBeanFactory().setParentBeanFactory(nativeBeanFactory);
+      }
     }
 
     beanFactoryMap.put(plugin.getId(), beanFactory);
@@ -424,6 +456,10 @@ public class DefaultPluginManager implements IPluginManager {
           BeanDefinition.SCOPE_PROTOTYPE).getBeanDefinition();
       beanFactory.registerBeanDefinition(def.getBeanId(), beanDef);
     }
+
+    StandaloneSpringPentahoObjectFactory pentahoFactory = new StandaloneSpringPentahoObjectFactory("Plugin Factory ( "+plugin.getId()+" )" );
+    pentahoFactory.init(null, beanFactory);
+    PentahoSystem.registerObjectFactory(pentahoFactory);
 
     if (nativeBeanFactory instanceof ConfigurableApplicationContext) {
       //yeah, we're eagerly init'ing for now. If this becomes a problem we can lazily do it from getApplicationContext
@@ -565,7 +601,7 @@ public class DefaultPluginManager implements IPluginManager {
 
   @Override
   public ListableBeanFactory getBeanFactory(String pluginId) {
-    return beanFactoryMap.get(pluginId);
+    return beanFactoryMap.get(pluginId).getBeanFactory();
   }
 
   private void registerContentGenerators(IPlatformPlugin plugin, ClassLoader loader)
@@ -575,7 +611,7 @@ public class DefaultPluginManager implements IPluginManager {
       //define the bean in the factory
       BeanDefinition beanDef = BeanDefinitionBuilder.rootBeanDefinition(cgInfo.getClassname()).setScope(
           BeanDefinition.SCOPE_PROTOTYPE).getBeanDefinition();
-      DefaultListableBeanFactory factory = beanFactoryMap.get(plugin.getId());
+      GenericApplicationContext factory = beanFactoryMap.get(plugin.getId());
       //register bean with alias of content generator id (old way)
       factory.registerBeanDefinition(cgInfo.getId(), beanDef);
       //register bean with alias of type (with default perspective) as well (new way)
@@ -592,7 +628,7 @@ public class DefaultPluginManager implements IPluginManager {
     }
 
     Object bean = null;
-    for (DefaultListableBeanFactory beanFactory : beanFactoryMap.values()) {
+    for (GenericApplicationContext beanFactory : beanFactoryMap.values()) {
       if (beanFactory.containsBean(beanId)) {
           if (requiredType == null) {
             bean = beanFactory.getBean(beanId);
@@ -614,7 +650,7 @@ public class DefaultPluginManager implements IPluginManager {
     }
 
     Object bean = null;
-    for (DefaultListableBeanFactory beanFactory : beanFactoryMap.values()) {
+    for (GenericApplicationContext beanFactory : beanFactoryMap.values()) {
       if (beanFactory.containsBean(beanId)) {
         try {
           bean = beanFactory.getBean(beanId);
@@ -672,7 +708,7 @@ public class DefaultPluginManager implements IPluginManager {
       throw new IllegalArgumentException("beanId cannot be null"); //$NON-NLS-1$
     }
     Class<?> type = null;
-    for (DefaultListableBeanFactory beanFactory : beanFactoryMap.values()) {
+    for (GenericApplicationContext beanFactory : beanFactoryMap.values()) {
       if (beanFactory.containsBean(beanId)) {
         try {
           type =  beanFactory.getType(beanId);
@@ -696,7 +732,7 @@ public class DefaultPluginManager implements IPluginManager {
     }
 
     boolean registered = false;
-    for (DefaultListableBeanFactory beanFactory : beanFactoryMap.values()) {
+    for (GenericApplicationContext beanFactory : beanFactoryMap.values()) {
       if (beanFactory.containsBean(beanId)) {
         registered = true;
       }
@@ -758,7 +794,7 @@ public class DefaultPluginManager implements IPluginManager {
   private Collection<String> getBeanIdsForType(String pluginId, Class<?> clazz) {
     ArrayList<String> ids = new ArrayList<String>();
 
-    ListableBeanFactory fac = getBeanFactory(pluginId);
+    ListableBeanFactory fac = beanFactoryMap.get(pluginId).getBeanFactory();
 
     String[] names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(fac, clazz);
     for (String beanName : names) {

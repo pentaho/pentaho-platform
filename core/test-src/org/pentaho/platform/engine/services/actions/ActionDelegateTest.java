@@ -411,6 +411,10 @@ public class ActionDelegateTest {
 
     private int actionIdx = 0;
 
+    public TestPluginManager(){
+      int i=0;
+    }
+
     @Override
     public boolean isBeanRegistered(String beanId) {
       return true;

@@ -59,7 +59,7 @@ public class ServiceLayerTest extends TestCase {
     PentahoSystem.setSystemSettingsService(new PathBasedSystemSettings());
     IPentahoObjectFactory pentahoObjectFactory = new StandaloneSpringPentahoObjectFactory();
     pentahoObjectFactory.init(objectFactoryCreatorCfgFile, null);
-    PentahoSystem.setObjectFactory( pentahoObjectFactory );
+    PentahoSystem.registerObjectFactory(pentahoObjectFactory);
     
     PentahoSystem.init(applicationContext);
     

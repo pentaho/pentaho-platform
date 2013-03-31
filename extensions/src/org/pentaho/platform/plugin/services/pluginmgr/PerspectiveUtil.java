@@ -73,7 +73,6 @@ public class PerspectiveUtil {
       perspective.setRequiredSecurityActions(actions);
       perspective.setResourceBundleUri(resourceBundleUri);
 
-      PentahoSystem.get(IPluginPerspectiveManager.class).addPluginPerspective(perspective);
       return perspective;
     }
     return null;

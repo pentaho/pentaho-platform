@@ -53,6 +53,9 @@ import org.pentaho.platform.repository2.unified.ServerRepositoryPaths;
 import org.pentaho.platform.repository2.unified.jcr.JcrRepositoryFileUtils;
 import org.pentaho.platform.repository2.unified.jcr.PentahoJcrConstants;
 import org.pentaho.platform.security.policy.rolebased.IRoleAuthorizationPolicyRoleBindingDao;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
+import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 import org.pentaho.platform.security.policy.rolebased.messages.Messages;
 import org.springframework.extensions.jcr.JcrCallback;
 import org.springframework.extensions.jcr.JcrTemplate;
@@ -191,7 +194,7 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     userRoleDao.createRole(newTenant, tenantAdminRoleName, "", new String[0]);
     userRoleDao.createRole(newTenant, authenticatedRoleName, "", new String[0]);
     userRoleDao.createRole(newTenant, anonymousRoleName, "", new String[0]);
-    roleBindingDao.setRoleBindings(newTenant, authenticatedRoleName, Arrays.asList(new String[]{IAuthorizationPolicy.READ_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.CREATE_REPOSITORY_CONTENT_ACTION, IAuthorizationPolicy.MANAGE_SCHEDULING}));    
+    roleBindingDao.setRoleBindings(newTenant, authenticatedRoleName, Arrays.asList(new String[]{ RepositoryReadAction.NAME, RepositoryCreateAction.NAME, SchedulerAction.NAME }));
     
     String tenantAdminRoleId = tenantedRoleNameResolver.getPrincipleId(newTenant, tenantAdminRoleName);
     RepositoryFileSid tenantAdminRoleSid = new RepositoryFileSid(tenantAdminRoleId, Type.ROLE);

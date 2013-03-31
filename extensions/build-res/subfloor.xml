@@ -268,7 +268,7 @@ TYPICAL TARGET SEQUENCE
             value="${bin.dir}/reports/ivy"
             description="Base directory that holds all IVY dependency report files" />
   <property name="ivy.configs" value="*" description="Set of configs used for IVY reporting and checking operations" />
-  <property name="ivy.use.symlinks" value="true" description="Flag indicating if Ivy should create symlinks when retrieving artifacts."/>
+  <property name="ivy.use.symlinks" value="false" description="Flag indicating if Ivy should create symlinks when retrieving artifacts."/>
 
   <!-- Tattletale properties -->
   <property name="tattletale.url"

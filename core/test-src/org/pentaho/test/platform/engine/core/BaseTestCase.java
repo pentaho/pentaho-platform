@@ -86,7 +86,7 @@ public abstract class BaseTestCase extends TestCase {
     
     IPentahoObjectFactory pentahoObjectFactory = new StandaloneSpringPentahoObjectFactory();
     pentahoObjectFactory.init(objectFactoryCreatorCfgFile, null);
-    PentahoSystem.setObjectFactory( pentahoObjectFactory );
+    PentahoSystem.registerObjectFactory(pentahoObjectFactory);
     PentahoSystem.init(applicationContext);
     session = new StandaloneSession("system"); //$NON-NLS-1$
   }
