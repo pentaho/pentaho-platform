@@ -87,7 +87,7 @@ public class AuditConnectionTest extends BaseTest {
       StandaloneSession session = new StandaloneSession();
       StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory( );
       factory.init("test-res/solution/system/pentahoObjects.datasourceservice.null.spring.xml", null );
-      PentahoSystem.setObjectFactory(factory);
+      PentahoSystem.registerObjectFactory(factory);
   
       AuditConnection auditConnection = new AuditConnection();
       auditConnection.setUseNewDatasourceService(true); // make sure we get a datasource from the object factory

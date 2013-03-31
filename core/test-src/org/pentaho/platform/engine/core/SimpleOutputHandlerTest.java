@@ -41,7 +41,7 @@ public class SimpleOutputHandlerTest extends TestCase {
     
     TestOutputHandler.contentItem = new SimpleContentItem();
     factory.defineObject("testoutut", TestOutputHandler.class.getName(), StandaloneObjectFactory.Scope.LOCAL);
-    PentahoSystem.setObjectFactory( factory );
+    PentahoSystem.registerObjectFactory(factory);
     
     StandaloneSession session = new StandaloneSession();
     
@@ -177,7 +177,7 @@ public class SimpleOutputHandlerTest extends TestCase {
     StandaloneObjectFactory factory = new StandaloneObjectFactory();
     factory.defineObject("contentrepo", TestOutputHandler.class.getName(),
         StandaloneObjectFactory.Scope.GLOBAL);
-    PentahoSystem.setObjectFactory(factory);
+    PentahoSystem.registerObjectFactory(factory);
     // Verify we can look up content items when the objectName is required
     IContentItem contentItem = handler.getOutputContentItem("contentrepo", "myreport", null, null);
     assertNotNull(contentItem);

@@ -118,7 +118,7 @@ public class BaseTest extends GenericPentahoTest implements IActionCompleteListe
       
       IPentahoObjectFactory pentahoObjectFactory = new StandaloneSpringPentahoObjectFactory();
       pentahoObjectFactory.init(null, springApplicationContext);
-      PentahoSystem.setObjectFactory( pentahoObjectFactory );
+      PentahoSystem.registerObjectFactory(pentahoObjectFactory);
 
       //force Spring to inject PentahoSystem, there has got to be a better way than this, perhaps an alternate way of initting spring's app context
       springApplicationContext.getBean("pentahoSystemProxy"); //$NON-NLS-1$

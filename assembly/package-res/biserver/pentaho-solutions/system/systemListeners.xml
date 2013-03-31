@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-"http://www.springsource.org/dtd/spring-beans.dtd">
+
   <!--
     This is the spring configuration file that is used to wire system listeners into the Pentaho BI Platform. System
     listeners are notified when the platform starts up and shuts down. System listeners can be added, removed, and
     initialized here. Each bean in the list is a system listener. You can intialize any listeners properties, as shown
     in the QuartzSystemListener and VersionCheckSystemListener.
   -->
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" default-lazy-init="true">
   <bean id="systemListenersList" class="java.util.ArrayList">
     <constructor-arg>
       <list>
-        <!-- The kettleSystemListener MUST be first. It initializes and loads the Kettle plugins. -->
         <bean id="kettleSystemListener" class="org.pentaho.platform.plugin.action.kettle.KettleSystemListener" />
+        <bean id="pluginSystemListener" class="org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter" />
         <bean id="jfreeReportSystemListener" class="org.pentaho.platform.plugin.action.jfreereport.JFreeReportSystemListener" />
 
         <bean id="mondrianSystemListener" class="org.pentaho.platform.plugin.action.mondrian.MondrianSystemListener" />
@@ -33,8 +33,6 @@
           class="org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledDatasourceSystemListener"/>
         -->
         <bean id="backingRepositoryLifecycleManagerSystemListener" class="org.pentaho.platform.repository2.unified.BackingRepositoryLifecycleManagerSystemListener"/>
-        <bean id="pluginSystemListener" class="org.pentaho.platform.plugin.services.pluginmgr.PluginAdapter" />
-
         <bean id="chartingSystemListener" class="org.pentaho.platform.plugin.action.chartbeans.ChartBeansSystemListener" />
         
     <!-- Insert system-listeners -->

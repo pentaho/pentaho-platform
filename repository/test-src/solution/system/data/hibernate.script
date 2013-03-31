@@ -41,17 +41,16 @@ GRANT DBA TO HIBUSER
 GRANT DBA TO PENTAHO_USER
 SET WRITE_DELAY 20
 SET SCHEMA PUBLIC
-INSERT INTO USERS VALUES('admin','secret',TRUE,NULL)
-INSERT INTO USERS VALUES('cooldude','password',TRUE,'password1212')
 INSERT INTO USERS VALUES('admin','password',TRUE,NULL)
+INSERT INTO USERS VALUES('cooldude','password',TRUE,'password1212')
 INSERT INTO USERS VALUES('pat','password',TRUE,NULL)
 INSERT INTO USERS VALUES('suzy','password',TRUE,NULL)
 INSERT INTO USERS VALUES('tiffany','password',TRUE,NULL)
 INSERT INTO AUTHORITIES VALUES('Administrator','Administrator')
 INSERT INTO AUTHORITIES VALUES('Anonymous','User has not logged in')
 INSERT INTO AUTHORITIES VALUES('Authenticated','User has logged in')
-INSERT INTO AUTHORITIES VALUES('Power User','Power User Role')
 INSERT INTO AUTHORITIES VALUES('Business Analyst','Business Analyst Role')
+INSERT INTO AUTHORITIES VALUES('Power User','Power User Role')
 INSERT INTO AUTHORITIES VALUES('Report Author','Report Author Role')
 INSERT INTO AUTHORITIES VALUES('ultimate','ultimate')
 INSERT INTO GRANTED_AUTHORITIES VALUES('admin','Administrator')

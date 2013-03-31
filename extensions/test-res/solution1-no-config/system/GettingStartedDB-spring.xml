@@ -8,7 +8,7 @@
    <!-- #[]-style property values are pulled in by PropertyPlaceholderConfigurer -->
 	 <bean id="org.h2.tools.Server"
 	   class="org.h2.tools.Server"
-	   singleton="true"
+	   scope="singleton"
 	   factory-method="createTcpServer"
 	   init-method="start"
 	   destroy-method="stop">

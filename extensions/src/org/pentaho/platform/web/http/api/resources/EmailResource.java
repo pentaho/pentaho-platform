@@ -37,6 +37,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.email.EmailConfiguration;
 import org.pentaho.platform.plugin.services.email.EmailService;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 
 @Path("/emailconfig/")
 public class EmailResource extends AbstractJaxRSResource {
@@ -90,7 +91,7 @@ public class EmailResource extends AbstractJaxRSResource {
   @Path("/resetEmailConfig")
   @Produces({ MediaType.TEXT_PLAIN })
   public Response deleteEmailConfig(EmailConfiguration emailConfiguration) {
-    if (policy == null || policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+    if (policy == null || policy.isAllowed(AdministerSecurityAction.NAME)) {
       try {
         emailService.setEmailConfig(new EmailConfiguration());
       } catch (Exception e) {
@@ -104,7 +105,7 @@ public class EmailResource extends AbstractJaxRSResource {
   @Path("/setEmailConfig")
   @Consumes({ MediaType.APPLICATION_JSON })
   public Response setEmailConfig(EmailConfiguration emailConfiguration) {
-    if (policy == null || policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+    if (policy == null || policy.isAllowed(AdministerSecurityAction.NAME)) {
       try {
         emailService.setEmailConfig(emailConfiguration);
       } catch (Exception e) {
@@ -118,7 +119,7 @@ public class EmailResource extends AbstractJaxRSResource {
   @Path("/getEmailConfig")
   @Produces({ MediaType.APPLICATION_JSON })
   public IEmailConfiguration getEmailConfig() {
-    if (policy == null || policy.isAllowed(IAuthorizationPolicy.ADMINISTER_SECURITY_ACTION)) {
+    if (policy == null || policy.isAllowed(AdministerSecurityAction.NAME)) {
       try {
         return emailService.getEmailConfig();
       } catch (Exception e) {
