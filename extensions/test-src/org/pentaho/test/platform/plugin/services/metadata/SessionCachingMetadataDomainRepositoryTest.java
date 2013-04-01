@@ -12,6 +12,7 @@ import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
+import org.pentaho.platform.engine.core.system.objfac.AggregateObjectFactory;
 import org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomainRepository;
 import org.pentaho.platform.plugin.services.metadata.SessionCachingMetadataDomainRepository.CacheKey;
 import org.pentaho.test.platform.engine.core.BaseTest;
@@ -64,7 +65,9 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
     SimpleObjectFactory factory = new SimpleObjectFactory();
     factory.defineObject("ICacheManager", MockDisabledCacheManager.class.getName()); //$NON-NLS-1$
     // Swap in an object factory with a cache manager that doesn't allow creating new caches
-    final IPentahoObjectFactory original = PentahoSystem.getObjectFactory();
+
+    Set<IPentahoObjectFactory> facts = ((AggregateObjectFactory) PentahoSystem.getObjectFactory()).getFactories();
+    PentahoSystem.clearObjectFactory();
     PentahoSystem.registerObjectFactory(factory);
     try {
       try {
@@ -76,7 +79,10 @@ public class SessionCachingMetadataDomainRepositoryTest extends BaseTest {
       }
     } finally {
       // Replace the original object factory so the rest of the tests work
-      PentahoSystem.registerObjectFactory(original);
+      PentahoSystem.clearObjectFactory();
+      for (IPentahoObjectFactory fact : facts) {
+        PentahoSystem.registerObjectFactory(fact);
+      }
     }
   }
 
