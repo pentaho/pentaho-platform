@@ -56,10 +56,10 @@ public class EmailResource extends AbstractJaxRSResource {
    *           Indicates that the default location for the email configuration file is invalid
    */
   public EmailResource() throws IllegalArgumentException {
-    try {
-      emailService = PentahoSystem.get(IEmailService.class, "IEmailService", PentahoSessionHolder.getSession());
-    } catch (RuntimeException ex) {
-      // create default
+    
+    emailService = PentahoSystem.get(IEmailService.class, "IEmailService", PentahoSessionHolder.getSession());
+
+    if(emailService == null){
       emailService = new EmailService();
     }
     init(emailService);
