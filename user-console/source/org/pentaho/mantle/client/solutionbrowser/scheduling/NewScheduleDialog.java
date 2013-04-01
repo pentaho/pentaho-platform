@@ -21,7 +21,6 @@ package org.pentaho.mantle.client.solutionbrowser.scheduling;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -303,6 +302,12 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     ScheduleType scheduleType = scheduleEditorWizardPanel.getScheduleType();
     Date startDate = scheduleEditorWizardPanel.getStartDate();
     String startTime = scheduleEditorWizardPanel.getStartTime();
+
+    // For blockout periods, we need the blockout start time.
+    if (isBlockoutDialog) {
+      startTime = scheduleEditorWizardPanel.getBlockoutStartTime();
+    }
+
     int startHour = getStartHour(startTime);
     int startMin = getStartMin(startTime);
     int startYear = startDate.getYear();
@@ -317,6 +322,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
     JSONObject schedule = new JSONObject();
     schedule.put("jobName", new JSONString(scheduleEditor.getScheduleName()));
+
 
     if (scheduleType == ScheduleType.RUN_ONCE) { // Run once types
       schedule.put("simpleJobTrigger", getJsonSimpleTrigger(0, 0, startDateTime, null)); //$NON-NLS-1$
@@ -569,18 +575,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return jsJobTrigger;
   }
 
-  private boolean addBlockoutPeriod(final JSONObject schedule, final JsJobTrigger trigger) {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add"; //$NON-NLS-1$
-    RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
-    addBlockoutPeriodRequest.setHeader("accept", "text/plain");
-    addBlockoutPeriodRequest.setHeader("Content-Type", "application/json");
-
-    Date startDate = scheduleEditorWizardPanel.getStartDate();
-
-    // Create a unique blockout period name
-    final String blockoutPeriodName = trigger.getScheduleType() + Random.nextInt() + ":" +
-                                      /*PentahoSessionHolder.getSession().getName()*/  "admin" + ":" + startDate.getTime();
-
+  private JSONObject getScheduleJobTrigger(final JSONObject schedule) {
     // Retrieve the JSON from schedule's simple/complex/cron trigger to get
     // editor specific JSON params
     JSONObject scheduleTrigger = null;
@@ -592,29 +587,29 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       scheduleTrigger = (JSONObject)schedule.get("cronJobTrigger");
     }
 
-//    System.out.println("******* The schedule string is: " + schedule.toString());
+//    System.out.println("********** The schedule trigger: " + scheduleTrigger.toString());
+    return scheduleTrigger;
+  }
 
-    // We need to merge the schedule's JSON into one JSON list.
-    JSONObject addBlockoutParams =  new JSONObject();
-    if (scheduleTrigger != null) {
-      Set<String> keys = scheduleTrigger.keySet();
-      for (String key : keys) {
-        addBlockoutParams.put(key, scheduleTrigger.get(key));
-      }
-    }
+  private boolean addBlockoutPeriod(final JSONObject schedule, final JsJobTrigger trigger) {
+    final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add"; //$NON-NLS-1$
+    RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
+    addBlockoutPeriodRequest.setHeader("accept", "text/plain");
+    addBlockoutPeriodRequest.setHeader("Content-Type", "application/json");
 
-//    System.out.println("The new json: " + addBlockoutParams.toString());
+    // Create a unique blockout period name
+    final Long duration = trigger.getBlockDuration();
+    final String blockoutPeriodName = trigger.getScheduleType() + Random.nextInt() + ":" +
+                                      /*PentahoSessionHolder.getSession().getName()*/  "admin" + ":" + duration;
 
     // Add blockout specific parameters
+    JSONObject addBlockoutParams = getScheduleJobTrigger(schedule);
     addBlockoutParams.put("name", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
     addBlockoutParams.put("repeatInterval",new JSONNumber(trigger.getRepeatInterval())); //$NON-NLS-1$
     addBlockoutParams.put("repeatCount", new JSONNumber(trigger.getRepeatCount())); //$NON-NLS-1$
-    addBlockoutParams.put("blockDuration", new JSONNumber(trigger.getBlockDuration())); //$NON-NLS-1$
+    addBlockoutParams.put("blockDuration", new JSONNumber(duration)); //$NON-NLS-1$
 
-//    System.out.println("The merged json: " + addBlockoutParams.toString());
-//
-//    System.out.println("******* Trigger: Repeat Interval - " + trigger.getRepeatInterval());
-//    System.out.println("******* Trigger: Repeat Count - " + trigger.getRepeatCount());
+//    System.out.println("The add blockout json: " + addBlockoutParams.toString());
 
     try {
       addBlockoutPeriodRequest.sendRequest(addBlockoutParams.toString(), new RequestCallback()
@@ -690,15 +685,10 @@ public class NewScheduleDialog extends AbstractWizardDialog {
    * @param trigger
    */
   protected void verifyBlockoutConflict(final JSONObject schedule, final JsJobTrigger trigger) {
-    final ScheduleType scheduleType = scheduleEditorWizardPanel.getScheduleType();
     String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/blockstatus/"; //$NON-NLS-1$
 
     if (trigger.getType().equals("simpleJobTrigger")) {
-      if ((scheduleType == ScheduleType.SECONDS) || (scheduleType == ScheduleType.MINUTES) || (scheduleType == ScheduleType.HOURS)) {
-        url += "dateinterval";
-      } else {
-        url += "simple";    //$NON-NLS-1$
-      }
+      url += "simple";    //$NON-NLS-1$
     } else if (trigger.getType().equals("cronJobTrigger")) {
       url += "cron";
     } else {
@@ -709,12 +699,14 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     blockoutConflictRequest.setHeader("accept", "application/json");
     blockoutConflictRequest.setHeader("Content-Type", "application/json");
 
-    final JSONObject verifyBlockoutParams = new JSONObject();
+    final JSONObject verifyBlockoutParams = getScheduleJobTrigger(schedule);
     verifyBlockoutParams.put("name", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
     verifyBlockoutParams.put("startTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
     verifyBlockoutParams.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$
     verifyBlockoutParams.put("repeatCount", new JSONNumber(0)); //$NON-NLS-1$
     verifyBlockoutParams.put("repeatInterval", new JSONNumber(0)); //$NON-NLS-1$
+
+    System.out.println("The verify blockout conflict json: " + verifyBlockoutParams.toString());
 
     try {
       blockoutConflictRequest.sendRequest(verifyBlockoutParams.toString(), new RequestCallback()
