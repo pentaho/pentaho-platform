@@ -73,7 +73,7 @@
 			<Hierarchy hasAll="true" allMemberName="All Years" primaryKey="TIME_ID">
 				<Table name="DIM_TIME">
 				</Table>
-        <Level name="Years" column="YEAR_ID" type="String" uniqueMembers="true" levelType="TimeYears"
+        <Level name="Years" column="YEAR_ID" type="Integer" uniqueMembers="true" levelType="TimeYears"
                hideMemberIf="Never">
           <Annotations>
             <Annotation name="AnalyzerDateFormat">[yyyy]</Annotation>
