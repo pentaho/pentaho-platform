@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--+
 	| Application context containing LDAP AuthenticationProvider
 	| implementation.
 	+-->
 
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" >
+<beans  xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:util="http://www.springframework.org/schema/util"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd"
+        default-lazy-init="true">
 
 	<bean id="authenticationProvider"
-		class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
+		class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapAuthenticationProvider">
 		<constructor-arg>
-      <ref bean="authenticator" />
+      		<ref bean="authenticator" />
 		</constructor-arg>
 		<constructor-arg>
 			<ref local="populator" />
 		</constructor-arg>
+		<constructor-arg>
+			<ref local="ldapRoleMapper" />
+		</constructor-arg>		
 	</bean>
 
   <bean id="authenticator" class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
@@ -70,6 +74,18 @@
 		<constructor-arg ref="tenantedUserNameUtils"/>
 	</bean>
 
+    <!-- map ldap role to pentaho security role -->
+    <util:map id="roleMap">
+        <entry key="${adminRole}" value="Administrator"/>
+    </util:map>
+
+    <bean id="ldapRoleMapper"
+          class="org.pentaho.platform.engine.security.DefaultLdapRoleMapper">
+        <constructor-arg>
+            <ref local="roleMap"/>
+        </constructor-arg>
+    </bean>
+
   <!--
     LDAP is different from JDBC and others in that its authenticationProvider does not delegate to a 
     userDetailsService. While the others use org.springframework.security.providers.dao.DaoAuthenticationProvider which
@@ -81,6 +97,7 @@
   <bean id="userDetailsService" class="org.pentaho.platform.engine.security.DefaultRoleUserDetailsServiceDecorator">
     <property name="userDetailsService" ref="userDetailsService0" />
     <property name="defaultRole" ref="defaultRole" />
+    <property name="roleMapper" ref="ldapRoleMapper" />
   </bean>
 
   <bean id="propertyPlaceholderConfigurerSecurityLdap" 
