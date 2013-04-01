@@ -577,7 +577,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
   private JSONObject getScheduleJobTrigger(final JSONObject schedule) {
     // Retrieve the JSON from schedule's simple/complex/cron trigger to get
-    // editor specific JSON params
+    // editor specific JSON params.
+    // Note: This JSON contains startTime, endDate, repeatCount & repeatInterval
     JSONObject scheduleTrigger = null;
     if (schedule.containsKey("simpleJobTrigger")) {
       scheduleTrigger = (JSONObject)schedule.get("simpleJobTrigger");
@@ -605,11 +606,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     // Add blockout specific parameters
     JSONObject addBlockoutParams = getScheduleJobTrigger(schedule);
     addBlockoutParams.put("name", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
-    addBlockoutParams.put("repeatInterval",new JSONNumber(trigger.getRepeatInterval())); //$NON-NLS-1$
-    addBlockoutParams.put("repeatCount", new JSONNumber(trigger.getRepeatCount())); //$NON-NLS-1$
     addBlockoutParams.put("blockDuration", new JSONNumber(duration)); //$NON-NLS-1$
 
-//    System.out.println("The add blockout json: " + addBlockoutParams.toString());
+    System.out.println("The add blockout json: " + addBlockoutParams.toString());
 
     try {
       addBlockoutPeriodRequest.sendRequest(addBlockoutParams.toString(), new RequestCallback()
@@ -659,10 +658,10 @@ public class NewScheduleDialog extends AbstractWizardDialog {
                                                               showContinueButton ? continueButtonText : null,
                                                               null); //$NON-NLS-1$ //$NON-NLS-2$
       dialogBox.setCallback(new IDialogCallback() {
-        // TODO:  If user clicked on 'Continue' we want to add the schedule.  Otherwise we dismiss the dialog
+        // If user clicked on 'Continue' we want to add the schedule.  Otherwise we dismiss the dialog
         // and they have to modify the recurrence schedule
         public void cancelPressed() {
-          // TODO: User clicked on continue, so we need to proceed adding the schedule
+          // User clicked on continue, so we need to proceed adding the schedule
           System.out.println("Continue button pressed");
           handleWizardPanels(schedule, trigger);
         }
@@ -701,12 +700,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
     final JSONObject verifyBlockoutParams = getScheduleJobTrigger(schedule);
     verifyBlockoutParams.put("name", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
-    verifyBlockoutParams.put("startTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
-    verifyBlockoutParams.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$
-    verifyBlockoutParams.put("repeatCount", new JSONNumber(trigger.getRepeatCount())); //$NON-NLS-1$
-    verifyBlockoutParams.put("repeatInterval", new JSONNumber(trigger.getRepeatInterval())); //$NON-NLS-1$
 
-    System.out.println("The verify blockout conflict json: " + verifyBlockoutParams.toString());
+//    System.out.println("The verify blockout conflict json: " + verifyBlockoutParams.toString());
 
     try {
       blockoutConflictRequest.sendRequest(verifyBlockoutParams.toString(), new RequestCallback()
