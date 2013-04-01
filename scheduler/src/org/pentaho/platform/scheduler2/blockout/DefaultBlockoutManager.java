@@ -102,6 +102,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
    * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#getBlockouts()
    */
   @Override
+  @Deprecated
   public IBlockoutTrigger[] getBlockouts() throws SchedulerException {
     String[] blockedTriggerName = qs.getQuartzScheduler().getTriggerNames(BLOCK_GROUP);
     IBlockoutTrigger[] blockTriggers = new IBlockoutTrigger[blockedTriggerName.length];
@@ -127,15 +128,6 @@ public class DefaultBlockoutManager implements IBlockoutManager {
     } catch (org.pentaho.platform.api.scheduler2.SchedulerException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  private SimpleBlockoutTrigger getSimpleBlockoutTrigger(Trigger trigger) {
-    SimpleTrigger simpleTrigger = (SimpleTrigger) trigger;
-    SimpleBlockoutTrigger simpleBlockoutTrigger = new SimpleBlockoutTrigger(simpleTrigger.getName(),
-        simpleTrigger.getStartTime(), simpleTrigger.getEndTime(), simpleTrigger.getRepeatCount(),
-        simpleTrigger.getRepeatInterval(), 0l);
-    simpleBlockoutTrigger.setJobDataMap(simpleTrigger.getJobDataMap());
-    return simpleBlockoutTrigger;
   }
 
   /* (non-Javadoc)

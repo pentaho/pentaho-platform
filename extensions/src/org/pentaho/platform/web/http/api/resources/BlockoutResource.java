@@ -39,9 +39,9 @@ import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.scheduler2.blockout.CronBlockoutTrigger;
-import org.pentaho.platform.scheduler2.blockout.DateIntervalBlockoutTrigger;
-import org.pentaho.platform.scheduler2.blockout.NthIncludedDayBlockoutTrigger;
+import org.pentaho.platform.scheduler2.blockout.CronBlockOutTrigger;
+import org.pentaho.platform.scheduler2.blockout.DateIntervalBlockOutTrigger;
+import org.pentaho.platform.scheduler2.blockout.NthIncludedDayBlockOutTrigger;
 import org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
@@ -61,8 +61,9 @@ import org.quartz.Trigger;
 public class BlockoutResource extends AbstractJaxRSResource {
 
   private IBlockoutManager manager = null;
+
   protected IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
-  
+
   public BlockoutResource() {
     super();
     manager = PentahoSystem.get(IBlockoutManager.class, "IBlockoutManager", null); //$NON-NLS-1$;
@@ -71,6 +72,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @GET
   @Path("/list")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
+  @Deprecated
   public SimpleBlockoutTrigger[] getBlockouts() {
     try {
       IBlockoutTrigger[] blockoutsArray = manager.getBlockouts();
@@ -91,14 +93,14 @@ public class BlockoutResource extends AbstractJaxRSResource {
     IPentahoSession session = PentahoSessionHolder.getSession();
     return manager.getBlockoutJobs(canAdminister(session));
   }
-  
+
   @GET
   @Path("/get")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
   public IBlockoutTrigger getBlockout(@QueryParam("blockoutName")
   String blockoutName) {
     try {
-      return  manager.getBlockout(blockoutName);
+      return manager.getBlockout(blockoutName);
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
@@ -110,25 +112,25 @@ public class BlockoutResource extends AbstractJaxRSResource {
   public Response addBlockoutSimple(SimpleBlockoutTrigger trigger) {
     return this.addBlockout(trigger);
   }
-  
+
   @POST
   @Path("/add/cron")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-  public Response addBlockoutCron(CronBlockoutTrigger trigger) {
+  public Response addBlockoutCron(CronBlockOutTrigger trigger) {
     return this.addBlockout(trigger);
   }
 
   @POST
   @Path("/add/dateinterval")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-  public Response addBlockoutDateInterval(DateIntervalBlockoutTrigger trigger) {
+  public Response addBlockoutDateInterval(DateIntervalBlockOutTrigger trigger) {
     return this.addBlockout(trigger);
   }
 
   @POST
   @Path("/add/nthincludedday")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-  public Response addBlockoutNthIncluded(NthIncludedDayBlockoutTrigger trigger) {
+  public Response addBlockoutNthIncluded(NthIncludedDayBlockOutTrigger trigger) {
     return this.addBlockout(trigger);
   }
 
@@ -140,7 +142,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
+
   @DELETE
   @Path("/delete")
   public Response deleteBlockout(@QueryParam("blockoutName")
@@ -215,7 +217,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
+
   @POST
   @Path("/blockstatus/simple")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
@@ -223,7 +225,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   public BlockStatusProxy getBlockStatusSimple(SimpleTriggerProxy trigger) {
     return getBlockStatus(trigger);
   }
-  
+
   @POST
   @Path("/blockstatus/cron")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
@@ -231,7 +233,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   public BlockStatusProxy getBlockStatusCron(CronTriggerProxy trigger) {
     return getBlockStatus(trigger);
   }
-  
+
   @POST
   @Path("/blockstatus/dateinterval")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
@@ -239,7 +241,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   public BlockStatusProxy getBlockStatusDateInterval(DateIntervalTriggerProxy trigger) {
     return getBlockStatus(trigger);
   }
-  
+
   @POST
   @Path("/blockstatus/nthincludedday")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
@@ -247,7 +249,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   public BlockStatusProxy getBlockStatusDateInterval(NthIncludedDayTriggerProxy trigger) {
     return getBlockStatus(trigger);
   }
-  
+
   private BlockStatusProxy getBlockStatus(Trigger trigger) {
     try {
       // Get blockout status
@@ -258,7 +260,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
+
   private Boolean canAdminister(IPentahoSession session) {
     if (policy.isAllowed(AdministerSecurityAction.NAME)) {
       return true;
