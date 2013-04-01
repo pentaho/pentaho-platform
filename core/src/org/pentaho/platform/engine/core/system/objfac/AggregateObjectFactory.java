@@ -39,6 +39,9 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     registerObjectFactory(fact, false);
   }
 
+  public Set<IPentahoObjectFactory> getFactories() {
+    return new HashSet(factories);
+  }
 
   public IPentahoObjectFactory getPrimaryFactory() {
     return primaryFactory;
@@ -135,9 +138,11 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     List<IPentahoObjectReference<T>> referenceList = new ArrayList<IPentahoObjectReference<T>>();
 
     for(IPentahoObjectFactory fact : factories){
-      List<IPentahoObjectReference<T>> refs = fact.getObjectReferences(interfaceClass, curSession, properties);
-      if(refs != null){
-        referenceList.addAll(refs);
+      if(fact.objectDefined(interfaceClass)){
+        List<IPentahoObjectReference<T>> refs = fact.getObjectReferences(interfaceClass, curSession, properties);
+        if(refs != null){
+          referenceList.addAll(refs);
+        }
       }
     }
 
@@ -158,9 +163,12 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     Set<IPentahoObjectReference<T>> references = new HashSet<IPentahoObjectReference<T>>();
 
     for(IPentahoObjectFactory fact : factories){
-      IPentahoObjectReference<T> found = fact.getObjectReference(clazz, curSession);
-      if(found != null){
-        references.add(found);
+      if(fact.objectDefined(clazz)){
+        IPentahoObjectReference<T> found = fact.getObjectReference(clazz, curSession);
+        if(found != null){
+          references.add(found);
+        }
+
       }
     }
     IPentahoObjectReference<T> highestRef = null;
@@ -181,12 +189,19 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
 
     IPentahoObjectReference<T> highestRef = this.getObjectReference(clazz, session, properties);
 
-    if(highestRef == null){
-      String msg = Messages.getInstance().getString("AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT", clazz.getSimpleName());
-      throw new ObjectFactoryException(msg);
+    if(highestRef != null){
+      return highestRef.getObject();
     }
 
-    return highestRef.getObject();
+    for(IPentahoObjectFactory fact : factories){
+      if(fact.objectDefined(clazz.getSimpleName())){
+        T object = fact.get(clazz, clazz.getSimpleName(), session);
+        return object;
+      }
+    }
+    String msg = Messages.getInstance().getString("AbstractSpringPentahoObjectFactory.WARN_FAILED_TO_RETRIEVE_OBJECT", clazz.getSimpleName());
+    throw new ObjectFactoryException(msg);
+
   }
 
   @Override
@@ -207,9 +222,11 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     Set<IPentahoObjectReference<T>> references = new HashSet<IPentahoObjectReference<T>>();
 
     for(IPentahoObjectFactory fact : factories){
-      IPentahoObjectReference<T> found = fact.getObjectReference(interfaceClass, curSession, properties);
-      if(found != null){
-        references.add(found);
+      if(fact.objectDefined(interfaceClass)){
+        IPentahoObjectReference<T> found = fact.getObjectReference(interfaceClass, curSession, properties);
+        if(found != null){
+          references.add(found);
+        }
       }
     }
     IPentahoObjectReference<T> highestRef = null;
@@ -274,9 +291,11 @@ public class AggregateObjectFactory implements IPentahoObjectFactory {
     Set<IPentahoObjectReference<T>> referenceSet = new TreeSet<IPentahoObjectReference<T>>();
 
     for(IPentahoObjectFactory fact : factories){
-      IPentahoObjectReference<T> found = fact.getObjectReference(interfaceClass, curSession, properties);
-      if(found != null){
-        referenceSet.add(found);
+      if(fact.objectDefined(interfaceClass)){
+        IPentahoObjectReference<T> found = fact.getObjectReference(interfaceClass, curSession, properties);
+        if(found != null){
+          referenceSet.add(found);
+        }
       }
     }
 
