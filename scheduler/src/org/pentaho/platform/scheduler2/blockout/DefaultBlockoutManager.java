@@ -62,9 +62,12 @@ public class DefaultBlockoutManager implements IBlockoutManager {
   }
 
   protected IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
+
   QuartzScheduler qs = null;
 
   public static final String ERR_WRONG_BLOCKER_TYPE = "DefaultBlockoutManager.ERROR_0001_WRONG_BLOCKER_TYPE"; //$NON-NLS-1$
+
+  public static final String ERR_CANT_PARSE_RECURRENCE_INTERVAL = "DefaultBlockoutManager.ERROR_0003_CANT_PARSE_RECURRENCE_INTERVAL"; //$NON-NLS-1$
 
   public DefaultBlockoutManager() throws SchedulerException {
     super();
@@ -103,7 +106,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
     String[] blockedTriggerName = qs.getQuartzScheduler().getTriggerNames(BLOCK_GROUP);
     IBlockoutTrigger[] blockTriggers = new IBlockoutTrigger[blockedTriggerName.length];
     for (int i = 0; i < blockedTriggerName.length; i++) {
-      blockTriggers[i] = getSimpleBlockoutTrigger(qs.getQuartzScheduler().getTrigger(blockedTriggerName[i], BLOCK_GROUP));
+      blockTriggers[i] = (IBlockoutTrigger) qs.getQuartzScheduler().getTrigger(blockedTriggerName[i], BLOCK_GROUP);
     }
     return blockTriggers;
   }
@@ -125,14 +128,16 @@ public class DefaultBlockoutManager implements IBlockoutManager {
       throw new RuntimeException(e);
     }
   }
-  
+
   private SimpleBlockoutTrigger getSimpleBlockoutTrigger(Trigger trigger) {
-    SimpleTrigger simpleTrigger = (SimpleTrigger)trigger;
-    SimpleBlockoutTrigger simpleBlockoutTrigger = new SimpleBlockoutTrigger(simpleTrigger.getName(), simpleTrigger.getStartTime(), simpleTrigger.getEndTime(), simpleTrigger.getRepeatCount(), simpleTrigger.getRepeatInterval(), 0l);
+    SimpleTrigger simpleTrigger = (SimpleTrigger) trigger;
+    SimpleBlockoutTrigger simpleBlockoutTrigger = new SimpleBlockoutTrigger(simpleTrigger.getName(),
+        simpleTrigger.getStartTime(), simpleTrigger.getEndTime(), simpleTrigger.getRepeatCount(),
+        simpleTrigger.getRepeatInterval(), 0l);
     simpleBlockoutTrigger.setJobDataMap(simpleTrigger.getJobDataMap());
     return simpleBlockoutTrigger;
   }
-  
+
   /* (non-Javadoc)
    * @see org.pentaho.platform.api.scheduler2.IBlockoutManager#updateBlockout(java.lang.String, org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)
    */
@@ -153,7 +158,8 @@ public class DefaultBlockoutManager implements IBlockoutManager {
     }
 
     Trigger oldBlockoutTrigger = (Trigger) oldBlockout;
-    JobDetail jd = qs.getQuartzScheduler().getJobDetail(oldBlockoutTrigger.getJobName(), oldBlockoutTrigger.getJobGroup());
+    JobDetail jd = qs.getQuartzScheduler().getJobDetail(oldBlockoutTrigger.getJobName(),
+        oldBlockoutTrigger.getJobGroup());
     deleteBlockout(blockoutName);
 
     newBlockoutTrigger.setJobName(jd.getName());
@@ -181,8 +187,11 @@ public class DefaultBlockoutManager implements IBlockoutManager {
       // We must verify further if the schedule is blocked completely or if it will fire
       if (willBlockSchedule(scheduleTrigger, blockOut)) {
 
+        Trigger blockOutTrigger = (Trigger) blockOut;
+
         // If recurrence intervals are the same, it will never fire
-        if (getRecurrenceInterval((Trigger) blockOut) == getRecurrenceInterval(scheduleTrigger)) {
+        if (!isComplexTrigger(blockOutTrigger) && !isComplexTrigger(scheduleTrigger)
+            && getRecurrenceInterval(blockOutTrigger) == getRecurrenceInterval(scheduleTrigger)) {
           return false;
         }
 
@@ -226,19 +235,10 @@ public class DefaultBlockoutManager implements IBlockoutManager {
   @Override
   public boolean shouldFireNow() throws SchedulerException {
 
-    long currentTime = System.currentTimeMillis();
+    Date currentTime = new Date(System.currentTimeMillis());
     for (IBlockoutTrigger blockOut : getBlockouts()) {
 
-      if (!(blockOut instanceof Trigger)) {
-        throw new SchedulerException(Messages.getInstance().getString(ERR_WRONG_BLOCKER_TYPE));
-      }
-
-      Trigger blockOutTrigger = (Trigger) blockOut;
-      long lastFireTime = blockOutTrigger.getPreviousFireTime() != null ? blockOutTrigger.getPreviousFireTime()
-          .getTime() : blockOutTrigger.getStartTime().getTime();
-      long endLastFireTime = lastFireTime + blockOut.getBlockDuration();
-
-      if (lastFireTime <= currentTime && currentTime <= endLastFireTime) {
+      if (willBlockDate(blockOut, currentTime)) {
         return false;
       }
     }
@@ -285,22 +285,29 @@ public class DefaultBlockoutManager implements IBlockoutManager {
    * @throws SchedulerException
    */
   private boolean willBlockSchedule(Trigger scheduleTrigger, IBlockoutTrigger blockOut) throws SchedulerException {
-
-    // Perform special willBlockComplexSchedule for CronTrigger, NthIncludedDayTrigger, or DateIntervalTrigger with a MONTH interval
-    if (scheduleTrigger instanceof CronTrigger
-        || scheduleTrigger instanceof NthIncludedDayTrigger
-        || (scheduleTrigger instanceof DateIntervalTrigger && ((DateIntervalTrigger) scheduleTrigger)
-            .getRepeatIntervalUnit().equals(IntervalUnit.MONTH))) {
-      return willBlockComplexSchedule(scheduleTrigger, blockOut);
-    }
-
-    // Protect against non-trigger implementations
-    if (!(blockOut instanceof Trigger)) {
-      throw new SchedulerException(Messages.getInstance().getString(ERR_WRONG_BLOCKER_TYPE));
-    }
-
     Trigger blockOutTrigger = (Trigger) blockOut;
 
+    boolean isScheduleTriggerComplex = isComplexTrigger(scheduleTrigger);
+    boolean isBlockOutTriggerComplex = isComplexTrigger(blockOutTrigger);
+
+    // Both Schedule and BlockOut are complex
+    if (isScheduleTriggerComplex && isBlockOutTriggerComplex) {
+      return willComplexBlockOutBlockComplexScheduleTrigger(blockOut, scheduleTrigger);
+    }
+
+    // Complex Schedule Trigger
+    if (isScheduleTriggerComplex) {
+      return willBlockComplexScheduleTrigger(scheduleTrigger, blockOut);
+    }
+
+    // Complex BlockOut Trigger
+    if (isBlockOutTriggerComplex) {
+      return willComplexBlockOutTriggerBlockSchedule(blockOut, scheduleTrigger);
+    }
+
+    /*
+     * Both blockOut and schedule triggers are simple. Continue with mathematical calculations
+     */
     long blockOutRecurrence = getRecurrenceInterval(blockOutTrigger);
     long scheduleRecurrence = getRecurrenceInterval(scheduleTrigger);
 
@@ -320,7 +327,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
         long scheduleDate = scheduleTrigger.getStartTime().getTime() + scheduleRecurrence * (i + xShift);
         long blockOutStartDate = blockOutTrigger.getStartTime().getTime() + blockOutRecurrence * i;
 
-        // Ensure intersection dates fall within range
+        // Test intersection of dates fall within range
         if (scheduleTrigger.getStartTime().getTime() <= scheduleDate
             && (scheduleTrigger.getEndTime() == null || scheduleDate <= scheduleTrigger.getEndTime().getTime())
             && blockOutTrigger.getStartTime().getTime() <= blockOutStartDate
@@ -346,7 +353,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
    * @return whether the {@link IBlockoutTrigger} will conflict at all with the complex {@link Trigger}s
    * @throws SchedulerException
    */
-  private boolean willBlockComplexSchedule(Trigger trigger, IBlockoutTrigger blockOut) throws SchedulerException {
+  private boolean willBlockComplexScheduleTrigger(Trigger trigger, IBlockoutTrigger blockOut) throws SchedulerException {
 
     for (Date fireTime : getFireTimes(trigger)) {
       if (willBlockDate(blockOut, fireTime)) {
@@ -363,18 +370,162 @@ public class DefaultBlockoutManager implements IBlockoutManager {
    * @param date
    *        {@link Date}
    * @return whether the {@link Date} is within the range of the {@link IBlockoutTrigger}
+   * @throws SchedulerException 
    */
-  private static boolean willBlockDate(IBlockoutTrigger blockOut, Date date) {
+  private boolean willBlockDate(IBlockoutTrigger blockOut, Date date) throws SchedulerException {
     // S + Rx <= d <= S + Rx + D
     Trigger blockOutTrigger = (Trigger) blockOut;
+
+    // Out of range of block out
+    if (date.before(blockOutTrigger.getStartTime())
+        || (blockOutTrigger.getEndTime() != null && date.after(blockOutTrigger.getEndTime()))) {
+      return false;
+    }
+
+    if (isComplexTrigger(blockOutTrigger)) {
+      return willComplexBlockOutTriggerBlockDate(blockOut, date);
+    }
 
     long blockOutRecurrenceInterval = getRecurrenceInterval(blockOutTrigger);
 
     double x1 = (date.getTime() - blockOutTrigger.getStartTime().getTime()) / (double) blockOutRecurrenceInterval;
-    double x2 = (date.getTime() - blockOutTrigger.getStartTime().getTime() + blockOut.getBlockDuration())
+    double x2 = (date.getTime() - (blockOutTrigger.getStartTime().getTime() + blockOut.getBlockDuration()))
         / (double) blockOutRecurrenceInterval;
 
-    return x2 >= 0 && hasIntBetween(x1, x2);
+    return hasPositiveIntBetween(x1, x2);
+  }
+
+  /**
+   * @param blockOut
+   *        {@link IBlockoutTrigger}
+   * @param scheduleTrigger 
+   *        {@link Trigger}
+   * @return whether the complex {@link IBlockoutTrigger} will block the scheduled {@link Trigger}
+   * @throws SchedulerException
+   */
+  private boolean willComplexBlockOutTriggerBlockSchedule(IBlockoutTrigger blockOut, Trigger scheduleTrigger)
+      throws SchedulerException {
+    Trigger blockOutTrigger = (Trigger) blockOut;
+
+    // Short circuit if schedule trigger after end time of block out trigger
+    if ((blockOutTrigger.getEndTime() != null && scheduleTrigger.getStartTime().after(blockOutTrigger.getEndTime()))
+        || (scheduleTrigger.getEndTime() != null && blockOutTrigger.getStartTime().after(scheduleTrigger.getEndTime()))) {
+      return false;
+    }
+
+    long duration = blockOut.getBlockDuration();
+
+    // Loop through fire times of block out trigger
+    for (Date blockOutStartDate : getFireTimes(blockOutTrigger)) {
+      Date blockOutEndDate = new Date(blockOutStartDate.getTime() + duration);
+
+      if (willBlockOutRangeBlockSimpleTrigger(blockOutStartDate, blockOutEndDate, scheduleTrigger)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * @param blockOut
+   *        {@link IBlockoutTrigger}
+   * @param scheduleTrigger
+   *        {@link Trigger}
+   * @return whether a complex BlockOut trigger will block a complex Schedule Trigger
+   * @throws SchedulerException
+   */
+  private boolean willComplexBlockOutBlockComplexScheduleTrigger(IBlockoutTrigger blockOut, Trigger scheduleTrigger)
+      throws SchedulerException {
+    Trigger blockOutTrigger = (Trigger) blockOut;
+    List<Date> blockOutFireTimes = getFireTimes(blockOutTrigger);
+
+    int iStart = 0;
+    for (Date scheduleFireTime : getFireTimes(scheduleTrigger)) {
+      for (int i = iStart; i < blockOutFireTimes.size(); i++) {
+        Date blockOutStartDate = blockOutFireTimes.get(i);
+
+        // BlockOut start date after scheduled fire time
+        if (blockOutStartDate.after(scheduleFireTime)) {
+          iStart = i;
+          break;
+        }
+
+        Date blockOutEndDate = new Date(blockOutStartDate.getTime() + blockOut.getBlockDuration());
+
+        if (isDateIncludedInRangeInclusive(blockOutStartDate, blockOutEndDate, scheduleFireTime)) {
+          return true;
+        }
+      }
+
+    }
+
+    return false;
+  }
+
+  /**
+   * @param blockOut
+   *        {@link IBlockoutTrigger}
+   * @param date
+   *        {@link Date}
+   * @return whether the complex {@link IBlockoutTrigger} blocks the date
+   * @throws SchedulerException
+   */
+  private boolean willComplexBlockOutTriggerBlockDate(IBlockoutTrigger blockOut, Date date) throws SchedulerException {
+    Trigger blockOutTrigger = (Trigger) blockOut;
+
+    // Short circuit if date does not fall within a valid start/end date range
+    if (date.before(blockOutTrigger.getStartTime())
+        || (blockOutTrigger.getEndTime() != null && date.after(blockOutTrigger.getEndTime()))) {
+      return false;
+    }
+
+    long blockOutDuration = blockOut.getBlockDuration();
+    for (Date blockOutStartDate : getFireTimes(blockOutTrigger)) {
+
+      // Block out date has passed the date being tested
+      if (blockOutStartDate.after(date)) {
+        break;
+      }
+
+      Date blockOutEndDate = new Date(blockOutStartDate.getTime() + blockOutDuration);
+
+      // Date falls within inclusive block out range
+      if (isDateIncludedInRangeInclusive(blockOutStartDate, blockOutEndDate, date)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * @param startBlockOutRange
+   * @param endBlockOutRange
+   * @param scheduleTrigger
+   * @return whether a block out range will block a trigger
+   */
+  private boolean willBlockOutRangeBlockSimpleTrigger(Date startBlockOutRange, Date endBlockOutRange,
+      Trigger scheduleTrigger) {
+    // ( S1 - S ) / R <= x <= ( S2 - S ) / R 
+
+    double recurrence = getRecurrenceInterval(scheduleTrigger);
+    double x1 = (startBlockOutRange.getTime() - scheduleTrigger.getStartTime().getTime()) / recurrence;
+    double x2 = (endBlockOutRange.getTime() - scheduleTrigger.getStartTime().getTime()) / recurrence;
+
+    return hasPositiveIntBetween(x1, x2);
+  }
+
+  /**
+   * @param trigger
+   *        {@link Trigger}
+   * @return whether the {@link Trigger} is one that has a complex recurrence interval 
+   */
+  private static boolean isComplexTrigger(Trigger trigger) {
+    return trigger instanceof CronTrigger
+        || trigger instanceof NthIncludedDayTrigger
+        || (trigger instanceof DateIntervalTrigger && ((DateIntervalTrigger) trigger).getRepeatIntervalUnit().equals(
+            IntervalUnit.MONTH));
   }
 
   /**
@@ -395,15 +546,24 @@ public class DefaultBlockoutManager implements IBlockoutManager {
   }
 
   /**
+   * @param x1 double
+   * @param x2 double
+   * @return whether there is a positive integer between x1 and x2 
+   */
+  private static boolean hasPositiveIntBetween(double x1, double x2) {
+    return (x1 < x2 ? x2 >= 0 : x1 >= 0) && hasIntBetween(x1, x2);
+  }
+
+  /**
    * @param trigger
    *        {@link Trigger}
    * @return the long interval of recurrence for a {@link Trigger}
    */
   private static long getRecurrenceInterval(Trigger trigger) {
-    long recurrenceInterval = 0;
 
     if (trigger instanceof SimpleTrigger) {
-      recurrenceInterval = ((SimpleTrigger) trigger).getRepeatInterval();
+      return ((SimpleTrigger) trigger).getRepeatInterval();
+
     } else if (trigger instanceof DateIntervalTrigger) {
       DateIntervalTrigger dateIntervalTrigger = (DateIntervalTrigger) trigger;
 
@@ -429,34 +589,43 @@ public class DefaultBlockoutManager implements IBlockoutManager {
           break;
 
         default:
-          break;
+          throw new RuntimeException(Messages.getInstance().getString(ERR_CANT_PARSE_RECURRENCE_INTERVAL));
       }
 
-      recurrenceInterval = dateIntervalTrigger.getRepeatInterval() * intervalUnit;
-    } else {
-      recurrenceInterval = trigger.getNextFireTime().getTime()
-          - (trigger.getPreviousFireTime() != null ? trigger.getPreviousFireTime().getTime() : trigger.getStartTime()
-              .getTime());
+      return dateIntervalTrigger.getRepeatInterval() * intervalUnit;
     }
 
-    return recurrenceInterval;
+    throw new RuntimeException(Messages.getInstance().getString(ERR_CANT_PARSE_RECURRENCE_INTERVAL));
   }
 
   /**
-   * @param scheduleTrigger
+   * @param trigger
    *        {@link Trigger}
    * @return List of Dates representing times the {@link Trigger} will fire for the next 4 years, as to include leap years
    * @throws SchedulerException
    */
   @SuppressWarnings("unchecked")
-  private List<Date> getFireTimes(Trigger scheduleTrigger) throws SchedulerException {
+  private List<Date> getFireTimes(Trigger trigger) throws SchedulerException {
 
-    Date startDate = new Date(System.currentTimeMillis());
+    Date startDate = trigger.getStartTime();
     Date endDate = new Date(startDate.getTime() + 4 * TIME.YEAR.time);
 
     // Calculate fire times for next 4 years 
-    return TriggerUtils.computeFireTimesBetween(scheduleTrigger,
-        this.qs.getQuartzScheduler().getCalendar(scheduleTrigger.getCalendarName()), startDate, endDate);
+    return TriggerUtils.computeFireTimesBetween(trigger,
+        this.qs.getQuartzScheduler().getCalendar(trigger.getCalendarName()), startDate, endDate);
   }
 
+  /**
+   * @param dateRangeStart
+   *        {@link Date} start of range
+   * @param dateRangeEnd
+   *        {@link Date} end of range
+   * @param date
+   *        {@link Date}
+   * @return whether the date falls within the date inclusive date range
+   */
+  private boolean isDateIncludedInRangeInclusive(Date dateRangeStart, Date dateRangeEnd, Date date) {
+    long dateTime = date.getTime();
+    return dateRangeStart.getTime() <= dateTime && dateTime <= dateRangeEnd.getTime();
+  }
 }
