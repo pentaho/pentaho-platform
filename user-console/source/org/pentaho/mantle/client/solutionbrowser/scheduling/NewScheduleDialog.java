@@ -703,8 +703,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     verifyBlockoutParams.put("name", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
     verifyBlockoutParams.put("startTime", new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(trigger.getStartTime()))); //$NON-NLS-1$
     verifyBlockoutParams.put("endTime", JSONNull.getInstance()); //$NON-NLS-1$
-    verifyBlockoutParams.put("repeatCount", new JSONNumber(0)); //$NON-NLS-1$
-    verifyBlockoutParams.put("repeatInterval", new JSONNumber(0)); //$NON-NLS-1$
+    verifyBlockoutParams.put("repeatCount", new JSONNumber(trigger.getRepeatCount())); //$NON-NLS-1$
+    verifyBlockoutParams.put("repeatInterval", new JSONNumber(trigger.getRepeatInterval())); //$NON-NLS-1$
 
     System.out.println("The verify blockout conflict json: " + verifyBlockoutParams.toString());
 
