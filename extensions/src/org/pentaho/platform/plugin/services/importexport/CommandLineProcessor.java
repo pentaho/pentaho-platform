@@ -528,6 +528,16 @@ public class CommandLineProcessor {
                                      Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"),false,true);
     String exportURL = contextURL + "/api/repo/files/" + effPath + "/download?withManifest="
         + ("false".equals(withManifest) ? "false" : "true");
+    
+    
+    // path is validated before executing
+ 	String filepath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
+               Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
+ 	  
+ 	if(!isValidExportPath(filepath, logFile)){
+ 		return;
+ 	}    
+    
     initRestService();
     WebResource resource = client.resource(exportURL);
    
@@ -549,6 +559,30 @@ public class CommandLineProcessor {
         writeFile(message, logFile);
       }
     }
+  }
+  
+  private boolean isValidExportPath(String filePath, String logFile){
+	  
+	  boolean isValid = false;
+	  
+	  if(filePath != null && filePath.toLowerCase().endsWith(".zip")){
+	  
+		  int fileNameIdx = filePath.lastIndexOf("/");
+		  if(fileNameIdx >= 0){
+		      String directoryPath = filePath.substring(0, fileNameIdx);
+		           
+		      File f = new File(directoryPath);
+		      if(f != null && f.exists() && f.isDirectory()){
+		    	  isValid = true;  
+		      }
+		  }
+	  }
+
+	  if(!isValid && logFile != null && !"".equals(logFile)){
+	      writeFile("Invalid file-path:" + filePath, logFile);
+	  }
+	  
+	  return isValid;
   }
 
   /**
@@ -585,7 +619,19 @@ public class CommandLineProcessor {
    * @throws java.io.IOException
    */
   protected void performExportLegacy() throws ParseException, ExportException, IOException {
-    final Exporter exportProcessor = getExportProcessor();
+    
+	// path is validated before executing
+ 	String filepath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
+               Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
+ 	
+ 	String logFile = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_KEY"),
+            Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"),false,true);
+ 	
+ 	if(!isValidExportPath(filepath, logFile)){
+ 		throw new ExportException("file-path:" + filepath);
+	}
+	
+	final Exporter exportProcessor = getExportProcessor();
     exportProcessor.doExport();
     // throw new UnsupportedOperationException(); // TODO implement
   }
