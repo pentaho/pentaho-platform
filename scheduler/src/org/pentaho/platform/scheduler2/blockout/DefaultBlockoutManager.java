@@ -20,9 +20,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.pentaho.platform.api.engine.IAuthorizationPolicy;
+import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.Job;
+import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
@@ -31,7 +36,6 @@ import org.quartz.DateIntervalTrigger;
 import org.quartz.DateIntervalTrigger.IntervalUnit;
 import org.quartz.JobDetail;
 import org.quartz.NthIncludedDayTrigger;
-import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
@@ -57,14 +61,14 @@ public class DefaultBlockoutManager implements IBlockoutManager {
     }
   }
 
-  Scheduler scheduler = null;
+  protected IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
+  QuartzScheduler qs = null;
 
   public static final String ERR_WRONG_BLOCKER_TYPE = "DefaultBlockoutManager.ERROR_0001_WRONG_BLOCKER_TYPE"; //$NON-NLS-1$
 
   public DefaultBlockoutManager() throws SchedulerException {
     super();
-    QuartzScheduler qs = (QuartzScheduler) PentahoSystem.get(IScheduler.class, "IScheduler2", null); //$NON-NLS-1$
-    scheduler = qs.getQuartzScheduler();
+    qs = (QuartzScheduler) PentahoSystem.get(IScheduler.class, "IScheduler2", null); //$NON-NLS-1$
   }
 
   /* (non-Javadoc)
@@ -80,7 +84,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
     JobDetail jd = new JobDetail(blockoutTrigger.getName(), BLOCK_GROUP, BlockoutJob.class);
     blockoutTrigger.setJobName(jd.getName());
     blockoutTrigger.setJobGroup(jd.getGroup());
-    scheduler.scheduleJob(jd, blockoutTrigger);
+    qs.getQuartzScheduler().scheduleJob(jd, blockoutTrigger);
   }
 
   /* (non-Javadoc)
@@ -88,7 +92,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
    */
   @Override
   public IBlockoutTrigger getBlockout(String blockoutName) throws SchedulerException {
-    return (IBlockoutTrigger) scheduler.getTrigger(blockoutName, BLOCK_GROUP);
+    return (IBlockoutTrigger) qs.getQuartzScheduler().getTrigger(blockoutName, BLOCK_GROUP);
   }
 
   /* (non-Javadoc)
@@ -96,14 +100,32 @@ public class DefaultBlockoutManager implements IBlockoutManager {
    */
   @Override
   public IBlockoutTrigger[] getBlockouts() throws SchedulerException {
-    String[] blockedTriggerName = scheduler.getTriggerNames(BLOCK_GROUP);
+    String[] blockedTriggerName = qs.getQuartzScheduler().getTriggerNames(BLOCK_GROUP);
     IBlockoutTrigger[] blockTriggers = new IBlockoutTrigger[blockedTriggerName.length];
     for (int i = 0; i < blockedTriggerName.length; i++) {
-      blockTriggers[i] = getSimpleBlockoutTrigger(scheduler.getTrigger(blockedTriggerName[i], BLOCK_GROUP));
+      blockTriggers[i] = getSimpleBlockoutTrigger(qs.getQuartzScheduler().getTrigger(blockedTriggerName[i], BLOCK_GROUP));
     }
     return blockTriggers;
   }
 
+  public List<Job> getBlockoutJobs(final Boolean canAdminister) {
+    try {
+      IPentahoSession session = PentahoSessionHolder.getSession();
+      final String principalName = session.getName(); // this authentication wasn't matching with the job user name, changed to get name via the current session
+      List<Job> jobs = qs.getJobs(new IJobFilter() {
+        public boolean accept(Job job) {
+          if (canAdminister) {
+            return IBlockoutManager.BLOCK_GROUP.equals(job.getGroupName());
+          }
+          return principalName.equals(job.getUserName());
+        }
+      });
+      return jobs;
+    } catch (org.pentaho.platform.api.scheduler2.SchedulerException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  
   private SimpleBlockoutTrigger getSimpleBlockoutTrigger(Trigger trigger) {
     SimpleTrigger simpleTrigger = (SimpleTrigger)trigger;
     SimpleBlockoutTrigger simpleBlockoutTrigger = new SimpleBlockoutTrigger(simpleTrigger.getName(), simpleTrigger.getStartTime(), simpleTrigger.getEndTime(), simpleTrigger.getRepeatCount(), simpleTrigger.getRepeatInterval(), 0l);
@@ -131,12 +153,12 @@ public class DefaultBlockoutManager implements IBlockoutManager {
     }
 
     Trigger oldBlockoutTrigger = (Trigger) oldBlockout;
-    JobDetail jd = scheduler.getJobDetail(oldBlockoutTrigger.getJobName(), oldBlockoutTrigger.getJobGroup());
+    JobDetail jd = qs.getQuartzScheduler().getJobDetail(oldBlockoutTrigger.getJobName(), oldBlockoutTrigger.getJobGroup());
     deleteBlockout(blockoutName);
 
     newBlockoutTrigger.setJobName(jd.getName());
     newBlockoutTrigger.setJobGroup(jd.getGroup());
-    scheduler.scheduleJob(jd, newBlockoutTrigger);
+    qs.getQuartzScheduler().scheduleJob(jd, newBlockoutTrigger);
   }
 
   /* (non-Javadoc)
@@ -144,7 +166,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
    */
   @Override
   public boolean deleteBlockout(String blockoutName) throws SchedulerException {
-    return scheduler.deleteJob(blockoutName, BLOCK_GROUP);
+    return qs.getQuartzScheduler().deleteJob(blockoutName, BLOCK_GROUP);
   }
 
   /* (non-Javadoc)
@@ -233,7 +255,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
     List<Trigger> blockedSchedules = new ArrayList<Trigger>();
 
     // Loop over trigger group names
-    for (String groupName : this.scheduler.getTriggerGroupNames()) {
+    for (String groupName : this.qs.getQuartzScheduler().getTriggerGroupNames()) {
 
       // Skip block outs
       if (BLOCK_GROUP.equals(groupName)) {
@@ -241,8 +263,8 @@ public class DefaultBlockoutManager implements IBlockoutManager {
       }
 
       // Loop over job names within group
-      for (String jobName : this.scheduler.getJobNames(groupName)) {
-        Trigger schedule = this.scheduler.getTrigger(jobName, groupName);
+      for (String jobName : this.qs.getQuartzScheduler().getJobNames(groupName)) {
+        Trigger schedule = this.qs.getQuartzScheduler().getTrigger(jobName, groupName);
 
         // Add schedule to list if block out conflicts at all
         if (willBlockSchedule(schedule, blockOut)) {
@@ -434,7 +456,7 @@ public class DefaultBlockoutManager implements IBlockoutManager {
 
     // Calculate fire times for next 4 years 
     return TriggerUtils.computeFireTimesBetween(scheduleTrigger,
-        this.scheduler.getCalendar(scheduleTrigger.getCalendarName()), startDate, endDate);
+        this.qs.getQuartzScheduler().getCalendar(scheduleTrigger.getCalendarName()), startDate, endDate);
   }
 
 }
