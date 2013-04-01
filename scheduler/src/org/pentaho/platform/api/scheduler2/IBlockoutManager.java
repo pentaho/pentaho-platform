@@ -50,9 +50,18 @@ public interface IBlockoutManager {
   /**
    * @return an array of blockouts
    * @throws SchedulerException
+   * 
+   * Deprecated see IBlockoutManager.getBlockoutJobs
    */
+  @Deprecated
   IBlockoutTrigger[] getBlockouts() throws SchedulerException;
 
+  
+  /**
+   * @return a list of jobs essentially should be used instead of getBlockouts which is deprecated
+   */
+  List<Job> getBlockoutJobs(final Boolean canAdminister);
+  
   /**
    * @param blockoutName
    * @param newBlockout
