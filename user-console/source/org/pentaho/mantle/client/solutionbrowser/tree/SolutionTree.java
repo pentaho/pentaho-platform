@@ -169,6 +169,12 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     int eventType = DOM.eventGetType(event);
     switch (eventType) {
     case Event.ONMOUSEDOWN:
+    	if (DOM.eventGetButton(event) == NativeEvent.BUTTON_RIGHT) {
+    		TreeItem selectedItem = findSelectedItem(null, event.getClientX(), event.getClientY());
+            if (selectedItem != null) {
+            	setSelectedItem(selectedItem);
+            }
+    	}
     case Event.ONMOUSEUP:
     case Event.ONCLICK:
       try {
@@ -232,6 +238,33 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
     if (selItem != null) {
       DOM.scrollIntoView(selItem.getElement());
     }
+  }
+
+  private TreeItem findSelectedItem(TreeItem item, int x, int y) {
+	 if (item == null) {
+	   for (int i = 0; i < getItemCount(); i++) {
+	     TreeItem selected = findSelectedItem(getItem(i), x, y);
+	     if (selected != null) {
+	        return selected;
+	     }
+	   }
+	   return null;
+	 }
+
+	 for (int i = 0; i < item.getChildCount(); i++) {
+	   TreeItem selected = findSelectedItem(item.getChild(i), x, y);
+	   if (selected != null) {
+	     return selected;
+	   }
+	 }
+
+	 if (x >= item.getAbsoluteLeft()
+	   && x <= item.getAbsoluteLeft() + item.getOffsetWidth()
+	   && y >= item.getAbsoluteTop()
+	   && y <= item.getAbsoluteTop() + item.getOffsetHeight()) {
+	   return item;
+	 }
+	 return null;
   }
 
   protected void onLoad() {
