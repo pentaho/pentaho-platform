@@ -8,7 +8,7 @@
 				</Table>
         <Level name="Territory" column="TERRITORY" type="String" uniqueMembers="true" levelType="Regular"
                hideMemberIf="Never">
-          <Property name="CHART_SERIES_COLOR" column="TERRITORY_COLOR" type="Integer">
+          <Property name="CHART_SERIES_COLOR" column="TERRITORY_COLOR" type="String">
           </Property>
 				</Level>
         <Level name="Country" column="COUNTRY" levelType="Regular"
