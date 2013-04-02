@@ -139,7 +139,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     scheduleEditor.setBlockoutButtonHandler(new ClickHandler() {
       @Override
       public void onClick(final ClickEvent clickEvent) {
-        PromptDialogBox box = new PromptDialogBox("Blockout Times", "Close", null, null, false, true, new BlockoutPanel(false));
+        PromptDialogBox box = new PromptDialogBox(Messages.getString("blockoutTimes"), Messages.getString("close"),
+                                                  null, null, false, true, new BlockoutPanel(false));
         box.center();
       }
     });
@@ -150,7 +151,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     if ((hasParams || isEmailConfValid) && (isBlockoutDialog == false)) {
       finishButton.setText(Messages.getString("nextStep"));
     } else {
-      finishButton.setText("OK");     //TODO: Put in resource
+      finishButton.setText(Messages.getString("ok"));
     }
     setupExisting(jsJob);
   }
@@ -592,15 +593,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return scheduleTrigger;
   }
 
-  private boolean addBlockoutPeriod(final JSONObject schedule, final JsJobTrigger trigger) {
-    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add/"; //$NON-NLS-1$
-    if (trigger.getType().equals("simpleJobTrigger")) {
-      url += "simple";    //$NON-NLS-1$
-    } else if (trigger.getType().equals("cronJobTrigger")) {
-      url += "cron";
-    } else {
-      url += "nthincludedday";
-    }
+  protected boolean addBlockoutPeriod(final JSONObject schedule, final JsJobTrigger trigger) {
+    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add"; //$NON-NLS-1$
 
     RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
     addBlockoutPeriodRequest.setHeader("accept", "text/plain");
@@ -612,8 +606,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
                                       /*PentahoSessionHolder.getSession().getName()*/  "admin" + ":" + duration;
 
     // Add blockout specific parameters
-    JSONObject addBlockoutParams = getScheduleJobTrigger(schedule);
-    addBlockoutParams.put("name", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
+    JSONObject addBlockoutParams = schedule;
+    addBlockoutParams.put("jobName", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
     addBlockoutParams.put("blockDuration", new JSONNumber(duration)); //$NON-NLS-1$
 
     System.out.println("The add blockout json: " + addBlockoutParams.toString());
@@ -623,7 +617,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       {
         public void onError(Request request, Throwable exception)
         {
-          System.out.println("********** Got an error from blockout conflict");
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+          setDone(false);
         }
 
         public void onResponseReceived(Request request, Response response)
@@ -644,22 +640,22 @@ public class NewScheduleDialog extends AbstractWizardDialog {
                                             final JSONObject schedule, final JsJobTrigger trigger) {
     StringBuffer conflictMessage = new StringBuffer();
 
-    final String updateScheduleButtonText = "Update Schedule";
-    final String continueButtonText = "Continue";
+    final String updateScheduleButtonText = Messages.getString("blockoutUpdateSchedule");
+    final String continueButtonText = Messages.getString("blockoutContinueSchedule");
 
     boolean showContinueButton =  conflictsSometimes;
     boolean isScheduleConflict = alwaysConflict || conflictsSometimes;
 
-    // TODO: Put these messages in properties file
     if (conflictsSometimes) {
-      conflictMessage.append("One or more instances of this schedule conflict with a blocked out time.\n");
-      conflictMessage.append("Do you want to update the scheduled time or continue with the current settings?");
+      conflictMessage.append(Messages.getString("blockoutPartialConflict"));
+      conflictMessage.append("\n");
+      conflictMessage.append(Messages.getString("blockoutPartialConflictContinue"));
     } else {
-      conflictMessage.append("This schedule is set to run during a blocked out time. Update the scheduled time and try again.");
+      conflictMessage.append(Messages.getString("blockoutTotalConflict"));
     }
 
     if (isScheduleConflict) {
-      final MessageDialogBox dialogBox = new MessageDialogBox("Blockout Time Exists",
+      final MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("blockoutTimeExists"),
                                                               conflictMessage.toString(),
                                                               false, false, true,
                                                               updateScheduleButtonText,
@@ -670,12 +666,11 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         // and they have to modify the recurrence schedule
         public void cancelPressed() {
           // User clicked on continue, so we need to proceed adding the schedule
-          System.out.println("Continue button pressed");
           handleWizardPanels(schedule, trigger);
         }
 
         public void okPressed() {
-          System.out.println("Update Schedule Button pressed");
+          // Update Schedule Button pressed
           dialogBox.setVisible(false);
         }
       });
@@ -856,13 +851,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     JsJobTrigger trigger = getJsJobTrigger();
     JSONObject schedule = getSchedule();
 
-    // TODO: We need to check for a conflict first
-    if (isBlockoutDialog == false) {
-      verifyBlockoutConflict(schedule, trigger);
-    } else {
-      // Need to add the blockout period
-      addBlockoutPeriod(schedule, trigger);
-    }
+    verifyBlockoutConflict(schedule, trigger);
 
     return true;
   }
