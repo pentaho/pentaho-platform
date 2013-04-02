@@ -44,6 +44,7 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -163,8 +164,20 @@ public class ImportDialog extends PromptDialogBox {
     overwriteAclPermissions.setEnabled(true);
     overwriteAclPermissions.setVisible(false);    
 
+    final Hidden overwriteFile = new Hidden("overwriteFile");
+    overwriteFile.setValue("true");
+    
+    final Hidden logLevel = new Hidden("logLevel");
+    overwriteFile.setValue("WARN");
+    
+    final Hidden retainOwnership = new Hidden("retainOwnership");
+    retainOwnership.setValue("true");
+    
     rootPanel.add(applyAclPermissions);
     rootPanel.add(overwriteAclPermissions);
+    rootPanel.add(overwriteFile);
+    rootPanel.add(logLevel);
+    rootPanel.add(retainOwnership);
     
     spacer = new VerticalPanel();
     spacer.setHeight("4px");
@@ -180,16 +193,15 @@ public class ImportDialog extends PromptDialogBox {
     replaceLabel.setStyleName("gwt-Label");
     disclosureContent.add(replaceLabel);
     
-    final CustomListBox overwriteFile = new CustomListBox();    
-    overwriteFile.getElement().getElementsByTagName("input").getItem(0).setPropertyString("name", "overwriteFile");
+    final CustomListBox overwriteFileDropDown = new CustomListBox();    
     DefaultListItem replaceListItem = new DefaultListItem(Messages.getString("replaceFile"));
     replaceListItem.setValue("true");
-    overwriteFile.addItem(replaceListItem);
+    overwriteFileDropDown.addItem(replaceListItem);
     DefaultListItem doNotImportListItem = new DefaultListItem(Messages.getString("doNotImport"));
     doNotImportListItem.setValue("false");
-    overwriteFile.addItem(doNotImportListItem);
-    overwriteFile.setVisibleRowCount(1);
-    disclosureContent.add(overwriteFile);
+    overwriteFileDropDown.addItem(doNotImportListItem);
+    overwriteFileDropDown.setVisibleRowCount(1);
+    disclosureContent.add(overwriteFileDropDown);
     
     spacer = new VerticalPanel();
     spacer.setHeight("4px");
@@ -214,7 +226,6 @@ public class ImportDialog extends PromptDialogBox {
         @Override
         public void onChange(Widget sender) {
           String value = filePermissionsDropDown.getSelectedItem().getValue().toString();
-          filePermissionsDropDown.getElement().getElementsByTagName("input").getItem(0).setPropertyString("value", value);
           
           applyAclPermissions.setValue(Boolean.TRUE);
           applyAclPermissions.setFormValue("true");
@@ -242,22 +253,22 @@ public class ImportDialog extends PromptDialogBox {
     fileOwnershipLabel.setStyleName("gwt-Label");
     disclosureContent.add(fileOwnershipLabel);
     
-    final CustomListBox retainOwnership = new CustomListBox();
-    retainOwnership.getElement().getElementsByTagName("input").getItem(0).setPropertyString("name", "retainOwnership");
-    retainOwnership.addChangeListener(new ChangeListener() {
+    final CustomListBox retainOwnershipDropDown = new CustomListBox();
+    retainOwnershipDropDown.addChangeListener(new ChangeListener() {
 		public void onChange(Widget sender) {
-			retainOwnership.getElement().getElementsByTagName("input").getItem(0).setPropertyString("value", retainOwnership.getSelectedItem().getValue().toString());
+			String value = retainOwnershipDropDown.getSelectedItem().getValue().toString();
+			retainOwnership.setValue(value);
 		}
 	});
     DefaultListItem keepOwnershipListItem = new DefaultListItem(Messages.getString("keepOwnership"));
     keepOwnershipListItem.setValue("true");
-    retainOwnership.addItem(keepOwnershipListItem);    
+    retainOwnershipDropDown.addItem(keepOwnershipListItem);    
     DefaultListItem assignOwnershipListItem = new DefaultListItem(Messages.getString("assignOwnership"));
     assignOwnershipListItem.setValue("false");
-    retainOwnership.addItem(assignOwnershipListItem); 
+    retainOwnershipDropDown.addItem(assignOwnershipListItem); 
     
-    retainOwnership.setVisibleRowCount(1);
-    disclosureContent.add(retainOwnership);
+    retainOwnershipDropDown.setVisibleRowCount(1);
+    disclosureContent.add(retainOwnershipDropDown);
     
     spacer = new VerticalPanel();
     spacer.setHeight("4px");
@@ -266,32 +277,30 @@ public class ImportDialog extends PromptDialogBox {
     ChangeListener overwriteFileHandler = new ChangeListener() {
         @Override
         public void onChange(Widget sender) {
-        	String value = overwriteFile.getSelectedItem().getValue().toString();
-        	overwriteFile.getElement().getElementsByTagName("input").getItem(0).setPropertyString("value", value);
+        	String value = overwriteFileDropDown.getSelectedItem().getValue().toString();
+        	overwriteFile.setValue(value);
         	if(value.equals("false")) {
         		filePermissionsDropDown.setSelectedIndex(1);
         		filePermissionsDropDown.setEnabled(false);
-        		retainOwnership.setSelectedIndex(0);
-        		retainOwnership.setEnabled(false);
-        	} 
-        	if(value.equals("true")) {
+        		retainOwnershipDropDown.setSelectedIndex(0);
+        		retainOwnershipDropDown.setEnabled(false);
+        	} else if(value.equals("true")) {
         		filePermissionsDropDown.setEnabled(true);
-        		retainOwnership.setEnabled(true);
+        		retainOwnershipDropDown.setEnabled(true);
         	}
-        	
         }
     };
-    overwriteFile.addChangeListener(overwriteFileHandler);
+    overwriteFileDropDown.addChangeListener(overwriteFileHandler);
     
     HTML loggingLabel = new HTML(Messages.getString("logging"));
     loggingLabel.setStyleName("gwt-Label");
     disclosureContent.add(loggingLabel);
     
     final CustomListBox loggingDropDown = new CustomListBox();
-    loggingDropDown.getElement().getElementsByTagName("input").getItem(0).setPropertyString("name", "logLevel");
     loggingDropDown.addChangeListener(new ChangeListener() {
 		public void onChange(Widget sender) {
-			loggingDropDown.getElement().getElementsByTagName("input").getItem(0).setPropertyString("value", loggingDropDown.getSelectedItem().getValue().toString());
+			String value = loggingDropDown.getSelectedItem().getValue().toString();
+			logLevel.setValue(value);
 		}
 	});
     DefaultListItem noneListItem = new DefaultListItem(Messages.getString("none"));
