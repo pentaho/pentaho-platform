@@ -593,7 +593,15 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   }
 
   private boolean addBlockoutPeriod(final JSONObject schedule, final JsJobTrigger trigger) {
-    final String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add"; //$NON-NLS-1$
+    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add/"; //$NON-NLS-1$
+    if (trigger.getType().equals("simpleJobTrigger")) {
+      url += "simple";    //$NON-NLS-1$
+    } else if (trigger.getType().equals("cronJobTrigger")) {
+      url += "cron";
+    } else {
+      url += "nthincludedday";
+    }
+
     RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
     addBlockoutPeriodRequest.setHeader("accept", "text/plain");
     addBlockoutPeriodRequest.setHeader("Content-Type", "application/json");
