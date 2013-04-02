@@ -27,74 +27,98 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 public class LocaleFilesProcessor {
 
-	private List<LocaleFileDescriptor> localeFiles;
+  private List<LocaleFileDescriptor> localeFiles;
 
-	public LocaleFilesProcessor() {
-		localeFiles = new ArrayList<LocaleFileDescriptor>();
-	}
+  public LocaleFilesProcessor() {
+    localeFiles = new ArrayList<LocaleFileDescriptor>();
+  }
 
-	public boolean isLocaleFile(IRepositoryFileBundle file, String parentPath, byte[] bytes) throws IOException {
+  public boolean isLocaleFile(IRepositoryFileBundle file, String parentPath, byte[] bytes) throws IOException {
 
-		boolean isLocale = false;
-		String fileName = file.getFile().getName();
-		if (fileName.endsWith(".properties")) {
-			InputStream inputStream = new ByteArrayInputStream(bytes);
-			Properties properties = new Properties();
-			properties.load(inputStream);
+    boolean isLocale = false;
+    String fileName = file.getFile().getName();
+    if (fileName.endsWith(".properties")) {
+      InputStream inputStream = new ByteArrayInputStream(bytes);
+      Properties properties = new Properties();
+      properties.load(inputStream);
 
-			String name = properties.getProperty("name");
-			String title = properties.getProperty("title");
-			String description = properties.getProperty("description");
-			String url_name = properties.getProperty("url_name");
-			String url_description = properties.getProperty("url_description");
+      String name = properties.getProperty("name");
+      String title = properties.getProperty("title");
+      String description = properties.getProperty("description");
+      String url_name = properties.getProperty("url_name");
+      String url_description = properties.getProperty("url_description");
 
-			if (!StringUtils.isEmpty(url_name)) {
-				name = url_name;
-			}
-			if (!StringUtils.isEmpty(title)) {
-				name = title;
-			}
+      if (!StringUtils.isEmpty(url_name)) {
+        name = url_name;
+      }
+      if (!StringUtils.isEmpty(title)) {
+        name = title;
+      }
 
-			description = !StringUtils.isEmpty(description) ? description : "";
-			if (!StringUtils.isEmpty(url_description)) {
-				description = url_description;
-			}
+      description = !StringUtils.isEmpty(description) ? description : "";
+      if (!StringUtils.isEmpty(url_description)) {
+        description = url_description;
+      }
 
-			if (!StringUtils.isEmpty(name)) {
-				String filePath = (file.getPath().equals("/") || file.getPath().equals("\\")) ? "" : file.getPath();
-				filePath = RepositoryFilenameUtils.concat(parentPath, filePath);
+      if (!StringUtils.isEmpty(name)) {
+        String filePath = (file.getPath().equals("/") || file.getPath().equals("\\")) ? "" : file.getPath();
+        filePath = RepositoryFilenameUtils.concat(parentPath, filePath);
 
-				LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, file.getFile(), inputStream);
-				localeFiles.add(localeFile);
+        LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, file.getFile(),
+            inputStream);
+        localeFiles.add(localeFile);
 
-				if (properties.size() <= 2) {
-					isLocale = true;
-				}
-			}
-		}
-		return isLocale;
-	}
+        if (properties.size() <= 2) {
+          isLocale = true;
+        }
+      }
+    }
+    return isLocale;
+  }
 
-	public void processLocaleFiles(IPlatformImporter importer) throws PlatformImportException {
-		RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
-		NameBaseMimeResolver mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
-		String mimeType = mimeResolver.resolveMimeForFileName("file.locale");
+  public boolean createLocaleEntry(String filePath, String name, String title, String description, RepositoryFile file, InputStream is)
+      throws IOException {
 
-		for (LocaleFileDescriptor localeFile : localeFiles) {
-			bundleBuilder.name(localeFile.getName());
-			bundleBuilder.comment(localeFile.getDescription());
-			bundleBuilder.path(localeFile.getPath());
-			bundleBuilder.file(localeFile.getFile());
-			bundleBuilder.input(localeFile.getInputStream());
-			bundleBuilder.mime(mimeType);
-			IPlatformImportBundle platformImportBundle = bundleBuilder.build();
-			importer.importFile(platformImportBundle);
-		}
-	}
+    boolean success = false;   
+    //need to spoof the locales to think this is the actual parent .prpt and not the meta.xml
+    RepositoryFile.Builder rf = new RepositoryFile.Builder(name);
+    rf.path(filePath);
+    if (!StringUtils.isEmpty(title)) {
+      name = title;
+    }
+    
+    if (!StringUtils.isEmpty(name)) {
+
+      LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, rf.build() , is);
+      localeFiles.add(localeFile);
+
+      success = true;
+
+    }
+    return success;
+  }
+
+  public void processLocaleFiles(IPlatformImporter importer) throws PlatformImportException {
+    RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
+    NameBaseMimeResolver mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
+    String mimeType = mimeResolver.resolveMimeForFileName("file.locale");
+
+    for (LocaleFileDescriptor localeFile : localeFiles) {
+      bundleBuilder.name(localeFile.getName());
+      bundleBuilder.comment(localeFile.getDescription());
+      bundleBuilder.path(localeFile.getPath());
+      bundleBuilder.file(localeFile.getFile());
+      bundleBuilder.input(localeFile.getInputStream());
+      bundleBuilder.mime(mimeType);
+      IPlatformImportBundle platformImportBundle = bundleBuilder.build();
+      importer.importFile(platformImportBundle);
+    }
+  }
 }
