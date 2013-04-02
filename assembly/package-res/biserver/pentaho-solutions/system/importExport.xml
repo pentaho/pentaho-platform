@@ -66,7 +66,7 @@
                 <entry key="xanalyzer" value="text/xml"/>
                 <entry key="prpti" value="application/zip"/>
                 <entry key="gif" value="image/gif"/>
-                <entry key="prpt" value="application/zip"/>
+                <entry key="prpt" value="application/prpt"/>
                 <entry key="css" value="text/css"/>
                 <entry key="html" value="text/html"/>
                 <entry key="htm" value="text/html"/>
@@ -165,15 +165,22 @@
                 <entry key="application/vnd.pentaho.mondrian+xml">
                     <bean class="org.pentaho.platform.plugin.services.importer.MondrianImportHandler">
                         <constructor-arg ref="IMondrianCatalogService"/>
-                    </bean>
+                    </bean>                    
                 </entry>
-				<entry key="text/locale">
+                <entry key="application/prpt">
+			<bean class="org.pentaho.platform.plugin.services.importer.PRPTImportHandler">
+				<property name="repository" ref="unifiedRepository"/>
+				<property name="converters" ref="convertersMap"/>
+			</bean>
+		</entry>
+		<entry key="text/locale">
                     <bean class="org.pentaho.platform.plugin.services.importer.LocaleImportHandler">
 						<constructor-arg>
 		            		<list>
                 				<value>xaction</value>
                 				<value>url</value>
                 				<value>xdash</value>
+                				<value>prpt</value>
 		            		</list>
 	        			</constructor-arg>
 		    		</bean>	
