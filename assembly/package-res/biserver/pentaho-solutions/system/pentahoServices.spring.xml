@@ -91,5 +91,6 @@ impl="org.pentaho.platform.security.userroledao.ws.AuthorizationPolicyBasedUserR
   <bean class="org.pentaho.platform.web.http.api.resources.SystemRefreshResource" scope="request"/>  
   <bean class="org.pentaho.platform.web.http.api.resources.VersionResource" scope="request"/>   
   <bean class="org.pentaho.platform.web.http.api.resources.UserConsoleResource" scope="request"/>   
-  <bean class="org.pentaho.platform.web.http.api.resources.UserSettingsResource" scope="request"/>      
+  <bean class="org.pentaho.platform.web.http.api.resources.UserSettingsResource" scope="request"/> 
+  <bean class="org.pentaho.platform.web.http.api.resources.RepositoryPublishResource" scope="request"/>     
 </beans>

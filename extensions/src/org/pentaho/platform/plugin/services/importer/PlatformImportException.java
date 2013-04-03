@@ -10,6 +10,7 @@ package org.pentaho.platform.plugin.services.importer;
  * 6 - Data source problem
  * 7 - XMLA Catalog Exists
  * 8 - XMLA Schema Exists
+ * 9 - Content exists
  * 
  * 
  */
@@ -26,6 +27,8 @@ public class PlatformImportException extends Exception {
   public static final int PUBLISH_XMLA_CATALOG_EXISTS = 7;
 
   public static final int PUBLISH_SCHEMA_EXISTS_ERROR = 8;
+  
+  public static final int PUBLISH_CONTENT_EXISTS_ERROR = 9;
 
   private int errorStatusCode = 1;
 

@@ -42,12 +42,13 @@ import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
+import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
+import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
-import org.pentaho.platform.security.policy.rolebased.actions.RepositoryReadAction;
 
 @Path("/repo/files/import")
 public class RepositoryImportResource {
@@ -132,10 +133,9 @@ public class RepositoryImportResource {
 				.get(IAuthorizationPolicy.class);
 		boolean isAdmin = policy
 				.isAllowed(RepositoryReadAction.NAME)
-				&& policy
-						.isAllowed(RepositoryCreateAction.NAME)
-				&& policy
-						.isAllowed(AdministerSecurityAction.NAME);
+				&& policy.isAllowed(RepositoryCreateAction.NAME)
+				&& (policy.isAllowed(AdministerSecurityAction.NAME)
+         || policy.isAllowed(PublishAction.NAME));
 		if (!isAdmin) {
 			throw new PentahoAccessControlException("Access Denied");
 		}
