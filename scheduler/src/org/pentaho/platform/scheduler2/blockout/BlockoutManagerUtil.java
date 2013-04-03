@@ -32,6 +32,11 @@ public class BlockoutManagerUtil {
 
   public static boolean willFire(IJobTrigger jobTrigger, List<IJobTrigger> blockOutTriggers, IScheduler scheduler) {
 
+    // Short return as to avoid having to calculate fire times
+    if (blockOutTriggers.isEmpty()) {
+      return true;
+    }
+
     List<Date> fireTimes = getFireTimes(jobTrigger, scheduler);
 
     for (IJobTrigger blockOutJobTrigger : blockOutTriggers) {
