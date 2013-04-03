@@ -576,23 +576,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return jsJobTrigger;
   }
 
-  private JSONObject getScheduleJobTrigger(final JSONObject schedule) {
-    // Retrieve the JSON from schedule's simple/complex/cron trigger to get
-    // editor specific JSON params.
-    // Note: This JSON contains startTime, endDate, repeatCount & repeatInterval
-    JSONObject scheduleTrigger = null;
-    if (schedule.containsKey("simpleJobTrigger")) {
-      scheduleTrigger = (JSONObject)schedule.get("simpleJobTrigger");
-    } else if (schedule.containsKey("complexJobTrigger")) {
-      scheduleTrigger = (JSONObject)schedule.get("complexJobTrigger");
-    } else if (schedule.containsKey("cronJobTrigger")) {
-      scheduleTrigger = (JSONObject)schedule.get("cronJobTrigger");
-    }
-
-//    System.out.println("********** The schedule trigger: " + scheduleTrigger.toString());
-    return scheduleTrigger;
-  }
-
   protected boolean addBlockoutPeriod(final JSONObject schedule, final JsJobTrigger trigger) {
     String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add"; //$NON-NLS-1$
 
@@ -687,22 +670,14 @@ public class NewScheduleDialog extends AbstractWizardDialog {
    * @param trigger
    */
   protected void verifyBlockoutConflict(final JSONObject schedule, final JsJobTrigger trigger) {
-    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/blockstatus/"; //$NON-NLS-1$
-
-    if (trigger.getType().equals("simpleJobTrigger")) {
-      url += "simple";    //$NON-NLS-1$
-    } else if (trigger.getType().equals("cronJobTrigger")) {
-      url += "cron";
-    } else {
-      url += "nthincludedday";
-    }
+    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/blockstatus"; //$NON-NLS-1$
 
     RequestBuilder blockoutConflictRequest = new RequestBuilder(RequestBuilder.POST, url);
     blockoutConflictRequest.setHeader("accept", "application/json");
     blockoutConflictRequest.setHeader("Content-Type", "application/json");
 
-    final JSONObject verifyBlockoutParams = getScheduleJobTrigger(schedule);
-    verifyBlockoutParams.put("name", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
+    final JSONObject verifyBlockoutParams = schedule;
+    verifyBlockoutParams.put("jobName", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
 
 //    System.out.println("The verify blockout conflict json: " + verifyBlockoutParams.toString());
 
