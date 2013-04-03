@@ -92,7 +92,7 @@ public class PentahoBlockoutManagerTest {
   }
 
   /**
-   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#getBlockOut(java.lang.String)}.
+   * Test method for {@link org.pentaho.platform.scheduler2.blockout.PentahoBlockoutManager#getBlockOut(java.lang.String)}.
    */
   @Test
   public void testGetBlockout() throws Exception {
@@ -118,7 +118,7 @@ public class PentahoBlockoutManagerTest {
   }
 
   /**
-   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#willFire(org.quartz.IJobTrigger)}.
+   * Test method for {@link org.pentaho.platform.scheduler2.blockout.PentahoBlockoutManager#willFire(org.quartz.IJobTrigger)}.
    */
   @Test
   public void testWillFire() throws Exception {
@@ -172,7 +172,7 @@ public class PentahoBlockoutManagerTest {
   }
 
   /**
-   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#isPartiallyBlocked(org.quartz.IJobTrigger)}.
+   * Test method for {@link org.pentaho.platform.scheduler2.blockout.PentahoBlockoutManager#isPartiallyBlocked(org.quartz.IJobTrigger)}.
    */
   @Test
   public void testIsPartiallyBlocked() throws Exception {
@@ -232,7 +232,7 @@ public class PentahoBlockoutManagerTest {
   }
 
   /**
-   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#shouldFireNow()}.
+   * Test method for {@link org.pentaho.platform.scheduler2.blockout.PentahoBlockoutManager#shouldFireNow()}.
    */
   @Test
   public void testShouldFireNow() throws Exception {
@@ -254,7 +254,7 @@ public class PentahoBlockoutManagerTest {
   }
 
   /**
-   * Test method for {@link org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager#willBlockSchedules(org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)}.
+   * Test method for {@link org.pentaho.platform.scheduler2.blockout.PentahoBlockoutManager#willBlockSchedules(org.pentaho.platform.scheduler2.blockout.SimpleBlockoutTrigger)}.
    */
   @Test
   public void testWillBlockSchedules() throws Exception {
