@@ -406,11 +406,6 @@
     <jsp-file>/jsp/UserContent.jsp</jsp-file>
   </servlet>
 
-  <servlet>
-    <servlet-name>Map</servlet-name>
-    <jsp-file>/jsp/Map.jsp</jsp-file>
-  </servlet>
-
     <!-- ================================= merged servlets =================================== -->
    <servlet>
        <servlet-name>ManageUsers</servlet-name>
@@ -617,11 +612,6 @@
   <servlet-mapping>
     <servlet-name>UserContent</servlet-name>
     <url-pattern>/UserContent</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>Map</servlet-name>
-    <url-pattern>/Map</url-pattern>
   </servlet-mapping>
 
     <!-- =============================== merged servlet-mappings ============================= -->
