@@ -7,7 +7,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IBlockOutManager;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -24,7 +24,7 @@ public class BlockingQuartzJobTest {
 
   private JobExecutionContext context;
 
-  private IBlockoutManager blockoutManager;
+  private IBlockOutManager blockoutManager;
 
   private Mockery mockery;
 
@@ -41,7 +41,7 @@ public class BlockingQuartzJobTest {
     };
     underlyingJob = mockery.mock(Job.class);
     context = mockery.mock(JobExecutionContext.class);
-    blockoutManager = mockery.mock(IBlockoutManager.class);
+    blockoutManager = mockery.mock(IBlockOutManager.class);
     logger = mockery.mock(Log.class);
   }
 
@@ -53,19 +53,15 @@ public class BlockingQuartzJobTest {
   @Test
   public void testJobIsBlockedDuringABlockout() throws JobExecutionException {
     BlockingQuartzJob blockingJob = createTestBlockingJob(false);
-    try {
-      mockery.checking(new Expectations() {
-        {
-          one(blockoutManager).shouldFireNow();
-          will(returnValue(false));
-          one(logger).warn("Job 'myjob' attempted to run during a blockout period.  This job was not executed");
-          one(context).getJobDetail();
-          will(returnValue(new JobDetail("myjob", BlockingQuartzJob.class)));
-        }
-      });
-    } catch (SchedulerException e) {
-      throw new RuntimeException(e);
-    }
+    mockery.checking(new Expectations() {
+      {
+        one(blockoutManager).shouldFireNow();
+        will(returnValue(false));
+        one(logger).warn("Job 'myjob' attempted to run during a blockout period.  This job was not executed");
+        one(context).getJobDetail();
+        will(returnValue(new JobDetail("myjob", BlockingQuartzJob.class)));
+      }
+    });
     blockingJob.execute(context);
   }
 
@@ -111,7 +107,7 @@ public class BlockingQuartzJobTest {
       }
 
       @Override
-      IBlockoutManager getBlockoutManager() throws SchedulerException {
+      IBlockOutManager getBlockoutManager() throws SchedulerException {
 
         if (throwSchedulerException) {
           throw schedulerException;

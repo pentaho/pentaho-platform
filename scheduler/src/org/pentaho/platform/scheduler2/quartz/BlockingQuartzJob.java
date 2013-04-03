@@ -18,8 +18,8 @@ package org.pentaho.platform.scheduler2.quartz;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.scheduler2.IBlockoutManager;
-import org.pentaho.platform.scheduler2.blockout.DefaultBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IBlockOutManager;
+import org.pentaho.platform.scheduler2.blockout.PentahoBlockOutManager;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -31,32 +31,32 @@ import org.quartz.SchedulerException;
  * @author kwalker
  */
 public class BlockingQuartzJob implements Job {
-    public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        try {
-            if(getBlockoutManager().shouldFireNow()) {
-                createUnderlyingJob().execute(jobExecutionContext);
-            } else {
-                getLogger().warn(
-                    "Job '" + jobExecutionContext.getJobDetail().getName() +
-                        "' attempted to run during a blockout period.  This job was not executed");
-            }
-        } catch (SchedulerException e) {
-            getLogger().warn("Got Exception retrieving the Blockout Manager for job '" +
-                jobExecutionContext.getJobDetail().getName() +
-                "'. Executing the underlying job anyway", e);
-            createUnderlyingJob().execute(jobExecutionContext);
-        }
+  public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException {
+    try {
+      if (getBlockoutManager().shouldFireNow()) {
+        createUnderlyingJob().execute(jobExecutionContext);
+      } else {
+        getLogger().warn(
+            "Job '" + jobExecutionContext.getJobDetail().getName()
+                + "' attempted to run during a blockout period.  This job was not executed");
+      }
+    } catch (SchedulerException e) {
+      getLogger().warn(
+          "Got Exception retrieving the Blockout Manager for job '" + jobExecutionContext.getJobDetail().getName()
+              + "'. Executing the underlying job anyway", e);
+      createUnderlyingJob().execute(jobExecutionContext);
     }
+  }
 
-    IBlockoutManager getBlockoutManager() throws SchedulerException {
-        return new DefaultBlockoutManager();
-    }
+  IBlockOutManager getBlockoutManager() throws SchedulerException {
+    return new PentahoBlockOutManager();
+  }
 
-    Job createUnderlyingJob() {
-        return new ActionAdapterQuartzJob();
-    }
+  Job createUnderlyingJob() {
+    return new ActionAdapterQuartzJob();
+  }
 
-    Log getLogger() {
-        return LogFactory.getLog(BlockingQuartzJob.class);
-    }
+  Log getLogger() {
+    return LogFactory.getLog(BlockingQuartzJob.class);
+  }
 }

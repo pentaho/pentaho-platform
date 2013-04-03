@@ -23,14 +23,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
-import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.scheduler2.ws.JaxBSafeMap.JaxBSafeEntry;
 
 /**
@@ -75,7 +76,8 @@ public class JobAdapter extends XmlAdapter<JobAdapter.JaxbSafeJob, Job> {
         Map innerMap = (Map) entry.getValue();
         Set<Map.Entry> entrySet = innerMap.entrySet();
         for (Map.Entry innerEntry : entrySet) {
-          map.put(innerEntry.getKey().toString(), (innerEntry.getValue() == null) ? null : innerEntry.getValue().toString());
+          map.put(innerEntry.getKey().toString(), (innerEntry.getValue() == null) ? null : innerEntry.getValue()
+              .toString());
         }
         //add the converted map the the top-level map
         paramValueMap.put(entry.getKey(), map);
@@ -85,7 +87,8 @@ public class JobAdapter extends XmlAdapter<JobAdapter.JaxbSafeJob, Job> {
         list.addAll(innerList);
         paramValueMap.put(entry.getKey(), list);
       } else {
-        paramValueMap.put(entry.getKey(), new StringParamValue((entry.getValue() == null)?null:entry.getValue().toString()));
+        paramValueMap.put(entry.getKey(), new StringParamValue((entry.getValue() == null) ? null : entry.getValue()
+            .toString()));
       }
     }
     return paramValueMap;
@@ -95,7 +98,8 @@ public class JobAdapter extends XmlAdapter<JobAdapter.JaxbSafeJob, Job> {
     Map<String, Serializable> unsafeMap = new HashMap<String, Serializable>();
     for (JaxBSafeEntry safeEntry : safeMap.entry) {
       if (safeEntry.getStringValue() != null) {
-        unsafeMap.put(safeEntry.key, (safeEntry.getStringValue() == null)?null:safeEntry.getStringValue().toString());
+        unsafeMap.put(safeEntry.key, (safeEntry.getStringValue() == null) ? null : safeEntry.getStringValue()
+            .toString());
         continue;
       }
       if (safeEntry.getListValue() != null) {
@@ -136,7 +140,7 @@ public class JobAdapter extends XmlAdapter<JobAdapter.JaxbSafeJob, Job> {
 
   @XmlRootElement
   public static class JaxbSafeJob {
-    public JobTrigger jobTrigger;
+    public IJobTrigger jobTrigger;
 
     public JaxBSafeMap jobParams;
 

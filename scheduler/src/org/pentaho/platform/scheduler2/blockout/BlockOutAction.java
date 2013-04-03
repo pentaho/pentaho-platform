@@ -14,39 +14,37 @@
  * @author wseyler
  */
 
-
 package org.pentaho.platform.scheduler2.blockout;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.scheduler2.IBlockoutTrigger;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Trigger;
+import org.pentaho.platform.api.action.IVarArgsAction;
+import org.pentaho.platform.api.scheduler2.IBlockOutManager;
 
 /**
  * @author wseyler
  * This is the job that executes when the a block out trigger fires.  This job essentially does nothing more
  * than logging the firing of the trigger.
  */
-public class BlockoutJob implements Job {
+public class BlockOutAction implements IVarArgsAction {
 
-  private static final Log logger = LogFactory.getLog(BlockoutJob.class);
-  
-  /* (non-Javadoc)
-   * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
-   */
+  private static final Log logger = LogFactory.getLog(BlockOutAction.class);
+
+  long duration;
+
   @Override
-  public void execute(JobExecutionContext jec) throws JobExecutionException {
-    Trigger blockoutTrigger = jec.getTrigger();
-    if (!(blockoutTrigger instanceof IBlockoutTrigger)) {
-      throw new JobExecutionException("A BlockoutJob instance must be fired by a instance of IBlockoutTrigger");
-    }
-    long duration = ((IBlockoutTrigger)blockoutTrigger).getBlockDuration();
-    logger.warn("Blocking Started at: " + new Date() + " and will last: " + duration + " milliseconds"); //$NON-NLS-1$
+  public void execute() throws Exception {
+    // TODO - Retrieve duration
+    logger.warn("Blocking Started at: " + new Date() + " and will last: " + this.duration + " milliseconds"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+  }
+
+  @Override
+  public void setVarArgs(Map<String, Object> args) {
+    this.duration = (Long) args.get(IBlockOutManager.DURATION_PARAM);
+
   }
 
 }
