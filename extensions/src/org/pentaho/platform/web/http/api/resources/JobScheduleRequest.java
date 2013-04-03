@@ -23,6 +23,7 @@ package org.pentaho.platform.web.http.api.resources;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.pentaho.platform.api.scheduler2.CronJobTrigger;
@@ -33,37 +34,62 @@ public class JobScheduleRequest implements Serializable {
   private static final long serialVersionUID = -6145183300070801027L;
 
   public static final int SUNDAY = 0;
+
   public static final int MONDAY = 1;
+
   public static final int TUESDAY = 2;
+
   public static final int WEDNESDAY = 3;
+
   public static final int THURSDAY = 4;
+
   public static final int FRIDAY = 5;
+
   public static final int SATURDAY = 6;
 
   public static final int JANUARY = 0;
+
   public static final int FEBRUARY = 1;
+
   public static final int MARCH = 2;
+
   public static final int APRIL = 3;
+
   public static final int MAY = 4;
+
   public static final int JUNE = 5;
+
   public static final int JULY = 6;
+
   public static final int AUGUST = 7;
+
   public static final int SEPTEMBER = 8;
+
   public static final int OCTOBER = 9;
+
   public static final int NOVEMBER = 10;
+
   public static final int DECEMBER = 11;
 
   public static final int LAST_WEEK_OF_MONTH = 4;
 
   String jobName;
+
   String inputFile;
+
   String outputFile;
+
   String actionClass;
 
   CronJobTrigger cronJobTrigger;
+
   ComplexJobTriggerProxy complexJobTrigger;
+
   SimpleJobTrigger simpleJobTrigger;
+
   ArrayList<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
+
+  long duration;
 
   public String getInputFile() {
     return inputFile;
@@ -144,5 +170,13 @@ public class JobScheduleRequest implements Serializable {
 
   public void setActionClass(String actionClass) {
     this.actionClass = actionClass;
+  }
+
+  public long getDuration() {
+    return duration;
+  }
+
+  public void setDuration(long duration) {
+    this.duration = duration;
   }
 }
