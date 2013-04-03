@@ -300,11 +300,6 @@
   </servlet>
 
   <servlet>
-      <servlet-name>BackgroundExecutionStatus</servlet-name>
-    <jsp-file>/jsp/BackgroundStatus.jsp</jsp-file>
-  </servlet>
-
-  <servlet>
       <servlet-name>RepositoryFilePublisher</servlet-name>
     <servlet-class>org.pentaho.platform.web.servlet.RepositoryFilePublisher</servlet-class>
   </servlet>
@@ -446,11 +441,6 @@
      </servlet>
 
      <servlet>
-       <servlet-name>RepositoryTree</servlet-name>
-       <jsp-file>/jsp/RepositoryTree.jsp</jsp-file>
-     </servlet>
-
-     <servlet>
        <servlet-name>PropertiesPanel</servlet-name>
        <jsp-file>/jsp/PropertiesPanel.jsp</jsp-file>
      </servlet>
@@ -464,15 +454,7 @@
        <servlet-name>SubscriptionAdmin</servlet-name>
        <jsp-file>/jsp/SubscriptionAdmin.jsp</jsp-file>
      </servlet>
-     <servlet>
-       <servlet-name>DialPct</servlet-name>
-       <jsp-file>/chart/DialPct.jsp</jsp-file>
-     </servlet>
 
-     <servlet>
-       <servlet-name>SampleFlashDashboard</servlet-name>
-       <jsp-file>/jsp/SampleFlashDashboard.jsp</jsp-file>
-     </servlet>
    <servlet>
        <servlet-name>GetResource</servlet-name>
      <servlet-class>org.pentaho.platform.web.servlet.GetResource</servlet-class>
@@ -588,11 +570,6 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>BackgroundExecutionStatus</servlet-name>
-    <url-pattern>/BackgroundExecutionStatus</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
     <servlet-name>RepositoryFilePublisher</servlet-name>
     <url-pattern>/RepositoryFilePublisher</url-pattern>
   </servlet-mapping>
@@ -649,11 +626,6 @@
 
     <!-- =============================== merged servlet-mappings ============================= -->
       <servlet-mapping>
-        <servlet-name>RepositoryTree</servlet-name>
-        <url-pattern>/RepositoryTree</url-pattern>
-      </servlet-mapping>
-
-      <servlet-mapping>
         <servlet-name>PropertiesPanel</servlet-name>
         <url-pattern>/PropertiesPanel</url-pattern>
       </servlet-mapping>
@@ -661,16 +633,6 @@
       <servlet-mapping>
         <servlet-name>PropertiesEditor</servlet-name>
         <url-pattern>/PropertiesEditor</url-pattern>
-      </servlet-mapping>
-
-      <servlet-mapping>
-        <servlet-name>DialPct</servlet-name>
-        <url-pattern>/DialPct</url-pattern>
-      </servlet-mapping>
-
-      <servlet-mapping>
-        <servlet-name>SampleFlashDashboard</servlet-name>
-        <url-pattern>/SampleFlashDashboard</url-pattern>
       </servlet-mapping>
 
       <servlet-mapping>
