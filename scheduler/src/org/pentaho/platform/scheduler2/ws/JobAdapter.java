@@ -29,9 +29,9 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
+import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.scheduler2.ws.JaxBSafeMap.JaxBSafeEntry;
 
 /**
@@ -49,7 +49,11 @@ public class JobAdapter extends XmlAdapter<JobAdapter.JaxbSafeJob, Job> {
 
     JaxbSafeJob jaxbSafeJob = new JaxbSafeJob();
     try {
-      jaxbSafeJob.jobTrigger = job.getJobTrigger();
+      if (!(job.getJobTrigger() instanceof JobTrigger)) {
+        throw new IllegalArgumentException();
+
+      }
+      jaxbSafeJob.jobTrigger = (JobTrigger) job.getJobTrigger();
       jaxbSafeJob.jobParams = new JaxBSafeMap(toParamValueMap(job.getJobParams()));
       jaxbSafeJob.lastRun = job.getLastRun();
       jaxbSafeJob.nextRun = job.getNextRun();
@@ -140,7 +144,7 @@ public class JobAdapter extends XmlAdapter<JobAdapter.JaxbSafeJob, Job> {
 
   @XmlRootElement
   public static class JaxbSafeJob {
-    public IJobTrigger jobTrigger;
+    public JobTrigger jobTrigger;
 
     public JaxBSafeMap jobParams;
 
