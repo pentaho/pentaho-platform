@@ -16,8 +16,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.Converter;
+import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-import org.pentaho.platform.repository.messages.Messages;
+import org.pentaho.platform.plugin.services.messages.Messages;
 import org.springframework.util.Assert;
 
 /**
@@ -28,7 +29,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   private IUnifiedRepository repository;
   private ThreadLocal<Log> log = new ThreadLocal<Log>();
-  //private static final Log log = LogFactory.getLog(RepositoryFileImportFileHandler.class);
+  private ThreadLocal<Boolean> isNotRunningImport = new ThreadLocal<Boolean>();
  
   private static final Messages messages = Messages.getInstance();
 
@@ -37,10 +38,16 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   
   public Log getLogger() {
     if (log.get() == null) {
-        log.set((PentahoSystem.get(IPlatformImporter.class).getRepositoryImportLogger() != null &&
-            PentahoSystem.get(IPlatformImporter.class).getRepositoryImportLogger().hasLogger())
-            ? PentahoSystem.get(IPlatformImporter.class).getRepositoryImportLogger()
-                : LogFactory.getLog(RepositoryFileImportFileHandler.class));
+      IRepositoryImportLogger logger = PentahoSystem.get(IPlatformImporter.class).getRepositoryImportLogger();
+      if (logger != null && logger.hasLogger()) {
+        //An import is running from the /repo/file/import endpoint
+        log.set(logger);
+        isNotRunningImport.set(false);
+      } else {
+        //A publish is running from some other endpoint
+        log.set(LogFactory.getLog(RepositoryFileImportFileHandler.class));
+        isNotRunningImport.set(true);
+      }
     }
     return log.get();
   }
@@ -68,7 +75,12 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
           }
         }
       } else {
-        getLogger().trace("Not importing existing file [" + repositoryFilePath + "]");
+        if (isNotRunningImport.get()) {
+          throw new PlatformImportException(messages.getString("DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT", repositoryFilePath)
+              , PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR);
+        } else {
+          getLogger().trace("Not importing existing file [" + repositoryFilePath + "]");
+        }
       }
     } else {
       if (bundle.isFolder()) {
