@@ -18,94 +18,55 @@ package org.pentaho.platform.api.scheduler2;
 
 import java.util.List;
 
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-
 /**
  * @author wseyler
  * 
  * Interface for managing Block-outs (time when schedules should NOT be executed)
  */
 public interface IBlockoutManager {
-  public static final String BLOCK_GROUP = "BLOCK_GROUP"; //$NON-NLS-1$
+  public static final String DURATION_PARAM = "DURATION_PARAM"; //$NON-NLS-1$
 
-  public static final String BLOCK_DURATION_KEY = "blocking_duration"; //$NON-NLS-1$
+  public static final String BLOCK_OUT_JOB_NAME = "BLOCK_OUT_JOB_NAME"; //$NON-NLS-1$
 
   /**
-   * @param blockout - A trigger that determines the recurrence of the block-out
-   *
-   * Adds a block-out, the blockout recurrence is based on the blockout (trigger) argument
-   * and the duration
+   * @param blockOutJobId
+   * @return a IBlockOutTrigger that represents the blockOut with the name blockOutName
    * @throws SchedulerException 
    */
-  void addBlockout(IBlockoutTrigger blockout) throws SchedulerException;
+  IJobTrigger getBlockOut(String blockOutJobId);
 
   /**
-   * @param blockoutName
-   * @return a IBlockoutTrigger that represents the blockout with the name blockoutName
+   * @return a list of jobs essentially should be used instead of getBlockOuts which is deprecated
+   */
+  List<Job> getBlockOutJobs(final Boolean canAdminister);
+
+  /**
+   * @param scheduleJobTrigger
+   *        {@link IJobTrigger}
+   * @return whether the {@link IJobTrigger} will fire, at least once, given the current list of {@link IJobTrigger}s
    * @throws SchedulerException 
    */
-  IBlockoutTrigger getBlockout(String blockoutName) throws SchedulerException;
+  boolean willFire(IJobTrigger scheduleJobTrigger);
 
   /**
-   * @return an array of blockouts
-   * @throws SchedulerException
-   * 
-   * Deprecated see IBlockoutManager.getBlockoutJobs
-   */
-  @Deprecated
-  IBlockoutTrigger[] getBlockouts() throws SchedulerException;
-
-  
-  /**
-   * @return a list of jobs essentially should be used instead of getBlockouts which is deprecated
-   */
-  List<Job> getBlockoutJobs(final Boolean canAdminister);
-  
-  /**
-   * @param blockoutName
-   * @param newBlockout
-   * 
-   * Replaces the blockout with blockoutName with the IBlockoutTrigger newBlockout
+   * @return true if there are no current blockOuts active at the moment this method is called
    * @throws SchedulerException 
    */
-  void updateBlockout(String blockoutName, IBlockoutTrigger newBlockout) throws SchedulerException;
+  boolean shouldFireNow();
 
   /**
-   * @param blockoutName
-   * @return boolean = true if found and deleted.
-   * removes the blockout with the name blokoutName from the active blockouts
+   * @param testBlockOutJobTrigger
+   * @return the {@link List} of {@link IJobTrigger}s which would be blocked by the {@link IJobTrigger}
    * @throws SchedulerException 
    */
-  boolean deleteBlockout(String blockoutName) throws SchedulerException;
+  List<IJobTrigger> willBlockSchedules(IJobTrigger testBlockOutJobTrigger);
 
   /**
-   * @param scheduleTrigger
-   *        {@link Trigger}
-   * @return whether the {@link Trigger} will fire, at least once, given the current list of {@link IBlockoutTrigger}s
-   * @throws SchedulerException 
-   */
-  boolean willFire(Trigger scheduleTrigger) throws SchedulerException;
-
-  /**
-   * @return true if there are no current blockouts active at the moment this method is called
-   * @throws SchedulerException 
-   */
-  boolean shouldFireNow() throws SchedulerException;
-
-  /**
-   * @param testBlockout
-   * @return the {@link List} of {@link Trigger}s which would be blocked by the {@link IBlockoutTrigger}
-   * @throws SchedulerException 
-   */
-  List<Trigger> willBlockSchedules(IBlockoutTrigger testBlockout) throws SchedulerException;
-
-  /**
-   * @param scheduleTrigger
-   *        {@link Trigger}
-   * @return whether the {@link Trigger} is blocked, at least partially, by at least a single {@link IBlockoutTrigger},
-   *         provided the list of registered {@link IBlockoutTrigger}s
+   * @param scheduleJobTrigger
+   *        {@link IJobTrigger}
+   * @return whether the {@link IJobTrigger} is blocked, at least partially, by at least a single {@link IJobTrigger},
+   *         provided the list of registered {@link IJobTrigger}s
    * @throws SchedulerException
    */
-  boolean isPartiallyBlocked(Trigger scheduleTrigger) throws SchedulerException;;
+  boolean isPartiallyBlocked(IJobTrigger scheduleJobTrigger);
 }
