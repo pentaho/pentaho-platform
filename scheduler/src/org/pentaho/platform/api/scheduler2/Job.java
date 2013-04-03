@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -44,24 +45,35 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlRootElement
 public class Job {
 
-  public enum JobState {NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN};
-  
-  JobTrigger jobTrigger;
+  public enum JobState {
+    NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
+  };
+
+  IJobTrigger jobTrigger;
+
   Map<String, Serializable> jobParams = new HashMap<String, Serializable>();
+
   Date lastRun;
+
   Date nextRun;
+
   @XmlTransient
   String schedulableClass;
+
   String jobId;
+
   String userName;
+
   String jobName;
+
   String groupName;
+
   JobState state = JobState.UNKNOWN;
-  
+
   /**
    * @return the trigger that determines when the job executes
    */
-  public JobTrigger getJobTrigger() {
+  public IJobTrigger getJobTrigger() {
     return jobTrigger;
   }
 
@@ -101,7 +113,7 @@ public class Job {
    * @return the id that uniquely defines this job.
    */
   public String getJobId() {
-   return jobId;
+    return jobId;
   }
 
   /**
@@ -129,7 +141,7 @@ public class Job {
    * Sets the trigger used to determine when this job runs.
    * @param jobTrigger the job trigger
    */
-  public void setJobTrigger(JobTrigger jobTrigger) {
+  public void setJobTrigger(IJobTrigger jobTrigger) {
     this.jobTrigger = jobTrigger;
   }
 

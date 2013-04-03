@@ -53,19 +53,15 @@ public class BlockingQuartzJobTest {
   @Test
   public void testJobIsBlockedDuringABlockout() throws JobExecutionException {
     BlockingQuartzJob blockingJob = createTestBlockingJob(false);
-    try {
-      mockery.checking(new Expectations() {
-        {
-          one(blockoutManager).shouldFireNow();
-          will(returnValue(false));
-          one(logger).warn("Job 'myjob' attempted to run during a blockout period.  This job was not executed");
-          one(context).getJobDetail();
-          will(returnValue(new JobDetail("myjob", BlockingQuartzJob.class)));
-        }
-      });
-    } catch (SchedulerException e) {
-      throw new RuntimeException(e);
-    }
+    mockery.checking(new Expectations() {
+      {
+        one(blockoutManager).shouldFireNow();
+        will(returnValue(false));
+        one(logger).warn("Job 'myjob' attempted to run during a blockout period.  This job was not executed");
+        one(context).getJobDetail();
+        will(returnValue(new JobDetail("myjob", BlockingQuartzJob.class)));
+      }
+    });
     blockingJob.execute(context);
   }
 

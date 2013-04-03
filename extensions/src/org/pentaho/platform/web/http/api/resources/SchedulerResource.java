@@ -30,7 +30,6 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -58,16 +57,17 @@ import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
-import org.pentaho.platform.api.scheduler2.*;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.Job;
+import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.ClientRepositoryPaths;
-import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
-import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
-import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
-import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifier;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.SchedulerAction;
 
@@ -103,8 +103,8 @@ public class SchedulerResource extends AbstractJaxRSResource {
   public Response createJob(JobScheduleRequest scheduleRequest) throws IOException {
 
     // Used to determine if created by a RunInBackgroundCommand
-    boolean runInBackground = scheduleRequest.getSimpleJobTrigger() == null && scheduleRequest.getComplexJobTrigger() == null
-        && scheduleRequest.getCronJobTrigger() == null;
+    boolean runInBackground = scheduleRequest.getSimpleJobTrigger() == null
+        && scheduleRequest.getComplexJobTrigger() == null && scheduleRequest.getCronJobTrigger() == null;
 
     boolean hasInputFile = !StringUtils.isEmpty(scheduleRequest.getInputFile());
     RepositoryFile file = null;
@@ -116,17 +116,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
         logger.warn(ure.getMessage(), ure);
       }
     }
-    
-    // if we are going to run in background, create immediate trigger
-    if (runInBackground) {
-      scheduleRequest.setSimpleJobTrigger(new SimpleJobTrigger(null, null, 0, 0));
-    }
-    
+
     // if we have an inputfile, generate job name based on that if the name is not passed in
     if (hasInputFile && StringUtils.isEmpty(scheduleRequest.getJobName())) {
       scheduleRequest.setJobName(file.getName().substring(0, file.getName().lastIndexOf("."))); //$NON-NLS-1$
     } else if (!StringUtils.isEmpty(scheduleRequest.getActionClass())) {
-      String actionClass = scheduleRequest.getActionClass().substring(scheduleRequest.getActionClass().lastIndexOf(".")+1);
+      String actionClass = scheduleRequest.getActionClass().substring(
+          scheduleRequest.getActionClass().lastIndexOf(".") + 1);
       scheduleRequest.setJobName(actionClass); //$NON-NLS-1$
     } else if (!hasInputFile && StringUtils.isEmpty(scheduleRequest.getJobName())) {
       // just make up a name
@@ -156,73 +152,16 @@ public class SchedulerResource extends AbstractJaxRSResource {
         outName = scheduleRequest.getJobName();
       }
 
-      JobTrigger jobTrigger = scheduleRequest.getSimpleJobTrigger();
-      if (scheduleRequest.getSimpleJobTrigger() != null) {
-        SimpleJobTrigger simpleJobTrigger = scheduleRequest.getSimpleJobTrigger();
-        if (simpleJobTrigger.getStartTime() == null) {
-          simpleJobTrigger.setStartTime(new Date());
-          // simpleJobTrigger.setUiPassParam(scheduleRequest.getCronJobTrigger().getUiPassParam());
-        }
-        jobTrigger = simpleJobTrigger;
-      } else if (scheduleRequest.getComplexJobTrigger() != null) {
-        ComplexJobTriggerProxy proxyTrigger = scheduleRequest.getComplexJobTrigger();
-        ComplexJobTrigger complexJobTrigger = new ComplexJobTrigger();
-        complexJobTrigger.setStartTime(proxyTrigger.getStartTime());
-        complexJobTrigger.setEndTime(proxyTrigger.getEndTime());
-        if (proxyTrigger.getDaysOfWeek().length > 0) {
-          if (proxyTrigger.getWeeksOfMonth().length > 0) {
-            for (int dayOfWeek : proxyTrigger.getDaysOfWeek()) {
-              for (int weekOfMonth : proxyTrigger.getWeeksOfMonth()) {
-                QualifiedDayOfWeek qualifiedDayOfWeek = new QualifiedDayOfWeek();
-                qualifiedDayOfWeek.setDayOfWeek(DayOfWeek.values()[dayOfWeek]);
-                if (weekOfMonth == JobScheduleRequest.LAST_WEEK_OF_MONTH) {
-                  qualifiedDayOfWeek.setQualifier(DayOfWeekQualifier.LAST);
-                } else {
-                  qualifiedDayOfWeek.setQualifier(DayOfWeekQualifier.values()[weekOfMonth]);
-                }
-                complexJobTrigger.addDayOfWeekRecurrence(qualifiedDayOfWeek);
-              }
-            }
-          } else {
-            for (int dayOfWeek : proxyTrigger.getDaysOfWeek()) {
-              complexJobTrigger.addDayOfWeekRecurrence(dayOfWeek + 1);
-            }
-          }
-        } else if (proxyTrigger.getDaysOfMonth().length > 0) {
-          for (int dayOfMonth : proxyTrigger.getDaysOfMonth()) {
-            complexJobTrigger.addDayOfMonthRecurrence(dayOfMonth);
-          }
-        }
-        for (int month : proxyTrigger.getMonthsOfYear()) {
-          complexJobTrigger.addMonthlyRecurrence(month + 1);
-        }
-        for (int year : proxyTrigger.getYears()) {
-          complexJobTrigger.addYearlyRecurrence(year);
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(complexJobTrigger.getStartTime());
-        complexJobTrigger.setHourlyRecurrence(calendar.get(Calendar.HOUR_OF_DAY));
-        complexJobTrigger.setMinuteRecurrence(calendar.get(Calendar.MINUTE));
-        complexJobTrigger.setUiPassParam(scheduleRequest.getComplexJobTrigger().getUiPassParam());
-        jobTrigger = complexJobTrigger;
-      } else if (scheduleRequest.getCronJobTrigger() != null) {
-        if (scheduler instanceof QuartzScheduler) {
-          ComplexJobTrigger complexJobTrigger = QuartzScheduler.createComplexTrigger(scheduleRequest.getCronJobTrigger().getCronString());
-          complexJobTrigger.setStartTime(scheduleRequest.getCronJobTrigger().getStartTime());
-          complexJobTrigger.setEndTime(scheduleRequest.getCronJobTrigger().getEndTime());
-          complexJobTrigger.setUiPassParam(scheduleRequest.getCronJobTrigger().getUiPassParam());
-          jobTrigger = complexJobTrigger;
-        } else {
-          throw new IllegalArgumentException();
-        }
-      }
+      IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger(scheduleRequest, scheduler);
+
       HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
       for (JobScheduleParam param : scheduleRequest.getJobParameters()) {
         parameterMap.put(param.getName(), param.getValue());
       }
 
       if (hasInputFile) {
-        String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName()) + "/workspace/" + outName + ".*"; //$NON-NLS-1$ // //$NON-NLS-2$
+        String outputFile = ClientRepositoryPaths.getUserHomeFolderPath(pentahoSession.getName())
+            + "/workspace/" + outName + ".*"; //$NON-NLS-1$ // //$NON-NLS-2$
         String actionId = RepositoryFilenameUtils.getExtension(scheduleRequest.getInputFile()) + ".backgroundExecution"; //$NON-NLS-1$ //$NON-NLS-2$
         job = scheduler.createJob(scheduleRequest.getJobName(), actionId, parameterMap, jobTrigger,
             new RepositoryFileStreamProvider(scheduleRequest.getInputFile(), outputFile));
@@ -231,7 +170,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
         String actionClass = scheduleRequest.getActionClass();
         try {
           @SuppressWarnings("unchecked")
-          Class<IAction> iaction = ((Class<IAction>)Class.forName(actionClass));
+          Class<IAction> iaction = ((Class<IAction>) Class.forName(actionClass));
           job = scheduler.createJob(scheduleRequest.getJobName(), iaction, parameterMap, jobTrigger);
         } catch (ClassNotFoundException e) {
           throw new RuntimeException(e);
@@ -276,11 +215,12 @@ public class SchedulerResource extends AbstractJaxRSResource {
 
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
-          String actionClass = (String)job.getJobParams().get("ActionAdapterQuartzJob-ActionClass");
+          String actionClass = (String) job.getJobParams().get("ActionAdapterQuartzJob-ActionClass");
           if (canAdminister && "org.pentaho.platform.admin.GeneratedContentCleaner".equals(actionClass)) {
             return true;
           }
-          return principalName.equals(job.getUserName()) && "org.pentaho.platform.admin.GeneratedContentCleaner".equals(actionClass);
+          return principalName.equals(job.getUserName())
+              && "org.pentaho.platform.admin.GeneratedContentCleaner".equals(actionClass);
         }
       });
 
@@ -292,11 +232,13 @@ public class SchedulerResource extends AbstractJaxRSResource {
       throw new RuntimeException(e);
     }
   }
-  
+
   @GET
   @Path("/jobs")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public List<Job> getJobs(@DefaultValue("false") @QueryParam("asCronString") Boolean asCronString) {
+  public List<Job> getJobs(@DefaultValue("false")
+  @QueryParam("asCronString")
+  Boolean asCronString) {
     try {
       IPentahoSession session = PentahoSessionHolder.getSession();
       final String principalName = session.getName(); // this authentication wasn't matching with the job user name, changed to get name via the current session
@@ -305,7 +247,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
           if (canAdminister) {
-            return !IBlockoutManager.BLOCK_GROUP.equals(job.getGroupName());
+            return !IBlockoutManager.BLOCK_OUT_JOB_NAME.equals(job.getJobName());
           }
           return principalName.equals(job.getUserName());
         }
@@ -473,7 +415,10 @@ public class SchedulerResource extends AbstractJaxRSResource {
   @GET
   @Path("/jobinfo")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public Job getJob(@QueryParam("jobId") String jobId, @DefaultValue("false") @QueryParam("asCronString") String asCronString) {
+  public Job getJob(@QueryParam("jobId")
+  String jobId, @DefaultValue("false")
+  @QueryParam("asCronString")
+  String asCronString) {
     try {
       Job job = scheduler.getJob(jobId);
       if (SecurityHelper.getInstance().isPentahoAdministrator(PentahoSessionHolder.getSession())
