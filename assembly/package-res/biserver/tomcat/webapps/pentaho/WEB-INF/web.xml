@@ -547,11 +547,6 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>Map</servlet-name>
-		<jsp-file>/jsp/Map.jsp</jsp-file>
-	</servlet>
-  
-	<servlet>
 		<servlet-name>ThemeServlet</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.ThemeServlet</servlet-class>
 	</servlet>
@@ -859,11 +854,6 @@
 	<servlet-mapping>
 		<servlet-name>SWDashboard</servlet-name>
 		<url-pattern>/SWDashboard</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>Map</servlet-name>
-		<url-pattern>/Map</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
