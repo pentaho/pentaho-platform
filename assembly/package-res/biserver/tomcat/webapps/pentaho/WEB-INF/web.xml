@@ -314,11 +314,6 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>BackgroundExecutionStatus</servlet-name>
-		<jsp-file>/jsp/BackgroundStatus.jsp</jsp-file>
-	</servlet>
-
-	<servlet>
 		<servlet-name>RepositoryFilePublisher</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.RepositoryFilePublisher</servlet-class>
 	</servlet>
@@ -465,11 +460,6 @@
 	<servlet>
 		<servlet-name>MondrianCatalogPublisher</servlet-name>
 		<servlet-class>org.pentaho.platform.web.servlet.MondrianCatalogPublisher</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>RepositoryTree</servlet-name>
-		<jsp-file>/jsp/RepositoryTree.jsp</jsp-file>
 	</servlet>
 
 	<servlet>
@@ -722,11 +712,6 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>BackgroundExecutionStatus</servlet-name>
-		<url-pattern>/BackgroundExecutionStatus</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
 		<servlet-name>RepositoryFilePublisher</servlet-name>
 		<url-pattern>/RepositoryFilePublisher</url-pattern>
 	</servlet-mapping>
@@ -795,11 +780,6 @@
 
 
     <!-- =============================== merged servlet-mappings ============================= -->
-	<servlet-mapping>
-		<servlet-name>RepositoryTree</servlet-name>
-		<url-pattern>/RepositoryTree</url-pattern>
-	</servlet-mapping>
-
 	<servlet-mapping>
 		<servlet-name>PropertiesPanel</servlet-name>
 		<url-pattern>/PropertiesPanel</url-pattern>
