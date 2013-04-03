@@ -23,7 +23,7 @@ import java.util.List;
  * 
  * Interface for managing Block-outs (time when schedules should NOT be executed)
  */
-public interface IBlockOutManager {
+public interface IBlockoutManager {
   public static final String DURATION_PARAM = "DURATION_PARAM"; //$NON-NLS-1$
 
   public static final String BLOCK_OUT_JOB_NAME = "BLOCK_OUT_JOB_NAME"; //$NON-NLS-1$

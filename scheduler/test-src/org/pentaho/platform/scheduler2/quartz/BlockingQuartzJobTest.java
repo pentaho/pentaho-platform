@@ -7,7 +7,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.platform.api.scheduler2.IBlockOutManager;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -24,7 +24,7 @@ public class BlockingQuartzJobTest {
 
   private JobExecutionContext context;
 
-  private IBlockOutManager blockoutManager;
+  private IBlockoutManager blockoutManager;
 
   private Mockery mockery;
 
@@ -41,7 +41,7 @@ public class BlockingQuartzJobTest {
     };
     underlyingJob = mockery.mock(Job.class);
     context = mockery.mock(JobExecutionContext.class);
-    blockoutManager = mockery.mock(IBlockOutManager.class);
+    blockoutManager = mockery.mock(IBlockoutManager.class);
     logger = mockery.mock(Log.class);
   }
 
@@ -107,7 +107,7 @@ public class BlockingQuartzJobTest {
       }
 
       @Override
-      IBlockOutManager getBlockoutManager() throws SchedulerException {
+      IBlockoutManager getBlockoutManager() throws SchedulerException {
 
         if (throwSchedulerException) {
           throw schedulerException;

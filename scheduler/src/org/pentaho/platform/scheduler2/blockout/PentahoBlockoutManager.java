@@ -3,7 +3,7 @@ package org.pentaho.platform.scheduler2.blockout;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.pentaho.platform.api.scheduler2.IBlockOutManager;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
@@ -11,11 +11,11 @@ import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
-public class PentahoBlockOutManager implements IBlockOutManager {
+public class PentahoBlockoutManager implements IBlockoutManager {
 
   private IScheduler scheduler;
 
-  public PentahoBlockOutManager() {
+  public PentahoBlockoutManager() {
     this.scheduler = PentahoSystem.get(IScheduler.class, "IScheduler2", null); //$NON-NLS-1$
   }
 
@@ -36,8 +36,9 @@ public class PentahoBlockOutManager implements IBlockOutManager {
     try {
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
-          if (canAdminister) {
-            return BLOCK_OUT_JOB_NAME.equals(job.getJobName());
+          if (canAdminister && BLOCK_OUT_JOB_NAME.equals(job.getJobName())) {
+            job.getJobTrigger().setDuration((Long) job.getJobParams().get(DURATION_PARAM));
+            return true;
           }
           return false;
         }
@@ -53,12 +54,12 @@ public class PentahoBlockOutManager implements IBlockOutManager {
   @Override
   public boolean willFire(IJobTrigger scheduleTrigger) {
 
-    return BlockOutManagerUtil.willFire(scheduleTrigger, getBlockOutJobTriggers(), this.scheduler);
+    return BlockoutManagerUtil.willFire(scheduleTrigger, getBlockOutJobTriggers(), this.scheduler);
   }
 
   @Override
   public boolean shouldFireNow() {
-    return BlockOutManagerUtil.shouldFireNow(getBlockOutJobTriggers(), this.scheduler);
+    return BlockoutManagerUtil.shouldFireNow(getBlockOutJobTriggers(), this.scheduler);
   }
 
   @Override
@@ -82,7 +83,7 @@ public class PentahoBlockOutManager implements IBlockOutManager {
     for (Job scheduledJob : scheduledJobs) {
 
       // Add schedule to list if block out conflicts at all
-      if (BlockOutManagerUtil.willBlockSchedule(scheduledJob.getJobTrigger(), testBlockOutJobTrigger, this.scheduler)) {
+      if (BlockoutManagerUtil.willBlockSchedule(scheduledJob.getJobTrigger(), testBlockOutJobTrigger, this.scheduler)) {
         blockedSchedules.add(scheduledJob.getJobTrigger());
       }
     }
@@ -92,16 +93,14 @@ public class PentahoBlockOutManager implements IBlockOutManager {
 
   @Override
   public boolean isPartiallyBlocked(IJobTrigger scheduleJobTrigger) {
-    return BlockOutManagerUtil.isPartiallyBlocked(scheduleJobTrigger, getBlockOutJobTriggers(), this.scheduler);
+    return BlockoutManagerUtil.isPartiallyBlocked(scheduleJobTrigger, getBlockOutJobTriggers(), this.scheduler);
   }
 
   private List<IJobTrigger> getBlockOutJobTriggers() {
     List<IJobTrigger> blockOutJobTriggers = new ArrayList<IJobTrigger>();
 
     for (Job blockOutJob : getBlockOutJobs(true)) {
-      IJobTrigger blockOutTrigger = blockOutJob.getJobTrigger();
-      blockOutTrigger.setDuration((Long) blockOutJob.getJobParams().get(DURATION_PARAM));
-      blockOutJobTriggers.add(blockOutTrigger);
+      blockOutJobTriggers.add(blockOutJob.getJobTrigger());
     }
 
     return blockOutJobTriggers;

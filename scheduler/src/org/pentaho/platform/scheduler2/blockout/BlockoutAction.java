@@ -22,16 +22,16 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IVarArgsAction;
-import org.pentaho.platform.api.scheduler2.IBlockOutManager;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 
 /**
  * @author wseyler
  * This is the job that executes when the a block out trigger fires.  This job essentially does nothing more
  * than logging the firing of the trigger.
  */
-public class BlockOutAction implements IVarArgsAction {
+public class BlockoutAction implements IVarArgsAction {
 
-  private static final Log logger = LogFactory.getLog(BlockOutAction.class);
+  private static final Log logger = LogFactory.getLog(BlockoutAction.class);
 
   long duration;
 
@@ -43,7 +43,7 @@ public class BlockOutAction implements IVarArgsAction {
 
   @Override
   public void setVarArgs(Map<String, Object> args) {
-    this.duration = (Long) args.get(IBlockOutManager.DURATION_PARAM);
+    this.duration = (Long) args.get(IBlockoutManager.DURATION_PARAM);
 
   }
 

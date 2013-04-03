@@ -14,7 +14,7 @@ import org.pentaho.platform.scheduler2.quartz.QuartzJobKey;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.quartz.TriggerUtils;
 
-public class BlockOutManagerUtil {
+public class BlockoutManagerUtil {
 
   /**
    * Standard Units of Time

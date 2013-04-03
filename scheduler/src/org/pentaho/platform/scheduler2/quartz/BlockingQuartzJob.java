@@ -18,8 +18,8 @@ package org.pentaho.platform.scheduler2.quartz;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.scheduler2.IBlockOutManager;
-import org.pentaho.platform.scheduler2.blockout.PentahoBlockOutManager;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.scheduler2.blockout.PentahoBlockoutManager;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -48,8 +48,8 @@ public class BlockingQuartzJob implements Job {
     }
   }
 
-  IBlockOutManager getBlockoutManager() throws SchedulerException {
-    return new PentahoBlockOutManager();
+  IBlockoutManager getBlockoutManager() throws SchedulerException {
+    return new PentahoBlockoutManager();
   }
 
   Job createUnderlyingJob() {

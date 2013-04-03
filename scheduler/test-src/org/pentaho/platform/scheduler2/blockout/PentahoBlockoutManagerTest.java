@@ -37,13 +37,13 @@ import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
-import org.pentaho.platform.api.scheduler2.IBlockOutManager;
+import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
-import org.pentaho.platform.scheduler2.blockout.BlockOutManagerUtil.TIME;
+import org.pentaho.platform.scheduler2.blockout.BlockoutManagerUtil.TIME;
 import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
 import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TestQuartzScheduler;
 import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TstPluginManager;
@@ -55,7 +55,7 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
  */
 public class PentahoBlockoutManagerTest {
 
-  IBlockOutManager blockOutManager;
+  IBlockoutManager blockOutManager;
 
   IScheduler scheduler;
 
@@ -72,7 +72,7 @@ public class PentahoBlockoutManagerTest {
     mp.define(IUserRoleListService.class, StubUserRoleListService.class);
     mp.start();
 
-    blockOutManager = new PentahoBlockOutManager();
+    blockOutManager = new PentahoBlockoutManager();
     scheduler = PentahoSystem.get(IScheduler.class, "IScheduler2", null); //$NON-NLS-1$;
 
     jobIdsToClear.clear();
@@ -319,9 +319,9 @@ public class PentahoBlockoutManagerTest {
 
   private Job addBlockOutJob(IJobTrigger blockOutJobTrigger) throws Exception {
     Map<String, Serializable> jobParams = new HashMap<String, Serializable>();
-    jobParams.put(IBlockOutManager.DURATION_PARAM, blockOutJobTrigger.getDuration());
+    jobParams.put(IBlockoutManager.DURATION_PARAM, blockOutJobTrigger.getDuration());
 
-    return addJob(blockOutJobTrigger, IBlockOutManager.BLOCK_OUT_JOB_NAME, new BlockOutAction(), jobParams);
+    return addJob(blockOutJobTrigger, IBlockoutManager.BLOCK_OUT_JOB_NAME, new BlockoutAction(), jobParams);
   }
 
   private Job addJob(IJobTrigger jobTrigger, String jobName) throws Exception {
