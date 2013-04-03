@@ -12,7 +12,7 @@ import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.scheduler2.quartz.QuartzJobKey;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
-import org.quartz.TriggerUtils;
+import org.quartz.Trigger;
 
 public class BlockoutManagerUtil {
 
@@ -262,77 +262,41 @@ public class BlockoutManagerUtil {
     throw new RuntimeException("Can not get recurrence interval from JobTriggers which are not SimpleJobTrigger"); //$NON-NLS-1$
   }
 
-  @SuppressWarnings("unchecked")
   public static List<Date> getFireTimes(IJobTrigger jobTrigger, IScheduler scheduler) {
-
     // Determines the maximum amount of fire times allowed to be calculated
     int n = 1000;
 
-    Date startDate = jobTrigger.getStartTime();
+    Date startDate = new Date(System.currentTimeMillis());
     Date endDate = new Date(startDate.getTime() + 4 * TIME.YEAR.time);
 
     // Quartz Triggers
-    if (QuartzScheduler.class.isAssignableFrom(scheduler.getClass())) {
+    if (scheduler instanceof QuartzScheduler) {
       try {
 
         List<Date> dates = new ArrayList<Date>();
-        long interval = TIME.WEEK.time;
-        Date intervalEndDate = new Date(startDate.getTime() + interval);
+        boolean endDateIsNull = jobTrigger.getEndTime() == null;
+        Trigger trigger = QuartzScheduler.createQuartzTrigger(jobTrigger, new QuartzJobKey("test", "test")); //$NON-NLS-1$ //$NON-NLS-2$
 
-        while (dates.size() < n && startDate.before(endDate)) {
+        for (int i = 0; i < n; i++) {
+          Date nextFireTime = trigger.getFireTimeAfter(startDate);
 
-          dates.addAll(TriggerUtils.computeFireTimesBetween(
-              QuartzScheduler.createQuartzTrigger(jobTrigger, new QuartzJobKey("test", "test")), //$NON-NLS-1$ //$NON-NLS-2$
-              null, startDate, intervalEndDate));
+          if (nextFireTime.after(endDate) || (!endDateIsNull && nextFireTime.after(jobTrigger.getEndTime()))) {
+            break;
+          }
 
-          startDate = intervalEndDate;
-          intervalEndDate = new Date(startDate.getTime() + interval);
+          dates.add(nextFireTime);
+          startDate = nextFireTime;
         }
 
         return dates;
+
       } catch (SchedulerException e) {
         throw new RuntimeException(e);
       }
     }
-
     throw new RuntimeException("Can not calculate fire times for unsupported Scheduler Type: " //$NON-NLS-1$
         + scheduler.getClass().getSimpleName());
   }
-
-  //  public static Trigger convertToQuartzTrigger(IJobTrigger jobTrigger) {
-  //    try {
-  //      Trigger quartzTrigger = null;
-  //
-  //      if (jobTrigger instanceof SimpleJobTrigger) {
-  //        SimpleJobTrigger simpleJobTrigger = (SimpleJobTrigger) jobTrigger;
-  //
-  //        quartzTrigger = new SimpleTrigger("test", simpleJobTrigger.getStartTime(), simpleJobTrigger.getEndTime(), //$NON-NLS-1$
-  //            simpleJobTrigger.getRepeatCount(), simpleJobTrigger.getRepeatInterval());
-  //
-  //      } else if (jobTrigger instanceof CronJobTrigger) {
-  //        CronJobTrigger cronJobTrigger = (CronJobTrigger) jobTrigger;
-  //
-  //        quartzTrigger = new CronTrigger("test", "test", "test", "test", cronJobTrigger.getStartTime(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-  //            cronJobTrigger.getEndTime(), cronJobTrigger.getCronString());
-  //
-  //      } else if (jobTrigger instanceof ComplexJobTrigger) {
-  //        ComplexJobTrigger complexJobTrigger = (ComplexJobTrigger) jobTrigger;
-  //
-  //        if (complexJobTrigger.getCronString() != null) {
-  //          quartzTrigger = new CronTrigger("test", "test", "test", "test", complexJobTrigger.getStartTime(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-  //              complexJobTrigger.getEndTime(), complexJobTrigger.getCronString());
-  //        } else {
-  //          quartzTrigger = new CronTrigger("test", "test", "test", "test", complexJobTrigger.getStartTime(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-  //              complexJobTrigger.getEndTime(), QuartzCronStringFactory.createCronString(complexJobTrigger));
-  //        }
-  //      }
-  //
-  //      return quartzTrigger;
-  //
-  //    } catch (ParseException e) {
-  //      throw new RuntimeException(e);
-  //    }
-  //  }
 
   public static boolean shouldFireNow(List<IJobTrigger> blockOutJobTriggers, IScheduler scheduler) {
 

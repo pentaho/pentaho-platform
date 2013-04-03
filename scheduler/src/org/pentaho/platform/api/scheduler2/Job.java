@@ -73,8 +73,8 @@ public class Job {
   /**
    * @return the trigger that determines when the job executes
    */
-  public IJobTrigger getJobTrigger() {
-    return jobTrigger;
+  public JobTrigger getJobTrigger() {
+    return (JobTrigger) jobTrigger;
   }
 
   /**
@@ -142,6 +142,9 @@ public class Job {
    * @param jobTrigger the job trigger
    */
   public void setJobTrigger(IJobTrigger jobTrigger) {
+    if (!(jobTrigger instanceof JobTrigger)) {
+      throw new IllegalArgumentException();
+    }
     this.jobTrigger = jobTrigger;
   }
 
