@@ -59,9 +59,9 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IJobFilter;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
@@ -152,7 +152,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
         outName = scheduleRequest.getJobName();
       }
 
-      JobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger(scheduleRequest, scheduler);
+      IJobTrigger jobTrigger = SchedulerResourceUtil.convertScheduleRequestToJobTrigger(scheduleRequest, scheduler);
 
       HashMap<String, Serializable> parameterMap = new HashMap<String, Serializable>();
       for (JobScheduleParam param : scheduleRequest.getJobParameters()) {
@@ -247,7 +247,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
           if (canAdminister) {
-            return !IBlockoutManager.BLOCK_GROUP.equals(job.getGroupName());
+            return !IBlockoutManager.BLOCK_OUT_JOB_NAME.equals(job.getJobName());
           }
           return principalName.equals(job.getUserName());
         }

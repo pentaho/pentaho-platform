@@ -5,8 +5,8 @@ import java.util.Date;
 
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
 import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.JobTrigger;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
@@ -16,14 +16,14 @@ import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifi
 
 public class SchedulerResourceUtil {
 
-  public static JobTrigger convertScheduleRequestToJobTrigger(JobScheduleRequest scheduleRequest, IScheduler scheduler)
+  public static IJobTrigger convertScheduleRequestToJobTrigger(JobScheduleRequest scheduleRequest, IScheduler scheduler)
       throws SchedulerException, UnifiedRepositoryException {
 
     // Used to determine if created by a RunInBackgroundCommand
     boolean runInBackground = scheduleRequest.getSimpleJobTrigger() == null
         && scheduleRequest.getComplexJobTrigger() == null && scheduleRequest.getCronJobTrigger() == null;
 
-    JobTrigger jobTrigger = runInBackground ? new SimpleJobTrigger(null, null, 0, 0) : scheduleRequest
+    IJobTrigger jobTrigger = runInBackground ? new SimpleJobTrigger(null, null, 0, 0) : scheduleRequest
         .getSimpleJobTrigger();
 
     if (scheduleRequest.getSimpleJobTrigger() != null) {
