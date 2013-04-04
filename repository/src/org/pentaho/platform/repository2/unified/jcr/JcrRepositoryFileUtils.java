@@ -429,9 +429,6 @@ public class JcrRepositoryFileUtils {
       //      folderNode.setProperty(addPentahoPrefix(session, PentahoJcrConstants.PENTAHO_VERSIONED), true);
       folderNode.addMixin(pentahoJcrConstants.getPHO_MIX_VERSIONABLE());
     }
-    if (folder.getDescription()!=null) {
-      folderNode.setProperty(pentahoJcrConstants.getPHO_DESCRIPTION(), folder.getDescription());
-    }
     
     folderNode.addNode(pentahoJcrConstants.getPHO_METADATA(), JcrConstants.NT_UNSTRUCTURED);
     folderNode.addMixin(pentahoJcrConstants.getMIX_REFERENCEABLE());
