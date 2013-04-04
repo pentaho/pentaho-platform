@@ -47,7 +47,7 @@ public abstract class JobTrigger implements Serializable, IJobTrigger {
 
   private String cronString;
 
-  private long duration = -1;
+  private int duration = -1;
 
   public JobTrigger() {
   }
@@ -98,12 +98,12 @@ public abstract class JobTrigger implements Serializable, IJobTrigger {
   }
 
   @Override
-  public long getDuration() {
+  public int getDuration() {
     return this.duration;
   }
 
   @Override
-  public void setDuration(long duration) {
+  public void setDuration(int duration) {
     this.duration = duration;
   }
 }

@@ -17,12 +17,12 @@
 package org.pentaho.mantle.client.workspace;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.*;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -37,7 +37,6 @@ import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.NewBlockoutScheduleDialog;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,9 +46,9 @@ import static org.pentaho.mantle.client.workspace.WorkspacePanel.CellTableResour
 import static org.pentaho.mantle.client.workspace.WorkspacePanel.PAGE_SIZE;
 
 public class BlockoutPanel extends SimplePanel {
-  private CellTable<JsJobTrigger> table =
-    new CellTable<JsJobTrigger>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
-  private ListDataProvider<JsJobTrigger> dataProvider = new ListDataProvider<JsJobTrigger>();
+  private CellTable<JsJob> table =
+    new CellTable<JsJob>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
+  private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
   private SimplePager pager;
   private final VerticalPanel widgets = new VerticalPanel();
   private Button blockoutButton;
@@ -59,7 +58,7 @@ public class BlockoutPanel extends SimplePanel {
     public void okPressed() { }
 
     public void cancelPressed() { }
-  };;
+  };
 
   public BlockoutPanel(final boolean isAdmin) {
     createUI(isAdmin);
@@ -90,6 +89,7 @@ public class BlockoutPanel extends SimplePanel {
     blockoutButton = new Button(Messages.getString("createBlockoutTime"));
     tableControls = new Toolbar();
     tablePanel = new VerticalPanel();
+    tablePanel.setVisible(false);
     if (isAdmin) {
       final ClickHandler newBlockoutHandler = new ClickHandler() {
         @Override
@@ -124,12 +124,9 @@ public class BlockoutPanel extends SimplePanel {
     editButton.setCommand(new Command() {
       @Override
       public void execute() {
-        Set<JsJobTrigger> triggers = ((MultiSelectionModel<JsJobTrigger>) table.getSelectionModel()).getSelectedSet();
+        Set<JsJob> jobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
 
-        JsJob jsJob = (JsJob) JavaScriptObject.createObject().cast();
-        JsJobTrigger trigger = triggers.iterator().next();
-        jsJob.setJobTrigger(trigger);
-        jsJob.setJobName(trigger.getName());
+        JsJob jsJob = jobs.iterator().next();
 
         DialogBox blockoutDialog = new NewBlockoutScheduleDialog(jsJob, emptyCallback, false, true, false);
         blockoutDialog.center();
@@ -140,10 +137,10 @@ public class BlockoutPanel extends SimplePanel {
     removeButton.setCommand(new Command() {
       @Override
       public void execute() {
-        Set<JsJobTrigger> selectedSet =
-          ((MultiSelectionModel<JsJobTrigger>) table.getSelectionModel()).getSelectedSet();
-        for (JsJobTrigger jsJobTrigger : selectedSet) {
-          removeBlockout(jsJobTrigger);
+        Set<JsJob> selectedSet =
+          ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
+        for (JsJob jsJob : selectedSet) {
+          removeBlockout(jsJob);
         }
       }
     });
@@ -153,16 +150,12 @@ public class BlockoutPanel extends SimplePanel {
 
   private void createTable() {
     table.getElement().setId("blockout-table");
-    table.setSelectionModel(new MultiSelectionModel<JsJobTrigger>());
-    TextColumn<JsJobTrigger> startColumn = new TextColumn<JsJobTrigger>() {
-      public String getValue(JsJobTrigger block) {
+    table.setSelectionModel(new MultiSelectionModel<JsJob>());
+    TextColumn<JsJob> startColumn = new TextColumn<JsJob>() {
+      public String getValue(JsJob block) {
         try {
-          Date nextFireTime = block.getNextFireTime();
-          if(nextFireTime == null) {
-            return formatDate(block.getStartTime());
-          } else {
-            return formatDate(nextFireTime);
-          }
+          Date nextFireTime = block.getNextRun();
+          return formatDate(nextFireTime);
         } catch (Throwable t) {
         }
         return "-";
@@ -170,16 +163,13 @@ public class BlockoutPanel extends SimplePanel {
     };
     table.addColumn(startColumn, Messages.getString("blockoutColumnStarts"));
     table.addColumnStyleName(0, "backgroundContentHeaderTableCell");
-    TextColumn<JsJobTrigger> endColumn = new TextColumn<JsJobTrigger>() {
-      public String getValue(JsJobTrigger block) {
+    TextColumn<JsJob> endColumn = new TextColumn<JsJob>() {
+      public String getValue(JsJob block) {
         try {
-          Date nextFireTime = block.getNextFireTime();
-          if(nextFireTime == null) {
-            Date endDate = new Date(block.getStartTime().getTime() + block.getBlockDuration());
-            return formatDate(endDate);
-          } else {
-            return formatDate(new Date(nextFireTime.getTime() + block.getBlockDuration()));
-          }
+          Date nextFireTime = block.getNextRun();
+            return formatDate(
+              new Date(nextFireTime.getTime()
+                + Integer.parseInt(block.getJobParam("DURATION_PARAM"))));
         } catch (Throwable t) {
         }
         return "-";
@@ -188,10 +178,10 @@ public class BlockoutPanel extends SimplePanel {
     table.addColumn(endColumn, Messages.getString("blockoutColumnEnds"));
     table.addColumnStyleName(1, "backgroundContentHeaderTableCell");
 
-    TextColumn<JsJobTrigger> repeatColumn = new TextColumn<JsJobTrigger>() {
-      public String getValue(JsJobTrigger block) {
+    TextColumn<JsJob> repeatColumn = new TextColumn<JsJob>() {
+      public String getValue(JsJob block) {
         try {
-          return block.getSimpleDescription();
+          return block.getJobTrigger().getDescription();
         } catch (Throwable t) {
         }
         return "-";
@@ -200,13 +190,13 @@ public class BlockoutPanel extends SimplePanel {
     table.addColumn(repeatColumn, Messages.getString("blockoutColumnRepeats"));
     table.addColumnStyleName(2, "backgroundContentHeaderTableCell");
 
-    TextColumn<JsJobTrigger> endByColumn = new TextColumn<JsJobTrigger>() {
-      public String getValue(JsJobTrigger block) {
+    TextColumn<JsJob> endByColumn = new TextColumn<JsJob>() {
+      public String getValue(JsJob block) {
         try {
-          int repeatCount = block.getRepeatCount();
+          int repeatCount = block.getJobTrigger().getRepeatCount();
           if (repeatCount != -1) {
             return formatDate(
-              new Date(block.getStartTime().getTime() + (block.getRepeatInterval() * repeatCount)));
+              new Date(block.getJobTrigger().getStartTime().getTime() + (block.getJobTrigger().getRepeatInterval() * repeatCount)));
           } else {
             return "Never";
           }
@@ -229,12 +219,12 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   private String formatDate(final Date date) {
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd h:mm a");
+    DateTimeFormat simpleDateFormat = DateTimeFormat.getFormat("EEE, MMM dd h:mm a");
     return simpleDateFormat.format(date);
   }
 
-  private void removeBlockout(final JsJobTrigger jsJobTrigger) {
-    makeServiceCall("delete?blockoutName=" + jsJobTrigger.getName(), RequestBuilder.DELETE, new RequestCallback() {
+  private void removeBlockout(final JsJob jsJob) {
+    makeServiceCall("delete?blockoutName=" + jsJob.getJobId(), RequestBuilder.DELETE, new RequestCallback() {
 
       public void onError(Request request, Throwable exception) {
         // todo: do something
@@ -251,7 +241,7 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   public void refresh() {
-    makeServiceCall("list", RequestBuilder.GET, new RequestCallback() {
+    makeServiceCall("blockoutjobs", RequestBuilder.GET, new RequestCallback() {
 
       public void onError(Request request, Throwable exception) {
         //todo: do something
@@ -286,36 +276,31 @@ public class BlockoutPanel extends SimplePanel {
     }
   }
 
-  private void showData(final JsArray<JsJobTrigger> allBlocks) {
+  private void showData(final JsArray<JsJob> allBlocks) {
     if (allBlocks == null || allBlocks.length() == 0) {
-      table.setVisible(false);
-      tableControls.setVisible(false);
-      pager.setVisible(false);
+      tablePanel.setVisible(false);
       blockoutButton.setVisible(true);
     } else {
-      table.setVisible(true);
-      tableControls.setVisible(true);
-      pager.setVisible(true);
+      tablePanel.setVisible(true);
       blockoutButton.setVisible(false);
-      List<JsJobTrigger> filteredList = new ArrayList<JsJobTrigger>();
+      List<JsJob> jobList = new ArrayList<JsJob>();
       for (int i = 0; i < allBlocks.length(); i++) {
-        JsJobTrigger trigger = allBlocks.get(i);
-        trigger.setType("simpleJobTrigger");
-        filteredList.add(trigger);
+        JsJob job = allBlocks.get(i);
+        jobList.add(job);
       }
-      List<JsJobTrigger> list = dataProvider.getList();
+      List<JsJob> list = dataProvider.getList();
       list.clear();
-      list.addAll(filteredList);
-      pager.setVisible(filteredList.size() > PAGE_SIZE);
-      table.setVisible(filteredList.size() > 0);
+      list.addAll(jobList);
+      pager.setVisible(jobList.size() > PAGE_SIZE);
+      table.setVisible(jobList.size() > 0);
       table.redraw();
     }
 
   }
 
-  private native JsArray<JsJobTrigger> parseJson(String json)
+  private native JsArray<JsJob> parseJson(String json)
   /*-{
     var obj = eval('(' + json + ')');
-    return obj.simpleBlockoutTrigger;
+    return obj.job;
   }-*/;
 }

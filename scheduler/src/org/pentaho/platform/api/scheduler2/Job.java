@@ -141,11 +141,8 @@ public class Job {
    * Sets the trigger used to determine when this job runs.
    * @param jobTrigger the job trigger
    */
-  public void setJobTrigger(IJobTrigger jobTrigger) {
-    if (!(jobTrigger instanceof JobTrigger)) {
-      throw new IllegalArgumentException("Only jobTriggers of type " + JobTrigger.class.getCanonicalName() + " allowed"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-    this.jobTrigger = (JobTrigger) jobTrigger;
+  public void setJobTrigger(JobTrigger jobTrigger) {
+    this.jobTrigger = jobTrigger;
   }
 
   /**

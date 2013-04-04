@@ -79,6 +79,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   public Response addBlockout(JobScheduleRequest request) throws IOException {
     request.setActionClass(BlockoutAction.class.getCanonicalName());
+    request.getJobParameters().add(new JobScheduleParam(IBlockoutManager.DURATION_PARAM, request.getDuration()));
     return schedulerResource.createJob(request);
   }
 

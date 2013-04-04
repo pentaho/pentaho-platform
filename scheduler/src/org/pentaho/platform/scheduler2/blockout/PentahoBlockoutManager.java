@@ -24,7 +24,7 @@ public class PentahoBlockoutManager implements IBlockoutManager {
     try {
       Job blockOutJob = this.scheduler.getJob(blockOutJobId);
       IJobTrigger blockOutJobTrigger = blockOutJob.getJobTrigger();
-      blockOutJobTrigger.setDuration((Long) blockOutJob.getJobParams().get(DURATION_PARAM));
+      blockOutJobTrigger.setDuration((Integer) blockOutJob.getJobParams().get(DURATION_PARAM));
       return blockOutJobTrigger;
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
@@ -37,7 +37,7 @@ public class PentahoBlockoutManager implements IBlockoutManager {
       List<Job> jobs = scheduler.getJobs(new IJobFilter() {
         public boolean accept(Job job) {
           if (canAdminister && BLOCK_OUT_JOB_NAME.equals(job.getJobName())) {
-            job.getJobTrigger().setDuration((Long) job.getJobParams().get(DURATION_PARAM));
+            job.getJobTrigger().setDuration((Integer) job.getJobParams().get(DURATION_PARAM));
             return true;
           }
           return false;
