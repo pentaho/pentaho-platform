@@ -44,16 +44,27 @@ public class BlockoutManagerUtil {
       // We must verify further if the schedule is blocked completely or if it will fire
       if (willBlockSchedule(jobTrigger, blockOutJobTrigger, scheduler)) {
 
+        boolean isBlockoutComplex = isComplexTrigger(blockOutJobTrigger);
+
         // If recurrence intervals are the same, it will never fire
-        if (!isComplexTrigger(blockOutJobTrigger) && !isComplexTrigger(jobTrigger)
+        if (!isBlockoutComplex && !isComplexTrigger(jobTrigger)
             && getRecurrenceInterval(blockOutJobTrigger) == getRecurrenceInterval(jobTrigger)) {
           return false;
+        }
+
+        List<Date> blockoutFireTimes = null;
+        if (isBlockoutComplex) {
+          blockoutFireTimes = getFireTimes(blockOutJobTrigger, scheduler);
         }
 
         // Loop through fire times and verify whether block out is blocking the schedule completely
         boolean scheduleCompletelyBlocked = true;
         for (Date fireTime : fireTimes) {
-          if (!(scheduleCompletelyBlocked = willBlockDate(blockOutJobTrigger, fireTime, scheduler))) {
+
+          scheduleCompletelyBlocked = isBlockoutComplex ? willComplexBlockOutTriggerBlockDate(blockOutJobTrigger,
+              blockoutFireTimes, fireTime) : willBlockDate(blockOutJobTrigger, fireTime, scheduler);
+
+          if (!scheduleCompletelyBlocked) {
             break;
           }
         }
@@ -209,7 +220,7 @@ public class BlockoutManagerUtil {
     }
 
     if (isComplexTrigger(blockOutJobTrigger)) {
-      return willComplexBlockOutTriggerBlockDate(blockOutJobTrigger, date, scheduler);
+      return willComplexBlockOutTriggerBlockDate(blockOutJobTrigger, getFireTimes(blockOutJobTrigger, scheduler), date);
     }
 
     long blockOutRecurrenceInterval = getRecurrenceInterval(blockOutJobTrigger);
@@ -221,8 +232,8 @@ public class BlockoutManagerUtil {
     return hasPositiveIntBetween(x1, x2);
   }
 
-  private static boolean willComplexBlockOutTriggerBlockDate(IJobTrigger blockOutJobTrigger, Date date,
-      IScheduler scheduler) {
+  private static boolean willComplexBlockOutTriggerBlockDate(IJobTrigger blockOutJobTrigger, List<Date> blockOutDates,
+      Date date) {
 
     // Short circuit if date does not fall within a valid start/end date range
     if (date.before(blockOutJobTrigger.getStartTime())
@@ -231,7 +242,7 @@ public class BlockoutManagerUtil {
     }
 
     long blockOutDuration = blockOutJobTrigger.getDuration();
-    for (Date blockOutStartDate : getFireTimes(blockOutJobTrigger, scheduler)) {
+    for (Date blockOutStartDate : blockOutDates) {
 
       // Block out date has passed the date being tested
       if (blockOutStartDate.after(date)) {
