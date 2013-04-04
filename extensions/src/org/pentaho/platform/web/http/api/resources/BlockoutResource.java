@@ -40,6 +40,7 @@ import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 
@@ -51,9 +52,11 @@ import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 public class BlockoutResource extends AbstractJaxRSResource {
 
   private IBlockoutManager manager = null;
+
   private SchedulerResource schedulerResource = null;
+
   private IScheduler scheduler = null;
-  
+
   protected IAuthorizationPolicy policy = PentahoSystem.get(IAuthorizationPolicy.class);
 
   public BlockoutResource() {
@@ -75,23 +78,24 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Path("/add")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   public Response addBlockout(JobScheduleRequest request) throws IOException {
-    request.setActionClass("org.pentaho.platform.scheduler2.blockout.BlockoutAction");
-    return schedulerResource.createJob(request);   
+    request.setActionClass(BlockoutAction.class.getCanonicalName());
+    return schedulerResource.createJob(request);
   }
 
   @POST
   @Path("/update/{jobid}")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-  public Response updateBlockout(@QueryParam("jobid")String jobId, JobScheduleRequest request) throws IOException {
+  public Response updateBlockout(@QueryParam("jobid")
+  String jobId, JobScheduleRequest request) throws IOException {
     JobRequest jobRequest = new JobRequest();
     jobRequest.setJobId(jobId);
     Response response = schedulerResource.removeJob(jobRequest);
     if (response.getStatus() == 200) {
       response = addBlockout(request);
-    } 
-    return response;    
+    }
+    return response;
   }
-  
+
   @GET
   @Path("/willFire")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
@@ -103,7 +107,6 @@ public class BlockoutResource extends AbstractJaxRSResource {
     } catch (UnifiedRepositoryException e) {
       return Response.serverError().entity(e).build();
     } catch (SchedulerException e) {
-      // TODO Auto-generated catch block
       return Response.serverError().entity(e).build();
     }
     return Response.ok(willFire.toString()).build();
@@ -113,18 +116,20 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Path("/shouldFireNow")
   @Produces({ TEXT_PLAIN })
   public Response shouldFireNow() {
-      Boolean result = manager.shouldFireNow();
-      return Response.ok(result.toString()).build();
+    Boolean result = manager.shouldFireNow();
+    return Response.ok(result.toString()).build();
   }
 
   @POST
   @Path("/blockstatus")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public BlockStatusProxy getBlockStatus(JobScheduleRequest request) throws UnifiedRepositoryException, SchedulerException {
+  public BlockStatusProxy getBlockStatus(JobScheduleRequest request) throws UnifiedRepositoryException,
+      SchedulerException {
     // Get blockout status
     Boolean totallyBlocked = false;
-    Boolean partiallyBlocked = manager.isPartiallyBlocked(SchedulerResourceUtil.convertScheduleRequestToJobTrigger(request, scheduler));
+    Boolean partiallyBlocked = manager.isPartiallyBlocked(SchedulerResourceUtil.convertScheduleRequestToJobTrigger(
+        request, scheduler));
     if (partiallyBlocked) {
       totallyBlocked = !manager.willFire(SchedulerResourceUtil.convertScheduleRequestToJobTrigger(request, scheduler));
     }
