@@ -55,11 +55,16 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
  */
 public class PentahoBlockoutManagerTest {
 
+  private final int duration;
   IBlockoutManager blockOutManager;
 
   IScheduler scheduler;
 
   Set<String> jobIdsToClear = new HashSet<String>();
+
+  public PentahoBlockoutManagerTest() {
+    duration = ((Long) (TIME.HOUR.time * 2)).intValue();
+  }
 
   /**
    * @throws java.lang.Exception
@@ -124,7 +129,7 @@ public class PentahoBlockoutManagerTest {
   public void testWillFire() throws Exception {
     Calendar blockOutStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 7);
     IJobTrigger blockOutJobTrigger = new SimpleJobTrigger(blockOutStartDate.getTime(), null, -1, TIME.WEEK.time / 1000);
-    blockOutJobTrigger.setDuration(TIME.HOUR.time * 2);
+    blockOutJobTrigger.setDuration(duration);
 
     /*
      * Simple Schedule Triggers
@@ -159,7 +164,7 @@ public class PentahoBlockoutManagerTest {
     deleteJob(blockOutJob.getJobId());
     blockOutJobTrigger = new ComplexJobTrigger();
     blockOutJobTrigger.setStartTime(blockOutStartDate.getTime());
-    blockOutJobTrigger.setDuration(TIME.HOUR.time * 2);
+    blockOutJobTrigger.setDuration(duration);
     blockOutJobTrigger.setCronString("0 0 0 ? * 2 *"); //$NON-NLS-1$
 
     addBlockOutJob(blockOutJobTrigger);
@@ -178,7 +183,7 @@ public class PentahoBlockoutManagerTest {
   public void testIsPartiallyBlocked() throws Exception {
     Calendar blockOutStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 1, 0, 0, 0);
     IJobTrigger blockOutTrigger = new SimpleJobTrigger(blockOutStartDate.getTime(), null, -1, TIME.WEEK.time * 2 / 1000);
-    blockOutTrigger.setDuration(TIME.HOUR.time * 2);
+    blockOutTrigger.setDuration(duration);
 
     /*
      * Simple Schedule Triggers
@@ -221,7 +226,7 @@ public class PentahoBlockoutManagerTest {
     blockOutTrigger = new ComplexJobTrigger();
     blockOutTrigger.setStartTime(blockOutStartDate.getTime());
     blockOutTrigger.setCronString("0 0 0 ? * 3 *"); //$NON-NLS-1$
-    blockOutTrigger.setDuration(TIME.HOUR.time * 2);
+    blockOutTrigger.setDuration(duration);
     addBlockOutJob(blockOutTrigger);
 
     assertTrue(this.blockOutManager.isPartiallyBlocked(trueSchedule1));
@@ -238,7 +243,7 @@ public class PentahoBlockoutManagerTest {
   public void testShouldFireNow() throws Exception {
     Date blockOutStartDate = new Date(System.currentTimeMillis());
     IJobTrigger blockOutJobTrigger = new SimpleJobTrigger(blockOutStartDate, null, -1, TIME.WEEK.time * 2 / 1000);
-    blockOutJobTrigger.setDuration(TIME.HOUR.time * 2);
+    blockOutJobTrigger.setDuration(duration);
 
     Job blockOutJob = addBlockOutJob(blockOutJobTrigger);
 
@@ -247,7 +252,7 @@ public class PentahoBlockoutManagerTest {
     deleteJob(blockOutJob.getJobId());
     blockOutStartDate = new Date(System.currentTimeMillis() + TIME.HOUR.time);
     blockOutJobTrigger = new SimpleJobTrigger(blockOutStartDate, null, -1, TIME.WEEK.time * 2 / 1000);
-    blockOutJobTrigger.setDuration(TIME.HOUR.time * 2);
+    blockOutJobTrigger.setDuration(duration);
     addBlockOutJob(blockOutJobTrigger);
 
     assertTrue(this.blockOutManager.shouldFireNow());
@@ -261,22 +266,22 @@ public class PentahoBlockoutManagerTest {
     Calendar trueBlockOutStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 7);
     IJobTrigger trueBlockOutTrigger = new SimpleJobTrigger(trueBlockOutStartDate.getTime(), null, -1,
         TIME.WEEK.time / 1000);
-    trueBlockOutTrigger.setDuration(TIME.HOUR.time * 2);
+    trueBlockOutTrigger.setDuration(duration);
 
     Calendar falseBlockOutStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 9);
     IJobTrigger falseBlockOutTrigger = new SimpleJobTrigger(falseBlockOutStartDate.getTime(), null, -1,
         TIME.WEEK.time / 1000);
-    falseBlockOutTrigger.setDuration(TIME.HOUR.time * 2);
+    falseBlockOutTrigger.setDuration(duration);
 
     IJobTrigger trueComplexBlockOutTrigger = new ComplexJobTrigger();
     trueComplexBlockOutTrigger.setStartTime(trueBlockOutStartDate.getTime());
     trueComplexBlockOutTrigger.setCronString("0 0 0 ? * 2 *"); //$NON-NLS-1$
-    trueComplexBlockOutTrigger.setDuration(TIME.HOUR.time * 2);
+    trueComplexBlockOutTrigger.setDuration(duration);
 
     IJobTrigger falseComplexBlockOutTrigger = new ComplexJobTrigger();
     falseComplexBlockOutTrigger.setStartTime(falseBlockOutStartDate.getTime());
     falseComplexBlockOutTrigger.setCronString("0 0 0 ? * WED *"); //$NON-NLS-1$
-    falseComplexBlockOutTrigger.setDuration(TIME.HOUR.time * 2);
+    falseComplexBlockOutTrigger.setDuration(duration);
 
     Calendar scheduleStartDate = new GregorianCalendar(2013, Calendar.JANUARY, 7, 1, 0, 0);
     IJobTrigger scheduleTrigger = new SimpleJobTrigger(scheduleStartDate.getTime(), null, -1, TIME.WEEK.time / 1000);
