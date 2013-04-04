@@ -32,8 +32,8 @@ public class JsBlockStatus extends JavaScriptObject {
   }
 
   // JSNI methods to get job data.
-  public final native String getPartiallyBlocked() /*-{ return this.totallyBlocked; }-*/; //
-  public final native String getTotallyBlocked() /*-{ return this.partiallyBlocked; }-*/; //
+  public final native String getPartiallyBlocked() /*-{ return this.partiallyBlocked; }-*/; //
+  public final native String getTotallyBlocked() /*-{ return this.totallyBlocked; }-*/; //
 
   public final String getJSONString() {
     return new JSONObject(this).toString();
