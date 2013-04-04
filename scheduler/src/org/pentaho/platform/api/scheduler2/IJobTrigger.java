@@ -23,7 +23,7 @@ public interface IJobTrigger {
 
   /**
    * Sets the trigger end time.
-   * @param startTime when to end the trigger. If null the trigger runs indefinitely
+   * @param endTime when to end the trigger. If null the trigger runs indefinitely
    */
   public void setEndTime(Date endTime);
 
@@ -55,12 +55,12 @@ public interface IJobTrigger {
   /**
    * @return a long that represents in milliseconds how long this trigger should be in effect once triggered
    */
-  public long getDuration();
+  public int getDuration();
 
   /**
-   * @param blockDuration
+   * @param duration
    * 
    * Sets the length of time in milliseconds that this trigger should be in effect.
    */
-  public void setDuration(long duration);
+  public void setDuration(int duration);
 }

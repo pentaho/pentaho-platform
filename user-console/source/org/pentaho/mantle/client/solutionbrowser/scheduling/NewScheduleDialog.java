@@ -591,7 +591,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     // Add blockout specific parameters
     JSONObject addBlockoutParams = schedule;
     addBlockoutParams.put("jobName", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
-    addBlockoutParams.put("blockDuration", new JSONNumber(duration)); //$NON-NLS-1$
+    addBlockoutParams.put("duration", new JSONNumber(duration)); //$NON-NLS-1$
 
     System.out.println("The add blockout json: " + addBlockoutParams.toString());
 
