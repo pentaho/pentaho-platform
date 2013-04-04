@@ -143,7 +143,7 @@ public class Job {
    */
   public void setJobTrigger(IJobTrigger jobTrigger) {
     if (!(jobTrigger instanceof JobTrigger)) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Only jobTriggers of type " + JobTrigger.class.getCanonicalName() + " allowed"); //$NON-NLS-1$ //$NON-NLS-2$
     }
     this.jobTrigger = (JobTrigger) jobTrigger;
   }
