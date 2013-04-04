@@ -30,7 +30,7 @@ public class PublishedBeanRegistry {
    * @param clazz
    * @param factoryMarker
    */
-  public static void registerBean(String beanName, Class<?> clazz, Marker factoryMarker) {
+  public static void registerBean(String beanName, Class<?> clazz, Object factoryMarker) {
     if(beanName == null){
       throw new IllegalArgumentException("Bean name cannot be null");
     }
