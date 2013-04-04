@@ -59,6 +59,8 @@ import org.quartz.JobExecutionException;
 public class ActionAdapterQuartzJob implements Job {
 
   static final Log log = LogFactory.getLog(ActionAdapterQuartzJob.class);
+  private static final long RETRY_COUNT = 6;
+  private static final long RETRY_SLEEP_AMOUNT = 10000;
 
   protected Class<?> resolveClass(JobDataMap jobDataMap) throws PluginBeanException, JobExecutionException {
     String actionClass = jobDataMap.getString(QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS);
@@ -66,21 +68,35 @@ public class ActionAdapterQuartzJob implements Job {
 
     Class<?> clazz = null;
 
-    if (!StringUtils.isEmpty(actionId)) {
-      IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class);
-      clazz = pluginManager.loadClass(actionId);
-    } else if (!StringUtils.isEmpty(actionClass)) {
-      try {
-        clazz = Class.forName(actionClass);
-      } catch (Exception e) {
-        throw new LoggingJobExecutionException(Messages.getInstance().getErrorString("ActionAdapterQuartzJob.ERROR_0002_FAILED_TO_CREATE_ACTION", //$NON-NLS-1$
-            actionClass), e);
-      }
-    } else {
+    if (StringUtils.isEmpty(actionId) && StringUtils.isEmpty(actionClass)) {
       throw new LoggingJobExecutionException(Messages.getInstance().getErrorString("ActionAdapterQuartzJob.ERROR_0001_REQUIRED_PARAM_MISSING", //$NON-NLS-1$
           QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS, QuartzScheduler.RESERVEDMAPKEY_ACTIONID));
     }
-    return clazz;
+
+    for (int i = 0; i < RETRY_COUNT; i++) {
+      try {
+        if (!StringUtils.isEmpty(actionId)) {
+          IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class);
+          clazz = pluginManager.loadClass(actionId);
+          return clazz;
+        } else if (!StringUtils.isEmpty(actionClass)) {
+          clazz = Class.forName(actionClass);
+          return clazz;
+        }
+      } catch (Throwable t) {
+        try {
+          Thread.sleep(RETRY_SLEEP_AMOUNT);
+        } catch (InterruptedException ie) {
+          log.info(ie.getMessage(), ie);
+        }
+      }
+    }
+
+    // we have failed to locate the class for the actionClass
+    // and we're giving up waiting for it to become available/registered
+    // which can typically happen at system startup
+    throw new LoggingJobExecutionException(Messages.getInstance().getErrorString("ActionAdapterQuartzJob.ERROR_0002_FAILED_TO_CREATE_ACTION", //$NON-NLS-1$
+        StringUtils.isEmpty(actionId) ? actionClass : actionId));
   }
 
   @SuppressWarnings("unchecked")
@@ -117,7 +133,8 @@ public class ActionAdapterQuartzJob implements Job {
     }
   }
 
-  protected void invokeAction(final IAction actionBean, final String actionUser, final JobDetail jobDetail, final Map<String, Serializable> params) throws Exception {
+  protected void invokeAction(final IAction actionBean, final String actionUser, final JobDetail jobDetail, final Map<String, Serializable> params)
+      throws Exception {
 
     // remove the scheduling infrastructure properties
     params.remove(QuartzScheduler.RESERVEDMAPKEY_ACTIONCLASS);
@@ -150,7 +167,7 @@ public class ActionAdapterQuartzJob implements Job {
           actionParams.remove("outputStream");
           ((IVarArgsAction) actionBean).setVarArgs(actionParams);
         }
-        
+
         if (streamProvider != null) {
           actionParams.remove("inputStream");
           if (actionBean instanceof IStreamingAction) {
@@ -164,7 +181,7 @@ public class ActionAdapterQuartzJob implements Job {
                 RepositoryFile sourceFile = repo.getFile(filePath);
                 // add metadata
                 Map<String, Serializable> metadata = repo.getFileMetadata(sourceFile.getId());
-                String lineageId = (String)params.get(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID);
+                String lineageId = (String) params.get(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID);
                 metadata.put(QuartzScheduler.RESERVEDMAPKEY_LINEAGE_ID, lineageId);
                 repo.setFileMetadata(sourceFile.getId(), metadata);
                 // send email
