@@ -449,6 +449,18 @@ public class QuartzScheduler implements IScheduler {
       org.quartz.SchedulerException {
     QuartzJobKey jobKey = QuartzJobKey.parse(job.getJobId());
     String groupName = jobKey.getUserName();
+    
+    // if we're editing a schedule, we need to adjust the start date to right now otherwise
+    // we will potentially fire "missed" triggers, for example if you have a weekly recurrence on a monday
+    // but edit on a tuesday, it will refire upon edit since edit = delete and add and it thinks the monday
+    // schedule has not happened yet
+    if (trigger.getStartTime() == null || trigger.getStartTime().before(new Date())) {
+      java.util.Calendar c = java.util.Calendar.getInstance();
+      c.setTime(new Date());
+      c.add(java.util.Calendar.MINUTE, -1);
+      trigger.setStartTime(c.getTime());
+    }    
+    
     if (trigger instanceof SimpleTrigger) {
       SimpleTrigger simpleTrigger = (SimpleTrigger) trigger;
       SimpleJobTrigger simpleJobTrigger = new SimpleJobTrigger();
@@ -477,9 +489,6 @@ public class QuartzScheduler implements IScheduler {
         }
       }
       complexJobTrigger.setCronString(((CronTrigger) trigger).getCronExpression());
-      if (trigger instanceof SimpleTrigger) {
-
-      }
     }
 
     int triggerState = scheduler.getTriggerState(job.getJobId(), groupName);
