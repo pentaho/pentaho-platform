@@ -172,4 +172,17 @@ INSERT INTO qrtz_locks values('CALENDAR_ACCESS');
 INSERT INTO qrtz_locks values('STATE_ACCESS');
 INSERT INTO qrtz_locks values('MISFIRE_ACCESS');
 
+ALTER TABLE qrtz_job_listeners OWNER TO pentaho_user;
+ALTER TABLE qrtz_trigger_listeners OWNER TO pentaho_user;
+ALTER TABLE qrtz_fired_triggers OWNER TO pentaho_user;
+ALTER TABLE qrtz_paused_trigger_grps OWNER TO pentaho_user;
+ALTER TABLE qrtz_scheduler_state OWNER TO pentaho_user;
+ALTER TABLE qrtz_locks OWNER TO pentaho_user;
+ALTER TABLE qrtz_simple_triggers OWNER TO pentaho_user;
+ALTER TABLE qrtz_cron_triggers OWNER TO pentaho_user;
+ALTER TABLE qrtz_blob_triggers OWNER TO pentaho_user;
+ALTER TABLE qrtz_triggers OWNER TO pentaho_user;
+ALTER TABLE qrtz_job_details OWNER TO pentaho_user;
+ALTER TABLE qrtz_calendars OWNER TO pentaho_user;
+
 commit;
