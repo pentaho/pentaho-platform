@@ -49,7 +49,7 @@ public class Job {
     NORMAL, PAUSED, COMPLETE, ERROR, BLOCKED, UNKNOWN
   };
 
-  IJobTrigger jobTrigger;
+  JobTrigger jobTrigger;
 
   Map<String, Serializable> jobParams = new HashMap<String, Serializable>();
 
@@ -74,7 +74,7 @@ public class Job {
    * @return the trigger that determines when the job executes
    */
   public JobTrigger getJobTrigger() {
-    return (JobTrigger) jobTrigger;
+    return jobTrigger;
   }
 
   /**
@@ -145,7 +145,7 @@ public class Job {
     if (!(jobTrigger instanceof JobTrigger)) {
       throw new IllegalArgumentException();
     }
-    this.jobTrigger = jobTrigger;
+    this.jobTrigger = (JobTrigger) jobTrigger;
   }
 
   /**

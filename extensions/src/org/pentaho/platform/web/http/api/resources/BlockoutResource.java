@@ -75,7 +75,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Path("/add")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   public Response addBlockout(JobScheduleRequest request) throws IOException {
-    request.setActionClass("org.pentaho.platform.scheduler2.blockout.BlockoutJob.class");
+    request.setActionClass("org.pentaho.platform.scheduler2.blockout.BlockoutAction");
     return schedulerResource.createJob(request);   
   }
 
