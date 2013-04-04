@@ -1,6 +1,8 @@
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
 /**
+ * Constants used by Pentaho Spring extensions
+ *
  * User: nbaker
  * Date: 3/6/13
  */

@@ -3,6 +3,8 @@ package org.pentaho.platform.engine.core.system.objfac.spring;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 /**
+ * Registers the custom tag handlers for our namespace.
+ *
  * User: nbaker
  * Date: 1/16/13
  */

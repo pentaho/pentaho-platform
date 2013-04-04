@@ -12,6 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Parses a bean from Spring XML
+ *
+ * {@code}
+ * <pen:bean class="com.foo.Clazz"/>
+ * {@code}
+ *
  * User: nbaker
  * Date: 3/2/13
  */

@@ -8,6 +8,12 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import java.util.*;
 
 /**
+ * Obtains references registered in the PentahoSystem for the given class, exposed as an ordered list by priority
+ *
+ * {@code}
+ * <pen:list class="com.foo.Clazz"/>
+ * {@code}
+ *
  * User: nbaker
  * Date: 3/2/13
  */

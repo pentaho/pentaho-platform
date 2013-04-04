@@ -8,6 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Obtains a reference to the requested bean from the PentahoSystem
+ *
+ * {@code}
+ * <pen:bean class="com.foo.Clazz"/>
+ * {@code}
+ *
  * User: nbaker
  * Date: 3/2/13
  */

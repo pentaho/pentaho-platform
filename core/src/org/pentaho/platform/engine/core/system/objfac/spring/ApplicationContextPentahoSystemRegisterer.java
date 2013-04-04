@@ -7,6 +7,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 /**
+ * When added as a bean to a Spring context this class will register the ApplicationContext as a
+ * StandalongSpringPentahoObjectFactory with the PentahoSystem
+ *
  * User: nbaker
  * Date: 3/31/13
  */

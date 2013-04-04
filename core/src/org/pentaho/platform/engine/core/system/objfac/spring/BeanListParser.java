@@ -12,6 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ *
+ * Parses a list bean from Spring XML
+ *
+ * {@code}
+ * <pen:list class="com.foo.Clazz"/>
+ * {@code}
+ *
  * User: nbaker
  * Date: 3/2/13
  */

@@ -14,6 +14,22 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ *
+ * Parses the publish tag of a bean. Exposing the bean to the PentahoSystem as an implementation of the given type.
+ * Beans can be published by a given type, as all implemented interfaces, as all inherited classes, a combination
+ * of all classes and interfaces, or by default as the class of the bean itself.
+ *
+ * Attributes embedded in the publish tag become available to the PentahoSystem to allow for querying of registered
+ * implementations. An attribute of "priority" is used to determine the order of registered implementations.
+ *
+ * <pen:bean class="com.foo.Clazz">
+ *    <pen:publish as-type="[ INTERFACES | CLASSES | ALL | Classname ]>
+ *      <pen:attributes>
+ *        <pen:attr key="priority" value="50"/>
+ *      </pen:attributes>
+ *    </pen:publish>
+ * </pen:bean>
+ *
  * User: nbaker
  * Date: 3/27/13
  */
@@ -78,18 +94,18 @@ public class BeanPublishParser implements BeanDefinitionDecorator {
         classesToPublish.add(getClass().getClassLoader().loadClass(publishType));
       }
 
-      String id = null;
+      String beanFactoryId = null;
 
       if(parserContext.getRegistry().containsBeanDefinition(Const.FACTORY_MARKER) == false){
-        id = UUID.randomUUID().toString();
+        beanFactoryId = UUID.randomUUID().toString();
         parserContext.getRegistry().registerBeanDefinition(Const.FACTORY_MARKER, BeanDefinitionBuilder.genericBeanDefinition(Marker.class).setScope(
-            BeanDefinition.SCOPE_PROTOTYPE).addConstructorArgValue(id).getBeanDefinition());
+            BeanDefinition.SCOPE_PROTOTYPE).addConstructorArgValue(beanFactoryId).getBeanDefinition());
       } else {
-        id = (String) parserContext.getRegistry().getBeanDefinition(Const.FACTORY_MARKER).getConstructorArgumentValues().getArgumentValue(0, String.class).getValue();
+        beanFactoryId = (String) parserContext.getRegistry().getBeanDefinition(Const.FACTORY_MARKER).getConstructorArgumentValues().getArgumentValue(0, String.class).getValue();
       }
 
       for(Class cls : classesToPublish){
-        PublishedBeanRegistry.registerBean(beanDefinitionHolder.getBeanName(), cls, id);
+        PublishedBeanRegistry.registerBean(beanDefinitionHolder.getBeanName(), cls, beanFactoryId);
       }
 
     } catch (ClassNotFoundException e) {

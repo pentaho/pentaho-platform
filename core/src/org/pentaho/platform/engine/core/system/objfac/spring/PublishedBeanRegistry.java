@@ -11,6 +11,9 @@ import org.springframework.context.support.GenericApplicationContext;
 import java.util.*;
 
 /**
+ * A Registry for published Spring beans. Also allows for looking up the names of all beans registered for a given type in
+ * the given Spring bean factory
+ *
  * User: nbaker
  * Date: 3/27/13
  */
@@ -20,7 +23,14 @@ public class PublishedBeanRegistry {
       new WeakHashMap<Object, Map<Class<?>, List<String>>>()
   );
 
-  public static void registerBean(String beanName, Class<?> clazz, Object factoryMarker) {
+  /**
+   * Register a bean for the given class. The factoryMarker is a UUID associated with the originating BeanFactory
+   *
+   * @param beanName
+   * @param clazz
+   * @param factoryMarker
+   */
+  public static void registerBean(String beanName, Class<?> clazz, Marker factoryMarker) {
     if(beanName == null){
       throw new IllegalArgumentException("Bean name cannot be null");
     }
@@ -44,6 +54,13 @@ public class PublishedBeanRegistry {
     beansImplementingType.add(beanName);
   }
 
+  /**
+   * Returns the names of beans registered in the given factory for the specified type
+   *
+   * @param registry
+   * @param type
+   * @return
+   */
   public static String[] getBeanNamesForType(ListableBeanFactory registry, Class<?> type) {
 
     if(registry == null){

@@ -7,6 +7,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
+ * Reads the attributes added to a bean and sets them on the BeanDefinition's Attributes collection.
+ *
+ * {@code}
+ * <pen:attributes>
+ *   <pen:attr key="key" value="value"/>
+ * </pen:attributes>
+ * {@code}
+ *
  * User: nbaker
  * Date: 1/16/13
  */
