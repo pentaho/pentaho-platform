@@ -183,15 +183,20 @@ public class ZipExportProcessor extends BaseExportProcessor {
       if (is != null) {
         addToManifest(repositoryFile);
         ZipEntry entry = new ZipEntry(getZipEntryName(repositoryFile, filePath));
-        zos.putNextEntry(entry);     
-        IOUtils.copy(is, outputStream); 
-        createLocales(repositoryFile, filePath, repositoryFile.isFolder(), outputStream);
+        zos.putNextEntry(entry);
+        IOUtils.copy(is, outputStream);       
         zos.closeEntry();
         is.close();
+        createLocales(repositoryFile, filePath, repositoryFile.isFolder(), outputStream);
       }
     }
   }
 
+  /**
+   * create an entry in the export manifest for this file or folder
+   * @param repositoryFile
+   * @throws ExportException
+   */
   private void addToManifest(RepositoryFile repositoryFile) throws ExportException {
     if (this.withManifest) {
       // add this entity to the manifest
@@ -213,7 +218,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
   public void exportDirectory(RepositoryFile repositoryDir, OutputStream outputStream, String filePath)
       throws ExportException, IOException {
     addToManifest(repositoryDir);
-   
+
     List<RepositoryFile> children = this.unifiedRepository.getChildren(repositoryDir.getId());
     for (RepositoryFile repositoryFile : children) {
       if (repositoryFile.isFolder()) {
@@ -242,12 +247,14 @@ public class ZipExportProcessor extends BaseExportProcessor {
     String result = "";
 
     // if we are at the root, get substring differently
-    int filePathLength = 0;
+    int filePathLength = filePath.length();
+    /*
     if (filePath.equals("/")) {
       filePathLength = filePath.length();
     } else {
       filePathLength = filePath.length() + 1;
     }
+    */
 
     result = repositoryFile.getPath().substring(filePathLength);
 
@@ -260,7 +267,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
   }
 
   /**
-   * for each locales stored in in Jcr create a file with the stored node properties
+   * for each locale stored in in Jcr create a .locale file with the stored node properties
    * @param zos
    * @param repositoryFile
    * @param filePath
@@ -272,30 +279,57 @@ public class ZipExportProcessor extends BaseExportProcessor {
     String localeName;
     Properties properties;
     ZipOutputStream zos = (ZipOutputStream) outputStrean;
-    String zipName = getZipEntryName(repositoryFile,filePath);
+    String zipName = createZipFileName(repositoryFile, filePath);
     String name = repositoryFile.getName();
     List<LocaleMapDto> locales = getAvailableLocales(repositoryFile.getId());
     for (LocaleMapDto locale : locales) {
       localeName = locale.getLocale().equalsIgnoreCase("default") ? "" : "_" + locale.getLocale();
-      long currentTime = +Calendar.getInstance().getTimeInMillis();
-      if (isFolder) {
+      //long currentTime = +Calendar.getInstance().getTimeInMillis();
+      if (isFolder) {       
+        zipName = zipName+"index";
         name = "index";
       } else {
         int index = name.lastIndexOf(".");
         name = name.substring(0, index);
+        if(name.equals("index")){
+          //this would be index.xml or index.xxx and does not have a locale entry
+          return;
+        }
       }
       properties = unifiedRepository.getLocalePropertiesForFileById(repositoryFile.getId(), locale.getLocale());
-      if (properties!= null) {        
-        createLocaleFile(name + currentTime + localeName, properties, locale.getLocale());
-        InputStream is = new FileInputStream(name+localeExt);
-        IOUtils.copy(is,outputStrean);
-        entry = new ZipEntry(name + currentTime + localeName + localeExt);
-        zos.putNextEntry(entry);
-        zos.closeEntry();
+      if (properties != null) {
+        InputStream is = createLocaleFile(name + localeName, properties, locale.getLocale());
+        if (is != null) {
+          entry = new ZipEntry(zipName + localeName + localeExt);          
+          zos.putNextEntry(entry);
+          IOUtils.copy(is, outputStrean);         
+          zos.closeEntry();
+          is.close();
+        }
       }
     }
   }
 
+  /**
+   * utility to lookup the path and fileName and strip off trailing fileTypes
+   * @param repositoryFile
+   * @param filePath
+   * @return
+   */
+  private String createZipFileName(RepositoryFile repositoryFile, String filePath) {
+    String zipName = getZipEntryName(repositoryFile, filePath);
+    int idx = zipName.lastIndexOf(".");
+    if (idx > 0) {
+      zipName = zipName.substring(0, idx);
+    }
+    return zipName;
+  }
+
+  /**
+   * lookup the list of available locale values
+   * @param fileId
+   * @return
+   */
   private List<LocaleMapDto> getAvailableLocales(Serializable fileId) {
     List<LocaleMapDto> availableLocales = new ArrayList<LocaleMapDto>();
     List<Locale> locales = unifiedRepository.getAvailableLocalesForFileById(fileId);
@@ -313,16 +347,20 @@ public class ZipExportProcessor extends BaseExportProcessor {
    * @param properties
    * @param locale
    * @throws IOException
+   * @returns inputStream pointer to created file or null
    */
-  private void createLocaleFile(String name, Properties properties, String locale) throws IOException {
-    // TODO Auto-generated method stub
+  private InputStream createLocaleFile(String name, Properties properties, String locale) throws IOException {
+    InputStream is = null;
     if (properties != null) {
       File localeFile = File.createTempFile(name, localeExt);
       localeFile.deleteOnExit();
       FileOutputStream fileOut = new FileOutputStream(localeFile);
-      properties.store(fileOut, "Locale = " + locale);     
+      properties.store(fileOut, "Locale = " + locale);
       fileOut.close();
+      is = new FileInputStream(localeFile);
+
     }
+    return is;
   }
 
 }
