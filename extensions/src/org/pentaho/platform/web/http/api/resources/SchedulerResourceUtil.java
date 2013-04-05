@@ -88,8 +88,15 @@ public class SchedulerResourceUtil {
     } else if (scheduleRequest.getCronJobTrigger() != null) {
 
       if (scheduler instanceof QuartzScheduler) {
-        ComplexJobTrigger complexJobTrigger = QuartzScheduler.createComplexTrigger(scheduleRequest.getCronJobTrigger()
-            .getCronString());
+        String cronString = scheduleRequest.getCronJobTrigger().getCronString();
+        
+        String delims = "[ ]+"; //$NON-NLS-1$
+        String[] tokens = cronString.split(delims);
+        if (tokens.length < 7) {
+          cronString += " *";
+        }
+        
+        ComplexJobTrigger complexJobTrigger = QuartzScheduler.createComplexTrigger(cronString);
         complexJobTrigger.setStartTime(scheduleRequest.getCronJobTrigger().getStartTime());
         complexJobTrigger.setEndTime(scheduleRequest.getCronJobTrigger().getEndTime());
         complexJobTrigger.setUiPassParam(scheduleRequest.getCronJobTrigger().getUiPassParam());

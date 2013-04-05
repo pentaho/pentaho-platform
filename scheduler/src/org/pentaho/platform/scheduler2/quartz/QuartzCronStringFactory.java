@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
+import org.pentaho.platform.scheduler2.recur.QualifiedDayOfMonth;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifier;
 import org.pentaho.platform.scheduler2.recur.RecurrenceList;
@@ -70,6 +71,8 @@ public class QuartzCronStringFactory {
         aString = getRecurrenceString((IncrementalRecurrence)recurrence);
       } else if (recurrence instanceof QualifiedDayOfWeek) {
         aString = getRecurrenceString((QualifiedDayOfWeek)recurrence);
+      } else if (recurrence instanceof QualifiedDayOfMonth) {
+        aString = getRecurrenceString((QualifiedDayOfMonth)recurrence);
       }
       if (aString.length() > 0) {
         stringBuffer.append(aString).append(","); //$NON-NLS-1$
@@ -96,6 +99,10 @@ public class QuartzCronStringFactory {
     }
     return aString;
   }
+  
+  private static String getRecurrenceString(QualifiedDayOfMonth qualifiedDayOfMonth) {
+    return qualifiedDayOfMonth.toString();
+  }  
   
   private static String getRecurrenceString(RecurrenceList recurrenceList) {
     StringBuffer stringBuffer = new StringBuffer();

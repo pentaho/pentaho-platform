@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
 import org.pentaho.platform.scheduler2.quartz.QuartzCronStringFactory;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
+import org.pentaho.platform.scheduler2.recur.QualifiedDayOfMonth;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.RecurrenceList;
 import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
@@ -38,6 +39,9 @@ import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
  */
 @XmlRootElement
 public class ComplexJobTrigger extends JobTrigger {
+  
+  private static final long serialVersionUID = -2742874361158319735L;
+  
   public static final int SUNDAY = 1;
   public static final int MONDAY = 2;
   public static final int TUESDAY = 3;
@@ -451,6 +455,7 @@ public class ComplexJobTrigger extends JobTrigger {
     {
       @XmlElementRef(type=SequentialRecurrence.class),
       @XmlElementRef(type=IncrementalRecurrence.class),
+      @XmlElementRef(type=QualifiedDayOfMonth.class),
       @XmlElementRef(type=RecurrenceList.class)
     }
   )

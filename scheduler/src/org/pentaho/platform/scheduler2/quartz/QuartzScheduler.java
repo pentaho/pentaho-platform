@@ -41,6 +41,7 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.messsages.Messages;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
+import org.pentaho.platform.scheduler2.recur.QualifiedDayOfMonth;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeek;
 import org.pentaho.platform.scheduler2.recur.QualifiedDayOfWeek.DayOfWeekQualifier;
@@ -85,6 +86,8 @@ public class QuartzScheduler implements IScheduler {
 
   private static final Pattern listPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
 
+  private static final Pattern dayOfWeekRangePattern = Pattern.compile(".*\\-.*"); //$NON-NLS-1$
+  
   private static final Pattern sequencePattern = Pattern.compile("\\d+\\-\\d+"); //$NON-NLS-1$
 
   private static final Pattern intervalPattern = Pattern.compile("\\d+/\\d+"); //$NON-NLS-1$
@@ -228,7 +231,8 @@ public class QuartzScheduler implements IScheduler {
     QuartzJobKey jobId = new QuartzJobKey(jobName, curUser);
 
     Trigger quartzTrigger = createQuartzTrigger(trigger, jobId);
-
+    quartzTrigger.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
+    
     Calendar triggerCalendar = quartzTrigger instanceof CronTrigger ? createQuartzCalendar((ComplexJobTrigger) trigger)
         : null;
 
@@ -263,6 +267,7 @@ public class QuartzScheduler implements IScheduler {
           "QuartzScheduler.ERROR_0001_FAILED_TO_SCHEDULE_JOB", jobName), e); //$NON-NLS-1$
     }
 
+    
     Job job = new Job();
     job.setJobParams(jobParams);
     job.setJobTrigger((JobTrigger) trigger);
@@ -606,7 +611,7 @@ public class QuartzScheduler implements IScheduler {
     complexJobTrigger.setHourlyRecurrence((ITimeRecurrence) null);
     complexJobTrigger.setMinuteRecurrence((ITimeRecurrence) null);
     complexJobTrigger.setSecondRecurrence((ITimeRecurrence) null);
-
+    
     for (ITimeRecurrence recurrence : parseRecurrence(cronExpression, 6)) {
       complexJobTrigger.addYearlyRecurrence(recurrence);
     }
@@ -668,9 +673,19 @@ public class QuartzScheduler implements IScheduler {
             } else if (lastDayPattern.matcher(token).matches()) {
               DayOfWeek dayOfWeek = DayOfWeek.values()[(Integer.parseInt(token.substring(0, token.length() - 1)) - 1) % 7];
               dayOfWeekRecurrence.add(new QualifiedDayOfWeek(DayOfWeekQualifier.LAST, dayOfWeek));
+            } else if (dayOfWeekRangePattern.matcher(token).matches()) {
+              String[] days = token.split("-"); //$NON-NLS-1$
+              int start = DayOfWeek.valueOf(days[0]).ordinal();
+              int finish = DayOfWeek.valueOf(days[1]).ordinal();
+              dayOfWeekRecurrence.add(new SequentialRecurrence(start, finish));
             } else {
-              throw new IllegalArgumentException(Messages.getInstance().getErrorString(
-                  "ComplexJobTrigger.ERROR_0001_InvalidCronExpression")); //$NON-NLS-1$
+              dayOfWeekList = new RecurrenceList();
+              dayOfWeekList.getValues().add(DayOfWeek.valueOf(token).ordinal());
+              dayOfWeekRecurrence.add(dayOfWeekList);
+              dayOfWeekList = null;
+//            } else {
+//              throw new IllegalArgumentException(Messages.getInstance().getErrorString(
+//                  "ComplexJobTrigger.ERROR_0001_InvalidCronExpression")); //$NON-NLS-1$
             }
           }
 
@@ -712,6 +727,8 @@ public class QuartzScheduler implements IScheduler {
             } else if (intervalPattern.matcher(token).matches()) {
               String[] days = token.split("/"); //$NON-NLS-1$
               timeRecurrence.add(new IncrementalRecurrence(Integer.parseInt(days[0]), Integer.parseInt(days[1])));
+            } else if ("L".equalsIgnoreCase(token)) {
+              timeRecurrence.add(new QualifiedDayOfMonth());
             } else {
               throw new IllegalArgumentException(Messages.getInstance().getErrorString(
                   "ComplexJobTrigger.ERROR_0001_InvalidCronExpression")); //$NON-NLS-1$
