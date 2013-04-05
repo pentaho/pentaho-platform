@@ -473,6 +473,9 @@ public class RepositoryTenantManager extends AbstractRepositoryTenantManager {
     repositoryFileDao.createFolder(pdiFolder.getId(), new RepositoryFile.Builder("slaveServers").folder(true).build(), new RepositoryFileAcl.Builder(fileOwnerSid).entriesInheriting(true).build(), null);
     repositoryFileDao.createFolder(pdiFolder.getId(), new RepositoryFile.Builder("clusterSchemas").folder(true).build(), new RepositoryFileAcl.Builder(fileOwnerSid).entriesInheriting(true).build(), null);
     repositoryFileDao.createFolder(pdiFolder.getId(), new RepositoryFile.Builder("partitionSchemas").folder(true).build(), new RepositoryFileAcl.Builder(fileOwnerSid).entriesInheriting(true).build(), null);
+    
+    repositoryFileDao.createFolder(etcFolder.getId(), new RepositoryFile.Builder("metastore").folder(true).build(), new RepositoryFileAcl.Builder(fileOwnerSid).entriesInheriting(true).build(), null);
+
     return etcFolder;
   }
   
