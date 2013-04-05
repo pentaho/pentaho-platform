@@ -100,15 +100,23 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
           if (selectedItem instanceof FileTreeItem) {
             RepositoryFile repositoryFile = ((FileTreeItem)selectedItem).getRepositoryFile();
             if(repositoryFile.isHidden()) {
-              ((LeafItemWidget) treeItemWidget).getLeafLabel().removeStyleDependentName("hiddenSelected"); //$NON-NLS-1$
-              ((LeafItemWidget) treeItemWidget).getLeafLabel().addStyleDependentName("hidden"); //$NON-NLS-1$
+              if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
+                ((LeafItemWidget) treeItemWidget).getParent().removeStyleName("selected"); //$NON-NLS-1$
+              } else {
+                selectedItem.removeStyleName("selected"); //$NON-NLS-1$
+              }
             } else {
               if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-                ((LeafItemWidget) treeItemWidget).getLeafLabel().removeStyleDependentName("selected"); //$NON-NLS-1$
-              }            }
+                ((LeafItemWidget) treeItemWidget).getParent().removeStyleName("selected"); //$NON-NLS-1$
+              } else {
+                selectedItem.removeStyleName("selected"); //$NON-NLS-1$
+              }
+            }
           } else {
             if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-              ((LeafItemWidget) treeItemWidget).getLeafLabel().removeStyleDependentName("selected"); //$NON-NLS-1$
+              ((LeafItemWidget) treeItemWidget).getParent().removeStyleName("selected"); //$NON-NLS-1$
+            } else {
+              selectedItem.removeStyleName("selected"); //$NON-NLS-1$
             }
           }
         }
@@ -118,16 +126,25 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
           if (selectedItem instanceof FileTreeItem) {
             RepositoryFile repositoryFile = ((FileTreeItem)selectedItem).getRepositoryFile();
             if(repositoryFile.isHidden()) {
-              ((LeafItemWidget) treeItemWidget).getLeafLabel().removeStyleDependentName("hidden"); //$NON-NLS-1$
-              ((LeafItemWidget) treeItemWidget).getLeafLabel().addStyleDependentName("hiddenSelected"); //$NON-NLS-1$
+              if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
+              ((LeafItemWidget) treeItemWidget).getParent().addStyleName("hidden"); //$NON-NLS-1$
+              ((LeafItemWidget) treeItemWidget).getParent().addStyleName("selected"); //$NON-NLS-1$
+              } else {
+                selectedItem.addStyleName("hidden"); //$NON-NLS-1$
+                selectedItem.addStyleName("selected"); //$NON-NLS-1$                
+              }
             } else {
               if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-                ((LeafItemWidget) treeItemWidget).getLeafLabel().addStyleDependentName("selected"); //$NON-NLS-1$
+                ((LeafItemWidget) treeItemWidget).getParent().addStyleName("selected"); //$NON-NLS-1$
+              } else {
+                selectedItem.addStyleName("selected"); //$NON-NLS-1$
               }
             }
           } else {
             if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
-              ((LeafItemWidget) treeItemWidget).getLeafLabel().addStyleDependentName("selected"); //$NON-NLS-1$
+              ((LeafItemWidget) treeItemWidget).getParent().addStyleName("selected"); //$NON-NLS-1$
+            } else {
+              selectedItem.addStyleName("selected"); //$NON-NLS-1$
             }
           }
         }
@@ -498,12 +515,14 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
         String localizedName = file.getTitle();
         String description = file.getDescription();
         FileTreeItem childTreeItem = new FileTreeItem();
+        childTreeItem.setStylePrimaryName("leaf-widget");
         childTreeItem.getElement().setAttribute("id", file.getPath());//$NON-NLS-1$
         childTreeItem.setUserObject(treeItem);
         childTreeItem.setRepositoryFile(file);
         if(file.isHidden() && file.isFolder()) {
           childTreeItem.addStyleDependentName("hidden");
-        }
+        } 
+        
         ElementUtils.killAllTextSelection(childTreeItem.getElement());
         childTreeItem.setURL(fileName);
         if (showLocalizedFileNames) {
