@@ -28,6 +28,7 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 public class DefaultExportHandler implements ExportHandler {
@@ -37,6 +38,8 @@ public class DefaultExportHandler implements ExportHandler {
 
   private IUnifiedRepository repository;
 
+  private List<String> localeExportList;
+  
   /**
    * Perform export with registered handlers
    */
@@ -70,4 +73,13 @@ public class DefaultExportHandler implements ExportHandler {
   public void setRepository(IUnifiedRepository repository) {
     this.repository = repository;
   }
+
+  public List<String> getLocaleExportList() {
+    return localeExportList;
+  }
+
+  public void setLocaleExportList(List<String> localeExportList) {
+    this.localeExportList = localeExportList;
+  }
+  
 }
