@@ -30,6 +30,7 @@ public class LaunchPanel extends Frame {
   Image launchAnalysisViewImage;
   Image manageContentImage;
   private static final String ALLOW_TRANSPARENCY_ATTRIBUTE = "allowTransparency";
+  private static final String REMOVE_IFRAME_BORDERS = "frameBorder";
 
   public LaunchPanel() {
 
@@ -45,6 +46,9 @@ public class LaunchPanel extends Frame {
     url = mypath + url;
     IFrameTabPanel.setUrl(this.getElement(), url);
     this.getElement().setAttribute(ALLOW_TRANSPARENCY_ATTRIBUTE, "true");
+
+    // BISERVER-7661 Mantle sections have a border on IE9 (not on chrome, firefox)
+    this.getElement().setAttribute(REMOVE_IFRAME_BORDERS, "0");
   }
 
   @Override
