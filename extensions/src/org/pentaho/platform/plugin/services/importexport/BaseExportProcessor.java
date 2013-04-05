@@ -49,7 +49,7 @@ public abstract class BaseExportProcessor{
   final protected static String EXPORT_INFO_TIME_FORMAT = "hh:mm:ss z";
   final protected static String EXPORT_TEMP_FILENAME_PREFIX = "repoExport";
   final protected static String EXPORT_TEMP_FILENAME_EXT = ".zip";
-
+  final protected static String LOCALE_EXT = ".locale";
   /**
    *
    */
