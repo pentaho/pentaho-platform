@@ -28,6 +28,7 @@ import javax.sql.DataSource;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.security.IRoleMapper;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -72,6 +73,8 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
   private String rolePrefix;
   
   private List<String> systemRoles;
+
+  private IRoleMapper roleMapper;
 
   // ~ Constructors
   // ===========================================================
@@ -156,7 +159,15 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
   }
 
   public List<String> getUsersInRole(final String role) {
-    List<String> allUserNamesInRole = allUsernamesInRoleMapping.execute(role);
+
+    String roleToTest = role;
+
+    if(roleMapper != null){
+      roleToTest = roleMapper.fromPentahoRole(role);
+    }
+
+    List<String> allUserNamesInRole = allUsernamesInRoleMapping.execute(roleToTest);
+
     return allUserNamesInRole;
   }
 
@@ -229,8 +240,13 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
     UserDetails user = userDetailsService.loadUserByUsername(username);
     List<String> roles = new ArrayList<String>(user.getAuthorities().length);
     for (GrantedAuthority role : user.getAuthorities()) {
-      roles.add(role.getAuthority());
+      if(roleMapper != null) {
+        roles.add(roleMapper.toPentahoRole(role.getAuthority()));
+      } else {
+        roles.add(role.getAuthority());
+      }
     }
+
     return roles;
   }
 
@@ -283,5 +299,9 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
   @Override
   public List<String> getSystemRoles() {
     return systemRoles;
+  }
+
+  public void setRoleMapper(IRoleMapper roleMapper) {
+    this.roleMapper = roleMapper;
   }
 }

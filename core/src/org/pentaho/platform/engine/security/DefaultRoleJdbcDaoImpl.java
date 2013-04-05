@@ -1,7 +1,9 @@
 package org.pentaho.platform.engine.security;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.pentaho.platform.api.engine.security.IRoleMapper;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
@@ -27,6 +29,8 @@ public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
    */
   private GrantedAuthority defaultRole;
 
+  private IRoleMapper roleMapper;
+
   // ~ Constructors ====================================================================================================
 
   
@@ -49,6 +53,19 @@ public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
     if (defaultRole != null && !authorities.contains(defaultRole)) {
       authorities.add(defaultRole);
     }
+
+    // also add roles mapped to pentaho security roles if available
+    if(roleMapper != null) {
+      List<GrantedAuthority> currentAuthorities = new ArrayList<GrantedAuthority>();
+      currentAuthorities.addAll(authorities);
+
+      for (GrantedAuthority role : currentAuthorities) {
+        GrantedAuthority mappedRole = new GrantedAuthorityImpl(roleMapper.toPentahoRole(role.getAuthority()));
+        if(!authorities.contains(mappedRole)){
+          authorities.add(mappedRole);
+        }
+      }
+    }
   }
 
   /**
@@ -61,4 +78,7 @@ public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
     this.defaultRole = new GrantedAuthorityImpl(defaultRole);
   }
 
+  public void setRoleMapper(IRoleMapper roleMapper) {
+    this.roleMapper = roleMapper;
+  }
 }
