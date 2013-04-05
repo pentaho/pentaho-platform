@@ -56,10 +56,6 @@ public abstract class AbstractImportSource implements org.pentaho.platform.plugi
     mimeTypes.put("xmi", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("xml", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("xreportspec", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
-    mimeTypes.put("waqr.xaction", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
-    mimeTypes.put("waqr.xreportspec", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
-    mimeTypes.put("waqr.xml", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
-    mimeTypes.put("xwaqr", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("cda", "text/xml"); //$NON-NLS-1$ //$NON-NLS-2$
     mimeTypes.put("xls", "application/vnd.ms-excel"); //$NON-NLS-1$ //$NON-NLS-2$   
     mimeTypes.put(null, null);

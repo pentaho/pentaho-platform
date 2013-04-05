@@ -9,7 +9,6 @@
       <menupopup id="file-submenu-classic">
 		<menu id="file-new-menu" label="New">
 		  <menupopup id="file-new-submenu-classic">
-	        <menuitem id="new-report-menuitem" label="New Report" command="javascript:popPage('adhoc/waqr.html')"/>
 	        <menuitem id="new-pivot-menuitem" label="New Analysis View" command="javascript:popPage('NewAnalysisView')"/>
           </menupopup>
         </menu>

@@ -28,8 +28,6 @@
         <entry key="xcdf" value-ref="streamConverter"/>
         <entry key="xdash" value-ref="streamConverter"/>
         <entry key="xreportspec" value-ref="streamConverter"/>
-        <entry key="waqr.xaction" value-ref="streamConverter"/>
-        <entry key="xwaqr" value-ref="streamConverter"/>
         <entry key="gif" value-ref="streamConverter"/>
         <entry key="css" value-ref="streamConverter"/>
         <entry key="html" value-ref="streamConverter"/>
@@ -91,10 +89,6 @@
                 <entry key="xmi" value="text/xml"/>
                 <entry key="xml" value="text/xml"/>
                 <entry key="xreportspec" value="text/xml"/>
-                <entry key="waqr.xaction" value="text/xml"/>
-                <entry key="waqr.xreportspec" value="text/xml"/>
-                <entry key="waqr.xml" value="text/xml"/>
-                <entry key="xwaqr" value="text/xml"/>
                 <entry key="cda" value="text/xml"/>
                 <entry key="xls" value="application/vnd.ms-excel"/>
             </map>
@@ -135,10 +129,6 @@
                                 <value>.xdash</value>
                                 <value>.xml</value>
                                 <value>.xreportspec</value>
-                                <value>.waqr.xaction</value>
-                                <value>.waqr.xreportspec</value>
-                                <value>.waqr.xml</value>
-                                <value>.xwaqr</value>
                                 <value>.cda</value>
                                 <value>.xls</value>
                             </list>

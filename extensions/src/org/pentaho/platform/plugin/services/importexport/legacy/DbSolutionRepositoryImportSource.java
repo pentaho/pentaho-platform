@@ -229,9 +229,7 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
           } else {
             lastModificationDate = new Date(rs.getLong(6));
           }
-          currentFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(name))
-              .hidden(WAQRFilesMigrationHelper.hideFileCheck(name)).folder(folder).lastModificationDate(lastModificationDate)
-              .build();
+          currentFile = new RepositoryFile.Builder(name).hidden(false).folder(folder).lastModificationDate(lastModificationDate).build();
           // currentTmpFile holds contents (i.e. data) of currentFile
           currentTmpFile = null;
           currentCharset = null;
@@ -348,11 +346,6 @@ public class DbSolutionRepositoryImportSource extends AbstractImportSource {
         } else {
           logger.debug(name + " is binary");
           FileOutputStream out = new FileOutputStream(tmp);
-          if (WAQRFilesMigrationHelper.isOldXWAQRFile(name)) {
-            WAQRFilesMigrationHelper.convertToNewXWAQR(in, out);
-          } else if (WAQRFilesMigrationHelper.isOldXreportSpecFile(name)) {
-            WAQRFilesMigrationHelper.convertToNewXreportSpec(in, out);
-          }
           IOUtils.copy(in, out);
           IOUtils.closeQuietly(in);
           IOUtils.closeQuietly(out);

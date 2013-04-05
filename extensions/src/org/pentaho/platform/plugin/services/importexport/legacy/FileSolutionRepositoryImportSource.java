@@ -92,15 +92,9 @@ public class FileSolutionRepositoryImportSource extends AbstractImportSource {
   }
 
   protected IRepositoryFileBundle getFile(final File currentFile, final String filename) {
-    if (WAQRFilesMigrationHelper.isOldXWAQRFile(filename)) {
-      WAQRFilesMigrationHelper.convertToNewXWAQR(currentFile);
-    } else if (WAQRFilesMigrationHelper.isOldXreportSpecFile(filename)) {
-      WAQRFilesMigrationHelper.convertToNewXreportSpec(currentFile);
-    }
-
-    final String name = WAQRFilesMigrationHelper.convertToNewExtension(filename);
+    final String name = filename;
     final boolean directory = currentFile.isDirectory();
-    final boolean hidden = WAQRFilesMigrationHelper.hideFileCheck(filename);
+    final boolean hidden = false;
     final Date lastModifiedDate = new Date(currentFile.lastModified());
     final RepositoryFile repoFile = new RepositoryFile.Builder(name)
         .folder(directory).hidden(hidden)

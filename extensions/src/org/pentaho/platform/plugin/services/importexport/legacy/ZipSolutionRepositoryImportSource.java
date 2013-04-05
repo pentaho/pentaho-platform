@@ -71,20 +71,11 @@ public class ZipSolutionRepositoryImportSource extends AbstractImportSource {
           tempFile = File.createTempFile("zip", null);
           tempFile.deleteOnExit();
           FileOutputStream fos = new FileOutputStream(tempFile);
-          if (WAQRFilesMigrationHelper.isOldXWAQRFile(entryName)) {
-            WAQRFilesMigrationHelper.convertToNewXWAQR(zipInputStream, fos);
-          } else if (WAQRFilesMigrationHelper.isOldXreportSpecFile(entryName)) {
-            WAQRFilesMigrationHelper.convertToNewXreportSpec(zipInputStream, fos);
-          } else {
-            IOUtils.copy(zipInputStream, fos);
-          }
-
+          IOUtils.copy(zipInputStream, fos);
           fos.close();
         }
         File file = new File(entryName);
-        RepositoryFile repoFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(file.getName()))
-            .folder(isDir).hidden(WAQRFilesMigrationHelper.hideFileCheck(file.getName())).build();
-
+        RepositoryFile repoFile = new RepositoryFile.Builder(file.getName()).folder(isDir).hidden(false).build();
         String parentDir = new File(entryName).getParent() == null ? "/" : new File(entryName).getParent() + "/";
         org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle repoFileBundle = new org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle(repoFile, null, parentDir,
             tempFile, charSet, getMimeType(extension.toLowerCase()));

@@ -3,3 +3,5 @@
 /${solution.dir.server}
 /plugins
 /solution-archives
+/dist
+/lib
