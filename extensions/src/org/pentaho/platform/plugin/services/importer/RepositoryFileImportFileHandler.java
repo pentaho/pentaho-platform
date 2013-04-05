@@ -61,15 +61,18 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     getLogger().trace("Processing [" + repositoryFilePath + "]");
 
     // Verify if destination already exists in the repository.
-    final RepositoryFile file = repository.getFile(repositoryFilePath);
+    RepositoryFile file = repository.getFile(repositoryFilePath);
     if (file != null) {
       if (bundle.overwriteInRepossitory()) {
         // If file exists, overwrite is true and is not a folder then update it.
         if (!file.isFolder()) {
+          file = finalAdjustFile(bundle, file);
           copyFileToRepository(bundle, repositoryFilePath, file);
         } else {
           // The folder exists. Possible ACL changes.
           getLogger().trace("Existing folder [" + repositoryFilePath + "]");
+          file = finalAdjustFolder(bundle, file.getId());
+          repository.updateFolder(file, null);
           if (bundle.getAcl() != null) {
             updateAclFromBundle(false, bundle, file);
           }
@@ -87,11 +90,12 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         // The file doesn't exist and it is a folder. Create folder.
         getLogger().trace("Creating folder [" + repositoryFilePath + "]");
         final Serializable parentId = getParentId(repositoryFilePath);
+        RepositoryFile repoFile = finalAdjustFolder(bundle, null);
         if (bundle.getAcl() != null) {
-          RepositoryFile repositoryFile = repository.createFolder(parentId, bundle.getFile(), bundle.getAcl(), null);
-          updateAclFromBundle(true, bundle, repositoryFile);
+          repoFile = repository.createFolder(parentId, repoFile, bundle.getAcl(), null);
+          updateAclFromBundle(true, bundle, repoFile);
         } else {
-          repository.createFolder(parentId, bundle.getFile(), null);
+          repository.createFolder(parentId, repoFile, null);
         }
       } else {
         // The file doesn't exist. Create file.
@@ -99,6 +103,16 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         copyFileToRepository(bundle, repositoryFilePath, null);
       }
     }
+  }
+  
+  private RepositoryFile finalAdjustFolder(RepositoryFileImportBundle bundle, Serializable id) {
+    RepositoryFile repoFile = new RepositoryFile.Builder(bundle.getFile()).hidden(bundle.isHidden()).id(id).build();
+    return repoFile;
+  }
+  
+  private RepositoryFile finalAdjustFile(RepositoryFileImportBundle bundle, RepositoryFile file) {
+    RepositoryFile repoFile = new RepositoryFile.Builder(file).hidden(bundle.isHidden()).build();
+    return repoFile;  
   }
 
   /**
@@ -139,10 +153,10 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       IRepositoryFileData data = converter.convert(bundle.getInputStream(), bundle.getCharset(), mimeType);
       if (null == file) {
         RepositoryFile repositoryFile = createFile(bundle, repositoryPath, data);
-          updateAclFromBundle(true, bundle, repositoryFile);
+        updateAclFromBundle(true, bundle, repositoryFile);
       } else {
         RepositoryFile repositoryFile = repository.updateFile(file, data, bundle.getComment());
-          updateAclFromBundle(false, bundle, repositoryFile);
+        updateAclFromBundle(false, bundle, repositoryFile);
       }
 
       return true;
