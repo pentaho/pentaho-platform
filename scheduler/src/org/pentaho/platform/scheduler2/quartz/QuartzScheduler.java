@@ -34,8 +34,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.scheduler2.*;
+import org.pentaho.platform.api.scheduler2.ComplexJobTrigger;
+import org.pentaho.platform.api.scheduler2.IBackgroundExecutionStreamProvider;
+import org.pentaho.platform.api.scheduler2.IJobFilter;
+import org.pentaho.platform.api.scheduler2.IJobResult;
+import org.pentaho.platform.api.scheduler2.IJobTrigger;
+import org.pentaho.platform.api.scheduler2.IScheduleSubject;
+import org.pentaho.platform.api.scheduler2.IScheduler;
+import org.pentaho.platform.api.scheduler2.ISchedulerListener;
+import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.Job.JobState;
+import org.pentaho.platform.api.scheduler2.JobTrigger;
+import org.pentaho.platform.api.scheduler2.SchedulerException;
+import org.pentaho.platform.api.scheduler2.SimpleJobTrigger;
 import org.pentaho.platform.api.scheduler2.recur.ITimeRecurrence;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.security.SecurityHelper;
@@ -87,7 +98,7 @@ public class QuartzScheduler implements IScheduler {
   private static final Pattern listPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
 
   private static final Pattern dayOfWeekRangePattern = Pattern.compile(".*\\-.*"); //$NON-NLS-1$
-  
+
   private static final Pattern sequencePattern = Pattern.compile("\\d+\\-\\d+"); //$NON-NLS-1$
 
   private static final Pattern intervalPattern = Pattern.compile("\\d+/\\d+"); //$NON-NLS-1$
@@ -232,7 +243,7 @@ public class QuartzScheduler implements IScheduler {
 
     Trigger quartzTrigger = createQuartzTrigger(trigger, jobId);
     quartzTrigger.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
-    
+
     Calendar triggerCalendar = quartzTrigger instanceof CronTrigger ? createQuartzCalendar((ComplexJobTrigger) trigger)
         : null;
 
@@ -267,7 +278,6 @@ public class QuartzScheduler implements IScheduler {
           "QuartzScheduler.ERROR_0001_FAILED_TO_SCHEDULE_JOB", jobName), e); //$NON-NLS-1$
     }
 
-    
     Job job = new Job();
     job.setJobParams(jobParams);
     job.setJobTrigger((JobTrigger) trigger);
@@ -444,18 +454,20 @@ public class QuartzScheduler implements IScheduler {
       org.quartz.SchedulerException {
     QuartzJobKey jobKey = QuartzJobKey.parse(job.getJobId());
     String groupName = jobKey.getUserName();
-    
+
     // if we're editing a schedule, we need to adjust the start date to right now otherwise
     // we will potentially fire "missed" triggers, for example if you have a weekly recurrence on a monday
     // but edit on a tuesday, it will refire upon edit since edit = delete and add and it thinks the monday
     // schedule has not happened yet
     if (trigger.getStartTime() == null || trigger.getStartTime().before(new Date())) {
-      java.util.Calendar c = java.util.Calendar.getInstance();
-      c.setTime(new Date());
-      c.add(java.util.Calendar.MINUTE, -1);
-      trigger.setStartTime(c.getTime());
-    }    
-    
+
+      // TODO: Verify an "edit" is being performed before performing the below operations
+      //      java.util.Calendar c = java.util.Calendar.getInstance();
+      //      c.setTime(new Date());
+      //      c.add(java.util.Calendar.MINUTE, -1);
+      //      trigger.setStartTime(c.getTime());
+    }
+
     if (trigger instanceof SimpleTrigger) {
       SimpleTrigger simpleTrigger = (SimpleTrigger) trigger;
       SimpleJobTrigger simpleJobTrigger = new SimpleJobTrigger();
@@ -611,7 +623,7 @@ public class QuartzScheduler implements IScheduler {
     complexJobTrigger.setHourlyRecurrence((ITimeRecurrence) null);
     complexJobTrigger.setMinuteRecurrence((ITimeRecurrence) null);
     complexJobTrigger.setSecondRecurrence((ITimeRecurrence) null);
-    
+
     for (ITimeRecurrence recurrence : parseRecurrence(cronExpression, 6)) {
       complexJobTrigger.addYearlyRecurrence(recurrence);
     }
@@ -683,9 +695,9 @@ public class QuartzScheduler implements IScheduler {
               dayOfWeekList.getValues().add(DayOfWeek.valueOf(token).ordinal());
               dayOfWeekRecurrence.add(dayOfWeekList);
               dayOfWeekList = null;
-//            } else {
-//              throw new IllegalArgumentException(Messages.getInstance().getErrorString(
-//                  "ComplexJobTrigger.ERROR_0001_InvalidCronExpression")); //$NON-NLS-1$
+              //            } else {
+              //              throw new IllegalArgumentException(Messages.getInstance().getErrorString(
+              //                  "ComplexJobTrigger.ERROR_0001_InvalidCronExpression")); //$NON-NLS-1$
             }
           }
 
