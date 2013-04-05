@@ -39,8 +39,8 @@ public class LeafItemWidget extends Composite {
     
     leafLabel = new Label(title);
     leafLabel.removeStyleName("gwt-Label");
-    leafLabel.addStyleName("gwt-TreeItem");
     widget.add(leafLabel);
+    widget.setCellWidth(leafLabel, "100%");
   }
   public Image getLeafImage() {
     return leafImage;
