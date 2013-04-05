@@ -3,7 +3,7 @@ package org.pentaho.platform.engine.security;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.pentaho.platform.api.engine.security.IRoleMapper;
+import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
@@ -29,7 +29,7 @@ public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
    */
   private GrantedAuthority defaultRole;
 
-  private IRoleMapper roleMapper;
+  private IAuthenticationRoleMapper roleMapper;
 
   // ~ Constructors ====================================================================================================
 
@@ -78,7 +78,7 @@ public class DefaultRoleJdbcDaoImpl extends JdbcDaoImpl {
     this.defaultRole = new GrantedAuthorityImpl(defaultRole);
   }
 
-  public void setRoleMapper(IRoleMapper roleMapper) {
+  public void setRoleMapper(IAuthenticationRoleMapper roleMapper) {
     this.roleMapper = roleMapper;
   }
 }

@@ -1,7 +1,7 @@
 package org.pentaho.platform.plugin.services.security.userrole.ldap;
 
 
-import org.pentaho.platform.api.engine.security.IRoleMapper;
+import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -11,14 +11,14 @@ import org.springframework.security.providers.ldap.LdapAuthenticator;
 
 public class DefaultLdapAuthenticationProvider extends LdapAuthenticationProvider{
 
-	private IRoleMapper roleMapper;
+	private IAuthenticationRoleMapper roleMapper;
 
-	public DefaultLdapAuthenticationProvider(LdapAuthenticator authenticator, IRoleMapper roleMapper) {
+	public DefaultLdapAuthenticationProvider(LdapAuthenticator authenticator, IAuthenticationRoleMapper roleMapper) {
 		super(authenticator);
 		this.roleMapper = roleMapper; 
 	}
 	
-	public DefaultLdapAuthenticationProvider(LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator, IRoleMapper roleMapper) {
+	public DefaultLdapAuthenticationProvider(LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator, IAuthenticationRoleMapper roleMapper) {
 		super(authenticator, authoritiesPopulator);
 		this.roleMapper = roleMapper; 
 	}

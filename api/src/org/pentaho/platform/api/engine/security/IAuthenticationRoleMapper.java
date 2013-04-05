@@ -21,7 +21,7 @@ package org.pentaho.platform.api.engine.security;
  * Map ldap roles to pentaho security roles using map defined
  * in spring configuration (applicationContext-spring-security-ldap.xml)
  */
-public interface IRoleMapper {
+public interface IAuthenticationRoleMapper {
 
   /**
    * Take a string name of third party role and return mapped pentaho security role

@@ -21,12 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.pentaho.platform.api.engine.security.IRoleMapper;
+import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 
 /**
  * Map ldap role to pentaho security role
  */
-public class DefaultLdapRoleMapper implements IRoleMapper {
+public class DefaultLdapRoleMapper implements IAuthenticationRoleMapper {
 
   Map<String,String> roleMap;
 

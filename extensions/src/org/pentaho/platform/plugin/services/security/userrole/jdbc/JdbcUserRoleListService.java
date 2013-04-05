@@ -22,13 +22,12 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.api.engine.security.IRoleMapper;
+import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
@@ -74,7 +73,7 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
   
   private List<String> systemRoles;
 
-  private IRoleMapper roleMapper;
+  private IAuthenticationRoleMapper roleMapper;
 
   // ~ Constructors
   // ===========================================================
@@ -301,7 +300,7 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
     return systemRoles;
   }
 
-  public void setRoleMapper(IRoleMapper roleMapper) {
+  public void setRoleMapper(IAuthenticationRoleMapper roleMapper) {
     this.roleMapper = roleMapper;
   }
 }

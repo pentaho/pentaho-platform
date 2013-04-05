@@ -23,13 +23,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
-import org.pentaho.platform.api.engine.security.IRoleMapper;
+import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
-import org.pentaho.platform.core.mt.Tenant;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.plugin.services.security.userrole.ldap.search.LdapSearch;
 import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -75,7 +72,7 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
   
   private List<String> systemRoles;
   
-  private IRoleMapper roleMapper;
+  private IAuthenticationRoleMapper roleMapper;
   // ~ Constructors ====================================================================================================
 
   public DefaultLdapUserRoleListService() {
@@ -88,7 +85,7 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
 	    this.roleComparator = roleComparator;
   }
   
-  public DefaultLdapUserRoleListService(final Comparator<String> usernameComparator, final Comparator<String> roleComparator, final IRoleMapper roleMapper) {
+  public DefaultLdapUserRoleListService(final Comparator<String> usernameComparator, final Comparator<String> roleComparator, final IAuthenticationRoleMapper roleMapper) {
     this(usernameComparator, roleComparator);
     this.roleMapper = roleMapper;
   }

@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.security.IRoleMapper;
+import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -39,7 +39,7 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
 
   private GrantedAuthority defaultRole;
 
-  private IRoleMapper roleMapper;
+  private IAuthenticationRoleMapper roleMapper;
 
   // ~ Constructors ====================================================================================================
 
@@ -76,7 +76,7 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
     this.defaultRole = new GrantedAuthorityImpl(defaultRole);
   }
 
-  public void setRoleMapper(final IRoleMapper roleMapper){
+  public void setRoleMapper(final IAuthenticationRoleMapper roleMapper){
     this.roleMapper = roleMapper;
   }
 
@@ -98,7 +98,7 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
 
     private GrantedAuthority[] newRoles;
 
-    private IRoleMapper roleMapper;
+    private IAuthenticationRoleMapper roleMapper;
 
     // ~ Constructors ==================================================================================================
 
@@ -106,7 +106,7 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
       this(userDetails, defaultRole, null);
     }
 
-    public DefaultRoleUserDetailsProxy(final UserDetails userDetails, final GrantedAuthority defaultRole, final IRoleMapper roleMapper) {
+    public DefaultRoleUserDetailsProxy(final UserDetails userDetails, final GrantedAuthority defaultRole, final IAuthenticationRoleMapper roleMapper) {
       super();
       Assert.notNull(userDetails);
       Assert.notNull(defaultRole);

@@ -17,7 +17,7 @@
  */
 package org.pentaho.platform.engine.security;
 
-import org.pentaho.platform.api.engine.security.IRoleMapper;
+import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +26,7 @@ import java.util.Map.Entry;
 /**
  * Map role to pentaho security role
  */
-public class DefaultJdbcRoleMapper implements IRoleMapper {
+public class DefaultJdbcRoleMapper implements IAuthenticationRoleMapper {
 
   Map<String,String> roleMap;
 
