@@ -453,28 +453,7 @@ a:active, a:hover {
   color: #888;
 }
 
-.gwt-Tree {
-  background: white;
-}
 
-
-.gwt-Tree .gwt-TreeItem-selected {
-  background-color: #DDDDDD;
-}
-
-.gwt-Tree .gwt-TreeItem-hidden {
-	width: 100%;
-	opacity: .7;
-	font-style: italic;
-	background-color: #ffffff;
-}
-
-.gwt-Tree .gwt-TreeItem-hiddenSelected {
-	width: 100%;
-	opacity: .7;
-	font-style: italic;
-	background-color: #dbdbdb;
-}
 
 .gwt-StackPanel {
   background-color: #EEEEEE;
@@ -684,28 +663,32 @@ a:active, a:hover {
   background: transparent;
 }
 
-#solutionTree .gwt-TreeItem{
-  font-size: .8em;
+.leaf-widget {
+     font-size: .8em;
+ }
+
+.leaf-widget .gwt-TreeItem > table {
+	
 }
 
-#solutionTree .gwt-TreeItem-selected{
-  font-size: .8em;
+.leaf-widget .gwt-TreeItem-selected > table {
   background-color: #dbdbdb;
 }
 
-#solutionTree .gwt-TreeItem-hidden {
+.leaf-widget .leaf-widget-hidden .gwt-TreeItem > table {
 	width: 100%;
 	opacity: .7;
 	font-style: italic;
 	background-color: #ffffff;
 }
 
-#solutionTree .gwt-TreeItem-hiddenSelected {
+.leaf-widget .leaf-widget-hidden .gwt-TreeItem-selected > table {
 	width: 100%;
 	opacity: .7;
 	font-style: italic;
 	background-color: #dbdbdb;
 }
+
 
 .gwt-MenuItem,
 .gwt-MenuItem-selected,
