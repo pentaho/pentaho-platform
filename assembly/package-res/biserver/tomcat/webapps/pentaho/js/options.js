@@ -49,14 +49,6 @@ function getOptions( solution, path, filename, target, isFolder, furl, propertie
 		actions += "<a href=\""+url+"\" target=\""+target+"\">Run</a>&nbsp;|&nbsp;";
 		actions += "<a href='javascript:runInBackground(\"" + url + "\", \"" + target + "\");'>Background</a>";
 
-		if ( isWaqrAction( filename ) )
-		{
-			var waqrEditUrl = getWaqrEditUrl( solution, path, filename, furl );
-			actions +=  "&nbsp;|&nbsp;<a href=\""+waqrEditUrl+"\" target=\""+target+"\">Open</a>";
-
-			var waqrDeleteUrl = getWaqrDeleteUrl( solution, path, filename );
-			actions +=  "&nbsp;|&nbsp;<a href='" + waqrDeleteUrl + "'>Delete</a>";
-		}
     actions += getShareOption( solution, path, filename, target, furl, hasModifyAcl );
 		
 		if( properties.indexOf( "subscribable=true" ) != -1 ) {		
@@ -76,86 +68,10 @@ function encodeSingleQuote( str )
 	return str.replace( /'/g, "&apos;" );
 };
 
-function getWaqrDeleteUrl( solution, path, filename )
-{
-  var xreportSpecFilename = getBaseWaqrFilename( filename ) + ".xreportspec";
-  var url = "javascript:deleteWaqrReport(\"" 
-    + encodeSingleQuote( solution ) + "\",\"" 
-    + encodeSingleQuote( path ) + "\",\"" 
-    + encodeSingleQuote( xreportSpecFilename ) + "\");";
-  
-	return url;
-};
-
-function deleteWaqrReport( solution, path, filename )
-{
-	var yes = window.confirm( "Please confirm that you want to delete " + filename + ".");
-	try {
-		if ( yes )
-		{
-			var component = "deleteWaqrReport";
-			var params = {
-        solution: solution,
-        path: path,
-        filename: filename
-			};
-			var responseMsg = WebServiceProxy.post( WebServiceProxy.ADHOC_WEBSERVICE_URL, component, params, undefined, 'text/xml' );
-			if ( undefined !== responseMsg )
-  			{
-  			var errorMsg = XmlUtil.getErrorMsg( responseMsg );
-  			if ( errorMsg )
-  			{
-  				alert( errorMsg );
-  			}
-  			else
-  			{
-  				var statusMsg = XmlUtil.getStatusMsg( responseMsg );
-  				if ( statusMsg )
-  				{
-  					alert( statusMsg );
-  				}
-  				// refresh the page so that the deleted xaction is no longer there
-  				window.location = window.location;
-  			}
-			}
-      // else the user session has expired, WebServiceProxy.post 
-      // will take care of prompting the user to login again.
-		}
-	}
-	catch( e )
-	{
-		alert( e );
-	}
-};
-
-function getWaqrEditUrl( solution, path, filename, url )
-{
-	var beginUrl = getProtocolHostPortContextParts( url ) + "/adhoc/waqr.html";
-	var baseFilename = getBaseWaqrFilename( filename );
-  var queryString = "?solution=" + encodeURIComponent( solution )
-    + "&path=" + encodeURIComponent( path )
-    + "&filename=" + encodeURIComponent( baseFilename ) + ".xreportspec";
-  
-	return beginUrl + queryString;
-};
-function getBaseWaqrFilename( filename )
-{
-	var matched = filename.match( /(.*)\.xaction/ );	// get everything in the filename except the .xaction extension
-	return matched[ 1 ];
-}
-function getBaseFilename( filename )
-{
-	var matched = filename.match( /(.*)\.waqr\.xaction/ );	// get everything in the filename except the .waqr.xaction extension
-	return matched[ 1 ];
-}
 function getProtocolHostPortContextParts( strUrl )
 {
 	var matched = strUrl.match( /(.*)\/ViewAction.*/ );	// get everything before "/ViewAction ..."
 	return matched[ 1 ];
-}
-function isWaqrAction( filename )
-{
-	return null != filename.match( /.*\.waqr\.xaction/ );	// test to see if filename ends with .waqr.xaction
 }
 
 // properties is often "subscribable=false" (or true)

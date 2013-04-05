@@ -77,8 +77,6 @@ public class DefaultImportHandler implements ImportHandler {
     converters.put("xcdf", streamConverter);
     converters.put("xdash", streamConverter);
     converters.put("xreportspec", streamConverter);
-    converters.put("waqr.xaction", streamConverter);
-    converters.put("xwaqr", streamConverter);
     converters.put("gif", streamConverter);
     converters.put("css", streamConverter);
     converters.put("html", streamConverter);

@@ -182,24 +182,8 @@
   
   <filter-mapping>
     <filter-name>Proxy Trusting Filter</filter-name>
-    <url-pattern>/SchedulerAdmin</url-pattern>
-  </filter-mapping>
-  
-  <filter-mapping>
-    <filter-name>Proxy Trusting Filter</filter-name>
     <url-pattern>/ServiceAction</url-pattern>
   </filter-mapping>
-  
-  <filter-mapping>
-    <filter-name>Proxy Trusting Filter</filter-name>
-    <url-pattern>/Publish</url-pattern>
-  </filter-mapping>
-  
-  <filter-mapping>
-    <filter-name>Proxy Trusting Filter</filter-name>
-    <url-pattern>/ResetRepository</url-pattern>
-  </filter-mapping>
-
 
   <!-- Filter mapping for security. Note that all objects are locked down. We could change this here as desired. -->
   <filter-mapping>
@@ -308,39 +292,6 @@
     <servlet-name>Pivot</servlet-name>
     <jsp-file>/jsp/Pivot.jsp</jsp-file>
   </servlet>
-  <!-- Pentaho JSP Mappings -->
-  <servlet>
-    <servlet-name>Chart</servlet-name>
-    <jsp-file>/jsp/Chart.jsp</jsp-file>
-  </servlet>
-  <servlet>
-    <servlet-name>Navigate</servlet-name>
-    <jsp-file>/jsp/Navigate.jsp</jsp-file>
-  </servlet>
-  <servlet>
-    <servlet-name>PieChart</servlet-name>
-    <jsp-file>/jsp/PieChart.jsp</jsp-file>
-  </servlet>
-  <servlet>
-    <servlet-name>Publish</servlet-name>
-    <jsp-file>/jsp/Publish.jsp</jsp-file>
-  </servlet>
-  <servlet>
-    <servlet-name>Task</servlet-name>
-    <jsp-file>/jsp/Task.jsp</jsp-file>
-  </servlet>
-  <servlet>
-    <servlet-name>SchedulerAdmin</servlet-name>
-    <jsp-file>/jsp/SchedulerAdmin.jsp</jsp-file>
-  </servlet>
-  <servlet>
-    <servlet-name>UpdateSampleEmails</servlet-name>
-    <jsp-file>/jsp/UpdateSampleEmails.jsp</jsp-file>
-  </servlet>
-  <servlet>
-    <servlet-name>Widgets</servlet-name>
-    <jsp-file>/jsp/Widgets.jsp</jsp-file>
-  </servlet>
 
   <servlet>
     <servlet-name>PivotError</servlet-name>
@@ -351,30 +302,6 @@
     <servlet-name>PivotBusy</servlet-name>
     <jsp-file>/jsp/PivotBusy.jsp</jsp-file>
   </servlet>
-  <servlet>
-    <servlet-name>SolutionManager</servlet-name>
-    <jsp-file>/jsp/SolutionManager.jsp</jsp-file>
-  </servlet>
-
-    <servlet>
-      <servlet-name>SampleDashboard</servlet-name>
-      <jsp-file>/jsp/SampleDashboard.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-      <servlet-name>ChartSamplesDashboard</servlet-name>
-      <jsp-file>/jsp/ChartSamplesDashboard.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-      <servlet-name>SampleDrill</servlet-name>
-      <jsp-file>/jsp/SampleDrill.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-      <servlet-name>SWDashboard</servlet-name>
-      <jsp-file>/jsp/SWDashboard.jsp</jsp-file>
-    </servlet>
 
   <servlet>
     <servlet-name>Home</servlet-name>
@@ -382,28 +309,8 @@
   </servlet>
 
   <servlet>
-    <servlet-name>PreviousHome</servlet-name>
-    <jsp-file>/jsp/OldHome.jsp</jsp-file>
-  </servlet>
-
-  <servlet>
-    <servlet-name>Admin</servlet-name>
-    <jsp-file>/jsp/Admin.jsp</jsp-file>
-  </servlet>
-
-  <servlet>
-    <servlet-name>About</servlet-name>
-    <jsp-file>/jsp/About.jsp</jsp-file>
-  </servlet>
-
-  <servlet>
     <servlet-name>InitFailure</servlet-name>
     <jsp-file>/jsp/InitFailure.jsp</jsp-file>
-  </servlet>
-
-  <servlet>
-    <servlet-name>UserContent</servlet-name>
-    <jsp-file>/jsp/UserContent.jsp</jsp-file>
   </servlet>
 
     <!-- ================================= merged servlets =================================== -->
@@ -418,47 +325,19 @@
      </servlet>
 
      <servlet>
-       <servlet-name>AdhocWebService</servlet-name>
-       <servlet-class>org.pentaho.platform.web.servlet.AdhocWebService</servlet-class>
-     </servlet>
-     <servlet>
 	   <servlet-name>AnalysisViewService</servlet-name>
 	   <servlet-class>org.pentaho.platform.web.servlet.AnalysisViewService</servlet-class>
      </servlet>
+
 	<servlet>
-	  <servlet-name>MondrianCatalogPublisher</servlet-name>
-	  <servlet-class>org.pentaho.platform.web.servlet.MondrianCatalogPublisher</servlet-class>
+		<servlet-name>MondrianCatalogPublisher</servlet-name>
+		<servlet-class>org.pentaho.platform.web.servlet.MondrianCatalogPublisher</servlet-class>
 	</servlet>
-	
-     <servlet>
-         <servlet-name>SolutionRepositoryService</servlet-name>
-         <servlet-class>org.pentaho.platform.web.servlet.SolutionRepositoryService</servlet-class>
-     </servlet>
-
-     <servlet>
-       <servlet-name>PropertiesPanel</servlet-name>
-       <jsp-file>/jsp/PropertiesPanel.jsp</jsp-file>
-     </servlet>
-
-     <servlet>
-       <servlet-name>PropertiesEditor</servlet-name>
-       <jsp-file>/jsp/PropertiesEditor.jsp</jsp-file>
-     </servlet>
-
-     <servlet>
-       <servlet-name>SubscriptionAdmin</servlet-name>
-       <jsp-file>/jsp/SubscriptionAdmin.jsp</jsp-file>
-     </servlet>
 
    <servlet>
        <servlet-name>GetResource</servlet-name>
      <servlet-class>org.pentaho.platform.web.servlet.GetResource</servlet-class>
    </servlet>
-
-     <servlet>
-     	<servlet-name>ResetRepository</servlet-name>
-     	<jsp-file>/jsp/ResetRepository.jsp</jsp-file>
-     </servlet>
 
   <!-- insert additional servlets -->
     
@@ -484,64 +363,6 @@
   </servlet-mapping>
   <!-- ********************* End JPivot Servlet Mappings ******************* -->
 
-  <!-- Pentaho JSPs -->
-  <servlet-mapping>
-    <servlet-name>Chart</servlet-name>
-    <url-pattern>/Chart</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Navigate</servlet-name>
-    <url-pattern>/Navigate</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>PieChart</servlet-name>
-    <url-pattern>/PieChart</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Publish</servlet-name>
-    <url-pattern>/Publish</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>SchedulerAdmin</servlet-name>
-    <url-pattern>/SchedulerAdmin</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Task</servlet-name>
-    <url-pattern>/Task</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>TestSuite</servlet-name>
-    <url-pattern>/TestSuite</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>UpdateSampleEmails</servlet-name>
-    <url-pattern>/UpdateSampleEmails</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Widgets</servlet-name>
-    <url-pattern>/Widgets</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>SolutionManager</servlet-name>
-    <url-pattern>/SolutionManager</url-pattern>
-  </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>SampleDashboard</servlet-name>
-      <url-pattern>/SampleDashboard</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>ChartSamplesDashboard</servlet-name>
-      <url-pattern>/ChartSamplesDashboard</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>SampleDrill</servlet-name>
-      <url-pattern>/SampleDrill</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>SWDashboard</servlet-name>
-      <url-pattern>/SWDashboard</url-pattern>
-    </servlet-mapping>
-
   <!-- Pentaho Servlets -->
 
   <servlet-mapping>
@@ -565,11 +386,6 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>RepositoryFilePublisher</servlet-name>
-    <url-pattern>/RepositoryFilePublisher</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
     <servlet-name>Pivot</servlet-name>
     <url-pattern>/Pivot</url-pattern>
   </servlet-mapping>
@@ -588,78 +404,28 @@
     <servlet-name>Home</servlet-name>
     <url-pattern>/Home</url-pattern>
   </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>PreviousHome</servlet-name>
-    <url-pattern>/PreviousHome</url-pattern>
-  </servlet-mapping>
-
-
-  <servlet-mapping>
-    <servlet-name>Admin</servlet-name>
-    <url-pattern>/Admin</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>About</servlet-name>
-    <url-pattern>/About</url-pattern>
-  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>InitFailure</servlet-name>
     <url-pattern>/InitFailure</url-pattern>
   </servlet-mapping>
 
-  <servlet-mapping>
-    <servlet-name>UserContent</servlet-name>
-    <url-pattern>/UserContent</url-pattern>
-  </servlet-mapping>
-
     <!-- =============================== merged servlet-mappings ============================= -->
-      <servlet-mapping>
-        <servlet-name>PropertiesPanel</servlet-name>
-        <url-pattern>/PropertiesPanel</url-pattern>
-      </servlet-mapping>
-
-      <servlet-mapping>
-        <servlet-name>PropertiesEditor</servlet-name>
-        <url-pattern>/PropertiesEditor</url-pattern>
-      </servlet-mapping>
-
-      <servlet-mapping>
-        <servlet-name>SubscriptionAdmin</servlet-name>
-        <url-pattern>/SubscriptionAdmin</url-pattern>
-      </servlet-mapping>
-
-      <servlet-mapping>
-        <servlet-name>ManageUsers</servlet-name>
-        <url-pattern>/ManageUsers</url-pattern>
-      </servlet-mapping>
 
     <servlet-mapping>
       <servlet-name>GetResource</servlet-name>
       <url-pattern>/GetResource</url-pattern>
     </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>ResetRepository</servlet-name>
-		<url-pattern>/ResetRepository</url-pattern>
-	</servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>AdhocWebService</servlet-name>
-      <url-pattern>/AdhocWebService</url-pattern>
-    </servlet-mapping>
     <servlet-mapping>
       <servlet-name>AnalysisViewService</servlet-name>
       <url-pattern>/AnalysisViewService</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>MondrianCatalogPublisher</servlet-name>
-      <url-pattern>/MondrianCatalogPublisher</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-      <servlet-name>SolutionRepositoryService</servlet-name>
-      <url-pattern>/SolutionRepositoryService</url-pattern>
-    </servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>MondrianCatalogPublisher</servlet-name>
+		<url-pattern>/MondrianCatalogPublisher</url-pattern>
+	</servlet-mapping>
 
   <!-- insert additional servlet mappings -->
 

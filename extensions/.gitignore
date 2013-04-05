@@ -5,3 +5,5 @@
 /enunciate
 /test-lib
 /dist
+/etc
+derby.log

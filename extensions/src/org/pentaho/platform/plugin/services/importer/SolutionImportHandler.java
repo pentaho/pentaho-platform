@@ -41,7 +41,6 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
-import org.pentaho.platform.plugin.services.importexport.legacy.WAQRFilesMigrationHelper;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository.messages.Messages;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
@@ -195,17 +194,11 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 						tempFile = File.createTempFile("zip", null);
 						tempFile.deleteOnExit();
 						FileOutputStream fos = new FileOutputStream(tempFile);
-						if (WAQRFilesMigrationHelper.isOldXWAQRFile(entryName)) {
-							WAQRFilesMigrationHelper.convertToNewXWAQR(zipInputStream, fos);
-						} else if (WAQRFilesMigrationHelper.isOldXreportSpecFile(entryName)) {
-							WAQRFilesMigrationHelper.convertToNewXreportSpec(zipInputStream, fos);
-						} else {
-							IOUtils.copy(zipInputStream, fos);
-						}
+						IOUtils.copy(zipInputStream, fos);
 						fos.close();
 					}
 					File file = new File(entryName);
-					RepositoryFile repoFile = new RepositoryFile.Builder(WAQRFilesMigrationHelper.convertToNewExtension(file.getName())).folder(isDir).hidden(WAQRFilesMigrationHelper.hideFileCheck(file.getName())).build();
+					RepositoryFile repoFile = new RepositoryFile.Builder(file.getName()).folder(isDir).hidden(false).build();
 					String parentDir = new File(entryName).getParent() == null ? RepositoryFile.SEPARATOR : new File(entryName).getParent() + RepositoryFile.SEPARATOR;
 					IRepositoryFileBundle repoFileBundle = new RepositoryFileBundle(repoFile, null, parentDir, tempFile, "UTF-8", null);
 
