@@ -231,7 +231,7 @@ function checkDA(){
        		<% if (hasInteractiveReporting || hasAnalyzer) { %>
        		<td class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="4"></td>
        		<% } %>
-	        <td align="center" class="smallButton"><button class="pentaho-button" onClick="launch_new_dashboard()">New Dashboard</button></td>
+	        <td align="center" class="smallButton"><button class="pentaho-button" onClick="launch_newDashboard()">New Dashboard</button></td>
 		<% } %>
       </tr>
 	 </table>
