@@ -66,8 +66,6 @@ public class ZipExportProcessor extends BaseExportProcessor {
   private boolean withManifest = true;
 
   private List<String> localeExportList;
-
-  private static final String localeExt = ".locale";
   
   /**
    * Encapsulates the logic of registering import handlers, generating the manifest,
@@ -298,7 +296,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
         if (properties != null) {
           InputStream is = createLocaleFile(name + localeName, properties, locale.getLocale());
           if (is != null) {
-            entry = new ZipEntry(zipName + localeName + localeExt);
+            entry = new ZipEntry(zipName + localeName + LOCALE_EXT);
             zos.putNextEntry(entry);
             IOUtils.copy(is, outputStrean);
             zos.closeEntry();
@@ -356,7 +354,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
   private InputStream createLocaleFile(String name, Properties properties, String locale) throws IOException {
     InputStream is = null;
     if (properties != null) {
-      File localeFile = File.createTempFile(name, localeExt);
+      File localeFile = File.createTempFile(name, LOCALE_EXT);
       localeFile.deleteOnExit();
       FileOutputStream fileOut = new FileOutputStream(localeFile);
       properties.store(fileOut, "Locale = " + locale);
