@@ -67,6 +67,8 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   private List<String> localeExportList;
 
+  private static final String localeExt = ".locale";
+  
   /**
    * Encapsulates the logic of registering import handlers, generating the manifest,
    * and performing the export
