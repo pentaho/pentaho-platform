@@ -50,12 +50,23 @@
     <bean id="DefaultExportHandler" class="org.pentaho.platform.plugin.services.importexport.DefaultExportHandler">
         <property name="repository" ref="unifiedRepository"/>
         <property name="converters" ref="convertersMap"/>
+        <property name="localeExportList">
+		<list>
+			<value>.xanalyzer</value>
+			<value>.prpti</value>
+			<value>.prpt</value>
+			<value>.xaction</value>
+			<value>.xdash</value>
+			<value>.url</value>
+			<value>.xanalyzer</value>				
+		</list>
+	</property>	
     </bean>
 
     <bean id="defaultImportHandler" class="org.pentaho.platform.plugin.services.importer.RepositoryFileImportFileHandler">
         <property name="repository" ref="unifiedRepository"/>
         <property name="converters" ref="convertersMap"/>
-		<property name="defaultAclHandler" ref="defaultAclHandler"/>
+	<property name="defaultAclHandler" ref="defaultAclHandler"/>
     </bean>
 
     <bean id="NameBaseMimeResolver" class="org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver">
