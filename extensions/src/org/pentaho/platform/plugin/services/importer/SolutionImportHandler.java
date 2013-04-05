@@ -98,12 +98,21 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 
 			bundleBuilder.name(fileName);
 			bundleBuilder.path(repositoryFilePath);
-			String sourcePath = file.getPath().startsWith("/") ? file.getPath().substring(1) : file.getPath();
-			sourcePath = RepositoryFilenameUtils.concat(sourcePath, fileName);
+			
+	    String sourcePath;
+	    if (file.getPath().startsWith("/")) {
+	      sourcePath = RepositoryFilenameUtils.concat(file.getPath().substring(1), fileName);
+	    } else {
+	      if (file.getFile().isFolder()) {
+	          sourcePath = fileName;
+	        } else {
+	          sourcePath = RepositoryFilenameUtils.concat(file.getPath(), fileName);
+	      }
+	    }
 
 			bundleBuilder.charSet(bundle.getCharset());
 			bundleBuilder.overwriteFile(bundle.overwriteInRepository());
-			bundleBuilder.hidden(isBlackListed(fileName));
+			bundleBuilder.hidden(isFileHidden(bundle, sourcePath));
 			bundleBuilder.applyAclSettings(bundle.isApplyAclSettings());
 			bundleBuilder.retainOwnership(bundle.isRetainOwnership());
 			bundleBuilder.overwriteAclSettings(bundle.isOverwriteAclSettings());
@@ -138,6 +147,23 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 			}
 		}
 		return acl;
+	}
+	
+	/**
+	 * Determines if the file or folder should be hidden.  If there is a manifest entry for
+	 * the file, and we are not ignoring the manifest, then set the hidden flag based on the
+	 * manifest.  Otherwise use the blacklist to determine if it is hidden.
+	 * 
+	 * @param bundle
+	 * @param filePath
+	 * @return true if file/folder should be hidden, false otherwise
+	 */
+	private boolean isFileHidden(IPlatformImportBundle bundle, String filePath) {
+	   if ((bundle.isApplyAclSettings() || !bundle.isRetainOwnership()) 
+	       && manifest !=null && manifest.getExportManifestEntity(filePath) != null ) {
+	         return manifest.getExportManifestEntity(filePath).getRepositoryFile().isHidden();
+	     }
+     return isBlackListed(bundle.getName());
 	}
 
 	private boolean isSystemPath(final String bundlePath) {
