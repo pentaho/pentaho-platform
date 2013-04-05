@@ -191,48 +191,9 @@
               failonerror="true" />
     
     <antcall target="scrub-hsqldb"/>
-    <antcall target="scrub-sample-servlets"/>
     
     </target>
   
-  <target name="scrub-sample-servlets">
-    <!-- remove the sample servlet section -->
-    <propertyregex property="sample.servlets" input="${web-xml-file}" regexp="\[BEGIN SAMPLE SERVLETS\]" select="\0" />
-
-    <fail message="SAMPLE SERVLET section not found in web.xml!">
-      <condition>
-        <not>
-          <isset property="sample.servlets" />
-        </not>
-      </condition>
-    </fail>
-
-    <replaceregexp file="${approot.stage.dir}/pentaho-webapp/WEB-INF/web.xml"
-                   flags="s"
-                   match="\[BEGIN SAMPLE SERVLETS\].*\[END SAMPLE SERVLETS\]"
-                   replace="[SAMPLE SERVLETS GO HERE]" />
-
-    <!-- remove the sample servlet mapping section -->
-    <propertyregex property="sample.servlet.mappings"
-                   input="${web-xml-file}"
-                   regexp="\[BEGIN SAMPLE SERVLET MAPPINGS\]"
-                   select="\0" />
-
-    <fail message="SAMPLE SERVLET MAPPINGS section not found in web.xml!">
-      <condition>
-        <not>
-          <isset property="sample.servlet.mappings" />
-        </not>
-      </condition>
-    </fail>
-
-    <replaceregexp file="${approot.stage.dir}/pentaho-webapp/WEB-INF/web.xml"
-                   flags="s"
-                   match="\[BEGIN SAMPLE SERVLET MAPPINGS\].*\[END SAMPLE SERVLET MAPPINGS\]"
-                   replace="[SAMPLE SERVLET MAPPINGS GO HERE]" />
-
-  </target>
-
   <target name="scrub-hsqldb">
     <propertyregex property="hsqldb.starter"
                    input="${web-xml-file}"
