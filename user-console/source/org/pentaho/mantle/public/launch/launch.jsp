@@ -91,19 +91,18 @@ body{
 %>
 
   var actionToCmdMap = [];
-  actionToCmdMap['launch_WAQR'] = 'openWAQR()';
   actionToCmdMap['launch_new_datasource'] = 'newDatasource()';
-  actionToCmdMap['launch_manage_datasources'] = 'manageDatasources()'
+  actionToCmdMap['launch_manage_datasources'] = 'manageDatasources()';
   
 <% 
   boolean hasAnalyzer = false;
-  boolean hasIteractiveReporting = false;
+  boolean hasInteractiveReporting = false;
   boolean hasDashboards = false;
   IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()); 
   if (pluginManager != null) {
 
   	hasAnalyzer = pluginManager.getRegisteredPlugins().contains("analyzer");
-  	hasIteractiveReporting = pluginManager.getRegisteredPlugins().contains("pentaho-interactive-reporting");
+  	hasInteractiveReporting = pluginManager.getRegisteredPlugins().contains("pentaho-interactive-reporting");
   	hasDashboards = pluginManager.getRegisteredPlugins().contains("dashboards");
 
     for(XulOverlay overlayObj : pluginManager.getOverlays()) {
@@ -128,8 +127,7 @@ body{
         if (actionName != null) {	  
           int startCommand = overlay.indexOf("command=\""); //$NON-NLS-1$
           int endCommand = overlay.indexOf("\"", startCommand + 9); //$NON-NLS-1$
-          String actionCommand = overlay.substring(startCommand + 9, endCommand);	
-          if(actionCommand.contains("xwaqr") && hasIteractiveReporting) continue; 
+          String actionCommand = overlay.substring(startCommand + 9, endCommand); 
 		  %>
 		  actionToCmdMap['<%=actionName%>'] = "<%= actionCommand%>";
 		  <%
@@ -143,15 +141,15 @@ function MM_callJS(jsStr) { //v2.0
   return eval(jsStr)
 }
 
-function launch_new_WAQR() {
-  launch('launch_WAQR', function() {warning('You do not have Data Source access.')})
+function launch_new_report() {
+  launch('launch_new_report', function() {warning('You do not have Data Source access.')})
 }
 
-function launch_newDatasource() {
+function launch_new_datasource() {
   launch('launch_new_datasource', function() {warning('You do not have Data Source access.')})
 }
 
-function launch_managesDatasources() {
+function launch_manage_datasources() {
   launch('launch_manage_datasources', function() {warning('You do not have Data Source access.')})
 }
 
@@ -195,37 +193,49 @@ function checkDA(){
 		}
 	}); 
 }
-
 </script>
-
 </head>
 <body style="height:auto; background:transparent;" onload="checkDA();customizeThemeStyling();">
 <div id="wrapper">
   <div class="pentaho-launcher-panel-shadowed pentaho-launcher-shine" id="outterWrapper">
+    <% if (hasInteractiveReporting || hasAnalyzer || hasDashboards) { %>
     <table id="proMenuTable" width="100%" border="0" cellspacing="0" cellpadding="0">
       <tr>
-       	<td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch('launch_new_report', window.top.openWAQR)"><img src="images/new_report.png" border="0"></a></td>
+        <% if (hasInteractiveReporting) { %>
+       	     <td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch_new_report()"><img src="images/new_report.png" border="0"></a></td>
+        <% } %>
         <% if (hasAnalyzer) { %>
+        	<% if (hasInteractiveReporting) { %>
         	<td valign="bottom" width="3" class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="11"></td>
+        	<% } %>
 			<td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch('launch_new_analysis', window.top.openAnalysis)"><img src="images/new_analysis.png" border="0"></a></td>
         <% } %>
 		<% if (hasDashboards) { %>
+			<% if (hasInteractiveReporting || hasAnalyzer) { %>
 	       	<td valign="bottom" width="3" class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="11"></td>
-			<td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch_newDashboard()"><img src="images/new_dash.png" border="0"></a></td>
+	       	<% } %>
+			<td align="center" width="226" valign="bottom" class="largeGraphicButton"><img src="images/clr.gif" width="226" height="10"><br><a href="#" onClick="launch_new_dashboard()"><img src="images/new_dash.png" border="0"></a></td>
 		<% } %>
       </tr>
       <tr>
-        <td align="center" class="smallButton"><button class="pentaho-button" onClick="launch('launch_new_report', window.top.openWAQR)">New Report</button></td>
+        <% if (hasInteractiveReporting) { %>
+        <td align="center" class="smallButton"><button class="pentaho-button" onClick="launch('launch_new_report', window.top.openReport)">New Report</button></td>
+        <% } %>
         <% if (hasAnalyzer) { %>
+            <% if (hasInteractiveReporting) { %>
 			<td class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="4"></td>
+			<% } %>
 			<td align="center" class="smallButton"><button class="pentaho-button" onClick="launch('launch_new_analysis', window.top.openAnalysis)">New Analysis</button></td>
         <% } %>
 		<% if (hasDashboards) { %>
+       		<% if (hasInteractiveReporting || hasAnalyzer) { %>
        		<td class="largeGraphicSpacer"><img src="images/clr.gif" width="3" height="4"></td>
-	        <td align="center" class="smallButton"><button class="pentaho-button" onClick="launch_newDashboard()">New Dashboard</button></td>
+       		<% } %>
+	        <td align="center" class="smallButton"><button class="pentaho-button" onClick="launch_new_dashboard()">New Dashboard</button></td>
 		<% } %>
       </tr>
 	 </table>
+	 <% } %>
 	 <table id="datasourcePanel" style="display:none" width="684" border="0" cellspacing="0" cellpadding="0">
       <tr>
         <td colspan="3"><img src="../themes/onyx/images/seperator_horz.png" width="684" height="3"></td>
@@ -236,10 +246,10 @@ function checkDA(){
         <td width="227" valign="top">
           <table border="0" cellspacing="0" cellpadding="0">
             <tr>      
-             <td class="bottomButtonWrapper" align="center"><button class="pentaho-button" id="button0" style="width: 116px" onClick="launch_newDatasource()">Create New</button></td>
+             <td class="bottomButtonWrapper" align="center"><button class="pentaho-button" id="button0" style="width: 116px" onClick="launch_new_datasource()">Create New</button></td>
             </tr>
             <tr>
-              <td class="bottomButtonWrapper" align="center"><button class="pentaho-button" id="button0" style="width: 116px" onClick="launch_managesDatasources()">Manage Existing</button></td> 
+              <td class="bottomButtonWrapper" align="center"><button class="pentaho-button" id="button0" style="width: 116px" onClick="launch_manage_datasources()">Manage Existing</button></td> 
             </tr>
           </table>
         </td>
