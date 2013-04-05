@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.security.IRoleMapper;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.api.mt.ITenantedPrincipleNameResolver;
 import org.pentaho.platform.core.mt.Tenant;
@@ -73,16 +74,23 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
   private ITenantedPrincipleNameResolver roleNameUtils;
   
   private List<String> systemRoles;
+  
+  private IRoleMapper roleMapper;
   // ~ Constructors ====================================================================================================
 
   public DefaultLdapUserRoleListService() {
     super();
   }
-  
+
   public DefaultLdapUserRoleListService(final Comparator<String> usernameComparator, final Comparator<String> roleComparator) {
-    super();
-    this.usernameComparator = usernameComparator;
-    this.roleComparator = roleComparator;
+	    super();
+	    this.usernameComparator = usernameComparator;
+	    this.roleComparator = roleComparator;
+  }
+  
+  public DefaultLdapUserRoleListService(final Comparator<String> usernameComparator, final Comparator<String> roleComparator, final IRoleMapper roleMapper) {
+    this(usernameComparator, roleComparator);
+    this.roleMapper = roleMapper;
   }
   
   // ~ Methods =========================================================================================================
@@ -96,7 +104,11 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     List<GrantedAuthority> results = allAuthoritiesSearch.search(new Object[0]);
     List<String> roles = new ArrayList<String>(results.size());
     for (GrantedAuthority role : results) {
-      roles.add(role.getAuthority());
+      if(roleMapper != null) {
+    	  roles.add(roleMapper.toPentahoRole(role.getAuthority()));
+      } else {
+    	  roles.add(role.getAuthority());  
+      }      
     }
     if (null != roleComparator) {
       Collections.sort(roles, roleComparator);
@@ -119,7 +131,8 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
       throw new UnsupportedOperationException("only allowed to access to default tenant");
     }
     String updateRole = roleNameUtils.getPrincipleName(role);
-    List<String> results = usernamesInRoleSearch.search(new Object[] { updateRole });
+    // User Role mapper to get the equivalent ldap role
+    List<String> results = usernamesInRoleSearch.search(new Object[] { roleMapper.fromPentahoRole(updateRole)});
     if (null != usernameComparator) {
       Collections.sort(results, usernameComparator);
     }
@@ -135,7 +148,7 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     List<GrantedAuthority> results = Arrays.asList(user.getAuthorities());
     List<String> roles = new ArrayList<String>(results.size());
     for (GrantedAuthority role : results) {
-      roles.add(role.getAuthority());
+    	  roles.add(role.getAuthority());  
     }
     if (null != roleComparator) {
       Collections.sort(roles, roleComparator);
@@ -200,12 +213,6 @@ public class DefaultLdapUserRoleListService implements IUserRoleListService, Ini
     }
     return getAllUsers();
   }
-
-//  private ITenant getDefaultTenant() {
-//    IPentahoSession session = PentahoSessionHolder.getSession();
-//    String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
-//    return new Tenant(tenantId, true);
-//  }
 
   @Override
   public List<String> getSystemRoles() {
