@@ -139,7 +139,7 @@ public class ScheduleEmailDialog extends AbstractWizardDialog {
             }
           } else {
             MessageDialogBox dialogBox = new MessageDialogBox(
-                Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
+                Messages.getString("error"), response.getText(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
                 false, false, true);
             dialogBox.center();
             setDone(false);

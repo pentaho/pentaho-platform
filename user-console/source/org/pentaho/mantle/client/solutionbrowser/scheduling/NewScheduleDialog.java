@@ -22,6 +22,32 @@ package org.pentaho.mantle.client.solutionbrowser.scheduling;
 import java.util.Date;
 import java.util.List;
 
+import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.DailyRecurrenceEditor;
+import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.MonthlyRecurrenceEditor;
+import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.WeeklyRecurrenceEditor;
+import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.YearlyRecurrenceEditor;
+import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor;
+import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.ScheduleType;
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
+import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
+import org.pentaho.gwt.widgets.client.utils.TimeUtil;
+import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
+import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
+import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
+import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
+import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
+import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.workspace.BlockoutPanel;
+import org.pentaho.mantle.client.workspace.JsBlockStatus;
+import org.pentaho.mantle.client.workspace.JsJob;
+import org.pentaho.mantle.client.workspace.JsJobParam;
+import org.pentaho.mantle.client.workspace.JsJobTrigger;
+import org.pentaho.mantle.login.client.MantleLoginDialog;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayInteger;
@@ -49,31 +75,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.DailyRecurrenceEditor;
-import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.MonthlyRecurrenceEditor;
-import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.WeeklyRecurrenceEditor;
-import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.YearlyRecurrenceEditor;
-import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor;
-import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.ScheduleType;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
-import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
-import org.pentaho.gwt.widgets.client.utils.TimeUtil;
-import org.pentaho.gwt.widgets.client.utils.TimeUtil.DayOfWeek;
-import org.pentaho.gwt.widgets.client.utils.TimeUtil.MonthOfYear;
-import org.pentaho.gwt.widgets.client.utils.TimeUtil.WeekOfMonth;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
-import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
-import org.pentaho.gwt.widgets.client.wizards.IWizardPanel;
-import org.pentaho.gwt.widgets.client.wizards.panels.JsSchedulingParameter;
-import org.pentaho.gwt.widgets.client.wizards.panels.ScheduleEditorWizardPanel;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.workspace.BlockoutPanel;
-import org.pentaho.mantle.client.workspace.JsBlockStatus;
-import org.pentaho.mantle.client.workspace.JsJob;
-import org.pentaho.mantle.client.workspace.JsJobParam;
-import org.pentaho.mantle.client.workspace.JsJobTrigger;
-import org.pentaho.mantle.login.client.MantleLoginDialog;
 
 /**
  * @author wseyler
@@ -786,7 +787,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             else
             {
               MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"),
-                                                                Messages.getString("serverErrorColon") + " " + response.getStatusCode(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-2$
+                                                                response.getText(), //$NON-NLS-1$ 
                                                                 false, false, true);
               dialogBox.center();
               setDone(false);
@@ -826,9 +827,17 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     JsJobTrigger trigger = getJsJobTrigger();
     JSONObject schedule = getSchedule();
 
-    verifyBlockoutConflict(schedule, trigger);
-
-    return true;
+    String name = scheduleEditorWizardPanel.getScheduleEditor().getScheduleName();
+    String alphaNumeric = "^[a-zA-Z0-9_\\.\\- ]+$";
+    // make sure it matches regex
+    if (name.matches(alphaNumeric)) {
+      verifyBlockoutConflict(schedule, trigger);
+      return true;
+    } else {
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("enterAlphaNumeric", name), false, false, true); //$NON-NLS-1$
+      dialogBox.center();
+      return false;
+    }
   }
 
   private void showScheduleEmailDialog(final JSONObject schedule) {

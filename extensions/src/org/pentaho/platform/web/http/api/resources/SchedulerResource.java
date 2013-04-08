@@ -177,7 +177,7 @@ public class SchedulerResource extends AbstractJaxRSResource {
         }
       }
     } catch (SchedulerException e) {
-      return Response.serverError().entity(e.toString()).build();
+      return Response.serverError().entity(e.getCause().getMessage()).build();
     }
     return Response.ok(job.getJobId()).type(MediaType.TEXT_PLAIN).build();
   }
