@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.user.client.Window;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -825,6 +826,8 @@ public class SchedulesPanel extends SimplePanel {
       startJobRequest.put("jobId", new JSONString(job.getJobId())); //$NON-NLS-1$
 
       try {
+        Window.alert(url);
+        Window.alert(startJobRequest.toString());
         builder.sendRequest(startJobRequest.toString(), new RequestCallback() {
 
           public void onError(Request request, Throwable exception) {

@@ -92,14 +92,18 @@ public class JsJobTrigger extends JavaScriptObject {
     this.repeatInterval = interval;
   }-*/;
 
-  public final native void setBlockDuration(Long duration)
+  public final native void setBlockDuration(Integer duration)
   /*-{
-    this.blockDuration = duration;
+    this.duration = duration.toString();
   }-*/;
 
-  public final native Long getBlockDuration()
+  public final Integer getBlockDuration() {
+    return Integer.parseInt(getDuration());
+  }
+
+  private final native String getDuration()
   /*-{
-      return this.blockDuration;
+      return this.duration;
   }-*/;
 
 
