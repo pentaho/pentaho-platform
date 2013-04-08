@@ -379,7 +379,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
 
-  private Long calculateBlockoutDuration() {
+  private Integer calculateBlockoutDuration() {
     final String endTime = scheduleEditorWizardPanel.getBlockoutEndTime();
     final Date today = new Date();
 
@@ -392,7 +392,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       Date blackoutEndDate = new Date(today.getYear(), today.getMonth(), today.getDate(),
                                       getStartHour(endTime), getStartMin(endTime));
 
-      final long durationMilli = Math.abs(blackoutEndDate.getTime() - blackoutStartDate.getTime());
+      final int durationMilli = new Long(Math.abs(blackoutEndDate.getTime() - blackoutStartDate.getTime())).intValue();
 
 //      // Debug only
 //      long seconds = durationMilli / 1000;
@@ -401,9 +401,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 //      System.out.println("Seconds to Hours: " + TimeUtil.secsToHours(seconds));
 //      System.out.println("Seconds to Days: " + TimeUtil.secsToDays(seconds));
 
-      return new Long(durationMilli);
+      return durationMilli;
     } else {
-      return new Long(-1);
+      return -1;
     }
   }
 
@@ -432,7 +432,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       jsJobTrigger.setBlockDuration(calculateBlockoutDuration());
     } else {
       // blockDuration is only valid for blockouts
-      jsJobTrigger.setBlockDuration(-1L);
+      jsJobTrigger.setBlockDuration(-1);
     }
 
     if (scheduleType == ScheduleType.RUN_ONCE) { // Run once types
@@ -584,7 +584,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     addBlockoutPeriodRequest.setHeader("Content-Type", "application/json");
 
     // Create a unique blockout period name
-    final Long duration = trigger.getBlockDuration();
+    final Integer duration = trigger.getBlockDuration();
     final String blockoutPeriodName = trigger.getScheduleType() + Random.nextInt() + ":" +
                                       /*PentahoSessionHolder.getSession().getName()*/  "admin" + ":" + duration;
 

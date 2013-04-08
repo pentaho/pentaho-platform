@@ -23,6 +23,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -54,10 +56,10 @@ public class BlockoutPanel extends SimplePanel {
   private Button blockoutButton;
   private Toolbar tableControls;
   private VerticalPanel tablePanel;
-  private IDialogCallback emptyCallback = new IDialogCallback() {
-    public void okPressed() { }
+  private IDialogCallback refreshCallBack = new IDialogCallback() {
+    public void okPressed() {refresh(); }
 
-    public void cancelPressed() { }
+    public void cancelPressed() {refresh(); }
   };
 
   public BlockoutPanel(final boolean isAdmin) {
@@ -94,7 +96,7 @@ public class BlockoutPanel extends SimplePanel {
       final ClickHandler newBlockoutHandler = new ClickHandler() {
         @Override
         public void onClick(final ClickEvent clickEvent) {
-          DialogBox blockoutDialog = new NewBlockoutScheduleDialog("", emptyCallback, false, true);
+          DialogBox blockoutDialog = new NewBlockoutScheduleDialog("", refreshCallBack, false, true);
           blockoutDialog.center();
         }
       };
@@ -128,7 +130,7 @@ public class BlockoutPanel extends SimplePanel {
 
         JsJob jsJob = jobs.iterator().next();
 
-        DialogBox blockoutDialog = new NewBlockoutScheduleDialog(jsJob, emptyCallback, false, true, false);
+        DialogBox blockoutDialog = new NewBlockoutScheduleDialog(jsJob, refreshCallBack, false, true, false);
         blockoutDialog.center();
       }
     });
@@ -168,8 +170,7 @@ public class BlockoutPanel extends SimplePanel {
         try {
           Date nextFireTime = block.getNextRun();
             return formatDate(
-              new Date(nextFireTime.getTime()
-                + Integer.parseInt(block.getJobParam("DURATION_PARAM"))));
+              new Date(nextFireTime.getTime() + block.getJobTrigger().getBlockDuration()));
         } catch (Throwable t) {
         }
         return "-";
@@ -193,12 +194,11 @@ public class BlockoutPanel extends SimplePanel {
     TextColumn<JsJob> endByColumn = new TextColumn<JsJob>() {
       public String getValue(JsJob block) {
         try {
-          int repeatCount = block.getJobTrigger().getRepeatCount();
-          if (repeatCount != -1) {
-            return formatDate(
-              new Date(block.getJobTrigger().getStartTime().getTime() + (block.getJobTrigger().getRepeatInterval() * repeatCount)));
+          Date endTime = block.getJobTrigger().getEndTime();
+          if(endTime == null) {
+              return "Never";
           } else {
-            return "Never";
+            return formatDate(endTime);
           }
         } catch (Throwable t) {
         }
@@ -224,7 +224,9 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   private void removeBlockout(final JsJob jsJob) {
-    makeServiceCall("delete?blockoutName=" + jsJob.getJobId(), RequestBuilder.DELETE, new RequestCallback() {
+    JSONObject jobRequest = new JSONObject();
+    jobRequest.put("jobId", new JSONString(jsJob.getJobId())); //$NON-NLS-1$
+    makeServiceCall("removeJob", RequestBuilder.DELETE, jobRequest.toString(), new RequestCallback() {
 
       public void onError(Request request, Throwable exception) {
         // todo: do something
@@ -241,7 +243,7 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   public void refresh() {
-    makeServiceCall("blockoutjobs", RequestBuilder.GET, new RequestCallback() {
+    makeServiceCall("blockout/blockoutjobs", RequestBuilder.GET, null, new RequestCallback() {
 
       public void onError(Request request, Throwable exception) {
         //todo: do something
@@ -261,16 +263,18 @@ public class BlockoutPanel extends SimplePanel {
     });
   }
 
-  private void makeServiceCall(final String urlSuffix, final RequestBuilder.Method httpMethod, final RequestCallback callback) {
+  private void makeServiceCall(
+    final String urlSuffix, final RequestBuilder.Method httpMethod, final String requestData, final RequestCallback callback)
+  {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
-    final String url = contextURL + "api/scheduler/blockout/" + urlSuffix; //$NON-NLS-1$
-    RequestBuilder executableTypesRequestBuilder = new RequestBuilder(httpMethod, url);
-    executableTypesRequestBuilder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
-    executableTypesRequestBuilder.setHeader("accept", "application/json");
+    final String url = contextURL + "api/scheduler/" + urlSuffix;
+    RequestBuilder builder = new RequestBuilder(httpMethod, url);
+    builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
+    builder.setHeader("Content-Type", "application/json");
     try {
-      executableTypesRequestBuilder.sendRequest(null, callback);
+      builder.sendRequest(requestData, callback);
     } catch (RequestException e) {
       // showError(e);
     }
