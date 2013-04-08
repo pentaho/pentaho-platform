@@ -91,7 +91,12 @@
    
    <category name="org.jfree.JCommon">
       <priority value="ERROR"/>
-   </category> 
+   </category>
+
+	<category
+		name="org.apache.jackrabbit.core.security.authentication.AbstractLoginModule">
+		<priority value="ERROR" />
+	</category>
    
    <!-- =========================== -->
    <!-- Repository Import Log Level -->
