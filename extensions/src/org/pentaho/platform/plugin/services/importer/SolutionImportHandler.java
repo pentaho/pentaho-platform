@@ -88,6 +88,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 				bundleInputStream = new ByteArrayInputStream(bytes);
 				// If is locale file store it for later processing.
 				if (localeFilesProcessor.isLocaleFile(file, importBundle.getPath(), bytes)) {
+				  log.trace("Skipping [" + repositoryFilePath + "], it is a locale property file");
 					continue;
 				}
 				bundleBuilder.input(bundleInputStream);
