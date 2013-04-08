@@ -600,8 +600,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   }
 
   protected void initializeExecutableFileTypes() {
-    // GeneratedContentDialog dialog = new GeneratedContentDialog();
-    // dialog.show();
     final String moduleBaseURL = GWT.getModuleBaseURL();
     final String moduleName = GWT.getModuleName();
     final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
@@ -633,45 +631,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       // showError(e);
     }
   }
-
-  // private List<RepositoryFileDto> parseWorkspaceFiles(String JSONString) {
-  // List<RepositoryFileDto> files = new ArrayList<RepositoryFileDto>();
-  // JSONValue value = JSONParser.parse(JSONString);
-  //
-  // JSONObject repositoryFileTreeDtoObject = value.isObject();
-  // JSONArray childrenArray = repositoryFileTreeDtoObject.get("children").isArray();
-  // if (childrenArray != null) {
-  // for (int i=0; i<childrenArray.size(); i++) {
-  // JSONObject rftdo = childrenArray.get(i).isObject();
-  // JSONObject repositoryFileJSON = rftdo.get("file").isObject();
-  // Boolean isFolder = repositoryFileJSON.get("folder").isBoolean().booleanValue();
-  // if (!isFolder) {
-  // RepositoryFileDto newRepositoryFile = new RepositoryFileDto();
-  // newRepositoryFile.setDescription(repositoryFileJSON.get("description").isString().stringValue());
-  // newRepositoryFile.setFileSize((long) repositoryFileJSON.get("fileSize").isNumber().doubleValue());
-  // newRepositoryFile.setFolder(isFolder);
-  // newRepositoryFile.setHidden(repositoryFileJSON.get("hidden").isBoolean().booleanValue());
-  // newRepositoryFile.setId(repositoryFileJSON.get("id").isString().stringValue());
-  // newRepositoryFile.setLocale(repositoryFileJSON.get("locale").isString().stringValue());
-  // newRepositoryFile.setLocked(repositoryFileJSON.get("locked").isBoolean().booleanValue());
-  // newRepositoryFile.setLockMessage(repositoryFileJSON.get("lockMessage").isString().stringValue());
-  // newRepositoryFile.setLockOwner(repositoryFileJSON.get("lockOwner").isString().stringValue());
-  // newRepositoryFile.setName(repositoryFileJSON.get("name").isString().stringValue());
-  // newRepositoryFile.setOriginalParentFolderId(repositoryFileJSON.get("originalParentFolderId").isString().stringValue());
-  // newRepositoryFile.setOriginalParentFolderPath(repositoryFileJSON.get("originalParentFolderPath").isString().stringValue());
-  // newRepositoryFile.setOwner(repositoryFileJSON.get("owner").isString().stringValue());
-  // newRepositoryFile.setOwnerType((int) repositoryFileJSON.get("ownerType").isNumber().doubleValue());
-  // newRepositoryFile.setPath(repositoryFileJSON.get("path").isString().stringValue());
-  // newRepositoryFile.setTitle(repositoryFileJSON.get("title").isString().stringValue());
-  // newRepositoryFile.setVersioned(repositoryFileJSON.get("versioned").isBoolean().booleanValue());
-  // newRepositoryFile.setVersionId(repositoryFileJSON.get("versionId").isString().stringValue());
-  //
-  // files.add(newRepositoryFile);
-  // }
-  // }
-  // }
-  // return files;
-  // }
 
   public void editFile() {
     if (filesListPanel.getSelectedFileItems() == null || filesListPanel.getSelectedFileItems().size() != 1) {
@@ -825,8 +784,9 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     int splitterWidth = (hSplitter == null ? 0 : hSplitter.getOffsetWidth()) + rightMargin;
     int adjustedWidth = solutionNavigatorAndContentPanel.getLeftWidget().getOffsetWidth() + splitterWidth;
     int width = this.getOffsetWidth() - adjustedWidth;
-
+    if(width > 0){
     solutionNavigatorAndContentPanel.getRightWidget().setWidth(width + "px");
+    }
   }
 
   public void addSolutionBrowserListener(SolutionBrowserListener listener) {
