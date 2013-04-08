@@ -893,6 +893,11 @@ public class FileResource extends AbstractJaxRSResource {
           }
         }
 
+        // now update the rest of the metadata
+        if (!file.isFolder()) {
+          repository.setFileMetadata(file.getId(), fileMetadata);
+        } 
+        
         // handle hidden flag if it is different
         if (file.isHidden() != isHidden) {
           file.setHidden(isHidden);
@@ -914,8 +919,6 @@ public class FileResource extends AbstractJaxRSResource {
             IRepositoryFileData data = repository.getDataForRead(sourceFile.getId(), SimpleRepositoryFileData.class);
             repository.updateFile(destFile, data, null);
             repository.updateAcl(acl);
-            // now update the rest of the metadata
-            repository.setFileMetadata(file.getId(), fileMetadata);
           } else {
             repository.updateFolder(destFile, null);
           }
