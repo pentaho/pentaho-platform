@@ -19,6 +19,7 @@ package org.pentaho.platform.scheduler2.quartz;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
+import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
 import org.pentaho.platform.scheduler2.blockout.PentahoBlockoutManager;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -33,7 +34,7 @@ import org.quartz.SchedulerException;
 public class BlockingQuartzJob implements Job {
   public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException {
     try {
-      if (getBlockoutManager().shouldFireNow()) {
+      if (getBlockoutManager().shouldFireNow()  || jobExecutionContext.getJobDetail().getJobClass().equals(BlockoutAction.class.getCanonicalName())) { // We should always let the blockouts fire
         createUnderlyingJob().execute(jobExecutionContext);
       } else {
         getLogger().warn(
