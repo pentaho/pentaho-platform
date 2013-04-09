@@ -26,6 +26,7 @@ import java.util.List;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.filechooser.RepositoryFile;
 import org.pentaho.mantle.client.dialogs.GeneratedContentDialog;
+import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
@@ -73,6 +74,9 @@ public class ShowGeneratedContentCommand extends AbstractCommand {
   protected void performOperation(boolean feedback) {
 //    GeneratedContentDialog dialog = new GeneratedContentDialog();
 //    dialog.show();
+    
+    WaitPopup.getInstance().setVisible(true);
+    
     final String moduleBaseURL = GWT.getModuleBaseURL();
     final String moduleName = GWT.getModuleName();
     final String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
@@ -106,6 +110,7 @@ public class ShowGeneratedContentCommand extends AbstractCommand {
                   } else {
                     showServerError(response);
                   }
+                  WaitPopup.getInstance().setVisible(false);
                 }
                 
               });

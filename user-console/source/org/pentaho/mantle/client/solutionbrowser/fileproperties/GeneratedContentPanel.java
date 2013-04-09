@@ -29,6 +29,7 @@ import org.pentaho.gwt.widgets.client.filechooser.JsonToRepositoryFileTreeConver
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.dialogs.WaitPopup;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
@@ -69,6 +70,8 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
   private String lineageId;
 
   public GeneratedContentPanel(final String repositoryFilePath, final String lineageId, final String user) {
+    WaitPopup.getInstance().setVisible(true);
+    
     this.repositoryFilePath = repositoryFilePath;
     this.user = user;
     this.lineageId = lineageId;
@@ -142,6 +145,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
       builder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable exception) {
+          WaitPopup.getInstance().setVisible(false);
           MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
           dialogBox.center();
         }
@@ -165,6 +169,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
             MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             dialogBox.center();
           }
+          WaitPopup.getInstance().setVisible(false);
         }
       });
     } catch (RequestException e) {
