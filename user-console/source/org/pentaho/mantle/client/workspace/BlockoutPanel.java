@@ -130,7 +130,8 @@ public class BlockoutPanel extends SimplePanel {
 
         JsJob jsJob = jobs.iterator().next();
 
-        DialogBox blockoutDialog = new NewBlockoutScheduleDialog(jsJob, refreshCallBack, false, true, false);
+        NewBlockoutScheduleDialog blockoutDialog = new NewBlockoutScheduleDialog(jsJob, refreshCallBack, false, true, false);
+        blockoutDialog.setUpdateMode();
         blockoutDialog.center();
       }
     });
