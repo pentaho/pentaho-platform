@@ -230,6 +230,13 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         scheduleEditor.setEndDate(jsJobTrigger.getEndTime());
         scheduleEditor.setEndBy();
       }
+
+      if(isBlockoutDialog) {
+        scheduleEditor.setBlockoutEndTime(
+          DateTimeFormat.getFormat(
+            PredefinedFormat.HOUR_MINUTE_SECOND).format(
+            new Date(jsJobTrigger.getStartTime().getTime() + jsJobTrigger.getBlockDuration())));
+      }
     }
   }
 
@@ -577,8 +584,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return jsJobTrigger;
   }
 
-  protected boolean addBlockoutPeriod(final JSONObject schedule, final JsJobTrigger trigger) {
-    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/add"; //$NON-NLS-1$
+  protected boolean addBlockoutPeriod(final JSONObject schedule, final JsJobTrigger trigger, String urlSuffix) {
+    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/" + urlSuffix; //$NON-NLS-1$
 
     RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
     addBlockoutPeriodRequest.setHeader("accept", "text/plain");
