@@ -292,7 +292,7 @@ public class BlockoutManagerUtil {
         for (int i = 0; i < n; i++) {
           Date nextFireTime = trigger.getFireTimeAfter(startDate);
 
-          if (nextFireTime.after(endDate) || (!endDateIsNull && nextFireTime.after(jobTrigger.getEndTime()))) {
+          if ((nextFireTime != null) && nextFireTime.after(endDate) || (!endDateIsNull && nextFireTime.after(jobTrigger.getEndTime()))) {
             break;
           }
 
