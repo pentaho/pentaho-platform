@@ -76,13 +76,13 @@ public class PRPTImportHandler extends RepositoryFileImportFileHandler implement
       RepositoryFile rf = fileBundle.getFile();
       if (rf.getName().equals("meta.xml")) {
         try{
-        Document doc = XmlDom4JHelper.getDocFromStream(fileBundle.getInputStream());
-
-        String description = doc.selectSingleNode(rootElement+"/dc:description").getStringValue();
-        String title = doc.selectSingleNode(rootElement + "/dc:title").getStringValue();       
-        localeFilesProcessor.createLocaleEntry(filePath, fileName, title, description, rf, new ByteArrayInputStream("".getBytes()));
+          Document doc = XmlDom4JHelper.getDocFromStream(fileBundle.getInputStream());
+  
+          String description = doc.selectSingleNode(rootElement+"/dc:description").getStringValue();
+          String title = doc.selectSingleNode(rootElement + "/dc:title").getStringValue();       
+          localeFilesProcessor.createLocaleEntry(filePath, fileName, title, description, rf, new ByteArrayInputStream("".getBytes()));        
         } catch(Exception ex){
-          ;//some meta.xml do not have xpath entries
+          ;//not all meta.xml have xpath entries         
         }
         break;
       }

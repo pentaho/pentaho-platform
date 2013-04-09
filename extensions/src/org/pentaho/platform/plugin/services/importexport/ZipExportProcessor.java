@@ -66,7 +66,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
   private boolean withManifest = true;
 
   private List<String> localeExportList;
-  
+
   /**
    * Encapsulates the logic of registering import handlers, generating the manifest,
    * and performing the export
@@ -294,6 +294,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
         
         properties = unifiedRepository.getLocalePropertiesForFileById(repositoryFile.getId(), locale.getLocale());
         if (properties != null) {
+          properties.remove("jcr\\:primaryType");//Pentaho Type
           InputStream is = createLocaleFile(name + localeName, properties, locale.getLocale());
           if (is != null) {
             entry = new ZipEntry(zipName + localeName + LOCALE_EXT);
