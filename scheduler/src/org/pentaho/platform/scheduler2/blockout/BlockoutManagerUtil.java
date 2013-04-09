@@ -166,6 +166,7 @@ public class BlockoutManagerUtil {
     // ( S1 - S ) / R <= x <= ( S2 - S ) / R 
 
     double recurrence = getRecurrenceInterval(scheduleTrigger);
+    recurrence = recurrence != 0 ? recurrence : 1;
     double x1 = (startBlockOutRange.getTime() - scheduleTrigger.getStartTime().getTime()) / recurrence;
     double x2 = (endBlockOutRange.getTime() - scheduleTrigger.getStartTime().getTime()) / recurrence;
 
@@ -291,7 +292,7 @@ public class BlockoutManagerUtil {
         for (int i = 0; i < n; i++) {
           Date nextFireTime = trigger.getFireTimeAfter(startDate);
 
-          if (nextFireTime.after(endDate) || (!endDateIsNull && nextFireTime.after(jobTrigger.getEndTime()))) {
+          if ((nextFireTime != null) && nextFireTime.after(endDate) || (!endDateIsNull && nextFireTime.after(jobTrigger.getEndTime()))) {
             break;
           }
 
