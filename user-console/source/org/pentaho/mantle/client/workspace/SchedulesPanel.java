@@ -16,13 +16,14 @@
  */
 package org.pentaho.mantle.client.workspace;
 
+import static org.pentaho.mantle.client.workspace.WorkspacePanel.PAGE_SIZE;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gwt.user.client.Window;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -35,6 +36,7 @@ import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.GeneratedContentPanel;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.NewScheduleDialog;
+import org.pentaho.mantle.client.workspace.WorkspacePanel.CellTableResources;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
@@ -72,8 +74,6 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
-
-import static org.pentaho.mantle.client.workspace.WorkspacePanel.*;
 
 public class SchedulesPanel extends SimplePanel {
 
@@ -826,8 +826,6 @@ public class SchedulesPanel extends SimplePanel {
       startJobRequest.put("jobId", new JSONString(job.getJobId())); //$NON-NLS-1$
 
       try {
-        Window.alert(url);
-        Window.alert(startJobRequest.toString());
         builder.sendRequest(startJobRequest.toString(), new RequestCallback() {
 
           public void onError(Request request, Throwable exception) {
