@@ -8,6 +8,8 @@ import org.pentaho.mantle.client.workspace.JsJobTrigger;
 
 public class NewBlockoutScheduleDialog extends NewScheduleDialog
 {
+  private boolean updateMode = false;
+
   public NewBlockoutScheduleDialog(final String filePath,
                                    final IDialogCallback callback,
                                    final boolean hasParams, final boolean isEmailConfValid)
@@ -24,9 +26,16 @@ public class NewBlockoutScheduleDialog extends NewScheduleDialog
     JsJobTrigger trigger = getJsJobTrigger();
     JSONObject schedule = getSchedule();
 
-    // Need to add the blockout period
-    addBlockoutPeriod(schedule, trigger);
+    if(updateMode) {
+      addBlockoutPeriod(schedule, trigger, "update/" + editJob.getJobId());
+    } else {
+      addBlockoutPeriod(schedule, trigger, "add");
+    }
 
     return true;
+  }
+
+  public void setUpdateMode() {
+    updateMode = true;
   }
 }

@@ -84,7 +84,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   }
 
   @POST
-  @Path("/update/{jobid}")
+  @Path("/update")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
   public Response updateBlockout(@QueryParam("jobid")
   String jobId, JobScheduleRequest request) throws IOException {
