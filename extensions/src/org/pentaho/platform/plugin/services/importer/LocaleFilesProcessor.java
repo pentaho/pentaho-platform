@@ -31,29 +31,50 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
-
+/**
+ * this class is used to handle .properties files that are XACTION or URL files that contain the metadata
+ * used for localization.  These files may contain additional information that will allow the properties file
+ * to be stored and used by XACTION and URL as well as localize the title and description.
+ * @author tband /ezequiel
+ *
+ */
 public class LocaleFilesProcessor {
 
+  private static final String FILE_LOCALE_RESOLVER = "file.locale";
+  private static final String URL_DESCRIPTION = "url_description";
+  private static final String URL_NAME = "url_name";
+  private static final String DESCRIPTION = "description";
+  private static final String TITLE = "title";
+  private static final String NAME = "name";
+  private static final String PROPERTIES_EXT = ".properties";
+  private static final String LOCALE_EXT = ".locale";
   private List<LocaleFileDescriptor> localeFiles;
 
   public LocaleFilesProcessor() {
     localeFiles = new ArrayList<LocaleFileDescriptor>();
   }
 
+  /**
+   * 
+   * @param file
+   * @param parentPath
+   * @param bytes
+   * @return false - means discard the file extension type
+   * @throws IOException
+   */
   public boolean isLocaleFile(IRepositoryFileBundle file, String parentPath, byte[] bytes) throws IOException {
 
     boolean isLocale = false;
     String fileName = file.getFile().getName();
-    if (fileName.endsWith(".properties")) {
+    if (fileName.endsWith(PROPERTIES_EXT)) {
       InputStream inputStream = new ByteArrayInputStream(bytes);
-      Properties properties = new Properties();
-      properties.load(inputStream);
+      Properties properties = loadProperties(inputStream);
 
-      String name = properties.getProperty("name");
-      String title = properties.getProperty("title");
-      String description = properties.getProperty("description");
-      String url_name = properties.getProperty("url_name");
-      String url_description = properties.getProperty("url_description");
+      String name = properties.getProperty(NAME);
+      String title = properties.getProperty(TITLE);
+      String description = properties.getProperty(DESCRIPTION);
+      String url_name = properties.getProperty(URL_NAME);
+      String url_description = properties.getProperty(URL_DESCRIPTION);
 
       if (!StringUtils.isEmpty(url_name)) {
         name = url_name;
@@ -75,12 +96,21 @@ public class LocaleFilesProcessor {
             inputStream);
         localeFiles.add(localeFile);
 
+        /**
+         * assumes that the properties file has additional localization attributes and should be imported
+         */
         if (properties.size() <= 2) {
           isLocale = true;
         }
       }
     }
     return isLocale;
+  }
+
+  public Properties loadProperties(InputStream inputStream) throws IOException {
+    Properties properties = new Properties();
+    properties.load(inputStream);
+    return properties;
   }
 
   public boolean createLocaleEntry(String filePath, String name, String title, String description, RepositoryFile file, InputStream is)
@@ -108,7 +138,7 @@ public class LocaleFilesProcessor {
   public void processLocaleFiles(IPlatformImporter importer) throws PlatformImportException {
     RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
     NameBaseMimeResolver mimeResolver = PentahoSystem.get(NameBaseMimeResolver.class);
-    String mimeType = mimeResolver.resolveMimeForFileName("file.locale");
+    String mimeType = mimeResolver.resolveMimeForFileName(FILE_LOCALE_RESOLVER);
 
     for (LocaleFileDescriptor localeFile : localeFiles) {
       bundleBuilder.name(localeFile.getName());
