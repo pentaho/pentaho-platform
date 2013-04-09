@@ -99,7 +99,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
           Widget treeItemWidget = selectedItem.getWidget();
           if (selectedItem instanceof FileTreeItem) {
             RepositoryFile repositoryFile = ((FileTreeItem)selectedItem).getRepositoryFile();
-            if(repositoryFile.isHidden()) {
+            if(repositoryFile != null && repositoryFile.isHidden()) {
               if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
                 ((LeafItemWidget) treeItemWidget).getParent().removeStyleName("selected"); //$NON-NLS-1$
               } else {
@@ -125,7 +125,7 @@ public class SolutionTree extends Tree implements IRepositoryFileTreeListener, I
           Widget treeItemWidget = selectedItem.getWidget();
           if (selectedItem instanceof FileTreeItem) {
             RepositoryFile repositoryFile = ((FileTreeItem)selectedItem).getRepositoryFile();
-            if(repositoryFile.isHidden()) {
+            if(repositoryFile != null && repositoryFile.isHidden()) {
               if (treeItemWidget != null && treeItemWidget instanceof LeafItemWidget) {
               ((LeafItemWidget) treeItemWidget).getParent().addStyleName("hidden"); //$NON-NLS-1$
               ((LeafItemWidget) treeItemWidget).getParent().addStyleName("selected"); //$NON-NLS-1$
