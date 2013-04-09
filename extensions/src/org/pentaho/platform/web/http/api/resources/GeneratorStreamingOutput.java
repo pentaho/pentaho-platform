@@ -131,10 +131,12 @@ public class GeneratorStreamingOutput {
   }
 
   private void mimeTrace(String msg, Object... args) {
-    String prologue = MessageFormat.format(
-        "<< {3} [MIME TRACE] Content generator id [{0}] for file type [{1}] and resource [{2}]>>: ",
-        contentGeneratorID, fileType, command, this);
-    mimeTypeLogger.info(MessageFormat.format(prologue + msg, args));
+		if (mimeTypeLogger.isDebugEnabled()) {
+			String prologue = MessageFormat
+					.format("<< {3} [MIME TRACE] Content generator id [{0}] for file type [{1}] and resource [{2}]>>: ",
+							contentGeneratorID, fileType, command, this);
+			mimeTypeLogger.debug(MessageFormat.format(prologue + msg, args));
+		}
   }
 
   public void write(OutputStream output, MimeTypeCallback callback) throws IOException {
