@@ -1,7 +1,11 @@
 package org.pentaho.platform.engine.core.system.objfac.spring;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
@@ -25,8 +29,21 @@ public class BeanParser extends AbstractBeanDefinitionParser {
 
   @Override
   protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
-    BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(BeanBuilder.class.getName());
-    builder.addPropertyValue("type", element.getAttribute("class"));
+    String originalClassName = element.getAttribute("class");
+    element.setAttribute("class", BeanBuilder.class.getName());
+
+
+    BeanDefinitionHolder holder = parserContext.getDelegate().parseBeanDefinitionElement(element);
+    BeanDefinition definition = holder.getBeanDefinition();
+    definition.setAttribute("originalClassName", originalClassName);
+
+    parserContext.getDelegate().decorateBeanDefinitionIfRequired(element, holder);
+
+    definition.setBeanClassName(BeanBuilder.class.getName());
+
+
+//    BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(BeanBuilder.class.getName());
+    definition.getPropertyValues().addPropertyValue("type", originalClassName);
 
     Map<String, String> propMap = new HashMap<String, String>();
     Element objectproperties = DomUtils.getChildElementByTagName(element, Const.ATTRIBUTES);
@@ -41,11 +58,12 @@ public class BeanParser extends AbstractBeanDefinitionParser {
         }
       }
     }
-    builder.addPropertyValue(Const.ATTRIBUTES, propMap);
+    definition.getPropertyValues().addPropertyValue(Const.ATTRIBUTES, propMap);
 
-    AbstractBeanDefinition definition = builder.getRawBeanDefinition();
-    definition.setSource(parserContext.extractSource(element));
-    return definition;
+//    AbstractBeanDefinition definition = builder.getRawBeanDefinition();
+//    definition.setSource(parserContext.extractSource(element));
+
+    return new GenericBeanDefinition(definition);
   }
 
   /**

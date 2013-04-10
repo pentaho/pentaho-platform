@@ -238,7 +238,7 @@ public class StandaloneObjectFactory implements IPentahoDefinableObjectFactory {
 
   @Override
   public boolean objectDefined(Class<?> clazz) {
-    return instanceMap.containsKey(clazz.getSimpleName());  //To change body of implemented methods use File | Settings | File Templates.
+    return instanceMap.containsKey(clazz.getSimpleName()) || creators.get(clazz.getSimpleName()) != null;
   }
 
   @Override

@@ -115,5 +115,13 @@ PentahoSystem which is initialized after Spring
 
   </bean>
 
+  <!-- test re-publishing a pen:bean with new attributes -->
+  <pen:bean class="org.pentaho.platform.engine.core.MimeTypeListener">
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="republished" value="true"/>
+      </pen:attributes>
+    </pen:publish>
+  </pen:bean>
 
 </beans>

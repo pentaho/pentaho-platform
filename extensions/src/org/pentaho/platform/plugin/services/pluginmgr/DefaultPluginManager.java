@@ -198,8 +198,13 @@ public class DefaultPluginManager implements IPluginManager {
         }
       }
 
+
       for (IPlatformPlugin plugin : providedPlugins) {
         try {
+          GenericApplicationContext beanFactory = beanFactoryMap.get(plugin.getId());
+          if(beanFactory != null){
+            beanFactory.refresh();
+          }
           registerPlugin(plugin);
           registeredPlugins.put(plugin.getId(), plugin);
         } catch (Throwable t) {
@@ -431,6 +436,7 @@ public class DefaultPluginManager implements IPluginManager {
       beanFactory = (GenericApplicationContext) nativeBeanFactory;
     } else{
       beanFactory = new GenericApplicationContext();
+      beanFactory.setClassLoader(loader);
       beanFactory.getBeanFactory().setBeanClassLoader(loader);
 
       if (nativeBeanFactory != null) {
@@ -459,12 +465,7 @@ public class DefaultPluginManager implements IPluginManager {
 
     StandaloneSpringPentahoObjectFactory pentahoFactory = new StandaloneSpringPentahoObjectFactory("Plugin Factory ( "+plugin.getId()+" )" );
     pentahoFactory.init(null, beanFactory);
-    PentahoSystem.registerObjectFactory(pentahoFactory);
 
-    if (nativeBeanFactory instanceof ConfigurableApplicationContext) {
-      //yeah, we're eagerly init'ing for now. If this becomes a problem we can lazily do it from getApplicationContext
-      ((ConfigurableApplicationContext) nativeBeanFactory).refresh();
-    }
   }
 
   /**
