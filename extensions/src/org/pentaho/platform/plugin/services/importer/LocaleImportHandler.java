@@ -35,13 +35,13 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 public class LocaleImportHandler extends RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
-  private static final String FILE_DESCRIPTION = "file.description";
+  private static final String FILE_DESCRIPTION = "file.description"; //jcr meta entry
 
-  private static final String FILE_TLTLE = "file.tltle";
+  private static final String FILE_TLTLE = "file.tltle";//jcr meta entry
 
-  private static final String LOCALE_FOLDER = "index";
+  private static final String LOCALE_FOLDER = "index"; //special type for folders
 
-  private static final String LOCALE_EXT = ".locale";
+  private String localizationFileExtension = ".locale"; //spring injected
 
   private List<String> artifacts; //spring injected file extensions
 
@@ -49,7 +49,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   public LocaleImportHandler(List<String> artifacts) {
     this.unifiedRepository = PentahoSystem.get(IUnifiedRepository.class);
-    this.artifacts = artifacts;
+    this.artifacts = artifacts;    
   }
 
   public void importFile(IPlatformImportBundle bundle) throws PlatformImportException {
@@ -95,11 +95,12 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
   private String extractLocaleCode(RepositoryFileImportBundle localeBundle) {
     String localeCode = "default";
     String localeFileName = localeBundle.getName();
-    if(localeBundle.getFile() != null){
-      localeFileName = localeBundle.getFile().getName();;
+    if (localeBundle.getFile() != null) {
+      localeFileName = localeBundle.getFile().getName();
+      
     }
     for (Locale locale : Locale.getAvailableLocales()) {
-      if (localeFileName.endsWith("_" + locale + LOCALE_EXT)) {
+      if (localeFileName.endsWith("_" + locale + localizationFileExtension)) {
         localeCode = locale.toString();
         break;
       }
@@ -138,7 +139,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
   }
 
   private boolean isLocaleFolder(String localeFileName) {
-    return localeFileName.startsWith(LOCALE_FOLDER) && localeFileName.endsWith(LOCALE_EXT);
+    return localeFileName.startsWith(LOCALE_FOLDER) && localeFileName.endsWith(localizationFileExtension);
   }
 
   private String extractExtension(String name) {
@@ -155,5 +156,13 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
       return name;
     }
     return name.substring(0, idx);
+  }
+
+  public String getLocalizationFileExtension() {
+    return localizationFileExtension;
+  }
+
+  public void setLocalizationFileExtension(String localizationFileExtension) {
+    this.localizationFileExtension = localizationFileExtension;
   }
 }

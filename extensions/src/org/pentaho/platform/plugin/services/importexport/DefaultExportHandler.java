@@ -37,8 +37,6 @@ public class DefaultExportHandler implements ExportHandler {
   private Map<String, Converter> converters;
 
   private IUnifiedRepository repository;
-
-  private List<String> localeExportList;
   
   /**
    * Perform export with registered handlers
@@ -72,14 +70,6 @@ public class DefaultExportHandler implements ExportHandler {
 
   public void setRepository(IUnifiedRepository repository) {
     this.repository = repository;
-  }
-
-  public List<String> getLocaleExportList() {
-    return localeExportList;
-  }
-
-  public void setLocaleExportList(List<String> localeExportList) {
-    this.localeExportList = localeExportList;
   }
   
 }
