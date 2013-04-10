@@ -16,19 +16,23 @@
  */
 package org.pentaho.mantle.client.workspace;
 
+import org.pentaho.mantle.client.messages.Messages;
+
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
-import org.pentaho.mantle.client.messages.Messages;
 
-public class WorkspacePanel extends VerticalPanel {
+public class SchedulesPerspectivePanel extends VerticalPanel {
   static final int PAGE_SIZE = 25;
-  private static WorkspacePanel instance = new WorkspacePanel();
+  private static SchedulesPerspectivePanel instance = new SchedulesPerspectivePanel();
   private SchedulesPanel schedulesPanel;
   private BlockoutPanel blockoutPanel;
 
@@ -36,11 +40,11 @@ public class WorkspacePanel extends VerticalPanel {
   private boolean isAdmin;
 
 
-  public static WorkspacePanel getInstance() {
+  public static SchedulesPerspectivePanel getInstance() {
     return instance;
   }
 
-  public WorkspacePanel() {
+  public SchedulesPerspectivePanel() {
     try {
       final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);

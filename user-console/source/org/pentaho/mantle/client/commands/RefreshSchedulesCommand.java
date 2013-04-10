@@ -16,7 +16,7 @@
  */
 package org.pentaho.mantle.client.commands;
 
-import org.pentaho.mantle.client.workspace.WorkspacePanel;
+import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
@@ -27,9 +27,9 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 
-public class RefreshWorkspaceCommand extends AbstractCommand {
+public class RefreshSchedulesCommand extends AbstractCommand {
 
-  public RefreshWorkspaceCommand() {
+  public RefreshSchedulesCommand() {
   }
 
   protected void performOperation() {
@@ -47,7 +47,7 @@ public class RefreshWorkspaceCommand extends AbstractCommand {
           GWT.runAsync(new RunAsyncCallback() {
             
             public void onSuccess() {
-              WorkspacePanel.getInstance().refresh();
+              SchedulesPerspectivePanel.getInstance().refresh();
             }
             
             public void onFailure(Throwable reason) {
@@ -59,7 +59,7 @@ public class RefreshWorkspaceCommand extends AbstractCommand {
           GWT.runAsync(new RunAsyncCallback() {
             
             public void onSuccess() {
-              WorkspacePanel.getInstance().refresh();
+              SchedulesPerspectivePanel.getInstance().refresh();
             }
             
             public void onFailure(Throwable reason) {

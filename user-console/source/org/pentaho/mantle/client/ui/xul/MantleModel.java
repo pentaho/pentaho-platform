@@ -28,7 +28,7 @@ import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.OpenDocCommand;
 import org.pentaho.mantle.client.commands.OpenFileCommand;
 import org.pentaho.mantle.client.commands.RefreshRepositoryCommand;
-import org.pentaho.mantle.client.commands.RefreshWorkspaceCommand;
+import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.commands.SaveCommand;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
@@ -153,11 +153,11 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   }
 
   @Bindable
-  public void showWorkspace() {
+  public void showSchedules() {
     IPluginPerspective perspective = PerspectiveManager.getInstance().getActivePerspective();
-    boolean showing = perspective.getId().equalsIgnoreCase(PerspectiveManager.WORKSPACE_PERSPECTIVE);
+    boolean showing = perspective.getId().equalsIgnoreCase(PerspectiveManager.SCHEDULES_PERSPECTIVE);
     if (!showing || !this.showBrowserSelected) {    
-      PerspectiveManager.getInstance().setPerspective(PerspectiveManager.WORKSPACE_PERSPECTIVE);
+      PerspectiveManager.getInstance().setPerspective(PerspectiveManager.SCHEDULES_PERSPECTIVE);
     }    
   }
   
@@ -255,8 +255,8 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   @Bindable
   public void refreshContent() {
-    if ("workspace.perspective".equals(PerspectiveManager.getInstance().getActivePerspective().getId())) {
-      Command cmd = new RefreshWorkspaceCommand();
+    if (PerspectiveManager.SCHEDULES_PERSPECTIVE.equals(PerspectiveManager.getInstance().getActivePerspective().getId())) {
+      Command cmd = new RefreshSchedulesCommand();
       cmd.execute();
     } else {
       Command cmd = new RefreshRepositoryCommand();

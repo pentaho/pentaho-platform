@@ -44,8 +44,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static org.pentaho.mantle.client.workspace.WorkspacePanel.CellTableResources;
-import static org.pentaho.mantle.client.workspace.WorkspacePanel.PAGE_SIZE;
+import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
+import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
 
 public class BlockoutPanel extends SimplePanel {
   private CellTable<JsJob> table =

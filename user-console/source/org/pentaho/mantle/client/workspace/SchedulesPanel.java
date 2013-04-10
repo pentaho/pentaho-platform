@@ -17,7 +17,7 @@
 package org.pentaho.mantle.client.workspace;
 
 import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_LEFT;
-import static org.pentaho.mantle.client.workspace.WorkspacePanel.PAGE_SIZE;
+import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,12 +32,12 @@ import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
-import org.pentaho.mantle.client.commands.RefreshWorkspaceCommand;
+import org.pentaho.mantle.client.commands.RefreshSchedulesCommand;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.fileproperties.GeneratedContentPanel;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.NewScheduleDialog;
-import org.pentaho.mantle.client.workspace.WorkspacePanel.CellTableResources;
+import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
@@ -626,7 +626,7 @@ public class SchedulesPanel extends SimplePanel {
     refresh.setToolTip(Messages.getString("refreshTooltip"));
     refresh.setCommand(new Command() {
       public void execute() {
-        RefreshWorkspaceCommand cmd = new RefreshWorkspaceCommand();
+        RefreshSchedulesCommand cmd = new RefreshSchedulesCommand();
         cmd.execute();
       }
     });

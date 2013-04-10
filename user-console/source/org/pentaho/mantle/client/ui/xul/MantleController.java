@@ -36,7 +36,6 @@ import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
 import org.pentaho.mantle.client.commands.SwitchThemeCommand;
 import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filepicklist.AbstractFilePickList;
@@ -191,7 +190,7 @@ public class MantleController extends AbstractXulEventHandler {
 
     //let the manager have access to these menu items to toggle checks off and on 
     PerspectiveManager.getInstance().setBrowserMenuItem((PentahoMenuItem) showBrowserMenuItem.getManagedObject());
-    PerspectiveManager.getInstance().setWorkspaceMenuItem((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject());
+    PerspectiveManager.getInstance().setSchedulesMenuItem((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject());
     ((PentahoMenuItem)showBrowserMenuItem.getManagedObject()).setChecked(true);
     
     // install language sub-menus
@@ -671,7 +670,7 @@ public class MantleController extends AbstractXulEventHandler {
   @Bindable
   public void showWorkspaceClicked() {
     model.setShowBrowserSelected(false);    
-    model.showWorkspace();   
+    model.showSchedules();   
   }
  
   @Bindable

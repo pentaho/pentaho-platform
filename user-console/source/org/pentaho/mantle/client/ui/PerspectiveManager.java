@@ -32,7 +32,7 @@ import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.ui.xul.JsPerspective;
 import org.pentaho.mantle.client.ui.xul.JsXulOverlay;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
-import org.pentaho.mantle.client.workspace.WorkspacePanel;
+import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.platform.plugin.services.pluginmgr.perspective.pojo.DefaultPluginPerspective;
 import org.pentaho.ui.xul.XulOverlay;
@@ -63,7 +63,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class PerspectiveManager extends HorizontalPanel {
 
   public static final String ADMIN_PERSPECTIVE = "admin.perspective";
-  public static final String WORKSPACE_PERSPECTIVE = "workspace.perspective";
+  public static final String SCHEDULES_PERSPECTIVE = "schedules.perspective";
   public static final String DEFAULT_PERSPECTIVE = "default.perspective";
   public static final String PROPERTIES_EXTENSION = ".properties"; //$NON-NLS-1$
   public static final String SEPARATOR = "/"; //$NON-NLS-1$
@@ -71,7 +71,7 @@ public class PerspectiveManager extends HorizontalPanel {
   private ArrayList<ToggleButton> toggles = new ArrayList<ToggleButton>();
   
   private PentahoMenuItem browserMenuItem;
-  private PentahoMenuItem workspaceMenuItem;
+  private PentahoMenuItem schedulesMenuItem;
 
   // create an overlay list to later register with the main toolbar/menubar
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
@@ -339,7 +339,7 @@ public class PerspectiveManager extends HorizontalPanel {
       }
     }
 
-    if (source.isDown() && !perspective.getId().equals(DEFAULT_PERSPECTIVE) && !perspective.getId().equals(WORKSPACE_PERSPECTIVE)
+    if (source.isDown() && !perspective.getId().equals(DEFAULT_PERSPECTIVE) && !perspective.getId().equals(SCHEDULES_PERSPECTIVE)
         && !perspective.getId().equals(ADMIN_PERSPECTIVE)) {
       hijackContentArea(perspective);
     }
@@ -357,36 +357,36 @@ public class PerspectiveManager extends HorizontalPanel {
     // if the selected perspective is "default.perspective"
     if (perspective.getId().equals(DEFAULT_PERSPECTIVE)) {
       showDefaultPerspective(true, false);
-    } else if (perspective.getId().equals(WORKSPACE_PERSPECTIVE)) {
-      showWorkspacePerspective();
+    } else if (perspective.getId().equals(SCHEDULES_PERSPECTIVE)) {
+      showSchedulesPerspective();
     } else if (perspective.getId().equals(ADMIN_PERSPECTIVE)) {
       showAdminPerspective(false,false);
     }
   }
 
-  private void showDefaultPerspective(boolean browserChecked, boolean workspaceChecked) {
+  private void showDefaultPerspective(boolean browserChecked, boolean schedulesChecked) {
     DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
     if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(SolutionBrowserPanel.getInstance()) == -1) {
       contentDeck.add(SolutionBrowserPanel.getInstance());
     }
     // show stuff we've created/configured
     contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
-    setCheckMMenuItem(browserChecked,workspaceChecked);
+    setCheckMMenuItem(browserChecked,schedulesChecked);
     MantleApplication.getInstance().pucToolBarVisibility(true);
   }
 
-  private void showWorkspacePerspective() {
+  private void showSchedulesPerspective() {
    
     GWT.runAsync(new RunAsyncCallback() {
       
       public void onSuccess() {
         DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
-        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(WorkspacePanel.getInstance()) == -1) {
-          contentDeck.add(WorkspacePanel.getInstance());
+        if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(SchedulesPerspectivePanel.getInstance()) == -1) {
+          contentDeck.add(SchedulesPerspectivePanel.getInstance());
         } else {
-          WorkspacePanel.getInstance().refresh();
+          SchedulesPerspectivePanel.getInstance().refresh();
         }
-        contentDeck.showWidget(contentDeck.getWidgetIndex(WorkspacePanel.getInstance()));       
+        contentDeck.showWidget(contentDeck.getWidgetIndex(SchedulesPerspectivePanel.getInstance()));       
       }
       
       public void onFailure(Throwable reason) {
@@ -396,7 +396,7 @@ public class PerspectiveManager extends HorizontalPanel {
     setCheckMMenuItem(false,true);
   }
 
-  private void showAdminPerspective(boolean browserChecked, boolean workspaceChecked) {
+  private void showAdminPerspective(boolean browserChecked, boolean schedulesChecked) {
     DeckPanel contentDeck = MantleApplication.getInstance().getContentDeck();
     if (MantleApplication.getInstance().getContentDeck().getWidgetIndex(MantleXul.getInstance().getAdminPerspective()) == -1) {
       contentDeck.add(MantleXul.getInstance().getAdminPerspective());
@@ -404,8 +404,8 @@ public class PerspectiveManager extends HorizontalPanel {
     contentDeck.showWidget(contentDeck.getWidgetIndex(MantleXul.getInstance().getAdminPerspective()));
     MantleXul.getInstance().customizeAdminStyle();
     MantleXul.getInstance().configureAdminCatTree();
-    //disable Browser and Workspace menuItem
-    setCheckMMenuItem(browserChecked,workspaceChecked);
+    //disable Browser and schedules menuItem
+    setCheckMMenuItem(browserChecked,schedulesChecked);
     MantleApplication.getInstance().pucToolBarVisibility(false); //this should not be needed since overlay removes.
   }
 
@@ -482,14 +482,14 @@ public class PerspectiveManager extends HorizontalPanel {
     this.browserMenuItem = menuItem;
   }
   
-  public void setWorkspaceMenuItem(PentahoMenuItem menuItem){
-    this.workspaceMenuItem = menuItem;
+  public void setSchedulesMenuItem(PentahoMenuItem menuItem){
+    this.schedulesMenuItem = menuItem;
   }
   
-  private void setCheckMMenuItem(boolean browserChecked,boolean workspaceChecked) {
-    if( this.browserMenuItem != null && this.workspaceMenuItem != null){
+  private void setCheckMMenuItem(boolean browserChecked,boolean schedulesChecked) {
+    if( this.browserMenuItem != null && this.schedulesMenuItem != null){
       this.browserMenuItem.setChecked(browserChecked);
-      this.workspaceMenuItem.setChecked(workspaceChecked);
+      this.schedulesMenuItem.setChecked(schedulesChecked);
     }
   }
 }

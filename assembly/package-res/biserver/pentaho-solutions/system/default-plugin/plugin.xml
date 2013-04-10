@@ -12,7 +12,7 @@
                resourcebundle="content/default-plugin/resources/messages/messages">
   </perspective>
 
-  <perspective id="workspace.perspective" title="${workspace}" layout-priority="10"
+  <perspective id="schedules.perspective" title="${schedules}" layout-priority="10"
                resourcebundle="content/default-plugin/resources/messages/messages">
   </perspective>
 
