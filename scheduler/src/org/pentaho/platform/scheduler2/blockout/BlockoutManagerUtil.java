@@ -60,7 +60,6 @@ public class BlockoutManagerUtil {
         // Loop through fire times and verify whether block out is blocking the schedule completely
         boolean scheduleCompletelyBlocked = true;
         for (Date fireTime : fireTimes) {
-
           scheduleCompletelyBlocked = isBlockoutComplex ? willComplexBlockOutTriggerBlockDate(blockOutJobTrigger,
               blockoutFireTimes, fireTime) : willBlockDate(blockOutJobTrigger, fireTime, scheduler);
 
@@ -292,7 +291,7 @@ public class BlockoutManagerUtil {
         for (int i = 0; i < n; i++) {
           Date nextFireTime = trigger.getFireTimeAfter(startDate);
 
-          if ((nextFireTime != null) && nextFireTime.after(endDate) || (!endDateIsNull && nextFireTime.after(jobTrigger.getEndTime()))) {
+          if ((nextFireTime == null) ||  (nextFireTime.after(endDate) || (!endDateIsNull && nextFireTime.after(jobTrigger.getEndTime())))) {
             break;
           }
 
