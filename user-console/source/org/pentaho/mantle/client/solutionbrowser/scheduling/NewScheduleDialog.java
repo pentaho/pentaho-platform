@@ -155,6 +155,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       finishButton.setText(Messages.getString("ok"));
     }
     setupExisting(jsJob);
+    setHeight("100%");
   }
 
   private void setupExisting(JsJob jsJob) {

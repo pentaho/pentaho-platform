@@ -61,6 +61,7 @@ public class BlockoutPanel extends SimplePanel {
 
     public void cancelPressed() {refresh(); }
   };
+  private Label headlineLabel;
 
   public BlockoutPanel(final boolean isAdmin) {
     createUI(isAdmin);
@@ -81,7 +82,8 @@ public class BlockoutPanel extends SimplePanel {
   private void createHeadlineBar() {
     Toolbar bar = new Toolbar();
     bar.addSpacer(10);
-    bar.add(new Label(Messages.getString("blockoutHeadline")));
+    headlineLabel = new Label("");
+    bar.add(headlineLabel);
 
     bar.setWidth("100%");
     widgets.add(bar);
@@ -285,9 +287,11 @@ public class BlockoutPanel extends SimplePanel {
     if (allBlocks == null || allBlocks.length() == 0) {
       tablePanel.setVisible(false);
       blockoutButton.setVisible(true);
+      headlineLabel.setText(Messages.getString("blockoutNone"));
     } else {
       tablePanel.setVisible(true);
       blockoutButton.setVisible(false);
+      headlineLabel.setText(Messages.getString("blockoutHeadline"));
       List<JsJob> jobList = new ArrayList<JsJob>();
       for (int i = 0; i < allBlocks.length(); i++) {
         JsJob job = allBlocks.get(i);
