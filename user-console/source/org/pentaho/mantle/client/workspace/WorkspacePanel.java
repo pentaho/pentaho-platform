@@ -90,11 +90,9 @@ public class WorkspacePanel extends VerticalPanel {
     schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
     add(schedulesPanel);
     setCellHeight(schedulesPanel, "50%");
-    Toolbar bar = new Toolbar();
-    bar.addSpacer(10);
-    bar.add(new Label(Messages.getString("blockoutTimes")));
-    bar.setHeight("1em");
-    add(bar);
+    Label blockoutTimes = new Label(Messages.getString("blockoutTimes"));
+    blockoutTimes.setStyleName("workspaceHeading");
+    add(blockoutTimes);
     setVerticalAlignment(ALIGN_TOP);
     blockoutPanel = new BlockoutPanel(isAdmin);
     add(blockoutPanel);

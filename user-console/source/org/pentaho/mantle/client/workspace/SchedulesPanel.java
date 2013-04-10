@@ -16,6 +16,7 @@
  */
 package org.pentaho.mantle.client.workspace;
 
+import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_LEFT;
 import static org.pentaho.mantle.client.workspace.WorkspacePanel.PAGE_SIZE;
 
 import java.util.ArrayList;
@@ -619,7 +620,6 @@ public class SchedulesPanel extends SimplePanel {
 
     Toolbar bar = new Toolbar();
     bar.addSpacer(10);
-    bar.add(new Label(Messages.getString("schedules")));
     bar.add(Toolbar.GLUE);
 
     ToolbarButton refresh = new ToolbarButton(new Image(MantleImages.images.refresh()));
@@ -806,6 +806,10 @@ public class SchedulesPanel extends SimplePanel {
     bar.add(scheduleRemoveButton);
     bar.addSpacer(50);
 
+    Label schedulesLabel = new Label(Messages.getString("schedules"));
+    schedulesLabel.setStyleName("workspaceHeading");
+    tableAndPager.add(schedulesLabel);
+    tableAndPager.setCellHorizontalAlignment(schedulesLabel, ALIGN_LEFT);
     tableAndPager.add(bar);
     tableAndPager.add(table);
     tableAndPager.add(pager);
