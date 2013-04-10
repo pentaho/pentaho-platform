@@ -22,7 +22,6 @@ package org.pentaho.platform.web.http.context;
 
 import org.pentaho.platform.engine.core.system.objfac.AbstractSpringPentahoObjectFactory;
 import org.pentaho.platform.web.http.messages.Messages;
-import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
@@ -67,8 +66,7 @@ public class WebSpringPentahoObjectFactory extends AbstractSpringPentahoObjectFa
     }
 
     ServletContext servletContext = (ServletContext) context;
-    XmlWebApplicationContext ctx = (XmlWebApplicationContext) WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
 
-    beanFactory = ctx;
+    beanFactory = (XmlWebApplicationContext) WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
   }
 }

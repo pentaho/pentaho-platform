@@ -64,8 +64,8 @@
         </xsd:appinfo>
       </xsd:annotation>
       <xsd:sequence>
-
         <xsd:element ref="attributes" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="publish" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
       <xsd:attribute type="xsd:string" name="id"/>
 

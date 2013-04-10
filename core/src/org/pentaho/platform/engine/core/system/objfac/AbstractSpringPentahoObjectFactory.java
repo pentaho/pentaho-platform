@@ -437,9 +437,17 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
         // if the factory has the bean, but not the definition, it's likely an alias.
         String[] aliases = beanFactory.getBeanFactory().getAliases(name);
         if(aliases.length > 0){
-          // first will be the original bean
-          ref = this.getBeanDefinitionFromFactory(aliases[0]);
-          refs.add(new BeanDefinitionNamePair(aliases[0], ref));
+          try{
+
+            // first will be the original bean
+            ref = this.getBeanDefinitionFromFactory(aliases[0]);
+            refs.add(new BeanDefinitionNamePair(aliases[0], ref));
+          } catch(NoSuchBeanDefinitionException e){
+            // If we end up here, then the bean is present in a parent beanFactory and bean definitions are not available.
+            // we could instanceof ConfigurableListableBeanFactory the parent, but this is a good place to stop. The
+            // parent applicationContext is likely already added to the AggregateObjectFactory.
+            logger.debug("Unable to find bean definition for name:"+name+" it likely exists in a parent BeanFactory");
+          }
         }
       }
     }
@@ -463,6 +471,10 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
           }
         }
       }
+    }
+    // check to make sure something make it through filtering
+    if(refs.size() == 0){
+      return null;
     }
 
 
