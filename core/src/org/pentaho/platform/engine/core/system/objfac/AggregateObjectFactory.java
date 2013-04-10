@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * AggregateObectFactory holds a collection of IPentahoObjectFactory implementations, delegating calls to each and

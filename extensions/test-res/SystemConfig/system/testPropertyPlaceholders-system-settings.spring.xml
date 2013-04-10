@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
+
+  <!-- Register with PentahoSystem -->
+  <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer" scope="singleton"/>
+
+  <!-- adds placeholder support -->
+  <bean class="org.pentaho.platform.config.PentahoPropertyPlaceholderConfigurer" >
+    <constructor-arg>
+      <pen:bean class="org.pentaho.platform.api.engine.ISystemConfig"/>
+    </constructor-arg>
+  </bean>
+
+  <!-- Config registry -->
+  <bean id="SystemConfig" class="org.pentaho.platform.config.SystemConfig">
+    <constructor-arg>
+      <pen:list class="org.pentaho.platform.api.engine.IConfiguration"/>
+    </constructor-arg>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <!-- Register SystemSettings -->
+  <bean class="org.pentaho.platform.config.SystemSettingsConfiguration">
+    <constructor-arg value="system"/>
+    <constructor-arg><bean class="org.pentaho.platform.engine.core.system.PathBasedSystemSettings"/></constructor-arg>
+
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <!-- Register Property file -->
+  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+    <constructor-arg value="test"/>
+    <constructor-arg value="test.properties"/>
+
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+
+  <bean id="testPlaceHolder" class="java.lang.String">
+    <constructor-arg value="${system.sampledata-datasource.type}"/>
+  </bean>
+
+  <bean id="testPlaceHolder2" class="java.lang.String">
+    <constructor-arg value="${test.someProperty}"/>
+  </bean>
+
+
+</beans>

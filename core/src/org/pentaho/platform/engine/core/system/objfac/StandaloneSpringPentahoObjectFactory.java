@@ -89,10 +89,15 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
       }
 
       ConfigurableApplicationContext configAppCtx = (ConfigurableApplicationContext) context;
-      Scope requestScope = new ThreadLocalScope();
-      configAppCtx.getBeanFactory().registerScope("request", requestScope);
-      Scope sessionScope = new ThreadLocalScope();
-      configAppCtx.getBeanFactory().registerScope("session", sessionScope);
+
+      if(configAppCtx.getBeanFactory().getRegisteredScope("request") == null){
+        Scope requestScope = new ThreadLocalScope();
+        configAppCtx.getBeanFactory().registerScope("request", requestScope);
+      }
+      if(configAppCtx.getBeanFactory().getRegisteredScope("session") == null){
+        Scope sessionScope = new ThreadLocalScope();
+        configAppCtx.getBeanFactory().registerScope("session", sessionScope);
+      }
 
       setBeanFactory(configAppCtx);
     }
@@ -101,6 +106,9 @@ public class StandaloneSpringPentahoObjectFactory extends AbstractSpringPentahoO
 
     public Object get(String name, ObjectFactory objectFactory) {
       IPentahoSession session = SpringScopeSessionHolder.SESSION.get();
+      if(session == null){
+        return null;
+      }
       Object object = session.getAttribute(name);
       if (object == null) {
         object = objectFactory.getObject();

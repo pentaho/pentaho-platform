@@ -2,6 +2,7 @@ package org.pentaho.platform.engine.core;
 
 import org.junit.Test;
 import org.pentaho.platform.api.engine.IContentInfo;
+import org.pentaho.platform.api.engine.IMimeTypeListener;
 import org.pentaho.platform.api.engine.IPentahoDefinableObjectFactory;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneSession;
@@ -14,6 +15,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
+import java.util.Collections;
 import java.util.List;
 
 import static junit.framework.Assert.*;
@@ -66,6 +68,28 @@ public class AggregateObjectFactoryTest {
 
     List<MimeTypeListener> mimes = aggFactory.getAll(MimeTypeListener.class, session);
     assertEquals(11, mimes.size());
+
+  }
+
+
+  @Test
+  public void testRePublish() throws Exception{
+
+    StandaloneSession session = new StandaloneSession();
+    StandaloneSpringPentahoObjectFactory factory = new StandaloneSpringPentahoObjectFactory( );
+    factory.init("test-res/solution/system/republish.spring.xml", null);
+
+    PentahoSystem.registerObjectFactory(factory);
+
+    MimeTypeListener republished = PentahoSystem.get(MimeTypeListener.class, session, Collections.singletonMap("republished", "true"));
+    assertNotNull(republished);
+
+    assertEquals("Higher Priority MimeTypeListener", republished.name);
+
+
+    IMimeTypeListener republishedAsInterface = PentahoSystem.get(IMimeTypeListener.class, session, Collections.singletonMap("republishedAsInterface", "true"));
+    assertNotNull(republishedAsInterface);
+    assertEquals("Higher Priority MimeTypeListener", ((MimeTypeListener)republishedAsInterface).name);
 
   }
 }

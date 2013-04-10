@@ -47,13 +47,21 @@ public class BeanPublishParser implements BeanDefinitionDecorator {
 
 
     String publishType = null;
-    String beanClassName = beanDefinitionHolder.getBeanDefinition().getBeanClassName();
-    if(node.getAttributes().getNamedItem(ATTR) != null){                          // publish as type if specified
-      publishType = node.getAttributes().getNamedItem(ATTR).getNodeValue();
-    } else {                                                                      // fallback to publish as itself
-      publishType = beanClassName;
+    String beanClassName;
+
+    // If this is a republish of a pen:bean, the class will be a FactoryBean and the actual class returned back the
+    // factory will be stored as an attribute.
+    if(beanDefinitionHolder.getBeanDefinition().getAttribute("originalClassName") != null){
+      beanClassName = beanDefinitionHolder.getBeanDefinition().getAttribute("originalClassName").toString();
+    } else {
+      beanClassName = beanDefinitionHolder.getBeanDefinition().getBeanClassName();
     }
 
+    if(node.getAttributes().getNamedItem(ATTR) != null){                          // publish as type if specified
+      publishType = node.getAttributes().getNamedItem(ATTR).getNodeValue();
+    } else { // fallback to publish as itself
+      publishType = beanClassName;
+    }
 
     NodeList nodes = node.getChildNodes();
 
@@ -80,7 +88,11 @@ public class BeanPublishParser implements BeanDefinitionDecorator {
       Class<?> clazz = getClass().getClassLoader().loadClass(beanClassName);
 
       if(specialPublishTypes.INTERFACES.name().equals(publishType)) {
-        classesToPublish.addAll(ClassUtils.getAllInterfaces(clazz));
+        if(clazz.isInterface()){ // publish as self if interface already (re-publish flow)
+          classesToPublish.add(clazz);
+        } else {
+          classesToPublish.addAll(ClassUtils.getAllInterfaces(clazz));
+        }
       } else if(specialPublishTypes.CLASSES.name().equals(publishType)) {
 
         classesToPublish.addAll(ClassUtils.getAllSuperclasses(clazz));
