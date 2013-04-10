@@ -31,6 +31,7 @@ public class NewBlockoutScheduleDialog extends NewScheduleDialog
     } else {
       addBlockoutPeriod(schedule, trigger, "add");
     }
+    getCallback().okPressed();
 
     return true;
   }
