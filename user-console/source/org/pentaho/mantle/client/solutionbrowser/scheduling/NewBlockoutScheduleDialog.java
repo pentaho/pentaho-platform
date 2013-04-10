@@ -27,7 +27,7 @@ public class NewBlockoutScheduleDialog extends NewScheduleDialog
     JSONObject schedule = getSchedule();
 
     if(updateMode) {
-      addBlockoutPeriod(schedule, trigger, "update/" + editJob.getJobId());
+      addBlockoutPeriod(schedule, trigger, "update?jobid=" + editJob.getJobId());
     } else {
       addBlockoutPeriod(schedule, trigger, "add");
     }
