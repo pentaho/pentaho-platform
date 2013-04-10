@@ -80,13 +80,8 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   private void createHeadlineBar() {
-    Toolbar bar = new Toolbar();
-    bar.addSpacer(10);
     headlineLabel = new Label("");
-    bar.add(headlineLabel);
-
-    bar.setWidth("100%");
-    widgets.add(bar);
+    widgets.add(headlineLabel);
   }
 
   private void createControls(final boolean isAdmin) {
