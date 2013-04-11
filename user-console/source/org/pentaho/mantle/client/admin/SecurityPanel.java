@@ -406,7 +406,7 @@ public class SecurityPanel extends SimplePanel implements ChangeHandler, ValueCh
   
   public void passivate(final AsyncCallback<Boolean> callback) {
     if (newRoleAssignments.size() > 0) {
-      MessageDialogBox dialog = new MessageDialogBox("ABS", "Save changes? Choosing \"No\" will result is the loss of changes made.", false, true, true, "Yes", "No", "Cancel");
+      MessageDialogBox dialog = new MessageDialogBox("ABS", "Save changes? Choosing \"No\" will result in the loss of changes made.", false, true, true, "Yes", "No", "Cancel");
       dialog.setCallback(new IThreeButtonDialogCallback() {
         
         public void okPressed() {
