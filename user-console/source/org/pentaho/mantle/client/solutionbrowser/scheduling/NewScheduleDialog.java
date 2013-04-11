@@ -111,7 +111,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
   public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid,
       boolean showScheduleName, final ScheduleDialogType type) {
-    super(type, Messages.getString("editSchedule"), null, false, true); //$NON-NLS-1$
+    super(
+        type,
+        type != ScheduleDialogType.BLOCKOUT ? Messages.getString("editSchedule") : Messages.getString("editBlockoutSchedule"), null, false, true); //$NON-NLS-1$ //$NON-NLS-2$
     isBlockoutDialog = (type == ScheduleDialogType.BLOCKOUT);
     setCallback(callback);
     this.editJob = jsJob;
