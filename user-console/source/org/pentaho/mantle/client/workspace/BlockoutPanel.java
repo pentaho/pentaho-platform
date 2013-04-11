@@ -128,6 +128,7 @@ public class BlockoutPanel extends SimplePanel {
         JsJob jsJob = jobs.iterator().next();
 
         NewBlockoutScheduleDialog blockoutDialog = new NewBlockoutScheduleDialog(jsJob, refreshCallBack, false, true, false);
+        table.getSelectionModel().setSelected(jsJob, false);
         blockoutDialog.setUpdateMode();
         blockoutDialog.center();
       }
@@ -141,6 +142,7 @@ public class BlockoutPanel extends SimplePanel {
           ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
         for (JsJob jsJob : selectedSet) {
           removeBlockout(jsJob);
+          table.getSelectionModel().setSelected(jsJob, false);
         }
       }
     });
