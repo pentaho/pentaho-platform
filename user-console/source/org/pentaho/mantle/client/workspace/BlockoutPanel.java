@@ -273,6 +273,7 @@ public class BlockoutPanel extends SimplePanel {
     RequestBuilder builder = new RequestBuilder(httpMethod, url);
     builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     builder.setHeader("Content-Type", "application/json");
+    builder.setHeader("accept", "application/json");
     try {
       builder.sendRequest(requestData, callback);
     } catch (RequestException e) {
