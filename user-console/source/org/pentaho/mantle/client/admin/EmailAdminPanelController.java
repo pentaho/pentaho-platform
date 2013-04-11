@@ -46,6 +46,11 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
 	private boolean isDirty = false;
@@ -80,7 +85,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 				emailConfig.setAuthenticate(booleanValueChangeEvent.getValue());
 				authenticationPanel.setVisible(booleanValueChangeEvent.getValue());
 				isDirty = true;
-				validate();
 			}
 		});
 
@@ -88,7 +92,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			public void onKeyUp(final KeyUpEvent keyUpEvent) {
 				emailConfig.setSmtpHost(smtpHostTextBox.getValue());
 				isDirty = true;
-				validate();
 			}
 		});
 
@@ -97,7 +100,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 				Short port = isPortValid(portTextBox.getValue()) ? Short.parseShort(portTextBox.getValue()) : -1;
 				emailConfig.setSmtpPort(port);
 				isDirty = true;
-				validate();
 			}
 		});
 
@@ -105,7 +107,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			public void onKeyUp(final KeyUpEvent keyUpEvent) {
 				emailConfig.setDefaultFrom(fromAddressTextBox.getValue());
 				isDirty = true;
-				validate();
 			}
 		});
 
@@ -113,7 +114,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
       public void onKeyUp(final KeyUpEvent keyUpEvent) {
         emailConfig.setFromName(fromNameTextBox.getValue());
         isDirty = true;
-        validate();
       }
     });		
 		
@@ -121,7 +121,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			public void onKeyUp(final KeyUpEvent keyUpEvent) {
 				emailConfig.setUserId(userNameTextBox.getValue());
 				isDirty = true;
-				validate();
 			}
 		});
 
@@ -129,7 +128,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			public void onValueChange(final ValueChangeEvent<Boolean> booleanValueChangeEvent) {
 				emailConfig.setDebug(debuggingCheckBox.getValue());
 				isDirty = true;
-				validate();
 			}
 		});
 
@@ -137,7 +135,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			public void onValueChange(final ValueChangeEvent<Boolean> booleanValueChangeEvent) {
 				emailConfig.setUseSsl(useSSLCheckBox.getValue());
 				isDirty = true;
-				validate();
 			}
 		});
 
@@ -145,7 +142,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			public void onValueChange(final ValueChangeEvent<Boolean> booleanValueChangeEvent) {
 				emailConfig.setUseStartTls(useStartTLSCheckBox.getValue());
 				isDirty = true;
-				validate();
 			}
 		});
 
@@ -153,7 +149,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			public void onChange(final ChangeEvent changeEvent) {
 				emailConfig.setSmtpProtocol(protocolsListBox.getItemText(protocolsListBox.getSelectedIndex()));
 				isDirty = true;
-				validate();
 			}
 		});
 
@@ -163,11 +158,11 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			}
 		});
 
-		passwordTextBox.getManagedObject().addBlurHandler(new BlurHandler() {
+		passwordTextBox.addBlurHandler(new BlurHandler() {
 			public void onBlur(BlurEvent event) {
 				if (!StringUtils.isEmpty(passwordTextBox.getValue())) {
 					editPasswordButton.setEnabled(true);
-					passwordTextBox.getManagedObject().setEnabled(false);
+					passwordTextBox.setEnabled(false);
 				}
 			}
 		});
@@ -176,7 +171,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			public void onKeyUp(final KeyUpEvent keyUpEvent) {
 				emailConfig.setPassword(passwordTextBox.getValue());
 				isDirty = true;
-				validate();
 			}
 		});
 	}
@@ -185,40 +179,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 		emailConfig.setPassword(password);
 		passwordTextBox.setValue(password);
 		if (!StringUtils.isEmpty(passwordTextBox.getValue())) {
-			passwordTextBox.getManagedObject().setEnabled(false);
+			passwordTextBox.setEnabled(false);
 		}
 		isDirty = true;
-		validate();
-	}
-
-	private void validate() {
-		boolean smtpHostValid = !StringUtils.isEmpty(emailConfig.getSmtpHost());
-		boolean smtpValid = !StringUtils.isEmpty(emailConfig.getSmtpProtocol());
-		boolean fromAddressValid = isValidEmail(emailConfig.getDefaultFrom());
-		boolean portValid = isPortValid(emailConfig.getSmtpPort() + "");
-		boolean authenticationValid = true;
-		if (Boolean.parseBoolean(emailConfig.isAuthenticate() + "")) {
-			boolean userNameValid = !StringUtils.isEmpty(emailConfig.getUserId());
-			boolean passwordValid = !StringUtils.isEmpty(emailConfig.getPassword());
-			authenticationValid = userNameValid && passwordValid;
-		}
-		if (smtpHostValid && portValid && smtpValid && fromAddressValid && authenticationValid) {
-			if(isDirty) {
-		    if (isIE()) {
-		      saveButton.setEnabled(true);
-		    } else {
-	        actionBar.expand(1);
-		    }
-			}
-			testButton.setEnabled(true);
-		} else {
-      if (isIE()) {
-        saveButton.setEnabled(false);
-      } else {
-        actionBar.collapse(1);
-      }
-			testButton.setEnabled(false);
-		}
 	}
 
 	// -- Remote Calls.
@@ -235,11 +198,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-		      if (isIE()) {
-		        saveButton.setEnabled(false);
-		      } else {
-            actionBar.collapse(500);
-		      }
+
 					progressIndicator.inProgress(false);
 					isDirty = false;
 				}
@@ -277,7 +236,7 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 					// If password is non-empty.. disable the text-box
 					String password = emailConfig.getPassword();
-					passwordTextBox.getManagedObject().setEnabled(StringUtils.isEmpty(password));
+					passwordTextBox.setEnabled(StringUtils.isEmpty(password));
 					editPasswordButton.setEnabled(!StringUtils.isEmpty(password));
 					passwordTextBox.setValue(password);
 
@@ -291,7 +250,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 							}
 						}
 					}
-					validate();
 				}
 			});
 		} catch (RequestException e) {
@@ -318,11 +276,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 				public void onClose(XulComponent component, XulDialogCallback.Status status, String value) {
 					if (status == XulDialogCallback.Status.ACCEPT) {
-		        if (isIE()) {
-		          saveButton.setEnabled(false);
-		        } else {
-              actionBar.collapse(1);
-		        }
 						callback.onSuccess(true);
 					}
 					if (status == XulDialogCallback.Status.CANCEL) {

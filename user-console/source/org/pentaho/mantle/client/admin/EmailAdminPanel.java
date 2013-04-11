@@ -20,6 +20,7 @@
 
 package org.pentaho.mantle.client.admin;
 
+import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.buttons.ProgressIndicatorWidget;
 import org.pentaho.gwt.widgets.client.panel.ActionBar;
 import org.pentaho.gwt.widgets.client.text.ValidationPasswordTextBox;
@@ -27,31 +28,19 @@ import org.pentaho.gwt.widgets.client.text.ValidationTextBox;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
 
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-
 public class EmailAdminPanel extends SimplePanel {
 
 	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-	protected ValidationTextBox smtpHostTextBox;
-	protected ValidationTextBox portTextBox;
+	protected TextBox smtpHostTextBox;
+	protected TextBox portTextBox;
 	protected ListBox protocolsListBox;
 	protected CheckBox useStartTLSCheckBox;
 	protected CheckBox useSSLCheckBox;
-	protected ValidationTextBox fromAddressTextBox;
+	protected TextBox fromAddressTextBox;
 	protected TextBox fromNameTextBox;
 	protected CheckBox authenticationCheckBox;
-	protected ValidationTextBox userNameTextBox;
-	protected ValidationPasswordTextBox passwordTextBox;
+	protected TextBox userNameTextBox;
+	protected PasswordTextBox passwordTextBox;
 	protected CheckBox debuggingCheckBox;
 	protected ProgressIndicatorWidget progressIndicator;
 	protected Button editPasswordButton;
@@ -100,11 +89,11 @@ public class EmailAdminPanel extends SimplePanel {
 		dockPanel.setWidth("100%");
 		this.setWidth("100%");
 		this.setHeight("100%");
-		if (isIE()) {
-		  saveButton.setEnabled(false);
-		} else {
-	    actionBar.collapse(1);
-		}
+    if (isIE()) {
+      saveButton.setEnabled(true);
+    } else {
+      actionBar.expand(1);
+    }
 	}
 
 	private Widget createEmailPanel() {
@@ -115,13 +104,7 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);
 
 		mailPanel.add(new Label(Messages.getString("smtpHost") + ":"));
-		smtpHostTextBox = new ValidationTextBox() {
-			public boolean validate() {
-				String text = smtpHostTextBox.getText();
-				return (text != null && text.length() > 0);
-			}
-		};
-		smtpHostTextBox.setValidationMessage(Messages.getString("smtpHostValidationMessage"));
+		smtpHostTextBox = new TextBox();
 		smtpHostTextBox.setWidth("400px");
 		mailPanel.add(smtpHostTextBox);
 
@@ -130,12 +113,7 @@ public class EmailAdminPanel extends SimplePanel {
 		mailPanel.add(vSpacer);
 
 		mailPanel.add(new Label(Messages.getString("port") + ":"));
-		portTextBox = new ValidationTextBox() {
-			public boolean validate() {
-				return isPortValid(portTextBox.getText());
-			}
-		};
-		portTextBox.setValidationMessage(Messages.getString("portValidationMessage"));
+		portTextBox = new TextBox();
 		portTextBox.setWidth("400px");
 		mailPanel.add(portTextBox);
 
@@ -171,12 +149,7 @@ public class EmailAdminPanel extends SimplePanel {
     
 		mailPanel.add(new Label(Messages.getString("defaultFromAddress") + ":"));
 		HorizontalPanel hPanel = new HorizontalPanel();
-		fromAddressTextBox = new ValidationTextBox() {
-			public boolean validate() {
-				return isValidEmail(fromAddressTextBox.getText());
-			}
-		};
-		fromAddressTextBox.setValidationMessage(Messages.getString("fromAddressValidationMessage"));
+		fromAddressTextBox = new TextBox();
 		fromAddressTextBox.setWidth("400px");
 		hPanel.add(fromAddressTextBox);
 		SimplePanel hSpacer = new SimplePanel();
@@ -197,12 +170,7 @@ public class EmailAdminPanel extends SimplePanel {
 		authenticationPanel = new VerticalPanel();
 		mailPanel.add(authenticationPanel);
 		authenticationPanel.add(new Label(Messages.getString("userName") + ":"));
-		userNameTextBox = new ValidationTextBox() {
-			public boolean validate() {
-				return !StringUtils.isEmpty(userNameTextBox.getText());
-			}
-		};
-		userNameTextBox.setValidationMessage(Messages.getString("usernameValidationMessage"));
+		userNameTextBox = new TextBox();
 		userNameTextBox.setWidth("400px");
 		authenticationPanel.add(userNameTextBox);
 
@@ -212,15 +180,7 @@ public class EmailAdminPanel extends SimplePanel {
 
 		authenticationPanel.add(new Label(Messages.getString("password") + ":"));
 		hPanel = new HorizontalPanel();
-		passwordTextBox = new ValidationPasswordTextBox() {
-
-			@Override
-			public boolean validate() {
-				return !StringUtils.isEmpty(passwordTextBox.getText());
-			}
-
-		};
-		passwordTextBox.setValidationMessage(Messages.getString("passwordValidationMessage"));
+		passwordTextBox = new PasswordTextBox();
 		passwordTextBox.setWidth("319px");
 		hPanel.add(passwordTextBox);
 
@@ -253,16 +213,6 @@ public class EmailAdminPanel extends SimplePanel {
 		buttonsPanel.add(testButton);
 
 		return mailPanel;
-	}
-
-	protected boolean isValidEmail(final String email) {
-		boolean isValid = true;
-		if (StringUtils.isEmpty(email)) {
-			isValid = false;
-		} else {
-			isValid = email.matches(EMAIL_PATTERN);
-		}
-		return isValid;
 	}
 
 	protected boolean isPortValid(String portValue) {
