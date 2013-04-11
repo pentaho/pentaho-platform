@@ -70,8 +70,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Path("/blockoutjobs")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
   public List<Job> getJobs() {
-    IPentahoSession session = PentahoSessionHolder.getSession();
-    return manager.getBlockOutJobs(canAdminister(session));
+    return manager.getBlockOutJobs();
   }
 
   @POST
