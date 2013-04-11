@@ -120,7 +120,7 @@ public class PentahoBlockoutManagerTest {
     addBlockOutJob(trigger1);
     addBlockOutJob(trigger2);
 
-    assertEquals(2, this.blockOutManager.getBlockOutJobs(true).size());
+    assertEquals(2, this.blockOutManager.getBlockOutJobs().size());
   }
 
   /**
