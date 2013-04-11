@@ -32,16 +32,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
-import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
 import org.pentaho.platform.api.scheduler2.IScheduler;
 import org.pentaho.platform.api.scheduler2.Job;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.scheduler2.blockout.BlockoutAction;
-import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
 
 /**
@@ -77,7 +74,8 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Path("/hasblockouts")
   @Produces({ TEXT_PLAIN })
   public Response hasBlockouts() {
-    return Response.ok(manager.getBlockOutJobs() > 0 ? Boolean.TRUE.toString() : Boolean.FALSE.toString()).build();
+    List<Job> jobs = manager.getBlockOutJobs();
+    return Response.ok((jobs != null && jobs.size() > 0 ) ? Boolean.TRUE.toString() : Boolean.FALSE.toString()).build();
   }
   
   @POST
@@ -141,13 +139,6 @@ public class BlockoutResource extends AbstractJaxRSResource {
       totallyBlocked = !manager.willFire(SchedulerResourceUtil.convertScheduleRequestToJobTrigger(request, scheduler));
     }
     return new BlockStatusProxy(totallyBlocked, partiallyBlocked);
-  }
-
-  private Boolean canAdminister(IPentahoSession session) {
-    if (policy.isAllowed(AdministerSecurityAction.NAME)) {
-      return true;
-    }
-    return false;
   }
 
 }
