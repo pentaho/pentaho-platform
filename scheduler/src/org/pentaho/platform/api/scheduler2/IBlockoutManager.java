@@ -38,7 +38,7 @@ public interface IBlockoutManager {
   /**
    * @return a list of jobs essentially should be used instead of getBlockOuts which is deprecated
    */
-  List<Job> getBlockOutJobs(final Boolean canAdminister);
+  List<Job> getBlockOutJobs();
 
   /**
    * @param scheduleJobTrigger
