@@ -4,9 +4,12 @@
       <link rel="stylesheet" type="text/css" href="/pentaho-style/pentaho.css"></link>
       <title>Parameter Page Customization Example</title>
             			
-						<script src="../../../js/parameters.js" type="text/javascript"></script>
+				<script src="../../../js/parameters.js" type="text/javascript"></script>
 						
       			<script><![CDATA[
+      			  var pentaho_notOptionalMessage = 'Please select something for {0}';
+				  var pentaho_backgroundWarning = 'Info:  Reports that prompt for parameters are not supported with this feature.  Run in Background may report errors. Click OK to continue.';
+				  var USEPOSTFORFORMS = false;
                   var url=window.location.pathname;
       			  var target=unescape('');
       			  function doForm() {
