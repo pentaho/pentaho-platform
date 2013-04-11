@@ -17,6 +17,8 @@
 
 package org.pentaho.mantle.client.admin;
 
+import java.util.Date;
+
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.gwt.widgets.client.wizards.AbstractWizardDialog;
@@ -28,6 +30,7 @@ import org.pentaho.mantle.client.workspace.JsJobParam;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -37,19 +40,20 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CaptionPanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class ContentCleanerPanel extends HorizontalPanel implements ISysAdminPanel {
+public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
   private static ContentCleanerPanel instance = new ContentCleanerPanel();
 
@@ -63,6 +67,7 @@ public class ContentCleanerPanel extends HorizontalPanel implements ISysAdminPan
   }
 
   public ContentCleanerPanel() {
+    setStyleName("pentaho-admin-panel");
     activate();
   }
 
@@ -112,14 +117,31 @@ public class ContentCleanerPanel extends HorizontalPanel implements ISysAdminPan
             }
           });
 
-          VerticalPanel content = new VerticalPanel();
-          CaptionPanel nowPanel = new CaptionPanel(Messages.getString("deleteGeneratedFilesNow"));
-          VerticalPanel nowLabelPanelWrapper = new VerticalPanel();
+          Label settingsLabel = new Label(Messages.getString("settings"));
+          settingsLabel.setStyleName("pentaho-fieldgroup-major");
+          add(settingsLabel, DockPanel.NORTH);
+          
+          VerticalPanel nowPanelWrapper = new VerticalPanel();
+          Label deleteNowLabel = new Label(Messages.getString("deleteGeneratedFilesNow"));
+          deleteNowLabel.getElement().getStyle().setPaddingTop(15, Unit.PX);
+          deleteNowLabel.setStyleName("pentaho-fieldgroup-minor");
+          nowPanelWrapper.add(deleteNowLabel);
+          
           HorizontalPanel nowLabelPanel = new HorizontalPanel();
-          nowLabelPanel.add(new Label(Messages.getString("deleteGeneratedFilesOlderThan")));
+          nowLabelPanel.getElement().getStyle().setPaddingTop(10, Unit.PX);
+          nowLabelPanel.getElement().getStyle().setPaddingBottom(10, Unit.PX);
+          
+          Label deleteGeneratedFilesOlderThan = new Label(Messages.getString("deleteGeneratedFilesOlderThan"));
+          deleteGeneratedFilesOlderThan.getElement().getStyle().setPaddingTop(3, Unit.PX);
+          nowLabelPanel.add(deleteGeneratedFilesOlderThan);
+          
+          
+          
           nowLabelPanel.add(nowTextBox);
           nowTextBox.setText("180");
-          nowLabelPanel.add(new Label(Messages.getString("days")));
+          Label days = new Label(Messages.getString("daysDot"));
+          days.getElement().getStyle().setPaddingTop(3, Unit.PX);
+          nowLabelPanel.add(days);
           Button deleteNowButton = new Button(Messages.getString("deleteNow"));
           deleteNowButton.setStylePrimaryName("pentaho-button");
           deleteNowButton.addClickHandler(new ClickHandler() {
@@ -127,24 +149,29 @@ public class ContentCleanerPanel extends HorizontalPanel implements ISysAdminPan
               deleteContentNow(Long.parseLong(nowTextBox.getValue()) * 86400L);
             }
           });
-          nowLabelPanelWrapper.add(nowLabelPanel);
-          nowLabelPanelWrapper.add(deleteNowButton);
-          nowPanel.setContentWidget(nowLabelPanelWrapper);
-          content.add(nowPanel);
+          nowPanelWrapper.add(nowLabelPanel);
+          nowPanelWrapper.add(deleteNowButton);
+          add(nowPanelWrapper, DockPanel.NORTH);
 
           // scheduled
-          CaptionPanel scheduledPanelWrapper = new CaptionPanel(Messages.getString("scheduleDeletionOfGeneratedFiles"));
           VerticalPanel scheduledPanel = new VerticalPanel();
-
+          Label deleteScheduleLabel = new Label(Messages.getString("scheduleDeletionOfGeneratedFiles"));
+          deleteScheduleLabel.setStyleName("pentaho-fieldgroup-minor");
+          deleteScheduleLabel.getElement().getStyle().setPaddingTop(15, Unit.PX);
+          scheduledPanel.add(deleteScheduleLabel);
+          
+          Label descLabel;
           if (!fakeJob) {
             String desc = jsJob.getJobTrigger().getDescription();
-            Label descLabel = new Label(desc);
+            descLabel = new Label(desc);
             scheduledPanel.add(descLabel);
           } else {
-            Label descLabel = new Label(Messages.getString("generatedFilesAreNotScheduledToBeDeleted"));
+            descLabel = new Label(Messages.getString("generatedFilesAreNotScheduledToBeDeleted"));
             scheduledPanel.add(descLabel);
           }
-
+          descLabel.getElement().getStyle().setPaddingTop(10, Unit.PX);
+          descLabel.getElement().getStyle().setPaddingBottom(10, Unit.PX);
+          
           Button editScheduleButton = new Button(Messages.getString("edit"));
           if (fakeJob) {
             editScheduleButton.setText(Messages.getString("scheduleDeletion"));
@@ -183,9 +210,11 @@ public class ContentCleanerPanel extends HorizontalPanel implements ISysAdminPan
             scheduleButtonPanel.add(deleteScheduleButton);
           }
           scheduledPanel.add(scheduleButtonPanel);
-          scheduledPanelWrapper.add(scheduledPanel);
-          content.add(scheduledPanelWrapper);
-          add(content);
+          add(scheduledPanel, DockPanel.NORTH);
+          
+          VerticalPanel fillPanel = new VerticalPanel();
+          add(fillPanel, DockPanel.NORTH);
+          fillPanel.getElement().getParentElement().getStyle().setHeight(100, Unit.PCT);
         }
       });
     } catch (RequestException re) {
@@ -206,8 +235,10 @@ public class ContentCleanerPanel extends HorizontalPanel implements ISysAdminPan
    *          in milliseconds
    */
   public void deleteContentNow(long age) {
+    String date = DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(new Date());
     String json = "{\"jobName\": \"Content Cleaner\", \"actionClass\": \"org.pentaho.platform.admin.GeneratedContentCleaner\", \"jobParameters\":[ { \"name\": \"age\", \"stringValue\": \""
-        + age + "\", \"type\": \"string\" }]}";
+        + age + "\", \"type\": \"string\" }], \"simpleJobTrigger\": { \"endTime\": null, \"repeatCount\": \"0\", \"repeatInterval\": \"0\", \"startTime\": \"" + date + "\", \"uiPassParam\": \"RUN_ONCE\"} }";
+    
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));

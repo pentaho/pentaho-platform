@@ -595,7 +595,7 @@ public class MantleController extends AbstractXulEventHandler {
             EmailAdminPanelController.getInstance().getElement()
                 .setId((EmailAdminPanelController.getInstance()).getId());
           } else if ((ContentCleanerPanel.getInstance()).getId().equals(adminPanelAwaitingActivation.id)) {
-            model.loadContentCleanerPanel();
+            model.loadSettingsPanel();
             ContentCleanerPanel.getInstance().getElement().setId((ContentCleanerPanel.getInstance()).getId());
           } else {
             model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
@@ -778,7 +778,7 @@ public class MantleController extends AbstractXulEventHandler {
   }
   
   @Bindable
-  public void loadContentCleanerPanel() {
+  public void loadSettingsPanel() {
     GWT.runAsync(new RunAsyncCallback() {
       public void onSuccess() {
         String contentCleanerPanelId = ContentCleanerPanel.getInstance().getId();

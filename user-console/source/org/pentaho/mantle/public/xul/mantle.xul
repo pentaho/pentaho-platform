@@ -129,9 +129,9 @@
 			  </treechildren>
 			</treeitem>
 			
-	    	<treeitem container="true" command="mantleXulHandler.loadContentCleanerPanel()">
+	    	<treeitem container="true" command="mantleXulHandler.loadSettingsPanel()">
 	  			<treerow>
-	    			<treecell label="Content" />
+	    			<treecell label="${settings}" />
 		  		</treerow>	    
 			</treeitem>			
 			

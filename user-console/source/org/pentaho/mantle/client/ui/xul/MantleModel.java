@@ -205,7 +205,7 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
   }
 
   @Bindable
-  public void loadContentCleanerPanel() {
+  public void loadSettingsPanel() {
     GWT.runAsync(new RunAsyncCallback() {
       public void onSuccess() {
         DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
