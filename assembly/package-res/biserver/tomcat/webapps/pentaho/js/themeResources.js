@@ -1,5 +1,6 @@
-
 var docHead = document.getElementsByTagName("head")[0];
+
+(function() {
 
 if(window.location.href.indexOf("theme=") > -1){
   var startIdx = window.location.href.indexOf("theme=")+("theme=".length);
@@ -23,29 +24,37 @@ if(window.module_theme_tree){
   includeResources(module_theme_tree);
 }
 
-function includeResources(resourceTree){
-  if(!resourceTree || !resourceTree[active_theme]){
-    return;
-  }
-  var cssPat = /\.css$/;
-  for(var i=0; i<resourceTree[active_theme].resources.length; i++){
-    var baseName = resourceTree[active_theme].resources[i];
-    var selectedTheme = active_theme;
+function addStylesheet(url) {
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = url;
+    document.getElementsByTagName('head')[0].appendChild(link);
+}
+
+function includeResources(resourceTree) {
+  var activeTheme = resourceTree && resourceTree[active_theme];
+  if(!activeTheme) { return; }
   
+  var cssPat = /\.css$/;
+  var resources = activeTheme.resources;
+  for(var i = 0; i < resources.length; i++){
+    var baseName = resources[i];
+    var basePath = CONTEXT_PATH + activeTheme.rootDir;
     if(cssPat.test(baseName)){
+      addStylesheet(basePath + baseName);
       
-      document.write("<link rel='stylesheet' type='text/css' href='"+CONTEXT_PATH + resourceTree[selectedTheme].rootDir +baseName+ "'/>");
       // Check to see if we're in a mobile device, if so add a "-mobile"
       if(navigator.userAgent.match(/(iPad|iPod|iPhone)/) != null){
-        document.write("<link rel='stylesheet' type='text/css' href='"+CONTEXT_PATH + resourceTree[selectedTheme].rootDir +baseName.replace(".css","")+ "-mobile.css'/>");
+        addStylesheet(basePath + baseName.replace('.css', '') + '-mobile.css');
       }
-
     } else {
-      
-      document.write("<script type='text/javascript' src='"+CONTEXT_PATH + resourceTree[selectedTheme].rootDir +baseName+ "'></script>");
+      document.write("<script type='text/javascript' src='" + basePath + baseName + "'></script>");
     }
   }
 }
+
+}());
 
 function customizeThemeStyling() {
   // if it is IE, inject an IE class to the body tag to allow for custom IE css by --> .IE .myclass {}
