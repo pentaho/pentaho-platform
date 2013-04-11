@@ -77,7 +77,7 @@ public class BlockoutResource extends AbstractJaxRSResource {
   @Path("/hasblockouts")
   @Produces({ TEXT_PLAIN })
   public Response hasBlockouts() {
-    return Response.ok(getJobs().size() > 0 ? Boolean.TRUE.toString() : Boolean.FALSE.toString()).build();
+    return Response.ok(manager.getBlockOutJobs() > 0 ? Boolean.TRUE.toString() : Boolean.FALSE.toString()).build();
   }
   
   @POST
