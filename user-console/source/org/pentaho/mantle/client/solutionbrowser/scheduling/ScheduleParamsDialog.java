@@ -158,8 +158,8 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
     scheduleParamsWizardPanel.setScheduleDescription(description);
   }
 
-  JSONArray getScheduleParams() {
-    JsArray<JsSchedulingParameter> schedulingParams = scheduleParamsWizardPanel.getParams();
+  JSONArray getScheduleParams(boolean suppressAlerts) {
+    JsArray<JsSchedulingParameter> schedulingParams = scheduleParamsWizardPanel.getParams(suppressAlerts);
     JSONArray params = new JSONArray();
     for (int i = 0; i < schedulingParams.length(); i++) {
       params.set(i, new JSONObject(schedulingParams.get(i)));
@@ -174,7 +174,7 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onFinish() {
-    scheduleParams = getScheduleParams();
+    scheduleParams = getScheduleParams(false);
     if (editJob != null) {
       String lineageId = editJob.getJobParam("lineage-id");
       JsArrayString lineageIdValue = (JsArrayString) JavaScriptObject.createArray().cast();
@@ -300,7 +300,12 @@ public class ScheduleParamsDialog extends AbstractWizardDialog {
    */
   @Override
   protected void backClicked() {
-    scheduleParams = getScheduleParams();
+    try {
+      scheduleParams = getScheduleParams(true);
+    } catch (Exception e) {
+      //If error generate on trying to assign params while backing out,
+      //obviously you want to ignore it.
+    }
     parentDialog.center();
     hide();
   }
