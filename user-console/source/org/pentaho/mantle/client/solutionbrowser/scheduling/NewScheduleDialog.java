@@ -82,23 +82,35 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class NewScheduleDialog extends AbstractWizardDialog {
   String moduleBaseURL = GWT.getModuleBaseURL();
+
   String moduleName = GWT.getModuleName();
+
   String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
+
   String filePath;
+
   IDialogCallback callback;
+
   boolean isBlockoutDialog = false;
 
   ScheduleEmailDialog scheduleEmailDialog;
+
   ScheduleParamsDialog scheduleParamsDialog;
+
   ScheduleEditorWizardPanel scheduleEditorWizardPanel;
+
   JsJob editJob;
 
   Boolean done = false;
+
   boolean hasParams = false;
+
   boolean isEmailConfValid = false;
+
   private ScheduleEditor scheduleEditor;
 
-  public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid, boolean showScheduleName, final ScheduleDialogType type) {
+  public NewScheduleDialog(JsJob jsJob, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid,
+      boolean showScheduleName, final ScheduleDialogType type) {
     super(type, Messages.getString("editSchedule"), null, false, true); //$NON-NLS-1$
     isBlockoutDialog = (type == ScheduleDialogType.BLOCKOUT);
     setCallback(callback);
@@ -113,7 +125,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     constructDialog(filePath, hasParams, isEmailConfValid, true, null);
   }
 
-  public NewScheduleDialog(ScheduleDialogType type, String title, String filePath, IDialogCallback callback, boolean hasParams, boolean isEmailConfValid) {
+  public NewScheduleDialog(ScheduleDialogType type, String title, String filePath, IDialogCallback callback,
+      boolean hasParams, boolean isEmailConfValid) {
     super(type, title, null, false, true);
     isBlockoutDialog = (type == ScheduleDialogType.BLOCKOUT);
     setCallback(callback);
@@ -130,8 +143,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   public void addCustomPanel(Widget w, DockPanel.DockLayoutConstant position) {
     scheduleEditorWizardPanel.add(w, position);
   }
-  
-  private void constructDialog(String filePath, boolean hasParams, boolean isEmailConfValid, boolean showScheduleName, JsJob jsJob) {
+
+  private void constructDialog(String filePath, boolean hasParams, boolean isEmailConfValid, boolean showScheduleName,
+      JsJob jsJob) {
     this.hasParams = hasParams;
     this.filePath = filePath;
     this.isEmailConfValid = isEmailConfValid;
@@ -140,8 +154,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     scheduleEditor.setBlockoutButtonHandler(new ClickHandler() {
       @Override
       public void onClick(final ClickEvent clickEvent) {
-        PromptDialogBox box = new PromptDialogBox(Messages.getString("blockoutTimes"), Messages.getString("close"),
-                                                  null, null, false, true, new BlockoutPanel(false));
+        PromptDialogBox box = new PromptDialogBox(Messages.getString("blockoutTimes"), Messages.getString("close"), //$NON-NLS-1$ //$NON-NLS-2$
+            null, null, false, true, new BlockoutPanel(false));
         box.center();
       }
     });
@@ -150,23 +164,23 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     setPixelSize(475, 465);
     center();
     if ((hasParams || isEmailConfValid) && (isBlockoutDialog == false)) {
-      finishButton.setText(Messages.getString("nextStep"));
+      finishButton.setText(Messages.getString("nextStep")); //$NON-NLS-1$
     } else {
-      finishButton.setText(Messages.getString("ok"));
+      finishButton.setText(Messages.getString("ok")); //$NON-NLS-1$
     }
     setupExisting(jsJob);
-    setHeight("100%");
+    setHeight("100%"); //$NON-NLS-1$
   }
 
   private void setupExisting(JsJob jsJob) {
-    if (jsJob != null && !jsJob.equals("")) {
+    if (jsJob != null && !jsJob.equals("")) { //$NON-NLS-1$
       JsJobTrigger jsJobTrigger = jsJob.getJobTrigger();
       ScheduleType scheduleType = ScheduleType.valueOf(jsJobTrigger.getScheduleType());
       scheduleEditor.setScheduleName(jsJob.getJobName());
       scheduleEditor.setScheduleType(scheduleType);
-      if (scheduleType == ScheduleType.CRON || jsJobTrigger.getType().equals("cronJobTrigger")) {
+      if (scheduleType == ScheduleType.CRON || jsJobTrigger.getType().equals("cronJobTrigger")) { //$NON-NLS-1$
         scheduleEditor.getCronEditor().setCronString(jsJobTrigger.getCronString());
-      } else if (jsJobTrigger.getType().equals("simpleJobTrigger")) {
+      } else if (jsJobTrigger.getType().equals("simpleJobTrigger")) { //$NON-NLS-1$
         if (jsJobTrigger.getRepeatCount() == -1) {
           // Recurring simple Trigger
           int interval = jsJobTrigger.getRepeatInterval();
@@ -179,7 +193,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
           }
         }
-      } else if (jsJobTrigger.getType().equals("complexJobTrigger")) {
+      } else if (jsJobTrigger.getType().equals("complexJobTrigger")) { //$NON-NLS-1$
         if (scheduleType == ScheduleType.DAILY) {
           // Daily
           DailyRecurrenceEditor dailyRecurrenceEditor = scheduleEditor.getRecurrenceEditor().getDailyEditor();
@@ -191,9 +205,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         } else if (scheduleType == ScheduleType.WEEKLY) {
           int[] daysOfWeek = jsJobTrigger.getDayOfWeekRecurrences();
           WeeklyRecurrenceEditor weeklyRecurrenceEditor = scheduleEditor.getRecurrenceEditor().getWeeklyEditor();
-          String strDays = "";
+          String strDays = ""; //$NON-NLS-1$
           for (int i = 0; i < daysOfWeek.length; i++) {
-            strDays += Integer.toString(daysOfWeek[i]) + ",";
+            strDays += Integer.toString(daysOfWeek[i]) + ","; //$NON-NLS-1$
           }
           weeklyRecurrenceEditor.setCheckedDaysAsString(strDays, 1);
         } else if (scheduleType == ScheduleType.MONTHLY) {
@@ -213,18 +227,21 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             // Run Every on ___day of Nth week of the month M yearly
             yearlyRecurrenceEditor.setDayOfWeek(TimeUtil.DayOfWeek.valueOf(jsJobTrigger.getQualifiedDayOfWeek()));
             yearlyRecurrenceEditor.setWeekOfMonth(TimeUtil.WeekOfMonth.valueOf(jsJobTrigger.getDayOfWeekQualifier()));
-            yearlyRecurrenceEditor.setMonthOfYear1(TimeUtil.MonthOfYear.get(jsJobTrigger.getMonthlyRecurrences()[0] - 1));
+            yearlyRecurrenceEditor
+                .setMonthOfYear1(TimeUtil.MonthOfYear.get(jsJobTrigger.getMonthlyRecurrences()[0] - 1));
             yearlyRecurrenceEditor.setNthDayNameOfMonthName();
           } else {
             // Run on Nth day of the month M yearly
             yearlyRecurrenceEditor.setDayOfMonth(Integer.toString(jsJobTrigger.getDayOfMonthRecurrences()[0]));
-            yearlyRecurrenceEditor.setMonthOfYear0(TimeUtil.MonthOfYear.get(jsJobTrigger.getMonthlyRecurrences()[0] - 1));
+            yearlyRecurrenceEditor
+                .setMonthOfYear0(TimeUtil.MonthOfYear.get(jsJobTrigger.getMonthlyRecurrences()[0] - 1));
             yearlyRecurrenceEditor.setEveryMonthOnNthDay();
           }
         }
       }
       scheduleEditor.setStartDate(jsJobTrigger.getStartTime());
-      scheduleEditor.setStartTime(DateTimeFormat.getFormat(PredefinedFormat.HOUR_MINUTE_SECOND).format(jsJobTrigger.getStartTime()));
+      scheduleEditor.setStartTime(DateTimeFormat.getFormat(PredefinedFormat.HOUR_MINUTE_SECOND).format(
+          jsJobTrigger.getStartTime()));
       if (jsJobTrigger.getEndTime() == null) {
         scheduleEditor.setNoEndDate();
       } else {
@@ -232,10 +249,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         scheduleEditor.setEndBy();
       }
 
-      if(isBlockoutDialog) {
-        scheduleEditor.setBlockoutEndTime(
-          DateTimeFormat.getFormat(
-            PredefinedFormat.HOUR_MINUTE_SECOND).format(
+      if (isBlockoutDialog) {
+        scheduleEditor.setBlockoutEndTime(DateTimeFormat.getFormat(PredefinedFormat.HOUR_MINUTE_SECOND).format(
             new Date(jsJobTrigger.getStartTime().getTime() + jsJobTrigger.getBlockDuration())));
       }
     }
@@ -258,8 +273,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
 
-  protected JSONObject getJsonComplexTrigger(ScheduleType scheduleType, MonthOfYear month, WeekOfMonth weekOfMonth, List<DayOfWeek> daysOfWeek, Date startDate,
-      Date endDate) {
+  protected JSONObject getJsonComplexTrigger(ScheduleType scheduleType, MonthOfYear month, WeekOfMonth weekOfMonth,
+      List<DayOfWeek> daysOfWeek, Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     trigger.put("uiPassParam", new JSONString(scheduleEditorWizardPanel.getScheduleType().name())); //$NON-NLS-1$
     if (month != null) {
@@ -284,7 +299,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
 
-  protected JSONObject getJsonComplexTrigger(ScheduleType scheduleType, MonthOfYear month, int dayOfMonth, Date startDate, Date endDate) {
+  protected JSONObject getJsonComplexTrigger(ScheduleType scheduleType, MonthOfYear month, int dayOfMonth,
+      Date startDate, Date endDate) {
     JSONObject trigger = new JSONObject();
     trigger.put("uiPassParam", new JSONString(scheduleEditorWizardPanel.getScheduleType().name())); //$NON-NLS-1$
 
@@ -331,12 +347,12 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     WeekOfMonth weekOfMonth = scheduleEditor.getRecurrenceEditor().getSelectedWeekOfMonth();
 
     JSONObject schedule = new JSONObject();
-    schedule.put("jobName", new JSONString(scheduleEditor.getScheduleName()));
-
+    schedule.put("jobName", new JSONString(scheduleEditor.getScheduleName())); //$NON-NLS-1$
 
     if (scheduleType == ScheduleType.RUN_ONCE) { // Run once types
       schedule.put("simpleJobTrigger", getJsonSimpleTrigger(0, 0, startDateTime, null)); //$NON-NLS-1$
-    } else if ((scheduleType == ScheduleType.SECONDS) || (scheduleType == ScheduleType.MINUTES) || (scheduleType == ScheduleType.HOURS)) {
+    } else if ((scheduleType == ScheduleType.SECONDS) || (scheduleType == ScheduleType.MINUTES)
+        || (scheduleType == ScheduleType.HOURS)) {
       int repeatInterval = 0;
       try { // Simple Trigger Types
         repeatInterval = Integer.parseInt(scheduleEditorWizardPanel.getRepeatInterval());
@@ -362,16 +378,20 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       schedule
           .put(
               "complexJobTrigger", getJsonComplexTrigger(scheduleType, null, null, scheduleEditor.getRecurrenceEditor().getSelectedDaysOfWeek(), startDateTime, endDate));//$NON-NLS-1$
-    } else if ((scheduleType == ScheduleType.MONTHLY) || ((scheduleType == ScheduleType.YEARLY) && (monthOfYear != null))) {
+    } else if ((scheduleType == ScheduleType.MONTHLY)
+        || ((scheduleType == ScheduleType.YEARLY) && (monthOfYear != null))) {
       if (dayOfMonth != null) {
         // YEARLY Run on specific day in year or MONTHLY Run on specific day in month
-        schedule.put("complexJobTrigger", getJsonComplexTrigger(scheduleType, monthOfYear, dayOfMonth, startDateTime, endDate));//$NON-NLS-1$
+        schedule.put(
+            "complexJobTrigger", getJsonComplexTrigger(scheduleType, monthOfYear, dayOfMonth, startDateTime, endDate));//$NON-NLS-1$
       } else if ((daysOfWeek.size() > 0) && (weekOfMonth != null)) {
         // YEARLY
-        schedule.put("complexJobTrigger", getJsonComplexTrigger(scheduleType, monthOfYear, weekOfMonth, daysOfWeek, startDateTime, endDate));//$NON-NLS-1$
+        schedule
+            .put(
+                "complexJobTrigger", getJsonComplexTrigger(scheduleType, monthOfYear, weekOfMonth, daysOfWeek, startDateTime, endDate));//$NON-NLS-1$
       }
     }
-    schedule.put("inputFile", new JSONString(filePath)); //$NON-NLS-1$ //$NON-NLS-2$
+    schedule.put("inputFile", new JSONString(filePath)); //$NON-NLS-1$ 
     schedule.put("outputFile", JSONNull.getInstance()); //$NON-NLS-1$
     return schedule;
   }
@@ -384,7 +404,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       endDate.setMinutes(59);
       endDate.setSeconds(59);
     }
-    trigger.put("endTime", endDate == null ? JSONNull.getInstance() : new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate))); //$NON-NLS-1$
+    trigger
+        .put(
+            "endTime", endDate == null ? JSONNull.getInstance() : new JSONString(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate))); //$NON-NLS-1$
     return trigger;
   }
 
@@ -395,25 +417,25 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     if (endTime != null) {
       // We only care about the interval from start time to end time.
       final String startTime = scheduleEditorWizardPanel.getBlockoutStartTime();
-      Date blackoutStartDate = new Date(today.getYear(), today.getMonth(), today.getDate(),
-                                        getStartHour(startTime), getStartMin(startTime));
+      Date blackoutStartDate = new Date(today.getYear(), today.getMonth(), today.getDate(), getStartHour(startTime),
+          getStartMin(startTime));
 
-      Date blackoutEndDate = new Date(today.getYear(), today.getMonth(), today.getDate(),
-                                      getStartHour(endTime), getStartMin(endTime));
+      Date blackoutEndDate = new Date(today.getYear(), today.getMonth(), today.getDate(), getStartHour(endTime),
+          getStartMin(endTime));
 
       final int durationMilli = new Long(Math.abs(blackoutEndDate.getTime() - blackoutStartDate.getTime())).intValue();
 
-//      // Debug only
-//      long seconds = durationMilli / 1000;
-//      System.out.println("******* Seconds: " + seconds + " and mintues = " + (seconds * 60) + " hours = " + (seconds * 60 * 60) + " days = " + (seconds * 60 * 60 * 24));
-//      System.out.println("Seconds To Minute: " + TimeUtil.secsToMinutes(seconds));
-//      System.out.println("Seconds to Hours: " + TimeUtil.secsToHours(seconds));
-//      System.out.println("Seconds to Days: " + TimeUtil.secsToDays(seconds));
+      //      // Debug only
+      //      long seconds = durationMilli / 1000;
+      //      System.out.println("******* Seconds: " + seconds + " and mintues = " + (seconds * 60) + " hours = " + (seconds * 60 * 60) + " days = " + (seconds * 60 * 60 * 24));
+      //      System.out.println("Seconds To Minute: " + TimeUtil.secsToMinutes(seconds));
+      //      System.out.println("Seconds to Hours: " + TimeUtil.secsToHours(seconds));
+      //      System.out.println("Seconds to Days: " + TimeUtil.secsToDays(seconds));
 
       return durationMilli;
-    } else {
-      return -1;
     }
+
+    return -1;
   }
 
   @SuppressWarnings("deprecation")
@@ -445,17 +467,18 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     }
 
     if (scheduleType == ScheduleType.RUN_ONCE) { // Run once types
-      jsJobTrigger.setType("simpleJobTrigger");
+      jsJobTrigger.setType("simpleJobTrigger"); //$NON-NLS-1$
       jsJobTrigger.setRepeatInterval(0);
       jsJobTrigger.setRepeatCount(0);
       jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
-    } else if ((scheduleType == ScheduleType.SECONDS) || (scheduleType == ScheduleType.MINUTES) || (scheduleType == ScheduleType.HOURS)) {
+    } else if ((scheduleType == ScheduleType.SECONDS) || (scheduleType == ScheduleType.MINUTES)
+        || (scheduleType == ScheduleType.HOURS)) {
       int repeatInterval = 0;
       try { // Simple Trigger Types
         repeatInterval = Integer.parseInt(scheduleEditorWizardPanel.getRepeatInterval());
       } catch (Exception e) {
       }
-      jsJobTrigger.setType("simpleJobTrigger");
+      jsJobTrigger.setType("simpleJobTrigger"); //$NON-NLS-1$
       jsJobTrigger.setRepeatInterval(repeatInterval);
       jsJobTrigger.setRepeatCount(-1);
       jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
@@ -469,7 +492,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
           repeatInterval = Integer.parseInt(scheduleEditorWizardPanel.getRepeatInterval());
         } catch (Exception e) {
         }
-        jsJobTrigger.setType("simpleJobTrigger");
+        jsJobTrigger.setType("simpleJobTrigger"); //$NON-NLS-1$
         jsJobTrigger.setRepeatInterval(repeatInterval);
         jsJobTrigger.setRepeatCount(-1);
         jsJobTrigger.setNativeStartTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(startDateTime));
@@ -489,7 +512,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         JsArrayInteger seconds = (JsArrayInteger) JavaScriptObject.createArray();
         hours.set(0, 0);
 
-        jsJobTrigger.setType("complexJobTrigger");
+        jsJobTrigger.setType("complexJobTrigger"); //$NON-NLS-1$
         jsJobTrigger.setDayOfWeekRecurrences(jsDaysOfWeek);
         jsJobTrigger.setHourRecurrences(hours);
         jsJobTrigger.setMinuteRecurrences(minutes);
@@ -500,7 +523,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         }
       }
     } else if (scheduleType == ScheduleType.CRON) { // Cron jobs
-      jsJobTrigger.setType("cronJobTrigger");
+      jsJobTrigger.setType("cronJobTrigger"); //$NON-NLS-1$
     } else if ((scheduleType == ScheduleType.WEEKLY) && (daysOfWeek.size() > 0)) {
       JsArrayInteger jsDaysOfWeek = (JsArrayInteger) JavaScriptObject.createArray();
       int i = 0;
@@ -514,7 +537,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       JsArrayInteger seconds = (JsArrayInteger) JavaScriptObject.createArray();
       hours.set(0, 0);
 
-      jsJobTrigger.setType("complexJobTrigger");
+      jsJobTrigger.setType("complexJobTrigger"); //$NON-NLS-1$
       jsJobTrigger.setDayOfWeekRecurrences(jsDaysOfWeek);
       jsJobTrigger.setHourRecurrences(hours);
       jsJobTrigger.setMinuteRecurrences(minutes);
@@ -523,8 +546,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       if (endDate != null) {
         jsJobTrigger.setNativeEndTime(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(endDate));
       }
-    } else if ((scheduleType == ScheduleType.MONTHLY) || ((scheduleType == ScheduleType.YEARLY) && (monthOfYear != null))) {
-      jsJobTrigger.setType("complexJobTrigger");
+    } else if ((scheduleType == ScheduleType.MONTHLY)
+        || ((scheduleType == ScheduleType.YEARLY) && (monthOfYear != null))) {
+      jsJobTrigger.setType("complexJobTrigger"); //$NON-NLS-1$
 
       if (dayOfMonth != null) {
         JsArrayInteger jsDaysOfMonth = (JsArrayInteger) JavaScriptObject.createArray();
@@ -537,7 +561,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         JsArrayInteger seconds = (JsArrayInteger) JavaScriptObject.createArray();
         hours.set(0, 0);
 
-        jsJobTrigger.setType("complexJobTrigger");
+        jsJobTrigger.setType("complexJobTrigger"); //$NON-NLS-1$
         if (monthOfYear != null) {
           JsArrayInteger jsMonthsOfYear = (JsArrayInteger) JavaScriptObject.createArray();
           jsMonthsOfYear.set(0, monthOfYear.ordinal() + 1);
@@ -565,7 +589,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         JsArrayInteger seconds = (JsArrayInteger) JavaScriptObject.createArray();
         hours.set(0, 0);
 
-        jsJobTrigger.setType("complexJobTrigger");
+        jsJobTrigger.setType("complexJobTrigger"); //$NON-NLS-1$
         if (monthOfYear != null) {
           JsArrayInteger jsMonthsOfYear = (JsArrayInteger) JavaScriptObject.createArray();
           jsMonthsOfYear.set(0, monthOfYear.ordinal() + 1);
@@ -589,39 +613,37 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/" + urlSuffix; //$NON-NLS-1$
 
     RequestBuilder addBlockoutPeriodRequest = new RequestBuilder(RequestBuilder.POST, url);
-    addBlockoutPeriodRequest.setHeader("accept", "text/plain");
-    addBlockoutPeriodRequest.setHeader("Content-Type", "application/json");
+    addBlockoutPeriodRequest.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
+    addBlockoutPeriodRequest.setHeader("Content-Type", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 
     // Create a unique blockout period name
     final Integer duration = trigger.getBlockDuration();
-    final String blockoutPeriodName = trigger.getScheduleType() + Random.nextInt() + ":" +
-                                      /*PentahoSessionHolder.getSession().getName()*/  "admin" + ":" + duration;
+    final String blockoutPeriodName = trigger.getScheduleType() + Random.nextInt() + ":" + //$NON-NLS-1$
+        /*PentahoSessionHolder.getSession().getName()*/"admin" + ":" + duration; //$NON-NLS-1$ //$NON-NLS-2$
 
     // Add blockout specific parameters
     JSONObject addBlockoutParams = schedule;
     addBlockoutParams.put("jobName", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
     addBlockoutParams.put("duration", new JSONNumber(duration)); //$NON-NLS-1$
 
-    System.out.println("The add blockout json: " + addBlockoutParams.toString());
+    System.out.println("The add blockout json: " + addBlockoutParams.toString()); //$NON-NLS-1$
 
     try {
-      addBlockoutPeriodRequest.sendRequest(addBlockoutParams.toString(), new RequestCallback()
-      {
-        public void onError(Request request, Throwable exception)
-        {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+      addBlockoutPeriodRequest.sendRequest(addBlockoutParams.toString(), new RequestCallback() {
+        public void onError(Request request, Throwable exception) {
+          MessageDialogBox dialogBox = new MessageDialogBox(
+              Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
           dialogBox.center();
           setDone(false);
         }
 
-        public void onResponseReceived(Request request, Response response)
-        {
-          if (response.getStatusCode() == Response.SC_OK)
-          {
-        	  if (null != callback) {
-        		  callback.okPressed();
-        	  }
-            System.out.println("****** Got a valid response after adding a blockout period: " + response.getStatusCode());
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
+            if (null != callback) {
+              callback.okPressed();
+            }
+            System.out.println("****** Got a valid response after adding a blockout period: " //$NON-NLS-1$
+                + response.getStatusCode());
           }
         }
       });
@@ -632,30 +654,27 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   }
 
   private void promptDueToBlockoutConflicts(final boolean alwaysConflict, final boolean conflictsSometimes,
-                                            final JSONObject schedule, final JsJobTrigger trigger) {
+      final JSONObject schedule, final JsJobTrigger trigger) {
     StringBuffer conflictMessage = new StringBuffer();
 
-    final String updateScheduleButtonText = Messages.getString("blockoutUpdateSchedule");
-    final String continueButtonText = Messages.getString("blockoutContinueSchedule");
+    final String updateScheduleButtonText = Messages.getString("blockoutUpdateSchedule"); //$NON-NLS-1$
+    final String continueButtonText = Messages.getString("blockoutContinueSchedule"); //$NON-NLS-1$
 
-    boolean showContinueButton =  conflictsSometimes;
+    boolean showContinueButton = conflictsSometimes;
     boolean isScheduleConflict = alwaysConflict || conflictsSometimes;
 
     if (conflictsSometimes) {
-      conflictMessage.append(Messages.getString("blockoutPartialConflict"));
-      conflictMessage.append("\n");
-      conflictMessage.append(Messages.getString("blockoutPartialConflictContinue"));
+      conflictMessage.append(Messages.getString("blockoutPartialConflict")); //$NON-NLS-1$
+      conflictMessage.append("\n"); //$NON-NLS-1$
+      conflictMessage.append(Messages.getString("blockoutPartialConflictContinue")); //$NON-NLS-1$
     } else {
-      conflictMessage.append(Messages.getString("blockoutTotalConflict"));
+      conflictMessage.append(Messages.getString("blockoutTotalConflict")); //$NON-NLS-1$
     }
 
     if (isScheduleConflict) {
-      final MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("blockoutTimeExists"),
-                                                              conflictMessage.toString(),
-                                                              false, false, true,
-                                                              updateScheduleButtonText,
-                                                              showContinueButton ? continueButtonText : null,
-                                                              null); //$NON-NLS-1$ //$NON-NLS-2$
+      final MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("blockoutTimeExists"), //$NON-NLS-1$
+          conflictMessage.toString(), false, false, true, updateScheduleButtonText,
+          showContinueButton ? continueButtonText : null, null);
       dialogBox.setCallback(new IDialogCallback() {
         // If user clicked on 'Continue' we want to add the schedule.  Otherwise we dismiss the dialog
         // and they have to modify the recurrence schedule
@@ -674,7 +693,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     }
   }
 
-
   /**
    * Before creating a new schedule, we want to check to see if the schedule that is being
    * created is going to conflict with any one of the blockout periods if one is provisioned.
@@ -685,32 +703,28 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/blockstatus"; //$NON-NLS-1$
 
     RequestBuilder blockoutConflictRequest = new RequestBuilder(RequestBuilder.POST, url);
-    blockoutConflictRequest.setHeader("accept", "application/json");
-    blockoutConflictRequest.setHeader("Content-Type", "application/json");
+    blockoutConflictRequest.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
+    blockoutConflictRequest.setHeader("Content-Type", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 
     final JSONObject verifyBlockoutParams = schedule;
-    verifyBlockoutParams.put("jobName", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
-
-//    System.out.println("The verify blockout conflict json: " + verifyBlockoutParams.toString());
+    verifyBlockoutParams
+        .put("jobName", new JSONString(scheduleEditorWizardPanel.getScheduleEditor().getScheduleName())); //$NON-NLS-1$
 
     try {
-      blockoutConflictRequest.sendRequest(verifyBlockoutParams.toString(), new RequestCallback()
-      {
-        public void onError(Request request, Throwable exception)
-        {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+      blockoutConflictRequest.sendRequest(verifyBlockoutParams.toString(), new RequestCallback() {
+        public void onError(Request request, Throwable exception) {
+          MessageDialogBox dialogBox = new MessageDialogBox(
+              Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
           dialogBox.center();
           setDone(false);
         }
 
-        public void onResponseReceived(Request request, Response response)
-        {
-          if (response.getStatusCode() == Response.SC_OK)
-          {
+        public void onResponseReceived(Request request, Response response) {
+          if (response.getStatusCode() == Response.SC_OK) {
             JsBlockStatus statusResponse = (JsBlockStatus) parseJson(JsonUtils.escapeJsonForEval(response.getText()));
 
             // Determine if this schedule conflicts all the time or some of the time
-            boolean partiallyBlocked =  Boolean.parseBoolean(statusResponse.getPartiallyBlocked());
+            boolean partiallyBlocked = Boolean.parseBoolean(statusResponse.getPartiallyBlocked());
             boolean totallyBlocked = Boolean.parseBoolean(statusResponse.getTotallyBlocked());
             if (partiallyBlocked || totallyBlocked) {
               promptDueToBlockoutConflicts(totallyBlocked, partiallyBlocked, schedule, trigger);
@@ -729,87 +743,69 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     super.nextClicked();
   }
 
-  private void handleWizardPanels(final JSONObject schedule, final JsJobTrigger trigger)
-  {
-    if (hasParams)
-    {
+  private void handleWizardPanels(final JSONObject schedule, final JsJobTrigger trigger) {
+    if (hasParams) {
       showScheduleParamsDialog(trigger, schedule);
-    }
-    else if (isEmailConfValid)
-    {
+    } else if (isEmailConfValid) {
       showScheduleEmailDialog(schedule);
-    }
-    else
-    {
+    } else {
       // submit
       JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
 
-      if (editJob != null)
-      {
+      if (editJob != null) {
         JSONArray scheduleParams = new JSONArray();
 
-        for (int i = 0; i < editJob.getJobParams().length(); i++)
-        {
+        for (int i = 0; i < editJob.getJobParams().length(); i++) {
           JsJobParam param = editJob.getJobParams().get(i);
           JsArrayString paramValue = (JsArrayString) JavaScriptObject.createArray().cast();
           paramValue.push(param.getValue());
           JsSchedulingParameter p = (JsSchedulingParameter) JavaScriptObject.createObject().cast();
           p.setName(param.getName());
-          p.setType("string");
+          p.setType("string"); //$NON-NLS-1$
           p.setStringValue(paramValue);
           scheduleParams.set(i, new JSONObject(p));
         }
 
         scheduleRequest.put("jobParameters", scheduleParams); //$NON-NLS-1$
 
-        String actionClass = editJob.getJobParam("ActionAdapterQuartzJob-ActionClass");
-        if (!StringUtils.isEmpty(actionClass))
-        {
-          scheduleRequest.put("actionClass", new JSONString(actionClass));
+        String actionClass = editJob.getJobParam("ActionAdapterQuartzJob-ActionClass"); //$NON-NLS-1$
+        if (!StringUtils.isEmpty(actionClass)) {
+          scheduleRequest.put("actionClass", new JSONString(actionClass)); //$NON-NLS-1$
         }
 
       }
 
-      RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL + "api/scheduler/job");
+      RequestBuilder scheduleFileRequestBuilder = new RequestBuilder(RequestBuilder.POST, contextURL
+          + "api/scheduler/job"); //$NON-NLS-1$
       scheduleFileRequestBuilder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
 
-      try
-      {
-        scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback()
-        {
-          public void onError(Request request, Throwable exception)
-          {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+      try {
+        scheduleFileRequestBuilder.sendRequest(scheduleRequest.toString(), new RequestCallback() {
+          public void onError(Request request, Throwable exception) {
+            MessageDialogBox dialogBox = new MessageDialogBox(
+                Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
             dialogBox.center();
             setDone(false);
           }
 
-          public void onResponseReceived(Request request, Response response)
-          {
-            if (response.getStatusCode() == 200)
-            {
+          public void onResponseReceived(Request request, Response response) {
+            if (response.getStatusCode() == 200) {
               setDone(true);
               NewScheduleDialog.this.hide();
-              if (callback != null)
-              {
+              if (callback != null) {
                 callback.okPressed();
               }
-            }
-            else
-            {
-              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"),
-                                                                response.getText(), //$NON-NLS-1$ 
-                                                                false, false, true);
+            } else {
+              MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), //$NON-NLS-1$
+                  response.getText(), false, false, true);
               dialogBox.center();
               setDone(false);
             }
           }
         });
-      }
-      catch (RequestException e)
-      {
+      } catch (RequestException e) {
         MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
-                                                          false, false, true);
+            false, false, true);
         dialogBox.center();
         setDone(false);
       }
@@ -827,7 +823,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       return obj;
   }-*/;
 
-
   /*
    * (non-Javadoc)
    * 
@@ -835,27 +830,25 @@ public class NewScheduleDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onFinish() {
-    JsJobTrigger trigger = getJsJobTrigger();
-    JSONObject schedule = getSchedule();
-
     String name = scheduleEditorWizardPanel.getScheduleEditor().getScheduleName();
-    String alphaNumeric = "^[a-zA-Z0-9_\\.\\- ]+$";
+    String alphaNumeric = "^[a-zA-Z0-9_\\.\\- ]+$"; //$NON-NLS-1$
     // make sure it matches regex
     if (name.matches(alphaNumeric)) {
-      verifyBlockoutConflict(schedule, trigger);
+      //    DO NOT DELETE - verifyBlockoutConflict(schedule, trigger);
       return true;
-    } else {
-      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("enterAlphaNumeric", name), false, false, true); //$NON-NLS-1$
-      dialogBox.center();
-      return false;
     }
+
+    MessageDialogBox dialogBox = new MessageDialogBox(
+        Messages.getString("error"), Messages.getString("enterAlphaNumeric", name), false, false, true); //$NON-NLS-1$ //$NON-NLS-2$
+    dialogBox.center();
+    return false;
   }
 
   private void showScheduleEmailDialog(final JSONObject schedule) {
     try {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-      requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable caught) {
@@ -873,7 +866,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         public void onResponseReceived(Request request, Response response) {
           JSONObject scheduleRequest = (JSONObject) JSONParser.parseStrict(schedule.toString());
           if (scheduleEmailDialog == null) {
-            scheduleEmailDialog = new ScheduleEmailDialog(NewScheduleDialog.this, filePath, scheduleRequest, null, editJob);
+            scheduleEmailDialog = new ScheduleEmailDialog(NewScheduleDialog.this, filePath, scheduleRequest, null,
+                editJob);
             scheduleEmailDialog.setCallback(callback);
           } else {
             scheduleEmailDialog.setJobSchedule(scheduleRequest);
@@ -893,7 +887,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     try {
       final String url = GWT.getHostPageBaseURL() + "api/mantle/isAuthenticated"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-      requestBuilder.setHeader("accept", "text/plain");
+      requestBuilder.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
       requestBuilder.sendRequest(null, new RequestCallback() {
 
         public void onError(Request request, Throwable caught) {
@@ -916,7 +910,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             scheduleParamsDialog.setJobSchedule(schedule);
           }
           if (trigger.getDescription() != null) {
-            String description = Messages.getString("scheduleWillRun", trigger.getDescription().toLowerCase());
+            String description = Messages.getString("scheduleWillRun", trigger.getDescription().toLowerCase()); //$NON-NLS-1$
             scheduleParamsDialog.setScheduleDescription(description);
           }
           scheduleParamsDialog.center();
@@ -974,7 +968,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onNext(IWizardPanel nextPanel, IWizardPanel previousPanel) {
-    // TODO Auto-generated method stub
     return true;
   }
 
@@ -986,7 +979,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
    */
   @Override
   protected boolean onPrevious(IWizardPanel previousPanel, IWizardPanel currentPanel) {
-    // TODO Auto-generated method stub
     return true;
   }
 
@@ -1013,12 +1005,10 @@ public class NewScheduleDialog extends AbstractWizardDialog {
   }
 
   protected boolean showFinish(int index) {
-    // TODO Auto-generated method stub
     return true;
   }
 
   protected boolean showNext(int index) {
-    // TODO Auto-generated method stub
     return false;
   }
 
