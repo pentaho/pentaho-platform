@@ -67,7 +67,7 @@ public interface ISecurityHelper {
    * @throws Exception
    * @see {@link java.util.concurrent.Callable}
    */
-  <T> T runAsUnauthenticated(Callable<T> callable) throws Exception;
+  <T> T runAsAnonymous(Callable<T> callable) throws Exception;
 
   /**
    * Utility method that communicates with the installed ACLVoter to determine
