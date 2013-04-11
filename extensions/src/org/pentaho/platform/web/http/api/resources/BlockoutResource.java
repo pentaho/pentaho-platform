@@ -73,6 +73,13 @@ public class BlockoutResource extends AbstractJaxRSResource {
     return manager.getBlockOutJobs();
   }
 
+  @GET
+  @Path("/hasblockouts")
+  @Produces({ TEXT_PLAIN })
+  public Response hasBlockouts() {
+    return Response.ok(manager.getBlockOutJobs() > 0 ? Boolean.TRUE.toString() : Boolean.FALSE.toString()).build();
+  }
+  
   @POST
   @Path("/add")
   @Consumes({ APPLICATION_JSON, APPLICATION_XML })
