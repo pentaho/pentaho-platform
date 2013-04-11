@@ -62,7 +62,7 @@ public class MockSecurityHelper implements ISecurityHelper {
     return callable.call();
   }
 
-  public <T> T runAsUnauthenticated(final Callable<T> callable) throws Exception {
+  public <T> T runAsAnonymous(final Callable<T> callable) throws Exception {
     becomeUser("unauthenticated");
     return callable.call();
   }

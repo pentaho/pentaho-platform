@@ -207,7 +207,7 @@ public class ActionAdapterQuartzJob implements Job {
     if ((actionUser == null) || (actionUser.equals("system session"))) { //$NON-NLS-1$
       // For now, don't try to run quartz jobs as authenticated if the user
       // that created the job is a system user. See PPP-2350
-      SecurityHelper.getInstance().runAsUnauthenticated(actionBeanRunner);
+      SecurityHelper.getInstance().runAsAnonymous(actionBeanRunner);
     } else {
       SecurityHelper.getInstance().runAsUser(actionUser, actionBeanRunner);
     }

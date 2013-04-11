@@ -43,6 +43,8 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+import org.springframework.security.userdetails.User;
 
 /**
  * A utility class with several methods that are used to
@@ -179,12 +181,22 @@ public class SecurityHelper implements ISecurityHelper {
    * @see {@link Callable}
    */
   @Override
-  public <T> T runAsUnauthenticated(final Callable<T> callable) throws Exception {
+  public <T> T runAsAnonymous(final Callable<T> callable) throws Exception {
     IPentahoSession origSession = PentahoSessionHolder.getSession();
     Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
     try {
       PentahoSessionHolder.setSession(new StandaloneSession());
-      SecurityContextHolder.clearContext();
+      
+      // get anonymous username/role defined in pentaho.xml 
+      String user = PentahoSystem.getSystemSetting("anonymous-authentication/anonymous-user", "anonymousUser"); //$NON-NLS-1$//$NON-NLS-2$
+      String role = PentahoSystem.getSystemSetting("anonymous-authentication/anonymous-role", "Anonymous"); //$NON-NLS-1$//$NON-NLS-2$
+      GrantedAuthority[] authorities = new GrantedAuthority[]{new GrantedAuthorityImpl(role)};
+      
+      Authentication auth = new AnonymousAuthenticationToken("system session", 
+    		  new User(user, "ignored", true, true, true, true, authorities) , 
+    		  authorities);
+      
+      SecurityContextHolder.getContext().setAuthentication(auth);
       return callable.call();
     } finally {
       PentahoSessionHolder.setSession(origSession);

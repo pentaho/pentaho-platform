@@ -19,17 +19,17 @@ function translateInnerMouseEvent(element, srcEvent){
   var event;
   if(document.all){   //IE
     event = document.createEventObject();
-    evObj.detail = srcEvent.detail;
-    evObj.screenX = offsetWidth;
-    evObj.screenY = offsetHeight;
-    evObj.clientX = offsetWidth;
-    evObj.clientY = offsetHeight;
-    evObj.ctrlKey = srcEvent.ctrlKey;
-    evObj.altKey = srcEvent.altKey;
-    evObj.shiftKey = srcEvent.shiftKey;
-    evObj.metaKey = srcEvent.metaKey;
-    evObj.button = srcEvent.button;
-    evObj.relatedTarget = srcEvent.relatedTarget;
+    event.detail = srcEvent.detail;
+    event.screenX = offsetWidth;
+    event.screenY = offsetHeight;
+    event.clientX = offsetWidth;
+    event.clientY = offsetHeight;
+    event.ctrlKey = srcEvent.ctrlKey;
+    event.altKey = srcEvent.altKey;
+    event.shiftKey = srcEvent.shiftKey;
+    event.metaKey = srcEvent.metaKey;
+    event.button = srcEvent.button;
+    event.relatedTarget = srcEvent.relatedTarget;
   } else {    //Mozilla
     event = document.createEvent('MouseEvents');
     event.initMouseEvent( 
