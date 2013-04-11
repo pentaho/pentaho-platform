@@ -30,7 +30,7 @@ window.initSchedulingParams = function(filepath, callback) {
 /*
  * this method is called by gwt to retrieve the schedule/background param vals
  */
-window.getParams = function() {
+window.getParams = function(suppressAlerts) {
 	try {
 		var id = null;
 		
@@ -56,9 +56,13 @@ window.getParams = function() {
 	
 			if( elements[i].name != lastName ) {
 				if( lastName != null && lastName.length > 0) {
-					var ckRtn = checkParams( form, element.type, lastName, gotOne );
+					var ckRtn = checkParams( form, element.type, lastName, gotOne, suppressAlerts );
 					if( ckRtn == 0 ) {
-						throw 'Parameter Check Failed.';
+						if (suppressAlerts) {
+							continue;
+						} else {
+							throw 'Parameter Check Failed.';
+						}
 					}
 				}
 				gotOne = 0;
@@ -118,7 +122,8 @@ window.getParams = function() {
 				}
 			}
 		}
-		var ckRtn2 = checkParams( form, element.type, lastName, gotOne );
+
+		var ckRtn2 = checkParams( form, element.type, lastName, gotOne, suppressAlerts );
 		if( ckRtn2 == 0 ) {
 			return 'Parameter Check Failed.';
 		} else if (ckRtn2 == 2) {
@@ -362,7 +367,7 @@ function convertHtmlEntitiesToCharacters(theStr) {
     return newDiv.innerHTML;
 }
 
-function checkParams(form, type, lastName, gotOne ) {
+function checkParams(form, type, lastName, gotOne, suppressAlerts ) {
     // pentaho_optionalParams is defined in the XSL file
 	if( gotOne == 0 && type != 'hidden' ) {
 		try {
@@ -377,9 +382,12 @@ function checkParams(form, type, lastName, gotOne ) {
 				return 2;
 			}
 		} catch (e) {
-		}		
-		var msg = convertHtmlEntitiesToCharacters(pentaho_notOptionalMessage.replace("{0}", pentaho_paramName[form.name + '.' + lastName] ));
-		alert( msg );
+		}
+		if (!suppressAlerts) {
+		    var msg = pentaho_notOptionalMessage;
+			var msg = convertHtmlEntitiesToCharacters(msg.replace("{0}", lastName));
+			alert( msg );
+		}
 		return 0;
 	}
 	return 1;
@@ -399,7 +407,7 @@ function getParameters( id ) {
 
 		if( elements[i].name != lastName ) {
 			if( lastName != null && lastName.length > 0) {
-				var ckRtn = checkParams( form, element.type, lastName, gotOne );
+				var ckRtn = checkParams( form, element.type, lastName, gotOne, false );
 				if( ckRtn == 0 ) {
 					return null;
 				}
@@ -461,7 +469,7 @@ function getParameters( id ) {
 			}
 		}
 	}
-	var ckRtn2 = checkParams( form, element.type, lastName, gotOne );
+	var ckRtn2 = checkParams( form, element.type, lastName, gotOne, false );
 	if( ckRtn2 == 0 ) {
 		return null;
 	} else if (ckRtn2 == 2) {
