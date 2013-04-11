@@ -618,6 +618,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
         {
           if (response.getStatusCode() == Response.SC_OK)
           {
+        	  if (null != callback) {
+        		  callback.okPressed();
+        	  }
             System.out.println("****** Got a valid response after adding a blockout period: " + response.getStatusCode());
           }
         }
