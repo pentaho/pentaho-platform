@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -38,6 +39,8 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
 
   private GrantedAuthority defaultRole;
 
+  private IAuthenticationRoleMapper roleMapper;
+
   // ~ Constructors ====================================================================================================
 
   public DefaultRoleUserDetailsServiceDecorator() {
@@ -51,12 +54,13 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
       logger.debug("injecting proxy"); //$NON-NLS-1$
     }
     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
     return getUserDetailsWithDefaultRole(userDetails);
   }
 
   protected UserDetails getUserDetailsWithDefaultRole(final UserDetails userDetails) {
     if (defaultRole != null) {
-      return new DefaultRoleUserDetailsProxy(userDetails, defaultRole);
+      return new DefaultRoleUserDetailsProxy(userDetails, defaultRole, roleMapper);
     } else {
       return userDetails;
     }
@@ -70,6 +74,10 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
   public void setDefaultRole(final String defaultRole) {
     Assert.notNull(defaultRole);
     this.defaultRole = new GrantedAuthorityImpl(defaultRole);
+  }
+
+  public void setRoleMapper(final IAuthenticationRoleMapper roleMapper){
+    this.roleMapper = roleMapper;
   }
 
   /**
@@ -90,13 +98,20 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
 
     private GrantedAuthority[] newRoles;
 
+    private IAuthenticationRoleMapper roleMapper;
+
     // ~ Constructors ==================================================================================================
 
     public DefaultRoleUserDetailsProxy(final UserDetails userDetails, final GrantedAuthority defaultRole) {
+      this(userDetails, defaultRole, null);
+    }
+
+    public DefaultRoleUserDetailsProxy(final UserDetails userDetails, final GrantedAuthority defaultRole, final IAuthenticationRoleMapper roleMapper) {
       super();
       Assert.notNull(userDetails);
       Assert.notNull(defaultRole);
       this.userDetails = userDetails;
+      this.roleMapper = roleMapper;
       newRoles = getNewRoles(defaultRole);
     }
 
@@ -107,7 +122,14 @@ public class DefaultRoleUserDetailsServiceDecorator implements UserDetailsServic
      */
     protected GrantedAuthority[] getNewRoles(final GrantedAuthority defaultRole) {
       List<GrantedAuthority> origRoles = Arrays.asList(userDetails.getAuthorities());
-      List<GrantedAuthority> newRoles1 = new ArrayList<GrantedAuthority>(origRoles);
+      List<GrantedAuthority> newRoles1 = new ArrayList<GrantedAuthority>();
+      // Map Non-pentaho roles to pentaho roles. This mapping is defined in the applicationContext-spring-security-ldap.xml
+      if(roleMapper != null) {
+          for(GrantedAuthority authority:origRoles) {
+        	  newRoles1.add(new GrantedAuthorityImpl(roleMapper.toPentahoRole(authority.getAuthority())));
+          }
+      }
+      
       if (!origRoles.contains(defaultRole)) {
         if (logger.isDebugEnabled()) {
           logger

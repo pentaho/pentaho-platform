@@ -74,6 +74,9 @@ xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
 		<constructor-arg index="1" >
 			<bean class="org.pentaho.platform.engine.security.DefaultRoleComparator" />
 		</constructor-arg>
+		<constructor-arg index="2">
+			<ref bean="ldapRoleMapper" />
+		</constructor-arg>	
 		<property name="allAuthoritiesSearch">
 			<ref local="allAuthoritiesSearch" />
 		</property>
