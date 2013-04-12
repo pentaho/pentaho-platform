@@ -27,7 +27,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -96,21 +95,17 @@ public class SchedulesPerspectivePanel extends SimplePanel {
 
 	private void createUI() {
 		wrapperPannel = new VerticalPanel();
-		Label scheduleHeading = new Label("Scheduling");
+		Label scheduleHeading = new Label(Messages.getString("scheduling"));
 		scheduleHeading.setStyleName("schedulesHeading");
-		
 		wrapperPannel.add(scheduleHeading);
-//		wrapperPannel.setCellHeight(scheduleHeading, "10%");
 		
 		schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
 		schedulesPanel.setStyleName("schedulesPanel");
 		wrapperPannel.add(schedulesPanel);
-//		wrapperPannel.setCellHeight(schedulesPanel, "55%");
 		
 		blockoutPanel = new BlockoutPanel(isAdmin);
 		blockoutPanel.setStyleName("schedulesPanel");
 		wrapperPannel.add(blockoutPanel);
-//		wrapperPannel.setCellHeight(blockoutPanel, "35%");
 		
 		getElement().getStyle().setBackgroundColor("white");
 		add(wrapperPannel);
