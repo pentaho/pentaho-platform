@@ -5,9 +5,23 @@
 	| implementation.
 	+-->
 
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd">
+<beans  xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+  xmlns:util="http://www.springframework.org/schema/util"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd"
+>
+
+    <!-- map ldap role to pentaho security role -->
+    <util:map id="roleMap">
+        <entry key="Admin" value="Administrator"/>
+    </util:map>
+
+    <bean id="jdbcRoleMapper"
+          class="org.pentaho.platform.engine.security.DefaultJdbcRoleMapper">
+        <constructor-arg>
+            <ref local="roleMap"/>
+        </constructor-arg>
+    </bean>
 
 	<bean id="userRoleListService0"
 		class="org.pentaho.platform.plugin.services.security.userrole.jdbc.JdbcUserRoleListService">
@@ -29,8 +43,8 @@
 			</value>
 		</property>
 		<property name="dataSource" ref="dataSource" />
+        <property name="roleMapper" ref="jdbcRoleMapper" />
     <property name="rolePrefix" value="" />
-	<constructor-arg ref="tenantedUserNameUtils"/>		
 	</bean>
 
   <bean id="userRoleListService" class="org.pentaho.platform.plugin.services.security.userrole.ExtraRolesUserRoleListServiceDecorator">

@@ -35,6 +35,7 @@
 		</property>
     <property name="rolePrefix" value="" />
     <property name="defaultRole" ref="defaultRole" />
+    <property name="roleMapper" ref="jdbcRoleMapper" />
     <constructor-arg ref="tenantedUserNameUtils"/>		
 	</bean>
   
