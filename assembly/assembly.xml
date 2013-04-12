@@ -98,7 +98,7 @@
 
 
   <target name="ce-build-all"
-        depends="clean-all,resolve,assemble,package,war-pentaho-tomcat,zip-pentaho-style-war,package,zip-pentaho-data,zip-pentaho-solutions"
+        depends="clean-all,resolve,assemble,package,war-pentaho,zip-pentaho-style-war,package,zip-pentaho-data,zip-pentaho-solutions"
         description="Performs ce build process"/>
 
   <!-- ================================= 
@@ -517,19 +517,19 @@
 	</target>
 
 	<!-- ===================================================================
-	        target: war-pentaho-tomcat
+	        target: war-pentaho
 	       =================================================================== -->
-	<target name="war-pentaho-tomcat" depends="init, init-pentaho-wars, zip-pentaho-style-war">
-		<mkdir dir="${dist.dir}/tomcat/" />
+	<target name="war-pentaho" depends="init, init-pentaho-wars, zip-pentaho-style-war">
+		<mkdir dir="${dist.dir}" />
 
-		<manifest file="${dist.dir}/tomcat/MANIFEST.MF">
+		<manifest file="${dist.dir}/MANIFEST.MF">
 			<attribute name="Implementation-Title" value="${impl.title}" />
 			<attribute name="Implementation-Version" value="${impl.version}" />
 			<attribute name="Implementation-Vendor" value="${impl.vendor}" />
 		</manifest>
 
 		<!-- war pentaho -->
-		<zip destfile="${dist.dir}/tomcat/pentaho.war" duplicate="preserve">
+		<zip destfile="${dist.dir}/pentaho.war" duplicate="preserve">
 			<zipfileset dir="${prep.pentaho.war.dir}">
 				<exclude name="**/WEB-INF/default-object.xml" />
 				<exclude name="**/WEB-INF/jboss-app.xml" />
