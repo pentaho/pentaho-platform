@@ -422,13 +422,12 @@ public class SchedulesPanel extends SimplePanel {
 
     // table.addColumn(idColumn, "ID");
     table.addColumn(nameColumn, Messages.getString("scheduleName"));
-    table.addColumn(resourceColumn, Messages.getString("file"));
     table.addColumn(scheduleColumn, Messages.getString("recurrence"));
+    table.addColumn(resourceColumn, Messages.getString("sourceFile"));
+    
     table.addColumn(lastFireColumn, Messages.getString("lastFire"));
     table.addColumn(nextFireColumn, Messages.getString("nextFire"));
-    if (isAdmin) {
-      table.addColumn(userNameColumn, Messages.getString("user"));
-    }
+    table.addColumn(userNameColumn, Messages.getString("user"));
     table.addColumn(stateColumn, Messages.getString("state"));
 
     table.addColumnStyleName(0, "backgroundContentHeaderTableCell");
@@ -437,9 +436,7 @@ public class SchedulesPanel extends SimplePanel {
     table.addColumnStyleName(3, "backgroundContentHeaderTableCell");
     table.addColumnStyleName(4, "backgroundContentHeaderTableCell");
     table.addColumnStyleName(5, "backgroundContentHeaderTableCell");
-    if (isAdmin) {
-      table.addColumnStyleName(6, "backgroundContentHeaderTableCell");
-    }
+    table.addColumnStyleName(6, "backgroundContentHeaderTableCell");
 
     table.setColumnWidth(nameColumn, 160, Unit.PX);
     table.setColumnWidth(resourceColumn, 220, Unit.PX);
