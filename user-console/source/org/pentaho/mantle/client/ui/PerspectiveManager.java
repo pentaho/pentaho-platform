@@ -21,6 +21,7 @@ package org.pentaho.mantle.client.ui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
@@ -93,7 +94,7 @@ public class PerspectiveManager extends HorizontalPanel {
     getElement().setId("mantle-perspective-switcher");
     setStyleName("mantle-perspective-switcher");
 
-    final String url = GWT.getHostPageBaseURL() + "api/plugin-manager/perspectives"; //$NON-NLS-1$
+    final String url = GWT.getHostPageBaseURL() + "api/plugin-manager/perspectives?ts=" + System.currentTimeMillis(); //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
     builder.setHeader("Content-Type", "application/json"); //$NON-NLS-1$//$NON-NLS-2$
 
