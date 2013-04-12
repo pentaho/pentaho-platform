@@ -628,8 +628,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     addBlockoutParams.put("jobName", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
     addBlockoutParams.put("duration", new JSONNumber(duration)); //$NON-NLS-1$
 
-    System.out.println("The add blockout json: " + addBlockoutParams.toString()); //$NON-NLS-1$
-
     try {
       addBlockoutPeriodRequest.sendRequest(addBlockoutParams.toString(), new RequestCallback() {
         public void onError(Request request, Throwable exception) {
@@ -644,8 +642,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             if (null != callback) {
               callback.okPressed();
             }
-            System.out.println("****** Got a valid response after adding a blockout period: " //$NON-NLS-1$
-                + response.getStatusCode());
+            //System.out.println("****** Got a valid response after adding a blockout period: " + response.getStatusCode());
           }
         }
       });
@@ -837,6 +834,9 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     // make sure it matches regex
     if (name.matches(alphaNumeric)) {
       //    DO NOT DELETE - verifyBlockoutConflict(schedule, trigger);
+      JsJobTrigger trigger = getJsJobTrigger();
+      JSONObject schedule = getSchedule();
+      handleWizardPanels(schedule, trigger);
       return true;
     }
 
