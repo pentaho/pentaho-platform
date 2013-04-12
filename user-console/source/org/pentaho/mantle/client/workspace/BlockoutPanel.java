@@ -76,14 +76,22 @@ public class BlockoutPanel extends SimplePanel {
     }
   };
   private Label headlineLabel;
+  private Label blockoutTimes;
+  private boolean isAdmin;
 
-  public BlockoutPanel(final boolean isAdmin) {
-    createUI(isAdmin);
-    refresh();
-  }
+	public BlockoutPanel(final boolean isAdmin) {
+		this.isAdmin = isAdmin;
+		createUI(isAdmin);
+		refresh();
+	}
 
   private void createUI(final boolean isAdmin) {
     widgets.setWidth("100%");
+    
+    blockoutTimes = new Label(Messages.getString("blockoutTimes"));
+	blockoutTimes.setStyleName("workspaceHeading");
+    widgets.add(blockoutTimes);
+    
     createHeadlineBar();
     createControls(isAdmin);
     createTable();
@@ -115,11 +123,14 @@ public class BlockoutPanel extends SimplePanel {
     }
   }
 
-  private void createBlockoutButton(final ClickHandler newBlockoutHandler) {
-    blockoutButton.addClickHandler(newBlockoutHandler);
-    blockoutButton.setStyleName("pentaho-button");
-    widgets.add(blockoutButton);
-  }
+	private void createBlockoutButton(final ClickHandler newBlockoutHandler) {
+		SimplePanel buttonPanel = new SimplePanel();
+		buttonPanel.setStyleName("schedulesButtonPanel");
+		blockoutButton.addClickHandler(newBlockoutHandler);
+		blockoutButton.setStyleName("pentaho-button");
+		buttonPanel.add(blockoutButton);
+		widgets.add(buttonPanel);
+	}
 
   private void createTableControls(final ClickHandler newBlockoutHandler) {
     tableControls.addSpacer(10);
@@ -299,10 +310,19 @@ public class BlockoutPanel extends SimplePanel {
       tablePanel.setVisible(false);
       blockoutButton.setVisible(true);
       headlineLabel.setText(Messages.getString("blockoutNone"));
+      if (!isAdmin) {
+    	  headlineLabel.setVisible(false);
+    	  blockoutTimes.setVisible(false);
+      }
+      
     } else {
       tablePanel.setVisible(true);
       blockoutButton.setVisible(false);
       headlineLabel.setText(Messages.getString("blockoutHeadline"));
+      if (!isAdmin) {
+    	  headlineLabel.setVisible(true);
+    	  blockoutTimes.setVisible(true);
+      }
       List<JsJob> jobList = new ArrayList<JsJob>();
       for (int i = 0; i < allBlocks.length(); i++) {
         JsJob job = allBlocks.get(i);

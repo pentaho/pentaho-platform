@@ -27,12 +27,16 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class SchedulesPerspectivePanel extends VerticalPanel {
+public class SchedulesPerspectivePanel extends SimplePanel {
   static final int PAGE_SIZE = 25;
   private static SchedulesPerspectivePanel instance = new SchedulesPerspectivePanel();
+  
+  private VerticalPanel wrapperPannel;
   private SchedulesPanel schedulesPanel;
   private BlockoutPanel blockoutPanel;
 
@@ -90,20 +94,28 @@ public class SchedulesPerspectivePanel extends VerticalPanel {
 
   }
 
-  private void createUI() {
-    schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
-    add(schedulesPanel);
-    setCellHeight(schedulesPanel, "50%");
-    Label blockoutTimes = new Label(Messages.getString("blockoutTimes"));
-    blockoutTimes.setStyleName("workspaceHeading");
-    add(blockoutTimes);
-    setVerticalAlignment(ALIGN_TOP);
-    blockoutPanel = new BlockoutPanel(isAdmin);
-    add(blockoutPanel);
-    setCellHeight(blockoutPanel, "50%");
-    getElement().getStyle().setBackgroundColor("white");
-  }
-
+	private void createUI() {
+		wrapperPannel = new VerticalPanel();
+		Label scheduleHeading = new Label("Scheduling");
+		scheduleHeading.setStyleName("schedulesHeading");
+		
+		wrapperPannel.add(scheduleHeading);
+//		wrapperPannel.setCellHeight(scheduleHeading, "10%");
+		
+		schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
+		schedulesPanel.setStyleName("schedulesPanel");
+		wrapperPannel.add(schedulesPanel);
+//		wrapperPannel.setCellHeight(schedulesPanel, "55%");
+		
+		blockoutPanel = new BlockoutPanel(isAdmin);
+		blockoutPanel.setStyleName("schedulesPanel");
+		wrapperPannel.add(blockoutPanel);
+//		wrapperPannel.setCellHeight(blockoutPanel, "35%");
+		
+		getElement().getStyle().setBackgroundColor("white");
+		add(wrapperPannel);
+		
+	}
 
   public void refresh() {
     schedulesPanel.refresh();
