@@ -23,8 +23,8 @@ package org.pentaho.platform.web.http.api.resources;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.config.PentahoSpringBeansConfig;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.api.engine.IConfiguration;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.web.http.messages.Messages;
 
 import javax.ws.rs.GET;
@@ -33,7 +33,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
 
 /**
  * This api provides methods for discovering information about the system
@@ -44,6 +43,11 @@ import java.io.File;
 public class SystemResource extends AbstractJaxRSResource {
 
   private static final Log logger = LogFactory.getLog(FileResource.class);
+  private ISystemConfig systemConfig;
+
+  public SystemResource(ISystemConfig systemConfig) {
+    this.systemConfig = systemConfig;
+  }
 
   /**
    * Returns all users, roles, and ACLs in an XML document. Moved
@@ -94,11 +98,9 @@ public class SystemResource extends AbstractJaxRSResource {
   @Produces({MediaType.APPLICATION_JSON})
   public AuthenticationProvider getAuthenticationProvider() throws Exception {
     try{
-      File configFile = new File(PentahoSystem.getApplicationContext().getSolutionPath("system/pentaho-spring-beans.xml"));
-      // File configFile = new File("/home/pminutillo/IntelliJProjects/pentaho-platform/extensions/test-res/solution1-no-config/system/pentaho-spring-beans.xml");
-      PentahoSpringBeansConfig config = new PentahoSpringBeansConfig(configFile);
-
-      return new AuthenticationProvider(config.getAuthenticationProvider().toString());
+      IConfiguration config = this.systemConfig.getConfiguration("security");
+      String provider = config.getProperties().getProperty("provider");
+      return new AuthenticationProvider(provider);
     }
     catch (Throwable t) {
       logger.error(Messages.getInstance().getString("SystemResource.GENERAL_ERROR"), t); //$NON-NLS-1$

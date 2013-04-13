@@ -6,11 +6,13 @@
 	+-->
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd">
 
   <bean id="authenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
     <property name="userDetailsService">
-      <ref local="userDetailsService" />
+      <pen:bean id="UserDetailsService" class="org.springframework.security.userdetails.UserDetailsService"/>
     </property>
     <property name="passwordEncoder">
       <ref local="passwordEncoder" />
@@ -95,6 +97,7 @@
 
   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location" value="applicationContext-spring-security-hibernate.properties" />
+  <property name="ignoreUnresolvablePlaceholders" value="true"/>
   </bean>
 
 </beans>

@@ -68,7 +68,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   <bean id="INavigationComponent" class="org.pentaho.platform.uifoundation.component.xml.NavigationComponent"
         scope="prototype"/>
   <!--
-    IDBDatasourceService - options are: 
+    IDBDatasourceService - options are:
     org.pentaho.platform.engine.services.connection.datasource.dbcp.JndiDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.NonPooledOrJndiDatasourceService
     org.pentaho.platform.engine.services.connection.datasource.dbcp.PooledDatasourceService
@@ -107,7 +107,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   <bean id="IChartBeansGenerator" class="org.pentaho.platform.plugin.action.chartbeans.DefaultChartBeansGenerator"
         scope="singleton"/>
 
-  <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory, 
+  <!-- Data connections.  Connections objects should be accessed through PentahoConnectionFactory,
 not directly from the PentahoObjectFactory. -->
   <bean id="connection-SQL" class="org.pentaho.platform.plugin.services.connections.sql.SQLConnection"
         scope="prototype">
@@ -136,7 +136,28 @@ not directly from the PentahoObjectFactory. -->
   <alias name="roleAuthorizationPolicyRoleBindingDaoTxn" alias="IRoleAuthorizationPolicyRoleBindingDao"/>
 
   <!-- actual bean defined in applicationContext-pentaho-security-*.xml; aliased here -->
-  <alias name="userRoleListService" alias="IUserRoleListService"/>
+  <pen:bean id="IUserRoleListService" class="org.pentaho.platform.api.engine.IUserRoleListService">
+    <pen:attributes>
+      <pen:attr key="providerName" value="${security.provider}"/>
+    </pen:attributes>
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="50"/>
+      </pen:attributes>
+    </pen:publish>
+  </pen:bean>
+
+  <pen:bean id="UserDetailsService" class="org.springframework.security.userdetails.UserDetailsService">
+    <pen:attributes>
+      <pen:attr key="providerName" value="${security.provider}"/>
+    </pen:attributes>
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="priority" value="50"/>
+      </pen:attributes>
+    </pen:publish>
+  </pen:bean>
+
 
   <!-- actual bean defined in applicationContext-spring-security.xml; aliased here -->
   <alias name="authenticationManager" alias="AuthenticationManager"/>
@@ -158,14 +179,14 @@ not directly from the PentahoObjectFactory. -->
   <!--  This mondrian user/role mapper assumes that roles from the platform also exist in mondrian -->
 
   <!--
-  Disabled by default in 3.5.2. In trunk, this should be enabled. 
-  <bean id="Mondrian-UserRoleMapper" 
-        name="Mondrian-One-To-One-UserRoleMapper"  
-        class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianOneToOneUserRoleListMapper" 
+  Disabled by default in 3.5.2. In trunk, this should be enabled.
+  <bean id="Mondrian-UserRoleMapper"
+        name="Mondrian-One-To-One-UserRoleMapper"
+        class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianOneToOneUserRoleListMapper"
         scope="singleton" />
   -->
 
-  <!--  
+  <!--
 
  This sample mapper assumes that a translator is needed (in the form of a Map) to map a platform role to a mondrian role
 
@@ -185,11 +206,11 @@ not directly from the PentahoObjectFactory. -->
  </bean>
   -->
 
-  <!--  
+  <!--
   This sample mapper assumes that every user has their mondrian roles in their session under then named session variable
-  <bean id="Mondrian-UserRoleMapper" 
-        name="Mondrian-SampleUserSession-UserRoleMapper" 
-        class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianUserSessionUserRoleListMapper" 
+  <bean id="Mondrian-UserRoleMapper"
+        name="Mondrian-SampleUserSession-UserRoleMapper"
+        class="org.pentaho.platform.plugin.action.mondrian.mapper.MondrianUserSessionUserRoleListMapper"
         scope="singleton">
     <property name="sessionProperty" value="MondrianUserRoles" />
   </bean>
@@ -207,5 +228,5 @@ not directly from the PentahoObjectFactory. -->
 
   <bean id="ICacheExpirationRegistry" class="org.pentaho.platform.plugin.services.cache.CacheExpirationRegistry"
         scope="singleton"/>
-        
+
 </beans>
