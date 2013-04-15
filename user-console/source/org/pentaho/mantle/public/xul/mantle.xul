@@ -86,60 +86,37 @@
   
 		<treechildren id="adminCatTreeChildren">
 		
-	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('adminHomePanel', 'http://www.pentaho.com')">
+			<treeitem container="true" command="mantleXulHandler.loadUserRolesAdminPanel()">
 	  			<treerow>
-	    			<treecell label="Home" />
-		  		</treerow>	    
-			</treeitem>
-
-	    	<treeitem container="true">
-	  			<treerow>
-	    			<treecell label="Configuration" />
-		  		</treerow>	    
-				<treechildren id="configuration">
-			   		<treeitem command="mantleXulHandler.loadEmailAdminPanel()">
-	    		 		<treerow>
-							<treecell label="Email / SMTP Server" />
-		  				</treerow>
-		  			</treeitem>
-			    </treechildren>		  		
-			</treeitem>
-
-	    	<treeitem container="true">
-	  			<treerow>
-	    			<treecell label="Monitoring" />
+	    			<treecell label="Users &amp; Roles" />
 		  		</treerow>	    
 			</treeitem>
 			
-	    	<treeitem container="true">
+			<treeitem container="true">
 	  			<treerow>
-	    			<treecell label="Security" />
+	    			<treecell label="Authentication" />
 		  		</treerow>	    
-			  <treechildren id="security">
-			   	<treeitem command="mantleXulHandler.loadSecurityPanel()">
-	    		 	<treerow>
-						<treecell label="ABS" />
-		  			</treerow>
-		  		</treeitem>
-			   	<treeitem command="mantleXulHandler.loadUserRolesAdminPanel()">
-	    		 	<treerow>
-						<treecell label="Users / Roles" />
-		  			</treerow>
-		  		</treeitem>
-			  </treechildren>
 			</treeitem>
 			
-	    	<treeitem container="true" command="mantleXulHandler.loadSettingsPanel()">
+			<treeitem container="true" command="mantleXulHandler.loadEmailAdminPanel()">
+   		 		<treerow>
+					<treecell label="Mail Server" />
+  				</treerow>
+  			</treeitem>
+  			
+  			<treeitem container="true">
+	  			<treerow>
+	    			<treecell label="Licenses" />
+		  		</treerow>	    
+			</treeitem>	
+			
+			
+			<treeitem container="true" command="mantleXulHandler.loadSettingsPanel()">
 	  			<treerow>
 	    			<treecell label="${settings}" />
 		  		</treerow>	    
-			</treeitem>			
-			
-	    	<treeitem container="true" command="mantleXulHandler.loadAdminContent('adminHelpPanel', 'http://wiki.pentaho.com/display/COM/Community+Wiki+Home')">
-	  			<treerow>
-	    			<treecell label="Help" />
-		  		</treerow>	    
-			</treeitem>
+			</treeitem>	
+		
 			
 		</treechildren>  
 		</tree>
