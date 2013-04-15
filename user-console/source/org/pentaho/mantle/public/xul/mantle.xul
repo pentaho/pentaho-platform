@@ -78,49 +78,30 @@
   </window>
   
 	<hbox id="adminPerspective" flex="1">
-		<tree id="adminCatTree" editable="true" seltype="single" enableColumnDrag="false" width="150">
-	
-		<treecols id="adminTreeCol">
-			<treecol id="adminCol" label="Name" flex="2" editable="false" />
-		</treecols>  
-  
-		<treechildren id="adminCatTreeChildren">
-		
-			<treeitem container="true" command="mantleXulHandler.loadUserRolesAdminPanel()">
-	  			<treerow>
-	    			<treecell label="Users &amp; Roles" />
-		  		</treerow>	    
-			</treeitem>
-			
-			<treeitem container="true">
-	  			<treerow>
-	    			<treecell label="Authentication" />
-		  		</treerow>	    
-			</treeitem>
-			
-			<treeitem container="true" command="mantleXulHandler.loadEmailAdminPanel()">
-   		 		<treerow>
-					<treecell label="Mail Server" />
-  				</treerow>
-  			</treeitem>
-  			
-  			<treeitem container="true">
-	  			<treerow>
-	    			<treecell label="Licenses" />
-		  		</treerow>	    
-			</treeitem>	
-			
-			
-			<treeitem container="true" command="mantleXulHandler.loadSettingsPanel()">
-	  			<treerow>
-	    			<treecell label="${settings}" />
-		  		</treerow>	    
-			</treeitem>	
-		
-			
-		</treechildren>  
-		</tree>
+		<tree id="adminCatTree" editable="true" seltype="single" enableColumnDrag="false" with="150">
+			<treecols id="adminTreeCol">
+				<treecol id="adminCol" label="Name" flex="2" editable="false" />
+			</treecols> 
+			<treechildren id="adminCatTreeChildren">
+				<treeitem container="true" command="mantleXulHandler.loadUserRolesAdminPanel()">
+		  			<treerow>
+		    			<treecell label="Users &amp; Roles" />
+			  		</treerow>	    
+				</treeitem>		
+				
+				<treeitem container="true" command="mantleXulHandler.loadEmailAdminPanel()">
+	   		 		<treerow>
+						<treecell label="Mail Server" />
+	  				</treerow>
+	  			</treeitem>
 
+	  			<treeitem container="true" command="mantleXulHandler.loadSettingsPanel()">
+		  			<treerow>
+		    			<treecell label="${settings}" />
+			  		</treerow>	    
+				</treeitem>
+			</treechildren>
+		</tree>
 		<vbox id="adminContentPanel" flex="2">
 		</vbox>  
 	</hbox>  
