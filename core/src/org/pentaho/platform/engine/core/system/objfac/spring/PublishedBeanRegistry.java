@@ -23,6 +23,10 @@ public class PublishedBeanRegistry {
       new WeakHashMap<Object, Map<Class<?>, List<String>>>()
   );
 
+  private static Map<ListableBeanFactory, Object> factoryMarkerCache = Collections.synchronizedMap(
+      new WeakHashMap<ListableBeanFactory, Object>()
+  );
+
   /**
    * Register a bean for the given class. The factoryMarker is a UUID associated with the originating BeanFactory
    *
@@ -73,7 +77,16 @@ public class PublishedBeanRegistry {
       return new String[]{};
     }
 
-    Map<Class<?>, List<String>> map = classToBeanMap.get(registry.getBean(Const.FACTORY_MARKER));
+
+
+    Map<Class<?>, List<String>> map;
+    //synchronized(registry){
+    if(factoryMarkerCache.containsKey(registry)){
+      map = classToBeanMap.get(factoryMarkerCache.get(registry));
+    } else {
+      map = classToBeanMap.get(registry.getBean(Const.FACTORY_MARKER));
+    }
+    //}
     if(map == null){
       return new String[]{};
     }
@@ -85,4 +98,7 @@ public class PublishedBeanRegistry {
     return beansImplementingType.toArray(new String[beansImplementingType.size()]);
   }
 
+  public static void registerFactory(ApplicationContext applicationContext) {
+    factoryMarkerCache.put(applicationContext, applicationContext.getBean(Const.FACTORY_MARKER));
+  }
 }

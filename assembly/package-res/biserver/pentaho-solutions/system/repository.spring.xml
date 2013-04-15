@@ -6,10 +6,10 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"
        default-lazy-init="true">
 
-  <bean id="propertyPlaceholderConfigurerRepository"
-        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" lazy-init="false">
-    <property name="location" value="repository.spring.properties" />
-    <property name="placeholderPrefix" value="%{" />
+  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+    <constructor-arg value="repository"/>
+    <constructor-arg value="repository.spring.properties"/>
+    <pen:publish as-type="INTERFACES"/>
   </bean>
 
   <!--
@@ -450,7 +450,7 @@
 
   <!-- The name of the authority which is granted to all admin users of a particular tenant. -->
   <bean id="singleTenantAdminAuthorityName" class="java.lang.String">
-    <constructor-arg value="%{singleTenantAdminAuthorityName}"/>
+    <constructor-arg value="${repository.singleTenantAdminAuthorityName}"/>
   </bean>
 
   <!-- The name of the authority which is granted to all non-authenticated users of a particular tenant -->
@@ -483,7 +483,7 @@
   </bean>
 
   <bean id="singleTenantAdminUserName" class="java.lang.String">
-    <constructor-arg value="%{singleTenantAdminUserName}"/>
+    <constructor-arg value="${repository.singleTenantAdminUserName}"/>
   </bean>
 
   <!-- Used in code that doesn't use Spring's transaction interception. -->
@@ -526,13 +526,19 @@
     <constructor-arg ref="IDatasourceMgmtService"/>
     <constructor-arg ref="IDatabaseDialectService"/>
     <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="singleTenantAdminUserName"/>
-    <constructor-arg ref="singleTenantAdminAuthorityName"/>
-    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
     <property name="tenantManager" ref="tenantMgrTxn"/>
     <property name="userRoleDao" ref="userRoleDaoTxn"/>
-    <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
   </bean>
+  
+  <bean id="defaultUserRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultUserRepositoryLifecycleManager">
+	<constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn" />
+	<constructor-arg ref="IPasswordService" />
+	<constructor-arg ref="userRoleDaoTxn" />
+	<property name="roleMappings" ref="role-mappings" />
+	<property name="userRoleMappings" ref="defaultUserRoleMappings" />
+	<property name="password" ref="defaultAdminUserPassword" />
+  </bean>
+  
   <bean id="mondrianBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager">
     <constructor-arg ref="repositoryFileDao"/>
@@ -550,8 +556,10 @@
         <ref bean="defaultBackingRepositoryLifecycleManager"/>
         <ref bean="pdiBackingRepositoryLifecycleManager"/>
         <ref bean="sampleDataRepositoryLifecycleManager"/>
+        <ref bean="defaultUserRepositoryLifecycleManager"/>
         <ref bean="metadataRepositoryLifecycleManager"/>
         <ref bean="mondrianBackingRepositoryLifecycleManager"/>
+        
       </list>
     </constructor-arg>
   </bean>

@@ -7,16 +7,23 @@
 	+-->
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd">
 
 	<bean id="authenticationProvider"
 		class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
 		<property name="userDetailsService">
-			<ref bean="userDetailsService" />
+			<pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
 		</property>
 		<property name="passwordEncoder">
 			<ref bean="passwordEncoder" />
 		</property>
+	<pen:publish as-type="org.springframework.security.providers.AuthenticationProvider">
+	      <pen:attributes>
+	        <pen:attr key="providerName" value="memory"/>
+	      </pen:attributes>
+	    </pen:publish>
 	</bean>
 
 	<bean id="userDetailsService"
@@ -24,6 +31,11 @@
 		<property name="userMap">
 			<ref local="userMapFactoryBean" />
 		</property>
+	<pen:publish as-type="INTERFACES">
+	      <pen:attributes>
+	        <pen:attr key="providerName" value="memory"/>
+	      </pen:attributes>
+	    </pen:publish>
 	</bean>
 
 	<bean id="userMap" class="java.lang.String">

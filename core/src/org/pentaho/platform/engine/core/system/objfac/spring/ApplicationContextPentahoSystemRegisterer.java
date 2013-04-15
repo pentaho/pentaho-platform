@@ -24,6 +24,7 @@ public class ApplicationContextPentahoSystemRegisterer implements ApplicationCon
     StandaloneSpringPentahoObjectFactory objFact = new StandaloneSpringPentahoObjectFactory();
     objFact.init(null, applicationContext);
     PentahoSystem.registerObjectFactory(objFact);
+    PublishedBeanRegistry.registerFactory(applicationContext);
   }
 
   @Override

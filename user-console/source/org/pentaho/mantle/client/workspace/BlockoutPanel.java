@@ -16,12 +16,32 @@
  */
 package org.pentaho.mantle.client.workspace;
 
+import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
+import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
+import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
+import org.pentaho.mantle.client.images.MantleImages;
+import org.pentaho.mantle.client.messages.Messages;
+import org.pentaho.mantle.client.solutionbrowser.scheduling.NewBlockoutScheduleDialog;
+import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -29,27 +49,17 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
-import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
-import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
-import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
-import org.pentaho.mantle.client.images.MantleImages;
-import org.pentaho.mantle.client.messages.Messages;
-import org.pentaho.mantle.client.solutionbrowser.scheduling.NewBlockoutScheduleDialog;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
-import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
 
 public class BlockoutPanel extends SimplePanel {
-  private CellTable<JsJob> table =
-    new CellTable<JsJob>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
+  private CellTable<JsJob> table = new CellTable<JsJob>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
   private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
   private SimplePager pager;
   private final VerticalPanel widgets = new VerticalPanel();
@@ -57,20 +67,31 @@ public class BlockoutPanel extends SimplePanel {
   private Toolbar tableControls;
   private VerticalPanel tablePanel;
   private IDialogCallback refreshCallBack = new IDialogCallback() {
-    public void okPressed() {refresh(); }
+    public void okPressed() {
+      refresh();
+    }
 
-    public void cancelPressed() {refresh(); }
+    public void cancelPressed() {
+      refresh();
+    }
   };
   private Label headlineLabel;
+  private Label blockoutTimes;
+  private boolean isAdmin;
 
-  public BlockoutPanel(final boolean isAdmin) {
-    createUI(isAdmin);
-    refresh();
-  }
+	public BlockoutPanel(final boolean isAdmin) {
+		this.isAdmin = isAdmin;
+		createUI(isAdmin);
+		refresh();
+	}
 
-  @SuppressWarnings("EmptyCatchBlock")
   private void createUI(final boolean isAdmin) {
     widgets.setWidth("100%");
+    
+    blockoutTimes = new Label(Messages.getString("blockoutTimes"));
+	blockoutTimes.setStyleName("workspaceHeading");
+    widgets.add(blockoutTimes);
+    
     createHeadlineBar();
     createControls(isAdmin);
     createTable();
@@ -102,11 +123,14 @@ public class BlockoutPanel extends SimplePanel {
     }
   }
 
-  private void createBlockoutButton(final ClickHandler newBlockoutHandler) {
-    blockoutButton.addClickHandler(newBlockoutHandler);
-    blockoutButton.setStyleName("pentaho-button");
-    widgets.add(blockoutButton);
-  }
+	private void createBlockoutButton(final ClickHandler newBlockoutHandler) {
+		SimplePanel buttonPanel = new SimplePanel();
+		buttonPanel.setStyleName("schedulesButtonPanel");
+		blockoutButton.addClickHandler(newBlockoutHandler);
+		blockoutButton.setStyleName("pentaho-button");
+		buttonPanel.add(blockoutButton);
+		widgets.add(buttonPanel);
+	}
 
   private void createTableControls(final ClickHandler newBlockoutHandler) {
     tableControls.addSpacer(10);
@@ -123,6 +147,7 @@ public class BlockoutPanel extends SimplePanel {
     editButton.setCommand(new Command() {
       @Override
       public void execute() {
+        @SuppressWarnings("unchecked")
         Set<JsJob> jobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
 
         JsJob jsJob = jobs.iterator().next();
@@ -136,10 +161,9 @@ public class BlockoutPanel extends SimplePanel {
     tableControls.add(editButton);
     ToolbarButton removeButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
     removeButton.setCommand(new Command() {
-      @Override
       public void execute() {
-        Set<JsJob> selectedSet =
-          ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
+        @SuppressWarnings("unchecked")
+        Set<JsJob> selectedSet = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
         for (JsJob jsJob : selectedSet) {
           removeBlockout(jsJob);
           table.getSelectionModel().setSelected(jsJob, false);
@@ -169,8 +193,7 @@ public class BlockoutPanel extends SimplePanel {
       public String getValue(JsJob block) {
         try {
           Date nextFireTime = block.getNextRun();
-            return formatDate(
-              new Date(nextFireTime.getTime() + block.getJobTrigger().getBlockDuration()));
+          return formatDate(new Date(nextFireTime.getTime() + block.getJobTrigger().getBlockDuration()));
         } catch (Throwable t) {
         }
         return "-";
@@ -195,8 +218,8 @@ public class BlockoutPanel extends SimplePanel {
       public String getValue(JsJob block) {
         try {
           Date endTime = block.getJobTrigger().getEndTime();
-          if(endTime == null) {
-              return "Never";
+          if (endTime == null) {
+            return "Never";
           } else {
             return formatDate(endTime);
           }
@@ -226,7 +249,7 @@ public class BlockoutPanel extends SimplePanel {
   private void removeBlockout(final JsJob jsJob) {
     JSONObject jobRequest = new JSONObject();
     jobRequest.put("jobId", new JSONString(jsJob.getJobId())); //$NON-NLS-1$
-    makeServiceCall("removeJob", RequestBuilder.DELETE, jobRequest.toString(), new RequestCallback() {
+    makeServiceCall("removeJob", RequestBuilder.DELETE, jobRequest.toString(), "text/plain", new RequestCallback() {
 
       public void onError(Request request, Throwable exception) {
         // todo: do something
@@ -243,10 +266,10 @@ public class BlockoutPanel extends SimplePanel {
   }
 
   public void refresh() {
-    makeServiceCall("blockout/blockoutjobs", RequestBuilder.GET, null, new RequestCallback() {
+    makeServiceCall("blockout/blockoutjobs", RequestBuilder.GET, null, "application/json", new RequestCallback() {
 
       public void onError(Request request, Throwable exception) {
-        //todo: do something
+        // todo: do something
       }
 
       public void onResponseReceived(Request request, Response response) {
@@ -257,15 +280,14 @@ public class BlockoutPanel extends SimplePanel {
             showData(parseJson(JsonUtils.escapeJsonForEval(response.getText())));
           }
         } else {
-          //todo: do something
+          // todo: do something
         }
       }
     });
   }
 
-  private void makeServiceCall(
-    final String urlSuffix, final RequestBuilder.Method httpMethod, final String requestData, final RequestCallback callback)
-  {
+  private void makeServiceCall(final String urlSuffix, final RequestBuilder.Method httpMethod, final String requestData, final String acceptHeader,
+      final RequestCallback callback) {
     String moduleBaseURL = GWT.getModuleBaseURL();
     String moduleName = GWT.getModuleName();
     String contextURL = moduleBaseURL.substring(0, moduleBaseURL.lastIndexOf(moduleName));
@@ -273,7 +295,9 @@ public class BlockoutPanel extends SimplePanel {
     RequestBuilder builder = new RequestBuilder(httpMethod, url);
     builder.setHeader("If-Modified-Since", "01 Jan 1970 00:00:00 GMT");
     builder.setHeader("Content-Type", "application/json");
-    builder.setHeader("accept", "application/json");
+    if (!StringUtils.isEmpty(acceptHeader)) {
+      builder.setHeader("accept", acceptHeader);
+    }
     try {
       builder.sendRequest(requestData, callback);
     } catch (RequestException e) {
@@ -286,10 +310,19 @@ public class BlockoutPanel extends SimplePanel {
       tablePanel.setVisible(false);
       blockoutButton.setVisible(true);
       headlineLabel.setText(Messages.getString("blockoutNone"));
+      if (!isAdmin) {
+    	  headlineLabel.setVisible(false);
+    	  blockoutTimes.setVisible(false);
+      }
+      
     } else {
       tablePanel.setVisible(true);
       blockoutButton.setVisible(false);
       headlineLabel.setText(Messages.getString("blockoutHeadline"));
+      if (!isAdmin) {
+    	  headlineLabel.setVisible(true);
+    	  blockoutTimes.setVisible(true);
+      }
       List<JsJob> jobList = new ArrayList<JsJob>();
       for (int i = 0; i < allBlocks.length(); i++) {
         JsJob job = allBlocks.get(i);

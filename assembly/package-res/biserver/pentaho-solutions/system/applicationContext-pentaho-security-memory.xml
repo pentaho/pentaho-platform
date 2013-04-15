@@ -19,7 +19,9 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 		<property name="userRoleListEnhancedUserMap">
 			<ref local="userRoleListEnhancedUserMapFactoryBean" />
 		</property>
-		<property name="userDetailsService" ref="userDetailsService" />
+		<property name="userDetailsService" >
+			<pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
+		</property>
 		<property name="allAuthorities">
 			<list>
 				<bean class="org.springframework.security.GrantedAuthorityImpl">
@@ -55,6 +57,11 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
 	      <bean class="org.pentaho.platform.engine.security.DefaultRoleComparator" />
 	    </property>
 	    <property name="systemRoles" ref="singleTenantSystemAuthorities" />
+	<pen:publish as-type="INTERFACES">
+			<pen:attributes>
+				<pen:attr key="providerName" value="memory"/>
+			</pen:attributes>
+		</pen:publish>
 	</bean>
 
 </beans>
