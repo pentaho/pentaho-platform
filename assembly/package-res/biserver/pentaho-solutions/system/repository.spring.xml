@@ -526,13 +526,19 @@
     <constructor-arg ref="IDatasourceMgmtService"/>
     <constructor-arg ref="IDatabaseDialectService"/>
     <constructor-arg ref="repositoryAdminUsername"/>
-    <constructor-arg ref="singleTenantAdminUserName"/>
-    <constructor-arg ref="singleTenantAdminAuthorityName"/>
-    <constructor-arg ref="singleTenantAuthenticatedAuthorityName"/>
     <property name="tenantManager" ref="tenantMgrTxn"/>
     <property name="userRoleDao" ref="userRoleDaoTxn"/>
-    <constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn"/>
   </bean>
+  
+  <bean id="defaultUserRepositoryLifecycleManager" class="org.pentaho.platform.repository2.unified.lifecycle.DefaultUserRepositoryLifecycleManager">
+	<constructor-arg ref="roleAuthorizationPolicyRoleBindingDaoTxn" />
+	<constructor-arg ref="IPasswordService" />
+	<constructor-arg ref="userRoleDaoTxn" />
+	<property name="roleMappings" ref="role-mappings" />
+	<property name="userRoleMappings" ref="defaultUserRoleMappings" />
+	<property name="password" ref="defaultAdminUserPassword" />
+  </bean>
+  
   <bean id="mondrianBackingRepositoryLifecycleManager"
         class="org.pentaho.platform.repository2.unified.lifecycle.MondrianBackingRepositoryLifecycleManager">
     <constructor-arg ref="repositoryFileDao"/>
@@ -550,8 +556,10 @@
         <ref bean="defaultBackingRepositoryLifecycleManager"/>
         <ref bean="pdiBackingRepositoryLifecycleManager"/>
         <ref bean="sampleDataRepositoryLifecycleManager"/>
+        <ref bean="defaultUserRepositoryLifecycleManager"/>
         <ref bean="metadataRepositoryLifecycleManager"/>
         <ref bean="mondrianBackingRepositoryLifecycleManager"/>
+        
       </list>
     </constructor-arg>
   </bean>
