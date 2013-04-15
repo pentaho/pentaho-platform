@@ -22,15 +22,16 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
 import org.pentaho.platform.api.engine.IPentahoSession;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.engine.security.IAuthenticationRoleMapper;
 import org.pentaho.platform.api.mt.ITenant;
 import org.pentaho.platform.core.mt.Tenant;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.repository2.unified.jcr.JcrTenantUtils;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.SqlParameter;
@@ -72,6 +73,8 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
   private String rolePrefix;
   
   private List<String> systemRoles;
+
+  private IAuthenticationRoleMapper roleMapper;
 
   // ~ Constructors
   // ===========================================================
@@ -145,7 +148,12 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
     List<GrantedAuthority> allAuths = allAuthoritiesMapping.execute();
     List<String> roles = new ArrayList<String>(allAuths.size());
     for (GrantedAuthority role : allAuths) {
-      roles.add(role.getAuthority());
+      if(roleMapper != null) {
+        roles.add(roleMapper.toPentahoRole(role.getAuthority()));
+      } else {
+        roles.add(role.getAuthority());  
+      }      
+      
     }
     return roles;
   }
@@ -156,7 +164,15 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
   }
 
   public List<String> getUsersInRole(final String role) {
-    List<String> allUserNamesInRole = allUsernamesInRoleMapping.execute(role);
+
+    String roleToTest = role;
+
+    if(roleMapper != null){
+      roleToTest = roleMapper.fromPentahoRole(role);
+    }
+
+    List<String> allUserNamesInRole = allUsernamesInRoleMapping.execute(roleToTest);
+
     return allUserNamesInRole;
   }
 
@@ -229,8 +245,13 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
     UserDetails user = userDetailsService.loadUserByUsername(username);
     List<String> roles = new ArrayList<String>(user.getAuthorities().length);
     for (GrantedAuthority role : user.getAuthorities()) {
-      roles.add(role.getAuthority());
+      if(roleMapper != null) {
+        roles.add(roleMapper.toPentahoRole(role.getAuthority()));
+      } else {
+        roles.add(role.getAuthority());
+      }
     }
+
     return roles;
   }
 
@@ -244,7 +265,7 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   @Override
   public List<String> getAllRoles(ITenant tenant) {
-    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+    if(tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
       throw new UnsupportedOperationException("only allowed to access to default tenant");
     }
     return getAllRoles();
@@ -252,7 +273,7 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   @Override
   public List<String> getAllUsers(ITenant tenant) {
-    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+    if(tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
       throw new UnsupportedOperationException("only allowed to access to default tenant");
     }
     return getAllUsers();
@@ -260,7 +281,7 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   @Override
   public List<String> getUsersInRole(ITenant tenant, String role) {
-    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+    if(tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
       throw new UnsupportedOperationException("only allowed to access to default tenant");
     }
     return getUsersInRole(role);
@@ -268,20 +289,19 @@ public class JdbcUserRoleListService extends JdbcDaoSupport implements IUserRole
 
   @Override
   public List<String> getRolesForUser(ITenant tenant, String username) {
-    if(tenant != null && !tenant.equals(getDefaultTenant())) {
+    if(tenant != null && !tenant.equals(JcrTenantUtils.getDefaultTenant())) {
       throw new UnsupportedOperationException("only allowed to access to default tenant");
     }
     return getRolesForUser(username);
   }
 
-  private ITenant getDefaultTenant() {
-    IPentahoSession session = PentahoSessionHolder.getSession();
-    String tenantId = (String) session.getAttribute(IPentahoSession.TENANT_ID_KEY);
-    return new Tenant(tenantId, true);
-  }
 
   @Override
   public List<String> getSystemRoles() {
     return systemRoles;
+  }
+
+  public void setRoleMapper(IAuthenticationRoleMapper roleMapper) {
+    this.roleMapper = roleMapper;
   }
 }

@@ -29,25 +29,23 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.pentaho.platform.api.engine.IContentInfo;
 import org.pentaho.platform.api.engine.IPentahoSession;
-import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
-import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
@@ -56,7 +54,6 @@ import org.pentaho.reporting.libraries.libsparklines.util.StringUtils;
 /**
  *
  */
-@SuppressWarnings("deprecation")
 public class ZipExportProcessor extends BaseExportProcessor {
   private static final Log log = LogFactory.getLog(ZipExportProcessor.class);
 
@@ -70,12 +67,10 @@ public class ZipExportProcessor extends BaseExportProcessor {
 
   private List<String> localeExportList;
 
-  private List<IContentInfo> contentInfoList;
   /**
    * Encapsulates the logic of registering import handlers, generating the manifest,
    * and performing the export
    */
-  @SuppressWarnings("deprecation")
   public ZipExportProcessor(String path, IUnifiedRepository repository, boolean withManifest) {
     this.withManifest = withManifest;
 
@@ -299,8 +294,8 @@ public class ZipExportProcessor extends BaseExportProcessor {
         
         properties = unifiedRepository.getLocalePropertiesForFileById(repositoryFile.getId(), locale.getLocale());
         if (properties != null) {
-          Properties copyProperties = cleanupPropertiesFile(properties);
-          InputStream is = createLocaleFile(name + localeName, copyProperties, locale.getLocale());
+          properties.remove("jcr\\:primaryType");//Pentaho Type
+          InputStream is = createLocaleFile(name + localeName, properties, locale.getLocale());
           if (is != null) {
             entry = new ZipEntry(zipName + localeName + LOCALE_EXT);
             zos.putNextEntry(entry);
@@ -312,16 +307,7 @@ public class ZipExportProcessor extends BaseExportProcessor {
       }
     }
   }
-  private Properties cleanupPropertiesFile(Properties aPropertyList) {
-    Properties properties = new Properties();
-    Set<Object> keyList = aPropertyList.keySet();
-    for(Object key : keyList ){
-      if(!((String)aPropertyList.get(key)).contains("primaryType")){
-        properties.put(key, aPropertyList.get(key));
-      }
-    }
-    return properties;
-  }
+
   /**
    * there are certain extensions that get imported with locale maps (incorrectly?) like .png
    * only export locale maps for the list from importexport.xml
@@ -381,21 +367,18 @@ public class ZipExportProcessor extends BaseExportProcessor {
   }
 
   /**
-   * get the list of files we are interested in supporting locale from IContentInfo 
+   * get the list of files we are interested in supporting locale from Spring
    * @return
    */
   public List<String> getLocaleExportList() {
     if (this.localeExportList == null || this.localeExportList.isEmpty()) {
-      IPluginManager pluginManager = PentahoSystem.get(IPluginManager.class);
-      Set<String> contentTypes = pluginManager.getContentTypes();
-      localeExportList = new ArrayList<String>();
-      for(String locale : contentTypes){
-        localeExportList.add(locale);
-      }     
+      for (ExportHandler exportHandler : exportHandlerList) {
+        this.localeExportList = ((DefaultExportHandler) exportHandler).getLocaleExportList();
+        break;
+      }
     }
     return localeExportList;
   }
-
 
   public void setLocaleExportList(List<String> localeExportList) {
     this.localeExportList = localeExportList;

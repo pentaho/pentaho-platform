@@ -6,17 +6,28 @@
 	+-->
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" >
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       						http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd
+       						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd" >
 
-	<bean id="authenticationProvider"
-		class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
-		<constructor-arg>
+  <bean class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapAuthenticationProvider">
+    <constructor-arg>
       <ref bean="authenticator" />
-		</constructor-arg>
-		<constructor-arg>
-			<ref local="populator" />
-		</constructor-arg>
-	</bean>
+    </constructor-arg>
+    <constructor-arg>
+      <ref local="populator" />
+    </constructor-arg>
+    <constructor-arg>
+      <ref local="ldapRoleMapper" />
+    </constructor-arg>
+    <pen:publish as-type="org.springframework.security.providers.AuthenticationProvider">
+      <pen:attributes>
+        <pen:attr key="providerName" value="ldap"/>
+      </pen:attributes>
+    </pen:publish>
+  </bean>
 
   <bean id="authenticator" class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
     <constructor-arg>
@@ -28,47 +39,59 @@
   </bean>
 
   <bean id="contextSource" class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
-    <constructor-arg value="${contextSource.providerUrl}"/>
-    <property name="userDn" value="${contextSource.userDn}"/>
-    <property name="password" value="${contextSource.password}"/>
+    <constructor-arg value="${ldap.contextSource.providerUrl}"/>
+    <property name="userDn" value="${ldap.contextSource.userDn}"/>
+    <property name="password" value="${ldap.contextSource.password}"/>
   </bean>
 
   <!-- be sure to escape ampersands -->
-	<bean id="userSearch"
-		class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
-		<constructor-arg index="0" value="${userSearch.searchBase}" />
-		<constructor-arg index="1" value="${userSearch.searchFilter}" />
-		<constructor-arg index="2">
-			<ref local="contextSource" />
-		</constructor-arg>
-	</bean>
+  <bean id="userSearch"
+        class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+    <constructor-arg index="0" value="${ldap.userSearch.searchBase}" />
+    <constructor-arg index="1" value="${ldap.userSearch.searchFilter}" />
+    <constructor-arg index="2">
+      <ref local="contextSource" />
+    </constructor-arg>
+  </bean>
 
   <!-- be sure to escape ampersands -->
-	<bean id="populator"
-		class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
-		<constructor-arg index="0">
-			<ref local="contextSource" />
-		</constructor-arg>
-		<constructor-arg index="1" value="${populator.groupSearchBase}" />
-		<property name="groupRoleAttribute" value="${populator.groupRoleAttribute}" />
+  <bean id="populator"
+        class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
+    <constructor-arg index="0">
+      <ref local="contextSource" />
+    </constructor-arg>
+    <constructor-arg index="1" value="${ldap.populator.groupSearchBase}" />
+    <property name="groupRoleAttribute" value="${ldap.populator.groupRoleAttribute}" />
     <!-- {0} will be replaced with user DN; {1} will be replaced with username -->
-		<property name="groupSearchFilter" value="${populator.groupSearchFilter}" />
-    <property name="rolePrefix" value="${populator.rolePrefix}" />
-    <property name="convertToUpperCase" value="${populator.convertToUpperCase}" />
-    <property name="searchSubtree" value="${populator.searchSubtree}" />
+    <property name="groupSearchFilter" value="${ldap.populator.groupSearchFilter}" />
+    <property name="rolePrefix" value="${ldap.populator.rolePrefix}" />
+    <property name="convertToUpperCase" value="${ldap.populator.convertToUpperCase}" />
+    <property name="searchSubtree" value="${ldap.populator.searchSubtree}" />
     <property name="defaultRole" ref="defaultRole" />
-	</bean>
+  </bean>
 
-	<bean id="userDetailsService0"
-		class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserDetailsService">
-		<constructor-arg>
-			<ref local="userSearch" />
-		</constructor-arg>
-		<constructor-arg>
-			<ref local="populator" />
-		</constructor-arg>
-		<constructor-arg ref="tenantedUserNameUtils"/>
-	</bean>
+  <bean id="ldapUserDetailsService0"
+        class="org.pentaho.platform.plugin.services.security.userrole.ldap.DefaultLdapUserDetailsService">
+    <constructor-arg>
+      <ref local="userSearch" />
+    </constructor-arg>
+    <constructor-arg>
+      <ref local="populator" />
+    </constructor-arg>
+    <constructor-arg ref="tenantedUserNameUtils"/>
+  </bean>
+
+    <!-- map ldap role to pentaho security role -->
+    <util:map id="roleMap">
+        <entry key="${ldap.adminRole}" value="Administrator"/>
+    </util:map>
+
+    <bean id="ldapRoleMapper"
+          class="org.pentaho.platform.engine.security.DefaultLdapRoleMapper">
+        <constructor-arg>
+            <ref local="roleMap"/>
+        </constructor-arg>
+    </bean>
 
   <!--
     LDAP is different from JDBC and others in that its authenticationProvider does not delegate to a 
@@ -78,15 +101,23 @@
     role. This bean is actually not used in this file but instead in applicationContext-pentaho-security-ldap.xml.
     In that file, userRoleListService uses this bean for fetching roles for a user (e.g. during scheduled jobs). 
   -->
-  <bean id="userDetailsService" class="org.pentaho.platform.engine.security.DefaultRoleUserDetailsServiceDecorator">
-    <property name="userDetailsService" ref="userDetailsService0" />
+  <bean id="ldapUserDetailsService" class="org.pentaho.platform.engine.security.DefaultRoleUserDetailsServiceDecorator">
+    <property name="userDetailsService" ref="ldapUserDetailsService0" />
     <property name="defaultRole" ref="defaultRole" />
+    <property name="roleMapper" ref="ldapRoleMapper" />
+    <pen:publish as-type="INTERFACES">
+      <pen:attributes>
+        <pen:attr key="providerName" value="ldap"/>
+      </pen:attributes>
+    </pen:publish>
   </bean>
 
-  <bean id="propertyPlaceholderConfigurerSecurityLdap" 
-    class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="location" value="applicationContext-security-ldap.properties" />
+  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+    <constructor-arg value="ldap"/>
+    <constructor-arg value="applicationContext-security-ldap.properties"/>
+    <pen:publish as-type="INTERFACES"/>
   </bean>
+
 
 </beans>
 

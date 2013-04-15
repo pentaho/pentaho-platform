@@ -7,7 +7,9 @@
 	+-->
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd">
 
 	<bean id="superAuthenticationProvider"
 		class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
@@ -17,6 +19,11 @@
 		<property name="passwordEncoder">
 			<ref bean="superPasswordEncoder" />
 		</property>
+	<pen:publish as-type="org.springframework.security.providers.AuthenticationProvider">
+	      <pen:attributes>
+	        <pen:attr key="providerName" value="super"/>
+	      </pen:attributes>
+	    </pen:publish>
 	</bean>
 
 	<bean id="superUserDetailsService"
@@ -26,6 +33,11 @@
 				<![CDATA[SystemAdmin=5f4dcc3b5aa765d61d8327deb882cf99,Super,Administrator,Authenticated]]>
 			</value>
 		</property>
+	<pen:publish as-type="INTERFACES">
+	      <pen:attributes>
+	        <pen:attr key="providerName" value="superuser"/>
+	      </pen:attributes>
+	    </pen:publish>
 	</bean>
 
 

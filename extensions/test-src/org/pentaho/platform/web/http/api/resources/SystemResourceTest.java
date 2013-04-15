@@ -24,19 +24,23 @@ package org.pentaho.platform.web.http.api.resources;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPentahoObjectFactory;
-import org.pentaho.platform.config.PentahoSpringBeansConfig;
+import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.StandaloneApplicationContext;
-import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.objfac.StandaloneSpringPentahoObjectFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.FileSystemResource;
+import org.pentaho.platform.config.SystemConfig;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.util.Properties;
+
+import static org.mockito.Mockito.*;
 
 public class SystemResourceTest {
 
@@ -53,7 +57,17 @@ public class SystemResourceTest {
 
   @Before
   public void setUp() throws Exception {
-    systemResource = new SystemResource();
+
+
+    ISystemConfig systemConfig = new SystemConfig();
+    IConfiguration securityConfig = mock(IConfiguration.class);
+    Properties props = new Properties();
+    props.setProperty("provider", "jackrabbit");
+    when(securityConfig.getProperties()).thenReturn(props);
+    when(securityConfig.getId()).thenReturn("security");
+    systemConfig.registerConfiguration(securityConfig);
+
+    systemResource = new SystemResource(systemConfig);
 
     StandaloneApplicationContext applicationContext = new StandaloneApplicationContext(getSolutionPath(), ""); //$NON-NLS-1$
 
@@ -108,7 +122,7 @@ public class SystemResourceTest {
     AuthenticationProvider authenticationProvider = systemResource.getAuthenticationProvider();
 
     // default configuration should be JCR
-    AuthenticationProvider expectedResult = new AuthenticationProvider(PentahoSpringBeansConfig.AuthenticationProvider.JCR_BASED_AUTHENTICATION.toString());
+    AuthenticationProvider expectedResult = new AuthenticationProvider("jackrabbit");
 
     Assert.assertTrue(authenticationProvider.toString().equals(expectedResult.toString()));
   }

@@ -36,7 +36,7 @@ import org.pentaho.platform.api.engine.IPentahoAclEntry;
 import org.pentaho.platform.api.engine.IUserRoleListService;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.acls.PentahoAclEntry;
-
+// TODO:  The majority of the tests here need to be done vs SystemResourceUtil. Testing the webservice isn't very productive
 public class SystemResourceUtil {
 
    /**

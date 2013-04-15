@@ -2,10 +2,34 @@
 <!--+
   | This should be the only file specified in web.xml's contextConfigLocation. It should only contain imports.
   +-->
-  
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
-xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" default-lazy-init="true">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
+
+  <bean class="org.pentaho.platform.engine.core.system.objfac.spring.ApplicationContextPentahoSystemRegisterer" scope="singleton"/>
+
+  <bean id="SystemConfig" class="org.pentaho.platform.config.SystemConfig">
+    <constructor-arg>
+      <pen:list class="org.pentaho.platform.api.engine.IConfiguration"/>
+    </constructor-arg>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <bean class="org.pentaho.platform.config.SolutionPropertiesFileConfiguration">
+    <constructor-arg value="security"/>
+    <constructor-arg value="security.properties"/>
+    <pen:publish as-type="INTERFACES"/>
+  </bean>
+
+  <bean class="org.pentaho.platform.config.PentahoPropertyPlaceholderConfigurer" >
+    <constructor-arg>
+      <pen:bean class="org.pentaho.platform.api.engine.ISystemConfig"/>
+    </constructor-arg>
+  </bean>
+
+
   <import resource="pentahoSystemConfig.xml" />
   <import resource="adminPlugins.xml" />
   <import resource="systemListeners.xml" />
@@ -14,10 +38,12 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.sprin
   <import resource="applicationContext-spring-security.xml" />
   <import resource="applicationContext-spring-security-superuser.xml" />
   <import resource="applicationContext-common-authorization.xml" />
-  <!--
-  <import resource="applicationContext-spring-security-hibernate.xml" />
-  <import resource="applicationContext-pentaho-security-hibernate.xml" />
-  -->
+  <import resource="applicationContext-spring-security-memory.xml" />
+
+<import resource="applicationContext-pentaho-security-memory.xml" />
+  <import resource="applicationContext-spring-security-ldap.xml" />
+  <import resource="applicationContext-pentaho-security-ldap.xml" />
+
   <import resource="applicationContext-pentaho-security-jackrabbit.xml" />
   <import resource="applicationContext-spring-security-jackrabbit.xml" />
   <import resource="pentahoObjects.spring.xml" />
