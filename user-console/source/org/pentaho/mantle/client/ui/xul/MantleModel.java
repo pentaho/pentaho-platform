@@ -276,17 +276,8 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
 
   @Bindable
   public void openDocumentation() {
-    MantleSettingsManager.getInstance().fetchMantleSettings(new AsyncCallback<HashMap<String, String>>() {
-
-      public void onSuccess(HashMap<String, String> result) {
-        OpenDocCommand cmd = new OpenDocCommand(result.get("documentation-url"));
-        cmd.execute();
-      }
-
-      public void onFailure(Throwable caught) {
-      }
-    }, false);
-
+    OpenDocCommand cmd = new OpenDocCommand();
+    cmd.execute();
   }
 
   @Bindable

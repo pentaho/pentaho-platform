@@ -17,6 +17,15 @@
       padding-top: 20px;
       max-width: 1024px;
     }
+
+    .widget-panel.well {
+      padding: 0px 19px 19px;
+    }
+
+    .sidebar button {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
   </style>
 
   <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -32,32 +41,34 @@
 <div class="container-fluid main-container">
   <div class="row-fluid">
     <div class="span3">
-      <div class="well sidebar">
+      <div class="well sidebar" data-spy="affix">
 
-        <button class="btn btn-large btn-block">
+        <button class="btn btn-large btn-block" onclick="window.parent.executeCommand('ShowBrowserCommand')">
           Browse Files
         </button>
 
-        <button class="btn btn-large btn-block">
+        <button class="btn btn-large btn-block" data-toggle="dropdown" data-toggle="popover" data-placement="right"
+                data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." onclick="$(this).popover()">
           Create New
         </button>
 
-        <button class="btn btn-large btn-block">
+
+        <button class="btn btn-large btn-block" onclick="window.parent.executeCommand('ManageDatasourcesCommand')">
           Manage Data Sources
         </button>
 
-        <button class="btn btn-large btn-block">
+        <button class="btn btn-large btn-block" onclick="window.parent.executeCommand('OpenDocCommand')">
           Documentation
         </button>
 
       </div>
 
     </div>
-    <div class="span9">
+    <div class="span9" style="overflow:auto">
 
       <div class="row-fluid">
         <div class="well getting-started widget-panel">
-          <h2>Getting Started with the Pentaho User Console</h2>
+          <h3>Getting Started with the Pentaho User Console</h3>
           <ul class="masthead-links">
             <li>
               <a href="#">Link</a>
@@ -77,13 +88,13 @@
 
         <div class="span6">
           <div class="well widget-panel">
-            <h2>Favorites</h2>
+            <h3>Favorites</h3>
           </div>
         </div>
 
         <div class="span6">
           <div class="well widget-panel">
-            <h2>Recents</h2>
+            <h3>Recents</h3>
           </div>
         </div>
 

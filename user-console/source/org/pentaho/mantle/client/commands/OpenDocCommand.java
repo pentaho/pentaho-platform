@@ -18,6 +18,10 @@ package org.pentaho.mantle.client.commands;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
+
+import java.util.HashMap;
 
 /**
  * Executes the Open Document command.
@@ -27,8 +31,8 @@ import com.google.gwt.user.client.Window;
 public class OpenDocCommand extends AbstractCommand {
   private String documentationURL;
 
-  public OpenDocCommand(String documentationURL) {
-    this.documentationURL = documentationURL;
+  public OpenDocCommand() {
+
   }
 
   /**
@@ -40,12 +44,22 @@ public class OpenDocCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
-    String docUrl = documentationURL;
-    if (!documentationURL.startsWith("/")) {
-      // we're working with a relative URL, this is relative to the web-app not the GWT module
-      docUrl = GWT.getHostPageBaseURL() + documentationURL;
-    }
-    Window.open(docUrl, "_blank", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+    MantleSettingsManager.getInstance().fetchMantleSettings(new AsyncCallback<HashMap<String, String>>() {
+
+      public void onSuccess(HashMap<String, String> result) {
+        documentationURL = result.get("documentation-url");
+
+        if (!documentationURL.startsWith("/")) {
+          // we're working with a relative URL, this is relative to the web-app not the GWT module
+          documentationURL = GWT.getHostPageBaseURL() + documentationURL;
+        }
+        Window.open(documentationURL, "_blank", ""); //$NON-NLS-1$ //$NON-NLS-2$
+      }
+
+      public void onFailure(Throwable caught) {
+      }
+    }, false);
   }
   
 
