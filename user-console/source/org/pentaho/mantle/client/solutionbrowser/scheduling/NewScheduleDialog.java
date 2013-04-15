@@ -153,14 +153,39 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     this.isEmailConfValid = isEmailConfValid;
     scheduleEditorWizardPanel = new ScheduleEditorWizardPanel(getDialogType(), showScheduleName);
     scheduleEditor = scheduleEditorWizardPanel.getScheduleEditor();
-    scheduleEditor.setBlockoutButtonHandler(new ClickHandler() {
-      @Override
-      public void onClick(final ClickEvent clickEvent) {
-        PromptDialogBox box = new PromptDialogBox(Messages.getString("blockoutTimes"), Messages.getString("close"), //$NON-NLS-1$ //$NON-NLS-2$
-            null, null, false, true, new BlockoutPanel(false));
-        box.center();
-      }
-    });
+    String url = GWT.getHostPageBaseURL() + "api/scheduler/blockout/hasblockouts"; //$NON-NLS-1$
+    RequestBuilder hasBlockoutsRequest = new RequestBuilder(RequestBuilder.GET, url);
+    hasBlockoutsRequest.setHeader("accept", "text/plain");
+    try {
+      hasBlockoutsRequest.sendRequest(url, new RequestCallback() {
+
+        @Override
+        public void onError(Request request, Throwable exception) {
+          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+          dialogBox.center();
+        }
+
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+          Boolean hasBlockouts = Boolean.valueOf(response.getText());
+          if (hasBlockouts) {
+            scheduleEditor.setBlockoutButtonHandler(new ClickHandler() {
+              @Override
+              public void onClick(final ClickEvent clickEvent) {
+                PromptDialogBox box = new PromptDialogBox(Messages.getString("blockoutTimes"), Messages.getString("close"),
+                                                          null, null, false, true, new BlockoutPanel(false));
+                box.center();
+              }
+            });
+          } 
+          scheduleEditor.getBlockoutCheckButton().setVisible(hasBlockouts);
+        }
+      });
+    } catch (RequestException e) {
+      MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.toString(), //$NON-NLS-1$
+          false, false, true);
+      dialogBox.center();
+    }
     IWizardPanel[] wizardPanels = { scheduleEditorWizardPanel };
     this.setWizardPanels(wizardPanels);
     setPixelSize(475, 465);
