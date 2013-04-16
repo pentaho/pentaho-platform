@@ -12,7 +12,7 @@
                resourcebundle="content/default-plugin/resources/messages/messages" content-url="mantle/home">
   </perspective>
 
-  <perspective id="default.perspective" title="${BI.Browser}" layout-priority="-1"
+  <perspective id="default.perspective" title="${opened}" layout-priority="-1"
                resourcebundle="content/default-plugin/resources/messages/messages">
   </perspective>
 
