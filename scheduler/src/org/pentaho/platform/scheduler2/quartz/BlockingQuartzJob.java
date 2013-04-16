@@ -34,7 +34,7 @@ import org.quartz.SchedulerException;
 public class BlockingQuartzJob implements Job {
   public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException {
     try {
-      if (getBlockoutManager().shouldFireNow()  || jobExecutionContext.getJobDetail().getJobClass().equals(BlockoutAction.class.getCanonicalName())) { // We should always let the blockouts fire
+      if (getBlockoutManager().shouldFireNow()  || jobExecutionContext.getJobDetail().getName().contains(":BlockoutAction:")) { // We should always let the blockouts fire //$NON-NLS-1$
         createUnderlyingJob().execute(jobExecutionContext);
       } else {
         getLogger().warn(
