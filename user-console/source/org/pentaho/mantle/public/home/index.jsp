@@ -143,7 +143,7 @@
       // one bundle for now, namespace later if needed
       context.i18n = jQuery.i18n.map;
 
-      // Process and inject all handlebars templates
+      // Process and inject all handlebars templates, results are parented to the template's parent node.
       $("script[type='text/x-handlebars-template']").each(
           function (pos, node) {
             var source = $(node).html();
@@ -162,7 +162,7 @@
       // setup a listener to hide popovers when a click happens outside of them
       $('body').on('click', function (e) {
         $('.popover-source').each(function () {
-          if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+          if ($(this).has(e.target).length == 0 && !$(this).is(e.target) && $('.popover').has(e.target).length == 0) {
             $(this).popover('hide');
           }
         });
