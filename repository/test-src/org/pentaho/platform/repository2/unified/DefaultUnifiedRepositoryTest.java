@@ -3333,7 +3333,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertNotNull(struct.bindingMap);
     assertEquals(3, struct.bindingMap.size());
     assertEquals(Arrays.asList(new String[] { RepositoryReadAction.NAME,
-        RepositoryCreateAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME, CreateTenantsAction.NAME}),
+        RepositoryCreateAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME}),
         struct.bindingMap.get(superAdminRoleName));
     assertEquals(Arrays.asList(new String[] { RepositoryReadAction.NAME,
         RepositoryCreateAction.NAME, SchedulerAction.NAME, AdministerSecurityAction.NAME }),
@@ -3351,9 +3351,6 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(6, struct.logicalRoleNameMap.size());
     assertEquals("Create Content", struct.logicalRoleNameMap
         .get(RepositoryCreateAction.NAME));
-    assertEquals("Manage System", struct.logicalRoleNameMap
-        .get(CreateTenantsAction.NAME));
-    
   }
 
   private RepositoryFile createSampleFile(final String parentFolderPath, final String fileName,

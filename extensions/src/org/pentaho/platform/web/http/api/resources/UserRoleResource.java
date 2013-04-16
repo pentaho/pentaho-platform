@@ -80,7 +80,28 @@ public class UserRoleResource extends AbstractJaxRSResource {
 		IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
 		return new RoleListWrapper(userRoleListService.getAllRoles());
 	}
-	
+
+  @GET
+  @Path("/permission-users")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public UserListWrapper getPermissionUsers() throws Exception {
+    return getUsers();
+  }
+
+  @GET
+  @Path("/permission-roles")
+  @Produces({ APPLICATION_XML, APPLICATION_JSON })
+  public RoleListWrapper getPermissionRoles() throws Exception {
+    IUserRoleListService userRoleListService = PentahoSystem.get(IUserRoleListService.class);
+    List<String> allRoles = userRoleListService.getAllRoles();
+    // We will not allow user to update permission for Administrator
+    if(allRoles.contains(adminRole)) {
+      allRoles.remove(adminRole);
+    }
+    // Add extra roles to the list of roles
+    allRoles.addAll(extraRoles);
+    return new RoleListWrapper(allRoles);
+  }
 	@GET
   @Path("/allRoles")
   @Produces({ APPLICATION_XML, APPLICATION_JSON })
