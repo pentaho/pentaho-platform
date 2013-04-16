@@ -78,7 +78,7 @@
   </window>
   
 	<hbox id="adminPerspective" flex="1">
-		<tree id="adminCatTree" editable="true" seltype="single" enableColumnDrag="false" with="150">
+		<tree id="adminCatTree" editable="true" seltype="single" enableColumnDrag="false" width="150">
 			<treecols id="adminTreeCol">
 				<treecol id="adminCol" label="Name" flex="2" editable="false" />
 			</treecols> 
