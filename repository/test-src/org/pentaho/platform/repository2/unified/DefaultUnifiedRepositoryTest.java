@@ -3348,7 +3348,7 @@ public class DefaultUnifiedRepositoryTest implements ApplicationContextAware {
     assertEquals(Arrays.asList(new String[] { "org.pentaho.p1.reader" }), struct.bindingMap.get("whatever"));
 
     assertNotNull(struct.logicalRoleNameMap);
-    assertEquals(6, struct.logicalRoleNameMap.size());
+    assertEquals(5, struct.logicalRoleNameMap.size());
     assertEquals("Create Content", struct.logicalRoleNameMap
         .get(RepositoryCreateAction.NAME));
   }
