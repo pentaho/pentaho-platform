@@ -907,7 +907,11 @@ public class JcrRepositoryFileDao implements IRepositoryFileDao {
     List<Locale> localeList = new ArrayList<Locale>();
     if(repositoryFile != null && repositoryFile.getLocalePropertiesMap() != null){
       for(String localeName : repositoryFile.getLocalePropertiesMap().keySet()){
-        Locale locale = new Locale(localeName);
+        String[] localePieces = localeName.split("_");
+        String language = localePieces[0];
+        String country = (localePieces.length > 1)? localePieces[1] : "";
+        String variant = (localePieces.length > 2)? localePieces[2] : "";
+        Locale locale = new Locale(language, country, variant);
         localeList.add(locale);
       }
     }

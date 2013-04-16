@@ -37,11 +37,12 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
 
   private static final String FILE_DESCRIPTION = "file.description";
 
-  private static final String FILE_TLTLE = "file.tltle";
+  private static final String FILE_TITLE = "file.title";
 
   private static final String LOCALE_FOLDER = "index";
 
   private static final String LOCALE_EXT = ".locale";
+  private static final String OLD_LOCALE_EXT = ".properties";
 
   private List<String> artifacts; //spring injected file extensions
 
@@ -59,7 +60,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     Properties localeProperties = buildLocaleProperties(localeBundle);
 
     if (localeParent != null && unifiedRepository != null) {
-      getLogger().trace("Processing Locale [" + bundle.getName() + "]");
+      getLogger().trace("Processing Locale [" + localeBundle.getFile().getName() + "]");
       unifiedRepository.setLocalePropertiesForFile(localeParent, extractLocaleCode(localeBundle), localeProperties);
     }
   }
@@ -82,7 +83,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
       localeProperties.remove("name");
     }
     localeProperties.setProperty(FILE_DESCRIPTION, comment != null ? comment : "");
-    localeProperties.setProperty(FILE_TLTLE, fileTitle != null ? fileTitle : "");
+    localeProperties.setProperty(FILE_TITLE, fileTitle != null ? fileTitle : "");
 
     return localeProperties;
   }
@@ -99,7 +100,7 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
       localeFileName = localeBundle.getFile().getName();;
     }
     for (Locale locale : Locale.getAvailableLocales()) {
-      if (localeFileName.endsWith("_" + locale + LOCALE_EXT)) {
+      if (localeFileName.endsWith("_" + locale + LOCALE_EXT) || localeFileName.endsWith("_" + locale + OLD_LOCALE_EXT)) {
         localeCode = locale.toString();
         break;
       }
@@ -138,7 +139,8 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
   }
 
   private boolean isLocaleFolder(String localeFileName) {
-    return localeFileName.startsWith(LOCALE_FOLDER) && localeFileName.endsWith(LOCALE_EXT);
+    return (localeFileName.startsWith(LOCALE_FOLDER) && localeFileName.endsWith(LOCALE_EXT))
+        || (localeFileName.startsWith(LOCALE_FOLDER) && localeFileName.endsWith(OLD_LOCALE_EXT));
   }
 
   private String extractExtension(String name) {
