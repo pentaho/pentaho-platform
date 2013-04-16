@@ -26,6 +26,7 @@ import org.pentaho.mantle.client.solutionbrowser.RepositoryFileTreeManager;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 
 public class OpenFileCommand extends AbstractCommand {
 
@@ -45,6 +46,8 @@ public class OpenFileCommand extends AbstractCommand {
   }
 
   protected void performOperation(boolean feedback) {
+    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);
+
     final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
 
     RepositoryFileTreeManager.getInstance().fetchRepositoryFileTree(new AsyncCallback<RepositoryFileTree>() {
