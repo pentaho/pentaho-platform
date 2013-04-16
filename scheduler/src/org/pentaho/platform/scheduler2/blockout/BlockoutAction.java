@@ -39,12 +39,15 @@ public class BlockoutAction implements IVarArgsAction {
   public void execute() throws Exception {
     // TODO - Retrieve duration
     logger.warn("Blocking Started at: " + new Date() + " and will last: " + this.duration + " milliseconds"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    Thread.sleep(duration);
   }
 
   @Override
   public void setVarArgs(Map<String, Object> args) {
-    this.duration = (Long) args.get(IBlockoutManager.DURATION_PARAM);
-
+    if (args.containsKey(IBlockoutManager.DURATION_PARAM)) {
+      Number num = (Number) args.get(IBlockoutManager.DURATION_PARAM);
+      this.duration = num.longValue();
+    }
   }
 
 }
