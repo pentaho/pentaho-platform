@@ -35,7 +35,7 @@ import org.pentaho.platform.repository.RepositoryFilenameUtils;
  * this class is used to handle .properties files that are XACTION or URL files that contain the metadata
  * used for localization.  These files may contain additional information that will allow the properties file
  * to be stored and used by XACTION and URL as well as localize the title and description.
- * @author tband /ezequiel
+ * @author tband /ezequiel / tkafalas
  *
  */
 public class LocaleFilesProcessor {
@@ -66,15 +66,21 @@ public class LocaleFilesProcessor {
 
     boolean isLocale = false;
     String fileName = file.getFile().getName();
+    int sourceVersion = 0; // 0 = Not a local file, 1 = 4.8 .properties file, 2= Sugar 5.0 .local file
     if (fileName.endsWith(PROPERTIES_EXT)) {
+      sourceVersion = 1;
+    } else if (fileName.endsWith(LOCALE_EXT)) {
+      sourceVersion = 2;
+    } 
+    if (sourceVersion != 0) {
       InputStream inputStream = new ByteArrayInputStream(bytes);
       Properties properties = loadProperties(inputStream);
 
-      String name = properties.getProperty(NAME);
-      String title = properties.getProperty(TITLE);
-      String description = properties.getProperty(DESCRIPTION);
-      String url_name = properties.getProperty(URL_NAME);
-      String url_description = properties.getProperty(URL_DESCRIPTION);
+      String name = getProperty(properties, NAME, sourceVersion);
+      String title = getProperty(properties, TITLE, sourceVersion);
+      String description = getProperty(properties, DESCRIPTION, sourceVersion);
+      String url_name = getProperty(properties, URL_NAME, sourceVersion);
+      String url_description = getProperty(properties, URL_DESCRIPTION, sourceVersion);
 
       if (!StringUtils.isEmpty(url_name)) {
         name = url_name;
@@ -93,18 +99,26 @@ public class LocaleFilesProcessor {
         filePath = RepositoryFilenameUtils.concat(parentPath, filePath);
 
         LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, file.getFile(),
-            inputStream);
+            inputStream, sourceVersion);
         localeFiles.add(localeFile);
 
         /**
          * assumes that the properties file has additional localization attributes and should be imported
          */
-        if (properties.size() <= 2) {
+        if (properties.size() <= 2 || sourceVersion == 2) {
           isLocale = true;
         }
       }
     }
     return isLocale;
+  }
+  
+  private String getProperty(Properties properties, String propertyName, int sourceVersion) {
+    if (sourceVersion == 1) { 
+      return properties.getProperty(propertyName);
+    } else {
+      return properties.getProperty("file." + propertyName);
+    }
   }
 
   public Properties loadProperties(InputStream inputStream) throws IOException {
@@ -113,7 +127,13 @@ public class LocaleFilesProcessor {
     return properties;
   }
 
+  
   public boolean createLocaleEntry(String filePath, String name, String title, String description, RepositoryFile file, InputStream is)
+      throws IOException {
+    return createLocaleEntry (filePath, name, title, description, file, is, 2);
+  }
+  
+  public boolean createLocaleEntry(String filePath, String name, String title, String description, RepositoryFile file, InputStream is, int sourceVersion)
       throws IOException {
 
     boolean success = false;   
@@ -126,7 +146,7 @@ public class LocaleFilesProcessor {
     
     if (!StringUtils.isEmpty(name)) {
 
-      LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, rf.build() , is);
+      LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, rf.build() , is, sourceVersion);
       localeFiles.add(localeFile);
 
       success = true;
