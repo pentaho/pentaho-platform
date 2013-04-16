@@ -11,7 +11,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/pentaho-platform-extensions-TRUNK-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/pentaho-platform-repository-TRUNK-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="codegen-lib/gwt-dev-2.5.0.jar"/>
-	<classpathentry kind="lib" path="codegen-lib/gwt-dnd-3.2.0.jar"/>
 	<classpathentry kind="lib" path="codegen-lib/GWT-FX-0.5.0.jar"/>
 	<classpathentry kind="lib" path="codegen-lib/gwt-incubator-2.1.0.jar"/>
 	<classpathentry kind="lib" path="codegen-lib/gwt-user-2.5.0.jar"/>
@@ -27,5 +26,6 @@
 	<classpathentry kind="lib" path="codegen-lib/pentaho-xul-gwt-TRUNK-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="codegen-lib/validation-api-1.0.0.GA-sources.jar"/>
 	<classpathentry kind="lib" path="codegen-lib/validation-api-1.0.0.GA.jar"/>
+	<classpathentry kind="lib" path="codegen-lib/gwt-dnd-3.0.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
-</classpath> 
+</classpath>

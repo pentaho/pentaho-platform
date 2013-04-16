@@ -539,13 +539,6 @@
       </pen:attributes>
     </pen:publish>
   </bean>
-  <bean class="org.pentaho.platform.security.policy.rolebased.actions.CreateTenantsAction">
-    <pen:publish as-type="INTERFACES">
-      <pen:attributes>
-        <pen:attr key="priority" value="10"/>
-      </pen:attributes>
-    </pen:publish>
-  </bean>
   <bean class="org.pentaho.platform.security.policy.rolebased.actions.PublishAction">
     <pen:publish as-type="INTERFACES">
       <pen:attributes>
@@ -570,7 +563,6 @@
         <value>org.pentaho.repository.create</value>
 		<value>org.pentaho.scheduler.manage</value>        
         <value>org.pentaho.security.administerSecurity</value>
-		<value>org.pentaho.security.administerSystem</value>      
 	  </util:list>
     </entry>
   </util:map>
