@@ -27,6 +27,7 @@ import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.Mont
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.WeeklyRecurrenceEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.RecurrenceEditor.YearlyRecurrenceEditor;
 import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor;
+import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.DurationValues;
 import org.pentaho.gwt.widgets.client.controls.schededitor.ScheduleEditor.ScheduleType;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
@@ -161,7 +162,8 @@ public class NewScheduleDialog extends AbstractWizardDialog {
 
         @Override
         public void onError(Request request, Throwable exception) {
-          MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
+          MessageDialogBox dialogBox = new MessageDialogBox(
+              Messages.getString("error"), exception.toString(), false, false, true); //$NON-NLS-1$
           dialogBox.center();
         }
 
@@ -172,12 +174,12 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             scheduleEditor.setBlockoutButtonHandler(new ClickHandler() {
               @Override
               public void onClick(final ClickEvent clickEvent) {
-                PromptDialogBox box = new PromptDialogBox(Messages.getString("blockoutTimes"), Messages.getString("close"),
-                                                          null, null, false, true, new BlockoutPanel(false));
+                PromptDialogBox box = new PromptDialogBox(Messages.getString("blockoutTimes"), Messages
+                    .getString("close"), null, null, false, true, new BlockoutPanel(false));
                 box.center();
               }
             });
-          } 
+          }
           scheduleEditor.getBlockoutCheckButton().setVisible(hasBlockouts);
         }
       });
@@ -277,8 +279,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       }
 
       if (isBlockoutDialog) {
-        scheduleEditor.setBlockoutEndTime(DateTimeFormat.getFormat(PredefinedFormat.HOUR_MINUTE_SECOND).format(
-            new Date(jsJobTrigger.getStartTime().getTime() + jsJobTrigger.getBlockDuration())));
+        this.scheduleEditor.setDurationFields(jsJobTrigger.getBlockDuration());
       }
     }
   }
@@ -437,35 +438,36 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     return trigger;
   }
 
-  private Integer calculateBlockoutDuration() {
-    final String endTime = scheduleEditorWizardPanel.getBlockoutEndTime();
-    final Date today = new Date();
+  private long calculateBlockoutDuration() {
+    long second = 1000;
+    long minute = second * 60;
+    long hour = minute * 60;
+    long day = hour * 24;
 
-    if (endTime != null) {
-      // We only care about the interval from start time to end time.
+    long durationMilli = -1;
+
+    if (this.scheduleEditor.getBlockoutEndsType().equals(ScheduleEditor.ENDS_TYPE.TIME)) {
       final String startTime = scheduleEditorWizardPanel.getBlockoutStartTime();
-      Date blackoutStartDate = new Date(today.getYear(), today.getMonth(), today.getDate(), getStartHour(startTime),
-          getStartMin(startTime));
+      final String endTime = scheduleEditorWizardPanel.getBlockoutEndTime();
 
-      Date blackoutEndDate = new Date(today.getYear(), today.getMonth(), today.getDate(), getStartHour(endTime),
-          getStartMin(endTime));
+      long start = getStartHour(startTime) * hour + getStartMin(startTime) * minute;
+      long end = getStartHour(endTime) * hour + getStartMin(endTime) * minute;
 
-      final int durationMilli = new Long(Math.abs(blackoutEndDate.getTime() - blackoutStartDate.getTime())).intValue();
+      durationMilli = Math.abs(end - start);
 
-      //      // Debug only
-      //      long seconds = durationMilli / 1000;
-      //      System.out.println("******* Seconds: " + seconds + " and mintues = " + (seconds * 60) + " hours = " + (seconds * 60 * 60) + " days = " + (seconds * 60 * 60 * 24));
-      //      System.out.println("Seconds To Minute: " + TimeUtil.secsToMinutes(seconds));
-      //      System.out.println("Seconds to Hours: " + TimeUtil.secsToHours(seconds));
-      //      System.out.println("Seconds to Days: " + TimeUtil.secsToDays(seconds));
+    } else {
+      DurationValues durationValues = this.scheduleEditor.getDurationValues();
 
-      return durationMilli;
+      long minutes = durationValues.minutes * minute;
+      long hours = durationValues.hours * hour;
+      long days = durationValues.days * day;
+
+      durationMilli = minutes + hours + days;
     }
 
-    return -1;
+    return durationMilli;
   }
 
-  @SuppressWarnings("deprecation")
   public JsJobTrigger getJsJobTrigger() {
     JsJobTrigger jsJobTrigger = JsJobTrigger.instance();
 
@@ -490,7 +492,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       jsJobTrigger.setBlockDuration(calculateBlockoutDuration());
     } else {
       // blockDuration is only valid for blockouts
-      jsJobTrigger.setBlockDuration(-1);
+      jsJobTrigger.setBlockDuration(new Long(-1));
     }
 
     if (scheduleType == ScheduleType.RUN_ONCE) { // Run once types
@@ -644,7 +646,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     addBlockoutPeriodRequest.setHeader("Content-Type", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 
     // Create a unique blockout period name
-    final Integer duration = trigger.getBlockDuration();
+    final Long duration = trigger.getBlockDuration();
     final String blockoutPeriodName = trigger.getScheduleType() + Random.nextInt() + ":" + //$NON-NLS-1$
         /*PentahoSessionHolder.getSession().getName()*/"admin" + ":" + duration; //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -861,6 +863,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
       //    DO NOT DELETE - verifyBlockoutConflict(schedule, trigger);
       JsJobTrigger trigger = getJsJobTrigger();
       JSONObject schedule = getSchedule();
+
       handleWizardPanels(schedule, trigger);
       return true;
     }
