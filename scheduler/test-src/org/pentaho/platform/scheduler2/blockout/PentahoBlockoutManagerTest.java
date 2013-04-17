@@ -55,7 +55,7 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
  */
 public class PentahoBlockoutManagerTest {
 
-  private final int duration;
+  private final long duration;
 
   IBlockoutManager blockOutManager;
 
@@ -64,7 +64,7 @@ public class PentahoBlockoutManagerTest {
   Set<String> jobIdsToClear = new HashSet<String>();
 
   public PentahoBlockoutManagerTest() {
-    duration = ((Number) (TIME.HOUR.time * 2)).intValue();
+    duration = TIME.HOUR.time * 2;
   }
 
   /**

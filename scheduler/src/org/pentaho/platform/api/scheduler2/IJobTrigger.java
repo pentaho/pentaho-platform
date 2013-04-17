@@ -55,12 +55,12 @@ public interface IJobTrigger {
   /**
    * @return a long that represents in milliseconds how long this trigger should be in effect once triggered
    */
-  public int getDuration();
+  public long getDuration();
 
   /**
    * @param duration
    * 
    * Sets the length of time in milliseconds that this trigger should be in effect.
    */
-  public void setDuration(int duration);
+  public void setDuration(long duration);
 }
