@@ -91,7 +91,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 
 				public void onResponseReceived(Request request, Response response) {
 					initializeAvailableUsers(name);
-					initializeAvailableRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()));
+					initializeRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()), "roles", rolesListBox);
 				}
 			});
 		} catch (RequestException e) {
@@ -109,7 +109,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-					initializeAvailableRoles(name);
+					initializeRoles(name, "roles", rolesListBox);
 					initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
 				}
 			});
@@ -139,7 +139,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					checkForError(Messages.getString("Error"), response);
 					availableMembersListBox.clear();
 					selectedMembersListBox.clear();
-					initializeAvailableRoles(null);
+					initializeRoles(null, "roles", rolesListBox);
 					initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
 				}
 			});
@@ -194,7 +194,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					selectedRolesListBox.clear();
 					editPasswordButton.setEnabled(false);
 					initializeAvailableUsers(null);
-					initializeAvailableRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()));
+					initializeRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()), "roles", rolesListBox);
 				}
 			});
 		} catch (RequestException e) {
@@ -233,48 +233,9 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	}
 
 	// -- Remote Calls.
-
-	private void initializeAvailableRoles(final String defaultValue) {
-		final String url = GWT.getHostPageBaseURL() + "api/userrole/roles";
-		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-		executableTypesRequestBuilder.setHeader("accept", "application/xml");
-		try {
-			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
-
-				public void onError(Request request, Throwable exception) {
-				  displayErrorInMessageBox(Messages.getString("Error"), exception.getLocalizedMessage());
-				}
-
-				public void onResponseReceived(Request request, Response response) {
-					rolesListBox.clear();
-					NativeEvent event = com.google.gwt.dom.client.Document.get().createChangeEvent();
-					String txt = response.getText();
-					Document doc = XMLParser.parse(txt);
-					NodeList roles = doc.getElementsByTagName("roles");
-					for (int i = 0; i < roles.getLength(); i++) {
-						Node roleNode = roles.item(i);
-						String role = roleNode.getFirstChild().getNodeValue();
-						rolesListBox.addItem(role);
-						if (!StringUtils.isEmpty(defaultValue)) {
-							if (role.equals(defaultValue)) {
-								rolesListBox.setSelectedIndex(i);
-								DomEvent.fireNativeEvent(event, rolesListBox);
-							}
-						}
-					}
-					if (rolesListBox.getSelectedIndex() == -1 && rolesListBox.getItemCount() > 0) {
-						rolesListBox.setSelectedIndex(0);
-						DomEvent.fireNativeEvent(event, rolesListBox);
-					}
-				}
-			});
-		} catch (RequestException e) {
-		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
-		}
-	}
 	
-	private void initializeAvailableSystemRoles(final String defaultValue) {
-		final String url = GWT.getHostPageBaseURL() + "api/userrole/extraRoles";
+	private void initializeRoles(final String defaultValue, String service, final ListBox listBox) {
+		final String url = GWT.getHostPageBaseURL() + "api/userrole/" + service;
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
 		executableTypesRequestBuilder.setHeader("accept", "application/xml");
 		try {
@@ -285,7 +246,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-					systemRolesListBox.clear();
+					listBox.clear();
 					NativeEvent event = com.google.gwt.dom.client.Document.get().createChangeEvent();
 					String txt = response.getText();
 					Document doc = XMLParser.parse(txt);
@@ -293,17 +254,17 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 					for (int i = 0; i < roles.getLength(); i++) {
 						Node roleNode = roles.item(i);
 						String role = roleNode.getFirstChild().getNodeValue();
-						systemRolesListBox.addItem(role);
+						listBox.addItem(role);
 						if (!StringUtils.isEmpty(defaultValue)) {
 							if (role.equals(defaultValue)) {
-								systemRolesListBox.setSelectedIndex(i);
-								DomEvent.fireNativeEvent(event, systemRolesListBox);
+								listBox.setSelectedIndex(i);
+								DomEvent.fireNativeEvent(event, listBox);
 							}
 						}
 					}
-					if (systemRolesListBox.getSelectedIndex() == -1 && systemRolesListBox.getItemCount() > 0) {
-						systemRolesListBox.setSelectedIndex(0);
-						DomEvent.fireNativeEvent(event, systemRolesListBox);
+					if (listBox.getSelectedIndex() == -1 && listBox.getItemCount() > 0) {
+						listBox.setSelectedIndex(0);
+						DomEvent.fireNativeEvent(event, listBox);
 					}
 				}
 			});
@@ -377,8 +338,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 						public void run() {
 							if (rolesListBox.getItemCount() > 0) {
 								cancel();
-								// availableRolesListBox =
-								// rolesListBox - selectedRolesListBox
+								// availableRolesListBox = rolesListBox - selectedRolesListBox
 								availableRolesListBox.clear();
 								for (int i = 0; i < rolesListBox.getItemCount(); i++) {
 									String role = rolesListBox.getValue(i);
@@ -429,8 +389,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 						public void run() {
 							if (usersListBox.getItemCount() > 0) {
 								cancel();
-								// availableMembersListBox =
-								// usersListBox - selectedMembersListBox
+								// availableMembersListBox = usersListBox - selectedMembersListBox
 								availableMembersListBox.clear();
 								for (int i = 0; i < usersListBox.getItemCount(); i++) {
 									String user = usersListBox.getValue(i);
@@ -454,6 +413,26 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		  displayErrorInMessageBox(Messages.getString("Error"), e.getLocalizedMessage());
 		}
 	}
+	
+	private void initializeActionBaseSecurityElements() {
+		final String url = GWT.getHostPageBaseURL() + "api/userrole/logicalRoleMap"; 
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+		executableTypesRequestBuilder.setHeader("accept", "application/json");
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					String roleMappings = response.getText();
+					rolesPermissionsPanel.initializeActionBaseSecurityElements(roleMappings);
+					systemRolesPermissionsPanel.initializeActionBaseSecurityElements(roleMappings);
+				}
+			});
+		} catch (RequestException e) {
+		}
+	}
 
 	private void modifyUserRoles(final String userName, String serviceUrl) {
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
@@ -466,7 +445,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				public void onResponseReceived(Request request, Response response) {
           checkForError(Messages.getString("Error"), response);
 					getRolesForUser(userName);
-					initializeAvailableRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()));
+					initializeRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()), "roles", rolesListBox);
 				}
 			});
 		} catch (RequestException e) {
@@ -497,9 +476,10 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	// -- ISysAdminPanel implementation.
 
 	public void activate() {
-		initializeAvailableRoles(null);		
+		initializeActionBaseSecurityElements();
 		initializeAvailableUsers(null);
-		initializeAvailableSystemRoles(null);
+		initializeRoles(null, "roles", rolesListBox);		
+		initializeRoles(null, "extraRoles", systemRolesListBox);
 	}
 
 	public String getId() {
