@@ -196,6 +196,6 @@
         <property name="repositoryImportLogger">
             <bean class="org.pentaho.platform.plugin.services.importexport.Log4JRepositoryImportLogger"/>
         </property>
-
     </bean>
+    <bean id="ImportSession" class="org.pentaho.platform.plugin.services.importexport.ImportSession" scope="request"/>
 </beans>

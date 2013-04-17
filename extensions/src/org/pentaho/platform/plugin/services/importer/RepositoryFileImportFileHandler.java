@@ -17,8 +17,9 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.Converter;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
-import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -28,8 +29,7 @@ import org.springframework.util.Assert;
 public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
   private IUnifiedRepository repository;
-  private ThreadLocal<Log> log = new ThreadLocal<Log>();
-  private ThreadLocal<Boolean> isNotRunningImport = new ThreadLocal<Boolean>();
+  private ThreadLocal<ImportSession> importSession = new ThreadLocal<ImportSession>();
  
   private static final Messages messages = Messages.getInstance();
 
@@ -37,19 +37,10 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   IRepositoryDefaultAclHandler defaultAclHandler;
   
   public Log getLogger() {
-    if (log.get() == null) {
-      IRepositoryImportLogger logger = PentahoSystem.get(IPlatformImporter.class).getRepositoryImportLogger();
-      if (logger != null && logger.hasLogger()) {
-        //An import is running from the /repo/file/import endpoint
-        log.set(logger);
-        isNotRunningImport.set(false);
-      } else {
-        //A publish is running from some other endpoint
-        log.set(LogFactory.getLog(RepositoryFileImportFileHandler.class));
-        isNotRunningImport.set(true);
-      }
-    }
-    return log.get();
+    if (importSession.get() == null) {
+      importSession.set(PentahoSystem.get(ImportSession.class));
+    } 
+    return importSession.get().getLogger();
   }
 
   public void importFile(IPlatformImportBundle bnd) throws PlatformImportException {
@@ -78,11 +69,13 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
           }
         }
       } else {
-        if (isNotRunningImport.get()) {
+        if (importSession.get().getIsNotRunningImport()) {
           throw new PlatformImportException(messages.getString("DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT", repositoryFilePath)
               , PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR);
         } else {
           getLogger().trace("Not importing existing file [" + repositoryFilePath + "]");
+          ImportSession importSession = PentahoSystem.get(ImportSession.class);
+          importSession.getSkippedFiles().add(repositoryFilePath);
         }
       }
     } else {

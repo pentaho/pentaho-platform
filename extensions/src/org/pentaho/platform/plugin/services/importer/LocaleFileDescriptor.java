@@ -30,9 +30,8 @@ public class LocaleFileDescriptor {
 	private String description;
 	private RepositoryFile file;
 	private InputStream inputStream;
-	private int sourceVersion; 
 	
-	public LocaleFileDescriptor(String name, String description, String path, RepositoryFile file, InputStream inputStream, int sourceVersion) {
+	public LocaleFileDescriptor(String name, String description, String path, RepositoryFile file, InputStream inputStream) {
 		this.name = name;
 		this.description = description;
 		this.path = path;
@@ -79,21 +78,4 @@ public class LocaleFileDescriptor {
 	public void setFile(RepositoryFile file) {
 		this.file = file;
 	}
-
-  /**
-   * @return the sourceVersion
-   */
-  public int getSourceVersion() {
-    return sourceVersion;
-  }
-
-  /**
-   * 1 = 4.8 .properties file, 2= Sugar 5.0 .local file
-   * @param sourceVersion
-   */
-  public void setSourceVersion(int sourceVersion) {
-    this.sourceVersion = sourceVersion;
-  }
-	
-	
 }

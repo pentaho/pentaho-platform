@@ -26,12 +26,11 @@ import java.util.Locale;
 import java.util.Properties;
 
 import org.drools.util.StringUtils;
-import org.pentaho.metadata.repository.DomainAlreadyExistsException;
-import org.pentaho.metadata.repository.DomainIdNullException;
-import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 
 public class LocaleImportHandler extends RepositoryFileImportFileHandler implements IPlatformImportHandler {
 
@@ -58,10 +57,16 @@ public class LocaleImportHandler extends RepositoryFileImportFileHandler impleme
     RepositoryFile localeParent = getLocaleParent(localeBundle);
 
     Properties localeProperties = buildLocaleProperties(localeBundle);
-
+  
     if (localeParent != null && unifiedRepository != null) {
-      getLogger().trace("Processing Locale [" + localeBundle.getFile().getName() + "]");
-      unifiedRepository.setLocalePropertiesForFile(localeParent, extractLocaleCode(localeBundle), localeProperties);
+      //If the parent file (content) got skipped because it existed then we will not import the locale information
+      String fullPath = RepositoryFilenameUtils.concat(localeBundle.getPath(), localeBundle.getFile().getName());
+      if (PentahoSystem.get(ImportSession.class).getSkippedFiles().contains(fullPath)) {
+        getLogger().trace("Not importing Locale [" + localeBundle.getFile().getName() + "] since parent file not written ");
+      } else {
+        getLogger().trace("Processing Locale [" + localeBundle.getFile().getName() + "]");
+        unifiedRepository.setLocalePropertiesForFile(localeParent, extractLocaleCode(localeBundle), localeProperties);
+      }
     }
   }
 

@@ -39,6 +39,7 @@ import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository2.unified.RepositoryFile;
 import org.pentaho.platform.api.repository2.unified.RepositoryFileAcl;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.importexport.ImportSource.IRepositoryFileBundle;
 import org.pentaho.platform.plugin.services.importexport.RepositoryFileBundle;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
@@ -64,7 +65,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 		ZipInputStream zipImportStream = new ZipInputStream(bundle.getInputStream());
 		SolutionRepositoryImportSource importSource = new SolutionRepositoryImportSource(zipImportStream);
 		LocaleFilesProcessor localeFilesProcessor = new LocaleFilesProcessor();
-
+		
 		IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
 		for (IRepositoryFileBundle file : importSource.getFiles()) {
 			String fileName = file.getFile().getName();
@@ -164,7 +165,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 	       && manifest !=null && manifest.getExportManifestEntity(filePath) != null ) {
 	         return manifest.getExportManifestEntity(filePath).getRepositoryFile().isHidden();
 	     }
-     return isBlackListed(bundle.getName());
+     return isBlackListed(filePath);
 	}
 
 	private boolean isSystemPath(final String bundlePath) {
