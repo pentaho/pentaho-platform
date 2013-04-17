@@ -30,7 +30,6 @@ import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
 import org.pentaho.mantle.client.admin.ISysAdminPanel;
 import org.pentaho.mantle.client.admin.JsSysAdminPanel;
-import org.pentaho.mantle.client.admin.SecurityPanel;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.ShowBrowserCommand;
 import org.pentaho.mantle.client.commands.SwitchLocaleCommand;
@@ -583,10 +582,7 @@ public class MantleController extends AbstractXulEventHandler {
 
       GWT.runAsync(new RunAsyncCallback() {
         public void onSuccess() {
-          if ((SecurityPanel.getInstance()).getId().equals(adminPanelAwaitingActivation.id)) {
-            model.loadSecurityPanel();
-            SecurityPanel.getInstance().getElement().setId((SecurityPanel.getInstance()).getId());
-          } else if (UserRolesAdminPanelController.getInstance().getId().equals(adminPanelAwaitingActivation.id)) {
+          if (UserRolesAdminPanelController.getInstance().getId().equals(adminPanelAwaitingActivation.id)) {
             model.loadUserRolesAdminPanel();
             UserRolesAdminPanelController.getInstance().getElement()
                 .setId((UserRolesAdminPanelController.getInstance()).getId());
@@ -761,22 +757,6 @@ public class MantleController extends AbstractXulEventHandler {
     passivateActiveSecurityPanels(panelId, url);
   }
 
-  @Bindable
-  public void loadSecurityPanel() {
-    GWT.runAsync(new RunAsyncCallback() {
-      public void onSuccess() {
-        String securityPanelId = SecurityPanel.getInstance().getId();
-        if (!sysAdminPanelsMap.containsKey(securityPanelId)) {
-          sysAdminPanelsMap.put(securityPanelId, SecurityPanel.getInstance());
-        }
-        loadAdminContent(securityPanelId, null);
-      }
-
-      public void onFailure(Throwable reason) {
-      }
-    });
-  }
-  
   @Bindable
   public void loadSettingsPanel() {
     GWT.runAsync(new RunAsyncCallback() {

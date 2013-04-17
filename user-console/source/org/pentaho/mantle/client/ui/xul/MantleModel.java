@@ -17,12 +17,9 @@
  */
 package org.pentaho.mantle.client.ui.xul;
 
-import java.util.HashMap;
-
 import org.pentaho.mantle.client.MantleApplication;
 import org.pentaho.mantle.client.admin.ContentCleanerPanel;
 import org.pentaho.mantle.client.admin.EmailAdminPanelController;
-import org.pentaho.mantle.client.admin.SecurityPanel;
 import org.pentaho.mantle.client.admin.UserRolesAdminPanelController;
 import org.pentaho.mantle.client.commands.FilePropertiesCommand;
 import org.pentaho.mantle.client.commands.OpenDocCommand;
@@ -37,7 +34,6 @@ import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand.COMMAND;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
-import org.pentaho.mantle.client.usersettings.MantleSettingsManager;
 import org.pentaho.platform.api.engine.perspective.pojo.IPluginPerspective;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 import org.pentaho.ui.xul.stereotype.Bindable;
@@ -46,7 +42,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Widget;
@@ -186,22 +181,6 @@ public class MantleModel extends XulEventSourceAdapter implements SolutionBrowse
     }
     MantleXul.getInstance().getAdminContentDeck()
         .showWidget(MantleXul.getInstance().getAdminContentDeck().getWidgetIndex(frame));
-  }
-
-  @Bindable
-  public void loadSecurityPanel() {
-    GWT.runAsync(new RunAsyncCallback() {
-      public void onSuccess() {
-        DeckPanel contentDeck = MantleXul.getInstance().getAdminContentDeck();
-        if (contentDeck.getWidgetIndex(SecurityPanel.getInstance()) == -1) {
-          contentDeck.add(SecurityPanel.getInstance());
-        }
-        contentDeck.showWidget(contentDeck.getWidgetIndex(SecurityPanel.getInstance()));
-      }
-
-      public void onFailure(Throwable reason) {
-      }
-    });
   }
 
   @Bindable
