@@ -56,8 +56,8 @@ public class PluginThemeResolver implements IThemeResolver {
   private Log logger = LogFactory.getLog(PluginThemeResolver.class);
 
 
-  public void resolveThemes() {
-    moduleThemes.clear();
+  public PluginThemeResolver() {
+    super();
 
     for(String pluginId : pluginManager.getRegisteredPlugins()){
       findPluginThemes(pluginId);
@@ -65,12 +65,10 @@ public class PluginThemeResolver implements IThemeResolver {
   }
 
   public Map<String, ModuleThemeInfo> getModuleThemes() {
-    resolveThemes();
     return moduleThemes;
   }
 
   public Map<String, Theme> getSystemThemes() {
-    resolveThemes();
     Map<String, Theme> systemThemes = new HashMap<String, Theme>();
 
     // Find the declared default plugin for themes. Add it's themes to the map first. Any that come in later will
