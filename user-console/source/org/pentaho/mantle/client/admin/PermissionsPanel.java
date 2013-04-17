@@ -41,6 +41,7 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -56,62 +57,49 @@ public class PermissionsPanel extends VerticalPanel {
 	public PermissionsPanel(ListBox rolesListBox) {
 		add(new Label(Messages.getString("absCaption")));
 		this.rolesListBox = rolesListBox;
-		initializeLogicalRoleMappings();
 	}
 
-	private void initializeLogicalRoleMappings() {
-		final String url = GWT.getHostPageBaseURL() + "api/userrole/logicalRoleMap"; 
-		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-		executableTypesRequestBuilder.setHeader("accept", "application/json");
-		try {
-			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+	public void initializeActionBaseSecurityElements(String roleMappings) {
+		JsLogicalRoleMap logicalRoleMap = (JsLogicalRoleMap) parseRoleMappings(JsonUtils.escapeJsonForEval(roleMappings));
+		if (logicalRoles.size() == 0) {
+			for (int i = 0; i < logicalRoleMap.getLogicalRoles().length(); i++) {
 
-				public void onError(Request request, Throwable exception) {
+				CheckBox permCB = new CheckBox(logicalRoleMap.getLogicalRoles().get(i).getLocalizedName());
+				permCB.addValueChangeHandler(new RolesValueChangeListener());
+				add(permCB);
+				logicalRoles.put(logicalRoleMap.getLogicalRoles().get(i).getLocalizedName(), new LogicalRoleInfo(logicalRoleMap.getLogicalRoles().get(i).getRoleName(), permCB));
+			}
+		}
+		for (int j = 0; j < logicalRoleMap.getRoleAssignments().length(); j++) {
+			String roleName = logicalRoleMap.getRoleAssignments().get(j).getRoleName();
+			List<String> logicalRoles = new ArrayList<String>();
+			JsArrayString jsLogicalRoles = logicalRoleMap.getRoleAssignments().get(j).getAssignedLogicalRoles();
+			if (jsLogicalRoles != null) {
+				for (int k = 0; k < jsLogicalRoles.length(); k++) {
+					logicalRoles.add(jsLogicalRoles.get(k));
 				}
-
-				public void onResponseReceived(Request request, Response response) {
-					if (response.getStatusCode() == Response.SC_OK) {
-						JsLogicalRoleMap logicalRoleMap = (JsLogicalRoleMap) parseRoleMappings(JsonUtils.escapeJsonForEval(response.getText()));
-						if (logicalRoles.size() == 0) {
-							for (int i = 0; i < logicalRoleMap.getLogicalRoles().length(); i++) {
-
-								CheckBox permCB = new CheckBox(logicalRoleMap.getLogicalRoles().get(i).getLocalizedName());
-								permCB.addValueChangeHandler(new RolesValueChangeListener());
-								add(permCB);
-								logicalRoles.put(logicalRoleMap.getLogicalRoles().get(i).getLocalizedName(), new LogicalRoleInfo(logicalRoleMap.getLogicalRoles().get(i).getRoleName(), permCB));
-							}
-						}
-						for (int j = 0; j < logicalRoleMap.getRoleAssignments().length(); j++) {
-							String roleName = logicalRoleMap.getRoleAssignments().get(j).getRoleName();
-							List<String> logicalRoles = new ArrayList<String>();
-							JsArrayString jsLogicalRoles = logicalRoleMap.getRoleAssignments().get(j).getAssignedLogicalRoles();
-							if (jsLogicalRoles != null) {
-								for (int k = 0; k < jsLogicalRoles.length(); k++) {
-									logicalRoles.add(jsLogicalRoles.get(k));
-								}
-							}
-							masterRoleMap.put(roleName, logicalRoles);
-						}
-					}
-				}
-			});
-		} catch (RequestException e) {
+			}
+			masterRoleMap.put(roleName, logicalRoles);
 		}
 	}
 	
 	public void setSelectedPermissions() {
-
-		int selectedIndex = rolesListBox.getSelectedIndex();
-	    if (selectedIndex >= 0) {
-	      String roleName = rolesListBox.getItemText(selectedIndex);
-	      List<String> logicalRoleAssignments = newRoleAssignments.get(roleName);
-	      if (logicalRoleAssignments == null) {
-	        logicalRoleAssignments = masterRoleMap.get(roleName);
-	      }
-	      for (LogicalRoleInfo logicalRoleInfo : logicalRoles.values()) {
-	        logicalRoleInfo.checkBox.setValue((logicalRoleAssignments != null) && logicalRoleAssignments.contains(logicalRoleInfo.roleName));
-	      }
-	    }
+	    Timer t = new Timer() {
+			public void run() {
+				int selectedIndex = rolesListBox.getSelectedIndex();
+			    if (selectedIndex >= 0) {
+			      String roleName = rolesListBox.getItemText(selectedIndex);
+			      List<String> logicalRoleAssignments = newRoleAssignments.get(roleName);
+			      if (logicalRoleAssignments == null) {
+			        logicalRoleAssignments = masterRoleMap.get(roleName);
+			      }
+			      for (LogicalRoleInfo logicalRoleInfo : logicalRoles.values()) {
+			        logicalRoleInfo.checkBox.setValue((logicalRoleAssignments != null) && logicalRoleAssignments.contains(logicalRoleInfo.roleName));
+			      }
+			    }
+			}
+		};
+		t.scheduleRepeating(100);
     }
 
 	class RolesValueChangeListener implements ValueChangeHandler<Boolean> {
@@ -158,11 +146,9 @@ public class PermissionsPanel extends VerticalPanel {
 	    try {
 	      saveSettingRequestBuilder.sendRequest(jsNewRoleAssignments.toString(), new RequestCallback() {
 
-	        @Override
 	        public void onError(Request request, Throwable exception) {
 	        }
 
-	        @Override
 	        public void onResponseReceived(Request request, Response response) {
 	          if (response.getStatusCode() == 200) {
 	            masterRoleMap.putAll(newRoleAssignments);
