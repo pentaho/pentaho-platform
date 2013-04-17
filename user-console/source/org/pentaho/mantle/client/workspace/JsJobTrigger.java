@@ -92,20 +92,19 @@ public class JsJobTrigger extends JavaScriptObject {
     this.repeatInterval = interval;
   }-*/;
 
-  public final native void setBlockDuration(Integer duration)
+  public final native void setBlockDuration(Long duration)
   /*-{
     this.duration = duration.toString();
   }-*/;
 
-  public final Integer getBlockDuration() {
-    return Integer.parseInt(getDuration());
+  public final Long getBlockDuration() {
+    return Long.parseLong(getDuration());
   }
 
   private final native String getDuration()
   /*-{
       return this.duration;
   }-*/;
-
 
   private final native String getNativeStartTime()
   /*-{ 
@@ -205,11 +204,11 @@ public class JsJobTrigger extends JavaScriptObject {
    }-*/;
 
   /**
- * Converts javascript integer arrays that were stored as quoted numbers in the
- * JSON as an int[] array.
- * 
- * @param jsArrayString = Json Array with the integer elements quoted
- * @return int array
+  * Converts javascript integer arrays that were stored as quoted numbers in the
+  * JSON as an int[] array.
+  * 
+  * @param jsArrayString = Json Array with the integer elements quoted
+  * @return int array
    */
   public final int[] convertJsArrayStringToIntArray(JsArrayString jsArrayString) {
     if (jsArrayString == null) {
@@ -372,8 +371,9 @@ public class JsJobTrigger extends JavaScriptObject {
           // monthsOfYear, qualifiedDayOfWeek
           String qualifier = getDayOfWeekQualifier();
           String dayOfWeek = getQualifiedDayOfWeek();
-          trigDesc = Messages.getString("the") + " " + WeekOfMonth.valueOf(qualifier) + " " + DayOfWeek.valueOf(dayOfWeek) + " " + Messages.getString("of")
-              + " " + MonthOfYear.get(monthsOfYear[0] - 1);
+          trigDesc = Messages.getString("the") + " " + WeekOfMonth.valueOf(qualifier) + " "
+              + DayOfWeek.valueOf(dayOfWeek) + " " + Messages.getString("of") + " "
+              + MonthOfYear.get(monthsOfYear[0] - 1);
         } else {
           // monthsOfYear, daysOfMonth
           trigDesc = Messages.getString("every") + " " + MonthOfYear.get(monthsOfYear[0] - 1) + " " + daysOfMonth[0];
@@ -386,15 +386,17 @@ public class JsJobTrigger extends JavaScriptObject {
         String qualifier = getDayOfWeekQualifier();
         String dayOfWeek = getQualifiedDayOfWeek();
 
-        trigDesc = Messages.getString("the") + " " + WeekOfMonth.valueOf(qualifier) + " " + DayOfWeek.valueOf(dayOfWeek) + " "
-            + Messages.getString("ofEveryMonth");
+        trigDesc = Messages.getString("the") + " " + WeekOfMonth.valueOf(qualifier) + " "
+            + DayOfWeek.valueOf(dayOfWeek) + " " + Messages.getString("ofEveryMonth");
       } else if (getDayOfWeekRecurrences().length > 0) {
         // WEEKLY: Every week on <day>..<day> at <time>
         // check if weekdays first
-        if (getDayOfWeekRecurrences().length == 5 && getDayOfWeekRecurrences()[0] == 2 && getDayOfWeekRecurrences()[4] == 6) {
+        if (getDayOfWeekRecurrences().length == 5 && getDayOfWeekRecurrences()[0] == 2
+            && getDayOfWeekRecurrences()[4] == 6) {
           trigDesc = Messages.getString("every") + " " + Messages.getString("weekday");
         } else {
-          trigDesc = Messages.getString("every") + " " + Messages.getString(DayOfWeek.get(getDayOfWeekRecurrences()[0] - 1).toString().trim());
+          trigDesc = Messages.getString("every") + " "
+              + Messages.getString(DayOfWeek.get(getDayOfWeekRecurrences()[0] - 1).toString().trim());
           for (int i = 1; i < getDayOfWeekRecurrences().length; i++) {
             trigDesc += ", " + Messages.getString(DayOfWeek.get(getDayOfWeekRecurrences()[i] - 1).toString().trim());
           }
@@ -582,5 +584,6 @@ public class JsJobTrigger extends JavaScriptObject {
   }
 
   public final native Date getNextFireTime() /*-{ return this.nextFireTime; }-*/;
+
   public final native String getName() /*-{ return this.name; }-*/;
 }
