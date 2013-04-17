@@ -21,7 +21,6 @@ package org.pentaho.mantle.client.ui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 
 import org.pentaho.gwt.widgets.client.menuitem.PentahoMenuItem;
 import org.pentaho.gwt.widgets.client.ui.ICallback;
@@ -278,6 +277,12 @@ public class PerspectiveManager extends HorizontalPanel {
   }
 
   private void showPerspective(final ToggleButton source, final IPluginPerspective perspective) {
+    
+    if (!source.isDown()) {
+      source.setDown(true);
+      return;
+    }
+    
     // before we show.. de-activate current perspective (based on shown widget)
     Widget w = MantleApplication.getInstance().getContentDeck().getWidget(MantleApplication.getInstance().getContentDeck().getVisibleWidget());
     if (w instanceof Frame && !perspective.getId().equals(w.getElement().getId())) {
@@ -285,8 +290,6 @@ public class PerspectiveManager extends HorizontalPanel {
       Frame frame = (Frame) w;
       perspectiveDeactivated(frame.getElement());
     }
-
-    final IPluginPerspective defaultPerspective = perspectives.get(0);
 
     // deselect all other toggles
     for (ToggleButton disableMe : toggles) {
@@ -326,33 +329,11 @@ public class PerspectiveManager extends HorizontalPanel {
           MantleXul.getInstance().applyOverlay(overlay.getId());
         }
       }
-    } else if (!source.isDown() && defaultPerspective.getOverlays() != null) {
-      // apply default perspective overlay
-      for (XulOverlay overlay : defaultPerspective.getOverlays()) {
-        if (!overlay.getId().startsWith("startup") && !overlay.getId().startsWith("sticky")) {
-          MantleXul.getInstance().applyOverlay(overlay.getId());
-        }
-      }
-      for (XulOverlay overlay : MantleXul.getInstance().getOverlays()) {
-        if (overlay.getId().startsWith(defaultPerspective.getId() + ".overlay.")) {
-          MantleXul.getInstance().applyOverlay(overlay.getId());
-        }
-      }
     }
 
     if (source.isDown() && !perspective.getId().equals(DEFAULT_PERSPECTIVE) && !perspective.getId().equals(SCHEDULES_PERSPECTIVE)
         && !perspective.getId().equals(ADMIN_PERSPECTIVE)) {
       hijackContentArea(perspective);
-    }
-
-    // see if we need to show the default perspective
-    // if source is not down then no perspectives are selected, select the first one
-    if (!source.isDown()) {
-      toggles.get(0).setDown(true);
-      if (defaultPerspective.getId().equals(DEFAULT_PERSPECTIVE)) {
-        showDefaultPerspective(true, false);
-        return;
-      }
     }
 
     // if the selected perspective is "default.perspective"
