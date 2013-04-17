@@ -99,7 +99,7 @@ public class LocaleFilesProcessor {
         filePath = RepositoryFilenameUtils.concat(parentPath, filePath);
 
         LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, file.getFile(),
-            inputStream, sourceVersion);
+            inputStream);
         localeFiles.add(localeFile);
 
         /**
@@ -146,7 +146,7 @@ public class LocaleFilesProcessor {
     
     if (!StringUtils.isEmpty(name)) {
 
-      LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, rf.build() , is, sourceVersion);
+      LocaleFileDescriptor localeFile = new LocaleFileDescriptor(name, description, filePath, rf.build() , is);
       localeFiles.add(localeFile);
 
       success = true;
