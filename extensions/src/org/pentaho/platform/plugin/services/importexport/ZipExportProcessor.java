@@ -29,16 +29,15 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
@@ -49,7 +48,6 @@ import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifest;
 import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestFormatException;
 import org.pentaho.platform.repository2.unified.webservices.LocaleMapDto;
-import org.pentaho.reporting.libraries.libsparklines.util.StringUtils;
 
 /**
  *
