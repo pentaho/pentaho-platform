@@ -353,6 +353,8 @@ public class PerspectiveManager extends HorizontalPanel {
     }
     // show stuff we've created/configured
     contentDeck.showWidget(contentDeck.getWidgetIndex(SolutionBrowserPanel.getInstance()));
+    // be sure to init the UI for IE...
+    SolutionBrowserPanel.getInstance().setNavigatorShowing(SolutionBrowserPanel.getInstance().isNavigatorShowing());
     setCheckMMenuItem(browserChecked,schedulesChecked);
     MantleApplication.getInstance().pucToolBarVisibility(true);
   }
