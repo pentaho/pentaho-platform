@@ -20,13 +20,22 @@
 
 package org.pentaho.mantle.client.admin;
 
-import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.buttons.ProgressIndicatorWidget;
 import org.pentaho.gwt.widgets.client.panel.ActionBar;
-import org.pentaho.gwt.widgets.client.text.ValidationPasswordTextBox;
-import org.pentaho.gwt.widgets.client.text.ValidationTextBox;
-import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.messages.Messages;
+
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.PasswordTextBox;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class EmailAdminPanel extends SimplePanel {
 
@@ -64,12 +73,10 @@ public class EmailAdminPanel extends SimplePanel {
 		actionBar = new ActionBar();
 		FlexTable mainPanel = new FlexTable();
 		HorizontalPanel hPanel = new HorizontalPanel();
-		SimplePanel hSpacer = new SimplePanel();
-		hSpacer.setWidth("10px");
-		hPanel.add(hSpacer);
 		hPanel.add(new Label(Messages.getString("emailSmtpServer")));
 		mainPanel.setWidget(0, 0, hPanel);
 		hPanel = new HorizontalPanel();
+    SimplePanel hSpacer = new SimplePanel();
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("10px");
 		hPanel.add(hSpacer);
