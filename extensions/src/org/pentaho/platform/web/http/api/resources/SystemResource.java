@@ -21,6 +21,12 @@
  */
 package org.pentaho.platform.web.http.api.resources;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+
+import java.util.ArrayList;
+import java.util.TimeZone;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IConfiguration;
@@ -107,4 +113,22 @@ public class SystemResource extends AbstractJaxRSResource {
       throw new Exception(t);
     }
   }
+  
+  /**
+   * @return a list of TimeZones
+   */
+  @GET
+  @Path("/timezones")
+  @Produces({ APPLICATION_JSON, APPLICATION_XML })
+  public StringListWrapper getTimeZones() {
+    ArrayList<String> stringList = new ArrayList<String>();
+    String[] rawTimeZoneIds = TimeZone.getAvailableIDs();
+    for (String tzId : rawTimeZoneIds) {
+      if (!tzId.toLowerCase().contains("gmt")) {
+        stringList.add(tzId);
+      }
+    }
+    return new StringListWrapper(stringList);
+  }
+
 }
