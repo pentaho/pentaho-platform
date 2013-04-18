@@ -53,7 +53,7 @@ public class MetadataImportHandlerTest {
     FileInputStream in = new FileInputStream(new File("test-res/ImportTest/steel-wheels.xmi"));
 
     // With custom domain id
-    final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").mime("text/xmi+xml").hidden(false).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
+    final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").mime("text/xmi+xml").hidden(false).overwriteFile(true).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
 
     context.checking(new Expectations() {{
       oneOf(metadataImporter).storeDomain(bundle1.getInputStream(), "parameterized-domain-id", true);
@@ -86,6 +86,7 @@ public class MetadataImportHandlerTest {
         .input(in)
         .charSet("UTF-8")
         .hidden(false)
+        .overwriteFile(true)
         .mime("text/xmi+xml")
         .name("steel-wheels.xmi")
         .comment("Test Metadata Import")

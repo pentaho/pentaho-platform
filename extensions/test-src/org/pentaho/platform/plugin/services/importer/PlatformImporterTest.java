@@ -37,7 +37,7 @@ public class PlatformImporterTest {
     importLogger.startJob(outputStream, "", Level.DEBUG);
 
     // With custom domain id
-    final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").hidden(false).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
+    final IPlatformImportBundle bundle1 = (new RepositoryFileImportBundle.Builder().input(in).charSet("UTF-8").hidden(false).overwriteFile(true).name("steel-wheels.xmi").comment("Test Metadata Import").withParam("domain-id", "parameterized-domain-id")).build();
 
     try{
       importer.setRepositoryImportLogger(importLogger);
