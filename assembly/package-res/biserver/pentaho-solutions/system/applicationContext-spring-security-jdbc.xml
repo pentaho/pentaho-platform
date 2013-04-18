@@ -51,14 +51,21 @@
 	    </pen:publish>
 	</bean>
   
-	<!--  This is only for Hypersonic. Please update this section for any other database you are using -->
-	<bean id="dataSource"
-		class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-		<property name="url"
-			value="jdbc:hsqldb:hsql://localhost:9002/userdb" />
-		<property name="username" value="sa" />
-		<property name="password" value="" />
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${datasource.driver.classname}" />
+		<property name="url" value="${datasource.url}" />
+		<property name="username" value="${datasource.username}" />
+		<property name="password" value="${datasource.password}" />
+		<!-- the following are optional -->
+		<property name="validationQuery" value="${datasource.validation.query}" />
+		<property name="maxWait" value="${datasource.pool.max.wait}" />
+		<property name="maxActive" value="${datasource.pool.max.active}" />
+		<property name="maxIdle" value="${datasource.max.idle}" />
+		<property name="minIdle" value="${datasource.min.idle}" />
+	</bean>
+	
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="applicationContext-spring-security-jdbc.properties" />
 	</bean>
 
   <bean id="passwordEncoder"
