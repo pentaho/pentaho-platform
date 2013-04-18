@@ -62,6 +62,9 @@ public class UserRolesAdminPanel extends SimplePanel {
 	protected Button editPasswordButton;
 	protected PermissionsPanel rolesPermissionsPanel;
 	protected PermissionsPanel systemRolesPermissionsPanel;
+	protected PentahoTabPanel mainTabPanel;
+	protected HorizontalPanel usersPanel;
+	protected VerticalPanel usersLabelPanel;
 	
 	private static UserRolesAdminPanel instance = new UserRolesAdminPanel();
 
@@ -82,7 +85,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("10px");
 		hPanel.add(hSpacer);
-		PentahoTabPanel mainTabPanel = new PentahoTabPanel();
+		mainTabPanel = new PentahoTabPanel();
 		mainTabPanel.setWidth("715px");
 		mainTabPanel.setHeight("510px");
 		mainTabPanel.addTab(Messages.getString("manageUsers"), "", false, createUsersPanel());
@@ -95,13 +98,13 @@ public class UserRolesAdminPanel extends SimplePanel {
 
 	private Widget createUsersPanel() {
 
-		HorizontalPanel mainPanel = new HorizontalPanel();
+		HorizontalPanel mainUsersPanel = new HorizontalPanel();
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
-		mainPanel.add(hSpacer);
+		mainUsersPanel.add(hSpacer);
 
 		VerticalPanel availablePanel = new VerticalPanel();
-		mainPanel.add(availablePanel);
+		mainUsersPanel.add(availablePanel);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
 		availablePanel.add(hSpacer);
@@ -128,10 +131,10 @@ public class UserRolesAdminPanel extends SimplePanel {
 
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
-		mainPanel.add(hSpacer);
+		mainUsersPanel.add(hSpacer);
 
 		VerticalPanel detailsPanel = new VerticalPanel();
-		mainPanel.add(detailsPanel);
+		mainUsersPanel.add(detailsPanel);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("32px");
 		detailsPanel.add(hSpacer);
@@ -219,18 +222,18 @@ public class UserRolesAdminPanel extends SimplePanel {
 		selectedRolesListBox.setWidth("200px");
 		selectedRolesListBox.setHeight("305px");
 
-		return mainPanel;
+		return mainUsersPanel;
 	}
 	
 	private Widget createSystemRolesPanel() {
-		HorizontalPanel mainPanel = new HorizontalPanel();
-		mainPanel.setWidth("400px");
+		HorizontalPanel mainSystemRolesPanel = new HorizontalPanel();
+		mainSystemRolesPanel.setWidth("400px");
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
-		mainPanel.add(hSpacer);
+		mainSystemRolesPanel.add(hSpacer);
 
 		VerticalPanel availablePanel = new VerticalPanel();
-		mainPanel.add(availablePanel);
+		mainSystemRolesPanel.add(availablePanel);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
 		availablePanel.add(hSpacer);
@@ -247,10 +250,10 @@ public class UserRolesAdminPanel extends SimplePanel {
 
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("7px");
-		mainPanel.add(hSpacer);
+		mainSystemRolesPanel.add(hSpacer);
 
 		VerticalPanel detailsPanel = new VerticalPanel();
-		mainPanel.add(detailsPanel);
+		mainSystemRolesPanel.add(detailsPanel);
 
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
@@ -259,18 +262,18 @@ public class UserRolesAdminPanel extends SimplePanel {
 		systemRolesPermissionsPanel = new PermissionsPanel(systemRolesListBox);
 		detailsPanel.add(systemRolesPermissionsPanel);
 		
-		return mainPanel;
+		return mainSystemRolesPanel;
 	}
 
 	private Widget createRolesPanel() {
 
-		HorizontalPanel mainPanel = new HorizontalPanel();
+		HorizontalPanel mainRolesPanel = new HorizontalPanel();
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
-		mainPanel.add(hSpacer);
+		mainRolesPanel.add(hSpacer);
 
 		VerticalPanel availablePanel = new VerticalPanel();
-		mainPanel.add(availablePanel);
+		mainRolesPanel.add(availablePanel);
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
 		availablePanel.add(hSpacer);
@@ -297,10 +300,10 @@ public class UserRolesAdminPanel extends SimplePanel {
 
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
-		mainPanel.add(hSpacer);
+		mainRolesPanel.add(hSpacer);
 
 		VerticalPanel detailsPanel = new VerticalPanel();
-		mainPanel.add(detailsPanel);
+		mainRolesPanel.add(detailsPanel);
 
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
@@ -309,23 +312,23 @@ public class UserRolesAdminPanel extends SimplePanel {
 		rolesPermissionsPanel = new PermissionsPanel(rolesListBox);
 		detailsPanel.add(rolesPermissionsPanel);
 
-		VerticalPanel membersLabelPanel = new VerticalPanel();
-		membersLabelPanel.add(new Label(Messages.getString("users")));
+		usersLabelPanel = new VerticalPanel();
+		usersLabelPanel.add(new Label(Messages.getString("users")));
 		hSpacer = new SimplePanel();
 		hSpacer.setWidth("5px");
-		membersLabelPanel.add(hSpacer);
-		membersLabelPanel.add(new HTML("<div class='gwt-HTML' style='height:10px;padding-top:4px;'><hr style='width:450px;height:1px;background-color:#000;border:0px solid #F00'/></div>"));
-		detailsPanel.add(membersLabelPanel);
+		usersLabelPanel.add(hSpacer);
+		usersLabelPanel.add(new HTML("<div class='gwt-HTML' style='height:10px;padding-top:4px;'><hr style='width:450px;height:1px;background-color:#000;border:0px solid #F00'/></div>"));
+		detailsPanel.add(usersLabelPanel);
 
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
 		detailsPanel.add(hSpacer);
 
-		HorizontalPanel groupsPanel = new HorizontalPanel();
-		detailsPanel.add(groupsPanel);
+		usersPanel = new HorizontalPanel();
+		detailsPanel.add(usersPanel);
 
 		VerticalPanel availableMembersPanel = new VerticalPanel();
-		groupsPanel.add(availableMembersPanel);
+		usersPanel.add(availableMembersPanel);
 		availableMembersPanel.add(new Label(Messages.getString("available") + ":"));
 		availableMembersListBox = new ListBox(true);
 		availableMembersPanel.add(availableMembersListBox);
@@ -335,10 +338,10 @@ public class UserRolesAdminPanel extends SimplePanel {
 
 		VerticalPanel vSpacer = new VerticalPanel();
 		vSpacer.setWidth("15px");
-		groupsPanel.add(vSpacer);
+		usersPanel.add(vSpacer);
 
 		VerticalPanel arrowsPanel = new VerticalPanel();
-		groupsPanel.add(arrowsPanel);
+		usersPanel.add(arrowsPanel);
 		arrowsPanel.setWidth("35px");
 
 		hSpacer = new SimplePanel();
@@ -367,7 +370,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		arrowsPanel.add(removeAllUsersButton);
 
 		VerticalPanel selectedMembersPanel = new VerticalPanel();
-		groupsPanel.add(selectedMembersPanel);
+		usersPanel.add(selectedMembersPanel);
 		selectedMembersPanel.add(new Label(Messages.getString("selected") + ":"));
 		selectedMembersListBox = new ListBox(true);
 		selectedMembersPanel.add(selectedMembersListBox);
@@ -375,6 +378,6 @@ public class UserRolesAdminPanel extends SimplePanel {
 		selectedMembersListBox.setWidth("200px");
 		selectedMembersListBox.setHeight("261px");
 
-		return mainPanel;
+		return mainRolesPanel;
 	}
 }

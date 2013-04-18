@@ -434,6 +434,34 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 		}
 	}
 
+	private void processLDAPmode() {
+		final String url = GWT.getHostPageBaseURL() + "api/system/authentication-provider"; 
+		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+		executableTypesRequestBuilder.setHeader("accept", "application/json");
+		try {
+			executableTypesRequestBuilder.sendRequest(null, new RequestCallback() {
+
+				public void onError(Request request, Throwable exception) {
+				}
+
+				public void onResponseReceived(Request request, Response response) {
+					boolean isVisible = !response.getText().contains("ldap");
+					usersLabelPanel.setVisible(isVisible);
+					usersPanel.setVisible(isVisible);
+					
+					if(!isVisible) {
+						mainTabPanel.getTab(0).setVisible(false);
+						mainTabPanel.selectTab(1);
+					} else {
+						mainTabPanel.getTab(0).setVisible(true);
+						mainTabPanel.selectTab(0);
+					}
+				}
+			});
+		} catch (RequestException e) {
+		}
+	}
+	
 	private void modifyUserRoles(final String userName, String serviceUrl) {
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
@@ -443,7 +471,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-          checkForError(Messages.getString("Error"), response);
+                    checkForError(Messages.getString("Error"), response);
 					getRolesForUser(userName);
 					initializeRoles(rolesListBox.getValue(rolesListBox.getSelectedIndex()), "roles", rolesListBox);
 				}
@@ -462,10 +490,9 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-          checkForError(Messages.getString("Error"), response);
-					getUsersInRole(roleName);
-					initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
-					
+				  checkForError(Messages.getString("Error"), response);
+				  getUsersInRole(roleName);
+				  initializeAvailableUsers(usersListBox.getValue(usersListBox.getSelectedIndex()));
 				}
 			});
 		} catch (RequestException e) {
@@ -476,6 +503,7 @@ public class UserRolesAdminPanelController extends UserRolesAdminPanel implement
 	// -- ISysAdminPanel implementation.
 
 	public void activate() {
+		processLDAPmode();
 		initializeActionBaseSecurityElements();
 		initializeAvailableUsers(null);
 		initializeRoles(null, "roles", rolesListBox);		
