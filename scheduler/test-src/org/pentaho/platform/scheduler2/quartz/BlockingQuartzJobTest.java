@@ -58,7 +58,7 @@ public class BlockingQuartzJobTest {
         one(blockoutManager).shouldFireNow();
         will(returnValue(false));
         one(logger).warn("Job 'myjob' attempted to run during a blockout period.  This job was not executed");
-        one(context).getJobDetail();
+        allowing(context).getJobDetail();
         will(returnValue(new JobDetail("myjob", BlockingQuartzJob.class)));
       }
     });
