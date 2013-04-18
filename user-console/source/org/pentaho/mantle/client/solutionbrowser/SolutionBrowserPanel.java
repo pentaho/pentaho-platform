@@ -416,6 +416,9 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
         solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
       }
+      $wnd.openRepositoryFile = function(pathToFile, mode) {
+        solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
+      }
     }-*/;
 
   public void confirmBackgroundExecutionDialog(final String url) {
@@ -515,6 +518,16 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   public List<String> getExecutableFileExtensions() {
     return executableFileExtensions;
+  }
+
+  public void openFile(final String fileNameWithPath, final String mode) {
+    FileCommand.COMMAND realMode = COMMAND.RUN;
+    try {
+      realMode = FileCommand.COMMAND.valueOf(mode.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      // bad mode passed in, using default
+    }
+    openFile(fileNameWithPath, realMode);
   }
 
   public void openFile(final String fileNameWithPath, final FileCommand.COMMAND mode) {

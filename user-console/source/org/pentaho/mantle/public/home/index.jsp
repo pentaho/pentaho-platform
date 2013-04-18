@@ -30,12 +30,43 @@
     .nobreak {
       white-space: nowrap;
     }
+
+    .widget-panel.well .content-panel {
+      height: 186px;
+      overflow-y: auto;
+      background: #ffffff;
+      min-width: 50px;
+    }
+
+    .pointer {
+      cursor: pointer;
+    }
+
+    .content-icon {
+      height: 32px;
+      width: 32px;
+    }
+
+    .pad-left {
+      padding-left: 4px;
+    }
+
+    /*spinner gets added dynamically later*/
+    .content-panel .spinner {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 80px;;
+    }
+
   </style>
 
   <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
   <!--[if lt IE 9]>
   <script src="bootstrap/js/html5shiv.js"></script>
   <![endif]-->
+
+  <!-- We need web context for requirejs and css -->
+  <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
 
 </head>
 
@@ -64,15 +95,15 @@
 
           <div style="display:none" id="btnCreateNewContent">
             <button class="btn btn-large btn-block nobreak"
-                    onclick="window.parent.openURL('{{i18n.analyzer_report}}', '{{i18n.analyzer_tooltip}}', 'api/repos/xanalyzer/service/selectSchema');$('#btnCreateNew').popover('hide')">
+                    onclick="openFile('{{i18n.analyzer_report}}', '{{i18n.analyzer_tooltip}}', 'api/repos/xanalyzer/service/selectSchema');$('#btnCreateNew').popover('hide')">
               {{i18n.analysis_report}}
             </button>
             <button class="btn btn-large btn-block nobreak"
-                    onclick="window.parent.openURL('{{i18n.interactive_report}}', '{{i18n.interactive_report}}', 'api/repos/pentaho-interactive-reporting/prpti.new');$('#btnCreateNew').popover('hide')">
+                    onclick="openFile('{{i18n.interactive_report}}', '{{i18n.interactive_report}}', 'api/repos/pentaho-interactive-reporting/prpti.new');$('#btnCreateNew').popover('hide')">
               {{i18n.interactive_report}}
             </button>
             <button class="btn btn-large btn-block nobreak"
-                    onclick="window.parent.openURL('{{i18n.dashboard}}', '{{i18n.dashboard}}', 'api/repos/dashboards/editor');$('#btnCreateNew').popover('hide')">
+                    onclick="openFile('{{i18n.dashboard}}', '{{i18n.dashboard}}', 'api/repos/dashboards/editor');$('#btnCreateNew').popover('hide')">
               {{i18n.dashboard}}
             </button>
           </div>
@@ -105,19 +136,71 @@
       <div class="row-fluid">
 
         <div class="span6">
-          <script type="text/x-handlebars-template">
+          <script id="favoritesTemplate" type="text/x-handlebars-template" delayCompile="true">
             <div class="well widget-panel">
-              <h3>{{i18n.favorites}}</h3>
+              <h3>
+                  {{i18n.favorites}}
+                  <i class="icon-refresh pull-right pointer" onclick="loadFavorites();" title="{{i18n.refresh}}"></i>
+              </h3>
+              <div id="favoritesSpinner"></div>
+              <div id="favorites-content-panel" class="content-panel">
+                <ul class="nav nav-tabs nav-stacked">
+                  {{#eachFavorite favorites}}
+                  <li>
+                      <a href="#" onclick="openRepositoryFile('{{fullPath}}', 'run')">
+                      {{#if xanalyzer}} <img src="images/analyzer.png" class="pull-left content-icon">   {{/if}}
+                      {{#if xdash}}     <img src="images/dashboard.png" class="pull-left content-icon">  {{/if}}
+                      {{#if xcdf}}      <img src="images/cdf.png" class="pull-left content-icon">        {{/if}}
+                      {{#if prpti}}     <img src="images/pir.png" class="pull-left content-icon">        {{/if}}
+                      {{#if prpt}}      <img src="images/pir.png" class="pull-left content-icon">        {{/if}}
+                      {{#if xaction}}   <img src="images/xaction.png" class="pull-left content-icon">    {{/if}}
+                      {{#if url}}       <img src="images/url.png" class="pull-left content-icon">        {{/if}}
+                      {{#if html}}      <img src="images/url.png" class="pull-left content-icon">        {{/if}}
+                      <span class="pad-left">{{title}}</span>
+                    </a>
+                  </li>
+                  {{/eachFavorite}}
+                </ul>
+              </div>
             </div>
           </script>
+
+          <div id="favoritesContianer"></div>
+
         </div>
 
         <div class="span6">
-          <script type="text/x-handlebars-template">
+          <script id="recentsTemplate" type="text/x-handlebars-template" delayCompile="true">
             <div class="well widget-panel">
-              <h3>{{i18n.recents}}</h3>
+              <h3>
+                  {{i18n.recents}}
+                  <i class="icon-refresh pull-right pointer" onclick="loadRecents();" title="{{i18n.refresh}}"></i>
+              </h3>
+              <div id="recentsSpinner"></div>
+              <div id="recents-content-panel" class="content-panel">
+                <ul class="nav nav-tabs nav-stacked">
+                  {{#eachRecent recent}}
+                  <li>
+                      <a href="#" onclick="openRepositoryFile('{{fullPath}}', 'run')">
+                        {{#if xanalyzer}} <img src="images/analyzer.png" class="pull-left content-icon">   {{/if}}
+                        {{#if xdash}}     <img src="images/dashboard.png" class="pull-left content-icon">  {{/if}}
+                        {{#if xcdf}}      <img src="images/cdf.png" class="pull-left content-icon">        {{/if}}
+                        {{#if prpti}}     <img src="images/pir.png" class="pull-left content-icon">        {{/if}}
+                        {{#if prpt}}      <img src="images/pir.png" class="pull-left content-icon">        {{/if}}
+                        {{#if xaction}}   <img src="images/xaction.png" class="pull-left content-icon">    {{/if}}
+                        {{#if url}}       <img src="images/url.png" class="pull-left content-icon">        {{/if}}
+                        {{#if html}}      <img src="images/url.png" class="pull-left content-icon">        {{/if}}
+                        <span class="pad-left">{{title}}</span>
+                    </a>
+                  </li>
+                  {{/eachRecent}}
+                </ul>
+              </div>
             </div>
           </script>
+
+          <div id="recentsContianer"></div>
+
         </div>
 
       </div>
@@ -146,10 +229,12 @@
       // Process and inject all handlebars templates, results are parented to the template's parent node.
       $("script[type='text/x-handlebars-template']").each(
           function (pos, node) {
-            var source = $(node).html();
-            var template = Handlebars.compile(source);
-            var html = template(context);
-            node.parentNode.appendChild($(html.trim())[0])
+            if(!node.attributes.delayCompile) {
+              var source = $(node).html();
+              var template = Handlebars.compile(source);
+              var html = $.trim(template(context));
+              node.parentNode.appendChild($(html)[0])
+            }
           });
 
       // Handle the new popover menu. If we add another, make generic
@@ -169,6 +254,62 @@
       });
     }
   });
+
+  function loadFavorites() {
+    pen.require(["favorites"], function(Favorites){
+      var favorites = new Favorites();
+      favorites.load();
+    });
+  }
+
+
+  function loadRecents() {
+      pen.require(["favorites"], function(Favorites){
+
+        var recents = new Favorites();
+        $.extend(recents, {
+          name: "recent",
+          template: {
+              id: "recentsTemplate",
+              itemIterator: "eachRecent"
+          },
+          displayContainerId: "recentsContianer",
+          contentPanelId: "recents-content-panel",
+          serviceUrl: "api/user-settings/recent",
+          spinContainer: "recentsSpinner"
+        });
+
+        recents.load();
+      });
+  }
+
+  function openFile(title, tooltip, fullPath) {
+    if(parent.mantle_setPerspective && window.parent.openURL) {
+      // show the opened perspective
+      parent.mantle_setPerspective('default.perspective');
+      window.parent.openURL(title, tooltip, fullPath);
+    }
+  }
+
+  function openRepositoryFile(path, mode) {
+    if(!mode) {
+      mode = "edit";
+    }
+    // show the opened perspective
+    parent.mantle_setPerspective('default.perspective');
+    window.parent.openRepositoryFile(path, mode);
+  }
+
+  /**
+   * this gets triggered when the Home perspective becomes active
+   */
+  function perspectiveActivated() {
+    loadFavorites();
+    loadRecents();
+  }
+
+  loadFavorites();
+  loadRecents();
 
 </script>
 
