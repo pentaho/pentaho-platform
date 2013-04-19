@@ -96,6 +96,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 	private Widget createUsersPanel() {
 
 		HorizontalPanel mainUsersPanel = new HorizontalPanel();
+		mainUsersPanel.setWidth("376px");
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
 		mainUsersPanel.add(hSpacer);
@@ -224,7 +225,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 	
 	private Widget createSystemRolesPanel() {
 		HorizontalPanel mainSystemRolesPanel = new HorizontalPanel();
-		mainSystemRolesPanel.setWidth("400px");
+		mainSystemRolesPanel.setWidth("376px");
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
 		mainSystemRolesPanel.add(hSpacer);
@@ -246,7 +247,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		systemRolesListBox.setHeight("432px");
 
 		hSpacer = new SimplePanel();
-		hSpacer.setWidth("7px");
+		hSpacer.setWidth("15px");
 		mainSystemRolesPanel.add(hSpacer);
 
 		VerticalPanel detailsPanel = new VerticalPanel();
@@ -265,6 +266,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 	private Widget createRolesPanel() {
 
 		HorizontalPanel mainRolesPanel = new HorizontalPanel();
+		mainRolesPanel.setWidth("376px");
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
 		mainRolesPanel.add(hSpacer);
