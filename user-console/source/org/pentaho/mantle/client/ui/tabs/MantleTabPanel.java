@@ -46,6 +46,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 
 public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoTabPanel {
 
@@ -83,6 +84,8 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   }
 
   public void addTab(String text, String tooltip, boolean closeable, Widget content) {
+    // make sure the perspective is enabled
+    PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.DEFAULT_PERSPECTIVE, true);
     MantleTab tab = new MantleTab(text, tooltip, this, content, closeable);
     getTabBar().add(tab);
     getTabDeck().add(content);
@@ -427,6 +430,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
             MantleTabPanel.super.closeTab(closeTab, invokePreTabCloseHook);
             if (getTabCount() == 0) {
               SolutionBrowserPanel.getInstance().showContent();
+              allTabsClosed();
               SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.CLOSE, -1);
             }
           }
@@ -441,6 +445,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
     if (getTabCount() == 0) {
       SolutionBrowserPanel.getInstance().showContent();
+      allTabsClosed();
       SolutionBrowserPanel.getInstance().fireSolutionBrowserListenerEvent(SolutionBrowserListener.EventType.CLOSE, -1);
     }
   }
@@ -468,12 +473,10 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       if (curpos >= 0 && getTabCount() > 0) {
         closeTab(curpos, true);
       }
-      return;
     }
     IFrameTabPanel curPanel = (IFrameTabPanel) getTab(curpos).getContent();
     if (url.contains(curPanel.getUrl())) {
       closeTab(curpos, true);
-      return;
     }
 
     for (int i = getTabCount() - 1; i >= 0; i--) {
@@ -481,9 +484,14 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
 
       if (url.contains(curPanel.getUrl())) {
         closeTab(i, true);
-        return;
+        break;
       }
     }
+
+    if(getTabCount() == 0) {
+      allTabsClosed();
+    }
+
   }
 
   public void closeOtherTabs(PentahoTab exceptThisTab) {
@@ -507,6 +515,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     for (PentahoTab tab : tabs) {
       closeTab(tab, true);
     }
+    allTabsClosed();
   }
 
   public void selectTab(final PentahoTab selectedTab) {
@@ -537,6 +546,11 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
       // this was made native due to BISERVER-7400
       ieFix(((IFrameTabPanel) selectedTab.getContent()).getFrame().getElement());
     }
+  }
+
+  public void allTabsClosed() {
+    PerspectiveManager.getInstance().showPerspectiveWithHighestPriority();
+    PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.DEFAULT_PERSPECTIVE, false);
   }
 
   private native void ieFix(Element frame)/*-{

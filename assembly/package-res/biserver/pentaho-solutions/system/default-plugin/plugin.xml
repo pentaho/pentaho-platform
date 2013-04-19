@@ -14,6 +14,9 @@
 
   <perspective id="default.perspective" title="${opened}" layout-priority="-1"
                resourcebundle="content/default-plugin/resources/messages/messages">
+    <overlay id="default-hidden-toolbar"  resourcebundle="content/default-plugin-perspective/resources/messages/messages">
+      <toolbar id="mainToolbar" visible="true" />
+    </overlay>
   </perspective>
 
   <perspective id="schedules.perspective" title="${schedules}" layout-priority="10"
