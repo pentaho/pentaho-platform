@@ -27,14 +27,17 @@ import javax.xml.bind.JAXBException;
 
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.api.json.JSONJAXBContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Provider
 public class JAXBContextResolver implements ContextResolver<JAXBContext> {
 
   private JAXBContext context;
   @SuppressWarnings("rawtypes")
-  private ArrayList<Class> types = new ArrayList<Class>();
-  private ArrayList<String> arrays = new ArrayList<String>();
+  final private ArrayList<Class> types = new ArrayList<Class>();
+  final private ArrayList<String> arrays = new ArrayList<String>();
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   public JAXBContextResolver() throws Exception {
     types.add(ArrayList.class);
@@ -46,8 +49,10 @@ public class JAXBContextResolver implements ContextResolver<JAXBContext> {
   }
 
   public JAXBContext getContext(Class<?> objectType) {
-    if (types.contains(objectType)) {
-      return context;
+    synchronized(types){
+      if (types.contains(objectType)) {
+        return context;
+      }
     }
 
     // need to see if class has any ArrayList types, if so, add those to arrays
@@ -63,12 +68,16 @@ public class JAXBContextResolver implements ContextResolver<JAXBContext> {
     String simpleName = objectType.getSimpleName();
     simpleName = simpleName.substring(0, 1).toLowerCase() + simpleName.substring(1);
     arrays.add(simpleName);
-    types.add(objectType);
     try {
-      JSONConfiguration config = JSONConfiguration.mapped().rootUnwrapping(true).arrays(arrays.toArray(new String[] {})).build();
-      context = new JSONJAXBContext(config, types.toArray(new Class[] {}));
-      return getContext(objectType);
+      JSONConfiguration config = JSONConfiguration.mapped().rootUnwrapping(true).arrays(arrays.toArray(new String[arrays.size()])).build();
+
+      synchronized(types){
+        types.add(objectType);
+        context = new JSONJAXBContext(config, types.toArray(new Class[types.size()]));
+      }
+      return context;
     } catch (JAXBException e) {
+      logger.error("Error creating JAXBContext for class "+objectType, e);
     }
     return null;
   }
