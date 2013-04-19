@@ -25,12 +25,9 @@ import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.ui.xul.MantleXul;
 import org.pentaho.ui.xul.XulComponent;
 import org.pentaho.ui.xul.gwt.tags.GwtConfirmBox;
-import org.pentaho.ui.xul.gwt.tags.GwtMessageBox;
 import org.pentaho.ui.xul.util.XulDialogCallback;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -45,11 +42,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class EmailAdminPanelController extends EmailAdminPanel implements ISysAdminPanel, UpdatePasswordController {
 
@@ -66,13 +58,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 
 	private EmailAdminPanelController() {
 		activate();
-
-		editPasswordButton.addClickHandler(new ClickHandler() {
-			public void onClick(final ClickEvent clickEvent) {
-				ChangePasswordDialog changePasswordDialog = new ChangePasswordDialog(EmailAdminPanelController.this);
-				changePasswordDialog.show();
-			}
-		});
 
 		testButton.addClickHandler(new ClickHandler() {
 			public void onClick(final ClickEvent clickEvent) {
@@ -110,23 +95,9 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			}
 		});
 
-    fromNameTextBox.addKeyUpHandler(new KeyUpHandler() {
-      public void onKeyUp(final KeyUpEvent keyUpEvent) {
-        emailConfig.setFromName(fromNameTextBox.getValue());
-        isDirty = true;
-      }
-    });		
-		
 		userNameTextBox.addKeyUpHandler(new KeyUpHandler() {
 			public void onKeyUp(final KeyUpEvent keyUpEvent) {
 				emailConfig.setUserId(userNameTextBox.getValue());
-				isDirty = true;
-			}
-		});
-
-		debuggingCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-			public void onValueChange(final ValueChangeEvent<Boolean> booleanValueChangeEvent) {
-				emailConfig.setDebug(debuggingCheckBox.getValue());
 				isDirty = true;
 			}
 		});
@@ -158,15 +129,6 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 			}
 		});
 
-		passwordTextBox.addBlurHandler(new BlurHandler() {
-			public void onBlur(BlurEvent event) {
-				if (!StringUtils.isEmpty(passwordTextBox.getValue())) {
-					editPasswordButton.setEnabled(true);
-					passwordTextBox.setEnabled(false);
-				}
-			}
-		});
-
 		passwordTextBox.addKeyUpHandler(new KeyUpHandler() {
 			public void onKeyUp(final KeyUpEvent keyUpEvent) {
 				emailConfig.setPassword(passwordTextBox.getValue());
@@ -187,19 +149,15 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 	// -- Remote Calls.
 
 	private void setEmailConfig() {
-		progressIndicator.inProgress(true);
 		String serviceUrl = GWT.getHostPageBaseURL() + "api/emailconfig/setEmailConfig";
 		RequestBuilder executableTypesRequestBuilder = new RequestBuilder(RequestBuilder.PUT, serviceUrl);
 		try {
 			executableTypesRequestBuilder.setHeader("Content-Type", "application/json");
 			executableTypesRequestBuilder.sendRequest(emailConfig.getJSONString(), new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
-					progressIndicator.inProgress(false);
 				}
 
 				public void onResponseReceived(Request request, Response response) {
-
-					progressIndicator.inProgress(false);
 					isDirty = false;
 				}
 			});
@@ -230,14 +188,10 @@ public class EmailAdminPanelController extends EmailAdminPanel implements ISysAd
 					useStartTLSCheckBox.setValue(Boolean.parseBoolean(emailConfig.isUseStartTls() + ""));
 					useSSLCheckBox.setValue(Boolean.parseBoolean(emailConfig.isUseSsl() + ""));
 					fromAddressTextBox.setValue(emailConfig.getDefaultFrom());
-          fromNameTextBox.setValue(emailConfig.getFromName());
 					userNameTextBox.setValue(emailConfig.getUserId());
-					debuggingCheckBox.setValue(Boolean.parseBoolean(emailConfig.isDebug() + ""));
 
 					// If password is non-empty.. disable the text-box
 					String password = emailConfig.getPassword();
-					passwordTextBox.setEnabled(StringUtils.isEmpty(password));
-					editPasswordButton.setEnabled(!StringUtils.isEmpty(password));
 					passwordTextBox.setValue(password);
 
 					String protocol = emailConfig.getSmtpProtocol();

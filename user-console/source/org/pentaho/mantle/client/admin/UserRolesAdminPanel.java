@@ -73,23 +73,22 @@ public class UserRolesAdminPanel extends SimplePanel {
 	}
 
 	protected UserRolesAdminPanel() {
-		FlexTable mainPanel = new FlexTable();
-		HorizontalPanel hPanel = new HorizontalPanel();
-		hPanel.add(new Label(Messages.getString("users") + " / " + Messages.getString("roles")));
-		mainPanel.setWidget(0, 0, hPanel);
+		VerticalPanel mainPanel = new VerticalPanel();
+		Label usersRolesLabel = new Label(Messages.getString("users") + " / " + Messages.getString("roles"));
+		usersRolesLabel.setStyleName("pentaho-fieldgroup-major");
+		mainPanel.add(usersRolesLabel);
 
-		hPanel = new HorizontalPanel();
-    SimplePanel hSpacer = new SimplePanel();
-		hSpacer.setWidth("10px");
-		hPanel.add(hSpacer);
+		SimplePanel vSpacer = new SimplePanel();
+    vSpacer.setHeight("20px");
+    mainPanel.add(vSpacer);
+		
 		mainTabPanel = new PentahoTabPanel();
 		mainTabPanel.setWidth("715px");
 		mainTabPanel.setHeight("510px");
 		mainTabPanel.addTab(Messages.getString("manageUsers"), "", false, createUsersPanel());
 		mainTabPanel.addTab(Messages.getString("manageRoles"), "", false, createRolesPanel());
 		mainTabPanel.addTab(Messages.getString("systemRoles"), "", false, createSystemRolesPanel());
-		hPanel.add(mainTabPanel);
-		mainPanel.setWidget(1, 0, hPanel);
+    mainPanel.add(mainTabPanel);
 		setWidget(mainPanel);
 	}
 
