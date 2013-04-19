@@ -1,5 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under the 
+ * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License, version 2.1 as published by the Free Software 
  * Foundation.
  *
@@ -356,7 +356,6 @@ public class PerspectiveManager extends HorizontalPanel {
     // be sure to init the UI for IE...
     SolutionBrowserPanel.getInstance().setNavigatorShowing(SolutionBrowserPanel.getInstance().isNavigatorShowing());
     setCheckMMenuItem(browserChecked,schedulesChecked);
-    MantleApplication.getInstance().pucToolBarVisibility(true);
   }
 
   private void showSchedulesPerspective() {
@@ -376,7 +375,6 @@ public class PerspectiveManager extends HorizontalPanel {
       public void onFailure(Throwable reason) {
       }
     });
-    MantleApplication.getInstance().pucToolBarVisibility(false);   
     setCheckMMenuItem(false,true);
   }
 
@@ -390,7 +388,6 @@ public class PerspectiveManager extends HorizontalPanel {
     MantleXul.getInstance().configureAdminCatTree();
     //disable Browser and schedules menuItem
     setCheckMMenuItem(browserChecked,schedulesChecked);
-    MantleApplication.getInstance().pucToolBarVisibility(false); //this should not be needed since overlay removes.
   }
 
   private void hijackContentArea(IPluginPerspective perspective) {
