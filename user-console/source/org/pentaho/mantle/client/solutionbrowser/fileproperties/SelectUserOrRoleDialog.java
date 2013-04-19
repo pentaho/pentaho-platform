@@ -101,7 +101,7 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
   public void fetchAllRoles(final ArrayList<String> existing) {
 
     try {
-      final String url = GWT.getHostPageBaseURL() + "api/userrole/permission-roles"; //$NON-NLS-1$
+      final String url = GWT.getHostPageBaseURL() + "api/userrolelist/permission-roles"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "application/json");
       requestBuilder.sendRequest(null, new RequestCallback() {
@@ -144,7 +144,7 @@ public class SelectUserOrRoleDialog extends PromptDialogBox {
 
   public void fetchAllUsers(final ArrayList<String> existing) {
     try {
-      final String url = GWT.getHostPageBaseURL() + "api/userrole/users"; //$NON-NLS-1$
+      final String url = GWT.getHostPageBaseURL() + "api/userrolelist/users"; //$NON-NLS-1$
       RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
       requestBuilder.setHeader("accept", "application/json");
       requestBuilder.sendRequest(null, new RequestCallback() {
