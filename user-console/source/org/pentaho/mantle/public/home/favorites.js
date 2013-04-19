@@ -75,6 +75,10 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       var context = {};
       context.i18n = this.i18nMap;
 
+      if (this.disabled) {
+    	  return;
+      }
+      
       var that = this;
       this.getContent(function(items) {
         that.showList(items, context);
