@@ -33,6 +33,7 @@ import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserListener;
 import org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileItem;
 import org.pentaho.mantle.client.solutionbrowser.tabs.IFrameTabPanel;
+import org.pentaho.mantle.client.ui.PerspectiveManager;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NodeList;
@@ -93,6 +94,7 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
   public void showNewURLTab(String tabName, String tabTooltip,  String url, boolean setFileInfoInFrame, String frameName) {
 
     showLoadingIndicator();
+    PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);
 
     // Because Frames are being generated with the window.location object, relative URLs will be generated differetly
     // than if set with the src attribute. This detects the relative paths are prepends them appropriately.
@@ -101,9 +103,9 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     }
     
     if(!url.contains("?")) {
-    	url = url + "?ts=" + System.currentTimeMillis();
+      url = url + "?ts=" + System.currentTimeMillis();
     } else {
-    	url = url + "&ts=" + System.currentTimeMillis();
+      url = url + "&ts=" + System.currentTimeMillis();
     }
 
     final int elementId = getTabCount();
@@ -139,9 +141,9 @@ public class MantleTabPanel extends org.pentaho.gwt.widgets.client.tabs.PentahoT
     // I have defined a CSS class for this background if someone
     // wants to change or remove the color
     if (url.indexOf("/content") > -1 || url.indexOf("/generatedContent") > -1) {
-    	panel.getElement().addClassName("mantle-white-tab-background"); // white background
+      panel.getElement().addClassName("mantle-white-tab-background"); // white background
     } else {
-    	panel.getElement().addClassName("mantle-default-tab-background"); // transparent background
+      panel.getElement().addClassName("mantle-default-tab-background"); // transparent background
     }
 
     final ArrayList<com.google.gwt.dom.client.Element> parentList = new ArrayList<com.google.gwt.dom.client.Element>();
