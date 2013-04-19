@@ -26,7 +26,6 @@ import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -93,7 +92,6 @@ public class UserRolesAdminPanel extends SimplePanel {
 	}
 
 	private Widget createUsersPanel() {
-
 		HorizontalPanel mainUsersPanel = new HorizontalPanel();
 		mainUsersPanel.setWidth("376px");
 		SimplePanel hSpacer = new SimplePanel();
