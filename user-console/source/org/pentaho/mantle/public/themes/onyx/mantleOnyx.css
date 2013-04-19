@@ -58,6 +58,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
 	color: #e3e3e3;
 }
 
+.mantle-perspective-toggle-up-disabled {
+  color: #999999;
+}
+
 .mantle-perspective-toggle-up-hovering {
 	color: white;
 }

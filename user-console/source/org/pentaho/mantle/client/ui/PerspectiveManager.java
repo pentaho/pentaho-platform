@@ -115,6 +115,7 @@ public class PerspectiveManager extends HorizontalPanel {
             perspective.setId(jsperspective.getId());
             perspective.setLayoutPriority(Integer.parseInt(jsperspective.getLayoutPriority()));
 
+
             ArrayList<String> requiredSecurityActions = new ArrayList<String>();
             if (jsperspective.getRequiredSecurityActions() != null) {
               for (int j = 0; j < jsperspective.getRequiredSecurityActions().length(); j++) {
@@ -261,6 +262,20 @@ public class PerspectiveManager extends HorizontalPanel {
     }
   }
 
+  public void enablePerspective(final String perspectiveId, boolean enabled) {
+    if (perspectives == null) {
+      return;
+    }
+    // return value to indicate if perspective now disabled
+    for (int i = 0; i < perspectives.size(); i++) {
+      if (perspectives.get(i).getId().equalsIgnoreCase(perspectiveId)) {
+        toggles.get(i).setEnabled(enabled);
+        return;
+      }
+    }
+    return;
+  }
+
   public boolean setPerspective(final String perspectiveId) {
     if (perspectives == null) {
       return false;
@@ -274,6 +289,14 @@ public class PerspectiveManager extends HorizontalPanel {
       }
     }
     return false;
+  }
+
+  /**
+   * Show the perspective defined as with the highest priority
+   */
+  public void showPerspectiveWithHighestPriority() {
+    // perspectives list is sorted by priority, so show the first one
+    setPerspective(perspectives.get(0).getId());
   }
 
   private void showPerspective(final ToggleButton source, final IPluginPerspective perspective) {
