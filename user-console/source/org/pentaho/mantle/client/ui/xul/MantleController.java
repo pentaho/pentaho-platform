@@ -191,7 +191,14 @@ public class MantleController extends AbstractXulEventHandler {
     PerspectiveManager.getInstance().setBrowserMenuItem((PentahoMenuItem) showBrowserMenuItem.getManagedObject());
     PerspectiveManager.getInstance().setSchedulesMenuItem((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject());
     ((PentahoMenuItem)showBrowserMenuItem.getManagedObject()).setChecked(true);
-    
+
+    PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
+      @Override
+      public void onHandle(Void aVoid) {
+        PerspectiveManager.getInstance().enablePerspective(PerspectiveManager.DEFAULT_PERSPECTIVE, false);
+      }
+    });
+
     // install language sub-menus
     Map<String, String> supportedLanguages = Messages.getResourceBundle().getSupportedLanguages();
     if (supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty()) {

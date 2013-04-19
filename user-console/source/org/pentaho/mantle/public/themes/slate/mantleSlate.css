@@ -12,6 +12,10 @@
 	color: #303030;
 }
 
+.mantle-perspective-toggle-up-disabled {
+  color: #999999;
+}
+
 .mantle-perspective-toggle-up-hovering {
 	color: #303030;
 }

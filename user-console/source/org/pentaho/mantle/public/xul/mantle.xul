@@ -62,7 +62,7 @@
 	</menubar>
   
   <window id="mainToolbarWrapper">
-  	<toolbar id="mainToolbar">
+  	<toolbar id="mainToolbar" visible="false">
     	<toolbarspacer width="10"/>
     	<toolbarbutton id="openButton" image="images/open_32.png" onclick="mantleXulHandler.openClicked()" tooltiptext="${openEllipsis}"/>
     	<toolbarspacer width="20"/>
