@@ -156,7 +156,7 @@
 
         <div class="span6">
           <script id="favoritesTemplate" type="text/x-handlebars-template" delayCompile="true">
-            <div class="well widget-panel">
+            <div id="favorites" class="well widget-panel">
               <h3>
                   {{i18n.favorites}}
                   <span class="pull-right">
@@ -195,7 +195,7 @@
 
         <div class="span6">
           <script id="recentsTemplate" type="text/x-handlebars-template" delayCompile="true">
-            <div class="well widget-panel">
+            <div id="recents" class="well widget-panel">
               <h3>
                   {{i18n.recents}}
                   <span class="pull-right">
