@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<%@page import="org.pentaho.platform.api.engine.IPluginManager"%>
+<%@page import="org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction"%>
+<%@page import="org.pentaho.platform.engine.core.system.PentahoSessionHolder"%>
+<%@page import="org.pentaho.platform.api.engine.IAuthorizationPolicy"%>
+<%@page import="org.pentaho.platform.engine.core.system.PentahoSystem"%>
+<%@page import="java.util.List"%>
+
+<% 
+	boolean canCreateContent = PentahoSystem.get(IAuthorizationPolicy.class, PentahoSessionHolder.getSession()).isAllowed(RepositoryCreateAction.NAME);
+	List<String> pluginIds = PentahoSystem.get(IPluginManager.class, PentahoSessionHolder.getSession()).getRegisteredPlugins();
+%>
+
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -71,8 +83,6 @@
 </head>
 
 <body data-spy="scroll" data-target=".sidebar">
-
-
 <div class="container-fluid main-container">
   <div class="row-fluid">
     <div class="span3" id="buttonWrapper">
@@ -81,10 +91,16 @@
           <button class="btn btn-large btn-block" onclick="window.parent.executeCommand('ShowBrowserCommand')">
             {{i18n.browse}}
           </button>
-          <button id="btnCreateNew" class="btn btn-large btn-block popover-source" data-toggle="dropdown"
+		
+		  <!-- Only show create button if user is allowed -->
+		  
+		  {{#if canCreateContent}}        
+  		  	<button id="btnCreateNew" class="btn btn-large btn-block popover-source" data-toggle="dropdown"
                   data-toggle="popover" data-placement="right" data-html="true" data-container="body">
-            {{i18n.create_new}}
-          </button>
+          	{{i18n.create_new}}
+          	</button>
+		  {{/if}}		  
+		
           <button class="btn btn-large btn-block" onclick="window.parent.executeCommand('ManageDatasourcesCommand')">
             {{i18n.manage_datasources}}
           </button>
@@ -94,18 +110,27 @@
 
 
           <div style="display:none" id="btnCreateNewContent">
-            <button class="btn btn-large btn-block nobreak"
+
+			{{#if hasAnalyzerPlugin}}
+            	<button class="btn btn-large btn-block nobreak"
                     onclick="openFile('{{i18n.analyzer_report}}', '{{i18n.analyzer_tooltip}}', 'api/repos/xanalyzer/service/selectSchema');$('#btnCreateNew').popover('hide')">
-              {{i18n.analysis_report}}
-            </button>
-            <button class="btn btn-large btn-block nobreak"
+              	{{i18n.analysis_report}}
+            	</button>
+			{{/if}}
+
+			{{#if hasIRPlugin}}
+            	<button class="btn btn-large btn-block nobreak"
                     onclick="openFile('{{i18n.interactive_report}}', '{{i18n.interactive_report}}', 'api/repos/pentaho-interactive-reporting/prpti.new');$('#btnCreateNew').popover('hide')">
-              {{i18n.interactive_report}}
-            </button>
-            <button class="btn btn-large btn-block nobreak"
+              	{{i18n.interactive_report}}
+            	</button>
+			{{/if}}
+
+			{{#if hasDashBoardsPlugin}}
+            	<button class="btn btn-large btn-block nobreak"
                     onclick="openFile('{{i18n.dashboard}}', '{{i18n.dashboard}}', 'api/repos/dashboards/editor');$('#btnCreateNew').popover('hide')">
-              {{i18n.dashboard}}
-            </button>
+              	{{i18n.dashboard}}
+            	</button>
+			{{/if}}
           </div>
 
         </div>
@@ -119,7 +144,7 @@
             <h3>{{i18n.getting_started_heading}}</h3>
             <ul class="masthead-links">
               <li>
-                <a href="#">Link</a>
+                <a target="_blank" href="../../docs/puc_user_guide.pdf">Pentaho User Console Guide</a>
               </li>
               <li>
                 <a href="#">Link</a>
@@ -210,7 +235,6 @@
           </script>
 
           <div id="recentsContianer"></div>
-
         </div>
 
       </div>
@@ -287,19 +311,23 @@
       recentsConfig.confirmTemplate.message   = jQuery.i18n.map.confirmClearRecents;
 
       var context = {};
+      
+      // Define permissions
+      context.canCreateContent = <%=canCreateContent%>;
+      context.hasAnalyzerPlugin = <%=pluginIds.contains("analyzer")%>;
+      context.hasIRPlugin = <%=pluginIds.contains("pentaho-interactive-reporting")%>;
+      context.hasDashBoardsPlugin = <%=pluginIds.contains("dashboards")%>;
 
       // one bundle for now, namespace later if needed
       context.i18n = jQuery.i18n.map;
 
       // Process and inject all handlebars templates, results are parented to the template's parent node.
-      $("script[type='text/x-handlebars-template']").each(
+      $("script[type='text/x-handlebars-template']:not([delayCompile='true'])").each(
           function (pos, node) {
-            if(!node.attributes.delayCompile) {
-              var source = $(node).html();
-              var template = Handlebars.compile(source);
-              var html = $.trim(template(context));
-              node.parentNode.appendChild($(html)[0])
-            }
+          	var source = $(node).html();
+          	var template = Handlebars.compile(source);
+          	var html = $.trim(template(context));
+          	node.parentNode.appendChild($(html)[0])
           });
 
       // Handle the new popover menu. If we add another, make generic
