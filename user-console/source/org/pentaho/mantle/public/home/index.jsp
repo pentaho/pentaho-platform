@@ -140,7 +140,12 @@
             <div class="well widget-panel">
               <h3>
                   {{i18n.favorites}}
-                  <i class="icon-refresh pull-right pointer" onclick="loadFavorites();" title="{{i18n.refresh}}"></i>
+                  <span class="pull-right">
+                    {{#hasItems favorites}}
+                    <i class="icon-remove-circle pointer" onclick="clearFavorites();" title="{{i18n.clearAllFavorites}}"></i>
+                    {{/hasItems}}
+                    <i class="icon-refresh pointer" onclick="loadFavorites();" title="{{i18n.refresh}}"></i>
+                  </span>
               </h3>
               <div id="favoritesSpinner"></div>
               <div id="favorites-content-panel" class="content-panel">
@@ -174,7 +179,12 @@
             <div class="well widget-panel">
               <h3>
                   {{i18n.recents}}
-                  <i class="icon-refresh pull-right pointer" onclick="loadRecents();" title="{{i18n.refresh}}"></i>
+                  <span class="pull-right">
+                    {{#hasItems recent}}
+                    <i class="icon-remove-circle pointer" onclick="clearRecents();" title="{{i18n.clearAllRecents}}"></i>
+                    {{/hasItems}}
+                    <i class="icon-refresh pointer" onclick="loadRecents();" title="{{i18n.refresh}}"></i>
+                  </span>
               </h3>
               <div id="recentsSpinner"></div>
               <div id="recents-content-panel" class="content-panel">
@@ -208,6 +218,23 @@
   </div>
 </div>
 
+
+<div id="confirmClearAll" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="confirmLabel" aria-hidden="true">
+</div>
+<script id="confirmationDialogTemplate" type="text/x-handlebars-template" delayCompile="true">
+    <div class="modal-header">
+        <a href="#" class="close" data-dismiss="modal">&times;</a>
+        <h3 id="confirmLabel">{{i18n.confirm}}</h3>
+    </div>
+    <div class="modal-body">
+        <p>{{clearMessage}}</p>
+    </div>
+    <div class="modal-footer">
+        <button class="pentaho-button" data-dismiss="modal" aria-hidden="true">{{i18n.cancel}}</button>
+        <button class="pentaho-button" id="{{confirmBtnId}}">{{i18n.clear}}</button>
+    </div>
+</script>
+
 <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
 <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
@@ -216,11 +243,49 @@
 
 <script type="text/javascript">
 
+  var favoritesConfig = {
+    name: "favorites",
+    template: {
+      id: "favoritesTemplate",
+      itemIterator: "eachFavorite"
+    },
+    displayContainerId: "favoritesContianer",
+    contentPanelId: "favorites-content-panel",
+    serviceUrl: "api/user-settings/favorites",
+    spinContainer: "favoritesSpinner",
+    confirmTemplate: {
+      id: "confirmationDialogTemplate",
+      container: "confirmClearAll",
+      message: ""
+    }
+  };
+
+  var recentsConfig = {
+    name: "recent",
+    template: {
+      id: "recentsTemplate",
+      itemIterator: "eachRecent"
+    },
+    displayContainerId: "recentsContianer",
+    contentPanelId: "recents-content-panel",
+    serviceUrl: "api/user-settings/recent",
+    spinContainer: "recentsSpinner",
+    confirmTemplate: {
+      id: "confirmationDialogTemplate",
+      container: "confirmClearAll",
+      message: ""
+    }
+  };
+
   // Retrieve Message bundle, then process templates
   jQuery.i18n.properties({
     name: 'messages',
     mode: 'map',
     callback: function () {
+
+      favoritesConfig.confirmTemplate.message = jQuery.i18n.map.confirmClearFavorites;
+      recentsConfig.confirmTemplate.message   = jQuery.i18n.map.confirmClearRecents;
+
       var context = {};
 
       // one bundle for now, namespace later if needed
@@ -258,29 +323,17 @@
   function loadFavorites() {
     pen.require(["favorites"], function(Favorites){
       var favorites = new Favorites();
+      $.extend(favorites, favoritesConfig);
       favorites.load();
     });
   }
 
-
   function loadRecents() {
-      pen.require(["favorites"], function(Favorites){
-
-        var recents = new Favorites();
-        $.extend(recents, {
-          name: "recent",
-          template: {
-              id: "recentsTemplate",
-              itemIterator: "eachRecent"
-          },
-          displayContainerId: "recentsContianer",
-          contentPanelId: "recents-content-panel",
-          serviceUrl: "api/user-settings/recent",
-          spinContainer: "recentsSpinner"
-        });
-
-        recents.load();
-      });
+    pen.require(["favorites"], function(Favorites){
+      var recents = new Favorites();
+      $.extend(recents, recentsConfig);
+      recents.load();
+    });
   }
 
   function openFile(title, tooltip, fullPath) {
@@ -292,6 +345,9 @@
   }
 
   function openRepositoryFile(path, mode) {
+    if(!path) {
+      return;
+    }
     if(!mode) {
       mode = "edit";
     }
@@ -306,6 +362,21 @@
   function perspectiveActivated() {
     loadFavorites();
     loadRecents();
+  }
+
+  function clearRecents() {
+    pen.require(["favorites"], function(Favorites){
+      var recents = new Favorites();
+      $.extend(recents, recentsConfig);
+      recents.clear();
+    });
+  }
+  function clearFavorites() {
+    pen.require(["favorites"], function(Favorites){
+      var favorites = new Favorites();
+      $.extend(favorites, favoritesConfig);
+      favorites.clear();
+    });
   }
 
   loadFavorites();
