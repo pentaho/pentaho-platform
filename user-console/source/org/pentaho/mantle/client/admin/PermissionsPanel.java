@@ -141,7 +141,7 @@ public class PermissionsPanel extends VerticalPanel {
 	      jsLogicalRoleAssignments.set(x++, jsRoleAssignment);
 	    }   
 	    jsNewRoleAssignments.put("assignments", jsLogicalRoleAssignments);    
-	    RequestBuilder saveSettingRequestBuilder = new RequestBuilder(RequestBuilder.PUT, GWT.getHostPageBaseURL() + "api/userrole/roleAssignments");
+	    RequestBuilder saveSettingRequestBuilder = new RequestBuilder(RequestBuilder.PUT, GWT.getHostPageBaseURL() + "api/userroledao/roleAssignments");
 	    saveSettingRequestBuilder.setHeader("Content-Type", "application/json"); 
 	    try {
 	      saveSettingRequestBuilder.sendRequest(jsNewRoleAssignments.toString(), new RequestCallback() {
