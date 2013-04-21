@@ -8,7 +8,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd">
+       http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"default-lazy-init="true">
 
 	<bean id="authenticationProvider"
 		class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
@@ -16,7 +16,7 @@
 			<pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
 		</property>
 		<property name="passwordEncoder">
-			<ref bean="passwordEncoder" />
+			<ref bean="jdbcPasswordEncoder" />
 		</property>
 	<pen:publish as-type="org.springframework.security.providers.AuthenticationProvider">
 	      <pen:attributes>
@@ -25,7 +25,7 @@
 	    </pen:publish>
 	</bean>
 
-	<bean id="userDetailsService"
+	<bean id="jdbcUserDetailsService"
 		class="org.pentaho.platform.engine.security.DefaultRoleJdbcDaoImpl">
 		<property name="dataSource">
 			<ref local="dataSource" />
@@ -67,8 +67,8 @@
 	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location" value="applicationContext-spring-security-jdbc.properties" />
 	</bean>
-
-  <bean id="passwordEncoder"
+	
+  <bean id="jdbcPasswordEncoder"
     class="org.springframework.security.providers.encoding.PlaintextPasswordEncoder" />
  
 

@@ -162,10 +162,7 @@ not directly from the PentahoObjectFactory. -->
   <!-- actual bean defined in applicationContext-spring-security.xml; aliased here -->
   <alias name="authenticationManager" alias="AuthenticationManager"/>
 
-  <!-- actual bean defined in applicationContext-spring-security-*.xml; aliased here -->
-  <alias name="userDetailsService" alias="UserDetailsService"/>
-
-  <bean id="IMondrianCatalogService" class="org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper"
+    <bean id="IMondrianCatalogService" class="org.pentaho.platform.plugin.action.mondrian.catalog.MondrianCatalogHelper"
         scope="singleton"/>
 
   <bean id="IDatabaseDialectService" class="org.pentaho.database.service.DatabaseDialectService" scope="singleton"/>
