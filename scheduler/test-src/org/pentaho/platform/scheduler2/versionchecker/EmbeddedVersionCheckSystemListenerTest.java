@@ -37,10 +37,12 @@ import org.pentaho.platform.engine.core.system.StandaloneSession;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.scheduler2.quartz.test.StubUserDetailsService;
 import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
 import org.pentaho.platform.scheduler2.ws.ParamValue;
 import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TstPluginManager;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.springframework.security.userdetails.UserDetailsService;
 
 @SuppressWarnings("nls")
 public class EmbeddedVersionCheckSystemListenerTest {
@@ -58,6 +60,7 @@ public class EmbeddedVersionCheckSystemListenerTest {
     mp.define(IPluginManager.class, TstPluginManager.class);
     mp.define("IScheduler2", TestQuartzScheduler.class);
     mp.define(IUserRoleListService.class, StubUserRoleListService.class);
+    mp.define(UserDetailsService.class, StubUserDetailsService.class);
     mp.start();
 
     scheduler = PentahoSystem.get(IScheduler.class, "IScheduler2", null);
