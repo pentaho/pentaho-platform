@@ -45,6 +45,8 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsService;
 
 /**
  * A utility class with several methods that are used to
@@ -351,19 +353,12 @@ public class SecurityHelper implements ISecurityHelper {
    */
   @Override
   public Authentication createAuthentication(String principalName) {
-    IUserRoleListService roleListService = PentahoSystem.get(IUserRoleListService.class);
-    List<String> roles = roleListService.getRolesForUser(null, principalName);
+    UserDetailsService userDetailsService = PentahoSystem.get(UserDetailsService.class);
+    UserDetails userDetails = userDetailsService.loadUserByUsername(principalName);
     if (SecurityHelper.logger.isDebugEnabled()) {
-      SecurityHelper.logger.debug("rolesForUser from roleListService:" + roles); //$NON-NLS-1$
+      SecurityHelper.logger.debug("rolesForUser from UserDetailsService:" + userDetails.getAuthorities()); //$NON-NLS-1$
     }
-    GrantedAuthority[] grantedAuthorities = new GrantedAuthority[roles.size()];
-    if (!roles.isEmpty()) {
-      for (int i = 0; i < roles.size(); i++) {
-        grantedAuthorities[i] = new GrantedAuthorityImpl(roles.get(i));
-      }
-    }
-
-    Authentication auth = new UsernamePasswordAuthenticationToken(principalName, null, grantedAuthorities);
+    Authentication auth = new UsernamePasswordAuthenticationToken(principalName, null, userDetails.getAuthorities());
     return auth;
   }
 
