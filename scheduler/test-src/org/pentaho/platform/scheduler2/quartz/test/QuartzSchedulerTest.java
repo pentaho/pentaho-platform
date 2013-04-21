@@ -46,6 +46,7 @@ import org.pentaho.platform.scheduler2.recur.RecurrenceList;
 import org.pentaho.platform.scheduler2.recur.SequentialRecurrence;
 import org.pentaho.platform.scheduler2.ws.test.JaxWsSchedulerServiceTest.TestQuartzScheduler;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+import org.springframework.security.userdetails.UserDetailsService;
 
 @SuppressWarnings("nls")
 public class QuartzSchedulerTest {
@@ -70,6 +71,7 @@ public class QuartzSchedulerTest {
     MicroPlatform mp = new MicroPlatform();
     mp.define("IScheduler2", TestQuartzScheduler.class); //$NON-NLS-1$
     mp.define(IUserRoleListService.class, StubUserRoleListService.class);
+    mp.define(UserDetailsService.class, StubUserDetailsService.class);
     mp.start();
 
     SecurityHelper.getInstance().becomeUser(TEST_USER);

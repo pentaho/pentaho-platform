@@ -46,6 +46,7 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
+import org.pentaho.platform.scheduler2.quartz.test.StubUserDetailsService;
 import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
 import org.pentaho.platform.scheduler2.recur.IncrementalRecurrence;
 import org.pentaho.platform.scheduler2.ws.ISchedulerService;
@@ -57,6 +58,7 @@ import org.pentaho.test.platform.engine.core.MicroPlatform;
 import org.pentaho.test.platform.engine.core.PluginManagerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -86,6 +88,7 @@ public class JaxWsSchedulerServiceTest {
     mp.define(IPluginManager.class, TstPluginManager.class);
     mp.define("IScheduler2", TestQuartzScheduler.class);
     mp.define(IUserRoleListService.class, StubUserRoleListService.class);
+    mp.define(UserDetailsService.class, StubUserDetailsService.class);
     mp.start();
 
     scheduler = PentahoSystem.get(IScheduler.class, "IScheduler2", null);
