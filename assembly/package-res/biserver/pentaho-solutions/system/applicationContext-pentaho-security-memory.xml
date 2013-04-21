@@ -7,47 +7,30 @@
 
 xmlns:pen="http://www.pentaho.com/schema/pentaho-system"
 
-xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd">
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd"default-lazy-init="true">
 
 	<bean id="userRoleListEnhancedUserMapFactoryBean"
 		class="org.pentaho.platform.plugin.services.security.userrole.memory.UserRoleListEnhancedUserMapFactoryBean">
 		<property name="userMap" ref="userMap" />
 	</bean>
 
-	<bean id="userRoleListService"
-		class="org.pentaho.platform.plugin.services.security.userrole.memory.InMemoryUserRoleListService">
+	<bean class="org.pentaho.platform.plugin.services.security.userrole.memory.InMemoryUserRoleListService">
 		<property name="userRoleListEnhancedUserMap">
 			<ref local="userRoleListEnhancedUserMapFactoryBean" />
 		</property>
 		<property name="userDetailsService" >
-			<pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
+			<ref bean="memoryUserDetailsService" />
 		</property>
-		<property name="allAuthorities">
+		<property name="allRoles">
 			<list>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="Authenticated" />
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="Admin" />
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="ceo" />
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="cto" />
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="is" />
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="dev" />
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="devmgr" />
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="Anonymous" />
-				</bean>
+				<value>Authenticated</value>
+				<value>Administrator</value>
+				<value>ceo</value>
+					<value>cto</value>
+				<value>is</value>
+				<value>dev</value>
+					<value>devmgr</value>
+				<value>Anonymous</value>
 			</list>
 		</property>
 	    <property name="usernameComparator">

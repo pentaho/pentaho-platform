@@ -16,7 +16,7 @@
       <pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
     </property>
     <property name="passwordEncoder">
-      <ref local="passwordEncoder" />
+      <ref local="jackrabbitPasswordEncoder" />
     </property>
     <pen:publish as-type="org.springframework.security.providers.AuthenticationProvider">
       <pen:attributes>
@@ -40,6 +40,6 @@
   </bean>
 
   <!-- not a plaintext password encoder -->
-  <bean id="passwordEncoder" class="org.pentaho.platform.repository2.userroledao.jackrabbit.security.DefaultPentahoPasswordEncoder" />
+  <bean id="jackrabbitPasswordEncoder" class="org.pentaho.platform.repository2.userroledao.jackrabbit.security.DefaultPentahoPasswordEncoder" />
 
 </beans>
