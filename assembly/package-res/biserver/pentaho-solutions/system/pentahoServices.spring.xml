@@ -69,9 +69,14 @@
   <!-- JAX-RS beans -->
   <bean class="org.pentaho.platform.web.http.api.resources.RootResource" scope="request"/>
   <bean class="org.pentaho.platform.web.http.api.resources.DirectoryResource" scope="request"/>
-  <bean class="org.pentaho.platform.web.http.api.resources.UserRoleResource" scope="request">
+  <bean class="org.pentaho.platform.web.http.api.resources.UserRoleDaoResource" scope="request">
     <constructor-arg ref="IRoleAuthorizationPolicyRoleBindingDao" />
     <constructor-arg ref="ITenantManager" />
+    <constructor-arg ref="singleTenantSystemAuthorities"/>
+    <constructor-arg ref="singleTenantAdminAuthorityName"/>
+    <constructor-arg ref="extraSystemAuthorities"/>
+  </bean>
+  <bean class="org.pentaho.platform.web.http.api.resources.UserRoleListResource" scope="request">
     <constructor-arg ref="singleTenantSystemAuthorities"/>
     <constructor-arg ref="singleTenantAdminAuthorityName"/>
     <constructor-arg ref="extraSystemAuthorities"/>
