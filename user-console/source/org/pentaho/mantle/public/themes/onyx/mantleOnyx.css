@@ -23,6 +23,10 @@
 	padding-left: 10px;
 }
 
+.ie  #adminCatTree .gwt-Label {
+	height: 36px;
+}
+
 #adminCatTree .gwt-TreeItem-selected .gwt-Label {
     color: white;
 	cursor: pointer;

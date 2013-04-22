@@ -53,15 +53,20 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.DockPanel.DockLayoutConstant;
 
 public class PerspectiveManager extends HorizontalPanel {
 
+  private static final String ALLOW_TRANSPARENCY_ATTRIBUTE = "allowTransparency";
+  private static final String REMOVE_IFRAME_BORDERS = "frameBorder";
+  
   public static final String ADMIN_PERSPECTIVE = "admin.perspective";
   public static final String SCHEDULES_PERSPECTIVE = "schedules.perspective";
   public static final String DEFAULT_PERSPECTIVE = "default.perspective";
@@ -424,6 +429,10 @@ public class PerspectiveManager extends HorizontalPanel {
     }
     if (frame == null) {
       frame = new Frame(perspective.getContentUrl());
+      Element frameElement = frame.getElement();
+      frameElement.setAttribute(ALLOW_TRANSPARENCY_ATTRIBUTE, "true");
+      // BISERVER-7661 Mantle sections have a border on IE9 (not on chrome, firefox)
+      frameElement.setAttribute(REMOVE_IFRAME_BORDERS, "0");
       frame.getElement().setId(perspective.getId());
       MantleApplication.getInstance().getContentDeck().add(frame);
     }

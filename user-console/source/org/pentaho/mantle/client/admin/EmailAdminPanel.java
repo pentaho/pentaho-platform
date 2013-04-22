@@ -166,6 +166,10 @@ public class EmailAdminPanel extends SimplePanel {
     testButton = new Button(Messages.getString("connectionTest.label"));
     testButton.setStylePrimaryName("pentaho-button");
     buttonsPanel.add(testButton);
+
+    hSpacer = new SimplePanel();
+    hSpacer.setWidth("10px");
+    buttonsPanel.add(hSpacer);
     
     saveButton = new Button(Messages.getString("save"));
     saveButton.setStylePrimaryName("pentaho-button");
