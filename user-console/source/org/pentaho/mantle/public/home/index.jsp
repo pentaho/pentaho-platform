@@ -140,18 +140,12 @@
 
       <div class="row-fluid">
         <script type="text/x-handlebars-template">
-          <div class="well getting-started widget-panel">
+          <div id="getting-started" class="well getting-started widget-panel">
             <h3>{{i18n.getting_started_heading}}</h3>
             <ul class="masthead-links">
               <li>
-                <a target="_blank" href="../../docs/puc_user_guide.pdf">Pentaho User Console Guide</a>
-              </li>
-              <li>
-                <a href="#">Link</a>
-              </li>
-              <li>
-                <a href="#">Link</a>
-              </li>
+                <a target="_blank" href="../../docs/puc_user_guide.pdf">{{i18n.pentaho_user_console_guide}}</a>
+              </li>              
             </ul>
             <hr class="soften">
           </div>
@@ -162,7 +156,7 @@
 
         <div class="span6">
           <script id="favoritesTemplate" type="text/x-handlebars-template" delayCompile="true">
-            <div class="well widget-panel">
+            <div id="favorites" class="well widget-panel">
               <h3>
                   {{i18n.favorites}}
                   <span class="pull-right">
@@ -201,7 +195,7 @@
 
         <div class="span6">
           <script id="recentsTemplate" type="text/x-handlebars-template" delayCompile="true">
-            <div class="well widget-panel">
+            <div id="recents" class="well widget-panel">
               <h3>
                   {{i18n.recents}}
                   <span class="pull-right">
@@ -281,7 +275,8 @@
       id: "confirmationDialogTemplate",
       container: "confirmClearAll",
       message: ""
-    }
+    },
+    disabled: false
   };
 
   var recentsConfig = {
@@ -298,9 +293,16 @@
       id: "confirmationDialogTemplate",
       container: "confirmClearAll",
       message: ""
-    }
+    },
+    disabled: false
   };
 
+//Retrieve configuration properites
+  jQuery.i18n.properties({
+	    name: 'config',
+	    mode: 'map'
+  });
+  
   // Retrieve Message bundle, then process templates
   jQuery.i18n.properties({
     name: 'messages',
@@ -313,21 +315,38 @@
       var context = {};
       
       // Define permissions
-      context.canCreateContent = <%=canCreateContent%>;
+      context.canCreateContent 	= <%=canCreateContent%>;
       context.hasAnalyzerPlugin = <%=pluginIds.contains("analyzer")%>;
-      context.hasIRPlugin = <%=pluginIds.contains("pentaho-interactive-reporting")%>;
+      context.hasIRPlugin 		= <%=pluginIds.contains("pentaho-interactive-reporting")%>;
       context.hasDashBoardsPlugin = <%=pluginIds.contains("dashboards")%>;
 
       // one bundle for now, namespace later if needed
       context.i18n = jQuery.i18n.map;
 
+      // Set disabled = true for 
+      var disabledWidgetIdsArr = jQuery.i18n.map.disabled_widgets.split(",");
+   	  $.each(disabledWidgetIdsArr, function(index, value) {
+   		
+   		if (value == "favorites") {
+   			favoritesConfig.disabled = true;
+   		} else if (value == "recents") {
+   			recentsConfig.disabled = true;
+   		}
+   	  });
+      
       // Process and inject all handlebars templates, results are parented to the template's parent node.
       $("script[type='text/x-handlebars-template']:not([delayCompile='true'])").each(
-          function (pos, node) {
+          function (pos, node) {        	
           	var source = $(node).html();
           	var template = Handlebars.compile(source);
-          	var html = $.trim(template(context));
-          	node.parentNode.appendChild($(html)[0])
+          	var html = $($.trim(template(context)));
+
+          	var widgetId = html.attr("id");
+          	if (widgetId && $.inArray(widgetId, disabledWidgetIdsArr) != -1){
+          		return;
+          	}
+          	
+			node.parentNode.appendChild(html[0])
           });
 
       // Handle the new popover menu. If we add another, make generic
@@ -347,7 +366,7 @@
       });
     }
   });
-
+  
   function loadFavorites() {
     pen.require(["favorites"], function(Favorites){
       var favorites = new Favorites();
