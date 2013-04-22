@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.pentaho.metadata.repository.DomainAlreadyExistsException;
+import org.pentaho.metadata.repository.DomainIdNullException;
+import org.pentaho.metadata.repository.DomainStorageException;
 import org.pentaho.platform.api.repository2.unified.IRepositoryDefaultAclHandler;
 import org.pentaho.platform.api.repository2.unified.IRepositoryFileData;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
@@ -16,10 +18,10 @@ import org.pentaho.platform.api.repository2.unified.RepositoryFileSid;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.plugin.services.importexport.Converter;
-import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
 import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.plugin.services.messages.Messages;
 import org.pentaho.platform.repository.RepositoryFilenameUtils;
+import org.pentaho.platform.repository2.unified.exportManifest.ExportManifestFormatException;
 import org.springframework.util.Assert;
 
 /**
@@ -37,10 +39,14 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   IRepositoryDefaultAclHandler defaultAclHandler;
   
   public Log getLogger() {
+    return getImportSession().getLogger();
+  }
+  
+  public ImportSession getImportSession() {
     if (importSession.get() == null) {
       importSession.set(PentahoSystem.get(ImportSession.class));
     } 
-    return importSession.get().getLogger();
+    return importSession.get();
   }
 
   public void importFile(IPlatformImportBundle bnd) throws PlatformImportException {
@@ -54,28 +60,32 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     // Verify if destination already exists in the repository.
     RepositoryFile file = repository.getFile(repositoryFilePath);
     if (file != null) {
-      if (bundle.overwriteInRepossitory()) {
-        // If file exists, overwrite is true and is not a folder then update it.
-        if (!file.isFolder()) {
-          file = finalAdjustFile(bundle, file);
-          copyFileToRepository(bundle, repositoryFilePath, file);
-        } else {
-          // The folder exists. Possible ACL changes.
-          getLogger().trace("Existing folder [" + repositoryFilePath + "]");
-          file = finalAdjustFolder(bundle, file.getId());
-          repository.updateFolder(file, null);
-          if (bundle.getAcl() != null) {
-            updateAclFromBundle(false, bundle, file);
-          }
-        }
+      if (file.isFolder() && getImportSession().getFoldersCreatedImplicitly().contains(repositoryFilePath)) {
+        getLogger().trace("Skipping entry for folder [" + repositoryFilePath + "]. It was already processed implicitly.");
       } else {
-        if (importSession.get().getIsNotRunningImport()) {
-          throw new PlatformImportException(messages.getString("DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT", repositoryFilePath)
-              , PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR);
+        if (bundle.overwriteInRepossitory()) {
+          // If file exists, overwrite is true and is not a folder then update it.
+          if (!file.isFolder()) {
+            file = finalAdjustFile(bundle, file);
+            copyFileToRepository(bundle, repositoryFilePath, file);
+          } else {
+            // The folder exists. Possible ACL changes.
+            getLogger().trace("Existing folder [" + repositoryFilePath + "]");
+            file = finalAdjustFolder(bundle, file.getId());
+            repository.updateFolder(file, null);
+            if (bundle.getAcl() != null) {
+              updateAclFromBundle(false, bundle, file);
+            }
+          }
         } else {
-          getLogger().trace("Not importing existing file [" + repositoryFilePath + "]");
-          ImportSession importSession = PentahoSystem.get(ImportSession.class);
-          importSession.getSkippedFiles().add(repositoryFilePath);
+          if (importSession.get().getIsNotRunningImport()) {
+            throw new PlatformImportException(messages.getString("DefaultImportHandler.ERROR_0009_OVERWRITE_CONTENT", repositoryFilePath)
+                , PlatformImportException.PUBLISH_CONTENT_EXISTS_ERROR);
+          } else {
+            getLogger().trace("Not importing existing file [" + repositoryFilePath + "]");
+            ImportSession importSession = PentahoSystem.get(ImportSession.class);
+            importSession.getSkippedFiles().add(repositoryFilePath);
+          }
         }
       }
     } else {
@@ -99,13 +109,19 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   }
   
   private RepositoryFile finalAdjustFolder(RepositoryFileImportBundle bundle, Serializable id) {
-    RepositoryFile repoFile = new RepositoryFile.Builder(bundle.getFile()).hidden(bundle.isHidden()).id(id).build();
-    return repoFile;
+    return finalAdjustFolder(bundle.getFile(), bundle.isHidden(), id);
   }
   
   private RepositoryFile finalAdjustFile(RepositoryFileImportBundle bundle, RepositoryFile file) {
-    RepositoryFile repoFile = new RepositoryFile.Builder(file).hidden(bundle.isHidden()).build();
-    return repoFile;  
+    return finalAdjustFolder(file, bundle.isHidden(), null);
+  }
+    
+  private RepositoryFile finalAdjustFolder(RepositoryFile repositoryFile, boolean isHidden, Serializable id) {
+    RepositoryFile.Builder builder = new RepositoryFile.Builder(repositoryFile).hidden(isHidden);
+    if (id != null) {
+      builder.id(id);
+    }
+    return builder.build();
   }
 
   /**
@@ -116,7 +132,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    * @param file
    */
   protected boolean copyFileToRepository(final RepositoryFileImportBundle bundle, final String repositoryPath,
-      final RepositoryFile file) {
+      final RepositoryFile file) throws PlatformImportException {
     Log log = getLogger();
     // Compute the file extension
     final String name = bundle.getName();
@@ -159,16 +175,31 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     }
   }
 
-  //Create a formal RepositoryFileAcl object from the one in the manifest.
+  /**
+   * Create a formal <code>RepositoryFileAcl</code> object for import.
+   * @param newFile Whether the file is being newly created or was pre-existing
+   * @param bundle  The RepositoryImportBundle (which contains the effective manifest Acl)
+   * @param repositoryFile The <code>RepositoryFile</code> of the target file 
+   */
   private void updateAclFromBundle(boolean newFile, RepositoryFileImportBundle bundle, RepositoryFile repositoryFile) {
+    updateAcl(newFile, repositoryFile, bundle.getAcl());
+  }
+  
+  /**
+   * Create a formal <code>RepositoryFileAcl</code> object for import.
+   * @param newFile Whether the file is being newly created or was pre-existing
+   * @param repositoryFileAcl The effect Acl as defined in the manifest)
+   * @param repositoryFile The <code>RepositoryFile</code> of the target file 
+   */
+  private void updateAcl(boolean newFile, RepositoryFile repositoryFile, RepositoryFileAcl repositoryFileAcl) {
     getLogger().debug("File " + (newFile ? "is new": "already exists"));
-    if (bundle.getAcl() != null && (bundle.isApplyAclSettings() || !bundle.isRetainOwnership())) {
-      RepositoryFileAcl manifestAcl = bundle.getAcl();
+    if (repositoryFileAcl != null && (getImportSession().isApplyAclSettings() || getImportSession().isRetainOwnership())) {
+      RepositoryFileAcl manifestAcl = repositoryFileAcl;
       RepositoryFileAcl originalAcl = repository.getAcl(repositoryFile.getId());
 
       //Determine who will own this file
       RepositoryFileSid newOwner;
-      if (bundle.isRetainOwnership()) {
+      if (getImportSession().isRetainOwnership()) {
         if (newFile) {
           getLogger().debug("Getting Owner from Session");
           newOwner = new RepositoryFileSid(PentahoSessionHolder.getSession().getName(), RepositoryFileSid.Type.USER);
@@ -183,7 +214,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       
       //Determine the Aces we will use for this file
       RepositoryFileAcl useAclForPermissions; //The ACL we will use the permissions from
-      if (bundle.isApplyAclSettings() && (bundle.isOverwriteAclSettings() || newFile)){
+      if (getImportSession().isApplyAclSettings() && (getImportSession().isOverwriteAclSettings() || newFile)){
         getLogger().debug("Getting permissions from Manifest");
         useAclForPermissions = manifestAcl;
       } else {
@@ -203,7 +234,8 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
         repository.updateAcl(updatedAcl);
       }
     }
-  }
+  }  
+  
   
   private RepositoryFileAcl getDefaultAcl(RepositoryFile repositoryFile) {
     // ToDo: call default Acl creator when implemented.  For now just return
@@ -219,10 +251,11 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
    * @param data
    */
   protected RepositoryFile createFile(final RepositoryFileImportBundle bundle, final String repositoryPath,
-      final IRepositoryFileData data) {
+      final IRepositoryFileData data) throws PlatformImportException {
     final RepositoryFile file = new RepositoryFile.Builder(bundle.getName()).hidden(bundle.isHidden())
         .title(RepositoryFile.DEFAULT_LOCALE, getTitle(bundle.getName())).versioned(true).build();
-    final Serializable parentId = getParentId(repositoryPath);
+    final Serializable parentId = checkAndCreatePath(repositoryPath, getImportSession().getCurrentManifestKey());
+    
     final RepositoryFileAcl acl = bundle.getAcl();
     if (null == acl) {
       return repository.createFile(parentId, file, data, bundle.getComment());
@@ -230,7 +263,34 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
       return repository.createFile(parentId, file, data, acl, bundle.getComment());
     }
   }
-
+  
+  /**
+   * Check path for existance.  If path does not exist create folders as necessary to
+   * satisfy the path.  When done return the Id of the path received.
+   * @param repositoryPath
+   * @return
+   */
+  private Serializable checkAndCreatePath(String repositoryPath, String manifestKey) throws PlatformImportException {
+    if (getParentId(repositoryPath) == null) {
+      String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(repositoryPath);
+      String parentManifestKey = RepositoryFilenameUtils.getFullPathNoEndSeparator(manifestKey);
+      if (!getImportSession().getFoldersCreatedImplicitly().contains(parentPath)) {
+        RepositoryFile parentFile = repository.getFile(parentPath);
+        if (parentFile == null) {
+          checkAndCreatePath(parentPath, parentManifestKey);
+          try {
+            parentFile = createFolderJustInTime(parentPath, parentManifestKey);
+          } catch (Exception e){
+            throw new PlatformImportException(messages.getString("DefaultImportHandler.ERROR_0010_JUST_IN_TIME_FOLDER_CREATION", repositoryPath));
+          }
+        }
+        Serializable parentFileId = parentFile.getId();
+        Assert.notNull(parentFileId);
+      }
+    }
+    return getParentId(repositoryPath);
+  }
+  
   /**
    * truncate the extension from the file name for the extension
    * @param name
@@ -254,7 +314,7 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
     Assert.notNull(repositoryPath);
     final String parentPath = RepositoryFilenameUtils.getFullPathNoEndSeparator(repositoryPath);
     final RepositoryFile parentFile = repository.getFile(parentPath);
-    Assert.notNull(parentFile);
+    if (parentFile == null) return null;
     Serializable parentFileId = parentFile.getId();
     Assert.notNull(parentFileId);
     return parentFileId;
@@ -275,4 +335,39 @@ public class RepositoryFileImportFileHandler implements IPlatformImportHandler {
   public void setDefaultAclHandler(IRepositoryDefaultAclHandler defaultAclHandler) {
     this.defaultAclHandler = defaultAclHandler;
   }
+  
+  public RepositoryFile createFolderJustInTime(String folderPath, String manifestKey) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
+    // The file doesn't exist and it is a folder. Create folder.
+    getLogger().trace("Creating implied folder [" + folderPath + "]");
+    final Serializable parentId = getParentId(folderPath);
+    Assert.notNull(parentId);
+    RepositoryFile.Builder builder = new RepositoryFile.Builder(RepositoryFilenameUtils.getName(folderPath))
+      .path(RepositoryFilenameUtils.getPath(folderPath)).folder(true);
+    RepositoryFile repositoryFile = builder.build();
+    boolean isHidden;
+    if (getImportSession().isFileHidden(manifestKey) == null) {
+      isHidden = false;
+    } else {
+      isHidden = getImportSession().isFileHidden(manifestKey);
+    }
+    RepositoryFile repoFile = finalAdjustFolder(repositoryFile, isHidden, null);
+    RepositoryFileAcl repoAcl = getImportSession().processAclForFile(manifestKey);
+    if (repoAcl != null) {
+      repoFile = repository.createFolder(parentId, repoFile, repoAcl, null);
+      RepositoryFileAcl repositoryFileAcl = null;
+      try {
+        repositoryFileAcl = getImportSession().getManifest().getExportManifestEntity(manifestKey).getRepositoryFileAcl();
+      } catch (NullPointerException e) { 
+        //If npe then manifest entry is not defined which is likely so just ignore 
+      } catch (ExportManifestFormatException e) {
+        //Same goes here
+      }
+      updateAcl(true, repoFile, repositoryFileAcl);
+    } else {
+      repoFile = repository.createFolder(parentId, repoFile, null);
+    }
+    getImportSession().getFoldersCreatedImplicitly().add(folderPath);
+    return repoFile;
+  }
+  
 }
