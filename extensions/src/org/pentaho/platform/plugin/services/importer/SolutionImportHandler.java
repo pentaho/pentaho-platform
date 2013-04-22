@@ -53,10 +53,13 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 	private IPlatformImportMimeResolver mimeResolver;
 	private List<String> blackList;
 	private List<String> whiteList;
-	private ExportManifest manifest;
-
+	
 	public SolutionImportHandler(IPlatformImportMimeResolver mimeResolver) {
 		this.mimeResolver = mimeResolver;
+	}
+	
+	public ImportSession getImportSession() {
+	  return PentahoSystem.get(ImportSession.class);
 	}
 
 	public void importFile(IPlatformImportBundle bundle) throws PlatformImportException, DomainIdNullException, DomainAlreadyExistsException, DomainStorageException, IOException {
@@ -65,6 +68,8 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 		ZipInputStream zipImportStream = new ZipInputStream(bundle.getInputStream());
 		SolutionRepositoryImportSource importSource = new SolutionRepositoryImportSource(zipImportStream);
 		LocaleFilesProcessor localeFilesProcessor = new LocaleFilesProcessor();
+		
+    //importSession.set(PentahoSystem.get(ImportSession.class));
 		
 		IPlatformImporter importer = PentahoSystem.get(IPlatformImporter.class);
 		for (IRepositoryFileBundle file : importSource.getFiles()) {
@@ -111,6 +116,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 	          sourcePath = RepositoryFilenameUtils.concat(file.getPath(), fileName);
 	      }
 	    }
+	    getImportSession().setCurrentManifestKey(sourcePath);
 
 			bundleBuilder.charSet(bundle.getCharset());
 			bundleBuilder.overwriteFile(bundle.overwriteInRepository());
@@ -118,7 +124,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 			bundleBuilder.applyAclSettings(bundle.isApplyAclSettings());
 			bundleBuilder.retainOwnership(bundle.isRetainOwnership());
 			bundleBuilder.overwriteAclSettings(bundle.isOverwriteAclSettings());
-			bundleBuilder.acl(processAclForFile(bundle, sourcePath));
+			bundleBuilder.acl(getImportSession().processAclForFile(sourcePath));
 			IPlatformImportBundle platformImportBundle = bundleBuilder.build();
 			importer.importFile(platformImportBundle);
 
@@ -131,26 +137,6 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 		localeFilesProcessor.processLocaleFiles(importer);
 	}
 
-	private RepositoryFileAcl processAclForFile(IPlatformImportBundle bundle, String filePath) {
-		// If we are not overwriting ACL's or owners then make sure a null gets in the bundle.
-		// If we are writing ACL's we'll have to check later in RepositoryFileImportHandler whether to overwrite
-		// based on the isOverwriteAcl setting and whether we are creating or updating the RepositoryFile.
-		RepositoryFileAcl acl = null;
-		if (bundle.isApplyAclSettings() || !bundle.isRetainOwnership()) {
-			try {
-				if (manifest != null) {
-					ExportManifestEntity entity = manifest.getExportManifestEntity(filePath);
-					if (entity != null) {
-						acl = entity.getRepositoryFileAcl();
-					}
-				}
-			} catch (Exception e) {
-				log.trace(e);
-			}
-		}
-		return acl;
-	}
-	
 	/**
 	 * Determines if the file or folder should be hidden.  If there is a manifest entry for
 	 * the file, and we are not ignoring the manifest, then set the hidden flag based on the
@@ -161,13 +147,10 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 	 * @return true if file/folder should be hidden, false otherwise
 	 */
 	private boolean isFileHidden(IPlatformImportBundle bundle, String filePath) {
-	   if ((bundle.isApplyAclSettings() || !bundle.isRetainOwnership()) 
-	       && manifest !=null && manifest.getExportManifestEntity(filePath) != null ) {
-	         return manifest.getExportManifestEntity(filePath).getRepositoryFile().isHidden();
-	     }
-     return isBlackListed(filePath);
+	  Boolean result = getImportSession().isFileHidden(filePath);
+    return (result != null) ? result : isBlackListed(filePath);
 	}
-
+	
 	private boolean isSystemPath(final String bundlePath) {
 		final String[] split = StringUtils.split(bundlePath, RepositoryFile.SEPARATOR);
 		return isSystemDir(split, 0) || isSystemDir(split, 1);
@@ -249,7 +232,7 @@ public class SolutionImportHandler implements IPlatformImportHandler {
 			try {
 				byte[] bytes = IOUtils.toByteArray(file.getInputStream());
 				ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-				manifest = ExportManifest.fromXml(in);
+				getImportSession().setManifest(ExportManifest.fromXml(in));
 			} catch (Exception e) {
 				log.trace(e);
 			}
