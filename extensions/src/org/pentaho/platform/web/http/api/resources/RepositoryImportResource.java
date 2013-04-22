@@ -42,6 +42,7 @@ import org.pentaho.platform.plugin.services.importer.IPlatformImporter;
 import org.pentaho.platform.plugin.services.importer.NameBaseMimeResolver;
 import org.pentaho.platform.plugin.services.importer.RepositoryFileImportBundle;
 import org.pentaho.platform.plugin.services.importexport.IRepositoryImportLogger;
+import org.pentaho.platform.plugin.services.importexport.ImportSession;
 import org.pentaho.platform.security.policy.rolebased.actions.AdministerSecurityAction;
 import org.pentaho.platform.security.policy.rolebased.actions.PublishAction;
 import org.pentaho.platform.security.policy.rolebased.actions.RepositoryCreateAction;
@@ -81,7 +82,7 @@ public class RepositoryImportResource {
 			@FormDataParam("charSet") String charSet,
 			@FormDataParam("logLevel") String logLevel,
 			@FormDataParam("fileUpload") FormDataContentDisposition fileInfo) {
-	        IRepositoryImportLogger importLogger = null;
+	      IRepositoryImportLogger importLogger = null;
 		    ByteArrayOutputStream importLoggerStream = new ByteArrayOutputStream();
 			try {
 				validateAccess();
@@ -90,7 +91,12 @@ public class RepositoryImportResource {
 				boolean overwriteAclSettingsFlag = ("true".equals(overwriteAclPermissions) ? true : false);
 				boolean applyAclSettingsFlag = ("true".equals(applyAclPermission) ? true : false);
 				boolean retainOwnershipFlag = ("true".equals(retainOwnership) ? true : false);
+				
 				Level level = Level.toLevel(logLevel);
+				ImportSession importSession = PentahoSystem.get(ImportSession.class);
+				importSession.setApplyAclSettings(applyAclSettingsFlag);
+				importSession.setRetainOwnership(retainOwnershipFlag);
+				importSession.setOverwriteAclSettings(overwriteAclSettingsFlag);
 	
 				RepositoryFileImportBundle.Builder bundleBuilder = new RepositoryFileImportBundle.Builder();
 				bundleBuilder.input(fileIS);
