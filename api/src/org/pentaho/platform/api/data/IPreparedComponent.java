@@ -84,7 +84,7 @@ public interface IPreparedComponent extends IComponent, IDisposable {
    * @param preparedParams a map of possible parameters.
    * @return result set
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public IPentahoResultSet executePrepared(Map preparedParams);
 
   /**

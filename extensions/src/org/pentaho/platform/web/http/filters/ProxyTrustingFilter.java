@@ -36,6 +36,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
+import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.security.SecurityHelper;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
@@ -134,7 +135,7 @@ public class ProxyTrustingFilter implements Filter {
     String hostStr = filterConfig.getInitParameter("TrustedIpAddrs"); //$NON-NLS-1$
     if (hostStr != null) {
       StringTokenizer st = new StringTokenizer(hostStr, ","); //$NON-NLS-1$
-      List addrs = new ArrayList();
+      List<String> addrs = new ArrayList<String>();
       while (st.hasMoreTokens()) {
         String tok = st.nextToken().trim();
         if (tok.length() > 0) {
@@ -215,7 +216,7 @@ public class ProxyTrustingFilter implements Filter {
                 public Void call() throws Exception {
                   HttpSession httpSession = req.getSession();
                   
-                  httpSession.setAttribute("pentaho-session", PentahoSessionHolder.getSession());
+                  httpSession.setAttribute(PentahoSystem.PENTAHO_SESSION_KEY, PentahoSessionHolder.getSession());
 
                   /**
                    * definition of anonymous inner class
