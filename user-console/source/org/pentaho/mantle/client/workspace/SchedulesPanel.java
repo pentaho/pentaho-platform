@@ -282,7 +282,7 @@ public class SchedulesPanel extends SimplePanel {
 
     table.addCellPreviewHandler(new CellPreviewEvent.Handler<JsJob>() {
       public void onCellPreview(CellPreviewEvent<JsJob> event) {
-        if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 1 && event.getValue().hasResourceName()) {
+        if (event.getNativeEvent().getType().contains("click") && event.getColumn() == 2 && event.getValue().hasResourceName()) {
           // get history for the entire resource
           PromptDialogBox dialog = new PromptDialogBox(Messages.getString("history"), Messages.getString("ok"), null, false, false);
           String resource = event.getValue().getFullResourceName();
