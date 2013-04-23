@@ -46,18 +46,29 @@ pen.define([], function() {
 				// Process and inject all handlebars templates, results are parented to
 				// the template's parent node.
 				$("script[type='text/x-handlebars-template']:not([delayCompile='true'])").each(
-						function (pos, node) {	
-							var source = $(node).html();
-							var template = Handlebars.compile(source);
-							var html = $($.trim(template(context)));
-
-							var widgetId = html.attr("id");
-							if (widgetId && $.inArray(widgetId, disabledWidgetIdsArr) != -1){
-								return;
-							}
+					function (pos, node) {	
+						var source = $(node).html();
+						var template = Handlebars.compile(source);
+						var html = $($.trim(template(context)));
 	
-							node.parentNode.appendChild(html[0])
-						});
+						var widgetId = html.attr("id");
+						if (widgetId && $.inArray(widgetId, disabledWidgetIdsArr) != -1){
+							return;
+						}
+	
+						node.parentNode.appendChild(html[0])
+					});
+				
+				// Provide inner content to the getting started widget
+				var gettingStartedWidget = $("#getting-started");
+				if (gettingStartedWidget.length > 0) {
+					$.get("content/puc_getting_started.html", function (data) {
+						var template = Handlebars.compile(data);
+						var html = $($.trim(template(context)));
+						
+						gettingStartedWidget.append(html);
+					});
+				}
 
 				// Handle the new popover menu. If we add another, make generic
 				$("#btnCreateNew").popover({
