@@ -14,13 +14,6 @@
 			<menubarseparator id="openSeparator"/>
 			<menuitem id="saveMenuItem" label="${save}" command="mantleXulHandler.saveClicked()" disabled="true" />		
 			<menuitem id="saveAsMenuItem" label="${saveAsEllipsis}" command="mantleXulHandler.saveAsClicked()" disabled="true" />		
-			<menubarseparator id="saveSeparator"/>
-			<menubar id="managemenu" label="${manage}" layout="vertical">
-				<menuitem id="editMenuItem" label="${editEllipsis}" command="mantleXulHandler.editContentClicked()"/>		
-				<menuitem id="shareMenuItem" label="${shareEllipsis}" command="mantleXulHandler.shareContentClicked()"/>		
-				<menuitem id="scheduleMenuItem" label="${scheduleEllipsis}" command="mantleXulHandler.scheduleContentClicked()"/>		
-			</menubar>
-			<menubarseparator id="manageSeparator"/>
 			<menuitem id="propertiesMenuItem" label="${propertiesEllipsis}" command="mantleXulHandler.propertiesClicked()" disabled="true"/>		
 			<menubarseparator id="logoutSeparator"/>
 			<menuitem id="logoutMenuItem" label="${logout}" command="mantleXulHandler.executeMantleCommand('LogoutCommand')" />		
