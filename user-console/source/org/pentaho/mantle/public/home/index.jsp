@@ -160,10 +160,10 @@
               <h3>
                   {{i18n.favorites}}
                   <span class="pull-right">
-                    {{#hasItems favorites}}
-                    <i class="icon-remove-circle pointer" onclick="clearFavorites();" title="{{i18n.clearAllFavorites}}"></i>
-                    {{/hasItems}}
-                    <i class="icon-refresh pointer" onclick="loadFavorites();" title="{{i18n.refresh}}"></i>
+                    {{#unless isEmpty}}
+                    <i class="icon-remove-circle pointer" onclick="controller.clearFavorites();" title="{{i18n.clearAllFavorites}}"></i>
+                    {{/unless}}
+                    <!--<i class="icon-refresh pointer" onclick="controller.loadFavorites();" title="{{i18n.refresh}}"></i>-->
                   </span>
               </h3>
               <div id="favoritesSpinner"></div>
@@ -171,16 +171,19 @@
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachFavorite favorites}}
                   <li>
-                      <a href="#" onclick="openRepositoryFile('{{fullPath}}', 'run')">
-                      {{#if xanalyzer}} <img src="images/analyzer.png" class="pull-left content-icon">   {{/if}}
-                      {{#if xdash}}     <img src="images/dashboard.png" class="pull-left content-icon">  {{/if}}
-                      {{#if xcdf}}      <img src="images/cdf.png" class="pull-left content-icon">        {{/if}}
-                      {{#if prpti}}     <img src="images/pir.png" class="pull-left content-icon">        {{/if}}
-                      {{#if prpt}}      <img src="images/pir.png" class="pull-left content-icon">        {{/if}}
-                      {{#if xaction}}   <img src="images/xaction.png" class="pull-left content-icon">    {{/if}}
-                      {{#if url}}       <img src="images/url.png" class="pull-left content-icon">        {{/if}}
-                      {{#if html}}      <img src="images/url.png" class="pull-left content-icon">        {{/if}}
+                    <a href="javascript:openRepositoryFile('{{fullPath}}', 'run')">
+                      {{#if xanalyzer}} <img src="images/analyzer.png" class="content-icon">   {{/if}}
+                      {{#if xdash}}     <img src="images/dashboard.png" class="content-icon">  {{/if}}
+                      {{#if xcdf}}      <img src="images/cdf.png" class="content-icon">        {{/if}}
+                      {{#if prpti}}     <img src="images/pir.png" class="content-icon">        {{/if}}
+                      {{#if prpt}}      <img src="images/pir.png" class="content-icon">        {{/if}}
+                      {{#if xaction}}   <img src="images/xaction.png" class="content-icon">    {{/if}}
+                      {{#if url}}       <img src="images/url.png" class="content-icon">        {{/if}}
+                      {{#if html}}      <img src="images/url.png" class="content-icon">        {{/if}}
                       <span class="pad-left">{{title}}</span>
+                      {{#unless isEmpty}}
+                        <img src="images/favorite1.png" class="pull-right content-icon" onclick="controller.unmarkFavorite('{{fullPath}}'); return false;">
+                      {{/unless}}
                     </a>
                   </li>
                   {{/eachFavorite}}
@@ -199,10 +202,10 @@
               <h3>
                   {{i18n.recents}}
                   <span class="pull-right">
-                    {{#hasItems recent}}
-                    <i class="icon-remove-circle pointer" onclick="clearRecents();" title="{{i18n.clearAllRecents}}"></i>
-                    {{/hasItems}}
-                    <i class="icon-refresh pointer" onclick="loadRecents();" title="{{i18n.refresh}}"></i>
+                    {{#unless isEmpty}}
+                    <i class="icon-remove-circle pointer" onclick="controller.clearRecents();" title="{{i18n.clearAllRecents}}"></i>
+                    {{/unless}}
+                    <!--<i class="icon-refresh pointer" onclick="controller.loadRecents();" title="{{i18n.refresh}}"></i>-->
                   </span>
               </h3>
               <div id="recentsSpinner"></div>
@@ -210,16 +213,23 @@
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachRecent recent}}
                   <li>
-                      <a href="#" onclick="openRepositoryFile('{{fullPath}}', 'run')">
-                        {{#if xanalyzer}} <img src="images/analyzer.png" class="pull-left content-icon">   {{/if}}
-                        {{#if xdash}}     <img src="images/dashboard.png" class="pull-left content-icon">  {{/if}}
-                        {{#if xcdf}}      <img src="images/cdf.png" class="pull-left content-icon">        {{/if}}
-                        {{#if prpti}}     <img src="images/pir.png" class="pull-left content-icon">        {{/if}}
-                        {{#if prpt}}      <img src="images/pir.png" class="pull-left content-icon">        {{/if}}
-                        {{#if xaction}}   <img src="images/xaction.png" class="pull-left content-icon">    {{/if}}
-                        {{#if url}}       <img src="images/url.png" class="pull-left content-icon">        {{/if}}
-                        {{#if html}}      <img src="images/url.png" class="pull-left content-icon">        {{/if}}
-                        <span class="pad-left">{{title}}</span>
+                    <a href="javascript:openRepositoryFile('{{fullPath}}', 'run')">
+                      {{#if xanalyzer}} <img src="images/analyzer.png" class="content-icon">   {{/if}}
+                      {{#if xdash}}     <img src="images/dashboard.png" class="content-icon">  {{/if}}
+                      {{#if xcdf}}      <img src="images/cdf.png" class="content-icon">        {{/if}}
+                      {{#if prpti}}     <img src="images/pir.png" class="content-icon">        {{/if}}
+                      {{#if prpt}}      <img src="images/pir.png" class="content-icon">        {{/if}}
+                      {{#if xaction}}   <img src="images/xaction.png" class="content-icon">    {{/if}}
+                      {{#if url}}       <img src="images/url.png" class="content-icon">        {{/if}}
+                      {{#if html}}      <img src="images/url.png" class="content-icon">        {{/if}}
+                      <span class="pad-left">{{title}}</span>
+                      {{#unless isEmpty}}
+                        {{#if isFavorite}}
+                          <img src="images/favorite1.png" class="pull-right content-icon" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;">
+                        {{else}}
+                          <img src="images/favorite0.png" class="pull-right content-icon" onclick="controller.markRecentAsFavorite('{{fullPath}}'); return false;">
+                        {{/if}}
+                      {{/unless}}
                     </a>
                   </li>
                   {{/eachRecent}}
@@ -260,57 +270,21 @@
 <script type="text/javascript" src="jquery.i18n.properties-min.js"></script>
 
 <script type="text/javascript">
+  var controller = undefined;
 
-  var favoritesConfig = {
-    name: "favorites",
-    template: {
-      id: "favoritesTemplate",
-      itemIterator: "eachFavorite"
-    },
-    displayContainerId: "favoritesContianer",
-    contentPanelId: "favorites-content-panel",
-    serviceUrl: "api/user-settings/favorites",
-    spinContainer: "favoritesSpinner",
-    confirmTemplate: {
-      id: "confirmationDialogTemplate",
-      container: "confirmClearAll",
-      message: ""
-    },
-    disabled: false
-  };
 
-  var recentsConfig = {
-    name: "recent",
-    template: {
-      id: "recentsTemplate",
-      itemIterator: "eachRecent"
-    },
-    displayContainerId: "recentsContianer",
-    contentPanelId: "recents-content-panel",
-    serviceUrl: "api/user-settings/recent",
-    spinContainer: "recentsSpinner",
-    confirmTemplate: {
-      id: "confirmationDialogTemplate",
-      container: "confirmClearAll",
-      message: ""
-    },
-    disabled: false
-  };
-
-//Retrieve configuration properites
+  //Retrieve configuration properites
   jQuery.i18n.properties({
-	    name: 'config',
-	    mode: 'map'
+    name: 'config',
+    mode: 'map'
   });
-  
+
   // Retrieve Message bundle, then process templates
   jQuery.i18n.properties({
     name: 'messages',
     mode: 'map',
     callback: function () {
 
-      favoritesConfig.confirmTemplate.message = jQuery.i18n.map.confirmClearFavorites;
-      recentsConfig.confirmTemplate.message   = jQuery.i18n.map.confirmClearRecents;
 
       var context = {};
       
@@ -323,17 +297,25 @@
       // one bundle for now, namespace later if needed
       context.i18n = jQuery.i18n.map;
 
+      var favoriteControllerConfig = {
+        favoritesDisabled: false,
+        recentsDisabled: false,
+        i18nMap: jQuery.i18n.map
+      };
+
       // Set disabled = true for 
       var disabledWidgetIdsArr = jQuery.i18n.map.disabled_widgets.split(",");
    	  $.each(disabledWidgetIdsArr, function(index, value) {
    		
    		if (value == "favorites") {
-   			favoritesConfig.disabled = true;
+            favoriteControllerConfig.favoritesDisabled = true;
    		} else if (value == "recents") {
-   			recentsConfig.disabled = true;
+            favoriteControllerConfig.recentsDisabled = true;
    		}
    	  });
-      
+
+      initFavoritesAndRecents(favoriteControllerConfig);
+
       // Process and inject all handlebars templates, results are parented to the template's parent node.
       $("script[type='text/x-handlebars-template']:not([delayCompile='true'])").each(
           function (pos, node) {        	
@@ -366,22 +348,6 @@
       });
     }
   });
-  
-  function loadFavorites() {
-    pen.require(["favorites"], function(Favorites){
-      var favorites = new Favorites();
-      $.extend(favorites, favoritesConfig);
-      favorites.load();
-    });
-  }
-
-  function loadRecents() {
-    pen.require(["favorites"], function(Favorites){
-      var recents = new Favorites();
-      $.extend(recents, recentsConfig);
-      recents.load();
-    });
-  }
 
   function openFile(title, tooltip, fullPath) {
     if(parent.mantle_setPerspective && window.parent.openURL) {
@@ -403,31 +369,18 @@
     window.parent.openRepositoryFile(path, mode);
   }
 
+  function initFavoritesAndRecents(config) {
+    pen.require(["FavoritesController"], function(FavoritesController){
+      controller = new FavoritesController(config);
+    });
+  }
+
   /**
    * this gets triggered when the Home perspective becomes active
    */
   function perspectiveActivated() {
-    loadFavorites();
-    loadRecents();
+    controller.refreshAll();
   }
-
-  function clearRecents() {
-    pen.require(["favorites"], function(Favorites){
-      var recents = new Favorites();
-      $.extend(recents, recentsConfig);
-      recents.clear();
-    });
-  }
-  function clearFavorites() {
-    pen.require(["favorites"], function(Favorites){
-      var favorites = new Favorites();
-      $.extend(favorites, favoritesConfig);
-      favorites.clear();
-    });
-  }
-
-  loadFavorites();
-  loadRecents();
 
 </script>
 
