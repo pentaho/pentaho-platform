@@ -38,6 +38,7 @@ import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.GwtXulRunner;
 import org.pentaho.ui.xul.gwt.tags.GwtTree;
+import org.pentaho.ui.xul.gwt.tags.GwtTreeItem;
 import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
 
@@ -74,6 +75,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   private SimplePanel adminPerspective = new SimplePanel();
   private DeckPanel adminContentDeck = new DeckPanel();
 
+  private MantleController controller;
+  
   private ArrayList<XulOverlay> overlays = new ArrayList<XulOverlay>();
 
   private MantleXul() {
@@ -98,8 +101,8 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
     // handlers need to be wrapped generically in GWT, create one and pass it our reference.
 
     // instantiate our Model and Controller
-    MantleController controller = new MantleController(new MantleModel(this));
-
+    controller = new MantleController(new MantleModel(this));
+    
     // Add handler to container
     container = (GwtXulDomContainer) runner.getXulDomContainers().get(0);
     container.addEventHandler(controller);
@@ -145,6 +148,10 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
           adminCatTree.getTree().removeStyleName("gwt-Tree");
           Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
           adminContentPanel.setWidth("100%");
+          
+          GwtTreeItem usersRolesTreeItem = (GwtTreeItem) container.getDocumentRoot().getElementById("usersRoles");
+          ((TreeItem)usersRolesTreeItem.getManagedObject()).setSelected(true);
+          controller.loadUserRolesAdminPanel();
         }
       }
     };
