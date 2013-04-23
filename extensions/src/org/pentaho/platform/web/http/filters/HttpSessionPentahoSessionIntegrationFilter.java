@@ -97,9 +97,6 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
   //~ Static fields/initializers =====================================================================================
 
   private static final Log logger = LogFactory.getLog(HttpSessionPentahoSessionIntegrationFilter.class);
-
-  
-  static final String PENTAHO_SESSION_KEY = "pentaho-session"; //$NON-NLS-1$
   
   static final String FILTER_APPLIED = "__pentaho_session_integration_filter_applied"; //$NON-NLS-1$
 
@@ -309,11 +306,11 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     // HTTP session exists, so try to obtain a Pentaho session from it.
 
     IPentahoSession pentahoSessionFromHttpSession = (IPentahoSession) httpSession
-        .getAttribute(PENTAHO_SESSION_KEY);
+        .getAttribute(PentahoSystem.PENTAHO_SESSION_KEY);
 
     if (pentahoSessionFromHttpSession == null) {
       if (logger.isDebugEnabled()) {
-        logger.debug("HttpSession returned null object for " + PENTAHO_SESSION_KEY);
+        logger.debug("HttpSession returned null object for " + PentahoSystem.PENTAHO_SESSION_KEY);
       }
 
       return null;
@@ -374,7 +371,7 @@ public class HttpSessionPentahoSessionIntegrationFilter implements Filter, Initi
     if (httpSession != null) {
       // See SEC-766
 
-      httpSession.setAttribute(PENTAHO_SESSION_KEY, pentahoSession);
+      httpSession.setAttribute(PentahoSystem.PENTAHO_SESSION_KEY, pentahoSession);
 
       if (logger.isDebugEnabled()) {
         logger.debug("Pentaho session stored to HttpSession: '" + pentahoSession + "'");

@@ -3,6 +3,8 @@ package org.pentaho.platform.engine.security.event;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IPentahoSession;
+import org.pentaho.platform.engine.core.audit.AuditHelper;
+import org.pentaho.platform.engine.core.audit.MessageTypes;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -10,7 +12,6 @@ import org.springframework.core.Ordered;
 import org.springframework.security.Authentication;
 import org.springframework.security.event.authentication.AbstractAuthenticationEvent;
 import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
-import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
 import org.springframework.util.Assert;
 
 /**
@@ -40,7 +41,7 @@ public class PentahoAuthenticationSuccessListener implements ApplicationListener
   // ~ Methods =========================================================================================================
 
   public void onApplicationEvent(final ApplicationEvent event) {
-    if (event instanceof AuthenticationSuccessEvent || event instanceof InteractiveAuthenticationSuccessEvent) {
+    if (event instanceof AuthenticationSuccessEvent) {
       logger.debug("received " + event.getClass().getSimpleName()); //$NON-NLS-1$
       logger.debug("synchronizing current IPentahoSession with SecurityContext"); //$NON-NLS-1$
       try {
@@ -48,6 +49,8 @@ public class PentahoAuthenticationSuccessListener implements ApplicationListener
         IPentahoSession pentahoSession = PentahoSessionHolder.getSession();
         Assert.notNull(pentahoSession, "PentahoSessionHolder doesn't have a session");
         pentahoSession.setAuthenticated(authentication.getName());
+        // audit session creation
+        AuditHelper.audit(pentahoSession.getId(), pentahoSession.getName(), pentahoSession.getActionName(), pentahoSession.getObjectName(), "", MessageTypes.SESSION_START, "", "", 0, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
       } catch (Exception e) {
         logger.error(e.getLocalizedMessage(), e);
       }

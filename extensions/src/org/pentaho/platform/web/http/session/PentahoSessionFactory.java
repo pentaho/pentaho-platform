@@ -35,11 +35,9 @@ import org.pentaho.platform.engine.core.system.PentahoSystem;
 @Deprecated
 public class PentahoSessionFactory {
 
-  public static final String PENTAHO_SESSION_KEY = "pentaho_session"; //$NON-NLS-1$
-
   public static IPentahoSession getSession(final String userName, final HttpSession session, final HttpServletRequest request) {
 
-    IPentahoSession userSession = (IPentahoSession) session.getAttribute(PentahoSessionFactory.PENTAHO_SESSION_KEY);
+    IPentahoSession userSession = (IPentahoSession) session.getAttribute(PentahoSystem.PENTAHO_SESSION_KEY);
     if (userSession != null) {
       return userSession;
     }
