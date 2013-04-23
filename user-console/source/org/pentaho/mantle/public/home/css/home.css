@@ -1,0 +1,48 @@
+.widget-panel {
+	height: 240px;
+}
+
+.main-container {
+	padding-top: 20px;
+	max-width: 1024px;
+}
+
+.widget-panel.well {
+	padding: 0px 19px 19px;
+}
+
+button.btn-large.btn-block {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.nobreak {
+	white-space: nowrap;
+}
+
+.widget-panel.well .content-panel {
+	height: 186px;
+	overflow-y: auto;
+	background: #ffffff;
+	min-width: 50px;
+}
+
+.pointer {
+	cursor: pointer;
+}
+
+.content-icon {
+	height: 32px;
+	width: 32px;
+}
+
+.pad-left {
+	padding-left: 4px;
+}
+
+/*spinner gets added dynamically later*/
+.content-panel .spinner {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 80px;;
+}
