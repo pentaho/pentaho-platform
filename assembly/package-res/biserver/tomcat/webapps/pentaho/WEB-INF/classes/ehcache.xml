@@ -167,97 +167,100 @@
   />
 
     <!-- Caches for the pentaho-geo roles -->
+    <!-- Geo caches are configured to keep everything pinned in memory.
+         This uses about 65mb. Do not turn on overflow to disk for these.
+         It is much faster to access the data directly from memory. -->
     <cache
             name="pentaho-geo-country"
-            maxElementsInMemory="5000"
+            maxEntriesLocalHeap="1000"
             eternal="false"
-            overflowToDisk="true"
+            overflowToDisk="false"
             timeToIdleSeconds="0"
             timeToLiveSeconds="0"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
-            />
+            diskPersistent="false">
+        <pinning store="inCache" />
+    </cache>
     <cache
             name="pentaho-geo-countrycode"
-            maxElementsInMemory="5000"
+            maxEntriesLocalHeap="5000"
             eternal="false"
-            overflowToDisk="true"
+            overflowToDisk="false"
             timeToIdleSeconds="0"
             timeToLiveSeconds="0"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
-            />
+            diskPersistent="false">
+        <pinning store="inCache" />
+    </cache>
     <cache
             name="pentaho-geo-countrycode3"
-            maxElementsInMemory="5000"
+            maxEntriesLocalHeap="5000"
             eternal="false"
-            overflowToDisk="true"
+            overflowToDisk="false"
             timeToIdleSeconds="0"
             timeToLiveSeconds="0"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
-            />
+            diskPersistent="false">
+        <pinning store="inCache" />
+    </cache>
     <cache
             name="pentaho-geo-countrysubdivision"
-            maxElementsInMemory="5000"
+            maxEntriesLocalHeap="5000"
             eternal="false"
-            overflowToDisk="true"
+            overflowToDisk="false"
             timeToIdleSeconds="0"
             timeToLiveSeconds="0"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
-            />
+            diskPersistent="false">
+        <pinning store="inCache" />
+    </cache>
     <cache
             name="pentaho-geo-countrysubdivisioncode"
-            maxElementsInMemory="5000"
+            maxEntriesLocalHeap="5000"
             eternal="false"
-            overflowToDisk="true"
+            overflowToDisk="false"
             timeToIdleSeconds="0"
             timeToLiveSeconds="0"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
-            />
+            diskPersistent="false">
+        <pinning store="inCache" />
+    </cache>
     <cache
             name="pentaho-geo-countrysecondarysubdivision"
-            maxElementsInMemory="5000"
+            maxEntriesLocalHeap="5000"
             eternal="false"
-            overflowToDisk="true"
+            overflowToDisk="false"
             timeToIdleSeconds="0"
             timeToLiveSeconds="0"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
-            />
+            diskPersistent="false">
+        <pinning store="inCache" />
+    </cache>
     <cache
             name="pentaho-geo-postalcode"
-            maxElementsInMemory="50000"
+            maxEntriesLocalHeap="50000"
             eternal="false"
-            overflowToDisk="true"
+            overflowToDisk="false"
             timeToIdleSeconds="0"
             timeToLiveSeconds="0"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
-            />
+            diskPersistent="false">
+        <pinning store="inCache" />
+    </cache>
     <cache
             name="pentaho-geo-municipality"
-            maxElementsInMemory="700000"
+            maxEntriesLocalHeap="700000"
             eternal="false"
-            overflowToDisk="true"
+            overflowToDisk="false"
             timeToIdleSeconds="0"
             timeToLiveSeconds="0"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
-            />
+            diskPersistent="false">
+        <pinning store="inCache" />
+    </cache>
     <!-- When creating a custom geographic role that exceeds 1000 elements use this template -->
     <!--
       <cache
-        name="pentaho-geo-{CUSTOM_ROLE_TYPE}"
-        maxElementsInMemory="1000"
-        eternal="false"
-        overflowToDisk="true"
-        timeToIdleSeconds="0"
-        timeToLiveSeconds="0"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="120"
-      />
+          name="pentaho-geo-{CUSTOM_ROLE_TYPE}"
+          maxEntriesLocalHeap="50000"
+          eternal="false"
+          overflowToDisk="false"
+          timeToIdleSeconds="0"
+          timeToLiveSeconds="0"
+          diskPersistent="false">
+        <pinning store="inCache" />
+      </cache>
     -->
 </ehcache>
