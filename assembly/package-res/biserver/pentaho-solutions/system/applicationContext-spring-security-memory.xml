@@ -11,8 +11,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
        http://www.pentaho.com/schema/pentaho-system http://www.pentaho.com/schema/pentaho-system.xsd" default-lazy-init="true">
 
-	<bean id="authenticationProvider"
-		class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+	<bean class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
 		<property name="userDetailsService">
 			<pen:bean class="org.springframework.security.userdetails.UserDetailsService"/>
 		</property>
