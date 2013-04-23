@@ -384,36 +384,41 @@ public class SecurityHelper implements ISecurityHelper {
   public <T> T runAsSystem(final Callable<T> callable) throws Exception {
     String singleTenantAdmin = PentahoSystem.get(String.class, "singleTenantAdminUserName", null);
     IPentahoSession origSession = PentahoSessionHolder.getSession();
-    Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
-
-    StandaloneSession session = null;
-    try {
-      session = new StandaloneSession(singleTenantAdmin);
-      session.setAuthenticated(singleTenantAdmin);
-
-      // Set the session first or else the call to
-      // createAuthentication will fail
-      PentahoSessionHolder.setSession(session);
-
-      // Now create the authentication
-      Authentication auth = createAuthentication(singleTenantAdmin); //$NON-NLS-1$
-      SecurityContextHolder.getContext().setAuthentication(auth);
-
-      // Invoke the delta.
-      return callable.call();
-    } finally {
-      // Make sure to destroy the system session so we don't leak anything.
-      if (session != null) {
-        try {
-          session.destroy();
-        } catch (Exception e) {
-          // We can safely ignore this.
-          e.printStackTrace();
+    
+    if (singleTenantAdmin.equals(origSession.getName())) {
+    	return callable.call();
+    } else {
+      Authentication origAuth = SecurityContextHolder.getContext().getAuthentication();
+  
+      StandaloneSession session = null;
+      try {
+        session = new StandaloneSession(singleTenantAdmin);
+        session.setAuthenticated(singleTenantAdmin);
+  
+        // Set the session first or else the call to
+        // createAuthentication will fail
+        PentahoSessionHolder.setSession(session);
+  
+        // Now create the authentication
+        Authentication auth = createAuthentication(singleTenantAdmin); //$NON-NLS-1$
+        SecurityContextHolder.getContext().setAuthentication(auth);
+  
+        // Invoke the delta.
+        return callable.call();
+      } finally {
+        // Make sure to destroy the system session so we don't leak anything.
+        if (session != null) {
+          try {
+            session.destroy();
+          } catch (Exception e) {
+            // We can safely ignore this.
+            e.printStackTrace();
+          }
         }
+        // Reset the original session.
+        PentahoSessionHolder.setSession(origSession);
+        SecurityContextHolder.getContext().setAuthentication(origAuth);
       }
-      // Reset the original session.
-      PentahoSessionHolder.setSession(origSession);
-      SecurityContextHolder.getContext().setAuthentication(origAuth);
     }
   }
 

@@ -42,6 +42,8 @@ public class PentahoHttpSession extends BaseSession {
   private static final long serialVersionUID = 1500696455420691764L;
 
   private HttpSession session;
+  
+  private long authenticationTime = 0L;
 
   private static final Log logger = LogFactory.getLog(PentahoHttpSession.class);
 
@@ -54,17 +56,14 @@ public class PentahoHttpSession extends BaseSession {
     super(userName, session.getId(), locale);
 
     this.session = session;
-    
-    // audit session creation
-    AuditHelper.audit(getId(), getName(), getActionName(), getObjectName(), "", MessageTypes.SESSION_START, "", "", 0, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     // run any session initialization actions
     IParameterProvider sessionParameters = new PentahoSessionParameterProvider(userSession);
     PentahoSystem.sessionStartup(this, sessionParameters);
 }
 
+  @SuppressWarnings("rawtypes")
   public Iterator getAttributeNames() {
-
     return new EnumerationIterator(session.getAttributeNames());
   }
 
@@ -83,10 +82,15 @@ public class PentahoHttpSession extends BaseSession {
   }
   
   @Override
+  public void setAuthenticated(String name) {
+    super.setAuthenticated(name);
+    authenticationTime = System.currentTimeMillis();
+  }
+  
+  @Override
   public void destroy() {
-   
     // audit session destruction
-    AuditHelper.audit(getId(), getName(), getActionName(), getObjectName(), "", MessageTypes.SESSION_END, "", "", 0, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    AuditHelper.audit(getId(), getName(), getActionName(), getObjectName(), "", MessageTypes.SESSION_END, "", "", ((System.currentTimeMillis() - authenticationTime) / 1000F), null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     
     super.destroy();
   }
