@@ -1,4 +1,4 @@
---
+--Begin--
 -- note: this script assumes pg_hba.conf is configured correctly
 --
 
@@ -13,6 +13,8 @@ CREATE DATABASE quartz  WITH OWNER = pentaho_user  ENCODING = 'UTF8' TABLESPACE 
 
 GRANT ALL ON DATABASE quartz to pentaho_user;
 
+--End--
+--Begin Connect--
 \connect quartz pentaho_user
 
 begin;
@@ -186,3 +188,4 @@ ALTER TABLE qrtz_job_details OWNER TO pentaho_user;
 ALTER TABLE qrtz_calendars OWNER TO pentaho_user;
 
 commit;
+--End Connect--
