@@ -119,12 +119,8 @@
         <script type="text/x-handlebars-template">
           <div id="getting-started" class="well getting-started widget-panel">
             <h3>{{i18n.getting_started_heading}}</h3>
-            <ul class="masthead-links">
-              <li>
-                <a target="_blank" href="../../docs/puc_user_guide.pdf">{{i18n.pentaho_user_console_guide}}</a>
-              </li>              
-            </ul>
             <hr class="soften">
+			{{content.getting_started}}
           </div>
         </script>
       </div>
