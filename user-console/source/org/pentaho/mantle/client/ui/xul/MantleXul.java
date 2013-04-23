@@ -249,8 +249,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
               for (int i = 0; i < jsoverlays.length(); i++) {
                 JsXulOverlay o = jsoverlays.get(i);
                 MantleXulOverlay overlay;
-                  overlay = new MantleXulOverlay(o.getId(), o.getOverlayUri(), o.getSource(),
-                      o.getResourceBundleUri(), Integer.parseInt(o.getPriority()));
+                overlay = new MantleXulOverlay(o.getId(), o.getOverlayUri(), o.getSource(), o.getResourceBundleUri(), Integer.parseInt(o.getPriority()));
                 overlays.add(overlay);
               }
 
@@ -268,33 +267,28 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   public void overlayLoaded() {
   }
 
-   /**
+  /**
    * Class to compare Overlays using their priority attribute
    */
   private class OverlayPriority implements Comparator<XulOverlay> {
 
-
     @Override
     public int compare(XulOverlay o1, XulOverlay o2) {
-      int value=0;
-      if(o1!=null && o2!=null){
-        if(o1.getPriority() > o2.getPriority()) {
-          value=1;
+      int value = 0;
+      if (o1 != null && o2 != null) {
+        if (o1.getPriority() > o2.getPriority()) {
+          value = 1;
+        } else if (o1.getPriority() < o2.getPriority()) {
+          value = -1;
         }
-        else if(o1.getPriority() < o2.getPriority()) {
-          value=-1;
-        }
-      }
-      else if(o1==null && o2!=null){
+      } else if (o1 == null && o2 != null) {
         value = -1;
-      }
-      else if(o2==null && o1!=null){
+      } else if (o2 == null && o1 != null) {
         value = 1;
       }
       return value;
     }
   }
-
 
   /**
    * Class to compare Overlays using their priority attribute
@@ -302,9 +296,9 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   private class OverlayLoader {
     private final List<XulOverlay> overlays;
 
-     public OverlayLoader(List<XulOverlay> overlays) {
-       this.overlays = new ArrayList<XulOverlay>(overlays);
-     }
+    public OverlayLoader(List<XulOverlay> overlays) {
+      this.overlays = new ArrayList<XulOverlay>(overlays);
+    }
 
     public void loadOverlays() {
       loadOverlays(0);
@@ -355,22 +349,22 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
     }
   }
 
-    public void addOverlays( ArrayList<XulOverlay> overlays) {
+  public void addOverlays(ArrayList<XulOverlay> overlays) {
 
     Collections.sort(overlays, new OverlayPriority());
     this.overlays.addAll(overlays);
 
-    if(this.overlays.size()>0) {
-    // wait for container to be loaded/ready
-    Timer loadOverlayTimer = new Timer() {
-      public void run() {
-        if (container != null) {
-          cancel();
-          new OverlayLoader(MantleXul.this.overlays).loadOverlays();
+    if (this.overlays.size() > 0) {
+      // wait for container to be loaded/ready
+      Timer loadOverlayTimer = new Timer() {
+        public void run() {
+          if (container != null) {
+            cancel();
+            new OverlayLoader(MantleXul.this.overlays).loadOverlays();
+          }
         }
-      }
-    };
-    loadOverlayTimer.scheduleRepeating(250);
+      };
+      loadOverlayTimer.scheduleRepeating(250);
     }
   }
 
@@ -383,18 +377,26 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   }
 
   public void applyOverlay(final String id) {
-    Timer t = new Timer() {
-      public void run() {
-        try {
-          if (container != null) {
-            cancel();
-            container.loadOverlay(id);
-          }
-        } catch (XulException e) {
-        }
+    if (container != null) {
+      try {
+        container.loadOverlay(id);
+      } catch (XulException e) {
       }
-    };
-    t.scheduleRepeating(250);
+    } else {
+
+      Timer t = new Timer() {
+        public void run() {
+          try {
+            if (container != null) {
+              cancel();
+              container.loadOverlay(id);
+            }
+          } catch (XulException e) {
+          }
+        }
+      };
+      t.scheduleRepeating(250);
+    }
   }
 
   public void removeOverlays(Set<String> overlayIds) {
@@ -406,18 +408,25 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
   }
 
   public void removeOverlay(final String id) {
-    Timer t = new Timer() {
-      public void run() {
-        try {
-          if (container != null) {
-            cancel();
-            container.removeOverlay(id);
-          }
-        } catch (XulException e) {
-        }
+    if (container != null) {
+      try {
+        container.removeOverlay(id);
+      } catch (XulException e) {
       }
-    };
-    t.scheduleRepeating(250);
+    } else {
+      Timer t = new Timer() {
+        public void run() {
+          try {
+            if (container != null) {
+              cancel();
+              container.removeOverlay(id);
+            }
+          } catch (XulException e) {
+          }
+        }
+      };
+      t.scheduleRepeating(250);
+    }
   }
 
   public void overlayRemoved() {

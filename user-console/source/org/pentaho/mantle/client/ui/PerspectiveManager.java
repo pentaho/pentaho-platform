@@ -53,14 +53,12 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.DockPanel.DockLayoutConstant;
 
 public class PerspectiveManager extends HorizontalPanel {
 
