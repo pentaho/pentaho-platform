@@ -1,4 +1,4 @@
-pen.define(["favorites"], function(Favorites) {
+pen.define(["js/favorites"], function(Favorites) {
 
   var local = {
     recents: undefined,

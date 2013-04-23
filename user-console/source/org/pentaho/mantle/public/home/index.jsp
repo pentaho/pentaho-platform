@@ -13,73 +13,50 @@
 
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+<meta charset="utf-8">
   <title>Home Page</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Le styles -->
-  <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+  <link href="twitter/css/bootstrap.css" rel="stylesheet">
+  <link href="css/home.css" rel="stylesheet">
 
-  <style>
-    .widget-panel {
-      height: 240px;
-    }
+  <!-- We need web context for requirejs and css -->
+  <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
 
-    .main-container {
-      padding-top: 20px;
-      max-width: 1024px;
-    }
+  <!-- jQuery -->
+  <script type="text/javascript" src="jquery/js/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery.i18n.properties-min.js"></script>
+  
+  <!-- Twitter -->
+  <script type="text/javascript" src="twitter/js/widgets.js"></script>
+  <script type="text/javascript" src="twitter/js/bootstrap.js"></script>
+  
+  <!-- Handlebars -->
+  <script type="text/javascript" src="js/handlebars.js"></script>
 
-    .widget-panel.well {
-      padding: 0px 19px 19px;
-    }
-
-    button.btn-large.btn-block {
-      padding-left: 10px;
-      padding-right: 10px;
-    }
-
-    .nobreak {
-      white-space: nowrap;
-    }
-
-    .widget-panel.well .content-panel {
-      height: 186px;
-      overflow-y: auto;
-      background: #ffffff;
-      min-width: 50px;
-    }
-
-    .pointer {
-      cursor: pointer;
-    }
-
-    .content-icon {
-      height: 32px;
-      width: 32px;
-    }
-
-    .pad-left {
-      padding-left: 4px;
-    }
-
-    /*spinner gets added dynamically later*/
-    .content-panel .spinner {
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: 80px;;
-    }
-
-  </style>
+  <!-- Require Home -->
+  <script type="text/javascript">
+  	var Home = null;
+  	pen.require(["js/home"], function(pentahoHome) {
+  		Home = pentahoHome;
+  		
+  		// Define permissions
+  		var permissionsMap = {};
+  	
+  		permissionsMap.canCreateContent 	= <%=canCreateContent%>;
+  		permissionsMap.hasAnalyzerPlugin 	= <%=pluginIds.contains("analyzer")%>;
+  		permissionsMap.hasIRPlugin 			= <%=pluginIds.contains("pentaho-interactive-reporting")%>;
+  		permissionsMap.hasDashBoardsPlugin 	= <%=pluginIds.contains("dashboards")%>;
+  		
+  		Home.init(permissionsMap);
+  	});
+  </script>
 
   <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
   <!--[if lt IE 9]>
   <script src="bootstrap/js/html5shiv.js"></script>
   <![endif]-->
-
-  <!-- We need web context for requirejs and css -->
-  <script type="text/javascript" src="webcontext.js?context=mantle&cssOnly=true"></script>
-
 </head>
 
 <body data-spy="scroll" data-target=".sidebar">
@@ -113,21 +90,21 @@
 
 			{{#if hasAnalyzerPlugin}}
             	<button class="btn btn-large btn-block nobreak"
-                    onclick="openFile('{{i18n.analyzer_report}}', '{{i18n.analyzer_tooltip}}', 'api/repos/xanalyzer/service/selectSchema');$('#btnCreateNew').popover('hide')">
+                    onclick="Home.openFile('{{i18n.analyzer_report}}', '{{i18n.analyzer_tooltip}}', 'api/repos/xanalyzer/service/selectSchema');$('#btnCreateNew').popover('hide')">
               	{{i18n.analysis_report}}
             	</button>
 			{{/if}}
 
 			{{#if hasIRPlugin}}
             	<button class="btn btn-large btn-block nobreak"
-                    onclick="openFile('{{i18n.interactive_report}}', '{{i18n.interactive_report}}', 'api/repos/pentaho-interactive-reporting/prpti.new');$('#btnCreateNew').popover('hide')">
+                    onclick="Home.openFile('{{i18n.interactive_report}}', '{{i18n.interactive_report}}', 'api/repos/pentaho-interactive-reporting/prpti.new');$('#btnCreateNew').popover('hide')">
               	{{i18n.interactive_report}}
             	</button>
 			{{/if}}
 
 			{{#if hasDashBoardsPlugin}}
             	<button class="btn btn-large btn-block nobreak"
-                    onclick="openFile('{{i18n.dashboard}}', '{{i18n.dashboard}}', 'api/repos/dashboards/editor');$('#btnCreateNew').popover('hide')">
+                    onclick="Home.openFile('{{i18n.dashboard}}', '{{i18n.dashboard}}', 'api/repos/dashboards/editor');$('#btnCreateNew').popover('hide')">
               	{{i18n.dashboard}}
             	</button>
 			{{/if}}
@@ -171,7 +148,7 @@
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachFavorite favorites}}
                   <li>
-                    <a href="javascript:openRepositoryFile('{{fullPath}}', 'run')">
+                    <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')">
                       {{#if xanalyzer}} <img src="images/analyzer.png" class="content-icon">   {{/if}}
                       {{#if xdash}}     <img src="images/dashboard.png" class="content-icon">  {{/if}}
                       {{#if xcdf}}      <img src="images/cdf.png" class="content-icon">        {{/if}}
@@ -213,7 +190,7 @@
                 <ul class="nav nav-tabs nav-stacked">
                   {{#eachRecent recent}}
                   <li>
-                    <a href="javascript:openRepositoryFile('{{fullPath}}', 'run')">
+                    <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')">
                       {{#if xanalyzer}} <img src="images/analyzer.png" class="content-icon">   {{/if}}
                       {{#if xdash}}     <img src="images/dashboard.png" class="content-icon">  {{/if}}
                       {{#if xcdf}}      <img src="images/cdf.png" class="content-icon">        {{/if}}
@@ -261,127 +238,6 @@
         <button class="pentaho-button" data-dismiss="modal" aria-hidden="true">{{i18n.cancel}}</button>
         <button class="pentaho-button" id="{{confirmBtnId}}">{{i18n.clear}}</button>
     </div>
-</script>
-
-<script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
-<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
-<script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
-<script type="text/javascript" src="handlebars.js"></script>
-<script type="text/javascript" src="jquery.i18n.properties-min.js"></script>
-
-<script type="text/javascript">
-  var controller = undefined;
-
-
-  //Retrieve configuration properites
-  jQuery.i18n.properties({
-    name: 'config',
-    mode: 'map'
-  });
-
-  // Retrieve Message bundle, then process templates
-  jQuery.i18n.properties({
-    name: 'messages',
-    mode: 'map',
-    callback: function () {
-
-
-      var context = {};
-      
-      // Define permissions
-      context.canCreateContent 	= <%=canCreateContent%>;
-      context.hasAnalyzerPlugin = <%=pluginIds.contains("analyzer")%>;
-      context.hasIRPlugin 		= <%=pluginIds.contains("pentaho-interactive-reporting")%>;
-      context.hasDashBoardsPlugin = <%=pluginIds.contains("dashboards")%>;
-
-      // one bundle for now, namespace later if needed
-      context.i18n = jQuery.i18n.map;
-
-      var favoriteControllerConfig = {
-        favoritesDisabled: false,
-        recentsDisabled: false,
-        i18nMap: jQuery.i18n.map
-      };
-
-      // Set disabled = true for 
-      var disabledWidgetIdsArr = jQuery.i18n.map.disabled_widgets.split(",");
-   	  $.each(disabledWidgetIdsArr, function(index, value) {
-   		
-   		if (value == "favorites") {
-            favoriteControllerConfig.favoritesDisabled = true;
-   		} else if (value == "recents") {
-            favoriteControllerConfig.recentsDisabled = true;
-   		}
-   	  });
-
-      initFavoritesAndRecents(favoriteControllerConfig);
-
-      // Process and inject all handlebars templates, results are parented to the template's parent node.
-      $("script[type='text/x-handlebars-template']:not([delayCompile='true'])").each(
-          function (pos, node) {        	
-          	var source = $(node).html();
-          	var template = Handlebars.compile(source);
-          	var html = $($.trim(template(context)));
-
-          	var widgetId = html.attr("id");
-          	if (widgetId && $.inArray(widgetId, disabledWidgetIdsArr) != -1){
-          		return;
-          	}
-          	
-			node.parentNode.appendChild(html[0])
-          });
-
-      // Handle the new popover menu. If we add another, make generic
-      $("#btnCreateNew").popover({
-        html: true,
-        content: function () {
-          return $('#btnCreateNewContent').html();
-        }
-      });
-      // setup a listener to hide popovers when a click happens outside of them
-      $('body').on('click', function (e) {
-        $('.popover-source').each(function () {
-          if ($(this).has(e.target).length == 0 && !$(this).is(e.target) && $('.popover').has(e.target).length == 0) {
-            $(this).popover('hide');
-          }
-        });
-      });
-    }
-  });
-
-  function openFile(title, tooltip, fullPath) {
-    if(parent.mantle_setPerspective && window.parent.openURL) {
-      // show the opened perspective
-      parent.mantle_setPerspective('default.perspective');
-      window.parent.openURL(title, tooltip, fullPath);
-    }
-  }
-
-  function openRepositoryFile(path, mode) {
-    if(!path) {
-      return;
-    }
-    if(!mode) {
-      mode = "edit";
-    }
-    // show the opened perspective
-    parent.mantle_setPerspective('default.perspective');
-    window.parent.openRepositoryFile(path, mode);
-  }
-
-  function initFavoritesAndRecents(config) {
-    pen.require(["FavoritesController"], function(FavoritesController){
-      controller = new FavoritesController(config);
-    });
-  }
-
-  /**
-   * this gets triggered when the Home perspective becomes active
-   */
-  function perspectiveActivated() {
-    controller.refreshAll();
-  }
-
 </script>
 
 </body>
