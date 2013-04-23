@@ -17,6 +17,7 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
     displayContainerId: "favoritesContianer",
     contentPanelId: "favorites-content-panel",
     serviceUrl: "api/user-settings/favorites",
+    favoritesUrl: "api/user-settings/favorites",
     spinContainer: "favoritesSpinner",
     i18nMap: undefined,
     helperRegistered: false,
@@ -46,13 +47,15 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
         var that = this;
         Handlebars.registerHelper(this.template.itemIterator, function(context, options) {
           var ret = "";
-
+          var isEmpty = that.isEmptyList(context);
           for(var i=0, j=context.length; i<j; i++) {
             var repositoryPath = context[i].fullPath;
             if(repositoryPath) {
               var extension = repositoryPath.substr( (repositoryPath.lastIndexOf('.') +1) );
               context[i][extension] = true;
             }
+            context[i].isEmpty = isEmpty;
+            context[i].isFavorite = that.isItemAFavorite(context[i].fullPath);
             ret = ret + options.fn(context[i]);
           }
 
@@ -60,7 +63,7 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
         });
 
         Handlebars.registerHelper("hasItems", function(context, options) {
-          if(context.length == 0 || (context.length == 1 && context[0].title == that.i18nMap.emptyList)) {
+          if(that.isEmptyList(context)) {
             return options.inverse(this);
           }
           return options.fn(this);
@@ -70,7 +73,12 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       }
     },
 
+    isEmptyList: function(context) {
+      return (context.length == 0 || (context.length == 1 && context[0].title == this.i18nMap.emptyList));
+    },
+
     load: function() {
+      this._beforeLoad();
       this.registerHelper();
       var context = {};
       context.i18n = this.i18nMap;
@@ -85,6 +93,10 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       });
     },
 
+    _beforeLoad: function() {
+      this.currentItems = undefined;
+    },
+
     getUrlBase: function() {
       if(!this.urlBase) {
         this.urlBase = window.location.pathname.substring(0, window.location.pathname.indexOf("/mantle/home")) + "/";
@@ -93,7 +105,6 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
     },
 
     getContent: function(/*Function*/ callback) {
-      var settings = [];
       var now = new Date();
       var that = this;
       $.ajax({
@@ -114,7 +125,7 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       });
     },
 
-    doClear: function() {
+    doClear: function(callback) {
       var that = this;
       var context = {};
       context.i18n = that.i18nMap;
@@ -126,6 +137,9 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
 
         success: function(result) {
           that.showList(result, context);
+          if(callback) {
+            callback();
+          }
         },
 
         error: function(err) {
@@ -153,9 +167,23 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       }
       var template = Handlebars.compile(this.template.html);
       if(items.length > 0) {
-        context[this.name] = JSON.parse(items);
+        try {
+          context[this.name] = JSON.parse(items);
+          context.isEmpty = context[this.name].length == 0;
+          this.currentItems = context[this.name];
+          if(context.isEmpty) {
+            context[this.name] = [{title: this.i18nMap.emptyList}];
+            this.currentItems = [];
+          }
+        } catch(err) {
+          context[this.name] = [{title: this.i18nMap.emptyList}];
+          context.isEmpty = true;
+          this.currentItems = [];
+        }
       } else {
         context[this.name] = [{title: this.i18nMap.emptyList}];
+        context.isEmpty = true;
+        this.currentItems = [];
       }
       var html = template(context);
       var that = this;
@@ -163,10 +191,10 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       setTimeout(function() {
         that.spinner.stop();
         $("#" + that.displayContainerId).html(html);
-      }, 500);
+      }, 100);
     },
 
-    clear: function() {
+    clear: function(callback) {
       if(!this.confirmTemplate.html) {
         this.confirmTemplate.html = $("#" + this.confirmTemplate.id).html();
       }
@@ -182,13 +210,107 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       $("#" + this.confirmTemplate.container).modal('show');
       $("#clear-all-"+this.name).click(function() {
         // clear the items
-        that.doClear();
+        that.doClear(callback);
         // dismiss the dialog
         $("#" + that.confirmTemplate.container).modal('hide');
       });
 
-    }
+    },
 
+    /**
+     * override this for recents to have logic.
+     * @param fullPath
+     * @returns {boolean}
+     */
+    isItemAFavorite: function(fullPath) {
+      return true;
+    },
+
+    getFavorites: function() {
+      return this.getCurrentItems();
+    },
+
+    getCurrentItems: function() {
+      return this.currentItems;
+    },
+
+    unmarkFavorite: function(fullPath, callback) {
+      var faves = this.getFavorites();
+      var found = this.indexOfFavorite(fullPath);
+      if(found >= 0) {
+        faves.splice(found, 1);
+        var that = this;
+        $.ajax({
+          url: that.getUrlBase() + that.favoritesUrl,
+          type: 'POST',
+          data: (JSON.stringify(faves)),
+
+          success: function(result) {
+            that.load();
+            if(callback) {
+              callback();
+            }
+          },
+
+          error: function(err) {
+            console.log("Error removing a favorite - " + err);
+          }
+        });
+      }
+
+    },
+    markFavorite: function(fullPath, callback) {
+      var items = this.getCurrentItems();
+      var faves = this.getFavorites() ? this.getFavorites() : [];
+      var idx = this.indexOf(fullPath);
+      if(idx >= 0) {
+        faves.push(items[idx]);
+      }
+      var that = this;
+      $.ajax({
+        url: that.getUrlBase() + that.favoritesUrl,
+        type: 'POST',
+        data: (JSON.stringify(faves)),
+
+        success: function(result) {
+          that.load();
+          if(callback) {
+            callback();
+          }
+        },
+
+        error: function(err) {
+          console.log("Error adding a favorite - " + err);
+        }
+      });
+
+    },
+    indexOf: function(fullPath) {
+      var items = this.getCurrentItems();
+      var index = -1;
+      if(items) {
+        $.each(items, function(idx, item) {
+          if(item.fullPath == fullPath) {
+            index = idx;
+            return false;
+          }
+        });
+      }
+      return index;
+    },
+    indexOfFavorite: function(fullPath) {
+      var items = this.getFavorites();
+      var index = -1;
+      if(items) {
+        $.each(items, function(idx, item) {
+          if(item.fullPath == fullPath) {
+            index = idx;
+            return false;
+          }
+        });
+      }
+      return index;
+    }
   };
 
   var favorite = function(){
