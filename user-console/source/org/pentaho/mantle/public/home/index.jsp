@@ -33,12 +33,12 @@
   <script type="text/javascript" src="twitter/js/bootstrap.js"></script>
   
   <!-- Handlebars -->
-  <script type="text/javascript" src="js/handlebars.js"></script>
+  <script type="text/javascript" src="handlebars/js/handlebars.js"></script>
 
   <!-- Require Home -->
   <script type="text/javascript">
   	var Home = null;
-  	pen.require(["js/home"], function(pentahoHome) {
+  	pen.require(["home/home"], function(pentahoHome) {
   		Home = pentahoHome;
   		
   		// Define permissions
