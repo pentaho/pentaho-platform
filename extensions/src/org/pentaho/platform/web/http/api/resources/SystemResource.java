@@ -25,6 +25,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
@@ -115,20 +117,31 @@ public class SystemResource extends AbstractJaxRSResource {
   }
   
   /**
-   * @return a list of TimeZones
+   * @return a list of TimeZones ensuring that the server (default) timezone is at the top of the list (0th element)
    */
   @GET
   @Path("/timezones")
   @Produces({ APPLICATION_JSON, APPLICATION_XML })
-  public StringListWrapper getTimeZones() {
-    ArrayList<String> stringList = new ArrayList<String>();
-    String[] rawTimeZoneIds = TimeZone.getAvailableIDs();
-    for (String tzId : rawTimeZoneIds) {
+  public TimeZoneWrapper getTimeZones() {
+    Map<String, String> timeZones = new HashMap<String, String>();
+    for (String tzId : TimeZone.getAvailableIDs()) {
       if (!tzId.toLowerCase().contains("gmt")) {
-        stringList.add(tzId);
+        timeZones.put(tzId, TimeZone.getTimeZone(tzId).getDisplayName(true, TimeZone.LONG) + " (" + tzId + ")");
       }
     }
-    return new StringListWrapper(stringList);
+    return new TimeZoneWrapper(timeZones, TimeZone.getDefault().getID());
+//    ArrayList<String> stringList = new ArrayList<String>();
+//    String[] rawTimeZoneIds = TimeZone.getAvailableIDs();
+//    for (String tzId : rawTimeZoneIds) {
+//      if (!tzId.toLowerCase().contains("gmt")) {
+//        stringList.add(tzId);
+//      }
+//    }
+//    String defaultTz = TimeZone.getDefault().getID();
+//    int i = stringList.indexOf(defaultTz);
+//    stringList.remove(i);
+//    stringList.add(0, defaultTz);
+//    return new TimeZoneWrapper(stringList);
   }
 
 }

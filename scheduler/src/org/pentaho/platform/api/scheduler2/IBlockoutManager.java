@@ -25,6 +25,8 @@ import java.util.List;
  */
 public interface IBlockoutManager {
   public static final String DURATION_PARAM = "DURATION_PARAM"; //$NON-NLS-1$
+  
+  public static final String TIME_ZONE_PARAM= "TIME_ZONE_PARAM"; //$NON-NLS-1$
 
   public static final String BLOCK_OUT_JOB_NAME = "BlockoutAction"; //$NON-NLS-1$
 
