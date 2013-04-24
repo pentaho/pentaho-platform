@@ -147,12 +147,12 @@ body{
 
 .fileLabel .gwt-Label {
   padding-left: 5px;
-  font-size: .8em;
+  font-size: 1em;
 }
 
 .fileLabelSelected .gwt-Label {
   padding-left: 5px;
-  font-size: .8em;
+  font-size: 1em;
 }
 
 
@@ -178,25 +178,30 @@ body{
 }
 
 .puc-horizontal-split-panel {
+bottom: 5px;
 }
 
-.IE .puc-horizontal-split-panel {
-  overflow: hidden;
-}
-.puc-horizontal-split-panel .hsplitter {
+
+
+.puc-horizontal-split-panel .gwt-SplitLayoutPanel-HDragger {
   cursor: w-resize;
   margin-right: 10px;
   padding-left: 4px;
   padding-right: 2px;
 }
 
-
-.puc-vertical-split-panel .vsplitter {
+.puc-vertical-split-panel .gwt-SplitLayoutPanel-VDragger {
   cursor: n-resize;
   padding-top: 4px;
   padding-bottom: 2px;
   overflow: hidden;
 }
+
+.IE .puc-horizontal-split-panel {
+    top: 42px;
+    overflow: hidden;
+}
+
 
 #loading {
   position: absolute;
@@ -630,10 +635,10 @@ code {
 
 /* BISERVER-6181 - add padding to bottom of the file list panel*/
 .filter-list-panel-container {
-  bottom: 14px !important; /* override the inline style that is set by gwt, simple padding doesn't work */
+  /*bottom: 14px !important;  override the inline style that is set by gwt, simple padding doesn't work */
 }
 .IE .filter-list-panel-container {
-  padding-bottom: 6px !important; /* ie setting the padding works */
+  /*padding-bottom: 6px !important;  ie setting the padding works */
 }
 /* end fix BISERVER-6181 */
 
