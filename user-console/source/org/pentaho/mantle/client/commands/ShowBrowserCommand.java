@@ -39,9 +39,9 @@ public class ShowBrowserCommand implements Command {
 
   public void execute() {
     final SolutionBrowserPanel solutionBrowserPerspective = SolutionBrowserPanel.getInstance();
-    if (solutionBrowserPerspective != null  && !solutionBrowserPerspective.isNavigatorShowing()) {
-      PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);      
-   }
+    if (solutionBrowserPerspective != null) {
+      PerspectiveManager.getInstance().setPerspective(PerspectiveManager.DEFAULT_PERSPECTIVE);
+    }
     solutionBrowserPerspective.setNavigatorShowing(state);
     final String url = GWT.getHostPageBaseURL() + "api/user-settings/MANTLE_SHOW_NAVIGATOR"; //$NON-NLS-1$
     RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
