@@ -248,7 +248,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
 .puc-horizontal-split-panel {
 }
 
-.puc-horizontal-split-panel .hsplitter {
+.puc-horizontal-split-panel .gwt-SplitLayoutPanel-HDragger {
   background-color: rgba(255, 255, 255, 0.2);
   border-top: 1px solid #aaaaaa;
   border-right: 1px solid #aaaaaa;
@@ -258,9 +258,14 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
   background-color: #E8EEF7;
 }
 
+
+
 .puc-vertical-split-panel {
 }
 
+.IE .puc-horizontal-split-panel .left {
+    top: 46px;
+}
 
 #loading {
   background: white;
@@ -703,7 +708,7 @@ a:active, a:hover {
 }
 
 .leaf-widget {
-     font-size: .8em;
+     font-size: 1em;
  }
 
 .leaf-widget .gwt-TreeItem > table {
