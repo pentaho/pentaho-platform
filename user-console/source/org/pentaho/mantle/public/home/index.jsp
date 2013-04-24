@@ -140,17 +140,51 @@
 
       <div class="row-fluid">
 
-        <div class="span6">
+          <div class="span6">
+              <script id="recentsTemplate" type="text/x-handlebars-template" delayCompile="true">
+                  <div id="recents" class="well widget-panel">
+                      <h3>
+                          {{i18n.recents}}
+                      </h3>
+                      <div id="recentsSpinner"></div>
+                      <div id="recents-content-panel" class="content-panel">
+                          <ul class="nav nav-tabs nav-stacked">
+                              {{#eachRecent recent}}
+                              <li>
+                                  <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')">
+                                      {{#if xanalyzer}}   <img src="images/analyzer.png" class="content-icon">   {{/if}}
+                                      {{#if xdash}}       <img src="images/dashboard.png" class="content-icon">  {{/if}}
+                                      {{#if xcdf}}        <img src="images/cdf.png" class="content-icon">        {{/if}}
+                                      {{#if prpti}}       <img src="images/pir.png" class="content-icon">        {{/if}}
+                                      {{#if prpt}}        <img src="images/pir.png" class="content-icon">        {{/if}}
+                                      {{#if xaction}}     <img src="images/xaction.png" class="content-icon">    {{/if}}
+                                      {{#if url}}         <img src="images/url.png" class="content-icon">        {{/if}}
+                                      {{#if html}}        <img src="images/url.png" class="content-icon">        {{/if}}
+                                      {{#if unknownType}} <img src="images/generic.png" class="content-icon">       {{/if}}
+                                      <span class="pad-left">{{title}}</span>
+                                      {{#unless isEmpty}}
+                                      {{#if isFavorite}}
+                                      <img src="images/favorite1.png" class="pull-right content-icon" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;">
+                                      {{else}}
+                                      <img src="images/favorite0.png" class="pull-right content-icon" onclick="controller.markRecentAsFavorite('{{fullPath}}', '{{title}}'); return false;">
+                                      {{/if}}
+                                      {{/unless}}
+                                  </a>
+                              </li>
+                              {{/eachRecent}}
+                          </ul>
+                      </div>
+                  </div>
+              </script>
+
+              <div id="recentsContianer"></div>
+          </div>
+
+          <div class="span6">
           <script id="favoritesTemplate" type="text/x-handlebars-template" delayCompile="true">
             <div id="favorites" class="well widget-panel">
               <h3>
                   {{i18n.favorites}}
-                  <span class="pull-right">
-                    {{#unless isEmpty}}
-                    <i class="icon-remove-circle pointer" onclick="controller.clearFavorites();" title="{{i18n.clearAllFavorites}}"></i>
-                    {{/unless}}
-                    <!--<i class="icon-refresh pointer" onclick="controller.loadFavorites();" title="{{i18n.refresh}}"></i>-->
-                  </span>
               </h3>
               <div id="favoritesSpinner"></div>
               <div id="favorites-content-panel" class="content-panel">
@@ -158,14 +192,15 @@
                   {{#eachFavorite favorites}}
                   <li>
                     <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')">
-                      {{#if xanalyzer}} <img src="images/analyzer.png" class="content-icon">   {{/if}}
-                      {{#if xdash}}     <img src="images/dashboard.png" class="content-icon">  {{/if}}
-                      {{#if xcdf}}      <img src="images/cdf.png" class="content-icon">        {{/if}}
-                      {{#if prpti}}     <img src="images/pir.png" class="content-icon">        {{/if}}
-                      {{#if prpt}}      <img src="images/pir.png" class="content-icon">        {{/if}}
-                      {{#if xaction}}   <img src="images/xaction.png" class="content-icon">    {{/if}}
-                      {{#if url}}       <img src="images/url.png" class="content-icon">        {{/if}}
-                      {{#if html}}      <img src="images/url.png" class="content-icon">        {{/if}}
+                      {{#if xanalyzer}}   <img src="images/analyzer.png" class="content-icon">   {{/if}}
+                      {{#if xdash}}       <img src="images/dashboard.png" class="content-icon">  {{/if}}
+                      {{#if xcdf}}        <img src="images/cdf.png" class="content-icon">        {{/if}}
+                      {{#if prpti}}       <img src="images/pir.png" class="content-icon">        {{/if}}
+                      {{#if prpt}}        <img src="images/pir.png" class="content-icon">        {{/if}}
+                      {{#if xaction}}     <img src="images/xaction.png" class="content-icon">    {{/if}}
+                      {{#if url}}         <img src="images/url.png" class="content-icon">        {{/if}}
+                      {{#if html}}        <img src="images/url.png" class="content-icon">        {{/if}}
+                      {{#if unknownType}} <img src="images/generic.png" class="content-icon">       {{/if}}
                       <span class="pad-left">{{title}}</span>
                       {{#unless isEmpty}}
                         <img src="images/favorite1.png" class="pull-right content-icon" onclick="controller.unmarkFavorite('{{fullPath}}'); return false;">
@@ -182,72 +217,10 @@
 
         </div>
 
-        <div class="span6">
-          <script id="recentsTemplate" type="text/x-handlebars-template" delayCompile="true">
-            <div id="recents" class="well widget-panel">
-              <h3>
-                  {{i18n.recents}}
-                  <span class="pull-right">
-                    {{#unless isEmpty}}
-                    <i class="icon-remove-circle pointer" onclick="controller.clearRecents();" title="{{i18n.clearAllRecents}}"></i>
-                    {{/unless}}
-                    <!--<i class="icon-refresh pointer" onclick="controller.loadRecents();" title="{{i18n.refresh}}"></i>-->
-                  </span>
-              </h3>
-              <div id="recentsSpinner"></div>
-              <div id="recents-content-panel" class="content-panel">
-                <ul class="nav nav-tabs nav-stacked">
-                  {{#eachRecent recent}}
-                  <li>
-                    <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')">
-                      {{#if xanalyzer}} <img src="images/analyzer.png" class="content-icon">   {{/if}}
-                      {{#if xdash}}     <img src="images/dashboard.png" class="content-icon">  {{/if}}
-                      {{#if xcdf}}      <img src="images/cdf.png" class="content-icon">        {{/if}}
-                      {{#if prpti}}     <img src="images/pir.png" class="content-icon">        {{/if}}
-                      {{#if prpt}}      <img src="images/pir.png" class="content-icon">        {{/if}}
-                      {{#if xaction}}   <img src="images/xaction.png" class="content-icon">    {{/if}}
-                      {{#if url}}       <img src="images/url.png" class="content-icon">        {{/if}}
-                      {{#if html}}      <img src="images/url.png" class="content-icon">        {{/if}}
-                      <span class="pad-left">{{title}}</span>
-                      {{#unless isEmpty}}
-                        {{#if isFavorite}}
-                          <img src="images/favorite1.png" class="pull-right content-icon" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;">
-                        {{else}}
-                          <img src="images/favorite0.png" class="pull-right content-icon" onclick="controller.markRecentAsFavorite('{{fullPath}}'); return false;">
-                        {{/if}}
-                      {{/unless}}
-                    </a>
-                  </li>
-                  {{/eachRecent}}
-                </ul>
-              </div>
-            </div>
-          </script>
-
-          <div id="recentsContianer"></div>
-        </div>
-
       </div>
     </div>
   </div>
 </div>
-
-
-<div id="confirmClearAll" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="confirmLabel" aria-hidden="true">
-</div>
-<script id="confirmationDialogTemplate" type="text/x-handlebars-template" delayCompile="true">
-    <div class="modal-header">
-        <a href="#" class="close" data-dismiss="modal">&times;</a>
-        <h3 id="confirmLabel">{{i18n.confirm}}</h3>
-    </div>
-    <div class="modal-body">
-        <p>{{clearMessage}}</p>
-    </div>
-    <div class="modal-footer">
-        <button class="pentaho-button" data-dismiss="modal" aria-hidden="true">{{i18n.cancel}}</button>
-        <button class="pentaho-button" id="{{confirmBtnId}}">{{i18n.clear}}</button>
-    </div>
-</script>
 
 </body>
 </html>

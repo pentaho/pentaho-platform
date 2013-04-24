@@ -130,14 +130,14 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
 	public void fireItemsChangedEvent() {
 		for (IFilePickListListener<T> listener : listeners) {
 			listener.itemsChanged(this);
-			}
+		}
 	}
 
-	public void addItemsChangedListener(IFilePickListListener<T> listener) {
+	public void addPickListListener(IFilePickListListener<T> listener) {
 		listeners.add(listener);
 	}
 
-	public void removeItemsChangedListener(IFilePickListListener<T> listener) {
+	public void removePickListListener(IFilePickListListener<T> listener) {
 		listeners.remove(listener);
 	}
 
@@ -216,11 +216,19 @@ public abstract class AbstractFilePickList<T extends IFilePickItem> {
         }
 
         public void onResponseReceived(Request request, Response response) {
-        	//Nothing to do here
+        	fireOnSavedEvent();
         }
       });
     } catch (RequestException e) {
       // showError(e);
     }
   }
+
+  private void fireOnSavedEvent() {
+    for (IFilePickListListener<T> listener : listeners) {
+      listener.onSaveComplete(this);
+    }
+  }
+
+
 }

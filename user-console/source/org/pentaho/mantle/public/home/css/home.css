@@ -46,3 +46,8 @@ button.btn-large.btn-block {
 	margin-right: auto;
 	margin-top: 80px;;
 }
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
