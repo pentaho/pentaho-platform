@@ -111,8 +111,7 @@ pen.define([], function() {
 	}
 
 	function initFavoritesAndRecents(config) {
-		// TODO Do not use path
-		pen.require(["js/FavoritesController"], function(FavoritesController){
+		pen.require(["home/FavoritesController"], function(FavoritesController){
 			controller = new FavoritesController(config);
 		});
 	}
