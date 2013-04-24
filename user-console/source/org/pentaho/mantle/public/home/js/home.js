@@ -117,7 +117,36 @@ pen.define([], function() {
 		});
 	}
 
+	function getUrlBase(){
+	  return window.location.pathname.substring(0, window.location.pathname.indexOf("/mantle/home")) + "/";
+	}
+
+	function getContent(serviceUrl, successCallback, errorCallback, beforeSendCallback) {
+	  var now = new Date();
+	  $.ajax({
+	    url: serviceUrl + "?ts=" + now.getTime(),
+	    success: function(result) {
+	      if(successCallback){
+	        successCallback(result);
+	      }
+	    },
+	    error: function(err) {
+	      console.log(err);
+	      if(errorCallback){
+	        errorCallback(err);
+	      }
+	    },
+	    beforeSend: function() {
+	      if(beforeSendCallback){
+	        beforeSendCallback();
+	      }
+	    }
+	  });
+	}
+
 	return {
+		getUrlBase:getUrlBase,
+		getContent:getContent,
 		openFile:openFile,
 		openRepositoryFile:openRepositoryFile,
 		init:init

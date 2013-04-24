@@ -48,8 +48,18 @@
   		permissionsMap.hasAnalyzerPlugin 	= <%=pluginIds.contains("analyzer")%>;
   		permissionsMap.hasIRPlugin 			= <%=pluginIds.contains("pentaho-interactive-reporting")%>;
   		permissionsMap.hasDashBoardsPlugin 	= <%=pluginIds.contains("dashboards")%>;
-  		
-  		Home.init(permissionsMap);
+
+      // BISERVER-8631 - Manage datasources only available to roles/users with appropriate permissions
+      var serviceUrl = Home.getUrlBase() + "plugin/data-access/api/permissions/hasDataAccess";
+      permissionsMap.hasDataAccess = false; // default
+      Home.getContent(serviceUrl, function(result){
+        permissionsMap.hasDataAccess = result;
+        Home.init(permissionsMap); // initialize
+      }, function(error){
+        console.log(error);
+        Home.init(permissionsMap); // log error and initialize anyway
+      });
+
   	});
   </script>
 
@@ -78,9 +88,12 @@
           	</button>
 		  {{/if}}		  
 		
+      {{#if hasDataAccess}}
           <button class="btn btn-large btn-block" onclick="window.parent.executeCommand('ManageDatasourcesCommand')">
             {{i18n.manage_datasources}}
           </button>
+      {{/if}}
+
           <button class="btn btn-large btn-block" onclick="window.parent.executeCommand('OpenDocCommand')">
             {{i18n.documentation}}
           </button>
