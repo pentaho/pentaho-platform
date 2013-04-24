@@ -1,7 +1,6 @@
 pen.define([], function() {
 	
 	function init(permissions) {
-		var controller = undefined;
 
 		// Retrieve configuration properites
 		jQuery.i18n.properties({
@@ -118,16 +117,21 @@ pen.define([], function() {
 		});
 	}
 
-	/**
-	 * this gets triggered when the Home perspective becomes active
-	 */
-	function perspectiveActivated() {
-		controller.refreshAll();
-	}
-	
 	return {
 		openFile:openFile,
 		openRepositoryFile:openRepositoryFile,
 		init:init
 	}
 });
+
+var controller = undefined;
+
+/**
+ * this gets triggered when the Home perspective becomes active, must be globally available to get called
+ */
+function perspectiveActivated() {
+  if(controller) {
+    controller.refreshAll();
+  }
+}
+
