@@ -39,7 +39,7 @@ import com.google.gwt.widgetideas.table.client.SelectionGrid.SelectionPolicy;
  *
  */
 @SuppressWarnings("deprecation")
-public class GeneratedContentDialog extends PromptDialogBox implements TableListener, IDialogCallback {
+public class GeneratedContentDialog extends PromptDialogBox implements IDialogCallback, TableListener  {
   private RepositoryFile sourceFile = null;
   private List<RepositoryFile> workspaceFiles = null;
   
