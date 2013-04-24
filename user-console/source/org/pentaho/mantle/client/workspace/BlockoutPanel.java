@@ -16,21 +16,22 @@
  */
 package org.pentaho.mantle.client.workspace;
 
-import static org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.PAGE_SIZE;
-
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
+import org.pentaho.gwt.widgets.client.table.BaseTable;
+import org.pentaho.gwt.widgets.client.table.ColumnComparators.BaseColumnComparator;
+import org.pentaho.gwt.widgets.client.table.ColumnComparators.ColumnComparatorTypes;
 import org.pentaho.gwt.widgets.client.toolbar.Toolbar;
 import org.pentaho.gwt.widgets.client.toolbar.ToolbarButton;
 import org.pentaho.gwt.widgets.client.utils.string.StringUtils;
 import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.scheduling.NewBlockoutScheduleDialog;
-import org.pentaho.mantle.client.workspace.SchedulesPerspectivePanel.CellTableResources;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -45,23 +46,22 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.SimplePager;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.SourcesTableEvents;
+import com.google.gwt.user.client.ui.TableListener;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.widgetideas.table.client.SelectionGrid.SelectionPolicy;
 
 public class BlockoutPanel extends SimplePanel {
-  private CellTable<JsJob> table = new CellTable<JsJob>(PAGE_SIZE, (CellTableResources) GWT.create(CellTableResources.class));
-  private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
-  private SimplePager pager;
+  private BaseTable table;
+  //private ListDataProvider<JsJob> dataProvider = new ListDataProvider<JsJob>();
+  private List<JsJob> list = new ArrayList<JsJob>();
   private final VerticalPanel widgets = new VerticalPanel();
   private Button blockoutButton;
   private Toolbar tableControls;
@@ -87,15 +87,9 @@ public class BlockoutPanel extends SimplePanel {
 
   private void createUI(final boolean isAdmin) {
     widgets.setWidth("100%");
-    
-    blockoutTimes = new Label(Messages.getString("blockoutTimes"));
-	blockoutTimes.setStyleName("workspaceHeading");
-    widgets.add(blockoutTimes);
-    
     createHeadlineBar();
     createControls(isAdmin);
     createTable();
-    createPager();
     widgets.add(tablePanel);
     setWidget(widgets);
   }
@@ -147,13 +141,11 @@ public class BlockoutPanel extends SimplePanel {
     editButton.setCommand(new Command() {
       @Override
       public void execute() {
-        @SuppressWarnings("unchecked")
-        Set<JsJob> jobs = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
-
+        Set<JsJob> jobs = getSelectedSet();
         JsJob jsJob = jobs.iterator().next();
 
         NewBlockoutScheduleDialog blockoutDialog = new NewBlockoutScheduleDialog(jsJob, refreshCallBack, false, true, false);
-        table.getSelectionModel().setSelected(jsJob, false);
+        table.selectRow(list.indexOf(jsJob));
         blockoutDialog.setUpdateMode();
         blockoutDialog.center();
       }
@@ -162,11 +154,10 @@ public class BlockoutPanel extends SimplePanel {
     ToolbarButton removeButton = new ToolbarButton(new Image(MantleImages.images.remove16()));
     removeButton.setCommand(new Command() {
       public void execute() {
-        @SuppressWarnings("unchecked")
-        Set<JsJob> selectedSet = ((MultiSelectionModel<JsJob>) table.getSelectionModel()).getSelectedSet();
+        Set<JsJob> selectedSet = getSelectedSet();
         for (JsJob jsJob : selectedSet) {
           removeBlockout(jsJob);
-          table.getSelectionModel().setSelected(jsJob, false);
+          table.selectRow(list.indexOf(jsJob));
         }
       }
     });
@@ -174,71 +165,23 @@ public class BlockoutPanel extends SimplePanel {
     tablePanel.add(tableControls);
   }
 
+  @SuppressWarnings("deprecation")
   private void createTable() {
+    String[] tableHeaderNames = {Messages.getString("blockoutColumnStarts")
+        ,Messages.getString("blockoutColumnEnds")
+        ,Messages.getString("blockoutColumnRepeats")
+        ,Messages.getString("blockoutColumnRepeatsEndBy")
+    };
+    int[] columnWidths = {130, 130, 130, 130};
+    BaseColumnComparator[] columnComparators = {BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE)
+        ,BaseColumnComparator.getInstance(ColumnComparatorTypes.DATE)
+        ,BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE)
+        ,BaseColumnComparator.getInstance(ColumnComparatorTypes.STRING_NOCASE)};
+    table = new BaseTable(tableHeaderNames, columnWidths, columnComparators, SelectionPolicy.MULTI_ROW);
     table.getElement().setId("blockout-table");
-    table.setSelectionModel(new MultiSelectionModel<JsJob>());
-    TextColumn<JsJob> startColumn = new TextColumn<JsJob>() {
-      public String getValue(JsJob block) {
-        try {
-          Date nextFireTime = block.getNextRun();
-          return formatDate(nextFireTime);
-        } catch (Throwable t) {
-        }
-        return "-";
-      }
-    };
-    table.addColumn(startColumn, Messages.getString("blockoutColumnStarts"));
-    table.addColumnStyleName(0, "backgroundContentHeaderTableCell");
-    TextColumn<JsJob> endColumn = new TextColumn<JsJob>() {
-      public String getValue(JsJob block) {
-        try {
-          Date nextFireTime = block.getNextRun();
-          return formatDate(new Date(nextFireTime.getTime() + block.getJobTrigger().getBlockDuration()));
-        } catch (Throwable t) {
-        }
-        return "-";
-      }
-    };
-    table.addColumn(endColumn, Messages.getString("blockoutColumnEnds"));
-    table.addColumnStyleName(1, "backgroundContentHeaderTableCell");
-
-    TextColumn<JsJob> repeatColumn = new TextColumn<JsJob>() {
-      public String getValue(JsJob block) {
-        try {
-          return block.getJobTrigger().getDescription();
-        } catch (Throwable t) {
-        }
-        return "-";
-      }
-    };
-    table.addColumn(repeatColumn, Messages.getString("blockoutColumnRepeats"));
-    table.addColumnStyleName(2, "backgroundContentHeaderTableCell");
-
-    TextColumn<JsJob> endByColumn = new TextColumn<JsJob>() {
-      public String getValue(JsJob block) {
-        try {
-          Date endTime = block.getJobTrigger().getEndTime();
-          if (endTime == null) {
-            return "Never";
-          } else {
-            return formatDate(endTime);
-          }
-        } catch (Throwable t) {
-        }
-        return "-";
-      }
-    };
-    table.addColumn(endByColumn, Messages.getString("blockoutColumnRepeatsEndBy"));
-    table.addColumnStyleName(3, "backgroundContentHeaderTableCell");
+    table.setWidth("640px");
+    table.setHeight("328px");
     tablePanel.add(table);
-    dataProvider.addDataDisplay(table);
-  }
-
-  private void createPager() {
-    SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
-    pager = new SimplePager(SimplePager.TextLocation.CENTER, pagerResources, false, 0, true);
-    pager.setDisplay(table);
-    tablePanel.add(pager);
   }
 
   private String formatDate(final Date date) {
@@ -328,12 +271,23 @@ public class BlockoutPanel extends SimplePanel {
         JsJob job = allBlocks.get(i);
         jobList.add(job);
       }
-      List<JsJob> list = dataProvider.getList();
+      //List<JsJob> list = dataProvider.getList();
       list.clear();
       list.addAll(jobList);
-      pager.setVisible(jobList.size() > PAGE_SIZE);
+      
+      int row = 0;
+      Object[][] tableContent = new Object[list.size()][4];
+      for (JsJob block : list) {
+        tableContent[row][0] = getStartValue(block);
+        tableContent[row][1] = getEndValue(block);
+        tableContent[row][2] = getRepeatValue(block);
+        tableContent[row][3] = getRepeatEndValue(block);
+        row++;
+      }
+      table.populateTable(tableContent);
+      table.addStyleName("");
       table.setVisible(jobList.size() > 0);
-      table.redraw();
+
     }
 
   }
@@ -343,4 +297,57 @@ public class BlockoutPanel extends SimplePanel {
     var obj = eval('(' + json + ')');
     return obj.job;
   }-*/;
+  
+  private String convertDateToValue(Date date) {
+    if (date != null) {
+      try {
+        return formatDate(date);
+      } catch (Throwable t) {
+      }
+    }
+    return "-";
+  }
+  
+  private String getStartValue(JsJob block) {
+    return convertDateToValue(block.getNextRun());
+  }
+  
+  private String getEndValue(JsJob block) {
+    if (block.getNextRun() instanceof Date) {
+      return convertDateToValue(new Date(block.getNextRun().getTime() + block.getJobTrigger()
+        .getBlockDuration()));
+    } else {
+      return "-";
+    }
+  }
+  
+  private String getRepeatValue(JsJob block) {
+    try {
+      return block.getJobTrigger().getDescription();
+    } catch (Throwable t) {
+    }
+    return "-";
+  }
+
+  private String getRepeatEndValue(JsJob block) {
+    try {
+      Date endTime = block.getJobTrigger().getEndTime();
+      if (endTime == null) {
+        return "Never";
+      } else {
+        return formatDate(endTime);
+      }
+    } catch (Throwable t) {
+    }
+    return "-";
+  }
+  
+  private Set<JsJob> getSelectedSet() {
+    Set<Integer> selected = table.getSelectedRows();
+    Set<JsJob> selectedSet = new HashSet<JsJob>();
+    for (Integer selectedRow : selected) {
+      selectedSet.add(list.get(selectedRow));
+    }
+    return selectedSet;
+  }
 }

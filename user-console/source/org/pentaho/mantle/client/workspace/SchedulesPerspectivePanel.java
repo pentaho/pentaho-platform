@@ -16,6 +16,8 @@
  */
 package org.pentaho.mantle.client.workspace;
 
+import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_LEFT;
+
 import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
@@ -99,9 +101,17 @@ public class SchedulesPerspectivePanel extends SimplePanel {
 		scheduleHeading.setStyleName("schedulesHeading");
 		wrapperPannel.add(scheduleHeading);
 		
+    Label schedulesLabel = new Label(Messages.getString("schedules"));
+    schedulesLabel.setStyleName("workspaceHeading");
+    wrapperPannel.add(schedulesLabel);
+		
 		schedulesPanel = new SchedulesPanel(isAdmin, isScheduler);
 		schedulesPanel.setStyleName("schedulesPanel");
 		wrapperPannel.add(schedulesPanel);
+		
+    Label blockoutTimes = new Label(Messages.getString("blockoutTimes"));
+    blockoutTimes.setStyleName("workspaceHeading");
+    wrapperPannel.add(blockoutTimes);
 		
 		blockoutPanel = new BlockoutPanel(isAdmin);
 		blockoutPanel.setStyleName("schedulesPanel");
