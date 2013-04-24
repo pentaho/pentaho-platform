@@ -21,7 +21,11 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -31,6 +35,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.repository2.unified.UnifiedRepositoryException;
 import org.pentaho.platform.api.scheduler2.IBlockoutManager;
@@ -47,7 +53,8 @@ import org.pentaho.platform.web.http.api.resources.proxies.BlockStatusProxy;
  */
 @Path("/scheduler/blockout")
 public class BlockoutResource extends AbstractJaxRSResource {
-
+  private static final Log logger = LogFactory.getLog(BlockoutResource.class);
+  
   private IBlockoutManager manager = null;
 
   private SchedulerResource schedulerResource = null;
@@ -84,6 +91,8 @@ public class BlockoutResource extends AbstractJaxRSResource {
   public Response addBlockout(JobScheduleRequest request) throws IOException {
     request.setActionClass(BlockoutAction.class.getCanonicalName());
     request.getJobParameters().add(new JobScheduleParam(IBlockoutManager.DURATION_PARAM, request.getDuration()));
+    request.getJobParameters().add(new JobScheduleParam(IBlockoutManager.TIME_ZONE_PARAM, request.getTimeZone()));
+    updateStartDateForTimeZone(request);
     return schedulerResource.createJob(request);
   }
 
@@ -141,4 +150,45 @@ public class BlockoutResource extends AbstractJaxRSResource {
     return new BlockStatusProxy(totallyBlocked, partiallyBlocked);
   }
 
+  private void updateStartDateForTimeZone(JobScheduleRequest request) {
+    if (request.getSimpleJobTrigger() != null) {
+      if (request.getSimpleJobTrigger().getStartTime() != null) {
+        Date origStartDate = request.getSimpleJobTrigger().getStartTime();
+        Date serverTimeZoneStartDate = convertDateToServerTimeZone(origStartDate, request.getTimeZone());
+        request.getSimpleJobTrigger().setStartTime(serverTimeZoneStartDate);
+      }
+    } else if (request.getComplexJobTrigger() != null) {
+      if (request.getComplexJobTrigger().getStartTime() != null) {
+        Date origStartDate = request.getComplexJobTrigger().getStartTime();
+        Date serverTimeZoneStartDate = convertDateToServerTimeZone(origStartDate, request.getTimeZone());
+        request.getComplexJobTrigger().setStartTime(serverTimeZoneStartDate);
+      }
+    } else if (request.getCronJobTrigger() != null) {
+      if (request.getCronJobTrigger().getStartTime() != null) {
+        Date origStartDate = request.getCronJobTrigger().getStartTime();
+        Date serverTimeZoneStartDate = convertDateToServerTimeZone(origStartDate, request.getTimeZone());
+        request.getCronJobTrigger().setStartTime(serverTimeZoneStartDate);
+      }
+    }
+  }
+  
+  public Date convertDateToServerTimeZone(Date dateTime, String timeZone) {
+    Calendar userDefinedTime = Calendar.getInstance();
+    userDefinedTime.setTime(dateTime);
+    if(!TimeZone.getDefault().getID().equalsIgnoreCase(timeZone)) {
+      logger.warn("original defined time: " + userDefinedTime.getTime().toString() + " on tz:" + timeZone);
+      Calendar quartzStartDate = new GregorianCalendar(TimeZone.getTimeZone(timeZone));
+      quartzStartDate.set(Calendar.YEAR, userDefinedTime.get(Calendar.YEAR));
+      quartzStartDate.set(Calendar.MONTH, userDefinedTime.get(Calendar.MONTH));
+      quartzStartDate.set(Calendar.DAY_OF_MONTH, userDefinedTime.get(Calendar.DAY_OF_MONTH));
+      quartzStartDate.set(Calendar.HOUR_OF_DAY, userDefinedTime.get(Calendar.HOUR_OF_DAY));
+      quartzStartDate.set(Calendar.MINUTE, userDefinedTime.get(Calendar.MINUTE));
+      quartzStartDate.set(Calendar.SECOND, userDefinedTime.get(Calendar.SECOND));
+      quartzStartDate.set(Calendar.MILLISECOND, userDefinedTime.get(Calendar.MILLISECOND));
+      logger.warn("adapted time for " + TimeZone.getDefault().getID() + ": " + quartzStartDate.getTime().toString());
+      return quartzStartDate.getTime();
+    } else {
+      return dateTime;
+    }
+  }
 }

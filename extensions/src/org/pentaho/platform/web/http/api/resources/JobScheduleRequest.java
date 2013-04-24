@@ -90,6 +90,8 @@ public class JobScheduleRequest implements Serializable {
   ArrayList<JobScheduleParam> jobParameters = new ArrayList<JobScheduleParam>();
 
   long duration;
+  
+  String timeZone;
 
   public String getInputFile() {
     return inputFile;
@@ -178,5 +180,13 @@ public class JobScheduleRequest implements Serializable {
 
   public void setDuration(long duration) {
     this.duration = duration;
+  }
+
+  public String getTimeZone() {
+    return timeZone;
+  }
+
+  public void setTimeZone(String timeZone) {
+    this.timeZone = timeZone;
   }
 }
