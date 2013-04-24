@@ -38,7 +38,6 @@ import org.pentaho.ui.xul.XulOverlay;
 import org.pentaho.ui.xul.gwt.GwtXulDomContainer;
 import org.pentaho.ui.xul.gwt.GwtXulRunner;
 import org.pentaho.ui.xul.gwt.tags.GwtTree;
-import org.pentaho.ui.xul.gwt.tags.GwtTreeItem;
 import org.pentaho.ui.xul.gwt.util.AsyncXulLoader;
 import org.pentaho.ui.xul.gwt.util.IXulLoaderCallback;
 
@@ -149,8 +148,7 @@ public class MantleXul implements IXulLoaderCallback, SolutionBrowserListener {
           Panel adminContentPanel = (Panel) container.getDocumentRoot().getElementById("adminContentPanel").getManagedObject();
           adminContentPanel.setWidth("100%");
           
-          GwtTreeItem usersRolesTreeItem = (GwtTreeItem) container.getDocumentRoot().getElementById("usersRoles");
-          ((TreeItem)usersRolesTreeItem.getManagedObject()).setSelected(true);
+          MantleXul.this.selectAdminCatTreeTreeItem(Messages.getString("manageUsersAndRoles").replaceAll("&amp;", "&"));
           controller.loadUserRolesAdminPanel();
         }
       }

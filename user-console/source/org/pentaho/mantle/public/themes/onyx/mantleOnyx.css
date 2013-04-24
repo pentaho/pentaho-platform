@@ -12,6 +12,10 @@
 	background-color: white;
 }
 
+.admin-perspective .pentaho-tab-deck-panel {
+	background-color: #f1f1f1;	
+}
+
 #adminCatTree .gwt-Label {
 	font-family: Verdana;
 	font-size: 13px;
@@ -237,10 +241,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c5c5c', end
 	background-color: white;
 }
 
-.mainToolbar {
-  background-image: url(../../toolbar_bg.png);
-  background-repeat: repeat-x;
-  background-position: top center;
+#mainToolbar {
+  padding: 0px 0px 4px 0px;
 }
 
 .puc-horizontal-split-panel {
@@ -748,10 +750,6 @@ a:active, a:hover {
 .files-toolbar .toolbar-button-hovering {
   background-color: #d0d0d0;
   border: 1px solid transparent;
-}
-
-.mainToolbar-Wrapper{
-  padding: 0px 0px 4px 0px;
 }
 
 /*========== Launch Page Styles ================= */

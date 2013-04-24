@@ -78,13 +78,13 @@
 			<treechildren id="adminCatTreeChildren">
 				<treeitem id="usersRoles" container="true" command="mantleXulHandler.loadUserRolesAdminPanel()">
 		  			<treerow>
-		    			<treecell label="Users &amp; Roles" />
+		    			<treecell label="${manageUsersAndRoles}" />
 			  		</treerow>	    
 				</treeitem>		
 				
 				<treeitem id="mailServer" container="true" command="mantleXulHandler.loadEmailAdminPanel()">
 	   		 		<treerow>
-						<treecell label="Mail Server" />
+						<treecell label="${manageMailServer}" />
 	  				</treerow>
 	  			</treeitem>
 

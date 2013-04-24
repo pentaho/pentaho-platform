@@ -157,7 +157,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
         }
 
         public void onResponseReceived(Request request, Response response) {
-          if (StringUtils.isEmpty(response.getText()) && response.getText().equals("null")) {
+          if (StringUtils.isEmpty(response.getText()) || response.getText().equalsIgnoreCase("null")) {
             WaitPopup.getInstance().setVisible(false);
           } else {
             if (response.getStatusCode() == Response.SC_OK) {

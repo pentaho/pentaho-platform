@@ -26,7 +26,6 @@ import org.pentaho.mantle.client.messages.Messages;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -93,7 +92,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 
 	private Widget createUsersPanel() {
 		HorizontalPanel mainUsersPanel = new HorizontalPanel();
-		mainUsersPanel.setWidth("376px");
+		//mainUsersPanel.setWidth("376px");
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
 		mainUsersPanel.add(hSpacer);
@@ -105,11 +104,13 @@ public class UserRolesAdminPanel extends SimplePanel {
 		availablePanel.add(hSpacer);
 
 		HorizontalPanel labelAndButtonsPanel = new HorizontalPanel();
+		labelAndButtonsPanel.setWidth("100%");
 		availablePanel.add(labelAndButtonsPanel);
-		labelAndButtonsPanel.add(new Label(Messages.getString("users")));
-		hSpacer = new SimplePanel();
-		hSpacer.setWidth("125px");
-		labelAndButtonsPanel.add(hSpacer);
+		labelAndButtonsPanel.add(new Label(Messages.getString("usersColon")));
+    hSpacer = new SimplePanel();
+    hSpacer.setWidth("100%");
+    labelAndButtonsPanel.add(hSpacer);
+    labelAndButtonsPanel.setCellWidth(hSpacer, "100%");
 		newUserButton = new ImageButton(moduleBaseURL + "images/add_icon.png", "", "", 15, 15);
 		labelAndButtonsPanel.add(newUserButton);
 		hSpacer = new SimplePanel();
@@ -154,10 +155,9 @@ public class UserRolesAdminPanel extends SimplePanel {
 		hSpacer.setHeight("15px");
 		detailsPanel.add(hSpacer);
 
-		VerticalPanel roleLabelPanel = new VerticalPanel();
-		roleLabelPanel.add(new Label(Messages.getString("roles")));
-		roleLabelPanel.add(new HTML("<div class='gwt-HTML' style='height:10px;padding-top:4px;'><hr style='width:450px;height:1px;background-color:#000;border:0px solid #F00'/></div>"));
-		detailsPanel.add(roleLabelPanel);
+		Label roleLabel = new Label(Messages.getString("roles"));
+		roleLabel.setStyleName("pentaho-fieldgroup-minor");
+		detailsPanel.add(roleLabel);
 
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
@@ -173,7 +173,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		availableRolesPanel.add(availableRolesListBox);
 		availableRolesListBox.setVisibleItemCount(20);
 		availableRolesListBox.setWidth("200px");
-		availableRolesListBox.setHeight("305px");
+		availableRolesListBox.setHeight("319px");
 
 		VerticalPanel vSpacer = new VerticalPanel();
 		vSpacer.setWidth("15px");
@@ -215,14 +215,13 @@ public class UserRolesAdminPanel extends SimplePanel {
 		selectedRolesPanel.add(selectedRolesListBox);
 		selectedRolesListBox.setVisibleItemCount(20);
 		selectedRolesListBox.setWidth("200px");
-		selectedRolesListBox.setHeight("305px");
+		selectedRolesListBox.setHeight("319px");
 
 		return mainUsersPanel;
 	}
 	
 	private Widget createSystemRolesPanel() {
 		HorizontalPanel mainSystemRolesPanel = new HorizontalPanel();
-		mainSystemRolesPanel.setWidth("376px");
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
 		mainSystemRolesPanel.add(hSpacer);
@@ -235,7 +234,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 
 		HorizontalPanel labelAndButtonsPanel = new HorizontalPanel();
 		availablePanel.add(labelAndButtonsPanel);
-		labelAndButtonsPanel.add(new Label(Messages.getString("roles")));
+		labelAndButtonsPanel.add(new Label(Messages.getString("rolesColon")));
 
 		systemRolesListBox = new ListBox(true);
 		availablePanel.add(systemRolesListBox);
@@ -244,12 +243,13 @@ public class UserRolesAdminPanel extends SimplePanel {
 		systemRolesListBox.setHeight("432px");
 
 		hSpacer = new SimplePanel();
-		hSpacer.setWidth("15px");
+		hSpacer.setWidth("24px");
 		mainSystemRolesPanel.add(hSpacer);
 
 		VerticalPanel detailsPanel = new VerticalPanel();
 		mainSystemRolesPanel.add(detailsPanel);
-
+		mainSystemRolesPanel.setCellWidth(detailsPanel, "100%");
+		
 		hSpacer = new SimplePanel();
 		hSpacer.setHeight("15px");
 		detailsPanel.add(hSpacer);
@@ -263,7 +263,6 @@ public class UserRolesAdminPanel extends SimplePanel {
 	private Widget createRolesPanel() {
 
 		HorizontalPanel mainRolesPanel = new HorizontalPanel();
-		mainRolesPanel.setWidth("376px");
 		SimplePanel hSpacer = new SimplePanel();
 		hSpacer.setWidth("15px");
 		mainRolesPanel.add(hSpacer);
@@ -275,11 +274,13 @@ public class UserRolesAdminPanel extends SimplePanel {
 		availablePanel.add(hSpacer);
 
 		HorizontalPanel labelAndButtonsPanel = new HorizontalPanel();
+		labelAndButtonsPanel.setWidth("100%");
 		availablePanel.add(labelAndButtonsPanel);
 		labelAndButtonsPanel.add(new Label(Messages.getString("roles")));
 		hSpacer = new SimplePanel();
-		hSpacer.setWidth("126px");
+		hSpacer.setWidth("100%");
 		labelAndButtonsPanel.add(hSpacer);
+		labelAndButtonsPanel.setCellWidth(hSpacer, "100%");
 		newRoleButton = new ImageButton(moduleBaseURL + "images/add_icon.png", "", "", 15, 15);
 		labelAndButtonsPanel.add(newRoleButton);
 		hSpacer = new SimplePanel();
@@ -309,16 +310,16 @@ public class UserRolesAdminPanel extends SimplePanel {
 		detailsPanel.add(rolesPermissionsPanel);
 
 		usersLabelPanel = new VerticalPanel();
-		usersLabelPanel.add(new Label(Messages.getString("users")));
-		hSpacer = new SimplePanel();
-		hSpacer.setWidth("5px");
-		usersLabelPanel.add(hSpacer);
-		usersLabelPanel.add(new HTML("<div class='gwt-HTML' style='height:10px;padding-top:4px;'><hr style='width:450px;height:1px;background-color:#000;border:0px solid #F00'/></div>"));
+		Label usersLabel = new Label(Messages.getString("users"));
+		usersLabel.setStyleName("pentaho-fieldgroup-minor");
+    hSpacer = new SimplePanel();
+    hSpacer.setHeight("15px");
+    usersLabelPanel.add(hSpacer);
+		usersLabelPanel.add(usersLabel);
+    hSpacer = new SimplePanel();
+    hSpacer.setHeight("15px");
+    usersLabelPanel.add(hSpacer);
 		detailsPanel.add(usersLabelPanel);
-
-		hSpacer = new SimplePanel();
-		hSpacer.setHeight("15px");
-		detailsPanel.add(hSpacer);
 
 		usersPanel = new HorizontalPanel();
 		detailsPanel.add(usersPanel);
@@ -330,7 +331,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		availableMembersPanel.add(availableMembersListBox);
 		availableMembersListBox.setVisibleItemCount(20);
 		availableMembersListBox.setWidth("200px");
-		availableMembersListBox.setHeight("261px");
+		availableMembersListBox.setHeight("272px");
 
 		VerticalPanel vSpacer = new VerticalPanel();
 		vSpacer.setWidth("15px");
@@ -372,7 +373,7 @@ public class UserRolesAdminPanel extends SimplePanel {
 		selectedMembersPanel.add(selectedMembersListBox);
 		selectedMembersListBox.setVisibleItemCount(20);
 		selectedMembersListBox.setWidth("200px");
-		selectedMembersListBox.setHeight("261px");
+		selectedMembersListBox.setHeight("272px");
 
 		return mainRolesPanel;
 	}
