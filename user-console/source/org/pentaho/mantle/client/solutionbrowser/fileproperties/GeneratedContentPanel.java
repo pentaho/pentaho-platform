@@ -57,9 +57,10 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
+
 /**
  * @author wseyler
- *
+ * 
  */
 public class GeneratedContentPanel extends VerticalPanel implements IFileModifier, RowSelectionHandler {
 
@@ -71,7 +72,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
 
   public GeneratedContentPanel(final String repositoryFilePath, final String lineageId, final String user) {
     WaitPopup.getInstance().setVisible(true);
-    
+
     this.repositoryFilePath = repositoryFilePath;
     this.user = user;
     this.lineageId = lineageId;
@@ -82,7 +83,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
 
     FixedWidthFlexTable headerTable = new FixedWidthFlexTable();
     headerTable.setHTML(0, 0, Messages.getString("filename")); //$NON-NLS-1$
-    headerTable.setHTML(0, 1,  Messages.getString("executed")); //$NON-NLS-1$
+    headerTable.setHTML(0, 1, Messages.getString("executed")); //$NON-NLS-1$
     headerTable.setWidth("100%"); //$NON-NLS-1$
 
     dataTable = new FixedWidthGrid();
@@ -91,14 +92,16 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
     dataTable.addRowSelectionHandler(this);
     GeneratedContentTableImages images = GWT.create(GeneratedContentTableImages.class);
     ScrollTable scrollTable = new ScrollTable(dataTable, headerTable, images);
-    scrollTable.setSize("100%", "400px");  //$NON-NLS-1$//$NON-NLS-2$
+    scrollTable.setSize("100%", "400px"); //$NON-NLS-1$//$NON-NLS-2$
     this.add(scrollTable);
-    
+
     this.sinkEvents(Event.ONDBLCLICK);
     init(this.repositoryFilePath, null);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.pentaho.mantle.client.solutionbrowser.fileproperties.IFileModifier#apply()
    */
   @Override
@@ -107,16 +110,19 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
   }
 
   /**
-   *
+   * 
    * @return
    */
   @Override
   public List<RequestBuilder> prepareRequests() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    return null; // To change body of implemented methods use File | Settings | File Templates.
   }
 
-  /* (non-Javadoc)
-   * @see org.pentaho.mantle.client.solutionbrowser.fileproperties.IFileModifier#init(org.pentaho.gwt.widgets.client.filechooser.RepositoryFile, com.google.gwt.xml.client.Document)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.pentaho.mantle.client.solutionbrowser.fileproperties.IFileModifier#init(org.pentaho.gwt.widgets.client.filechooser.RepositoryFile,
+   * com.google.gwt.xml.client.Document)
    */
   @Override
   public void init(final RepositoryFile fileSummary, Document fileInfo) {
@@ -124,7 +130,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
   }
 
   /**
-   *
+   * 
    * @param fileSummaryPath
    * @param fileInfo
    */
@@ -151,35 +157,40 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
         }
 
         public void onResponseReceived(Request request, Response response) {
-          if (response.getStatusCode() == Response.SC_OK) {
-            List<RepositoryFile> repositoryFiles = JsonToRepositoryFileTreeConverter.getFileListFromJson(response.getText());
-            Collections.sort(repositoryFiles, new Comparator<RepositoryFile>() {
-              @Override
-              public int compare(RepositoryFile o1, RepositoryFile o2) {
-                return o2.getCreatedDate().compareTo(o1.getCreatedDate());
-              }
-            });         
-
-            dataTable.resize(repositoryFiles.size(), 2);
-            for (int row=0; row<repositoryFiles.size(); row++) {
-              dataTable.setWidget(row, 0, new FileAwareLabel(repositoryFiles.get(row), 0));
-              dataTable.setWidget(row, 1, new FileAwareLabel(repositoryFiles.get(row), 1));
-            }
+          if (StringUtils.isEmpty(response.getText()) && response.getText().equals("null")) {
+            WaitPopup.getInstance().setVisible(false);
           } else {
-            MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-            dialogBox.center();
+            if (response.getStatusCode() == Response.SC_OK) {
+              List<RepositoryFile> repositoryFiles = JsonToRepositoryFileTreeConverter.getFileListFromJson(response.getText());
+              Collections.sort(repositoryFiles, new Comparator<RepositoryFile>() {
+                @Override
+                public int compare(RepositoryFile o1, RepositoryFile o2) {
+                  return o2.getCreatedDate().compareTo(o1.getCreatedDate());
+                }
+              });
+
+              dataTable.resize(repositoryFiles.size(), 2);
+              for (int row = 0; row < repositoryFiles.size(); row++) {
+                dataTable.setWidget(row, 0, new FileAwareLabel(repositoryFiles.get(row), 0));
+                dataTable.setWidget(row, 1, new FileAwareLabel(repositoryFiles.get(row), 1));
+              }
+            } else {
+              MessageDialogBox dialogBox = new MessageDialogBox(
+                  Messages.getString("error"), Messages.getString("serverErrorColon") + " " + response.getStatusCode(), false, false, true); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+              dialogBox.center();
+            }
+            WaitPopup.getInstance().setVisible(false);
           }
-          WaitPopup.getInstance().setVisible(false);
         }
       });
     } catch (RequestException e) {
       MessageDialogBox dialogBox = new MessageDialogBox(Messages.getString("error"), e.getLocalizedMessage(), false, false, true); //$NON-NLS-1$
       dialogBox.center();
-    }    
+    }
   }
-  
+
   /**
-   *
+   * 
    * @param event
    */
   public void onBrowserEvent(Event event) {
@@ -187,10 +198,10 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
       new RunContentCommand().execute();
     }
   }
-  
+
   /**
    * @author wseyler
-   *
+   * 
    */
   public class HistoryToolbar extends Toolbar {
     ToolbarButton refreshBtn, runBtn;
@@ -237,17 +248,19 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
       refreshBtn.setToolTip(Messages.getString("refresh")); //$NON-NLS-1$
       add(refreshBtn);
     }
-    
+
     /**
-     *
+     * 
      * @return
      */
     public ToolbarButton getRunButton() {
       return runBtn;
     }
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.google.gwt.gen2.table.event.client.RowSelectionHandler#onRowSelection(com.google.gwt.gen2.table.event.client.RowSelectionEvent)
    */
   @Override
@@ -257,36 +270,40 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
 
   /**
    * @author wseyler
-   *
+   * 
    */
   public class RefreshHistoryCommand implements Command {
-  
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.google.gwt.user.client.Command#execute()
      */
     @Override
     public void execute() {
       GeneratedContentPanel.this.init(GeneratedContentPanel.this.repositoryFilePath, null);
-    } 
+    }
   }
-  
+
   /**
    * @author wseyler
-   *
+   * 
    */
   public class RunContentCommand implements Command {
-  
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.google.gwt.user.client.Command#execute()
      */
     @Override
     public void execute() {
       Set<Integer> selectedRowIndices = dataTable.getSelectedRows();
       for (Integer i : selectedRowIndices) {
-        RepositoryFile repoFile = ((FileAwareLabel)dataTable.getWidget(i, 0)).getFile();
+        RepositoryFile repoFile = ((FileAwareLabel) dataTable.getWidget(i, 0)).getFile();
         SolutionBrowserPanel.getInstance().openFile(repoFile, COMMAND.RUN);
       }
-    } 
+    }
   }
 
   /**
@@ -294,17 +311,17 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
    */
   private class FileAwareLabel extends Label {
     private RepositoryFile file;
-    
+
     public FileAwareLabel(RepositoryFile file, int column) {
       super();
       this.file = file;
       switch (column) {
-        case 0:
-          this.setText(this.file.getName());
-          break;
-        case 1:
-          this.setText(this.file.getCreatedDate().toString());
-          break;
+      case 0:
+        this.setText(this.file.getName());
+        break;
+      case 1:
+        this.setText(this.file.getCreatedDate().toString());
+        break;
       }
     }
 
@@ -315,14 +332,17 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
       return file;
     }
   }
-  
+
   /**
    *
    */
   public class ContentSorter extends ColumnSorter {
 
-    /* (non-Javadoc)
-     * @see com.google.gwt.gen2.table.client.SortableGrid.ColumnSorter#onSortColumn(com.google.gwt.gen2.table.client.SortableGrid, com.google.gwt.gen2.table.client.TableModelHelper.ColumnSortList, com.google.gwt.gen2.table.client.SortableGrid.ColumnSorterCallback)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.google.gwt.gen2.table.client.SortableGrid.ColumnSorter#onSortColumn(com.google.gwt.gen2.table.client.SortableGrid,
+     * com.google.gwt.gen2.table.client.TableModelHelper.ColumnSortList, com.google.gwt.gen2.table.client.SortableGrid.ColumnSorterCallback)
      */
     @Override
     public void onSortColumn(SortableGrid grid, ColumnSortList sortList, ColumnSorterCallback callback) {
@@ -330,24 +350,24 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
       boolean ascending = sortList.isPrimaryAscending();
       int rowCount = grid.getRowCount();
       List<FileAwareLabel> columnWidgets = new ArrayList<FileAwareLabel>(rowCount);
-      for (int row=0; row<rowCount; row++) {
+      for (int row = 0; row < rowCount; row++) {
         columnWidgets.add((FileAwareLabel) grid.getWidget(row, column));
       }
-      if (column == 1) {  // 1 is the date column
+      if (column == 1) { // 1 is the date column
         if (ascending) {
           Collections.sort(columnWidgets, new Comparator<FileAwareLabel>() {
             @Override
             public int compare(FileAwareLabel o1, FileAwareLabel o2) {
               return o1.getFile().getCreatedDate().compareTo(o2.getFile().getCreatedDate());
             }
-          });         
+          });
         } else {
           Collections.sort(columnWidgets, new Comparator<FileAwareLabel>() {
             @Override
             public int compare(FileAwareLabel o1, FileAwareLabel o2) {
               return o2.getFile().getCreatedDate().compareTo(o1.getFile().getCreatedDate());
             }
-          });                  
+          });
         }
       } else {
         if (ascending) {
@@ -356,21 +376,21 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
             public int compare(FileAwareLabel o1, FileAwareLabel o2) {
               return o1.getText().compareTo(o2.getText());
             }
-          });         
+          });
         } else {
           Collections.sort(columnWidgets, new Comparator<FileAwareLabel>() {
             @Override
             public int compare(FileAwareLabel o1, FileAwareLabel o2) {
               return o2.getText().compareTo(o1.getText());
             }
-          });                  
+          });
         }
       }
       List<Element> tdElems = new ArrayList<Element>(rowCount);
       for (FileAwareLabel lbl : columnWidgets) {
         tdElems.add(DOM.getParent(lbl.getElement()));
       }
-      
+
       // Convert tdElems to trElems, reversing if needed
       Element[] trElems = new Element[rowCount];
       for (int i = 0; i < rowCount; i++) {
@@ -379,7 +399,7 @@ public class GeneratedContentPanel extends VerticalPanel implements IFileModifie
 
       // Use the callback to complete the sorting
       callback.onSortingComplete(trElems);
-    }  
+    }
   }
 
 }
