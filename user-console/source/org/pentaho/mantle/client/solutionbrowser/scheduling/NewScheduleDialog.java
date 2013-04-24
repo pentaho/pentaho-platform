@@ -654,6 +654,7 @@ public class NewScheduleDialog extends AbstractWizardDialog {
     JSONObject addBlockoutParams = schedule;
     addBlockoutParams.put("jobName", new JSONString(blockoutPeriodName)); //$NON-NLS-1$
     addBlockoutParams.put("duration", new JSONNumber(duration)); //$NON-NLS-1$
+    addBlockoutParams.put("timeZone", new JSONString(scheduleEditorWizardPanel.getTimeZone()));
 
     try {
       addBlockoutPeriodRequest.sendRequest(addBlockoutParams.toString(), new RequestCallback() {
@@ -669,7 +670,6 @@ public class NewScheduleDialog extends AbstractWizardDialog {
             if (null != callback) {
               callback.okPressed();
             }
-            //System.out.println("****** Got a valid response after adding a blockout period: " + response.getStatusCode());
           }
         }
       });

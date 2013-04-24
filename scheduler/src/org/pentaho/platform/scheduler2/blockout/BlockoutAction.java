@@ -37,8 +37,10 @@ public class BlockoutAction implements IVarArgsAction {
 
   @Override
   public void execute() throws Exception {
-    logger.warn("Blocking Started at: " + new Date() + " and will last: " + this.duration + " milliseconds"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    Date startDate = new Date();
+    logger.warn("Blocking Started at: " + startDate + " and will last: " + this.duration + " milliseconds"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     Thread.sleep(duration);
+    logger.warn("Blockout that started at: "+ startDate + " has ended at: " + new Date()); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   @Override
