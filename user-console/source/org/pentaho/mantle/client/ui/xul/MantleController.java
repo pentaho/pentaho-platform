@@ -160,37 +160,37 @@ public class MantleController extends AbstractXulEventHandler {
    */
   @Bindable
   public void init() {
-   
-    openBtn = (XulToolbarbutton) document.getElementById("openButton");
-    saveBtn = (XulToolbarbutton) document.getElementById("saveButton");
-    saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton");
-    newAnalysisBtn = (XulToolbarbutton) document.getElementById("newAnalysisButton");
-    showBrowserBtn = (XulToolbarbutton) document.getElementById("showBrowserButton");
-    contentEditBtn = (XulToolbarbutton) document.getElementById("editContentButton");
+
+    openBtn = (XulToolbarbutton) document.getElementById("openButton"); //$NON-NLS-1$
+    saveBtn = (XulToolbarbutton) document.getElementById("saveButton"); //$NON-NLS-1$
+    saveAsBtn = (XulToolbarbutton) document.getElementById("saveAsButton"); //$NON-NLS-1$
+    newAnalysisBtn = (XulToolbarbutton) document.getElementById("newAnalysisButton"); //$NON-NLS-1$
+    showBrowserBtn = (XulToolbarbutton) document.getElementById("showBrowserButton"); //$NON-NLS-1$
+    contentEditBtn = (XulToolbarbutton) document.getElementById("editContentButton"); //$NON-NLS-1$
 
     bf = new GwtBindingFactory(document);
-    bf.createBinding(model, "saveEnabled", saveBtn, "!disabled");
-    bf.createBinding(model, "saveAsEnabled", saveAsBtn, "!disabled");
-    bf.createBinding(model, "contentEditEnabled", contentEditBtn, "!disabled");
-    bf.createBinding(model, "contentEditSelected", this, "editContentSelected");   
-   
-    propertiesMenuItem = (XulMenuitem) document.getElementById("propertiesMenuItem");
-    saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem");
-    saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem");
-    showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem");
-    showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem");
-    useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem");
-    showHiddenFilesMenuItem = (XulMenuitem) document.getElementById("showHiddenFilesMenuItem");
-    languageMenu = (XulMenubar) document.getElementById("languagemenu");
-    themesMenu = (XulMenubar) document.getElementById("themesmenu");
-    toolsMenu = (XulMenubar) document.getElementById("toolsmenu");
-    recentMenu = (XulMenubar) document.getElementById("recentmenu");
-    favoriteMenu = (XulMenubar) document.getElementById("favoritesmenu");
+    bf.createBinding(model, "saveEnabled", saveBtn, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+    bf.createBinding(model, "saveAsEnabled", saveAsBtn, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+    bf.createBinding(model, "contentEditEnabled", contentEditBtn, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+    bf.createBinding(model, "contentEditSelected", this, "editContentSelected"); //$NON-NLS-1$ //$NON-NLS-2$
+
+    propertiesMenuItem = (XulMenuitem) document.getElementById("propertiesMenuItem"); //$NON-NLS-1$
+    saveMenuItem = (XulMenuitem) document.getElementById("saveMenuItem"); //$NON-NLS-1$
+    saveAsMenuItem = (XulMenuitem) document.getElementById("saveAsMenuItem"); //$NON-NLS-1$
+    showBrowserMenuItem = (XulMenuitem) document.getElementById("showBrowserMenuItem"); //$NON-NLS-1$
+    showWorkspaceMenuItem = (XulMenuitem) document.getElementById("showWorkspaceMenuItem"); //$NON-NLS-1$
+    useDescriptionsMenuItem = (XulMenuitem) document.getElementById("useDescriptionsMenuItem"); //$NON-NLS-1$
+    showHiddenFilesMenuItem = (XulMenuitem) document.getElementById("showHiddenFilesMenuItem"); //$NON-NLS-1$
+    languageMenu = (XulMenubar) document.getElementById("languagemenu"); //$NON-NLS-1$
+    themesMenu = (XulMenubar) document.getElementById("themesmenu"); //$NON-NLS-1$
+    toolsMenu = (XulMenubar) document.getElementById("toolsmenu"); //$NON-NLS-1$
+    recentMenu = (XulMenubar) document.getElementById("recentmenu"); //$NON-NLS-1$
+    favoriteMenu = (XulMenubar) document.getElementById("favoritesmenu"); //$NON-NLS-1$
 
     //let the manager have access to these menu items to toggle checks off and on 
     PerspectiveManager.getInstance().setBrowserMenuItem((PentahoMenuItem) showBrowserMenuItem.getManagedObject());
     PerspectiveManager.getInstance().setSchedulesMenuItem((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject());
-    ((PentahoMenuItem)showBrowserMenuItem.getManagedObject()).setChecked(true);
+    ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(true);
 
     PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
       @Override
@@ -204,21 +204,19 @@ public class MantleController extends AbstractXulEventHandler {
     if (supportedLanguages != null && supportedLanguages.keySet() != null && !supportedLanguages.isEmpty()) {
       MenuBar langMenu = (MenuBar) languageMenu.getManagedObject();
       for (String lang : supportedLanguages.keySet()) {
-        MenuItem langMenuItem = new MenuItem(supportedLanguages.get(lang), new SwitchLocaleCommand(lang)); //$NON-NLS-1$
-        langMenuItem.getElement().setId(supportedLanguages.get(lang) + "_menu_item");
+        MenuItem langMenuItem = new MenuItem(supportedLanguages.get(lang), new SwitchLocaleCommand(lang));
+        langMenuItem.getElement().setId(supportedLanguages.get(lang) + "_menu_item"); //$NON-NLS-1$
         langMenu.addItem(langMenuItem);
       }
     }
     buildFavoritesAndRecent(false);
-    
+
     //Bindings to keep menu and toolbar in sync with BrowserPanel state showBrowserSelected
     final List<Binding> bindingsToUpdate = new ArrayList<Binding>();
-  
+
     //For the menu item
-    bindingsToUpdate.add(
-        bf.createBinding(model, "showNavigatorSelected", showBrowserBtn, "selected")
-    );    
-   
+    bindingsToUpdate.add(bf.createBinding(model, "showNavigatorSelected", showBrowserBtn, "selected")); //$NON-NLS-1$ //$NON-NLS-2$
+
     UserSettingsManager.getInstance().addUserSettingsListener(new IUserSettingsListener() {
 
       @Override
@@ -232,19 +230,7 @@ public class MantleController extends AbstractXulEventHandler {
           try {
             if (IMantleUserSettingsConstants.MANTLE_SHOW_NAVIGATOR.equals(setting.getName())) {
               boolean showNavigator = "true".equals(setting.getValue()); //$NON-NLS-1$
-
               model.setShowNavigatorSelected(showNavigator);
-
-             // for (Binding b : bindingsToUpdate) {
-                try {
-                //  b.fireSourceChanged();
-                  ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(showNavigator);   
-                  showBrowserCommand.execute();  
-                } catch (Exception e) {
-                  e.printStackTrace();
-                }
-              //}
-
             } else if (IMantleUserSettingsConstants.MANTLE_SHOW_DESCRIPTIONS_FOR_TOOLTIPS.equals(setting.getName())) {
               boolean checked = "true".equals(setting.getValue()); //$NON-NLS-1$
               ((PentahoMenuItem) useDescriptionsMenuItem.getManagedObject()).setChecked(checked);
@@ -264,7 +250,7 @@ public class MantleController extends AbstractXulEventHandler {
 
     // install themes
     RequestBuilder getActiveThemeRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL()
-        + "api/theme/active");
+        + "api/theme/active"); //$NON-NLS-1$
     try {
       getActiveThemeRequestBuilder.sendRequest(null, new RequestCallback() {
 
@@ -275,8 +261,8 @@ public class MantleController extends AbstractXulEventHandler {
         public void onResponseReceived(Request request, Response response) {
           final String activeTheme = response.getText();
           RequestBuilder getThemesRequestBuilder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL()
-              + "api/theme/list");
-          getThemesRequestBuilder.setHeader("accept", "application/json");
+              + "api/theme/list"); //$NON-NLS-1$
+          getThemesRequestBuilder.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
 
           try {
             getThemesRequestBuilder.sendRequest(null, new RequestCallback() {
@@ -287,15 +273,15 @@ public class MantleController extends AbstractXulEventHandler {
                 try {
                   final String url = GWT.getHostPageBaseURL() + "api/repo/files/canAdminister"; //$NON-NLS-1$
                   RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
-                  requestBuilder.setHeader("accept", "text/plain");
+                  requestBuilder.setHeader("accept", "text/plain"); //$NON-NLS-1$ //$NON-NLS-2$
                   requestBuilder.sendRequest(null, new RequestCallback() {
 
                     public void onError(Request request, Throwable caught) {
                     }
 
                     public void onResponseReceived(Request request, Response response) {
-                      toolsMenu.setVisible("true".equalsIgnoreCase(response.getText()));
-                      showHiddenFilesMenuItem.setVisible("true".equalsIgnoreCase(response.getText()));
+                      toolsMenu.setVisible("true".equalsIgnoreCase(response.getText())); //$NON-NLS-1$
+                      showHiddenFilesMenuItem.setVisible("true".equalsIgnoreCase(response.getText())); //$NON-NLS-1$
                     }
 
                   });
@@ -308,15 +294,15 @@ public class MantleController extends AbstractXulEventHandler {
                 for (int i = 0; i < themes.length(); i++) {
                   JsTheme theme = themes.get(i);
                   PentahoMenuItem themeMenuItem = new PentahoMenuItem(theme.getName(), new SwitchThemeCommand(theme
-                      .getId())); //$NON-NLS-1$
-                  themeMenuItem.getElement().setId(theme.getId() + "_menu_item");
+                      .getId()));
+                  themeMenuItem.getElement().setId(theme.getId() + "_menu_item"); //$NON-NLS-1$
                   themeMenuItem.setChecked(theme.getId().equals(activeTheme));
                   ((MenuBar) themesMenu.getManagedObject()).addItem(themeMenuItem);
                 }
 
-                bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled");
-                bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled");
-                bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled");
+                bf.createBinding(model, "propertiesEnabled", propertiesMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+                bf.createBinding(model, "saveEnabled", saveMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+                bf.createBinding(model, "saveAsEnabled", saveAsMenuItem, "!disabled"); //$NON-NLS-1$ //$NON-NLS-2$
 
                 PerspectiveManager.getInstance().addPerspectivesLoadedCallback(new ICallback<Void>() {
                   public void onHandle(Void v) {
@@ -357,7 +343,7 @@ public class MantleController extends AbstractXulEventHandler {
 
       public void itemsChanged(AbstractFilePickList<RecentPickItem> filePickList) {
         refreshPickListMenu(recentMenu, recentPickList);
-        recentPickList.save("recent");
+        recentPickList.save("recent"); //$NON-NLS-1$
       }
 
       public void onSaveComplete(AbstractFilePickList<RecentPickItem> filePickList) {
@@ -369,7 +355,7 @@ public class MantleController extends AbstractXulEventHandler {
 
       public void itemsChanged(AbstractFilePickList<FavoritePickItem> filePickList) {
         refreshPickListMenu(favoriteMenu, favoritePickList);
-        favoritePickList.save("favorites");
+        favoritePickList.save("favorites"); //$NON-NLS-1$
       }
 
       public void onSaveComplete(AbstractFilePickList<FavoritePickItem> filePickList) {
@@ -398,32 +384,32 @@ public class MantleController extends AbstractXulEventHandler {
         });
       }
       menuBar.addSeparator();
-      menuBar.addItem(Messages.getString("clearItems"), new Command() {
-        public void execute() {
-          //confirm the clear
-          GwtConfirmBox warning = new GwtConfirmBox();
-          warning.setHeight(117);
-          warning.setMessage(Messages.getString("clearItemsMessage"));
-          warning.setTitle(Messages.getString("clearItems"));
-          warning.addDialogCallback(new XulDialogCallback<String>() {
-            public void onClose(XulComponent sender, Status returnCode, String retVal) {
-              if (returnCode == Status.ACCEPT) {
-                filePickList.clear();
-              }
-            }
+      menuBar.addItem(Messages.getString("clearItems"), new Command() { //$NON-NLS-1$
+            public void execute() {
+              //confirm the clear
+              GwtConfirmBox warning = new GwtConfirmBox();
+              warning.setHeight(117);
+              warning.setMessage(Messages.getString("clearItemsMessage")); //$NON-NLS-1$
+              warning.setTitle(Messages.getString("clearItems")); //$NON-NLS-1$
+              warning.addDialogCallback(new XulDialogCallback<String>() {
+                public void onClose(XulComponent sender, Status returnCode, String retVal) {
+                  if (returnCode == Status.ACCEPT) {
+                    filePickList.clear();
+                  }
+                }
 
-            public void onError(XulComponent sender, Throwable t) {
+                public void onError(XulComponent sender, Throwable t) {
+                }
+              });
+              warning.show();
             }
           });
-          warning.show();
-        }
-      });
     } else {
-      menuBar.addItem(Messages.getString("empty"), new Command() {
-        public void execute() {
-          //Do nothing
-        }
-      });
+      menuBar.addItem(Messages.getString("empty"), new Command() { //$NON-NLS-1$
+            public void execute() {
+              //Do nothing
+            }
+          });
     }
   }
 
@@ -434,7 +420,7 @@ public class MantleController extends AbstractXulEventHandler {
         JsSetting setting;
         for (int j = 0; j < result.length(); j++) {
           setting = result.get(j);
-          if ("favorites".equalsIgnoreCase(setting.getName())) {
+          if ("favorites".equalsIgnoreCase(setting.getName())) { //$NON-NLS-1$
             try {
               // handle favorite
               JSONArray favorites = JSONParser.parseLenient(setting.getValue()).isArray();
@@ -446,7 +432,7 @@ public class MantleController extends AbstractXulEventHandler {
               }
             } catch (Throwable t) {
             }
-          } else if ("recent".equalsIgnoreCase(setting.getName())) {
+          } else if ("recent".equalsIgnoreCase(setting.getName())) { //$NON-NLS-1$
             try {
               // handle recent
               JSONArray recents = JSONParser.parseLenient(setting.getValue()).isArray();
@@ -489,32 +475,32 @@ public class MantleController extends AbstractXulEventHandler {
           }
           for (int i = 0; i < jsSettings.length(); i++) {
             String content = jsSettings.get(i).getValue();
-            StringTokenizer nameValuePairs = new StringTokenizer(content, ";");
+            StringTokenizer nameValuePairs = new StringTokenizer(content, ";"); //$NON-NLS-1$
             String perspective = null, content_panel_id = null, content_url = null;
             for (int j = 0; j < nameValuePairs.countTokens(); j++) {
               String currentToken = nameValuePairs.tokenAt(j).trim();
-              if (currentToken.startsWith("perspective=")) {
-                perspective = currentToken.substring("perspective=".length());
+              if (currentToken.startsWith("perspective=")) { //$NON-NLS-1$
+                perspective = currentToken.substring("perspective=".length()); //$NON-NLS-1$
               }
-              if (currentToken.startsWith("content-panel-id=")) {
-                content_panel_id = currentToken.substring("content-panel-id=".length());
+              if (currentToken.startsWith("content-panel-id=")) { //$NON-NLS-1$
+                content_panel_id = currentToken.substring("content-panel-id=".length()); //$NON-NLS-1$
               }
-              if (currentToken.startsWith("content-url=")) {
-                content_url = currentToken.substring("content-url=".length());
+              if (currentToken.startsWith("content-url=")) { //$NON-NLS-1$
+                content_url = currentToken.substring("content-url=".length()); //$NON-NLS-1$
               }
             }
             if (perspective != null) {
-              PerspectiveManager.getInstance().setPerspective(perspective);             
+              PerspectiveManager.getInstance().setPerspective(perspective);
             }
             if (content_panel_id != null && content_url != null) {
               loadAdminContent(content_panel_id, content_url);
             }
             if (perspective == null && content_panel_id == null && content_url == null) {
               GwtMessageBox warning = new GwtMessageBox();
-              warning.setTitle(Messages.getString("warning"));
+              warning.setTitle(Messages.getString("warning")); //$NON-NLS-1$
               warning.setMessage(content);
               warning.setButtons(new Object[GwtMessageBox.ACCEPT]);
-              warning.setAcceptLabel(Messages.getString("close"));
+              warning.setAcceptLabel(Messages.getString("close")); //$NON-NLS-1$
               warning.show();
             }
           }
@@ -522,8 +508,8 @@ public class MantleController extends AbstractXulEventHandler {
       };
 
       RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL()
-          + "api/mantle/getAdminContent");
-      builder.setHeader("accept", "application/json");
+          + "api/mantle/getAdminContent"); //$NON-NLS-1$
+      builder.setHeader("accept", "application/json"); //$NON-NLS-1$ //$NON-NLS-2$
       builder.sendRequest(null, internalCallback);
       //TO DO Reset the menuItem click for browser and workspace here?
     } catch (RequestException e) {
@@ -592,34 +578,33 @@ public class MantleController extends AbstractXulEventHandler {
 
   }-*/;
 
-
   /**
    * If any external listeners have been registered, notify them that favorites have changed
    */
   private native void fireFavoritesChangedCallbacks() /*-{
-    if($wnd.externalCallbacks && $wnd.externalCallbacks.favoritesChanged) {
-      for(var i = 0; i < $wnd.externalCallbacks.favoritesChanged.length; i++) {
-        var callback = $wnd.externalCallbacks.favoritesChanged[i];
-        if(typeof(callback) == 'function') {
-          callback();
-        }
-      }
-    }
-  }-*/;
+                                                      if($wnd.externalCallbacks && $wnd.externalCallbacks.favoritesChanged) {
+                                                      for(var i = 0; i < $wnd.externalCallbacks.favoritesChanged.length; i++) {
+                                                      var callback = $wnd.externalCallbacks.favoritesChanged[i];
+                                                      if(typeof(callback) == 'function') {
+                                                      callback();
+                                                      }
+                                                      }
+                                                      }
+                                                      }-*/;
 
   /**
    * If any external listeners have been registered, notify them that recents have changed
    */
   private native void fireRecentsChangedCallbacks() /*-{
-    if($wnd.externalCallbacks && $wnd.externalCallbacks.recentsChanged) {
-      for(var i = 0; i < $wnd.externalCallbacks.recentsChanged.length; i++) {
-        var callback = $wnd.externalCallbacks.recentsChanged[i];
-        if(typeof(callback) == 'function') {
-          callback();
-        }
-      }
-    }
-  }-*/;
+                                                    if($wnd.externalCallbacks && $wnd.externalCallbacks.recentsChanged) {
+                                                    for(var i = 0; i < $wnd.externalCallbacks.recentsChanged.length; i++) {
+                                                    var callback = $wnd.externalCallbacks.recentsChanged[i];
+                                                    if(typeof(callback) == 'function') {
+                                                    callback();
+                                                    }
+                                                    }
+                                                    }
+                                                    }-*/;
 
   public void enableUsersRolesTreeItem(boolean enabled) {
     MantleXul.getInstance().enableUsersRolesTreeItem(enabled);
@@ -661,7 +646,7 @@ public class MantleController extends AbstractXulEventHandler {
             ContentCleanerPanel.getInstance().getElement().setId((ContentCleanerPanel.getInstance()).getId());
           } else {
             model.loadAdminContent(adminPanelAwaitingActivation.id, adminPanelAwaitingActivation.url);
-          }         
+          }
         }
 
         public void onFailure(Throwable reason) {
@@ -718,29 +703,29 @@ public class MantleController extends AbstractXulEventHandler {
   }
 
   @Bindable
-  private void disableMenuItemChecks(){
+  private void disableMenuItemChecks() {
     ((PentahoMenuItem) showWorkspaceMenuItem.getManagedObject()).setChecked(false);
     ((PentahoMenuItem) showBrowserMenuItem.getManagedObject()).setChecked(false);
   }
 
   @Bindable
   public void showBrowserClicked() {
-    model.setShowBrowserSelected(true);    
-    model.showBrowser();   
+    model.setShowBrowserSelected(true);
+    model.showBrowser();
   }
-  
+
   @Bindable
   public void showWorkspaceClicked() {
-    model.setShowBrowserSelected(false);    
-    model.showSchedules();   
+    model.setShowBrowserSelected(false);
+    model.showSchedules();
   }
- 
+
   @Bindable
-  public void showNavigatorClicked(){
+  public void showNavigatorClicked() {
     boolean show = !model.isShowNavigatorSelected();
-    model.setShowNavigatorSelected(show);  //toggle first
-    ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(show);   
-    showBrowserCommand.execute();   
+    model.setShowNavigatorSelected(show); //toggle first
+    ShowBrowserCommand showBrowserCommand = new ShowBrowserCommand(show);
+    showBrowserCommand.execute();
   }
 
   @Bindable
@@ -763,7 +748,7 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Override
   public String getName() {
-    return "mantleXulHandler";
+    return "mantleXulHandler"; //$NON-NLS-1$
   }
 
   @Bindable
@@ -838,7 +823,7 @@ public class MantleController extends AbstractXulEventHandler {
       }
     });
   }
-  
+
   @Bindable
   public void loadUserRolesAdminPanel() {
     GWT.runAsync(new RunAsyncCallback() {
@@ -873,7 +858,7 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public void executeMantleCommand(String cmd) {
-    String js = "executeCommand('" + cmd + "')";
+    String js = "executeCommand('" + cmd + "')"; //$NON-NLS-1$ //$NON-NLS-2$
     executeMantleCall(js);
   }
 
@@ -1005,7 +990,7 @@ public class MantleController extends AbstractXulEventHandler {
 
   @Bindable
   public void refreshContent() {
-    
+
     model.refreshContent();
   }
 
