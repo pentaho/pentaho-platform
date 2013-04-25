@@ -59,6 +59,7 @@ import org.pentaho.mantle.client.solutionbrowser.tree.SolutionTreeWrapper;
 import org.pentaho.mantle.client.ui.PerspectiveManager;
 import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 
+
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
@@ -80,8 +81,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   private final int defaultSplitPosition = 220; //$NON-NLS-1$
 
-  private int cacheHeight=0;
-  private int cacheWidth=0;
   private SplitLayoutPanel solutionNavigatorAndContentPanel = new SplitLayoutPanel(){
     @Override
     public void onResize() {
@@ -94,8 +93,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private FilesListPanel filesListPanel = new FilesListPanel();
   private DeckPanel contentPanel = new DeckPanel();
   private LaunchPanel launchPanel = new LaunchPanel();
-  private boolean isMouseDown=false;
   private String pucVerticalSplitterImg;
+  private Timer resizeTimer;
 
   private MantleTabPanel contentTabPanel = new MantleTabPanel(true);
   private boolean showSolutionBrowser = true;
@@ -191,13 +190,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     return instance;
   }
 
-
-  private static native void consoleLogger(String log)
-    /*-{
-         console.log(log);
-    }-*/;
-
-
   private void buildUI() {
     FlowPanel topPanel = new FlowPanel();
     SimplePanel toolbarWrapper = new SimplePanel();
@@ -221,16 +213,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       @Override
       public void onResize(ResizeEvent event) {
 
-
-        int delay = 200; //milliseconds
-
-        Timer t = new Timer() {
-          public void run() {
-              adjustWidth();
-              setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(),-190);
-          }
-        };
-        t.schedule(delay);
+        adjustContentPanelWidthAndHeight();
       }
     });
 
@@ -288,24 +271,26 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     showContent();
 
     solutionNavigatorAndContentPanel.getWidget(1).setWidth("100%");
-    adjustContentPanelHeight();
+    adjustContentPanelWidthAndHeight();
 
   }
 
 
 
-  private void adjustContentPanelHeight(){
+  private void adjustContentPanelWidthAndHeight(){
 
-  int delay = 200; //milliseconds
+    if(resizeTimer==null){
+      int delay = 200; //milliseconds
 
-      Timer t = new Timer() {
+      resizeTimer = new Timer() {
         public void run() {
+          resizeTimer=null;
           adjustWidth();
           setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(),-190);
         }
       };
-      t.schedule(delay);
-
+      resizeTimer.schedule(delay);
+    }
   }
 
   private static void setupNativeHooks() {
@@ -702,7 +687,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       var height= ($wnd.top.outerHeight)+offset;
       var offSetHeight=height+ 'px';
       ele.style.height = offSetHeight;
-      console.log("setting ele:" + ele + " to: " + offSetHeight);
   }-*/;
 
   private void adjustWidth() {

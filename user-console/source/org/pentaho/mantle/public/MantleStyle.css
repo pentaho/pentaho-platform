@@ -633,14 +633,10 @@ code {
   color:#737373;
 }
 
-/* BISERVER-6181 - add padding to bottom of the file list panel*/
 .filter-list-panel-container {
-  /*bottom: 14px !important;  override the inline style that is set by gwt, simple padding doesn't work */
 }
 .IE .filter-list-panel-container {
-  /*padding-bottom: 6px !important;  ie setting the padding works */
 }
-/* end fix BISERVER-6181 */
 
 /* BISERVER-6442 */
 #previewResultsTable{
