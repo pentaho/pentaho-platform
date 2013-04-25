@@ -25,6 +25,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.sql.DataSource;
 import javax.ws.rs.core.MediaType;
@@ -45,6 +49,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.pentaho.platform.api.repository2.unified.IUnifiedRepository;
 import org.pentaho.platform.plugin.services.messages.Messages;
+import org.pentaho.platform.repository.RepositoryFilenameUtils;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.IUnifiedRepositoryJaxwsWebService;
 import org.pentaho.platform.repository2.unified.webservices.jaxws.UnifiedRepositoryToWebServiceAdapter;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -69,6 +74,16 @@ import com.sun.xml.ws.developer.JAXWSProperties;
  */
 public class CommandLineProcessor {
   private static final String API_REPO_FILES_IMPORT = "/api/repo/files/import";
+                                                             
+  private static final String ANALYSIS_DATASOURCE_IMPORT = "/plugin/data-access/api/mondrian/postAnalysis";
+
+  private static final String METADATA_DATASOURCE_IMPORT = "/plugin/data-access/api/metadata/postimport";
+
+  private static final String ANALYSIS_DATASOURCE_EXT = "mondrian.xml";
+
+  private static final String METADATA_DATASOURCE_EXT = "xmi";
+
+  private static final String ZIP_EXT = "zip";
 
   private static final Log log = LogFactory.getLog(CommandLineProcessor.class);
 
@@ -86,147 +101,164 @@ public class CommandLineProcessor {
     HELP, IMPORT, EXPORT, REST
   }
 
+  private static enum DatasourceType {
+    JDBC, METADATA, ANALYSIS
+  }
+
+  private static enum ResourceType {
+    SOLUTIONS, DATASOURCE
+  }
+
   private static boolean useRestService = true;
 
   private static Client client = null;
-  
+
   static {
     // create the Options
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_HELP_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_HELP_NAME"),
-                       false,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_HELP_DESCRIPTION"));
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_HELP_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_HELP_NAME"), false, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_HELP_DESCRIPTION"));
 
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_IMPORT_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_IMPORT_NAME"),
-                       false,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_IMPORT_DESCRIPTION"));
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_IMPORT_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_IMPORT_NAME"), false, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_IMPORT_DESCRIPTION"));
 
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_EXPORT_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_EXPORT_NAME"),
-                       false,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_EXPORT_DESCRIPTION"));
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_EXPORT_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_EXPORT_NAME"), false, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_EXPORT_DESCRIPTION"));
 
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_DESCRIPTION"));
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_USERNAME_DESCRIPTION"));
 
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_DESCRIPTION"));
-    
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_DESCRIPTION"));
-    
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_DESCRIPTION"));
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_PASSWORD_DESCRIPTION"));
 
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_TYPE_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_TYPE_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_TYPE_DESCRIPTION"));
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true,
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_DESCRIPTION"));
 
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_DESCRIPTION"));
-    
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_DESCRIPTION"));
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_SOURCE_DESCRIPTION"));
 
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_DESCRIPTION"));
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_TYPE_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_TYPE_NAME"), true,
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_TYPE_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_FILEPATH_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_CHARSET_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_LOGFILE_DESCRIPTION"));
 
     // import only options
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_COMMENT_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_COMMENT_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_COMMENT_DESCRIPTION"));
-    
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_DESCRIPTION"));
-    
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_COMMENT_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_COMMENT_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_COMMENT_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true,
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_DESCRIPTION"));
+
     // import only ACL additions
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_DESCRIPTION"));
-    
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PERMISSION_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PERMISSION_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PERMISSION_DESCRIPTION"));
-    
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PERMISSION_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_PERMISSION_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_PERMISSION_DESCRIPTION"));
+
     options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_DESCRIPTION"));
-    
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_DESCRIPTION"));
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_DESCRIPTION"));
 
     // external
     options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_DESCRIPTION"));
-    
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_DESCRIPTION"));
-    
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_DESCRIPTION"));
+
     options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_DESCRIPTION"));
-    
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_DESCRIPTION"));
+
     options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_DESCRIPTION"));
-    
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_DESCRIPTION"));
+
     options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_DESCRIPTION"));
-  
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_DESCRIPTION"));
+
     // Legacy Service
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DESCRIPTION"));
-   
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_LEGACY_DESCRIPTION"));
+
     //rest services
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_REST_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_REST_NAME"),
-                       false,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_REST_DESCRIPTION"));
-    
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SERVICE_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SERVICE_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SERVICE_DESCRIPTION"));
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_REST_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_REST_NAME"), false, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_REST_DESCRIPTION"));
 
-    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PARAMS_KEY"),
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PARAMS_NAME"),
-                       true,
-                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PARAMS_DESCRIPTION"));
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SERVICE_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_SERVICE_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_SERVICE_DESCRIPTION"));
 
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PARAMS_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_PARAMS_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_PARAMS_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_RESOURCE_TYPE_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_RESOURCE_TYPE_NAME"), true, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_RESOURCE_TYPE_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_RESOURCE_TYPE_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_CATALOG_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_CATALOG_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_CATALOG_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_DATASOURCE_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_DATASOURCE_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_PARAMETERS_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_PARAMETERS_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_PARAMETERS_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_XMLA_ENABLED_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_XMLA_ENABLED_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_XMLA_ENABLED_DESCRIPTION"));
+
+    options.addOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_METADATA_DOMAIN_ID_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_METADATA_DOMAIN_ID_NAME"), true, Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_METADATA_DOMAIN_ID_DESCRIPTION"));
   }
 
   /**
@@ -243,8 +275,9 @@ public class CommandLineProcessor {
       exception = null;
 
       final CommandLineProcessor commandLineProcessor = new CommandLineProcessor(args);
-      String legacy = commandLineProcessor.getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_KEY"),
-                                                           Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_NAME"), false, true);
+      String legacy = commandLineProcessor.getOptionValue(
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_KEY"), Messages.getInstance()
+              .getString("CommandLineProcessor.INFO_OPTION_LEGACY_NAME"), false, true);
 
       useRestService = "false".equals(legacy) ? false : true;// default to new REST version if not provided
       // new service only
@@ -267,11 +300,13 @@ public class CommandLineProcessor {
     } catch (ParseException parseException) {
       exception = parseException;
       System.err.println(parseException.getLocalizedMessage());
+      System.out.println(parseException.getLocalizedMessage());
       printHelp();
+      log.error(parseException.getMessage(), parseException);
     } catch (Exception e) {
       exception = e;
-      e.printStackTrace();  
-      log.error(e.getMessage(),e);
+      e.printStackTrace();
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -284,27 +319,27 @@ public class CommandLineProcessor {
    * @throws ParseException
    */
   private void performREST() throws ParseException {
-  
+
     String contextURL = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_KEY"),
-                                        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false);
     String path = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_KEY"),
-                                  Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true, false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true, false);
     String logFile = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_KEY"),
-                                     Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"),false,true);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"), false, true);
     String exportURL = contextURL + "/api/repo/files/";
-    if(path != null){
+    if (path != null) {
       String effPath = path.replaceAll("/", ":");
       exportURL += effPath;
     }
     String service = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SERVICE_KEY"),
-                                     Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SERVICE_NAME"),true,false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SERVICE_NAME"), true, false);
     String params = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PARAMS_KEY"),
-                                    Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PARAMS_NAME"),false,true);
-    exportURL +=  "/"+service;
-    if(params != null){
-      exportURL += "?params="+params;
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PARAMS_NAME"), false, true);
+    exportURL += "/" + service;
+    if (params != null) {
+      exportURL += "?params=" + params;
     }
-   
+
     initRestService();
     WebResource resource = client.resource(exportURL);
 
@@ -314,15 +349,16 @@ public class CommandLineProcessor {
     if (response != null && response.getStatus() == 200) {
 
       String message = Messages.getInstance().getString("CommandLineProcessor.INFO_REST_COMPLETED").concat("\n");
-      message += Messages.getInstance().getString("CommandLineProcessor.INFO_REST_RESPONSE_STATUS", response.getStatus());
+      message += Messages.getInstance().getString("CommandLineProcessor.INFO_REST_RESPONSE_STATUS",
+          response.getStatus());
       message += "\n";
 
-      if(logFile !=null && !"".equals(logFile)){
-        message +=  Messages.getInstance().getString("CommandLineProcessor.INFO_REST_FILE_WRITTEN", logFile);
+      if (logFile != null && !"".equals(logFile)) {
+        message += Messages.getInstance().getString("CommandLineProcessor.INFO_REST_FILE_WRITTEN", logFile);
         System.out.println(message);
         writeFile(message, logFile);
       }
-    }else {
+    } else {
       System.out.println(Messages.getInstance().getErrorString("CommandLineProcessor.ERROR_0002_INVALID_RESPONSE"));
     }
   }
@@ -334,9 +370,9 @@ public class CommandLineProcessor {
   private void initRestService() throws ParseException {
     // get information about the remote connection
     String username = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_KEY"),
-                                      Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_NAME"), true, false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_NAME"), true, false);
     String password = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_KEY"),
-                                      Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_NAME"), true, false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_NAME"), true, false);
     ClientConfig clientConfig = new DefaultClientConfig();
     clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
     client = Client.create(clientConfig);
@@ -367,19 +403,22 @@ public class CommandLineProcessor {
   protected CommandLineProcessor(String[] args) throws ParseException {
     // parse the command line arguments
     commandLine = new PosixParser().parse(options, args);
-    if (commandLine.hasOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_HELP_NAME"))||
-          commandLine.hasOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_HELP_KEY"))) {
+    if (commandLine.hasOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_HELP_NAME"))
+        || commandLine.hasOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_HELP_KEY"))) {
       requestType = RequestType.HELP;
     } else {
-      if(commandLine.hasOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_REST_NAME"))||
-           commandLine.hasOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_REST_KEY"))){
+      if (commandLine.hasOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_REST_NAME"))
+          || commandLine.hasOption(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_REST_KEY"))) {
         requestType = RequestType.REST;
       } else {
-        final boolean importRequest = commandLine.hasOption( Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_IMPORT_KEY") );
-        final boolean exportRequest = commandLine.hasOption( Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_EXPORT_KEY") );
+        final boolean importRequest = commandLine.hasOption(Messages.getInstance().getString(
+            "CommandLineProcessor.INFO_OPTION_IMPORT_KEY"));
+        final boolean exportRequest = commandLine.hasOption(Messages.getInstance().getString(
+            "CommandLineProcessor.INFO_OPTION_EXPORT_KEY"));
 
         if (importRequest == exportRequest) {
-          throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.ERROR_0003_PARSE_EXCEPTION"));
+          throw new ParseException(Messages.getInstance().getErrorString(
+              "CommandLineProcessor.ERROR_0003_PARSE_EXCEPTION"));
         }
         requestType = (importRequest ? RequestType.IMPORT : RequestType.EXPORT);
       }
@@ -401,6 +440,212 @@ public class CommandLineProcessor {
     }
   }
 
+  /**
+   * --import --url=http://localhost:8080/pentaho --username=admin
+   * --password=password --file-path=metadata.xmi --resource-type=DATASOURCE 
+   * --datasource-type=METADATA --overwrite=true --metadata-domain-id=steel-wheels
+   * @param contextURL
+   * @param filePath
+   * @param metadataDatasourceFile
+   * @param overwrite
+   * @throws ParseException
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
+  private void performMetadataDatasourceImport(String contextURL, String filePath, File metadataDatasourceFile,
+      String overwrite) throws ParseException, FileNotFoundException, IOException {
+    File metadataFileInZip = null;
+    InputStream metadataFileInZipInputStream = null;
+    List<File> localesFileList = new ArrayList<File>();
+    List<InputStream> localesStreamList = new ArrayList<InputStream>();
+
+    String metadataImportURL = contextURL + METADATA_DATASOURCE_IMPORT;
+
+    String domainId = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_METADATA_DOMAIN_ID_KEY"), Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_METADATA_DOMAIN_ID_NAME"), true, false);
+
+    WebResource resource = client.resource(metadataImportURL);
+
+    FormDataMultiPart part = new FormDataMultiPart();
+
+    final String name = RepositoryFilenameUtils.separatorsToRepository(metadataDatasourceFile.getName());
+    final String ext = RepositoryFilenameUtils.getExtension(name);
+
+    if (ext.equals(ZIP_EXT)) {
+      ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(metadataDatasourceFile));
+      ZipEntry entry = zipInputStream.getNextEntry();
+      while (entry != null) {
+        final String entryName = RepositoryFilenameUtils.separatorsToRepository(entry.getName());
+        final String extension = RepositoryFilenameUtils.getExtension(entryName);
+        File tempFile = null;
+        boolean isDir = entry.getSize() == 0;
+        if (!isDir) {
+          tempFile = File.createTempFile("zip", null);
+          tempFile.deleteOnExit();
+          FileOutputStream fos = new FileOutputStream(tempFile);
+          IOUtils.copy(zipInputStream, fos);
+          fos.close();
+        }
+        if (extension.equals(METADATA_DATASOURCE_EXT)) {
+          if (metadataFileInZip == null) {
+            metadataFileInZip = new File(entryName);
+            metadataFileInZipInputStream = new FileInputStream(metadataFileInZip);
+          } else {
+            // Throw exception
+          }
+        } else {
+          File localeFile = new File(entryName);
+          localesFileList.add(localeFile);
+          localesStreamList.add(new FileInputStream(localeFile));
+        }
+        zipInputStream.closeEntry();
+        entry = zipInputStream.getNextEntry();
+      }
+      zipInputStream.close();
+
+      part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
+      part.field("domainId", domainId, MediaType.MULTIPART_FORM_DATA_TYPE).field("metadataFile",
+          metadataFileInZipInputStream, MediaType.MULTIPART_FORM_DATA_TYPE);
+
+      // If the import service needs the file name do the following.
+      part.getField("metadataFile").setContentDisposition(
+          FormDataContentDisposition.name("metadataFile").fileName(metadataFileInZip.getName()).build());
+
+      // Response response
+      ClientResponse response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
+      if (response != null) {
+        String message = response.getEntity(String.class);
+        System.out.println(Messages.getInstance()
+            .getString("CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED", message));
+      }
+
+    } else {
+      FileInputStream metadataDatasourceInputStream = new FileInputStream(metadataDatasourceFile);
+
+      part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
+      part.field("domainId", domainId, MediaType.MULTIPART_FORM_DATA_TYPE).field("metadataFile",
+          metadataDatasourceInputStream, MediaType.MULTIPART_FORM_DATA_TYPE);
+
+      // If the import service needs the file name do the following.
+      part.getField("metadataFile").setContentDisposition(
+          FormDataContentDisposition.name("metadataFile").fileName(metadataDatasourceFile.getName()).build());
+
+      // Response response
+      ClientResponse response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
+      if (response != null) {
+        String message = response.getEntity(String.class);
+        System.out.println(Messages.getInstance()
+            .getString("CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED", message));
+      }
+      metadataDatasourceInputStream.close();
+    }
+
+  }
+
+  /**
+   * --import --url=http://localhost:8080/pentaho --username=admin  
+   * --password=password --file-path=analysis/steelwheels.mondrian.xml 
+   * --resource-type=DATASOURCE --datasource-type=ANALYSIS 
+   * --overwrite=true --analysis-datasource=steelwheels
+   * @param contextURL
+   * @param filePath
+   * @param analysisDatasourceFile
+   * @param overwrite
+   * @throws ParseException
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
+  private void performAnalysisDatasourceImport(String contextURL, String filePath, File analysisDatasourceFile,
+      String overwrite) throws ParseException, FileNotFoundException, IOException {
+    String analysisImportURL = contextURL + ANALYSIS_DATASOURCE_IMPORT;
+
+    String catalogName = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_CATALOG_Key"), Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_CATALOG_NAME"), false, true);
+    String datasourceName = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_DATASOURCE_KEY"), Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_DATASOURCE_NAME"), false, true);
+    String parameters = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_PARAMETERS_KEY"), Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_PARAMETERS_NAME"), false, true);
+    String xmlaEnabledFlag = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_ANALYSIS_XMLA_ENABLED_KEY"), Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_ANALYSIS_XMLA_ENABLED_NAME"), false,
+        true);
+
+    WebResource resource = client.resource(analysisImportURL);
+    FileInputStream inputStream = new FileInputStream(analysisDatasourceFile);
+    String parms = "Datasource=" + datasourceName + ";overwrite=" + overwrite;
+    
+    FormDataMultiPart part = new FormDataMultiPart();
+    part.field("overwrite", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
+    
+    if(catalogName != null) {
+      part.field("catalogName", catalogName, MediaType.MULTIPART_FORM_DATA_TYPE);  
+    }
+    if(datasourceName != null) {
+      part.field("datasourceName", datasourceName, MediaType.MULTIPART_FORM_DATA_TYPE);  
+    }
+    part.field("parameters", parms, MediaType.MULTIPART_FORM_DATA_TYPE);  
+    
+    part.field("xmlaEnabledFlag", "true".equals(xmlaEnabledFlag) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
+    part.field("uploadAnalysis", inputStream, MediaType.MULTIPART_FORM_DATA_TYPE);
+
+    // If the import service needs the file name do the following.
+    part.getField("uploadAnalysis").setContentDisposition(
+        FormDataContentDisposition.name("uploadAnalysis").fileName(analysisDatasourceFile.getName()).build());
+
+    // Response response
+    ClientResponse response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
+    if (response != null) {
+      String message = response.getEntity(String.class);
+      System.out.println(Messages.getInstance().getString("CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED", message));
+    }
+    inputStream.close();
+  }
+
+  /**
+   * 
+   * @throws ParseException
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
+  private void performDatasourceImport() throws ParseException, FileNotFoundException, IOException {
+    String contextURL = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_Key"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false);
+    String filePath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
+    String datasourceType = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_KEY"), Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_DATASOURCE_TYPE_NAME"), true, false);
+    String overwrite = getOptionValue(Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME"), false, true);
+
+    /*
+    * wrap in a try/finally to ensure input stream
+    * is closed properly
+    */
+    try {
+      initRestService();
+
+      File file = new File(filePath);
+      if (datasourceType != null) {
+        if (datasourceType.equals(DatasourceType.ANALYSIS.name())) {
+          performAnalysisDatasourceImport(contextURL, filePath, file, overwrite);
+        } else if (datasourceType.equals(DatasourceType.METADATA.name())) {
+          performMetadataDatasourceImport(contextURL, filePath, file, overwrite);
+        }
+      }
+
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+      log.error(e.getMessage());
+    }
+
+  }
+
   /*
    * --import --url=http://localhost:8080/pentaho -
    *  -username=admin
@@ -417,69 +662,79 @@ public class CommandLineProcessor {
 
   private void performImportREST() throws ParseException, FileNotFoundException, IOException {
     String contextURL = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_Key"),
-                                        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false);
-    String path = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_KEY"),
-                                  Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true, false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false);
     String filePath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
-                                      Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
-    String charSet = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_KEY"),
-                                     Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_NAME"), false, true);
-    String logFile = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_KEY"),
-                                     Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"),false,true);
-    String importURL = contextURL + API_REPO_FILES_IMPORT;
-    File fileIS = new File(filePath);
-    InputStream in = new FileInputStream(fileIS);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
+    String resourceType = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_RESOURCE_TYPE_KEY"), Messages.getInstance()
+            .getString("CommandLineProcessor.INFO_OPTION_RESOURCE_TYPE_NAME"), false, true);
+    // We are importing datasources
+    if (resourceType != null && resourceType.equals(ResourceType.DATASOURCE.name())) {
+      performDatasourceImport();
+    } else {
+      String charSet = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_KEY"),
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_NAME"), false, true);
+      String logFile = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_KEY"),
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"), false, true);
+      String path = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_KEY"),
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true, false);
 
-    /*
-     * wrap in a try/finally to ensure input stream
-     * is closed properly
-     */
-    try{
-      initRestService();
-      WebResource resource = client.resource(importURL);
+      String importURL = contextURL + API_REPO_FILES_IMPORT;
+      File fileIS = new File(filePath);
+      InputStream in = new FileInputStream(fileIS);
 
-      String overwrite = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY"),
-                                         Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME"), true, false);
-      String retainOwnership = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_KEY"),
-                                               Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_NAME"), true, false);
-      String permission = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PERMISSION_KEY"),
-                                          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PERMISSION_NAME"), true, false);
+      /*
+       * wrap in a try/finally to ensure input stream
+       * is closed properly
+       */
+      try {
+        initRestService();
+        WebResource resource = client.resource(importURL);
 
-      FormDataMultiPart part = new FormDataMultiPart();
-      part.field("importDir", path, MediaType.MULTIPART_FORM_DATA_TYPE);
-      part.field("overwriteAclPermissions", "true".equals(overwrite) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
-      part.field("retainOwnership", "true".equals(retainOwnership) ? "true" : "false", MediaType.MULTIPART_FORM_DATA_TYPE);
-      part.field("charSet", charSet == null ? "UTF-8" : charSet);
-      part.field("applyAclPermissions", "true".equals(permission) ? "true" : "false",
-        MediaType.MULTIPART_FORM_DATA_TYPE).
-        field("fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE);
+        String overwrite = getOptionValue(
+            Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY"), Messages.getInstance()
+                .getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME"), true, false);
+        String retainOwnership = getOptionValue(
+            Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_KEY"), Messages
+                .getInstance().getString("CommandLineProcessor.INFO_OPTION_RETAIN_OWNERSHIP_NAME"), true, false);
+        String permission = getOptionValue(
+            Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PERMISSION_KEY"), Messages.getInstance()
+                .getString("CommandLineProcessor.INFO_OPTION_PERMISSION_NAME"), true, false);
 
-      // If the import service needs the file name do the following.
-      part.getField("fileUpload").setContentDisposition(
-        FormDataContentDisposition.name("fileUpload").fileName(fileIS.getName()).build()
-      );
+        FormDataMultiPart part = new FormDataMultiPart();
+        part.field("importDir", path, MediaType.MULTIPART_FORM_DATA_TYPE);
+        part.field("overwriteAclPermissions", "true".equals(overwrite) ? "true" : "false",
+            MediaType.MULTIPART_FORM_DATA_TYPE);
+        part.field("retainOwnership", "true".equals(retainOwnership) ? "true" : "false",
+            MediaType.MULTIPART_FORM_DATA_TYPE);
+        part.field("charSet", charSet == null ? "UTF-8" : charSet);
+        part.field("applyAclPermissions", "true".equals(permission) ? "true" : "false",
+            MediaType.MULTIPART_FORM_DATA_TYPE).field("fileUpload", in, MediaType.MULTIPART_FORM_DATA_TYPE);
 
-      // Response response
-      ClientResponse  response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class,part);
-      if(response != null){
-        String message = response.getEntity(String.class);
-        System.out.println(Messages.getInstance().getString("CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED", message));
-        if(logFile != null && !"".equals(logFile)){
-          writeFile(message,logFile);
+        // If the import service needs the file name do the following.
+        part.getField("fileUpload").setContentDisposition(
+            FormDataContentDisposition.name("fileUpload").fileName(fileIS.getName()).build());
+
+        // Response response
+        ClientResponse response = resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, part);
+        if (response != null) {
+          String message = response.getEntity(String.class);
+          System.out.println(Messages.getInstance().getString("CommandLineProcessor.INFO_REST_RESPONSE_RECEIVED",
+              message));
+          if (logFile != null && !"".equals(logFile)) {
+            writeFile(message, logFile);
+          }
         }
+      } catch (Exception e) {
+        System.err.println(e.getMessage());
+        log.error(e.getMessage());
+        writeFile(e.getMessage(), logFile);
+      } finally {
+        // if we get here, close input stream
+        in.close();
       }
     }
-    catch(Exception e){
-      System.err.println(e.getMessage());
-      log.error(e.getMessage());
-      writeFile(e.getMessage(),logFile);
-    }
-    finally{
-      // if we get here, close input stream
-      in.close();
-    }
   }
-
 
   /**
    * this process must run on the same box as the JCR repository does not use
@@ -493,8 +748,9 @@ public class CommandLineProcessor {
     final ImportProcessor importProcessor = getImportProcessor();
     importProcessor.setImportSource(createImportSource());
     addImportHandlers(importProcessor);
-    String overwrite = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY"),
-                                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME"), false, true);
+    String overwrite = getOptionValue(Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_OVERWRITE_NAME"), false, true);
     importProcessor.performImport(Boolean.valueOf(overwrite == null ? "true" : overwrite).booleanValue());
   }
 
@@ -518,35 +774,36 @@ public class CommandLineProcessor {
    */
   private void performExportREST() throws ParseException, IOException {
     String contextURL = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_KEY"),
-                                        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false);
     String path = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_KEY"),
-                                  Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true, false);
-    String withManifest = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_KEY"),
-                                          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_NAME"), false, true);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true, false);
+    String withManifest = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_KEY"), Messages.getInstance()
+            .getString("CommandLineProcessor.INFO_OPTION_WITH_MANIFEST_NAME"), false, true);
     String effPath = path.replaceAll("/", ":");
     String logFile = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_KEY"),
-                                     Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"),false,true);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"), false, true);
     String exportURL = contextURL + "/api/repo/files/" + effPath + "/download?withManifest="
         + ("false".equals(withManifest) ? "false" : "true");
-    
-    
+
     // path is validated before executing
- 	String filepath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
-               Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
- 	  
- 	if(!isValidExportPath(filepath, logFile)){
- 		return;
- 	}    
-    
+    String filepath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
+
+    if (!isValidExportPath(filepath, logFile)) {
+      return;
+    }
+
     initRestService();
     WebResource resource = client.resource(exportURL);
-   
+
     // Response response
     Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA).accept(MediaType.TEXT_HTML_TYPE);
     ClientResponse response = builder.get(ClientResponse.class);
     if (response != null && response.getStatus() == 200) {
-      String filename = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
-                                        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
+      String filename = getOptionValue(Messages.getInstance()
+          .getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
       final InputStream input = response.getEntityInputStream();
       createZipFile(filename, input);
       input.close();
@@ -554,35 +811,35 @@ public class CommandLineProcessor {
       message += Messages.getInstance().getString("CommandLineProcessor.INFO_RESPONSE_STATUS", response.getStatus());
       message += "\n";
       message += Messages.getInstance().getString("CommandLineProcessor.INFO_EXPORT_WRITTEN_TO", filename);
-      if(logFile !=null && !"".equals(logFile)){
+      if (logFile != null && !"".equals(logFile)) {
         System.out.println(message);
         writeFile(message, logFile);
       }
     }
   }
-  
-  private boolean isValidExportPath(String filePath, String logFile){
-	  
-	  boolean isValid = false;
-	  
-	  if(filePath != null && filePath.toLowerCase().endsWith(".zip")){
-	  
-		  int fileNameIdx = filePath.lastIndexOf("/");
-		  if(fileNameIdx >= 0){
-		      String directoryPath = filePath.substring(0, fileNameIdx);
-		           
-		      File f = new File(directoryPath);
-		      if(f != null && f.exists() && f.isDirectory()){
-		    	  isValid = true;  
-		      }
-		  }
-	  }
 
-	  if(!isValid && logFile != null && !"".equals(logFile)){
-	      writeFile("Invalid file-path:" + filePath, logFile);
-	  }
-	  
-	  return isValid;
+  private boolean isValidExportPath(String filePath, String logFile) {
+
+    boolean isValid = false;
+
+    if (filePath != null && filePath.toLowerCase().endsWith(".zip")) {
+
+      int fileNameIdx = filePath.lastIndexOf("/");
+      if (fileNameIdx >= 0) {
+        String directoryPath = filePath.substring(0, fileNameIdx);
+
+        File f = new File(directoryPath);
+        if (f != null && f.exists() && f.isDirectory()) {
+          isValid = true;
+        }
+      }
+    }
+
+    if (!isValid && logFile != null && !"".equals(logFile)) {
+      writeFile("Invalid file-path:" + filePath, logFile);
+    }
+
+    return isValid;
   }
 
   /**
@@ -619,19 +876,19 @@ public class CommandLineProcessor {
    * @throws java.io.IOException
    */
   protected void performExportLegacy() throws ParseException, ExportException, IOException {
-    
-	// path is validated before executing
- 	String filepath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
-               Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
- 	
- 	String logFile = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_KEY"),
-            Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"),false,true);
- 	
- 	if(!isValidExportPath(filepath, logFile)){
- 		throw new ExportException("file-path:" + filepath);
-	}
-	
-	final Exporter exportProcessor = getExportProcessor();
+
+    // path is validated before executing
+    String filepath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
+
+    String logFile = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LOGFILE_NAME"), false, true);
+
+    if (!isValidExportPath(filepath, logFile)) {
+      throw new ExportException("file-path:" + filepath);
+    }
+
+    final Exporter exportProcessor = getExportProcessor();
     exportProcessor.doExport();
     // throw new UnsupportedOperationException(); // TODO implement
   }
@@ -639,9 +896,9 @@ public class CommandLineProcessor {
   private Exporter getExportProcessor() throws ParseException {
     final IUnifiedRepository repository = getRepository();
     String path = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_KEY"),
-                                  Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true, false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true, false);
     String filepath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
-                                      Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
     final Exporter exportProcess = new Exporter(repository, path, filepath);
     return exportProcess;
   }
@@ -654,10 +911,12 @@ public class CommandLineProcessor {
    *         {@link org.pentaho.platform.plugin.services.importexport.SimpleImportProcessor} if one can not be determined
    */
   protected ImportProcessor getImportProcessor() throws ParseException {
-    final String comment = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_COMMENT_KEY"),
-                                           Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_COMMENT_NAME"), false, true);
-    final String destinationPath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_KEY"),
-                                                   Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true, false);
+    final String comment = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_COMMENT_KEY"), Messages.getInstance()
+            .getString("CommandLineProcessor.INFO_OPTION_COMMENT_NAME"), false, true);
+    final String destinationPath = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PATH_KEY"), Messages.getInstance()
+            .getString("CommandLineProcessor.INFO_OPTION_PATH_NAME"), true, false);
     return new SimpleImportProcessor(destinationPath, comment);
   }
 
@@ -666,40 +925,52 @@ public class CommandLineProcessor {
    * options
    */
   protected ImportSource createImportSource() throws ParseException, InitializationException {
-    final String source = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_KEY"),
-                                          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_NAME"), true, false);
-    final String requiredCharset = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_KEY"),
-                                                   Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_NAME"), true, false);
+    final String source = getOptionValue(Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_SOURCE_KEY"),
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_NAME"), true, false);
+    final String requiredCharset = getOptionValue(
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_CHARSET_KEY"), Messages.getInstance()
+            .getString("CommandLineProcessor.INFO_OPTION_CHARSET_NAME"), true, false);
 
-    if (StringUtils.equals(source, Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_LEGACY_DB"))) {
-      final String driver = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_KEY"),
-                                            Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_NAME"), true, false);
-      final String url = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_KEY"),
-                                         Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_NAME"), true, false);
-      final String dbUsername = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_KEY"),
-                                                Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_NAME"), true, false);
-      final String dbPassword = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_KEY"),
-                                                Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_NAME"), true, true);
-      final String charset = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_KEY"),
-                                             Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_NAME"), true, true);
+    if (StringUtils.equals(source, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_OPTION_SOURCE_LEGACY_DB"))) {
+      final String driver = getOptionValue(
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_KEY"), Messages
+              .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_DRIVER_NAME"), true, false);
+      final String url = getOptionValue(
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_KEY"), Messages
+              .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_URL_NAME"), true, false);
+      final String dbUsername = getOptionValue(
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_KEY"), Messages
+              .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_USERNAME_NAME"), true, false);
+      final String dbPassword = getOptionValue(
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_KEY"), Messages
+              .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_PASSWORD_NAME"), true, true);
+      final String charset = getOptionValue(
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_KEY"), Messages
+              .getInstance().getString("CommandLineProcessor.INFO_OPTION_LEGACY_DB_CHARSET_NAME"), true, true);
       final DataSource dataSource = new DriverManagerDataSource(driver, url, dbUsername, dbPassword);
 
-      final String username = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_KEY"),
-                                              Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_NAME"), true, false);
+      final String username = getOptionValue(
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_KEY"), Messages.getInstance()
+              .getString("CommandLineProcessor.INFO_OPTION_USERNAME_NAME"), true, false);
       return new org.pentaho.platform.plugin.services.importexport.legacy.DbSolutionRepositoryImportSource(dataSource,
           charset, requiredCharset, username);
     }
 
-    if (StringUtils.equals(source, Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_FILE_SYSTEM"))) {
-      final String filePath = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"),
-                                              Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
+    if (StringUtils.equals(source,
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_SOURCE_FILE_SYSTEM"))) {
+      final String filePath = getOptionValue(
+          Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_FILEPATH_KEY"), Messages.getInstance()
+              .getString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME"), true, false);
       final File file = new File(filePath);
       return new org.pentaho.platform.plugin.services.importexport.legacy.FileSolutionRepositoryImportSource(file,
           requiredCharset);
     }
 
     // Source is not understood
-    throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME", source));
+    throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.INFO_OPTION_FILEPATH_NAME",
+        source));
   }
 
   /**
@@ -716,11 +987,11 @@ public class CommandLineProcessor {
     final IUnifiedRepository repository = getRepository();
 
     String username = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_KEY"),
-                                      Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_NAME"), true, false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_NAME"), true, false);
     String password = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_KEY"),
-                                      Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_NAME"), true, false);
-    String url = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_KEY"),
-                                 Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false);
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_NAME"), true, false);
+    String url = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_KEY"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false);
 
     importProcessor.addImportHandler(new MondrianImportHandler(username, password, url));
     importProcessor.addImportHandler(new MetadataImportHandler(username, password, url));
@@ -754,7 +1025,7 @@ public class CommandLineProcessor {
     final String SERVICE_NAME = "unifiedRepository"; //$NON-NLS-1$
 
     String urlString = getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_KEY"),
-                                       Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false).trim();
+        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_URL_NAME"), true, false).trim();
     if (urlString.endsWith("/")) {
       urlString = urlString.substring(0, urlString.length() - 1);
     }
@@ -770,12 +1041,14 @@ public class CommandLineProcessor {
     Service service = Service.create(url, new QName(NAMESPACE_URI, SERVICE_NAME));
     IUnifiedRepositoryJaxwsWebService port = service.getPort(IUnifiedRepositoryJaxwsWebService.class);
     // http basic authentication
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.USERNAME_PROPERTY,
-        getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_KEY"),
-                        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_NAME"), true, false));
-    ((BindingProvider) port).getRequestContext().put(BindingProvider.PASSWORD_PROPERTY,
-        getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_KEY"),
-                        Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_NAME"), true, true));
+    ((BindingProvider) port).getRequestContext().put(
+        BindingProvider.USERNAME_PROPERTY,
+        getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_KEY"), Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_USERNAME_NAME"), true, false));
+    ((BindingProvider) port).getRequestContext().put(
+        BindingProvider.PASSWORD_PROPERTY,
+        getOptionValue(Messages.getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_KEY"), Messages
+            .getInstance().getString("CommandLineProcessor.INFO_OPTION_PASSWORD_NAME"), true, true));
     // accept cookies to maintain session on server
     ((BindingProvider) port).getRequestContext().put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
     // support streaming binary data
@@ -809,10 +1082,12 @@ public class CommandLineProcessor {
       throws ParseException {
     final String value = StringUtils.trim(commandLine.getOptionValue(option));
     if (required && StringUtils.isEmpty(value)) {
-      throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.ERROR_0001_MISSING_ARG", option));
+      throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.ERROR_0001_MISSING_ARG",
+          option));
     }
     if (!emptyOk && StringUtils.isEmpty(value)) {
-      throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.ERROR_0001_MISSING_ARG", option));
+      throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.ERROR_0001_MISSING_ARG",
+          option));
     }
     return value;
   }
@@ -836,19 +1111,21 @@ public class CommandLineProcessor {
    * @throws ParseException
    *             indicates the required or non-blank value was not provided
    */
-  protected String getOptionValue(final String shortOption, final String longOption, final boolean required, final boolean emptyOk)
-    throws ParseException {
+  protected String getOptionValue(final String shortOption, final String longOption, final boolean required,
+      final boolean emptyOk) throws ParseException {
     // first try the short option parameter
     String value = StringUtils.trim(commandLine.getOptionValue(shortOption));
-    if(StringUtils.isEmpty(value)){
+    if (StringUtils.isEmpty(value)) {
       // if its empty, try the long option
       value = StringUtils.trim(commandLine.getOptionValue(longOption));
     }
     if (required && StringUtils.isEmpty(value)) {
-      throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.ERROR_0001_MISSING_ARG", longOption));
+      throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.ERROR_0001_MISSING_ARG",
+          longOption));
     }
     if (!emptyOk && StringUtils.isEmpty(value)) {
-      throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.ERROR_0001_MISSING_ARG", longOption));
+      throw new ParseException(Messages.getInstance().getErrorString("CommandLineProcessor.ERROR_0001_MISSING_ARG",
+          longOption));
     }
     return value;
   }
@@ -859,25 +1136,24 @@ public class CommandLineProcessor {
    * @param logFile
    */
   private void writeFile(String message, String logFile) {
-    try{
+    try {
       File file = new File(logFile);
       FileOutputStream fout = FileUtils.openOutputStream(file);
       IOUtils.copy(IOUtils.toInputStream(message), fout);
       fout.close();
-    } catch(Exception ex){
+    } catch (Exception ex) {
       ex.printStackTrace();
     }
-   
+
   }
+
   /**
    * 
    */
   protected static void printHelp() {
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(Messages.getInstance().getString("CommandLineProcessor.INFO_PRINTHELP_CMDLINE"),
-                         Messages.getInstance().getString("CommandLineProcessor.INFO_PRINTHELP_HEADER"),
-                         options,
-                         Messages.getInstance().getString("CommandLineProcessor.INFO_PRINTHELP_FOOTER")
-    );
+    formatter.printHelp(Messages.getInstance().getString("CommandLineProcessor.INFO_PRINTHELP_CMDLINE"), Messages
+        .getInstance().getString("CommandLineProcessor.INFO_PRINTHELP_HEADER"), options, Messages.getInstance()
+        .getString("CommandLineProcessor.INFO_PRINTHELP_FOOTER"));
   }
 }
