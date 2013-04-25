@@ -163,11 +163,11 @@
                                       {{#if unknownType}} <img src="images/generic.png" class="content-icon">       {{/if}}
                                       <span class="pad-left">{{title}}</span>
                                       {{#unless isEmpty}}
-                                      {{#if isFavorite}}
-                                      <img src="images/favorite1.png" class="pull-right content-icon" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;">
-                                      {{else}}
-                                      <img src="images/favorite0.png" class="pull-right content-icon" onclick="controller.markRecentAsFavorite('{{fullPath}}', '{{title}}'); return false;">
-                                      {{/if}}
+                                        {{#if isFavorite}}
+                                          <img src="images/favorite1.png" title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;">
+                                        {{else}}
+                                          <img src="images/favorite0.png" title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.markRecentAsFavorite('{{fullPath}}', '{{title}}'); return false;">
+                                        {{/if}}
                                       {{/unless}}
                                   </a>
                               </li>
@@ -203,7 +203,7 @@
                       {{#if unknownType}} <img src="images/generic.png" class="content-icon">       {{/if}}
                       <span class="pad-left">{{title}}</span>
                       {{#unless isEmpty}}
-                        <img src="images/favorite1.png" class="pull-right content-icon" onclick="controller.unmarkFavorite('{{fullPath}}'); return false;">
+                        <img src="images/favorite1.png" title="{{../../i18n.remove_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.unmarkFavorite('{{fullPath}}'); return false;">
                       {{/unless}}
                     </a>
                   </li>
