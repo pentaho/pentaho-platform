@@ -353,19 +353,27 @@ public class MantleController extends AbstractXulEventHandler {
     refreshPickListMenu(recentMenu, recentPickList);
     refreshPickListMenu(favoriteMenu, favoritePickList);
 
-    recentPickList.addItemsChangedListener(new IFilePickListListener<RecentPickItem>() {
+    recentPickList.addPickListListener(new IFilePickListListener<RecentPickItem>() {
 
       public void itemsChanged(AbstractFilePickList<RecentPickItem> filePickList) {
         refreshPickListMenu(recentMenu, recentPickList);
         recentPickList.save("recent");
       }
+
+      public void onSaveComplete(AbstractFilePickList<RecentPickItem> filePickList) {
+        fireRecentsChangedCallbacks();
+      }
     });
 
-    favoritePickList.addItemsChangedListener(new IFilePickListListener<FavoritePickItem>() {
+    favoritePickList.addPickListListener(new IFilePickListListener<FavoritePickItem>() {
 
       public void itemsChanged(AbstractFilePickList<FavoritePickItem> filePickList) {
         refreshPickListMenu(favoriteMenu, favoritePickList);
         favoritePickList.save("favorites");
+      }
+
+      public void onSaveComplete(AbstractFilePickList<FavoritePickItem> filePickList) {
+        fireFavoritesChangedCallbacks();
       }
     });
   }
@@ -559,9 +567,60 @@ public class MantleController extends AbstractXulEventHandler {
     } 
     $wnd.mantle_selectAdminCatTreeTreeItem = function(treeLabel) { 
       controller.@org.pentaho.mantle.client.ui.xul.MantleController::selectAdminCatTreeTreeItem(Ljava/lang/String;)(treeLabel);      
-    } 
+    }
+    $wnd.mantle_buildFavoritesAndRecent = function(force) {
+      controller.@org.pentaho.mantle.client.ui.xul.MantleController::buildFavoritesAndRecent(Z)(force);
+    }
+
+    $wnd.mantle_initExternalCallbacks = function() {
+      if(!$wnd.externalCallbacks) {
+        $wnd.externalCallbacks = {
+          favoritesChanged: [],
+          recentsChanged: []
+        };
+      }
+    }
+
+    $wnd.mantle_addFavoritesChangedCallback = function(callback) {
+      $wnd.mantle_initExternalCallbacks();
+      $wnd.externalCallbacks.favoritesChanged.push(callback);
+    }
+    $wnd.mantle_addRecentsChangedCallback = function(callback) {
+      $wnd.mantle_initExternalCallbacks();
+      $wnd.externalCallbacks.recentsChanged.push(callback);
+    }
+
   }-*/;
-  
+
+
+  /**
+   * If any external listeners have been registered, notify them that favorites have changed
+   */
+  private native void fireFavoritesChangedCallbacks() /*-{
+    if($wnd.externalCallbacks && $wnd.externalCallbacks.favoritesChanged) {
+      for(var i = 0; i < $wnd.externalCallbacks.favoritesChanged.length; i++) {
+        var callback = $wnd.externalCallbacks.favoritesChanged[i];
+        if(typeof(callback) == 'function') {
+          callback();
+        }
+      }
+    }
+  }-*/;
+
+  /**
+   * If any external listeners have been registered, notify them that recents have changed
+   */
+  private native void fireRecentsChangedCallbacks() /*-{
+    if($wnd.externalCallbacks && $wnd.externalCallbacks.recentsChanged) {
+      for(var i = 0; i < $wnd.externalCallbacks.recentsChanged.length; i++) {
+        var callback = $wnd.externalCallbacks.recentsChanged[i];
+        if(typeof(callback) == 'function') {
+          callback();
+        }
+      }
+    }
+  }-*/;
+
   public void enableUsersRolesTreeItem(boolean enabled) {
     MantleXul.getInstance().enableUsersRolesTreeItem(enabled);
   }

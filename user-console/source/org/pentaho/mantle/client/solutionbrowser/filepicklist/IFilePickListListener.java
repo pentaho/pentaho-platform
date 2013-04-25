@@ -22,5 +22,6 @@ package org.pentaho.mantle.client.solutionbrowser.filepicklist;
 public interface IFilePickListListener<T extends IFilePickItem> {
 
 	public void itemsChanged(AbstractFilePickList<T> filePickList);
+  public void onSaveComplete(AbstractFilePickList<T> filePickList);
   
 }

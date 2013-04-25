@@ -416,9 +416,16 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       $wnd.mantle_confirmBackgroundExecutionDialog = function (url) {
         solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::confirmBackgroundExecutionDialog(Ljava/lang/String;)(url);
       }
-      $wnd.openRepositoryFile = function(pathToFile, mode) {
+      $wnd.mantle_openRepositoryFile = function(pathToFile, mode) {
         solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::openFile(Ljava/lang/String;Ljava/lang/String;)(pathToFile, mode);
       }
+      $wnd.mantle_addFavorite = function(pathToFile, title) {
+        solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::addFavorite(Ljava/lang/String;Ljava/lang/String;)(pathToFile, title);
+      }
+      $wnd.mantle_removeFavorite = function(pathToFile) {
+        solutionNavigator.@org.pentaho.mantle.client.solutionbrowser.SolutionBrowserPanel::removeFavorite(Ljava/lang/String;)(pathToFile);
+      }
+
     }-*/;
 
   public void confirmBackgroundExecutionDialog(final String url) {
