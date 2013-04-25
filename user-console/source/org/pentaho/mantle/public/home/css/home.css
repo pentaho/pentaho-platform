@@ -65,3 +65,7 @@ button.btn-large.btn-block {
   text-align: center;
   vertical-align: middle;
 }
+
+.empty-panel .pentaho-button {
+  font-size: .9em;
+}

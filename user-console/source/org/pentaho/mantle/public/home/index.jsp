@@ -159,24 +159,30 @@
                     <ul class="nav nav-tabs nav-stacked">
                       {{#eachRecent recent}}
                         <li>
-                          <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')">
-                            {{#if xanalyzer}}   <img src="images/analyzer.png" class="content-icon">   {{/if}}
-                            {{#if xdash}}       <img src="images/dashboard.png" class="content-icon">  {{/if}}
-                            {{#if xcdf}}        <img src="images/cdf.png" class="content-icon">        {{/if}}
-                            {{#if prpti}}       <img src="images/pir.png" class="content-icon">        {{/if}}
-                            {{#if prpt}}        <img src="images/pir.png" class="content-icon">        {{/if}}
-                            {{#if xaction}}     <img src="images/xaction.png" class="content-icon">    {{/if}}
-                            {{#if url}}         <img src="images/url.png" class="content-icon">        {{/if}}
-                            {{#if html}}        <img src="images/url.png" class="content-icon">        {{/if}}
-                            {{#if unknownType}} <img src="images/generic.png" class="content-icon">       {{/if}}
-                            <span class="pad-left">{{title}}</span>
-                            {{#unless isEmpty}}
-                              {{#if isFavorite}}
-                                <img src="images/favorite1.png" title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;">
-                              {{else}}
-                                <img src="images/favorite0.png" title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.markRecentAsFavorite('{{fullPath}}', '{{title}}'); return false;">
-                              {{/if}}
-                            {{/unless}}
+                          <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')" title='{{title}}'>
+                            <div class="row-fluid">
+                              <div class="span10 ellipsis">
+                                {{#if xanalyzer}}   <img src="images/analyzer.png" class="content-icon">    {{/if}}
+                                {{#if xdash}}       <img src="images/dashboard.png" class="content-icon">   {{/if}}
+                                {{#if xcdf}}        <img src="images/cdf.png" class="content-icon">         {{/if}}
+                                {{#if prpti}}       <img src="images/pir.png" class="content-icon">         {{/if}}
+                                {{#if prpt}}        <img src="images/prpt.png" class="content-icon">        {{/if}}
+                                {{#if xaction}}     <img src="images/xaction.png" class="content-icon">     {{/if}}
+                                {{#if url}}         <img src="images/url.png" class="content-icon">         {{/if}}
+                                {{#if html}}        <img src="images/html.png" class="content-icon">        {{/if}}
+                                {{#if unknownType}} <img src="images/generic.png" class="content-icon">     {{/if}}
+                                <span class="pad-left">{{title}}</span>
+                              </div>
+                              <div class="span2">
+                                {{#unless isEmpty}}
+                                  {{#if isFavorite}}
+                                    <img src="images/favorite1.png" title="{{../../../i18n.remove_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.unmarkRecentAsFavorite('{{fullPath}}'); return false;">
+                                  {{else}}
+                                    <img src="images/favorite0.png" title="{{../../../i18n.add_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.markRecentAsFavorite('{{fullPath}}', '{{title}}'); return false;">
+                                  {{/if}}
+                                {{/unless}}
+                              </div>
+                            </div>
                           </a>
                         </li>
                       {{/eachRecent}}
@@ -208,20 +214,26 @@
                   <ul class="nav nav-tabs nav-stacked">
                     {{#eachFavorite favorites}}
                       <li>
-                        <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')">
-                          {{#if xanalyzer}}   <img src="images/analyzer.png" class="content-icon">   {{/if}}
-                          {{#if xdash}}       <img src="images/dashboard.png" class="content-icon">  {{/if}}
-                          {{#if xcdf}}        <img src="images/cdf.png" class="content-icon">        {{/if}}
-                          {{#if prpti}}       <img src="images/pir.png" class="content-icon">        {{/if}}
-                          {{#if prpt}}        <img src="images/pir.png" class="content-icon">        {{/if}}
-                          {{#if xaction}}     <img src="images/xaction.png" class="content-icon">    {{/if}}
-                          {{#if url}}         <img src="images/url.png" class="content-icon">        {{/if}}
-                          {{#if html}}        <img src="images/url.png" class="content-icon">        {{/if}}
-                          {{#if unknownType}} <img src="images/generic.png" class="content-icon">    {{/if}}
-                          <span class="pad-left">{{title}}</span>
-                          {{#unless isEmpty}}
-                            <img src="images/favorite1.png" title="{{../../i18n.remove_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.unmarkFavorite('{{fullPath}}'); return false;">
-                          {{/unless}}
+                        <a href="javascript:Home.openRepositoryFile('{{fullPath}}', 'run')" title='{{title}}'>
+                          <div class="row-fluid">
+                            <div class="span10 ellipsis">
+                              {{#if xanalyzer}}   <img src="images/analyzer.png" class="content-icon">   {{/if}}
+                              {{#if xdash}}       <img src="images/dashboard.png" class="content-icon">  {{/if}}
+                              {{#if xcdf}}        <img src="images/cdf.png" class="content-icon">        {{/if}}
+                              {{#if prpti}}       <img src="images/pir.png" class="content-icon">        {{/if}}
+                              {{#if prpt}}        <img src="images/prpt.png" class="content-icon">       {{/if}}
+                              {{#if xaction}}     <img src="images/xaction.png" class="content-icon">    {{/if}}
+                              {{#if url}}         <img src="images/url.png" class="content-icon">        {{/if}}
+                              {{#if html}}        <img src="images/html.png" class="content-icon">       {{/if}}
+                              {{#if unknownType}} <img src="images/generic.png" class="content-icon">    {{/if}}
+                              <span class="pad-left">{{title}}</span>
+                            </div>
+                            <div class="span2">
+                              {{#unless isEmpty}}
+                                <img src="images/favorite1.png" title="{{../../i18n.remove_favorite_tooltip}}" class="pull-right content-icon" onclick="controller.unmarkFavorite('{{fullPath}}'); return false;">
+                              {{/unless}}
+                            </div>
+                          </div>
                         </a>
                       </li>
                     {{/eachFavorite}}
