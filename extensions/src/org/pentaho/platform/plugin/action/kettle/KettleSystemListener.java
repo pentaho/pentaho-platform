@@ -33,7 +33,7 @@ import org.pentaho.di.cluster.SlaveServer;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.CentralLogStore;
+import org.pentaho.di.core.logging.KettleLogStore;
 import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.www.CarteSingleton;
@@ -59,7 +59,7 @@ public class KettleSystemListener implements IPentahoSystemListener {
   public boolean startup(final IPentahoSession session) {
     
     if (usePlatformLogFile) {
-      CentralLogStore.init(false, false);
+      KettleLogStore.init(false, false);
       initLogging();
     }
     
@@ -113,7 +113,7 @@ public class KettleSystemListener implements IPentahoSystemListener {
       if (appender instanceof org.apache.log4j.FileAppender) {
         
         Log4jForwardingKettleLoggingEventListener listener = new Log4jForwardingKettleLoggingEventListener(appender);
-        CentralLogStore.getAppender().addLoggingEventListener(listener);
+        KettleLogStore.getAppender().addLoggingEventListener(listener);
       }
     }
   }

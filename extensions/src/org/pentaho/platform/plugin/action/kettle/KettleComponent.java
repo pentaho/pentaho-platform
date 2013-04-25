@@ -37,7 +37,7 @@ import org.pentaho.commons.connection.memory.MemoryResultSet;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.logging.CentralLogStore;
+import org.pentaho.di.core.logging.KettleLogStore;
 import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.logging.LogLevel;
 import org.pentaho.di.core.logging.LoggingObjectInterface;
@@ -608,7 +608,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
   private void cleanLogChannel(LoggingObjectInterface loi) {
     try {
       cleanLogChannelFromMap(loi);
-      CentralLogStore.getAppender().removeChannelFromBuffer(loi.getLogChannelId());
+      KettleLogStore.getAppender().removeChannelFromBuffer(loi.getLogChannelId());
     } catch (Exception ignored) {}; // Nothing I can do here...
   }
   
@@ -894,7 +894,7 @@ public class KettleComponent extends ComponentBase implements RowListener {
   }
   
   private String getKettleLog(boolean includeGeneral) {
-    StringBuffer logText = CentralLogStore.getAppender().getBuffer(logChannelId, includeGeneral);
+    StringBuffer logText = KettleLogStore.getAppender().getBuffer(logChannelId, includeGeneral);
     return logText.toString();
   }
 
