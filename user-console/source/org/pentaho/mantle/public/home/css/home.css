@@ -1,5 +1,5 @@
 .widget-panel {
-	height: 240px;
+	min-height: 240px;
 }
 
 .main-container {
@@ -62,6 +62,11 @@ button.btn-large.btn-block {
 .empty-panel .centered {
   padding: 10px;
   display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.centered {
   text-align: center;
   vertical-align: middle;
 }
