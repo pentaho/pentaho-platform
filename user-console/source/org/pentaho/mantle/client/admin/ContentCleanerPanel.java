@@ -86,8 +86,12 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
 
         public void onResponseReceived(Request request, Response response) {
           final TextBox nowTextBox = new TextBox();
+          nowTextBox.setWidth("30px");
+          nowTextBox.getElement().getStyle().setPaddingTop(5, Unit.PX);
+          nowTextBox.getElement().getStyle().setPaddingBottom(5, Unit.PX);
+          nowTextBox.getElement().getStyle().setMarginLeft(5, Unit.PX);
+          nowTextBox.getElement().getStyle().setMarginRight(5, Unit.PX);
           final TextBox scheduleTextBox = new TextBox();
-          nowTextBox.setVisibleLength(4);
           scheduleTextBox.setVisibleLength(4);
 
           JsJob tmpJsJob = parseJsonJob(JsonUtils.escapeJsonForEval(response.getText()));
@@ -132,15 +136,13 @@ public class ContentCleanerPanel extends DockPanel implements ISysAdminPanel {
           nowLabelPanel.getElement().getStyle().setPaddingBottom(10, Unit.PX);
           
           Label deleteGeneratedFilesOlderThan = new Label(Messages.getString("deleteGeneratedFilesOlderThan"));
-          deleteGeneratedFilesOlderThan.getElement().getStyle().setPaddingTop(3, Unit.PX);
+          deleteGeneratedFilesOlderThan.getElement().getStyle().setPaddingTop(7, Unit.PX);
           nowLabelPanel.add(deleteGeneratedFilesOlderThan);
-          
-          
           
           nowLabelPanel.add(nowTextBox);
           nowTextBox.setText("180");
           Label days = new Label(Messages.getString("daysDot"));
-          days.getElement().getStyle().setPaddingTop(3, Unit.PX);
+          days.getElement().getStyle().setPaddingTop(7, Unit.PX);
           nowLabelPanel.add(days);
           Button deleteNowButton = new Button(Messages.getString("deleteNow"));
           deleteNowButton.setStylePrimaryName("pentaho-button");
