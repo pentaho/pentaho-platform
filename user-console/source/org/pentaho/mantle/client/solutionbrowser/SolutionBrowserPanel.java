@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.Style;
@@ -79,6 +80,8 @@ public class SolutionBrowserPanel extends HorizontalPanel {
 
   private final int defaultSplitPosition = 220; //$NON-NLS-1$
 
+  private int cacheHeight=0;
+  private int cacheWidth=0;
   private SplitLayoutPanel solutionNavigatorAndContentPanel = new SplitLayoutPanel(){
     @Override
     public void onResize() {
@@ -102,9 +105,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private PickupDragController dragController;
   private List<String> executableFileExtensions = new ArrayList<String>();
   private SolutionBrowserClipboard clipboard = new SolutionBrowserClipboard();
-
-  private Element vSplitter;
-  private Element hSplitter;
 
   private Command ToggleLocalizedNamesCommand = new Command() {
     public void execute() {
@@ -191,6 +191,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     return instance;
   }
 
+
+  private static native void consoleLogger(String log)
+    /*-{
+         console.log(log);
+    }-*/;
+
+
   private void buildUI() {
     FlowPanel topPanel = new FlowPanel();
     SimplePanel toolbarWrapper = new SimplePanel();
@@ -204,62 +211,29 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorPanel.addNorth(topPanel, 500);
     solutionNavigatorPanel.add(filesListPanel);
 
-
-    /*
-     * BISERVER-6181 - - add padding to bottom of file list panel. add a css class to allow us to override inline styles to add the padding
-     */
-    filesListPanel.getElement().getParentElement().addClassName("filter-list-panel-container");
-
     solutionNavigatorAndContentPanel.setStyleName("puc-horizontal-split-panel");
     solutionNavigatorAndContentPanel.addWest(solutionNavigatorPanel,300);
     solutionNavigatorAndContentPanel.add(contentPanel);
     solutionNavigatorAndContentPanel.getElement().setAttribute("id", "solutionNavigatorAndContentPanel");
 
 
-
-
-    // handle resizing the content panel on splitter move
-//    solutionNavigatorAndContentPanel.addHandler(new MouseMoveHandler() {
-//      @Override
-//      public void onMouseMove(MouseMoveEvent event) {
-//        if (solutionNavigatorAndContentPanel.isResizing()) {
-//          wasResized = true;
-//          adjustWidth();
-//        }
-//      }
-//    }, MouseMoveEvent.getType());
-//
-//    // IE doesn't always keep up with the mouse move eventing, lets adjust with width after they are done resizing
-//    if (Window.Navigator.getUserAgent().toLowerCase().indexOf("msie") != -1) {
-//      solutionNavigatorAndContentPanel.addHandler(new MouseUpHandler() {
-//        @Override
-//        public void onMouseUp(MouseUpEvent mouseUpEvent) {
-//          if (wasResized) {
-//            wasResized = false;
-//            Timer t = new Timer() {
-//              public void run() {
-//                adjustWidth();
-//              }
-//            };
-//            t.schedule(200);
-//          }
-//        }
-//      }, MouseUpEvent.getType());
-//    }
-//
     Window.addResizeHandler(new ResizeHandler() {
       @Override
       public void onResize(ResizeEvent event) {
-        adjustWidth();
-        setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(), -186);
-       // setElementHeightOffset(solutionNavigatorPanel.getElement(),-185);
-       // setElementHeightOffset(solutionNavigatorPanel.getElement(),-185);
 
+
+        int delay = 200; //milliseconds
+
+        Timer t = new Timer() {
+          public void run() {
+              adjustWidth();
+              setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(),-190);
+          }
+        };
+        t.schedule(delay);
       }
     });
 
-
-//
     @SuppressWarnings("rawtypes")
     NodeList possibleChildren = solutionNavigatorAndContentPanel.getElement().getElementsByTagName("table");
     for (int i = 0; i < possibleChildren.getLength(); i++) {
@@ -314,87 +288,24 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     showContent();
 
     solutionNavigatorAndContentPanel.getWidget(1).setWidth("100%");
-    setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(), -190);
+    adjustContentPanelHeight();
 
-
-//    // BISERVER-6208 Files List panel behaves badly in Safari
-//    if (Window.Navigator.getUserAgent().toLowerCase().indexOf("webkit") != -1) {
-//      Timer t = new Timer() {
-//        public void run() {
-//          String left = DOM.getElementById("pucHorizontalSplitter").getParentElement().getStyle().getLeft();
-//          if (left.indexOf("px") != -1) {
-//            left = left.substring(0, left.indexOf("px"));
-//          }
-//          int leftInt = 0;
-//          try {
-//            leftInt = Integer.parseInt(left);
-//          } catch (NumberFormatException nfe) {
-//            leftInt = 0;
-//          }
-//          if (leftInt <= 0) {
-//            setNavigator
-//Showing(false);
-//          }
-//        }
-//      };
-//      t.scheduleRepeating(1000);
-//    }
   }
 
-  @Override
-  public void onBrowserEvent(Event event) {
-    switch (DOM.eventGetType(event)) {
 
-      case Event.ONMOUSEDOWN: {
-        break;
-      }
 
-      case Event.ONMOUSEUP: {
-        DOM.releaseCapture(getElement());
-        break;
-      }
+  private void adjustContentPanelHeight(){
 
-      case Event.ONMOUSEOUT: {
-        DOM.releaseCapture(getElement());
-        break;
-      }
+  int delay = 200; //milliseconds
 
-      case Event.ONMOUSEMOVE: {
-        if (isMouseDown) {
-
-          if (hSplitter == null) {
-            hSplitter = DOM.getElementById("pucHorizontalSplitter");
-          }
-          if (vSplitter == null) {
-            vSplitter = DOM.getElementById("pucVerticalSplitter");
-          }
-
-          String left = hSplitter.getParentElement().getStyle().getLeft();
-          if (left.indexOf("px") != -1) {
-            left = left.substring(0, left.indexOf("px"));
-          }
-          int leftInt = Integer.parseInt(left);
-          if (leftInt > 0) {
-           // solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
-            solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
-          }
-          if (leftInt <= 50) {
-            if (vSplitter != null) {
-              ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage("");
-            }
-          } else {
-            if (vSplitter != null) {
-              if (!pucVerticalSplitterImg.equals(((Element) vSplitter.getChild(0)).getStyle().getBackgroundImage())) {
-                ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
-              }
-            }
-          }
+      Timer t = new Timer() {
+        public void run() {
+          adjustWidth();
+          setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(),-190);
         }
-        break;
-      }
+      };
+      t.schedule(delay);
 
-    }
-    super.onBrowserEvent(event);
   }
 
   private static void setupNativeHooks() {
@@ -638,7 +549,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
               JSONObject executableType = (JSONObject) jsonList.get(i);
               executableFileExtensions.add(executableType.get("extension").isString().stringValue());
             }
-            // List<String> workspaceFiles = parseWorkspaceFiles(response.getText());
           } else {
             // showServerError(response);
           }
@@ -795,8 +705,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       console.log("setting ele:" + ele + " to: " + offSetHeight);
   }-*/;
 
-
-
   private void adjustWidth() {
 
       int splitterWidth = solutionNavigatorAndContentPanel.getSplitterSize();
@@ -806,7 +714,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
           contentTabPanel.setWidth(width + "px");
         }
   }
-
 
   private void adjustWidth(int offsetWidth) {
 
