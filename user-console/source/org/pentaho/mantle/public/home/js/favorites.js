@@ -19,24 +19,24 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
     serviceUrl: "api/user-settings/favorites",
     favoritesUrl: "api/user-settings/favorites",
     spinContainer: "favoritesSpinner",
+
+    // assume this will be supplied by the controller via configuration
     i18nMap: undefined,
+
     helperRegistered: false,
-    confirmTemplate: {
-      id: "confirmationDialogTemplate",
-      container: "confirmClearAll",
-      message: ""
+
+    knownExtensions: {
+      xanalyzer: "xanalyzer",
+      prpt: "prpt",
+      prpti: "prpti",
+      xaction: "xaction",
+      url: "url",
+      xdash: "xdash",
+      xcdf: "xcdf",
+      html: "html"
     },
 
     init: function() {
-      var that = this;
-
-      $.i18n.properties({
-        name: 'messages',
-        mode: 'map',
-        callback: function () {
-          that.i18nMap = $.i18n.map;
-        }
-      });
     },
 
     /**
@@ -52,7 +52,11 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
             var repositoryPath = context[i].fullPath;
             if(repositoryPath) {
               var extension = repositoryPath.substr( (repositoryPath.lastIndexOf('.') +1) );
-              context[i][extension] = true;
+              if(extension && that.knownExtensions[extension]) {
+                context[i][extension] = true;
+              } else {
+                context[i].unknownType = true;
+              }
             }
             context[i].isEmpty = isEmpty;
             context[i].isFavorite = that.isItemAFavorite(context[i].fullPath);
@@ -77,7 +81,8 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       return (context.length == 0 || (context.length == 1 && context[0].title == this.i18nMap.emptyList));
     },
 
-    load: function() {
+    load: function(/*Optional|Function*/callback) {
+      this._contentRefreshed = callback;
       this._beforeLoad();
       this.registerHelper();
       var context = {};
@@ -112,10 +117,13 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
 
         success: function(result) {
           callback(result)
+          if(that._contentRefreshed) {
+            that._contentRefreshed();
+          }
         },
 
         error: function(err) {
-          console.log("Error getting " + that.name + " - " + err);
+          console.log(that.i18nMap["error_could_not_get" + that.name] + " - " + err);
         },
 
         beforeSend: function() {
@@ -123,6 +131,10 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
         }
 
       });
+    },
+
+    _contentRefreshed: function() {
+
     },
 
     doClear: function(callback) {
@@ -143,7 +155,7 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
         },
 
         error: function(err) {
-          console.log("Error clearing " + that.name + " - " + err);
+          console.log(that.i18nMap["error_could_not_clear_" + that.name] + " - " + err);
         },
 
         beforeSend: function() {
@@ -195,26 +207,7 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
     },
 
     clear: function(callback) {
-      if(!this.confirmTemplate.html) {
-        this.confirmTemplate.html = $("#" + this.confirmTemplate.id).html();
-      }
-      var template = Handlebars.compile(this.confirmTemplate.html);
-      var context = {}
-      context.i18n = this.i18nMap;
-      context.clearMessage = this.confirmTemplate.message;
-      context.confirmBtnId = "clear-all-" + this.name;
-      var html = template(context);
-      $("#" + this.confirmTemplate.container).html(html);
-
-      var that = this;
-      $("#" + this.confirmTemplate.container).modal('show');
-      $("#clear-all-"+this.name).click(function() {
-        // clear the items
-        that.doClear(callback);
-        // dismiss the dialog
-        $("#" + that.confirmTemplate.container).modal('hide');
-      });
-
+      this.doClear(callback);
     },
 
     /**
@@ -234,57 +227,24 @@ pen.define(["common-ui/util/PentahoSpinner"], function(spin) {
       return this.currentItems;
     },
 
-    unmarkFavorite: function(fullPath, callback) {
-      var faves = this.getFavorites();
-      var found = this.indexOfFavorite(fullPath);
-      if(found >= 0) {
-        faves.splice(found, 1);
-        var that = this;
-        $.ajax({
-          url: that.getUrlBase() + that.favoritesUrl,
-          type: 'POST',
-          data: (JSON.stringify(faves)),
-
-          success: function(result) {
-            that.load();
-            if(callback) {
-              callback();
-            }
-          },
-
-          error: function(err) {
-            console.log("Error removing a favorite - " + err);
-          }
-        });
+    unmarkFavorite: function(fullPath) {
+      //let mantle add the favorite
+      if(window.parent.mantle_removeFavorite) {
+        window.parent.mantle_removeFavorite(fullPath);
+      } else {
+        console.log(this.i18nMap.error_could_not_unmark_favorite);
       }
-
     },
-    markFavorite: function(fullPath, callback) {
-      var items = this.getCurrentItems();
-      var faves = this.getFavorites() ? this.getFavorites() : [];
-      var idx = this.indexOf(fullPath);
-      if(idx >= 0) {
-        faves.push(items[idx]);
+
+    markFavorite: function(fullPath, title) {
+      //let mantle add the favorite
+      if(window.parent.mantle_addFavorite) {
+        window.parent.mantle_addFavorite(fullPath, title);
+      } else {
+        console.log(this.i18nMap.error_could_not_mark_favorite);
       }
-      var that = this;
-      $.ajax({
-        url: that.getUrlBase() + that.favoritesUrl,
-        type: 'POST',
-        data: (JSON.stringify(faves)),
-
-        success: function(result) {
-          that.load();
-          if(callback) {
-            callback();
-          }
-        },
-
-        error: function(err) {
-          console.log("Error adding a favorite - " + err);
-        }
-      });
-
     },
+
     indexOf: function(fullPath) {
       var items = this.getCurrentItems();
       var index = -1;

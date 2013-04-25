@@ -46,3 +46,26 @@ button.btn-large.btn-block {
 	margin-right: auto;
 	margin-top: 80px;;
 }
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.empty-panel {
+  border: 2px dashed #cac3ba;
+  border-radius: 5px;
+  width: 100%;
+  height: 100%;
+  display: table;
+}
+.empty-panel .centered {
+  padding: 10px;
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.empty-panel .pentaho-button {
+  font-size: .9em;
+}

@@ -107,7 +107,7 @@ pen.define([], function() {
 
 		// show the opened perspective
 		parent.mantle_setPerspective('default.perspective');
-		window.parent.openRepositoryFile(path, mode);
+		window.parent.mantle_openRepositoryFile(path, mode);
 	}
 
 	function initFavoritesAndRecents(config) {

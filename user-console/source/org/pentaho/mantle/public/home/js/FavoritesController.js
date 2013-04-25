@@ -3,6 +3,7 @@ pen.define(["home/favorites"], function(Favorites) {
   var local = {
     recents: undefined,
     favorites: undefined,
+    i18nMap: undefined,
     favoritesUrl: "api/user-settings/favorites",
 
     favoritesConfig: {
@@ -16,11 +17,6 @@ pen.define(["home/favorites"], function(Favorites) {
       serviceUrl: this.favoritesUrl,
       favoritesUrl: this.favoritesUrl,
       spinContainer: "favoritesSpinner",
-      confirmTemplate: {
-        id: "confirmationDialogTemplate",
-        container: "confirmClearAll",
-        message: ""
-      },
       disabled: false
     },
 
@@ -35,11 +31,6 @@ pen.define(["home/favorites"], function(Favorites) {
       serviceUrl: "api/user-settings/recent",
       favoritesUrl: this.favoritesUrl,
       spinContainer: "recentsSpinner",
-      confirmTemplate: {
-        id: "confirmationDialogTemplate",
-        container: "confirmClearAll",
-        message: ""
-      },
       disabled: false,
 
       _beforeLoad: function() {
@@ -62,7 +53,7 @@ pen.define(["home/favorites"], function(Favorites) {
               }
             },
             error: function(err) {
-              console.log("Error getting favorites - " + err);
+              console.log(that.i18nMap.error_could_not_get_favorites + " -- " + err);
             }
           });
         }
@@ -81,10 +72,12 @@ pen.define(["home/favorites"], function(Favorites) {
     },
 
     init: function(config) {
-      this.favoritesConfig.confirmTemplate.message = config.i18nMap.confirmClearFavorites;
+      this._registerCallbacks();
+      this.i18nMap = config.i18nMap;
       this.favoritesConfig.disabled = config.favoritesDisabled;
-      this.recentsConfig.confirmTemplate.message = config.i18nMap.confirmClearRecents;
+      this.favoritesConfig.i18nMap = config.i18nMap;
       this.recentsConfig.disabled = config.recentsDisabled;
+      this.recentsConfig.i18nMap = config.i18nMap;
       this.refreshAll();
     },
 
@@ -93,10 +86,10 @@ pen.define(["home/favorites"], function(Favorites) {
       this.loadRecents();
     },
 
-    loadFavorites: function() {
+    loadFavorites: function(/*Optional|Function*/callback) {
       this.favorites = new Favorites();
       $.extend(this.favorites, this.favoritesConfig);
-      this.favorites.load();
+      this.favorites.load(callback);
     },
 
     loadRecents: function() {
@@ -115,19 +108,55 @@ pen.define(["home/favorites"], function(Favorites) {
       $.extend(favorites, this.favoritesConfig);
       favorites.clear($.proxy(this.loadRecents, this));
     },
-    markRecentAsFavorite: function(fullPath) {
-      this.recents.markFavorite(fullPath, $.proxy(this.loadFavorites, this));
+    markRecentAsFavorite: function(fullPath, title) {
+      this.recents.markFavorite(fullPath, title);
+      this.favoritesActionSource = 'recents';
     },
     unmarkRecentAsFavorite: function(fullPath) {
-      this.recents.unmarkFavorite(fullPath, $.proxy(this.loadFavorites, this));
+      this.recents.unmarkFavorite(fullPath);
+      this.favoritesActionSource = 'recents';
     },
     unmarkFavorite: function(fullPath) {
-      if(this.recents.indexOf(fullPath) >= 0) {
-        // if the favorite is also in the recents list, make sure it get updated too
-        this.favorites.unmarkFavorite(fullPath, $.proxy(this.loadRecents, this));
+      this.favorites.unmarkFavorite(fullPath);
+      this.favoritesActionSource = 'favorites';
+    },
+
+    onRecentsChanged: function() {
+      this.loadRecents();
+    },
+    onFavoritesChanged: function() {
+      this.loadFavorites($.proxy(this._possiblyReloadRecents, this));
+    },
+
+    _possiblyReloadRecents: function() {
+      if(this.favoritesActionSource && this.favoritesActionSource == 'favorites') {
+        var that = this;
+        // check our recents, if they any are marked as favorite and not in the favorites list... refresh the recents
+        var recentItems = this.recents.getCurrentItems();
+        $.each(recentItems, function(idx, recent) {
+          if(that.recents.isItemAFavorite(recent.fullPath)) {
+            if(that.favorites.indexOf(recent.fullPath) < 0) {
+              that.loadRecents();
+              return false;
+            }
+          }
+        });
       } else {
-        this.favorites.unmarkFavorite(fullPath);
+        // recents widget was the originator of the favorites action, refresh it
+        this.loadRecents();
       }
+
+      this.favoritesActionSource = undefined;
+    },
+
+    _registerCallbacks: function() {
+      if(window.parent.mantle_addFavoritesChangedCallback) {
+        window.parent.mantle_addFavoritesChangedCallback(this.onFavoritesChanged.bind(this));
+      }
+      if(window.parent.mantle_addRecentsChangedCallback) {
+        window.parent.mantle_addRecentsChangedCallback(this.onRecentsChanged.bind(this));
+      }
+
     }
 
 };
