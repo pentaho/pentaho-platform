@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <%@page import="java.util.Locale"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.pentaho.platform.util.messages.LocaleHelper"%>
@@ -105,26 +106,14 @@
 	-->
 	
 	<!-- Standard -->
-	<table cellspacing="0" cellpadding="0" style="width: 100%; height: 100%">
-		<tr>
-			<td>
-				<table cellspacing="0" cellpadding="0" >
-					<tr>
-						<td id="pucMenuBar" style="width:100%"></td>
-						<td id="pucPerspectives"></td>
-					</tr>
-				</table>
-			</td>
-		</tr>
-
-		<tr>
-			<td id="pucToolBar"></td>
-		</tr>
-		
-		<tr>
-			<td id="pucContent" style="width:100%;height:100%"></td>
-		</tr>
-	</table>
+    <div cellspacing="0" cellpadding="0" style="width: 100%; height: 100%;">
+        <div cellspacing="0" cellpadding="0" style="display:inline-block;width:100%;background-color:#000;">
+            <div id="pucMenuBar" style="display:inline-block"></div>
+            <div id="pucPerspectives" style="display:inline-block;float:right;"></div>
+        </div>
+        <div id="pucToolBar"></div>
+        <div id="pucContent" style="width:100%;height:100%"></div>
+    </div>
 
 	<!-- Toolbar On Top -->
 	<!-- 

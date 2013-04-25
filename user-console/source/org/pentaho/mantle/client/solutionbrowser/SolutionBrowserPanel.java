@@ -22,12 +22,14 @@ package org.pentaho.mantle.client.solutionbrowser;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
-import com.google.gwt.event.dom.client.MouseUpEvent;
-import com.google.gwt.event.dom.client.MouseUpHandler;
+
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.user.client.ui.*;
 import org.pentaho.gwt.widgets.client.dialogs.IDialogCallback;
 import org.pentaho.gwt.widgets.client.dialogs.MessageDialogBox;
 import org.pentaho.gwt.widgets.client.dialogs.PromptDialogBox;
@@ -38,7 +40,6 @@ import org.pentaho.mantle.client.EmptyRequestCallback;
 import org.pentaho.mantle.client.commands.AbstractCommand;
 import org.pentaho.mantle.client.commands.ExecuteUrlInNewTabCommand;
 import org.pentaho.mantle.client.commands.ShareFileCommand;
-import org.pentaho.mantle.client.images.MantleImages;
 import org.pentaho.mantle.client.messages.Messages;
 import org.pentaho.mantle.client.solutionbrowser.PluginOptionsHelper.ContentTypePlugin;
 import org.pentaho.mantle.client.solutionbrowser.filelist.FileCommand;
@@ -61,9 +62,6 @@ import org.pentaho.mantle.client.ui.tabs.MantleTabPanel;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Node;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -75,34 +73,29 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.HorizontalSplitPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.TreeListener;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.VerticalSplitPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 @SuppressWarnings("deprecation")
 public class SolutionBrowserPanel extends HorizontalPanel {
 
-  private static final String defaultSplitPosition = "220px"; //$NON-NLS-1$
+  private final int defaultSplitPosition = 220; //$NON-NLS-1$
 
-  private HorizontalSplitPanel solutionNavigatorAndContentPanel = new HorizontalSplitPanel(MantleImages.images);
-  private VerticalSplitPanel solutionNavigatorPanel = new VerticalSplitPanel(MantleImages.images);
-  private String pucVerticalSplitterImg;
-  private boolean isMouseDown = false;
+  private int cacheHeight=0;
+  private int cacheWidth=0;
+  private SplitLayoutPanel solutionNavigatorAndContentPanel = new SplitLayoutPanel(){
+    @Override
+    public void onResize() {
+      super.onResize();
+      adjustWidth();
+    }
+  };
+  private SplitLayoutPanel solutionNavigatorPanel = new SplitLayoutPanel();
   private SolutionTree solutionTree = new SolutionTree();
   private FilesListPanel filesListPanel = new FilesListPanel();
   private DeckPanel contentPanel = new DeckPanel();
   private LaunchPanel launchPanel = new LaunchPanel();
+  private boolean isMouseDown=false;
+  private String pucVerticalSplitterImg;
 
   private MantleTabPanel contentTabPanel = new MantleTabPanel(true);
   private boolean showSolutionBrowser = true;
@@ -112,9 +105,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   private PickupDragController dragController;
   private List<String> executableFileExtensions = new ArrayList<String>();
   private SolutionBrowserClipboard clipboard = new SolutionBrowserClipboard();
-
-  private Element vSplitter;
-  private Element hSplitter;
 
   private Command ToggleLocalizedNamesCommand = new Command() {
     public void execute() {
@@ -201,6 +191,13 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     return instance;
   }
 
+
+  private static native void consoleLogger(String log)
+    /*-{
+         console.log(log);
+    }-*/;
+
+
   private void buildUI() {
     FlowPanel topPanel = new FlowPanel();
     SimplePanel toolbarWrapper = new SimplePanel();
@@ -210,54 +207,30 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     topPanel.add(new SolutionTreeWrapper(solutionTree));
 
     solutionNavigatorPanel.setStyleName("puc-vertical-split-panel");
-    solutionNavigatorPanel.setHeight("100%"); //$NON-NLS-1$
-    solutionNavigatorPanel.setTopWidget(topPanel);
-    solutionNavigatorPanel.setBottomWidget(filesListPanel);
+    solutionNavigatorPanel.setWidth("100%");
+    solutionNavigatorPanel.addNorth(topPanel, 500);
+    solutionNavigatorPanel.add(filesListPanel);
 
-    /*
-     * BISERVER-6181 - - add padding to bottom of file list panel. add a css class to allow us to override inline styles to add the padding
-     */
-    filesListPanel.getElement().getParentElement().addClassName("filter-list-panel-container");
-
-    solutionNavigatorPanel.setSplitPosition("60%"); //$NON-NLS-1$
     solutionNavigatorAndContentPanel.setStyleName("puc-horizontal-split-panel");
-    solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
-    solutionNavigatorAndContentPanel.setRightWidget(contentPanel);
+    solutionNavigatorAndContentPanel.addWest(solutionNavigatorPanel,300);
+    solutionNavigatorAndContentPanel.add(contentPanel);
     solutionNavigatorAndContentPanel.getElement().setAttribute("id", "solutionNavigatorAndContentPanel");
 
-    // handle resizing the content panel on splitter move
-    solutionNavigatorAndContentPanel.addHandler(new MouseMoveHandler() {
-      @Override
-      public void onMouseMove(MouseMoveEvent event) {
-        if (solutionNavigatorAndContentPanel.isResizing()) {
-          wasResized = true;
-          adjustWidth();
-        }
-      }
-    }, MouseMoveEvent.getType());
-
-    // IE doesn't always keep up with the mouse move eventing, lets adjust with width after they are done resizing
-    if (Window.Navigator.getUserAgent().toLowerCase().indexOf("msie") != -1) {
-      solutionNavigatorAndContentPanel.addHandler(new MouseUpHandler() {
-        @Override
-        public void onMouseUp(MouseUpEvent mouseUpEvent) {
-          if (wasResized) {
-            wasResized = false;
-            Timer t = new Timer() {
-              public void run() {
-                adjustWidth();
-              }
-            };
-            t.schedule(200);
-          }
-        }
-      }, MouseUpEvent.getType());
-    }
 
     Window.addResizeHandler(new ResizeHandler() {
       @Override
       public void onResize(ResizeEvent event) {
-        adjustWidth();
+
+
+        int delay = 200; //milliseconds
+
+        Timer t = new Timer() {
+          public void run() {
+              adjustWidth();
+              setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(),-190);
+          }
+        };
+        t.schedule(delay);
       }
     });
 
@@ -268,7 +241,7 @@ public class SolutionBrowserPanel extends HorizontalPanel {
       if (child instanceof Element) {
         Element elementChild = (Element) child;
         if (elementChild.getClassName().equalsIgnoreCase("hsplitter")) {
-          elementChild.getParentElement().getStyle().setHeight(100, Unit.PCT);
+          elementChild.getParentElement().getStyle().setHeight(100, Style.Unit.PCT);
           elementChild.setAttribute("id", "pucHorizontalSplitter");
           elementChild.addClassName("pentaho-rounded-panel-top-right");
           elementChild.addClassName("pentaho-shadow-right-side");
@@ -294,7 +267,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     solutionNavigatorPanel.getElement().getParentElement().removeAttribute("style");
 
     contentPanel.setAnimationEnabled(false);
-    contentPanel.add(launchPanel);
     contentPanel.add(contentTabPanel);
     contentPanel.setHeight("100%"); //$NON-NLS-1$
     contentPanel.setWidth("100%"); //$NON-NLS-1$
@@ -308,96 +280,32 @@ public class SolutionBrowserPanel extends HorizontalPanel {
     setStyleName("panelWithTitledToolbar"); //$NON-NLS-1$  
     setHeight("100%"); //$NON-NLS-1$
     setWidth("100%"); //$NON-NLS-1$
+
     add(solutionNavigatorAndContentPanel);
 
     sinkEvents(Event.MOUSEEVENTS);
 
     showContent();
-    ElementUtils.removeScrollingFromSplitPane(solutionNavigatorPanel);
-    ElementUtils.removeScrollingFromUpTo(solutionNavigatorAndContentPanel.getLeftWidget().getElement(), solutionNavigatorAndContentPanel.getElement());
 
-    solutionNavigatorAndContentPanel.getRightWidget().setWidth("100%");
+    solutionNavigatorAndContentPanel.getWidget(1).setWidth("100%");
+    adjustContentPanelHeight();
 
-    // BISERVER-6208 Files List panel behaves badly in Safari
-    if (Window.Navigator.getUserAgent().toLowerCase().indexOf("webkit") != -1) {
-      Timer t = new Timer() {
-        public void run() {
-          String left = DOM.getElementById("pucHorizontalSplitter").getParentElement().getStyle().getLeft();
-          if (left.indexOf("px") != -1) {
-            left = left.substring(0, left.indexOf("px"));
-          }
-          int leftInt = 0;
-          try {
-            leftInt = Integer.parseInt(left);
-          } catch (NumberFormatException nfe) {
-            leftInt = 0;
-          }
-          if (leftInt <= 0) {
-            setNavigatorShowing(false);
-          }
-        }
-      };
-      t.scheduleRepeating(1000);
-    }
   }
 
-  @Override
-  public void onBrowserEvent(Event event) {
-    switch (DOM.eventGetType(event)) {
 
-      case Event.ONMOUSEDOWN: {
-        isMouseDown = true;
-        break;
-      }
 
-      case Event.ONMOUSEUP: {
-        isMouseDown = false;
-        DOM.releaseCapture(getElement());
-        break;
-      }
+  private void adjustContentPanelHeight(){
 
-      case Event.ONMOUSEOUT: {
-        isMouseDown = false;
-        DOM.releaseCapture(getElement());
-        break;
-      }
+  int delay = 200; //milliseconds
 
-      case Event.ONMOUSEMOVE: {
-        if (isMouseDown) {
-
-          if (hSplitter == null) {
-            hSplitter = DOM.getElementById("pucHorizontalSplitter");
-          }
-          if (vSplitter == null) {
-            vSplitter = DOM.getElementById("pucVerticalSplitter");
-          }
-
-          String left = hSplitter.getParentElement().getStyle().getLeft();
-          if (left.indexOf("px") != -1) {
-            left = left.substring(0, left.indexOf("px"));
-          }
-          int leftInt = Integer.parseInt(left);
-          if (leftInt > 0) {
-            solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
-            solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
-          }
-          if (leftInt <= 50) {
-            if (vSplitter != null) {
-              ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage("");
-            }
-          } else {
-            if (vSplitter != null) {
-              if (!pucVerticalSplitterImg.equals(((Element) vSplitter.getChild(0)).getStyle().getBackgroundImage())) {
-                ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
-              }
-            }
-          }
+      Timer t = new Timer() {
+        public void run() {
+          adjustWidth();
+          setElementHeightOffset(solutionNavigatorAndContentPanel.getElement(),-190);
         }
-        break;
-      }
+      };
+      t.schedule(delay);
 
-    }
-    super.onBrowserEvent(event);
   }
 
   private static void setupNativeHooks() {
@@ -641,7 +549,6 @@ public class SolutionBrowserPanel extends HorizontalPanel {
               JSONObject executableType = (JSONObject) jsonList.get(i);
               executableFileExtensions.add(executableType.get("extension").isString().stringValue());
             }
-            // List<String> workspaceFiles = parseWorkspaceFiles(response.getText());
           } else {
             // showServerError(response);
           }
@@ -778,34 +685,43 @@ public class SolutionBrowserPanel extends HorizontalPanel {
   public void setNavigatorShowing(final boolean showSolutionBrowser) {
     this.showSolutionBrowser = showSolutionBrowser;
     if (showSolutionBrowser) {
-      solutionNavigatorAndContentPanel.setLeftWidget(solutionNavigatorPanel);
-      solutionNavigatorAndContentPanel.setSplitPosition(defaultSplitPosition);
       solutionNavigatorPanel.setVisible(true); //$NON-NLS-1$
-      solutionNavigatorPanel.setSplitPosition("60%"); //$NON-NLS-1$
+      solutionNavigatorAndContentPanel.setWidgetSize(solutionNavigatorPanel,defaultSplitPosition);
+      adjustWidth(defaultSplitPosition);
 
-      Element vSplitter = DOM.getElementById("pucVerticalSplitter");
-      if (vSplitter != null) {
-        ((Element) vSplitter.getChild(0)).getStyle().setBackgroundImage(pucVerticalSplitterImg);
-      }
     } else {
-      solutionNavigatorAndContentPanel.setLeftWidget(new SimplePanel());
-      solutionNavigatorAndContentPanel.setSplitPosition("0px"); //$NON-NLS-1$
-      solutionNavigatorPanel.setVisible(false); //$NON-NLS-1$
+      solutionNavigatorAndContentPanel.setWidgetSize(solutionNavigatorPanel,0);
+      solutionNavigatorPanel.setVisible(false);
+      adjustWidth();
     }
-    adjustWidth();
+
   }
+
+
+  public static native String setElementHeightOffset(Element ele, int offset)/*-{
+      var height= ($wnd.top.outerHeight)+offset;
+      var offSetHeight=height+ 'px';
+      ele.style.height = offSetHeight;
+      console.log("setting ele:" + ele + " to: " + offSetHeight);
+  }-*/;
 
   private void adjustWidth() {
 
-    hSplitter = DOM.getElementById("pucHorizontalSplitter");
+      int splitterWidth = solutionNavigatorAndContentPanel.getSplitterSize();
+      int adjustedWidth = solutionNavigatorPanel.getOffsetWidth() + splitterWidth;
+      int width = this.getOffsetWidth() - adjustedWidth;
+        if(width > 0){
+          contentTabPanel.setWidth(width + "px");
+        }
+  }
 
-    // no way to get the computed width in GWT, so we have to get the computed style via JSNI call to custom js.
-    int rightMargin = Integer.valueOf(ElementUtils.getComputedStyle(hSplitter, "margin-right").replace("px", ""));
-    int splitterWidth = (hSplitter == null ? 0 : hSplitter.getOffsetWidth()) + rightMargin;
-    int adjustedWidth = solutionNavigatorAndContentPanel.getLeftWidget().getOffsetWidth() + splitterWidth;
+  private void adjustWidth(int offsetWidth) {
+
+    int splitterWidth = solutionNavigatorAndContentPanel.getSplitterSize();
+    int adjustedWidth = offsetWidth + splitterWidth;
     int width = this.getOffsetWidth() - adjustedWidth;
     if(width > 0){
-    solutionNavigatorAndContentPanel.getRightWidget().setWidth(width + "px");
+      contentTabPanel.setWidth(width + "px");
     }
   }
 
