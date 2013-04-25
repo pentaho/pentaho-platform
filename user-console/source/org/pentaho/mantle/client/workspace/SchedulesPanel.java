@@ -803,10 +803,6 @@ public class SchedulesPanel extends SimplePanel {
     bar.add(scheduleRemoveButton);
     bar.addSpacer(50);
 
-    Label schedulesLabel = new Label(Messages.getString("schedules"));
-    schedulesLabel.setStyleName("workspaceHeading");
-    tableAndPager.add(schedulesLabel);
-    tableAndPager.setCellHorizontalAlignment(schedulesLabel, ALIGN_LEFT);
     tableAndPager.add(bar);
     tableAndPager.add(table);
     tableAndPager.add(pager);

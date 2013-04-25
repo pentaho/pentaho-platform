@@ -774,3 +774,20 @@ a:active, a:hover {
 .launcher-bottom-text{
     line-height: 1.5; padding: 10px 20px 0px 40px; font-size: .8em; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left;"><div style="font-size: 1.2em; color: #FFF; text-shadow: 0px 1px 1px #000; text-align: left
 }
+
+.gwt-ScrollTable .dataTable
+ td {
+	font-family: Tahoma, Helvetica, Arial, sans-serif;
+	font-size: 0.7em;
+	border-spacing: 2px;
+	border-color: gray;
+	padding: 10px;
+}
+.gwt-ScrollTable .headerTable
+ td {
+ 	font-family: Tahoma, Helvetica, Arial, sans-serif;
+	font-size: 0.7em;
+	border-spacing: 2px;
+	padding: 10px 10px 10px 10px;
+	font-weight: bold;
+}
